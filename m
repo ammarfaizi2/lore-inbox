@@ -1,55 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316684AbSHBSqr>; Fri, 2 Aug 2002 14:46:47 -0400
+	id <S316705AbSHBS5C>; Fri, 2 Aug 2002 14:57:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSHBSqr>; Fri, 2 Aug 2002 14:46:47 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:8442 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316684AbSHBSqo>; Fri, 2 Aug 2002 14:46:44 -0400
-Date: Fri, 2 Aug 2002 14:50:14 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: ide in 2.5.30 is busted
-Message-ID: <20020802145014.A29181@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316712AbSHBS5B>; Fri, 2 Aug 2002 14:57:01 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:34316 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316705AbSHBS4I>; Fri, 2 Aug 2002 14:56:08 -0400
+Message-ID: <3D4AD678.7030802@namesys.com>
+Date: Fri, 02 Aug 2002 22:59:04 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: trond.myklebust@fys.uio.no, Steve Lord <lord@sgi.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>	<1028246981.11223.56.camel@snafu>	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>	<1028297194.30192.25.camel@jen.americas.sgi.com>	<3D4AA0E6.9000904@namesys.com>	<shslm7pclrx.fsf@charged.uio.no>	<3D4ABAE7.6000709@namesys.com>	<15690.49267.930478.333263@laputa.namesys.com>	<15690.50598.11204.868852@charged.uio.no>	<15690.51993.704549.209766@laputa.namesys.com>	<3D4AD00C.8060701@namesys.com> <15690.54248.33518.887768@laputa.namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.29 and other kernels are fine on this crashbox, but 2.5.30 falls 
-over immediately after booting with:
+Nikita Danilov wrote:
 
-hdb: ide_dma_intr: status=0x51 [ drive ready,seek complete,error] 
-hdb: ide_dma_intr: error=0x84 [ invalid checksum] 
-hdb: request error, nr. 1
+>Hans Reiser writes:
+> > Nikita Danilov wrote:
+> > 
+> > >Trond Myklebust writes:
+> > > > >>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
+> > > > 
+> > > >      > But there still is a problem with applications (if any) calling
+> > > >      > seekdir/telldir directly...
+> > > > 
+> > > > Agreed. Note however that the semantics for seekdir/telldir as
+> > > > specified by SUSv2 are much weaker than those in our current
+> > > > getdents()+lseek().
+> > > > 
+> > > > >From the Opengroup documentation for seekdir, it states that:
+> > > > 
+> > > >   On systems that conform to the Single UNIX Specification, Version 2,
+> > > >   a subsequent call to readdir() may not be at the desired position if
+> > > >   the value of loc was not obtained from an earlier call to telldir(),
+> > > >   or if a call to rewinddir() occurred between the call to telldir()
+> > > >   and the call to seekdir().
+> > > > 
+> > > > IOW assigning a unique offset to each and every entry in the directory
+> > > > is overkill (unless the user is calling telldir() for all those
+> > > > entries).
+> > >
+> > Forgive the really dumb question, but does this mean we can just store 
+> > the last entry returned to readdir in the directory metadata, and 
+> > completely ignore the value of loc?
+>
+>If application is using readdir, then yes: glibc internally maps readdir
+>into getdents plus at most one lseek on directory for "adjustment"
+>purposes (if I remember correctly, problem is that kernel struct dirent
+>has extra field and glibc cannot tell in advance how many of them will
+>fit into supplied user buffer).
+>
+>But if application uses seekdir(3)/telldir(3) directly---then no.
+>
+It sounds like we could store the loc to key mapping in the file handle 
+(a (partial) key is what reiser4 needs to find a directory entry).  I am 
+trying to understand if we need to store more than one loc to key 
+mapping in the file handle, or if one is enough.  What do people use 
+telldir()/seekdir() for in practice?
 
-and a complete lockup of userland.  The hardware is a standard Dell 
-box running an SMP kernel, no preempt.  IDE boot messages are below.
+>
+> > 
+> > >
+> > >Are you implying some kind of ->telldir() file operation that notifies
+> > >file-system that user has intention to later restart readdir from the
+> > >"current" position and changing glibc to call sys_telldir/sys_seekdir in
+> > >stead of lseek? This will allow file-systems like reiser4 that cannot
+> > >restart readdir from 32bitsful of data to, at least, allocate something
+> > >in kernel on call to ->telldir() and free in ->release().
+> > >
+> > > > 
+> > > > Cheers,
+> > > >   Trond
+> > >
+>
+>Nikita.
+>
+> > >
+> > >
+> > >  
+> > >
+> > 
+> > 
+> > -- 
+> > Hans
+> > 
+> > 
+> > 
+>
+>
+>  
+>
 
-		-ben
+
 -- 
-"You will be reincarnated as a toad; and you will be much happier."
+Hans
 
-ATA/ATAPI device driver v7.0.0
-ATA: PCI bus speed 33.3MHz
-ATA: Intel Corp. 82801AA IDE, PCI slot 00:1f.1
-ATA: chipset rev.: 2
-ATA: non-legacy mode: IRQ probe delayed
-PIIX: Intel Corp. 82801AA IDE UDMA66 controller on pci00:1f.1
-PCI: Setting latency timer of device 00:1f.1 to 64
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-PCI: Setting latency timer of device 00:1f.1 to 64
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: WDC WD100BB-75AUA1, DISK drive
-hdb: WDC WD100BB-75AUA1, DISK drive
-hdc: Lite-On LTN483S 48x Max, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
- hda: 19541088 sectors w/2048KiB Cache, CHS=19386/16/63, UDMA(66)
- hda: hda1 hda2
- hdb: 19541088 sectors w/2048KiB Cache, CHS=19386/16/63, UDMA(66)
- hdb: hdb1 hdb2 < hdb5 hdb6 >
-hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
+
 

@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269455AbRHGU7k>; Tue, 7 Aug 2001 16:59:40 -0400
+	id <S269454AbRHGVDa>; Tue, 7 Aug 2001 17:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269435AbRHGU7a>; Tue, 7 Aug 2001 16:59:30 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:10840 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S269438AbRHGU7S>; Tue, 7 Aug 2001 16:59:18 -0400
-Date: Tue, 7 Aug 2001 23:00:30 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.20pre8aa1
-Message-ID: <20010807230030.B688@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S269438AbRHGVDU>; Tue, 7 Aug 2001 17:03:20 -0400
+Received: from cardinal0.Stanford.EDU ([171.64.15.238]:30376 "EHLO
+	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S269435AbRHGVDK>; Tue, 7 Aug 2001 17:03:10 -0400
+Date: Tue, 7 Aug 2001 14:02:46 -0700 (PDT)
+From: Ted Unangst <tedu@stanford.edu>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Igmar Palsenberg <maillist@jdimedia.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x VM problems thread
+In-Reply-To: <fa.kga80kv.1fk0mqv@ifi.uio.no>
+Message-ID: <Pine.GSO.4.31.0108071401180.5066-100000@cardinal0.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diff between 2.2.20pre7aa1 and 2.2.20pre8aa1:
+On Tue, 7 Aug 2001, Richard B. Johnson wrote:
 
-Moved on top of 2.2.20pre8.
+> Wow a memory-mapped fork bomb! Now what on earth did you expect?
+> Run it from a user-account with ulimits enabled for slightly less
+> than the total system resources. Then complain.
 
-Only in 2.2.20pre7aa1: 00_alpha-epoch-2
-Only in 2.2.20pre8aa1: 00_alpha-mips-rtc-1
+not even mmap'ed.
 
-	Alpha epoch guess updates from Christopher C. Chimelis.
+case 0: break;
+                                tmp = mmap(0, 64 * 4096, PROT_EXEC,
+MAP_SHARED
+| MAP_ANONYMOUS, -1, 0);
 
-Only in 2.2.20pre8aa1: 00_alpha-fp-disabled-1
+the mmap never even gets run.  might as well be for(;;) fork();
 
-	local DoS fix (if fpu disabled via palcode) from Daniel Potts.
 
-Only in 2.2.20pre8aa1: 00_alpha-illop-1
 
-	kill task with illegal opcode from Rick Gorton.
 
-Only in 2.2.20pre8aa1: 00_alpha-smp_tune_scheduling-1
+>
+>
+> Cheers,
+> Dick Johnson
+>
+> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+>
+>     I was going to compile a list of innovations that could be
+>     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+>     was handled in the BIOS, I found that there aren't any.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	Christopher C. Chimelis reported some machine has
-	trouble with the tune_scheduling function, so updated
-	to take care of the cpuid of the boot cpu.
+--
+"I am clearly more popular than Reagan.  I am in my third term.
+Where's Reagan?  Gone after two!  Defeated by George Bush and
+Michael Dukakis no less."
+      - M. Barry, Mayor of Washington, DC
 
-Only in 2.2.20pre8aa1: 00_poll-max_fds-1
-
-	Fix poll semantics in sync with 2.4.8pre.
-
-URL:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre8aa1/
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre8aa1.bz2
-
-Andrea

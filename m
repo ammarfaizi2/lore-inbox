@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbUKLUlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbUKLUpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbUKLUlu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 15:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbUKLUlt
+	id S261903AbUKLUpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 15:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbUKLUpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 15:41:49 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:9897 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261614AbUKLUlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 15:41:45 -0500
-Subject: Re: [PATCH 3/3] Fix sysdev time support
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041112080000.GC6307@atrey.karlin.mff.cuni.cz>
-References: <1100213485.6031.18.camel@desktop.cunninghams>
-	 <1100213867.6031.33.camel@desktop.cunninghams>
-	 <20041112080000.GC6307@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Message-Id: <1100291593.4090.2.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 13 Nov 2004 07:33:13 +1100
+	Fri, 12 Nov 2004 15:45:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64427 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261903AbUKLUo6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 15:44:58 -0500
+Message-ID: <41952022.1050607@pobox.com>
+Date: Fri, 12 Nov 2004 15:42:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tharbaugh@lnxi.com
+CC: linux-kernel@vger.kernel.org, klibc@zytor.com, akpm@digeo.com,
+       azarah@nosferatu.za.org
+Subject: Re: [PATCH] gen_init_cpio-slink_pipe_sock
+References: <1100290509.3171.8.camel@tubarao>
+In-Reply-To: <1100290509.3171.8.camel@tubarao>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Thayne Harbaugh wrote:
+> diff -ur linux-2.6.10-rc1.orig/drivers/block/Kconfig linux-2.6.10-rc1/drivers/block/Kconfig
+> --- linux-2.6.10-rc1.orig/drivers/block/Kconfig	2004-11-12 11:03:52.657108248 -0700
+> +++ linux-2.6.10-rc1/drivers/block/Kconfig	2004-11-12 11:07:28.458301480 -0700
+> @@ -363,10 +363,14 @@
+>  	    file <name> <location> <mode> <uid> <gid>
+>  	    dir <name> <mode> <uid> <gid>
+>  	    nod <name> <mode> <uid> <gid> <dev_type> <maj> <min>
+> +	    slink <name> <target> <mode> <uid> <gid>
+> +	    pipe <name> <mode> <uid> <gid>
+> +	    sock <name> <mode> <uid> <gid>
+>  
+>  	  Where:
+> -	    <name>      name of the file/dir/nod in the archive
+> +	    <name>      name of the file/dir/nod/etc in the archive
+>  	    <location>  location of the file in the current filesystem
+> +	    <target>    link target
+>  	    <mode>      mode/permissions of the file
+>  	    <uid>       user id (0=root)
+>  	    <gid>       group id (0=root)
 
-On Fri, 2004-11-12 at 19:00, Pavel Machek wrote:
-> Hi!
-> 
-> > Fix type of sleep_start, so as to eliminate clock skew due to math
-> > errors.
-> 
-> Are you sure? I do not think long signed/unsigned problem can skew the
-> clock by 1hour. I could see skewing clock by few years, but not by one
-> hour...
+This info should get moved out of Kconfig, and into a Documentation/* 
+text file somewhere.
 
-It seemed small to me, too. Perhaps I just didn't notice the shift in
-the date. I'll look again, if you like.
 
-Regards,
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+> +/*
+> + * Original work by Jeff Garzick
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Please spell my last name correctly :)

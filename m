@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUFEX0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUFEXhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUFEX0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 19:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUFEX0X
+	id S262425AbUFEXhT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 19:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUFEXhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 19:26:23 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:23940 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262382AbUFEX0V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 19:26:21 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 5 Jun 2004 16:26:19 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Robert Love <rml@ximian.com>, Chris Wedgwood <cw@f00f.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-In-Reply-To: <Pine.LNX.4.58.0406051610430.7010@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0406051620190.2261@bigblue.dev.mdolabs.com>
-References: <40C1E6A9.3010307@elegant-software.com> 
- <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> 
- <20040605205547.GD20716@devserv.devel.redhat.com>  <20040605215346.GB29525@taniwha.stupidest.org>
- <1086475663.7940.50.camel@localhost> <Pine.LNX.4.58.0406051553130.2261@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0406051610430.7010@ppc970.osdl.org>
+	Sat, 5 Jun 2004 19:37:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22996 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262425AbUFEXhR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 19:37:17 -0400
+Date: Sat, 5 Jun 2004 19:37:15 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= <tronic2@sci.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Some thoughts about cache and swap
+In-Reply-To: <40C1DB59.7090507@sci.fi>
+Message-ID: <Pine.LNX.4.44.0406051935380.29273-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jun 2004, Linus Torvalds wrote:
+On Sat, 5 Jun 2004, [UTF-8] Lasse Kärkkäinen / Tronic wrote:
 
-> 
-> 
-> On Sat, 5 Jun 2004, Davide Libenzi wrote:
-> > 
-> > It is likely used by pthread_self(), that is pretty much performance 
-> > sensitive. I'd agree with Ulrich here.
-> 
-> It _can't_ be used for pthread_self(), since the pid is the _same_ across 
-> all threads in a pthread environment.
+> In order to make better use of the limited cache space, the following
+> methods could be used:
 
-Yeah, I just checked. It is not for that. And like Robert was saying, it'd 
-have been a gettid().
+	[snip magic piled on more magic]
 
+I wonder if we should just bite the bullet and implement
+LIRS, ARC or CART for Linux.  These replacement algorithms
+should pretty much detect by themselves which pages are
+being used again (within a reasonable time) and which pages
+aren't.
 
+Especially CART looks interesting.
 
-- Davide
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,100 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbTGGMjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 08:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbTGGMjk
+	id S266994AbTGGM6o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 08:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266998AbTGGM6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 08:39:40 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:38784 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S266987AbTGGMjB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 08:39:01 -0400
-Date: Mon, 7 Jul 2003 14:53:34 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Subject: kfree_debugcheck: out of range ptr 100h in 2.5.74 (c1384 from last thursday)
-Message-ID: <20030707125334.GA6893@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jul 2003 08:58:43 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:55488 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S266994AbTGGM6m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 08:58:42 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
+Date: Mon, 7 Jul 2003 23:14:18 +1000
+User-Agent: KMail/1.5.2
+Cc: Nick Sanders <sandersn@btinternet.com>, Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <200307070317.11246.kernel@kolivas.org> <200307071151.12553.sandersn@btinternet.com> <200307071343.26318.m.c.p@wolk-project.de>
+In-Reply-To: <200307071343.26318.m.c.p@wolk-project.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307072314.18258.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   sorry if this is duplicate, but LK traffic somehow grew over my capabilities.
+On Mon, 7 Jul 2003 22:19, Marc-Christian Petersen wrote:
+> On Monday 07 July 2003 12:51, Nick Sanders wrote:
+>
+> Hi Con, Hi Andrew,
+>
+> > > Thanks to Felipe who picked this up I was able to find the one bug
+> > > causing me grief. The idle detection code was allowing the sleep_avg to
+> > > get to ridiculously high levels. This is corrected in the following
+> > > replacement O3int patch. Note this fixes the mozilla issue too. Kick
+> > > arse!!
+> >
+> > Just booted with patch-O3int-0307071315 on top of 2.5.74-mm2 and the
+> > mouse stuttering under high CPU load has gone and no audio skipping.
+> > Truly brilliant work
+> > Thank you
+> > Nick
+>
+> Hmm, this becomes better and better, but it's still not perfect [tm].
 
-   I just typed 'netstat' after 3 hours of uptime, and in reward I received
-few connections followed by kernel complaining about invalid kfree.
+Thanks for feedback. I will keep working on it while I still have ideas and 
+direction based on the feedback. 
 
-   Oopses are triggered by reading /proc/net/raw, as 'cat /proc/net/raw' reveals.
+> - An Xterm needs ~30 seconds to open up while "make -j16 bzImage modules"
+> - An Xterm needs ~15 seconds to open up while "make -j8 bzImage modules"
+> - XMMS does _not_ skip mp3's while above.
+> - Kmail is almost unusable while above (stops for about 5 secs every 15-20
+>   secs). KMail is also very slow while the machine is doing nothing.
+> - X runs with nice 0, prio 15 (nice -11 is prio 4, does not make
+> difference)
 
-   'PF' tainting is caused by VMware's vmmon/vmnet, but I do not think that it is
-extremenly relevant to this oops, as nothing from VMware creates raw sockets.
-   						Thanks,
-   							Petr Vandrovec
+Noted; and considered the next major hurdle (was also the most notable 
+complaint from Mike).
 
-vana:~# netstat
-Active Internet connections (w/o servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State
-tcp        0      0 vana:32901              mailgw.cvut.cz:ssh      ESTABLISHED
-tcp        0      0 vana:32796              petr.vc.cvut.cz:ssh     ESTABLISHED
-tcp        0      0 vana:32773              olc.cvut.cz:ssh         ESTABLISHED
-tcp        0      0 vana:32774              buk.vc.cvut.cz:ssh      ESTABLISHED
-tcp        0      0 vana:32772              cdrom.vc.cvut.cz:524    ESTABLISHED
-tcp        0      0 vana:32769              cdrom.vc.cvut.cz:524    ESTABLISHED
-kfree_debugcheck: out of range ptr 100h.
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1610!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c014d1f8>]    Tainted: PF
-EFLAGS: 00010086
-EIP is at kfree+0x2c9/0x2d6
-eax: 0000002c   ebx: c9626104   ecx: c047ef54   edx: c03c0f58
-esi: d2214738   edi: 00040000   ebp: c8ea47d8   esp: ce1a1f1c
-ds: 007b   es: 007b   ss: 0068
-Process netstat (pid: 6890, threadinfo=ce1a0000 task=da576100)
-Stack: c0381780 00000100 d2214758 c0335a09 c9626104 00000003 00000206 c9626104
-       d2214738 c2307b8c c8ea47d8 c0191833 00000100 d2214738 d2214738 dffb6224
-       c2307b8c c0169cbe c2307b8c d2214738 d2214738 da644504 00000000 ce1a0000
-Call Trace:
-       [<c0335a09>] raw_seq_start+0x39/0x3d
-       [<c0191833>] seq_release_private+0x25/0x48
-       [<c0169cbe>] __fput+0xd9/0xde
-       [<c01681e6>] filp_close+0x4d/0x79
-       [<c01682fd>] sys_close+0xeb/0x1ed
-       [<c0168cf2>] sys_read+0x42/0x63
-       [<c0109aaf>] syscall_call+0x7/0xb
-Code: 0f 0b 4a 06 af 0b 38 c0 e9 5c fd ff ff 53 31 d2 b8 08 00 00
-Segmentation fault
-vana:~# cat /proc/net/raw
-  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
-1: 00000000:0001 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 2121 2 dc9f44b4
-1: 00000000:0001 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 1325 2 dfcb0084
-<3>kfree_debugcheck: out of range ptr 100h.
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1610!
-invalid operand: 0000 [#3]
-CPU:    0
-EIP:    0060:[<c014d1f8>]    Tainted: PF
-EFLAGS: 00010086
-EIP is at kfree+0x2c9/0x2d6
-eax: 0000002c   ebx: d9756334   ecx: c047eadc   edx: c03c0f58
-esi: d8e1adec   edi: 00040000   ebp: c8ea47d8   esp: c7305f1c
-ds: 007b   es: 007b   ss: 0068
-Process cat (pid: 6913, threadinfo=c7304000 task=db8b8400)
-Stack: c0381780 00000100 d8e1ae0c c0335a09 d9756334 00000003 00000206 d9756334
-       d8e1adec c2307b8c c8ea47d8 c0191833 00000100 d8e1adec d8e1adec dffb6224
-       c2307b8c c0169cbe c2307b8c d8e1adec d8e1adec db93e184 00000000 c7304000
-Call Trace:
-       [<c0335a09>] raw_seq_start+0x39/0x3d
-       [<c0191833>] seq_release_private+0x25/0x48
-       [<c0169cbe>] __fput+0xd9/0xde
-       [<c01681e6>] filp_close+0x4d/0x79
-       [<c01682fd>] sys_close+0xeb/0x1ed
-       [<c0168cf2>] sys_read+0x42/0x63
-       [<c0109aaf>] syscall_call+0x7/0xb
-Code: 0f 0b 4a 06 af 0b 38 c0 e9 5c fd ff ff 53 31 d2 b8 08 00 00
-Segmentation fault
+Con
 

@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbTJTSat (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 14:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTJTSat
+	id S262708AbTJTSkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 14:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbTJTSkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 14:30:49 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:56448 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262675AbTJTSar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 14:30:47 -0400
-Date: Mon, 20 Oct 2003 19:29:03 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310201829.h9KIT3pF000903@81-2-122-30.bradfords.org.uk>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Rik van Riel <riel@redhat.com>, "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Nuno Silva'" <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0310201046070.10996@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0310201153150.26888-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.53.0310201204100.13739@chaos>
- <200310201749.h9KHnQ0C000781@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.58.0310201046070.10996@dlang.diginsite.com>
-Subject: RE: Blockbusting news, this is important (Re: Why are bad disk se ctors numbered strangely, and what happens to them?)
+	Mon, 20 Oct 2003 14:40:25 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:43280 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262708AbTJTSkX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 14:40:23 -0400
+Date: Mon, 20 Oct 2003 20:49:53 +0200
+To: Peter Lieverdink <cafuego@coffee.cc.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8-mm1
+Message-ID: <20031020184953.GA13000@hh.idb.hist.no>
+References: <20031020020558.16d2a776.akpm@osdl.org> <200310201340.48681.dev@sw.ru> <20031020024942.01094ff0.akpm@osdl.org> <20031020110539.GA14214@coffee.cc.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031020110539.GA14214@coffee.cc.com.au>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from David Lang <david.lang@digitalinsight.com>:
-> rotating storage is hitting $1 per gig, memory is running ~$100/gig
-> (substantially more for the highest density memory)
+On Mon, Oct 20, 2003 at 09:05:39PM +1000, Peter Lieverdink wrote:
+> Re the new framebuffer code, it appears to not work on matroxfb.
+> On bootup the console gets as far as:
 > 
-> making a small solid state drive is easy, cheap and definantly has some
-> uses, but making something that will replace stacks of 300G drives is
-> neither cheap or easy.
+> ...
+> found SMP MP-table at 000f4db0
+> hm, page 000f4000 reserved twice.
+> 
+> And then it stops, whereas normally the framebuffer would kick in with a pengiun and continue booting.
+> I boot the kernel with "video=matroxfb:vesa:0x192". When I disable it with "video=matroxfb:off" the system
+> boots fine.
+> 
+2.6.0-test8-mm1 won't start with matroxfb for me either.
+I have
+video=matroxfb:vesa:0x1BB
+This works with 2.6.0-test8, I get two nice penguins.
+With mm1 all I get is lilo printing loading linux...
+and then everything stops.  There isn't even a mode switch,
+and no fsck on startup after using reset.
 
-Maybe one day local non-volitile storage won't even matter.
-
-For example, say you were setting up a, (partial), mirror of kernel.org.
-
-If you already had several machines in a datacentre, you could install
-another one with no disks at all, just 4 GB of RAM, and configure it
-to boot over the lan, loading the root filesystem in to a ramdisk.
-
-Once booted, it could retrieve the parts of kernel.org that you wanted
-to serve from a trusted mirror site, and begin serving.
-
-Other such machines could use your machine as a trusted mirror site,
-and eventually you could have lots of these machines all holding their
-partial mirror of kernel.org in RAM.
-
-As long as there is at least one on-line, any others can go down and
-come up, and it doesn\'t really matter - they will just re-sync with
-another node.
-
-Of course, this would use up a lot of network bandwidth, but in the
-future that may not matter.
-
-Or, a more practical usage would be a load balanced cluster of
-webservers - why bother with non-volitile storage in all of them?
-Some of them could serve entirely from RAM, having booted over the
-LAN.
-
-John.
+Helge Hafting

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288232AbSAHSuf>; Tue, 8 Jan 2002 13:50:35 -0500
+	id <S288245AbSAHSvP>; Tue, 8 Jan 2002 13:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288242AbSAHSuZ>; Tue, 8 Jan 2002 13:50:25 -0500
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:8965 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S288232AbSAHSuN>; Tue, 8 Jan 2002 13:50:13 -0500
-Message-ID: <005c01c19876$30b51060$03015b0a@bulee>
-From: "Sourav" <jeebu19@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: DLink DFE 538 TX (TealTek 8139) too slow
-Date: Wed, 9 Jan 2002 00:26:17 +0530
+	id <S288243AbSAHSvF>; Tue, 8 Jan 2002 13:51:05 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:19840 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S288233AbSAHSu6>; Tue, 8 Jan 2002 13:50:58 -0500
+Date: Tue, 8 Jan 2002 13:51:40 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Nick LeRoy <nleroy@cs.wisc.edu>, Nicholas Knight <nknight@pocketinet.com>,
+        =?iso-8859-1?q?G=E9rard=20Roudier?= <groudier@free.fr>,
+        Linux <linux-kernel@vger.kernel.org>
+Subject: Re: Bounce from andre@linuxdiskcert.org 
+In-Reply-To: <31539.1010514900@redhat.com>
+Message-ID: <Pine.LNX.3.95.1020108134421.2418A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why is DLink DFE 538TX Realtek 8139 too slow over
-10Mbps HUB ( ~1Mbps) and apparantly too many
-collisions on a 2 computer network??!!! It also
-shows Half Duplex autonegotiated!!
+On Tue, 8 Jan 2002, David Woodhouse wrote:
 
-Regards,
-Sourav
+> 
+> nleroy@cs.wisc.edu said:
+> >  It sure would be nice if they'd send you an email informing you that
+[SNIPPED]
 
+> 
+> The list of offences for which you'll get blacklisted isn't very large. If
+> you can't manage to set up a well-behaved system without external
+> assistance, you shouldn't be running it in the first place.
+> 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+Do you mean that there are still helpful sites that forward email
+for free??  Humm, that's why the spammers pay all that money to
+the ".jp" and ".cz" sites? The rest of the world would be black-
+listed -no?
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

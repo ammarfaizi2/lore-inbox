@@ -1,57 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268321AbUHQP4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUHQQAC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268321AbUHQP4r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 11:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUHQP4r
+	id S268323AbUHQQAC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 12:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUHQQAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 11:56:47 -0400
-Received: from holomorphy.com ([207.189.100.168]:36528 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268328AbUHQPvy (ORCPT
+	Tue, 17 Aug 2004 12:00:02 -0400
+Received: from cantor.suse.de ([195.135.220.2]:35306 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268319AbUHQP70 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:51:54 -0400
-Date: Tue, 17 Aug 2004 08:51:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: "David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
-       benh@kernel.crashing.org, manfred@colorfullife.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault fastpath patch v2: fix race conditions, stats for 8,32 and 512 cpu SMP
-Message-ID: <20040817155125.GQ11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Christoph Lameter <clameter@sgi.com>,
-	"David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
-	benh@kernel.crashing.org, manfred@colorfullife.com,
-	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <20040815130919.44769735.davem@redhat.com> <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com> <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com> <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com> <20040816143903.GY11200@holomorphy.com> <Pine.LNX.4.58.0408170804430.8365@schroedinger.engr.sgi.com>
+	Tue, 17 Aug 2004 11:59:26 -0400
+Date: Tue, 17 Aug 2004 17:59:18 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] bio_uncopy_user mem leak
+Message-ID: <20040817155918.GA5312@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408170804430.8365@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Operating-System: Linux 2.6.5-20-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 08:28:44AM -0700, Christoph Lameter wrote:
-> This is the second release of the page fault fastpath path. The fast path
-> avoids locking during the creation of page table entries for anonymous
-> memory in a threaded application running on a SMP system. The performance
-> increases significantly for more than 4 threads running concurrently.
-> Changes:
-> - Insure that it is safe to call the various functions without holding
-> the page_table_lock.
-> - Fix cases in rmap.c where a pte could be cleared for a very short time
-> before being set to another value by introducing a pte_xchg function. This
-> created a potential race condition with the fastpath code which checks for
-> a cleared pte without holding the page_table_lock.
-> - i386 support
-> - Various cleanups
-> Issue remaining:
-> - The fastpath increments mm->rss without acquiring the page_table_lock.
-> Introducing the page_table_lock even for a short time makes performance
-> drop to the level before the patch.
 
-Hmm. I'm suspicious but I can't immediately poke a hole in it as it
-leaves most uses of ->page_table_lock in place. I can't help thinking
-there's a more comprehensive attack on the locking in this area, either.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- wli
+Hi Andrew,
+
+When using bounce buffers for SG_IO commands with unaligned=20
+buffers in blk_rq_map_user(), we should free the pages from
+blk_rq_unmap_user() which calls bio_uncopy_user() for the=20
+non-BIO_USER_MAPPED case. That function failed to free the
+pages for write requests.
+
+So we leaked pages and you machine would go OOM. Rebooting=20
+helped ;-)
+
+This bug was triggered by writing audio CDs (but not on data=20
+CDs), as the audio frames are not aligned well (2352 bytes),
+so the user pages don't just get mapped.
+
+Bug was reported by Mathias Homan and debugged by Chris Mason + me.
+(Jens is away.)
+
+Signed-off-by: Kurt Garloff <garloff@suse.de>
+
+ bio.c |   21 +++++++++------------
+ 1 files changed, 9 insertions(+), 12 deletions(-)
+
+--- linux-2.6.8.x86/fs/bio.c.orig	2004-08-14 07:37:15.000000000 +0200
++++ linux-2.6.8.x86/fs/bio.c	2004-08-17 17:41:52.022012902 +0200
+@@ -388,20 +388,17 @@ int bio_uncopy_user(struct bio *bio)
+ 	struct bio_vec *bvec;
+ 	int i, ret =3D 0;
+=20
+-	if (bio_data_dir(bio) =3D=3D READ) {
+-		char *uaddr =3D bio->bi_private;
+-
+-		__bio_for_each_segment(bvec, bio, i, 0) {
+-			char *addr =3D page_address(bvec->bv_page);
+-
+-			if (!ret && copy_to_user(uaddr, addr, bvec->bv_len))
+-				ret =3D -EFAULT;
++	char *uaddr =3D bio->bi_private;
++=09
++	__bio_for_each_segment(bvec, bio, i, 0) {
++		char *addr =3D page_address(bvec->bv_page);
++		if (bio_data_dir(bio) =3D=3D READ && !ret &&=20
++		    copy_to_user(uaddr, addr, bvec->bv_len))
++			ret =3D -EFAULT;
+=20
+-			__free_page(bvec->bv_page);
+-			uaddr +=3D bvec->bv_len;
+-		}
++		__free_page(bvec->bv_page);
++		uaddr +=3D bvec->bv_len;
+ 	}
+-
+ 	bio_put(bio);
+ 	return ret;
+ }
+
+--=20
+Kurt Garloff, Director SUSE Labs, Novell
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBIitWxmLh6hyYd04RAj1AAJ0YITtm16Dq2XwIoloqKYD6hWCMhgCghxmn
+pn5Aoa49dmvbESDyMPTiZ3c=
+=qlWb
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--

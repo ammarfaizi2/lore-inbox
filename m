@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264779AbTAJKNB>; Fri, 10 Jan 2003 05:13:01 -0500
+	id <S264767AbTAJK07>; Fri, 10 Jan 2003 05:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbTAJKNA>; Fri, 10 Jan 2003 05:13:00 -0500
-Received: from dp.samba.org ([66.70.73.150]:23748 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264779AbTAJKM7>;
-	Fri, 10 Jan 2003 05:12:59 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: Another idea for simplifying locking in kernel/module.c 
-In-reply-to: Your message of "Fri, 10 Jan 2003 01:10:13 -0800."
-             <200301100910.BAA31409@adam.yggdrasil.com> 
-Date: Fri, 10 Jan 2003 21:11:41 +1100
-Message-Id: <20030110102144.404492C0A6@lists.samba.org>
+	id <S264815AbTAJK07>; Fri, 10 Jan 2003 05:26:59 -0500
+Received: from mail.hometree.net ([212.34.181.120]:50652 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264767AbTAJK06>; Fri, 10 Jan 2003 05:26:58 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: "Mother" == "computer-illiterate"
+Date: Fri, 10 Jan 2003 10:35:42 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <avm7lu$k6n$1@forge.intermeta.de>
+References: <20030109194019.GH26010@boardwalk> <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1042194942 939 212.34.181.4 (10 Jan 2003 10:35:42 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 10 Jan 2003 10:35:42 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200301100910.BAA31409@adam.yggdrasil.com> you write:
-> Rusty Russell wrote:
-> >In message <200301070219.SAA12905@adam.yggdrasil.com> you write:
-> >> 	Here is a way to replace all of the specialized "stop CPU"
-> >> locking code in kernel/module.c with an rw_semaphore by using
-> >> down_read_trylock in try_module_get() and down_write when beginning to
-> >> unload the module.
-> 
-> >And now you can't modularize netfilter modules.
-> 
-> 	Why not?  Last time you went looking in the networking code
-> for an example of something that had to increment a module reference
-> in a context where blocking was not allowed you ended up conceding
-> that you example was incorrect.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-No, you're thinking of the IPv4 stack.  I didn't use netfilter as an
-example, because that opens me to "well, FIX NETFILTER then!".  If it
-were the only case, it's probably arguable.
+>On Thu, 2003-01-09 at 19:40, Val Henson wrote:
+>> P.S. For extra credit (but no ThinkGeek certificate) you can look up
+>> the following women in computer science, some of whom are mothers:
+>> Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
+>> Barbara Simons.
 
-The problems with netfilter modules are exactly why I started looking
-at module locking over two years ago.
+>and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
+>who know what her networking related patent is on)
 
-> 	I just booted my gateway machine to a kernel using my
-> aforemetioned patch and various netfilter modules.  I've surfed the
-> web, FTP'ed file and run irc through it.  It seems to be okay.
+Come on, she actually has a homepage: http://www.hedylamarr.at/
 
-Sure!  That's because the netfilter modules use a horrific hack, by
-keeping their own "usage" counts and then spinning (potentially
-forever) on unload until it hits zero.
+-> frequency hopping
 
-Logically the skb->nfct would have an owner field in it.
+        Regards
+                Henning
 
-Now, performance.  You want a brlock, at least: the performance of
-either the security infrastructure or netfilter modules is going to
-suck horribly with anything else.  And the bogolock used in module.c
-is even lighter weight than a brlock, with its associated atomic ops.
 
-Hope that clarifies...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

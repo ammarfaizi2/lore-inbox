@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbTKCLU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 06:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTKCLU4
+	id S261838AbTKCLWF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 06:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTKCLWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 06:20:56 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26639 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261793AbTKCLUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 06:20:55 -0500
-Date: Mon, 3 Nov 2003 11:20:50 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel floating point emulation for big endian arm?
-Message-ID: <20031103112050.A23136@flint.arm.linux.org.uk>
-Mail-Followup-To: Martin Zwickel <martin.zwickel@technotrend.de>,
-	linux-kernel@vger.kernel.org
-References: <20031103115134.63262f54.martin.zwickel@technotrend.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031103115134.63262f54.martin.zwickel@technotrend.de>; from martin.zwickel@technotrend.de on Mon, Nov 03, 2003 at 11:51:34AM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 3 Nov 2003 06:22:05 -0500
+Received: from b107150.adsl.hansenet.de ([62.109.107.150]:43904 "EHLO ds666")
+	by vger.kernel.org with ESMTP id S261838AbTKCLWC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 06:22:02 -0500
+Message-ID: <3FA63A57.8070606@portrix.net>
+Date: Mon, 03 Nov 2003 12:21:59 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Clock skips (?) with 2.6 and games
+References: <3FA62DD4.1020202@portrix.net> <20031103110129.GF1772@x30.random>
+In-Reply-To: <20031103110129.GF1772@x30.random>
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 03, 2003 at 11:51:34AM +0100, Martin Zwickel wrote:
-> Hi there!
-> 
-> Is there a working version of kernel floating point emulation for big endian
-> arm?
-> 
-> The version I currently use is 2.4.21-pre5 and fp emu doesn't work
-> correctly I think.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-nwfpe is correctly implemented for big endian.  Most likely is that
-your library doesn't know how to crrectly handle the ARM floating
-point implementation.
+Andrea Arcangeli wrote:
+| On Mon, Nov 03, 2003 at 11:28:36AM +0100, Jan Dittmer wrote:
+|>
+|>System is running 2.6.0-test9-mm1. This effect does not show with
+|>2.4.23pre6aa3, though there are only two processors displayed. Is this
+|
+|
+| btw, to make it even better for a desktop multimedia usage like yours,
+| you can also pass 'desktop' to the 2.4.23pre6aa3 kernel. I'd like to
+| hear how 'desktop' affects your usage in 2.4.23pre6aa3.
 
-You might also consider taking this to the linux-arm mailing list
-at lists.arm.linux.org.uk.
+I'll give it a try. Is there a way in 2.4-aa to get the two additional
+virtual processors displayed?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Thanks,
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQE/pjpXLqMJRclVKIYRAinYAJsHswAa6yIHDbAiXpCsl4JbjGaFXwCfYfem
+/WM79Hac8QaQ6jlhsR6dpXE=
+=sC+Q
+-----END PGP SIGNATURE-----
+

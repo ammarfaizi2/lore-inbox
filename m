@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbULQCuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbULQDHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbULQCuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 21:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbULQCuo
+	id S262729AbULQDHc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 22:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbULQDHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 21:50:44 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:43698 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262724AbULQCui (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 21:50:38 -0500
-Date: Fri, 17 Dec 2004 03:50:28 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       geert@linux-m68k.org, ralf@linux-mips.org,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: [patch] [RFC] make WANT_PAGE_VIRTUAL a config option
-In-Reply-To: <1103246050.13614.2571.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0412170256500.793@scrub.home>
-References: <E1Cf3bP-0002el-00@kernel.beaverton.ibm.com> 
- <Pine.LNX.4.61.0412170133560.793@scrub.home>  <1103244171.13614.2525.camel@localhost>
-  <Pine.LNX.4.61.0412170150080.793@scrub.home> <1103246050.13614.2571.camel@localhost>
+	Thu, 16 Dec 2004 22:07:32 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:33184 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262729AbULQDHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 22:07:25 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C4E3E5.8308A4E2"
+Subject: [Patch] Fix a race condition in pty.c
+Date: Fri, 17 Dec 2004 11:07:15 +0800
+Message-ID: <894E37DECA393E4D9374E0ACBBE7427013CA24@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Patch] Fix a race condition in pty.c
+Thread-Index: AcTj5YIXKQBpYynRTsy+kzR1YlqvQA==
+From: "Zou, Nanhai" <nanhai.zou@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Lu, Hongjiu" <hongjiu.lu@intel.com>
+X-OriginalArrivalTime: 17 Dec 2004 03:07:16.0433 (UTC) FILETIME=[835FDC10:01C4E3E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
 
-On Thu, 16 Dec 2004, Dave Hansen wrote:
+------_=_NextPart_001_01C4E3E5.8308A4E2
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-> > Could you explain a bit more, what exactly the problem is?
-> 
-> The symptom is that you'll add some new function to a header, say
-> mmzone.h.  You get some kind of compile error that a structure that you
-> need is not fully defined (usually because it is predeclared "struct
-> foo;").  This happens when you do either a structure dereference on a
-> pointer, or do some other kind of pointer arithmetic on it outside of a
-> macro.
+ <<pty_close-race-fix.patch>> There is a race condition int pty.c=20
+when pty_close wakes up waiter on its pair device before set
+TTY_OTHER_CLOSED flag.
 
-I know this problem and I hoped you would provide a complete header 
-dependency example. Anyway, I'm not against fixing this, I think that 
-you're starting somewhere in the middle.
-We have the same problem with core data types, like atomic_t, spinlocks, 
-semaphores... Preempt made this problem worse and was "fixed" by 
-separating some stuff into thread_info.
-I'd prefer to fix this problem at the core first, some time ago I posted a 
-few patches to separate out core data structures from the functions. This 
-allows further cleanups, I just did a quick check with linux/mm.h and 
-easily reduced the dependencies by half. I need to update the patches 
-soon, so there are ready once 2.6.10 is out.
-If you change the header dependencies, there is a big risk you break some 
-architecture, the current system is rather fragile. Moving a random 
-structure into a new header file doesn't always fix the problem, this 
-structure might still need some other definitions and so can pull in 
-different headers on every arch. Splitting a header is easy, getting the 
-whole thing working again in the end is the hard part.
+It is possible on SMP or preempt kernel, waiter wakes up too early that
+it will not get TTY_OTHER_CLOSED flag then fall into sleep again.
 
-bye, Roman
+Lu hong jiu report this bug will hang some expect scripts on SMP
+machines.
+
+Signed-off-by:	Zou Nan hai <Nanhai.zou@intel.com>
+
+Zou Nan hai
+
+
+------_=_NextPart_001_01C4E3E5.8308A4E2
+Content-Type: application/octet-stream;
+	name="pty_close-race-fix.patch"
+Content-Transfer-Encoding: base64
+Content-Description: pty_close-race-fix.patch
+Content-Disposition: attachment;
+	filename="pty_close-race-fix.patch"
+
+LS0tIGxpbnV4LTIuNi4xMC1yYzMtbW0xL2RyaXZlcnMvY2hhci9wdHkuYwkyMDA0LTEyLTE2IDAx
+OjMyOjU2Ljc2MTg4Njg0OCAtMDUwMAorKysgYi9kcml2ZXJzL2NoYXIvcHR5LmMJMjAwNC0xMi0x
+NiAwMTozMzozMi4yMTc5NDExMDEgLTA1MDAKQEAgLTU1LDkgKzU1LDkgQEAKIAlpZiAoIXR0eS0+
+bGluaykKIAkJcmV0dXJuOwogCXR0eS0+bGluay0+cGFja2V0ID0gMDsKKwlzZXRfYml0KFRUWV9P
+VEhFUl9DTE9TRUQsICZ0dHktPmxpbmstPmZsYWdzKTsKIAl3YWtlX3VwX2ludGVycnVwdGlibGUo
+JnR0eS0+bGluay0+cmVhZF93YWl0KTsKIAl3YWtlX3VwX2ludGVycnVwdGlibGUoJnR0eS0+bGlu
+ay0+d3JpdGVfd2FpdCk7Ci0Jc2V0X2JpdChUVFlfT1RIRVJfQ0xPU0VELCAmdHR5LT5saW5rLT5m
+bGFncyk7CiAJaWYgKHR0eS0+ZHJpdmVyLT5zdWJ0eXBlID09IFBUWV9UWVBFX01BU1RFUikgewog
+CQlzZXRfYml0KFRUWV9PVEhFUl9DTE9TRUQsICZ0dHktPmZsYWdzKTsKICNpZmRlZiBDT05GSUdf
+VU5JWDk4X1BUWVMK
+
+------_=_NextPart_001_01C4E3E5.8308A4E2--

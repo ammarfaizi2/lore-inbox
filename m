@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131912AbRBAX6m>; Thu, 1 Feb 2001 18:58:42 -0500
+	id <S131410AbRBBAGY>; Thu, 1 Feb 2001 19:06:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131410AbRBAX6c>; Thu, 1 Feb 2001 18:58:32 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:42297 "EHLO
+	id <S131817AbRBBAGO>; Thu, 1 Feb 2001 19:06:14 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:1594 "EHLO
 	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S132184AbRBAX6U>; Thu, 1 Feb 2001 18:58:20 -0500
-Message-ID: <3A79F812.D52B17B1@linux.com>
-Date: Thu, 01 Feb 2001 15:58:10 -0800
+	id <S131410AbRBBAGB>; Thu, 1 Feb 2001 19:06:01 -0500
+Message-ID: <3A79F9D3.278A040A@linux.com>
+Date: Thu, 01 Feb 2001 16:05:39 -0800
 From: David Ford <david@linux.com>
 Organization: Blue Labs Software
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Michael J. Dikkema" <mjd@moot.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca>
+To: Chris Mason <mason@suse.com>, Rik van Riel <riel@conectiva.com.br>,
+        LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] Re: VM brokenness, possibly related to reiserfs
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael J. Dikkema" wrote:
-
-> I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> thinking there might have been a change with regards to the devfs
-> tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
-
-This symlink doesn't exist/isn't usable for boot.  Use the qualified
-pathname.
-
-I.e. /dev/discs/disc0/part1 points to /dev/ide/host0/bus0/target0/lun0/part1
-on my machine.
-
-Use that pathname.
+My apologies...my internic data isn't updated, http://208.179.0.18/VM/
 
 -d
+
 
 --
   There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson

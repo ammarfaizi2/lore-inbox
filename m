@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbSJaPG4>; Thu, 31 Oct 2002 10:06:56 -0500
+	id <S262408AbSJaPI0>; Thu, 31 Oct 2002 10:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262408AbSJaPG4>; Thu, 31 Oct 2002 10:06:56 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:54023 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S262239AbSJaPGz>;
-	Thu, 31 Oct 2002 10:06:55 -0500
-Date: Thu, 31 Oct 2002 16:12:44 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Richard J Moore <richardj_moore@uk.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-Message-ID: <20021031151244.GI28963@marowsky-bree.de>
-References: <OF6286E52C.B464C16B-ON80256C63.005132DB@portsmouth.uk.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <OF6286E52C.B464C16B-ON80256C63.005132DB@portsmouth.uk.ibm.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S262442AbSJaPI0>; Thu, 31 Oct 2002 10:08:26 -0500
+Received: from netlx010.civ.utwente.nl ([130.89.1.92]:49595 "EHLO
+	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S262408AbSJaPIZ>; Thu, 31 Oct 2002 10:08:25 -0500
+From: caligula@cam029208.student.utwente.nl
+To: linux-kernel@vger.kernel.org
+Cc: tmolina@cox.net
+Subject: Re: 2.5 Problem Report Status
+Date: Thu, 31 Oct 2002 15:16:34 GMT
+Reply-To: caligula@cam029208.student.utwente.nl
+Message-ID: <3dc1466f.13295187@cam029208.student.utwente.nl>
+References: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina> <3db6a5b7.565666@cam029208.student.utwente.nl>
+In-Reply-To: <3db6a5b7.565666@cam029208.student.utwente.nl>
+X-Mailer: Forte Free Agent 1.21/32.243
+X-UTwente-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-10-31T14:56:27,
-   Richard J Moore <richardj_moore@uk.ibm.com> said:
 
-> >> Crash Dumping (LKCD)
-> >This is definitely a vendor-driven thing. I don't believe it has any
-> >relevance unless vendors actively support it.
+>>                               2.5 Kernel Problem Reports as of 22 Oct
+>>   Status                 Discussion  Problem Title
+>>
+>
+>
+>>   open                   19 Oct 2002 atomicity error in 
+>>                                      sound/pci/via82xx.c
+>>  13. http://marc.theaimsgroup.com/?l=linux-kernel&m=103459664021147&w=2
+>>
+>
+>
+>This problem is still present in 2.5.44-ac1.
+>Greetz Mu
+>
+>
+And still present in 2.5.45.
 
-As time to repair is critical for availability (obviously) and having a good
-crash dump will help reduce this, I'd also like to point out that such a
-dumping framework is very important. Please, merge it.
+But ....after a Linus-is-back-and-loose merge armageddon,my kernel
+still compiles and runs fine. Not bad after that huge merging frenzy.
+I guess cleanups like this will be worked at after the feature freeze.
+Greetz Mu
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Principal Squirrel 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur

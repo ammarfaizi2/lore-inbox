@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313529AbSEMN56>; Mon, 13 May 2002 09:57:58 -0400
+	id <S313563AbSEMN6k>; Mon, 13 May 2002 09:58:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSEMN55>; Mon, 13 May 2002 09:57:57 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28420 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313529AbSEMN54>; Mon, 13 May 2002 09:57:56 -0400
-Subject: Re: [PATCH] CONFIG_ISA
-To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
-Date: Mon, 13 May 2002 15:16:26 +0100 (BST)
-Cc: DiegoCG@teleline.es (Diego Calleja), ak@muc.de (Andi Kleen),
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.3.96.1020513141909.26083B-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at May 13, 2002 02:23:35 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313568AbSEMN6j>; Mon, 13 May 2002 09:58:39 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:204 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S313563AbSEMN6h>;
+	Mon, 13 May 2002 09:58:37 -0400
+To: "BALBIR SINGH" <balbir.singh@wipro.com>
+Cc: "Rik van Riel" <riel@conectiva.com.br>, "Bill Davidsen" <davidsen@tmr.com>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] IO wait accounting
+In-Reply-To: <AAEGIMDAKGCBHLBAACGBCEDDCIAA.balbir.singh@wipro.com>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Mon, 13 May 2002 15:58:20 +0200
+Message-ID: <dnlmaof8ub.fsf@magla.zg.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E177Gcl-0005SV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Sorry for my ignorance, but the typical conectors: mouse, keyboard,
-> > /dev/ttyS0, /dev/ttyS1, /dev/lp0...aren't isa devices? 
-> 
->  The PS/2 mouse and the keyboard (or the 8042, actually) are motherboard
-> devices using the 0x00-0xff range of I/O ports -- ISA is above that.
+"BALBIR SINGH" <balbir.singh@wipro.com> writes:
 
-Not neccessarily. The mobility chipset for example has a PS/2 mouse
-and keyboard port on a PCI card
+> I found a URL that you might find useful.
+>
+> http://sunsite.uakom.sk/sunworldonline/swol-08-1997/swol-08-insidesolaris.ht
+> ml
+>
+> Simple and straight forward implementation of a per-cpu iowait statistics
+> counter.
+>
+
+Yes, yes, yes, that's the article I was talking about.
+
+Thanks Balbir!
+-- 
+Zlatko

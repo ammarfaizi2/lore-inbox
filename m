@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbULBBqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbULBBuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbULBBqP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 20:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULBBqP
+	id S261541AbULBBuO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 20:50:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbULBBuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 20:46:15 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:19917 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261511AbULBBqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 20:46:11 -0500
-Date: Wed, 1 Dec 2004 17:46:04 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>, hugh@veritas.com,
-       benh@kernel.crashing.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
- tests
-In-Reply-To: <20041201165538.015ee7a6.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0412011745090.6430@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org> <20041201165538.015ee7a6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Dec 2004 20:50:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63377 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261541AbULBBuI
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 20:50:08 -0500
+Date: Wed, 1 Dec 2004 16:58:27 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       Linux-Kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH]: 1/4 batch mark_page_accessed()
+Message-ID: <20041201185827.GA5459@dmt.cyclades>
+References: <16800.47044.75874.56255@gargle.gargle.HOWL> <20041126185833.GA7740@logos.cnet> <41A7CC3D.9030405@yahoo.com.au> <20041130162956.GA3047@dmt.cyclades> <20041130173323.0b3ac83d.akpm@osdl.org> <16813.47036.476553.612418@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16813.47036.476553.612418@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Dec 2004, Andrew Morton wrote:
 
-> > Ok, consider me convinced. I don't want to apply this before I get 2.6.10
-> > out the door, but I'm happy with it.
->
-> There were concerns about some architectures relying upon page_table_lock
-> for exclusivity within their own pte handling functions.  Have they all
-> been resolved?
+<snip>
 
-The patch will fall back on the page_table_lock if an architecture cannot
-provide atomic pte operations.
+>  > >  On the other hand, without batching you mix the locality up in LRU - the LRU becomes 
+>  > >  more precise in terms of "LRU aging", but less ordered in terms of sequential 
+>  > >  access pattern.
+>  > > 
+>  > >  The disk IO intensive reaim has very significant gain from the batching, its
+>  > >  probably due to the enhanced LRU ordering (what Nikita says).
+>  > > 
+>  > >  The slowdown is probably due to the additional atomic_inc by page_cache_get(). 
+>  > > 
+>  > >  Is there no way to avoid such page_cache_get there (and in lru_cache_add also)?
+>  > 
+>  > Not really.  The page is only in the pagevec at that time - if someone does
+>  > a put_page() on it the page will be freed for real, and will then be
+>  > spilled onto the LRU.  Messy.
+> 
+> I don't think that atomic_inc will be particularly
+> costly. generic_file_{write,read}() call find_get_page() just before
+> calling mark_page_accessed(), so cache-line with page reference counter
+> is most likely still exclusive owned by this CPU. 
 
+Assuming that is true - what could cause the slowdown? 
+
+There are only benefits from the makr_page_accessed batching, I can't
+see any drawbacks. Do you?

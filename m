@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbSBRUGA>; Mon, 18 Feb 2002 15:06:00 -0500
+	id <S285226AbSBRUFu>; Mon, 18 Feb 2002 15:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284305AbSBRUFv>; Mon, 18 Feb 2002 15:05:51 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:50305 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S284933AbSBRUFj>; Mon, 18 Feb 2002 15:05:39 -0500
-Date: Mon, 18 Feb 2002 15:08:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Xinwen - Fu <xinwenfu@cs.tamu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: weird ip sequence number
-In-Reply-To: <Pine.SOL.4.10.10202180439080.14846-100000@dogbert>
-Message-ID: <Pine.LNX.3.95.1020218150225.21701B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285093AbSBRUFk>; Mon, 18 Feb 2002 15:05:40 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39430 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284305AbSBRUFe>;
+	Mon, 18 Feb 2002 15:05:34 -0500
+Date: Mon, 18 Feb 2002 12:00:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrik Weiskircher <me@justp.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: khubd zombie
+Message-ID: <20020218200041.GE20284@kroah.com>
+In-Reply-To: <1014039193.523.42.camel@dev1lap> <20020218181417.GA19992@kroah.com> <1014062182.608.36.camel@pat>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1014062182.608.36.camel@pat>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 21 Jan 2002 17:13:00 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Xinwen - Fu wrote:
-
-> Hi,
-> 	Really weird!
+On Mon, Feb 18, 2002 at 08:56:22PM +0100, Patrik Weiskircher wrote:
 > 
-> 	I have two linux machines with kernel 2.4.17. When I ping one
-> machine from the other machine, all the ping request ip packets have the
-> same sequnce number 0. The ping reply packets have different ip
-> sequence numbers. Moreover, when I send udp packets using general
-> socket programming, all the udp packets have the same sequence number 0.
-> 
-> 	I use ethereal to check the packets.
-> 
-> 	What's the problem?
-> 
-> 	Thanks!
-> 
+> I tried it with 2.4.5, 2.4.12, 2.4.17.
+> And I have to kill everything except init.
+> I need a "clean" system.
 
-The sequence numbers for 'ping' come from ping. They are not generated
-by the kernel.
+What?  You want to also get rid of keventd, ksoftirqd_CPUX, kswapd, and
+others and expect your machine to still work properly?
 
-`strace` [snipped]
-sendto(3, "\10\0\335\360\360T\0\0@^q<\202\34\v\0\10\t\n\v\f\r\16\17"...,
-                              |________ sequence NR
+> Anyway, I don't think that it should behave like that.
+> Killing something from userspace should not affect the kernel, or did I
+> miss something?
 
-sendto(3, "\10\0\237\v\360T\1\0A^q<\277\1\v\0\10\t\n\v\f\r\16\17\20"...,
-                            |___________ sequence NR
+This is a _kernel_ thread, not a userspace program running.
 
+> I fixed it, it works, patch file attached.
 
-Cheers,
-Dick Johnson
+And what happened to your USB devices when you kill khubd after applying
+your patch?
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+The reparent_to_init() seems like the better thing to do.
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+thanks,
 
-
+greg k-h

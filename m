@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290422AbSBKUvB>; Mon, 11 Feb 2002 15:51:01 -0500
+	id <S290417AbSBKUvN>; Mon, 11 Feb 2002 15:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290386AbSBKUuw>; Mon, 11 Feb 2002 15:50:52 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43958 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S290417AbSBKUul>; Mon, 11 Feb 2002 15:50:41 -0500
-Date: Mon, 11 Feb 2002 20:52:21 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C68200C.90F7807F@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0202112012170.6409-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290377AbSBKUvC>; Mon, 11 Feb 2002 15:51:02 -0500
+Received: from monster.nni.com ([216.107.0.51]:273 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S290417AbSBKUuz>;
+	Mon, 11 Feb 2002 15:50:55 -0500
+Date: Mon, 11 Feb 2002 08:44:26 -0500
+From: Andrew Rodland <arodland@noln.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH *] rmap based VM 12e
+Message-Id: <20020211084426.21907cfb.arodland@noln.com>
+In-Reply-To: <Pine.LNX.4.33L.0202110012460.12554-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0202110012460.12554-100000@imladris.surriel.com>
+X-Mailer: Sylpheed version 0.7.0claws44 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Face: yuSM.z0$PasG_!+)P;ugu5P+@#JEocHIpArGcQZ^hcGos8:DBJ-tfTQYWyf`$2r0vfaoo7F|h.;Agl'@x8v]?{#ZLQDqSB:L^6RXGfF_fD+G9$c:)p<yycF[Da]*=*
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.nImD5wfiUiLo6D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Andrew Morton wrote:
-> Hugh Dickins wrote:
-> > 
-> > 1. I'd be sorry to see it go in as is: you haven't noticed how this
-> >    looks to a disassembler: not pretty!  I don't see an alternative
-> >    to wasting some more bytes: putting "push"es in front of line and
-> >    file? or is there one instruction (some "mov"?) to encompass both
-> >    line and file together?
-> 
-> This will also confound ksymoops when it parses the opcode
-> dump.  But we know the file-and-line, so that doesn't seem
-> very important.
+--=.nImD5wfiUiLo6D
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Well, it's not very important if it's immediately obvious why the
-BUG() on that source line should fire.  But in general, BUG()s are
-catching problems that are not immediately obvious.
+On Mon, 11 Feb 2002 00:15:24 -0200 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
 
-Very often we want to peer at the registers, work out exactly what's
-happening.  That is precisely why you're making these changes.  Maybe
-your in-head disassembler is better than objdump, but I need objdump
-or ksymoops or kdb to make sense of what's there.
+> The fifth maintenance release of the 12th version of the reverse
+> mapping based VM is now available.
 
-Of course, the nonsense comes _after_ the BUG(): but once you have
-several BUG()s in succession, it can be hard even to find subsequent
-"ud2a"s - in __free_pages_ok, I see "08 0f  or %cl,(%edi)
-0b 4c 00 7c  or 0x7c(%eax,%eax,1),%ecx" and suspect that
-there's really a "0f 0b  ud2a" hidden in there.
+I don't have any evil benchmarks to run, but it works just great on my
+little laptop (192mb ram, 73mb swap). The O(1)-K3 patch against 12c also
+applies fine, and does the right thing.
 
-The BUG() info is there to help debugging, it should not be obscuring
-the code.  I guess it would be easy to (mis)teach ksymoops and kdb
-that "ud2a" is actually a seven-byte instruction, but not objdump.
+This is cool-beans stuff. Makes me glad that I'm just a bit adventurous.
+Not adventurous enough for 2.5, but I'm running 2.4.17+rmap12e+O(1)K3
+and CML2 and etc.
+--=.nImD5wfiUiLo6D
+Content-Type: application/pgp-signature
 
-> If the unpretty disassembler output is a problem, we could go
-> back to your do_BUG code if CONFIG_DEBUG_BUGVERBOSE=y?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-I don't care for that, I really like that the option should go (or be
-sidelined to mean something else, which only affects a few places,
-as you have it), given your triumph in cutting down its overhead.
+iD8DBQE8Z8q9k/Qfd5whuDYRAoY8AJ99MjA+5PIAWBcaOtZtDkyubQ7n8QCcD1C3
+15e2ZxuJ3ngnmWPUineO5/o=
+=EktB
+-----END PGP SIGNATURE-----
 
-Hugh
+--=.nImD5wfiUiLo6D--
 

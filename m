@@ -1,34 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285559AbRLNWbM>; Fri, 14 Dec 2001 17:31:12 -0500
+	id <S285557AbRLNW3T>; Fri, 14 Dec 2001 17:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285556AbRLNWa7>; Fri, 14 Dec 2001 17:30:59 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:20547 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S285559AbRLNWaq>; Fri, 14 Dec 2001 17:30:46 -0500
-Date: Fri, 14 Dec 2001 17:30:45 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Sottek, Matthew J" <matthew.j.sottek@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: zap_page_range in a module
-Message-ID: <20011214173045.C26535@redhat.com>
-In-Reply-To: <C8C7DD4157F2D411AC7000A0C96B1522016C37D4@fmsmsx58.fm.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <C8C7DD4157F2D411AC7000A0C96B1522016C37D4@fmsmsx58.fm.intel.com>; from matthew.j.sottek@intel.com on Fri, Dec 14, 2001 at 01:26:29PM -0800
+	id <S285558AbRLNW3K>; Fri, 14 Dec 2001 17:29:10 -0500
+Received: from mail.vasoftware.com ([198.186.202.175]:4837 "EHLO
+	mail.vasoftware.com") by vger.kernel.org with ESMTP
+	id <S285556AbRLNW2y>; Fri, 14 Dec 2001 17:28:54 -0500
+Date: Fri, 14 Dec 2001 14:30:38 -0800 (PST)
+From: Amy Abascal-Turner <amy@vasoftware.com>
+To: <linux-kernel@vger.kernel.org>
+cc: Josh Neal <jneal@vasoftware.com>
+Subject: TLB IPI Wait Errors & APIC interrupt handling
+Message-ID: <Pine.LNX.4.30.0112141420380.22243-100000@beefcake.hdqt.vasoftware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 14, 2001 at 01:26:29PM -0800, Sottek, Matthew J wrote:
-> currently can only work when compiled into the kernel because I need 
-> zap_page_rage(). Is there an acceptable way for me to get equivalent
-> functionality in a module so that this will be more useful to the
-> general public?
+Hi!
 
-The vm does zap_page_range for you if you're implementing an mmap operation, 
-otherwise vmalloc/vfree/vremap will take care of the details for you.  How 
-is your code using zap_page_range?  It really shouldn't be.
+VA Linux (Software) is in dire need of some kernel help.
+If you know anything about TLB IPI and/or APIC interrupt
+handling, we will gladly pay well for your expertise and
+time.  We need the help on a very short timeline.
 
-		-ben
+A brief description of the problem is below.  Please email
+me or call me at 408-621-7054 (or the number below) if you
+can help or would like further details.
+
+Thanks!
+
+Amy
+--
+Amy Abascal-Turner                   510-687-6741
+Sr. Mgr. Product Support       amy@vasoftware.com
+VA SOFTWARE CORP.       http://www.vasoftware.com
+-------------------------------------------------
+
+Brief History
+
+A scientific computing cluster of 600 VA 1220s has been
+experiencing various problems under heavy loading
+conditions under production scenarios.  VA engineers have
+been dedicated to identifying and solving these problems
+and although the situation has vastly improved, it is
+still not completely resolved.  The primary issue
+remaining is random rebooting in SMP mode contributing to
+instability as a cluster.
+
+Technical Problems
+
+Random Reboots:
+"TLB IPI Wait" errors, possibly indicative of kernel
+deadlock.  This will require kernel-development expertise
+to resolve.
+
+Reboots possibly indicative of APIC interrupt handling
+which will require kernel development expertise to
+resolve.
+
+Internal Clock Skew:  resolved on by replacing motherboard
+on most nodes experiencing problem.  Suspect that some
+clock problems are side-effects of the APIC/TLB issues
+noted.
+
+Resolution
+
+In order to resolve the Reboot / TLB/IPI issues, the
+expertise of a kernel developer is required.  We are
+currently identifying resources to contract with to
+analyze the problem(s) and implement a solution.
+
+

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbUA0CZk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 21:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUA0CZk
+	id S261827AbUA0Ckr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 21:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUA0Ckr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 21:25:40 -0500
-Received: from smtp2.cwidc.net ([154.33.63.112]:38791 "EHLO smtp2.cwidc.net")
-	by vger.kernel.org with ESMTP id S262164AbUA0CZi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 21:25:38 -0500
-Message-ID: <4015CC18.7000802@tequila.co.jp>
-Date: Tue, 27 Jan 2004 11:25:28 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: Tequila \ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us, en, ja
+	Mon, 26 Jan 2004 21:40:47 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:28076 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261827AbUA0Cko
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 21:40:44 -0500
+Message-ID: <4015CF8A.6000006@cyberone.com.au>
+Date: Tue, 27 Jan 2004 13:40:10 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.2-rc2
-References: <Pine.LNX.4.58.0401251844440.32583@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401251844440.32583@home.osdl.org>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: habanero@us.ibm.com
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: New NUMA scheduler and hotplug CPU
+References: <20040125235431.7BC192C0FF@lists.samba.org> <200401261740.12657.habanero@us.ibm.com> <4015ABA8.3090202@cyberone.com.au> <200401262021.45885.habanero@us.ibm.com>
+In-Reply-To: <200401262021.45885.habanero@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Linus Torvalds wrote:
-| It's being uploaded right now, and the BK trees should already
-| be uptodate.
-|
-| There's a x86-64 update and IRDA updates here, and a number of USB storage
-| fixes. The rest is pretty small. Full changelog from -rc1 appended.
 
-| Tom Rini:
-|   o Elvis^H^H^H^H^HPaul has left the building
+Andrew Theurer wrote:
 
-so, he left with the "I can enter The Plug & Play Setup" ;)
+>On Monday 26 January 2004 18:07, Nick Piggin wrote:
+>
+>>>>Well OK, this would require a per architecture function to handle
+>>>>CPU hotplug. It could possibly just default to arch_init_sched_domains,
+>>>>and just completely reinitialise everything which would be the simplest.
+>>>>
+>>>Call me crazy, but why not let the topology be determined via userspace at
+>>>a more appropriate time?  When you hotplug, you tell it where in the
+>>>scheduler to plug it.  Have structures in the scheduler which represent
+>>>the nodes-runqueues-cpus topology (in the past I tried a node/rq/cpu
+>>>structs with simple pointers), but let the topology be built based on
+>>>user's desires thru hotplug.
+>>>
+>>Well isn't userspace's idea of topology just what the kernel tells it?
+>>I'm not sure what it would buy you... but I guess it wouldn't be too
+>>much harder than doing it in kernel, just a matter of making the userspace
+>>API.
+>>
+>
+>Sort of, the cpus to node is pretty much what the kernel says it is, but the 
+>cpu to runqueue mapping IMO is not a clear cut thing.
+>
+>
 
-bad thing:
-* Device Drivers >> Plug & Play Setup is no longer accessible [was in -rc1]
+But userspace still can't know more than the kernel tells it.
+Apart from that, the SMT stuff in the sched domains patch means
+SMT CPUs need not share runqueues.
 
-good thing:
-
-my | \ on my japanese 106 key PS/2 keyboard works... without loading my
-setkeys file. magic? santa?
-
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFAFcwYjBz/yQjBxz8RAm90AKDkwcIHaydiP2ZWMQqZZ98Uf9rI/gCgqQxr
-eD6/9RcY9fUJwVIx4X20Tyw=
-=jYIq
------END PGP SIGNATURE-----
 

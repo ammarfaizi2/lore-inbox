@@ -1,230 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265924AbUAPWwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbUAPWwb
+	id S265864AbUAPWsc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:48:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265876AbUAPWsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:52:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5388 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265924AbUAPWwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 17:52:21 -0500
-Date: Fri, 16 Jan 2004 22:52:17 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Serial updates
-Message-ID: <20040116225217.D5904@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jan 2004 17:48:32 -0500
+Received: from pop.gmx.net ([213.165.64.20]:35555 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265864AbUAPWrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 17:47:51 -0500
+X-Authenticated: #14521599
+From: Daniel Kirsten <Daniel.Kirsten@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: p4-clockmod does not compile under 2.6.1-mm3
+Date: Fri, 16 Jan 2004 23:47:13 +0100
+User-Agent: KMail/1.5.4
+Cc: Daniel.Kirsten@gmx.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Message-Id: <200401162347.13430.Daniel.Kirsten@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+You should enable 
 
-The following patch updates the 2.6.1 serial code for changes by Bjorn
-Helgaas.  I've included Bjorn's comments below:
+ Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon
 
-[SERIAL] make ACPI serial module unload work
-  
-  Patch from Bjorn Helgaas
-  
-  This patch makes ACPI serial ports work right when the serial driver
-  is built as a module.  Previously, loading worked fine, but we
-  didn't clean up on module removal.
+under   Processor type and features --> Processor support.
 
-[SERIAL] make HCDP dependent on serial console
-  
-  Patch from Bjorn Helgaas
-  
-  I propose the following HCDP Kconfig patch.  It makes HCDP
-  selectable only when serial console has been selected.  One
-  desirable side effect is that both are then available only
-  when statically compiled in (i.e., not built as a module).
 
-  The HCDP support doesn't actually depend on IA64, but I left
-  that in for now because nobody else implements support for it
-  and I don't want people confused by a selectable option that
-  doesn't do anything.  Maybe a "depends on EFI" or something
-  will be useful eventually.
 
-[SERIAL] request resources for ACPI & HCDP ports
-  
-  Patch from: Bjorn Helgaas
-  
-  This patch against 2.6.1-rc3 sets UPF_RESOURCES so the
-  appropriate ranges will show up in /proc/ioports and /proc/iomem.
-
-diff -Nru a/drivers/serial/8250_acpi.c b/drivers/serial/8250_acpi.c
---- a/drivers/serial/8250_acpi.c	Fri Jan 16 22:06:23 2004
-+++ b/drivers/serial/8250_acpi.c	Fri Jan 16 22:06:23 2004
-@@ -1,6 +1,7 @@
- /*
-- * serial/acpi.c
-  * Copyright (c) 2002-2003 Matthew Wilcox for Hewlett-Packard
-+ * Copyright (C) 2004 Hewlett-Packard Co
-+ *	Bjorn Helgaas <bjorn.helgaas@hp.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -11,13 +12,21 @@
- #include <linux/acpi.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/tty.h>
- #include <linux/serial.h>
-+#include <linux/tty.h>
-+#include <linux/serial_core.h>
- 
- #include <acpi/acpi_bus.h>
- 
- #include <asm/io.h>
- #include <asm/serial.h>
- 
-+struct serial_private {
-+	int	line;
-+	void	*iomem_base;
-+};
-+
- static acpi_status acpi_serial_mmio(struct serial_struct *req,
- 				    struct acpi_resource_address64 *addr)
- {
-@@ -94,38 +103,72 @@
- 
- static int acpi_serial_add(struct acpi_device *device)
- {
-+	struct serial_private *priv;
- 	acpi_status status;
- 	struct serial_struct serial_req;
--	int line;
-+	int result;
- 
- 	memset(&serial_req, 0, sizeof(serial_req));
- 
-+	priv = kmalloc(sizeof(struct serial_private), GFP_KERNEL);
-+	if (!priv) {
-+		result = -ENOMEM;
-+		goto fail;
-+	}
-+	memset(priv, 0, sizeof(*priv));
-+
- 	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
- 				     acpi_serial_resource, &serial_req);
--	if (ACPI_FAILURE(status))
--		return -ENODEV;
-+	if (ACPI_FAILURE(status)) {
-+		result = -ENODEV;
-+		goto fail;
-+	}
- 
--	if (!serial_req.iomem_base && !serial_req.port) {
-+	if (serial_req.iomem_base)
-+		priv->iomem_base = serial_req.iomem_base;
-+	else if (!serial_req.port) {
- 		printk(KERN_ERR "%s: no iomem or port address in %s _CRS\n",
- 			__FUNCTION__, device->pnp.bus_id);
--		return -ENODEV;
-+		result = -ENODEV;
-+		goto fail;
- 	}
- 
- 	serial_req.baud_base = BASE_BAUD;
--	serial_req.flags = ASYNC_SKIP_TEST|ASYNC_BOOT_AUTOCONF|ASYNC_AUTO_IRQ;
-+	serial_req.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF |
-+			   UPF_AUTO_IRQ  | UPF_RESOURCES;
- 
--	line = register_serial(&serial_req);
--	if (line < 0) {
--		printk(KERN_WARNING "Couldn't register serial port %s: %d",
--			device->pnp.bus_id, line);
--		return -ENODEV;
-+	priv->line = register_serial(&serial_req);
-+	if (priv->line < 0) {
-+		printk(KERN_WARNING "Couldn't register serial port %s: %d\n",
-+			device->pnp.bus_id, priv->line);
-+		result = -ENODEV;
-+		goto fail;
- 	}
- 
-+	acpi_driver_data(device) = priv;
- 	return 0;
-+
-+fail:
-+	if (serial_req.iomem_base)
-+		iounmap(serial_req.iomem_base);
-+	kfree(priv);
-+
-+	return result;
- }
- 
- static int acpi_serial_remove(struct acpi_device *device, int type)
- {
-+	struct serial_private *priv;
-+
-+	if (!device || !acpi_driver_data(device))
-+		return -EINVAL;
-+
-+	priv = acpi_driver_data(device);
-+	unregister_serial(priv->line);
-+	if (priv->iomem_base)
-+		iounmap(priv->iomem_base);
-+	kfree(priv);
-+
- 	return 0;
- }
- 
-diff -Nru a/drivers/serial/8250_hcdp.c b/drivers/serial/8250_hcdp.c
---- a/drivers/serial/8250_hcdp.c	Fri Jan 16 22:06:23 2004
-+++ b/drivers/serial/8250_hcdp.c	Fri Jan 16 22:06:23 2004
-@@ -185,7 +185,7 @@
- #else
- 		port.irq = gsi;
- #endif
--		port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF;
-+		port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_RESOURCES;
- 		if (gsi)
- 			port.flags |= ASYNC_AUTO_IRQ;
- 
-diff -Nru a/drivers/serial/Kconfig b/drivers/serial/Kconfig
---- a/drivers/serial/Kconfig	Fri Jan 16 22:06:23 2004
-+++ b/drivers/serial/Kconfig	Fri Jan 16 22:06:23 2004
-@@ -62,6 +62,15 @@
- 
- 	  If unsure, say N.
- 
-+config SERIAL_8250_HCDP
-+	bool "Console device discovery via EFI HCDP table"
-+	depends on IA64
-+	depends on SERIAL_8250_CONSOLE=y
-+	---help---
-+	  If you wish to make the serial console port described by the EFI
-+	  HCDP table available for use as serial console, say Y here.  See
-+	  <http://www.dig64.org/specifications/DIG64_HCDPv10a_01.pdf>.
-+
- config SERIAL_8250_CS
- 	tristate "8250/16550 PCMCIA device support"
- 	depends on PCMCIA && SERIAL_8250
-@@ -83,15 +92,6 @@
- 	---help---
- 	  If you wish to enable serial port discovery via the ACPI
- 	  namespace, say Y here.  If unsure, say N.
--
--config SERIAL_8250_HCDP
--	bool "8250/16550 device discovery support via EFI HCDP table"
--	depends on IA64 && SERIAL_8250
--	---help---
--	  If you wish to make the serial console port described by the EFI
--	  HCDP table available for use as serial console or general
--	  purpose port, say Y here. See
--	  <http://www.dig64.org/specifications/DIG64_HCDPv10a_01.pdf>.
- 
- config SERIAL_8250_NR_UARTS
- 	int "Maximum number of non-legacy 8250/16550 serial ports"
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

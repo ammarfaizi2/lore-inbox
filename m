@@ -1,82 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSJQNFU>; Thu, 17 Oct 2002 09:05:20 -0400
+	id <S261424AbSJQNRN>; Thu, 17 Oct 2002 09:17:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261747AbSJQNFU>; Thu, 17 Oct 2002 09:05:20 -0400
-Received: from wilma1.suth.com ([207.127.128.4]:53767 "EHLO wilma1.suth.com")
-	by vger.kernel.org with ESMTP id <S261742AbSJQNFT>;
-	Thu, 17 Oct 2002 09:05:19 -0400
-Subject: Re: 2.5.43 and the VIA vt8233 IDE controller.
-From: Jason Williams <jason_williams@suth.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1034800703.12979.12.camel@cermanius.suth.com>
-References: <1034800703.12979.12.camel@cermanius.suth.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Oct 2002 09:13:29 -0400
-Message-Id: <1034860413.19730.91.camel@cermanius.suth.com>
-Mime-Version: 1.0
+	id <S261449AbSJQNRN>; Thu, 17 Oct 2002 09:17:13 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:6407 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S261424AbSJQNQX>; Thu, 17 Oct 2002 09:16:23 -0400
+Message-Id: <200210171322.g9HDME7o024177@pincoya.inf.utfsm.cl>
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Posix capabilities 
+In-Reply-To: Message from GrandMasterLee <masterlee@digitalroadkill.net> 
+   of "16 Oct 2002 23:00:20 CDT." <1034827220.32333.69.camel@localhost> 
+Date: Thu, 17 Oct 2002 10:22:14 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a small addendum to this post I made yesterday, I took the VIA IDE
-controller code out of the kernel and it booted just fine.  And again,
-my Promise RAID controller was seen just fine by the kernel, so I am
-leaning even more toward a problem in the VIA driver. 
+GrandMasterLee <masterlee@digitalroadkill.net> said:
+> On Wed, 2002-10-16 at 22:26, Theodore Ts'o wrote:
 
-Jason
+[...]
 
-On Wed, 2002-10-16 at 16:38, Jason Williams wrote:
-> I am suspecting something is amist with the via controller code in
-> 2.5.43, because my promise controller goes through the same routines
-> just fine.  I started to try to back trace everything to hunt down the
-> culperate myself, but alas, I couldn't find the cause.  So if anyone can
-> give me a hand here, I would be very grateful.  What follows is the
-> bottom snippet of kernel output.  If you require anything further, let
-> me know I will send it.
-> 
-> Jason
-> 
-> 
-> 
-> 
-> ----
-> 
+> > Personally, I'm not so convinced that capabilities are such a great
+> > idea.  System administrators have a hard enough time keeping 12 bits
+> > of permissions correct on executable files; with capabilities they
+> > have to keep track of several hundred bits of capabilties flags, which
+> > must be set precisely correctly, or the programs will either (a) fail
+> > to function, or (b) have a gaping huge security hole.  
 
-> 
-> VP_IDE: chipset revision 6
-> VP_IDE: not 100% native mode: will probe irqs later
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
->     ide1: BM-DMA at 0x9008-0x900fUnable to handle kernel NULL pointer dereference at virtual address 00000650
->  printing eip:
-> c024a52b
-> *pde = 00000000
-> Oops: 0000
-> 
-> CPU:    0
-> EIP:    0060:[<c024a52b>]    Not tainted
-> EFLAGS: 00010202
-> EIP is at ide_iomio_dma+0xbb/0x1c0
-> eax: 00000000   ebx: c052cbb4   ecx: c03aa274   edx: 00000001
-> esi: c052cbc4   edi: 00009008   ebp: 00000008   esp: dffcbeb4
-> ds: 0068   es: 0068   ss: 0068
-> Process swapper (pid: 1, threadinfo=dffca000 task=dffc8040)
-> Stack: c0380d6f 00009008 00000008 c052cbc4 c1526000 c052cbb4 c03e7a50 c052cbb4
->        c024a687 c052cbb4 00009008 00000008 00000089 c04195dd c1526000 00009008
->        c0418a58 c052cbb4 00009008 00000008 c02488be c052cbb4 00009008 00000004
-> Call Trace:
->  [<c024a687>] ide_setup_dma+0x27/0x380
->  [<c02488be>] ide_hwif_setup_dma+0x10e/0x150
->  [<c0248bce>] do_ide_setup_pci_device+0x16e/0x330
->  [<c0248dbb>] ide_setup_pci_device+0x2b/0x80
->  [<c02388e8>] via_init_one+0x38/0x40
->  [<c010507a>] init+0x3a/0x160
->  [<c0105040>] init+0x0/0x160
->  [<c0105641>] kernel_thread_helper+0x5/0x14
-> 
-> Code: 8b 80 50 06 00 00 89 83 4c 06 00 00 c7 04 24 77 0d 38 c0 e8
->  <0>Kernel panic: Attempted to kill init!
+Nodz.
 
+> While working with LIDS in it's early stages of implementation, and
+> having written some documentation around CAPs and  extended attributes,
+> as well as managing that environment, I see value in CAPs, but I see it
+> a difficult task to say, manage 100 servers with very tight CAPs set. 
 
+It is easier on the sysadmin for the people upstream (developers,
+distributors, ...) to set up stuff sanely in the executable. Sure, a lot of
+flexibility is lost this way.
+
+> > This probablem could be solved with some really scary, complex user
+> > tools (which no one has written yet). 
+
+> Looking at CA Unicenter, they have an ACLs and CAPs product which does
+> centralized management of those attributes to keep the configs sane
+> across your environment. Not trying to advertise for them, but the point
+> is, if a commercial product exists to do this, then it should be highly
+> possible in the OSS community as well.
+
+Sorry, but I gather the vast mayority of Linux instalations to be
+single-machine (home use, ...). I have yet to see a hundred-machine setup
+myself (maximal is some 30 around here), so this is out of the league of
+most people anyway. Plus Linux is falling more and more into the hands of
+the unwashed masses, who have a dificult time remembering not to do
+everything as root (leave alone fix up permissions).
+
+> >  Alternatively you could just
+> > let programs continue to be setuid root, but modify the executable to
+> > explicitly drop all the capabilities except for the ones that are
+> > actually needed as one of the first things that executable does.
+> 
+> To make management easy for the admins when I dealt with LIDS and making
+> it *very* tight, I had to write several wrappers, replace commands, etc
+> so they ran chrooted automatically, etc. It was a PITA. Cool when it
+> worked, but it was still a PITA.
+
+But a once-in-the-development PITA, not a once-for-each-installation PITA
+
+> > It perhaps only gives you 90% of the benefits of the full-fledged
+> > capabilities model, but it's much more fool proof, and much easier to
+> > administer.
+
+> Perhaps exntending the security module to actually have a centralized
+> host configuration utility, using say AES or diffie-hellman and SSL or
+> SSH to do the configuration management of this. Centralizing, or
+> distributing the management of this, but with a decided upon security
+> architecture is what, imho, will actually make this type of
+> configuration very useable, and manageable. 
+
+Have you seen any such centralized configuration management in real use?
+The nearest we come here is Red Hat's kickstart for configuring the whole
+Lab (mostly) the same when installing, and that is for only slightly
+heterogeneous machines that must look the same to users.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

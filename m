@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319385AbSIFUuO>; Fri, 6 Sep 2002 16:50:14 -0400
+	id <S319400AbSIFVAP>; Fri, 6 Sep 2002 17:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319386AbSIFUuN>; Fri, 6 Sep 2002 16:50:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27784 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319385AbSIFUuN>;
-	Fri, 6 Sep 2002 16:50:13 -0400
-Date: Fri, 06 Sep 2002 13:47:39 -0700 (PDT)
-Message-Id: <20020906.134739.103183356.davem@redhat.com>
-To: jeff@AmeriCom.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux SMP kernel bug with > 512M ram
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020906205026.15331.qmail@solo.americom.com>
-References: <1031332028.9945.74.camel@irongate.swansea.linux.org.uk>
-	<20020906165516.17282.qmail@solo.americom.com>
-	<20020906205026.15331.qmail@solo.americom.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S319396AbSIFU7l>; Fri, 6 Sep 2002 16:59:41 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:63990
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319397AbSIFU6b>; Fri, 6 Sep 2002 16:58:31 -0400
+Subject: Re: ext3 corruption on 2.4.18 (LVM, vt82c586b, no DMA)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Marius Gedminas <mgedmin@centras.lt>,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20020906183415.B7946@redhat.com>
+References: <20020904102605.GB8576@gintaras> 
+	<20020906183415.B7946@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 06 Sep 2002 22:04:06 +0100
+Message-Id: <1031346246.10612.92.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jeff@AmeriCom.com
-   Date: 6 Sep 2002 20:50:26 -0000
+On Fri, 2002-09-06 at 18:34, Stephen C. Tweedie wrote:
+> > I gather from Configure.help that DMA is broken on Via VP2, but it is
+> > turned off here.
+> 
+> Unfortunately, if you disable UDMA mode, you also lose the checksums
+> between drive and controller which can detect cable data corruption.
 
-   I'm posting here because I believe I have narrowed it down to a bug in the 
-   kernel.
-   
-And Alan also said there are errata upgrades available that
-quite possibly will cure your problems.
+I's have to look it up to be sure but I believe the VIA VP2 goes to DMA
+not UDMA
+

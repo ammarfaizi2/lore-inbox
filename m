@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264444AbRFII6K>; Sat, 9 Jun 2001 04:58:10 -0400
+	id <S264447AbRFIJKc>; Sat, 9 Jun 2001 05:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264445AbRFII6B>; Sat, 9 Jun 2001 04:58:01 -0400
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:24257 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S264444AbRFII5v>; Sat, 9 Jun 2001 04:57:51 -0400
-Date: Sat, 9 Jun 2001 04:57:44 -0400 (EDT)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>, <linux-kernel@vger.kernel.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.21.0106090515080.14934-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0106090455060.26171-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264446AbRFIJKV>; Sat, 9 Jun 2001 05:10:21 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:6784 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S264445AbRFIJKJ>;
+	Sat, 9 Jun 2001 05:10:09 -0400
+Date: Sat, 9 Jun 2001 11:01:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Mike Coleman <mkc@mathdogs.com>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [driver] New life for Serial mice
+Message-ID: <20010609110153.A669@suse.cz>
+In-Reply-To: <20010606125556.A1766@suse.cz> <20010606232133.E38@toy.ucw.cz> <20010608181521.A1998@suse.cz> <20010608182046.H13825@atrey.karlin.mff.cuni.cz> <20010608182807.B2083@suse.cz> <87wv6mn2ql.fsf@mathdogs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87wv6mn2ql.fsf@mathdogs.com>; from mkc@mathdogs.com on Fri, Jun 08, 2001 at 03:19:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Jun 2001, Rik van Riel wrote:
+On Fri, Jun 08, 2001 at 03:19:46PM -0500, Mike Coleman wrote:
 
->> Why are half the people here trying to hide behind this diskspace
->> is cheap argument?  If we rely on that, then Linux sucks shit.
->
->Never mind them, I haven't seen any of them contribute
->VM code, even ;)
+> Vojtech Pavlik <vojtech@suse.cz> writes:
+> > > Can't it make mouse jump forward and back when user suddenly stops?
+> > 
+> > In theory - yes. It doesn't seem to be a problem in practice, though.
+> > It'll happen when a user slows down the mouse pointer motion faster than
+> > exponentially (base 2). I haven't been able to stop that fast.
+> 
+> Put a big brick on your desktop and *ram* it with your mouse.  :-)
 
-Nor have I, but I think you guys working on it will get it
-cleaned up eventually.  What bugs me is people trying to pretend
-that it isn't important to fix, or that spending money to get
-newer hardware is acceptable solution.
+Cool idea! Gotta try ... ;)
 
->OTOH, disk space _is_ cheap, so the other VM - performance
->related - VM bugs do have a somewhat higher priority at the
->moment.
-
-Yes, it is cheap.  It isn't always an acceptable workaround
-though, so I'm glad you guys are working on it - even if we have
-to wait a bit.
-
-I have faith in the system.  ;o)
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Open Source advocate
-       Opinions and viewpoints expressed are solely my own.
-----------------------------------------------------------------------
-
+-- 
+Vojtech Pavlik
+SuSE Labs

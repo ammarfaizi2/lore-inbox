@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314241AbSEYRhs>; Sat, 25 May 2002 13:37:48 -0400
+	id <S314811AbSEYRm3>; Sat, 25 May 2002 13:42:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315042AbSEYRhr>; Sat, 25 May 2002 13:37:47 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:55826 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S314241AbSEYRho>; Sat, 25 May 2002 13:37:44 -0400
-Date: Sun, 26 May 2002 03:39:40 +1000
-From: john slee <indigoid@higherplane.net>
-To: rgooch@ras.ucalgary.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [auto-reply] Re: ????????????????????-????????
-Message-ID: <20020525173939.GE11476@higherplane.net>
-In-Reply-To: <20020525021909Z313201-22651+54325@vger.kernel.org> <200205250220.g4P2KgA03989@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S315042AbSEYRm2>; Sat, 25 May 2002 13:42:28 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:28633 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314811AbSEYRm2>; Sat, 25 May 2002 13:42:28 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Larry McVoy <lm@bitmover.com>, Erwin Rol <erwin@muffin.org>,
+        linux-kernel@vger.kernel.org, RTAI users <rtai@rtai.org>
+From: Wolfgang Denk <wd@denx.de>
+Subject: Re: RTAI/RtLinux 
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: Your message of "Sat, 25 May 2002 10:31:24 PDT."
+             <Pine.LNX.4.33L2.0205251019130.18051-100000@dragon.pdx.osdl.net> 
+Date: Sat, 25 May 2002 19:42:02 +0200
+Message-Id: <20020525174207.2758D11972@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you are convinced that you send a message to me in English, but my
-> auto-responder is broken somehow, you may re-send the message with the
-> following in the subject line:
+In message <Pine.LNX.4.33L2.0205251019130.18051-100000@dragon.pdx.osdl.net>
+Randy Dunlap wrote:
+> 
+> Having 1 person say that Linux has problems in the embedded space
+> doesn't carry much weight with me, but having 2-3 other people
+> confirm it does start to concern me.
 
-it sure is broken.  please stop it from posting to lk.
+OK, so let's add another confirmation - mine. Just $0.02, of course.
 
-j.
+Wolfgang Denk
 
 -- 
-toyota power: http://indigoid.net/
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+The best things in life are for a fee.

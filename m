@@ -1,90 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbSL2V6W>; Sun, 29 Dec 2002 16:58:22 -0500
+	id <S261894AbSL2V53>; Sun, 29 Dec 2002 16:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261861AbSL2V6W>; Sun, 29 Dec 2002 16:58:22 -0500
-Received: from tag.witbe.net ([81.88.96.48]:12296 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S261836AbSL2V6M>;
-	Sun, 29 Dec 2002 16:58:12 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Andrew Walrond'" <andrew@walrond.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.53] So sloowwwww......
-Date: Sun, 29 Dec 2002 23:06:32 +0100
-Message-ID: <00d901c2af86$8be90d60$2101a8c0@witbe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <3E0F63FD.60903@walrond.org>
+	id <S261934AbSL2V53>; Sun, 29 Dec 2002 16:57:29 -0500
+Received: from verein.lst.de ([212.34.181.86]:39947 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S261894AbSL2V51>;
+	Sun, 29 Dec 2002 16:57:27 -0500
+Date: Sun, 29 Dec 2002 23:05:46 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] nommu systems can't support /proc/<pid>/maps
+Message-ID: <20021229230546.A12215@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I did made another kernel without ACPI and with APM, 
-and it is working fine.
+So stub it out, similar to /proc/<pid>/wchan for !CONFIG_KALLSYMS
 
-To summarize :
- - ACPI Enumeration only is fine
- - More functionnalities from ACPI is bad.
 
-If someone has an idea and wants me to make tests, please contact
-me...
-
-Regards,
-Paul
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Andrew Walrond
-> Sent: Sunday, December 29, 2002 10:07 PM
-> To: Paul Rolland
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [2.5.53] So sloowwwww......
-> 
-> 
-> Mount a tmpfs drive and try building the kernel there to rule 
-> out scsi 
-> or disc issues. (You've got .5Gb I think? Might not want to 
-> run kde as 
-> well; just build from a console)
-> 
-> But I think your ACPI guess is probably not far wrong.
-> 
-> Paul Rolland wrote:
-> > Hello,
-> > 
-> > 
-> >>Ouch; that is slow. What partition type are you building from ?
-> >>
-> > 
-> > This is an ext3 partition, and a SCSI disk :
-> > 4 [18:10] rol@donald:/kernels> df .
-> > Filesystem           1K-blocks      Used Available Use% Mounted on
-> > /dev/sda1             10320888    753828   9042724   8% /kernels
-> > 
-> > Do you think I should try on some other ?
-> > The problem is that the system is *globally* slow, and 
-> compiling the 
-> > kernel is just a way to prove it. Starting KDE has become a 
-> real pain 
-> > (so slow screen detects no more video and enter Energy Saving mode 
-> > before reactivating and switching to Graphic mode).
-> > 
-> > Regards,
-> > Paul
-> > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+--- 1.35/fs/proc/array.c	Mon Nov 25 17:42:29 2002
++++ edited/fs/proc/array.c	Tue Dec 17 23:07:37 2002
+@@ -513,8 +513,9 @@
+ 	return len;
+ }
+ 
+-ssize_t proc_pid_read_maps (struct task_struct *task, struct file * file, char * buf,
+-			  size_t count, loff_t *ppos)
++#ifdef CONFIG_MMU
++ssize_t proc_pid_read_maps(struct task_struct *task, struct file *file,
++			   char *buf, size_t count, loff_t *ppos)
+ {
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct * map;
+@@ -597,3 +598,4 @@
+ out:
+ 	return retval;
+ }
++#endif /* CONFIG_MMU */
+===== fs/proc/base.c 1.35 vs edited =====
+--- 1.35/fs/proc/base.c	Tue Nov 26 14:29:39 2002
++++ edited/fs/proc/base.c	Tue Dec 17 23:09:41 2002
+@@ -75,7 +75,9 @@
+   E(PROC_PID_CMDLINE,	"cmdline",	S_IFREG|S_IRUGO),
+   E(PROC_PID_STAT,	"stat",		S_IFREG|S_IRUGO),
+   E(PROC_PID_STATM,	"statm",	S_IFREG|S_IRUGO),
++#ifdef CONFIG_MMU
+   E(PROC_PID_MAPS,	"maps",		S_IFREG|S_IRUGO),
++#endif
+   E(PROC_PID_MEM,	"mem",		S_IFREG|S_IRUSR|S_IWUSR),
+   E(PROC_PID_CWD,	"cwd",		S_IFLNK|S_IRWXUGO),
+   E(PROC_PID_ROOT,	"root",		S_IFLNK|S_IRWXUGO),
+@@ -98,7 +100,6 @@
+ 	return PROC_I(inode)->type;
+ }
+ 
+-ssize_t proc_pid_read_maps(struct task_struct*,struct file*,char*,size_t,loff_t*);
+ int proc_pid_stat(struct task_struct*,char*);
+ int proc_pid_status(struct task_struct*,char*);
+ int proc_pid_statm(struct task_struct*,char*);
+@@ -321,6 +322,9 @@
+ 	return proc_check_root(inode);
+ }
+ 
++#ifdef CONFIG_MMU
++extern ssize_t proc_pid_read_maps(struct task_struct *, struct file *,
++				  char *, size_t, loff_t *);
+ static ssize_t pid_maps_read(struct file * file, char * buf,
+ 			      size_t count, loff_t *ppos)
+ {
+@@ -335,6 +339,7 @@
+ static struct file_operations proc_maps_operations = {
+ 	.read		= pid_maps_read,
+ };
++#endif /* CONFIG_MMU */
+ 
+ extern struct seq_operations mounts_op;
+ static int mounts_open(struct inode *inode, struct file *file)
+@@ -1023,10 +1028,11 @@
+ 			inode->i_fop = &proc_info_file_operations;
+ 			ei->op.proc_read = proc_pid_statm;
+ 			break;
++#ifdef CONFIG_MMU
+ 		case PROC_PID_MAPS:
+ 			inode->i_fop = &proc_maps_operations;
+ 			break;
+-
++#endif
+ 		case PROC_PID_MEM:
+ 			inode->i_op = &proc_mem_inode_operations;
+ 			inode->i_fop = &proc_mem_operations;

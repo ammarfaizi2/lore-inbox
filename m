@@ -1,90 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135614AbRDXNjI>; Tue, 24 Apr 2001 09:39:08 -0400
+	id <S135617AbRDXNmT>; Tue, 24 Apr 2001 09:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135610AbRDXNjF>; Tue, 24 Apr 2001 09:39:05 -0400
-Received: from [203.36.158.121] ([203.36.158.121]:29959 "EHLO
-	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
-	id <S135616AbRDXNiU>; Tue, 24 Apr 2001 09:38:20 -0400
-Date: Tue, 24 Apr 2001 23:38:01 +1000
-From: Daniel Stone <daniel@kabuki.openfridge.net>
-To: imel96@trustix.co.id
-Cc: Daniel Stone <daniel@kabuki.openfridge.net>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-Message-ID: <20010424233801.A6067@piro.kabuki.openfridge.net>
-Mail-Followup-To: imel96@trustix.co.id,
-	Daniel Stone <daniel@kabuki.openfridge.net>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010424225841.D5803@piro.kabuki.openfridge.net> <Pine.LNX.4.33.0104242018410.16215-100000@tessy.trustix.co.id>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0104242018410.16215-100000@tessy.trustix.co.id>; from imel96@trustix.co.id on Tue, Apr 24, 2001 at 08:27:56PM +0700
-Organisation: Sadly lacking
+	id <S135619AbRDXNl6>; Tue, 24 Apr 2001 09:41:58 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:40206 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135610AbRDXNjc>; Tue, 24 Apr 2001 09:39:32 -0400
+Date: Tue, 24 Apr 2001 15:39:07 +0200 (CEST)
+From: Axel Siebenwirth <axel@rayfun.org>
+To: linux-kernel@vger.kernel.org
+cc: linux-net@vger.kernel.org, realtek@scyld.com
+Subject: dirty entry in transmit queue on eth (fwd)
+Message-ID: <Pine.LNX.4.21.0104241538080.9290-100000@neon.rayfun.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 08:27:56PM +0700, imel96@trustix.co.id wrote:
-> On Tue, 24 Apr 2001, Daniel Stone wrote:
-> > Hence, Microsoft Windows. It might not be stable, it might not be fast, it
-> > might not do RAID, packet-filtering and SQL, but it does a job. A simple
-> > job. To give Mum & Dad(tm) (with apologies to maddog) a chance to use a
-> > computer.
-> >
-> >
-> > Since when, did mobile phones == computers?
-> 
-> read the news! i'm programming nokia 9210 with c++, is that
-> computer enough?
+sorry, my email address was wrong, it's axel@rayfun.org
 
-Aah. I see. Where was this? I never saw it.
- 
-> i bet if you programmed one, you'd wish you have posix
-> interface.
+---------- Forwarded message ----------
+Date: Tue, 24 Apr 2001 15:36:12 +0200 (CEST)
+From: Axel Siebenwirth <axel@neon.rayfun.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-net@vger.kernel.org, realtek@scyld.com
+Subject: dirty entry in transmit queue on eth
 
-That may be so, so hack up your own OS. It's a MOBILE PHONE, it needs to be
-absolutely *rock solid*. Look at the 5110, that's just about perfect. The
-7110, on the other hand ...
+oh please could someone tell me what this is supposed to mean and/or where
+this might be originating from. it's a realtek 8139 and im running linux
+kernel 2.4.4pre3.
 
-> > > that also explain why win95 user doesn't want to use NT. not
-> > > because they can't afford it (belive me, here NT costs only
-> > > us$2), but additional headache isn't acceptable.
-> >
-> > So, let them stay in Win95. They don't *need* NT.
-> 
-> and how's stability, speed, etc. they read. is there a linux
-> advocate around here?
+Apr 24 15:24:29 bello kernel: eth1: Setting half-duplex based on
+auto-negotiated partner ability 0000.
+Apr 24 15:24:41 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Apr 24 15:24:41 bello kernel: eth1: Tx queue start entry 523  dirty entry
+519.
+Apr 24 15:24:41 bello kernel: eth1:  Tx descriptor 0 is 00002000.
+Apr 24 15:24:41 bello kernel: eth1:  Tx descriptor 1 is 00002000.
+Apr 24 15:24:41 bello kernel: eth1:  Tx descriptor 2 is 00002000.
+Apr 24 15:24:41 bello kernel: eth1:  Tx descriptor 3 is 00002000. (queue
+head)
 
-There are Linux advocates, but I'd say most of us are sane enough to use the
-right-tool-for-the-job approach. And UNIX on a phone is pure overkill.
- 
-> > If your sister doesn't want that, give your sister a copy of Win95. If she
-> > doesn't want that, she obviously wouldn't get any advantage out of Linux, as
-> > opposed to Win95, whatsoever. Would she get a kick out of having to learn an
-> > entirely new environment? Granted, I'm far more productive in GNOME,
-> > Sawfish, emacs and mutt than Win95, Word and Outlook, but it takes people
-> > time to get used to, and you'll have trouble dragging them out of
-> > point-n-click.
-> 
-> okay, it wouldn't cost me. but it surely easier if everybody used
-> linux, so i could put my ext2 disk everywhere i want.
->
-> hey, it's obvious that it's not for a server!
-> i try to point out a problem for people not on this list, don't
-> work around that problem.
+thank you, i have posted this/my problem almost everywhere but havent
+got one respone yet.
 
-Your sister won't notice much advantage. Linux on a workstation actually has
-*disadvantages* (unfamiliar interface, unintuitive same, etc), as opposed to
-'Doze on a workstation. Sure it's more stable, and the tiniest bit faster,
-but what's that really matter to your sister, if she can't even figure out
-how to use it?
+Axel Siebenwirth
 
--d, who owns a 7110 and can lock it solid, or get it to do funny resetting
-tricks, at least once every 2 days
 
--- 
-Daniel Stone
-Linux Kernel Developer
-daniel@kabuki.openfridge.net

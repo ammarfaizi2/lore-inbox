@@ -1,207 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267841AbUH2Nzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267859AbUH2N5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267841AbUH2Nzf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 09:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267839AbUH2Nzf
+	id S267859AbUH2N5n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 09:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267918AbUH2N52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 09:55:35 -0400
-Received: from [193.12.224.70] ([193.12.224.70]:9960 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267859AbUH2NyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 09:54:13 -0400
-Date: Sun, 29 Aug 2004 15:54:03 +0200
-From: Erik Rigtorp <erik@rigtorp.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make swsusp produce nicer screen output
-Message-ID: <20040829135403.GA8182@linux.nu>
-References: <20040820152317.GA7118@linux.nu> <20040823174217.GC603@openzaurus.ucw.cz> <20040823200858.GA4593@linux.nu> <20040824214929.GA490@openzaurus.ucw.cz>
+	Sun, 29 Aug 2004 09:57:28 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:30732 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S267859AbUH2N4Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 09:56:25 -0400
+Date: Sun, 29 Aug 2004 15:56:17 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, viro@parcelfarce.linux.theplanet.co.uk,
+       Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
+       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
+       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040829135617.GA8021@pclin040.win.tue.nl>
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <20040828182954.GJ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408281132480.2295@ppc970.osdl.org> <20040828185613.GK21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408281201290.2295@ppc970.osdl.org> <20040828194129.GA7713@pclin040.win.tue.nl> <Pine.LNX.4.58.0408281244340.2295@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040824214929.GA490@openzaurus.ucw.cz>
+In-Reply-To: <Pine.LNX.4.58.0408281244340.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 11:49:30PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Well, it looks nice, be sure to submit smooth version :-).
-> > I'm working on it :).
-> 
-> > > I'd leave dots here. Its usefull to see if it done something or not.
-> > 
-> > Well, it will display a spinning thingy that is updated every time
-> > shrink_all_memory(10000) returns. Maybe you want to see how much memory was
-> > freed?
-> 
-> Yes, it is quite important to see how many pages were freed even after
-> freeing stopped. "done (1234 pages freed)" would solve it...
-Added code for this in the new patch
+On Sat, Aug 28, 2004 at 12:46:10PM -0700, Linus Torvalds wrote:
 
+> > Now there is no attribute space, just a shorthand.
 > 
-> > And do we need to handle the case when nr_copy_pages < 100?
-> 
-> It really should not crash. 100 pages is 4MB. Thats little low but
-> seems possible.
+> It's more than a shorthand, though. _Much_ more.
+> ...
+> Both of those are why it would need special support.
 
-Well it's probably best to handle this case, to be on the safe side.
+Yes - support, I do not argue against that.
+But I argue against an attribute space.
 
-Here's a new version of the patch.
+This xterm.icon was xterm.icons - with both large and small
+icons. And these icons have copyrights. Etc. There is just
+an arbitrary tree below this xterm filesystem object.
+The files below are in no way different from the files above.
 
-diff -Nru linux-2.6.8.1-mm2/kernel/power/disk.c linux-2.6.8.1-mm2-erkki/kernel/power/disk.c
---- linux-2.6.8.1-mm2/kernel/power/disk.c	2004-08-20 17:10:58.000000000 +0200
-+++ linux-2.6.8.1-mm2-erkki/kernel/power/disk.c	2004-08-29 14:16:53.000000000 +0200
-@@ -85,10 +85,20 @@
- 
- static void free_some_memory(void)
- {
--	printk("Freeing memory: ");
--	while (shrink_all_memory(10000))
--		printk(".");
--	printk("|\n");
-+	unsigned int i = 0;
-+	unsigned int tmp;
-+	unsigned long pages = 0;
-+	char *p = "-\\|/";
-+	
-+	printk("Freeing memory...  ");
-+	while (tmp = shrink_all_memory(10000)) {
-+		pages += tmp;
-+		printk("\b%c", p[i]);
-+		i++;
-+		if (i > 3)
-+			i = 0;
-+	}
-+	printk("\bdone (%li pages freed)\n", pages);
- }
- 
- 
-diff -Nru linux-2.6.8.1-mm2/kernel/power/swsusp.c linux-2.6.8.1-mm2-erkki/kernel/power/swsusp.c
---- linux-2.6.8.1-mm2/kernel/power/swsusp.c	2004-08-20 17:10:58.000000000 +0200
-+++ linux-2.6.8.1-mm2-erkki/kernel/power/swsusp.c	2004-08-29 13:51:55.000000000 +0200
-@@ -296,15 +296,21 @@
- {
- 	int error = 0;
- 	int i;
--
--	printk( "Writing data to swap (%d pages): ", nr_copy_pages );
-+	unsigned int mod;
-+	
-+	if (nr_copy_pages < 100)
-+		mod = 1;
-+	else
-+		mod = nr_copy_pages / 100;
-+	
-+	printk( "Writing data to swap (%d pages)...     ", nr_copy_pages );
- 	for (i = 0; i < nr_copy_pages && !error; i++) {
--		if (!(i%100))
--			printk( "." );
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
- 		error = write_page((pagedir_nosave+i)->address,
- 					  &((pagedir_nosave+i)->swap_address));
- 	}
--	printk(" %d Pages done.\n",i);
-+	printk("\b\b\b\bdone\n");
- 	return error;
- }
- 
-@@ -534,8 +540,6 @@
- 	if (!pfn_valid(pfn))
- 		return 0;
- 
--	if (!(pfn%1000))
--		printk(".");
- 	page = pfn_to_page(pfn);
- 	BUG_ON(PageReserved(page) && PageNosave(page));
- 	if (PageNosave(page))
-@@ -556,15 +560,28 @@
- {
- 	struct zone *zone;
- 	unsigned long zone_pfn;
-+	unsigned long mod;
-+	
-+	printk("Counting pages...     ");
- 
- 	nr_copy_pages = 0;
- 
- 	for_each_zone(zone) {
- 		if (!is_highmem(zone)) {
--			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
-+			if (zone->spanned_pages < 100)
-+				mod = 1;
-+			else
-+				mod = zone->spanned_pages / 100;
-+			
-+			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
- 				nr_copy_pages += saveable(zone, &zone_pfn);
-+				if (!(zone_pfn % mod))
-+					printk("\b\b\b\b%3ld%%", zone_pfn / mod);
-+			}
- 		}
- 	}
-+	
-+	printk("\b\b\b\bdone\n");
- }
- 
- 
-@@ -573,9 +590,17 @@
- 	struct zone *zone;
- 	unsigned long zone_pfn;
- 	struct pbe * pbe = pagedir_nosave;
-+	unsigned long mod;
- 	
-+	printk("Copying pages...     ");
-+
- 	for_each_zone(zone) {
--		if (!is_highmem(zone))
-+		if (!is_highmem(zone)) {
-+			if (zone->spanned_pages < 100)
-+				mod = 1;
-+			else
-+				mod = zone->spanned_pages / 100;
-+			
- 			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
- 				if (saveable(zone, &zone_pfn)) {
- 					struct page * page;
-@@ -584,9 +609,14 @@
- 					/* copy_page is no usable for copying task structs. */
- 					memcpy((void *)pbe->address, (void *)pbe->orig_address, PAGE_SIZE);
- 					pbe++;
-+					if (!(zone_pfn % mod))
-+						printk("\b\b\b\b%3ld%%", zone_pfn / mod);
- 				}
- 			}
-+		}
- 	}
-+	
-+	printk("\b\b\b\bdone\n");
- }
- 
- 
-@@ -1150,14 +1180,20 @@
- 	struct pbe * p;
- 	int error;
- 	int i;
--
-+	int mod;
-+	
-+	if (nr_copy_pages < 100)
-+		mod = 1;
-+	else
-+		mod = nr_copy_pages / 100;
-+	
- 	if ((error = swsusp_pagedir_relocate()))
- 		return error;
- 
--	printk( "Reading image data (%d pages): ", nr_copy_pages );
-+	printk( "Reading image data (%d pages):     ", nr_copy_pages );
- 	for(i = 0, p = pagedir_nosave; i < nr_copy_pages && !error; i++, p++) {
--		if (!(i%100))
--			printk( "." );
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
- 		error = bio_read_page(swp_offset(p->swap_address),
- 				  (void *)p->address);
- 	}
+Unix says: everything is a file. Now we get: everything is
+a directory. And some directories have a file attached.
+
+Andries

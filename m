@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265765AbUBQCPu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 21:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbUBQCPu
+	id S265941AbUBQC0A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 21:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUBQC0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 21:15:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58003 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265765AbUBQCPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 21:15:47 -0500
-Date: Mon, 16 Feb 2004 18:15:46 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH} 2.6 and grsecurity
-Message-ID: <20040216181546.A22989@build.pdx.osdl.net>
-References: <200402170134.i1H1YIAW016949@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200402170134.i1H1YIAW016949@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Mon, Feb 16, 2004 at 08:34:17PM -0500
+	Mon, 16 Feb 2004 21:26:00 -0500
+Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:40374 "EHLO
+	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S265941AbUBQCZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 21:25:59 -0500
+Date: Mon, 16 Feb 2004 21:26:05 -0500
+From: Huw Rogers <count0@localnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.3-rc3-mm1 - COMPILE FAILURE
+In-Reply-To: <20040201151411.3A7B.COUNT0@localnet.com>
+References: <37778.199.172.169.20.1075236597.squirrel@webmail.localnet.com> <20040201151411.3A7B.COUNT0@localnet.com>
+Message-Id: <20040216212241.AD1B.COUNT0@localnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.07.04 [en]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
-> Here's the patch, versioned against 2.6.3-rc3-mm1. Comments?
+ext3_quota_on() defined at lines 144352-144377 of 2.6.3-rc3-mm1 does
+not compile (it does not have matching braces!!!); need CONFIG_QUOTA
+to see the failure.
 
-Aside of the dubious security value...the typical no #ifdefs apply here.
-
-> +#ifdef CONFIG_SECURITY_RANDID
-> +	if (security_enable_randid)
-> +		id = ip_randomid();
-> +	else
-> +#endif
-
-e.g. move the ifdef to header and move the if(enable) bit to ip_randomid().
-ditto for all similar cases below.  it's not clear to me these are
-particularly useful features though.
-
-> + * 3. All advertising materials mentioning features or use of this software
-> + *    must display the following acknowledgement:
-> + *    This product includes software developed by Niels Provos.
-
-Advertsing clause...this is not GPL compatible.
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Huw Rogers <count0@localnet.com>
+

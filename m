@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbTA3Pzy>; Thu, 30 Jan 2003 10:55:54 -0500
+	id <S267528AbTA3P5F>; Thu, 30 Jan 2003 10:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267530AbTA3Pzy>; Thu, 30 Jan 2003 10:55:54 -0500
-Received: from mail.mailservice.ms ([64.246.26.124]:21955 "EHLO
-	mail.mailservice.ms") by vger.kernel.org with ESMTP
-	id <S261353AbTA3Pzx>; Thu, 30 Jan 2003 10:55:53 -0500
-Message-ID: <1043938576.3e393d10414fb@mailservice.ms>
-Date: Thu, 30 Jan 2003 09:56:16 -0500
-From: maryamaba@mailservice.ms
-To: maryama@zwallet.com
-Subject: FROM DR.(MRS).MARYAM ABACHA.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S267532AbTA3P5E>; Thu, 30 Jan 2003 10:57:04 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:44809 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S267528AbTA3P5C>; Thu, 30 Jan 2003 10:57:02 -0500
+Date: Thu, 30 Jan 2003 17:06:19 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: "Pocrovsky, Lev" <LPocrovsky@analogic.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: .align help
+Message-ID: <20030130160618.GA6588@arthur.ubicom.tudelft.nl>
+References: <61C1E83D9DA9D311A871009027D617F0017DE6A1@PEAEXCH1>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <61C1E83D9DA9D311A871009027D617F0017DE6A1@PEAEXCH1>
+User-Agent: Mutt/1.4i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URGENT NEED OF A BUSNIESS PARTNER/CONFIDANT
 
-MY NAME IS MRS.MARYAM ABACHA, THE WIFE OF THE LATE
-HEAD OF STATE OF THE FEDERAL REPUBLIC OF NIGERIA. I
-GOT YOUR NAME AND EMAIL ADDRESS IN YOUR COUNTRY'S
-ELECTRONIC EMAIL DIRECTORY.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-IT IS FIVE YEARS SINCE MY HUSBAND PASSED AWAY AND
-THE TIGHT GRIP ON MY HUSBAND'S ASSESTS BOTH HOME
-AND ABROAD IS NOW TELLING ON THE FAMILY,SINCE THE
-NEW CIVILAIN REGIME CAME INTO PLACE. I AM NOW IN
-URGENT NEED OF A PARTNER/CONFIDANT THROUGH WHOM I
-CAN DEPOSIT SOME MONEY IN HIS/HER BANK ACCOUNT AND
-ALSO INVEST IT FOR ME IN GOOD BUSINESS.
+On Wed, Jan 29, 2003 at 11:53:22AM -0500, Pocrovsky, Lev wrote:
+> I am building up a library using xmm and mmx registers in Linux environme=
+nt.
+> At the begin of this activity I was given a sample routine,  which contai=
+ns
+> a line
+>=20
+> .align   16
+>=20
+> in a text segment.
+> As far as I can understand the line of the sort does not have any sense a=
+nd
+> GCC-compiler must ignore it. Nevertheless I noticed by running test progr=
+ams
+> that unpredictably some times the line does impact on execution time,
+> sometimes it does not.
+>=20
+> Any explanation ?
 
-THIS MONEY WAS DEPOSITED BY MY LATE HUSBAND IN A
-SECURITY COMPANY IN ABROAD WITH THE ASSISTANCE OF A
-DIPLOMAT, AMOUNTING TO THE SUM OF (US$30.5M DOLLARS ONLY).
-THE PARTNER I SEEK MUST BE ONE THAT IS
-TRUSTWORTHY,AND READY TO TRAVEL TO CLAIM THE
-COSIGNMENTS(FUNDS)IN THE COUNTRY WHERE THE SECURITY
-COMPANY IS.ALSO,YOU MUST SEND ME A LETTER OF ASSURANCE
-THAT HE/SHE IS NOT GOING TO BETRAY ME IN THIS BUSINESS.
+The .align directive aligns the next code (or data, depending on the
+use) to the value following the directive. How it is interpreted
+depends on the target architecture and ABI. For more information, check
+the "as" info pages. (hint: tkinfo and pinfo are considered better info
+browses than GNU info).
 
-PLEASE,IF YOU LACK SUCH CAPABILITY TO HANDLE A
-TRANSACTION OF THIS MAGNITUDE DO NOT HESITATE TO
-LINK ME TO A RELIABLE FRIEND,OLD SCHOOL MATE OR A
-COMMUNITY LEADER WITH A RELIABLE GRIP ON THE SYSTEM.
-THIS IS VERY IMPORTANT.
-
-THE DETAILS OF WHAT WOULD ACCRUE TO PAY FOR YOUR
-EFFORTS WILL BE DISCLOSE TO YOU WHEN YOU INDICATE
-YOUR INTEREST. YOU ARE TO WORK DIRECTLY WITH THE
-DIPLOMAT AND MY FAMILY ATTORNEY,AS I HAVE BEEN UNDER
-HOUSE ARREST FOR THE PAST TWO YEARS.
-
-BE FURTHER INFORMED THAT THESE FUNDS ARE SECURED IN
-A SECURITY VAULT IN ABROAD, DEFACED AND CODED FOR
-SECURITY REASONS,THIS COULD BE RELEASED AT SHORT
-NOTICE WHEN A WILLING AND ACCEPTABLE PARTNER
-EMERGES. YOU ARE EXPECTED TO CONTACT THE DIPLOMAT IN
-DUE COURSE WHO WILL HELP YOU TO GET THE DETAILS
-ABOUT THE CONSIGNMENT(FUNDS)WITH
-THE SECURITY COMPANY.
-
-YOU ARE REQUIRED TO SEND TO ME YOUR TELEPHONE AND
-FAX NUMBERS SO THAT MY FAMILY ATTORNEY CAN HAVE
-CONTACT WITH YOU.PLEASE, DO NOTE THAT YOU ARE TO
-HANDLE THE DEMURRAGES AND TAXES, WHILE REFUND WILL
-BE MADE AT THE END OF TRANSACTION, WHEN THE FUND
-WOULD HAVE BEEN CLAIMED BY YOU AND SECURED IN YOUR
-BANK ACCOUNT.
-
-REGARDS,
-
-FROM DR.(MRS).MARYAM ABACHA.
-email address:maryama@zwallet.com
+The impact on execution time is quite normal: modern CPUs like (and
+most RISC CPUs even demand) aligned memory accesses, so I bet .align 16
+would at least make the execution time the consistent. Non-aligned
+memory accesses on the i386 family make that the CPU has to fix them
+up, which costs time.
 
 
+Erik
 
--------------------------------------------------
-This mail sent through MailService.MS -> http://www.MailService.ms 
+--=20
+J.A.K. (Erik) Mouw
+Email: J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
+WWW: http://www-ict.its.tudelft.nl/~erik/
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+OU16/PlVHJtIto0RAr0cAJ9qjb6R4lZJuQQaJh2V9FlAqwuU9gCggccP
+VBvyprItiiHRecGK8PXJBwQ=
+=o66J
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

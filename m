@@ -1,89 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUD1WfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUD1WvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUD1WfS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 18:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUD1WfS
+	id S261505AbUD1WvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 18:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUD1WvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 18:35:18 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13961 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261156AbUD1WfH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 18:35:07 -0400
-Date: Wed, 28 Apr 2004 15:34:42 -0700
-From: Greg KH <greg@kroah.com>
-To: marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: [BK PATCH] PCI Hotplug patches for 2.4.23-pre1
-Message-ID: <20040428223442.GE26685@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Wed, 28 Apr 2004 18:51:23 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:38927 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261505AbUD1WvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 18:51:21 -0400
+Message-ID: <40903669.5070600@techsource.com>
+Date: Wed, 28 Apr 2004 18:55:37 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Paulo Marques <pmarques@grupopie.com>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org> <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de> <408E37D9.7030804@gmx.net> <408E5944.8090807@grupopie.com> <20040427185800.GS2595@openzaurus.ucw.cz>
+In-Reply-To: <20040427185800.GS2595@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Here are 4 PCI Hotplug patches for 2.4.27-pre1.  Two of them are
-bugfixes for the acpi pci hotplug controller, and the other ones add the
-PCI Express Hotplug driver, and the Standard PCI Hotplug Controller
-driver (both of which have been in the 2.6 kernel tree for a while.)
-
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/pci-2.4
-
-The raw patches will follow to you and the pcihpd mailing list.
-
-thanks,
-
-greg k-h
 
 
- arch/i386/kernel/pci-irq.c         |   43 
- arch/i386/kernel/pci-pc.c          |    2 
- drivers/hotplug/Config.in          |    7 
- drivers/hotplug/Makefile           |   38 
- drivers/hotplug/acpiphp.h          |   61 
- drivers/hotplug/acpiphp_core.c     |   30 
- drivers/hotplug/acpiphp_glue.c     |   92 -
- drivers/hotplug/acpiphp_pci.c      |   18 
- drivers/hotplug/acpiphp_res.c      |    5 
- drivers/hotplug/pci_hotplug.h      |   29 
- drivers/hotplug/pci_hotplug_core.c |   70 
- drivers/hotplug/pciehp.h           |  383 ++++
- drivers/hotplug/pciehp_core.c      |  703 ++++++++
- drivers/hotplug/pciehp_ctrl.c      | 2635 +++++++++++++++++++++++++++++++
- drivers/hotplug/pciehp_hpc.c       | 1504 ++++++++++++++++++
- drivers/hotplug/pciehp_pci.c       | 1052 ++++++++++++
- drivers/hotplug/pciehprm.h         |   54 
- drivers/hotplug/pciehprm_acpi.c    | 1696 ++++++++++++++++++++
- drivers/hotplug/pciehprm_nonacpi.c |  497 +++++
- drivers/hotplug/pciehprm_nonacpi.h |   56 
- drivers/hotplug/shpchp.h           |  464 +++++
- drivers/hotplug/shpchp_core.c      |  700 ++++++++
- drivers/hotplug/shpchp_ctrl.c      | 3081 ++++++++++++++++++++++++++++++++++++-
- drivers/hotplug/shpchp_hpc.c       | 1629 +++++++++++++++++++
- drivers/hotplug/shpchp_pci.c       | 1043 ++++++++++++
- drivers/hotplug/shpchprm.h         |   57 
- drivers/hotplug/shpchprm_acpi.c    | 1696 ++++++++++++++++++++
- drivers/hotplug/shpchprm_legacy.c  |  444 +++++
- drivers/hotplug/shpchprm_legacy.h  |  113 +
- drivers/hotplug/shpchprm_nonacpi.c |  430 +++++
- drivers/hotplug/shpchprm_nonacpi.h |   56 
- drivers/pci/pci.c                  |    1 
- drivers/pci/quirks.c               |    9 
- include/linux/pci.h                |    5 
- include/linux/pci_ids.h            |   29 
- 35 files changed, 18576 insertions(+), 156 deletions(-)
------
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>The way I see it, they know a C string ends with a '\0'. This is like 
+>>saying that a English sentence ends with a dot. If they wrote "GPL\0" 
+>>they are effectively saying that the license *is* GPL period.
+> 
+> 
+> If you use modinfo, license probably will be displayed as GPL.
+> I'd guess that sending bunch of lawyers their way is right solution.
 
 
-Dely Sy:
-  o PCI Hotplug: SHPC & PCI-E hot-plug fixes
-  o SHPC and PCI Express hot-plug drivers for 2.4 kernel
+The very fact that someone who represents the company is willing to talk 
+to us on LKML should be mega points in their favor.
 
-Takayoshi Kochi:
-  o PCI Hotplug: acpiphp unable to power off slots
-
-Takayoshi Kouchi:
-  o PCI Hotplug: acpiphp cleanup patch for 2.4.23-pre4
+Yes, they did something wrong, but they're giving us the time of day, 
+something a lot of companies don't do until the FSF has been hounding 
+them for a year.
 

@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTJaBCk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 20:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTJaBCk
+	id S262854AbTJaBAP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 20:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTJaBAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 20:02:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19128 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262679AbTJaBCi (ORCPT
+	Thu, 30 Oct 2003 20:00:15 -0500
+Received: from mail.kroah.org ([65.200.24.183]:34205 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262802AbTJaBAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 20:02:38 -0500
-Date: Thu, 30 Oct 2003 17:02:37 -0800 (PST)
-From: Judith Lebzelter <judith@osdl.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: OSDL Tiobench scheduler comparison - Random Reads Bad
-Message-ID: <Pine.LNX.4.33.0310301653140.16485-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Oct 2003 20:00:10 -0500
+Date: Thu, 30 Oct 2003 16:58:54 -0800
+From: Greg KH <greg@kroah.com>
+To: David Dodge <dododge@smart.net>
+Cc: "Guo, Min" <min.guo@intel.com>, Steven Dake <sdake@mvista.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, Mark Bellon <mbellon@mvista.com>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net, cgl_discussion@osdl.org,
+       "Ling, Xiaofeng" <xiaofeng.ling@intel.com>
+Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
+Message-ID: <20031031005854.GC4906@kroah.com>
+References: <200310310045.TAA04280@smarty.smart.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310310045.TAA04280@smarty.smart.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello;
+On Thu, Oct 30, 2003 at 07:45:08PM -0500, David Dodge wrote:
+> Greg KH writes:
+> > On Wed, Oct 29, 2003 at 01:12:26PM +0800, Guo, Min wrote:
+> > > 2.For non-hotplug device
+> [...]
+> > >  uDEV:
+> > >          not deal with it
+> > 
+> > See Robert Love's very simple script to populate stuff from sysfs.  It
+> > can run from initscript just like SDE.  But in the end, udev will end up
+> > in initramfs and we will not need to do this.
+> 
+> So the intent is to have compiled-in drivers for already-attached
+> devices (framebuffer, system disks, loop, whatever) generate calls to
+> /sbin/hotplug within initramfs?
+> 
+> Mainly I'm asking because I did try putting a hotplug script into an
+> initramfs a few weeks ago (using -test7), and it didn't appear to be
+> invoked for e.g. the VESA framebuffer. So I want to make sure this is a
+> "future" capability and not something that should have worked :-)
 
-We have run tiobench-0.3.3 in Scalable Test Platform at OSDL against the
-latest 2.6.0-test kernels and against the base versions of the 2.4 kernel.
-Random reads performance at the 128k block size stood out because the
-2.4 kernels performed much better than the 2.6 kernels.
+This is something that should have worked for you today, /sbin/hotplug
+does get called during early boot, before init is started up.
 
-The test measures throughput in Mbytes/sec.  I have summarized it here to
-show the percent difference from the baseline, which is linux-2.6.0-test7
-with the deadline scheduler. The other kernels use their default
-schedulers.  The numbers in parentheses are the number of threads.
-Bigger numbers are better.  Negative is bad.
+thanks,
 
-Random Reads/128k Block Size
-Kernel                       Lowest %   Highest % Ave %   Options
--------------------------------------------------------------------------
-linux-2.6.0-test7 (baseline)   0.00(1)  0.00(1)    0.00 elevator=deadline
-linux-2.6.0-test7            -67.07(8)  24.42(1) -33.23
-linux-2.6.0-test8            -66.28(8)  30.62(1) -31.13 profile=2
-2.6.0-test8-mm1                3.23(8) 170.62(1)  64.77 profile=2
-linux-2.6.0-test9            -66.34(8)  48.14(1) -27.66 profile=2
-linux-2.6.0-test9            -66.46(8)  22.12(1) -33.65 profile=2
-linux-2.4.18                  93.48(8) 211.68(1) 156.81 profile=2
-linux-2.4.19                 109.39(8) 216.11(1) 162.67 profile=2
-linux-2.4.20                 111.40(8) 215.40(1) 163.98
-
-
-For random reads the Deadline scheduler is better for multiple threads.
-The mm1 is better in general.  The 2.4 kernels are a lot better.  (The
-test9-mm1 is currently queued)
-
-The results with links to the data are posted at:
-http://www.osdl.org/archive/judith/tests/tiobench/new/2.4_2.6/tiobench.2-CPU.ext2.128.html
-http://www.osdl.org/archive/judith/tests/tiobench/new/2.4_2.6/tiobench.2-CPU.ext2.4.html
-
-
-An explanation of the report is at:
-   http://developer.osdl.org/judith/tiobench_index.html
-
-We used tiobench-0.3.3 on 2-CPU hosts with 1G of RAM; here are the
-options:
-   /usr/bin/time -o /root/tiobench/results/tiobench.jfs.times ../tiobenchx.pl --size 2643 --block 4096 --block 131072 --numruns 5 --dir /mnt/sdc
-
-
-Thanks;
-
-Judith Lebzelter
-OSDL
-
-
-
+greg k-h

@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277347AbRJ3SXB>; Tue, 30 Oct 2001 13:23:01 -0500
+	id <S277294AbRJ3S3L>; Tue, 30 Oct 2001 13:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277371AbRJ3SWw>; Tue, 30 Oct 2001 13:22:52 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39657 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277347AbRJ3SWr>; Tue, 30 Oct 2001 13:22:47 -0500
-Date: Tue, 30 Oct 2001 10:19:01 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] making the printk buffer bigger 
-Message-ID: <3709761319.1004437141@mbligh.des.sequent.com>
-In-Reply-To: <Pine.GSO.3.96.1011030135941.6694E-100000@delta.ds2.pg.gda.pl>
-X-Mailer: Mulberry/2.0.8 (Win32)
-MIME-Version: 1.0
+	id <S277393AbRJ3S3B>; Tue, 30 Oct 2001 13:29:01 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11014 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S277294AbRJ3S2s>; Tue, 30 Oct 2001 13:28:48 -0500
+Date: Tue, 30 Oct 2001 19:29:02 +0100
+From: Jan Kara <jack@suse.cz>
+To: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+        miles@megapathdsl.net, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+Message-ID: <20011030192902.B22781@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net> <3BDB91D7.C7975C44@mandrakesoft.com> <20011027.224602.74750641.davem@redhat.com> <20011028185844.C1311@lynx.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20011028185844.C1311@lynx.no>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OK, seeing as people don't seem to want a decent size buffer on 
->> CONFIG_SMP machines, could we at least do it under
->> CONFIG_MULTIQUAD? Loosing half my boot time messages is 
->> annoying, and I have gigabytes of RAM to waste. Please .......
+> On Oct 27, 2001  22:46 -0700, David S. Miller wrote:
+> > In particular, the quota stuff, which has sat in Alan's tree forever.
+> > If Linus is ignoring the changes it probably is for a good reason
+> > but it would be nice for him to let Alan know what that reason is :-)
 > 
->  Hmm, and what exactly does prevent you from applying the patch privately
-> for the time you are needing it for developent?
+> AFAIK (not much, since I don't use quotas), the on-disk quota format used
+> by Alan's tree was changed to support 32-bit UID/GIDs, which makes it
+> incompatible with that used in the Linus tree.  However, there was also
+> some quota merging done in 2.4.13 or so, which _may_ have resolved this.
+  Actually there were two quota patches in Alan's tree. The first one was
+just some fixes in quota code - some locking changes, race fixes, dynamic allocation
+of quota structures. This patch went into 2.2.12.
+  The second patch is patch which implements new quota format. It makes
+changes in quotactl() interface and other changes visible in userspace.
+I think that is the reason why Linus doesn't want it in 2.4 and I agree with him.
 
-I don't just want it for development, I believe in capturing my boot messages 
-all the time. If they're not visible, why bother printing them?
+> Yes, it's vague, but nobody else has answered yet.  I'm only aware of these
+> issues because the ext3 code had to work with both trees, and the quota
+> compat stuff was removed in the most recent ext3 release.  That may have
+> only been an in-kernel API issue and not the on-disk format, I don't know.
+> 
+> Cheers, Andreas
 
-Why not just keep it as a patch? Partly the fact that it's a pain in the butt, 
-and I keep forgetting to do it. In principle I think the default buffer ought 
-to big enough to cope with the boot messages we put out. There's more 
-messages on larger systems, hence it makes sense to have a larger buffer. 
-Switching on CONFIG_SMP or CONFIG_MULTIQUAD is a crude 
-approximation to estimating the size of boot messages. 
-
-The correct solution is probably to either size it dynamically, or have a
-seperate boot time buffer that we throw away afterwards. But for the 
-sake of another 48Kb on machines with 2 - 16Gb of RAM, it's not worth
-coding it, testing it, and risking the change.
-
-M.
-
-PS. Alan's solution was to turn off half the garbage that gets printed on
-boot, which would work too. Especially half the stuff from the mps tables,
-which we throw in the bin 2 nanoseconds after printing it. We could
-turn off APIC_DEBUG by default, which would kill all the Dprintk's as
-far as I can see ....
-
-
-
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

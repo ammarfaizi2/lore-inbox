@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUFQW7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264138AbUFQX2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUFQW7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 18:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFQW7A
+	id S264138AbUFQX2J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 19:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264175AbUFQX2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 18:59:00 -0400
-Received: from web41104.mail.yahoo.com ([66.218.93.20]:6149 "HELO
-	web41104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264058AbUFQW66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 18:58:58 -0400
-Message-ID: <20040617225857.41605.qmail@web41104.mail.yahoo.com>
-Date: Thu, 17 Jun 2004 15:58:57 -0700 (PDT)
-From: tom st denis <tomstdenis@yahoo.com>
-Subject: Re: space left on ext3 (2.6.6-bk3)
+	Thu, 17 Jun 2004 19:28:09 -0400
+Received: from CPE-65-30-20-102.kc.rr.com ([65.30.20.102]:1414 "EHLO
+	mail.2thebatcave.com") by vger.kernel.org with ESMTP
+	id S264138AbUFQX2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 19:28:06 -0400
+Message-ID: <53712.192.168.1.12.1087514884.squirrel@192.168.1.12>
+Date: Thu, 17 Jun 2004 18:28:04 -0500 (CDT)
+Subject: Using kernel headers that are not for the running kernel
+From: "Nick Bartos" <spam99@2thebatcave.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0406180018530.9599@poirot.grange>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
-> On a ext3 fs:
-> 
-> fast:/mnt/tmp# df
-> Filesystem           1K-blocks      Used Available Use% Mounted on
-> /dev/sda3               958488    521864    387936  58% /mnt
-> 
-> fast:/mnt/tmp# cat /dev/zero > zr
-> cat: write error: No space left on device
-> 
-> fast:/mnt/tmp# ls -l
-> total 436624
-> -rw-r--r--    1 root     root     446660608 Jun 18 00:23 zr
-> 
-> fast:/mnt/tmp# rm zr
-> 
-> fast:/mnt/tmp# df
-> Filesystem           1K-blocks      Used Available Use% Mounted on
-> /dev/sda3               958488    521864    387936  58% /mnt
-> 
-> Is this an expected behaviour?.. Yeah, it is nice to have more space
-> than 
-> you think you have, but...
+I have a little distro that I am trying to upgrade to 2.6.x.
 
-Have you tried running fsck on it?  How many inodes are available.
+The problem is that when I use the headers for 2.6.x, glibc 2.2.5 won't
+compile.  Eventually I want to upgrade glibc/gcc, but not at the moment. 
+If I use the headers from 2.4.26 for the system, but just compile the
+2.6.7 kernel, things do compile fine for everything.
 
-Tom
+This distro is small, and I can rebuild the entire thing in about 90 mins,
+so if I change the kernel (or really anything that has other deps), I just
+rebuild the entire thing to make sure everything is in sync.
 
+I see that a lot of distros use a separate package for the kernel headers,
+which do not necessarily coincide with the running kernel.
 
-		
-__________________________________
-Do you Yahoo!?
-Take Yahoo! Mail with you! Get it on your mobile phone.
-http://mobile.yahoo.com/maildemo 
+I am wondering what (if any) are the side effects of doing this are,
+especially when the kernel versions are so different.  I was thinking that
+there may be issues with some progs if the prototypes for certain kernel
+functions weren't the same.  However people are doing it and it does seem
+to work, but I am wondering how it fends for stability.
+
+Comments?

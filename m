@@ -1,92 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTFXQuw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 12:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFXQuw
+	id S262095AbTFXRAL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 13:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTFXRAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 12:50:52 -0400
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:50388 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S262192AbTFXQus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 12:50:48 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551CC@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
-To: linuxtech@knology.net, linux-kernel@vger.kernel.org
-Subject: RE: 2.5.72 doesn't boot
-Date: Tue, 24 Jun 2003 11:04:32 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 24 Jun 2003 13:00:11 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:1764 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S262095AbTFXRAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 13:00:07 -0400
+Date: Tue, 24 Jun 2003 18:15:22 +0100
+From: Dave Bentham <dave.bentham@ntlworld.com>
+To: Ralf Hoelzer <ralf@well.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.21 crashes hard running cdrecord in X.
+Message-Id: <20030624181522.055b4627.dave@telekon>
+In-Reply-To: <200306241827.55827.ralf@well.com>
+References: <200306241827.55827.ralf@well.com>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks John, I will try.
 
-> -----Original Message-----
-> From: John Shillinglaw [mailto:linuxtech@knology.net]
-> Sent: Monday, June 23, 2003 4:04 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: RE: 2.5.72 doesn't boot
+
+On Tue, 24 Jun 2003 18:27:55 +0200
+Ralf Hoelzer <ralf@well.com> wrote:
+
+> Roland Mas wrote:
+> > I don't know what this magicdev thing is, but from what you say you
+> > turned off I assume it's something that accesses the CD drive and
+> > polls its status regularly.  So your problem looks remarkably like
+> > mine, which I have already reported here, except I do get a panic. 
+> > My problem occurs when the GNOME 2 CD applet is running, and it
+> > seems to me the culprit is an ioctl() that tries to get the status
+> > of the drive.  Look for my message with "Subject: Still [OOPS]
+> > ide-scsi panic, now in 2.4.21 too" (just reposted it, first time
+> > only went to specific people).
 > 
+> I have a very similar problem. I just installed 2.4.21 and as soon as
+> I mount my CD-RW (which uses ide-scsi emulation) the system dies.
+> I am NOT using magicdev. Everything works fine with 2.4.20.
 > 
-> You need to turn on the options within the input/char driver? menu
-> within menuconfig to turn on the console. I believe there are two
-> options you need to say yes to. Someone with clearer memory 
-> can post the
-> exact ones.
+> I will try to capture some useful debugging output.
 > 
-> John
-> On Mon, 2003-06-23 at 13:31, yiding_wang@agilent.com wrote:
-> > I got same issue on 2.5.70 and 2.5.71 and still waiting 
-> form some help.
-> > 
-> > Eddie
-> > 
-> > > -----Original Message-----
-> > > From: Bart SCHELSTRAETE [mailto:Bart.SCHELSTRAETE@dhl.com]
-> > > Sent: Sunday, June 22, 2003 11:06 AM
-> > > To: linux-kernel@vger.kernel.org
-> > > Subject: 2.5.72 doesn't boot
-> > > 
-> > > 
-> > > HEllo,
-> > > 
-> > > Today I tried kernel 2.5.72. And it compiled without any 
-> > > problems. (on a 
-> > > i686 - PIV)
-> > > But when I'm trying to boot from that kernel, it stops just 
-> > > after the line
-> > >          'uncompressing .................. ok now booting'
-> > > 
-> > > I tried to compile the kernel as a i386, pentium classic , 
-> > > and a pentium 
-> > > pro, but it always gives the same results.
-> > > Anybody has an idea what I did wrong?
-> > > 
-> > > 
-> > > rgrds,
-> > >        Bart
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe 
-> > > linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
+> regards,
+> Ralf
 > -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+SNAP!
+
+See my "2.4.21 panic on CDRW Mount" emails of a few days ago with my
+panic output
+
+Dave

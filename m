@@ -1,70 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261307AbTCGAIC>; Thu, 6 Mar 2003 19:08:02 -0500
+	id <S261303AbTCGAFx>; Thu, 6 Mar 2003 19:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261308AbTCGAIC>; Thu, 6 Mar 2003 19:08:02 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:38348 "EHLO
-	nessie.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S261307AbTCGAHH>; Thu, 6 Mar 2003 19:07:07 -0500
-Date: Fri, 7 Mar 2003 11:17:24 +1100
-From: CaT <cat@zip.com.au>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64 - cpu freq not turned on
-Message-ID: <20030307001724.GB588@zip.com.au>
-References: <20030306152616.GB432@zip.com.au> <20030306233228.GK1016@brodo.de>
+	id <S261309AbTCGAFx>; Thu, 6 Mar 2003 19:05:53 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:59401 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261308AbTCGAFo>;
+	Thu, 6 Mar 2003 19:05:44 -0500
+Date: Thu, 6 Mar 2003 16:06:28 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB changes for 2.5.64
+Message-ID: <20030307000628.GA13766@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030306233228.GK1016@brodo.de>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 12:32:28AM +0100, Dominik Brodowski wrote:
-> > Now I know it worked before cos I noticed it and played about with the 8
-> > speed steps I had available to me (and I thought I only had 2).
-> 
-> Actually, SpeedStep is (so far, Banias isn't out to the public market yet)
-> only 2 states. What you had running was probably the p4-clockmod driver for
-> Intel Pentium 4 processors. But that does only throttle the CPU, which
+Hi,
 
-Ahhh. I have a P3 though.
+Here are some small USB changes.  The most interesting thing here is a
+fix to the io_edgeport driver to now work on big endian machines, and
+finally we now support the Treo USB devices properly.
 
-> causes (at best) linear energy saving while real "speedstep" is much better
-> than that. You can see what cpufreq driver is loaded by cat'ting
-> scaling_driver in the cpufreq sysfs directory for that cpu. 
+Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
 
-Not there.
+thanks,
 
-> This directory moved in 2.5.64 - and that's why you probably think there was
-> some regression (in fact, there is, but patches to fix that are on their
-> way...) - the sysfs interface to cpufreq is now in 
+greg k-h
 
-2.5.63 doesn't turn speedstep on for me either.
 
-> > What information is needed about my chipset to make the code detect it
-> > properly?
-> 
-> lspci -- maybe it's a ich4-m southbridge, then the attached patch
-> (also sent to Linus a few moments ago) might help.
+ drivers/usb/class/usb-midi.h     |   23 ++++++++++++++++--
+ drivers/usb/core/hub.c           |    1 
+ drivers/usb/core/message.c       |   16 +++++++++++-
+ drivers/usb/core/urb.c           |   20 +++++++++++++--
+ drivers/usb/core/usb.c           |   29 +++++++++++++++--------
+ drivers/usb/serial/io_edgeport.c |   45 ++++++++++++++++++-----------------
+ drivers/usb/serial/pl2303.c      |    1 
+ drivers/usb/serial/pl2303.h      |    3 ++
+ drivers/usb/serial/visor.c       |   49 ++++++++++++++++++++++++++++++++++++++-
+ drivers/usb/storage/transport.c  |   13 +++++++---
+ include/linux/usb.h              |    3 --
+ include/linux/usb_ch9.h          |   21 ++++++++++++++++
+ 12 files changed, 180 insertions(+), 44 deletions(-)
+-----
 
-Didn't apply the patch cos I don't see that in the lspci output:
+ChangeSet@1.1068.7.7, 2003-03-06 15:47:22-08:00, greg@kroah.com
+  [PATCH] USB: unfortunatly, we can't call usb_unlink_urb() right now all of the time.
+  
+  The host controllers have to be fixed up before we can safely take
+  out the check for dev->state.
 
-00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
-00:07.0 Bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 03)
+ drivers/usb/core/urb.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletion(-)
+------
 
-The rest are sound, cardbus etc.
+ChangeSet@1.1068.7.6, 2003-03-06 15:46:40-08:00, david-b@pacbell.net
+  [PATCH] USB: track usb ch9 device state
+  
+  This patch merges the USB state definitions from the ARM Linux
+  code (inside the sa1100 driver) and uses them to track what can
+  be done with the device.  That replaces the recently added
+  "udev->present" flag with a more complete/standard state model.
+  
+  There are a few changes that might affect behavior if things
+  start to go really haywire:
+  
+   - usb_set_address() and usb_set_configuration(), used while
+     enumerating, handle some unlikely cases more correctly:
+     don't allow setting address to zero (undefined behavior),
+     and do allow un-configuring (config 0).  (Adds a FIXME
+     for an existing set-configuration bug too.)
+  
+   - usb_disconnect() flags the state change earlier (as soon
+     as it's known).
+  
+   - usb_submit_urb() works in the states where messaging is
+     allowed, and also enforces the "unless configured, only
+     control traffic is legal" rule.
+  
+   - usb_unlink_urb() doesn't care any more about that state.
+     (There seemed to be agreement that it must not matter.)
+  
+  This will help with some further cleanups in the complex of
+  issues relating to driver removal, device removal, config
+  changing (with driver unbind and rebind), reset, and so on.
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, 'President' of the United States
-          September 26, 2002 (from a political fundraiser in Huston, Texas)
+ drivers/usb/core/hub.c     |    1 +
+ drivers/usb/core/message.c |   16 ++++++++++++++--
+ drivers/usb/core/urb.c     |    9 +++++++--
+ drivers/usb/core/usb.c     |   29 ++++++++++++++++++++---------
+ include/linux/usb.h        |    3 +--
+ include/linux/usb_ch9.h    |   21 +++++++++++++++++++++
+ 6 files changed, 64 insertions(+), 15 deletions(-)
+------
+
+ChangeSet@1.1068.7.5, 2003-03-06 13:55:05-08:00, stern@rowland.harvard.edu
+  [PATCH] USB: Patch for auto-sense cmd_len
+  
+  This patch fixes an oversight in usb-storage whereby the command length
+  and command buffer for an automatically-generated REQUEST-SENSE command
+  would not be initialized properly.
+
+ drivers/usb/storage/transport.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.1068.7.4, 2003-03-05 12:06:48-08:00, greg@kroah.com
+  [PATCH] USB: added support for radio shack device to pl2303 driver.
+  
+  Thanks to gene_heskett@iolinc.net for the info for this.
+
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    3 +++
+ 2 files changed, 4 insertions(+)
+------
+
+ChangeSet@1.1068.7.3, 2003-03-05 11:44:45-08:00, andre.breiler@null-mx.org
+  [PATCH] io_edgeport.c diff to fix endianess bugs
+  
+  attached a fix for the io_edgeport usb serial driver
+  This diff fixes endianess issues which prevented the driver to work on
+  bigendian machines (e.g. sparc).
+
+ drivers/usb/serial/io_edgeport.c |   45 +++++++++++++++++++--------------------
+ 1 files changed, 23 insertions(+), 22 deletions(-)
+------
+
+ChangeSet@1.1068.7.2, 2003-03-05 11:43:00-08:00, clemens@ladisch.de
+  [PATCH] usb-midi.h: fixes for SC-8820/50
+  
+   sync with Nagano's version:
+   - protect vendors ids against multiple definitions
+   - sort Roland device ids
+   - fix SC-8850 cable bitmask
+   - add quirk for the SC-8820
+   - add quirk for the MOTU Fastlane
+
+ drivers/usb/class/usb-midi.h |   23 +++++++++++++++++++++--
+ 1 files changed, 21 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.1068.7.1, 2003-03-05 11:41:00-08:00, greg@kroah.com
+  [PATCH] USB: add support for Treo devices to the visor driver.
+  
+  Finally...
+
+ drivers/usb/serial/visor.c |   49 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 48 insertions(+), 1 deletion(-)
+------
 

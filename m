@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265250AbTBOWIX>; Sat, 15 Feb 2003 17:08:23 -0500
+	id <S265246AbTBOWO3>; Sat, 15 Feb 2003 17:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbTBOWIX>; Sat, 15 Feb 2003 17:08:23 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:60288 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S265250AbTBOWIW>;
-	Sat, 15 Feb 2003 17:08:22 -0500
-Subject: ALSA broken in 2.5.61
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: perex@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045347495.682.10.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 15 Feb 2003 23:18:16 +0100
+	id <S265270AbTBOWO3>; Sat, 15 Feb 2003 17:14:29 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:42382 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265246AbTBOWO2>; Sat, 15 Feb 2003 17:14:28 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 15 Feb 2003 14:31:37 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: James Antill <james@and.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+In-Reply-To: <m3fzqpgxlx.fsf@code.and.org>
+Message-ID: <Pine.LNX.4.50.0302151430230.1891-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
+ <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
+ <m3fzqpgxlx.fsf@code.and.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 15 Feb 2003, James Antill wrote:
 
-I'm trying to use ALSA with my old sb16 in 2.5.61 and it sounds like
-hell :) worked fine in 2.5.58.
+> > I would personally like it a lot to have timer events available on
+> > pollable fds. Am I alone in this ?
+>
+>  Think of "timer events" as a single TCP connection, so you have...
+>
+> time X: empty
+> time X+Y: timed event "Arrives"
+> time X+Z: timed event "Arrives"
+>
+> ...at which point it's pretty obvious that if you "poll" the timer
+> event queue from anytime before X+Y it'll be empty, and anytime after
+> X+Y it'll be "full". There isn't any point in being able to distinguish
+> between the events X+Y and X+Z, you only need to know a timed event has
+> occurred so you should process all timed events that are needed.
+>  At which point you just need to work out the difference between X and
+> X+Y, and pass that to poll/sigtimedwait/etc.
 
-When trying to use OSS emulation it almost sounds like playing a c64
-tape at half speed and the mp3player chews through the song in a few
-seconds and I hardly see any interrupts beeing generated for the sb16 in
-/proc/interrupts. I see about 1 irq per 2 seconds.
+I'm sorry, I'm a bit confused. What's the point here ?
 
-When using native ALSA for playback it sounds almost ok but it's very
-choppy, sounds like it skips ahead 0.5-1 seconds every 2 seconds or so.
-Forgot to check the interruptrate when trying this.
 
-I've reverted to OSS right now and it sounds great :)
 
-I saw that you've made some rather large changes that went in somewhere
-after 2.5.58... Do you have any idea to what might cause this?
+- Davide
 
--- 
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.

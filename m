@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289379AbSBELC4>; Tue, 5 Feb 2002 06:02:56 -0500
+	id <S289376AbSBEL1F>; Tue, 5 Feb 2002 06:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289385AbSBELCo>; Tue, 5 Feb 2002 06:02:44 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:37095 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S289380AbSBELC3>; Tue, 5 Feb 2002 06:02:29 -0500
-Date: Tue, 5 Feb 2002 11:59:51 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre8
-Message-ID: <20020205115951.J26676@sunbeam.de.gnumonks.org>
-In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva> <20020205013258.H349@stingr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20020205013258.H349@stingr.net>; from i@stingr.net on Tue, Feb 05, 2002 at 01:32:58AM +0300
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
-X-Date: Today is Pungenday, the 28th day of Chaos in the YOLD 3168
+	id <S289380AbSBEL06>; Tue, 5 Feb 2002 06:26:58 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11782 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289376AbSBEL0l>;
+	Tue, 5 Feb 2002 06:26:41 -0500
+Date: Tue, 5 Feb 2002 09:26:29 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Erik Andersen <andersen@codepoet.org>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] rmap based VM, 12c
+In-Reply-To: <20020205091607.GA11426@codepoet.org>
+Message-ID: <Pine.LNX.4.33L.0202050926090.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 05, 2002 at 01:32:58AM +0300, Paul P Komkoff Jr wrote:
-> > No more big patches for 2.4.18, please... We are getting close to the -rc
-> > stage.
-> 
-> We all getting close to another bug. Maybe.
-> Beat me if I am wrong, but netfilter_ipv4.h update (route_me_harder) break
-> userland iptables compile process.
-> 
-> I am now worked around with following, but it is completely untested, also
-> sent to harald welte and I suggest further comments from him - fix the
-> userspace, kernel, or ...
+On Tue, 5 Feb 2002, Erik Andersen wrote:
+> On Sun Feb 03, 2002 at 11:50:09PM -0200, Rik van Riel wrote:
+> > Due to field circus duty I forgot to announce 12b ... so here is 12c
+> >
+>
+> FYI, rmap 12c claims to be rmap 12b in the EXTRAVERSION...
 
-I'll submit a patch for this later today.  We'll move the function out of
-the include file.
+Indeed, I forgot to update that ;)
 
-> Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-
+Rik
 -- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

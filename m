@@ -1,78 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSLMRXt>; Fri, 13 Dec 2002 12:23:49 -0500
+	id <S265171AbSLMR0F>; Fri, 13 Dec 2002 12:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSLMRXt>; Fri, 13 Dec 2002 12:23:49 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:44036 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261433AbSLMRXs>;
-	Fri, 13 Dec 2002 12:23:48 -0500
-Date: Fri, 13 Dec 2002 09:29:56 -0800
+	id <S265187AbSLMR0F>; Fri, 13 Dec 2002 12:26:05 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45316 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265171AbSLMR0B>;
+	Fri, 13 Dec 2002 12:26:01 -0500
+Date: Fri, 13 Dec 2002 09:32:09 -0800
 From: Greg KH <greg@kroah.com>
 To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>, lvm-devel@sistina.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: dmfs for 2.5.51
-Message-ID: <20021213172956.GB27800@kroah.com>
-References: <20021213012618.GH23509@kroah.com> <20021213093745.GB1117@reti>
+Message-ID: <20021213173209.GC27800@kroah.com>
+References: <20021213012618.GH23509@kroah.com> <3DF93CC9.979CA988@digeo.com> <20021213052551.GB25099@kroah.com> <20021213095806.GC1117@reti>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021213093745.GB1117@reti>
+In-Reply-To: <20021213095806.GC1117@reti>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 09:37:45AM +0000, Joe Thornber wrote:
-> Greg,
+On Fri, Dec 13, 2002 at 09:58:06AM +0000, Joe Thornber wrote:
+> On Thu, Dec 12, 2002 at 09:25:51PM -0800, Greg KH wrote:
+> > On Thu, Dec 12, 2002 at 05:50:01PM -0800, Andrew Morton wrote:
+> > > hm.  The whole thing seems hokey to me.  Not sure why.
+> > 
+> > I agree.  It doesn't feel right.  I mean, doing a mkdir(1) to create a
+> > device, which causes files to be created automagically in that
+> > directory?  Something needs to change here, and I proposed a single file
+> > to write to that creates the device, but was shot down by the author.
 > 
-> On Thu, Dec 12, 2002 at 05:26:19PM -0800, Greg KH wrote:
-> > Here's a patch against 2.5.51 with a updated dmfs.
+> Greg, I didn't mean to make it sound like I was shooting you down, I
+> just said that we'd leave it as it was for now.
+
+Sorry, I didn't mean it that way.  I understand and was trying to reach
+more people.  Looks like I succeded :)
+
+> Having written the
+> code I wanted a bit more feedback.  When I started writing the fs
+> interface a couple of people expressed concerns that I should try and
+> map things properly onto fs semantics and not just create a single
+> file.  Given Andrews comment I guess I haven't done a good job.  Could
+> you flesh out your single file idea a bit more please, there's a lot
+> of functionality to shoe horn in there.
+
+Ok, I'll go work on that and see how it turns out.
+
+> > > > ...
+> > > > +  echo -e "0 56 linear /dev/hda3 0\n56 102344 linear /dev/hda4 0" > table
+> > > 
+> > > Maybe this is why.
+> > 
+> > Heh, yeah, welcome to parsers in the kernel :)
+> > But the dm code today does much the same thing with ioctls, passing a
+> > string down to the loaded modules below it.  So there is a bit of
+> > president.  Even if it is ugly :)
 > 
-> I've split out your two changes into seperate patches (patches 21 and
-> 22) and made them available here:
+> y, the dm targets have always accepted their arguments as ascii
+> strings.  So the file system interface just adds code to split the
+> input into lines, and then sscanf the first three elements of the line
+> - this is probably less code than the marshalling of binary data that
+> is done in the ioctl interface.
 > 
-> http://people.sistina.com/~thornber/patches/2.5-unstable/2.5.51/2.5.51-dmfs-1/
+> I see the fact that we're using ascii data as being the big advantage
+> of the fs interface, which neccessarily means doing a small amount of
+> parsing in kernel.  You can't have things both ways.
 
-Thanks.
+I agree, I like the interface.  It's just a little strange the first
+time you see it.
 
-> > with the following modifications:
-> > 	- fixed compile time warnings with the dbg() macro (something
-> > 	  better should be used here, I just commented it out...)
+> > > > ...
+> > > > +static struct page *find_page(struct dmfs_file *f, loff_t len, int fill)
+> > > 
+> > > This is called under spinlock.
+> > > 
+> > > > ...
+> > > > +                       void *addr = (void *) __get_free_page(GFP_KERNEL);
+> > > 
+> > > whoops.
 > 
-> I'm not seeing any warnings, which compiler version are you using ?
-
-The latest for Red Hat 7.2: gcc-2.96-112.7.2
-Are you using 3.2?
-
-> > 	- changed the dev file to print out the kdev value, not be the
-> > 	  actual block device.
+> My fault :(
 > 
-> Should we really be exporting a kdev_t to userland, why not just print out
+> > Nice catch.  I'm not sure that the find_page(), __io() and friends
+> > functions are really needed at all.
 > 
-> <major>:<minor>
+> It would be nice to get rid of them, what shall we replace them with ?
 
-No, look at the other dev files in sysfs, I stayed consistant with them.
-
-> > With regards to the last change, I didn't follow the way the other files
-> > operate with their complex page creation structure, as this is only a
-> > simple one line file.  If the lvm developers want me to change this, I
-> > will.
-> 
-> What you've done looks fine to me, though allocating a whole page to
-> hold a single number seems overkill.  Why don't you just snprintf into
-> a char[] held on the stack ?
-
-Because I forgot you could do copy_to_user() with data on the stack :)
-Good point, I'll change it...
-
-> > If not, I would argue that a number of the other files created
-> > should be changed to use this simpler format.  Or is there some reason
-> > for creating these lists of pages that I'm missing?
-> 
-> The files can be larger than a single page, which complicates things
-> somewhat.
-
-Hm, then using the seq_file interface might be easier.  I'll look into
-this.
+Something like only creating one page as I did in the dev file, or the
+seq_file interface.  I'll play around with the sizes of the files to see
+how to fix this up.
 
 thanks,
 

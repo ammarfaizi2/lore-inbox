@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266526AbUHQRmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUHQRsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266526AbUHQRmU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 13:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268349AbUHQRmT
+	id S266538AbUHQRsM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 13:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUHQRsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 13:42:19 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:4102 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266526AbUHQRmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 13:42:18 -0400
-Date: Tue, 17 Aug 2004 18:42:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       linux kernel <linux-kernel@vger.kernel.org>,
-       Adam Kropelin <akropel1@rochester.rr.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] - trivial comment fixups in init/main.c
-Message-ID: <20040817184210.A24533@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tim Bird <tim.bird@am.sony.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	linux kernel <linux-kernel@vger.kernel.org>,
-	Adam Kropelin <akropel1@rochester.rr.com>,
-	Andrew Morton <akpm@osdl.org>
-References: <20040817095601.4E7F22BEC3@ozlabs.org> <41224105.5050706@am.sony.com>
+	Tue, 17 Aug 2004 13:48:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29840 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266538AbUHQRsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 13:48:10 -0400
+Date: Tue, 17 Aug 2004 10:45:27 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: dev_null@anet.ne.jp, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: TG3 doesn't work in kernel 2.4.27
+Message-Id: <20040817104527.54a15eed.davem@redhat.com>
+In-Reply-To: <41221036.2020701@tuxdriver.com>
+References: <20040817110002.32088.38168.Mailman@linux.us.dell.com>
+	<200408172129.AJH50391.692B5188@anet.ne.jp>
+	<41221036.2020701@tuxdriver.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41224105.5050706@am.sony.com>; from tim.bird@am.sony.com on Tue, Aug 17, 2004 at 10:31:49AM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fine with me.  These comments were modified at the request of
-> Andrew Morton, who wanted the comment style to be consistent.
-> I actually agree with your position, but I wanted to follow
-> what Andrew wanted here.
+On Tue, 17 Aug 2004 10:03:34 -0400
+"John W. Linville" <linville@tuxdriver.com> wrote:
 
-Please fix the comments anyway.  Rusty's preffered style is by far the
-minority in core kernel code.
+> Tetsuo Handa wrote:
+> 
+> > I compiled as a UP kernel but it wasn't the cause.
+> > Also, I patched the above fix on 2.4.27-rc4 and
+> > compiled as a UP kernel, but didn't work.
+> > 
+> 
+> Testsuo,
+> 
+> Please send the output of `lspci -vv`.  It might be helpful to know 
+> exactly which device is involved.
+> 
+> David,
+> 
+> FWIW, I think I'm seeing the same problem with the BCM5751 built-in to 
+> my HP xw4200...
 
+This bug can only affect 5704 chips with fiber interfaces.

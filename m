@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265649AbSLIQLt>; Mon, 9 Dec 2002 11:11:49 -0500
+	id <S265643AbSLIPdf>; Mon, 9 Dec 2002 10:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265675AbSLIQLt>; Mon, 9 Dec 2002 11:11:49 -0500
-Received: from [195.212.29.5] ([195.212.29.5]:46564 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S265649AbSLIQLt>; Mon, 9 Dec 2002 11:11:49 -0500
-Message-Id: <200212091618.gB9GITk8128954@d06relay02.portsmouth.uk.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Peter Oberparleiter <oberpapr@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re:Code coverage
-Date: Mon, 9 Dec 2002 17:18:18 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: santhoshk@nestec.net
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S265649AbSLIPdf>; Mon, 9 Dec 2002 10:33:35 -0500
+Received: from trillium-hollow.org ([209.180.166.89]:650 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S265643AbSLIPde>; Mon, 9 Dec 2002 10:33:34 -0500
+To: Mike Hayward <hayward@loup.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance 
+In-Reply-To: Your message of "Mon, 09 Dec 2002 01:30:28 MST."
+             <200212090830.gB98USW05593@flux.loup.net> 
+Date: Mon, 09 Dec 2002 07:40:22 -0800
+From: erich@uruk.org
+Message-Id: <E18LQ18-0004Xu-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> Can I take code coverage of a linux driver?
-There is the GCC GNU coverage facility (GCOV) that may be exploited for this 
-purpose. To use it with the kernel, get and apply the GCOV kernel patch 
-(gcov-kernel.tar.gz) which may be found in the "files" section at:
+Mike Hayward <hayward@loup.net> wrote:
 
-  http://sourceforge.net/projects/lse
+> I have been benchmarking Pentium 4 boxes against my Pentium III laptop
+> with the exact same kernel and executables as well as custom compiled
+> kernels.  The Pentium III has a much lower clock rate and I have
+> noticed that system call performance (and hence io performance) is up
+> to an order of magnitude higher on my Pentium III laptop.  1k block IO
+> reads/writes are anemic on the Pentium 4, for example, so I'm trying
+> to figure out why and thought someone might have an idea.
+> 
+> Notice below that the System Call overhead is much higher on the
+> Pentium 4 even though the cpu runs more than twice the speed and the
+> system has DDRAM, a 400 Mhz FSB, etc.  I even get pretty remarkable
+> syscall/io performance on my Pentium III laptop vs. an otherwise idle
+> dual Xeon.
+> 
+> See how the performance is nearly opposite of what one would expect:
+...
+> M-Pentium III 850Mhz Sys Call Rate   433741.8
+>   Pentium 4     2Ghz Sys Call Rate   233637.8
+>   Xeon x 2    2.4Ghz Sys Call Rate   207684.2
+...[other benchmark deleted]...
+> Any ideas?  Not sure I want to upgrade to the P7 architecture if this
+> is right, since for me system calls are probably more important than
+> raw cpu computational power.
 
-There's also an extension for the text-only output of GCOV available which 
-builds on the mentioned kernel patch and provides an easy-to-use interface 
-including HTML output, bar-graphs, browsable overview list, etc. It's called 
-LCOV and can be found at:
+You're assuming that ALL operations in a P4 are linearly faster than
+a P-III.  This is definitely not the case.
 
-  http://ltp.sourceforge.net/lcov.php
+A P4 has a much longer pipeline (for a many cases, considerably
+longer than the diagrams imply) than the P-III, and in particular
+it has a much longer latency in handling mode transitions.
 
+The results you got don't surprise me whatsoever.  In fact the raw
+system call transition instructions are likely 5x slower on the
+P4.
 
-Regards,
-  Peter Oberparleiter
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

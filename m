@@ -1,51 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUFFQYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263798AbUFFQ0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbUFFQYj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUFFQYi
+	id S263798AbUFFQ0F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUFFQ0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:24:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51898 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263786AbUFFQY3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:24:29 -0400
-Message-ID: <40C3452B.5010500@pobox.com>
-Date: Sun, 06 Jun 2004 12:24:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable scheduler debugging
-References: <20040606033238.4e7d72fc.ak@suse.de> <20040606055336.GA15350@elte.hu>
-In-Reply-To: <20040606055336.GA15350@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 6 Jun 2004 12:26:04 -0400
+Received: from may.priocom.com ([213.156.65.50]:905 "EHLO may.priocom.com")
+	by vger.kernel.org with ESMTP id S263798AbUFFQZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 12:25:26 -0400
+Subject: [PATCH] 2.6.6 memory allocation checks in
+	drivers/media/video/v4l1-compat.c
+From: Yury Umanets <torque@ukrpost.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1086539151.2793.98.camel@firefly>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 06 Jun 2004 19:25:51 +0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> 
->>The domain scheduler spews out a lot of information at boot up, but it
->>looks mostly redundant because it's just a transformation of what is
->>in /proc/cpuinfo anyways. Also it is well tested now. Disable it.
-> 
-> 
-> i'd rather keep it some more, there are still open issues and if there's
-> a boot failure or early crash it makes it easier for us to see the
-> actual domain setup. Also, the messages are KERN_DEBUG.
+Various memory allocation checks in drivers/media/video/v4l1-compat.c
 
+ ./linux-2.6.6-modified/drivers/media/video/v4l1-compat.c |   17
++++++++++++++++
+ 1 files changed, 17 insertions(+)
 
-Unfortunately there are just, flat-out, way too many kernel messages at 
-boot-up.  Making them KERN_DEBUG doesn't solve the fact that SMP boxes 
-often overflow the printk buffer before you boot up to a useful userland 
-that can record the dmesg.
+Signed-off-by: Yury Umanets <torque@ukrpost.net>
 
-The IO-APIC code is a _major_ offender in this area, but the CPU code is 
-right up there as well.
+diff -rupN ./linux-2.6.6/drivers/media/video/v4l1-compat.c
+./linux-2.6.6-modified/drivers/media/video/v4l1-compat.c
+--- ./linux-2.6.6/drivers/media/video/v4l1-compat.c	Mon May 10 05:32:38
+2004
++++ ./linux-2.6.6-modified/drivers/media/video/v4l1-compat.c	Wed Jun  2
+14:27:21 2004
+@@ -308,6 +308,9 @@ v4l_compat_translate_ioctl(struct inode 
+ 		struct video_capability *cap = arg;
+ 
+ 		cap2 = kmalloc(sizeof(*cap2),GFP_KERNEL);
++		if (!cap2)
++			return -ENOMEM;
++                        
+ 		memset(cap, 0, sizeof(*cap));
+ 		memset(cap2, 0, sizeof(*cap2));
+ 		memset(&fbuf2, 0, sizeof(fbuf2));
+@@ -425,6 +428,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 		struct video_window	*win = arg;
+ 
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(win,0,sizeof(*win));
+ 		memset(fmt2,0,sizeof(*fmt2));
+ 
+@@ -464,6 +469,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 		int err1,err2;
+ 
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(fmt2,0,sizeof(*fmt2));
+ 		fmt2->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+ 		drv(inode, file, VIDIOC_STREAMOFF, &fmt2->type);
+@@ -598,6 +605,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 						  V4L2_CID_WHITENESS, drv);
+ 
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(fmt2,0,sizeof(*fmt2));
+ 		fmt2->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+ 		err = drv(inode, file, VIDIOC_G_FMT, fmt2);
+@@ -628,6 +637,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 				V4L2_CID_WHITENESS, pict->whiteness, drv);
+ 
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(fmt2,0,sizeof(*fmt2));
+ 		fmt2->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+ 		err = drv(inode, file, VIDIOC_G_FMT, fmt2);
+@@ -861,6 +872,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 		struct video_mmap	*mm = arg;
+ 
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(&buf2,0,sizeof(buf2));
+ 		memset(fmt2,0,sizeof(*fmt2));
+ 		
+@@ -957,6 +970,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 		struct vbi_format      *fmt = arg;
+ 		
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(fmt2, 0, sizeof(*fmt2));
+ 		fmt2->type = V4L2_BUF_TYPE_VBI_CAPTURE;
+ 		
+@@ -981,6 +996,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 		struct vbi_format      *fmt = arg;
+ 		
+ 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		if (!fmt2)
++			return -ENOMEM;
+ 		memset(fmt2, 0, sizeof(*fmt2));
+ 
+ 		fmt2->type = V4L2_BUF_TYPE_VBI_CAPTURE;
 
-	Jeff
+-- 
+umka
 

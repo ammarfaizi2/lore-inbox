@@ -1,140 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVAIQ0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVAIQ2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVAIQ0J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 11:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVAIQ0J
+	id S261583AbVAIQ2k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 11:28:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVAIQ2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 11:26:09 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:23985 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261582AbVAIQZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 11:25:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=hjmKn5QFnZDiyEg3wsD5GuS2H52NqQD48JOkZx+i0b8W55IP0o1hIc3FKW8WuQukyQPhLw6vddco+u7cGMkNR0pRrvx56gik5FaL0PQo1s3g6Aorjl+nykskHzIHgNfWL7ELcwlhSfX9sYJH3jC/4HOnnOR0qFZ1Q8hxgyNzsaQ=
-Message-ID: <884a349a050109082516b0740e@mail.gmail.com>
-Date: Sun, 9 Jan 2005 17:25:55 +0100
-From: mama Smurf <roseline.bonchamp@gmail.com>
-Reply-To: mama Smurf <roseline.bonchamp@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: remove Attach another file remove Attach another file remove Attach another file USB mass storage not always detecting my 1GB PQI intelligent stick
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_660_18947150.1105287955801"
+	Sun, 9 Jan 2005 11:28:40 -0500
+Received: from av2-1-sn3.vrr.skanova.net ([81.228.9.107]:61315 "EHLO
+	av2-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261583AbVAIQ2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 11:28:38 -0500
+Message-ID: <41E15BB3.3030301@fulhack.info>
+Date: Sun, 09 Jan 2005 17:28:35 +0100
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041203)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Breno Silva Pinto <breno@kalangolinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch to uselib()
+References: <003f01c4f65e$9e4f91b0$b0e0a7c8@rootcon4qag3k5>
+In-Reply-To: <003f01c4f65e$9e4f91b0$b0e0a7c8@rootcon4qag3k5>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_660_18947150.1105287955801
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Breno Silva Pinto wrote:
+> Hi all,
+> 
+> Is there a patch to uselib() bug ->
+> http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt ?
 
-Hello,
+It's patched in 2.4.29-rc1 and 2.6.10-ac6. A patch for 2.4 can also be 
+found here: 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110514006004261&w=2
 
-my 1 GB PQI Intelligent Stick is often not beeing used by mass storage
-driver when I plug it.
+and for 2.6:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110512844202355&w=2
 
->From a  fresh reboot it works, I see:
-Jan  9 16:54:43 parachute kernel: usb 1-3: new high speed USB device
-using ehci_hcd and address 2
-Jan  9 16:54:43 parachute kernel: scsi0 : SCSI emulation for USB Mass
-Storage devices
-Jan  9 16:54:48 parachute kernel:   Vendor: I-Stick2  Model:
-IntelligentStick  Rev: 2.00
-Jan  9 16:54:48 parachute kernel:   Type:   Direct-Access             
-        ANSI SCSI revision: 02
-Jan  9 16:54:49 parachute kernel: sda: Unit Not Ready, sense:
+Browsing the archives usually gives you alot of answers, you know. ;)
 
-then a lot of other stuff, and I can use it.
-
-But if I unplug/replug it, it's not longer detected as mass storage
-device. I can see 3 new USB devices detected when I plug it:
-kernel: usb 1-3: new high speed USB device using ehci_hcd and address 6
-kernel: usb 3-1: new full speed USB device using uhci_hcd and address 4
-kernel: usb 3-1: new full speed USB device using uhci_hcd and address 5
-
-But it's no longer beeing detected as mass storage.
-
-I have other USB 2.0 keys which are working perfectly. Moreover this
-USB key seems to work properly on some other machines/OSes
-
-In the attached file, full log and result of lspci.
-
-Roseline
-
-------=_Part_660_18947150.1105287955801
-Content-Type: application/octet-stream; name="kern.log"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="kern.log"
-
-SmFuICA5IDE2OjU0OjQzIHBhcmFjaHV0ZSBrZXJuZWw6IHVzYiAxLTM6IG5ldyBoaWdoIHNwZWVk
-IFVTQiBkZXZpY2UgdXNpbmcgZWhjaV9oY2QgYW5kIGFkZHJlc3MgMgpKYW4gIDkgMTY6NTQ6NDMg
-cGFyYWNodXRlIGtlcm5lbDogc2NzaTAgOiBTQ1NJIGVtdWxhdGlvbiBmb3IgVVNCIE1hc3MgU3Rv
-cmFnZSBkZXZpY2VzCkphbiAgOSAxNjo1NDo0OCBwYXJhY2h1dGUga2VybmVsOiAgIFZlbmRvcjog
-SS1TdGljazIgIE1vZGVsOiBJbnRlbGxpZ2VudFN0aWNrICBSZXY6IDIuMDAKSmFuICA5IDE2OjU0
-OjQ4IHBhcmFjaHV0ZSBrZXJuZWw6ICAgVHlwZTogICBEaXJlY3QtQWNjZXNzICAgICAgICAgICAg
-ICAgICAgICAgIEFOU0kgU0NTSSByZXZpc2lvbjogMDIKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0
-ZSBrZXJuZWw6IHNkYTogVW5pdCBOb3QgUmVhZHksIHNlbnNlOgpKYW4gIDkgMTY6NTQ6NDkgcGFy
-YWNodXRlIGtlcm5lbDogQ3VycmVudCA6IHNlbnNlID0gNzAgIDYKSmFuICA5IDE2OjU0OjQ5IHBh
-cmFjaHV0ZSBrZXJuZWw6IEFTQz0yOCBBU0NRPSAwCkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1dGUg
-a2VybmVsOiBSYXcgc2Vuc2UgZGF0YToweDcwIDB4MDAgMHgwNiAweDAwIDB4MDAgMHgwMCAweDAw
-IDB4MGEgMHgwMCAweDAwIDB4MDAgMHgwMCAweDI4IDB4MDAgMHgwMCAweDAwIDB4MDAgMHgwMCAK
-SmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IHNkYSA6IFJFQUQgQ0FQQUNJVFkgZmFp
-bGVkLgpKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogc2RhIDogc3RhdHVzPTEsIG1l
-c3NhZ2U9MDAsIGhvc3Q9MCwgZHJpdmVyPTA4IApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtl
-cm5lbDogQ3VycmVudCBzZDogc2Vuc2UgPSA3MCAgNgpKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRl
-IGtlcm5lbDogQVNDPTI4IEFTQ1E9IDAKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6
-IFJhdyBzZW5zZSBkYXRhOjB4NzAgMHgwMCAweDA2IDB4MDAgMHgwMCAweDAwIDB4MDAgMHgwYSAw
-eDAwIDB4MDAgMHgwMCAweDAwIDB4MjggMHgwMCAweDAwIDB4MDAgMHgwMCAweDAwIApKYW4gIDkg
-MTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogc2RhOiBhc3N1bWluZyBXcml0ZSBFbmFibGVkCkph
-biAgOSAxNjo1NDo0OSBwYXJhY2h1dGUga2VybmVsOiBzZGE6IFVuaXQgTm90IFJlYWR5LCBzZW5z
-ZToKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IEN1cnJlbnQgOiBzZW5zZSA9IDcw
-ICA2CkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1dGUga2VybmVsOiBBU0M9MjggQVNDUT0gMApKYW4g
-IDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogUmF3IHNlbnNlIGRhdGE6MHg3MCAweDAwIDB4
-MDYgMHgwMCAweDAwIDB4MDAgMHgwMCAweDBhIDB4MDAgMHgwMCAweDAwIDB4MDAgMHgyOCAweDAw
-IDB4MDAgMHgwMCAweDAwIDB4MDAgCkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1dGUga2VybmVsOiBz
-ZGEgOiBSRUFEIENBUEFDSVRZIGZhaWxlZC4KSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJu
-ZWw6IHNkYSA6IHN0YXR1cz0xLCBtZXNzYWdlPTAwLCBob3N0PTAsIGRyaXZlcj0wOCAKSmFuICA5
-IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IEN1cnJlbnQgc2Q6IHNlbnNlID0gNzAgIDYKSmFu
-ICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IEFTQz0yOCBBU0NRPSAwCkphbiAgOSAxNjo1
-NDo0OSBwYXJhY2h1dGUga2VybmVsOiBSYXcgc2Vuc2UgZGF0YToweDcwIDB4MDAgMHgwNiAweDAw
-IDB4MDAgMHgwMCAweDAwIDB4MGEgMHgwMCAweDAwIDB4MDAgMHgwMCAweDI4IDB4MDAgMHgwMCAw
-eDAwIDB4MDAgMHgwMCAKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IHNkYTogYXNz
-dW1pbmcgV3JpdGUgRW5hYmxlZApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogU0NT
-SSBkZXZpY2Ugc2RhOiAyMDQ3NDg4IDUxMi1ieXRlIGhkd3Igc2VjdG9ycyAoMTA0OCBNQikKSmFu
-ICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IHNkYTogYXNzdW1pbmcgV3JpdGUgRW5hYmxl
-ZApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogIC9kZXYvc2NzaS9ob3N0MC9idXMw
-L3RhcmdldDAvbHVuMDo8Nz51c2Itc3RvcmFnZTogcXVldWVjb21tYW5kIGNhbGxlZApKYW4gIDkg
-MTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogIHAxIHAyCkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1
-dGUga2VybmVsOiBBdHRhY2hlZCBzY3NpIHJlbW92YWJsZSBkaXNrIHNkYSBhdCBzY3NpMCwgY2hh
-bm5lbCAwLCBpZCAwLCBsdW4gMApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogQXR0
-YWNoZWQgc2NzaSBnZW5lcmljIHNnMCBhdCBzY3NpMCwgY2hhbm5lbCAwLCBpZCAwLCBsdW4gMCwg
-IHR5cGUgMApKYW4gIDkgMTY6NTU6MTkgcGFyYWNodXRlIGtlcm5lbDogdXNiIDEtMzogVVNCIGRp
-c2Nvbm5lY3QsIGFkZHJlc3MgMgoKPCBJIHVucGx1Zy9yZXBsdWcgPgoKSmFuICA5IDE3OjA3OjE3
-IHBhcmFjaHV0ZSBrZXJuZWw6IHVzYiAxLTM6IG5ldyBoaWdoIHNwZWVkIFVTQiBkZXZpY2UgdXNp
-bmcgZWhjaV9oY2QgYW5kIGFkZHJlc3MgNgpKYW4gIDkgMTc6MDc6MTcgcGFyYWNodXRlIGtlcm5l
-bDogdXNiIDMtMTogbmV3IGZ1bGwgc3BlZWQgVVNCIGRldmljZSB1c2luZyB1aGNpX2hjZCBhbmQg
-YWRkcmVzcyA0CkphbiAgOSAxNzowNzoxOCBwYXJhY2h1dGUga2VybmVsOiB1c2IgMy0xOiBuZXcg
-ZnVsbCBzcGVlZCBVU0IgZGV2aWNlIHVzaW5nIHVoY2lfaGNkIGFuZCBhZGRyZXNzIDUKCjwgSSB1
-bnBsdWcvcmVwbHVnID4KCkphbiAgOSAxNzoxMDoyMSBwYXJhY2h1dGUga2VybmVsOiB1c2IgMS0z
-OiBuZXcgaGlnaCBzcGVlZCBVU0IgZGV2aWNlIHVzaW5nIGVoY2lfaGNkIGFuZCBhZGRyZXNzIDcK
-SmFuICA5IDE3OjEwOjIxIHBhcmFjaHV0ZSBrZXJuZWw6IHVzYiAzLTE6IG5ldyBmdWxsIHNwZWVk
-IFVTQiBkZXZpY2UgdXNpbmcgdWhjaV9oY2QgYW5kIGFkZHJlc3MgNgpKYW4gIDkgMTc6MTA6MjIg
-cGFyYWNodXRlIGtlcm5lbDogdXNiIDMtMTogbmV3IGZ1bGwgc3BlZWQgVVNCIGRldmljZSB1c2lu
-ZyB1aGNpX2hjZCBhbmQgYWRkcmVzcyA3CgotLS0tLS0tLS0tLS0tLQoKcmVzdWx0IG9mIGxzcGNp
-OgoKMDAwMDowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3JwLiA4Mjg0NUcvR0xbQnJvb2tk
-YWxlLUddL0dFL1BFIERSQU0gQ29udHJvbGxlci9Ib3N0LUh1YiBJbnRlcmZhY2UgKHJldiAwMikK
-MDAwMDowMDowMS4wIFBDSSBicmlkZ2U6IEludGVsIENvcnAuIDgyODQ1Ry9HTFtCcm9va2RhbGUt
-R10vR0UvUEUgSG9zdC10by1BR1AgQnJpZGdlIChyZXYgMDIpCjAwMDA6MDA6MWQuMCBVU0IgQ29u
-dHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFEQi9EQkwvREJNIChJQ0g0L0lDSDQtTC9JQ0g0LU0p
-IFVTQiBVSENJIENvbnRyb2xsZXIgIzEgKHJldiAwMikKMDAwMDowMDoxZC4xIFVTQiBDb250cm9s
-bGVyOiBJbnRlbCBDb3JwLiA4MjgwMURCL0RCTC9EQk0gKElDSDQvSUNINC1ML0lDSDQtTSkgVVNC
-IFVIQ0kgQ29udHJvbGxlciAjMiAocmV2IDAyKQowMDAwOjAwOjFkLjIgVVNCIENvbnRyb2xsZXI6
-IEludGVsIENvcnAuIDgyODAxREIvREJML0RCTSAoSUNINC9JQ0g0LUwvSUNINC1NKSBVU0IgVUhD
-SSBDb250cm9sbGVyICMzIChyZXYgMDIpCjAwMDA6MDA6MWQuNyBVU0IgQ29udHJvbGxlcjogSW50
-ZWwgQ29ycC4gODI4MDFEQi9EQk0gKElDSDQvSUNINC1NKSBVU0IgMi4wIEVIQ0kgQ29udHJvbGxl
-ciAocmV2IDAyKQowMDAwOjAwOjFlLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4MDEgUENJ
-IEJyaWRnZSAocmV2IDgyKQowMDAwOjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4
-MDFEQi9EQkwgKElDSDQvSUNINC1MKSBMUEMgQnJpZGdlIChyZXYgMDIpCg==
-------=_Part_660_18947150.1105287955801--
+--
+Henrik Persson

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTGATXL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 15:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTGATXL
+	id S263354AbTGATa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTGATa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 15:23:11 -0400
-Received: from ext-nj2gw-5.online-age.net ([64.14.56.41]:34300 "EHLO
-	ext-nj2gw-5.online-age.net") by vger.kernel.org with ESMTP
-	id S263319AbTGATXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 15:23:10 -0400
-Message-ID: <A9D3E503844A904CB9E42AD008C1C7FDBA9BD6@vacho3misge.cho.ge.com>
-From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-To: "'G. C.'" <gpc01532@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: RE: How to Avoid GPL Issue
-Date: Tue, 1 Jul 2003 15:36:40 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain
+	Tue, 1 Jul 2003 15:30:57 -0400
+Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:1540 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP id S263354AbTGATa4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:30:56 -0400
+Date: Tue, 1 Jul 2003 21:45:15 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+Message-ID: <20030701194515.GA1336@alf.amelek.gda.pl>
+References: <20030630221542.GA17416@alf.amelek.gda.pl> <1057011399.17567.50.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1057011399.17567.50.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We are trying to port a third party hardware driver into Linux kernel and 
-> this third party vendor does not allow us to publish the source code. Is 
-> there any approach that we can avoid publicizing the third party code
-while 
-> porting to Linux? Do we need to write some shim layer code in Linux kernel
+On Mon, Jun 30, 2003 at 11:16:40PM +0100, Alan Cox wrote:
+> On Llu, 2003-06-30 at 23:15, Marek Michalkiewicz wrote:
+> > 
+> > hda: dma_timer_expiry: dma status == 0x24
+> > hda: lost interrupt
+> > hda: dma_intr: bad DMA status (dma_stat=30)
+> > hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> 
+> Does it happen if you disable local apic support ?
 
-> to interface the third party code? How can we do that? Is there any
-document 
-> or samples?
+It seems that booting with "noapic" fixes it, or at least now it
+is much more difficult to trigger.  Still testing...
 
-It depends on what you intend to do with your port. If it is only for
-internal use (you will not distribute the ported code in any form)
-then you may not be required to supply the source code to anyone. This is
-a common interpretation of the GPL (although I can not find explicit
-language providing for this interpretation in the license).
+Before upgrading to 2.4.21, I've been running 2.4.20 with APIC
+enabled for a few months, and there were no such IDE errors.
+
+BTW, "noapic" fixes the "power button not working if ACPI is alone
+on its own IRQ" problem (present in both 2.4.20 and 2.4.21) too.
+
+Thanks,
+Marek
 

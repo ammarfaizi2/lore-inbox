@@ -1,56 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265078AbSJWRWX>; Wed, 23 Oct 2002 13:22:23 -0400
+	id <S265100AbSJWRVZ>; Wed, 23 Oct 2002 13:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265103AbSJWRWX>; Wed, 23 Oct 2002 13:22:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:31366 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265078AbSJWRWV>; Wed, 23 Oct 2002 13:22:21 -0400
-Date: Wed, 23 Oct 2002 13:31:09 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Torrey Hoffman <thoffman@arnor.net>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, Pavel Roskin <proski@gnu.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Hearty AOL" for kexec
-In-Reply-To: <1035392282.30561.85.camel@rivendell.arnor.net>
-Message-ID: <Pine.LNX.3.95.1021023132644.14975A-100000@chaos.analogic.com>
+	id <S265103AbSJWRVZ>; Wed, 23 Oct 2002 13:21:25 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:29659 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S265100AbSJWRVY>;
+	Wed, 23 Oct 2002 13:21:24 -0400
+Message-ID: <3DB6DBF1.4060009@candelatech.com>
+Date: Wed, 23 Oct 2002 10:27:13 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jt@hpl.hp.com
+CC: Slavcho Nikolov <snikolov@okena.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: feature request - why not make netif_rx() a pointer?
+References: <20021023003959.GA23155@bougret.hpl.hp.com> <004c01c27a99$927b8a30$800a140a@SLNW2K> <20021023164808.GG24123@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Oct 2002, Torrey Hoffman wrote:
-
-> On Wed, 2002-10-23 at 08:03, Eric W. Biederman wrote:
-> > Pavel Roskin <proski@gnu.org> writes:
-> [...]
-> > > I really want to see this feature in the kernel.  It is very useful in
-> > > embedded systems.  Just imagine loading the bootstrap kernel, then
-> > > downloading the new kernel over anything - HDLC, 802.11, USB, decrypting
-> > > it from flash etc.  Possibilities are infinite.
-> > 
-> > Yay!!!!  My first embedded developer who doesn't think it is silly to
-> > use a kernel as a bootloader :)  Or at least the first to admit they
-> > embedded developer.
+Jean Tourrilhes wrote:
+> On Wed, Oct 23, 2002 at 09:39:12AM -0400, Slavcho Nikolov wrote:
 > 
-> Yeah, another AOL "Me Too" here - I'm an embedded linux developer and
-> think would be useful.  Being able to network boot the device, download
-> software to a flash, and then directly "kexec" boot from the kernel on
-> the flash would be nice. 
+>>Unfortunately, I cannot assume that every L2 (or maybe I can, we'll see) is
+>>ethernet and I definitely cannot know in advance that every L3 is IP.
+>>Nor can the assumption be made that netfilter has been built into the
+>>kernel.
 > 
-> Anything that reduces dependencies on the BIOS is good.  I'd use this
-> feature if it was available.
+> 
+> 	So, you thing assuming a modified netif_rx is different than
+> assuming netfilter support ?
+> 	Your idea is just too dangerous.
 
-But 'downloading' (actually uploading) software and writing it to
-flash for a re-boot is a trivial user-mode task. The actual boot
-from such a virtual disk takes 4 seconds on a real system (AMD SC520)
-processor in an embedded system. You don't need any special kernel
-hooks.
+If you added something like this to netif_rx, I think it would accomplish
+the goals of those who want to add their own hooks.  It would probably not
+please the folks who want to keep this code out for GPL/political/legal/moral
+reasons.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
+Note that the hook basically exists already in the bridging code.  It may
+be illegal for GPL reasons to assign your own method to this hook, but I'm
+sure you could put up a good legal fight if you wanted to (the bridge hook
+is not exported GPL)
+
+int netif_rx(struct sk_buff *skb)
+{
+	int this_cpu = smp_processor_id();
+	struct softnet_data *queue;
+	unsigned long flags;
+
++#idfef EVIL_COMPANY_NETWORK_HOOK_HACK
++       if (evil_hook) {
++          int rv = evil_hook(skb);
++          if (rv) { return; /* skb was consumed by evil hook, gawd help us all */ }
++        }
++#endif
+
+	if (skb->stamp.tv_sec == 0)
+		do_gettimeofday(&skb->stamp);
+
+
+> 
+> 
+>>If I define my own private protocol handler (to catch all), I see cloned
+>>skb's
+>>which is not what I want. I tried that and dropped each one of them in the
+>>handler, yet traffic continued to flow unimpeded (so I must have dropped
+>>clones).
+> 
+> 
+> 	For this to work, you need to modify the driver. The driver
+> generates a private packet type or protocol, and you will be the only
+> to to catch it.
+
+So, it would be ok to modify the driver to call a new hook, one that
+may be over-written by proprietary code?  Otherwise, you have to write
+a non-gpl driver....yuck!
+
+
+Thanks,
+Ben
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 

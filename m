@@ -1,93 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbTLETIt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 14:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbTLETIt
+	id S264332AbTLETJg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 14:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLETJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 14:08:49 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:2213 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S264330AbTLETIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 14:08:47 -0500
-Date: Fri, 5 Dec 2003 13:07:58 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Meelis Roos <mroos@linux.ee>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-bk bogus edd changeset - Re: 2.4.23 compile error in edd
-Message-ID: <20031205130758.A22775@lists.us.dell.com>
-References: <Pine.SOL.4.58.0312042225300.26114@yellow.csi.cam.ac.uk> <Pine.LNX.4.44.0312051109580.1782-100000@logos.cnet> <20031205113619.A20371@lists.us.dell.com> <20031205125351.A22277@lists.us.dell.com>
+	Fri, 5 Dec 2003 14:09:36 -0500
+Received: from courrier3.usherbrooke.ca ([132.210.13.19]:57825 "EHLO
+	courrier3.usherbrooke.ca") by vger.kernel.org with ESMTP
+	id S264332AbTLETJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 14:09:32 -0500
+Subject: RE: High-pitch noise with 2.6.0-test11
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Troels Walsted Hansen <troels@thule.no>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84702C93186@orsmsx401.jf.intel.com>
+References: <F760B14C9561B941B89469F59BA3A84702C93186@orsmsx401.jf.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3Kaf//g8ujFKFCAB47dW"
+Organization: Universite de Sherbrooke
+Message-Id: <1070651354.4204.1.camel@idefix.homelinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031205125351.A22277@lists.us.dell.com>; from Matt_Domsch@dell.com on Fri, Dec 05, 2003 at 12:53:51PM -0600
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 05 Dec 2003 14:09:14 -0500
+X-UdeS-MailScanner-Information: Veuillez consulter le http://www.usherbrooke.ca/vers/virus-courriel
+X-UdeS-MailScanner: Aucun code suspect =?ISO-8859-1?Q?d=E9tect=E9?=
+X-MailScanner-SpamCheck: n'est pas un polluriel, SpamAssassin (score=-4.9,
+	requis 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can import this changeset into BK by piping this whole message to
-'| bk receive [path to repository]' or apply the patch as usual.
 
-===================================================================
+--=-3Kaf//g8ujFKFCAB47dW
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+> Here's the answer from another thread:
+>=20
+> "It's not normal, but it means they used cheap capacitors. This is known
+> as the acoustic noise issue. It's related to PCB vibration as a result
+> of the piezo electric effect on the caps. What is the timer tick
+> frequency? ... The 1ms gives a nice 1kHz tone. It's related to the
+> voltage change of C4 exit."
 
-ChangeSet@1.1199, 2003-12-05 12:46:52-06:00, Matt_Domsch@dell.com
-  EDD: s/DISKSIG_BUFFER/DISK80_SIG_BUFFER so it compiles
-  
-  bump EDD version number.
+Well, that still doesn't explain why the noise is only there when I
+insert thermal.o. Also, the noise seems to be higher than 1 kHz (I'd
+guess 5-10 kHz).
 
+	Jean-Marc
 
- edd.c   |    2 +-
- setup.c |    2 +-
- 2 files changed, 2 insertions, 2 deletions
+--=20
+Jean-Marc Valin, M.Sc.A., ing. jr.
+LABORIUS (http://www.gel.usherb.ca/laborius)
+Universit=E9 de Sherbrooke, Qu=E9bec, Canada
 
+--=-3Kaf//g8ujFKFCAB47dW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
 
-diff -Nru a/arch/i386/kernel/edd.c b/arch/i386/kernel/edd.c
---- a/arch/i386/kernel/edd.c	Fri Dec  5 12:51:43 2003
-+++ b/arch/i386/kernel/edd.c	Fri Dec  5 12:51:43 2003
-@@ -46,7 +46,7 @@
- MODULE_DESCRIPTION("proc interface to BIOS EDD information");
- MODULE_LICENSE("GPL");
- 
--#define EDD_VERSION "0.09 2003-Jan-21"
-+#define EDD_VERSION "0.10 2003-Dec-05"
- #define EDD_DEVICE_NAME_SIZE 16
- #define REPORT_URL "http://domsch.com/linux/edd30/results.html"
- 
-diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
---- a/arch/i386/kernel/setup.c	Fri Dec  5 12:51:43 2003
-+++ b/arch/i386/kernel/setup.c	Fri Dec  5 12:51:43 2003
-@@ -211,7 +211,7 @@
- #define KERNEL_START (*(unsigned long *) (PARAM+0x214))
- #define INITRD_START (*(unsigned long *) (PARAM+0x218))
- #define INITRD_SIZE (*(unsigned long *) (PARAM+0x21c))
--#define DISK80_SIGNATURE_BUFFER (*(unsigned int*) (PARAM+DISKSIG_BUFFER))
-+#define DISK80_SIGNATURE_BUFFER (*(unsigned int*) (PARAM+DISK80_SIG_BUFFER))
- #define EDD_NR     (*(unsigned char *) (PARAM+EDDNR))
- #define EDD_BUF     ((struct edd_info *) (PARAM+EDDBUF))
- #define COMMAND_LINE ((char *) (PARAM+2048))
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-===================================================================
+iD8DBQA/0NfYdXwABdFiRMQRAvbfAJ9im2OvjURcvxolDMR3enxYHmKbowCcCPe8
+RslqP3adGArtsWDrHlFVjHM=
+=8Ar0
+-----END PGP SIGNATURE-----
 
+--=-3Kaf//g8ujFKFCAB47dW--
 
-This BitKeeper patch contains the following changesets:
-1.1199
-## Wrapped with gzip_uu ##
-
-
-M'XL( +_3T#\  \U5:V^;,!3]'/\*J_W2AP!?OWA(F?I(VD5=VRA9]F6:(F+<
-M!C5 !*3;)'[\#$N;/K)FZU9I&(%LF>-S[SWGLHU'A<Z#UGE8EN-.EA1JBK;Q
-M^ZPH@U:D9S-;98E9&&2967"F6:*=)&JV.9,;1T>1,XO3Q3>+VMPR,V3V]L-2
-M3?&MSHN@!3:[7RF_SW70&G1/1Q\.!PBUV_AX&J;7>JA+W&ZC,LMOPUE4'(3E
-M=):E=IF':9'H,JPI5/=;*TH(-4. RXB0%4C"W4I!!!!RT!&AW),</8CGX"Z.
-MQR ,# SXX(&LF  0J(/!!O!]3)@#U"$" PVX# 2UB P(P>M \3[%%D%'^-_R
-M/T8*=SN= !=.IS<\&_9.QT>CDY/NH)EZ9+Q:P46&XQ*;4^;Q3!?F0W-/%LF\
-M!FCJ$&<I3A?)1.<V.L.,F]-1?Y5]9/WAA1 )"7JW(>0P-R*)F2>=&YVG>N84
-MNES,;?4@ ]Q4H.(N U*%0$SX+H<K4(JZ8FVR7\2L"RK XY**BKB<4\-P'<CG
-MI8"_/$<S"EYB$9\R\ 7E4%&/"L.2,-^-))6A.]%2R=_DMT)\Q,YC;N. ]?MK
-M.[P=\]=# S&#"4+].@0A&\>PIW:AXD6[ +;@[>S2Z/ZQYHWDFWQ?8BO_VMQ&
-MP?U?I/X57NAP'P/J-<_M2%_%J:ZYC#]U!\/>Y07>(C807.?/ZFAE$;&UOO1+
-M*6_NA7]GK/6M<9.Q3'^D3-32I9PU=7>]_ZKPF_ND\[11&EW476*3+I:9>(TR
-M*/!:&C]?=]I8$;LX_#@:=._:^,[>SB(MXNM41SA.R[U=O-,_'!R>[S^+9'=W
-9]9]54ZUNBD72=I565$J%?@!_!;MWTP<     
- 

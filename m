@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130017AbQLQMxj>; Sun, 17 Dec 2000 07:53:39 -0500
+	id <S132074AbQLQMy7>; Sun, 17 Dec 2000 07:54:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131744AbQLQMxa>; Sun, 17 Dec 2000 07:53:30 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:34461 "EHLO
+	id <S132107AbQLQMyt>; Sun, 17 Dec 2000 07:54:49 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:43165 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130017AbQLQMxS>; Sun, 17 Dec 2000 07:53:18 -0500
-Date: Sun, 17 Dec 2000 12:22:50 +0000
+	id <S132074AbQLQMyb>; Sun, 17 Dec 2000 07:54:31 -0500
+Date: Sun, 17 Dec 2000 12:24:04 +0000
 From: Tim Waugh <twaugh@redhat.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.0-test13-pre2: ChangeLog sync
-Message-ID: <20001217122250.B19671@redhat.com>
+Subject: [patch] 2.4.0-test13-pre2: mark CONFIG_PARPORT_PC_FIFO experimental
+Message-ID: <20001217122404.C19671@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,30 +21,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Linus,
 
-Here is a small patch that syncs up the parport ChangeLog to the
-current source tree.
+Here is a patch that marks CONFIG_PARPORT_PC_FIFO experimental.
 
 Tim.
 */
 
-2000-12-13  Tim Waugh  <twaugh@redhat.com>
+2000-12-14  Tim Waugh  <twaugh@redhat.com>
 
-	* drivers/parport/ChangeLog: Resync.
+	* drivers/parport/Config.in: Mark CONFIG_PARPORT_PC_FIFO
+	experimental.
+	* drivers/parport/ChangeLog: Updated.
 
---- linux-2.4.0-test12/drivers/parport/ChangeLog.sync	Wed Dec 13 12:37:45 2000
-+++ linux-2.4.0-test12/drivers/parport/ChangeLog	Wed Dec 13 12:38:41 2000
-@@ -9,6 +9,11 @@
- 	* parport_pc.c (sio_via_686a_probe): Handle case
- 	where hardware returns 255 for IRQ or DMA.
- 
-+2000-08-08  Cesar Eduardo Barros  <cesarb@nitnet.com.br>
+--- linux-2.4.0-test13-pre1/drivers/parport/Config.in.fifoexp	Thu Jun 29 10:20:36 2000
++++ linux-2.4.0-test13-pre1/drivers/parport/Config.in	Thu Dec 14 11:38:53 2000
+@@ -12,7 +12,7 @@
+ if [ "$CONFIG_PARPORT" != "n" ]; then
+    dep_tristate '  PC-style hardware' CONFIG_PARPORT_PC $CONFIG_PARPORT
+    if [ "$CONFIG_PARPORT_PC" != "n" ]; then
+-      bool '    Use FIFO/DMA if available' CONFIG_PARPORT_PC_FIFO
++      bool '    Use FIFO/DMA if available (EXPERIMENTAL)' CONFIG_PARPORT_PC_FIFO
+       if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+          bool '    SuperIO chipset support (EXPERIMENTAL)' CONFIG_PARPORT_PC_SUPERIO
+       fi
+--- linux-2.4.0-test13-pre1+/drivers/parport/ChangeLog.fifoexp	Fri Dec 15 11:33:52 2000
++++ linux-2.4.0-test13-pre1+/drivers/parport/ChangeLog	Fri Dec 15 11:34:03 2000
+@@ -0,0 +1,4 @@
++2000-12-14  Tim Waugh  <twaugh@redhat.com>
 +
-+	* parport_pc.c (parport_pc_probe_port): Fix annoying printk to
-+	console bug.
++	* Config.in: Mark CONFIG_PARPORT_PC_FIFO experimental.
 +
- 2000-07-20  Eddie C. Dost  <ecd@skynet.be>
- 
- 	* share.c (attach_driver_chain): attach[i](port) needs to be
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130970AbRAYXUZ>; Thu, 25 Jan 2001 18:20:25 -0500
+	id <S129334AbRAYXcE>; Thu, 25 Jan 2001 18:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135545AbRAYXUT>; Thu, 25 Jan 2001 18:20:19 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:59657 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130970AbRAYXUD>; Thu, 25 Jan 2001 18:20:03 -0500
-Date: Thu, 25 Jan 2001 19:30:20 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Daniel Phillips <phillips@innominate.de>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: inode->i_dirty_buffers redundant ?
-In-Reply-To: <3A708722.C21EC12A@innominate.de>
-Message-ID: <Pine.LNX.4.21.0101251925190.11559-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129703AbRAYXbv>; Thu, 25 Jan 2001 18:31:51 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:58127 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129334AbRAYXbk>; Thu, 25 Jan 2001 18:31:40 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Fri, 26 Jan 2001 10:19:21 +1100
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
+Message-ID: <20010126101921.A16670@linuxcare.com>
+In-Reply-To: <14960.13645.936452.235135@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <14960.13645.936452.235135@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 06:16:45AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> o If sock_writepage is called on path via device without SG support,
+>   the cooked up sock_sendmsg() call needs to switch to KERNEL_DS.
+>   Discovered and fixed by Ingo Molnar.
 
-On Thu, 25 Jan 2001, Daniel Phillips wrote:
+Good catch.
 
-> "Stephen C. Tweedie" wrote:
-> > We also maintain the 
-> > per-page buffer lists as caches of the virtual-to-physical mapping to
-> > avoid redundant bmap()ping.
-> 
-> Could you clarify that one, please?
+> This does show that not too many people are testing this all that
+> thoroughly :-) Basically, any sys_sendfile() over TCP using a network
+> card other than loopback/3c59x/sunhme/acenic would fail with -EFAULT
+> or even worse a kernel crash depending upon architecture.
 
-Daniel, 
+Hey now, I was seeing it but I hadn't got around to chasing the bug down. :)
 
-With "physical mapping" Stephen means on-disk block number.
-
-If the buffer(s) for a page are mapped with valid information (ie
-BH_Mapped) we avoid calling get_block(). 
-
-See?
-
+Anton
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

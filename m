@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267547AbTBNVM5>; Fri, 14 Feb 2003 16:12:57 -0500
+	id <S267994AbTBNVbE>; Fri, 14 Feb 2003 16:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268046AbTBNVLV>; Fri, 14 Feb 2003 16:11:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28938 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267547AbTBNU4b>; Fri, 14 Feb 2003 15:56:31 -0500
-Subject: PATCH: new drivers needing mca-legacy for now
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Fri, 14 Feb 2003 21:06:26 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267529AbTBNV3W>; Fri, 14 Feb 2003 16:29:22 -0500
+Received: from services.cam.org ([198.73.180.252]:14280 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S267505AbTBNV2v>;
+	Fri, 14 Feb 2003 16:28:51 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CFQ scheduler, #2
+Date: Fri, 14 Feb 2003 16:38:44 -0500
+User-Agent: KMail/1.5.9
+References: <3DF453C8.18B24E66@digeo.com> <200212092059.06287.tomlins@cam.org> <3DF54BD7.726993D@digeo.com>
+In-Reply-To: <3DF54BD7.726993D@digeo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Cc: Jens Axboe <axboe@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E18jn2Q-0005hA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200302141638.44843.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.60-ref/drivers/net/depca.c linux-2.5.60-ac1/drivers/net/depca.c
---- linux-2.5.60-ref/drivers/net/depca.c	2003-02-14 21:21:27.000000000 +0000
-+++ linux-2.5.60-ac1/drivers/net/depca.c	2003-02-14 19:37:27.000000000 +0000
-@@ -252,6 +252,7 @@
- #include <linux/types.h>
- #include <linux/unistd.h>
- #include <linux/ctype.h>
-+#include <linux/mca-legacy.h>
+Jens Axboe wrote:
  
- #include <asm/uaccess.h>
- #include <asm/bitops.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.60-ref/drivers/net/eexpress.c linux-2.5.60-ac1/drivers/net/eexpress.c
---- linux-2.5.60-ref/drivers/net/eexpress.c	2003-02-14 21:21:26.000000000 +0000
-+++ linux-2.5.60-ac1/drivers/net/eexpress.c	2003-02-14 19:36:46.000000000 +0000
-@@ -114,6 +114,7 @@
- #include <linux/skbuff.h>
- #include <linux/slab.h>
- #include <linux/mca.h>
-+#include <linux/mca-legacy.h>
- #include <linux/spinlock.h>
- 
- #include <asm/system.h>
+> The version posted the other day did fair queueing of requests between
+> processes, but it did not help to provide fair request allocation. This
+> version does that too, results are rather remarkable. In addition, the
+> following changes were made:
+
+The numbers from the second message are nice - especially considering this
+is only the second iteration...
+
+A question about io priorities.  I wonder if they could not be implemented
+via a per pid cfq_quantum?  If I am not missunderstanding things, a bigger
+value here for a given process should mean that it gets a larger share of 
+the io bandwidth...
+
+Comments?
+Ed Tomlinson
+
+
+
+

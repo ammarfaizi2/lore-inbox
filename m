@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264777AbTCCMPC>; Mon, 3 Mar 2003 07:15:02 -0500
+	id <S264756AbTCCMUE>; Mon, 3 Mar 2003 07:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264788AbTCCMPC>; Mon, 3 Mar 2003 07:15:02 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17414 "EHLO
+	id <S264761AbTCCMUE>; Mon, 3 Mar 2003 07:20:04 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49926 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S264777AbTCCMPA>; Mon, 3 Mar 2003 07:15:00 -0500
-Date: Mon, 3 Mar 2003 13:25:26 +0100
+	id <S264756AbTCCMUD>; Mon, 3 Mar 2003 07:20:03 -0500
+Date: Mon, 3 Mar 2003 13:30:29 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
 Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Software Suspend Functionality in 2.5
-Message-ID: <20030303122525.GB20929@atrey.karlin.mff.cuni.cz>
-References: <20030228121725.B2241@in.ibm.com> <20030228130548.GA8498@atrey.karlin.mff.cuni.cz> <20030228190924.A3034@in.ibm.com> <20030228134406.GA14927@atrey.karlin.mff.cuni.cz> <20030228204831.A3223@in.ibm.com> <20030228151744.GB14927@atrey.karlin.mff.cuni.cz> <1046458775.1720.5.camel@laptop-linux.cunninghams> <20030303095824.A2312@in.ibm.com> <1046673408.27945.5.camel@laptop-linux.cunninghams> <20030303122453.A2634@in.ibm.com>
+Subject: Re: SWSUSP Discontiguous pagedir patch
+Message-ID: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz>
+References: <1046487717.4616.22.camel@laptop-linux.cunninghams> <Pine.LNX.4.33.0303021731510.1120-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030303122453.A2634@in.ibm.com>
+In-Reply-To: <Pine.LNX.4.33.0303021731510.1120-100000@localhost.localdomain>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > On Mon, 2003-03-03 at 17:28, Suparna Bhattacharya wrote:
-> > > If you add to that the possibility of being able to save more 
-> > > in less space if you have compression, would it be useful ?
-> > 
-> > I'm not sure that it would because we don't know how much compression
-> > we're going to get ahead of time, so we don't know how many extra pages
+> > Thus, I still think we can go with the patch I submitted before. I've
+> > rediffed it against 2.5.63 (less the bits already applied).
 > 
-> The algorithm could be adjusted to deal with that, however ...
+> I've spent the last week reading, reviewing, and rewriting major portions 
+> of swsusp. I've actually been reasonably impressed, once I was able to get 
+> the code into a much more readable state. 
+
+:-).
+
+> > diff -ruN linux-2.5.63/arch/i386/kernel/suspend.c linux-2.5.63-01/arch/i386/kernel/suspend.c
+> > --- linux-2.5.63/arch/i386/kernel/suspend.c	2003-02-20 08:25:26.000000000 +1300
+> > +++ linux-2.5.63-01/arch/i386/kernel/suspend.c	2003-02-20 08:27:36.000000000 +1300
 > 
-> > we can save. The compression/decompression also takes extra time and
-> > puts more drain on a potentially low battery.
+> Thank you for putting this back in C, it's much appreciated. 
+
+Actually, it can not be put back in C. Manipulating stack pointer from
+gcc inline assembly is just undefined. Its back in C so we can edit
+it, but it needs to get back to assembly before merging with Linus.
+
+> > +	for (loop=0; loop < nr_copy_pages; loop++) {
+> > +		/* You may not call something (like copy_page) here: see above */
+> > +		for (loop2=0; loop2 < PAGE_SIZE; loop2++) {
+> > +			*(((char *)(PAGEDIR_ENTRY(pagedir_nosave,loop)->orig_address))+loop2) =
+> > +				*(((char *)(PAGEDIR_ENTRY(pagedir_nosave,loop)->address))+loop2);
+> > +			__flush_tlb();
+> > +		}
+> > +	}
 > 
-> .. I didn't think about the battery drain - valid point !
+> This is better done as 
+> 
+> 	for (loop = 0; loop < nr_copy_pagse; loop++) {
+> 		memcpy((char *)pagedir_nosave[loop].orig_address,
+> 		       (char *)pagedir_nosave[loop].address,
+> 		       PAGE_SIZE);
+> 		__flush_tlb();
+> 	}
 
-Actually I don't quiet think so. gzip compression is pretty cheap, and
-if it makes you suspend faster and with less disk writes...
+Hehe, try it.
 
-But I think it adds unneccessary complexity.
+You may not do function call at this point, because you are
+overwriting your stack. See mails with Andi Kleen. This *needs* to be
+in assembly. 
 
+> Is __flush_tlb() really necessary? 
+
+Its there to prevent Heisenbugs.
 								Pavel
 -- 
 Horseback riding is like software...

@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbUJ0Xcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbUJ0Xmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbUJ0Xcb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 19:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUJ0UvH
+	id S262647AbUJ0Xmp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 19:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbUJ0Xin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:51:07 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:43923 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S262722AbUJ0UpZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:45:25 -0400
-Date: Wed, 27 Oct 2004 20:45:24 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [PATCH] Rename SECTOR_SIZE to BIO_SECTOR_SIZE
-To: Matt Mackall <mpm@selenic.com>
-Cc: Chris Wedgwood <cw@f00f.org>, Jens Axboe <axboe@suse.de>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-References: <20041027060828.GA32396@taniwha.stupidest.org>
-	<417F4497.3020205@pobox.com> <20041027065524.GA1524@taniwha.stupidest.org>
-	<20041027072212.GN15910@suse.de>
-	<20041027190523.GA19330@taniwha.stupidest.org>
-	<20041027202733.GG28904@waste.org>
-In-Reply-To: <20041027202733.GG28904@waste.org> (from mpm@selenic.com on Wed
-	Oct 27 22:27:33 2004)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1098909924l.12725l.0l@werewolf.able.es>
+	Wed, 27 Oct 2004 19:38:43 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:41386 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262647AbUJ0Xfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 19:35:30 -0400
+Message-ID: <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
+In-Reply-To: <20041027211957.GA28571@elte.hu>
+References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu>
+    <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
+    <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
+    <5225.195.245.190.94.1098880980.squirrel@195.245.190.94>
+    <20041027135309.GA8090@elte.hu>
+    <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
+    <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu>
+Date: Thu, 28 Oct 2004 00:31:53 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 27 Oct 2004 23:35:21.0350 (UTC) FILETIME=[9FF0AA60:01C4BC7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+>
+>> ok, i've uploaded RT-V0.4.2 which has more of the same: it fixes other
+>> missed preemption checks. Does it make any difference to the xruns on
+>> your UP box?
+>
+> uploaded RT-V0.4.3 - there was a thinko in the latency tracer that
+> caused early boot failures.
+>
 
-On 2004.10.27, Matt Mackall wrote:
-> On Wed, Oct 27, 2004 at 12:05:23PM -0700, Chris Wedgwood wrote:
-> > Rename (one of the uses of) SECTOR_SIZE to BIO_SECTOR_SIZE which is
-> > more appropriate.
-> 
-> > Index: cw-current/include/linux/ide.h
-> > ===================================================================
-> > --- cw-current.orig/include/linux/ide.h	2004-10-27 11:33:06.237319044 -0700
-> > +++ cw-current/include/linux/ide.h	2004-10-27 11:35:13.246711414 -0700
-> > @@ -202,8 +202,8 @@
-> >  #define PARTN_BITS	6	/* number of minor dev bits for partitions */
-> >  #define PARTN_MASK	((1<<PARTN_BITS)-1)	/* a useful bit mask */
-> >  #define MAX_DRIVES	2	/* per interface; 2 assumed by lots of code */
-> > -#define SECTOR_SIZE	512
-> > -#define SECTOR_WORDS	(SECTOR_SIZE / 4)	/* number of 32bit words per sector */
-> > +#define BIO_SECTOR_SIZE	512
-> > +#define SECTOR_WORDS	(BIO_SECTOR_SIZE / 4)	/* number of 32bit words per sector */
-> >  #define IDE_LARGE_SEEK(b1,b2,t)	(((b1) > (b2) + (t)) || ((b2) > (b1) + (t)))
-> 
-> So shouldn't this be in bio.h now?
-> 
+Yes, the xrun rate has decreased, slightly. RT-V0.4.3 is now ranking under
+10 per 5 min (~2/min), with jackd -R -r44100 -p128 -n2, fluidsynth x 6.
 
-And for uniformity, SECTOR_WORDS -> BIO_SECTOR_WORDS ?
+Better still, but not to par as RT-U3, under the very same conditions.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #6
-
+Cya.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 

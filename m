@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268293AbUHLB5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268308AbUHLCAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268293AbUHLB5n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 21:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHLB5n
+	id S268308AbUHLCAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 22:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUHLCAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 21:57:43 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:50354 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S268293AbUHLB5l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 21:57:41 -0400
-Date: Thu, 12 Aug 2004 03:57:38 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <Pine.LNX.4.44.0408120347290.1628-100000@hubble.stokkie.net>
+	Wed, 11 Aug 2004 22:00:14 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:39121 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S268308AbUHLCAK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 22:00:10 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: [linux-usb-devel] USB shared interrupt problem
+Date: Wed, 11 Aug 2004 19:00:09 -0700
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B6477@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-usb-devel] USB shared interrupt problem
+thread-index: AcR81aVwROXttqhZRwK/tlAWvvzluQDOOjdw
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Pete Zaitcev" <zaitcev@redhat.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 12 Aug 2004 02:00:09.0250 (UTC) FILETIME=[18864020:01C48010]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>In SMM mode the USB controller isn't connected to the PCI IRQ 
+>line. That
+>is one thing that is done in the changeover. It also seems to 
+>be causing
+>problems with EHCI hand over on NVidia boards still.
+>
 
-On Wed, 04 Aug 2004, H.Rosmanith wrote:
+Well, in my case I have legacy free BIOS, so it is not in SMM mode,
+and USB controller seems to be connected to PCI IRQ line and generating
+interrupts. For UHCI though patch resets the controller, thus disabling 
+interrupts, and fixing the problem. It might not work for OHCI in legacy
+free
+system, since there is no reset/interrupt disable for it in the patch.
 
-> hi,
->  
-> I've written a patch for cdrecord/cdrtools. I've sent it to Joerg Schilling
-> already, but got no answer so far. Probably he's on vaccation.
->  
-> I'm sending this to LKML too, because I've read about some ... nebulosity
-> with respect to scsi device numbering as used by cdrtools.
->  
-> To cut a long story short: the patch avoids cdrecord having to use the
-> "virtual" scsi device numbering in the form of "ATAPI:x.y.z" and allows
-> you to use the name of the device, e.g. /dev/hdc instead.
->  
-> By removing the IDE to virtual scsi bus/host/lun mapping, a lot of confusion
-> can be avoided especially if you have a lot devices of this kind in one
-> system.
->  
-> with kind regards,
-> Herbert "herp" Rosmanith
->  
-> Version: cdrtools-2.01a34
->  
-> Solution: when the device specified in dev= starts with "/dev/hd" and
-> this device can be found in /proc/ide, then cdrecord (and all
-> it's components, such as e.g. cdrdao) is forced to use the
-> ATAPI driver.
->  
-> The patch is really very short and works at least on our system.
->  
-> with kind regards,
-> Herbert Rosmanith
+Let me know if I missed something...
 
-Its indeed not straight forward to use cdrtools-2.0x together with
-kernel 2.6.x . As an aid for the user, i wrote a small HOWTO for using 
-cdrtools together with kernel 2.6, with special focus on retrieval
-of which device names to use. The small HOWTO can be found on :
+BTW, I talked to BIOS developers on this. 
+They basically recommended 2 possible solutions:
+ - try to not share UHCI irq line or
+ - enable native support (or at list disable interrupts) early during
+boot.
 
-http://crashrecovery.org/oss-dvd/HOWTO-ossdvd.html
-
-regards,
-
-Robert
--- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+Aleks.

@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULEG6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbULEG7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbULEG6j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 01:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbULEG6j
+	id S261266AbULEG7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 01:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbULEG7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 01:58:39 -0500
-Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:16317 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261265AbULEG6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 01:58:36 -0500
-Date: Sat, 4 Dec 2004 23:57:38 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+	Sun, 5 Dec 2004 01:59:37 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:6276 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261266AbULEG7a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 01:59:30 -0500
+Date: Sun, 5 Dec 2004 07:59:21 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
        Andi Kleen <ak@suse.de>
-Subject: [PATCH] NX: Fix noexec kernel parameter / x86_64
-In-Reply-To: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] NX: Fix noexec kernel parameter / x86_64
+Message-ID: <20041205065921.GA26964@elte.hu>
+References: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com> <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-noexec_setup runs too late to take any effect, so parse it earlier.
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+* Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
 
-Index: linux-2.6.10-rc2/arch/x86_64/kernel/setup.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/x86_64/kernel/setup.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 setup.c
---- linux-2.6.10-rc2/arch/x86_64/kernel/setup.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
-+++ linux-2.6.10-rc2/arch/x86_64/kernel/setup.c	5 Dec 2004 06:43:11 -0000
-@@ -312,6 +312,12 @@ static __init void parse_cmdline_early (
- 		if (!memcmp(from,"oops=panic", 10))
- 			panic_on_oops = 1;
- 
-+		if (!memcmp(from, "noexec=", 7)) {
-+			extern void nonx_setup(char *str);
-+	
-+			nonx_setup(from + 7);
-+		}
-+
- 	next_char:
- 		c = *(from++);
- 		if (!c)
-Index: linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 setup64.c
---- linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
-+++ linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c	5 Dec 2004 06:43:49 -0000
-@@ -50,7 +50,7 @@ Control non executable mappings for 64bi
- on	Enable(default)
- off	Disable
- */ 
--static int __init nonx_setup(char *str)
-+void __init nonx_setup(char *str)
- {
- 	if (!strcmp(str, "on")) {
-                 __supported_pte_mask |= _PAGE_NX; 
-@@ -59,11 +59,8 @@ static int __init nonx_setup(char *str)
- 		do_not_nx = 1;
- 		__supported_pte_mask &= ~_PAGE_NX;
-         } 
--        return 1;
- } 
- 
--__setup("noexec=", nonx_setup); 
--
- /*
-  * Great future plan:
-  * Declare PDA itself and support (irqstack,tss,pml4) as per cpu data.
+> +		if (!memcmp(from, "noexec=", 7)) {
+> +			extern void nonx_setup(char *str);
+> +	
+> +			nonx_setup(from + 7);
+> +		}
+
+looks good, but please put the prototype into a header.
+
+	Ingo

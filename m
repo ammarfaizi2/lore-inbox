@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbTIKISj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 04:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbTIKISi
+	id S261155AbTIKINY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 04:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbTIKINY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 04:18:38 -0400
-Received: from dp.samba.org ([66.70.73.150]:29651 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261156AbTIKISh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 04:18:37 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add kobject to struct module 
-In-reply-to: Your message of "Wed, 10 Sep 2003 23:26:49 MST."
-             <20030911062649.GA10454@kroah.com> 
-Date: Thu, 11 Sep 2003 18:18:12 +1000
-Message-Id: <20030911081836.E8AFD2C04D@lists.samba.org>
+	Thu, 11 Sep 2003 04:13:24 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5024 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261155AbTIKINX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 04:13:23 -0400
+Date: Tue, 9 Sep 2003 22:56:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: insecure <insecure@mail.od.ua>
+Cc: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
+       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
+       linux-kernel@vger.kernel.org,
+       =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: nasm over gas?
+Message-ID: <20030909205626.GJ3944@openzaurus.ucw.cz>
+References: <20030904104245.GA1823@leto2.endorphin.org> <200309050128.47002.insecure@mail.od.ua> <200309052058.11982.mhf@linuxmail.org> <200309052028.37367.insecure@mail.od.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309052028.37367.insecure@mail.od.ua>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030911062649.GA10454@kroah.com> you write:
-> On a site note, can't you just use a "struct completion" to use for your
-> waiting?  Or do you need to do something special here?
+Hi!
 
-Hmm, *good* question.  Think...
-
-Ah, it's because when someone's waiting for the reference count to hit
-zero, we wake them *every* time we decrement.  With the reference
-count spread across every cpu, it's the only way:
-
- static inline void module_put(struct module *module)
- {
- 	if (module) {
- 		unsigned int cpu = get_cpu();
- 		local_dec(&module->ref[cpu].count);
- 		/* Maybe they're waiting for us to drop reference? */
- 		if (unlikely(!module_is_live(module)))
- 			wake_up_process(module->waiter);
- 		put_cpu();
- 	}
- }
-
-This doesn't really fit with a completion, unfortunately.
-
-> > 1) Adopt a faster, smaller implementation of alloc_percpu (this patch
-> >    exists, needs some arch-dependent love for ia64).
-> > 2) Use it to generalize the current module reference count scheme to
-> >    a "bigref_t" (I have a couple of these)
-> > 3) Use that in kobjects.
+> A random example form one small unrelated program (gcc 3.2):
 > 
-> Hm, I don't know if kobjects really need to get that heavy.
+> main:
+>         pushl   %ebp
+>         pushl   %edi
+>         pushl   %esi
+>         pushl   %ebx
+>         subl    _32, %esp
+>         xorl    %ebp, %ebp
+>         cmpl    _1, 52(%esp)
+>         movl    _0, 20(%esp)
+>         movl    _1000000, %edi      <----
+>         movl    _1000000, 16(%esp)  <----
+>         movl    _0, 12(%esp)
+>         movl    _.LC27, 8(%esp)
+>         je      .L274
+>         movl    _1, %esi
+>         cmpl    52(%esp), %esi
+>         jge     .L272
+> 
+> No sane human will do that.
+> 
+> main:
+>         pushl   %ebp
+>         pushl   %edi
+>         pushl   %esi
+>         pushl   %ebx
+>         subl    _32, %esp
+>         xorl    %ebp, %ebp
+>         cmpl    _1, 52(%esp)
+>         movl    _0, 20(%esp)
+>         movl    _1000000, %edi
+>         movl    %edi, 16(%esp)	<-- save 4 bytes
+>         movl    %ebp, 12(%esp)  <-- save 4 bytes
+>         movl    _.LC27, 8(%esp)
 
-I'm not sure either: really depends on kobject usage.  I was thinking
-struct netdevice.  The size for UP is the same, the size for SMP is
-ptr + sizeof(int) + sizeof(atomic_t)*NR_CPUs.
+Hmm, but gcc version is likely faster. No sane person would write
+multiply by 5 using single lea instruction, yet gcc will do that...
+				Pavel 
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-> But yes, that's all 2.7 dreams :)
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbUL3Amh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbUL3Alo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbUL3Amh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 19:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUL3AmD
+	id S261484AbUL3Alo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 19:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUL3Ajs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 19:42:03 -0500
-Received: from em.njupt.edu.cn ([202.119.230.11]:13503 "HELO njupt.edu.cn")
-	by vger.kernel.org with SMTP id S261483AbUL3Akv (ORCPT
+	Wed, 29 Dec 2004 19:39:48 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:26586 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261474AbUL3Aiz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 19:40:51 -0500
-Message-ID: <304370586.05150@njupt.edu.cn>
-X-WebMAIL-MUA: [10.10.136.115]
-From: "Zhenyu Wu" <y030729@njupt.edu.cn>
-To: tgraf@suug.ch
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 30 Dec 2004 09:36:26 +0800
-Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
-X-Priority: 3
-Subject: Re: VQs in Gred!
-Content-Type: text/plain
+	Wed, 29 Dec 2004 19:38:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=g/mKZ1l1DVDT+8YSlEvCfKJgQgjntxhzDycBfcfNOx6BB/Vq7533CpV6wUtvI6pxgIJWvM60NXamPRRYgtJIF6fXjhFSt4Ltoq9VO3vk9OvAumKCIlUMzF0gYk/+GovnQ8nV6amjzZqweSxcm+tTPpAfwSPLRilHt25+6Fl4pe8=
+Message-ID: <41D34E16.2040503@gmail.com>
+Date: Thu, 30 Dec 2004 01:38:46 +0100
+From: Mateusz Berezecki <mateuszb@gmail.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: include/linux/ipv6.h  error?
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+inet_sk(__sk) returns pointer to inet_sock structure which has pinet6 
+field defined
+or not defined depending on kernel configuration during compilation time
 
-> > HOW does the Gred schedule packets of differnet priorities?
-> 
-> The packets are all enqueued onto the same queue. Gred is not
-> about prioritizing but only about dropping, hence once the packet
-> is enqueued it doesn't make sense to differ anymore. The difference
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+        struct ipv6_pinfo       *pinet6;
+#endif
 
-Ok. Then, if the average packet(qave) does not exceed the threshhold, that is, the
-packet has not been dropped, it will be enqueued into the physical queue, right?
-So we can't see the different process of scheduling packets which are from
-different kinds of traffic, we just know which packet might be dropped, right?
+the function below causes compilation error in kernel configs with 
+neither CONFIG_IPV6 nor
+CONFIG_IPV6_MODULE defined.
 
-> to normal red is that one can use separate red calculation
-> parameters per tcindex flow. tcindex is usually set via dsmark/
-> tcindex with contents of the dscp field. You might want to use a
-> more aggressive set of parameters for your bulk flows and treat
-> your interactive flows with more respect.
+should these functions be included between
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
 
-what does "the more aggressive set of parameters" mean? The parameters to Gred?
+static inline struct ipv6_pinfo * inet6_sk(const struct sock *__sk)
+{
+        return inet_sk(__sk)->pinet6;
+}
 
-Thank you very much!
-Best,
+static inline struct raw6_opt * raw6_sk(const struct sock *__sk)
+{
+        return &((struct raw6_sock *)__sk)->raw6;
+}
+#endif
 
 
+?? or should the #ifdef directive be removed from ipv6.h header file?
+
+
+regards
+-mb

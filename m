@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTGaX72 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 19:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267634AbTGaX72
+	id S270605AbTHAAOY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 20:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270618AbTHAAOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 19:59:28 -0400
-Received: from remt24.cluster1.charter.net ([209.225.8.34]:45788 "EHLO
-	remt24.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262385AbTGaX71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 19:59:27 -0400
-Message-ID: <3F29AD69.3020109@mrs.umn.edu>
-Date: Thu, 31 Jul 2003 18:59:37 -0500
-From: Grant Miner <mine0057@mrs.umn.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: fun or real: proc interface for module handling?
-References: <20030731121248.GQ264@schottelius.org>
-In-Reply-To: <20030731121248.GQ264@schottelius.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Jul 2003 20:14:23 -0400
+Received: from holomorphy.com ([66.224.33.161]:28122 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S270605AbTHAAOW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 20:14:22 -0400
+Date: Thu, 31 Jul 2003 17:15:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: Panic on 2.6.0-test1-mm1
+Message-ID: <20030801001538.GK15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, mbligh@aracnet.com,
+	linux-kernel@vger.kernel.org
+References: <5110000.1059489420@[10.10.2.4]> <20030731223710.GI15452@holomorphy.com> <20030731224148.GJ15452@holomorphy.com> <20030731154020.61e15723.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030731154020.61e15723.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cool idea!  Maybe for each module, it could have a subdirectory to it 
-(like reiser4's files-as-directory (see 
-http://www.namesys.com/v4/pseudo.html)) and in that subdirectory are 
-files to configure the options.  You take your module, module.ko, and 
-you want to set some options (before or after loading it).  Maybe you 
-could do something like
-echo "true" > module.ko/option for your module.  Then you just
-cp module.ko /proc/modules or whatever directory to insert?
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> You may now put the "aggravated" magnet beneath the "wli" position on
+>> the fridge.
 
+On Thu, Jul 31, 2003 at 03:40:20PM -0700, Andrew Morton wrote:
+> I never, ever, at any stage was told that highpmd.patch offered any
+> benefits wrt lock contention or node locality.  I was only told that it
+> saved a little bit of memory on highmem boxes.
+
+The lock contention is unrelated apart from the mangling of pgd_ctor().
+The node locality is only important on systems with exaggerated NUMA
+characteristics, such as the kind Martin and I bench on.
+
+
+On Thu, Jul 31, 2003 at 03:40:20PM -0700, Andrew Morton wrote:
+> It would be useful to actually tell me what your patches do.  And to
+> provide test results which demonstrate the magnitude of the performance
+> benefits.
+
+I don't believe it would be valuable to push it on the grounds of
+performance, as the performance characteristics of modern midrange i386
+systems don't have such high remote access penalties.
+
+The complaint was targetted more at errors in some new incoming patch
+motivating mine being backed out.
+
+
+-- wli

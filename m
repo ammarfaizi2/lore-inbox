@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVCCVAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVCCVAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbVCCVAS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 16:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVCCU4S
+	id S262413AbVCCVAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 16:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVCCVAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 15:56:18 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36617 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262577AbVCCUyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:54:18 -0500
-Date: Thu, 3 Mar 2005 21:54:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sound/oss/awe_wave.c: fix a compile warning
-Message-ID: <20050303205415.GJ4608@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 3 Mar 2005 16:00:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55468 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262413AbVCCU5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:57:53 -0500
+Message-ID: <42277A3D.9030805@pobox.com>
+Date: Thu, 03 Mar 2005 15:57:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Chris Wright <chrisw@osdl.org>, Rene Rebe <rene@exactcode.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303191840.GA12916@kroah.com> <42276A0C.9080505@pobox.com> <20050303200718.GR28536@shell0.pdx.osdl.net> <20050303203206.GB13522@kroah.com>
+In-Reply-To: <20050303203206.GB13522@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following compile warning:
-
-<--  snip  -->
-
-...
-  CC      sound/oss/awe_wave.o
-In file included from sound/oss/os.h:31,
-                 from sound/oss/sound_config.h:21,
-                 from sound/oss/awe_wave.c:37:
-include/linux/soundcard.h:195:1: warning: "_PATCHKEY" redefined
-In file included from sound/oss/awe_wave.c:30:
-include/linux/awe_voice.h:33:1: warning: this is the location of the previous definition
-...
-
-<--  snip  -->
+Greg KH wrote:
+> On Thu, Mar 03, 2005 at 12:07:18PM -0800, Chris Wright wrote:
+>>Don't see why not, we were thinking of making it just an alias at
+>>kernel.org.
+> 
+> 
+> An alias would probably be easier, unless you think everything sent
+> there should be archived?
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I do.  But I don't have a strong opinion on the subject.
 
---- linux-2.6.11-rc5-mm1-full/include/linux/awe_voice.h.old	2005-03-03 16:14:35.000000000 +0100
-+++ linux-2.6.11-rc5-mm1-full/include/linux/awe_voice.h	2005-03-03 16:15:12.000000000 +0100
-@@ -29,10 +29,6 @@
- #define SAMPLE_TYPE_AWE32	0x20
- #endif
- 
--#ifndef _PATCHKEY
--#define _PATCHKEY(id) ((id<<8)|0xfd)
--#endif
--
- /*----------------------------------------------------------------
-  * patch information record
-  *----------------------------------------------------------------*/
+	Jeff
+
 

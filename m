@@ -1,50 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268842AbRHFQPI>; Mon, 6 Aug 2001 12:15:08 -0400
+	id <S268852AbRHFQTi>; Mon, 6 Aug 2001 12:19:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268849AbRHFQO6>; Mon, 6 Aug 2001 12:14:58 -0400
-Received: from customers.imt.ru ([212.16.0.33]:20030 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id <S268842AbRHFQOv>;
-	Mon, 6 Aug 2001 12:14:51 -0400
-Message-ID: <20010806091022.A32579@saw.sw.com.sg>
-Date: Mon, 6 Aug 2001 09:10:22 -0700
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: eepro100.c - Add option to disable power saving in 2.4.7-ac7
-In-Reply-To: <3B6EBC34.9578EA4E@TeraPort.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <3B6EBC34.9578EA4E@TeraPort.de>; from "Martin Knoblauch" on Mon, Aug 06, 2001 at 05:48:04PM
+	id <S268854AbRHFQT2>; Mon, 6 Aug 2001 12:19:28 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:25870 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S268852AbRHFQTS>;
+	Mon, 6 Aug 2001 12:19:18 -0400
+Date: Mon, 6 Aug 2001 12:19:10 -0400 (EDT)
+Message-Id: <200108061619.f76GJAA99461@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: linux-kernel@vger.kernel.org
+Subject: tulip driver problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Making it an option looks like a reasonable idea.
-However, could you mind the indentation style of the driver, please?
+The tulip driver in 2.4.8-pre3 does not work.
+The tulip driver version 0.9.14 from sourceforge does not work.
+The tulip driver in 2.2.14 is OK.
+The de4x5 driver does not work.
+I think I had the driver in 2.4.3 working at one point.
 
-On Mon, Aug 06, 2001 at 05:48:04PM +0200, Martin Knoblauch wrote:
->  after realizing that my first attempt for this patch was to
-> enthusiastic, I have no a somewhat stripped down version. Compiles
-> against 2.4.7-ac7.
-> 
->  The patch adds the option "power_save" to eepro100. If "1" (default),
-> power save handling is done as normal. If "0", no power saving is done.
-> This is to workaround some flaky eepro100 adapters that do not survive
-> D0->D2-D0 transitions.
-[snip]
-> @@ -1833,7 +1842,8 @@
->  	if (speedo_debug > 0)
->  		printk(KERN_DEBUG "%s: %d multicast blocks dropped.\n", dev->name, i);
->  
-> -	pci_set_power_state(sp->pdev, 2);
-> +	if (power_save)
-> +	  pci_set_power_state(sp->pdev, 2);
->  
->  	MOD_DEC_USE_COUNT;
->  
+The error I'm getting from the 0.9.14 driver:
+NETDEV WATCHDOG: eth0: transmit timed out
 
-Best regards
-		Andrey
+This is the Force PowerCore 6750 single-board computer with
+a PowerPC processor and the DEC 21143 Ethernet chip.
+
+Booting 2.2.14 shows:
+
+POSIX conformance testing by UNIFIX
+PCI: Probing PCI hardware
+remapping IO (0x10e3:0x0 BAR 0): 0xbff001 -> 0xbff000
+remapping MEM(0x10e3:0x0 BAR 1): fcfff000 -> 0xfcfff000
+remapping IO (0x1011:0x19 BAR 0): 0xbfef81 -> 0xbfef80
+remapping MEM(0x1011:0x19 BAR 1): fcffec00 -> 0xfcffec00
+Linux NET4.0 for Linux 2.2
+...
+RAM disk driver initialized:  16 RAM disks of 4096K size
+tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov
+eth0: Digital DS21143 Tulip rev 65 at 0xbfef80, 00:80:42:0E:CF:E8, IRQ 9.
+eth0:  EEPROM default media type Autosense.
+eth0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+eth0:  Index #1 - Media AUI (#2) described by a 21142 Serial PHY (2) block.
+eth0:  MII transceiver #1 config 1000 status 782d advertising 00a1.
+Looking up port of RPC 100003/2 on 172.16.101.112
+Looking up port of RPC 100005/1 on 172.16.101.112
+VFS: Mounted root (NFS filesystem).
+Freeing unused kernel memory: 68k init 32k prep 8k pmac 12k open firmware
+
+The firmware (which likes the Ethernet just fine) reports the
+host bridge and Ethernet as:
+
+Probing PCIbus at 0x80000000
+Device ID = 0x0002; Vendor ID = 0x1057; 
+Status    = 0x0080; Command   = 0x0146; 
+Base Class= 0x06;   Sub Class = 0x00;   Prg. Inter= 0x00;   Rev. ID   = 0x40; 
+BIST      = 0x00;   Header Typ= 0x00;   Latency Ti= 0x00;   Cache Line= 0x08; 
+base addr0= 0x00000000, base addr1= 0x00000000; 
+Max Lat   = 0x00;   Min Gnt   = 0x00;   IRQ Pin   = 0x00;   IRQ Line  = 0x00; 
+Found PCI device: Motorola MPC106 PowerPC PCI bridge
+
+Probing PCIbus at 0x8000D800
+Device ID = 0x0019; Vendor ID = 0x1011; 
+Status    = 0x0280; Command   = 0x0005; 
+Base Class= 0x02;   Sub Class = 0x00;   Prg. Inter= 0x00;   Rev. ID   = 0x41; 
+BIST      = 0x00;   Header Typ= 0x00;   Latency Ti= 0x20;   Cache Line= 0x00; 
+base addr0= 0x00850001, base addr1= 0x00000000; 
+Max Lat   = 0x28;   Min Gnt   = 0x14;   IRQ Pin   = 0x01;   IRQ Line  = 0xFF; 
+Found PCI device: DEC 21143 PCI/Cardbus Ethernet LAN
+
+When using lspci I get:
+
+00:00.0 Host bridge: Motorola MPC106 [Grackle] (rev 40)
+        Flags: bus master, fast devsel, latency 0
+
+00:1b.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
+        Flags: bus master, medium devsel, latency 32, IRQ 9
+        I/O ports at bfef80
+        Memory at fcffec00 (32-bit, non-prefetchable)
+        Expansion ROM at b7fc0000 [disabled]

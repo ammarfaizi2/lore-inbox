@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286758AbSA1WAq>; Mon, 28 Jan 2002 17:00:46 -0500
+	id <S286904AbSA1WC0>; Mon, 28 Jan 2002 17:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286871AbSA1WAg>; Mon, 28 Jan 2002 17:00:36 -0500
-Received: from vsdc01.corp.publichost.com ([64.7.196.123]:48909 "EHLO
-	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
-	id <S286758AbSA1WA3>; Mon, 28 Jan 2002 17:00:29 -0500
-Message-ID: <3C55C9F7.6010106@vitalstream.com>
-Date: Mon, 28 Jan 2002 14:00:23 -0800
-From: Rick Stevens <rstevens@vitalstream.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.33L.0201281940580.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286895AbSA1WCR>; Mon, 28 Jan 2002 17:02:17 -0500
+Received: from jhuml3.jhu.edu ([128.220.2.66]:59579 "HELO jhuml3.jhu.edu")
+	by vger.kernel.org with SMTP id <S286871AbSA1WCA>;
+	Mon, 28 Jan 2002 17:02:00 -0500
+Date: Mon, 28 Jan 2002 15:28:27 -0500
+From: Thomas Hood <jdthood@mail.com>
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+In-Reply-To: <Pine.LNX.4.44.0201290351520.7623-100000@boston.corp.fedex.com>
+To: Jeff Chua <jchua@fedex.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Stephan von Krawczynski <skraw@ithnet.com>
+Message-id: <1012249707.4807.123.camel@thanatos>
+MIME-version: 1.0
+X-Mailer: Evolution/1.0.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44.0201290351520.7623-100000@boston.corp.fedex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Mon, 2002-01-28 at 15:11, Jeff Chua wrote:
+> Sorry, just got off a long flight from San Diego to Singapore. Anyway,
+> slow ... means that even without vmware, if I just hit return, the lines
+> would scroll for about every 10 lines and there'll be a litte pause (<0.3
+> sec). With pre6, there's no such behavior, and if CONFIG_APM_CPU_IDLE is
+> not set, the "pause" goes away.
 
-> On Mon, 28 Jan 2002, Rick Stevens wrote:
+Suggestion: Try setting the idle_threshold to a higher value,
+e.g., 98.  (The default value is 95.)
+
+Question to all: Would it be a good idea to de-idle the CPU
+inside interrupt handlers?
+
+> "host" system is linux. "guest" system is linux (actually, I tried with NT
+> as well, same problem).
 > 
->>Daniel Phillips wrote:
->>[snip]
->>
->   [page table COW description]
-> 
-> 
->>Perhaps I'm missing this, but I read that as the child gets a reference
->>to the parent's memory.  If the child attempts a write, then new memory
->>is allocated, data copied and the write occurs to this new memory.  As
->>I read this, it's only invoked on a child write.
->>
->>Would this not leave a hole where the parent could write and, since the
->>child shares that memory, the new data would be read by the child?  Sort
->>of a hidden shm segment?  If so, I think we've got problems brewing.
->>Now, if a parent write causes the same behaviour as a child write, then
->>my point is moot.
->>
-> 
-> Daniel and I discussed this issue when Daniel first came up with
-> the idea of doing page table COW.  He seemed a bit confused by
-> fork semantics when we first discussed this idea, too ;)
-> 
-> You're right though, both parent and child need to react in the
-> same way, preferably _without_ having to walk all of the parent's
-> page tables and mark them read-only ...
+> The sympton is when I try to ping the "host" from vmware's "guest" system,
+> the first response came back to the guest's console. Then if I don't type
+> anything or don't move the mouse on the guest's console, I won't see any
+> further response on the guest's linux console. Even with a lot of mouse
+> movement or pressing the keys, the response is still very slow with "ping".
+
+> If I ping from the "host" linux console to the "guest" linux system,
+> responses came back, and does not hang. I'll double check this last point.
+> Got to recompile the kernel again.
+
+Try disabling APM cpu idling (set apm idle_threshold to 100) in the
+_guest_ OS.  (Leave it enabled in the host OS.)  Tell us what happens.
+
+Also try disabling APM cpu idling (set apm idle_threshold to 100) in
+the _host_ OS.  (Leave it enabled in the guest OS.)  Tell us what
+happens.
+
+I repeat: You do not need to recompile the kernel to enable/disable
+APM cpu idle: to disable it simply set idle_threshold to 100.
 
 
-Ah, good!  I wasn't losing it then.  That's a relief!
-
-I've gotta read up on the kernel's VM system.  I use to write them
-for a certain three-letter-acronymed company--many, many moons ago.
-Maybe I'd have some ideas.  Then again, perhaps not.
-
-----------------------------------------------------------------------
-- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
-- 949-743-2010 (Voice)                    http://www.vitalstream.com -
--                                                                    -
--     Veni, Vidi, VISA:  I came, I saw, I did a little shopping.     -
-----------------------------------------------------------------------
 

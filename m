@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbTAEPpF>; Sun, 5 Jan 2003 10:45:05 -0500
+	id <S264857AbTAEPy7>; Sun, 5 Jan 2003 10:54:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbTAEPpE>; Sun, 5 Jan 2003 10:45:04 -0500
-Received: from alb-24-29-45-178.nycap.rr.com ([24.29.45.178]:1284 "EHLO
-	ender.tmmz.net") by vger.kernel.org with ESMTP id <S264907AbTAEPpE>;
-	Sun, 5 Jan 2003 10:45:04 -0500
-Date: Sun, 5 Jan 2003 10:53:41 -0500 (EST)
-From: Matthew Zahorik <matt@albany.net>
-X-X-Sender: matt@ender.tmmz.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <Pine.LNX.4.44.0301050314470.16362-100000@fogarty.jakma.org>
-Message-ID: <Pine.BSF.4.43.0301051051480.461-100000@ender.tmmz.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264863AbTAEPy7>; Sun, 5 Jan 2003 10:54:59 -0500
+Received: from boo-mda02.boo.net ([216.200.67.22]:27909 "EHLO
+	boo-mda02.boo.net") by vger.kernel.org with ESMTP
+	id <S264857AbTAEPy7>; Sun, 5 Jan 2003 10:54:59 -0500
+Message-Id: <200301051603.LAA18650@boo-mda02.boo.net>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+From: jasonp@boo.net
+Subject: Re: [PATCH] rewritten page coloring for 2.4.20 kernel
+Date: Sun, 5 Jan 2003 16:03:33 GMT
+X-Mailer: Endymion MailMan Standard Edition v3.0.20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jan 2003, Paul Jakma wrote:
 
-> (and peace can reign on l-k once again :) ).
+> > This is an early attempt to get some feedback on mistakes I may have made.
+> 
+> Any chance for a 2.5.x-mm port? This is a bit feature-ish for 2.4.x.
 
-What imaginary l-k mailing list do you subscribe to?
+I know. The problem is that 2.5.53 cannot finish booting on the Alpha I have
+here (IDE issues). While I can port the patch over, I'm not comfortable being
+unable to test it at all.
 
-- Matt
+jasonp
+
+---------------------------------------------
+This message was sent using Endymion MailMan.
+http://www.endymion.com/products/mailman/
+
 

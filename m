@@ -1,149 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUBYACA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 19:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbUBYABz
+	id S262535AbUBXX66 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 18:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUBXX65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 19:01:55 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:6789 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262541AbUBYAAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 19:00:36 -0500
-Subject: new driver (hvcs) review request and sysfs questions
-From: Ryan Arnold <rsa@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, boutcher@us.ibm.com, rsa@us.ibm.com,
-       Hollis Blanchard <hollisb@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 24 Feb 2004 18:00:26 -0600
-Message-Id: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com>
+	Tue, 24 Feb 2004 18:58:57 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:64737 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S262535AbUBXX50
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 18:57:26 -0500
+Date: Tue, 24 Feb 2004 16:57:25 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Message-ID: <20040224235725.GL1052@smtp.west.cox.net>
+References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com> <20040224213908.GD1052@smtp.west.cox.net> <20040224221541.GA9145@elf.ucw.cz> <20040224232137.GJ1052@smtp.west.cox.net> <20040224232703.GC9209@elf.ucw.cz> <20040224233809.GK1052@smtp.west.cox.net> <20040224234940.GD9209@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040224234940.GD9209@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greeting all,
+On Wed, Feb 25, 2004 at 12:49:41AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > > > Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
+> > > > > > > Looks good.
+> > > > > > > 
+> > > > > > > Let's first check this in and then do more cleanups.
+> > > > > > > Tom, does it sound ok?
+> > > > > > 
+> > > > > > This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
+> > > > > > could you provide some pointers on how to replicate this in the future?
+> > > > > 
+> > > > > Unfortunately, I done it by hand :-(. But if -lite parts are not
+> > > > > merged, soon, I'll be forced to start using quilt. Doing stuff by hand
+> > > > > is quite painfull...
+> > > > 
+> > > > There's still a whole bunch of bogons in the -lite patch still, so I
+> > > > don't think it should be merged yet.
+> > > 
+> > > Well, it seems to contains a *lot* less bogons than what currently is
+> > > in -mm series.
+> > > 
+> > > What big problems do you see? It does not yet use weak symbols, but I
+> > > do not think that's a serious problem. What else?
+> > 
+> > The first two big ones are:
+> > - Doesn't like gdb 6.0 (You cannot assume the first packet is Hc...)
+> > - Wierdities with kgdb_killed_or_detached / kgdb_might_be_resumed
+> >   (both can die).
+> > - Issues w/ handling 'D' and 'k' packets cleaner (and I think there was
+> >   a correctness fix in there, too, but it was a while ago).
+> > - Don't ACK packets sitting on the line
+> 
+> Okay, these look important but probably only touch core-lite, right?
 
-We are writing a device driver to support IBM Power5 firmware
-functionality that allows us to host the consoles of hundreds of OS
-partitions on a single Linux partition without requiring hundreds of
-serial ports.  The patch providing this ability is at:
+Some of these also touch 8250/kgdboe patch.
 
-http://www-124.ibm.com/linux/patches/?patch_id=1377
+> So it should be easy to merge. Can you generate diff?
 
-Rather than having a hundred virtual terminal server devices
-(vty-server@) to support a hundred OS images, each vty-server@ can be
-connected to the console device (vty@) of several "partner" partitions
-and the vty-server@ can switch between them.  Please don't shoot the
-messenger on this design, we are just implementing the device driver to
-support function implemented in the firmware.
+I'm working on that part right now, along with a cosmetic rename /
+Lindent the code.
 
-Greg K-H has said that he'd like to make comments on this driver's sysfs
-design on the LKML, so the link provided earlier also contains "tree"
-output of /sys on a Power5 system running this driver and the hvcs
-driver's sysfs design follows in the remainder of this email.
+> I'll try to import kgdb into quilt to make working with it
+> easier. [But don't expect miracles.]
 
-The ppc64 vio bus registers the vty-server@ device's kobject before it
-is exposed to the driver by firmware.  The sysfs entry for this kobject
-natively resides in /sys/devices/vdevice/vty-server@3000000* and is
-symlinked in several places in the sysfs tree, notably under the vio bus
-directory in /sys/bus/vio/devices and /sys/bus/vio/drivers/hvcs/, which
-is the hvcs driver's sysfs directory.
+Just let us know what it takes to do so. :)
 
-An example of the vio bus's "devices" sysfs directory is shown below.
+> > - All of the function pointer games (of which the weak symbols, but not
+> >   all of them) are a part of.
+> > - kgdb_schedule/process_breakpoint, required for kgdboe, harmless to use
+> >   on serial.
+> 
+> 
+> > There's still a lot of stuff I checked into linux-2.6-kgdb that's
+> > non-trivially important
+> > (http://ppc.bkbits.net:8080/linux-2.6-kgdb/ChangeSet@-4w?nav=index.html)
+> 
+> Hmm, I'm not allowed to use bt :-(.
 
-Pow5:/sys/bus/vio/devices # ls
-.               l-lan@3000000c  l-lan@30000010       vty-server@30000004
-..              l-lan@3000000d  rtc@4001             vty@30000000
-IBM,sp@4000     l-lan@3000000e  v-scsi@30000002
-l-lan@3000000b  l-lan@3000000f  vty-server@30000003
+You can look at it all via the web 'tho.  There's nothing to agree to,
+to view the web page :)
 
-The hvcs driver sysfs entry looks like the following:
-
-Pow5:/sys/bus/vio/drivers/hvcs # ls
-.  ..  rescan  vty-server@30000003  vty-server@30000004
-
-By design, firmware only notifies the hvcs driver of vty-server@
-lifetimes, but not changes in partner info.  Since an eServer admin can
-change partner info dynamically we have provided the hvcs driver sysfs
-directory /sys/bus/vio/drivers/hvcs/ with the "rescan" attribute which
-will query firmware and update the partner info for all the vty-server@
-vdevices that this driver manages when a '1' is written to it.  Reading
-the attribute will indicate the state: 1:update in process, 0:done.
-
-An alternate approach is to move this rescan entry into the per-device
-vty-server@3000000* directory or have the entry available in both the
-driver and device directories.
-
-An example vty-server@3000000* directory looks like the follow:
-
-Pow5:/sys/bus/vio/drivers/hvcs/vty-server@30000004 # ls 
-.  ..  current_vty  detach_state  dev_node  partner_clcs  partner_vtys
-
-The "detach_state" attribute is provided to the device prior to hvcs
-device attribute additions.
-
-Since a vty-server@ can theoretically have more than one vty@ configured
-as a partner we have provided each vty-server@ sysfs dir with two
-read-only attributes that provide lists of easily parsed data:
-"partner_vtys" and "partner_clcs".
-
-Reading partner_vtys (as shown below) returns a list of partner vty@
-vdevices.  Note that vty@ device numbering is per-partition-unique and
-the vty@ entries you see in the example below are how the vty@ vdevices
-appear in the sysfs tree on their own partition (reference:
-/sys/bus/vio/devices/vty@30000000 above), but we could leave off the
-"vty@" portion of the ID in this entry.
-
-Pow5:/sys/bus/vio/drivers/hvcs/vty-server@30000004 # cat partner_vtys
-vty@30000000
-vty@30000001
-vty@30000002
-vty@30000000
-vty@30000000
-
-Reading partner_clcs (as shown below) returns a list of "converged
-location codes" which are composed of a system serial number followed by
-"-V*" (* = target partition number) and "-C*" (* = slot of the
-adapter).  This is the format given for the clc as it is returned from
-firmware.  The clc could be pre-parsed by the driver and output to only
-show pertinent partition and/or slot data.  The first vty@ partner
-corresponds to the first clc item, the second vty@ partner to the second
-clc item, etc.
-
-Pow5:/sys/bus/vio/drivers/hvcs/vty-server@30000004 # cat partner_clcs
-U9111.520.100048A-V3-C0
-U9111.520.100048A-V3-C2
-U9111.520.100048A-V3-C3
-U9111.520.100048A-V4-C0
-U9111.520.100048A-V5-C0
-
-Currently a third read only entry resides under the vty-server@ vdevice
-sysfs directory and that is "dev_node" which we use to tell us what
-/dev/hvcs* entry (a dynamic major/minor tty device) we should create and
-use to interact with this vty-server@.  This will disappear when I
-figure out how udev will be used to create the /dev/ entries for my
-vty-server@ vdevices.
-
-A vty-server@ can be connected to a single vty@ at a time.  When there
-are multiple vty@ partners available the user needs a method for
-directing his vty-server@ to connect to the desired vty@ partner.
-
-The entry, "current_vty" prints the clc of the currently selected
-partner vty@ when read. The current_vty can be changed by writing a
-valid partner clc to the entry. Changing the current_vty when a
-vty-server@ is already connected to a vty@ does not affect the current
-connection.  The change takes effect when the currently open connection
-is freed.
-
-Greg, I would appreciate if you could comment on my usage of sysfs.  I
-would also appreciate additional comments on the driver and sysfs usage
-from everyone else.
-
-P.S. who is maintainer of the char device tree?
-
-Thanks,
-Ryan S. Arnold <rsa@us.ibm.com>
-IBM LTC, Rochester MN
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

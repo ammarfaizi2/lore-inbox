@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbRGIVrw>; Mon, 9 Jul 2001 17:47:52 -0400
+	id <S264244AbRGIWQi>; Mon, 9 Jul 2001 18:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbRGIVrm>; Mon, 9 Jul 2001 17:47:42 -0400
-Received: from gateway.foliage.com ([63.117.36.2]:13609 "EHLO
-	gateway.foliage.com") by vger.kernel.org with ESMTP
-	id <S264976AbRGIVrc>; Mon, 9 Jul 2001 17:47:32 -0400
-From: "J. Richard Sladkey" <jrs@foliage.com>
-To: "Craig Soules" <soules@happyplace.pdl.cmu.edu>,
-        "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: NFS Client patch
-Date: Mon, 9 Jul 2001 17:46:31 -0400
-Message-ID: <MOBBLAGBDIJIPKLCBNCNGELFEBAA.jrs@foliage.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by gateway.foliage.com id f69LlEa27717
+	id <S264779AbRGIWQ2>; Mon, 9 Jul 2001 18:16:28 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:59657 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S264244AbRGIWQP>;
+	Mon, 9 Jul 2001 18:16:15 -0400
+Date: Tue, 10 Jul 2001 01:17:55 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Adam Shand <larry@spack.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What is the truth about Linux 2.4's RAM limitations?
+Message-ID: <20010710011755.M18653@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.32.0107091250170.25061-100000@maus.spack.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.32.0107091250170.25061-100000@maus.spack.org>; from larry@spack.org on Mon, Jul 09, 2001 at 01:01:17PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, perhaps I mis-spoke slightly.  What the spec does state is that the
-> cookie is opaque.  This has generally been interpreted to mean that you
-> should not trust it to be stable after a change to that directory.
+  This really should be a Linux-Kernel FAQ item...
+  ( http://www.tux.org/lkml/ )
 
-This interpretation isn't useful.  If a second client modifies the
-directory while the first client is reading a directory, the first
-client has no way of knowing that its cookie is now invalid, yet it
-clearly will be invalid if the server's cookies are invalid after
-any directory modifying operation.
+On Mon, Jul 09, 2001 at 01:01:17PM -0700, Adam Shand wrote:
+> Linux 2.4 does support greater then 4GB of RAM with these caveats ...
+> 
+>  * It does this by supporting Intel's PAE (Physical Address Extension)
+>    features which are in all Pentium Pro and newer CPU's.
 
-The solution is that the server must cope with directory modifying
-operations and still keep its cookies valid.  It can do this by
-cooperating with the filesystem to update the "true" index associated
-with the "opaque" index stored in any outstanding cookies.  Or it can
-simply have a more sophisticated cookie, such as passing the inode number
-of the first unread directory entry in the cookie and the offset of the
-entry.  If they are the same continue as usual.  If they are different,
-re-read the directory from the beginning, searching for that specific
-inode.  Or any other scheme.  Note that this information is still
-completely opaque to the client.
+   Carefull out there.
 
-Other operating systems may not show the problem if they pre-read
-much larger blocks of directory entries.  However, you should be able
-to provoke the problem out of any OS by creating a sufficiently
-large directory.  In any case, the two-client argument clearly shows
-that cookies should be so fragile that any directory operation
-makes them invalid.  This makes your server more complicated, but it
-seems like the correct behavior.
+   Check intel 386 family processors address mapping manuals.
+   You will see that the address calculated by combining "base"
+   and "segment" are in fact TRUNCATED at 32-bits before feeding
+   them to page mapping machinery --> There are no tricks at all
+   to have SIMULTANEOUS access to more than 4 GB of memory without
+   playing MMU mapping tricks -- which are painfully slow...
 
+   That is the origin of i386 architecture 4 GB virtual memory limit.
+
+   All that PAE mode does is to allow that 4 GB virtual space to be
+   mapped into larger physical space.
+
+   Compound that with unability to have separate user and kernel
+   mappings active at the same time (unlike e.g. Motorola 68000
+   family MMUs do), and the userspace can't have even that 4GB,
+   but is limited to at least 3.5/0.5 (user/kernel) split, more
+   commonly to 3.0/1.0 split.
+
+   With 64-bit processors (those that do addresses in 64-bit mode)
+   there are a plenty of bits to "waste" in these mappings.  E.g.
+   one can have a 1:1 mapping in between kernel and user, with
+   2^63 bits address space for each.  The number is mindbogglingly
+   large..  ( 2G * 4G = 8 000 000 T = 8 000 E )
+   (In reality e.g. Alphas do use "only" 43-bits of addresses in
+    these mappings, but even those are 1000+ times larger than 4G.)
+
+> Thanks,
+> Adam.
+
+/Matti Aarnio

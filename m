@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135998AbRDVJdk>; Sun, 22 Apr 2001 05:33:40 -0400
+	id <S135850AbRDYMYk>; Wed, 25 Apr 2001 08:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135965AbRDVJdb>; Sun, 22 Apr 2001 05:33:31 -0400
-Received: from quechua.inka.de ([212.227.14.2]:50232 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S135998AbRDVJdR>;
-	Sun, 22 Apr 2001 05:33:17 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <20010421114942.A26415@thyrsus.com> <9bsd33$peb$1@forge.intermeta.de>
-Organization: private Linux site, southern Germany
-Date: Sun, 22 Apr 2001 11:21:43 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14rG3s-0003uF-00@g212.hadiko.de>
+	id <S135849AbRDYMYb>; Wed, 25 Apr 2001 08:24:31 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4612 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S135846AbRDYMYN>;
+	Wed, 25 Apr 2001 08:24:13 -0400
+Message-ID: <20010421095456.A527@bug.ucw.cz>
+Date: Sat, 21 Apr 2001 09:54:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: John Fremlin <chief@bandits.org>
+Cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu> <m2k84jkm1j.fsf@boreas.yi.org.> <20010420190128.A905@bug.ucw.cz> <m2snj3xhod.fsf@bandits.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <m2snj3xhod.fsf@bandits.org>; from John Fremlin on Sat, Apr 21, 2001 at 12:41:54AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's wrong with:
->
-> <MAP NAME="CONFIG_ namespace cross-reference generator/analyzer"
->      URL="http://www.tuxedo.org/~esr/cml2"
->      STATUS="Maintained"
->      DATE="Sat Apr 21 11:41:52 EDT 2001">
+Hi!
 
-What is wrong with that is that it's serious overkill.
-In particular, this application does not need the ability to nest
-tags, so what remains is a linear sequence of name=value pairs and the
-complicated syntax buys you nothing.
+> > > I'm wondering if that veto business is really needed. Why not reject
+> > > *all* APM rejectable events, and then let the userspace event handler
+> > > send the system to sleep or turn it off? Anybody au fait with the APM
+> > > spec?
+> > 
+> > My thinkpad actually started blinking with some LED when you pressed
+> > the button. LED went off when you rejected or when sleep was
+> > completed.
+> 
+> Does the led start blinking when the system sends an apm suspend? In
+> that case I don't think you'd notice the brief period between the
+> REJECT and the following suspend from userspace ;-)
 
-(More formally: it doesn't need a context-free language, a regular
-language is enough.)
+Not so brief -- suspend to disk takes quite a lot of time. However, it
+is probably not too important if user can see blinking led or not.
 
-Eric's suggestion is powerful enough to do the job and can be parsed
-with one line of sed script.
-
-The useful thing in your proposal is the ability to give multiple
-attributes to one item, e.g. mail="addr" desc="addr". Even this can be
-achieved much easier with a bit of syntactical convention, like always
-giving mail addresses in <> with the rest of the line being comment.
-Most of the stuff is for human consumption only anyway.
-
-Olaf
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

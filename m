@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbTE2WK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 18:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTE2WK1
+	id S262963AbTE2WML (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 18:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbTE2WMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 18:10:27 -0400
-Received: from 12-203-29-198.client.attbi.com ([12.203.29.198]:17335 "EHLO
-	mystic.osdl.org") by vger.kernel.org with ESMTP id S262931AbTE2WK0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 18:10:26 -0400
-From: Nathan <smurf@osdl.org>
-Date: Thu, 29 May 2003 15:23:31 -0700
+	Thu, 29 May 2003 18:12:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:56289 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262963AbTE2WMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 18:12:09 -0400
+Message-Id: <200305292225.h4TMPEE10131@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 To: Andi Kleen <ak@suse.de>
-Cc: Craig Thomas <craiger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Nightly regression runs against current bk tree
-Message-ID: <20030529222331.GN25252@osdl.org>
-References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel> <p73smqx791m.fsf@oldwotan.suse.de> <20030529.142515.08325314.davem@redhat.com> <20030529212929.GA11309@wotan.suse.de> <1054245025.1957.113.camel@bullpen.pdx.osdl.net> <20030529220354.GD11309@wotan.suse.de>
+cc: Craig Thomas <craiger@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       rddunlap@osdl.org, peloquin@austin.ibm.com,
+       linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: Re: Nightly regression runs against current bk tree 
+In-Reply-To: Message from Andi Kleen <ak@suse.de> 
+   of "Fri, 30 May 2003 00:05:40 +0200." <20030529220540.GE11309@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030529220354.GD11309@wotan.suse.de>
-User-Agent: Mutt/1.5.4i
+Date: Thu, 29 May 2003 15:25:14 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 12:03:54AM +0200, Andi Kleen wrote:
-> > OSDL has a linux stabilization web page where several tests are run
+> > OSDL has a mail list that is used to discuss the stability of the linux
+> > kernel.  This would be a perfect list to use for posting test results.
+> > The list name is linstab@osdl.org. It is a public list administered by
+> > OSDL.  To subscribe: http://www.osdl.org/mailman/listinfo/linstab
 > 
-> [...] Would you be willing to change your scripts to report
-> any new results to this new list?
+> That's fairly obscure (Nobody knew of it before). Perhaps a well publicized
+> list on vger would be better.
 
-The linux stabilization web page uses results from the STP runs I
-mentioned (40+ per day).  The STP emails results summaries after test 
-runs so we could easily redirect the results to this new list.
+Perhaps - though we can publicize any new list. 
+We're content to leave the decision to DaveM and the list team -  
+if they don't want the extra work, we're always glad to help. 
+cliffw
+OSDL
 
--Nathan Dabney
+> 
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

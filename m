@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319021AbSIDCtH>; Tue, 3 Sep 2002 22:49:07 -0400
+	id <S319022AbSIDCwj>; Tue, 3 Sep 2002 22:52:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319022AbSIDCtH>; Tue, 3 Sep 2002 22:49:07 -0400
-Received: from holomorphy.com ([66.224.33.161]:53410 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319021AbSIDCtG>;
-	Tue, 3 Sep 2002 22:49:06 -0400
-Date: Tue, 3 Sep 2002 19:46:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Important per-cpu fix.
-Message-ID: <20020904024630.GU888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <20020904023535.73D922C12D@lists.samba.org> <3D75766F.1ED7257D@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D75766F.1ED7257D@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319023AbSIDCwj>; Tue, 3 Sep 2002 22:52:39 -0400
+Received: from tomts24.bellnexxia.net ([209.226.175.187]:21658 "EHLO
+	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S319022AbSIDCwj>; Tue, 3 Sep 2002 22:52:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: 2.5.33-mm1
+Date: Tue, 3 Sep 2002 22:55:43 -0400
+User-Agent: KMail/1.4.3
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+References: <3D7437AC.74EAE22B@zip.com.au> <3D755E2D.7A6D55C6@zip.com.au> <20020904011503.GT888@holomorphy.com>
+In-Reply-To: <20020904011503.GT888@holomorphy.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209032255.43198.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
->> Frankly, I'm amazed the kernel worked for long without this.
->> Every linker script thinks the section is called .data.percpu.
->> Without this patch, every CPU ends up sharing the same "per-cpu"
->> variable.
+On September 3, 2002 09:15 pm, William Lee Irwin III wrote:
+> William Lee Irwin III <wli@holomorphy.com>
 
-On Tue, Sep 03, 2002 at 07:56:47PM -0700, Andrew Morton wrote:
-> wow.  Either this was working by fluke, or Bill's softirq problem
-> just got solved.
+What are the numbers telling you?  Is you test faster or slower
+with slablru?  Does it page more or less?  Is looking at the number
+of objects the way to determine if slablru is helping?  I submit
+the paging and runtimes are much better indications?  What do
+story do they tell?
 
-It's pretty easy to find out, my machines don't get past
-execve("/sbin/init", argv_init, envp_init); without some kind of softirq
-fix. The boot cycle is not swift though... in progress.
+Thanks
+Ed
 
-
-Cheers,
-Bill

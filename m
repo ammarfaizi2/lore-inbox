@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290012AbSAPWEd>; Wed, 16 Jan 2002 17:04:33 -0500
+	id <S289363AbSAPWNT>; Wed, 16 Jan 2002 17:13:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289859AbSAPWEK>; Wed, 16 Jan 2002 17:04:10 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:42625
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289568AbSAPWDy>; Wed, 16 Jan 2002 17:03:54 -0500
-Date: Wed, 16 Jan 2002 16:47:58 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-Message-ID: <20020116164758.F12306@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de>
+	id <S289568AbSAPWNJ>; Wed, 16 Jan 2002 17:13:09 -0500
+Received: from pc4-redb4-0-cust129.bre.cable.ntl.com ([213.107.130.129]:54766
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S289156AbSAPWMu>; Wed, 16 Jan 2002 17:12:50 -0500
+Date: Wed, 16 Jan 2002 22:12:47 +0000
+From: Mark Zealey <mark@zealos.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: floating point exception
+Message-ID: <20020116221247.GA3769@itsolve.co.uk>
+In-Reply-To: <3C45F7B6.1BCB4519@didntduck.org> <Pine.LNX.3.95.1020116170247.15437A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de>; from brand@jupiter.cs.uni-dortmund.de on Wed, Jan 16, 2002 at 10:56:46PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <Pine.LNX.3.95.1020116170247.15437A-100000@chaos.analogic.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux sunbeam 2.4.17-wli2 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <brand@jupiter.cs.uni-dortmund.de>:
-> Whatever happened to "Do exactly as CML1 does; leave fixes and extensions
-> for later"? If you put the kitchen sink into it, it _won't_ go into the
-> standard kernel.
+On Wed, Jan 16, 2002 at 05:05:55PM -0500, Richard B. Johnson wrote:
 
-If you stick to the CML1-equivalent facilities, you'll get almost
-CML1-equivalent behavior.  It's "almost" partly because the hardware symbols
-have more platform- and bus-type guards than they used to -- but mostly
-because I have not emulated the numerous CML1 bugs. 
+>     for(;;)
+>     {
+>         srand(seed); 
+>         z = x;
+>         for(i = 0; i < MAX_FLOAT; i++)
+>             *z++ = cos((double) rand());
+>         srand(seed);
+>         z = y;
+>         for(i = 0; i < MAX_FLOAT; i++)
+>             *z++ = cos((double) rand());
+>         if(memcmp(x, y, MAX_FLOAT * sizeof(double)))
+>             break;
+>         seed = rand();
+
+Um, maybe I'm not reading this properly.. why are you randing, doing 1 set and
+then using different random values for the other set ?
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-The people cannot delegate to government the power to do anything
-which would be unlawful for them to do themselves.
-	-- John Locke, "A Treatise Concerning Civil Government"
+Mark Zealey
+mark@zealos.org
+mark@itsolve.co.uk
+
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
+!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+
+(www.geekcode.com)

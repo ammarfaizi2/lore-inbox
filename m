@@ -1,57 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265570AbSLPGiX>; Mon, 16 Dec 2002 01:38:23 -0500
+	id <S265513AbSLPGg7>; Mon, 16 Dec 2002 01:36:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbSLPGiX>; Mon, 16 Dec 2002 01:38:23 -0500
-Received: from angband.namesys.com ([212.16.7.85]:9606 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S265570AbSLPGiV>; Mon, 16 Dec 2002 01:38:21 -0500
-Date: Mon, 16 Dec 2002 09:46:16 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: JDIRTY JWAIT errors in 2.4.19
-Message-ID: <20021216094616.A20997@namesys.com>
-References: <3DFAF9EF.6000501@tupshin.com> <20021214135550.A13549@namesys.com> <3DFD74B5.5050206@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <3DFD74B5.5050206@tupshin.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S265564AbSLPGg7>; Mon, 16 Dec 2002 01:36:59 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:52408 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S265513AbSLPGg6> convert rfc822-to-8bit; Mon, 16 Dec 2002 01:36:58 -0500
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BENCHMARK] not so good performance of 2.5.52 on TIO bench
+Date: Mon, 16 Dec 2002 12:14:35 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867201DFBB@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] not so good performance of 2.5.52 on TIO bench
+Thread-Index: AcKkzpiGwMh7xY5dT4qE6ckHItSyOQ==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Dec 2002 06:44:35.0922 (UTC) FILETIME=[9922FB20:01C2A4CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
+Here are the results of comparison of kernel 2.5.51 and 2.5.52 on TIObench.
+key findings. 
 
-On Sun, Dec 15, 2002 at 10:37:41PM -0800, Tupshin Harper wrote:
-> >Can you please execute SysRq-T, decode it with ksymoops and send us the 
-> >result?
-> I have succeeded in reproducing this problem at will (and 
-> deterministically) with a SysRq enabled kernel.
+-------------------------------------------------------------
+test					2.5.52 (as compared to
+					2.5.51) APPRXIMATE % change
+-------------------------------------------------------------
+rate (megabytes per second)	5% decrease
+CPU % utilization			5% decrease
+Average Latency			less than 2% increase
+Maximum latency			15 % increase		
+CPU efficiency			less than 2% increase
+-------------------------------------------------------------
 
-Ok.
+-------------------------------------------------------------
+			Linux kernel 2.5.52
+			TIO bench results
+			Date 16th december 2002
+-------------------------------------------------------------
+Unit information
+================
+File size = megabytes
+Blk Size  = bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
 
-> I can reproduce the problem consistently by doing a cp -av of a 
-> directory(haven't tried other cp permutations, guessing it wouldn't make 
-> a difference) containing three mp3 files from one location on a 
-> partition to another location on the same reiserfs partition. During the 
-> third file, cp hangs(continues to use 80%+ of the CPU), and is 
-> unkillable. A few minutes later, it starts generating the same JDIRTY 
-> error messages that I reported before.
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.52                        252   4096   10    8.48 5.251%    12.152     1825.07   0.00000  0.00000   161
 
-Can you please produce a metadump data for us?
-use debugreiserfs -p /dev/yourdevice | gzip -9c >metadata.gz
-then tell us where we can get that file.
-Also please use recent reiserfsprogs for that operation
-(e.g. version 3.6.4 available from us: ftp://ftp.namesys.com/pub/reiserprogs )
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.52                        252   4096   10    0.50 0.729%   211.130     1079.20   0.00000  0.00000    69
 
-> I have not tried to do any kind of reiserfs check or repair on the 
-> filesystem, and I can trigger this problem at any point if you would 
-> like me to test further.
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.52                        252   4096   10   16.17 30.00%     4.525    29226.70   0.06094  0.00625    54
 
-Let's see if we can reproduce it locally after you give us the metadata.
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.52                        252   4096   10    0.78 1.084%     0.675      992.39   0.00000  0.00000    72
 
-Thank you.
-
-Bye,
-    Oleg
+regards,
+Aniruddha Marathe
+WIPRO Technologies, India
+aniruddha.marathe@wipro.com

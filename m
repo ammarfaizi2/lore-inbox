@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130357AbRA2O4X>; Mon, 29 Jan 2001 09:56:23 -0500
+	id <S131750AbRA2PIi>; Mon, 29 Jan 2001 10:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130949AbRA2O4N>; Mon, 29 Jan 2001 09:56:13 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:5393 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S130357AbRA2O4D>; Mon, 29 Jan 2001 09:56:03 -0500
-Message-ID: <3A7584D8.E7C3CB21@ngforever.de>
-Date: Mon, 29 Jan 2001 07:57:28 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
-X-Accept-Language: de,en-US
-MIME-Version: 1.0
-To: Chris Meadors <clubneon@hereintown.net>
-CC: Daniel Chemko <dchemko@intrinsyc.com>,
-        "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <Pine.LNX.4.31.0101261438300.30912-100000@rc.priv.hereintown.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S131777AbRA2PIa>; Mon, 29 Jan 2001 10:08:30 -0500
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:13288 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S131750AbRA2PIO>; Mon, 29 Jan 2001 10:08:14 -0500
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@fi.muni.cz>
+Subject: Re: ps hang in 241-pre10
+Message-ID: <3A758759.83196BB2@fi.muni.cz>
+Date: Mon, 29 Jan 2001 15:08:09 GMT
+To: Linus Torvalds <torvalds@transmeta.com>
+X-Nntp-Posting-Host: dual.fi.muni.cz
 Content-Transfer-Encoding: 7bit
+X-Accept-Language: Czech, en
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <94voof$17j$1@penguin.transmeta.com>
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac9 i686)
+Organization: unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> In article <3A7359BB.7BBEE42A@linux.com>, David Ford  <david@linux.com>
+> wrote:
+> >
+> >We've narrowed it down to "we're all running xmms" when it happend.
+> 
+> Does anybody have a clue about what is different with xmms?
+> 
+> Does it use KNI if it can, for example? We used to have a problem with
 
+Seeing this - I'll add my post here too - I've been burning one audio CD
+last week and while I've been moving slider the system has locked  - I
+think
+the kernel version has been -ac7 - then I've used pre8 and I've been
+playing divx file while burning four other CD with no problem.
 
-Chris Meadors wrote:
-> 
-> On Fri, 26 Jan 2001, Daniel Chemko wrote:
-> 
-> > Microsoft are bad for dropping ICMP because of security.. .I mean try pinging
-> > microsoft.com...
-> 
-> It's down, ha ha, Microsoft is down!  I'm joking of course.  But you don't
-> know how many times my techs have told me that.  It's either that, or
-> something is seeming a little strange on our network, and to trouble
-> shoot, they ping microsoft.com and don't get a responce.  Then they call
-> me at home, to tell me that our T1s are down.
-> 
-> I wonder how much bandwidth was used up by people pinging MS to trouble
-> shoot when they still allowed ICMP packets through.
-That's why the nmap manual tells us to use -P0 to scan
-www.microsoft.com.
-Operating system guess returned some unix...
+My system is SMP Bp6 with SBLive kernel's emu driver.
 
-Thunder
----
-Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
-god...
+-- 
+             There are three types of people in the world:
+               those who can count, and those who can't.
+  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,113 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVAIUwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVAIVQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVAIUwn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 15:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVAIUwn
+	id S261803AbVAIVQb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 16:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVAIVQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 15:52:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54940 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261781AbVAIUwi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 15:52:38 -0500
-Date: Sun, 9 Jan 2005 12:52:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: chrisw@osdl.org, clameter@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fixes for prep_zero_page
-Message-Id: <20050109125212.330c34c1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0501090812220.13639@montezuma.fsmlabs.com>
-References: <20050108010629.M469@build.pdx.osdl.net>
-	<20050109014519.412688f6.akpm@osdl.org>
-	<Pine.LNX.4.61.0501090812220.13639@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 9 Jan 2005 16:16:30 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48785 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261803AbVAIVQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 16:16:24 -0500
+Message-ID: <41E19F21.20001@comcast.net>
+Date: Sun, 09 Jan 2005 16:16:17 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Tomt <andre@tomt.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: printf() overhead
+References: <41E18522.7060004@comcast.net> <41E188FE.7010609@tomt.net>
+In-Reply-To: <41E188FE.7010609@tomt.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
->
-> On Sun, 9 Jan 2005, Andrew Morton wrote:
-> 
-> > Well it's doing clear_highpage() before __alloc_pages() has called
-> > kernel_map_pages(), so CONFIG_DEBUG_PAGEALLOC is quite kaput.
-> > 
-> > So the current __GFP_ZERO buglist is:
-> > 
-> > 1: Breaks CONFIG_DEBUG_PAGEALLOC
-> > 
-> > 2: Breaks the cache aliasing protection for anonymous pages
-> > 
-> > 3: prep_zero_page() uses KM_USER0 so __GFP_ZERO from IRQ context will
-> >    cause rare memory corruption.
-> 
-> The following should take care of 1 and 3. I opted to unmap the pages 
-> again after the clear page so that it remains isolated and we don't have 
-> to make additional checks to see if we should unmap the pages.
-> 
-> Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-> 
-> Index: linux-2.6.10-mm2/include/linux/highmem.h
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.10-mm2/include/linux/highmem.h,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 highmem.h
-> --- linux-2.6.10-mm2/include/linux/highmem.h	9 Jan 2005 04:51:52 -0000	1.1.1.1
-> +++ linux-2.6.10-mm2/include/linux/highmem.h	9 Jan 2005 15:32:17 -0000
-> @@ -50,6 +50,18 @@ static inline void clear_highpage(struct
->  	kunmap_atomic(kaddr, KM_USER0);
->  }
->  
-> +static inline void clear_irq_highpage(struct page *page)
-> +{
-> +	char *kaddr;
-> +	unsigned long flags;
-> +
-> +	local_irq_save(flags);
-> +	kaddr = kmap_atomic(page, KM_IRQ0);
-> +	clear_page(kaddr);
-> +	kunmap_atomic(kaddr, KM_IRQ0);
-> +	local_irq_restore(flags);
-> +}
-> +
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This won't work right if someone tries to allocate memory while holding a
-KM_IRQ0 atomic kmap.
 
-It would be quite bizarre for anyone to be allocating highmem pages from
-IRQ context anyway, but as a generic mechanism this really should work as
-expected in all contexts.  That means a new kmap slot.
 
->  /*
->   * Same but also flushes aliased cache contents to RAM.
->   */
-> Index: linux-2.6.10-mm2/mm/page_alloc.c
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.10-mm2/mm/page_alloc.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 page_alloc.c
-> --- linux-2.6.10-mm2/mm/page_alloc.c	9 Jan 2005 04:52:40 -0000	1.1.1.1
-> +++ linux-2.6.10-mm2/mm/page_alloc.c	9 Jan 2005 15:46:00 -0000
-> @@ -691,10 +691,17 @@ perthread_pages_alloc(void)
->   */
->  static inline void prep_zero_page(struct page *page, int order)
->  {
-> -	int i;
-> +	int i, nr_pages = (1 << order);
-> +	int context = in_interrupt();
->  
-> -	for(i = 0; i < (1 << order); i++)
-> -		clear_highpage(page + i);
-> +	kernel_map_pages(page, nr_pages, 1);
-> +	for(i = 0; i < nr_pages; i++) {
-> +		if (likely(!context))
-> +			clear_highpage(page + i);
-> +		else
-> +			clear_irq_highpage(page + i);
-> +	}
-> +	kernel_map_pages(page, nr_pages, 0);
->  }
+Andre Tomt wrote:
+| John Richard Moser wrote:
+|
+|> using strace to run a program takes aeons.  Redirecting the output to a
+|> file can be a hundred times faster sometimes.  This raises question.
+|>
+|> I understand that output to the screen is I/O.  What exactly causes it
+|> to be slow, and is there a possible way to accelerate the process?
+|
+|
+| The terminal is a major factor; gnome-terminal for example can be
+| *extremely* slow.
+|
 
-Can't we simply move the page zeroing to the very end of __alloc_pages()?
+Is there a way to give the data to the terminal and let the program go
+while that happens?  Or is there an execution path (i.e. terminal says
+"WTF NO") that can be missed that way?
 
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB4Z8hhDd4aOud5P8RAnhBAJ40RgKIcXdCvhnuHlfZyK60xswjGwCdFef2
+rmwEL/yAR74Q96VkpEV6Z2s=
+=bpD8
+-----END PGP SIGNATURE-----

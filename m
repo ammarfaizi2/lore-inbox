@@ -1,90 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264619AbTF2UvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264792AbTF2UvP
+	id S264899AbTF2Uy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTF2UyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:51:15 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:60676 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264619AbTF2Uuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:50:46 -0400
-Date: Sun, 29 Jun 2003 17:04:55 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: linux-kernel@vger.kernel.org, akpm@digeo.com, Pavel Machek <pavel@suse.cz>
-cc: ldl@aros.net
-Subject: Re: [PATCH 2.5.73] nbd: maintain compatibility with existing nbd
- tools
-In-Reply-To: <20030629184253.GE267@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10306291624250.764-200000@clements.sc.steeleye.com>
+	Sun, 29 Jun 2003 16:54:01 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:52890 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S265022AbTF2Uvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:51:41 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [RFC] My research agenda for 2.7
+Date: Sat, 28 Jun 2003 23:06:59 +0200
+User-Agent: KMail/1.5.2
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <200306250111.01498.phillips@arcor.de> <200306271800.53487.phillips@arcor.de> <Pine.LNX.4.53.0306291953490.20655@skynet>
+In-Reply-To: <Pine.LNX.4.53.0306291953490.20655@skynet>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="296485894-1974830749-1056920695=:764"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306282306.59502.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sunday 29 June 2003 21:25, Mel Gorman wrote:
+> As you can see, order0 allocations were a *lot* more common, at least in
+> my system.
 
---296485894-1974830749-1056920695=:764
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mel,
 
-On Sun, 29 Jun 2003, Pavel Machek wrote:
+There's no question that that's the case today.  However, there are good 
+reasons for using a largish filesystem blocksize, 16K for example, once it 
+becomes possible to do so.  With an active volume mounted using 16K blocks, 
+you'd see that the balance of allocations shifts towards order 2.  The size 
+of the shift will be workload-dependent, ranging from almost no order 2 
+allocations, to almost all.  To keep things interesting, it's quite possible 
+for the balance to change suddenly and/or strongly.
 
-> > > [ ... ] In the meantime, the nbd-client tool currently can't correctly set 
-> > > the size of the device and either that needs to be worked around in the 
-> > > driver (I'd done that in the original jumbo patch), or the nbd-client 
-> > > tool needs to be updated (the patch I'd mailed out for nbd-client works 
-> > > around the sizing issue by re-opening the nbd). To be clear, that's not 
-> > > something any of the changes that have gone in so far broke nor address. 
-> > > It's a consequence of how bd_set_size() is called in fs/block_dev.c 
-> > > do_open().
-> > 
-> > And here's the (tiny) patch for nbd to maintain compatibility with the
-> > existing nbd-client tool. Compiled and tested on a couple machines.
-> > Please apply.
-> 
-> You are the maintainer, you can go to the linus directly. (I hope
-> Linus took that MAINTAINERS patch).
+> Because they are so common in comparison to other orders, I
+> think that putting order0 in slabs of size 2^MAX_ORDER will make
+> defragmentation *so* much easier, if not plain simple, because you can
+> shuffle around order0 pages in the slabs to free up one slab which frees
+> up one large 2^MAX_ORDER adjacent block of pages.
 
-Not yet, I don't think...
+But how will you shuffle those pages around?
 
-> [Aha, if you wanted *Andrew* to apply it... I guess it is better to
-> say directly who do you want to take it.]
+Regards,
 
-Well, it's just that Andrew seems particularly willing to help on this,
-so that's why I sent to him...
+Daniel
 
-At any rate, Andrew, here's a cleaned up version of the patch... please apply.
-
-Thanks,
-Paul
-
---296485894-1974830749-1056920695=:764
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nbd_2_5_compat.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10306291704550.764@clements.sc.steeleye.com>
-Content-Description: 
-Content-Disposition: attachment; filename="nbd_2_5_compat.diff"
-
-LS0tIGxpbnV4LTIuNS9kcml2ZXJzL2Jsb2NrL25iZC5jLlBSSVNUSU5FCVNh
-dCBKdW4gMjggMTI6NTc6MDMgMjAwMw0KKysrIGxpbnV4LTIuNS9kcml2ZXJz
-L2Jsb2NrL25iZC5jCVNhdCBKdW4gMjggMTI6NTc6NTQgMjAwMw0KQEAgLTUw
-MywxNSArNTAzLDE4IEBADQogCQkJbG8tPmJsa3NpemVfYml0cysrOw0KIAkJ
-CXRlbXAgPj49IDE7DQogCQl9DQotCQlsby0+Ynl0ZXNpemUgJj0gfihsby0+
-Ymxrc2l6ZS0xKTsgDQorCQlsby0+Ynl0ZXNpemUgJj0gfihsby0+Ymxrc2l6
-ZS0xKTsNCisJCWlub2RlLT5pX2JkZXYtPmJkX2lub2RlLT5pX3NpemUgPSBs
-by0+Ynl0ZXNpemU7DQogCQlzZXRfY2FwYWNpdHkobG8tPmRpc2ssIGxvLT5i
-eXRlc2l6ZSA+PiA5KTsNCiAJCXJldHVybiAwOw0KIAljYXNlIE5CRF9TRVRf
-U0laRToNCi0JCWxvLT5ieXRlc2l6ZSA9IGFyZyAmIH4obG8tPmJsa3NpemUt
-MSk7IA0KKwkJbG8tPmJ5dGVzaXplID0gYXJnICYgfihsby0+Ymxrc2l6ZS0x
-KTsNCisJCWlub2RlLT5pX2JkZXYtPmJkX2lub2RlLT5pX3NpemUgPSBsby0+
-Ynl0ZXNpemU7DQogCQlzZXRfY2FwYWNpdHkobG8tPmRpc2ssIGxvLT5ieXRl
-c2l6ZSA+PiA5KTsNCiAJCXJldHVybiAwOw0KIAljYXNlIE5CRF9TRVRfU0la
-RV9CTE9DS1M6DQogCQlsby0+Ynl0ZXNpemUgPSAoKHU2NCkgYXJnKSA8PCBs
-by0+Ymxrc2l6ZV9iaXRzOw0KKwkJaW5vZGUtPmlfYmRldi0+YmRfaW5vZGUt
-Pmlfc2l6ZSA9IGxvLT5ieXRlc2l6ZTsNCiAJCXNldF9jYXBhY2l0eShsby0+
-ZGlzaywgbG8tPmJ5dGVzaXplID4+IDkpOw0KIAkJcmV0dXJuIDA7DQogCWNh
-c2UgTkJEX0RPX0lUOg0K
---296485894-1974830749-1056920695=:764--

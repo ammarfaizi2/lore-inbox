@@ -1,169 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268541AbUIQHjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268544AbUIQHlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268541AbUIQHjy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 03:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUIQHjx
+	id S268544AbUIQHlq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 03:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268537AbUIQHkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 03:39:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:65441 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268515AbUIQHip (ORCPT
+	Fri, 17 Sep 2004 03:40:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26769 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268539AbUIQHiX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 03:38:45 -0400
-Date: Fri, 17 Sep 2004 09:36:56 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: linux-kernel@vger.kernel.org, jmerkey@comcast.net
-Subject: Re: 2.6.9-rc2 bio sickness with large writes
-Message-ID: <20040917073653.GA2573@suse.de>
-References: <4148D2C7.3050007@drdos.com> <20040916063416.GI2300@suse.de> <4149C176.2020506@drdos.com>
+	Fri, 17 Sep 2004 03:38:23 -0400
+Date: Fri, 17 Sep 2004 00:38:00 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org, devices@lanana.org
+Subject: Re: ub vs. ubd
+Message-Id: <20040917003800.199cc524@lembas.zaitcev.lan>
+In-Reply-To: <200409170523.i8H5NZ2J005424@ccure.user-mode-linux.org>
+References: <1340.1095332981@www10.gmx.net>
+	<20040916084118.2441c38a@lembas.zaitcev.lan>
+	<200409161753.i8GHrM2J003175@ccure.user-mode-linux.org>
+	<20040916103454.46936a28@lembas.zaitcev.lan>
+	<200409170523.i8H5NZ2J005424@ccure.user-mode-linux.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4149C176.2020506@drdos.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16 2004, Jeff V. Merkey wrote:
+On Fri, 17 Sep 2004 01:23:35 -0400
+Jeff Dike <jdike@addtoit.com> wrote:
+
+> zaitcev@redhat.com said:
+> > Can you send me your /proc/partitions from a guest with a few UBDs
+> > configured? 
 > 
-> >
-> >>static int end_bio_asynch(struct bio *bio, unsigned int bytes_done, int 
-> >>err)
-> >>{
-> >>   ASYNCH_IO *io = bio->bi_private;
-> >>
-> >>   
-> >>
-> >
-> >     if (bio->bi_size)
-> >		return 1;
-> > 
-> >
+> usermode:~# more /proc/partitions 
+> major minor  #blocks  name
 > 
-> I guess the question here is if a group of coalesed bios are submitted, 
-> shouldn't I get a callback
-> on each one? This implies if they merge beneath me, I won't always see 
-> the callback for each one.
-> Is this an acuurate assumption?
+>   98     0    1049600 ubda
+>   98    16    1049600 ubdb
+>   98    32     204801 ubdc
 
-No, you are reading it wrong. You will get a callback for each bio that
-you issued, regardless of merge status. You never need to care about
-merge status. But you might get partial completions from drivers, so
-multiple completions on the same bio. Your code doesn't look like it's
-handling that - you either need to take bytes_done into account, or just
-add the above two lines if you don't care about partial completions.
-When bi_size reaches 0, all io is done on this bio.
+I see. So, the appended patch should be appropriate.
 
-> >>        register struct page *page = virt_to_page(&Sector[i * blocksize]);
-> >>        register ULONG offset = ((ULONG)(&Sector[i * blocksize])) % 
-> >>        PAGE_SIZE;
-> >>        register ULONG bytes;
-> >>
-> >>        bytes = bio_add_page(io->bio, page, 
-> >>                             PAGE_SIZE - (offset % PAGE_SIZE), 0);
-> >>   
-> >>
-> >
-> >offset instead of 0?
-> >
-> > 
-> >
-> blocksize always = PAGE_SIZE in this code. PAGE_SIZE - (offset % 
-> PAGE_SIZE) determines the length of the
-> transfer. You could just as well substitute PAGE_SIZE for blocksize. I 
-> always set the device (if it supports it) to a
-> PAGE_SIZE for the blocksize. 1024 blocksize is a little small.
+-- Pete
 
-Ok, that's not visible from the source you sent. You should still change
-that to offset in case this changes. Or if not, kill the PAGE_SIZE - xxx
-stuff to avoid confusion.
-
-> >Get rid of this if/else, it's not correct. 2.6 always had
-> >bio_add_page(), and you _must_ use it.
-> >
-> > 
-> >
-> 
-> Linus should then do the same in buffer.c since this example is 
-> misleading in the code. Linus seems to get away with it
-> so why can't I? :-)
-
-Linus didn't write that, I did.
-> 
-> buffer.c line 2776
-> /*
-> * from here on down, it's all bio -- do the initial mapping,
-> * submit_bio -> generic_make_request may further map this bio around
-> */
-> bio = bio_alloc(GFP_NOIO, 1);
-> 
-> bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);
-> bio->bi_bdev = bh->b_bdev;
-> bio->bi_io_vec[0].bv_page = bh->b_page;
-> bio->bi_io_vec[0].bv_len = bh->b_size;
-> bio->bi_io_vec[0].bv_offset = bh_offset(bh);
-> 
-> bio->bi_vcnt = 1;
-> bio->bi_idx = 0;
-> bio->bi_size = bh->b_size;
-> 
-> bio->bi_end_io = end_bio_bh_io_sync;
-> bio->bi_private = bh;
-> 
-> submit_bio(rw, bio);
-
-And submit_bh() is correct, since it only uses a single page. You are
-adding multiple pages to the bio manually, this is highly illegal. If
-you aren't using bio_add_page() to do this you are both on your own and
-in a world of pain support wise.
-
-> >>   // unplug the queue and drain the bathtub
-> >>   bio_get(io->bio);
-> >>   submit_bio(WRITE | (1 << BIO_RW_SYNC), io->bio);
-> >>   bio_put(io->bio);
-> >>   
-> >>
-> >
-> >You don't get to get/put the bio here, you aren't touching it after
-> >submit_bio().
-> >
-> > 
-> >
-> 
-> I removed this from my code. You need to correct the example in bio.h 
-> with something more meaningful. This is what
-> the source code says to do.
-> 
-> bio.h line 213
-> 
-> /*
-> * get a reference to a bio, so it won't disappear. the intended use is
-> * something like: *
-> * bio_get(bio);
-> * submit_bio(rw, bio);
-> * if (bio->bi_flags ...)
-> * do_something
-> * bio_put(bio);
-> *
-> * without the bio_get(), it could potentially complete I/O before submit_bio
-> * returns. and then bio would be freed memory when if (bio->bi_flags ...)
-> * runs
-> */
-
-No, you need to read it properly. See how it looks at the bio after
-submitting it in this example? That's why it gets a reference to it.
-There's even a comment to that effect. You don't need to hold a
-reference across the submit_bio() call if you don't look at the bio
-afterwards, why would you care? This is, btw, no different than the bh
-semantics since 2.4...
-
-> I still see the problem and I suspect it's related to the callback 
-> mechanism with the bio-bi_size check always returning 1. I guess
-> the question here is are bios guaranteed to always return a 1:1 ratio of 
-> submission vs. callbacks?
-
-Fix your code like I described first, I cannot help you otherwise. Your
-question is answered further up (it's yes).
-
--- 
-Jens Axboe
-
+--- linux-2.6.9-rc1/Documentation/devices.txt	2004-08-19 17:15:31.000000000 -0700
++++ linux-2.6.9-rc1-ub/Documentation/devices.txt	2004-09-17 00:35:36.996215488 -0700
+@@ -1741,10 +1741,14 @@
+ 		See http://stm.lbl.gov/comedi or http://www.llp.fu-berlin.de/.
+ 
+  98 block	User-mode virtual block device
+-		  0 = /dev/ubd0		First user-mode block device
+-		  1 = /dev/ubd1		Second user-mode block device
++		  0 = /dev/ubda		First user-mode block device
++		 16 = /dev/ubdb		Second user-mode block device
+ 		    ...
+ 
++		Partitions are handled in the same way as for IDE
++		disks (see major number 3) except that the limit on
++		partitions is 15.
++
+ 		This device is used by the user-mode virtual kernel port.
+ 
+  99 char	Raw parallel ports

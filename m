@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262116AbRFGRPP>; Thu, 7 Jun 2001 13:15:15 -0400
+	id <S262262AbRFGRQz>; Thu, 7 Jun 2001 13:16:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262168AbRFGRPF>; Thu, 7 Jun 2001 13:15:05 -0400
-Received: from dubb05h09-0.dplanet.ch ([212.35.36.9]:48656 "EHLO
-	dubb05h09-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S262116AbRFGROu>; Thu, 7 Jun 2001 13:14:50 -0400
-Message-Id: <200106071714.TAA21695@dubb05h09-0.dplanet.ch>
-Date: Thu, 07 Jun 2001 19:14:46 +0200
-From: Andreas Tscharner <starfire@dplanet.ch>
-To: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.5 ISA DMA hang on ALI 15x3
-Reply-To: starfire@dplanet.ch
-X-Mailer: Spruce 0.7.4 for X11 w/smtpio 0.8.2
+	id <S262239AbRFGRQp>; Thu, 7 Jun 2001 13:16:45 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:52489 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S262202AbRFGRQh>;
+	Thu, 7 Jun 2001 13:16:37 -0400
+Date: Thu, 7 Jun 2001 11:27:20 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: es1371 compile issue in 2.4.5-ac9 
+In-Reply-To: <3333.991926884@ocs4.ocs-net>
+Message-ID: <Pine.LNX.4.10.10106071123220.24181-100000@clueserver.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello World,
+On Fri, 8 Jun 2001, Keith Owens wrote:
 
-This little patch enables the workaround for the ISA DMA bug on ALi15x3
-chipsets with the PCI-ISA bridge.
+> On Wed, 6 Jun 2001 14:45:10 -0700 (PDT), 
+> Alan Olsen <alan@clueserver.org> wrote:
+> >I rebuilt from clean source and patch for 2.4.5-ac9 and neglected to add
+> >in anything using the joystick.
+> >
+> >ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext ...
+> >	-o vmlinux
+> >drivers/sound/sounddrivers.o: In function `es1371_probe':
+> >drivers/sound/sounddrivers.o(.text+0x5e5d): undefined reference to
+> >`gameport_register_port'
+> 
+> Your attached .config (why was it in base64?) has
+>   # CONFIG_SOUND is not set
+> which is completely incompatible with the above error.  Either you
+> manually overrode the compile or you enclosed the wrong .config.
 
-CHANGES:
-Changed file: $KERNELROOT/drivers/pci/quirks.c
+It was in base64 because I sent it as an attachment with Pine.
 
-There is a DMA bug in the PCI-ISA host bridge of the ALi15x3 chipset.
-The use of this DMA causes a hang.
+Weird. I took it from the kernel I had just built. (And gotten that
+error.)
 
-The OSS and ALSA modules for the OPL3/SA2 and OPL3/SAx sound chip use
-this DMA which causes a complete hang.
+I will try and reproduce it again.
 
-This combination of chipset and soundchip is found in the whole Acer
-Extensa laptop series.
-
-The patch adds the chipset mentioned above to the main table of quirks.
-
-The patch was originally written by Angelo Di Filippo
-<adifilip@ubiquity.it> as a patch for Kernel 2.3.45. I adapted it to
-Kernel 2.4.5
-
-
-PATCH:
---- drivers/pci/quirks.c.orig	Thu May 31 22:32:12 2001
-+++ drivers/pci/quirks.c	Thu May 31 22:36:08 2001
-@@ -344,6 +344,7 @@
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_0,	quirk_isa_dma_hangs },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C596,	quirk_isa_dma_hangs },
- 	{ PCI_FIXUP_FINAL,      PCI_VENDOR_ID_INTEL,    PCI_DEVICE_ID_INTEL_82371SB_0,  quirk_isa_dma_hangs },
-+	{ PCI_FIXUP_FINAL,      PCI_VENDOR_ID_AL,       PCI_DEVICE_ID_AL_M1533,         quirk_isa_dma_hangs },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_S3,	PCI_DEVICE_ID_S3_868,		quirk_s3_64M },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_S3,	PCI_DEVICE_ID_S3_968,		quirk_s3_64M },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82437, 	quirk_triton }, 
-
-
-Have a nice day.
-
-Regards
-	Andreas
--- 
-Andreas Tscharner                                     starfire@dplanet.ch
--------------------------------------------------------------------------
-"Programming today is a race between software engineers striving to build 
-bigger and better idiot-proof programs, and the Universe trying to produce 
-bigger and better idiots. So far, the Universe is winning." -- Rich Cook 
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+ "All power is derived from the barrel of a gnu." - Mao Tse Stallman
 

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130668AbRAGMGo>; Sun, 7 Jan 2001 07:06:44 -0500
+	id <S130880AbRAGMID>; Sun, 7 Jan 2001 07:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130880AbRAGMGd>; Sun, 7 Jan 2001 07:06:33 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:1059 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S130668AbRAGMG3>; Sun, 7 Jan 2001 07:06:29 -0500
-Date: Sun, 7 Jan 2001 14:06:07 +0200
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Andre Tomt <andre@tomt.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jim Olsen <jim@browsermedia.com>
-Subject: Re: Which kernel fixes the VM issues?
-Message-ID: <20010107140607.J1265@niksula.cs.hut.fi>
-In-Reply-To: <01010706312902.10913@jim.cyberjunkees.com> <OPECLOJPBIHLFIBNOMGBAENACHAA.andre@tomt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OPECLOJPBIHLFIBNOMGBAENACHAA.andre@tomt.net>; from andre@tomt.net on Sun, Jan 07, 2001 at 12:50:07PM +0100
+	id <S131153AbRAGMHx>; Sun, 7 Jan 2001 07:07:53 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:18818 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130880AbRAGMHo>;
+	Sun, 7 Jan 2001 07:07:44 -0500
+Date: Sun, 7 Jan 2001 03:50:34 -0800
+Message-Id: <200101071150.DAA01700@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: hps@tanstaafl.de
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <939kiq$11s$1@forge.intermeta.de> (hps@tanstaafl.de)
+Subject: Re: [little bit OT] ip _IS_ _NOT_ ifconfig and route ! (was Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission policy!))
+In-Reply-To: <Pine.GSO.4.30.0101062253440.18916-100000@shell.cyberus.ca>, <200101070543.VAA24689@pizda.ninka.net> <939kiq$11s$1@forge.intermeta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2001 at 12:50:07PM +0100, you [Andre Tomt] claimed:
-> > of the fuzz
-> > I have relating to the VM: do_try_to_free_pages issue.
-> 
-> <snip>
-> 
-> > About once a week I get the 'VM: do_try_to_free_pages ...' error and
-> > eventually get a complete system lockup. And just this morning it
-> > locked up
-> > again, although this time with a 'VFS: LRU block list corrupted'
-> > message in
-> > the logs, which i'm assuming is related to the VM issue as well.
-> 
-> This issue is fixed in 2.2.18 AFAIK (never seen it since).
-> 
-> <snip>
+   Date: 	Sun, 7 Jan 2001 11:40:10 +0000 (UTC)
+   From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
 
-Nope.
+   As long as "man ip" on my machines returns "ip(7) - ip - Linux IPv4
+   protocol implementation", using "ip" exclusively instead of
+   ifconfig and route is IMHO not an option for anyone else than
+   bleeding edge hackers and linux gurus.
 
-It's fixed 2.2.19pre2 (which includes the Andrea Arcangeli's vm-global-7
-patch that (among other things) fixes this.)
+As long as "man printf" gives me that damn shell command manpage, I
+will not use printf in my C applications. :-))))  Yes, I do
+understand, "ip" needs some more documentation perhaps.
 
-You can also apply the vm-global-patch to 2.2.18 if you like.
+Nobody has suggested getting rid of ifconfig, rather we have suggested
+to implement it in terms of "ip" because, as you even mention, "ip" is
+powerful and can do everything ifconfig can do thus ifconfig can be
+implemented as a wrapper on top of "ip".
 
+Nobody has suggested to use "ip" exclusively, you will not invoke "ip"
+with the suggestion I am making.  Ifconfig indirectly will, but you
+won't even notice nor should you care.  They will be packaged
+together, so even that won't be an issue.
 
--- v --
-
-v@iki.fi
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

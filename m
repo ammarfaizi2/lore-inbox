@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAHXTV>; Mon, 8 Jan 2001 18:19:21 -0500
+	id <S129387AbRAHXUM>; Mon, 8 Jan 2001 18:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAHXTL>; Mon, 8 Jan 2001 18:19:11 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:4872 "EHLO
-	mf1.private") by vger.kernel.org with ESMTP id <S129226AbRAHXSz>;
-	Mon, 8 Jan 2001 18:18:55 -0500
-Date: Mon, 8 Jan 2001 15:22:44 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.30.0101081352400.954-100000@mf2.private>
-Message-ID: <Pine.LNX.4.30.0101081515090.18737-100000@mf1.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130516AbRAHXUC>; Mon, 8 Jan 2001 18:20:02 -0500
+Received: from quechua.inka.de ([212.227.14.2]:20588 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S129387AbRAHXTy>;
+	Mon, 8 Jan 2001 18:19:54 -0500
+From: Bernd Eckenfels <inka-user@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+Message-Id: <E14FlZx-00003w-00@sites.inka.de>
+Date: Tue, 9 Jan 2001 00:19:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Wayne Whitney wrote:
+In article <20010105230950.B301@bug.ucw.cz> you wrote:
+> Also thing about cases where powerplant fails, or when electricity in
+> the house fails. I've seen places where electricity failed 5 times a
+> day, because someone put 10A fuse and we were using just about 2kW...
 
-> On Mon, 8 Jan 2001, Szabolcs Szakacsits wrote:
->
-> > AFAIK newer glibc = CVS glibc but the malloc() tune parameters work
-> > via environment variables for the current stable ones as well,
->
-> I'll arrange a binary linked against glibc2.2, and then your suggestion
-> will hopefully do the trick.  Thanks for your kind help!
+Especially evil is a power failure, and then a second failure while fsck is
+running...
 
-OK, I now have a binary dynamically linked against /lib/libc.so.6,
-(according to ldd), and that points to glibc-2.1.92.  And I tried setting
-the environment variables you suggested, I checked that they are set and
-checked that they appear in /lib/libc.so.6.  But the behaviour is
-unchanged:  MAGMA still hits this barrier at 830M (not 870M, that was a
-typo).
+So i hope Journaling FSs will have the power of normal FSs soon, so we can
+have them as a default for consumers. Otherwise:
 
-I guess I conclude that either (1) MAGMA does not use libc's malloc
-(checking on this, I doubt it) or (2) glibc-2.1.92 knows of these
-variables but has not yet implemented the tuning (I'll try glibc-2.2) or
-(3) this is not the problem.
+/dev/scsi/host0/bus0/target6/lun0/part1 on / type ext2 (ro)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw)
+/dev/sda5 on /usr type ext2 (ro)
+/dev/sda6 on /var type ext2 (r,noexec)
+/dev/sda7 on /home type ext2 (rw,nosuid)
+/dev/scd0 on /cdrom type iso9660 (ro)
 
-I'll look at Andrea's hack as well.  Thanks for everybody's help!
+some read only filesystems :)
 
-Cheers, Wayne
-
-
-
-
-
-
+Greetings
+Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

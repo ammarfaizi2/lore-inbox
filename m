@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293618AbSBZWoU>; Tue, 26 Feb 2002 17:44:20 -0500
+	id <S285692AbSBZWqv>; Tue, 26 Feb 2002 17:46:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293619AbSBZWoL>; Tue, 26 Feb 2002 17:44:11 -0500
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:27911 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S293618AbSBZWn6>; Tue, 26 Feb 2002 17:43:58 -0500
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200202262243.g1QMh9F13742@wildsau.idv-edu.uni-linz.ac.at>
-Subject: please remove CONFIG_PNP, CONFIG_PNPBIOS
-To: linux-kernel@vger.kernel.org
-Date: Tue, 26 Feb 2002 23:43:09 +0100 (MET)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
+	id <S285850AbSBZWqi>; Tue, 26 Feb 2002 17:46:38 -0500
+Received: from dsl-213-023-039-032.arcor-ip.net ([213.23.39.32]:23949 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284180AbSBZWqS>;
+	Tue, 26 Feb 2002 17:46:18 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Steve Lord <lord@sgi.com>, Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: Congrats Marcelo,
+Date: Mon, 25 Feb 2002 00:39:36 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <20020226140644.U12832@lynx.adilger.int> <1014760581.5993.159.camel@jen.americas.sgi.com>
+In-Reply-To: <1014760581.5993.159.camel@jen.americas.sgi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16f8Ey-0002qn-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On February 26, 2002 10:56 pm, Steve Lord wrote:
+> On Tue, 2002-02-26 at 15:06, Andreas Dilger wrote:
+> > On Feb 26, 2002  12:38 -0800, Dennis, Jim wrote:
+> > >  Now I need to know about the status of several unofficial patches:
+> > 
+> > While my word is by no means official, my general understanding is:
+> > 
+> > > 	XFS
+> > 
+> > Not for 2.4 - just too many changes to the core kernel code.
+> 
+> Someone has got to kill this assumption people have about XFS, it
+> makes much smaller changes than some things which have gone in,
+> the odd VM rewrite here and there to name some. Given that we now
+> have official EA system calls, the last chunk of stuff to resolve
+> is quota. This is being worked on with Jan Kara.
 
-hi,
+I'd really like to see XFS go in, but don't you think 2.5 is the place,
+with a view to 2.4 submission in due course?
 
-by checking 2.4.18, I saw that "CONFIG_PNP" is not in use in the
-source anymore except in Documentation/Configure.help and as a
-variable that CONFIG_ISAPNP depends on.
+As far as making the case goes, do you have time to make a list of
+places where XFS goes outside fs/xfs, and why?
 
-=> remove.
-
-as a side note, I'd want to know how linux is configuring
-the PCI devices, when e.g. in the Bios Settings I say
-"Yes - PNP aware OS installed".
-
-reason I ask is because I get IRQ routing conflicts
-with cardbus (PCI to PCMCIA bridge) / PC-Card Adapter / FlashRAM.
-
-can also someone tell me which variable the "CONFIG_PNPBIOS" options
-depends on? this seems to be another variable which is only
-"used" on Documentation/Configure.help.
-
-according to the documentation of "CONFIG_PNP", Linux configures
-my Plug and Play devices. Alternatively ... the user space utils
-from isapnptools. this sounds like linux does not configure
-PCI devices and therefore, the "PNP Aware OS" should always be
-set to "N" in the BIOS - is this correct?
-
-/herp
-
-
-
+-- 
+Daniel

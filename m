@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279805AbRKINj6>; Fri, 9 Nov 2001 08:39:58 -0500
+	id <S279166AbRKINkG>; Fri, 9 Nov 2001 08:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbRKINjp>; Fri, 9 Nov 2001 08:39:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:14 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279805AbRKINjb>;
-	Fri, 9 Nov 2001 08:39:31 -0500
-Date: Fri, 9 Nov 2001 14:39:30 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, alan@lxorguk.ukuu.org.uk, anton@samba.org, mingo@elte.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-Message-ID: <20011109143930.C30575@wotan.suse.de>
-In-Reply-To: <E162BFV-0002y1-00@the-village.bc.nu> <20011109.045455.74749430.davem@redhat.com> <20011109141755.A30575@wotan.suse.de> <20011109.052554.41631501.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20011109.052554.41631501.davem@redhat.com>; from davem@redhat.com on Fri, Nov 09, 2001 at 05:25:54AM -0800
+	id <S279798AbRKINj7>; Fri, 9 Nov 2001 08:39:59 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:46720 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S279166AbRKINjm>; Fri, 9 Nov 2001 08:39:42 -0500
+Date: Fri, 9 Nov 2001 08:39:33 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: System Attendant <f5-exchange3-sa@f5.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ScanMail Message: To Sender virus found and action taken.
+In-Reply-To: <C18AF98DFF16D411925000508BA5547903FE130C@f5-exchange3.win.net>
+Message-ID: <Pine.LNX.3.95.1011109083657.4187A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 09, 2001 at 05:25:54AM -0800, David S. Miller wrote:
-> Why in the world do we need indirection function call pointers
-> in TCP to handle that?
+On Fri, 9 Nov 2001, System Attendant wrote:
 
-To handle the case of not having a separate TIME-WAIT table
-(sorry for being unclear). Or alternatively several conditionals. 
+> ScanMail for Microsoft Exchange has detected virus-infected attachment(s).
+> 
+> Sender = root@chaos.analogic.com
+> Recipient(s) = chandler@grammatech.com;linux-kernel@vger.kernel.org
+> Subject = Re: Bug Report: Dereferencing a bad pointer
+> Scanning Time = 11/09/2001 05:36:16
+> 
+> Action on virus found:
+> The attachment grok.sh matched file blocking settings.
+> ScanMail has Deleted it. 
+> 
+> Warning to sender. ScanMail detected a virus in an email attachment you sent.
+> 
 
--Andi
+You are an idiot! You have deleted a correctly-written important
+shell-script. You, again, are an IDIOT, IDIOT, IDIOT, IDIOT, creep.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

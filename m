@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275241AbTHMQIN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 12:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275245AbTHMQIN
+	id S275247AbTHMQOo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 12:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275248AbTHMQOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 12:08:13 -0400
-Received: from routeree.utt.ro ([193.226.8.102]:8832 "EHLO klesk.etc.utt.ro")
-	by vger.kernel.org with ESMTP id S275241AbTHMQIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 12:08:12 -0400
-Message-ID: <49589.194.138.39.55.1060791255.squirrel@webmail.etc.utt.ro>
-Date: Wed, 13 Aug 2003 19:14:15 +0300 (EEST)
-Subject: 2.6.0-test3-mm1 with O14
-From: "Szonyi Calin" <sony@etc.utt.ro>
-To: <kernel@kolivas.org>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
+	Wed, 13 Aug 2003 12:14:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:12677 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S275247AbTHMQOm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 12:14:42 -0400
+Date: Wed, 13 Aug 2003 12:16:47 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Bogus serial port ttyS02
+In-Reply-To: <Pine.GSO.4.21.0308131601070.11378-100000@vervain.sonytel.be>
+Message-ID: <Pine.LNX.4.53.0308131202410.10804@chaos>
+References: <Pine.GSO.4.21.0308131601070.11378-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, 13 Aug 2003, Geert Uytterhoeven wrote:
 
-For me it (2.6.0-test3-mm1) works better than G2 from Ingo.
-I can do make -j 15 bzImage and watch a movie in the same time.
-I didn't try more than 15 :-)
+>
+> Linux always finds 3 serial ports instead of 2:
+>
+> | ttyS00 at 0x03f8 (irq = 4) is a 16550A
+> | ttyS01 at 0x02f8 (irq = 3) is a 16550A
+> | ttyS02 at 0x03e8 (irq = 4) is a 16450
+>
+> The last one is bogus.
 
-Thanks
+First, this looks like ix86 stuff, not m68k. Drivers for ix86
+machines probe the de facto addresses for up to a maximum of
+4 8250-type UARTS. Those addresses are:
 
-Bye
-Calin
+(0)	0x3f8
+(1)	0x2f8
+(2)	0x3e8
+(3)	0x328
 
--- 
-# fortune
-fortune: write error on /dev/null --- please empty the bit bucket
+(from the Phoenix SYSTEM BIOS book)
+
+Usually, there are several bits that are permanently 0 in
+some of the registers. This is used to "positively" identify
+the chip. Note that many IR devices are also connected
+to 8250-type UARTS.
+
+I would guess that you have two serial ports, plus another
+UART that's used for IR (maybe a IR keyboard???).
+
+You can do `od /dev/ttyS2` from the root account and see
+what happends.
 
 
------------------------------------------
-This email was sent using SquirrelMail.
-   "Webmail for nuts!"
-http://squirrelmail.org/
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUIOI5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUIOJFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUIOI5v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 04:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUIOI5v
+	id S263770AbUIOJFr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 05:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUIOJFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 04:57:51 -0400
-Received: from pop.gmx.de ([213.165.64.20]:13501 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263893AbUIOI5d (ORCPT
+	Wed, 15 Sep 2004 05:05:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32736 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264256AbUIOJBM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 04:57:33 -0400
-X-Authenticated: #4512188
-Message-ID: <41480401.8030903@gmx.de>
-Date: Wed, 15 Sep 2004 10:57:37 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Thomas S. Iversen" <zensonic@zensonic.dk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Losing too many ticks! .... on a VIA epia board
-References: <4146A09A.9010207@zensonic.dk> <41476812.7000401@zensonic.dk>
-In-Reply-To: <41476812.7000401@zensonic.dk>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 05:01:12 -0400
+Date: Wed, 15 Sep 2004 10:59:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lars =?iso-8859-1?Q?T=E4uber?= <taeuber@informatik.hu-berlin.de>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: cdrom recognition on kernel 2.6.8.1
+Message-ID: <20040915085939.GU2304@suse.de>
+References: <20040915093635.1a8f08ff.taeuber@bbaw.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040915093635.1a8f08ff.taeuber@bbaw.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Sep 15 2004, Lars Täuber wrote:
+> Hallo everybody,
+> 
+> I'm not subscribed to this list! But I read the archive from time to time.
+> 
+> In my linux box is a teac IDE CD-Rom drive. This is only recognised
+> when no audio cd is in the drive while booting.  Is this a drive
+> failure, or a kernel failure?
+> 
+> I didn't find any other on the net with the same problem. So hopefully
+> someone of you can explain?
+> 
+> ............
+> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> NFORCE3-150: IDE controller at PCI slot 0000:00:08.0
+> NFORCE3-150: chipset revision 165
+> NFORCE3-150: not 100% native mode: will probe irqs later
+> NFORCE3-150: 0000:00:08.0 (rev a5) UDMA133 controller
+>     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+> libata version 1.02 loaded.
+> sata_sil version 0.54
+> ACPI: PCI interrupt 0000:01:07.0[A] -> GSI 11 (level, low) -> IRQ 11
+> ............
 
-Thomas S. Iversen wrote:
-| Thomas S. Iversen wrote:
-|
-|> Any clues to what is wrong and how I go about fixing it?!
-|
-|
-| Well, I made a kernel without acpi support and the problem went away.
-| Any clues to why that solved the problem?
+Did 2.6.7 work? The ide-probe isn't finding your drive, that's very odd.
+I think this is an issue with your hardware, not Linux. Perhaps you can
+use the drive if you add hdc=cdrom to your boot line.
 
-Frequency scaling or anything alike? Have you tried using acpi pm timer?
-This should prevent you from losing ticks.
+-- 
+Jens Axboe
 
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBSAQAxU2n/+9+t5gRAlw9AJ0ZXpDxhh+fhhmBrCIrplLFwNriSACgskqi
-1xrE4nBXzzMoAjupSPecH48=
-=ia4X
------END PGP SIGNATURE-----

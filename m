@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269779AbUJMSmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269780AbUJMSpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269779AbUJMSmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 14:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269780AbUJMSmN
+	id S269780AbUJMSpu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 14:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269781AbUJMSpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 14:42:13 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:8600 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S269779AbUJMSmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 14:42:11 -0400
-Date: Wed, 13 Oct 2004 20:41:53 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 4level page tables for Linux
-Message-ID: <20041013184153.GO17849@dualathlon.random>
-References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost>
+	Wed, 13 Oct 2004 14:45:50 -0400
+Received: from mail.kroah.org ([69.55.234.183]:33735 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269780AbUJMSps (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 14:45:48 -0400
+Date: Wed, 13 Oct 2004 10:41:06 -0700
+From: Greg KH <greg@kroah.com>
+To: leif <leif@gci.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: patch: usb serial driver pl2303
+Message-ID: <20041013174106.GA17291@kroah.com>
+References: <0I5H00HK0OSMXZ@mmp-2.gci.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097606902.10652.203.camel@localhost>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <0I5H00HK0OSMXZ@mmp-2.gci.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 11:48:22AM -0700, Dave Hansen wrote:
-> @@ -110,13 +115,18 @@ int install_file_pte(struct mm_struct *m
->                 unsigned long addr, unsigned long pgoff, pgprot_t prot)
->  {
-> ...
-> +       pml4 = pml4_offset(mm, addr);
-> +
-> +       spin_lock(&mm->page_table_lock);
-> +       pgd = pgd_alloc(mm, pml4, addr);
-> +       if (!pgd)
-> +               goto err_unlock;
+On Tue, Oct 12, 2004 at 12:55:28PM -0800, leif wrote:
+> > From: leif [mailto:leif@gci.net] 
+> > Just a small patch to add support for the Microsoft branded 
+> > Pharos GPS-360.
+> > 
+> > The device uses the same driver, just requires the additional 
+> > product_id of 0xaaa0
+> > 
+> > 
+> > Please reply directly, as I'm not subscribed.
+> > 
 > 
-> Locking isn't needed for access to the pml4?  This is a wee bit
-> different from pgd's and I didn't see any documentation about it
+> eh.  My bad... That diff was a little screwy.
+> 
+> This one's been tested.
+> 
+> It's been a long day. :-)
 
-btw, locking isn't needed even for the pgd.
+Hm, I don't see your patch...
 
-fremap.c is the only one that gets it right:
+> begin 666 pl2303.diff
+> M9&EF9B M<G4@;&YX,C8Y<#0M;VQD+V1R:79E<G,O=7-B+W-E<FEA;"]P;#(S
 
-	pgd = pgd_offset(mm, addr);
-	spin_lock(&mm->page_table_lock);
-	pmd = pmd_alloc(mm, pgd, addr);
+Heh, uuencode.  Hm, care to read Documentation/SubmittingPatches and try
+it again?  Also be sure to CC: the maintainer of the driver you are
+patching, and please note the kernel tree that you are patching against.
 
-the rest is just overkill but it doesn't hurt in practice.
+thanks,
 
-after you add the 4level, locking will become necessary for the pgd, but
-it's still not needed for the pml4.
-
-I'm not very excited about changing the naming, of the pgd/pmd/pte so I
-like to keep it like it is now.
-
-peraphs we could consider pgd4 instead of pml4. What does "pml" stands
-for?
+greg k-h

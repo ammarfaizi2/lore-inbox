@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265897AbRFYSTm>; Mon, 25 Jun 2001 14:19:42 -0400
+	id <S265896AbRFYSSm>; Mon, 25 Jun 2001 14:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265898AbRFYSTc>; Mon, 25 Jun 2001 14:19:32 -0400
-Received: from mnh-1-11.mv.com ([207.22.10.43]:37384 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S265897AbRFYSTS>;
-	Mon, 25 Jun 2001 14:19:18 -0400
-Message-Id: <200106251933.OAA03356@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: "Bulent Abali" <abali@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        James Stevenson <mistral@stev.org>
-Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 12:48:46 -0400."
-             <OF831FC2D7.C211A862-ON85256A76.005AEC98@pok.ibm.com> 
+	id <S265897AbRFYSSc>; Mon, 25 Jun 2001 14:18:32 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:32272 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S265896AbRFYSSX>; Mon, 25 Jun 2001 14:18:23 -0400
+Date: Mon, 25 Jun 2001 19:18:13 +0100
+From: "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk>
+To: asmith@14inverleith.freeserve.co.uk
+Cc: William T Wilson <fluffy@snurgle.org>,
+        Rob Landley <landley@webofficenow.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alan Chandler <alan@chandlerfamily.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+Message-ID: <20010625191813.A5007@xyzzy.clara.co.uk>
+In-Reply-To: <Pine.LNX.4.21.0106242055390.2101-100000@benatar.snurgle.org> <Pine.LNX.4.33.0106251726390.18127-100000@vtrl22.vtrl.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 25 Jun 2001 14:33:54 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0106251726390.18127-100000@vtrl22.vtrl.co.uk>; from asmith@14inverleith.freeserve.co.uk on Mon, Jun 25, 2001 at 06:27:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-abali@us.ibm.com said:
-> Can you give more details? 
-
-BTW, here are a couple of the UML stacks:
-
-#3  0x1000895d in schedule () at sched.c:669
-#4 0x1001c9bd in ___wait_on_page (page=0x50025740) at filemap.c:641
-#5  0x1001d286 in do_generic_file_read (filp=0x50d4c674, ppos=0x50d4c694,
-    desc=0x50d1bea8, actor=0x1001d410 <file_read_actor>) at 
-/home/mistral/dev/kernel/linux-2.4.5-um-06-15/include/linux/pagemap.h:97
-#6  0x1001d528 in generic_file_read (filp=0x50d4c674, buf=0x401b7000 <Address 
-0x401b7000 out of bounds>, count=4096, ppos=0x50d4c694) at filemap.c:1302
-#7  0x1002ba2b in sys_read (fd=6, buf=0x401b7000 <Address 0x401b7000 out of 
-bounds>, count=4096) at read_write.c:133
-
-#3  0x1000895d in schedule () at sched.c:669
-#4  0x1001c9bd in ___wait_on_page (page=0x50015bb4) at filemap.c:641
-#5  0x1001a2e1 in do_swap_page (mm=0x5009ea34, vma=0x50f83dac, 
-address=3212835782, page_table=0x50d5cffc, entry={val = 202240}, 
-write_access=0) at /home/mistral/dev/kernel/linux-2.4.5-um7/include/linux/pagem
-ap.h:97
-#6  0x1001a733 in handle_mm_fault (mm=0x5009ea34, vma=0x50f83dac, 
-address=3212835782, write_access=0) at memory.c:1307
-#7  0x10012c40 in access_one_page (mm=0x5009ea34, vma=0x50f83dac, 
-addr=3212835782, buf=0x5153e000, len=15, write=0) at ptrace.c:78
-#8  0x10012cd8 in access_mm (mm=0x5009ea34, vma=0x50f83dac, addr=3212835782, 
-buf=0x5153e000, len=15, write=0) at ptrace.c:104
-#9  0x10012d5b in access_process_vm (tsk=0x50db0000, addr=3212835782, 
-buf=0x5153e000, len=15, write=0) at ptrace.c:147
-#10 0x1004656b in proc_pid_cmdline (task=0x50db0000, buffer=0x5153e000 "74 66 
-64 8 0 58 14\n") at base.c:157
-#11 0x10046914 in proc_info_read (file=0x50d4eefc, buf=0xbf7ff0b0 
-"/proc/117/cmdline", count=2047, ppos=0x50d4ef1c) at base.c:288
-#12 0x1002ba2b in sys_read (fd=6, buf=0xbf7ff0b0 "/proc/117/cmdline", 
-count=2047) at read_write.c:133
-
-There are a few more at http://www.geocrawler.com/lists/3/SourceForge/709/0/598
-8636/
-
-				Jeff
+Hi,
 
 
+On Mon, Jun 25, 2001 at 06:27:24PM +0100, asmith@14inverleith.freeserve.co.uk wrote:
+> I first used  Unix on a PDP11/44 whilst studying for my Computer Engineering
+> degree at Heriot-Watt University in Edinburgh.  I think they and Queen Margaret
+> College, London were the first folk running Unix version 6 outside Bell Labs.
+
+Hey! Don't forget UKC ;-) Cut my teeth on pdp11 v6 and VAXen BSD 4.1 once I got
+away from the dreaded EMAS. Edinbugh Multi-Access System was the pitts.
+
+> I then used SCO Xenix 286 on early Compaq 286 PC's.   Companies like Chase,
+> Specialix and Stallion grew up as suppliers of intelligent RS-232 boards.  As
+> a result of all these Xenix machines, Wyse sold a hell of a lot of WY50
+> terminals.
+
+Great days.  The business was so incestuous.  We seemed to swap engineers on a
+regular basis.  Hacking drivers without kernel source and documentation that
+always seemed at least a release behind.  Still keep a WY60 manual on my book
+shelf and always regret losing the VT100 one.
+
+> Who remembers terminals from Lear Siegler and Beehive.   All this was before
+> networking came about.  Then the Chase Iolan to connect these same Wyse
+> terminals to the SCO box but through one bit of co-ax instead of multi-core
+> cables.  Also you could get 100m  away from your SCO box  with co-ax.
+
+And the trouble we had explaining to customers that they had to buy a separate
+SCO TCP/IP networking package just to hook up the IOLAN.
+
+
+
+-- 
+        Bob Dunlop
+        rjd@xyzzy.clara.co.uk
+        www.xyzzy.clara.co.uk

@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290736AbSARQmW>; Fri, 18 Jan 2002 11:42:22 -0500
+	id <S290735AbSARQkv>; Fri, 18 Jan 2002 11:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290737AbSARQmL>; Fri, 18 Jan 2002 11:42:11 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:2576 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S290736AbSARQl5>;
-	Fri, 18 Jan 2002 11:41:57 -0500
-Date: Fri, 18 Jan 2002 08:39:26 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Roger W.Brown" <bregor@anusf.anu.edu.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Type-change of kdev_t
-In-Reply-To: <20020118134245.630F6706B1@argo.anu.edu.au>
-Message-ID: <Pine.LNX.4.33L2.0201180836550.13155-100000@dragon.pdx.osdl.net>
+	id <S290737AbSARQka>; Fri, 18 Jan 2002 11:40:30 -0500
+Received: from server1.symplicity.com ([209.61.154.230]:32004 "HELO
+	mail2.symplicity.com") by vger.kernel.org with SMTP
+	id <S290735AbSARQkV>; Fri, 18 Jan 2002 11:40:21 -0500
+From: "Alok K. Dhir" <alok@dhir.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Autostart RAID 1+0 (root)
+Date: Fri, 18 Jan 2002 11:40:55 -0500
+Message-ID: <001201c1a03e$e654acd0$9865fea9@pcsn630778>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jan 2002, Roger W.Brown wrote:
 
-|
-|   Hi,
-|
-|       I'm no kernel hacker so I am little hesitant to speak; however,
-|   I'm looking at kdev_t.h from the linux-2.5.3-pre1 source.
-|
-|   The type of kdev_t has changed recently from a scalar type to a
-|   structured type.  Should macro definitions such as MINOR(dev) also
-|   be revised to be consistent with the "new" kdev_t ?
+Hey all - I may be trying to do the impossible here, but here goes:
 
-Macros to use kdev_t also changed.
+I want to test using a software RAID 1+0 partition as root: md0 and md1
+set up as mirrors between two disks each, and md2 set up as a stripe
+between md0 and md1.  However, the RedHat 7.2 installer doesn't allow
+creating nested RAID partitions.
 
-|   Something like:
-|
-|   #define MINOR(dev)  ((unsigned int) ((dev.value) & MINORMASK))
-|
-|   rather than
-|
-|   #define MINOR(dev)  ((unsigned int) ((dev) & MINORMASK))
-|
-|   Then usage of the MINOR() macro remains unchanged.
+Being stubborn, I installed the OS onto a separate 4 gig disk, installed
+all the latest patches+fixes to the OS, including the RH2.4.9-13 kernel,
+then created md0, md1, and md2.  I formatted md2 with reiserfs.  No
+problem so far.
 
-Nope, use major() and minor() instead [although I prefer
-the kmajor() and kminor() patch].
+Next, I copied the entire contents of the root partition onto md2,
+changed the relevant line of /boot/grub/grub.conf from:
 
-See http://www.osdl.org/archive/rddunlap/linux-port-25x.html,
-item 7, bullet 3, which points to an email from one Linus Torvalds
-about the kdev_t change.
+	kernel /vmlinuz-2.4.9-13 ro root=/dev/sda2
 
--- 
-~Randy
+To:
+
+	kernel /vmlinuz-2.4.9-13 ro root=/dev/md2
+
+Changed fstab so "/" points to /dev/md2 as well, crossed my fingers, and
+rebooted.
+
+No luck.  I get a "cannot mount root" error.
+
+Attempting to speed read the boot messages before I get the panic, it
+appears that md0 and md1 are autostarted, but it doesn't look like md2
+is.
+
+Does the kernel support autostarting nested RAID partitions?
+
+Is doing software 1+0 a bad idea anyway due to performance issues?
+
+Any ideas?
+
+Thanks!
 

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267053AbRHMTt4>; Mon, 13 Aug 2001 15:49:56 -0400
+	id <S265249AbRHMTw4>; Mon, 13 Aug 2001 15:52:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267018AbRHMTtq>; Mon, 13 Aug 2001 15:49:46 -0400
-Received: from mail-klh.telecentrum.de ([213.69.31.130]:61960 "EHLO
-	mail-klh.telecentrum.de") by vger.kernel.org with ESMTP
-	id <S267009AbRHMTth>; Mon, 13 Aug 2001 15:49:37 -0400
-Message-ID: <3B782F19.53010F57@topit.de>
-Date: Mon, 13 Aug 2001 21:48:41 +0200
-From: Ronald Jeninga <rj@topit.de>
-Reply-To: rj@topit.de
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
+	id <S267018AbRHMTwq>; Mon, 13 Aug 2001 15:52:46 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:1544 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S265249AbRHMTwh>; Mon, 13 Aug 2001 15:52:37 -0400
+Date: Mon, 13 Aug 2001 15:52:37 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
+In-Reply-To: <E15WLxI-0007tC-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108131550470.3127-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-To: Mircea Ciocan <mirceac@interplus.ro>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Is there something that can be done against this ???
-In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu> <3B7822E5.9AE35D4A@interplus.ro>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll have to dissapoint you, worked perfect over here
-(Kernel 2.2.19, ld version 2.9.5 (with BFD 2.9.5.0.24), libc-2.1.3-141).
+On Mon, 13 Aug 2001, Alan Cox wrote:
 
-feeling uncomfortable,
+> > On Mon, Aug 13, 2001, Peter J. Braam <braam@clusterfs.com> wrote:
+> > > I have a Logitech Internet USB keyboard, attached to an IBM TP T20.
+> > >
+> > > In the above system pressing Caps lock twice (i.e. switching capslock
+> > > off) freezes the system completely.
+> > >
+> > > The last system that didn't do so for me was Rosswell's kernel.
+> > > Does anyone know about this?  Thanks a lot!
+> >
+> > Rosswell?
+>
+> Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
+> in the USB and input updates in -ac
 
-Ronald
+After extracting the kernel package, it looks like 2.4.6-ac5.
 
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
-Mircea Ciocan wrote:
-> 
->         The attached piece of script kiddie shit is the first one that worked
-> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
-> instant root access !!!.
->         I was stunned, and it seem that is the beginning of a Linux Code Red
-> lookalike worm :(((( using that exploit, probably this is not the most
-> apropriate place to send this, but I'm not subscribed to the glibc
-> mailing list and I just hope that some glibc hackers are on linux kernel
-> list also and they see that and do something before we join the ranks of
-> M$.
-> 
->                 Dead worried,
-> 
->                 Mircea C.
-> 
-> P.S. Please tell me that I'm just being parnoid and that crap didn't
-> work on your systems with a lookalike configuration.
-> 
->   --------------------------------------------------------------------------------
->                Name: smile.sh
->    smile.sh    Type: Bourne Shell Program (application/x-sh)
->            Encoding: quoted-printable

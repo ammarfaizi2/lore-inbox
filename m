@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263630AbTEMLXg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 07:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTEMLXg
+	id S263610AbTEMLbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 07:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTEMLbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 07:23:36 -0400
-Received: from pat.uio.no ([129.240.130.16]:29098 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263630AbTEMLXe (ORCPT
+	Tue, 13 May 2003 07:31:00 -0400
+Received: from [195.174.200.15] ([195.174.200.15]:42001 "HELO yahoo.com")
+	by vger.kernel.org with SMTP id S263610AbTEMLa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 07:23:34 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-References: <20030512155417.67a9fdec.akpm@digeo.com>
-	<20030512155511.21fb1652.akpm@digeo.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 May 2003 13:36:14 +0200
-In-Reply-To: <20030512155511.21fb1652.akpm@digeo.com>
-Message-ID: <shswugvjcy9.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 13 May 2003 07:30:59 -0400
+Message-ID: <32e501c318fe$25b514d0$ea280592@lau>
+Reply-To: <admin438@yahoo.com>
+From: <admin438@yahoo.com>
+To: friend@vger.kernel.org
+Subject: Do you need leads?
+Date: Mon, 12 May 2003 22:17:12 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V10.0.2627
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Morton <akpm@digeo.com> writes:
+Hi,
 
-     > - NFS client gets an OOM deadlock.
-     > - Some fixes exist in -mm.  Seem to mostly work.
-     > - NFS client runs very slowly consuming 100% CPU under heavy
-     >   writeout.
-     > - Unsubtle fix exists in -mm.  (Looks like it's fixed anyway).
+I'm also an internet marketer and I like to help when I can.
+This internet is such a maze, sometimes a good tip can really help.
 
-<snip>
+I remember how it feels to continually pay for advertising my 
+website and to always be in lack of traffic unless I would get
+more money out of my pocket again and again.  
 
-     > - davej: NFS seems to have a really bad time for some people.  (Including
-     >   myself on one testbox).  The common factor seems to be a high
-     >   spec client torturing an underpowered NFS server with lots of
-     >   IO.  (fsx/fsstress etc show this up).  Lots of "NFS server
-     >   cheating" messages get dumped, and a whole lot of bogus
-     >   packets start appearing.  They look severely corrupted, (they
-     >   even crashed ethereal once 8-)
+I felt like that untill I discovered a good resource.  It provides
+me with a steady stream of fresh, exclusive, pre-qualified leads.
+Not the regular recycled leads we see everywhere.  These
+are generated in "real time" and are not shared with anyone
+else.  It's made all the difference for my business.  Since then,
+I'm experiencing great results and spending a fraction of what 
+I used to.
 
-Could people please test these items out again using the latest
-Bitkeeper release? I believe I've addressed all these issues with the
-patches that have gone to Linus in the last 2-3 weeks.
+If you would be interested to know where I get these leads,
+simply click on the email address below and email me with
+your name and phone #.  I'll be happy to provide you with
+the link for more info.
 
-Cheers,
-  Trond
+mailto:jpd038@hotmail.com
+
+Respectfully Yours,
+
+Mark

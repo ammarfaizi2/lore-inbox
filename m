@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbUJ1WGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbUJ1WIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbUJ1WGp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 18:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbUJ1WGp
+	id S261982AbUJ1WIM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 18:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbUJ1WIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 18:06:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:21006 "HELO
+	Thu, 28 Oct 2004 18:08:12 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28686 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262893AbUJ1WFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 18:05:44 -0400
-Date: Fri, 29 Oct 2004 00:05:11 +0200
+	id S263035AbUJ1WHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 18:07:34 -0400
+Date: Fri, 29 Oct 2004 00:06:59 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/adfs: remove an unused function
-Message-ID: <20041028220511.GF3207@stusta.de>
+To: bcrl@redhat.com
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] aio: remove an unused function
+Message-ID: <20041028220659.GG3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
@@ -25,47 +25,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-The patch below removes an unsed fubnction from fs/adfs/dir_f.c
+The patch below removes an unsed function from fs/aio.c
 
 
 diffstat output:
- fs/adfs/dir_f.c |   17 -----------------
- 1 files changed, 17 deletions(-)
+ fs/aio.c |   18 +-----------------
+ 1 files changed, 1 insertion(+), 17 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-- --- linux-2.6.10-rc1-mm1-full/fs/adfs/dir_f.c.old	2004-10-28 22:40:09.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/fs/adfs/dir_f.c	2004-10-28 22:40:20.000000000 +0200
-@@ -65,23 +65,6 @@
- 	return buf - old_buf;
- }
+- --- linux-2.6.10-rc1-mm1-full/fs/aio.c.old	2004-10-28 22:36:18.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/fs/aio.c	2004-10-28 22:39:38.000000000 +0200
+@@ -816,27 +816,11 @@
  
-- -static inline void adfs_writename(char *to, char *from, int maxlen)
+ 
+ /*
+- - * aio_run_iocbs:
+  * 	Process all pending retries queued on the ioctx
+  * 	run list.
+  * Assumes it is operating within the aio issuer's mm
+  * context.
+- - */
+- -static inline void aio_run_iocbs(struct kioctx *ctx)
 - -{
-- -	int i;
+- -	int requeue;
 - -
-- -	for (i = 0; i < maxlen; i++) {
-- -		if (from[i] == '\0')
-- -			break;
-- -		if (from[i] == '.')
-- -			to[i] = '/';
-- -		else
-- -			to[i] = from[i];
-- -	}
+- -	spin_lock_irq(&ctx->ctx_lock);
 - -
-- -	for (; i < maxlen; i++)
-- -		to[i] = '\0';
+- -	requeue = __aio_run_iocbs(ctx);
+- -	spin_unlock_irq(&ctx->ctx_lock);
+- -	if (requeue)
+- -		aio_queue_work(ctx);
 - -}
 - -
- #define ror13(v) ((v >> 13) | (v << 19))
- 
- #define dir_u8(idx)				\
+- -/*
+- - * just like aio_run_iocbs, but keeps running them until
+- - * the list stays empty
++ * It keeps running them until the list stays empty.
+  */
+ static inline void aio_run_all_iocbs(struct kioctx *ctx)
+ {
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBgW0XmfzqmE8StAARAravAJ9B83nOm8MpMkQZF0GXS+/kXhRBggCgq/mj
-df8x0Gf5GHsyvtBxWwWGY9w=
-=BvbY
+iD8DBQFBgW2DmfzqmE8StAARAorwAJ4g70Au9T46kK4uuqpnP83EAbRRDQCgq9dC
+r9SmGUkMuWe15aer7F0Fy64=
+=Pq/l
 -----END PGP SIGNATURE-----

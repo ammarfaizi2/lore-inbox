@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263563AbUECCqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUECCpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbUECCqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 22:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUECCqO
+	id S263555AbUECCpt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 22:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUECCpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 22:46:14 -0400
-Received: from relay02.roc.ny.frontiernet.net ([66.133.131.35]:44775 "EHLO
-	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S263563AbUECCqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 22:46:03 -0400
-Message-ID: <4095B242.2060001@xfs.org>
-Date: Sun, 02 May 2004 21:45:22 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+	Sun, 2 May 2004 22:45:49 -0400
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:48324 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S263555AbUECCpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 22:45:46 -0400
+Message-ID: <4095B25D.2020607@backtobasicsmgmt.com>
+Date: Sun, 02 May 2004 19:45:49 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Journaling File Sstem Question
-References: <BAY18-F4FXfyY0QUUBP00002758@hotmail.com>
-In-Reply-To: <BAY18-F4FXfyY0QUUBP00002758@hotmail.com>
+To: Peter Hernberg <petehern@yahoo.com>
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Implementing an "on demand" routing protocol?
+References: <1083549369.613.23.camel@mine>
+In-Reply-To: <1083549369.613.23.camel@mine>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> Concerning JFS vs REISERFS vs XFS...
-> 
-> Which would one use for stability?
-> 
-> I realize XFS has been in use probably longer than the other two on 
-> SGI's, but in Linux it was only recently merged into the 2.4.xx kernel.
-> 
-> However, ReiserFS has been in the 2.4 kernel since the early 2.4.x 
-> series, JFS on the other hand is somewhere in the middle.
+Peter Hernberg wrote:
 
-XFS was out there for a couple of years before it was merged. XFS was
-out there before reiserfs was merged, we first released against 2.3.43
-from my memory.
+> Is there an interface whereby the kernel can be told "when you have a
+> packet, but lack a route to its destination, pass a message to this
+> daemon requesting a route and buffer that packet until the daemon is
+> done searching for route"? Any info would be appreciated.
 
-There is a timeline here:
-
-http://oss.sgi.com/projects/xfs/news.html
-
-XFS went a lot of places before it went into the 2.4 kernel, it has been
-in 2.6 for over a year for starters.
-
-Steve
-
+A starting point might be a daemon that listens on a tun interface, with 
+that interface being the target of a "default" route. The daemon can 
+then receive the packets, do what it likes with them, add routes to the 
+routing table, then reinject the packets back into the tun interface 
+once the route is in place.

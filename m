@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264401AbUEIWRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUEIWSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbUEIWRP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 18:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUEIWRP
+	id S264405AbUEIWSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 18:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUEIWSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 18:17:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19870 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264401AbUEIWRO
+	Sun, 9 May 2004 18:18:23 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:65471 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S264405AbUEIWSL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 18:17:14 -0400
-Date: Sun, 9 May 2004 23:17:12 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       davej@redhat.com, wli@holomorphy.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: dentry bloat.
-Message-ID: <20040509221712.GA17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040508012357.3559fb6e.akpm@osdl.org> <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <409DDDAE.3090700@colorfullife.com> <20040509153316.GE4007@in.ibm.com>
+	Sun, 9 May 2004 18:18:11 -0400
+Subject: Re: 2.6.6-rc3-mm2
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: Andy Lutomirski <luto@myrealbox.com>, "R. J. Wysocki" <rjwysocki@sisk.pl>,
+       Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040509133231.GA25195@colin2.muc.de>
+References: <fa.gcf87gs.1sjkoj6@ifi.uio.no> <fa.freqmjk.11j6bhe@ifi.uio.no>
+	 <409D3507.2030203@myrealbox.com>  <20040509133231.GA25195@colin2.muc.de>
+Content-Type: text/plain
+Message-Id: <1084141013.28220.8.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040509153316.GE4007@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 10 May 2004 08:16:53 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 09:03:16PM +0530, Dipankar Sarma wrote:
- 
-> Actually, what may happen is that since the dentries are added
-> in the front, a double move like that would result in hash chain
-> traversal looping. Timing dependent and unlikely, but d_move_count
-> avoided that theoritical possibility. It is not about skipping
-> dentries which is safe because a miss would result in a real_lookup()
+On Sun, 2004-05-09 at 23:32, Andi Kleen wrote:
+> It is all the fault of Move-saved_command_line-to-init-mainc.patch
+> which unfortunately has been in -mm* for some time.
+> 
+> It simply breaks all boot arguments on x86-64.
 
-Not really.  A miss could result in getting another dentry allocated
-for the same e.g. directory, which is *NOT* harmless at all.
+How about debugging a known problem instead of whining how your arch was
+broken by a simple change required to consolidate early parameter
+parsing sanely?
+
+I suspect that the problem is caused by x86_64 not saving the
+commandline correctly, and this change has merely made the bug worse.
+
+You copy the command line to saved_command_line twice: once in head64.c
+and once in setup.c.  Why?  In head64.c you don't terminate it, in
+setup.c you do.  Which is right?  There are printks of
+saved_command_line in head64.c and main.c, what do they say?
+
+I don't have an x86_64 box, and I ask *again* if someone who does can
+take a look at the problem...
+
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUDXJ0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUDXKDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUDXJ0G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 05:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUDXJ0F
+	id S262073AbUDXKDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 06:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUDXKDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 05:26:05 -0400
-Received: from tan7.ncr.com ([192.127.94.7]:48928 "EHLO ncrhub2.NCR.COM")
-	by vger.kernel.org with ESMTP id S262114AbUDXJ0D (ORCPT
+	Sat, 24 Apr 2004 06:03:52 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:44437 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262073AbUDXKDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 05:26:03 -0400
-Date: Sat, 24 Apr 2004 05:26:02 -0400 (EDT)
-From: Mail Delivery Subsystem <MAILER-DAEMON@ncrhub2.NCR.COM>
-Message-Id: <200404240926.i3O9Q21v021877@ncrhub2.NCR.COM>
-To: <linux-kernel@vger.kernel.org>
-Subject: Returned mail: see transcript for details
-Auto-Submitted: auto-generated (failure)
+	Sat, 24 Apr 2004 06:03:50 -0400
+Message-ID: <408A3B82.5020807@softhome.net>
+Date: Sat, 24 Apr 2004 12:03:46 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla Thunderbird 0.5+ (Macintosh/20040414)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Guennadi Liakhovetski <gl@dsa-ac.de>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [somewhat OT] binary modules agaaaain
+References: <1MJlZ-4mT-47@gated-at.bofh.it>
+In-Reply-To: <1MJlZ-4mT-47@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The original message was received at Sat, 24 Apr 2004 05:26:01 -0400 (EDT)
-from localhost [127.0.0.1]
+Guennadi Liakhovetski wrote:
+> Hello all
+> 
+> I came across an idea, how Linux could allow binary modules, still having
+> reasonable control over them.
+> 
+> I am not advocating for binary modules, nor I am trying to make their life
+> harder, this is just an idea how it could be done.
+> 
+> I'll try to make it short, details may be discussed later, if any interest
+> arises.
+> 
+> A binary module is "considered good" if
+> 
 
-   ----- The following addresses had permanent fatal errors -----
-<parmee@postecss.ncrfran.france.ncr.com>
-    (reason: 550 Host unknown)
+   I belive that you forgot to make "The Point."
 
-   ----- Transcript of session follows -----
-550 5.1.2 <parmee@postecss.ncrfran.france.ncr.com>... Host unknown (Name server: postecss.ncrfran.france.ncr.com.: host not found)
+   And "discussion" (good vs. bad isn't discussion, but flames) went in 
+wrong direction.
 
-   ----- Message header follows -----
+   Be constructive. For example: Let's aks h/w producers making at least 
+glue layer open source (bsd or something), so people eventually might 
+help to maintain this glue layer.
+   How it can help? - producer with time may move bigger parts of driver 
+into open source domains.
+   How it can gets screwed? - producer might just start liking when 
+someone is doing his work for him. Some license a-la GPL to not let glue 
+layer to slip into binary only domain back must be in place.
 
-Return-Path: <linux-kernel@vger.kernel.org>
-Received: from ncrgw2.NCR.COM (localhost [127.0.0.1])
-	by ncrhub2.NCR.COM (8.12.10/8.12.10) with ESMTP id i3O9Q11v021875
-	for <parmee@postecss.ncrfran.france.ncr.com>; Sat, 24 Apr 2004 05:26:01 -0400 (EDT)
-Received: from postecss.ncrfran.france.ncr.com (bb-203-125-90-178.singnet.com.sg [203.125.90.178])
-	by ncrgw2.NCR.COM (8.12.10/8.12.10) with ESMTP id i3O9PtZi018538
-	for <parmee@postecss.ncrfran.france.ncr.com>; Sat, 24 Apr 2004 05:25:56 -0400 (EDT)
-Message-Id: <200404240925.i3O9PtZi018538@ncrgw2.NCR.COM>
-From: linux-kernel@vger.kernel.org
-To: parmee@postecss.ncrfran.france.ncr.com
-Subject: Mail Delivery (failure parmee@postecss.ncrfran.france.ncr.com)
-Date: Sat, 24 Apr 2004 17:25:58 +0800
-MIME-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_000_001B_01C0CA80.6B015D10"
-X-Priority: 3
-X-MSMail-Priority: Normal
+   This could be a good starting point for h/w producers and linux 
+comunity as a whole.
 
-   ----- Message body suppressed -----
+   Saying Good/Bad is just B.S. - helps no-one.
+   Building bridges between comunity and producers - might improve and 
+deepen relationships. And that's what I hope for.
 
+P.S. nVidia driver might be an example: IIRC nVidia engineers were 
+saying that they have four 2/3rd party code parts inside driver, which 
+they are not able to open source/GPL. But open source glue layer to 
+connect this "tainted" 4 parts with Linux kernel might help everyone: 
+nVidia, LK and even those four companies. At least I hope for this.

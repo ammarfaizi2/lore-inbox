@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbTIDWxu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 18:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265449AbTIDWxu
+	id S262191AbTIDWpD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 18:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbTIDWpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 18:53:50 -0400
-Received: from ozlabs.org ([203.10.76.45]:29592 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264894AbTIDWxD (ORCPT
+	Thu, 4 Sep 2003 18:45:03 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:62425 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262191AbTIDWpB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 18:53:03 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16215.49718.212936.125402@nanango.paulus.ozlabs.org>
-Date: Fri, 5 Sep 2003 08:52:38 +1000 (EST)
-From: Paul Mackerras <paulus@samba.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Jake Moilanen <moilanen@austin.ibm.com>, Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH] linux-2.4.22 pci-scan-all-functions
-In-Reply-To: <Pine.A41.4.51.0309041015390.27258@wolverines.austin.ibm.com>
-References: <Pine.A41.4.51.0309041015390.27258@wolverines.austin.ibm.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	Thu, 4 Sep 2003 18:45:01 -0400
+Subject: Re: nommu.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Breno <brenosp@brasilsec.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <000901c38b8f$5c1e9c40$c5e4a7c8@bsb.virtua.com.br>
+References: <000901c38b8f$5c1e9c40$c5e4a7c8@bsb.virtua.com.br>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1062715437.22634.95.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Thu, 04 Sep 2003 23:43:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jake Moilanen writes:
+On Sul, 2003-10-05 at 23:23, Breno wrote:
+> What´s the idea to do "software mmu" in nommu.c ?
 
-> This patch is a port of some work that Anton Blanchard did for 2.6.
-> 
-> While doing a pci scan there are some architechtures that can have
-> multifunction devices that do not respond to function 0.  In that case we
-> must scan all functions.
+See www.uclinux.org
 
-I should point out that this is not because we actually have PCI
-devices that don't respond to function 0, which would be contrary to
-the PCI spec.  What is happening here is that with logical
-partitioning on ppc64 boxes, we can have function 0 of a PCI-PCI
-bridge assigned to one partition and function 2 (for example) assigned
-to a different partition.  On the second partition it looks like
-function 2 exists but function 0 doesn't (since we can't access it).
-
-Paul.

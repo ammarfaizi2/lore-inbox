@@ -1,82 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTHVOku (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 10:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263255AbTHVOku
+	id S263116AbTHVO4M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 10:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTHVO4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 10:40:50 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:53253 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263299AbTHVOkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 10:40:40 -0400
-Subject: Problems with kernel mmap (failing tst-mmap-eofsync in glibc on
-	parisc)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>
-Cc: davem@redhat.com, drepper@redhat.com
-Content-Type: multipart/mixed; boundary="=-lmHKO1hPltD8R1GkCOtr"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 22 Aug 2003 09:40:37 -0500
-Message-Id: <1061563239.2090.25.camel@mulgrave>
+	Fri, 22 Aug 2003 10:56:12 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:62179 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263116AbTHVO4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 10:56:09 -0400
+Date: Fri, 22 Aug 2003 15:55:15 +0100
+From: Dave Jones <davej@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, paul.devriendt@amd.com,
+       aj@suse.de
+Subject: Re: Cpufreq for opteron
+Message-ID: <20030822145515.GA21061@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>, paul.devriendt@amd.com,
+	aj@suse.de
+References: <20030822135946.GA2194@elf.ucw.cz> <20030822155207.A17469@infradead.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030822155207.A17469@infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 22, 2003 at 03:52:07PM +0100, Christoph Hellwig wrote:
+ > On Fri, Aug 22, 2003 at 03:59:46PM +0200, Pavel Machek wrote:
+ > > +	tristate "AMD K8 PowerNow!"
+ > > +	depends on CPU_FREQ_TABLE
+ > 
+ > shouldn't be this
+ > 	
+ > 	depends on CPU_FREQ?
 
---=-lmHKO1hPltD8R1GkCOtr
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+It implies CPU_FREQ. It's basically saying
 
-This test essentially opens a file (via open(2)), writes something,
-opens it via a mmaped file object *read only* (via fopen(...,"rm)) reads
-what was writtent, writes some more and reads it via the mmaped file
-object.
+	depends on CPU_FREQ && CPU_FREQ_TABLE
 
-This last read fails to get the data on parisc.  The problem is that our
-CPU cache is virtually indexed, and the page the write is storing the
-data to (in the buffer cache) and the page it is mmapped to have the
-same physical, but different virtual addresses.  We need the write() to
-trigger a cache update via flush_dcache_page to get the virtually
-indexed cache in sync.
+But in a shorthand..
 
-The reason this doesn't happen is because the mapping is not on the
-mmap_shared list that flush_dcache_page() updates.
+		Dave
 
-And the reason it's not on the correct list is because there's a check
-in mm/mmap.c:do_mmap_pgoff() that drops the VM_SHARED flag on the
-mapping if the file wasn't opened for writing (about line 541).
-
-Semantically, it seems that whether the mmaping sees a write or not on a
-different descriptor shouldn't depend on whether the underlying file was
-opened read only or read write, so I think the glibc test is correct,
-and we should keep the VM_SHARED flag even if the underlying file was
-opened read only.
-
-The patch is attached (and makes the test pass on parisc).
-
-Comments?
-
-James
-
-
---=-lmHKO1hPltD8R1GkCOtr
-Content-Disposition: attachment; filename=tmp.diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
-
-=3D=3D=3D=3D=3D mm/mmap.c 1.89 vs edited =3D=3D=3D=3D=3D
---- 1.89/mm/mmap.c	Thu Jul 10 21:46:52 2003
-+++ edited/mm/mmap.c	Fri Aug 22 09:36:32 2003
-@@ -539,7 +539,7 @@
-=20
- 			vm_flags |=3D VM_SHARED | VM_MAYSHARE;
- 			if (!(file->f_mode & FMODE_WRITE))
--				vm_flags &=3D ~(VM_MAYWRITE | VM_SHARED);
-+				vm_flags &=3D ~VM_MAYWRITE;
-=20
- 			/* fall through */
- 		case MAP_PRIVATE:
-
---=-lmHKO1hPltD8R1GkCOtr--
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

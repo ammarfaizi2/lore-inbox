@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUFTFaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264296AbUFTFcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbUFTFaE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 01:30:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUFTFaE
+	id S264296AbUFTFcL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 01:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbUFTFcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 01:30:04 -0400
-Received: from mail.autoweb.net ([198.172.237.26]:22533 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S264260AbUFTFaA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 01:30:00 -0400
-Date: Sun, 20 Jun 2004 01:28:36 -0400
-From: Ryan Anderson <ryan@michonline.com>
-To: linux-kernel@vger.kernel.org
-Cc: 4Front Technologies <dev@opensound.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040620052836.GC28363@michonline.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	4Front Technologies <dev@opensound.com>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Andrew Morton <akpm@osdl.org>
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <20040618102523.GA7103@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Jun 2004 01:32:05 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:41108 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264296AbUFTFa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 01:30:56 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 6/11] serio dynamic allocation
+Date: Sun, 20 Jun 2004 00:30:53 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, vojtech@ucw.cz
+References: <200406180335.52843.dtor_core@ameritech.net> <200406180340.55615.dtor_core@ameritech.net> <20040619220700.08425715.akpm@osdl.org>
+In-Reply-To: <20040619220700.08425715.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040618102523.GA7103@merlin.emma.line.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406200030.53331.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 12:25:23PM +0200, Matthias Andree wrote:
-> On Thu, 17 Jun 2004, 4Front Technologies wrote:
+On Sunday 20 June 2004 12:07 am, Andrew Morton wrote:
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> >
 > 
-> > That's right Al, 4Front, ATI, Nvidia are all evil!. OK so now get on with 
-> > life.
-> 
-> Does NVidia's code break on SuSE 9.1?
-> 
-> What do I need commercial OSS for after all when Alsa works well for me?
+> I8042_KBD_IRQ is not a constant on sparc64.
 
-Well, for what it's worth, there are a few devices out there for which
-there is no open source driver:
-0000:02:02.0 Multimedia audio controller: Creative Labs [SB Live! Value]
-EMU10k1X
-(Dell Dimension 2100, *I think* - it's at work right, and I'm not)
+Yes, what you see are leftovers from me missing that fact... 
 
-I believe 4Front provides the only driver for that specific device (it's
-a crippled EMU10k1, probably what could be called a "WinSoundchip")
+> 
+> It seems that simply removing that static initialiser will fix
+> it up, but I assume it was added for some reason, so I'll leave
+> you to ponder that.
+> 
+
+No, removing the initialization is the correct way to fix it. We can
+only assign these values after platform init is done.
+
+Sorry about the breakage.
 
 -- 
-
-Ryan Anderson
-  sometimes Pug Majere
+Dmitry

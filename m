@@ -1,163 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281555AbRKPVaV>; Fri, 16 Nov 2001 16:30:21 -0500
+	id <S281557AbRKPVfB>; Fri, 16 Nov 2001 16:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281559AbRKPVaN>; Fri, 16 Nov 2001 16:30:13 -0500
-Received: from ns.suse.de ([213.95.15.193]:58896 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281555AbRKPVaB>;
-	Fri, 16 Nov 2001 16:30:01 -0500
-Date: Fri, 16 Nov 2001 22:30:00 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] AMD SMP capability sanity checking.
-Message-ID: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>
+	id <S281558AbRKPVev>; Fri, 16 Nov 2001 16:34:51 -0500
+Received: from 20dyn241.com21.casema.net ([213.17.90.241]:44674 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S281557AbRKPVea>; Fri, 16 Nov 2001 16:34:30 -0500
+Message-Id: <200111162134.WAA22927@cave.bitwizard.nl>
+Subject: mmap not working?
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Date: Fri, 16 Nov 2001 22:34:24 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In the wake of the recent fallout of "are Athlon XP's SMP capable or not",
-the following patch adds some sanity checking to the SMP boot up code.
-This code is based upon information from the folks at AMD. There are
-no exceptions to these rules.
+Hi,
 
-Before sending this to Linus, I want to make sure I didn't do something
-dumb, like misplace a bracket, isolating a valid config.
-It works on systems I've tested it on so far, but obviously there are
-some combinations that are not tested.
+I want to mmap a device in an application, so I do: 
 
-Any "But my system is fine in SMP and isn't in the list" whinges won't
-get it added to the list. The list is compiled from AMD approved
-valid systems, added to by any system which reports itself as
-multiprocessor capable in its cpu flags.
+	base = mmap(NULL ,  DEV_LENGTH,  myprot , flags, kmem, dev_base); 
 
-Note, this code will not stop you from continuing to use unsupported
-configurations, but will..
-a. Print a boot time warning.
-b. Taint any oopses so that SMP problem oopses can be isolated easily.
+Turns out that some BIOSs put my device at an address like
 
-I repeat, there is *no* loss of functionality.
+	0xdffffc00
 
-Patch against 2.4.15pre5 follows.
+whereas others put it at 0xfa000000 . In the latter case, mmap works
+as expected. However in the first case I get EINVAL: The base is
+not page-aligned. 
 
-regards,
+However, in the latter case I get my requested 1k of memory, and the
+following 3k for free. In the first case I'd want "3k for free,
+followed by the 1k I requested".
 
-Dave.
+effectively, provided "start" equals NULL, the kernel IMHO should:
 
+	offset = dev_base & PAGE_MASK; 
+	return mmap (NULL, length+offset, prot, flags, base - offset) + offset; 
+Comments?
+
+The "failure" was observed on 2.4.14 and/or 2.4.9. 
+
+		Roger. 
+
+
+P.S. I end up not being able to closely follow linux-kernel
+lately. CCs to me appreciated.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/arch/i386/kernel/setup.c linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c
---- linux-2.4.15-pre5/arch/i386/kernel/setup.c	Fri Nov 16 18:14:11 2001
-+++ linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c	Fri Nov 16 18:30:29 2001
-@@ -2707,7 +2707,7 @@
- 		/* AMD-defined */
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, "syscall", NULL, NULL, NULL, NULL,
--		NULL, NULL, NULL, NULL, NULL, NULL, "mmxext", NULL,
-+		NULL, NULL, NULL, "mp", NULL, NULL, "mmxext", NULL,
- 		NULL, NULL, NULL, NULL, NULL, "lm", "3dnowext", "3dnow",
-
- 		/* Transmeta-defined */
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/arch/i386/kernel/smpboot.c linux-2.4.15-pre5-dj/arch/i386/kernel/smpboot.c
---- linux-2.4.15-pre5/arch/i386/kernel/smpboot.c	Fri Oct  5 01:42:54 2001
-+++ linux-2.4.15-pre5-dj/arch/i386/kernel/smpboot.c	Fri Nov 16 21:09:33 2001
-@@ -30,10 +30,12 @@
-  *		Tigran Aivazian	:	fixed "0.00 in /proc/uptime on SMP" bug.
-  *	Maciej W. Rozycki	:	Bits for genuine 82489DX APICs
-  *		Martin J. Bligh	: 	Added support for multi-quad systems
-+ *		Dave Jones	:	Report invalid combinations of Athlon CPUs.
-  */
-
- #include <linux/config.h>
- #include <linux/init.h>
-+#include <linux/kernel.h>
-
- #include <linux/mm.h>
- #include <linux/kernel_stat.h>
-@@ -156,6 +158,35 @@
- 		 * Remember we have B step Pentia with bugs
- 		 */
- 		smp_b_stepping = 1;
-+
-+	/*
-+	 * Certain Athlons might work (for various values of 'work') in SMP
-+	 * but they are not certified as MP capable.
-+	 */
-+	if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
-+
-+		/* Athlon 660/661 is valid. */
-+		if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
-+			goto valid_athlon;
-+
-+		/* Duron 670 is valid */
-+		if ((c->x86_model==7) && (c->x86_mask==0))
-+			goto valid_athlon;
-+
-+		/* Athlon 662, Duron 671, and Athlon >model 7 have capability bit */
-+		if (((c->x86_model==6) && (c->x86_mask>=2)) ||
-+			((c->x86_model==7) && (c->x86_mask>=1)) ||
-+			 (c->x86_model> 7))
-+			if (cpu_has_mp)
-+				goto valid_athlon;
-+
-+		/* If we get here, it's not a certified SMP capable AMD system. */
-+		printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
-+		tainted |= (1<<2);
-+
-+	}
-+valid_athlon:
-+
- }
-
- /*
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/include/asm-i386/cpufeature.h linux-2.4.15-pre5-dj/include/asm-i386/cpufeature.h
---- linux-2.4.15-pre5/include/asm-i386/cpufeature.h	Mon Nov 13 05:55:50 2000
-+++ linux-2.4.15-pre5-dj/include/asm-i386/cpufeature.h	Fri Nov 16 18:29:24 2001
-@@ -46,6 +46,7 @@
- /* AMD-defined CPU features, CPUID level 0x80000001, word 1 */
- /* Don't duplicate feature flags which are redundant with Intel! */
- #define X86_FEATURE_SYSCALL	(1*32+11) /* SYSCALL/SYSRET */
-+#define X86_FEATURE_MP		(1*32+19) /* MP Capable. */
- #define X86_FEATURE_MMXEXT	(1*32+22) /* AMD MMX extensions */
- #define X86_FEATURE_LM		(1*32+29) /* Long Mode (x86-64) */
- #define X86_FEATURE_3DNOWEXT	(1*32+30) /* AMD 3DNow! extensions */
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/include/asm-i386/processor.h linux-2.4.15-pre5-dj/include/asm-i386/processor.h
---- linux-2.4.15-pre5/include/asm-i386/processor.h	Fri Nov 16 18:14:14 2001
-+++ linux-2.4.15-pre5-dj/include/asm-i386/processor.h	Fri Nov 16 19:08:34 2001
-@@ -90,6 +90,7 @@
- #define cpu_has_xmm	(test_bit(X86_FEATURE_XMM,  boot_cpu_data.x86_capability))
- #define cpu_has_fpu	(test_bit(X86_FEATURE_FPU,  boot_cpu_data.x86_capability))
- #define cpu_has_apic	(test_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability))
-+#define cpu_has_mp (test_bit(X86_FEATURE_MP, boot_cpu_data.x86_capability))
-
- extern char ignore_irq13;
-
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/kernel/panic.c linux-2.4.15-pre5-dj/kernel/panic.c
---- linux-2.4.15-pre5/kernel/panic.c	Sun Sep 30 19:26:08 2001
-+++ linux-2.4.15-pre5-dj/kernel/panic.c	Fri Nov 16 20:46:17 2001
-@@ -103,6 +103,10 @@
- /**
-  *	print_tainted - return a string to represent the kernel taint state.
-  *
-+ *  'P' - Proprietory module has been loaded.
-+ *  'F' - Module has been forcibly loaded.
-+ *  'S' - SMP with CPUs not designed for SMP.
-+ *
-  *	The string is overwritten by the next call to print_taint().
-  */
-
-@@ -112,7 +116,8 @@
- 	if (tainted) {
- 		snprintf(buf, sizeof(buf), "Tainted: %c%c",
- 			tainted & 1 ? 'P' : 'G',
--			tainted & 2 ? 'F' : ' ');
-+			tainted & 2 ? 'F' : ' ',
-+			tainted & 4 ? 'S' : ' ');
- 	}
- 	else
- 		snprintf(buf, sizeof(buf), "Not tainted");
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

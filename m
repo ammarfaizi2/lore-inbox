@@ -1,110 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317347AbSGDHGx>; Thu, 4 Jul 2002 03:06:53 -0400
+	id <S317351AbSGDHJH>; Thu, 4 Jul 2002 03:09:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317348AbSGDHGw>; Thu, 4 Jul 2002 03:06:52 -0400
-Received: from h-64-105-34-244.SNVACAID.covad.net ([64.105.34.244]:56706 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317347AbSGDHGv>; Thu, 4 Jul 2002 03:06:51 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 4 Jul 2002 00:09:17 -0700
-Message-Id: <200207040709.AAA05891@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: __ex_table vs. init sections bug in most architectures
-Cc: kaos@ocs.com.au
+	id <S317352AbSGDHJG>; Thu, 4 Jul 2002 03:09:06 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:7174 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317351AbSGDHJF>;
+	Thu, 4 Jul 2002 03:09:05 -0400
+Date: Thu, 4 Jul 2002 00:10:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: mochel@osdl.org, Greg KH <gregkh@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from driverfs
+Message-ID: <20020704071004.GI29657@kroah.com>
+References: <3D23EA93.7090106@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D23EA93.7090106@us.ibm.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 06 Jun 2002 04:03:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	It looks like all architectures except {sparc,ppc}{,64} rely on
-the __ex_table section already being sorted by the address of the
-instruction that caused the memory access violation that is to be fixed
-up.  However, __ex_table will not be constructed in sorted order if it
-includes any references made from an __init or __exit routine, because
-these routines are loaded into the kernel image after all of the other
-routines, rather than being loaded in the order in which they appear in
-each source file.
+On Wed, Jul 03, 2002 at 11:26:27PM -0700, Dave Hansen wrote:
+> I saw your talk about driverfs at OLS and it got my attention.  When 
+> my BKL debugging patch showed some use of the BKL in driverfs, I was 
+> very dissapointed (you can blame Greg if you want).
 
-	This problem could cause the binary search of __ex_table in
-search_one_table in arch/*/mm/extable.c to fail, even when search
-for entries that are not in an __init or __exit routine.
+Blame me?  Al Viro pushed that BKL into the file, not I :)
 
-	I wrote a small kernel module to test for this problem on
-x86, and verified that it did not occur on the linux-2.5.24 kernel
-that I tested, but that kernel was compiled only with romfs, ramfs
-and binfmt_elf compiled in.  Everything else was a module, and modules
-currently ignore __init and __exit, so will not manifest the problem.
+> text from dmesg after BKL debugging patch:
+> release of recursive BKL hold, depth: 1
+> [ 0]main:492
+> [ 1]inode:149
 
-	However, I was able to verify that putting a __copy_from_user in
-an __init routine in file compiled into the core kernel did indeed
-produce a misordered __ex_table.  In practice, __ex_table on x86
-might not be used for anything that __init or __exit routines do, but
-__ex_table seems to be used for a lot more on mips, s390 and x86-64.
+This means what?
 
-	We probably should not rely on the compiler emitting
-the subroutines and lines within subroutines in the order in
-which they are written, as there are plenty of optimiation reasons
-a compiler might have for reordering them.  So, I think that
-a correct solution would be to sort the kernel's __ex_table at
-boot time, as is one on ppc{,64}, and also at module load time,
-which is not currently done by any architecture.  One refinement of this
-approach would be have some bfd tool sort __ex_table in vmlinux
-when the kernel is linked, and to do something similar for
-modules, to keep the sort out of the kernel and save a few
-microseconds of run time.
+> I see no reason to hold the BKL in your situation.  I replaced it with 
+> i_sem in some places and just plain removed it in others.  I believe 
+> that you get all of the protection that you need from dcache_lock in 
+> the dentry insert and activate.  Can you prove me wrong?
 
-	sparc{,64} is immune to this problem only because it does
-a linear search of each __ex_table rather than a binary search.
-
-	I have attached my test module below, in caes anyone wants
-to check their kerenls for this problem.  It should compile for
-all architectuers other than alpha (replace start->insn with
-start->addr for alpha).
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/errno.h>
-#include <asm/uaccess.h>
-#include <asm/spinlock.h>
+I see no reason to really care :)
+Can you prove that driverfs (or pcihpfs or usbfs) accesses are on a
+critical path that removing the BKL usage here actually helps?
 
 
-static void
-check_one_table(const char *name,
-		const struct exception_table_entry *start,
-		const struct exception_table_entry *end) {
-	printk ("AJR check_one_table(%s, %p, %p) called.\n", name, start, end);
-	if (start == end)
-		return;
-	start++;
-	while (start != end) {
-		if ((start-1)->insn > start->insn) {
-		  printk ("%s: 0x%x > 0x%x.\n", name,
-			  (start-1)->insn, (start->insn));
-		}
-		start++;
-	}
-	
-}
+> --- linux-2.5.24-clean/fs/driverfs/inode.c	Thu Jun 20 15:53:45 2002
+> +++ linux/fs/driverfs/inode.c	Wed Jul  3 23:18:23 2002
+> @@ -146,20 +146,16 @@
+>  static int driverfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+>  {
+>  	int res;
+> -	lock_kernel();
+>  	dentry->d_op = &driverfs_dentry_dir_ops;
+>   	res = driverfs_mknod(dir, dentry, mode | S_IFDIR, 0);
+> -	unlock_kernel();
+>  	return res;
+>  }
+
+I think that driverfs_mknod() needs some kind of protection now that you
+have removed it.
 
 
-/* Copied from linux-2.5.24/arch/i386/mm/extable.c, which has no
-   authorship or copyright statement on it. */
-int check_tables(void)
-{
-	unsigned long flags;
-	struct exception_table_entry *ent;
-	struct module *mp;
+>  
+>  static int driverfs_create(struct inode *dir, struct dentry *dentry, int mode)
+>  {
+>  	int res;
+> -	lock_kernel();
+>  	dentry->d_op = &driverfs_dentry_file_ops;
+>   	res = driverfs_mknod(dir, dentry, mode | S_IFREG, 0);
+> -	unlock_kernel();
+>  	return res;
+>  }
+>  
+> @@ -211,9 +207,9 @@
+>  	if (driverfs_empty(dentry)) {
+>  		struct inode *inode = dentry->d_inode;
+>  
+> -		lock_kernel();
+> +		down(&inode->i_sem);
+>  		inode->i_nlink--;
+> -		unlock_kernel();
+> +		up(&inode->i_sem);
+>  		dput(dentry);
+>  		error = 0;
+>  	}
+> @@ -353,8 +349,9 @@
+>  driverfs_file_lseek(struct file *file, loff_t offset, int orig)
+>  {
+>  	loff_t retval = -EINVAL;
+> +        struct inode *inode = file->f_dentry->d_inode->i_mapping->host;
 
-	for (mp = THIS_MODULE; mp != NULL; mp = mp->next) {
-		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-			continue;
-		check_one_table(mp->name, mp->ex_table_start,mp->ex_table_end);
-	}
-	return -ENOMEM;
-}
+Um, you used spaces, please use tabs like the rest of the file, and how
+Documentation/CodingStyle mandates.
 
-module_init(check_tables);
+thanks,
+
+greg k-h

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264764AbRF1WTV>; Thu, 28 Jun 2001 18:19:21 -0400
+	id <S264745AbRF1WYl>; Thu, 28 Jun 2001 18:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264769AbRF1WTL>; Thu, 28 Jun 2001 18:19:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45329 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264745AbRF1WS6>; Thu, 28 Jun 2001 18:18:58 -0400
-Subject: Re: PROBLEM: kernel bug at page_alloc.c:81
-To: khan_55@linuxfreemail.com
-Date: Thu, 28 Jun 2001 23:18:45 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106282214.f5SMEw107141@superglide.netfx-2000.net> from "khan_55@linuxfreemail.com" at Jun 28, 2001 03:14:58 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264786AbRF1WYb>; Thu, 28 Jun 2001 18:24:31 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:47980 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S264745AbRF1WYW>; Thu, 28 Jun 2001 18:24:22 -0400
+Date: Thu, 28 Jun 2001 18:24:16 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: Jes Sorensen <jes@sunsite.dk>,
+        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
+ achi ne
+In-Reply-To: <15163.43319.82354.562310@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.33.0106281823000.32276-100000@toomuch.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Fk7Z-0007kP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1	After a 'shutdown -h now', I get a kernel bug at page_alloc.c:81
-> 2	After being in X (only happens after being in X), I get out of X, and as root I do a 'shutdown -h now'.  It goes through the shutdown process normally, and then after it prints "Syncing hardware clock to system time [ OK ]", I get:
-> Modules Loaded         ipt_state ipt_limit iptable_filter ipt_LOG ipt_MASQUERADE ipt_REDIRECT iptable_nat ip_conntrack ip_tables ppp_deflate au8820 ppp_async ppp_generic slhc NVdriver
-> 
+On Thu, 28 Jun 2001, David S. Miller wrote:
 
-You have binary modules loaded (nvdriver, au8820) that we can't debug and
-have no reason to believe are correct. Take your bug report to these people
-or duplicate it from a clean boot without loading eith NVdriver or au8820
+> Please note that this is nonstandard and undocumented behavior.
+>
+> This is not a supported API at all, and the way 64-bit DMA will
+> eventually be done across all platforms is likely to be different.
 
-They have our source, we dont have theirs, so only they can help you
+Well, what is the standard API to use?  All these 64 bit cards in my
+machine really make that 95% cpu usage in bounce buffer copying rather
+depressing.
+
+		-ben
 

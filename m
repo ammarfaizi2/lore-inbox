@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264331AbUD0UUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264327AbUD0UTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264331AbUD0UUU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 16:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUD0UUU
+	id S264327AbUD0UTE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 16:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbUD0UTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 16:20:20 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:33672 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264331AbUD0UUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 16:20:16 -0400
-Date: Wed, 28 Apr 2004 00:20:18 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: Dru <andru@treshna.com>, linux-xfs@oss.sgi.com,
-       =?koi8-r?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: status of Linux on Alpha?
-Message-ID: <20040428002018.A827@den.park.msu.ru>
-References: <yw1xr7vcn1z2.fsf@ford.guide> <20040329205233.5b7905aa@vaio.gigerstyle.ch> <20040404121032.7bb42b35@vaio.gigerstyle.ch> <20040409134534.67805dfd@vaio.gigerstyle.ch> <20040409134828.0e2984e5@vaio.gigerstyle.ch> <20040409230651.A727@den.park.msu.ru> <20040413194907.7ce8ceb7@vaio.gigerstyle.ch> <20040427185124.134073cd@vaio.gigerstyle.ch> <20040427215514.A651@den.park.msu.ru> <20040427200830.3f485a54@vaio.gigerstyle.ch>
+	Tue, 27 Apr 2004 16:19:04 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:12421 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S264327AbUD0UTA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 16:19:00 -0400
+Message-Id: <200404272018.i3RKIgoF020652@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: koke@sindominio.net
+Cc: linux-kernel@vger.kernel.org, Grzegorz Kulewski <kangur@polcom.net>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
+In-Reply-To: Your message of "Tue, 27 Apr 2004 21:41:51 +0200."
+             <200404272141.51222.koke_lkml@amedias.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040427165819.GA23961@valve.mbsi.ca> <200404272103.21925.koke_lkml@amedias.org> <Pine.LNX.4.58.0404272113110.9618@alpha.polcom.net>
+            <200404272141.51222.koke_lkml@amedias.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040427200830.3f485a54@vaio.gigerstyle.ch>; from gigerstyle@gmx.ch on Tue, Apr 27, 2004 at 08:08:30PM +0200
+Content-Type: multipart/signed; boundary="==_Exmh_-1935316254P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 27 Apr 2004 16:18:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 08:08:30PM +0200, Marc Giger wrote:
-> I wonder why it happens only with the XFS code. What I saw
-> rw_sem is used all over the place in the kernel.
+--==_Exmh_-1935316254P
+Content-Type: text/plain; charset=us-ascii
 
-Dru says it happens with ext3 as well. XFS folks used their own
-locking code (which hasn't suffered from that bug) until 2.6.4,
-that's why you noticed the difference...
-In either case, you need _really_ heavy write IO activity to
-trigger the bug.
+On Tue, 27 Apr 2004 21:41:51 +0200, "Jorge Bernal (Koke)" said:
 
-Ivan.
+> 2 ideas:
+> 
+> Printing if the tainted module is loaded or unloaded
+
+We already have a message when it's loading, and a message on unload is
+superfluous - if I insmod the NVidia driver and then unload it, the kernel is
+still tainted by it, because it had a chance to mangle memory while it was
+loaded.
+
+And yes, sometimes the damage can be hiding for a LONG time - I know I've seen
+bug reports on the list that involved "module A dorked a pointer which wasn't
+noticed for 3 days until module B  tried to...."
+
+Would the attached strawman patch make people happ(y|ier)?
+
+--- linux-2.6.6-rc2-mm2/kernel/module.c.orig	2004-04-27 09:56:22.000000000 -0400
++++ linux-2.6.6-rc2-mm2/kernel/module.c	2004-04-27 16:16:59.764158885 -0400
+@@ -1131,7 +1131,7 @@ static void set_license(struct module *m
+ 
+ 	mod->license_gplok = license_is_gpl_compatible(license);
+ 	if (!mod->license_gplok) {
+-		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
++		printk(KERN_NOTICE "%s: module license '%s' taints kernel.\n",
+ 		       mod->name, license);
+ 		tainted |= TAINT_PROPRIETARY_MODULE;
+ 	}
+
+
+
+--==_Exmh_-1935316254P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAjsAicC3lWbTT17ARAgMoAKDkJmRN4sLtTOgwN2NzhYddHD9KfQCgoYtH
+KL3UbU1m5aPOOWptsar/q4k=
+=knhu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1935316254P--

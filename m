@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262626AbRFLQe0>; Tue, 12 Jun 2001 12:34:26 -0400
+	id <S262582AbRFLQeG>; Tue, 12 Jun 2001 12:34:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262633AbRFLQeQ>; Tue, 12 Jun 2001 12:34:16 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37898 "EHLO
+	id <S262626AbRFLQd4>; Tue, 12 Jun 2001 12:33:56 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36362 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262626AbRFLQeI>; Tue, 12 Jun 2001 12:34:08 -0400
-Subject: Re: Clock drift on Transmeta Crusoe
+	id <S262582AbRFLQdk>; Tue, 12 Jun 2001 12:33:40 -0400
+Subject: Re: [isocompr PATCH]: announcing stable port to kernel 2.2.18
 To: pavel@suse.cz (Pavel Machek)
-Date: Tue, 12 Jun 2001 17:32:37 +0100 (BST)
-Cc: salimma1@yahoo.co.uk (=?iso-8859-1?Q?Mich=E8l_Alexandre_Salim?=),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010611223357.A959@bug.ucw.cz> from "Pavel Machek" at Jun 11, 2001 10:33:57 PM
+Date: Tue, 12 Jun 2001 17:31:44 +0100 (BST)
+Cc: Roberto.Di-Cosmo@pps.jussieu.fr (Roberto Di Cosmo),
+        linux-kernel@vger.kernel.org, demolinux@demolinux.org,
+        dicosmo@pps.jussieu.fr
+In-Reply-To: <20010611225944.B959@bug.ucw.cz> from "Pavel Machek" at Jun 11, 2001 10:59:44 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E159r5p-0001bp-00@the-village.bc.nu>
+Message-Id: <E159r4y-0001bR-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Mandrake with default kernel 2.4.3, and lastly
-> > 2.4.5-ac9), compiled for generic i386 and/or Transmeta
-> > Crusoe with APM off or on, one thing sticks out : a
-> > clock drift of a few minutes per day.
-> Let me guess: vesafb?
+> > sometime in the future (I have been looking at 2.4.x code, but the new page
+> > cache means some changes might be needed: I will try to post a first version
+> > for 2.4.x soon).
 > 
-> If problem goes away when you stop using framebuffer (i.e. go X), then
-> it is known. 
+> I think that 2.5.0 should be your target... It is definitely new
+> feature, and both 2.4.X and 2.2.X are in feature freeze.
 
-2.4.5-ac has the console irq disaster fixed so I'd expect it to seem ok. 
-
-
-Alan
-
+How is it different to HPA's zisofs which already exists for 2.4 ?

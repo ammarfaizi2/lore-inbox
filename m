@@ -1,181 +1,170 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129873AbQKMRlN>; Mon, 13 Nov 2000 12:41:13 -0500
+	id <S129802AbQKMRoN>; Mon, 13 Nov 2000 12:44:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129892AbQKMRlE>; Mon, 13 Nov 2000 12:41:04 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:18059 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S129873AbQKMRkx>;
-	Mon, 13 Nov 2000 12:40:53 -0500
-Date: Sun, 12 Nov 2000 20:05:33 +0100 (CET)
-From: Gert Wollny <wollny@cns.mpg.de>
-To: linux-kernel@vger.kernel.org
-Subject: BUG Report 2.4.0-test11-pre3: NMI Watchdoch detected LOCKUP at
- CPU[01]  (fwd)
-Message-ID: <Pine.LNX.4.10.10011121945480.643-100000@bolide.beigert.de>
+	id <S129892AbQKMRoD>; Mon, 13 Nov 2000 12:44:03 -0500
+Received: from mail-04-real.cdsnet.net ([63.163.68.109]:12050 "HELO
+	mail-04-real.cdsnet.net") by vger.kernel.org with SMTP
+	id <S129802AbQKMRnx>; Mon, 13 Nov 2000 12:43:53 -0500
+Message-ID: <3A102916.ACD71F76@mvista.com>
+Date: Mon, 13 Nov 2000 09:47:02 -0800
+From: George Anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Keith Owens <kaos@ocs.com.au>, John Kacur <jkacur@home.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: test11-pre2 compile error undefined reference to `bust_spinlocks' 
+ WHAT?!
+In-Reply-To: <23569.973832900@kao2.melbourne.sgi.com> <3A0C2D4A.83C75D4B@mvista.com> <3A0C90FD.CB645430@uow.edu.au>
+Content-Type: multipart/mixed;
+ boundary="------------C57DA6ACE5DCFF17B5814DA1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A bug i had with kernel version 2.4.0-test9 is still there, but there are
-additional information:
+This is a multi-part message in MIME format.
+--------------C57DA6ACE5DCFF17B5814DA1
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-When parport_pc is compiled as module, and not already loaded 
-"modprobe imm" yields the LOCKUP message (subject). 
+Andrew Morton wrote:
+> 
+> George Anzinger wrote:
+> >
+> > The notion of releasing a spin lock by initializing it seems IMHO, on
+> > the face of it, way off.  Firstly the protected area is no longer
+> > protected which could lead to undefined errors/ crashes and secondly,
+> > any future use of spinlocks to control preemption could have a lot of
+> > trouble with this, principally because the locker is unknown.
+> >
+> > In the case at hand, it would seem that an unlocked path to the console
+> > is a more correct answer that gives the system a far better chance of
+> > actually remaining viable.
+> >
+> 
+> Does bust_spinlocks() muck up the preemptive kernel's spinlock
+> counting?  Would you prefer spin_trylock()/spin_unlock()?
+> It doesn't matter - if we call bust_spinlocks() the kernel is
+> known to be dead meat and there is a fsck in your near future.
 
-The iomega-drive is usable after the modprobe and despite of
-the lockup.
+Well, actually this fails just as badly as the locker is not unlocking
+and the preemption counts are task local... BUT, see below.
+> 
+> We are still trying to find out why kumon@fujitsu's 8-way is
+> crashing on the test10-pre5 sched.c.  Looks like it's fixed
+> in test11-pre2 but we want to know _why_ it's fixed.  And at
+> present each time he hits the bug, his printk() deadlocks.
+> 
+> So bust_spinlocks() is a RAS feature :)  A very important one -
+> it's terrible when your one-in-a-trillion bug happens and there
+> are no diagnostics.
+>
+I agree, this is why, in the preemption patch, we have an "unlocked"
+printk.  Attached is the relevant portion of the preemption patch for
+test9.
 
-If parport_pc is compiled into the kernel, or the modules is already
-loaded, this lockup doen not happen. 
+I think it still suffers from the console lock, but it is a bit further
+down the road.
 
+The patch also illustrates why I am looking for a way to pass var args
+to the next function down the line.  If I had this the patch would be
+WAY simple and would not duplicate the body of printf.
 
+George
+ 
+> It's a work-in-progress.  There are a lot of things which
+> can cause printk to deadlock:
+> 
+> - console_lock
+> - timerlist_lock
+> - global_irq_lock (console code does global_cli)
+> - log_wait.lock
+> - tasklist_lock (printk does wake_up) (*)
+> - runqueue_lock (printk does wake_up)
+> 
+> I'll be proposing a better patch for this in a few days.
+> 
+> (*) Keith: this explains why you can't do a printk() in
+> __wake_up_common: printk calls wake_up().  Duh.
+--------------C57DA6ACE5DCFF17B5814DA1
+Content-Type: text/plain; charset=iso-8859-15;
+ name="printk_unlocked-2.4.0-test9.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="printk_unlocked-2.4.0-test9.patch"
 
-the trace looks like this:
+diff -urP -X patch.exclude linux-2.4.0-test9-kb-rts/kernel/printk.c linux/kernel/printk.c
+--- linux-2.4.0-test9-kb-rts/kernel/printk.c	Wed Jul  5 11:00:21 2000
++++ linux/kernel/printk.c	Thu Nov  2 10:17:20 2000
+@@ -312,6 +312,64 @@
+ 	return i;
+ }
+ 
++#if defined(CONFIG_KGDB) && defined(CONFIG_PREEMPT)
++asmlinkage int printk_unlocked(const char *fmt, ...)
++{
++	va_list args;
++	int i;
++	char *msg, *p, *buf_end;
++	int line_feed;
++	static signed char msg_level = -1;
++
++	va_start(args, fmt);
++	i = vsprintf(buf + 3, fmt, args); /* hopefully i < sizeof(buf)-4 */
++	buf_end = buf + 3 + i;
++	va_end(args);
++	for (p = buf + 3; p < buf_end; p++) {
++		msg = p;
++		if (msg_level < 0) {
++			if (
++				p[0] != '<' ||
++				p[1] < '0' || 
++				p[1] > '7' ||
++				p[2] != '>'
++			) {
++				p -= 3;
++				p[0] = '<';
++				p[1] = default_message_loglevel + '0';
++				p[2] = '>';
++			} else
++				msg += 3;
++			msg_level = p[1] - '0';
++		}
++		line_feed = 0;
++		for (; p < buf_end; p++) {
++			log_buf[(log_start+log_size) & LOG_BUF_MASK] = *p;
++			if (log_size < LOG_BUF_LEN)
++				log_size++;
++			else
++				log_start++;
++
++			logged_chars++;
++			if (*p == '\n') {
++				line_feed = 1;
++				break;
++			}
++		}
++		if (msg_level < console_loglevel && console_drivers) {
++			struct console *c = console_drivers;
++			while(c) {
++				if ((c->flags & CON_ENABLED) && c->write)
++					c->write(c, msg, p - msg + line_feed);
++				c = c->next;
++			}
++		}
++		if (line_feed)
++			msg_level = -1;
++	}
++	return i;
++}
++#endif
+ void console_print(const char *s)
+ {
+ 	struct console *c;
 
-0: ?? (assume spin_lock_irqsave in blk_get_queue but printed EIP seems to
-       be sensless - area with no code according to the map file)
-
-1: ll_rw_blk.c: 874 
-          generic_make_request -> "after line q = blk_get_queue(...)" 
-2: ll_rw_blk.c: 925   ll_rw_block 	
-3: ll_rw_blk.c: 287     writeout_one_page
-4: filemap.c: 332     do_buffer_fdatasync
-5: filemap.c: 352     generic_buffer_fdatasync
-
-5.1: filemap.c: 278     writeout_one_page 
-this is on the stack trace, but maybe only since its adress is used in 
-call (5)
-
-6: ext2/fsync.c: 140       ext2_sync_file  
-7: fs/buffer.c: 370  sys_fsync
-
-Please CC me, if you have some comments, ideas, and thanks for your time. 
-
-Gert 
-
-additional information:
-
-Linux version 2.4.0-test11--pre3 (gcc version 2.95.2 19991024 (release)) #30 SMP Son Nov 12 19:15:40 CET 2000
-Kernel modules         2.3.19
-Gnu C                  2.95.2
-Gnu Make               3.77
-Binutils               2.9.1.0.25
-Linux C Library        2.1.1
-Dynamic linker         ldd (GNU libc) 2.1.1
-Procps                 2.0.2
-Mount                  2.9w
-Net-tools              1.52
-Console-tools          0.2.0
-Sh-utils               2.0
-Modules Loaded         sd_mod nfsd lockd sunrpc 8139too nls_cp437 vfat 
-                       fat awe_wave sb sb_lib uart401 sound soundcore 
-                       advansys scsi_mod
-
-/proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 2
-cpu MHz		: 451.000029
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 897.84
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 2
-cpu MHz		: 451.000029
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 901.12
-
-/proc/pci
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 3).
-      Master Capable.  Latency=64.  
-      Prefetchable 32 bit memory at 0xe4000000 [0xe7ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 3).
-      Master Capable.  Latency=64.  Min Gnt=136.
-  Bus  0, device   4, function  0:
-    ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 2).
-  Bus  0, device   4, function  1:
-    IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 1).
-      Master Capable.  Latency=32.  
-      I/O at 0xd800 [0xd80f].
-  Bus  0, device   4, function  2:
-    USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 1).
-      Master Capable.  Latency=32.  
-      I/O at 0xd400 [0xd41f].
-  Bus  0, device   4, function  3:
-    Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 2).
-  Bus  0, device   9, function  0:
-    SCSI storage controller: Advanced System Products, Inc ABP940-U / ABP960-U (rev 3).
-      IRQ 9.
-      Master Capable.  Latency=32.  Min Gnt=4.Max Lat=4.
-      I/O at 0xd000 [0xd0ff].
-      Non-prefetchable 32 bit memory at 0xde800000 [0xde8000ff].
-  Bus  0, device  10, function  0:
-    Multimedia video controller: Brooktree Corporation Bt878 (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=16.Max Lat=40.
-      Prefetchable 32 bit memory at 0xe1000000 [0xe1000fff].
-  Bus  0, device  10, function  1:
-    Multimedia controller: Brooktree Corporation Bt878 (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=4.Max Lat=255.
-      Prefetchable 32 bit memory at 0xe0800000 [0xe0800fff].
-  Bus  0, device  12, function  0:
-    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 16).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
-      I/O at 0xb800 [0xb8ff].
-      Non-prefetchable 32 bit memory at 0xde000000 [0xde0000ff].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 5).
-      IRQ 11.
-      Master Capable.  Latency=64.  Min Gnt=16.Max Lat=32.
-      Prefetchable 32 bit memory at 0xe2000000 [0xe3ffffff].
-      Non-prefetchable 32 bit memory at 0xdf800000 [0xdf803fff].
-      Non-prefetchable 32 bit memory at 0xdf000000 [0xdf7fffff].
-
-/proc/scsi/scsi
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: PLEXTOR  Model: CD-ROM PX-32TS   Rev: 1.02
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: TEAC     Model: CD-R55S          Rev: 1.0H
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 06 Lun: 00
-  Vendor: IOMEGA   Model: ZIP 250          Rev: J.45
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-
+--------------C57DA6ACE5DCFF17B5814DA1--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264636AbSJOKs4>; Tue, 15 Oct 2002 06:48:56 -0400
+	id <S262365AbSJOLFD>; Tue, 15 Oct 2002 07:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264637AbSJOKs4>; Tue, 15 Oct 2002 06:48:56 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:11012 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264636AbSJOKsz>; Tue, 15 Oct 2002 06:48:55 -0400
-Date: Tue, 15 Oct 2002 11:54:47 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, ext2-devel@lists.sourceforge.net, tytso@mit.edu,
-       Matt Reppert <arashi@arashi.yi.org>
-Subject: Re: [Ext2-devel] [PATCH] Compile without xattrs
-Message-ID: <20021015115446.A21776@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andreas Gruenbacher <agruen@suse.de>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, ext2-devel@lists.sourceforge.net, tytso@mit.edu,
-	Matt Reppert <arashi@arashi.yi.org>
-References: <3DABA351.7E9C1CFB@digeo.com> <20021015005733.3bbde222.arashi@arashi.yi.org> <200210151211.19353.agruen@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210151211.19353.agruen@suse.de>; from agruen@suse.de on Tue, Oct 15, 2002 at 12:11:19PM +0200
+	id <S262368AbSJOLFD>; Tue, 15 Oct 2002 07:05:03 -0400
+Received: from tomts16.bellnexxia.net ([209.226.175.4]:17391 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S262365AbSJOLFC>; Tue, 15 Oct 2002 07:05:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.41-mm3
+Date: Fri, 11 Oct 2002 08:37:12 -0400
+User-Agent: KMail/1.4.3
+References: <3DA683F4.944DFC11@digeo.com>
+In-Reply-To: <3DA683F4.944DFC11@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210110837.12089.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:11:19PM +0200, Andreas Gruenbacher wrote:
-> On Tuesday 15 October 2002 07:57, Matt Reppert wrote:
-> > On Mon, 14 Oct 2002 22:10:41 -0700
-> >
-> > Andrew Morton <akpm@digeo.com> wrote:
-> > > - merge up the ext2/3 extended attribute code, convert that to use
-> > >   the slab shrinking API in Linus's current tree.
-> >
-> > Trivial patch for the "too chicken to enable xattrs for now" case, but I
-> > need this to compile:
-> 
-> Please add this to include/linux/errno.h instead:
-> 
-> #define ENOTSUP EOPNOTSUPP      /* Operation not supported */
-> 
-> ENOTSUPP is distinct from (EOPNOTSUPP = ENOTSUP)
-> 
-> (Yes, it's a mess.)
+Hi,
 
-You explained some time ago that it is not posix-compliant to have
-two errnos with the same numerical value.  So please do it right..
+I get this opps just after boot - the box was sitting waiting for me to login 
+and start X.  Nothing unsual in the boot log - same config I have been using
+
+-------------
+oscar login: Unable to handle kernel paging request at virtual address 8978408f
+ printing eip:
+c012b364
+*pde = 00000000
+Oops: 0002
+af_packet snd-seq-midi snd-seq-oss snd-seq-midi-event snd-seq snd-pcm-oss snd-mixer-oss snd-cs46xx snd-pcm snd-timer snd-rawmidi snd-seq-device snd-ac97-codec snd soundcore gameport softdog matroxfb_base matroxfb_g450 matroxfb_DAC1064 g450_pll matroxfb_accel matroxfb_misc fbcon-cfb16 fbcon-cfb8 fbcon-cfb24 fbcon-cfb32 mga agpgart pppoe pppox ipchains msdos fat sd_mod floppy dummy bsd_comp ppp_generic slhc parport_pc lp parport ipip smbfs binfmt_aout autofs4 cdrom via-rhine mii tulip crc32 usb-storage scsi_mod hid pl2303 usbserial  
+CPU:    0
+EIP:    0060:[<c012b364>]    Not tainted
+EFLAGS: 00010012
+EIP is at free_block+0x50/0xe4
+eax: 8978408b   ebx: dc2ad240   ecx: dc2bd000   edx: 558ba445
+esi: dffec21c   edi: 00000004   ebp: dffec228   esp: c0295eec
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 0, threadinfo=c0294000 task=c02596c0)
+Stack: 00000008 c173a400 c173a410 dffec21c c0295f18 c173a420 c012b86e dffec21c 
+       c173a410 00000008 c0353b1c c0294000 c02ab480 00000000 dffec408 c0294000 
+       dffec288 c011b6ef 00000000 00000000 c032fc60 fffffffe c032fc60 c012b7ec 
+Call Trace:
+ [<c012b86e>] reap_timer_fnc+0x82/0x478
+ [<c011b6ef>] run_timer_tasklet+0xe7/0x130
+ [<c012b7ec>] reap_timer_fnc+0x0/0x478
+ [<c01187e8>] tasklet_hi_action+0x3c/0x60
+ [<c011860b>] do_softirq+0x5b/0xac
+ [<c0108560>] do_IRQ+0xfc/0x114
+ [<c01052e0>] default_idle+0x0/0x28
+ [<c0105000>] stext+0x0/0x50
+ [<c01070e8>] common_interrupt+0x18/0x20
+ [<c01052e0>] default_idle+0x0/0x28
+ [<c0105000>] stext+0x0/0x50
+ [<c0105303>] default_idle+0x23/0x28
+ [<c0105374>] cpu_idle+0x28/0x38
+ [<c010504d>] stext+0x4d/0x50
+
+Code: 89 50 04 89 02 2b 59 0c 89 d8 31 d2 f7 76 30 89 c3 8b 41 14 
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+Hope this helps,
+Ed Tomlinson
+ 
+
 

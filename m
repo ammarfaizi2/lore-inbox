@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291908AbSBNVWN>; Thu, 14 Feb 2002 16:22:13 -0500
+	id <S291924AbSBNVYd>; Thu, 14 Feb 2002 16:24:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291913AbSBNVWE>; Thu, 14 Feb 2002 16:22:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62480 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291908AbSBNVVz>;
-	Thu, 14 Feb 2002 16:21:55 -0500
-Message-ID: <3C6C2A39.38ED19B1@zip.com.au>
-Date: Thu, 14 Feb 2002 13:20:57 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alexander Moibenko <moibenko@fnal.gov>, linux-kernel@vger.kernel.org
+	id <S291918AbSBNVYX>; Thu, 14 Feb 2002 16:24:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46087 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291913AbSBNVYK>; Thu, 14 Feb 2002 16:24:10 -0500
 Subject: Re: fsync delays for a long time.
-In-Reply-To: <3C6C2342.5044B738@zip.com.au> from "Andrew Morton" at Feb 14, 2002 12:51:14 PM <E16bT7y-00017B-00@the-village.bc.nu>
+To: moibenko@fnal.gov (Alexander Moibenko)
+Date: Thu, 14 Feb 2002 21:37:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.31.0202141510530.3270649-100000@fsgi03.fnal.gov> from "Alexander Moibenko" at Feb 14, 2002 03:12:29 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16bTZO-0001DH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > fsync on a very large file is very slow on the 2.2 kernels
+> > > This could very well be due to request allocation starvation.
+> > > fsync is sleeping in __get_request_wait() while bonnie keeps
+> > > on stealing all the requests.
 > >
-> > This could very well be due to request allocation starvation.
-> > fsync is sleeping in __get_request_wait() while bonnie keeps
-> > on stealing all the requests.
-> 
-> That may amplify it but in the 2.2 case fsync on any sensible sized file
-> is already horribly performing. It hits databases like solid quite badly
+> > That may amplify it but in the 2.2 case fsync on any sensible sized file
+> > is already horribly performing. It hits databases like solid quite badly
+> >
+> please elaborate on "sensible sized". In my case it is less then 20MB.
 
-I'm surprised.  ext2's fsync in 2.2 is in fact quite optimal: a single
-pass across the block tree, in probable-LBA-order.  No livelock potential
-there.  Optimal.  Note that it implements "only sync the stuff which was
-dirty on entry" semantics.
-
-But msync() is a different kettle of fish.  It calls file_fsync(), which
-syncs the entire device, livelockably.  Are you sure `solid' is not
-using msync?
-
--
+That ought to be ok. Andrew may well be right in that case.

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbTFFTK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 15:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbTFFTK1
+	id S262251AbTFFTOm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 15:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTFFTOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 15:10:27 -0400
-Received: from auemail2.lucent.com ([192.11.223.163]:28837 "EHLO
-	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262223AbTFFTKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 15:10:25 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16096.59965.283412.477292@gargle.gargle.HOWL>
-Date: Fri, 6 Jun 2003 15:23:41 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: kwijibo@zianet.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Smart Array driver
-In-Reply-To: <3EE0D5E0.4060408@zianet.com>
-References: <3EE0D5E0.4060408@zianet.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+	Fri, 6 Jun 2003 15:14:42 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:23486 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262251AbTFFTOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 15:14:41 -0400
+Date: Fri, 6 Jun 2003 21:28:14 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: [Patch] 2.5.70-bk11 zlib merge #2 return code
+Message-ID: <20030606192814.GH10487@wohnheim.fh-wedel.de>
+References: <20030606183126.GA10487@wohnheim.fh-wedel.de> <20030606183247.GB10487@wohnheim.fh-wedel.de> <20030606183920.GC10487@wohnheim.fh-wedel.de> <20030606185210.GE10487@wohnheim.fh-wedel.de> <20030606192325.GG10487@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030606192325.GG10487@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus!
 
-kwijibo> Is the Compaq Smart Array 5XXX driver 2.5.x ready?  Before I
-kwijibo> get to far into debugging this computer I figure I would ask.
-kwijibo> It boots fine in 2.4.x kernels but when I try 2.5.70 it
-kwijibo> freezes at the Uncompressing Linux line.  I thought maybe I
-kwijibo> didn't the console set up right for 2.5 but as far as I can
-kwijibo> tell it is and even if it wasn't it should still continue
-kwijibo> booting and eventually be pingable.  My first thought was of
-kwijibo> the RAID controller.  This is on a HP Proliant ML530.  Any
-kwijibo> suggestions?  Config attached.
+Don't think anyone actually bothers to check specific error codes, but
+it shouldn't hurt either.
 
-I was going to suggest that you make sure ACPI was turned off, but
-your config shows that already.  Make sure you have CONFIG_VGA_CONSOLE
-set is all I can think of.
+Jörn
 
-John
+-- 
+A surrounded army must be given a way out.
+-- Sun Tzu
+
+--- linux-2.5.70-bk11/lib/zlib_inflate/inftrees.c~zlib_merge_return	2003-06-06 20:47:11.000000000 +0200
++++ linux-2.5.70-bk11/lib/zlib_inflate/inftrees.c	2003-06-06 21:25:10.000000000 +0200
+@@ -229,7 +229,7 @@
+ 
+         /* allocate new table */
+         if (*hn + z > MANY)     /* (note: doesn't matter for fixed) */
+-          return Z_MEM_ERROR;   /* not enough memory */
++          return Z_DATA_ERROR;  /* overflow of MANY */
+         u[h] = q = hp + *hn;
+         *hn += z;
+ 

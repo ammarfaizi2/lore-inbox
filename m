@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264661AbRFPVtC>; Sat, 16 Jun 2001 17:49:02 -0400
+	id <S264665AbRFPVuw>; Sat, 16 Jun 2001 17:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264665AbRFPVsw>; Sat, 16 Jun 2001 17:48:52 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:1298 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264661AbRFPVsn>; Sat, 16 Jun 2001 17:48:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: spindown [was Re: 2.4.6-pre2, pre3 VM Behavior]
-Date: Sat, 16 Jun 2001 23:44:57 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
-        Roger Larsson <roger.larsson@norran.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0106161801220.2056-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0106161801220.2056-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Message-Id: <0106162344570L.00879@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264667AbRFPVum>; Sat, 16 Jun 2001 17:50:42 -0400
+Received: from 1-084.ctame701-2.telepar.net.br ([200.181.138.84]:1782 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S264665AbRFPVua>; Sat, 16 Jun 2001 17:50:30 -0400
+Date: Sat, 16 Jun 2001 18:14:31 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Thiago Vinhas de Moraes <tvlists@networx.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, laughing@shared-source.org (Alan Cox),
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac14
+Message-ID: <20010616181431.B1058@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Thiago Vinhas de Moraes <tvlists@networx.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <E15B0vv-000780-00@the-village.bc.nu> <200106172246.SAA00859@olimpo.networx.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <200106172246.SAA00859@olimpo.networx.com.br>; from tvlists@networx.com.br on Sat, Jun 16, 2001 at 05:56:08PM -0300
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 16 June 2001 23:06, Rik van Riel wrote:
-> On Sat, 16 Jun 2001, Daniel Phillips wrote:
-> > As a side note, the good old multisecond delay before bdflush kicks in
-> > doesn't really make a lot of sense - when bandwidth is available the
-> > filesystem-initiated writeouts should happen right away.
->
-> ... thus spinning up the disk ?
+Em Sat, Jun 16, 2001 at 05:56:08PM -0300, Thiago Vinhas de Moraes escreveu:
+> Em Sex 15 Jun 2001 18:15, Alan Cox escreveu:
+> > > Why the 2.4.5-ac series doesn't have merges from Linus 2.4.6-pre anymore?
+> >
+> > Because right now I dont consider the 2.4.6 page cache ext2 stuff safe
+> > enough to merge. I'm letting someone else be the sucide squad.. so far it
+> > looks like it is indeed fine but I want to wait and see more yet
+> 
+> But wouldn't be safe/possible/viable to merge 2.4.6-pre partially, excluding 
+> the page cache stuff for the moment?
+> IMHO, the 2.4.6-pre has important improvements, and it would be difficult to 
+> merge to it later.
+> Just a stupid opinion. No offenses.
 
-Nope, the disk is already spinning, some other writeouts just finished.
+If you look closely, some of the good things in 2.4.6-pre3 were backported
+by Marcelo and included in 2.4.5-ac15
 
-> How about just making sure we write out a bigger bunch
-> of dirty pages whenever one buffer gets too old ?
-
-It's simpler than that.  It's basically just: disk traffic low? good, write 
-out all the dirty buffers.  Not quite as crude as that, but nearly.
-
-> Does the patch below do anything good for your laptop? ;)
-
-I'll wait for the next one ;-)
-
---
-Daniel
+- Arnaldo

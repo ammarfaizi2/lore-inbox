@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbUKOPv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUKOQEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbUKOPv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 10:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUKOPv7
+	id S261631AbUKOQEl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 11:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUKOQEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 10:51:59 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:37080 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261627AbUKOPv5 (ORCPT
+	Mon, 15 Nov 2004 11:04:41 -0500
+Received: from smtp.wp.pl ([212.77.101.160]:57523 "EHLO smtp.wp.pl")
+	by vger.kernel.org with ESMTP id S261631AbUKOQEi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 10:51:57 -0500
-Date: Mon, 15 Nov 2004 17:46:04 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-Message-ID: <20041115164604.GA1456@elte.hu>
-References: <OF201B61B1.F0A7806E-ON86256F4A.005D427B-86256F4A.005D4299@raytheon.com>
+	Mon, 15 Nov 2004 11:04:38 -0500
+Date: Mon, 15 Nov 2004 17:04:52 +0100
+From: Marek Szuba <scriptkiddie@wp.pl>
+To: linux-kernel@vger.kernel.org
+Subject: mdacon problem
+Message-Id: <20041115170452.02a93dfb.scriptkiddie@wp.pl>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF201B61B1.F0A7806E-ON86256F4A.005D427B-86256F4A.005D4299@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-WP-SPAM: NO AS1=NO(Body=1 Fuz1=1 Fuz2=1) AS2=YES(1.000000) AS3=NO AS4=NO                         
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+Recently I have attempted to, in addition to my Matrox framebuffer
+console, enable a second head text console using mdacon driver;
+unfortunately I have been able neither to get it working nor to find any
+information on this in the docs or on the net.
 
->  [1] major network delays while latencytest is running (ping drops
-> packets or they get delayed by minutes). I did not see this on some
-> previous tests where I made more of the /0 and /1 tasks RT. May have
-> to do that again.
+First of all, some technical data - the kernel I use at present is 2.6.7
+(following problems with 2.6.9 which I shall describe in a separate
+post) and the second-head graphics card is an old PCI SVGA (which I
+believe might be the reason why it doesn't work; then again, AFAIK it is
+compatible with the MDA mode).
 
-i think this is directly related to what priority the ksoftirqd threads
-have.
+What happened:
+1. The second card got installed in a free PCI slot and the system got
+booted. The primary graphics card works as usual, the monitor connected
+to the secondary one remains in power-saving mode.
 
->  [6] the latency trace may have some SMP race conditions where the
-> entries displayed do not match the header. Examples are a 100 usec
-> trace header followed by 8 entries that last about 4 usec.
+2. Having compiled the appropriate kernel module and loaded it with
+"modprobe mdacon mda_first_vc=13 mda_last_vc=24", the following got sent
+to syslog:
+Nov 14 00:24:23 host kernel: mdacon: MDA with 8K of memory detected.    
+                          
+Nov 14 00:24:23 host kernel: Console: switching consoles 13-24 to MDA-2 
+                          
 
-i think i fixed a related bug in the latest kernel(s):
-touch_preempt_timing() was mistakenly 'touching' a live user-triggered
-trace and could interfere in a similar fashion. Please re-report if this
-still happens with -V0.7.26-3-ish or later kernels.
+3. Nothing else happened: the primary display works as usual and the
+secondary monitor remains in off mode.
 
->  [8] Some samples of /proc/loadavg during my big test showed some
-> extremely large numbers. For example:
-> 5.07 402.44 0.58 5/120 4448
+I have also tried loading the module with no options, obtaining
+"Console: switching consoles 1-16 to MDA-2 80x25" but rendering the text
+console unusable (probably due to fbcon).
 
-i'm currently trying to track down this one. The rq->nr_uninterruptible
-count got out of sync during one of the scheduler changes - and this
-causes large negative task counts, messing up the load-average.
+Could you shed any light on the issue? If you need any more information,
+please don't hesitate to ask.
 
-	Ingo
+Regards,
+-- 
+MS

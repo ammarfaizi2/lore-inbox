@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbTLHS6c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 13:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLHS6c
+	id S261754AbTLHTM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTLHTM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 13:58:32 -0500
-Received: from web41306.mail.yahoo.com ([66.218.93.55]:47442 "HELO
-	web41306.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261799AbTLHS63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 13:58:29 -0500
-Message-ID: <20031208185822.96788.qmail@web41306.mail.yahoo.com>
-Date: Mon, 8 Dec 2003 10:58:22 -0800 (PST)
-From: Jing Xu <xujing_cn2001@yahoo.com>
-Subject: irq again
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Mon, 8 Dec 2003 14:12:27 -0500
+Received: from holomorphy.com ([199.26.172.102]:27868 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261754AbTLHTMX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 14:12:23 -0500
+Date: Mon, 8 Dec 2003 11:12:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [patch] sched-HT-2.6.0-test11-A5
+Message-ID: <20031208191217.GZ19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Anton Blanchard <anton@samba.org>
+References: <20031117021511.GA5682@averell> <Pine.LNX.4.56.0311231300290.16152@earth> <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth> <20031208175622.GY19856@holomorphy.com> <Pine.LNX.4.58.0312081859100.8707@earth>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312081859100.8707@earth>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, guys,
+On Mon, 8 Dec 2003, William Lee Irwin III wrote:
+>> Why not per_cpu for __rq_idx[] and __cpu_idx[]? This would have the
+>> advantage of residing on node-local memory for sane architectures (and
+>> perhaps in the future, some insane ones).
 
-I have been stuct on this problem for a long time. Any
-suggestion on this will be highly appreciated.
+On Mon, Dec 08, 2003 at 07:21:14PM +0100, Ingo Molnar wrote:
+> agreed, i've changed them to be per-cpu.
+> new patch with all your suggestions included is at:
+>   redhat.com/~mingo/O(1)-scheduler/sched-SMT-2.6.0-test11-C1
+> it also includes the bounce-to-cpu1 fix from/for Anton.
 
-I'm running linux 2.4.20 and rtai 24.1.11. My linux
-kernel module needs to use IRQ 9 10 11 for AGP graphic
-card, sound card and PCI-Dio24 IO card. These irqs are
-also shared by USB controllers. My module hangs when
-it tries to request one of the above irqs that is used
-by USB keyboard. 
+This looks pretty good, thanks.
 
-I am using DELL machine, and its bios cannot reserve
-irq's.
 
-I also tried to set boot paramter "pci=irqmask=0xf1ef"
-to reserve irqs 9 10 11 4 for my driver, and it hasn't
-had any effect - those irqs are still used by usb
-controllers on initialization. 
-
-How to solve this irq confliction problem?
-
-Thanks in advance,
-
-jing
-
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
+-- wli

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312296AbSEENjC>; Sun, 5 May 2002 09:39:02 -0400
+	id <S312491AbSEENj3>; Sun, 5 May 2002 09:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312414AbSEENjB>; Sun, 5 May 2002 09:39:01 -0400
-Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:32252
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S312296AbSEENjA>; Sun, 5 May 2002 09:39:00 -0400
-Message-ID: <3CD535F3.1193069@eyal.emu.id.au>
-Date: Sun, 05 May 2002 23:38:59 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8-aa2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa2
-In-Reply-To: <4003.1020585881@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S312414AbSEENj2>; Sun, 5 May 2002 09:39:28 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:15705 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312491AbSEENjS>; Sun, 5 May 2002 09:39:18 -0400
+Message-Id: <5.1.0.14.2.20020505143831.040b18a0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 05 May 2002 14:39:47 +0100
+To: Chris Rankin <cj.rankin@ntlworld.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: Linux 2.4.18 floppy driver EATS floppies
+Cc: linux-kernel@vger.kernel.org, paul@paulbristow.net,
+        chaffee@cs.berkeley.edu
+In-Reply-To: <200205051317.g45DHIU0000750@twopit.underworld>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> On Sun, 05 May 2002 17:40:56 +1000,
-> Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
-> >You are right, it is not the unresolved that caused it but the non
-> >ELF objects in there (it used not to care before):
-> >
-> ># /sbin/depmod-2.4.15 -ae ; echo $?
-> >depmod: /lib/modules/2.4.19-pre8-aa2/ksyms is not an ELF file
-> >depmod: /lib/modules/2.4.19-pre8-aa2/soundconf is not an ELF file
-> >1
-> 
-> All versions of depmod for 2.4 have always returned errors for invalid
-> objects in /lib/modules, that check has not changed since modutils
-> 2.4.0.  modutils has not changed, somebody is storing extra text files
-> in /lib/modules without telling modutils.  Don't do that.
-> 
-> Who created the ksyms and soundconf files?
+At 14:17 05/05/02, Chris Rankin wrote:
+>I am discovering that any floppy disks that I try to use under Linux
+>don't last very long. This seems to be true with both my UP and SMP
+>machines, neither of which has ever used its floppy drive enough for
+>me to believe that the hardware is reaching the end of its life.
 
-I do. Since I have many kernels built, my build script copies the
-important bits into there. I have done this for many years now
-(as can be seen by the ancient 'soundconf' still being copied)
-without any problems. /lib/modules is the only per-kernel area
-on my machine and it is the most natural place to keep these files.
+Have you tried cleaning your floppy drive? The fact that you are not using 
+it bears no relation to the fact that the heads may be dirty...
 
-The failure started showing up only later in 2.4, I do not remember
-exactly when but it is many months ago now. The 'not an ELF' message
-was non fatal until then. I was pretty much keeping up with the
-modutils releases.
+Best regards,
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275096AbRJFI7r>; Sat, 6 Oct 2001 04:59:47 -0400
+	id <S274675AbRJFJPx>; Sat, 6 Oct 2001 05:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275110AbRJFI7g>; Sat, 6 Oct 2001 04:59:36 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:27148 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S275096AbRJFI7X>;
-	Sat, 6 Oct 2001 04:59:23 -0400
-Date: Sat, 6 Oct 2001 10:59:47 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Simon Kirby <sim@netnation.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.11pre4 swapping out all over the place
-In-Reply-To: <20011006010656.A968@netnation.com>
-Message-ID: <Pine.LNX.4.33.0110061048140.29350-100000@boris.prodako.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274674AbRJFJPo>; Sat, 6 Oct 2001 05:15:44 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:64530 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S274671AbRJFJPf>; Sat, 6 Oct 2001 05:15:35 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: [POT] Which journalised filesystem ?
+Date: Sat, 6 Oct 2001 09:16:04 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9pmi4k$95l$1@ncc1701.cistron.net>
+In-Reply-To: <m1669uyuqy.fsf@frodo.biederman.org> <E15pbX5-0007do-00@calista.inka.de> <9plgfn$6kq$2@ncc1701.cistron.net> <1002357150.3083.20.camel@volk.internalnet>
+X-Trace: ncc1701.cistron.net 1002359764 9397 195.64.65.67 (6 Oct 2001 09:16:04 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Oct 2001, Simon Kirby wrote:
+In article <1002357150.3083.20.camel@volk.internalnet>,
+Tonu Samuel  <tonu@please.do.not.remove.this.spam.ee> wrote:
+>On Sat, 2001-10-06 at 01:41, Miquel van Smoorenburg wrote:
+>> >Does that mean we can or we can't? Is there a flush write cache operation in
+>> >ATA? I asume there is one in SCSI?
+>> 
+>> Well hdparm has a -W option with which you can turn on/off the
+>> write cache. If that works (and it appears it does) you should be
+>> able to turn write cache off, write *one* block so that the
+>> cache gets flushed and turn it back on. I'm not sure how to
+>> test this, though.
+>
+>Doesn't hdparm -W0f do the work?
 
-> 2.4.11pre4 is swapping out on me while burning a CD at 4x.
-> 2.4.11pre2 (or maybe it was pre1) seemed to be a lot better.
-> 2.4.10pre10 still seems to be the best for me so far...
+No, -f flushes the kernels buffer cache, not the IDE disk write cache.
 
-I can confirm that in 2.4.11-pre4, the used-once pages are causing
-page-out activity, as opposed to 2.4.11-pre2 which did not.  Streaming i/o
-performce is down, and so is the interactive responsiveness (a lot).  To
-reproduce, run
-
-	dd if=/dev/hde1 of=/dev/null bs=4k
-
-This should not produce paging.  The block size is not important.
-
-/Tobias
+Mike.
+-- 
+Move sig.
 

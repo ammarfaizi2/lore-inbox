@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVAYKQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVAYKUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVAYKQA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 05:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVAYKQA
+	id S261874AbVAYKUk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 05:20:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVAYKUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 05:16:00 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47571 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261876AbVAYKPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 05:15:54 -0500
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
-       Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<1106623970.2399.205.camel@d845pe> <20050125035930.GG13394@redhat.com>
-	<m1sm4phpor.fsf@ebiederm.dsl.xmission.com>
-	<20050125094350.GA6372@ip68-4-98-123.oc.oc.cox.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Jan 2005 03:14:06 -0700
-In-Reply-To: <20050125094350.GA6372@ip68-4-98-123.oc.oc.cox.net>
-Message-ID: <m1brbdhl3l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 25 Jan 2005 05:20:40 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:6365 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261874AbVAYKUc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 05:20:32 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 25 Jan 2005 11:15:09 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: v4l-saa7134-module compile error
+Message-ID: <20050125101508.GB1060@bytesex>
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124111713.GF3515@stusta.de> <20050124135716.GA23702@bytesex> <20050124174559.GJ3515@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124174559.GJ3515@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Barry K. Nathan" <barryn@pobox.com> writes:
-
-> On Tue, Jan 25, 2005 at 01:35:00AM -0700, Eric W. Biederman wrote:
-> > So I will ask again, as I did when Andrew first pointed this in my
-> > direction.  What code path in the kernel could possibly care if we
-> > disable the i8259 after we have disabled all of the other hardware in
-> > the system.
+> > The patch below should fix this.
 > 
-> This may be a foolish question, but, are there possibly any code paths
-> in the *BIOS* that could care?
+> Not completely:
 
-Fairly unlikely at this point, as the state we have traditionally
-reprogrammed the i8259 to, delivers interrupts to different vectors
-than the firmware uses.   So I don't see how telling it not
-to deliver interrupts where the firmware won't expect them
-is likely to change things.
+>   CC      drivers/media/video/saa7134/saa7134-core.o
+> drivers/media/video/saa7134/saa7134-core.c: In function `saa7134_initdev':
+> drivers/media/video/saa7134/saa7134-core.c:997: error: `need_empress' undeclared (first use in this function)
 
-It could be that ACPI AML code is trying something at an inappropriate 
-time.  But I can not even find the ACPI soft power code path.  pm_power_off
-never seems to get hooked. 
+New version, this time using a #define, which should kill the reference
+to need_* as well ...
 
-Or it could one of the other kexec related patches for all I know.
+  Gerd
 
-Until I get a good data point or a reproducer I can't do anything.
-It doesn't even make sense to drop the patch because then
-I won't get a good data point.  And I won't know if similar symptoms
-crop of if I need to do something else.
-
-Eric
+Index: linux-2005-01-23/drivers/media/video/saa7134/saa7134-core.c
+===================================================================
+--- linux-2005-01-23.orig/drivers/media/video/saa7134/saa7134-core.c	2005-01-24 18:43:20.000000000 +0100
++++ linux-2005-01-23/drivers/media/video/saa7134/saa7134-core.c	2005-01-25 10:04:17.000000000 +0100
+@@ -21,6 +21,7 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -225,6 +226,8 @@ static void dump_statusregs(struct saa71
+ /* ----------------------------------------------------------- */
+ /* delayed request_module                                      */
+ 
++#ifdef CONFIG_MODULES
++
+ static int need_empress;
+ static int need_dvb;
+ 
+@@ -265,6 +268,12 @@ static void request_module_depend(char *
+ 	}
+ }
+ 
++#else
++
++#define request_module_depend(name,flag)
++
++#endif /* CONFIG_MODULES */
++
+ /* ------------------------------------------------------------------ */
+ 
+ /* nr of (saa7134-)pages for the given buffer size */

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313486AbSDPCVB>; Mon, 15 Apr 2002 22:21:01 -0400
+	id <S313492AbSDPCYQ>; Mon, 15 Apr 2002 22:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313492AbSDPCVB>; Mon, 15 Apr 2002 22:21:01 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:39698 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S313486AbSDPCVA>;
-	Mon, 15 Apr 2002 22:21:00 -0400
-Date: Tue, 16 Apr 2002 11:20:24 +0900 (JST)
-Message-Id: <20020416.112024.96917545.taka@valinux.co.jp>
-To: jakob@unthought.net
-Cc: davem@redhat.com, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20020416034120.R18116@unthought.net>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313493AbSDPCYP>; Mon, 15 Apr 2002 22:24:15 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.247.199]:38407 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S313492AbSDPCYP>; Mon, 15 Apr 2002 22:24:15 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] + story;) on POSIX capabilities and SUID bit
+Date: 16 Apr 2002 02:15:07 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <a9g1fb$onq$1@abraham.cs.berkeley.edu>
+In-Reply-To: <Pine.LNX.4.33.0204122026170.903-100000@seldon.terminus.sk>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1018923307 25338 128.32.45.153 (16 Apr 2002 02:15:07 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 16 Apr 2002 02:15:07 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Marek Zelem  wrote:
+>Our new formula:
+>  * (***) pP' = (fP & X) | (fI & pI)
+>  *       pI' = pP'
+>  *       pE' = ((pP' & pE) | fP) & X & fE
 
-jakob> Won't this serialize too much ?  I mean, consider the situation where we
-jakob> have file-A and file-B completely in cache, while file-C needs to be
-jakob> read from the physical disk.
-jakob> 
-jakob> Three different clients (A, B and C) request file-A, file-B and file-C
-jakob> respectively. The send of file-C is started first, and the sends of files
-jakob> A and B (which could commence immediately and complete at near wire-speed)
-jakob> will now have to wait (leaving the NIC idle) until file-C is read from
-jakob> the disks.
-jakob> 
-jakob> Even if it's not the entire file but only a single NFS request (probably 8kB),
-jakob> one disk seek (7ms) is still around 85 kB, or 10 8kB NFS requests (at 100Mbit).
-jakob> 
-jakob> Or am I misunderstanding ?   Will your UDP sendpage() queue the requests ?
+Can you say anything about why this is safe and doesn't introduce
+vulnerabilities?  (The capabilities misfeature that caused sendmail
+8.10.1 to leak root privilege really drove home for me the subtlety of
+this stuff.)
 
-No problem.
-On my implementation, at the beginning a knfsd grabs all pages -- a part
-of file-C -- to reply to the NFS client. After that the knfsd starts to
-send them. It won't block any other knfsds during disk I/Os.
+Also, the meaning of fE and fP seem backwards from what I would have
+expected.  Maybe this reflects a lack in my understanding in capabilities,
+but I thought 'effective' refers to capabilities you're allowed to invoke
+at the moment, whereas 'permitted' refers to an upper bound on what
+capabilities you're allowed enable in 'effective', consequently I would
+have swapped the treatment of fE and fP.  Can you clear up my confusion?
 
-Thank you,
-Hirokazu Takahashi.
-
+Finally, what's the story behind the changes to CAP_INIT_EFF_SET and
+CAP_INIT_INH_SET, and the business with CAP_SETPCAP?  If I understand
+correctly, one side-effect of this change is that you've changed cap_bset
+(X, the global bound on capabilities above) to add CAP_SETPCAP to it.
+Is this safe?  What motivated this change?  Did I understand correctly?

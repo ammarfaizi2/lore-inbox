@@ -1,142 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVANUZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVANUYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVANUZY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 15:25:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVANUWm
+	id S262051AbVANUYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 15:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVANUXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 15:22:42 -0500
-Received: from lakermmtao01.cox.net ([68.230.240.38]:33169 "EHLO
-	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S262055AbVANUTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:19:01 -0500
-Message-ID: <41E8292A.40302@dot21rts.com>
-Date: Fri, 14 Jan 2005 14:18:50 -0600
-From: Andy Helten <andy.helten@dot21rts.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SATA hotplug status (sii3114)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 15:23:36 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:7561 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262127AbVANUR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 15:17:27 -0500
+Date: Fri, 14 Jan 2005 12:17:14 -0800
+From: Dave Jiang <dave.jiang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       greg@kroah.com, linux@arm.linux.org.uk, smaurer@teja.com,
+       dsaxena@plexity.net, drew.moseley@intel.com,
+       mporter@kernel.crashing.org
+Subject: [PATCH 5/5] resource: ppc arch updates for u64 resource
+Message-ID: <20050114201714.GC19681@plexity.net>
+Reply-To: dave.jiang@gmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Intel Corp.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+PPC arch update for using u64 resources. 
 
-Can anyone tell me the current status of hotplug support?  The SATA web 
-site says only this:
-
-> libata does not support hotplug... yet. 
+Signed-off-by: Dave Jiang <dave.jiang@gmail.com>
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
 
-Is there a plan or design for adding hotplug support?  Can anyone point 
-me to any discussions on this matter.  I am new to Linux kernel 
-development, but I have searched the archives and found nothing very 
-helpful (except for the mention of the echo commands I tried below).  
-There could be a simple solution that is evading me, but I've looked for 
-two days now without much success.
-
-I am running kernel version 2.4.25-elinos-53 with the 2.4.25-libata16 
-patch.  The CPU is a PowerPC 8245 and the SATA controller is an 
-Sii3114.  The processor board provides hotplug support which, at least 
-at a hardware level, allows safe removal and insertion of the drives.  
-However, the software does not appear to handle the re-install very 
-well.  Note that before a remove/insert cycle, the drive seems to work 
-fine (I haven't tested it very extensively).  This could also be an 
-issue with the way hardware brings the drive back up after hotplug 
-insertion (I am also not that familiar with SATA just yet).
-
-Thanks for any help,
-Andy
-
-
-*****
-
-If interested, here is what I've done thus far:
-
-I've tried rescanning the bus using 'echo "rescan" > /proc/scsi/scsi' 
-and explicitly adding/removing the device using 'add-single-device' and 
-'remove-single-device'.  None of these seem to help the device recover 
-following a drive hotplug remove/insert.  For example, I issue the 
-'remove-single-device' command, remove the drive, re-insert the drive, 
-and issue the 'add' command.  I verify that the drive is indeed removed 
-from /proc/scsi/scsi and then added back after the 'add' command, but 
-accessing the drive does not work following the hotplug insertion.  In 
-fact, the 'add' command never returns to the command line, although the 
-kernel does continue to run and I can use another terminal to look at 
-/proc/scsi/scsi.
-
-I've also tried the 'add' and 'remove' commands without physically 
-removing the drive.  After this, I can remount the drive and read/write 
-it without problems.  This seems to prove that the act of hotplug 
-removal/insertion is the real issue.
-
-
-Here is a console session of a remove/insert cycle:
-
-[1 /]#cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-[2 /]#echo "scsi remove-single-device 0 0 0 0" >/proc/scsi/scsi
-[3 /]#cat /proc/scsi/scsi
-Attached devices:
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-[4 /]#
-
-    /* drive is removed */
-
-cpld.o: shuttle 1: released    /* msg from interrupt routine */
-
-[4 /]#cat /proc/scsi/scsi
-Attached devices:
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-[5 /]#
-
-    /* drive is inserted */
-
-cpld.o: shuttle 1: inserted    /* msg from interrupt routine */
-
-[5 /]#cat /proc/scsi/scsi
-Attached devices:
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-[6 /]#echo "scsi add-single-device 0 0 0 0" >/proc/scsi/scsi
-scsi singledevice 0 0 0 0
-  Vendor: ATA       Model: HTE726040M9AT00   Rev: 1.02
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
- sda:<3>ata1: DMA timeout, stat 0x1
-ATA: abnormal status 0xD0 on port 0xD1042C87
-scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 00 00 00 00 00 00 08 00
-Current sd08:00: sns = 70  3
-ASC=11 ASCQ= 4
-Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 
-0x00 0x11
-0x04
- I/O error: dev 08:00, sector 0
+===== arch/ppc/kernel/pci.c 1.48 vs edited =====
+--- 1.48/arch/ppc/kernel/pci.c	2004-10-20 01:37:05 -07:00
++++ edited/arch/ppc/kernel/pci.c	2005-01-13 11:10:42 -07:00
+@@ -114,7 +114,7 @@
+ 		if (!res->flags)
+ 			continue;
+ 		if (res->end == 0xffffffff) {
+-			DBG("PCI:%s Resource %d [%08lx-%08lx] is unassigned\n",
++			DBG("PCI:%s Resource %d [%08Lx-%08Lx] is unassigned\n",
+ 			    pci_name(dev), i, res->start, res->end);
+ 			res->end -= res->start;
+ 			res->start = 0;
+@@ -173,17 +173,17 @@
+  * but we want to try to avoid allocating at 0x2900-0x2bff
+  * which might have be mirrored at 0x0100-0x03ff..
+  */
+-void pcibios_align_resource(void *data, struct resource *res, unsigned long size,
+-		       unsigned long align)
++void pcibios_align_resource(void *data, struct resource *res, u64 size,
++		       u64 align)
+ {
+ 	struct pci_dev *dev = data;
  
-[7 /]#cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor:          Model:                  Rev:
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: HTE726040M9AT00  Rev: 1.02
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-
-
+ 	if (res->flags & IORESOURCE_IO) {
+-		unsigned long start = res->start;
++		u64 start = res->start;
+ 
+ 		if (size > 0x100) {
+ 			printk(KERN_ERR "PCI: I/O Region %s/%d too large"
+-			       " (%ld bytes)\n", pci_name(dev),
++			       " (%Ld bytes)\n", pci_name(dev),
+ 			       dev->resource - res, size);
+ 		}
+ 
+@@ -255,7 +255,7 @@
+ 				}
+ 			}
+ 
+-			DBG("PCI: bridge rsrc %lx..%lx (%lx), parent %p\n",
++			DBG("PCI: bridge rsrc %Lx..%Lx (%lx), parent %p\n",
+ 			    res->start, res->end, res->flags, pr);
+ 			if (pr) {
+ 				if (request_resource(pr, res) == 0)
+@@ -306,7 +306,7 @@
+ 	*pp = NULL;
+ 	for (p = res->child; p != NULL; p = p->sibling) {
+ 		p->parent = res;
+-		DBG(KERN_INFO "PCI: reparented %s [%lx..%lx] under %s\n",
++		DBG(KERN_INFO "PCI: reparented %s [%Lx..%Lx] under %s\n",
+ 		    p->name, p->start, p->end, res->name);
+ 	}
+ 	return 0;
+@@ -362,12 +362,12 @@
+ 		try = conflict->start - 1;
+ 	}
+ 	if (request_resource(pr, res)) {
+-		DBG(KERN_ERR "PCI: huh? couldn't move to %lx..%lx\n",
++		DBG(KERN_ERR "PCI: huh? couldn't move to %Lx..%Lx\n",
+ 		    res->start, res->end);
+ 		return -1;		/* "can't happen" */
+ 	}
+ 	update_bridge_base(bus, i);
+-	printk(KERN_INFO "PCI: bridge %d resource %d moved to %lx..%lx\n",
++	printk(KERN_INFO "PCI: bridge %d resource %d moved to %Lx..%Lx\n",
+ 	       bus->number, i, res->start, res->end);
+ 	return 0;
+ }
+@@ -479,14 +479,14 @@
+ {
+ 	struct resource *pr, *r = &dev->resource[idx];
+ 
+-	DBG("PCI:%s: Resource %d: %08lx-%08lx (f=%lx)\n",
++	DBG("PCI:%s: Resource %d: %016Lx-%016Lx (f=%lx)\n",
+ 	    pci_name(dev), idx, r->start, r->end, r->flags);
+ 	pr = pci_find_parent_resource(dev, r);
+ 	if (!pr || request_resource(pr, r) < 0) {
+ 		printk(KERN_ERR "PCI: Cannot allocate resource region %d"
+ 		       " of device %s\n", idx, pci_name(dev));
+ 		if (pr)
+-			DBG("PCI:  parent is %p: %08lx-%08lx (f=%lx)\n",
++			DBG("PCI:  parent is %p: %016Lx-%016Lx (f=%lx)\n",
+ 			    pr, pr->start, pr->end, pr->flags);
+ 		/* We'll assign a new address later */
+ 		r->flags |= IORESOURCE_UNSET;
+@@ -1061,7 +1061,7 @@
+ 	DBG("Remapping Bus %d, bridge: %s\n", bus->number, bridge->slot_name);
+ 	res.start -= ((unsigned long) hose->io_base_virt - isa_io_base);
+ 	res.end -= ((unsigned long) hose->io_base_virt - isa_io_base);
+-	DBG("  IO window: %08lx-%08lx\n", res.start, res.end);
++	DBG("  IO window: %016Lx-%016Lx\n", res.start, res.end);
+ 
+ 	/* Set up the top and bottom of the PCI I/O segment for this bus. */
+ 	pci_read_config_dword(bridge, PCI_IO_BASE, &l);
+@@ -1209,8 +1209,8 @@
+ 					continue;
+ 				if ((r->flags & IORESOURCE_IO) == 0)
+ 					continue;
+-				DBG("Trying to allocate from %08lx, size %08lx from parent"
+-				    " res %d: %08lx -> %08lx\n",
++				DBG("Trying to allocate from %016Lx, size %016Lx from parent"
++				    " res %d: %016Lx -> %016Lx\n",
+ 					res->start, res->end, i, r->start, r->end);
+ 			
+ 				if (allocate_resource(r, res, res->end + 1, res->start, max,

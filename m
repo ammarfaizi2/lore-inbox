@@ -1,103 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292336AbSCEVtx>; Tue, 5 Mar 2002 16:49:53 -0500
+	id <S291753AbSCEVvD>; Tue, 5 Mar 2002 16:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291753AbSCEVto>; Tue, 5 Mar 2002 16:49:44 -0500
-Received: from h006008986325.ne.mediaone.net ([24.61.201.13]:784 "EHLO
-	workingcode.com") by vger.kernel.org with ESMTP id <S291074AbSCEVtZ>;
-	Tue, 5 Mar 2002 16:49:25 -0500
-From: James Carlson <carlson@workingcode.com>
+	id <S292295AbSCEVuy>; Tue, 5 Mar 2002 16:50:54 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20230 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291753AbSCEVum>; Tue, 5 Mar 2002 16:50:42 -0500
+Date: Tue, 5 Mar 2002 16:49:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: dart <dart@windeath.2y.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the tree 
+In-Reply-To: <3C7F22A7.BA7916DF@windeath.2y.net>
+Message-ID: <Pine.LNX.3.96.1020305162547.28458B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15493.15705.875971.284849@h006008986325.ne.mediaone.net>
-Date: Tue, 5 Mar 2002 16:49:13 -0500 (EST)
-To: jt@hpl.hp.com
-Cc: Maksim Krasnyanskiy <maxk@qualcomm.com>, Paul Mackerras <paulus@samba.org>,
-        linux-ppp@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PPP feature request (Tx queue len + close)
-In-Reply-To: Jean Tourrilhes's message of 5 March 2002 11:27:22
-In-Reply-To: <15492.21937.402798.688693@argo.ozlabs.ibm.com>
-	<20020304144200.A32397@bougret.hpl.hp.com>
-	<15492.13788.572953.6546@argo.ozlabs.ibm.com>
-	<20020304191947.A32730@bougret.hpl.hp.com>
-	<20020305094535.A792@bougret.hpl.hp.com>
-	<5.1.0.14.2.20020305095825.01b61fd8@mail1.qualcomm.com>
-	<20020305102835.B847@bougret.hpl.hp.com>
-	<15493.6511.657146.472391@h006008986325.ne.mediaone.net>
-	<20020305112722.D898@bougret.hpl.hp.com>
-X-Mailer: VM 6.75 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes writes:
-> > No.  Decreasing the buffering below PPP is the right path.
+On Fri, 1 Mar 2002, dart wrote:
+
+> <massive snippage>
 > 
-> 	Yes, that's what I want to do it. But with regards to TCP,
-> there is no difference if packets are buffered within PPP or below
-> PPP. So, reducing buffering in PPP is also a win.
-
-True.  Actually, except for MP reassembly, there should be *no*
-buffering in PPP at all.  If there is on your platform (I'm much more
-familiar with Solaris than with Linux), then that's certainly an odd
-design problem.
-
-I've seen the deep buffering problem before in other contexts: older
-BSD stacks had all output ifq_len values set to 50, even if the links
-were really slow (<9600bps), and this often triggered retransmits.
-TCP congestion detection *depends* on packet loss.  Loss is a good
-thing.
-
-> > Running one retransmit-based reliable protocol atop another is usually
-> > a recipe for disaster (as you've found; as others have found by trying
-> > to run PPP over TELNET over the general Internet).
+> > That sounds very nice, but in practice it means it would never happen, and
+> > you know it.
 > 
-> 	Not true. It all depend of the timeframe of those
-> retransmissions, and how they are triggered. That's why TCP works
-> properly on 802.11b. Of course, this assume that the link
-> retransmissions are designed properly.
+> Excuse me...I've been a lurker and sometimes tester since 2.0.*. I've
+> been working my way through man (3) to learn enough to submit a coherent
+> patch and I don't appreciate you telling me I can't do it. I've searched
+> your submissions to LKML and all I see are opinions, ie ==
+> !code_submitted. 
 
-That's still exactly what I said in that message, just restated a
-different way:
-
-	In general, if you have link-layer ARQ, you need to have the
-	time constant be *much* shorter than any RTT estimate that TCP
-	is likely to see, or you get oscillatory behavior out of TCP.
-
-In other words, link layer ARQ should be minimally persistent and done
-only if the retransmit interval is much shorter than TCP's RTT
-estimate.  If it's not, then you have a controlled disaster.  This has
-been demonstrated before with PPP-over-TCP hacks.
-
-> > The transport layer (most often TCP) assumes that the network layer
-> > (IP) has minimal (and slowly varying) latency, but is lossy, and thus
-> > that it has minimal buffering and little error control.
+  Correct, after sending in patches to people who didn't bother to ack
+them (except Alan), I got the message and stopped bothering people.  Since
+I've been writing software for a living longer than there's been a Linux,
+I always provide a description of the bug with a test if needed. 
+Somewhere around 2.1 I let it ride, and I haven't even followed lkml until
+about six months ago. 
+ 
+> > This process could take six months to a year, after which we can start the
+> > process with the scheduler.
 > 
-> 	Not true. Try running TCP on links with 20% packet losses.
-> 	Also, any ethernet driver flow control the stack through
-> netif_stop/start_queue() to avoid local overruns.
+> Who exactly are "we" anyway? I know it's not me because I haven't
+> contributed DIDDLY for code just yet. 
 
-I said "lossy," not "high error rate."  There's quite a difference
-between the two.  TCP finds the one (by definition) bottleneck in the
-path by finding the point where packets drop and optimizing around
-that.  It just won't do that if there aren't losses, and the window
-will open until the link-layer queue becomes a serious stability
-problem.
+  People who would like to see better performance in *this* stable kernel,
+not 2.6 in two years (look at the jump from stable 2.2 to whatever you
+think is stable in 2.4 and tell me your estimate).
 
-(If the link can push back in Linux with local flow control, then the
-question becomes: why doesn't that work with this application?  Is
-something missing from the IrDA interface or the PPP kernel bits that
-prevent this from working right?  And if it's the latter, why don't
-regular serial users see the problem?)
+  I won't bring it up again, I'd love to think Rik, Alan and Ingo will
+keep working on performance patches for 2.4, but I wouldn't bet on it.
+ 
+> Just a note: CD Burner, Parport/ECP/EPP/Zip broken with 2.4.17, will try
+> 2.4.19. 2.4.18 too ugly to test. 
 
-(You can do better by dropping packets *earlier* -- see RED.)
+  I have no idea if this is related to the fix posted recently WRT PL/IP,
+after I commented that I was looking at the code to see why it changed
+someone asked if 19-pre2 didn't work. I admit I only looked to see if the
+change which broke it was reverted, but it looks as if some work has been
+done in -pre2, might be worth a try. I'm going to build pre2-ac2 and mjc
+for some laptop benchmarks, I'll turn on ZIP support and try my old unit
+(the original protocol). I'll try to report back on that in the next day
+or so.
 
-> 	Already read those. Guess what, my name is event in the
-> acknowledgments ! How bizzare ;-)
-
-*Blush* I somehow forgot about your postings among the flood of draft
-updates from Phil and odd flame-wars.  :-/
+  If I brought my laplink cable with me I might give PL/IP a try this
+week, otherwise I'll bring it next week, the weekend is being better spent
+on ECAC hockey playoffs ;-)
 
 -- 
-James Carlson                                  <carlson@workingcode.com>
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

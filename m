@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265281AbTFFBVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 21:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbTFFBVx
+	id S265285AbTFFBqi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 21:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbTFFBqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 21:21:53 -0400
-Received: from dyn-ctb-203-221-72-248.webone.com.au ([203.221.72.248]:27396
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S265281AbTFFBVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 21:21:52 -0400
-Message-ID: <3EDFEFBB.7080507@cyberone.com.au>
-Date: Fri, 06 Jun 2003 11:34:51 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Thu, 5 Jun 2003 21:46:38 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:3747 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S265285AbTFFBqi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 21:46:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: Alan Cox <alan@redhat.com>
+Subject: HELP!! REDHAT QUESTION
+Date: Thu, 5 Jun 2003 22:58:32 -0400
+User-Agent: KMail/1.4.3
+References: <200306051406.h55E6Yp25484@devserv.devel.redhat.com>
+In-Reply-To: <200306051406.h55E6Yp25484@devserv.devel.redhat.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Mark Peloquin <peloquin@austin.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Nightly regression run results
-References: <3EDF6F49.8070201@austin.ibm.com>
-In-Reply-To: <3EDF6F49.8070201@austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306052258.32331.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please help.  I have a redhat 7.3 computer accross the country that was 
+installed using the WORKSTATION option.  I desperately need to telnet into 
+it, but with the new xinetd.d stuff, don't know how.  Can ANYBODY tell me how 
+to get the telnet deamon running on this box so that I can remotely log in?
 
 
-Mark Peloquin wrote:
-
->
->
-> Here are links to some 2.5.70 nightly regression comparisons:
->
-It appears your tiobench reads are coming out of cache.
-Would you be able add some runs with the size >= 2*ram
-please? I don't know if anyone would still find the
-current type useful - maybe for scalability work?
-
-Thanks
-Nick
-
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL/FAX 603-232-3115 MOBILE 603-493-2386
+www.briggsmedia.com

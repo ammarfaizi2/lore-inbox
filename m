@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135444AbRDRWem>; Wed, 18 Apr 2001 18:34:42 -0400
+	id <S135443AbRDRWn0>; Wed, 18 Apr 2001 18:43:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135443AbRDRWec>; Wed, 18 Apr 2001 18:34:32 -0400
-Received: from netsonic.fi ([194.29.192.20]:33806 "EHLO nalle.netsonic.fi")
-	by vger.kernel.org with ESMTP id <S135445AbRDRWe0>;
-	Wed, 18 Apr 2001 18:34:26 -0400
-Date: Thu, 19 Apr 2001 01:34:13 +0300 (EEST)
-From: Sampsa Ranta <sampsa@netsonic.fi>
-To: Julian Anastasov <ja@ssi.bg>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Broken ARP (was Re: ARP responses broken!)
-In-Reply-To: <Pine.LNX.4.30.0104180131330.7698-100000@u.domain.uli>
-Message-ID: <Pine.LNX.4.33.0104190130490.27239-100000@nalle.netsonic.fi>
+	id <S135450AbRDRWnQ>; Wed, 18 Apr 2001 18:43:16 -0400
+Received: from www.resilience.com ([209.245.157.1]:41171 "EHLO
+	www.resilience.com") by vger.kernel.org with ESMTP
+	id <S135443AbRDRWm4>; Wed, 18 Apr 2001 18:42:56 -0400
+Message-ID: <3ADE194C.ED9C1CAA@resilience.com>
+Date: Wed, 18 Apr 2001 15:46:36 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] proc_lookup not exported
+In-Reply-To: <Pine.GSO.4.21.0104181747460.15153-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> 
+> On Wed, 18 Apr 2001, Jeff Golds wrote:
+> 
+> > I don't see why not. I created my own mkdir and rmdir handlers in my
+> > module.  I'd like to use the lookup function that proc supplies instead
+> > of supplying my own, why shouldn't I be allowed to do that?  It's not as
+> > if I am doing something other than what normally happens:  I am
+> > assigning inode_operations::lookup to be proc_lookup.
+> 
+> Use ramfs as a model; procfs is not well-suited for that sort of work.
+> 
 
-I have a rathar strange way to first ask and then try to find the answer
-on my own. But what I found was:
+I don't want to cause trouble, but it sure seems like the kernel source
+tree could be better organized.  For example, in every C application I
+have seen, global header files specify interfaces into the relevant
+module and local header files are for intramodule use only.  In the
+Linux kernel tree, ALL the header files are global, thus, you can't
+easily tell what things are exported and what is not as you can't just
+look at the header file.  Isn't this against what open source is about: 
+Requiring inside knowledge about the code?
 
-from http://www.appwatch.com/lists/linux-kernel/Week-of-Mon-20010122/018588.html
-> > am most curious about is how it ending up being removed from the kernel
-> > in the first place.  It must have been a decision that someone made.
-> > Either, we don't need that any more since we can do it this way, or
-> > we'll take it out since nobody uses it.
->
-> It was only submitted to 2.2 a few months ago (=years after 2.3 branched), but
-> never added to 2.4.
+I don't understand why local header files are not used.  It's easy to
+prevent people from using the wrong functions, simply make a script that
+checks to see if people are including the local header files from other
+modules and return an error if they are.  This could be checked at build
+time.
 
-So I wonder if this hidden feature or alike should be brought to 2.4 tree
-also?
+Maybe this is all old news, I am rather new to the Linux kernel, but
+perhaps this is something that could be addressed in future (2.5?)
+versions of the kernel.
 
- - Sampsa Ranta
-   sampsa@netsonic.fi
+-Jeff
 
+-- 
+Jeff Golds
+jgolds@resilience.com

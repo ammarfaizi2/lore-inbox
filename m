@@ -1,51 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVCIXy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVCJAtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262132AbVCIXy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVCIXOb
+	id S262582AbVCJAtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCJAt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:14:31 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:41383 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262431AbVCIW4Q
+	Wed, 9 Mar 2005 19:49:28 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58271 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262630AbVCJAmd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:56:16 -0500
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Page Fault Scalability patch V19 [4/4]: Drop use of
- page_table_lock in do_anonymous_page
-References: <20050309201324.29721.28956.sendpatchset@schroedinger.engr.sgi.com>
-	<20050309201344.29721.26698.sendpatchset@schroedinger.engr.sgi.com>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 09 Mar 2005 23:56:14 +0100
-In-Reply-To: <20050309201344.29721.26698.sendpatchset@schroedinger.engr.sgi.com> (Christoph
- Lameter's message of "Wed, 9 Mar 2005 12:13:44 -0800 (PST)")
-Message-ID: <m13bv4whrl.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Mar 2005 19:42:33 -0500
+Cc: gregkh@suse.de
+Subject: [PATCH] sysdev: fix the name of the list of drivers to be a sane name
+In-Reply-To: <11104148863225@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:34:46 -0800
+Message-Id: <1110414886525@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> writes:
+ChangeSet 1.2053, 2005/03/09 15:35:31-08:00, gregkh@suse.de
 
-> Do not use the page_table_lock in do_anonymous_page. This will significantly
-> increase the parallelism in the page fault handler in SMP systems. The patch
-> also modifies the definitions of _mm_counter functions so that rss and anon_rss
-> become atomic.
+[PATCH] sysdev: fix the name of the list of drivers to be a sane name
 
-I still think it's a bad idea to add arbitary process size limits like this:
+Heh, "global_drivers" as a static...
 
->  
-> +#ifdef CONFIG_ATOMIC_TABLE_OPS
-> +/*
-> + * Atomic page table operations require that the counters are also
-> + * incremented atomically
-> +*/
-> +#define set_mm_counter(mm, member, value) atomic_set(&(mm)->member, value)
-> +#define get_mm_counter(mm, member) ((unsigned long)atomic_read(&(mm)->member))
-> +#define update_mm_counter(mm, member, value) atomic_add(value, &(mm)->member)
-> +#define MM_COUNTER_T atomic_t
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Can you use atomic64_t on 64bit systems at least? 
 
--Andi
+ drivers/base/sys.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+
+diff -Nru a/drivers/base/sys.c b/drivers/base/sys.c
+--- a/drivers/base/sys.c	2005-03-09 16:28:17 -08:00
++++ b/drivers/base/sys.c	2005-03-09 16:28:17 -08:00
+@@ -102,7 +102,7 @@
+ EXPORT_SYMBOL_GPL(sysdev_class_unregister);
+ 
+ 
+-static LIST_HEAD(global_drivers);
++static LIST_HEAD(sysdev_drivers);
+ 
+ /**
+  *	sysdev_driver_register - Register auxillary driver
+@@ -112,7 +112,7 @@
+  *	If @cls is valid, then @drv is inserted into @cls->drivers to be
+  *	called on each operation on devices of that class. The refcount
+  *	of @cls is incremented.
+- *	Otherwise, @drv is inserted into global_drivers, and called for
++ *	Otherwise, @drv is inserted into sysdev_drivers, and called for
+  *	each device.
+  */
+ 
+@@ -130,7 +130,7 @@
+ 				drv->add(dev);
+ 		}
+ 	} else
+-		list_add_tail(&drv->entry, &global_drivers);
++		list_add_tail(&drv->entry, &sysdev_drivers);
+ 	up_write(&system_subsys.rwsem);
+ 	return 0;
+ }
+@@ -199,7 +199,7 @@
+ 		 */
+ 
+ 		/* Notify global drivers */
+-		list_for_each_entry(drv, &global_drivers, entry) {
++		list_for_each_entry(drv, &sysdev_drivers, entry) {
+ 			if (drv->add)
+ 				drv->add(sysdev);
+ 		}
+@@ -219,7 +219,7 @@
+ 	struct sysdev_driver * drv;
+ 
+ 	down_write(&system_subsys.rwsem);
+-	list_for_each_entry(drv, &global_drivers, entry) {
++	list_for_each_entry(drv, &sysdev_drivers, entry) {
+ 		if (drv->remove)
+ 			drv->remove(sysdev);
+ 	}
+@@ -268,7 +268,7 @@
+ 			pr_debug(" %s\n", kobject_name(&sysdev->kobj));
+ 
+ 			/* Call global drivers first. */
+-			list_for_each_entry(drv, &global_drivers, entry) {
++			list_for_each_entry(drv, &sysdev_drivers, entry) {
+ 				if (drv->shutdown)
+ 					drv->shutdown(sysdev);
+ 			}
+@@ -319,7 +319,7 @@
+ 			pr_debug(" %s\n", kobject_name(&sysdev->kobj));
+ 
+ 			/* Call global drivers first. */
+-			list_for_each_entry(drv, &global_drivers, entry) {
++			list_for_each_entry(drv, &sysdev_drivers, entry) {
+ 				if (drv->suspend)
+ 					drv->suspend(sysdev, state);
+ 			}
+@@ -375,7 +375,7 @@
+ 			}
+ 
+ 			/* Call global drivers. */
+-			list_for_each_entry(drv, &global_drivers, entry) {
++			list_for_each_entry(drv, &sysdev_drivers, entry) {
+ 				if (drv->resume)
+ 					drv->resume(sysdev);
+ 			}
+

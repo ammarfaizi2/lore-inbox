@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVBFRLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVBFRNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVBFRLi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 12:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVBFRJz
+	id S261238AbVBFRNX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 12:13:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVBFRLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 12:09:55 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:17818 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261217AbVBFRHw
+	Sun, 6 Feb 2005 12:11:54 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:60801 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261238AbVBFRLP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 12:07:52 -0500
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI]
-	Samsung P35, S3, black screen (radeon))
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Sun, 6 Feb 2005 12:11:15 -0500
+Date: Sun, 6 Feb 2005 09:10:41 -0800
+From: Tony Lindgren <tony@atomide.com>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050205093550.GC1158@elf.ucw.cz>
-References: <e796392205020221387d4d8562@mail.gmail.com>
-	 <420217DB.709@gmx.net> <4202A972.1070003@gmx.net>
-	 <20050203225410.GB1110@elf.ucw.cz>
-	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
-	 <1107485504.5727.35.camel@desktop.cunninghams>
-	 <9e4733910502032318460f2c0c@mail.gmail.com>
-	 <20050204074454.GB1086@elf.ucw.cz>
-	 <9e473391050204093837bc50d3@mail.gmail.com>
-	 <20050205093550.GC1158@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1107695583.14847.167.camel@localhost.localdomain>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050206171041.GC13936@atomide.com>
+References: <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <20050205230017.GA1070@elf.ucw.cz> <20050206023344.GA15853@atomide.com> <20050206081137.GA994@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Feb 2005 16:02:34 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050206081137.GA994@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-02-05 at 09:35, Pavel Machek wrote:
-> Rumors say that notebooks no longer have video bios at C000h:0; rumors
-> say that video BIOS on notebooks is simply integrated into main system
-> BIOS. I personaly do not know if rumors are true, but PCs are ugly
-> machines....
-> 							
+* Pavel Machek <pavel@ucw.cz> [050206 00:20]:
+> Hi!
+> 
+> > > > Currently the suggested combo is local APIC + ACPI PM timer...
+> > > 
+> > > Ok, works slightly better: time no longer runs 2x too fast. When TSC
+> > > is used, I get same behaviour  as before ("sleepy machine"). With
+> > > "notsc", machine seems to work okay, but I still get 1000 timer
+> > > interrupts a second.
+> > 
+> > Sounds like dyn-tick did not get enabled then, maybe you don't have
+> > CONFIG_X86_PM_TIMER, or don't have ACPI PM timer on your board?
+> 
+> I do have CONFIG_X86_PM_TIMER enabled, but it seems by board does not
+> have such piece of hardware:
+> 
+> pavel@amd:/usr/src/linux-mm$ dmesg | grep -i "time\|tick\|apic"
+> PCI: Setting latency timer of device 0000:00:11.5 to 64
+> pavel@amd:/usr/src/linux-mm$ 
+> 
+> [Strange, I should see some messages about apic, no?]
 
-A small number of laptop systems are known to pull this trick. There are
-other problems too - the video bios boot may make other assumptions
-about access to PCI space, configuration, interrupts, timers etc.
+Yeah, looks like you don't have a local APIC then? Let me test the
+patch here with just PIT timer only.
 
-Some systems (intel notably) appear to expect you to use the bios
-save/restore video state not re-POST.
+It also looks like you don't have TSC either? Or do you still have
+notsc cmdline option?
 
+Tony

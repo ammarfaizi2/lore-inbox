@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbULFQlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbULFQmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbULFQlF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbULFQlF
+	id S261560AbULFQmy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:42:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULFQmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:41:05 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:30866 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261558AbULFQlD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:41:03 -0500
-Subject: Re: [PATCH] Time sliced CFQ #2
-From: Robert Love <rml@novell.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Jeff Sipek <jeffpc@optonline.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-       Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <62852042-4781-11D9-9115-000393ACC76E@mac.com>
-References: <20041204104921.GC10449@suse.de>
-	 <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de>
-	 <20041206002954.GA28205@optonline.net> <41B3BD0F.6010008@kolivas.org>
-	 <20041206022338.GA5472@optonline.net> <41B3C54B.1080803@kolivas.org>
-	 <CED75073-4743-11D9-9115-000393ACC76E@mac.com>
-	 <1102310049.6052.123.camel@localhost>
-	 <62852042-4781-11D9-9115-000393ACC76E@mac.com>
-Content-Type: text/plain
-Date: Mon, 06 Dec 2004 11:42:18 -0500
-Message-Id: <1102351338.6052.126.camel@localhost>
+	Mon, 6 Dec 2004 11:42:54 -0500
+Received: from main.gmane.org ([80.91.229.2]:22411 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261560AbULFQmu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:42:50 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: [BUG] null-pointer deref (perhaps reiserfs3)
+Date: Mon, 06 Dec 2004 17:44:20 +0100
+Message-ID: <cp2265$pmp$1@sea.gmane.org>
+References: <cp02a6$57j$1@sea.gmane.org> <cp21l0$mve$1@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p5484bc1b.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a4) Gecko/20040927
+X-Accept-Language: de, en
+In-Reply-To: <cp21l0$mve$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> dd if=/dev/zero of=image bs=1M count=40
+> mkreiserfs -f image
+> mount -o loop image /mnt/test
+> cp -r /etc/ /mnt/test
+> 
+> The kernel will Oops, and cp will segfault.
 
-> The reason I proposed my ideas for tying the two values together is 
-> that I am
-> concerned about breaking existing code.  
-
-Nothing should break.
-
-If apps don't explicitly set their i/o priority, then they get the
-default.  Not a big deal.
-
-This allows the default case to be the same as today.
-
-	Robert Love
-
+Well, this won't make sense to you, if don't tell you, that "cp -r /etc/ 
+/mnt/test" copies more, than the reiserfs can take. In other words:
+reiserfs crashes if there's no more free diskspace.
 

@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbUKYCxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262942AbUKYCz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbUKYCxK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 21:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbUKYCxJ
+	id S262942AbUKYCz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 21:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbUKYCz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 21:53:09 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:7315 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262933AbUKYCxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 21:53:02 -0500
-Date: Wed, 24 Nov 2004 03:00:37 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-In-Reply-To: <20041124040604.GA13340@elte.hu>
-Message-ID: <Pine.LNX.4.58.0411240258460.2242@gradall.private.brainfood.com>
-References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
- <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
- <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
- <20041124040604.GA13340@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Nov 2004 21:55:26 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:17565 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262949AbUKYCyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 21:54:09 -0500
+Subject: Re: Suspend 2 merge: 34/51: Includes
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1CX6Pl-0002Gg-00@chiark.greenend.org.uk>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101297843.5805.324.camel@desktop.cunninghams>
+	 <20041124132558.GB13034@infradead.org>
+	 <20041124132558.GB13034@infradead.org>
+	 <1101327443.3425.11.camel@desktop.cunninghams>
+	 <E1CX6Pl-0002Gg-00@chiark.greenend.org.uk>
+Content-Type: text/plain
+Message-Id: <1101350629.25030.9.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 25 Nov 2004 13:43:49 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Ingo Molnar wrote:
+Hi.
 
->
-> * Adam Heath <doogie@debian.org> wrote:
->
-> > > > I'm seeing something very odd.  It's against 29-0.  I also seem to
-> > > > recall seeing something similiar reported earlier.
-> > > >
-> > > > I'm seeing pauses on my system.  Not certain what is causing it.
-> > > > Hitting a key on the keyboard unsticks it.
-> > >
-> > > at first sight this looks like a scheduling/wakeup anomaly. Please
-> > > re-report this if it happens with the current (30-4) kernel too. Also,
-> > > could you test the vanilla -mm tree, it has a few scheduler updates too.
-> >
-> > 2.6.10-rc1-mm3 doesn't have the same problem.  Didn't have a more
-> > recent mm kernel available last night.  Will compile one, and always
-> > keep it available.
->
-> -rc2-mm2 would be nice to test - there are a number of new interactivity
-> fixes from Con being test-driven in -mm right now. In particular, these
-> patches were added in -rc1-mm4. These are the patches in question:
->
->  sched-adjust_timeslice_granularity.patch
->  requeue_granularity.patch
->  sched-remove_interactive_credit.patch
->
-> you can download them individually from:
->
->  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/broken-out/
->
-> so if these symptoms still occur with vanilla -rc2-mm2, could you try to
-> unapply them, in reverse order? (there might be rejects when you try
-> that, due to patch dependencies - let me know if it doesnt work out and
-> i'll do an undo patch.)
+On Thu, 2004-11-25 at 10:19, Matthew Garrett wrote:
+> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+> 
+> > I can see that it might look that way, but it's actually fundamental to
+> > the support for building as modules (which is required for LVM &
+> > encryption), and has been really helpful in creating clear distinctions
+> > between the different parts of suspend. It also provides a clear method
+> > for someone to add support for their new wizz-bang storage method or
+> > compressor.
+> 
+> I'm not entirely clear on this. Surely all that's needed for LVM and
+> encryption support is for that to be set up in userspace and then allow
+> userspace to trigger a second attempt at resume? I have a hacky patch
+> for swsusp that allows that (at the moment it just adds a "resume"
+> method to /sys/power/state), which gives you the functionality without
+> the module pain.
 
-The symptoms still occur with 30-9.  I'll be trying rc2-mm2 over the holiday.
+Yes, sorry. I'm confusing initrd/ramfs support with modules. You can
+resume from an initrd/ramfs without building as modules.
 
-Came in this morning, and after hitting a key, my machine said it was 2:38am,
-when it was actually 11:10am.  All internet connections had died(obviously).
-But the machine started working fine once I hit that key.  No messages in
-dmesg.
+Regardless, building support as modules does have the other advantages
+noted above, and I haven't found adding support for building as modules
+to be a pain at all.
+
+Sorry again for confusing the issue.
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

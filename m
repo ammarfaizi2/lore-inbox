@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314753AbSD3Sve>; Tue, 30 Apr 2002 14:51:34 -0400
+	id <S314842AbSD3S6r>; Tue, 30 Apr 2002 14:58:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314767AbSD3Sve>; Tue, 30 Apr 2002 14:51:34 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:4103 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S314753AbSD3Svd>; Tue, 30 Apr 2002 14:51:33 -0400
-Date: Tue, 30 Apr 2002 11:51:24 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Miles Lane <miles@megapathdsl.net>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.11 + framebuffer compile patch -- OOPS in blk_get_readahead+a/60
-In-Reply-To: <1020121847.1918.36.camel@turbulence.megapathdsl.net>
-Message-ID: <Pine.LNX.4.10.10204301150510.24456-100000@www.transvirtual.com>
+	id <S314870AbSD3S6q>; Tue, 30 Apr 2002 14:58:46 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:55818 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S314842AbSD3S6p>; Tue, 30 Apr 2002 14:58:45 -0400
+Date: Tue, 30 Apr 2002 20:58:41 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Tommy Faasen <tommy@vuurwerk.nl>
+cc: Linux kernel Mailinglist <linux-kernel@vger.kernel.org>, mingo@redhat.com
+Subject: Re: [OOPS] 2.5.11 software raid,reiserfs & scsi
+In-Reply-To: <1020100863.1111.7.camel@it0>
+Message-ID: <Pine.LNX.4.21.0204302056120.23113-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Can you try it again with the lastest patch from my URL. I just tested it
-and it worked. 
+On 29 Apr 2002, Tommy Faasen wrote:
 
-http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
+> I got an oops on 2.5.11 with an software raid 0 setup on 3 scsi disks,
+> it worked ok on 2.5.8. I get this when booting up and then my /dev/md0
+> isn't found.. If you need more details/help let me know!
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+The patch below fixes it for me.
+rdev doesn't point to a valid raid partition.
 
-On 29 Apr 2002, Miles Lane wrote:
+bye, Roman
 
-> On Mon, 2002-04-29 at 15:23, James Simmons wrote:
-> > 
-> > > >>EIP; c01ee59a <blk_get_readahead+a/60>   <=====
-> > > Trace; c023a87c <device_size_calculation+ac/230>
-> > > Trace; c023ab1f <do_md_run+11f/3d0>
-> > > Trace; c02286eb <fbcon_cursor+9b/200>
-> > 
-> > That is strange. Which framebuffer driver are you using?
-> 
-> Oh heck.  I thought I included the console options in my 
-> first message, but I see I didn't.  Sorry about that.
-> 
-> #
-> # Console drivers
-> #
-> CONFIG_VGA_CONSOLE=y
-> CONFIG_VIDEO_SELECT=y
-> 
-> #
-> # Frame-buffer support
-> #
-> CONFIG_FB=y
-> CONFIG_DUMMY_CONSOLE=y
-> CONFIG_FB_RIVA=y
-> CONFIG_VIDEO_SELECT=y
-> CONFIG_FBCON_CFB8=y
-> CONFIG_FBCON_CFB16=y
-> CONFIG_FBCON_CFB32=y
-> CONFIG_FONT_8x8=y
-> CONFIG_FONT_8x16=y
-> 
-> 
+Index: drivers/md/md.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/drivers/md/md.c,v
+retrieving revision 1.1.1.8
+diff -u -p -r1.1.1.8 md.c
+--- drivers/md/md.c	29 Apr 2002 17:35:50 -0000	1.1.1.8
++++ drivers/md/md.c	30 Apr 2002 17:52:04 -0000
+@@ -1577,6 +1577,7 @@ static int device_size_calculation(mddev
+ 	if (!md_size[mdidx(mddev)])
+ 		md_size[mdidx(mddev)] = sb->size * data_disks;
+ 
++	rdev = list_entry(mddev->disks.next, mdk_rdev_t, same_set);
+ 	readahead = (blk_get_readahead(rdev->bdev) * 512) / PAGE_SIZE;
+ 	if (!sb->level || (sb->level == 4) || (sb->level == 5)) {
+ 		readahead = (mddev->sb->chunk_size>>PAGE_SHIFT) * 4 * data_disks;
 

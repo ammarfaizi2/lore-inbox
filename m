@@ -1,40 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266220AbRGESol>; Thu, 5 Jul 2001 14:44:41 -0400
+	id <S266224AbRGESpb>; Thu, 5 Jul 2001 14:45:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266221AbRGESob>; Thu, 5 Jul 2001 14:44:31 -0400
-Received: from cs159246.pp.htv.fi ([213.243.159.246]:6422 "EHLO
-	porkkala.cs140085.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S266220AbRGESoM>; Thu, 5 Jul 2001 14:44:12 -0400
-Message-ID: <3B44B569.85BCFA0E@pp.htv.fi>
-Date: Thu, 05 Jul 2001 21:43:53 +0300
-From: Jussi Laako <jlaako@pp.htv.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
+	id <S266221AbRGESpV>; Thu, 5 Jul 2001 14:45:21 -0400
+Received: from zeke.inet.com ([199.171.211.198]:26100 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S266224AbRGESpO>;
+	Thu, 5 Jul 2001 14:45:14 -0400
+Message-ID: <3B44B4BD.DD7F7A5B@inet.com>
+Date: Thu, 05 Jul 2001 13:41:01 -0500
+From: "Jordan Breeding" <jordan.breeding@inet.com>
+Reply-To: Jordan <ledzep37@home.com>,
+        Jordan Breeding <jordan.breeding@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Justin Guyett <justin@soze.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.[56] kernel + xfree 4.1.0
-In-Reply-To: <Pine.LNX.4.33.0107041930090.32139-100000@gw.soze.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problems halting/rebooting with 2.4.{5,6}-ac
+In-Reply-To: <3B44AD33.26D97B4C@inet.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Guyett wrote:
+Jordan Breeding wrote:
 > 
-> After upgrading to xfree 4.1.0, after switching back to the console after
-> starting X, suspending, and resuming, the text-mode terminals are corrupt
+> I have a Tyan Tiger 230 SMP system running dual 1 GHz PIII processors.
+> The processors are of the same lot and revision, bought on the same
+> day.  Everything worked fine or some time in regard to
+> halting/rebooting.  I was using ac kernels configured with ACPI.  At the
+> time of the merge with the Linus stuff which included new ACPI I started
+> configuring with ACPI and ACPI bus management and I could no longer halt
+> the system but rebooting worked OK.  As of 2.4.5-ac24 and 2.4.6-ac1 I
+> can no longer halt or reboot my system properly using no power
+> management or ACPI, and APM still displays the message about being
+> broken on SMP.  Has anyone seen this problem, is there a fix for it?
+> Another thing I have noticed is that my /proc/cpuinfo file looks like
+> this:
+> 
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 8
+> model name      : Pentium III (Coppermine)
+> stepping        : 6
+> cpu MHz         : 999.694
+> cache size      : 256 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> mca cmov pat pse36 mmx fxsr sse
+> bogomips        : 1992.29
+> 
+> processor       : 1
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 8
+> model name      : Pentium III (Coppermine)
+> stepping        : 6
+> cpu MHz         : 999.694
+> cache size      : 256 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 3
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> mca cmov pat pse36 mmx fxsr sse
+> bogomips        : 1998.84
+> 
+> Notice the difference in cpuid level and bogomips values between the
+> two.  These processors should be exactly the same, same lot and revision
+> and everything else according to the shrink wrapped Intel retail boxes
+> they came out of.  What could be casuing them to show up at different
+> cpuid levels?  Thanks for any help with either issue.
+> 
+> Jordan Breeding
 
-2.4.x and XFree86 4.1.0 is first combination that doesn't mess up my text
-console and crash if there are graphics updates in X when console is in text
-mode. XF 3.3.6 was just deadlocking my machine (I used Accelerated-X before
-XFree86 4.x). I haven't tested the framebuffer in this machine.
+Very sorry to have not included more information, when halting or
+rebooting it now stop at INIT: there are no more processes left at this
+run level and never actually reboots or halts.  To get around it I
+either have to hit the power/reset buton or use SysReq to reboot it. 
+Thanks again for any help.
 
-GDA is Voodoo3 2000 PCI (SDRAM).
-
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+Jordan Breeding

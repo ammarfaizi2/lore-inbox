@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281643AbRLAMrg>; Sat, 1 Dec 2001 07:47:36 -0500
+	id <S281645AbRLAMtq>; Sat, 1 Dec 2001 07:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281645AbRLAMr0>; Sat, 1 Dec 2001 07:47:26 -0500
-Received: from maila.telia.com ([194.22.194.231]:61150 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S281643AbRLAMrT>;
-	Sat, 1 Dec 2001 07:47:19 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Viro <viro@math.psu.edu>
-Subject: modular nfs broken in 2.5.1-pre5
-From: Peter Osterlund <petero2@telia.com>
-Date: 01 Dec 2001 13:47:14 +0100
-Message-ID: <m2bshj9kfh.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S284092AbRLAMtg>; Sat, 1 Dec 2001 07:49:36 -0500
+Received: from mail020.mail.bellsouth.net ([205.152.58.60]:5690 "EHLO
+	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281645AbRLAMt1>; Sat, 1 Dec 2001 07:49:27 -0500
+Message-ID: <3C08D1D1.F3EAC851@mandrakesoft.com>
+Date: Sat, 01 Dec 2001 07:49:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] if (foo) kfree(foo) /fs cleanup
+In-Reply-To: <E16A9WI-00073W-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
+> 
+> IMHO this is precisely the wrong thing to do.
+> 
+> We should make the = NULL check within kfree do a BUG() call. That way we
+> fix the cases not being considered instead of hiding real bugs
 
-Compiling nfs as a module doesn't work because of missing symbols.
-The patch below works for me.
+I actually agree with the general sentiment, but,
 
---- linux/fs/Makefile.old	Sat Dec  1 13:26:58 2001
-+++ linux/fs/Makefile	Sat Dec  1 13:15:42 2001
-@@ -7,7 +7,7 @@
- 
- O_TARGET := fs.o
- 
--export-objs :=	filesystems.o open.o dcache.o buffer.o bio.o
-+export-objs :=	filesystems.o open.o dcache.o buffer.o bio.o seq_file.o
- mod-subdirs :=	nls
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
---- linux/fs/seq_file.c.old	Sat Dec  1 13:26:49 2001
-+++ linux/fs/seq_file.c	Sat Dec  1 12:57:17 2001
-@@ -8,6 +8,7 @@
- #include <linux/fs.h>
- #include <linux/seq_file.h>
- #include <linux/slab.h>
-+#include <linux/module.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -275,6 +276,7 @@
- 	m->count = p - m->buf;
-         return 0;
- }
-+EXPORT_SYMBOL(seq_escape);
- 
- int seq_printf(struct seq_file *m, const char *f, ...)
- {
-@@ -293,3 +295,4 @@
- 	m->count = m->size;
- 	return -1;
- }
-+EXPORT_SYMBOL(seq_printf);
+Then you have to fix all the code which has assumed such, breaking
+previously-correct code.  bcrl (IIRC) was the one who told me about
+kfree doing the NULL check; likewise akpm for brelse.  So people are
+using these things.
+
+Do you really want to audit every single kfree and brelse to implement
+this change?
 
 -- 
-Peter Österlund             petero2@telia.com
-Sköndalsvägen 35            http://w1.894.telia.com/~u89404340
-S-128 66 Sköndal            +46 8 942647
-Sweden
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269345AbUJFSRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269347AbUJFSU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269345AbUJFSRL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 14:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269351AbUJFSRL
+	id S269347AbUJFSU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 14:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUJFSU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 14:17:11 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:5133 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S269345AbUJFSRC (ORCPT
+	Wed, 6 Oct 2004 14:20:29 -0400
+Received: from mail.kroah.org ([69.55.234.183]:23749 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269347AbUJFSUY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 14:17:02 -0400
-Date: Wed, 6 Oct 2004 20:16:54 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 6 Oct 2004 14:20:24 -0400
+Date: Wed, 6 Oct 2004 11:19:58 -0700
+From: Greg KH <greg@kroah.com>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Message-ID: <20041006181654.GB4523@pclin040.win.tue.nl>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com>
+Message-ID: <20041006181958.GB27300@kroah.com>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041006173823.GA26740@kroah.com> <20041006180421.GD10153@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041006174108.GA26797@kroah.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <20041006180421.GD10153@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 10:41:08AM -0700, Greg KH wrote:
+On Wed, Oct 06, 2004 at 08:04:21PM +0200, J?rn Engel wrote:
+> On Wed, 6 October 2004 10:38:23 -0700, Greg KH wrote:
+> > On Tue, Oct 05, 2004 at 08:52:14PM +0200, J?rn Engel wrote:
+> > > --- linux-2.6.8cow/init/main.c~console	2004-10-05 20:46:40.000000000 +0200
+> > > +++ linux-2.6.8cow/init/main.c	2004-10-05 20:46:08.000000000 +0200
+> > > @@ -695,8 +695,11 @@
+> > >  	system_state = SYSTEM_RUNNING;
+> > >  	numa_default_policy();
+> > >  
+> > > -	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+> > > +	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0) {
+> > >  		printk("Warning: unable to open an initial console.\n");
+> > > +		if (open("/dev/null", O_RDWR, 0) == 0)
+> > > +			printk("         Falling back to /dev/null.\n");
+> > > +	}
+> > 
+> > Your printk() calls need the proper KERN_* level.
+> 
+> As does the original one.  Which one would you like for both?
 
-> Good point.  So, should we do it in the kernel, in call_usermodehelper,
-> so that all users of this function get it correct, or should I do it in
-> userspace, in the /sbin/hotplug program?
+KERN_WARNING perhaps?
 
-The doctrine of defensive programming will teach you to write
-/sbin/hotplug so that it can cope with such things.
+> > And what happens if you can't open /dev/null?
+> 
+> Same as before.
+> 
+> > (hint, udev enabled boxes
+> > usually do not have a /dev/null this early in the boot process).  Does
+> > this mean we should add a /dev/null to the initramfs image, like the
+> > /dev/console node we currently have there?
+> 
+> Yes, that would fix the case.  Is this a problem?
 
-(But I do not object at all to also doing it in the kernel.
-Some would call it "papering over user space bugs", but one might
-as well call it "making the system more robust".)
+I don't have a problem with doing that.
 
-Andries
+thanks,
+
+greg k-h

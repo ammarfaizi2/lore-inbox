@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265907AbUATXbK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbUATXbK
+	id S265895AbUATX30 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUATX0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:31:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46798 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265907AbUATXbC convert rfc822-to-8bit
+	Tue, 20 Jan 2004 18:26:14 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:61066 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265892AbUATXZt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:31:02 -0500
-Date: Tue, 20 Jan 2004 15:31:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: grundig@teleline.es, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] disallow DRM on 386
-Message-Id: <20040120153158.2c2e47f7.akpm@osdl.org>
-In-Reply-To: <20040120230313.GA6441@fs.tum.de>
-References: <20040120212421.GF12027@fs.tum.de>
-	<20040120234403.73be7b2a.grundig@teleline.es>
-	<20040120230313.GA6441@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 20 Jan 2004 18:25:49 -0500
+Message-ID: <400DB781.4229A084@us.ibm.com>
+Date: Tue, 20 Jan 2004 15:19:29 -0800
+From: Jim Keniston <jkenisto@us.ibm.com>
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com,
+       scott.feldman@intel.com, kessler@us.ibm.com
+Subject: Re: [PATCH 2.6.1] Net device error logging
+References: <400C3D3E.BFCC25CE@us.ibm.com> <20040119184630.5d066735.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
+Andrew Morton wrote:
 >
-> On Tue, Jan 20, 2004 at 11:44:03PM +0100, Diego Calleja wrote:
-> > El Tue, 20 Jan 2004 22:24:21 +0100 Adrian Bunk <bunk@fs.tum.de> escribió:
-> > 
-> > > I got the following compile error in 2.6.1-mm5 with X86_CMPXCHG=n.
-> > > This problem is not specific to -mm, and it always occurs when you 
-> > > include support for the 386 cpu (oposed to the 486 or later cpus) since 
-> > > in this case X86_CMPXCHG=n and therefoore cmpxchg isn't defined in 
-> > > include/asm-i386/system.h .
-> > > 
-> > > The patch below disallows DRM if X86_CMPXCHG=n.
-> > 
-> > I got a "cmpxchg not defined" error when compiling the drm stuff in -mm5.
-> > When I looked at the configuration, I saw that all the cpus types had been selected
-> > (I didn't even realize of your stuuf and menuconfig put the defaults). I removed
-> > all types of cpus except PIII and it compiled.
-> 
-> Yup, that's exactly the problem.
-> 
-> Selecting CPU_386 in -mm4 or -mm5 or selecting M386 in other kernels 
-> triggers it.
-> 
+> Jim Keniston <jkenisto@us.ibm.com> wrote:
+> >
+> > The enclosed patch implements the netdev_* error-logging macros for
+> >  network drivers.
+>
+> Looks OK to me.
+>
+> But it does make one wonder whether we'll soon see standalone patches for
+> scsi_printk(), pci_bridge_printk(), random_other_subsystem_printk(), ...?
 
-I'll remove 386 from the default CPU types as well.
+Well, there is indeed sdev_printk for the SCSI mid-layer and low-level
+drivers.  Dan Stekloff posted an updated patch for this on linux-scsi
+yesterday.
 
+When Alan Cox suggested dev_printk, it was with the idea that other
+subsystems might have similar macros.  Although I don't know of other
+such macros in the works, I wouldn't rule them out.
+
+>
+> Or is it intended that the backend logging code will be implemented mainly
+> in terms of the `struct device'?  So netdev_printk() will be a bit of
+> netdev-specific boilerplate which then calls into a more generic
+> device_printk()?
+
+I think dev_printk will work just fine for drivers where [driver name +
+bus ID] is the appropriate message tag.  Where that's not the case, other
+macros emerge.  (For example, for net devices you want the interface
+name, and for SCSI devices the SCSI bus ID is more interesting than the
+PCI bus ID.)
+
+Another thing to consider is whether, for the subsystem in question,
+some other struct pointer (e.g., struct net_device* or struct
+scsi_device*) might prove more useful in the future than the struct
+device pointer.  I.e., such pointers could be used to get at the struct
+device AND other subsystem-specific info.
+
+Also, there are also situations where there is no underlying struct
+device (e.g., some upper-level network drivers) or the driver is not yet
+defined (e.g., during a SCSI scan).
+
+Jim Keniston

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267607AbTALWz1>; Sun, 12 Jan 2003 17:55:27 -0500
+	id <S267595AbTALXIx>; Sun, 12 Jan 2003 18:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267610AbTALWz1>; Sun, 12 Jan 2003 17:55:27 -0500
-Received: from dsl-213-023-067-166.arcor-ip.net ([213.23.67.166]:6280 "EHLO
-	neon.pearbough.net") by vger.kernel.org with ESMTP
-	id <S267618AbTALWzY>; Sun, 12 Jan 2003 17:55:24 -0500
-Date: Mon, 13 Jan 2003 00:03:12 +0100
-From: axel@pearbough.net
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moderated forum for linux-kernel
-Message-ID: <20030112230312.GA1485@neon.pearbough.net>
-Mail-Followup-To: Andrew Walrond <andrew@walrond.org>,
-	linux-kernel@vger.kernel.org
-References: <3E21ECC2.1040404@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E21ECC2.1040404@walrond.org>
-User-Agent: Mutt/1.4i
-Organization: pearbough.net
+	id <S267616AbTALXIf>; Sun, 12 Jan 2003 18:08:35 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:33231 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267595AbTALXHx> convert rfc822-to-8bit; Sun, 12 Jan 2003 18:07:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: robw@optonline.net
+Subject: Re: any chance of 2.6.0-test*?
+Date: Mon, 13 Jan 2003 00:16:20 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <200301122343.41150.oliver@neukum.name> <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
+In-Reply-To: <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301130016.20595.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+Am Sonntag, 12. Januar 2003 23:51 schrieb Rob Wilkens:
+> On Sun, 2003-01-12 at 17:43, Oliver Neukum wrote:
+> > It's code that causes added hardship for anybody checking the locking.
+>
+> I can certainly see where it would seem "easier" to match "one lock" to
+> "one unlock" if your troubleshooting a locking issue.
+>
+> "easier" is the motivation behind using goto.. Laziness.. that's all it
+> is.
 
-On Sun, 12 Jan 2003, Andrew Walrond wrote:
+Yes, exactly. Lazyness is good. Any second spend on hitting Ctrl+F
+and typing in the name of a cleanup function is lost. Any time
+you overlook something because the cleanup and the code are
+not on the same screen is a bug that is overlooked.
+Any time one of the cleanup functions is overlooked can cause
+hours lost in debugging after a change.
 
-> Better Thread organisation and seperate topic areas for drivers, 
-> patches, ide, ...
+	Oliver
 
-Doesnt a good mail client manage this well. I'm using procmail to filter
-certain patterns in lkml subjects into different mailboxes.
-
-> Moderated forums (Off-topic threads policed and deleted)
-
-I guess this is just way too much work for the moderator ;)
-You know how much mail traffic this list produces. Someone, most of the
-people here do all the work past their real job, I guess.
-
-> Read only forums (write for registered/invited members)
-
-The linux kernel development relies on the work and efforts of all the
-diligent people here. What if there is an important topic on this read-only
-list and there are people who have some useful information to contribute?
-
-
-Best regards,
-Axel Siebenwirth

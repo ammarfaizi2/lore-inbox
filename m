@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbTJaRkT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 12:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTJaRkT
+	id S263463AbTJaR4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 12:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTJaR4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 12:40:19 -0500
-Received: from devil.servak.biz ([209.124.81.2]:43476 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S263435AbTJaRkQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 12:40:16 -0500
-Subject: Re: WD Raptor/SATA with RAID0 way to slow
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Julien Oster <lkml@mc.frodoid.org>
+	Fri, 31 Oct 2003 12:56:16 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:14541 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S263463AbTJaR4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 12:56:14 -0500
+Message-ID: <3FA2A240.2060105@metaparadigm.com>
+Date: Sat, 01 Nov 2003 01:56:16 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ian Soboroff <ian.soboroff@nist.gov>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <frodoid.frodo.873cdadsux.fsf@usenet.frodoid.org>
-References: <frodoid.frodo.873cdadsux.fsf@usenet.frodoid.org>
-Content-Type: text/plain
-Message-Id: <1067621682.1119.115.camel@rivendell.arnor.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 31 Oct 2003 09:34:42 -0800
+Subject: Re: Post-halloween doc updates.
+References: <20031030141519.GA10700@redhat.com>	<9cfd6cdla4o.fsf@rogue.ncsl.nist.gov>	<20031031152453.F4556@flint.arm.linux.org.uk> <9cfn0bhjswn.fsf@rogue.ncsl.nist.gov>
+In-Reply-To: <9cfn0bhjswn.fsf@rogue.ncsl.nist.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-30 at 18:49, Julien Oster wrote:
-> Hello,
+On 11/01/03 00:03, Ian Soboroff wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> writes:
 > 
-> I recently purchased an Asus A7N8X mainboard with the Silicon Imaging
-> SATA controller online and two Western Digital Raptor SATA harddrives
-> with 10krpm.
 > 
-> Those harddisks are supposed to be "really fast", but I don't really
-> get the performance out of them. In fact, I get much less performance
-> than with my "standard consumer" IBM DeskStars.
+>>On Fri, Oct 31, 2003 at 10:06:31AM -0500, Ian Soboroff wrote:
+>>
+>>>And APM suspend seems to have broken in -test8.  Does it work for
+>>>anyone?
+>>
+>>Doesn't work for me.
 
-What version of the Linux kernel are you using?  What does the kernel
-log say about how it is detecting and configuring your drives?
+APM working here nicely with -test9 on Thinkpad A31. Stilling getting
+1394 badness when suspending/resuming with my cardbus 1394 controller
+plugged in. Other than that, works pretty seamlessy with no cardbus
+cards plugged.
 
+Even radeon with VESA suspend/resume, DRI and X 4.3 (using some
+precarious vtswitch calls in /etc/apm/event.d/). wlan-ng works okay
+although it requires rmmod/modprobe to wake up properly after resume.
 
--- 
-Torrey Hoffman <thoffman@arnor.net>
+>>Now, taking off my "open source co-operative hat" and placing my
+>>"reality" hat on, I'd suggest that anyone who finds that APM doesn't
+>>work to consider it a dead loss - It's an obsolete technology, and
+>>therefore no one is interested in it anymore.  I've reported the
+>>problem multiple times here and there's been very little, if any,
+>>reaction, so this seems to back that up.
+
+Hmmm, well for me; a working APM (here) is much prefered to non-
+working ACPI suspend/resume. I'd prefer not to obsolete APM until
+there is a working alternative (with mature userspace tools).
+
+~mc
 

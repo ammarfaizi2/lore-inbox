@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbULPXCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbULPXG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbULPXCN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbULPW7q
+	id S262066AbULPXG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbULPXG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 17:59:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:13242 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262126AbULPWxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 17:53:37 -0500
-Date: Thu, 16 Dec 2004 14:53:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>, linux-kernel@vger.kernel.org
-Subject: Re: debugfs in the namespace
-Message-ID: <20041216225323.GA10616@kroah.com>
-References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com> <41C20356.4010900@sun.com> <20041216221843.GA10172@kroah.com> <20041216144531.3a8d988c@lembas.zaitcev.lan>
+	Thu, 16 Dec 2004 18:06:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49933 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262066AbULPXGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:06:14 -0500
+Date: Thu, 16 Dec 2004 23:06:08 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: [patch] [RFC] move 'struct page' into its own header
+Message-ID: <20041216230607.B15420@flint.arm.linux.org.uk>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-mm <linux-mm@kvack.org>
+References: <E1Cf3jM-00034h-00@kernel.beaverton.ibm.com> <20041216222513.GA15451@infradead.org> <1103237161.13614.2388.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041216144531.3a8d988c@lembas.zaitcev.lan>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1103237161.13614.2388.camel@localhost>; from haveblue@us.ibm.com on Thu, Dec 16, 2004 at 02:46:01PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 02:45:31PM -0800, Pete Zaitcev wrote:
-> On Thu, 16 Dec 2004 14:18:43 -0800, Greg KH <greg@kroah.com> wrote:
-> 
-> > Hm, what about /.debug ?  That's a compromise that I can live with (even
-> > less key strokes to get to...)
-> 
-> No way, Jan is out of his mind, adding obfuscations like that. Anything
-> but that. I didn't even bother to reply, because it never occurred to me
-> that you'd fall for something so retarded.
+On Thu, Dec 16, 2004 at 02:46:01PM -0800, Dave Hansen wrote:
+> But, I'm not quite sure why page-flags.h even needs asm/pgtable.h.  I
+> just took it out in i386, and it still compiles just fine.  Maybe it is
+> needed for another architecture.
 
-Bah, fine :)
+Removing that include is also fine on ARM.
 
-> Otherwise, /dbg sounds good.
-
-Ok, I can live with that.
-
-> Mike's objections sound philosophically congenial to me. What I'm trying
-> to have here is to support an equivalent of tcpdump, which some may consider
-> a core function rather than a debugging function. Of course, I could easily
-> say "this is for debugging only" and thus deflect Mike, but this is not
-> about winning, and actually I have no investment in any approach. For me the
-> /sys is obviously out because of the "one file one value" doctrine. The /proc
-> sounds attractive, but programming procfs is such a bother. If we had a debugfs
-> style API to procfs, that would be the winner from the standpoint of this
-> application. Failing that, I guess, it's /dbg.
-
-Yes, usb data dumping could go in /dbg, it makes sense.
-
-thanks,
-
-greg k-h
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

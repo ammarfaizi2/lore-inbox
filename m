@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272376AbTGYXOr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 19:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272377AbTGYXOr
+	id S272377AbTGYXQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 19:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272378AbTGYXQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 19:14:47 -0400
-Received: from quechua.inka.de ([193.197.184.2]:63686 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S272376AbTGYXOr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 19:14:47 -0400
-From: Bernd Eckenfels <ecki-lkm@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 -> 2.2 differences?
-In-Reply-To: <20030725142434.GS32585@rdlg.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19gC0Z-0001RR-00@calista.inka.de>
-Date: Sat, 26 Jul 2003 01:29:55 +0200
+	Fri, 25 Jul 2003 19:16:24 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:37066 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S272377AbTGYXQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 19:16:20 -0400
+Date: Sat, 26 Jul 2003 01:31:22 +0200
+From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
+To: =?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched-2.6.0-test1-G3
+Message-ID: <20030726013122.B2326@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: =?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0307252146550.16235-100000@localhost.localdomain> <20030725231314.A1073@ss1000.ms.mff.cuni.cz> <20030726005419.16b622af.diegocg@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030726005419.16b622af.diegocg@teleline.es>; from diegocg@teleline.es on Sat, Jul 26, 2003 at 12:54:19AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030725142434.GS32585@rdlg.net> you wrote:
-> With all the SCO fun going on I have people asking me what functionality
-> we would loose if we rolled from 2.4.21 kernel to the last known stable
-> 2.2 kernel.
+> cpumask_of_cpu is not declared/used anywhere in the kernel (apart
+> of kernel/sched.c:2498, after applying bk2 + your patch)
 
-it is easier to turn off SMP.
+Oh, well. I'd better go to sleep.
 
-BTW: what will happen if there is some SMP code from IBM in the kernel which
-is owned by SCO? Isnt it a matter of days to remove that code? Does anybody
-have to pay for past usage of the code?
+I suppose you figured out that you have to change that to 1ULL << cpu . Just in
+case you didn't, get the right one at
+http://www.ms.mff.cuni.cz/~thomr9am/sched-2.6.0-test1-bk2-G3 .
 
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Rudo.

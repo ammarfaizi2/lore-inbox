@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVA0BTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVA0BTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbVA0BTu (ORCPT <rfc822;willy@w.ods.org>);
+	id S262465AbVA0BTu (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 26 Jan 2005 20:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVA0AEX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVA0AEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:04:23 -0500
-Received: from speedy.student.utwente.nl ([130.89.163.131]:4228 "EHLO
-	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
-	id S262420AbVAZUuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 15:50:18 -0500
-Date: Wed, 26 Jan 2005 21:49:57 +0100
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
-       Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050126204957.GI23182@speedy.student.utwente.nl>
-Mail-Followup-To: John Richard Moser <nigelenki@comcast.net>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
-	Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-	Christoph Hellwig <hch@infradead.org>,
-	Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>,
-	chrisw@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <Pine.LNX.4.58.0501251054400.2342@ppc970.osdl.org> <41F6A5F8.5030100@comcast.net> <20050126160620.GE23182@speedy.student.utwente.nl> <41F7EFF4.40303@comcast.net> <20050126202637.GH23182@speedy.student.utwente.nl> <41F7FFEC.5080303@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 26 Jan 2005 19:04:51 -0500
+Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:62337 "EHLO
+	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262421AbVAZVES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 16:04:18 -0500
+From: Mark Williamson <maw48@cl.cam.ac.uk>
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: [Xen-devel] Re: [XEN] using shmfs for swapspace
+Date: Wed, 26 Jan 2005 20:56:50 +0000
+User-Agent: KMail/1.7.1
+Cc: Arnd Bergmann <arnd@arndb.de>,
+       Mark Williamson <Mark.Williamson@cl.cam.ac.uk>,
+       xen-devel@lists.sourceforge.net, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050102162652.GA12268@lkcl.net> <200501050111.59072.arnd@arndb.de> <Pine.LNX.4.61.0501211634380.15744@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0501211634380.15744@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41F7FFEC.5080303@comcast.net>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501262056.50981.maw48@cl.cam.ac.uk>
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 03:39:08PM -0500, John Richard Moser wrote:
-> > I'm sorry about the rant. Besides, your comment ('Wasn't talking about
-> > bugfixes') makes some sense, too. You were actually talking about two patches
-> > though, which close two closely related holes. Linus was talking about the
-> > possible bugs caused by either one of these two patches, which may be totally
-> > unrelated to the thing they try to fix.
-> Sorry, I just woke up, this thread has me under a lot of stress.  I
-> should go back to arguing things that have some end goal to them, rather
-> than arguing simply because I have nothing better to do.
+> > - Pseudo faults:
+>
+> These are a problem, because they turn what would be a single
+> pageout into a pageout, a pagein, and another pageout, in
+> effect tripling the amount of IO that needs to be done.
 
-Yes.. it seems that the thread has gone in a rather pointless direction, noone
-seems to know exactly what it was about anymore but everyone keeps carrying
-huge emotions all over the place. Let's just forget it and move on :-)
+The Disco VMM tackled this by detecting attempts to double-page using a 
+special virtual swap disk.  Perhaps it would be possible to find some cleaner 
+way to avoid wasteful double-paging by adding some more hooks for virtualised 
+architectures...
 
-    Sytse
+In any case, for now Xen guests are not swapped onto disk storage at runtime - 
+they retain their physical memory reservation unless they alter it using the 
+balloon driver.
+
+> Xen already has this.  I wonder if it makes sense to
+> consolidate the various balloon approaches into a single
+> driver, and keep the amount of ballooned memory into
+> account when reporting statistics in /proc/meminfo.
+
+If multiple platforms want to do this, we could refactor the code so that the 
+core of the balloon driver can be used in multiple archs.  We could have an 
+arch_release/request_memory() that the core balloon driver can call into to 
+actually return memory to the VMM.
+
+> > When you want to introduce some interface in Xen, you probably want
+> > something more powerful than these,
+>
+> Xen has a nice balloon driver, that can also be
+> controlled from outside the guest domain.
+
+The Xen control interface made this fairly trivial to implement.  Again, the 
+balloon driver core could be plumbed into whatever the preferred virtual 
+machine control interface for the platform is (I don't know if / how other 
+platforms tackle this).
+
+Cheers,
+Mark

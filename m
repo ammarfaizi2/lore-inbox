@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317496AbSFDNVc>; Tue, 4 Jun 2002 09:21:32 -0400
+	id <S317498AbSFDNbd>; Tue, 4 Jun 2002 09:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317497AbSFDNVb>; Tue, 4 Jun 2002 09:21:31 -0400
-Received: from arsenal.visi.net ([206.246.194.60]:11926 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S317496AbSFDNVa>;
-	Tue, 4 Jun 2002 09:21:30 -0400
-X-Virus-Scanner: McAfee Virus Engine
-Date: Tue, 4 Jun 2002 09:13:32 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        andreas.bombe@munich.netsurf.de, linux1394-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] disable CONFIG_IEEE1394_PCILYNX_PORTS config option
-Message-ID: <20020604131332.GI1250@blimpo.internal.net>
-In-Reply-To: <Pine.NEB.4.44.0206041108400.8847-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317499AbSFDNbc>; Tue, 4 Jun 2002 09:31:32 -0400
+Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:11404 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S317498AbSFDNbc>; Tue, 4 Jun 2002 09:31:32 -0400
+Subject: Re: Caching files in nfsd was Re: [patch 12/16] fix race between
+	writeback and unlink
+From: Chris Mason <mason@suse.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020604141649.A29334@wotan.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 04 Jun 2002 09:29:44 -0400
+Message-Id: <1023197384.2920.97.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 11:19:19AM +0200, Adrian Bunk wrote:
-> Hi Marcelo,
+On Tue, 2002-06-04 at 08:16, Andi Kleen wrote:
+> > The only issue that I can see (except for simple coding) is that as
+> > NFS cannot be precise about closing at the *right* time we would be
+> > changing from closing too early (and so re-opening) to closing too
+> > late.
+> > Would this be an issue for any filesystem?  My feeling is not, but I'm
+> > open to opinions....
 > 
-> IMHO it gives a bad picture of the quality of Linux if a stable kernel
-> contains options that doesn't compile. CONFIG_IEEE1394_PCILYNX_PORTS
-> doesn't compile (the error message is at the end of the mail) and Andreas
-> Bombe stated in a private mail to me four months ago that it shouldn't
-> have been a public option.
-> 
-> My patch doesn't do any harm because currently the kernel doesn't compile
-> when this option is enabled and if someone fixes pcilynx.c it's pretty
-> trivial to revert this patch.
+> The only potential issue I see is that forcing a flush when the file system
+> fills up may be a good idea to drop preallocations (but then one would hope 
+> that a fs with preallocation does this already automatically, so it hopefully 
+> won't be needed in nfsd) 
 
-We've already done this locally in our repo. Go ahead and apply this
-patch if you want.
+reiserfs does, but I'm not sure about ext2.  reiserfs doesn't carry
+preallocated blocks from one transaction to another.  So when the
+transaction closes, we free preallocated blocks.
 
+When the FS runs out of space, we stop the transaction to give everyone
+a chance to free up what they can (not just preallocation), and then
+start a new transaction.  So nfs closing too late won't hurt.
 
+-chris
 
-Ben
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://linux1394.sourceforge.net/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

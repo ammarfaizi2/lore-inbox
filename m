@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317306AbSGDDjg>; Wed, 3 Jul 2002 23:39:36 -0400
+	id <S317324AbSGDDrL>; Wed, 3 Jul 2002 23:47:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317324AbSGDDjf>; Wed, 3 Jul 2002 23:39:35 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50448 "EHLO
+	id <S317325AbSGDDrK>; Wed, 3 Jul 2002 23:47:10 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51216 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317306AbSGDDje>; Wed, 3 Jul 2002 23:39:34 -0400
-Date: Wed, 3 Jul 2002 23:36:07 -0400 (EDT)
+	id <S317324AbSGDDrK>; Wed, 3 Jul 2002 23:47:10 -0400
+Date: Wed, 3 Jul 2002 23:44:45 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Rob Landley <landley@trommello.org>, Tom Rini <trini@kernel.crashing.org>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] O(1) scheduler in 2.4
-In-Reply-To: <Pine.LNX.4.44.0207031006050.3017-100000@e2>
-Message-ID: <Pine.LNX.3.96.1020703232322.2248C-100000@gatekeeper.tmr.com>
+To: Dave Jones <davej@suse.de>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] Kernel release management
+In-Reply-To: <20020703173421.B8934@suse.de>
+Message-ID: <Pine.LNX.3.96.1020703233710.2248D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Jul 2002, Dave Jones wrote:
 
-> it might be a candidate for inclusion once it has _proven_ stability and
-> robustness (in terms of tester and developer exposion), on the same order
-> of magnitude as the 2.4 kernel - but that needs time and exposure in trees
-> like the -ac tree and vendor trees. It might not happen at all, during the
-> lifetime of 2.4.
+> Unfortunatly, there's the possibility of people thinking
+> "I'll fix it properly in 2.7, and backport", during which time,
+> 2.6 doesn't get fixed any faster.  People diving into 2.7 development
+> and leaving 2.6 to those that actually care about stabilising it was
+> Linus' concern if I understood correctly at the summit.
 
-It has already proven to be stable and robust in the sense that it isn't
-worse than the stock scheduler on typical loads and is vastly better on
-some.
-> 
-> Note that the O(1) scheduler isnt a security or stability fix, neither is
-> it a driver backport. It isnt a feature backport that enables hardware
-> that couldnt be used in 2.4 before. The VM was a special case because most
-> people agreed that it truly sucked, and even though people keep
-> disagreeing about that decision, the VM is in a pretty good shape now -
-> and we still have good correlation between the VM in 2.5, and the VM in
-> 2.4. The 2.4 scheduler on the other hand doesnt suck for 99% of the
-> people, so our hands are not forced in any way - we have the choice of a
-> 'proven-rock-solid good scheduler' vs. an 'even better, but still young
-> scheduler'.
+Dave, it's not that I can't see your point, but looking at the way stuff
+is being backported to 2.4, and 2.2, and even 2.0 as an example, and how
+many new features went into early 2.2 and 2.4 which really should have
+been functional before they went in, we have a long track record of
+maintainers doing the backports and problems from not having a test series
+to use for new features.
 
-Here I disagree. Sure behaves like a stability fix to me. On a system with
-a mix of interractive and cpu-bound processes, including processes with
-hundreds of threads, you just can't get reasonable performance balancing
-with nice() because it is totally impractical to keep tuning a thread
-which changes from hog to disk io to socket waits with a human in the
-loop. The new scheduler notices this stuff and makes it work, I don't even
-know for sure (as in tried it) if you can have different nice on threads
-of the same process. 
+I don't see the case you mentioned of fix it in 2.7 and backport as
+necessarily a bad idea. You can make progress faster when people aren't
+afraid to try stuff, and can itterate until the feature works or the
+problem is fixed, then backport understanding the problem.
 
-This is not some neat feature to buy a few percent better this or that,
-this is roughly 50% more users on the server before it falls over, and no
-total bogs when many threads change to hog mode at once.
-
-You will not hear me saying this about preempt, or low-latency, and I bet
-that after I try lock-break this weekend I won't fell that I have to have
-that either. The O(1) scheduler is self defense against badly behaved
-processes, and the reason it should go in mainline is so it won't depend
-on someone finding the time to backport the fun stuff from 2.5 as a patch
-every time.
+I don't regard easing features back into the stable release after they are
+shaken down as a bad thing, either. A development kernel may not even
+compile (biy does 2.5 prove that), a stable series should mean the old
+features don't break and the new ones are tested, and it does run a lot
+slower than the development series.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,128 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263739AbTIBKwT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 06:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTIBKwT
+	id S263696AbTIBKud (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 06:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTIBKud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 06:52:19 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:5287 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S263739AbTIBKwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 06:52:05 -0400
-Date: Tue, 02 Sep 2003 19:52:51 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: cache limit
-In-reply-to: <20030827113646.GC4306@holomorphy.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Message-id: <23C371405B0858indou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.04 (WinNT,501)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <20030827113646.GC4306@holomorphy.com>
+	Tue, 2 Sep 2003 06:50:33 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:17420 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263696AbTIBKuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 06:50:23 -0400
+Date: Tue, 2 Sep 2003 12:47:17 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: linux-kernel@vger.kernel.org
+Subject: keyboard - was: Re: Linux 2.6.0-test4
+Message-ID: <20030902124717.B1221@pclin040.win.tue.nl>
+References: <20030831120605.08D6.CHRIS@heathens.co.nz> <20030902080733.GA14380@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030902080733.GA14380@charite.de>; from Ralf.Hildebrandt@charite.de on Tue, Sep 02, 2003 at 10:07:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003 04:36:46 -0700, William Lee Irwin III wrote:
+On Tue, Sep 02, 2003 at 10:07:33AM +0200, Ralf Hildebrandt wrote:
 
->On Wed, 27 Aug 2003 02:45:12 -0700, William Lee Irwin III wrote:
->>> How do you know most of it is unmapped?
->
->On Wed, Aug 27, 2003 at 08:14:12PM +0900, Takao Indoh wrote:
->> I checked /proc/meminfo.
->> For example, this is my /proc/meminfo(kernel 2.5.73)
->[...]
->> Buffers:         18520 kB
->> Cached:         732360 kB
->> SwapCached:          0 kB
->> Active:         623068 kB
->> Inactive:       179552 kB
->[...]
->> Dirty:           33204 kB
->> Writeback:           0 kB
->> Mapped:          73360 kB
->> Slab:            32468 kB
->> Committed_AS:   167396 kB
->[...]
->> According to this information, I thought that
->> all pagecache was 732360 kB and all mapped page was 73360 kB, so
->> almost of pagecache was not mapped...
->> Do I misread meminfo?
->
->No. Most of your pagecache is unmapped pagecache. This would correspond
->to memory that caches files which are not being mmapped by any process.
->This could result from either the page replacement policy favoring
->filesystem cache too heavily or from lots of io causing the filesystem
->cache to be too bloated and so defeating the swapper's heuristics (you
->can do this by generating large amounts of read() traffic).
->
->Limiting unmapped pagecache would resolve your issue. Whether it's the
->right thing to do is still open to question without some knowledge of
->application behavior (for instance, teaching userspace to do fadvise()
->may be right thing to do as opposed to the /proc/ tunable).
->
->Can you gather traces of system calls being made by the applications?
->
->
->-- wli
+> I got some more events, and today I even was able to reproduc the
+> "CTRL-is-stuck" problem.
+> 
+> I was able to get the key unstuck by switching back and forth between
+> dirrerent FB consoles and by pushing and releaseing CTRL in them...
 
-This is an output of strace -cf.
+Yesterday's data sufficed, and I suppose the patch I gave solves
+this problem. Now that you send this, we can verify that each time
+there is a problem we have had a double release just before, and
+that release was an e0 xx combination.
 
-% time     seconds  usecs/call     calls    errors syscall
------- ----------- ----------- --------- --------- ----------------
- 47.91   57.459696          65    885531           read
- 20.27   24.309112          33    727702           write
- 17.01   20.405231        1058     19292           vfork
- 13.41   16.087846          11   1524468           lseek
-  0.32    0.379605          10     38586           close
-  0.31    0.368272          19     19290           wait4
-  0.27    0.326425          17     19292           pipe
-  0.19    0.227052          12     19296           old_mmap
-  0.16    0.192420          10     19291           munmap
-  0.13    0.158041           8     19302           fstat64
-  0.01    0.009983        4992         2           fsync
-  0.00    0.001233           6       202           brk
-  0.00    0.001029         515         2           unlink
-  0.00    0.000173          25         7         1 open
-  0.00    0.000128          64         2           chmod
-  0.00    0.000092           7        13         6 stat64
-  0.00    0.000019          19         1           getcwd
-  0.00    0.000016           5         3           access
-  0.00    0.000015           4         4           shmat
-  0.00    0.000012           3         4           rt_sigaction
-  0.00    0.000007           7         1           mprotect
-  0.00    0.000002           2         1           getpid
------- ----------- ----------- --------- --------- ----------------
-100.00  119.926409               3292292         7 total
+> atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
+> i8042 history: e0 d0 1c 9c 2e ae 10 90 e0 50 e0 d0 e0 d0 1c 9c
+> 
+> atkbd.c: Unknown key (set 2, scancode 0xa0, on isa0060/serio0) pressed.
+> i8042 history: 1c 9c 1c 9c e0 50 e0 d0 e0 50 e0 d0 e0 d0 20 a0
+> 
+> atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> i8042 history: e0 50 e0 d0 e0 50 e0 d0 e0 d0 1d 2d ad 1f 9f 9d
+> 
+> atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+> i8042 history: e0 48 e0 c8 39 b9 e0 38 56 d6 e0 b8 e0 b8 39 b9
+> 
+> atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+> i8042 history: a0 20 a0 9d e0 4d e0 cd e0 4d e0 cd e0 cd 39 b9
 
-According to this information, many I/O increase pagecache and cause
-memory shortage.
+And indeed, we see e0 d0 e0 d0, e0 b8 e0 b8, e0 cd e0 cd.
 
-fadvise may be effective, but fadvise always releases cache
-even if there are enough free memory, and may degrade performance.
-In the case of /proc tunable,
-pagecache is not released until system memory become lack.
+This bug is understood.
 
-
-On Thu, 28 Aug 2003 01:02:45 +0900, YoshiyaETO wrote:
-
->> On Wed, 27 Aug 2003 02:45:12 -0700, William Lee Irwin III wrote:
->> >> How do you know it would be effective? Have you written a patch to
->> >> limit it in some way and tried running it?
->>
->> On Wed, Aug 27, 2003 at 08:14:12PM +0900, Takao Indoh wrote:
->> > It's just my guess. You mean that "index cache" is on the pagecache?
->> > "index cache" is allocated in the user space by malloc,
->> > so I think it is not on the pagecache.
->>
->> That will be in the pagecache.
->
->    No. DBMS usually uses DIRECTIO that bypass the pagecache.
->So, "index caches" in the DBMS user space will not be in pagecache.
-
-If so, limiting pagecache seems to be effective for DBMS.
-
---------------------------------------------------
-Takao Indoh
- E-Mail : indou.takao@soft.fujitsu.com

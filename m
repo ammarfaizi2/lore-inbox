@@ -1,69 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbUKYDvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbUKYEF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbUKYDvo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 22:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbUKYDuW
+	id S262955AbUKYEF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 23:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbUKYEF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 22:50:22 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:52406 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262962AbUKYDte (ORCPT
+	Wed, 24 Nov 2004 23:05:27 -0500
+Received: from hera.kernel.org ([63.209.29.2]:52929 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262955AbUKYEFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 22:49:34 -0500
-Date: Wed, 24 Nov 2004 17:26:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [SMP, USB] UHCI interrupt wrongly routed?
-Message-ID: <20041125012629.GA21569@kroah.com>
-References: <Pine.LNX.4.60.0411242352370.3896@poirot.grange>
+	Wed, 24 Nov 2004 23:05:24 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: kernel.org slowness
+Date: Thu, 25 Nov 2004 03:17:27 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <co3is7$v57$1@terminus.zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0411242352370.3896@poirot.grange>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1101352647 31912 127.0.0.1 (25 Nov 2004 03:17:27 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 25 Nov 2004 03:17:27 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 11:57:15PM +0100, Guennadi Liakhovetski wrote:
-> Hello
-> 
-> I guess, it is not a USB problem, really, it just appeared with USB. On a 
-> 2-way running 2.6.9 the onboard UHCI device is configured to IRQ 9 via 
-> XT-PIC???
-> 
->            CPU0       CPU1       
->   0:     588054        123    IO-APIC-edge  timer
->   1:        360          0    IO-APIC-edge  i8042
->   2:          0          0          XT-PIC  cascade
->   8:          4          0    IO-APIC-edge  rtc
->   9:          0          0    IO-APIC-edge  acpi
->  11:          0          0          XT-PIC  uhci_hcd
->  15:          2          0    IO-APIC-edge  ide1
->  16:        173          1   IO-APIC-level  ehci_hcd
->  17:          0          0   IO-APIC-level  ohci_hcd
->  18:          0          0   IO-APIC-level  ohci_hcd
->  19:      99999          1   IO-APIC-level  ohci_hcd
->  20:        332          0   IO-APIC-level  eth0
->  21:       2576          0   IO-APIC-level  sym53c8xx
-> NMI:          0          0 
-> LOC:     587726     587988 
-> ERR:          0
-> MIS:          0
-> 
-> Non-surprisingly, it doesn't work. Below is a complete dmesg (I first 
-> connected the card-reader to an ohci / ehci PCI board, and then 
-> re-connected it to an on-board UHCI port.
-> 
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski
-> 
-> Linux version 2.6.9-rc4-tmscsim (lyakh@poirot.grange) (gcc version 3.3.2 (Debian)) #1 SMP Mon Oct 25 23:38:23 CEST 2004
+Just in case people have wondered about the recent kernel.org
+slowness: we got unprecedented server load after Fedora Core 3 was
+released, and it hasn't fully died down yet.  Additionally, the server
+is starting to show its age.
 
-Can you try 2.6.10-rc2 or the latest -bk snapshot?  Hopefully this is
-fixed there.
+We are actively working on getting new hardware; hopefully we should
+have something new in place some time in December or January.
 
-thanks,
-
-greg k-h
+	-hpa

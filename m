@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262059AbREMRc0>; Sun, 13 May 2001 13:32:26 -0400
+	id <S262082AbREMRg4>; Sun, 13 May 2001 13:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262061AbREMRcG>; Sun, 13 May 2001 13:32:06 -0400
-Received: from ns.suse.de ([213.95.15.193]:5388 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262059AbREMRcF>;
-	Sun, 13 May 2001 13:32:05 -0400
-Date: Sun, 13 May 2001 19:31:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matt <madmatt@bits.bris.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Timers
-Message-ID: <20010513193141.A13912@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.21.0105131735140.22953-100000@bits.bris.ac.uk>
+	id <S262062AbREMRgr>; Sun, 13 May 2001 13:36:47 -0400
+Received: from t2.redhat.com ([199.183.24.243]:24314 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262061AbREMRgj>; Sun, 13 May 2001 13:36:39 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <15100.37367.477922.66043@pizda.ninka.net> 
+In-Reply-To: <15100.37367.477922.66043@pizda.ninka.net>  <20010511162745.B18341@sistina.com> <E14yDyI-0000yE-00@the-village.bc.nu> <20010511171124.M30355@athlon.random> <15100.18375.367656.3591@pizda.ninka.net> <20010512032453.A8259@athlon.random> 
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mauelshagen@sistina.com, linux-kernel@vger.kernel.org, mge@sistina.com,
+        hch@caldera.de
+Subject: Re: LVM 1.0 release decision 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105131735140.22953-100000@bits.bris.ac.uk>; from madmatt@bits.bris.ac.uk on Sun, May 13, 2001 at 05:45:13PM +0100
+Date: Sun, 13 May 2001 18:36:11 +0100
+Message-ID: <23605.989775371@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 13, 2001 at 05:45:13PM +0100, Matt wrote:
-> I'm having some major headaches trying to get a timer working in my
-> driver.
-> 
-> The timer is started when the device node is opened, and deleted when it's
-> closed. The timer code itself calls mod_timer to add itself back in
-> again. At the moment, it runs every second and does nothing more than
-> issue a debug printk to say it's working okay.
-> 
-> The problem comes when I try and wrap the timer code inside some down()
-> and up() calls to make sure it's not fiddling with the hardware at the
-> same time as some other calls. When I do this, I get a huge oops which
-> goes right off my screen and I get the "Aieee..." message afterwards and I
-> have to push the reset button :(.
 
-You're trying to sleep in an interrupt, which is not allowed.
+davem@redhat.com said:
+> Andrea Arcangeli writes:
+>  > Related side note: for the x86-64 kernel we won't support the emulation
+>  > of the lvm ioctl from the 32bit executables to avoid the pointer
+>  > conversion an mainteinance pain enterely, at least in the early stage
+>  > the x86-64 lvmtools will have to be compiled elf64.
 
-> 
-> Should I be using spin_(un)lock_irqsave() calls anywhere instead of just a
-> semaphore? Or is there anything else I should be doing?
+> I think that's a bad decision, but it is your's.
 
-Yes you should. The only way to use a semaphore from interrupt context
-(=timers) is to use down_trylock() and retry when it was locked, e.g. by
-resetting the timer. That is normally awkward and irqsafe spinlocks are 
-probably better.  Of course they cannot be held schedules or anything 
-that may sleep.
+> To me, either you support fully the 32-bit execution environment or
+> you do not.  After all the work that myself and others have done for
+> other platforms, there really is no need to cut corners in this area.
 
--Andi
+IMHO, no 64-bit architecture code should provide translation functions for
+ioctls from 32-bit binaries.
+
+This is now a sufficiently common requirement that it shouldn't be repeated 
+by all architectures that require it - it should be somewhere common.
+Like linux/abi/ioctl32/
+
+
+
+--
+dwmw2
+
+

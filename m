@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSJDAFt>; Thu, 3 Oct 2002 20:05:49 -0400
+	id <S261373AbSJDAMK>; Thu, 3 Oct 2002 20:12:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbSJDAFt>; Thu, 3 Oct 2002 20:05:49 -0400
-Received: from dsl-213-023-021-061.arcor-ip.net ([213.23.21.61]:48524 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261398AbSJDAFs>;
-	Thu, 3 Oct 2002 20:05:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Rob Landley <landley@trommello.org>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] In-kernel module loader 1/7
-Date: Fri, 4 Oct 2002 02:10:28 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <20020919125906.21DEA2C22A@lists.samba.org> <E17w2XF-0005oW-00@starship> <20021003235152.B41E3397@merlin.webofficenow.com>
-In-Reply-To: <20021003235152.B41E3397@merlin.webofficenow.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17xG33-0001ji-00@starship>
+	id <S261391AbSJDAMK>; Thu, 3 Oct 2002 20:12:10 -0400
+Received: from gw.openss7.com ([142.179.199.224]:524 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S261373AbSJDAMK>;
+	Thu, 3 Oct 2002 20:12:10 -0400
+Date: Thu, 3 Oct 2002 18:17:41 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: John Levon <levon@movementarian.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Robert Love <rml@tech9.net>,
+       Greg KH <greg@kroah.com>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+Message-ID: <20021003181741.B31444@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: John Levon <levon@movementarian.org>,
+	Dave Jones <davej@codemonkey.org.uk>, Robert Love <rml@tech9.net>,
+	Greg KH <greg@kroah.com>, kernel <linux-kernel@vger.kernel.org>
+References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de> <20021003235022.GA82187@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021003235022.GA82187@compsoc.man.ac.uk>; from levon@movementarian.org on Fri, Oct 04, 2002 at 12:50:23AM +0100
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 October 2002 20:53, Rob Landley wrote:
-> On Monday 30 September 2002 11:32 am, Daniel Phillips wrote:
+John,
+
+On Fri, 04 Oct 2002, John Levon wrote:
 > 
-> > Not being able to unload LSM would suck enormously.  At last count, we
-> > knew how to do this:
-> >
-> >   1) Unhook the function hooks (using a call table simplifies this)
-> >   2) Schedule on each CPU to ensure all tasks are out of the module
-> >   3) A schedule where the module count is incremented doesn't count
-> >
-> > and we rely on the rule that and module code that could sleep must be
-> > bracketed by inc/dec of the module count.
-> >
-> > Did somebody come up with a reason why this will not work?
-> 
-> Preemption?
+> Right, it's buggered on Red Hat's kernel. Not really a problem; they
+> have a bugzilla and it's not big deal to redirect users there.
 
-Turn it off.
+Been there, done that:
 
-> Scheduling doesn't guarantee making any specific amount of progress within 
-> the kernel with preemption enabled.  I thought the preferred strategy was to 
-> wait for the time slices to refill and then exhaust (since everybody has to 
-> exhaust their time slices before anybody gets new ones.  Unless I've missed 
-> something...?)
+	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=74902
 
-Probably ;-)
+Interested parties are welcome to join the fray.
+
+--brian
 
 -- 
-Daniel
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

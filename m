@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUIMVto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUIMVvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268914AbUIMVto (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUIMVto
+	id S268086AbUIMVvs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268992AbUIMVvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:49:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63381 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268914AbUIMVrp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:47:45 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc1-mm5 scheduling while atomic
-Date: Mon, 13 Sep 2004 14:47:41 -0700
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040913015003.5406abae.akpm@osdl.org>
-In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
+	Mon, 13 Sep 2004 17:51:47 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:5817 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268086AbUIMVvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 17:51:00 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: 2.6.9-rc1-mm5: double fault on resume on Athlon64 w/ NForce 3
+Date: Mon, 13 Sep 2004 23:57:13 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409131447.41607.jbarnes@engr.sgi.com>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409132357.13582.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On an Altix with the default config (smp+preempt, see 
-arch/ia64/configs/sn2_defconfig), I'm getting this:
+Pavel,
 
-bad: scheduling while atomic!
+JFYI, I get a double fault on resume on an Athlon64-based box:
 
-Call Trace:
- [<a000000100017380>] show_stack+0x80/0xa0
-                                sp=e0001c3004adfc40 bsp=e0001c3004ad9098
- [<a0000001006bcc70>] schedule+0x11f0/0x16a0
-                                sp=e0001c3004adfe10 bsp=e0001c3004ad8f78
- [<a000000100018530>] cpu_idle+0x5b0/0x620
-                                sp=e0001c3004adfe30 bsp=e0001c3004ad8ee8
- [<a000000100059a10>] start_secondary+0x2d0/0x300
-                                sp=e0001c3004adfe30 bsp=e0001c3004ad8eb0
- [<a000000100008580>] _start+0x260/0x290
-                                sp=e0001c3004adfe30 bsp=e0001c3004ad8eb0
+Relocating 
+pagedir .....................................................................................................................|
+Reading image data (44091 pages): 100% 44091 done.
+Stopping tasks: ===|
+Freeing memory... done (0 pages freed)
+PM: Restoring saved image.
+<0>double fault: 0000 [1]
+CPU 0
+Modules linked in: ohci_hcd usbserial parport_pc lp parport joydev sg sd_mod 
+sr_mod scsi_mod cpufreq_userspace powernow_k8 thermal proced
+Pid: 18616, comm: hibernate.sh Not tainted 2.6.9-rc1-mm5
+RIP: 0010:[<ffffffff80124aa7>] <ffffffff80124aa7>{do_page_fault+55}
+RSP: 0000:000001001fdfff48  EFLAGS: 00010016
+RAX: ffffffff80124a70 RBX: 0000000000000001 RCX: 000ffffffffff000
+RDX: 000000001fce5000 RSI: 0000000000000000 RDI: 000001001fe00068
+RBP: 0000000080111213 R08: 0000000000000000 R09: 000001001fe27e54
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 000001001f999148 R14: 000001001f8b92b0 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffffffff80551b40(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 0000000080050033
+CR2: 000001001fdfff38 CR3: 0000000000101000 CR4: 00000000000006e0
+Process hibernate.sh (pid: 18616, threadinfo 000001000aad8000, task 
+000001001f8b92b0)
 
-The messages began right after I logged out of an ssh session and haven't 
-stopped yet.
+(that's all I get, unfortunately).  It does not occur every time, but fairly 
+often (every 3-4 suspends or so).
 
-Jesse
+The .config is available at: 
+http://www.sisk.pl/kernel/040913/2.6.9-rc1-mm5.config
+
+The output of dmesg is available at: 
+http://www.sisk.pl/kernel/040913/2.6.9-rc1-mm5-dmesg.log
+
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

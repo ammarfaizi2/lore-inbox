@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTIVP71 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 11:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTIVP71
+	id S263212AbTIVQC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 12:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTIVQC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 11:59:27 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:32386 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263195AbTIVP7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 11:59:19 -0400
-Message-ID: <3F6F1DA9.1090409@pacbell.net>
-Date: Mon, 22 Sep 2003 09:04:57 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Greg KH <greg@kroah.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
+	Mon, 22 Sep 2003 12:02:58 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:22712 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263212AbTIVQCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 12:02:55 -0400
+Date: Mon, 22 Sep 2003 17:02:22 +0100
+From: Dave Jones <davej@redhat.com>
+To: CaT <cat@zip.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Kronos <kronos@kronoz.cjb.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: PATCH (as112) Re: USB APM suspend
-References: <Pine.LNX.4.44L0.0309221034230.1884-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0309221034230.1884-100000@ida.rowland.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Fix Athlon MCA
+Message-ID: <20030922160222.GF15344@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, CaT <cat@zip.com.au>,
+	Linus Torvalds <torvalds@osdl.org>, Kronos <kronos@kronoz.cjb.net>,
+	linux-kernel@vger.kernel.org
+References: <20030921143934.GA1867@dreamland.darkstar.lan> <Pine.LNX.4.44.0309211034080.11614-100000@home.osdl.org> <20030921174731.GA891@redhat.com> <20030922142023.GC514@zip.com.au> <20030922144345.GC15344@redhat.com> <20030922150601.GD514@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030922150601.GD514@zip.com.au>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> On Sun, 21 Sep 2003, David Brownell wrote:
-> 
->>>Why was this routine called twice?  (Don't be fooled by the timestamps; I 
->>>think the "suspend D4 --> D3" message was created during the suspend but 
->>>not read by syslogd until after the resume.)
->>
->>That's happened for as long as I remember (2.4 also).
->>Still seems buglike to me, maybe 2.6 will finally squish it...
-> 
-> 
-> Well, the code path is easy enough to find.  If you look at suspend() in
-> arch/i386/kernel/apm.c, you'll see calls to pm_send_all() and
-> device_suspend().  They both end up filtering down to the USB HC drivers.  
-> The bad one is pm_send_all(); it comes too soon.
+On Tue, Sep 23, 2003 at 01:06:01AM +1000, CaT wrote:
+ > On Mon, Sep 22, 2003 at 03:43:45PM +0100, Dave Jones wrote:
+ > > The bank is referring to an MCE bank rather than a memory slot.
+ > > Each MCE bank checks different things.
+ > 
+ > ahhh. ok. Well... I found your parsemce.c source. got it compiled it. Ran:
+ > 
+ > ./parsemce -b 2 -e 940040000000017a
+ > 
+ > and got:
+ > 
+ > Status: (940040000000017a) Error IP valid
+ > Restart IP invalid.
+ > 
+ > What the snot does that mean? 8)
 
-Rather, "it comes at all".  Call device_{suspend,resume} should
-suffice.  It shouldn't pm_send_all() -- either of the two calls.
-(The 2.4 bug is necessarily a different issue.)
+If this was from a kernel that didn't clear that bank on boot,
+it's bogus, and you can ignore it.
 
-Does it work if you remove those calls?
+		Dave
 
-
-> By the way, David, apparently core/hcd-pci.c wants the HC drivers to set 
-> the hcd state to USB_STATE_SUSPENDED, but a simple grep shows that neither 
-> the EHCI nor the OHCI driver does so.  That certainly looks like an 
-> oversight, though I'm not sure in which source file.
-
-And what's odd is that it was working before, too!  I'll have a look,
-next I get a chance.  It's good to know that APM is almost behaving again.
-
-
-> Meanwhile, here's a simple patch to improve logging during suspend and
-> resume.  Greg, if David approves please apply it.
-
-Reads OK to me -- go for it!
-
-- Dave
-
-
-
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

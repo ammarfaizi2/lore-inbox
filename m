@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUCLBq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 20:46:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUCLBq3
+	id S261905AbUCLBv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 20:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUCLBvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 20:46:29 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15118
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261891AbUCLBq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 20:46:28 -0500
-Date: Fri, 12 Mar 2004 02:47:10 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: anon_vma RFC2
-Message-ID: <20040312014710.GO30940@dualathlon.random>
-References: <20040311135608.GI30940@dualathlon.random> <Pine.LNX.4.44.0403112043420.2120-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403112043420.2120-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 11 Mar 2004 20:51:25 -0500
+Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:51949 "EHLO
+	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S261905AbUCLBvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 20:51:22 -0500
+In-Reply-To: <E1B1TIJ-0007Tm-Jn@tytlal>
+References: <E1B1TIJ-0007Tm-Jn@tytlal>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <BCE0CC77-73C7-11D8-BAF8-000A958E2366@mn.rr.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Chris Johns <cbjohns@mn.rr.com>
+Subject: Re: (0 == foo), rather than (foo == 0)
+Date: Thu, 11 Mar 2004 19:51:11 -0600
+To: Chip Salzenberg <chip@pobox.com>
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 09:54:01PM +0000, Hugh Dickins wrote:
-> Could you post a patch against 2.6.3 or 2.6.4?  Your objrmap patch
+Just to throw a little more gas on this particular fire (or maybe
+some water, depending on your point of view), when I worked for a while
+at the Evil Empire, the "const == variable" comparison was mandatory in
+the group I worked in. Odd to look at initially, I'll admit, but it 
+still caught
+several potential bugs. One other thing that was mandatory was to
+set to NULL any pointer to memory area that was freed immediately after
+freeing it. Again, a good idea, although not a coding style issue.
 
-I uploaded my latest status, there are three patches, the first is
-Dave's objrmap, the second is your anobjrmap-1, the third is my anon_vma
-work that removes the pte_chains all over the kernel.
+Chris
 
-my patch is not stable yet, it crashes during swapping and the debugging
-code catches bug even before swapping (which is good):
 
- 0  0      0 404468  11900  41276    0    0     0     0 1095    61  0  0 100  0
- 0  0      0 404468  11900  41276    0    0     0     0 1108    71  0  0 100  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0      0 404468  11908  41268    0    0     0   136 1102    59  0  0 100  0
- 1  0      0 310972  11908  41268    0    0     0     0 1100    50  2  7 91  0
- 1  0      0  66748  11908  41268    0    0     0     0 1085    30  6 19 75  0
- 1  1    128   2648    216  14132    0  128     0   256 1118   139  3 16 73  8
- 1  2  77084   1332    232   2188    0 76952   308 76952 1162   255  1 10 54 35
+On Mar 11, 2004, at 10:44 AM, Chip Salzenberg wrote:
 
-I hope to make it work tomorrow, then the next two things to do are the
-pagetable walk in the nonlinear (currently it's pinned) and the rbtree
-(or prio_tree) for the i_mmap{,shared}. Then it will be complete and
-mergeable.
+> Amarendra.Godbole@ge.com writes:
+>>> As a result, using the former just tends to increase peoples
+>>> confusion by making code harder to read, which in turn tends
+>>> to increase the chance of bugs.
+>>
+>> Kindly don't insult the kernel developers' with such statements. ;-)
+>> They are smart enough to understand such constructs [...]
+>
+> It's not about intelligence!  It's about the nature of human visual
+> pattern-matching.  Reading a pattern is always easier when you've seen
+> it thousands of times before.
+>
+> Henry Spencer's dictum about brace style seems particularly apropos:
+>
+> 8.  Thou shalt make thy program's purpose and structure clear to thy
+>     fellow man by using the One True Brace Style, even if thou likest
+>     it not, for thy creativity is better used in solving problems than
+>     in creating beautiful new impediments to understanding.
+>
+> And that's what "0 == foo" is: an impediment to understanding.
+> -- 
+> Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+> "I wanted to play hopscotch with the impenetrable mystery of existence,
+>     but he stepped in a wormhole and had to go in early."  // MST3K
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.3/objrmap

@@ -1,111 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263706AbTIBK01 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 06:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbTIBK01
+	id S263631AbTIBKV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 06:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263641AbTIBKV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 06:26:27 -0400
-Received: from c-780372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.120]:6357
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S263706AbTIBK0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 06:26:23 -0400
-Subject: Re: [SHED] Questions.
-From: Ian Kumlien <pomac@vapor.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
-       Robert Love <rml@tech9.net>
-In-Reply-To: <200309021023.24763.kernel@kolivas.org>
-References: <1062324435.9959.56.camel@big.pomac.com>
-	 <200309011707.20135.phillips@arcor.de>
-	 <1062457396.9959.243.camel@big.pomac.com>
-	 <200309021023.24763.kernel@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D4a9TOTDiPw0qSblus2h"
-Message-Id: <1062498307.5171.267.camel@big.pomac.com>
+	Tue, 2 Sep 2003 06:21:58 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:19100 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263631AbTIBKVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 06:21:55 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <20030901233023.F22682@flint.arm.linux.org.uk>
+References: <20030831232812.GA129@elf.ucw.cz>
+	 <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org>
+	 <20030901211220.GD342@elf.ucw.cz>
+	 <20030901225243.D22682@flint.arm.linux.org.uk>
+	 <20030901221920.GE342@elf.ucw.cz>
+	 <20030901233023.F22682@flint.arm.linux.org.uk>
+Message-Id: <1062498096.757.45.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 02 Sep 2003 12:25:07 +0200
+Date: Tue, 02 Sep 2003 12:21:37 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: Fix up power managment in 2.6
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-D4a9TOTDiPw0qSblus2h
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> However, I'll let the PPC people justify the real reason for the driver
+> model change, since it was /their/ requirement that caused it, and I'm
+> not going to fight their battles for them.  (although I seem to be doing
+> exactly that while wasting my time here.)
+> It's about time that the people in the PPC community, who were the main
+> guys pushing for the driver model change, spoke up and justified this.
 
-On Tue, 2003-09-02 at 02:23, Con Kolivas wrote:
-> On Tue, 2 Sep 2003 09:03, Ian Kumlien wrote:
-> > On Mon, 2003-09-01 at 17:07, Daniel Phillips wrote:
-> > > IMHO, this minor change will provide a more solid, predictable base f=
-or
-> > > Con and Nick's dynamic priority and dynamic timeslice experiments.
-> >
-> > Most definitely.
->=20
-> No, the correct answer is maybe... if after it's redesigned and put throu=
-gh=20
-> lots of testing to ensure it doesn't create other regressions. I'm not sa=
-ying=20
-> it isn't correct, just that it's a major architectural change you're=20
-> promoting. Now isn't the time for that.
->=20
-> Why not just wait till 2.6.10 and plop in a new scheduler a'la dropping i=
-n a=20
-> new vm into 2.4.10... <sigh>=20
+Ok, actually it was me, and it was not about PPC specifics but rather
+about having sane semantics that actually mean something ;)
 
-Wouldn't a new scheduler be easier to test? And your patches changes
-it's behavior quite a lot. Wouldn't they require the same testing?
-(And Nicks for that mater, who changes more)
+The whole point was to get rid of the old 2 step save_state, then
+suspend model which didn't make sense. A saved state is only meaningful
+as long as that state doesn't get modified afterward, so saving state
+and suspending are an atomic operation.
 
-> The cpu scheduler simply isn't broken as the people on this mailing list =
-seem=20
-> to think it is. While my tweaks _look_ large, they're really just tweakin=
-g=20
-> the way the numbers feed back into a basically unchanged design. All the=20
-> incremental changes have been modifying the same small sections of sched.=
-c=20
-> over and over again. Nick's changes change the size of timeslices and the=
-=20
-> priority variation in a much more fundamental way but still use the basic=
-=20
-> architecture of the scheduler.=20
+That also means that I plan in the long run to also kill the PCI
+save_state. We didn't do that yet to not harm drivers more than we
+already did though ;)
 
-But, can't this scheduler suffer from starvation? If the run queue is
-long enough? Either via that deadline or via processes not running...
+Now, about that late "without interrupts" thing. Well, this is not
+entirely my design idea, so I'll let Patrick speak up, as I wrote
+previously, I'm not too fond of the "I return -EAGAIN" thing, on
+the other hand, I wanted to kill the suspend vs. powerdown
+distinction we had for a very simple reason:
 
-Wouldn't a starved process boost ensure that even hogs on a loaded
-system got their share now and then?
+Once you have suspended the whole PM tree, you can't expect a random
+driver to be able to talk to it's device anymore since the "parent"
+have been suspended. For example, a USB or 1394 device cannot be
+"powered down" at this stage as the previous "suspend" run will have
+stopped all activity on the host controller. Since I wanted the overall
+PM semantics to be consistent, I asked Patrick to consider removing that
+"power down" step. The fact of powering down the device is part of the
+same "atomic" suspend operation, deciding wether to power down or not
+the device depends solely on the target state (you typically don't do it
+for S4 as you expect a complete machine shutdown afterward).
 
-You could say that the problem the current scheduler has is that it's
-not allowed to starve anything, thats why we add stuff to give
-interactive bonus. But if it *was* allowed to starve but gave bonus to
-the starved processes that would make most of the interactive detection
-useless (yes, we still need the "didn't use their timeslice" bit and
-with a timeslice that gets smaller the higher the pri we'd automagically
-balance most processes).
+Now, we still had that need, for a few drivers (and in most cases, this
+is really about system devices, so it doesn't fit in the same model
+anyway, but still, we have a few broken thingies on PCI too), where a
+driver need to be suspended "late" (actually powered down late) when
+system interrupts have been disabled because that bit of HW is
+terminally broken and will assert it's interrupt line in a non
+controlled way.
 
-(As usual my assumptions might be really wrong...)
+That's the only reason why the powerdown call to the driver model still
+exist and why Patrick kept around that mecanism of returning -EAGAIN.
 
-> Promoting a new scheduler design entirely is admirable and ultimately pro=
-bably=20
-> worth pursuing but not 2.6 stuff.
+So such a driver is expected to do the following:
 
-Well, discussing and creating it is one thing. Implementing it is
-another. Accepting the patch is still up to the-powers-that-be(tm)
+ - first suspend will actually suspend the IOs as expected (block queues
+for
+a block driver, stop net queue for a network driver, etc....) and
+basically do everything but the actual power down of the device. Then,
+it returns -EAGAIN instead of 0 to request beeing called late for
+power down.
 
---=20
-Ian Kumlien <pomac@vapor.com>
+ - second suspend will do the last step.
 
---=-D4a9TOTDiPw0qSblus2h
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+(I do agree that having the same callback called twice without an
+indication of "when" in those 2 steps it is called isn't the best API we
+could come up with, but I prefered that to adding a paremeter to
+suspend() just for this special case).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+This is only to be used on such "broken" devices and only on busses
+where you know that your "host" bus is still available after the round
+of "suspend" calls (and even PCI may not in some cases), so this is not
+something I'd like to see people use too much.
 
-iD8DBQA/VHAC7F3Euyc51N8RApDUAJ4zu6jGOKBlQRfNklW1UqnEFC5eSQCbBMnv
-cGyMlg8bRpsnztpSSz/dvNQ=
-=Zpq1
------END PGP SIGNATURE-----
+Finally, to reply about UHCI/USB "brokenness", I've been working with
+David Brownell and other USB folks lately to get that working properly,
+it was not just a matter of adapting to the new callbacks, but also to
+do the right thing on the host controller, hopefully, David now has some
+patches that will be merged soon that implement proper PM on USB as well
+(at least for the host side, I suppose a bunch of device drivers will
+have to be fixed, with the new stuff, they'll just get -ESHUTDOWN when
+trying to submit URBs after the host is suspended).
 
---=-D4a9TOTDiPw0qSblus2h--
+Pavel, please keep in mind that proper PM is a difficult task, what we
+had before was full of holes, we spent a significant amount of time over
+the past year debating the right way to do all of this and Patrick spent
+even more time actually implementing it, so rather than just crying
+loud, I'd epxect you rather help us fixing what still need to be.
+
+Ben.
+
 

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285254AbRLFXJs>; Thu, 6 Dec 2001 18:09:48 -0500
+	id <S285280AbRLFXKs>; Thu, 6 Dec 2001 18:10:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285280AbRLFXJi>; Thu, 6 Dec 2001 18:09:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:32908 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285254AbRLFXJ2>;
-	Thu, 6 Dec 2001 18:09:28 -0500
-Date: Thu, 06 Dec 2001 15:08:47 -0800 (PST)
-Message-Id: <20011206.150847.45874365.davem@redhat.com>
-To: bcrl@redhat.com
-Cc: lm@bitmover.com, phillips@bonn-fries.net, davidel@xmailserver.org,
-        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-        lars.spam@nocrew.org, alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011206172708.B31752@redhat.com>
-In-Reply-To: <20011206122116.H27589@work.bitmover.com>
-	<20011206.130202.107681970.davem@redhat.com>
-	<20011206172708.B31752@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S285281AbRLFXK3>; Thu, 6 Dec 2001 18:10:29 -0500
+Received: from cn129399-a.wall1.pa.home.com ([24.40.41.32]:19585 "EHLO dysonwi")
+	by vger.kernel.org with ESMTP id <S285280AbRLFXKQ>;
+	Thu, 6 Dec 2001 18:10:16 -0500
+Message-ID: <3C0FFACF.4060806@pobox.com>
+Date: Thu, 06 Dec 2001 18:10:07 -0500
+From: Will Dyson <will_dyson@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: link error in usbdrv.o (2.4.17-pre5)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Benjamin LaHaise <bcrl@redhat.com>
-   Date: Thu, 6 Dec 2001 17:27:08 -0500
+When compiling 2.4.17-pre5 with the usb compiled in, the final link 
+produces the following error:
 
-   	- lower overhead for SMP systems.  We can use UP kernels local 
-   	  to each CPU.  Should make kernel compiles faster. ;-)
-   
-Actually, this isn't what is being proposed.  Something like
-"4 cpu" SMP kernels.
 
-   At the very least it is well worth investigating.  Bootstrapping the 
-   ccCluster work shouldn't take more than a week or so, which will let 
-   us attach some hard numbers to the kind of impact it has on purely 
-   cpu local tasks.
-   
-I think it is worth considering too, but I don't know if a week
-estimate is sane or not :-)
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
+init/version.o \
+	--start-group \
+	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o 
+fs/fs.o ipc/ipc.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o 
+drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o 
+drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o 
+drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o 
+drivers/usb/usbdrv.o drivers/input/inputdrv.o drivers/i2c/i2c.o \
+	net/network.o \
+	/usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a 
+/usr/src/linux/arch/i386/lib/lib.a \
+	--end-group \
+	-o vmlinux
+drivers/usb/usbdrv.o(.text.lock+0x5dc): undefined reference to `local 
+symbols in discarded section .text.exit'
+
+The .config that produces this error can be found here: 
+<http://cs.earlham.edu/~will/err_config>
+
+-- 
+Will Dyson
+

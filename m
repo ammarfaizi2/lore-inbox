@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbSKKD4Y>; Sun, 10 Nov 2002 22:56:24 -0500
+	id <S265414AbSKKDzT>; Sun, 10 Nov 2002 22:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbSKKD4X>; Sun, 10 Nov 2002 22:56:23 -0500
-Received: from packet.digeo.com ([12.110.80.53]:29386 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265423AbSKKD4V>;
-	Sun, 10 Nov 2002 22:56:21 -0500
-Message-ID: <3DCF2BF5.5DD165DD@digeo.com>
-Date: Sun, 10 Nov 2002 20:03:01 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S265423AbSKKDzT>; Sun, 10 Nov 2002 22:55:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62793 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265414AbSKKDzR>; Sun, 10 Nov 2002 22:55:17 -0500
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       fastboot@osdl.org
+Subject: Re: kexec for 2.5.46
+References: <m14ravfbjj.fsf@frodo.biederman.org>
+	<1036631471.10457.233.camel@andyp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Nov 2002 20:59:22 -0700
+In-Reply-To: <1036631471.10457.233.camel@andyp>
+Message-ID: <m1adkgbvtx.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Rik van Riel <riel@conectiva.com.br>, Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com.br
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-References: <3DCEC6F7.E5EC1147@digeo.com> <Pine.LNX.4.44L.0211101902390.8133-100000@imladris.surriel.com> <20021111015445.GB5343@x30.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Nov 2002 04:03:01.0882 (UTC) FILETIME=[3A949DA0:01C28937]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> the slowdown happens in this case:
-> 
->         queue 5 6 7 8 9
-> 
-> insert read 3
-> 
->         queue 3 5 6 7 8 9
+Andy Pfiffer <andyp@osdl.org> writes:
 
-read-latency will not do that.
- 
-> However I think even read-latency is more a workarond to a problem in
-> the I/O queue dimensions.
+> On Tue, 2002-11-05 at 22:38, Eric W. Biederman wrote:
+> > Linus please apply,
+> 
+> 
+> FYI: patch applied cleanly for me.
+> 
+> After fudging kexec-tools-1.4 to correct for the new syscall number:
 
-The problem is the 2.4 algorithm.  If a read is not mergeable or
-insertable it is placed at the tail of the queue.  Which is the
-worst possible place it can be put because applications wait on
-reads, not on writes.
+O.k.  After looking more this sounds like all of the systems of being uniprocessor
+but still having apic support enabled.  And since I don't have the apic shutdown
+code in there it doesn't work.
+
+Eric

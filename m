@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312453AbSDDRGf>; Thu, 4 Apr 2002 12:06:35 -0500
+	id <S313267AbSDDRNF>; Thu, 4 Apr 2002 12:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313267AbSDDRGQ>; Thu, 4 Apr 2002 12:06:16 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:36034 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S312453AbSDDRGM>;
-	Thu, 4 Apr 2002 12:06:12 -0500
-Message-Id: <5.1.0.14.2.20020404180430.01f6cec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 04 Apr 2002 18:06:03 +0100
-To: Ingo Molnar <mingo@redhat.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-        Stelian Pop <stelian.pop@fr.alcove.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0204041123410.6422-100000@devserv.devel.redh
- at.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313270AbSDDRMz>; Thu, 4 Apr 2002 12:12:55 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:18821 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S313267AbSDDRMs>; Thu, 4 Apr 2002 12:12:48 -0500
+Date: Thu, 4 Apr 2002 19:12:23 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Justin Carlson <justincarlson@cmu.edu>
+cc: Abdij Bhat <Abdij.Bhat@kshema.com>, linux-kernel@vger.kernel.org
+Subject: Re: error compiling kernel for mips
+In-Reply-To: <1017861846.1133.285.camel@gs256.sp.cs.cmu.edu>
+Message-ID: <Pine.GSO.3.96.1020404190340.27231A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:29 04/04/02, Ingo Molnar wrote:
+On 3 Apr 2002, Justin Carlson wrote:
 
->On Thu, 4 Apr 2002, Anton Altaparmakov wrote:
->
-> > Both or these aren't really practical once you think it through. Don't
-> > forget that each binary module can be wrapped by an GPL-module which the
-> > kernel cannot do anything at all about and the kernel would never even
-> > know a binary only module was loaded because the GPL module does it.
-> > There is no such thing as security... This kind of thing is already in
-> > use by at least two companies I know of (i.e. using open sourced glue
-> > modules to binary only code) so it is not just a theory I am making
-> > up...
->
->there are countries where this might be considered a 'circumvention of a
->technological measure' that controls access to a work. Law enforcement is
->not the duty of the copyright holders. There is no such thing as a
->burglar-safe house either.
+> Check out this line in the base level makefile:
+> 
+> ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e
+> s/arm.*/arm/ -e s/sa110/arm/)
+> 
+> This actually looks broken for cross-compile, but I haven't been
+> following the changes particularly closely...try using this instead:
+> 
+> ARCH := mips
 
-I guess so. Sorry, IANAL and I live in a relatively free country so I 
-forgot about that place over the pond... (-:
+ Or shortly:
 
-Anton
+$ make "ARCH=<arch>" "CROSS_COMPILE=<prefix>" <whatever>
 
+Here <arch> is "mips" and <prefix> is whatever prefix is is used for your
+cross-compiling toolchain (e.g. "mips-linux-" or "mipsel-linux-", etc.).
+
+> Really, though if you're compiling for mips you should probably grab the
+> mips-linux CVS sources here:
+> 
+>  cvs -d :pserver:cvs@oss.sgi.com:/cvs login
+>    (Only needed the first time you use anonymous CVS, the password is
+> "cvs")
+>    cvs -d :pserver:cvs@oss.sgi.com:/cvs co <repository>
+> 
+> There's a 2.4 tagged branch that's probably closer to what you want. You
+> can ask for mips-specific on linux-mips@oss.sgi.com, and you'll be much
+> more likely to get a prompt and useful answer.
+
+ Actually 2.4.19 should contain most bits from the current linux_2_4
+branch from oss.  Just grab the current "-pre" version.
+
+ Getting a CVS snapshot from oss is certainly a solution as well, but the
+server seems to be broken for the last few days (including its CVS server,
+its mailing list server and its web server).
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,71 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279998AbRLDCPM>; Mon, 3 Dec 2001 21:15:12 -0500
+	id <S278927AbRLDCQb>; Mon, 3 Dec 2001 21:16:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283755AbRLDCNq>; Mon, 3 Dec 2001 21:13:46 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:15116 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S282976AbRLDCMq>; Mon, 3 Dec 2001 21:12:46 -0500
-Date: Mon, 3 Dec 2001 18:23:35 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Donald Becker <becker@scyld.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <Pine.LNX.4.10.10112032057070.978-100000@vaio.greennet>
-Message-ID: <Pine.LNX.4.40.0112031816280.1381-100000@blue1.dev.mcafeelabs.com>
+	id <S275552AbRLDCPQ>; Mon, 3 Dec 2001 21:15:16 -0500
+Received: from leeloo.zip.com.au ([203.12.97.48]:17422 "EHLO
+	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
+	id <S284327AbRLDBpo>; Mon, 3 Dec 2001 20:45:44 -0500
+Message-ID: <3C0C2AAF.6141D797@zip.com.au>
+Date: Mon, 03 Dec 2001 17:45:19 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: j-nomura@ce.jp.nec.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processor initializationcheck)
+In-Reply-To: <3C0B43DC.7A8F582A@zip.com.au>,
+		<20011203144615C.nomura@hpc.bs1.fc.nec.co.jp>
+		<3C0B43DC.7A8F582A@zip.com.au> <20011203193235S.nomura@hpc.bs1.fc.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Dec 2001, Donald Becker wrote:
+j-nomura@ce.jp.nec.com wrote:
+> 
+> Hi,
+> 
+> Thank you for commenting.
+> 
+> From: Andrew Morton <akpm@zip.com.au>
+> Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processor initialization check)
+> Date: Mon, 03 Dec 2001 01:20:28 -0800
+> 
+> > Seems that there is some sort of ordering problem here - someone
+> > is calling printk before the MMU is initialised, but after some
+> > console drivers have been installed.
+> 
+> Yes.
+> Because smp_init() is later in place than console_init(), printk() can be
+> called in such a situation.
+> For example, in IA-64, identify_cpu() is called before ia64_mmu_init(),
+> while identify_cpu() calls printk() in it.
+> I don't think the ordering itself is a problem.
+> 
+> > I suspect the real fix is elsewhere, but I'm not sure where.
+> >
+> > Probably a clearer place to put this test would be within
+> > printk itself, immediately before the down_trylock.  Does that
+> > work?
+> 
+> The reason I put it in release_console_sem() is that release_console_sem()
+> can be called from other functions than printk(), e.g. console_unblank().
+> I agree with you that it is clearer but I think it is not sufficient.
+> 
 
-> On Mon, 3 Dec 2001, Davide Libenzi wrote:
->
-> > On Mon, 3 Dec 2001, Donald Becker wrote:
-> > > of the change.  We won't know for years if redesigning the kernel for
-> > > large scale SMP system is useful
-> > >   - does it actually work,
-> > >   - will big SMP machines be common, or even exist?
-> > >   - will big SMP machines have the characteristics we predict
-> > > let alone worth the costs such as
-> > >   - UP performance hit
-> > >   - complexity increase slows other improvements
-> > >   - difficult performance tuning
-> ...
-> > No, I do not believe in 128 single CPU SMP machines but, if I've to watch
-> > inside my pretty dirty crystal ball, I see multi-core CPUs as a technology
-> > response to SMP request.
-> > Yes, because after the 1st theorem of "work" there's the 1st lemma of
-> > technology that states that "technology will always follow the
-> > market request".
->
-> You haven't addressed the points above.
-> We haven't established that the market will request substantial numbers
-> of 128-way SMPs.  Even if they do request single-address-space
-> multiprocessors, it's very likely that the result will be some form of cc-numa
-> where the structure will strongly influence the OS to treat the machine
-> as something besides a SMP.
->
-> To bring this branch back on point: we should distinguish between
-> design for an arbitrary and unpredictable goal (e.g. 128 way SMP)
-> vs. putting some design into things that we are supposed to already
-> understand
->    a SCSI device layer that isn't three half-finished clean-ups
->    a VFS layer that doesn't require the kernel to know a priori all of
->      the filesystem types that might be loaded
+I really doubt if any of those paths could be called before
+even the MMU is set up.
 
-Donald, I'm not even thinking about planning a 128 CPU scalability for
-Linux.
-The whole point of this discussion ( if any ) is that we've to design on
-what we've or on what we expect to have in a very near future.
-We cannot play with technology on long term plans because, no matter how
-good we plan, it'll screw us up.
+It seems that the ia64 port has installed some console drivers,
+and has then called them before it is ready to do so.  Via printk.
 
+It should not have installed the console drivers that early.  Do
+you know what console driver is causing the problem?
 
+If the console driver is not fixable then a more general approach
+would be, in printk.c:
 
+#ifndef ARCH_HAS_PRINTK_MAY_BE_USED
+#define printk_may_be_used() (1)
+#endif
 
-- Davide
+then, in printk() itself:
 
+                if (*p == '\n')
+                        log_level_unknown = 1;
+        }
 
++	if (!printk_may_be_used())
++		return printed_len;
+
+        if (!down_trylock(&console_sem)) {
+                /*
+
+then, for ia64, give it a printk_may_be_used() function, and
+define ARCH_HAS_PRINTK_MAY_BE_USED somewhere.
+
+Or just not install console drivers before they may be safely
+used!
+
+-

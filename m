@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266014AbRF1QUa>; Thu, 28 Jun 2001 12:20:30 -0400
+	id <S266015AbRF1QVK>; Thu, 28 Jun 2001 12:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266015AbRF1QUU>; Thu, 28 Jun 2001 12:20:20 -0400
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:22174 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S266014AbRF1QUI>; Thu, 28 Jun 2001 12:20:08 -0400
-Date: Thu, 28 Jun 2001 12:19:48 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Alan Cox <laughing@shared-source.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac20
-In-Reply-To: <20010628164212.A27412@lightning.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0106281210030.3807-100000@sparrow.websense.net>
+	id <S266013AbRF1QVA>; Thu, 28 Jun 2001 12:21:00 -0400
+Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:62933 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S266015AbRF1QUt>; Thu, 28 Jun 2001 12:20:49 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880AD5@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: (reposting) how to get DMA'able memory within 4GB on 64-bit m
+	achi ne
+Date: Thu, 28 Jun 2001 10:20:46 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, all,
-	I also get an "Error in tcl script":
+Then why do we have 64-bit dma_addr_t on ia64 ?
 
-Error: can't read "CONFIG_DRM_AGP": no such variable.
+-hiren
 
-	The stack trace is:
+-----Original Message-----
+From: David S. Miller [mailto:davem@redhat.com]
+Sent: Wednesday, June 27, 2001 2:26 PM
+To: MEHTA,HIREN (A-SanJose,ex1)
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit
+machi ne
 
-can't read "CONFIG_DRM_AGP": no such variable
-    while executing
-"list $CONFIG_DRM_AGP"
-    (procedure "writeconfig" line 2351)
-    invoked from within
-"writeconfig .config include/linux/autoconf.h"
-    invoked from within
-".f0.right.save invoke"
-    ("uplevel" body line 1)
-    invoked from within
-"uplevel #0 [list $w invoke]"
-    (procedure "tkButtonUp" line 7)
-    invoked from within
-"tkButtonUp .f0.right.save
-"
-    (command bound to event)
 
-	scripts/kconfig.tk has this:
 
-set CONFIG_DRM_AGP 4
-	and
-write_tristate $cfg $autocfg CONFIG_AGP $CONFIG_AGP [list $CONFIG_DRM_AGP] 2
+MEHTA,HIREN (A-SanJose,ex1) writes:
+ > Is there a way for a driver to ask kernel to
+ > give DMA'able memory within 4GB ? I read about
+ > pci_alloc_consistent(). But I could not find out
+ > whether that guarantees the DMA'able memory to be
+ > within 4GB or not. Is there any other kernel routine
+ > that I should call from Driver to get such a memory ?
 
-	ac20 itself doesn't seem to have any references to CONFIG_DRM_AGP
-at all.  Hmmm.
+All of the pci_*() DMA allocation/mapping interfaces give you
+32-bit PCI dma addresses.
 
-	If it makes a difference, the .config I used as a base has no
-variables with either DRM or AGP in them.
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	"That vulnerability is completely theoretical."  -- Microsoft
-	L0pht, Making the theoretical practical since 1992.
-(Courtesy of "Deliduka, Bennet" <bennet.deliduka@state.vt.us>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVCMEKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVCMERR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbVCMEKU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 23:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVCMEHv
+	id S262804AbVCMERR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 23:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbVCMEM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 23:07:51 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14854 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262699AbVCMDyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 22:54:33 -0500
-Date: Sun, 13 Mar 2005 04:54:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: werner@isdn4linux.de, kkeil@suse.de, kai.germaschewski@gmx.de,
-       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/isdn/divert/isdn_divert.c: make 5 functions static
-Message-ID: <20050313035430.GW3814@stusta.de>
+	Sat, 12 Mar 2005 23:12:29 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:46754 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262665AbVCMD4Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 22:56:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Xln16/YfqpvOX+gRjSmJxKtIcPAU92VJ9WdY/VtlBXzAGBzQoM72Kp+/qf9Y8TwFmgLHJWP8+TW6C4yQp8zqRZoAz2+Hi+EBcezMb8u/VrAdn9GbegFU5Jreq1KH47UB0Tsg95stkp/a5RngNUCfy2GZP01FX6maMDaBu1tp4S8=
+Message-ID: <17d798805031219562e44f911@mail.gmail.com>
+Date: Sat, 12 Mar 2005 22:56:09 -0500
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6 : physical memory address and pid
+In-Reply-To: <20050313012323.GE3163@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <17d798805031217055a3e9cc6@mail.gmail.com>
+	 <20050313012323.GE3163@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes five needlessly global functions static.
+Thanks for the answer! 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Another related question :
 
----
+I need to gather all application pages by reading the page tables. 
+The hard part is, I need to do this from a PCI device using DMA.  As I
+understand it,  when a DMA is being performed, the pages are pinned in
+memory . Since the PCI device has grabbed the bus, the processor is
+not able to access memory to perform page replacement right ?
+So, this is a form of mutual exclusion.
 
-This patch was already sent on:
-- 6 Feb 2005
+However, if I have to fetch the page struct, the process address space
+of the process owning the page (I am ignoring shared pages to make
+things simpler) and the page itself, will a scatter gather DMA make
+sure that  the processor cannot modify any of these data structures
+till the DMA is complete ? I am using Linux 2.6 and the i386
+architecture.
 
- drivers/isdn/divert/isdn_divert.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+thanks,
+Allison
 
---- linux-2.6.11-rc3-mm1-full/drivers/isdn/divert/isdn_divert.c.old	2005-02-05 15:39:15.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/isdn/divert/isdn_divert.c	2005-02-05 15:39:52.000000000 +0100
-@@ -383,7 +383,7 @@
- /*************************************************/
- /* called from common module on an incoming call */
- /*************************************************/
--int isdn_divert_icall(isdn_ctrl *ic)
-+static int isdn_divert_icall(isdn_ctrl *ic)
- { int retval = 0;
-   unsigned long flags;
-   struct call_struc *cs = NULL; 
-@@ -552,7 +552,7 @@
- /****************************************************/
- /* put a address including address type into buffer */
- /****************************************************/
--int put_address(char *st, u_char *p, int len)
-+static int put_address(char *st, u_char *p, int len)
- { u_char retval = 0;
-   u_char adr_typ = 0; /* network standard */
- 
-@@ -595,7 +595,7 @@
- /*************************************/
- /* report a succesfull interrogation */
- /*************************************/
--int interrogate_success(isdn_ctrl *ic, struct call_struc *cs)
-+static int interrogate_success(isdn_ctrl *ic, struct call_struc *cs)
- { char *src = ic->parm.dss1_io.data;
-   int restlen = ic->parm.dss1_io.datalen;
-   int cnt = 1;
-@@ -689,7 +689,7 @@
- /*********************************************/
- /* callback for protocol specific extensions */
- /*********************************************/
--int prot_stat_callback(isdn_ctrl *ic)
-+static int prot_stat_callback(isdn_ctrl *ic)
- { struct call_struc *cs, *cs1;
-   int i;
-   unsigned long flags;
-@@ -781,7 +781,7 @@
- /***************************/
- /* status callback from HL */
- /***************************/
--int isdn_divert_stat_callback(isdn_ctrl *ic)
-+static int isdn_divert_stat_callback(isdn_ctrl *ic)
- { struct call_struc *cs, *cs1;
-   unsigned long flags;
-   int retval;
 
+
+
+
+On Sat, 12 Mar 2005 17:23:23 -0800, Matt Mackall <mpm@selenic.com> wrote:
+> On Sat, Mar 12, 2005 at 08:05:11PM -0500, firefly blue wrote:
+> > Hi,
+> >
+> > With the 2.6 Linux kernel, I want to find, from the physical page
+> > frame, the virtual address of the page loaded in the frame and the
+> > process id of the process owning it.
+> 
+> Follow struct page->mapping to struct address_space. A page can be
+> mapped into any number of processes and multiple times per process so
+> you'll need to walk the data structures there.
+> 
+> --
+> Mathematics is the supreme nostalgia of our time.
+>

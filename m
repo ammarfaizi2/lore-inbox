@@ -1,84 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270947AbRHNXuX>; Tue, 14 Aug 2001 19:50:23 -0400
+	id <S270943AbRHNXzx>; Tue, 14 Aug 2001 19:55:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270949AbRHNXuE>; Tue, 14 Aug 2001 19:50:04 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:49362 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S270950AbRHNXuA>;
-	Tue, 14 Aug 2001 19:50:00 -0400
-Message-ID: <3B79BA07.B57634FD@sun.com>
-Date: Tue, 14 Aug 2001 16:53:43 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S270949AbRHNXze>; Tue, 14 Aug 2001 19:55:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37509 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S270943AbRHNXzZ>;
+	Tue, 14 Aug 2001 19:55:25 -0400
+Date: Tue, 14 Aug 2001 16:53:20 -0700 (PDT)
+Message-Id: <20010814.165320.77058794.davem@redhat.com>
+To: thockin@sun.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: RFC: poll change
-In-Reply-To: <3B79B381.58266C13@sun.com>
-		<20010814.162710.131914269.davem@redhat.com>
-		<3B79B5F3.C816CBED@sun.com> <20010814.163804.66057702.davem@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------19D25FEECDB0D2EA3D56BF6C"
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3B79BA07.B57634FD@sun.com>
+In-Reply-To: <3B79B5F3.C816CBED@sun.com>
+	<20010814.163804.66057702.davem@redhat.com>
+	<3B79BA07.B57634FD@sun.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------19D25FEECDB0D2EA3D56BF6C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+   From: Tim Hockin <thockin@sun.com>
+   Date: Tue, 14 Aug 2001 16:53:43 -0700
 
-"David S. Miller" wrote:
- 
->    The standard also says that any pollfd with (fd < 0) is ignored.  Holes are
->    explicitly ALLOWED.
-> 
-> Dude, it ignores negative fds, check fs/select.c:do_pollfd()
+   The standard says negative fd's are ignored.  We get that right.  What we
+   are left with is an overly paranoid check against max_fds.  This check
+   should go away.  You should be able to pass in up to your rlimit fds, and
+   let negative ones (holes or tails) be ignored.
+   
+I am saying there is no problem.
 
-Right - we're running in circles.
+In both cases, for a properly written application we ignore the
+invalid fds.  The behavior is identical both before and after
+your change, so there is no reason to make it.
 
-The standard says negative fd's are ignored.  We get that right.  What we
-are left with is an overly paranoid check against max_fds.  This check
-should go away.  You should be able to pass in up to your rlimit fds, and
-let negative ones (holes or tails) be ignored.
-
-I'm attaching a patch :).
-
-Am I still not making the problem clear?
-
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------19D25FEECDB0D2EA3D56BF6C
-Content-Type: text/plain; charset=us-ascii;
- name="select.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="select.diff"
-
-Index: fs/select.c
-===================================================================
-RCS file: /home/cvs/linux-2.4/fs/select.c,v
-retrieving revision 1.5
-diff -u -r1.5 select.c
---- fs/select.c	2001/07/09 23:10:25	1.5
-+++ fs/select.c	2001/08/14 23:47:46
-@@ -416,11 +416,8 @@
- 	int nchunks, nleft;
- 
- 	/* Do a sanity check on nfds ... */
--	if (nfds > NR_OPEN)
-+	if (nfds > current->rlim[RLIMIT_NOFILE].rlim_cur)
- 		return -EINVAL;
--
--	if (nfds > current->files->max_fds)
--		nfds = current->files->max_fds;
- 
- 	if (timeout) {
- 		/* Careful about overflow in the intermediate values */
-
---------------19D25FEECDB0D2EA3D56BF6C--
+Later,
+David S. Miller
+davem@redhat.com
 

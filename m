@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265310AbRGEPJs>; Thu, 5 Jul 2001 11:09:48 -0400
+	id <S265326AbRGEPL2>; Thu, 5 Jul 2001 11:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265326AbRGEPJi>; Thu, 5 Jul 2001 11:09:38 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:43280 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265310AbRGEPJU>; Thu, 5 Jul 2001 11:09:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
+	id <S265319AbRGEPLK>; Thu, 5 Jul 2001 11:11:10 -0400
+Received: from smtp102.urscorp.com ([64.17.27.233]:4112 "EHLO
+	smtp102.urscorp.com") by vger.kernel.org with ESMTP
+	id <S265326AbRGEPKt>; Thu, 5 Jul 2001 11:10:49 -0400
 To: Xavier Bestel <xavier.bestel@free.fr>
-Subject: Re: VM Requirement Document - v0.0
-Date: Thu, 5 Jul 2001 17:12:54 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org,
-        Tom spaziani <digiphaze@deming-os.org>,
+Cc: Tom spaziani <digiphaze@deming-os.org>, Dan Maas <dmaas@dcine.com>,
+        linux-kernel@vger.kernel.org,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Daniel Phillips <phillips@bonn-fries.net>,
         Rik van Riel <riel@conectiva.com.br>
-In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <0107051704000H.03760@starship> <994345246.2790.0.camel@nomade>
-In-Reply-To: <994345246.2790.0.camel@nomade>
+Subject: Re: VM Requirement Document - v0.0
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+From: mike_phillips@urscorp.com
+Message-ID: <OF56241C86.6CC1E0F8-ON85256A80.004CE12A@urscorp.com>
+Date: Thu, 5 Jul 2001 11:09:01 -0400
+X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
+ 07/05/2001 11:04:51 AM,
+	Serialize complete at 07/05/2001 11:04:51 AM
 MIME-Version: 1.0
-Message-Id: <0107051712540I.03760@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 July 2001 17:00, Xavier Bestel wrote:
-> On 05 Jul 2001 17:04:00 +0200, Daniel Phillips wrote:
-> > Also, notice that the scenario we were originally discussing, the
-> > off-hours updatedb, doesn't normally happen on laptops because they tend
-> > to be suspended at that time.
->
-> Suspended != halted. The updatedb stuff starts over when I bring it back
-> to life (RH6.2, dunno for other distribs)
+> Well, on a laptop memory and disk bandwith are rarely wasted - they cost
+> battery life.
 
-Yes, but then it's normally overlapped with other work you are doing, like 
-trying to read your mail.  Different problem, one we also perform poorly at 
-but for different reasons.
+I've been playing around with different scenarios to see the differences 
+in performance. A good way to trigger the cache problem is to untar a 
+couple of kernel source trees or other large amounts of files, until free 
+memory is down to less than 2mb. Then try to fire up a few apps that need 
+some memory. The hard drive thrashes around as the VM tries to free up 
+enough space, often using swap instead of flushing out the cache. 
 
---
-Daniel
+These source trees can then be deleted which frees up the memory the cache 
+was using and performance returns to where it should be. 
+
+However, if I just fire up enough apps to use up all the memory and then 
+go into swap, response is still acceptable. If the app requires loading 
+from swap there is just a short lag while the VM does its thing and then 
+life is good. 
+
+I don't expect to be able to run more apps than I have memory for without 
+a performance hit, but I do expect to be able to run with over 128MB of 
+"real" free memory and not suffer from performance degradation (which 
+doesn't happen at present)
+
+Mike
+

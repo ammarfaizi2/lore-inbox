@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129501AbRBPQol>; Fri, 16 Feb 2001 11:44:41 -0500
+	id <S129322AbRBPRMO>; Fri, 16 Feb 2001 12:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbRBPQob>; Fri, 16 Feb 2001 11:44:31 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:10247 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129159AbRBPQo0>; Fri, 16 Feb 2001 11:44:26 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200102161644.RAA13697@green.mif.pg.gda.pl>
-Subject: "make dep" problem
-To: linux-kernel@vger.kernel.org (kernel list)
-Date: Fri, 16 Feb 2001 17:44:27 +0100 (CET)
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S129580AbRBPRMF>; Fri, 16 Feb 2001 12:12:05 -0500
+Received: from colorfullife.com ([216.156.138.34]:34063 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129322AbRBPRLt>;
+	Fri, 16 Feb 2001 12:11:49 -0500
+Message-ID: <3A8D5F6C.D81F2F28@colorfullife.com>
+Date: Fri, 16 Feb 2001 18:12:12 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac15 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        bcrl@redhat.com
+Subject: Re: x86 ptep_get_and_clear question
+In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com> <20010216151839.A3989@pcep-jamie.cern.ch> <3A8D4045.F8F27782@colorfullife.com> <20010216162741.A4284@pcep-jamie.cern.ch> <3A8D4D43.CF589FA0@colorfullife.com> <20010216170029.A4450@pcep-jamie.cern.ch> <3A8D540C.92C66398@colorfullife.com> <20010216174316.A4500@pcep-jamie.cern.ch>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   While trying to compile 2.4.1-ac1[34] I noticed that the following error
-message appears sometimes:
+Jamie Lokier wrote:
+> 
+> Manfred Spraul wrote:
+> > The other cpu writes the dirty bit - we just overwrite it ;-)
+> > After the ptep_get_and_clear(), before the set_pte().
+> 
+> Ah, I see.  The other CPU does an atomic *pte |= _PAGE_DIRTY, without
+> checking the present bit.  ('scuse me for temporary brain failure).
+> 
+> How about a pragmatic solution.
+>
+Ok, Is there one case were your pragmatic solutions is vastly faster?
 
-make[3]: *** No rule to make target 
-/home29/ankry/kernel/2.4/linux/drivers/pci/devlist.h', needed by `names.o'.
-Stop.
-make[3]: Leaving directory /home29/ankry/kernel/2.4/linux/drivers/pci'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory /home29/ankry/kernel/2.4/linux/drivers/pci'
-make[1]: *** [_subdir_pci] Error 2
-...
+* mprotect: No. The difference is at most one additional locked
+instruction for each pte.
 
-Most ofteen while compiling kernel multiple times using
-      make oldconfig;make dep;make clean; make "MAKE=make -j2" bzImage
-(with different configurations)
+* munmap(anon): No. We must handle delayed accessed anyway (don't call
+free_pages_ok() until flush_tlb_ipi returned). The difference is that we
+might have to perform a second pass to clear any spurious 0x40 bits.
 
-I also noticed that sometimes mode files is incleded in "mkdep" command line
-than usually:
+* munmap(file): No. Second pass required for correct msync behaviour.
 
- make[4]: Entering directory /home29/ankry/kernel/2.4/linux/drivers/char'
--/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- acquirewdt.c adbmouse.c amigamouse.c amikeyb.c amiserial.c applicom.c applicom.h atarimouse.c atixlmouse.c busmouse.c busmouse.h cd1865.h conmakehash.c console.c console_macros.h consolemap.c cyclades.c defkeymap.c digi.h digi1.h digiFep1.h digiPCI.h digi_bios.h digi_fep.h dn_keyb.c ds1620.c dsp56k.c dtlk.c dz.c dz.h efirtc.c epca.c epca.h epcaconfig.h esp.c fep.h generic_serial.c h8.c h8.h hp600_keyb.c i810-tco.c i810-tco.h i810_rng.c ip2.c ip2main.c isicom.c istallion.c keyboard.c logibusmouse.c lp.c mem.c misc.c mixcomwd.c moxa.c msbusmouse.c mxser.c n_hdlc.c n_r3964.c n_tty.c nvram.c nwbutton.c nwbutton.h nwflash.c pc110pad.c pc110pad.h pc_keyb.c pcwd.c pcxx.c pcxx.h ppdev.c pty.c q40_keyb.c qpmouse.c random.c raw.c riscom8.c riscom8.h riscom8_reg.h rocket.c rocket_int.h rsf16fmi.h!
- rtc.c sbc60xxwdt.c scan_keyb.c scan_keyb.h scc.h selection.c serial.c serial167.c serial_21285.c serial_amba.c sh-sci.c sh-sci.h softdog.c specialix.c specialix_io8.h stallion.c sx.c sx.h sxboards.h sxwindow.h synclink.c sysrq.c toshiba.c tpqic02.c tty_io.c tty_ioctl.c vc_screen.c vino.h vme_scc.c vt.c wd501p.h wdt.c wdt285.c wdt977.c wdt_pci.c > .depend
-+/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- acquirewdt.c adbmouse.c amigamouse.c amikeyb.c amiserial.c applicom.c applicom.h atarimouse.c atixlmouse.c busmouse.c busmouse.h cd1865.h conmakehash.c console.c console_macros.h consolemap.c consolemap_deftbl.c cyclades.c defkeymap.c digi.h digi1.h digiFep1.h digiPCI.h digi_bios.h digi_fep.h dn_keyb.c ds1620.c dsp56k.c dtlk.c dz.c dz.h efirtc.c epca.c epca.h epcaconfig.h esp.c fep.h generic_serial.c h8.c h8.h hp600_keyb.c i810-tco.c i810-tco.h i810_rng.c ip2.c ip2main.c isicom.c istallion.c keyboard.c logibusmouse.c lp.c mem.c misc.c mixcomwd.c moxa.c msbusmouse.c mxser.c n_hdlc.c n_r3964.c n_tty.c nvram.c nwbutton.c nwbutton.h nwflash.c pc110pad.c pc110pad.h pc_keyb.c pcwd.c pcxx.c pcxx.h ppdev.c pty.c q40_keyb.c qpmouse.c random.c raw.c riscom8.c riscom8.h riscom8_reg.h rocket.c roc!
-ket_int.h rsf16fmi.h rtc.c sbc60xxwdt.c scan_keyb.c scan_keyb.h scc.h selection.c serial.c serial167.c serial_21285.c serial_amba.c sh-sci.c sh-sci.h softdog.c specialix.c specialix_io8.h stallion.c sx.c sx.h sxboards.h sxwindow.h synclink.c sysrq.c toshiba.c tpqic02.c tty_io.c tty_ioctl.c vc_screen.c vino.h vme_scc.c vt.c wd501p.h wdt.c wdt285.c wdt977.c wdt_pci.c > .depend
+* try_to_swap_out(): No. another memory read.
 
- make[4]: Entering directory /home29/ankry/kernel/2.4/linux/drivers/pci'
--/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- compat.c gen-devlist.c names.c pci.c proc.c quirks.c setup-bus.c setup-irq.c setup-res.c syscall.c > .depend
-+/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- classlist.h compat.c devlist.h gen-devlist.c names.c pci.c proc.c quirks.c setup-bus.c setup-irq.c setup-res.c syscall.c > .depend
- make[4]: Leaving directory /home29/ankry/kernel/2.4/linux/drivers/pci'
+Any other cases?
+> 
+> Ben, fancy writing a boot-time test?
+> 
+I'd never rely on such a test - what if the cpu checks in 99% of the
+cases, but doesn't handle some cases ('rep movd, everything unaligned,
+...'. And check the Pentium III erratas. There is one with the tlb
+that's only triggered if 4 instruction lie in a certain window and all
+access memory in the same way of the tlb (EFLAGS incorrect if 'andl
+mask,<memory_addr>' causes page fault)).
 
-(Note  consolemap_deftbl.c     in drivers/char and 
-       classlist.h devlist.h   in drivers/pci )
-
-Could any Makefile expert check whether it is not a Makefile problem ?
-
-Is it now necessary to do  "make mrproper"  before each make dep ???
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+--
+	Manfred

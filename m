@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132429AbRCZL6d>; Mon, 26 Mar 2001 06:58:33 -0500
+	id <S132427AbRCZMW4>; Mon, 26 Mar 2001 07:22:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132428AbRCZL6W>; Mon, 26 Mar 2001 06:58:22 -0500
-Received: from mercury.ccil.org ([192.190.237.100]:15374 "EHLO
-	mercury.ccil.org") by vger.kernel.org with ESMTP id <S132423AbRCZL6Q>;
-	Mon, 26 Mar 2001 06:58:16 -0500
-Subject: Re: [kbuild-devel] Re: CML1 cleanup patch
-In-Reply-To: <20010326013228.A11181@thyrsus.com> from "Eric S. Raymond" at "Mar
- 26, 2001 01:32:28 am"
-To: esr@thyrsus.com
-Date: Mon, 26 Mar 2001 06:57:48 -0500 (EST)
-CC: Peter Samuelson <peter@cadcamlab.org>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S132425AbRCZMWq>; Mon, 26 Mar 2001 07:22:46 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:59022 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132424AbRCZMWj>; Mon, 26 Mar 2001 07:22:39 -0500
+Message-ID: <3ABF34B8.C1909C60@uow.edu.au>
+Date: Mon, 26 Mar 2001 22:23:20 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] vmalloc_area_pages() in 2.4.2-ac25
+In-Reply-To: <E14hQaE-0001AK-00@the-village.bc.nu>,
+		<E14hQaE-0001AK-00@the-village.bc.nu> <3dc0ojhz.wl@frostrubin.open.nm.fujitsu.co.jp>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14hVd6-0007eK-00@mercury.ccil.org>
-From: John Cowan <cowan@mercury.ccil.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-esr scripsit:
+Tachino Nobuhiro wrote:
+> 
+>   vmalloc_area_pages() in 2.4.2-ac25 seems to be broken. It calls
+> spin_lock(&init_mm.page_table_lock) twice and causes system hang.
+> 
 
-> I could have done this, allowing tokens to be recognized as numeric only
-> if all chars are digits.  I didn't, for two reasons: (1) Lexical analysis
-> is, as it turns out, a hotspot in the CML2 compiler code -- the last thing
-> it needs is more overhead, and (2) interpreting symbols with leading digits
-> as nonnumeric tokens is just *wrong*.  Ugh.  Violates the Principle of Least
-> Surprise big-time.
+Yes, it would.  Delete the innermost lock and unlock.
 
-In fact this has come up before: in Usenet software, which has to differentiate
-between an article and a sub-newsgroup.  An article has to have an all-numeric
-name, and It Would Have Been Nice if all newsgroup names began with non-digits,
-but then there was comp.bugs.4bsd.
 
--- 
-John Cowan                                   cowan@ccil.org
-One art/there is/no less/no more/All things/to do/with sparks/galore
-	--Douglas Hofstadter
+--- linux-2.4.2-ac25/mm/vmalloc.c	Mon Mar 26 21:38:38 2001
++++ ac/mm/vmalloc.c	Mon Mar 26 21:52:05 2001
+@@ -152,9 +152,7 @@
+ 	do {
+ 		pmd_t *pmd;
+ 		
+-		spin_lock(&init_mm.page_table_lock);	/* pmd_alloc requires this */
+ 		pmd = pmd_alloc(&init_mm, dir, address);
+-		spin_unlock(&init_mm.page_table_lock);
+ 		ret = -ENOMEM;
+ 		if (!pmd)
+ 			break;

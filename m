@@ -1,84 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270489AbTHQSvL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 14:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270497AbTHQSvL
+	id S270499AbTHQTMD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270501AbTHQTMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 14:51:11 -0400
-Received: from main.gmane.org ([80.91.224.249]:7111 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270489AbTHQSvH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 14:51:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Centrino support
-Date: Sat, 16 Aug 2003 12:58:35 -0700
-Message-ID: <m2isoxgys4.fsf@tnuctip.rychter.com>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
- <3F3D469B.2020507@yahoo.com> <20030816123410.56cbb550.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@sea.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:ykja1KFwUzkUW32w81khFAiachs=
+	Sun, 17 Aug 2003 15:12:03 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:24023 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S270499AbTHQTMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:12:00 -0400
+Message-ID: <3F3FD2E7.9030808@intel.com>
+Date: Sun, 17 Aug 2003 22:09:27 +0300
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] Re: Kernel threads resource leakage
+X-Enigmail-Version: 0.76.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+I do not subscribed to the list, thus please in your reply CC me 
+(vladimir.kondratiev@intel.com)
 
->>>>> "Stephan" =3D=3D Stephan von Krawczynski <skraw@ithnet.com>:
- Stephan> On Fri, 15 Aug 2003 16:46:19 -0400
- Stephan> Brandon Stewart <rbrandonstewart@yahoo.com> wrote:
+Some time ago, I reported problem WRT resource leakage in kernel_thread. 
+(2.4.20) To demonstrate it, I submitted program that uses /proc file to 
+display some info and to start/stop kernel thread. I don't want to 
+re-post this code again.
 
- >> I thought that this line of argument was due to FCC
- >> regulations. That is, software settings would allow the hardware to
- >> violate frequency or strength-of-signal limitations set by
- >> government regulations. This is only from memory, so feel free to
- >> correct.
+Finally, I found that resource leak present only if you create 
+kernel_thread as non-root. With my previous example, do "insmod" as 
+root, while perform actual thread creation/destruction (echo "+" 
+ >/proc/kthread etc.) as non-root.
 
- Stephan> I think I have read in an earlier thread something the like.
- Stephan> But I cannot understand how this can be logically linked to
- Stephan> releasing docs. If all companies would follow this thought
- Stephan> e.g. Siemens would never have released the docs for ISDN
- Stephan> chipsets and therefore no ISDN drivers would be in the
- Stephan> kernel. I'd rather say someone with money is afraid ...
+To demonstrate it better, I added to /proc 'read' procedure content of 
+"struct user_struct" (current->user).
+It makes clear, that in this case current->user->processes do not 
+decremented when thread destroyed, and eventually reaches user limit 
+(usually 4k processes). At this point, this user can do nothing.
 
-Yes, that sounds rather ridiculous. Sooner or later someone is going to
-reverse-engineer the thing, so not releasing drivers or specs just
-delays this moment. If there's a manager at Intel that thinks this way,
-he doesn't understand much about security.
+Problem leaves in "reparent_to_init" code in kernel/sched.c; there 
+current->user is simply changed to point to INIT_USER without proper 
+resource management.
 
-[...]
+Does it worth inclusion in 2.4.22?
 
- Stephan> Some political explosives are in this thread ...
+Following patch fixes this bug. I verified that with this patch applied, 
+kernel_thread behaves properly.
 
-Politically, this sounds to me like an antitrust case against Intel and
-Microsoft handed on a platter. A major hardware manufacturer releases
-information and software only to one dominating software company, while
-locking out the others.
+--- kernel/sched.c.orig    2003-08-17 20:12:14.000000000 +0300
++++ kernel/sched.c    2003-08-17 21:21:08.000000000 +0300
+@@ -1274,8 +1274,16 @@
+     this_task->cap_permitted = CAP_FULL_SET;
+     this_task->keep_capabilities = 0;
+     memcpy(this_task->rlim, init_task.rlim, sizeof(*(this_task->rlim)));
+-    this_task->user = INIT_USER;
+-
++    if (this_task->uid) { /* not root? switch user */
++        struct user_struct *old_user = this_task->user,
++            *new_user = INIT_USER;
++        this_task->uid = 0;
++        this_task->user = new_user;
++        atomic_inc(&new_user->__count);
++        atomic_inc(&new_user->processes);
++        atomic_dec(&old_user->processes);
++        free_uid(old_user);
++    }
+     spin_unlock(&runqueue_lock);
+     write_unlock_irq(&tasklist_lock);
+ }
 
-Unfortunately, we live in a world of compromises. If I were RedHat, I'd
-stay real quiet and play nice in order to get Intel's cooperation on
-servers (which brings revenue) instead of fighting for laptops (which is
-a niche market for Linux, in a chicken-and-egg sort of way).
-
-It's rather sad.
-
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/PozxLth4/7/QhDoRAt6BAJ4wqpFRlFRjGsVoQrirgOJNmz+z9QCeOSgz
-+nKwQfMaO5azoT7hcDPg31E=
-=GOCA
------END PGP SIGNATURE-----
---=-=-=--
 

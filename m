@@ -1,72 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267452AbRGZAeb>; Wed, 25 Jul 2001 20:34:31 -0400
+	id <S267475AbRGZBN7>; Wed, 25 Jul 2001 21:13:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267458AbRGZAeV>; Wed, 25 Jul 2001 20:34:21 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:20105 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S267452AbRGZAeK>; Wed, 25 Jul 2001 20:34:10 -0400
-Message-Id: <5.1.0.14.2.20010726013311.00a94670@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 26 Jul 2001 01:34:17 +0100
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: ANN: Linux-NTFS 1.2.0 released.
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S267484AbRGZBNu>; Wed, 25 Jul 2001 21:13:50 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:13795 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S267475AbRGZBNe>;
+	Wed, 25 Jul 2001 21:13:34 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200107260113.SAA11847@csl.Stanford.EDU>
+Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 25 Jul 2001 18:13:34 -0700 (PDT)
+Cc: nave@stanford.edu (Evan Parker), linux-kernel@vger.kernel.org,
+        mc@CS.Stanford.EDU
+In-Reply-To: <E15POo8-00020x-00@the-village.bc.nu> from "Alan Cox" at Jul 25, 2001 02:34:36 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This is to announce release of Linux-NTFS user space support tools 1.2.0.
+bunch of quoting for context:
 
-Most important changes: mkntfs has been updated to version 1.41. Includes 
-important bug fixes for cluster sizes > 4kiB. (Detailed ChangeLog below.)
+> > other 10 are questionable.  Those 10 are all simple variations on the
+> > following code:
+> > 
+> > Start --->
+> > 	if (!tmp_buf) {
+> > 		page = get_free_page(GFP_KERNEL);
+> > 
+> > Error --->
+> > 		if (tmp_buf)
+> > 			free_page(page);
+> > 		else
+> > 			tmp_buf = (unsigned char *) page;
+> > 	}
+> 
+> That one is not a bug. The serial drivers do this to handle a race. Really
+> it should be
+> 
+> 		page = get_free_page(GFP_KERNEL)
+> 
+> 		rmb();
+> 		if (tmp_buf)
+> 			..
+> 
+> but this will go away as and when someone switches the tty layer to new 
+> style locking. The precise code flow (under lock_kernel in both cases) is
+> 
+> 	
+> 	if (!tmp_buf)
+> 	{
+> 		/* tmp_buf was 0
+> 		page = get_free_page (...)
+> 		[SLEEPS, TASK SWITCH]
+> 
 
-Linux-NTFS packages (your choice of source tar.gz or rpm, binary i386.rpm 
-and devel rpm) can be downloaded from the Linux-NTFS home page at:
+Does this mean that the 'cli' in the following code is redundant?
 
-         http://linux-ntfs.sf.net/
+	/* 2.4.7/drivers/char/generic_serial.c:953:gs_init_port: */
+        if (!tmp_buf) {
+                page = get_free_page(GFP_KERNEL);
 
-Or if you prefer CVS access, look at the project home page on Sourceforge 
-for details how to access the cvs server:
+                cli (); /* Don't expect this to make a difference. */
+                if (tmp_buf)
+                        free_page(page);
+                else
+                        tmp_buf = (unsigned char *) page;
 
-         http://sourceforge.net/cvs/?group_id=13956
-
-Changes since 1.0.2:
-
-- mkntfs bug fixes for cluster sizes > 4kiB involving corrections to mft 
-mirror size and contents, mft data attribute position and mft bitmap size. 
-Some of those were nasty so this is a major improvement. Hopefully these 
-were the last bugs.
-
-Changes since 1.0.1:
-
-- Small cleanup of the distribution. Move mkntfs to sbin (was put in bin 
-before).
-
-- Small bug fix to mkntfs man page.
-
-Changes since 1.0.0
-
-- Confirmed that at least gcc-2.96 is needed to compile linux-ntfs.
-
-- Removed ldm.c from linux-ntfs. It will reappear as ldminfo.c in a new 
-package, probably linux-ldm.
-
-- Taken out some files from the distribution, but they are still present in 
-CVS. This is because they are not really useful except if you are a 
-developer wanting to play about.
-
-Best regards,
-
-         Anton
-
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Dawson

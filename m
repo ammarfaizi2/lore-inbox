@@ -1,78 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283566AbRK3IfO>; Fri, 30 Nov 2001 03:35:14 -0500
+	id <S283569AbRK3InN>; Fri, 30 Nov 2001 03:43:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283559AbRK3IfE>; Fri, 30 Nov 2001 03:35:04 -0500
-Received: from frosch.logivision.de ([212.42.242.2]:14354 "EHLO
-	frosch.logivision.net") by vger.kernel.org with ESMTP
-	id <S283563AbRK3Iet> convert rfc822-to-8bit; Fri, 30 Nov 2001 03:34:49 -0500
-Apparently-To: <linux-kernel@vger.kernel.org>
-From: Frank Eichentopf <frei@hap-bb.de>
-Date: Fri, 30 Nov 2001 08:34:47 GMT
-Message-ID: <20011130.8344700@batnator.hap.de>
-Subject: Re: DLink DGE500SX support???
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0111292011190.9040-100000@mustard.heime.net>
-In-Reply-To: <Pine.LNX.4.30.0111292011190.9040-100000@mustard.heime.net>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
-X-Priority: 3 (Normal)
+	id <S283567AbRK3InD>; Fri, 30 Nov 2001 03:43:03 -0500
+Received: from ebola.baana.suomi.net ([213.139.166.70]:63238 "EHLO
+	ebola.baana.suomi.net") by vger.kernel.org with ESMTP
+	id <S283565AbRK3Im4>; Fri, 30 Nov 2001 03:42:56 -0500
+Date: Fri, 30 Nov 2001 10:37:49 +0200 (EET)
+From: janne <sniff@xxx.ath.cx>
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+cc: linux-kernel@vger.kernel.org, M G Berberich <berberic@fmi.uni-passau.de>
+Subject: Re: 2.4.16: hda9: attempt to access beyond end of device
+In-Reply-To: <200111292212.fATMCoo08605@enterprise.bidmc.harvard.edu>
+Message-ID: <Pine.LNX.4.10.10111301027190.31853-100000@ebola.baana.suomi.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yes there is support, the driver for linux 2.2.x is shipped
-with the card, but this driver will not work under linux 2.4.x.
-i use the jt1lin driver for the levelone lxt1001 chipset on
-this card under linux 2.4.0 up to 2.4.13 and the card is working
-fine. (SMP 2x266, 512MB RAM, 10GB RAID5)
-you can download this driver under follwing url:
+> On Thursday 29 November 2001 04:58 pm, M G Berberich wrote:
+> > Partition boundary problem in 2.4.16 ?!
+> > I just tried to make a mke2fs on my /dev/hda9 and mke2fs with kernel
+> > 2.4.16 and it failed with a partial write. /var/log/messages says:
 
-http://www.hap-bb.de/linux/jt1lin.tar.gz
-
-is there anyone who can implement this driver in the offical
-kerneltree? (i'm not the great kernelhacker)
-
-greetings frank
-
-    .--.
-   |o_o |      Frank Eichentopf
-   |:_/ |         HaP Buerotechnik
-  //   \ \        Ebertystr. 7
- (|     | )       10249 Berlin
-/'\_   _/`\       frei@hap-bb.de
-\___)=(___/       +49 30 420 267 016
+i recently got some of these messages about "attempt to access beyond
+end of device" when running badblocks on a partition, on 2.4.15-pre1.
+i got two of them, and in the end badblocks said it found 2 bad blocks.
+partitions were made with fdisk.
+i don't know if it's normal or not, but bothers a little still. mke2fs
+went through without errors and haven't noticed any corruption so far.
 
 
+janne.
 
->>>>>>>>>>>>>>>>>> Ursprüngliche Nachricht <<<<<<<<<<<<<<<<<<
-
-Am 29.11.01, 20:12:36, schrieb Roy Sigurd Karlsbakk <roy@karlsbakk.net> zum 
-Thema DLink DGE500SX support???:
-
-
-> hi all
-
-> Are there any support for the DLink DGE500SX card? See
-> 
-http://www.shipitforyou.com/cgi-bin/sgin0105.exe?TRAN85=Y&UID=200111291109
-2221&T1=D100+1200&FNM=74
-> for more info...
-
-> thanks
-
-> roy
-
-> --
-> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-> Computers are like air conditioners.
-> They stop working when you open Windows.
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
-in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

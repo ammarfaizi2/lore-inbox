@@ -1,24 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268883AbTGJEBv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 00:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268903AbTGJEBv
+	id S268909AbTGJEU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 00:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268910AbTGJEU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 00:01:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7595 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268883AbTGJEBu (ORCPT
+	Thu, 10 Jul 2003 00:20:26 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:20148 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268909AbTGJEUY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 00:01:50 -0400
-Date: Wed, 9 Jul 2003 21:16:45 -0700
+	Thu, 10 Jul 2003 00:20:24 -0400
+Date: Wed, 9 Jul 2003 21:30:10 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       torvalds@osdl.org
-Subject: Re: RFC:  what's in a stable series?
-Message-Id: <20030709211645.40353fc2.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
-References: <3F0CBC08.1060201@pobox.com>
-	<Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: rmk@arm.linux.org.uk, daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org
+Subject: Re: 2.5.74-mm3 yenta-socket oops back
+Message-Id: <20030709213010.1882a898.akpm@osdl.org>
+In-Reply-To: <200307101127.32590.mflt1@micrologica.com.hk>
+References: <200307060039.34263.daniel.ritz@gmx.ch>
+	<20030706231551.B16820@flint.arm.linux.org.uk>
+	<200307101127.32590.mflt1@micrologica.com.hk>
 X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,28 +27,64 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+Michael Frank <mflt1@micrologica.com.hk> wrote:
 >
-> Its a case-by-case problem.
+> 2.5.74-mm3 yenta-socket oopsed on the first boot at the same spot. 
+> 
+> I have successfully used both patches below with -mm1.
+> 
+> --- 1.50/drivers/pcmcia/cs.c    Mon Jun 30 22:22:30 2003
+> +++ edited/cs.c Sat Jul  5 23:58:07 2003
+> @@ -338,13 +338,13 @@
+>         socket->erase_busy.next = socket->erase_busy.prev = &socket->erase_busy;
+>         INIT_LIST_HEAD(&socket->cis_cache);
+>         spin_lock_init(&socket->lock);
+> -
+> -       init_socket(socket);
+> -
+>         init_completion(&socket->thread_done);
+>         init_waitqueue_head(&socket->thread_wait);
+>         init_MUTEX(&socket->skt_sem);
+>         spin_lock_init(&socket->thread_lock);
+> +
+> +       init_socket(socket);
+> +
+>         ret = kernel_thread(pccardd, socket, CLONE_KERNEL);
+>         if (ret < 0)
+>                 return ret;
+> 
 
-It is.  Generally I think we should prefer to do the right thing rather
-than adhering to the old API out of some principle.
+This one is clearly correct.
 
-Evaluate the impact on out-of-tree kernel patches (especially vendor
-kernels) and if it is unacceptable then reject the change or augment the API
-rather than changing it.
+> and my patch (may apply with some offset, which I'm about to check
+> into bk anyway):
+> 
+> --- linux/drivers/pcmcia/cs.c.old       Fri Jul  4 10:21:50 2003
+> +++ linux/drivers/pcmcia/cs.c   Sun Jul  6 23:04:10 2003
+> @@ -870,11 +870,13 @@
+>  
+>  void pcmcia_parse_events(struct pcmcia_socket *s, u_int events)
+>  {
+> -       spin_lock(&s->thread_lock);
+> -       s->thread_events |= events;
+> -       spin_unlock(&s->thread_lock);
+> +       if (s->thread) {
+> +               spin_lock(&s->thread_lock);
+> +               s->thread_events |= events;
+> +               spin_unlock(&s->thread_lock);
+>  
+> -       wake_up(&s->thread_wait);
+> +               wake_up(&s->thread_wait);
+> +       }
+>  } /* pcmcia_parse_events */
 
->  I reverted the direct IO patches because hch complained on me that they
->  change the direct IO API, and we really dont want that kind of
->  change, IMHO.
+This one may not be.  How did we get here with no thread to handle the
+event?  Do you have an oops trace on this one?
 
-OK, we're on to a specific case.  Albeit a very small one.
+Or just stick a
 
-I think Trond's direct IO change was right.  The impact on out-of-tree code
-is infinitesimal.  Stick a #define O_DIRECT_NEEDS_A_FILP in the header and
-let the XFS guys write a four-line patch.  There's no point in mucking up
-the kernel API to save such a small amount of work.
+	if (!s->thread)
+		dump_stack();
 
-Or merge XFS.
-
+in there as well.
 

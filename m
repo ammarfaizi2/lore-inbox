@@ -1,83 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVAIUsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVAIUwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVAIUsS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 15:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVAIUsS
+	id S261781AbVAIUwn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 15:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVAIUwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 15:48:18 -0500
-Received: from smtp.etmail.cz ([160.218.43.220]:46316 "EHLO smtp.etmail.cz")
-	by vger.kernel.org with ESMTP id S261774AbVAIUri (ORCPT
+	Sun, 9 Jan 2005 15:52:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54940 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261781AbVAIUwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 15:47:38 -0500
-Date: Sun, 9 Jan 2005 21:47:29 +0100
-To: Jens Axboe <axboe@suse.de>
-Cc: Hikaru1@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ide-cd in 2.6.8-2.6.10 and 2.4.26-2.4.28 high cpu use with dma
-Message-ID: <20050109204729.GA3899@penguin.localdomain>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>, Hikaru1@verizon.net,
-	linux-kernel@vger.kernel.org
-References: <20050109105201.GB12497@roll> <20050109105418.GD12497@roll> <20050109123028.GA12753@roll> <20050109153212.GA28417@suse.de>
+	Sun, 9 Jan 2005 15:52:38 -0500
+Date: Sun, 9 Jan 2005 12:52:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: chrisw@osdl.org, clameter@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fixes for prep_zero_page
+Message-Id: <20050109125212.330c34c1.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501090812220.13639@montezuma.fsmlabs.com>
+References: <20050108010629.M469@build.pdx.osdl.net>
+	<20050109014519.412688f6.akpm@osdl.org>
+	<Pine.LNX.4.61.0501090812220.13639@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-In-Reply-To: <20050109153212.GA28417@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: sebek64@post.cz (Marcel Sebek)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+>
+> On Sun, 9 Jan 2005, Andrew Morton wrote:
+> 
+> > Well it's doing clear_highpage() before __alloc_pages() has called
+> > kernel_map_pages(), so CONFIG_DEBUG_PAGEALLOC is quite kaput.
+> > 
+> > So the current __GFP_ZERO buglist is:
+> > 
+> > 1: Breaks CONFIG_DEBUG_PAGEALLOC
+> > 
+> > 2: Breaks the cache aliasing protection for anonymous pages
+> > 
+> > 3: prep_zero_page() uses KM_USER0 so __GFP_ZERO from IRQ context will
+> >    cause rare memory corruption.
+> 
+> The following should take care of 1 and 3. I opted to unmap the pages 
+> again after the clear page so that it remains isolated and we don't have 
+> to make additional checks to see if we should unmap the pages.
+> 
+> Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+> 
+> Index: linux-2.6.10-mm2/include/linux/highmem.h
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.10-mm2/include/linux/highmem.h,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 highmem.h
+> --- linux-2.6.10-mm2/include/linux/highmem.h	9 Jan 2005 04:51:52 -0000	1.1.1.1
+> +++ linux-2.6.10-mm2/include/linux/highmem.h	9 Jan 2005 15:32:17 -0000
+> @@ -50,6 +50,18 @@ static inline void clear_highpage(struct
+>  	kunmap_atomic(kaddr, KM_USER0);
+>  }
+>  
+> +static inline void clear_irq_highpage(struct page *page)
+> +{
+> +	char *kaddr;
+> +	unsigned long flags;
+> +
+> +	local_irq_save(flags);
+> +	kaddr = kmap_atomic(page, KM_IRQ0);
+> +	clear_page(kaddr);
+> +	kunmap_atomic(kaddr, KM_IRQ0);
+> +	local_irq_restore(flags);
+> +}
+> +
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This won't work right if someone tries to allocate memory while holding a
+KM_IRQ0 atomic kmap.
 
-On Sun, Jan 09, 2005 at 04:32:16PM +0100, Jens Axboe wrote:
-> On Sun, Jan 09 2005, Hikaru1@verizon.net wrote:
-> > A minor mistake. I forgot to state explicitly that the problem only app=
-ears
-> > with writing audio cds. Writing data cds does not cause problems.
->=20
-> The change isn't safe, it was made for a reason since some drives
-> timeout if the alignment/length isn't correct. It probably is a little
-> pessimistic right now, can you see if this just works for you?
->=20
-> =3D=3D=3D=3D=3D drivers/ide/ide-cd.c 1.105 vs edited =3D=3D=3D=3D=3D
-> --- 1.105/drivers/ide/ide-cd.c	2005-01-08 06:43:53 +01:00
-> +++ edited/drivers/ide/ide-cd.c	2005-01-09 16:31:53 +01:00
-> @@ -1915,7 +1915,7 @@
->  		/*
->  		 * check if dma is safe
->  		 */
-> -		if ((rq->data_len & mask) || (addr & mask))
-> +		if ((rq->data_len & 3) || (addr & mask))
->  			info->dma =3D 0;
->  	}
->=20
+It would be quite bizarre for anyone to be allocating highmem pages from
+IRQ context anyway, but as a generic mechanism this really should work as
+expected in all contexts.  That means a new kmap slot.
 
-I saw the same bug on my computer and this patch fixed it. Now I can
-burn audio CDs at 40x speed instead of 24x.
+>  /*
+>   * Same but also flushes aliased cache contents to RAM.
+>   */
+> Index: linux-2.6.10-mm2/mm/page_alloc.c
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.10-mm2/mm/page_alloc.c,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 page_alloc.c
+> --- linux-2.6.10-mm2/mm/page_alloc.c	9 Jan 2005 04:52:40 -0000	1.1.1.1
+> +++ linux-2.6.10-mm2/mm/page_alloc.c	9 Jan 2005 15:46:00 -0000
+> @@ -691,10 +691,17 @@ perthread_pages_alloc(void)
+>   */
+>  static inline void prep_zero_page(struct page *page, int order)
+>  {
+> -	int i;
+> +	int i, nr_pages = (1 << order);
+> +	int context = in_interrupt();
+>  
+> -	for(i = 0; i < (1 << order); i++)
+> -		clear_highpage(page + i);
+> +	kernel_map_pages(page, nr_pages, 1);
+> +	for(i = 0; i < nr_pages; i++) {
+> +		if (likely(!context))
+> +			clear_highpage(page + i);
+> +		else
+> +			clear_irq_highpage(page + i);
+> +	}
+> +	kernel_map_pages(page, nr_pages, 0);
+>  }
 
+Can't we simply move the page zeroing to the very end of __alloc_pages()?
 
---=20
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
-
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFB4Zhhi2PKBl+Ic14RAlOTAJ48xGxywC+5mCHAqDlZR6x1ZpH1uQCgyVvF
-A9GUwMf9l3YWuBNfvoJ6CYA=
-=AKSv
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--

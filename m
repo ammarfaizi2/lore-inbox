@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131993AbRAJLrW>; Wed, 10 Jan 2001 06:47:22 -0500
+	id <S132561AbRAJLtm>; Wed, 10 Jan 2001 06:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135351AbRAJLrC>; Wed, 10 Jan 2001 06:47:02 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:5504 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131993AbRAJLqy>; Wed, 10 Jan 2001 06:46:54 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.10.10101092255510.3414-100000@penguin.transmeta.com> 
-In-Reply-To: <Pine.LNX.4.10.10101092255510.3414-100000@penguin.transmeta.com> 
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Zlatko Calusic <zlatko@iskon.hr>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug 
+	id <S135270AbRAJLtc>; Wed, 10 Jan 2001 06:49:32 -0500
+Received: from styx.suse.cz ([195.70.145.226]:61943 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S135351AbRAJLtP>;
+	Wed, 10 Jan 2001 06:49:15 -0500
+Date: Wed, 10 Jan 2001 12:49:11 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Benson Chow <blc@q.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Keyboards for x86/uhci in 2.4- kernels?
+Message-ID: <20010110124911.A2134@suse.cz>
+In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Jan 2001 11:46:03 +0000
-Message-ID: <18634.979127163@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>; from blc@q.dyndns.org on Tue, Jan 09, 2001 at 11:55:14PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 09, 2001 at 11:55:14PM -0700, Benson Chow wrote:
+> Anyone tried using these beasts on a x86?
+> 
+> Anyway, what's happening:   In BIOS my USB keyboard works really poorly -
+> it almost seems scancodes get dropped left and right.  Ok, so I don't mind
+> too much, i'm sure BIOS has a very limited driver.  After booting
+> Microsoft's offerring, it would work fine after it installs its driver.
+> I also tried this same keyboard on a HPUX Visualize C3600 workstation and
+> it also works nicely.
+> 
+> However linux would never fix  this "scancode drop" syndrome even after
+> loading the hid or usbkbd driver.  Both my Via uhci USB motherboard and
+> PIIX3 USB motherboard exhibit this usb keyboard strangeness
+> with the hid or usbkbd driver is installed.  I think the PIIX3
+> motherboard's bios doesnt handle USB properly so it doesn't even work in
+> BIOS setup.  Any idea what's going on?  Is there some other driver or
+> utility I need to install/run to get it working?  Maybe just my bad bios?
+> 
+> BTW: my USB Mouse, and USB Printer seem to work nicely in 2.4.0-release.
+> 
+> USB KBD: NMB USB 104-key PC-Style
+> USB Mouse: Microsoft Intellimouse w/Intellieye 1.0, Logitech Optical Wheel
+> USB Printer: HP Deskjet 880C
+> USB Hub: Belkin 4-port
+> Intel 82437SB(?) PIIX3 and Via 82C686(?) USB controller
+> 
+> Working: Stock HPUX10.2 HP Visualize C3600 PARISC2 Workstation
+> Working: Microsoft Windows 98 First Edition on the Via.
 
-torvalds@transmeta.com said:
->  The no-swap behaviour shoul dactually be pretty much identical,
-> simply because both 2.2 and 2.4 will do the same thing: just skip
-> dirty pages in the page tables because they cannot do anything about
-> them. 
+What modules are loaded?
+What's in /proc/bus/usb/devices?
+What's in dmesg?
 
-So the VM code spends a fair amount of time scanning lists of pages which 
-it really can't do anything about?
-
-Would it be possible to put such pages on different list, so that the VM
-code doesn't have to keep skipping them?
-
-(forgive me if I'm displaying my utter ignorance of the VM code here)
-
---
-dwmw2
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

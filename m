@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282481AbRKZUcy>; Mon, 26 Nov 2001 15:32:54 -0500
+	id <S281947AbRKZUcl>; Mon, 26 Nov 2001 15:32:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282482AbRKZUcl>; Mon, 26 Nov 2001 15:32:41 -0500
-Received: from mail110.mail.bellsouth.net ([205.152.58.50]:21490 "EHLO
-	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S282481AbRKZUcV>; Mon, 26 Nov 2001 15:32:21 -0500
-Message-ID: <3C02A6D0.58AE0FEE@mandrakesoft.com>
-Date: Mon, 26 Nov 2001 15:32:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
-X-Accept-Language: en
+	id <S282482AbRKZUcV>; Mon, 26 Nov 2001 15:32:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11270 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281947AbRKZUcS>; Mon, 26 Nov 2001 15:32:18 -0500
+Subject: Re: New ac patch???
+To: VANDROVE@vc.cvut.cz (Petr Vandrovec)
+Date: Mon, 26 Nov 2001 20:39:53 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), marcel@mesa.nl (Marcel J.E. Mol),
+        roy@karlsbakk.net (Roy Sigurd Karlsbakk), linux-kernel@vger.kernel.org
+In-Reply-To: <9CF08CC6C77@vcnet.vc.cvut.cz> from "Petr Vandrovec" at Nov 21, 2001 01:29:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Anders Linden <anli@perceptive.se>, linux-kernel@vger.kernel.org
-Subject: Re: Network card timeouts
-In-Reply-To: <E168SKg-0006jd-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E168SXh-0006n3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> > Thanks. It seems IBM laptop drives are the ones that specifically need this
+> > fix. That ties in with the windows 98 reports/microsoft fixes.
 > 
-> > The later card, Davicom, is probably not a well-known card, but
-> > nevertheless, it works like shit in Linux. I am using Redhat 7.1 and th=
-> > e
-> > kernel 2.4.2-2. If I send more than 10M to such a card in an interval o=
+> If it will go into mainstream, please change it to config option or
+> something like that. I'm doing 
 > 
-> Davicom is a bad tulip clone. It has a (not very good) davicom provided
-> driver in 2.4.2 or you can use tulip or the updated davicom provided dfme
-> driver in newer 2.4
+> for a in /dev/hd[a-z]; do hdparm -Y $a; done
 
-tulip should work better IMHO for all davicom tulip clones -except- the
-older ones which require doing a software crc for each packet.  For
-those, the performance penalty is too high to integrate into the
-mainline tulip driver.  So my advice is usually "try tulip, then
-fallback to dmfe if software crc is required"
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+Thats somewhat undefined in its behaviour. You might also page after the
+hdparm -Y

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVCFSLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVCFSVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVCFSLy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 13:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVCFSLx
+	id S261457AbVCFSVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 13:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVCFSVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 13:11:53 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:2327 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261456AbVCFSLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 13:11:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=pQ+RXQJBTTuJCXN1UZlgH+Ln7ElKkbsrpsbFpoP/XYNEL6OQq1guLKLVuXFU70OlDOsPwrtSoJQKfv9Q5wHwSoW4lalOxVvax3dw03U+wzocz5aEXD36Nt3US6BrEgloGQUtdGYoo5dSqtsolN8FhTgpmjErW4yAorK/o7+ZgGc=
-Message-ID: <9e47339105030610113d00f9f7@mail.gmail.com>
-Date: Sun, 6 Mar 2005 13:11:48 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: PCI Express and legacy ISA/VGA support
+	Sun, 6 Mar 2005 13:21:48 -0500
+Received: from rusty.kulnet.kuleuven.ac.be ([134.58.240.42]:42467 "EHLO
+	rusty.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261457AbVCFSVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 13:21:46 -0500
+From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
+Date: Sun, 6 Mar 2005 19:21:45 +0100
+To: benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11-mm1] ibm_emac_core: add memory allocation failure handling
+Message-ID: <20050306182144.GA6428@mech.kuleuven.ac.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can a PCI Express expert enlighten me on how VGA support happens on
-PCI Express?
+Hi,
 
-1) Does VGA work on PCI Express?
-2) Is it routed at bridges like x86 PCI?
-3) Or does each bridge have it's own legacy space like PCI on 64b machines?
-4) How are other things like serial ports handled?
-5) What about the VGA memory window at A000:0?
+This patch adds failure handling for a kmalloc() in the driver for the IBM 4xx
+PowerPC builtin ethernet.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Signed-off-by: <panagiotis.issaris@mech.kuleuven.ac.be>
+
+diff -pruN linux-2.6.11-orig/drivers/net/ibm_emac/ibm_emac_core.c linux-2.6.11-pi/drivers/net/ibm_emac/ibm_emac_core.c
+--- linux-2.6.11-orig/drivers/net/ibm_emac/ibm_emac_core.c	2005-03-05 03:30:09.000000000 +0100
++++ linux-2.6.11-pi/drivers/net/ibm_emac/ibm_emac_core.c	2005-03-06 19:00:10.000000000 +0100
+@@ -1957,6 +1957,11 @@ static int emac_probe(struct ocp_device 
+ 		struct emac_def_dev *ddev;
+ 		/* Add this index to the deferred init table */
+ 		ddev = kmalloc(sizeof(struct emac_def_dev), GFP_KERNEL);
++		if (!ddev) {
++			printk(KERN_ERR "emac%d: Memory allocation failed.\n", 
++					ocpdev->def->index);
++			return -ENOMEM;
++		}
+ 		ddev->ocpdev = ocpdev;
+ 		ddev->mal = mal;
+ 		list_add_tail(&ddev->link, &emac_init_list);

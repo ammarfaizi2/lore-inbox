@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281667AbRKUIFL>; Wed, 21 Nov 2001 03:05:11 -0500
+	id <S281669AbRKUIJl>; Wed, 21 Nov 2001 03:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281666AbRKUIEv>; Wed, 21 Nov 2001 03:04:51 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:52230 "HELO mail.i4gate.net")
-	by vger.kernel.org with SMTP id <S281665AbRKUIEq>;
-	Wed, 21 Nov 2001 03:04:46 -0500
-Message-Id: <5.1.0.14.2.20011121085726.00aaf648@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 21 Nov 2001 08:58:35 +0100
-To: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>, linux-kernel@vger.kernel.org
-From: DevilKin <devilkin@gmx.net>
-Subject: Re: 2.4.14 loopback blk dev compilation trouble
-In-Reply-To: <3BFBBE98.68052D11@sltnet.lk>
+	id <S281670AbRKUIJb>; Wed, 21 Nov 2001 03:09:31 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:24585 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S281669AbRKUIJO>;
+	Wed, 21 Nov 2001 03:09:14 -0500
+Date: Wed, 21 Nov 2001 09:08:54 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make modules_install fails with latest fileutils
+Message-ID: <20011121090854.A15851@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+In-Reply-To: <20011120193820.A14068@joshua.mesa.nl> <1128.1006303946@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1128.1006303946@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Wed, Nov 21, 2001 at 11:52:26AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:47 21/11/2001 -0600, Ishan Oshadi Jayawardena wrote:
->Greetings.
->         I've seen that the compilation of off-the-server
->2.4.14 tree fails at the end of 'make bzImage' because
->drivers/block/loop.c uses the deactivate_page() function,
->which seems to have been removed from the source tree.
->         By following the progress of the kernel through
->2.4.12, 2.4.13, and 2.4.14 patches, I've seen that
->page_cache_release() does the same things as
->deactivate_page(). Both these functions are used in the
->together twice in drivers/block/loop.c. I compiled
->the 2.4.14 kernel by commenting out the references to
->deactivate_page() but leaving page_cache_release(), and
->loopback block devs work; but I do not have the resources
->to  check it for memory leaks etc.
->         I _think_ I've done the right thing, but
->would appreciate verification by a regular kernel-
->hacker :-)
->I searched the net for some reference to this problem,
->but couldn't find anything so far.
->
->(I've compiled loop blk-dev support in to the kernel.)
+On Wed, Nov 21, 2001 at 11:52:26AM +1100, Keith Owens wrote:
+> On Tue, 20 Nov 2001 19:38:20 +0100, 
+> "Marcel J.E. Mol" <marcel@mesa.nl> wrote:
+> >Just had some problems doing a modules_install with
+> >fileutils-1.1.1-1 (redhat rawhide). The cp command
+> >in there gives a non-zero return value when it is asked
+> >to copy the same file in the argument list:
+> >
+> >--- Rules.make.org	Tue Nov 20 19:36:16 2001
+> >+++ Rules.make	Mon Nov 19 23:48:03 2001
+> >@@ -173,7 +173,7 @@
+> > _modinst__: dummy
+> > ifneq "$(strip $(ALL_MOBJS))" ""
+> > 	mkdir -p $(MODLIB)/kernel/$(MOD_DESTDIR)
+> >-	cp -f $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
+> >+	-cp -f $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
+> > endif
+> 
+> (1) Complain to the fileutils maintainer for introducing incompatible
+>     behaviour.
 
-That's the correct way to correct the compilation problem. It has been 
-reported 22987432 times already...
+Or to RedHat who introduced this fileutils in their tree (but then again,
+it is Rawhide so I have nothing to complain about :-)
 
-DK
+> (2) The correct workaround is
+>      cp -f $(sort $(ALL_MOBJS)) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
 
+shouldn't this then be 'sort -u'.
+
+-Marcel
+-- 
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

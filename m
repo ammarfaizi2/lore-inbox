@@ -1,52 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292325AbSBUKkV>; Thu, 21 Feb 2002 05:40:21 -0500
+	id <S286179AbSBUKta>; Thu, 21 Feb 2002 05:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292323AbSBUKkK>; Thu, 21 Feb 2002 05:40:10 -0500
-Received: from 89dyn169.com21.casema.net ([62.234.20.169]:3300 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S286179AbSBUKj5>; Thu, 21 Feb 2002 05:39:57 -0500
-Message-Id: <200202211039.LAA21757@cave.bitwizard.nl>
-Subject: Re: misdetection of pentium2 - very strange
-In-Reply-To: <1014285431.3c74c477274c4@www.hoeg.home> from "peter@hoeg.com" at
- "Feb 21, 2002 05:57:11 pm"
-To: peter@hoeg.com
-Date: Thu, 21 Feb 2002 11:39:53 +0100 (MET)
-CC: Jos Hulzink <josh@stack.nl>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S292326AbSBUKtU>; Thu, 21 Feb 2002 05:49:20 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:25867 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S286179AbSBUKtG>; Thu, 21 Feb 2002 05:49:06 -0500
+Date: Thu, 21 Feb 2002 11:48:59 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: linux-kernel@vger.kernel.org
+Subject: linux kernel config converter
+Message-ID: <Pine.LNX.4.21.0202210011080.32476-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-peter@hoeg.com wrote:
-> > > prerelease)) #3 Thu Feb 21 19:21:37 SGT 2002
-> > > Initializing CPU#0
-> > > Detected 133.225 MHz processor.
-> > > Calibrating delay loop... 265.42 BogoMIPS
+Hi,
 
-> > It seems your CPU is actually running at 133 MHz. If I am right, the
+After all the flam^Wdiscussion about cml2 I decided to something more
+constructive and try to do the impossible (and as lkml was dead I hadn't 
+much choice :) ).
+At http://www.xs4all.nl/~zippel/lkcc.tar.gz there is a small program which
+converts the config files into an alternative format. The tool expects a
+Configure.help in the root of the kernel tree, so a "find -name
+Config.help | xargs cat >> Configure.help" is needed, then start it with
+"lc arch/<arch>/config.in".
+The output is completely unsorted, so all menu information isn't there
+(but that is easy to change), Otherwise it has the same information for
+every symbol as the normal config files.
+The current output looks like this:
 
-> the compaq setup utility (bios setup program) reports a 333mhz with
-> a bus speed of 66, so if something makes it enter a low-power mode
-> it should be linux. but no apm/acpi support is compiled in/as
-> modules.
+config: ULTRIX_PARTITION
+  define_bool
+    default: y
+    dep: ((!PARTITION_ADVANCED?) && DECSTATION=y)
+  bool
+    prompt:   Ultrix partition table support
+    dep: PARTITION_ADVANCED?
+  help:
+  Say Y here if you would like to be able to read the hard disk
+  partition table format used by DEC (now Compaq) Ultrix machines.
+  Otherwise, say N.
 
-There has been a scam where the "133" in the BIOS was replaced by
-"333" and the resulting machines were sold as faster than they
-actually were... 
+Now I'm curious what advantages cml2 has. I'm seeing a quite complex
+specification with lots of features and I'm not sure whether all this is
+really required. IMO Eric tries to solve a more complex problem and I
+think this problem isn't relevant for the kernel configuration, so what
+we can do is to reduce the problem complexity. This means we can make sure
+that dependencies are strictly hierarchical (the tool checks for that),
+this would make working with the rules far easier (implementing a 'make
+oldconfig' would be very simple).
+What am I missing now, that we can't convert the current configs into
+something like above and add new features later to it? I don't know if
+above can be changed into something that looks more like cml2, but the
+most important property of this is that we don't have to do all the
+conversion at once. Some things can/should already be fixed in cml1, so
+that the generated files only needs minimal changes and both can be tested
+and used at the same time until we abandon cml1. After that we can think
+about new features, like including build information.
 
-You can count on it that with the above output, your CPU is running at
-133 when Linux boots. It could be that the CPU is put in "slow" mode
-if you run on the batteries. (Is it a laptop? I missed the beginning
-of this thread). 
+Some technical notes about the tool:
+- I implemented a few simple optimizations to make the dependencies easier
+readable, there of course far more possible, but some changes could be
+done at the original config files to make this easier, e.g. dependencies
+can there already be simplified. Another problem is that one can set some
+tristate symbols to 'y' although another dependent symbol is set to 'm'
+(e.g. for CONFIG_FB_MATROX/CONFIG_FB_MATROX_G450 it goes wrong). This is
+something that IMO should be checked and fixed in cml1 first.
+- The output for choices represents the internal implementation, so that
+definitely needs a new syntax. On the other hand the remaining syntax of
+course needs to be improved as well.
+- Dependencies include the type of the symbol if possible ('?' - boolean,
+'??' - tristate, '*' - data), it isn't complete yet, since some symbols
+are only defined for some architectures. A complete dependency graph for
+all archs would certainly be interesting. :)
+- The program is just a small hack done within a dew days, please keep
+this in mind, when looking at it. :) So don't expect any comments and the 
+structure is still quite chaotic. On the other hand the program isn't
+supposed to be used forever.
 
-			Roger. 
+bye, Roman
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbUDFWxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDFWxg
+	id S263845AbUDFWxa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDFWxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:53:36 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:44731 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264053AbUDFWxd convert rfc822-to-8bit (ORCPT
+	Tue, 6 Apr 2004 18:53:30 -0400
+Received: from ns.suse.de ([195.135.220.2]:41876 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264053AbUDFWx2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:53:33 -0400
-content-class: urn:content-classes:message
+	Tue, 6 Apr 2004 18:53:28 -0400
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: {put,get}_user() side effects
+References: <200404062053.i36KrC3Y005111@eeyore.valparaiso.cl>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I joined scientology at a garage sale!!
+Date: Wed, 07 Apr 2004 00:53:26 +0200
+In-Reply-To: <200404062053.i36KrC3Y005111@eeyore.valparaiso.cl> (Horst von
+ Brand's message of "Tue, 06 Apr 2004 16:53:11 -0400")
+Message-ID: <je3c7gyazd.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: 2.6.5, ACPI, suspend and ThinkPad R40
-Date: Tue, 6 Apr 2004 18:53:25 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE002F7B6C0@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.5, ACPI, suspend and ThinkPad R40
-Thread-Index: AcQcBIqA95Q/ED8KSWao0iTqHUpVqgAIupug
-From: "Brown, Len" <len.brown@intel.com>
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       "Vincent C Jones" <vcjones@NetworkingUnlimited.com>
-Cc: <kevin@scrye.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Apr 2004 22:53:25.0778 (UTC) FILETIME=[F845D720:01C41C29]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> lack of interest in supporting notebook features
+Horst von Brand <vonbrand@inf.utfsm.cl> writes:
 
-I'm glad that you're complaining about suspend/resume not working.
-This means that you were able to boot and configure your system
-using ACPI -- a year ago you wouldn't have got so far;-)
+> Geert Uytterhoeven <geert@linux-m68k.org> said:
+>> On Tue, 6 Apr 2004, Andi Kleen wrote:
+>> > Geert Uytterhoeven <geert@linux-m68k.org> writes:
+>> > > On most (all?) architectures {get,put}_user() has side effects:
+>> > >
+>> > > #define put_user(x,ptr)                                                 \
+>> > >   __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
+>> >
+>> > Neither typeof not sizeof are supposed to have side effects. If your
+>> > compiler generates them that's a compiler bug.
+>
+>> From a simple compile test, you seem to be right... Weird, since it does
+>> expand to 3 times 'pIndex++', but pIndex is incremented only once.
+>
+> Better check with a C language lawyer. Maybe gcc gets it wrong, or it is
+> undefined
 
-Yes, in the past year we've concentrated more on the configuration
-issues at the expense of advanced features such as suspend/resume.
-While we still have configuration issues, their frequency and
-severity is lower than it once was, and so I'm hopeful that
-we're over the hump there and will be able to
-spend more time on features such as supsend/resume.
+It's not undefined, the standard explicitly says that the argument of
+sizeof is not evaluated (unless its type is a VLA).  I can't remember gcc
+ever getting that wrong.
 
-When I looked at a suspend/resume failure a couple of weeks ago
-I discovered that there is no code in linux to save/restore
-PCI configuration space for PCI bridges.  This is sort of a deal
-killer -- as bits such as bus-master-enable could come up
-enabled or disabled depending on the roll of the dice.
-I hoped somebody on linux-pci would send a patch, but I haven't
-seen one yet.
+Andreas.
 
-Cheers,
--Len
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

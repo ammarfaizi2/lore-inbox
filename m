@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbUCBOl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 09:41:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUCBOl1
+	id S261662AbUCBOwy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 09:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUCBOwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 09:41:27 -0500
-Received: from bugs.merck.com ([155.91.6.30]:14086 "EHLO usryim06.merck.com")
-	by vger.kernel.org with ESMTP id S261660AbUCBOl0 (ORCPT
+	Tue, 2 Mar 2004 09:52:54 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:55049 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S261662AbUCBOwx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 09:41:26 -0500
-X-WSS-ID: 6C5A42802PW1415375-01
-Date: Tue, 02 Mar 2004 09:41:23 -0500
-From: "Mail Administrator" <administrator@merck.com>
-To: linux-kernel@vger.kernel.org
-Message-ID: <6C5A42802PW1415375-01>
+	Tue, 2 Mar 2004 09:52:53 -0500
+To: hpa@zytor.com (H. Peter Anvin)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <c2175f$6hn$1@terminus.zytor.com> (H. Peter Anvin's message of
+ "Tue, 2 Mar 2004 05:47:27 +0000 (UTC)")
+References: <20040301184512.GA21285@hobbes.itsari.int>
+	<c2175f$6hn$1@terminus.zytor.com>
+Date: Tue, 02 Mar 2004 09:52:37 -0500
+Message-ID: <m3u1175miy.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="_-==6C5A42991D8142386==-_"
-Subject: Delivery Notification
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Peter" == H Peter Anvin <hpa@zytor.com> writes:
 
---_-==6C5A42991D8142386==-_
-Content-Type: text/plain;
- charset=iso-8859-1
-Content-Disposition: inline
+Peter> As RBJ said, ptys are now recycled in pid-like fashion, which
+Peter> means numbers won't be reused until wraparound happens.
 
-Remote server rejected mail for recipient. Recipient not
-found in directory. Try first_last@merck.com
+Ouch.  I've been using the tty name in $HISTFILE for some time now
+(at least on laptops and workstations); I do not see any reasonable
+alternative to prevent overwriting while still saving history.
 
---_-==6C5A42991D8142386==-_--
+Will patching in the old behavior wrt re-use, while not disrupting
+the other improvements, be a lot of work?  I've looked thru the src, 
+but haven't yet spotted the point where the new pis number is chosen.
+
+-JimC
+
+
 

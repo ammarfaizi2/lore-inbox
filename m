@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLEQa3>; Tue, 5 Dec 2000 11:30:29 -0500
+	id <S129210AbQLEQeT>; Tue, 5 Dec 2000 11:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbQLEQaK>; Tue, 5 Dec 2000 11:30:10 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:19977 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129183AbQLEQaB>; Tue, 5 Dec 2000 11:30:01 -0500
-Date: Tue, 5 Dec 2000 11:00:02 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-To: Rusty Russell <rusty@linuxcare.com.au>
-cc: "Christian W. Zuckschwerdt" <zany@triq.net>,
+	id <S129324AbQLEQeK>; Tue, 5 Dec 2000 11:34:10 -0500
+Received: from main.cornernet.com ([209.98.65.1]:42255 "EHLO
+	main.cornernet.com") by vger.kernel.org with ESMTP
+	id <S129210AbQLEQd7>; Tue, 5 Dec 2000 11:33:59 -0500
+Date: Tue, 5 Dec 2000 10:03:59 -0600 (CST)
+From: Chad Schwartz <cwslist@main.cornernet.com>
+To: Jon Burgess <Jon_Burgess@eur.3com.com>
+cc: Steve Hill <steve@navaho.co.uk>, PaulJakma <paulj@itg.ie>,
         <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ipchains log will show all flags 
-In-Reply-To: <20001205135519.9747C813F@halfway.linuxcare.com.au>
-Message-ID: <Pine.LNX.4.30.0012051058090.620-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+Subject: Re: Serial Console
+In-Reply-To: <802569AC.0054D7AC.00@notesmta.eur.3com.com>
+Message-ID: <Pine.LNX.4.30.0012050951290.11399-100000@main.cornernet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2000, Rusty Russell wrote:
+See, in an ideal world, that shouldn't be the case, at all.
 
->Date: Wed, 06 Dec 2000 00:55:09 +1100
->From: Rusty Russell <rusty@linuxcare.com.au>
->To: Christian W. Zuckschwerdt <zany@triq.net>
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] ipchains log will show all flags
->
->In message <0012051408110.1526-100000@localhost> you write:
->> Hi Linus,
->>
->> This tiny patch extends ipchains logging. This way one can distinguish
->> (plain) connection attempts and (Xmas, Fin,...) scans. E.g.
->>  kernel: Packet log: input - lo PROTO=6 127.0.0.1:40326 127.0.0.1:80
->>   L=40 S=0x00 I=5808 F=0x0000 T=51 (#1)
->>  vs.
->>   L=40 S=0x00 I=5808 F=0x0000 T=51 (#1) B=-s--a-
->>  and
->>   L=40 S=0x00 I=5808 F=0x0000 T=51 (#1) B=fs-p-u
->>
->> Please comment on the format (B=...) and implementation details (speed).
->> The patch is against 2.2.17's /net/ipv4/ip_fw.c
->
->Looks OK, but CC'ing the maintainer is simple politeness.
->
->> +	if (ip->protocol == IPPROTO_TCP)
->
->You probably want to insert `&& !(ip->frag_off & htons(IP_OFFSET))'
->
->> +		       tcp-syn ? 's' : '-', tcp->rst ? 'r' : '-',
->
->You mean `tcp->syn' not `tcp-syn'.
->
->I like the fact that it doesn't disturb the format, simply appends,
->and it has been a not-uncommon request.
->
->But application is up to Alan Cox, who ruleth the 2.2 series.
+Since we're NOT operating under the assumption that the serial console is
+a modem, we should be - instead - operating under the assumption
+that it is a 3-wire NULL connection. (thus, making NO assumptions about
+the user's hardware..)
 
-Personally, I'd like to see the rule number stay on the end,and
-have the new display just before it.  The rule number in the
-middle looks messy.
+If the user wants to ADD RTS/CTS flow control or DCD based state checking
+as an OPTION, well, hey.  whatever. Pick your poison.  But i sure as hell
+wouldn't do it that way.
 
+Chad
 
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-
-Microsoft Windows(tm). A thirty-two bit extension and graphical shell
-to a sixteen bit patch to an eight bit operating system originally
-coded for a four bit microprocessor which was written by a two-bit
-company that can't stand one bit of competition.
+> Lilo 'append="console=ttyS0"' and it boots fine without a connection to the
+> serial port without having to do any specific manipulation of the flow control.
+> I think that all serial output is dumped to /dev/null if DCD is not asserted no
+> matter what the flow control says. Perhaps there are some hardware differences
+> in the configuration of the control signal pull-up/downs.
+>
+>      Jon Burgess
+>
+>
+>
+>
+> PLANET PROJECT will connect millions of people worldwide through the combined
+> technology of 3Com and the Internet. Find out more and register now at
+> http://www.planetproject.com
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

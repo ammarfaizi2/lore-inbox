@@ -1,29 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265497AbTGCWwX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 18:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbTGCWwL
+	id S265479AbTGCWvq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTGCWvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 18:52:11 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:45002 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265488AbTGCWvz (ORCPT
+	Thu, 3 Jul 2003 18:51:36 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:5248 "EHLO server")
+	by vger.kernel.org with ESMTP id S265479AbTGCWug (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 18:51:55 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 4 Jul 2003 01:06:17 +0200 (MEST)
-Message-Id: <UTC200307032306.h63N6HQ26283.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@osdl.org
-Subject: scsi mode sense broken again
+	Thu, 3 Jul 2003 18:50:36 -0400
+Message-ID: <14a301c341b7$7ff0bd50$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       "Roberto Slepetys Ferreira" <slepetys@homeworks.com.br>,
+       linux-kernel@vger.kernel.org
+References: <00d901c340a8$810556c0$3300a8c0@Slepetys> <1083830000.1057158848@aslan.scsiguy.com> <01b101c340dc$ede386c0$3300a8c0@Slepetys> <016901c34191$14c4a1c0$3300a8c0@Slepetys> <13e101c3419d$f62f9410$3400a8c0@W2RZ8L4S02> <01f101c3419f$e6d30360$3300a8c0@Slepetys> <913060000.1057267206@aslan.btc.adaptec.com>
+Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
+Date: Thu, 3 Jul 2003 16:04:46 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For me 2.5.72 works, 2.5.74 does not - no working ZIP drive.
-The cause is the recent fiddling of use_10 / do_mode_sense.
-If this is known and has a patch on the way all is well.
-Otherwise I can send a patch.
+Justin, I just tried to enable the nmi watch dog. It doesn't seem to work on
+my system I tried both
 
-Andries
+append="nmi_watchdog=1"
+and
+append="nmi_watchdog=2"
 
-(It feels as if I have to repair this area every other month.)
+----- Original Message ----- 
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: "Roberto Slepetys Ferreira" <slepetys@homeworks.com.br>; "Jim Gifford"
+<jim@jg555.com>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, July 03, 2003 2:20 PM
+Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
+
+
+> > I have no clue for what kind of tests I can do to generate the trouble,
+or
+> > for what logs, or files to look for.
+>
+> Have you tried running with the NMI watchdog enabled?
+>
+> --
+> Justin
+>
+>
 

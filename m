@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264686AbSLBRaR>; Mon, 2 Dec 2002 12:30:17 -0500
+	id <S264716AbSLBR20>; Mon, 2 Dec 2002 12:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbSLBRaR>; Mon, 2 Dec 2002 12:30:17 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:46729 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S264686AbSLBRaP>;
-	Mon, 2 Dec 2002 12:30:15 -0500
-Date: Mon, 2 Dec 2002 19:51:20 -0500
-From: Christoph Hellwig <hch@sgi.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S264733AbSLBR20>; Mon, 2 Dec 2002 12:28:26 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:6661 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264716AbSLBR2Z>;
+	Mon, 2 Dec 2002 12:28:25 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212021747.gB2Hl5Mq000764@darkstar.example.net>
+Subject: Re: [MAY-BE-OT] Slow FTP Transfers between 2.4 machines
+To: trog@wincom.net
+Date: Mon, 2 Dec 2002 17:47:05 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-Message-ID: <20021202195120.A25954@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-References: <1033513407.12959.91.camel@phantasy> <20021104223725.A23168@sgi.com> <15851.37989.723028.614451@harpo.it.uu.se>
-Mime-Version: 1.0
+In-Reply-To: <3deb8890.779c.0@wincom.net> from "Dennis Grant" at Dec 02, 2002 11:22:29 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15851.37989.723028.614451@harpo.it.uu.se>; from mikpe@csd.uu.se on Mon, Dec 02, 2002 at 06:12:05PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02, 2002 at 06:12:05PM +0100, Mikael Pettersson wrote:
-> Is this implementation of set_cpus_allowed() Ok for all 2.4 kernels,
-> even if they (like RH8.0's) use a non-vanilla scheduler?
+> This _might_ be OT... certainly I'm not entirely ready to lay this
+> at the feet of the kernel just yet. Any pointers to troubleshooting
+> documents would be _greatly_ appreciated.
 
-No, it's for the stock scheduler.  But RH8.0 already has set_cpus_allowed().
+linux-net _might_ be more appropriate.
 
+> Boxes are connected with 10BaseT and a NetGear 10Mbs 4-port hub. Hub
+> is further connected to a Samsung cable modem.
+
+> FTP from either box to a decent server via the cable modem may go as high as
+> 250-ish k/sec. FTP transfers from box to box start out at ~ 100k/sec and very
+> quickly (3sec) drop to a stable 42 k/sec which persists for the rest of the
+> transfer, independant of which box is server or client.
+
+Just a few thoughts:
+
+Have you tried connecting them directly via a crossover cable?
+
+Are they definitely connected via a hub, and not a switch?
+
+Maybe one of the cards is jabbering, causing a lot of packet loss,
+which is only noticable when transfering between local machines?
+
+What happens when both machines make an ftp connection to a host on
+the internet?
+
+John.

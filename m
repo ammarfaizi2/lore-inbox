@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317451AbSFMEkK>; Thu, 13 Jun 2002 00:40:10 -0400
+	id <S316574AbSFMExo>; Thu, 13 Jun 2002 00:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317452AbSFMEkJ>; Thu, 13 Jun 2002 00:40:09 -0400
-Received: from opus.INS.CWRU.Edu ([129.22.8.2]:49647 "EHLO opus.INS.cwru.edu")
-	by vger.kernel.org with ESMTP id <S317451AbSFMEkJ>;
-	Thu, 13 Jun 2002 00:40:09 -0400
-From: "Braden McGrath" <bwm3@po.cwru.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: Kernel 2.4.18 Promise driver (IDE) hangs @ boot with Promise 20267
-Date: Thu, 13 Jun 2002 00:42:45 -0400
-Message-ID: <000401c21294$c368cbc0$ceaa1681@z>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	id <S316644AbSFMExn>; Thu, 13 Jun 2002 00:53:43 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:2805 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316574AbSFMExm>;
+	Thu, 13 Jun 2002 00:53:42 -0400
+Date: Thu, 13 Jun 2002 14:52:47 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] utimes permission check
+Message-Id: <20020613145247.52b10c61.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.7 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <007201c2126a$c4abc520$ceaa1681@z>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Braden McGrath
-> Sent: Wednesday, June 12, 2002 7:42 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: PROBLEM: Kernel 2.4.18 Promise driver (IDE) 
-> hangs @ boot with Promise 20267
+Hi Marcelo, Linus,
 
-[old message snipped]
+The utime and utimes should do exactly the smae permission check
+according to SUSv3.
+	"The effective user ID of the process shall match the owner of the file,
+or has write access to the file or appropriate privileges to use this call
+in this manner."
 
-> I don't WANT to use the HPT366 anymore, but there
-> is NO way to disable it on my motherboard.  Part of me 
-> wonders if it is causing a problem, but I don't see any 
-> resources being shared...
+utimes when passed a NULL second argument would fail on a read only
+file even if the file is owned by the caller.
 
-I've confirmed that my problem in the Promise driver is NOT related to
-the HPT366 device.  I swapped the promise card (And the drives attached
-to it) to another board, and it hung at the same step in the boot
-process - right after finding the drive(s) on the system chipset's
-controller, where it should then begin finding stuff on the Promise...
-but it can't.
+As a side note, it appears that glibc in i386 turns calls to utimes into
+calls to utime (so this bug is not apparent), but on ia64, glibc turns
+calls to utime into calls to utimes (so this bug affects utime as well).
+In the kernel we have both syscalls except on Alpha and IA64 where we
+don't have utime ... I have no idea what it does on other architectures.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-At this point I guess I'm down to waiting.  I don't want to be stuck
-using it with the generic driver and thus getting hideous performance.
-I've done everything that I know how to do; I'm not much of a coder
-(especially not C).   If I thought I could fix it myself I'd try. :)
-
-Hopefully someone becomes my savior before I start looking to *BSD for
-an answer... I really don't want to lose all of the data on these drives
-(XFS & LVM aren't supported anywhere else) and I have no easy way to
-back them up.  That's the biggest thing keeping me on linux at the
-moment.
-
-I'll wait patiently now, I know that gurus musn't be pestered. ;)
-
---Braden
-
+diff -ruN 2.4.19-pre10/fs/open.c 2.4.19-pre10-utimes.1/fs/open.c
+--- 2.4.19-pre10/fs/open.c	Tue Jun  4 13:56:22 2002
++++ 2.4.19-pre10-utimes.1/fs/open.c	Thu Jun 13 14:38:35 2002
+@@ -325,7 +325,8 @@
+ 		newattrs.ia_mtime = times[1].tv_sec;
+ 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
+ 	} else {
+-		if ((error = permission(inode,MAY_WRITE)) != 0)
++		if (current->fsuid != inode->i_uid &&
++		    (error = permission(inode,MAY_WRITE)) != 0)
+ 			goto dput_and_out;
+ 	}
+ 	error = notify_change(nd.dentry, &newattrs);

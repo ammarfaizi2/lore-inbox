@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVCEPq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVCEPko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVCEPq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVCEPhW
+	id S262002AbVCEPko (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVCEPkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:37:22 -0500
-Received: from coderock.org ([193.77.147.115]:38819 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261990AbVCEPfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:35:32 -0500
-Subject: [patch 03/12] kernel/sysctl.c: docbook comments update
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org
-From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:15 +0100
-Message-Id: <20050305153515.5670A1EE1E@trashy.coderock.org>
+	Sat, 5 Mar 2005 10:40:05 -0500
+Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:9683 "EHLO
+	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S262111AbVCEPin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:38:43 -0500
+From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
+Date: Sat, 5 Mar 2005 16:38:42 +0100
+To: Matt_Domsch@dell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] EFI missing failure handling
+Message-ID: <20050305153841.GA7808@mech.kuleuven.ac.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+The EFI driver allocates memory and writes into it without checking the
+success of the allocation:
 
-Add comments about ppos, which was added some months ago.
+668     efi_char16_t *variable_name = kmalloc(1024, GFP_KERNEL);
+...
+696     memset(variable_name, 0, 1024);
 
-Compile tested.
+The patch applies to 2.6.11-bk1.
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+Signed-off-by: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
 
-
- kj-domen/kernel/sysctl.c |    7 +++++++
- 1 files changed, 7 insertions(+)
-
-diff -puN kernel/sysctl.c~docs-kernel_sysctl kernel/sysctl.c
---- kj/kernel/sysctl.c~docs-kernel_sysctl	2005-03-05 16:09:57.000000000 +0100
-+++ kj-domen/kernel/sysctl.c	2005-03-05 16:09:57.000000000 +0100
-@@ -1366,6 +1366,7 @@ static ssize_t proc_writesys(struct file
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-  *
-  * Reads/writes a string from/to the user buffer. If the kernel
-  * buffer provided is not large enough to hold the string, the
-@@ -1582,6 +1583,7 @@ static int do_proc_dointvec(ctl_table *t
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-  * values from/to the user buffer, treated as an ASCII string. 
-@@ -1686,6 +1688,7 @@ static int do_proc_dointvec_minmax_conv(
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-  * values from/to the user buffer, treated as an ASCII string.
-@@ -1818,6 +1821,7 @@ static int do_proc_doulongvec_minmax(ctl
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned long) unsigned long
-  * values from/to the user buffer, treated as an ASCII string.
-@@ -1840,6 +1844,7 @@ int proc_doulongvec_minmax(ctl_table *ta
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned long) unsigned long
-  * values from/to the user buffer, treated as an ASCII string. The values
-@@ -1930,6 +1935,8 @@ static int do_proc_dointvec_ms_jiffies_c
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-+ * @ppos: file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-  * values from/to the user buffer, treated as an ASCII string. 
-_
+diff -pruN linux-2.6.11-orig/drivers/firmware/efivars.c linux-2.6.11-pi/drivers/firmware/efivars.c
+--- linux-2.6.11-orig/drivers/firmware/efivars.c	2005-03-05 02:23:29.000000000 +0100
++++ linux-2.6.11-pi/drivers/firmware/efivars.c	2005-03-05 02:23:04.000000000 +0100
+@@ -670,6 +670,9 @@ efivars_init(void)
+ 	unsigned long variable_name_size = 1024;
+ 	int i, rc = 0, error = 0;
+ 
++	if (!variable_name)
++		return -ENOMEM;
++
+ 	if (!efi_enabled)
+ 		return -ENODEV;
+ 
+-- 
+  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
+  http://people.mech.kuleuven.ac.be/~pissaris/

@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbSJCKAq>; Thu, 3 Oct 2002 06:00:46 -0400
+	id <S263245AbSJCKAZ>; Thu, 3 Oct 2002 06:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263247AbSJCKAq>; Thu, 3 Oct 2002 06:00:46 -0400
-Received: from mail.gmx.de ([213.165.64.20]:60381 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263246AbSJCKAo>;
-	Thu, 3 Oct 2002 06:00:44 -0400
-Message-Id: <5.1.0.14.2.20021003114625.00b7ea20@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 03 Oct 2002 12:03:27 +0200
-To: Keith Owens <kaos@sgi.com>, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [OT] backtrace 
-In-Reply-To: <7453.1033637889@ocs3.intra.ocs.com.au>
-References: <Your message of "Thu, 03 Oct 2002 09:31:06 +0100." <3D9C004A.3080006@corvil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S263246AbSJCKAZ>; Thu, 3 Oct 2002 06:00:25 -0400
+Received: from userdy22.uk.uudial.com ([62.188.8.214]:1028 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263245AbSJCKAY>; Thu, 3 Oct 2002 06:00:24 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210031014.g93AE3x8000235@darkstar.example.net>
+Subject: Re: 2.5.40: AT keyboard input problem
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Thu, 3 Oct 2002 11:14:02 +0100 (BST)
+Cc: tori@ringstrom.mine.nu, linux-kernel@vger.kernel.org
+In-Reply-To: <20021003104840.B37411@ucw.cz> from "Vojtech Pavlik" at Oct 03, 2002 10:48:40 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:38 PM 10/3/2002 +1000, Keith Owens wrote:
->On Thu, 03 Oct 2002 09:31:06 +0100,
->Padraig Brady <padraig.brady@corvil.com> wrote:
-> >Sorry to go off topic but this tip is just too useful IMHO.
-> >You can do the same in userspace with glibc. Details here:
-> >http://www.iol.ie/~padraiga/backtrace.c
->
->info libc, /backtrace.
->
->      Note that certain compiler optimisations may interfere with
->      obtaining a valid backtrace.  Function inlining causes the inlined
->      function to not have a stack frame; tail call optimisation
->      replaces one stack frame with another; frame pointer elimination
->      will stop `backtrace' from interpreting the stack contents
->      correctly.
->
->Most architectures compile with -fomit-frame-pointer (except for ARM
->where RMK does it differently).  Neither gdb not glibc can cope with
->kernel code built with -fomit-frame-pointer.  See the horrible
->heuristics kdb has to apply to get any sort of backtrace on i386.
+> 
+> On Thu, Oct 03, 2002 at 09:36:05AM +0100, jbradford@dial.pipex.com wrote:
+> > > While 2.5 has worked better than I hoped for so far, I do have a problem 
+> > > with the new input layer (I think) that is easily reproducible, and quite 
+> > > irritating.
+> > > 
+> > > If I press and hold my left Alt key, press and release the right AltGr
+> > > key, and then release the left Alt key, I get one of the following
+> > > messages in dmesg:
+> > 
+> > [snip]
+> > 
+> > > The same thing happens for a few other combinations as well. I happens 
+> > > both in X and in the console.
+> > 
+> > I am getting similar odd behavior with 2.5.40 and a Japanese keyboard.  Specifically, if I bang away at repeatedly on 't', 'h', '@', and ';', I get unknown key messages in dmesg.
+> > 
+> > I posted about this a while ago, but I don't think anybody noticed :-)
+> 
+> Can you #define I8042_DEBUG_IO in i8042.h and send me the 'dmesg' output
+> of the unknown key message and data around it?
 
-IIRC, r~ once mentioned that it was going to get worse. He also mentioned 
-dwarf2 (sp) as a possible solution.  Did you ever look into that?
+OK, that was fun - every time I managed to cause the error, by the time I'd switched to another VT, and typed dmesg, it was flooded with other keypresses :-).  I should have used a serial terminal, but anyway, here goes:
 
-         -Mike
+i8042.c: fa <- i8042 (interrupt, kbd, 1) [694909]
+i8042.c: f0 -> i8042 (kbd-data) [694909]
+i8042.c: fa <- i8042 (interrupt, kbd, 1) [694912]
+i8042.c: 00 -> i8042 (kbd-data) [694912]
+i8042.c: fa <- i8042 (interrupt, kbd, 1) [694915]
+i8042.c: 41 <- i8042 (interrupt, kbd, 1) [694916]
+input: AT Set 2 keyboard on isa0060/serio0
+i8042.c: 94 <- i8042 (interrupt, kbd, 1) [694937]
+i8042.c: a3 <- i8042 (interrupt, kbd, 1) [694943]
+i8042.c: 38 <- i8042 (interrupt, kbd, 1) [696272]
+i8042.c: 3d <- i8042 (interrupt, kbd, 1) [696372]
+i8042.c: bd <- i8042 (interrupt, kbd, 1) [696440]
+i8042.c: b8 <- i8042 (interrupt, kbd, 1) [696446]
+i8042.c: 1c <- i8042 (interrupt, kbd, 1) [697112]
 
-(I didn't.  Elf->Dwarf transmogrification of kernel is way out of my league)
+This was in the syslog:
 
+Oct  3 10:54:59 darkstar kernel: atkbd.c: Unknown key (set 2, scancode 0x94, on isa0060/serio0) pressed.
+
+I am unable to reproduce this by pressing any single key.  Only by repeatedly pressing many keys, (I.E. bashing the keyboard like mad), does this occur, (and not always with the same scancode).  Very odd.
+
+This particular IBM Japanese keyboard seems to be even more exotic than most, in several ways, that might be relevant:
+
+The Henkaku/Zenkaku key, which is in the top left, below escape, does not have a scancode by default, I.E. showkey -s reports nothing when it is pressed.
+
+The three kana shift keys, (one between alt and the spacebar, and two between alt-gr and the spacebar), which are marked differently to any other Japanese keyboard I've ever seen, all report the keycode 57, and scancode 0x39 when pressed, and scancode 0xb9 when released - the same as the space bar.  Therefore it doesn't seem possible to use them as independent keys.
+
+The keyboard has a speaker in it, and a volume control, but it's never made a single noise, apart from a click when it's switched on, (so it does work).
+
+This is a very strange keyboard :-).  94X1110 is the IBM part number.
+
+John.

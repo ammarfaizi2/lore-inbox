@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbTKIPfU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 10:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTKIPfU
+	id S262564AbTKIPnE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 10:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTKIPnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 10:35:20 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:15553 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262546AbTKIPfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 10:35:16 -0500
-Date: Sun, 09 Nov 2003 07:34:51 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Davide Libenzi <davidel@xmailserver.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-cc: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Fix find busiest queue 2.6.0-test9
-Message-ID: <121800000.1068392090@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0311081631300.2122-100000@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.44.0311081631300.2122-100000@bigblue.dev.mdolabs.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 9 Nov 2003 10:43:04 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:11140 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262564AbTKIPnC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 10:43:02 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 9 Nov 2003 07:42:09 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+In-Reply-To: <20031109152534.GA24312@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0311090737550.12198-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> prev_cpu_load[i] is nr_running of cpu i last time this operation was
->> performed. Either it, or the current nr_running is taken, whichever
->> is lower.
->> 
->> I guess its done this way for cache benefits, but it was correct as
->> Ingo intended. For example, with Con's patch you can see
->> rq_src->prev_cpu_load[i] will only ever use the ith position in the array.
-> 
-> Yes. The prev_cpu_load[] array takes a snapshot of the run queue lengths 
-> seen by the current rq (this_rq). The code is ok as is, and the reason is 
-> to avoid stealing tasks too fast from remote CPU (cache thing). Time ago I 
-> also tried to store an K-average (by varying K) rq length in 
-> prev_cpu_load[] instead of a simple min-of-two-values:
-> 
-> this_rq->prev_cpu_load[i] = (K * this_rq->prev_cpu_load[i] + rq_src->nr_running) / (K + 1);
-> 
-> I couldn't see any major improvements in my 2SMP (never tried on bigger SMP/NUMA).
+On Sun, 9 Nov 2003, Larry McVoy wrote:
 
-I ran it on the 16-way - no difference in performance. If the code is 
-correct as was before (and I agree, it seems it was), perhaps it's just
-in need of a big fat comment to explain the confusion? ;-)
+> On Sun, Nov 09, 2003 at 07:16:15AM -0800, H. Peter Anvin wrote:
+> > That doesn't include anyone who uses the mirrored repository on the
+> > main kernel.org machines.  
+> 
+> Last I checked, kernel.org isn't offering pserver access, just ftp.  If you
+> want to take over the CVS access just say the word.
 
-M.
+It is faster for me to use rsync on the CVS root locally, and then use the 
+local repository instead. Rsync is better than CVS when it comes to syncs.
+Cvsps expecially, really wants a local repository when you start playing 
+heavily with -g.
+
+
+
+- Davide
+
 

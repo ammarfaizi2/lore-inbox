@@ -1,20 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313507AbSDLK2r>; Fri, 12 Apr 2002 06:28:47 -0400
+	id <S313509AbSDLKoc>; Fri, 12 Apr 2002 06:44:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313508AbSDLK2q>; Fri, 12 Apr 2002 06:28:46 -0400
-Received: from ds217-115-141-141.dedicated.hosteurope.de ([217.115.141.141]:52494
-	"HELO ds217-115-141-141.dedicated.hosteurope.de") by vger.kernel.org
-	with SMTP id <S313507AbSDLK2q>; Fri, 12 Apr 2002 06:28:46 -0400
-Date: Fri, 12 Apr 2002 12:28:45 +0200
-From: Jochen Suckfuell <jo-lkml@suckfuell.net>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Christoph Hellwig <hch@infradead.org>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Jens Axboe <axboe@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
-Message-ID: <20020412122845.B27560@ds217-115-141-141.dedicated.hosteurope.de>
-In-Reply-To: <dnu1qia3zg.fsf@magla.zg.iskon.hr> <20020411150219.A10486@infradead.org> <878z7u6tjd.fsf@atlas.iskon.hr> <20020411210916.GO23513@matchmail.com> <dnwuvd6djx.fsf@magla.zg.iskon.hr>
+	id <S313512AbSDLKob>; Fri, 12 Apr 2002 06:44:31 -0400
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:2232 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S313509AbSDLKoa>; Fri, 12 Apr 2002 06:44:30 -0400
+Date: Fri, 12 Apr 2002 11:44:22 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+Message-ID: <20020412114422.A24021@kushida.apsleyroad.org>
+In-Reply-To: <200204080048.g380mt514749@lmail.actcom.co.il> <200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca> <3CB0EF0B.14D48619@zip.com.au> <20020408095717.GB27999@atrey.karlin.mff.cuni.cz> <20020408174333.A28116@kushida.apsleyroad.org> <20020408124803.A14935@redhat.com> <20020409015657.A28889@kushida.apsleyroad.org> <20020409222214.GK5148@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,34 +20,62 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+> > > > I've had no luck at all with noflushd on my Toshiba Satellite 4070CDT.
+> > > > It would spin down every few minutes, and then spin up _immediately_,
+> > > > every time.  I have no idea why.
+> > > 
+> > > Were you using the console?  Any activity on ttys causes device inode 
+> > > atime/mtime updates which trigger disk spin ups.  The easiest way to 
+> > > work around this is to run X while using devpts for the ptys.
+> > 
+> > I was using X, nodiratime on all /dev/hda mounts.  My friend who has the
+> > small VAIO with a Crusoe chip also reports the same problem: noflushd
+> > doesn't work with 2.4 kernels (versions that we tried), and the problem
+> > is the same: it spins down and then spins up immediately afterward.
+> 
+> It works for me, 2.4.18 on HP omnibook xe3.
+> 
+> You may want to watch /proc/stats to see if it is read or write
+> activity that wakes disk up.
 
-On Fri, Apr 12, 2002 at 01:06:10AM +0200, Zlatko Calusic wrote:
-> > major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
-> >    3     0   10037774 ide/host0/bus0/target0/lun0/disc 2381496 3602026 12295120 24796300 2167401 11887863 28592436 168474630 -1 849341880 -666064880
-> >
-> Also, it _seems_ that only on whole devices ios_in_flight variable
-> (column "running" in /proc/partitions) drops to -1. Your (and mine)
-> output shows it clearly, yes. This needs further investigation, I have
-> been unable to find the problem so far.
+It's write activity, due to atime updates.  I was using nodiratime, but
+that's not good enough because every time an executable is run a load of
+things are accessed.
 
-I have seen ios_in_flight as low as -4 already.
+I found it interesting that some write activity happens almost
+immediately after the access -- and noflushd is connected in some way.
+If I do this:
 
-> And, as aveq value is calculated directly from the ios_in_flight
-> value, the average queue value is wrong too (it never goes negative,
-> if everything is all right).
-The use (one of the most important values here) is also completely wrong
-when ios_in_flight is too low: Whenever ios_in_flight!=0, the disk is
-accounted as running.
+    while :; do cat /proc/stat; sleep 1; done
 
-I have patched gen_partition_disk() to correct the ios_in_flight value
-as a workaround. This is better than checking it each time ios_in_flight
-is decremented, because it only happens when someone reads
-/proc/partitions, and so it doesn't slow down the disk access.
+Then I see a few writes have occurred at nearly every iteration.  I
+think that is due to the atime updates, because using "noatime" there
+are no writes at most iterations.
 
-But I'm still trying to reproduce the cause of the problem.
+But more interesting: I only see those few-per-second atime writes while
+noflushd is running.  If I kill noflushd then they go away.
 
-Bye
-Jochen
+So, noflushd triggers some kind of regular write activity.  Either
+killing noflushd, or mounting with "noatime", makes it go away.
 
--- 
-Jochen Suckfuell
+I don't like "noatime" because some programs monitor
+/var/spool/mail/jamie's atime to decide if there is any new mail.  But I
+am using it now anyway.
+
+With "noatime", I find the disk is able to spin down for 20 seconds.  A
+record :-)  But not a very useful one.
+
+When the disk spins up, I see both read and write activity at the same
+time.  Of course I have no idea what files are triggering the spin up.
+(And atime is switched off so I can't use that as a guide!)
+
+I am a bit surprised that "noatime" makes a difference -- I thought that
+if noflushd spun down a disk, then pending inode writes should be
+delayed until a read or excess memory pressure forces a spin up.
+
+So: "noatime" is definitely required, to spin the disk down for more
+than an instant.  But even that is not good enough.  I have 192MB RAM,
+btw.  Is that enough to expect longer spin down times than 20s?
+
+-- Jamie

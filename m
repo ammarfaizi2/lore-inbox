@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbREQQve>; Thu, 17 May 2001 12:51:34 -0400
+	id <S262052AbREQQ6E>; Thu, 17 May 2001 12:58:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262046AbREQQvY>; Thu, 17 May 2001 12:51:24 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:13162
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S262045AbREQQvI>; Thu, 17 May 2001 12:51:08 -0400
-Message-ID: <3B040179.7090807@fugmann.dhs.org>
-Date: Thu, 17 May 2001 18:51:05 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac9 i686; en-US; rv:0.9+) Gecko/20010513
-X-Accept-Language: en
+	id <S262057AbREQQ5o>; Thu, 17 May 2001 12:57:44 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:41404 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S262055AbREQQ5c>; Thu, 17 May 2001 12:57:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: t.sailer@alumni.ethz.ch
+Subject: Re: LANANA: To Pending Device Number Registrants
+Date: Thu, 17 May 2001 18:58:09 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E150AgG-0004bb-00@the-village.bc.nu> <3B030DDE.B4E7B0CC@transmeta.com> <3B037304.1643693A@scs.ch>
+In-Reply-To: <3B037304.1643693A@scs.ch>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Exporting symbols from a module.
-In-Reply-To: <200105152245.f4FMjnwN021983@webber.adilger.int> <3B03B5C7.5040107@fugmann.dhs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <01051718580902.00784@cookie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resolved.
+On Thursday 17 May 2001 08:43, Thomas Sailer wrote:
+> Cheap USB devices (and sometimes even expensive ones)
+> do not have serial numbers or other unique identifiers.
+> Therefore some sort of topology based addressing scheme
+> has to be used in that case.
 
-I just looked at what the kernel did whne compiling a module that 
-exported some symbols, and discovered that I needed
-to set CFLAGS to:
+No, there is another addressing scheme that can be for devices without serial 
+number: the vendor and product ids. Most people do not have two devices of 
+the same kind, so you often do not need the topology at all.
 
--D__KERNEL__ -I$/usr/src/linux)  -Wall -Wstrict-prototypes \
--O2 -fomit-frame-pointer -fno-strict-aliasing -pipe \
--DMODULE  -DMODVERSIONS -include \
-/usr/src/linux/modversions.h
+BTW this document describes the use of device ids on windows:
+http://www.osr.com/ddk/idstrings_8tt3.htm
 
-Now all works correctly, and I can load my modules.
-
-Thanks for all your help.
-eps. the tip when I try to compile it in the kernel tree.
-
-Anders Fugmann
-
-
-
-Anders Peter Fugmann wrote:
-
-> Hi Andreas.
-> 
-> I now see what you mean, and I will give it a try.
-> 
-> But actually I'm not compiling it under the linux kernel tree, and  I 
-> really would like a way to export symbols, while compiling outside the 
-> kernel tree. How would I accomplish that?
-> 
-> Regards
-> Anders Fugmann
-> 
-> 
-
-
+bye...

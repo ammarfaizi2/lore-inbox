@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275819AbRJCEKj>; Wed, 3 Oct 2001 00:10:39 -0400
+	id <S276856AbRJCEVz>; Wed, 3 Oct 2001 00:21:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276853AbRJCEK2>; Wed, 3 Oct 2001 00:10:28 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36106 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275819AbRJCEKY>; Wed, 3 Oct 2001 00:10:24 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 2.4.11-pre2 fs/buffer.c: invalidate: busy buffer
-Date: Wed, 3 Oct 2001 04:10:45 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9pe345$8ic$1@penguin.transmeta.com>
-In-Reply-To: <20011002190547.A3323@cm.nu>
-X-Trace: palladium.transmeta.com 1002082246 31750 127.0.0.1 (3 Oct 2001 04:10:46 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 3 Oct 2001 04:10:46 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S276857AbRJCEVo>; Wed, 3 Oct 2001 00:21:44 -0400
+Received: from anime.net ([63.172.78.150]:33801 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S276856AbRJCEVc>;
+	Wed, 3 Oct 2001 00:21:32 -0400
+Date: Tue, 2 Oct 2001 21:21:58 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: "D. Stimits" <stimits@idcomm.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Best gigabit card for linux
+In-Reply-To: <3BBA8D9E.74ECDE98@idcomm.com>
+Message-ID: <Pine.LNX.4.30.0110022119140.7938-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011002190547.A3323@cm.nu>, Shane Wegner  <shane@cm.nu> wrote:
->
->I am getting the following out of fs/buffer.c immediately
->after bootup.  The kernel is 2.4.11-pre2 when the message
->was added.
->
->Oct  2 17:35:08 continuum kernel: invalidate: busy buffer
->Oct  2 17:35:08 continuum last message repeated 7 times
->
->I assume this is an error though it doesn't seem to say so. 
+On Tue, 2 Oct 2001, D. Stimits wrote:
+> Are those available in 64 bit pci slot format?
 
-Well, it's an error, but it's an error in that LVM invalidates the block
-devices a bit too much, and the message really tells you that the code
-refused to invalidate stuff that must not be invalidated.
+Yep
 
-It's harmless, although I hope that the LVM people will become a bit
-less invalidation-happy as a result of the warning (it's always happened
-before, it just hasn't warned about it in earlier kernels).
+http://www.dlink.com/products/gigabit/dge550t/
 
-		Linus
+> I assume for that price they run in 32 bit slots (which is no doubt a
+> bottleneck on a real gigabit).
+
+$85 for 64bit pci gigglebit ethernet nic isnt bad...
+
+http://www.goroyalpc.com/no_config_product.asp?m_cat=s_network&cat=networkcard&action=show&id=140_networkcard
+
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

@@ -1,58 +1,422 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267389AbUIOUX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUIOUQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267389AbUIOUX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUIOUV5
+	id S267364AbUIOUQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIOUOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:21:57 -0400
-Received: from holomorphy.com ([207.189.100.168]:45982 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267378AbUIOUUw (ORCPT
+	Wed, 15 Sep 2004 16:14:05 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:61871 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267372AbUIOUKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:20:52 -0400
-Date: Wed, 15 Sep 2004 13:20:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Albert Cahalan <albert@users.sf.net>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040915202028.GV9106@holomorphy.com>
-References: <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch> <20040914163712.GT9106@holomorphy.com> <20040914171525.GA14031@k3.hellgate.ch> <20040914174325.GX9106@holomorphy.com> <20040914184517.GA2655@k3.hellgate.ch> <20040914190747.GA9106@holomorphy.com> <20040915114430.GA28143@k3.hellgate.ch> <20040915200230.GA13621@k3.hellgate.ch>
+	Wed, 15 Sep 2004 16:10:47 -0400
+Date: Wed, 15 Sep 2004 22:11:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040915201158.GA18915@elte.hu>
+References: <2EJTp-7bx-1@gated-at.bofh.it> <m3vfefa61l.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
 Content-Disposition: inline
-In-Reply-To: <20040915200230.GA13621@k3.hellgate.ch>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <m3vfefa61l.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 10:02:30PM +0200, Roger Luethi wrote:
-> Here's another thing we haven't been able to do with /proc: Finding out
-> the relative cost of computing the elements we offer to user space.
-> I ran a test program against 2.6.9-rc2-bk1 + nproc to get:
-> Testing all process fields, best out of 10
-> FieldID    CPU (s)  Wall (s) Label
-> 0x03000002 0.140000 0.202728 NOP
-> 0x21000100 0.150000 0.210021 Name
-> 0x22000105 0.120000 0.204886 PID
-> 0x22000109 0.130000 0.205319 UID
-> 0x22000117 0.140000 0.215275 VmSize
-> 0x22000118 0.130000 0.214240 VmLock
-> 0x22000119 0.120000 0.214870 VmRSS
-> 0x22000120 0.160000 1.020574 VmData
-> 0x22000121 0.140000 1.021185 VmStack
-> 0x22000122 0.170000 1.021619 VmExe
-> 0x22000123 0.170000 1.020045 VmLib
-> 0x23000421 0.140000 0.220748 wchan
-> Ignore the absolute values (I requested each field individually for all
-> processes on my workstation, 1000 times). The cost of walking all vmas
-> for VmData & Co. is very visible.
 
-Try this again after applying my updates, which make it equivalent to the
-algorithms used internally by fs/proc/task_mmu.c.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
--- wli
+* Andi Kleen <ak@muc.de> wrote:
+
+> One minor comment only: 
+> Please CSE "current" manually. It generates much better code
+> on some architectures because the compiler cannot do it for you.
+
+new patch attached - this one uses 'current' as few times as possible.
+
+	Ingo
+
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="remove-bkl.patch"
+
+
+the attached patch is a new approach to get rid of Linux's Big Kernel
+Lock as we know it today.
+
+The trick is to turn the BKL spinlock + depth counter into a special
+type of cpu-affine, recursive semaphore, which gets released by
+schedule() but not by preempt_schedule().
+
+this gives the following advantages:
+
+- BKL critical sections are fully preemptable with this patch applied
+
+- there is no time wasted spinning on the BKL if there's BKL contention
+
+- no changes are needed for lock_kernel() users - the new
+  semaphore-based approach is fully compatible with the BKL.
+
+code using lock_kernel()/unlock_kernel() will see very similar semantics
+as they got from the BKL, so correctness should be fully preserved.
+Per-CPU assumptions still work, locking exclusion and lock-recursion
+still works the same way as it did with the BKL.
+
+non-BKL code sees no overhead from this approach. (other than the
+slighly smaller code due to the uninlining of the BKL APIs.)
+
+(the patch is against vanilla 2.6.9-rc2. I have tested it on x86
+UP+PREEMPT, UP+!PREEMPT, SMP+PREEMPT, SMP+!PREEMPT and x64 SMP+PREEMPT.)
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/include/linux/smp_lock.h.orig	
++++ linux/include/linux/smp_lock.h	
+@@ -7,59 +7,14 @@
+ 
+ #if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+ 
+-extern spinlock_t kernel_flag;
+-
+-#define kernel_locked()		(current->lock_depth >= 0)
+-
+-#define get_kernel_lock()	spin_lock(&kernel_flag)
+-#define put_kernel_lock()	spin_unlock(&kernel_flag)
+-
+-/*
+- * Release global kernel lock.
+- */
+-static inline void release_kernel_lock(struct task_struct *task)
+-{
+-	if (unlikely(task->lock_depth >= 0))
+-		put_kernel_lock();
+-}
+-
+-/*
+- * Re-acquire the kernel lock
+- */
+-static inline void reacquire_kernel_lock(struct task_struct *task)
+-{
+-	if (unlikely(task->lock_depth >= 0))
+-		get_kernel_lock();
+-}
+-
+-/*
+- * Getting the big kernel lock.
+- *
+- * This cannot happen asynchronously,
+- * so we only need to worry about other
+- * CPU's.
+- */
+-static inline void lock_kernel(void)
+-{
+-	int depth = current->lock_depth+1;
+-	if (likely(!depth))
+-		get_kernel_lock();
+-	current->lock_depth = depth;
+-}
+-
+-static inline void unlock_kernel(void)
+-{
+-	BUG_ON(current->lock_depth < 0);
+-	if (likely(--current->lock_depth < 0))
+-		put_kernel_lock();
+-}
++extern int kernel_locked(void);
++extern void lock_kernel(void);
++extern void unlock_kernel(void);
+ 
+ #else
+ 
+ #define lock_kernel()				do { } while(0)
+ #define unlock_kernel()				do { } while(0)
+-#define release_kernel_lock(task)		do { } while(0)
+-#define reacquire_kernel_lock(task)		do { } while(0)
+ #define kernel_locked()				1
+ 
+ #endif /* CONFIG_SMP || CONFIG_PREEMPT */
+--- linux/include/linux/hardirq.h.orig	
++++ linux/include/linux/hardirq.h	
+@@ -32,12 +32,12 @@
+ #define hardirq_trylock()	(!in_interrupt())
+ #define hardirq_endlock()	do { } while (0)
+ 
++#define in_atomic()		((preempt_count() & ~PREEMPT_ACTIVE) != 0)
++
+ #ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+ # define preemptible()	(preempt_count() == 0 && !irqs_disabled())
+ # define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+ #else
+-# define in_atomic()	(preempt_count() != 0)
+ # define preemptible()	0
+ # define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+ #endif
+--- linux/include/linux/sched.h.orig	
++++ linux/include/linux/sched.h	
+@@ -454,6 +454,7 @@ struct task_struct {
+ 
+ 	unsigned long policy;
+ 	cpumask_t cpus_allowed;
++	cpumask_t saved_cpus_allowed;
+ 	unsigned int time_slice, first_time_slice;
+ 
+ #ifdef CONFIG_SCHEDSTATS
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -2620,6 +2620,124 @@ static inline int dependent_sleeper(int 
+ }
+ #endif
+ 
++#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
++
++/*
++ * The 'big kernel semaphore'
++ *
++ * This mutex is taken and released recursively by lock_kernel()
++ * and unlock_kernel().  It is transparently dropped and reaquired
++ * over schedule().  It is used to protect legacy code that hasn't
++ * been migrated to a proper locking design yet.
++ *
++ * Note: code locked by this semaphore will only be serialized against
++ * other code using the same locking facility. The code guarantees that
++ * the task remains on the same CPU.
++ *
++ * Don't use in new code.
++ */
++static __cacheline_aligned_in_smp DECLARE_MUTEX(kernel_sem);
++
++int kernel_locked(void)
++{
++	return current->lock_depth >= 0;
++}
++
++EXPORT_SYMBOL(kernel_locked);
++
++static inline void put_kernel_sem(struct task_struct *task)
++{
++	task->cpus_allowed = task->saved_cpus_allowed;
++	up(&kernel_sem);
++}
++
++/*
++ * Release global kernel semaphore:
++ */
++static inline void release_kernel_sem(struct task_struct *task)
++{
++	if (unlikely(task->lock_depth >= 0))
++		put_kernel_sem(task);
++}
++
++/*
++ * Re-acquire the kernel semaphore.
++ *
++ * This function is called with preemption off.
++ *
++ * We are executing in schedule() so the code must be extremely careful
++ * about recursion, both due to the down() and due to the enabling of
++ * preemption. schedule() will re-check the preemption flag after
++ * reacquiring the semaphore.
++ */
++static inline void reacquire_kernel_sem(struct task_struct *task)
++{
++	int this_cpu, saved_lock_depth = task->lock_depth;
++
++	if (likely(saved_lock_depth < 0))
++		return;
++
++	task->lock_depth = -1;
++	preempt_enable_no_resched();
++
++	down(&kernel_sem);
++
++	this_cpu = get_cpu();
++	/*
++	 * Magic. We can pin the task to this CPU safely and
++	 * cheaply here because we have preemption disabled
++	 * and we are obviously running on the current CPU:
++	 */
++	task->saved_cpus_allowed = task->cpus_allowed;
++	task->cpus_allowed = cpumask_of_cpu(this_cpu);
++	task->lock_depth = saved_lock_depth;
++}
++
++/*
++ * Getting the big kernel semaphore.
++ */
++void lock_kernel(void)
++{
++	struct task_struct *task = current;
++	int this_cpu, depth = task->lock_depth + 1;
++
++	if (likely(!depth)) {
++		/*
++		 * No recursion worries - we set up lock_depth _after_
++		 */
++		down(&kernel_sem);
++
++		this_cpu = get_cpu();
++		task->saved_cpus_allowed = task->cpus_allowed;
++		task->cpus_allowed = cpumask_of_cpu(this_cpu);
++		task->lock_depth = depth;
++		put_cpu();
++	} else
++		task->lock_depth = depth;
++}
++
++EXPORT_SYMBOL(lock_kernel);
++
++void unlock_kernel(void)
++{
++	struct task_struct *task = current;
++
++	BUG_ON(task->lock_depth < 0);
++
++	if (likely(--task->lock_depth < 0))
++		put_kernel_sem(task);
++}
++
++EXPORT_SYMBOL(unlock_kernel);
++
++#else
++
++static inline void release_kernel_sem(struct task_struct *task) { }
++static inline void reacquire_kernel_sem(struct task_struct *task) { }
++
++#endif
++
++
+ /*
+  * schedule() is the main scheduler function.
+  */
+@@ -2660,7 +2778,7 @@ need_resched:
+ 		dump_stack();
+ 	}
+ 
+-	release_kernel_lock(prev);
++	release_kernel_sem(prev);
+ 	schedstat_inc(rq, sched_cnt);
+ 	now = sched_clock();
+ 	if (likely(now - prev->timestamp < NS_MAX_SLEEP_AVG))
+@@ -2781,7 +2899,7 @@ switch_tasks:
+ 	} else
+ 		spin_unlock_irq(&rq->lock);
+ 
+-	reacquire_kernel_lock(current);
++	reacquire_kernel_sem(current);
+ 	preempt_enable_no_resched();
+ 	if (unlikely(test_thread_flag(TIF_NEED_RESCHED)))
+ 		goto need_resched;
+@@ -2798,6 +2916,8 @@ EXPORT_SYMBOL(schedule);
+ asmlinkage void __sched preempt_schedule(void)
+ {
+ 	struct thread_info *ti = current_thread_info();
++	struct task_struct *task = current;
++	int saved_lock_depth;
+ 
+ 	/*
+ 	 * If there is a non-zero preempt_count or interrupts are disabled,
+@@ -2808,7 +2928,15 @@ asmlinkage void __sched preempt_schedule
+ 
+ need_resched:
+ 	ti->preempt_count = PREEMPT_ACTIVE;
++	/*
++	 * We keep the big kernel semaphore locked, but we
++	 * clear ->lock_depth so that schedule() doesnt
++	 * auto-release the semaphore:
++	 */
++	saved_lock_depth = task->lock_depth;
++	task->lock_depth = 0;
+ 	schedule();
++	task->lock_depth = saved_lock_depth;
+ 	ti->preempt_count = 0;
+ 
+ 	/* we could miss a preemption opportunity between schedule and now */
+@@ -3772,11 +3900,7 @@ void __devinit init_idle(task_t *idle, i
+ 	spin_unlock_irqrestore(&rq->lock, flags);
+ 
+ 	/* Set the preempt count _outside_ the spinlocks! */
+-#ifdef CONFIG_PREEMPT
+-	idle->thread_info->preempt_count = (idle->lock_depth >= 0);
+-#else
+ 	idle->thread_info->preempt_count = 0;
+-#endif
+ }
+ 
+ /*
+@@ -3821,13 +3945,17 @@ int set_cpus_allowed(task_t *p, cpumask_
+ 	migration_req_t req;
+ 	runqueue_t *rq;
+ 
++	lock_kernel();
+ 	rq = task_rq_lock(p, &flags);
+ 	if (!cpus_intersects(new_mask, cpu_online_map)) {
++		unlock_kernel();
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+ 
+ 	p->cpus_allowed = new_mask;
++	unlock_kernel();
++
+ 	/* Can the task run on the task's current CPU? If so, we're done */
+ 	if (cpu_isset(task_cpu(p), new_mask))
+ 		goto out;
+@@ -4175,21 +4303,6 @@ int __init migration_init(void)
+ }
+ #endif
+ 
+-/*
+- * The 'big kernel lock'
+- *
+- * This spinlock is taken and released recursively by lock_kernel()
+- * and unlock_kernel().  It is transparently dropped and reaquired
+- * over schedule().  It is used to protect legacy code that hasn't
+- * been migrated to a proper locking design yet.
+- *
+- * Don't use in new code.
+- *
+- * Note: spinlock debugging needs this even on !CONFIG_SMP.
+- */
+-spinlock_t kernel_flag __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
+-EXPORT_SYMBOL(kernel_flag);
+-
+ #ifdef CONFIG_SMP
+ /* Attach the domain 'sd' to 'cpu' as its base domain */
+ static void cpu_attach_domain(struct sched_domain *sd, int cpu)
+--- linux/init/main.c.orig	
++++ linux/init/main.c	
+@@ -435,6 +435,7 @@ static void noinline rest_init(void)
+ 	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
+ 	numa_default_policy();
+ 	unlock_kernel();
++	preempt_enable_no_resched();
+  	cpu_idle();
+ } 
+ 
+@@ -500,6 +501,12 @@ asmlinkage void __init start_kernel(void
+ 	 * time - but meanwhile we still have a functioning scheduler.
+ 	 */
+ 	sched_init();
++	/*
++	 * The early boot stage up until we run the first idle thread
++	 * is a very volatile affair for the scheduler. Disable preemption
++	 * up until the init thread has been started:
++	 */
++	preempt_disable();
+ 	build_all_zonelists();
+ 	page_alloc_init();
+ 	printk("Kernel command line: %s\n", saved_command_line);
+
+--EeQfGwPcQSOJBaQU--

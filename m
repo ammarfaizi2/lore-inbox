@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262931AbTC1LZK>; Fri, 28 Mar 2003 06:25:10 -0500
+	id <S262961AbTC1LhE>; Fri, 28 Mar 2003 06:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262955AbTC1LZK>; Fri, 28 Mar 2003 06:25:10 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:47369 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262931AbTC1LZI>; Fri, 28 Mar 2003 06:25:08 -0500
-Date: Fri, 28 Mar 2003 12:36:18 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: greg@kroah.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <UTC200303281110.h2SBA1L24473.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0303281219350.5042-100000@serv>
-References: <UTC200303281110.h2SBA1L24473.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262962AbTC1LhE>; Fri, 28 Mar 2003 06:37:04 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:42471 "EHLO
+	gluttony.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S262961AbTC1LhC>; Fri, 28 Mar 2003 06:37:02 -0500
+Date: Fri, 28 Mar 2003 12:48:02 +0100
+From: Andre Landwehr <andre.landwehr@gmx.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH-2.5] Fix devfs' partition handling
+Message-ID: <20030328114801.GA20934@mambo>
+Mail-Followup-To: Andre Landwehr <andre.landwehr@gmx.net>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux mambo 2.4.20-xfs 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
 Hi,
+with / on an IDE harddisk the disks partitions do not appear in
+devfs, only the disc device. This is due to rescan_partitions
+being called twice and deleting but not re-creating the entries
+during the second call. Here's the patch:
 
-On Fri, 28 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+diff -Nur linux-2.5-unmodified/fs/partitions/check.c linux-2.5/fs/partition=
+s/check.c
+--- linux-2.5-unmodified/fs/partitions/check.c	Thu Mar 27 13:44:20 2003
++++ linux-2.5/fs/partitions/check.c	Fri Mar 28 11:48:21 2003
+@@ -262,6 +262,7 @@
+ 	p->nr_sects =3D 0;
+ 	p->reads =3D p->writes =3D p->read_sectors =3D p->write_sectors =3D 0;
+ 	devfs_unregister(p->de);
++	p->de =3D NULL;
+ 	kobject_unregister(&p->kobj);
+ }
+=20
 
-> Roman, Your questions are misguided.
+Have fun
+Andre
 
-Thanks for your trust. :-(
 
-> A larger dev_t is infrastructure.
-> A sand road that is turned into an asphalt road.
-> 
-> Nobody has to use this improved infrastructure.
-> But many uses are conceivable.
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-The size of dev_t doesn't matter at all, what matters is how this number 
-is managed and used. The kernel has somehow to generate a number for a 
-device and tell the user about it, so that he can use it to access the 
-device. This requires infrastructure and the actual size of this number is 
-only a small detail in the whole picture. I want to know how the whole 
-picture looks like, so could you please stop talking bullshit and answer 
-my questions?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> I can imagine that there will be people wanting
-> to take part of the available space for a universal
-> hash of disk serial number or partition label or
-> I don't know what, so that devices are addressable
-> by content instead of path.
+iD8DBQE+hDZxC3ZlGS1b0mMRAp9PAJ4hgLJE3dUiaaP4V6/P+V1VIel3FgCfczxa
+IPBbaG2bE85bT2ZGrtOV2z0=
+=9PLe
+-----END PGP SIGNATURE-----
 
-This won't happen, dev_t is the wrong place to encode such information.
-
-bye, Roman
-
+--+QahgC5+KEYLbs62--

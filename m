@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUE1RwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUE1R6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbUE1RwT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 13:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUE1RwT
+	id S263769AbUE1R6U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 13:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUE1R6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 13:52:19 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:46574 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263766AbUE1RwN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 13:52:13 -0400
-Date: Fri, 28 May 2004 10:52:06 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-To: Greg KH <greg@kroah.com>
-Cc: Todd Poynor <tpoynor@mvista.com>, mochel@digitalimplant.org,
+	Fri, 28 May 2004 13:58:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33431 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263769AbUE1R6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 13:58:18 -0400
+Date: Fri, 28 May 2004 19:57:24 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Leave runtime suspended devices off at system resume
-Message-ID: <20040528175206.GF7176@slurryseal.ddns.mvista.com>
-References: <20040526214319.GB7176@slurryseal.ddns.mvista.com> <20040528170315.GB8192@kroah.com>
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+Message-ID: <20040528175724.GC9898@devserv.devel.redhat.com>
+References: <7F740D512C7C1046AB53446D372001730182BAE2@scsmsx402.amr.corp.intel.com> <40B7797F.2090204@pobox.com> <17750000.1085766378@flay>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dkEUBIird37B8yKS"
 Content-Disposition: inline
-In-Reply-To: <20040528170315.GB8192@kroah.com>
+In-Reply-To: <17750000.1085766378@flay>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 28, 2004 at 10:03:15AM -0700, Greg KH wrote:
-> Nice, that looks good.
+
+--dkEUBIird37B8yKS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, May 28, 2004 at 10:46:18AM -0700, Martin J. Bligh wrote:
 > 
-> Applied, thanks.
+> Personally, I find the argument that it's hardware-specific control code
+> a much better reason for it to belong in the kernel. 
 
-Sorry, Felipe Solana found that USB drivers tweak the power.power_state
-field during suspend, so we can't rely on that field to tell what to
-resume.  A new patch against 2.6.6 creates a separate field for the
-original value, so driver mods to the field won't break resume.  I'll
-also send a patch against the original patch to fix trees already
-updated in a moment.  Thanks -- Todd
+Is it really hardware specific ??
 
---- linux-2.6.6-orig/drivers/base/power/suspend.c	2004-05-10 11:22:58.000000000 -0700
-+++ linux-2.6.6-prevstate/drivers/base/power/suspend.c	2004-05-27 13:58:01.931014888 -0700
-@@ -39,7 +39,9 @@
- {
- 	int error = 0;
- 
--	if (dev->bus && dev->bus->suspend)
-+	dev->power.prev_state = dev->power.power_state;
-+
-+	if (dev->bus && dev->bus->suspend && ! dev->power.power_state)
- 		error = dev->bus->suspend(dev,state);
- 
- 	if (!error) {
---- linux-2.6.6-orig/drivers/base/power/resume.c	2004-05-10 11:22:58.000000000 -0700
-+++ linux-2.6.6-prevstate/drivers/base/power/resume.c	2004-05-27 14:35:03.373304328 -0700
-@@ -35,7 +35,10 @@
- 		struct list_head * entry = dpm_off.next;
- 		struct device * dev = to_device(entry);
- 		list_del_init(entry);
--		resume_device(dev);
-+
-+		if (! dev->power.prev_state)
-+			resume_device(dev);
-+
- 		list_add_tail(entry,&dpm_active);
- 	}
- }
---- linux-2.6.6-orig/include/linux/pm.h	2004-05-10 11:23:56.000000000 -0700
-+++ linux-2.6.6-prevstate/include/linux/pm.h	2004-05-27 14:35:37.143170528 -0700
-@@ -231,6 +231,7 @@
- struct dev_pm_info {
- #ifdef	CONFIG_PM
- 	u32			power_state;
-+	u32			prev_state;
- 	u8			* saved_state;
- 	atomic_t		pm_users;
- 	struct device		* pm_parent;
+--dkEUBIird37B8yKS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQFAt32DxULwo51rQBIRAgxhAJ9Nw3O7rjbv82VnpPm6LpxYnZiHJgCbBPeb
+lYaByF7Sbku2v/yTNKFLRvo=
+=nq8X
+-----END PGP SIGNATURE-----
+
+--dkEUBIird37B8yKS--

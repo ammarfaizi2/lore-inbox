@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVBKWNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVBKWRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVBKWNq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 17:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVBKWNq
+	id S262368AbVBKWRL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 17:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVBKWRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 17:13:46 -0500
-Received: from lyle.provo.novell.com ([137.65.81.174]:62046 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262364AbVBKWNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 17:13:45 -0500
-Date: Fri, 11 Feb 2005 14:13:23 -0800
-From: Greg KH <gregkh@suse.de>
-To: andersen@codepoet.org, Christian Borntr?ger <christian@borntraeger.net>,
-       Bill Nottingham <notting@redhat.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-Message-ID: <20050211221323.GC23606@suse.de>
-References: <20050211004033.GA26624@suse.de> <20050211031823.GE29375@nostromo.devel.redhat.com> <1108104417.32129.7.camel@localhost.localdomain> <200502111719.23163.christian@borntraeger.net> <20050211170144.GA16074@suse.de> <20050211190153.GA8110@codepoet.org> <20050211192323.GA19787@suse.de> <20050211223731.A1635@banaan.localdomain> <20050211214957.GA22633@suse.de> <20050211230657.B1635@banaan.localdomain>
+	Fri, 11 Feb 2005 17:17:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47564 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262368AbVBKWRC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 17:17:02 -0500
+Subject: Re: [PATCH] ppc64: Implement a vDSO and use it for signal
+	trampoline #3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200502111910.00725.hpj@urpla.net>
+References: <1108002773.7733.196.camel@gaston>
+	 <200502111910.00725.hpj@urpla.net>
+Content-Type: text/plain
+Date: Sat, 12 Feb 2005 09:15:19 +1100
+Message-Id: <1108160119.7733.230.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050211230657.B1635@banaan.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 11:06:57PM +0100, Erik van Konijnenburg wrote:
-> For an old version of the idea, see
+On Fri, 2005-02-11 at 19:10 +0100, Hans-Peter Jansen wrote:
+> Hi Ben,
 > 
-> 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=284294
+> are you copyrighting under a new pseudonym? E.g.:
+> 
+> On Thursday 10 February 2005 03:32, Benjamin Herrenschmidt wrote:
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-work/arch/ppc64/kernel/vdso32/sigtramp.S	2005-02-02
+> > 13:28:01.000000000 +1100 @@ -0,0 +1,300 @@
+> > +/*
+> > + * Signal trampolines for 32 bits processes in a ppc64 kernel for
+> > + * use in the vDSO
+> > + *
+> > + * Copyright (C) 2004 Benjamin Herrenschmuidt
+>                                             ^
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-work/arch/ppc64/kernel/vdso32/datapage.S	2005-02-02
+> > 13:28:01.000000000 +1100 @@ -0,0 +1,68 @@
+> > +/*
+> > + * Access to the shared data page by the vDSO & syscall map
+> > + *
+> > + * Copyright (C) 2004 Benjamin Herrenschmuidt
+> 
+> Who's that guy?
 
-Very nice stuff.  Ok, that's a good reason not to get rid of these
-files, although they can be generated on the fly from the modules
-themselves (like depmod does it.)
+Hehe, good catch, I'll fix that :)
 
-thanks,
+Thanks,
+Ben.
 
-greg k-h
+

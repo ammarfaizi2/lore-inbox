@@ -1,54 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbTKGWV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbTKGWVW
+	id S262156AbTKGXHl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTKGWYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:21:22 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43788 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264392AbTKGPNt
+	Fri, 7 Nov 2003 17:24:07 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:28289 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264487AbTKGRHo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:13:49 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: CPU-Test similar to Memtest?
-Date: 7 Nov 2003 15:03:21 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bogc7p$l07$1@gatekeeper.tmr.com>
-References: <20031028160550.GA855@rdlg.net> <1067379433.6281.575.camel@tubarao>
-X-Trace: gatekeeper.tmr.com 1068217401 21511 192.168.12.62 (7 Nov 2003 15:03:21 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Fri, 7 Nov 2003 12:07:44 -0500
+Date: Fri, 7 Nov 2003 12:09:59 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Floppy-Disk blocked signal problem.
+Message-ID: <Pine.LNX.4.53.0311071208590.17866@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1067379433.6281.575.camel@tubarao>,
-Thayne Harbaugh  <tharbaugh@lnxi.com> wrote:
 
-| On Tue, 2003-10-28 at 09:05, Robert L. Harris wrote:
-| > I'm going to run MEMTEST today when I get home and get a chance to make
-| > a bootable CD
-| 
-| Memtest86 is good, but it isn't as good as it could be.  Many times I
-| have seen it run 24 hours without error even though the the system has
-| bad memory.
-| 
-| >  but I'm wondering if there might be a "CPUTEST" or such
-| > utility anyone knows of that'll poke and prod a dual athalon real well
-| > and make sure I don't have a flaky cpu.
-| 
-| Run Linpack (or other computationally intensive program) while
-| monitoring ECC errors with either
-| http://www.anime.net/~goemon/linux-ecc/files/
-| or
-| ftp://ftp.lnxi.com/pub/bluesmoke
+Hello all,
 
-I agree with almost everything you said, but I have seen cases in which
-no CPU use would generate an error, but using heavy DMA io in addition
-triggered the problem. If all else fails add your favorite disk test.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Linux 2.4.22 has a major problem when reading the floppy disk.
+Signal delivery is so delayed that many are lost. This program
+will show that one can't count upon getting even one signal per
+second reliably delivered when a floppy is being read!
+
+This was first discovered when trying to ise ITIMER_REAL with
+100 ticks/second. Lucky if we got one. Then I found that even
+trying to get one tick/second was a problem:
+
+
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <fcntl.h>
+#include <signal.h>
+
+#define BUF_LEN 0x10000
+int main(void);
+
+void handler(int unused)
+{
+    alarm(1);
+    fprintf(stderr, "%08x\n", time(NULL));
+}
+int main()
+{
+    int fd;
+    char *buf;
+    if((fd = open("/dev/fd0", O_RDONLY)) == -1)
+    {
+        perror("open");
+        exit(EXIT_FAILURE);
+    }
+    if((buf = malloc(BUF_LEN * sizeof(char))) == NULL)
+    {
+        fprintf(stderr, "No memory\n");
+        exit(EXIT_FAILURE);
+    }
+    signal(SIGALRM, handler);
+    alarm(1);
+    while(read(fd, buf, BUF_LEN) == BUF_LEN)
+          ;
+    close(fd);
+    free(buf);
+    return 0;
+}
+
+
+Script started on Fri Nov  7 12:07:02 2003
+$ ./xxx
+3fabd13d
+3fabd13f
+3fabd141
+3fabd144
+3fabd145
+3fabd148
+3fabd14a
+3fabd14c
+3fabd14e
+3fabd150
+3fabd153
+3fabd154
+3fabd157
+3fabd159
+3fabd15b
+3fabd15d
+3fabd15f
+3fabd161
+3fabd163
+3fabd166
+3fabd168
+3fabd16a
+# exit
+exit
+Script done on Fri Nov  7 12:07:59 2003
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

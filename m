@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265947AbTAULSg>; Tue, 21 Jan 2003 06:18:36 -0500
+	id <S266970AbTAULXk>; Tue, 21 Jan 2003 06:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266970AbTAULSg>; Tue, 21 Jan 2003 06:18:36 -0500
-Received: from rzaixsrv2.rrz.uni-hamburg.de ([134.100.32.71]:53726 "EHLO
-	rzaixsrv2.rrz.uni-hamburg.de") by vger.kernel.org with ESMTP
-	id <S265947AbTAULSf> convert rfc822-to-8bit; Tue, 21 Jan 2003 06:18:35 -0500
-Date: Tue, 21 Jan 2003 12:27:30 +0100
-From: Markus Barenhoff <barenh_m@informatik.haw-hamburg.de>
-To: Sampson Fung <sampson106@i-cable.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem 2.5.59:SiS framebuffer failed to compile while Intel810 is OK.
-Message-ID: <20030121112730.GA864@aliosnet.de>
-Mail-Followup-To: Sampson Fung <sampson106@i-cable.com>,
-	linux-kernel@vger.kernel.org
-References: <00cd01c2bfda$df42fc00$febca8c0@noelpc>
-Mime-Version: 1.0
+	id <S266976AbTAULXk>; Tue, 21 Jan 2003 06:23:40 -0500
+Received: from gold.muskoka.com ([216.123.107.5]:58632 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S266970AbTAULXj>;
+	Tue, 21 Jan 2003 06:23:39 -0500
+Message-ID: <3E2D2BEA.2AC873DE@yahoo.com>
+Date: Tue, 21 Jan 2003 06:15:54 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.23 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-pre3-ac4 [PATCH]
+References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <00cd01c2bfda$df42fc00$febca8c0@noelpc>
-User-Agent: Mutt/1.4i
-X-Url: <http://www.barenhoff.net/>
-X-PGP-Key: http://www.barenhoff.net/mbarenh.gpg
-X-Mailer: Mutt 1.4i ( i586 Linux 2.4.20-ac2 )
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Sampson Fung (sampson106@i-cable.com):
+Hi Alan,
 
-> I tested Intel810fb in kernel 2.5.59 with a success result.  MPlayer can
-> use fb to play vcd on my Intel Mainboard now.
-> 
-> Then, I want to test the DVD playback in my SiS mainboard that has a DVD
-> drive installed.  So I modify the .config to include SiS Framebuffer
-> support and failed to compile with errors below:
-> =================
-> 
-[sniped the build output]
+Your compiler must really like you, seeing as it would barf on any 
+significant I/O here.  Somewhere along the line, somebody removed
+the INIT_LIST_HEAD for current->local_pages from fork.c and didn't
+put it back somewhere else (like INIT_TASK or whatever was in mind.)
 
-The problem is, that the driver yet not been ported to the new
-framebuffer layer of 2.5. 
+I just put it back where it was for now, not knowing what the 
+original intention was.  As long as it is put somewhere...  :-)
 
-The maintainer of the driver writes on his site
-(http://www.webit.at/~twinny/linuxsis630.shtml): 
-"Kernel 2.5 support will have to wait a few weeks, it seems the fb
-API is still under development."
+Paul.
 
-greetz Markus 
+--- kernel/fork.c~	Mon Jan  6 14:26:50 2003
++++ kernel/fork.c	Tue Jan 21 05:30:17 2003
+@@ -688,6 +688,8 @@
+ 	p->lock_depth = -1;		/* -1 = no lock */
+ 	p->start_time = jiffies;
+ 
++	INIT_LIST_HEAD(&p->local_pages);
++
+ 	retval = -ENOMEM;
+ 	/* copy all the process information */
+ 	if (copy_files(clone_flags, p))
 
--- 
-Markus Barenhoff - Spannskamp 26 - D-22527 Hamburg - Germany
-Cell: +49-179-8863351 eMail: barenh_m@informatik.haw-hamburg.de 
-pgp key: http://www.barenhoff.net/mbarenh.gpg (keyID:0xAE7C7759)
-FingerPrint: 79 64 AA D9 B7 16 F5 06  6A 88 5F A9 4D 49 45 BB
+
+
+

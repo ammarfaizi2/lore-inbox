@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266580AbRGGVd2>; Sat, 7 Jul 2001 17:33:28 -0400
+	id <S266586AbRGGVei>; Sat, 7 Jul 2001 17:34:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266582AbRGGVdS>; Sat, 7 Jul 2001 17:33:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36876 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266580AbRGGVdD>; Sat, 7 Jul 2001 17:33:03 -0400
-Subject: Re: VM in 2.4.7-pre hurts...
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 7 Jul 2001 22:33:00 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        riel@conectiva.com.br (Rik van Riel),
-        phillips@bonn-fries.net (Daniel Phillips)
-In-Reply-To: <Pine.LNX.4.33.0107071046570.31249-100000@penguin.transmeta.com> from "Linus Torvalds" at Jul 07, 2001 10:53:40 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266582AbRGGVeS>; Sat, 7 Jul 2001 17:34:18 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:20715 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266588AbRGGVeG>;
+	Sat, 7 Jul 2001 17:34:06 -0400
+Message-ID: <3B47804C.77B7329A@mandrakesoft.com>
+Date: Sat, 07 Jul 2001 17:34:04 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33L.0107071828500.1389-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15IzhE-0006Gz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But neutering the OOM killer like Alan suggested may be a rather valid
-> approach anyway. Delaying the killing sounds valid: if we're truly
-> livelocked on the VM, we'll be calling down to the OOM killer so much that
-> it's probably quite valid to say "only return 1 after X iterations".
+Rik van Riel wrote:
+> 
+> On Sat, 7 Jul 2001, Alan Cox wrote:
+> 
+> > > instead. That way the vmstat output might be more useful, although vmstat
+> > > obviously won't know about the new "SwapCache:" field..
+> > >
+> > > Can you try that, and see if something else stands out once the misleading
+> > > accounting is taken care of?
+> >
+> > Its certainly misleading. I got Jeff to try making oom return
+> > 4999 out of 5000 times regardless.
+> 
+> In that case, he _is_ OOM.  ;)
+> 
+> 1) (almost) no free memory
+> 2) no free swap
+> 3) very little pagecache + buffer cache
 
-Its hiding the real accounting screw up with a 'goes bang at random less 
-often' - nice hack, but IMHO bad long term approach. We need to get the maths
-right. We had similar 2.2 problems the other way (with nasty deadlocks)
-until Andrea fixed that
+It got -considerably- farther after Alan's suggested hack to the OOM
+killer; so at least in this instance, OOM killer appeared to me to be
+killing too early...
 
-
+-- 
+Jeff Garzik      | A recent study has shown that too much soup
+Building 1024    | can cause malaise in laboratory mice.
+MandrakeSoft     |

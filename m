@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275629AbTHOBOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 21:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275630AbTHOBOJ
+	id S275620AbTHOBXq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 21:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275630AbTHOBXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 21:14:09 -0400
-Received: from server0027.freedom2surf.net ([194.106.33.36]:24262 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S275629AbTHOBOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 21:14:07 -0400
-Date: Fri, 15 Aug 2003 02:14:01 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [BUG] ipaq USBserial driver
-Message-Id: <20030815021401.792fae10.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Aug 2003 21:23:18 -0400
+Received: from quechua.inka.de ([193.197.184.2]:44955 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S275620AbTHOBXR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 21:23:17 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Double-Harvard Architectures
+In-Reply-To: <200308150226.36787.akon@gmx.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E19nTJC-0006OZ-00@calista.inka.de>
+Date: Fri, 15 Aug 2003 03:23:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+In article <200308150226.36787.akon@gmx.net> you wrote:
+> DH means, that the µprocessor (typically a DSP) has a seperated program 
+> memory, a seperate (X)Data memory and a seperate (Y)Data mem, so it can 
+> fetch two data adresses simultanely in one cycle via two physically 
+> independent mem ports. For DSPs, that's a common behaviour!
 
-Havent had time to track this down but the ipaq.c driver seems to have a
-problem since about 2.5.57 or so.
+Is this an embedded syste which has only the DSP, or is this a DSP add on
+card for a PC? In the later case it migh be easier to write an device
+driver.
 
-I get repeatable stiffing of 2.6.0-test3 if I place my toshiba e750 in
-the cradle while ipaq.ko is loaded. if it isnt loaded the machine is
-fine. Im using uhci-hcd.
+Do you habe GCC support for your intended hardware?
 
-the e750 needs ipaq.c too be modified btw. (its prod id is 0x0409 not
-0406 as is the toshiba e740).
-
+Greetings
+Bernd
 -- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
-
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

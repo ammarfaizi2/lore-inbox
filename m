@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265311AbRFVC0X>; Thu, 21 Jun 2001 22:26:23 -0400
+	id <S265312AbRFVClE>; Thu, 21 Jun 2001 22:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265310AbRFVC0O>; Thu, 21 Jun 2001 22:26:14 -0400
-Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:32398 "EHLO
-	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S265311AbRFVC0G>; Thu, 21 Jun 2001 22:26:06 -0400
-Date: Thu, 21 Jun 2001 22:25:57 -0400
-From: Tom Vier <tmv5@home.com>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac17
-Message-ID: <20010621222557.A553@zero>
-In-Reply-To: <20010621173855.A6444@lightning.swansea.linux.org.uk>
+	id <S265313AbRFVCky>; Thu, 21 Jun 2001 22:40:54 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:44860 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S265312AbRFVCkr>; Thu, 21 Jun 2001 22:40:47 -0400
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15Ce4W-0007aH-00@the-village.bc.nu>
+In-Reply-To: <E15Ce4W-0007aH-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 21 Jun 2001 22:36:55 -0400
+Message-Id: <993177417.8749.0.camel@gromit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010621173855.A6444@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Thu, Jun 21, 2001 at 05:38:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i having some strange vm behavour with -ac17 that didn't happen with -ac14
-(i haven't tried 15 or 16). it starts swapping even when i have hundreds of
-megs of free ram. another strange thing is that the first time i tried to
-boot ac17, it machine checked in the palcode. i hit reset and it booted
-correctly.
+On 20 Jun 2001 10:14:48 +0100, Alan Cox wrote:
 
-vmstat:
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 1  0  0   2864 408488   2488  67080   0   0   216    28 1052   470  83   4  13
+> It does. 
 
-buffermem:
-2	10	60
+... not
 
-freepages:
-255	510	765
+> They are always readable.
 
-pagecache:
-2	15	75
+That's not very useful. Not in the sense of supporting aync,
+non-blocking i/o to disk files without using threads.
 
-pagetable_cache:
-25	50
 
-also, overcommit_memory is 1
+--
+Michael Rothwell
+rothwell@holly-springs.nc.us
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317829AbSHaR0m>; Sat, 31 Aug 2002 13:26:42 -0400
+	id <S317799AbSHaRhz>; Sat, 31 Aug 2002 13:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317816AbSHaR0m>; Sat, 31 Aug 2002 13:26:42 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:42146 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S317829AbSHaR0m>; Sat, 31 Aug 2002 13:26:42 -0400
-Message-ID: <20020831173107.13829.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Sat, 31 Aug 2002 19:31:07 +0200
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Burton Windle <bwindle@fint.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kpreempt-tech@lists.sourceforge.net, rml@tech9.net
-Subject: Re: 2.5.32: DEBUG_SLAB and PREEMPT = constant oops in schedule()
-References: <20020829090739.18655.qmail@thales.mathematik.uni-ulm.de> <Pine.LNX.4.44.0208300904200.7451-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S317833AbSHaRhz>; Sat, 31 Aug 2002 13:37:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5132 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317799AbSHaRhz>;
+	Sat, 31 Aug 2002 13:37:55 -0400
+Message-ID: <3D7102C1.CF3A961C@zip.com.au>
+Date: Sat, 31 Aug 2002 10:54:09 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+CC: Daniel Phillips <phillips@arcor.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+References: <3D644C70.6D100EA5@zip.com.au> <3D6989F7.9ED1948A@zip.com.au> <akdq8h$fqn$1@penguin.transmeta.com> <E17kunE-0003IO-00@starship> <20020831161448.12564.qmail@thales.mathematik.uni-ulm.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208300904200.7451-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 09:06:38AM +0200, Ingo Molnar wrote:
+Christian Ehrhardt wrote:
 > 
-> On Thu, 29 Aug 2002, Christian Ehrhardt wrote:
+> ...
+> Solution: Change the PageLRU bit inside the lock. Looks like
+> lru_cache_add is the only place that doesn't hold the lru lock to
+> change the LRU flag and it's probably not a good idea even without
+> the patch.
 > 
-> > sys_sched_setaffinity, lines:
-> >    1571         get_task_struct(p);
-> >    1572         read_unlock(&tasklist_lock);
-> 
-> > Line 1571 calls get_task_struct because the task might exit during the
-> > syscall. Suppose that this is exactly what happens. This means that line
-> > 1583 will effectivly free the task. But set_cpus_allowed stuffed a
-> > pointer to the task into a request struct without incrementing the usage
-> > count of the task struct.
-> 
-> note that the scenario you describe is not possible, because
-> set_cpus_allowed() will wait for the migration thread to do its work - so
-> the put_task_struct can never come before the last use of the task
-> structure. See the 'down(&req.sem)' in set_cpus_allowed(), and the
-> up(&req->sem) in migration_thread().
 
-Agreed. Is there anything that prevents the other scenario described
-in the original mail, i.e. sys_wait frees the task struct before the
-task finally scheduled away? There used to be a lock_kernel in sys_wait
-and sys_exit to make sure this doesn't happen but it is gone in 2.5.
+2.4.20-pre already does that:
 
-    regards  Christian
+void lru_cache_add(struct page * page)
+{
+        if (!PageLRU(page)) {
+                spin_lock(&pagemap_lru_lock);
+                if (!TestSetPageLRU(page))
+                        add_page_to_inactive_list(page);
+                spin_unlock(&pagemap_lru_lock);
+        }
+}
 
--- 
-THAT'S ALL FOLKS!
+there was an oopsing race with activate_page()...

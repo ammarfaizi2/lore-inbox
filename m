@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUJLO0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUJLO0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUJLO0y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUJLOZU
+	id S264386AbUJLO0z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUJLOYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:25:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23779 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264396AbUJLOYD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:24:03 -0400
-Date: Mon, 11 Oct 2004 14:21:47 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [HID] Fix hiddev devfs oops
-Message-ID: <20041011172147.GA3066@logos.cnet>
-References: <20041005124914.GA1009@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041005124914.GA1009@gondor.apana.org.au>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 12 Oct 2004 10:24:37 -0400
+Received: from ipx20189.ipxserver.de ([80.190.249.56]:62085 "EHLO
+	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
+	id S264098AbUJLOXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:23:54 -0400
+Date: Tue, 12 Oct 2004 17:24:05 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.9-rc4-mm1
+In-Reply-To: <20041011125507.3d733256.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0410121720080.4190@musoma.fsmlabs.com>
+References: <20041011032502.299dc88d.akpm@osdl.org>
+ <Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com> <20041011125507.3d733256.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 10:49:14PM +1000, Herbert Xu wrote:
-> Hi:
-> 
-> There is a long-standing devfs_unregister oops in hid/hiddev.  It's
-> caused by hid calling hiddev_exit before unregistering itself which
-> in turn calls hiddev_disconnect.
-> 
-> hiddev_exit removes the directory which contains the hiddev devices.
-> Therefore it needs to be called after the hiddev devices have been
-> disconnected.
-> 
-> This patch fixes that.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> Marcelo, the same fix is needed in 2.4 as well.
+On Mon, 11 Oct 2004, Andrew Morton wrote:
 
-Herbert,
+> > allow-x86_64-to-reenable-interrupts-on-contention.patch
+> >   Allow x86_64 to reenable interrupts on contention
+> 
+> IIRC Andi made skeptical noises about this one.
 
-Would be nice to have a version which applies to 2.4 also.
+Yes he did (although he did say it would be ok if spinlocks were made 
+out of line to make up for the text size increase in the spinlock 
+assembly) and Ingo said his preempt_enable on contention spinlock changes 
+should have the same effect, however how about the case where we hold a 
+lock above the contended one (so preempt is disabled) and interrupts enabled? 
+At least with this we still process interrupts, plus it can coexist with 
+the preempt friendly spinlock changes. Ingo?

@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVBVXUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVBVXTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVBVXUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 18:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVBVXTy
+	id S261331AbVBVXTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 18:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVBVXTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 18:19:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11401 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261340AbVBVXQH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 18:16:07 -0500
-Date: Tue, 22 Feb 2005 15:14:50 -0800
-From: Greg KH <greg@kroah.com>
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: CSMI questions
-Message-ID: <20050222231450.GB10067@kroah.com>
-References: <20050222171656.GA5953@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050222171656.GA5953@beardog.cca.cpqcorp.net>
-User-Agent: Mutt/1.5.8i
+	Tue, 22 Feb 2005 18:19:15 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:11909 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261331AbVBVXRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 18:17:22 -0500
+Message-ID: <421BBD75.6040504@nortel.com>
+Date: Tue, 22 Feb 2005 17:17:09 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-os@analogic.com
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Anthony DiSante <theant@nodivisions.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com> <421B9018.7020007@nodivisions.com> <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl> <421B9C86.8090800@nortel.com> <Pine.LNX.4.61.0502221619330.5460@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0502221619330.5460@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 22, 2005 at 11:16:56AM -0600, mikem wrote:
-> All,
-> I hate to dredge this up again, but, when Eric Moore submitted changes for MPT
-> Fusion driver containing the CSMI ioctls it was rejected. There was talk on
-> the linux-scsi list about it being a horrible interface, among other things.
-> There were also comments about there being a Linux only approach. Personally,
-> I like that idea but it's not good from a business perspective. Especially
-> because HP, Dell, and others support more than one OS. Having a unique set of
-> management apps for each OS would be very cumbersome.
+linux-os wrote:
 
-Honestly, the kernel developers don't care about cross-OS platform
-management utilities from a business perspective.  :)
+> Now, somebody needs a resource. It executes down(&semaphore);
+> once it gets control again, it has that resource. It attempts
+> to use that resource through a driver. The driver waits forever.
+> The resource is now permanently dorked --forever because its
+> driver is waiting forever. The user code never returns from
+> the driver so it can never execute up(&semaphore).
 
-> We've also been looking at how to use sysfs rather than ioctls.
+What about something like a "robust mutex" (in OSDL terminology)?  The 
+guy holding it too long gets killed, and the mutex gets marked as dirty. 
+  The next guy to aquire the mutex is responsable for re-initializing 
+the resource (resetting the device to a known state, for instance).
 
-Good.
+Chris
 
-> Some look reasonable, others seem to be restricted by sysfs itself. 
-> 1. only ASCII files are allowed
-
-With 1 value in that file.
-
-> 2. if multiple attributes are contained in one file, who parses out the data?
-
-multiple attributes are not allowed to be contained in a single file.
-
-> 3. one buffer of size (PAGE_SIZE) may not hold all of the data required
-
-You have a _single_ attribute that is bigger than PAGE_SIZE?  What is
-it?
-
-> I'd also like an (brief) explanation of why ioctls are so bad. I've seen the 
-> reasons of them never going away, etc. But from the beginning of time (UNIX)
-> ioctls have been the preferred method of user space/kernel communication.
-
-That's because there was no other method.  See the lkml archives for why
-ioctls are considered bad, I don't want to dredge it up again.
-
-Hope this helps,
-
-greg k-h

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136787AbREBAof>; Tue, 1 May 2001 20:44:35 -0400
+	id <S136569AbREBAyi>; Tue, 1 May 2001 20:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136784AbREBAo0>; Tue, 1 May 2001 20:44:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:24845 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S136787AbREBAoK>;
-	Tue, 1 May 2001 20:44:10 -0400
-Date: Tue, 1 May 2001 21:43:57 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "J . A . Magallon" <jamagallon@able.es>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Wakko Warner <wakko@animx.eu.org>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <15087.22036.811357.526981@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0105012143000.19012-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136493AbREBAy1>; Tue, 1 May 2001 20:54:27 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33515 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S135903AbREBAyX>; Tue, 1 May 2001 20:54:23 -0400
+Date: Tue, 1 May 2001 18:54:20 -0600
+Message-Id: <200105020054.f420sKe17416@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org
+Subject: APM idle behaviour
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, David S. Miller wrote:
-> Rik van Riel writes:
->  > Then we will be scanning through memory looking for something to
->  > swap out (otherwise we'd not be in need of swap space, right?).
->  > At this point we can simply free up swap entries while scanning
->  > through memory looking for stuff to swap out.
-> 
-> Sounds a lot like my patch I posted a few weeks ago:
+  Hi, all. I've been staring at the APM code and trying to figure out
+some things related to idle behaviour. I'm staring at the code for
+2.2.19.
 
-Not really. Your patch only reclaims swap cache pages that
-hang around after a process exit()s. What I want to do is
-reclaim swap space of pages which have been swapped in so
-we can use that swap space to swap something else out.
+My first question is why does cpu_idle() wait for 0.33 seconds of
+idling before calling acpi_idle() (apm_cpu_idle() in fact)? Why not
+wait less time, or more?
 
-regards,
+Another question is why do PS/2 mouse events break out of
+apm_cpu_idle() whereas keyboard events do not? I've hacked
+apm_cpu_idle() to increment a global counter, and then I can run a
+programme to show the value of this counter. I can type in commands
+and even switched between windows using a keyboard shortcut, and the
+global counter doesn't increment. As soon as I move the mouse or press
+a mouse key, the counter will increment.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+				Regards,
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

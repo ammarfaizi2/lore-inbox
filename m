@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275250AbTHMPwo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275254AbTHMPwo
+	id S275258AbTHMPyL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275264AbTHMPyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:52:44 -0400
-Received: from ns2.eclipse.net.uk ([212.104.129.133]:44043 "EHLO
-	smtp2.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S275250AbTHMPwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:52:43 -0400
-From: Ian Hastie <lkml@ordinal.freeserve.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Realtek network card
-Date: Wed, 13 Aug 2003 16:52:40 +0100
-User-Agent: KMail/1.5.3
-References: <20030813133059.616f0faa.skraw@ithnet.com>
-In-Reply-To: <20030813133059.616f0faa.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Aug 2003 11:54:10 -0400
+Received: from angband.namesys.com ([212.16.7.85]:49554 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S275258AbTHMPyI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:54:08 -0400
+Date: Wed, 13 Aug 2003 19:54:07 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Catalin BOIE <util@deuroconsult.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0test2mm4 reiser bug? Buffer I/O error on device hda2, logica...
+Message-ID: <20030813155407.GA27436@namesys.com>
+References: <Pine.LNX.4.56.0308131151070.11964@hosting.rdsbv.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308131652.41798.lkml@ordinal.freeserve.co.uk>
+In-Reply-To: <Pine.LNX.4.56.0308131151070.11964@hosting.rdsbv.ro>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 Aug 2003 12:30, Stephan von Krawczynski wrote:
-> Hello all,
->
-> does anybody know how to make the below work (neiter 2.2.25 nor 2.4.21 seem
-> to recognise it):
->
-> lspci --vv:
->
-> 00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd.: Unknown
-> device 8131 (rev 10) Subsystem: Realtek Semiconductor Co., Ltd.: Unknown
-> device 8139
+Hello!
 
-Do you know what make and model the card actually is?  I know it what it 
-appears to be, but it'd be best to know for sure.
+On Wed, Aug 13, 2003 at 11:55:25AM +0300, Catalin BOIE wrote:
 
--- 
-Ian.
+> But I get something like:
+> vs-8115: get_num_ver: not directory item
+> Do I have to worry?
 
+Time to get latest reiserfsprogs off ftp.namesys.com and check your
+filesystem it seems.
+
+Bye,
+    Oleg

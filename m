@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSLLNBx>; Thu, 12 Dec 2002 08:01:53 -0500
+	id <S263899AbSLLNHp>; Thu, 12 Dec 2002 08:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSLLNBx>; Thu, 12 Dec 2002 08:01:53 -0500
-Received: from [195.6.148.114] ([195.6.148.114]:51117 "EHLO mail.meditrans.fr")
-	by vger.kernel.org with ESMTP id <S262812AbSLLNBw>;
-	Thu, 12 Dec 2002 08:01:52 -0500
-From: Thomas Poindessous <thomas@poindessous.com>
-To: linux-kernel@vger.kernel.org, usb-storage@one-eyed-alien.net
-Subject: [PATCH] usb-storage : support for sony DSC-U10, kernel 2.4.20 & 2.5.51
-Date: Thu, 12 Dec 2002 14:09:35 +0100
-User-Agent: KMail/1.5
+	id <S263991AbSLLNHo>; Thu, 12 Dec 2002 08:07:44 -0500
+Received: from comtv.ru ([217.10.32.4]:53401 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S263899AbSLLNHo>;
+	Thu, 12 Dec 2002 08:07:44 -0500
+X-Comment-To: Stefan Reinauer
+To: Stefan Reinauer <stepan@suse.de>
+Cc: Matt Young <wz6b@arrl.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: grub and 2.5.50
+References: <200212091640.35716.wz6b@arrl.net>
+	<20021211134322.GA23761@suse.de>
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 12 Dec 2002 16:09:09 +0300
+In-Reply-To: <20021211134322.GA23761@suse.de>
+Message-ID: <m3wumfz8ne.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_PqI+9AOdsBuk2Bv"
-Message-Id: <200212121409.35863.thomas@poindessous.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> Stefan Reinauer (SR) writes:
 
---Boundary-00=_PqI+9AOdsBuk2Bv
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ SR> * Matt Young <wz6b@arrl.net> [021210 01:40]:
+ >> These grub commands work with SUSE 2.4.19-4GB:
+ >> 
+ >> kernel (hd0,0)/bzImage root=/dev/hda3 vga=791 initrd
+ >> (hd0,0)/initrd
+ >> 
+ >> But with 2.5.50 the kernel panics after Freeing the initrd memory
+ >> with "Unable te mount root FS, please correct the root= cammand
+ >> line"
 
-Hi
-here are two patch to support sony DSC-U10 digital camera.
+ >> I have compiled with the required file systems
+ >> (EXT2,EXT3,REISERFS).
 
-I found them on google.
+ SR> Did you also compile in support for the root device itself
+ SR> (i.e. ide or scsi driver). These are loaded via the initrd
+ SR> normally on SuSE, which will not work, if you did not install
+ SR> newer modutils..
 
-It works very well with 2.4.20 kernel. I didn't test it on a 2.5.x kernel.
+First of all, 2.5.10 has sysfs-related bug. try to replace root=/dev/hda3
+by root=303
 
-Can someone apply them ?
-
-thanks.
-
--- 
-Thomas Poindessous
-
---Boundary-00=_PqI+9AOdsBuk2Bv
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="kernel-source-2.4.20_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="kernel-source-2.4.20_patch"
-
---- kernel-source-2.4.20/drivers/usb/storage/unusual_devs.h.orig	2002-12-11 20:42:21.000000000 +0100
-+++ kernel-source-2.4.20/drivers/usb/storage/unusual_devs.h	2002-12-11 21:41:25.000000000 +0100
-@@ -213,6 +213,12 @@
- 		US_SC_SCSI, US_PR_CB, NULL,
- 		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
- 
-+UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0430, 
-+		"Sony",
-+		"DSC-U10", 
-+		US_SC_SCSI, US_PR_CB, NULL,
-+		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
-+		
- /* Reported by wim@geeks.nl */
- UNUSUAL_DEV(  0x054c, 0x0025, 0x0100, 0x0100, 
- 		"Sony",
-
---Boundary-00=_PqI+9AOdsBuk2Bv
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="linux-2.5.51_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="linux-2.5.51_patch"
-
---- linux-2.5.51/drivers/usb/storage/unusual_devs.h.orig	2002-12-11 22:48:33.000000000 +0100
-+++ linux-2.5.51/drivers/usb/storage/unusual_devs.h	2002-12-11 22:48:36.000000000 +0100
-@@ -220,6 +220,12 @@
- 		US_SC_SCSI, US_PR_CB, NULL,
- 		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
- 
-+UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0430, 
-+		"Sony",
-+		"DSC-U10", 
-+		US_SC_SCSI, US_PR_CB, NULL,
-+		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
-+
- /* Reported by wim@geeks.nl */
- UNUSUAL_DEV(  0x054c, 0x0025, 0x0100, 0x0100, 
- 		"Sony",
-
---Boundary-00=_PqI+9AOdsBuk2Bv--

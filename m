@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSFUC61>; Thu, 20 Jun 2002 22:58:27 -0400
+	id <S316089AbSFUDVe>; Thu, 20 Jun 2002 23:21:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSFUC60>; Thu, 20 Jun 2002 22:58:26 -0400
-Received: from revdns.flarg.info ([213.152.47.19]:35287 "EHLO noodles.internal")
-	by vger.kernel.org with ESMTP id <S316070AbSFUC6Z>;
-	Thu, 20 Jun 2002 22:58:25 -0400
-Date: Fri, 21 Jun 2002 03:59:18 +0100
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.24-dj1
-Message-ID: <20020621025918.GA9415@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S316185AbSFUDVd>; Thu, 20 Jun 2002 23:21:33 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37129 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316089AbSFUDVd>; Thu, 20 Jun 2002 23:21:33 -0400
+Date: Thu, 20 Jun 2002 23:17:07 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.19-pre 8390.c NETDEV WATCHDOG
+In-Reply-To: <Pine.LNX.3.96.1020620103442.7127A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.3.96.1020620231458.9650A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Probably the last before I join the cabal^Wothers in Ottawa,
-so it flushes everything of importance I had pending, and
-resyncs with Linus' latest and greatest.
+On Thu, 20 Jun 2002, Bill Davidsen wrote:
 
-I'll try and keep up with anything that turns up during the
-following week (time & network connection permitting), but
-with 99% of the regulars otherwise occupied at KS/OLS,
-I imagine it'll be a quiet week.
+> I have an old Athlon 1.4GHz system which must be able to speak 100baseT
+> and 10base2 (thinnet coax). For the 10base2 I have an SMC-Elite16 card,
+> and any attempt to transmit gives a NETDEV WATCH error and shows that the
+> interrupt did not come back (/proc/interrupts).
 
-
-As usual,..
-
-Patch against 2.5.24 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
-
-Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
-
-Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
-known bugs that are also in mainline.
-
- -- Davej.
-
-2.5.24-dj1
-o   Fix broken config.in that made xconfig barf.
-o   Drop some ISDN bits.
-o   Updated SAA7110 i2c patch.				(Frank Davis)
-o   Allow x86 cpufreq to be built modular.		(Dominik Brodowski)
-o   Make modular builds of agpgart work again.		(Kai Germaschewski)
-o   Fix MTRR compile on SMP.				(Patrick Mochel)
-o   Various SCSI generic driver janitor items.		(William Stinson)
-o   Fix oops in UHCI driver unload function.		(Andries Brouwer)
-o   Fix various missing includes (tqueue.h & init.h).	(Adrian Bunk)
-o   Make max number of CPUs compile time configurable.	(Robert Love)
-o   Various pidhash cleanups.				(William Lee Irwin)
+Nevermind, replaced the hardware, put the board in an old 486 where it
+runs. Something about the fast system seems not to work but I needed to
+get it working so I put it in a slow system.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

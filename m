@@ -1,85 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316488AbSEUCOM>; Mon, 20 May 2002 22:14:12 -0400
+	id <S316489AbSEUCT3>; Mon, 20 May 2002 22:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316489AbSEUCOL>; Mon, 20 May 2002 22:14:11 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:22501 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S316488AbSEUCOK>; Mon, 20 May 2002 22:14:10 -0400
-Message-ID: <3CE9AC93.5050107@didntduck.org>
-Date: Mon, 20 May 2002 22:10:27 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S316490AbSEUCT2>; Mon, 20 May 2002 22:19:28 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:33247 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S316489AbSEUCT2>;
+	Mon, 20 May 2002 22:19:28 -0400
+Date: Tue, 21 May 2002 12:19:52 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] cpu_has_tsc
-Content-Type: multipart/mixed;
- boundary="------------030509000305050207080006"
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [TRIVIAL PATCH] Fix order of #includes in init/version.c
+Message-ID: <20020521021952.GD4745@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030509000305050207080006
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Linus, please apply.  compile.h must be #included before uts.h, or
+uts.h will define UTS_MACHINE (incorrectly) which is then redefined in
+compile.h.
 
-This patch converts drivers/char/random.c and 
-drivers/input/joystick/analog.c to use the cpu_has_tsc macro.
-
---
-
-						Brian Gerst
-
---------------030509000305050207080006
-Content-Type: text/plain;
- name="cpu_has_tsc-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpu_has_tsc-1"
-
-diff -urN linux-bk/drivers/char/random.c linux/drivers/char/random.c
---- linux-bk/drivers/char/random.c	Wed May 15 10:27:26 2002
-+++ linux/drivers/char/random.c	Mon May 20 22:03:58 2002
-@@ -735,18 +735,14 @@
- 	__s32		delta, delta2, delta3;
- 	int		entropy = 0;
- 
--#if defined (__i386__)
--	if ( test_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability) ) {
-+#if defined (__i386__) || defined (__x86_64__)
-+	if (cpu_has_tsc)
- 		__u32 high;
- 		rdtsc(time, high);
- 		num ^= high;
- 	} else {
- 		time = jiffies;
- 	}
--#elif defined (__x86_64__)
--	__u32 high;
--	rdtsc(time, high);
--	num ^= high;
- #else
- 	time = jiffies;
- #endif
-diff -urN linux-bk/drivers/input/joystick/analog.c linux/drivers/input/joystick/analog.c
---- linux-bk/drivers/input/joystick/analog.c	Thu Mar  7 21:18:24 2002
-+++ linux/drivers/input/joystick/analog.c	Mon May 20 22:05:48 2002
-@@ -137,10 +137,9 @@
+diff -urN /home/dgibson/kernel/linuxppc-2.5/init/version.c linux-bluefish/init/version.c
+--- /home/dgibson/kernel/linuxppc-2.5/init/version.c	Tue Feb  5 18:55:11 2002
++++ linux-bluefish/init/version.c	Tue May 21 12:06:11 2002
+@@ -6,10 +6,10 @@
+  *  May be freely distributed as part of Linux.
   */
  
- #ifdef __i386__
--#define TSC_PRESENT	(test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability))
--#define GET_TIME(x)	do { if (TSC_PRESENT) rdtscl(x); else x = get_time_pit(); } while (0)
--#define DELTA(x,y)	(TSC_PRESENT?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)))
--#define TIME_NAME	(TSC_PRESENT?"TSC":"PIT")
-+#define GET_TIME(x)	do { if (cpu_has_tsc) rdtscl(x); else x = get_time_pit(); } while (0)
-+#define DELTA(x,y)	(cpu_has_tsc?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)))
-+#define TIME_NAME	(cpu_has_tsc?"TSC":"PIT")
- static unsigned int get_time_pit(void)
- {
-         extern spinlock_t i8253_lock;
++#include <linux/compile.h>
+ #include <linux/uts.h>
+ #include <linux/utsname.h>
+ #include <linux/version.h>
+-#include <linux/compile.h>
+ 
+ #define version(a) Version_ ## a
+ #define version_string(a) version(a)
 
---------------030509000305050207080006--
 
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.  -- H.L. Mencken
+http://www.ozlabs.org/people/dgibson

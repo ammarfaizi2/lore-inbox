@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUHBUJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUHBULn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbUHBUJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 16:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUHBUJN
+	id S262927AbUHBULn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 16:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUHBULm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 16:09:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50614 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262905AbUHBUJJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 16:09:09 -0400
-Date: Mon, 2 Aug 2004 13:07:29 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: kiran@in.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       greg@kroah.com, dipankar@in.ibm.com
-Subject: Re: [patchset] Lockfree fd lookup 0 of 5
-Message-Id: <20040802130729.2dae8fd5.davem@redhat.com>
-In-Reply-To: <20040802165607.GN12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040802101053.GB4385@vitalstatistix.in.ibm.com>
-	<20040802165607.GN12308@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 2 Aug 2004 16:11:42 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:30879 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262932AbUHBULd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 16:11:33 -0400
+Date: Mon, 2 Aug 2004 13:10:40 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: Andi Kleen <ak@muc.de>, Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch for review] BSD accounting IO stats
+Message-ID: <20040802201040.GB25664@taniwha.stupidest.org>
+References: <m3r7qpsoa4.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0408021509520.25305-100000@dhcp83-102.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408021509520.25305-100000@dhcp83-102.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Aug 2004 17:56:07 +0100
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Mon, Aug 02, 2004 at 03:11:27PM -0400, Rik van Riel wrote:
 
-> How about this for comparison?  That's just a dumb "convert to rwlock"
-> patch; we can be smarter in e.g. close_on_exec handling, but that's a
-> separate story.
+> It may be easier to do this at write(2) time, making the
+> assumption that most IO done there will eventually hit
+> the filesystem.
 
-Compares to plain spinlocks, rwlock's don't buy you much,
-if anything, these days.
+but for lots of loads that's not true, consider the case of temporary
+files which usually never hit the disk before being unlinked
 
-Especially for short sequences of code.
+
+  --cw

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267749AbTAIVpD>; Thu, 9 Jan 2003 16:45:03 -0500
+	id <S268000AbTAIVul>; Thu, 9 Jan 2003 16:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267772AbTAIVpD>; Thu, 9 Jan 2003 16:45:03 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7940 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267749AbTAIVpB>;
-	Thu, 9 Jan 2003 16:45:01 -0500
-Date: Thu, 9 Jan 2003 22:51:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
-Subject: Drain local pages to make swsusp work
-Message-ID: <20030109215154.GA13464@elf.ucw.cz>
+	id <S268016AbTAIVul>; Thu, 9 Jan 2003 16:50:41 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:3968 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S268000AbTAIVtn>;
+	Thu, 9 Jan 2003 16:49:43 -0500
+Date: Thu, 9 Jan 2003 22:58:21 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: torvalds@transmeta.com
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] kallsyms prints wrong symbol names
+Message-ID: <20030109215821.GA2935@vana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Linus,
 
-With local pages present, swsusp's accounting goes wrong and you get
-nice BUG(). This fixes it, please apply.
-								Pavel
+Since stem compression arrived to kallsyms table, we are printing
+name of symbol BEFORE one we want to print (and empty string for
+first symbol) because of we return buffer with copy of last name
+we skipped instead of 'name' variable as we did before. So one more
+pass through loop is required.
 
---- clean/kernel/suspend.c	2002-12-18 22:21:13.000000000 +0100
-+++ linux-swsusp/kernel/suspend.c	2002-12-23 18:58:51.000000000 +0100
-@@ -680,6 +680,8 @@
- 	struct sysinfo i;
- 	unsigned int nr_needed_pages = 0;
- 
-+	drain_local_pages();
-+
- 	pagedir_nosave = NULL;
- 	printk( "/critical section: Counting pages to copy" );
- 	nr_copy_pages = count_and_copy_data_pages(NULL);
-@@ -714,6 +716,7 @@
- 	nr_copy_pages_check = nr_copy_pages;
- 	pagedir_order_check = pagedir_order;
- 
-+	drain_local_pages();	/* During allocating of suspend pagedir, new cold pages may appear. Kill them */
- 	if (nr_copy_pages != count_and_copy_data_pages(pagedir_nosave))	/* copy */
- 		BUG();
- 
+Without this patch my stack traces were really strange...
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+				Thanks,
+					Petr Vandrovec
+					vandrove@vc.cvut.cz
+
+
+
+--- linux-2.5.55/kernel/kallsyms.c	2003-01-09 22:47:40.000000000 +0100
++++ linux-2.5.55/kernel/kallsyms.c	2003-01-09 22:38:01.000000000 +0100
+@@ -46,7 +46,7 @@
+ 		}
+ 
+ 		/* Grab name */
+-		for (i = 0; i < best; i++) { 
++		for (i = 0; i < best + 1; i++) { 
+ 			unsigned prefix = *name++;
+ 			strncpy(namebuf + prefix, name, 127 - prefix);
+ 			name += strlen(name) + 1;

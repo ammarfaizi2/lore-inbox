@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135498AbRDWB0v>; Sun, 22 Apr 2001 21:26:51 -0400
+	id <S136329AbRDWBzh>; Sun, 22 Apr 2001 21:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135499AbRDWB0b>; Sun, 22 Apr 2001 21:26:31 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:1297 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S135498AbRDWB0W>;
-	Sun, 22 Apr 2001 21:26:22 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15075.33972.459979.808211@tango.linuxcare.com.au>
-Date: Mon, 23 Apr 2001 11:26:12 +1000 (EST)
-To: Byeong-ryeol Kim <jinbo21@hananet.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        <alan@redhat.com>, <buhr@stat.wisc.edu>
-Subject: Re: [PATCH] PPP update against 2.4.4-pre5
-In-Reply-To: <Pine.LNX.4.33.0104211428570.1780-100000@progress.plw.net>
-In-Reply-To: <15072.6787.66773.470992@argo.ozlabs.ibm.com.au>
-	<Pine.LNX.4.33.0104211428570.1780-100000@progress.plw.net>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+	id <S136330AbRDWBz2>; Sun, 22 Apr 2001 21:55:28 -0400
+Received: from leng.mclure.org ([64.81.48.142]:62215 "EHLO
+	leng.internal.mclure.org") by vger.kernel.org with ESMTP
+	id <S136329AbRDWBzQ>; Sun, 22 Apr 2001 21:55:16 -0400
+Date: Sun, 22 Apr 2001 18:55:14 -0700
+From: Manuel McLure <manuel@mclure.org>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel hang on multi-threaded X process crash
+Message-ID: <20010422185514.A981@ulthar.internal.mclure.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Byeong-ryeol Kim writes:
+Well, this is what I get for being on the cutting edge... :-(
 
-> I met 'unresolved symbol sk_chk_filter ...' after applying this patch
-> and rebooting.( with CONFIG_PPP_FILTER=y )
-> There shoud be folling lines in linux/net/netsyms.c or so:
-> 
-> #ifdef CONFIG_PPP_FILTER
-> EXPORT_SYMBOL(sk_chk_filter);
-> #endif
+I'm now running into problems where the machine will totally hang (no
+network, no SysRq, no nothin') regularly. The triggers seem to be running
+aviplay or mozilla.
 
-Good idea, actually let's put it next to the export of sk_run_filter,
-as in the patch below.  Linus, could you apply this patch please?
+Symptoms will be that I am running aviplay or mozilla, and the machine will
+suddenly hang and need to be hard-reset. I can trigger it 100% by telling
+aviplay to zoom 2x.
 
-Paul.
+I finally managed to reproduce it while I was on a console (I telneted in
+from another machine, and ran aviplay on the X display that was on console
+7 while the machine was displaying console 1) - the only message before the
+hang was "Trying to vfree() nonexistent vm area (d0992000)" - no Oops was
+shown.
 
-diff -urN linux/net/netsyms.c pmac/net/netsyms.c
---- linux/net/netsyms.c	Sun Apr 22 17:07:40 2001
-+++ pmac/net/netsyms.c	Mon Apr 23 11:24:31 2001
-@@ -158,6 +158,7 @@
- 
- #ifdef CONFIG_FILTER
- EXPORT_SYMBOL(sk_run_filter);
-+EXPORT_SYMBOL(sk_chk_filter);
- #endif
- 
- EXPORT_SYMBOL(neigh_table_init);
+Whenever this happens, the e2fsck step at reboot shows a
+"Entry 'core.XXXX' in <dir> (XXXXXX) had deleted/unused inode XXXXXX.
+CLEARED" message. The core file is always in whatever directory I was
+running the process that seems to cause the crash. It seems like either the
+core is a symptom of the underlying problem, or the process coredumping is
+causing the hang.
+
+The machine is an Athlon Thunderbird 900MHz with 256M of PC133 DRAM on an
+MSI K7T Turbo R motherboard. I am running 2.4.3-ac12 currently, 2.4.3-ac11
+and 2.4.3-ac5 hung the same way at least once each before I started
+tracking this down. I am running Red Hat 7.1, and am using the
+XFree86-4.0.3 RPMs that come with RH71 with the CVS DRI trunk installed
+over it. The kernel was built with kgcc, a gcc-2.96 built kernel has the
+same problem.
+
+Any ideas?
+
+-- 
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft
+

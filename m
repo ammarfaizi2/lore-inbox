@@ -1,60 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVCaPlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVCaPyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVCaPlf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVCaPlf
+	id S261514AbVCaPyY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 10:54:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVCaPyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:41:35 -0500
-Received: from mail1.upco.es ([130.206.70.227]:16832 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261495AbVCaPlZ (ORCPT
+	Thu, 31 Mar 2005 10:54:24 -0500
+Received: from graphe.net ([209.204.138.32]:47365 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261407AbVCaPyK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:41:25 -0500
-Date: Thu, 31 Mar 2005 17:41:23 +0200
-From: Romano Giannetti <romanol@upco.es>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc1 swsusp broken [Was Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel]
-Message-ID: <20050331154123.GC21883@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <20050329110309.GA17744@pern.dea.icai.upco.es> <20050329132022.GA26553@pern.dea.icai.upco.es> <20050329170238.GA8077@pern.dea.icai.upco.es> <20050329181551.GA8125@elf.ucw.cz> <20050331144728.GA21883@pern.dea.icai.upco.es> <d120d5000503310715cbc917@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <d120d5000503310715cbc917@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 31 Mar 2005 10:54:10 -0500
+Date: Thu, 31 Mar 2005 07:53:54 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Christoph Hellwig <hch@infradead.org>,
+       shobhit dayal <shobhit@calsoftinc.com>, manfred@colorfullife.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, Shai Fultheim <shai@scalex86.org>
+Subject: Re: Fwd: [PATCH] Pageset Localization V2
+In-Reply-To: <20050331144740.GB21986@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0503310753140.7711@server.graphe.net>
+References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
+ <20050330111439.GA13110@infradead.org> <bab4333005033003295f487e3d@mail.gmail.com>
+ <1112187977.9773.15.camel@kuber> <20050331143235.GA18058@infradead.org>
+ <20050331144740.GB21986@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 10:15:26AM -0500, Dmitry Torokhov wrote:
-> On Thu, 31 Mar 2005 16:47:29 +0200, Romano Giannetti <romanol@upco.es> wrote:
-> > 
-> > The bad news is that with 2.6.12-rc1 (no preempt) swsusp fails to go.
-> 
-> Ok, I see you have an ALPS touchpad. I think this patch will help you
-> with swsusp:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111212532524998&q=raw
-> 
-> Also, could you please try sticking psmouse_reset(psmouse) call at the
-> beginning of drivers/input/mouse/alps.c::alps_reconnect() and see if
-> it can suspend _without_ the patch above.
+On Thu, 31 Mar 2005, Matthew Wilcox wrote:
 
-I will try in a moment. But... probably I am not understanding but... the
-patch is at "resume()" and my problem happens during suspend... 
+> On Thu, Mar 31, 2005 at 03:32:35PM +0100, Christoph Hellwig wrote:
+> > Which would be much nicer done using INIT_LIST_HEAD on the new head
+> > always and then calling list_replace (of which currently only a _rcu variant
+> > exists).
+>
+> INIT_LIST_HEAD followed by list_splice() should do the trick, I think.
+> BTW, is it a problem that the list head which the list was copied from
+> still points into the list?
 
-...mumbling...
+New patch replacing the old fix patch following your recipe:
 
-...is because we suspend, then restart to write image, then suspend again?
-Maybe. Will try. By the way, thanks for the ALPS integration, it works very
-well for me in 2.6.11.
+Index: linux-2.6.11/mm/page_alloc.c
+===================================================================
+--- linux-2.6.11.orig/mm/page_alloc.c	2005-03-30 19:45:23.000000000 -0800
++++ linux-2.6.11/mm/page_alloc.c	2005-03-31 07:52:10.000000000 -0800
+@@ -1613,15 +1613,6 @@ void zone_init_free_lists(struct pglist_
+ 	memmap_init_zone((size), (nid), (zone), (start_pfn))
+ #endif
 
-Romano
+-#define MAKE_LIST(list, nlist)  \
+-	do {    \
+-		if(list_empty(&list))      \
+-			INIT_LIST_HEAD(nlist);          \
+-		else {  nlist->next->prev = nlist;      \
+-			nlist->prev->next = nlist;      \
+-		}                                       \
+-	}while(0)
+-
+ /*
+  * Dynamicaly allocate memory for the
+  * per cpu pageset array in struct zone.
+@@ -1629,6 +1620,7 @@ void zone_init_free_lists(struct pglist_
+ static inline int __devinit process_zones(int cpu)
+ {
+ 	struct zone *zone, *dzone;
++	int i;
 
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+ 	for_each_zone(zone) {
+ 		struct per_cpu_pageset *npageset = NULL;
+@@ -1642,10 +1634,13 @@ static inline int __devinit process_zone
+
+ 		if(zone->pageset[cpu]) {
+ 			memcpy(npageset, zone->pageset[cpu], sizeof(struct per_cpu_pageset));
+-			MAKE_LIST(zone->pageset[cpu]->pcp[0].list, (&npageset->pcp[0].list));
+-			MAKE_LIST(zone->pageset[cpu]->pcp[1].list, (&npageset->pcp[1].list));
+-		}
+-		else {
++
++			/* Relocate lists */
++			for(i = 0; i<2; i++) {
++				INIT_LIST_HEAD(&npageset->pcp[i].list);
++				list_splice(&zone->pageset[cpu]->pcp[i].list, &npageset->pcp[i].list);
++			}
++ 		} else {
+ 			struct per_cpu_pages *pcp;
+ 			unsigned long batch;
+
+@@ -1721,11 +1716,14 @@ struct notifier_block pageset_notifier =
+
+ void __init setup_per_cpu_pageset()
+ {
+-	/*Iintialize per_cpu_pageset for cpu 0.
+-	  A cpuup callback will do this for every cpu
+-	  as it comes online
++	int err;
++
++	/* Initialize per_cpu_pageset for cpu 0.
++	 * A cpuup callback will do this for every cpu
++	 * as it comes online
+ 	 */
+-	BUG_ON(process_zones(smp_processor_id()));
++	err = process_zones(smp_processor_id());
++	BUG_ON(err);
+ 	register_cpu_notifier(&pageset_notifier);
+ }
+

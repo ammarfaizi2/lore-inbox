@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318920AbSHFANP>; Mon, 5 Aug 2002 20:13:15 -0400
+	id <S318942AbSHFAYT>; Mon, 5 Aug 2002 20:24:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318942AbSHFANP>; Mon, 5 Aug 2002 20:13:15 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:60679 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S318920AbSHFANO>; Mon, 5 Aug 2002 20:13:14 -0400
-Date: Mon, 5 Aug 2002 17:16:43 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BIG files & file systems
-Message-ID: <20020806001643.GC9754@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33L2.0208021507420.14068-100000@dragon.pdx.osdl.net> <1028552648.1251.26.camel@laptop.americas.sgi.com> <3D4E80BA.5040701@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D4E80BA.5040701@namesys.com>
-User-Agent: Mutt/1.3.27i
+	id <S318950AbSHFAYT>; Mon, 5 Aug 2002 20:24:19 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:35602 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S318942AbSHFAYS>; Mon, 5 Aug 2002 20:24:18 -0400
+Date: Tue, 6 Aug 2002 08:26:32 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Thomas Munck Steenholdt <tmus@get2net.dk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i810 sound broken...
+In-Reply-To: <1028572739.4406.2.camel@frasier>
+Message-ID: <Pine.LNX.4.44.0208060822530.1359-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/06/2002
+ 08:27:48 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/06/2002
+ 08:27:49 AM,
+	Serialize complete at 08/06/2002 08:27:49 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 05:42:18PM +0400, Hans Reiser wrote:
-> You might also mention that I think the limits imposed by Linux are the 
-> only meaningful ones, as we would change our limits as soon as Linux 
-> did, and it was Linux that selected our limits for us.  We would have 
-> changed already if Linux didn't make it pointless to change it on Intel. 
-> Reiser4 will have 64 bit blocknumbers that will be semi-pointless until 
-> 64 bit CPUs are widely deployed, and I am simply guessing this will be 
-> not very far into reiser4's lifecycle.  Really, the couple of #defines 
-> that constitute these size limits, plus some surrounding code, are not 
-> such a big thing to change (except that it constitutes a disk format 
-> change).
 
-Hans,
+On 5 Aug 2002, Thomas Munck Steenholdt wrote:
 
-My recollection is that reiser4 isn't released yet.  Why not
-set the reiser4 disk format with 64 bit blocknumbers from
-dot?  32 bit archs could write zeros and otherwise ignore
-the upper 32 bits and refuse to mount if filesystem size
-would cause overflow.  That way you avoid on-disk format
-change mid cycle.  That seems a lot less overhead than
-coping with different datatypes.
+> So anyway - How should I go about determining the exact problem on my
+> box... I've had it all along, and I know for a fact that the hardware is
+> OK... Modules are loaded correctly, but it just does not work!
 
-Of course if you'd rather support another on-disk format
-to squeeze a bit more data onto small drives i can understand.
+Try me ...
+download aumix from http://jpj.net/~trevor/aumix/aumix-2.7.tar.gz
+and drag "Vol" and "Pcm" to appropriate level before you play any sound.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Jeff
 
-		Remember Cernan and Schmitt
+

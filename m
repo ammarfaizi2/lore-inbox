@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262269AbSJGAL4>; Sun, 6 Oct 2002 20:11:56 -0400
+	id <S262266AbSJGAOo>; Sun, 6 Oct 2002 20:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262266AbSJGAL4>; Sun, 6 Oct 2002 20:11:56 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55314
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262269AbSJGALz>; Sun, 6 Oct 2002 20:11:55 -0400
-Date: Sun, 6 Oct 2002 17:14:51 -0700 (PDT)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: jamal <hadi@cyberus.ca>
-cc: Ben Greear <greearb@candelatech.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: Re: Update on e1000 troubles (over-heating!)
-In-Reply-To: <Pine.GSO.4.30.0210061835350.1861-100000@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.10.10210061700000.23945-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S262272AbSJGAOo>; Sun, 6 Oct 2002 20:14:44 -0400
+Received: from almesberger.net ([63.105.73.239]:11539 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262266AbSJGAOn>; Sun, 6 Oct 2002 20:14:43 -0400
+Date: Sun, 6 Oct 2002 21:19:52 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Allan Duncan <allan.d@bigpond.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 etc and IDE HDisk geometry
+Message-ID: <20021006211952.C14894@almesberger.net>
+References: <3D9D9BE4.32421A87@bigpond.com> <20021004215049.GA20192@win.tue.nl> <3DA0AFBE.935D25BA@bigpond.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA0AFBE.935D25BA@bigpond.com>; from allan.d@bigpond.com on Mon, Oct 07, 2002 at 07:48:46AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Allan Duncan wrote:
+> Like LILO.  It complains that the partition tables don't match the
+> geometry, or somesuch, despite an explicit "lba32".
 
-However doing a data integrity test with a pattern buffer
-write-verify-read on multi-lun, multi-session, and multiple connections
-per session, while issuing load-balancing commands (ie thread tag) over
-each session to roast the bandwidth of the line should be enough.
+If everything else is fine, and if this is one of the errors from
+the partition table checks, you could turn it simply into a
+non-fatal warning with the config option "IGNORE-TABLE".
 
-Now toss in injected errors to randomly fail data pdu's and calling a
-sync-and-steering layer to scan the header and or data digests to execute
-a within connection recovery, regardless if the reason, should be enough
-to warm up the beast.
+- Werner
 
-If that is not enough, I can toss in multi-initiators all with the
-features above or invoke the interoperablity modes to add the cisco and
-ibm initiator (both limited to error recovery level zero, while pyx's is
-capable of error recovery level one and part of two).
-
-Please let me know if I need to throttle it harder.
-
-Cheers,
-
-On Sun, 6 Oct 2002, jamal wrote:
-
-> 
-> 
-> On Sat, 5 Oct 2002, Andre Hedrick wrote:
-> 
-> >
-> > I have a pair of Compaq e1000's which have never overheated, and I use
-> > them for heavy duty iSCSI testing and designing of drivers.  These are
-> > massive 66/64 cards but still nothing like what you are reporting.
-> >
-> > I will look some more at the issue soon.
-> >
-> 
-> It seems like the prerequisite to reproduce it is you beat the NIC heavily
-> with a lot of packets/sec and then run it at that sustained rate for at
-> least 30 minutes. isci would tend to use MTU sized packets which will
-> not be that effective.
-> 
-> cheers,
-> jamal
-> 
-> 
-> 
-> 
-
-Andre Hedrick
-iSCSI Software Solutions Provider
-http://www.PyXTechnologies.com/
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

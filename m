@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267963AbUHKK70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUHKLBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267963AbUHKK70 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 06:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUHKK7Z
+	id S267971AbUHKLBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 07:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUHKLBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 06:59:25 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:33806 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267963AbUHKK7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 06:59:24 -0400
-Date: Wed, 11 Aug 2004 11:59:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811115912.A27530@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Ketrenos <jketreno@linux.intel.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Jeff Chua <jeffchua@silk.corp.fedex.com>,
-	Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <20040811105337.GC32420@wiggy.net>
+	Wed, 11 Aug 2004 07:01:35 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:29904 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267971AbUHKLBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 07:01:30 -0400
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408101646.57542.bjorn.helgaas@hp.com>
+References: <20040810002110.4fd8de07.akpm@osdl.org>
+	 <200408100959.18903.bjorn.helgaas@hp.com>
+	 <20040810173223.GQ26174@fs.tum.de>
+	 <200408101646.57542.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092218191.19009.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040811105337.GC32420@wiggy.net>; from wichert@wiggy.net on Wed, Aug 11, 2004 at 12:53:38PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 11 Aug 2004 10:56:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 12:53:38PM +0200, Wichert Akkerman wrote:
-> Previously Christoph Hellwig wrote:
-> >  a) yo'ure not using the proper firmware loader but some horrible
-> >     handcrafted code using sys_open/sys_read & co that's not namespace
-> >     safe at all
-> 
-> It can use standard hotplug firmware load as well.
+On Maw, 2004-08-10 at 23:46, Bjorn Helgaas wrote:
+> I'm confused.  I think the hang is related to IDE, but that
+> code all looks OK.  I expected to see a note about ACPI routing
+> the IDE interrupt, something like this:
 
-Okay, I'll take that back.
+The IDE interrupt for the southbridge legacy controller will
+not be in PCI space. It's hardwired for IRQ 14/15 in legacy mode,
+PCI int (if wired) in native.
 

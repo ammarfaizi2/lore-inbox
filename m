@@ -1,31 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261410AbRFSM5Q>; Tue, 19 Jun 2001 08:57:16 -0400
+	id <S263149AbRFSN3i>; Tue, 19 Jun 2001 09:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261268AbRFSM5G>; Tue, 19 Jun 2001 08:57:06 -0400
-Received: from m4.worldnet.net ([195.3.3.8]:42769 "EHLO m4.worldnet.net")
-	by vger.kernel.org with ESMTP id <S262607AbRFSM4y>;
-	Tue, 19 Jun 2001 08:56:54 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re:Scsi
-Message-ID: <992955412.3b2f4c14ae854@m4.worldnet.net>
-Date: Tue, 19 Jun 2001 14:56:52 +0200 (CEST)
-From: Emmanuel Fuste <fuste@worldnet.fr>
-Cc: dead2@circlestorm.org
+	id <S263772AbRFSN33>; Tue, 19 Jun 2001 09:29:29 -0400
+Received: from t111.niisi.ras.ru ([193.232.173.111]:29296 "EHLO
+	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
+	id <S263149AbRFSN3U>; Tue, 19 Jun 2001 09:29:20 -0400
+Message-ID: <3B2F5282.30602@niisi.msk.ru>
+Date: Tue, 19 Jun 2001 17:24:18 +0400
+From: Alexandr Andreev <andreev@niisi.msk.ru>
+Organization: niisi
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i586; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
+To: "David L. Parsley" <parsley@linuxjedi.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Using cramfs as root filesystem on diskless machine
+In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru> <3B2A538A.BA62148A@linuxjedi.org>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same problem, but with a 2940U2W scsi board.
-Never tried 2.4.0 but I tried old and new AIC driver with no succes
-Both in UP, UP+APIC and SMP kernel (2.4.4-acx and 2.4.5+).
-You have more luck than me: removing all other boards in my box
-change nothing.
-My motherboard is an old asus P/I-P65UP5/C-P55T2D (bi p5 233MMX 
-430HX chipset)
-Fortunately my old 2940UW still works flawlessly.
+David L. Parsley wrote:
 
-Emmanuel.
+>Mathias Killian wrote a patch to allow cramfs initrd's, see:
+>http://www.cs.helsinki.fi/linux/linux-kernel/2001-01/1064.html
+>
+Thank you. I applied this patch, and recompiled my kernel.
+All works fine, if the size of root filesystem less than 4096Kb. But 
+when i create
+an image of root filesystem which size is bigger than 4096Mb, the kernel 
+said:
+...
+RAMDISK driver initialized: 16 RAM disks of 4096K size 4096 blocksize
+...
+RAMDISK: cramfs filesystem found at block 0  
+RAMDISK: Loading 2300 blocks [1 disk] into ram disk... done.
+...
+Freeing unused kernel memory: 116k freed  
+Algorithmics/MIPS FPU Emulator v1.4
+Error -3 while decompressing!     
+804172a4(-166740)->803da000(4096)      
+bash#
+
+As you can see, the size of image is only 2300kb.
+The kernel command line is:
+root=/dev/ram init=/bin/bash ramdisk_blocksize=4096
+
+When i tried to mount this image on a running kernel it is all OK.
+
+# mount -o loop -t cramfs cramfsdisk.bin /mnt/ramdisk
+# chroot /mnt/ramdisk /bin/bash
+
+I already asked Matthias, but he said that he didn't try cramfs for
+ram disks larger than 4k. Did anybody try it? Does anybody work on
+cramfs now?
+
+

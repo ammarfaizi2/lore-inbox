@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUGRWTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUGRWYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264550AbUGRWTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 18:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUGRWTO
+	id S264538AbUGRWYi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 18:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUGRWYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 18:19:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32174 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264550AbUGRWTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 18:19:10 -0400
-Date: Mon, 19 Jul 2004 00:19:09 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [14/25] Merge pmdisk and swsusp
-Message-ID: <20040718221909.GF31958@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.50.0407171530410.22290-100000@monsoon.he.net>
+	Sun, 18 Jul 2004 18:24:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11909 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264538AbUGRWYg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 18:24:36 -0400
+Date: Sun, 18 Jul 2004 18:24:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: mochel@digitalimplant.org, linux-kernel@vger.kernel.org
+Subject: Re: [0/25] Merge pmdisk and swsusp
+Message-Id: <20040718182402.6711e4e8.akpm@osdl.org>
+In-Reply-To: <20040718220408.GA31958@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net>
+	<20040718220408.GA31958@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0407171530410.22290-100000@monsoon.he.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Unfortuanetly I can't just pull (I'm not allowed to use bitkeeper). I
+> could roll them into one big patch and then push them to akpm on my
+> own, but that would loose history :-(.
 
-> +/**
-> + *	write_header - Fill and write the suspend header.
-> + *	@entry:	Location of the last swap entry used.
-> + *
-> + *	Allocate a page, fill header, write header.
-> + *
-> + *	@entry is the location of the last pagedir entry written on
-> + *	entrance. On exit, it contains the location of the header.
-> + */
-> +
-> +int swsusp_write_header(swp_entry_t * entry)
-> +{
-> +	return swsusp_write_page((unsigned long)&swsusp_info,entry);
-> +}
+I'll just add Pat's BK URL to my list-of-bk-trees-to-add-to-mm-kernels. 
+That brings it up to 25 external trees, believe it or not.
 
-I do not think this function matches its documentation.
-								Pavel
+Pat, that means that anything which you commit gets autosucked into -mm, so
+if there is a different URL which I should be using, please let me know.
 
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

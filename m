@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRLNXKc>; Fri, 14 Dec 2001 18:10:32 -0500
+	id <S280426AbRLNXNV>; Fri, 14 Dec 2001 18:13:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280365AbRLNXKM>; Fri, 14 Dec 2001 18:10:12 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:4903 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S278701AbRLNXKA> convert rfc822-to-8bit; Fri, 14 Dec 2001 18:10:00 -0500
-Date: Fri, 14 Dec 2001 21:16:06 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Peter Bornemann <eduard.epi@t-online.de>
-cc: Jens Axboe <axboe@suse.de>, Kirk Alexander <kirkalx@yahoo.co.nz>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <Pine.LNX.4.33.0112142248290.4722-100000@eduard.t-online.de>
-Message-ID: <20011214210728.K2427-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S280365AbRLNXNL>; Fri, 14 Dec 2001 18:13:11 -0500
+Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:3852 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S280191AbRLNXNC>;
+	Fri, 14 Dec 2001 18:13:02 -0500
+Date: Fri, 14 Dec 2001 15:10:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: kaos@ocs.com.au, Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: modules.pcimap and 8139's
+Message-ID: <20011214151034.A16902@kroah.com>
+In-Reply-To: <3C1A7CA1.D6C119DC@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C1A7CA1.D6C119DC@mandrakesoft.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 16 Nov 2001 20:55:20 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 14, 2001 at 05:26:41PM -0500, Jeff Garzik wrote:
+> Various tools need to pick "8139cp.c" instead of "8139too.c" based on
+> PCI revision, which is not in modules.pcimap nor struct pci-device-id. 
+> grep for 'pci_rev' in both those files to see the PCI revision checks
+> hand-coded currently in the drivers.
+> 
+> What is the preferred -2.4- solution?
+> 
+> a) append pci rev and mask to the end of each modules.pcimap line, and
+> update struct pci_device_id?
+> b) create new file modules.pci_rev?
+> c) other?
 
+d) ignore it :)
 
-On Fri, 14 Dec 2001, Peter Bornemann wrote:
+linux-hotplug should try to run modprobe on every module that matches in
+the modules.pcimap table.  That way the modules can fight it out for who
+really wants to control the device (I am assuming that the different
+modules know about the pci revision, right?)
 
-> On Fri, 14 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
-> > By the way, for now, I haven't received any report about sym-2 failing
-> > when sym-1 or ncr succeeds, and my feeling is that this could well be very
-> > unlikely.
-> >
->
-> Ahemm -- well,
-> maybe I'm the first one. I have a symbios card, which is recognized by
-> lspci:  SCSI storage controller: LSI Logic Corp. / Symbios Logic Inc.
-> (formerly NCR) 53c810 (rev 23).
->
-> This card goes into an endless loop during parity-checking. So tried to
-> disable it for the new sym53cxx in modules.conf:
-> options sym53c8xx mpar:n spar:n
-> This did not help in this case, however.
->
-> There have been so far three ways to solve  this problem:
-> 1. Use the very old ncr53c7,8 or so driver. This is working rather
-> unreliable for me.
-> 2. Use the ncr53c8xx, which works usually well
-> 3. Use sym53c8xx(old) compiled with parity disabled
->
-> Probably there is a way around that, but somebody trying to install Linux
-> from a SCSI-CDROM with this card for the first time will very likely not
-> succeed. I have seen this with (for instance) Corel-Linux and FreeBSD
-> (same driver).
-> NB Parity checking for me is not really all that important as there is no
-> hardrive connected to that card. Only CD and scanner.
+modules.pcimap is used to narrow the choices, not necessarily pick the
+"only" choice.
 
-About what parity sort are you talking about ?
-PCI parity ? SCSI parity ?
+thanks,
 
-PCI parity checking is not an option. If it is this one, then your
-hardware is simply broken. For such broken hardwares that returns such
-spurious PCI parity error early during HBA probing, sym-2 can detect this
-and disable PCI parity checking. This has been reported to work well under
-FreeBSD. And sym-2 is also supposed to accept the manual disabling, either
-by compiled-in option or using the mpar=n boot-up options.
-
-For SCSI parity, which is different matter, both drivers try to cope and
-still sym-2 should accept the spar=n boot-up option.
-
-Could you, please,  report me more accurate information.
-TIA,
-  Gérard.
-
+greg k-h

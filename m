@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129201AbRBAOjC>; Thu, 1 Feb 2001 09:39:02 -0500
+	id <S130370AbRBAOjw>; Thu, 1 Feb 2001 09:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129336AbRBAOix>; Thu, 1 Feb 2001 09:38:53 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:49874 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129201AbRBAOio>;
-	Thu, 1 Feb 2001 09:38:44 -0500
-Date: Thu, 1 Feb 2001 14:36:06 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, David Gould <dg@suse.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] vma limited swapin readahead
-Message-ID: <20010201143606.P11607@redhat.com>
-In-Reply-To: <20010201112601.K11607@redhat.com> <Pine.LNX.4.21.0102010824000.17822-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0102010824000.17822-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 01, 2001 at 08:53:33AM -0200
+	id <S129336AbRBAOjm>; Thu, 1 Feb 2001 09:39:42 -0500
+Received: from m2ep.pp.htv.fi ([212.90.64.98]:56850 "EHLO m2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id <S130370AbRBAOj3>;
+	Thu, 1 Feb 2001 09:39:29 -0500
+Date: Thu, 1 Feb 2001 16:38:48 +0200 (EET)
+From: Timo Jantunen <jeti@iki.fi>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at inode.c:889!
+In-Reply-To: <200101311942.f0VJgSD23675@webber.adilger.net>
+Message-ID: <Pine.LNX.4.30.0102011617190.781-100000@limbo.null.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 31 Jan 2001, Andreas Dilger wrote:
 
-On Thu, Feb 01, 2001 at 08:53:33AM -0200, Marcelo Tosatti wrote:
-> 
-> On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
-> 
-> If we're under free memory shortage, "unlucky" readaheads will be harmful.
+> Below is a patch which should fix this.  It _should_ prevent you from
+> mounting this filesystem in the first place, and should also stop the BUG
+> in inode.c.  I'm not 100% sure of correctness, however:
 
-I know, it's a balancing act.  But given that even one successful
-readahead per read will halve the number of swapin seeks, the
-performance loss due to the extra scavenging has got to be bad to
-outweigh the benefit.
+I tried to reproduce the BUG message, but I was unable to get to the same
+situation again. (I tried to create several different RAID0 partitions,
+format them to ext2 and tried mounting the partitions alone. I did get some
+weird messages from partitions I did manage to mount (what you would expect
+from mounting such partitions) but no more BUG messages.)
 
-Cheers,
- Stephen
+So unfortunately I can't help you to check if your fix works.
+
+
+// /
+....................................Timo Jantunen  ......................
+       ZZZ      (Used to represent :Kuunsäde 8 A 28: Email: jeti@iki.fi :
+the  sound of  a person  snoring.) :02210 Espoo    : http://iki.fi/jeti :
+Webster's  Encyclopedic Unabridged :Finland        : GSM+358-40-5763131 :
+Dictionary of the English Language :...............:....................:
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

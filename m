@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265810AbRGODrO>; Sat, 14 Jul 2001 23:47:14 -0400
+	id <S265828AbRGODvy>; Sat, 14 Jul 2001 23:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbRGODrE>; Sat, 14 Jul 2001 23:47:04 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:62378 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265810AbRGODqy>;
-	Sat, 14 Jul 2001 23:46:54 -0400
-Message-ID: <3B511226.B48B22F1@mandrakesoft.com>
-Date: Sat, 14 Jul 2001 23:46:46 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
-X-Accept-Language: en
+	id <S265839AbRGODvn>; Sat, 14 Jul 2001 23:51:43 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:30474 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S265828AbRGODvf>; Sat, 14 Jul 2001 23:51:35 -0400
+Date: Sat, 14 Jul 2001 20:51:36 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Stephen Frost <sfrost@snowman.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Starfire issues
+In-Reply-To: <Pine.LNX.4.33.0107141535280.24347-100000@age.cs.columbia.edu>
+Message-ID: <Pine.LNX.4.33.0107142049200.24549-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-        Christoph Hellwig <hch@caldera.de>,
-        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
-In-Reply-To: <E15LTIY-0001Ul-00@the-village.bc.nu> <20010715154008.B7624@weta.f00f.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> /* KERNEL_PRIVATE_BEGIN: blah */
-> 
-> struct internal organs(int foo, char *bar);
-> 
-> /* KERNEL_PRIVATE_END */
+On Sat, 14 Jul 2001, Ion Badulescu wrote:
 
-1) this is the same fscking thing we have now with ifdef __KERNEL__
+> Hmm. I'm really unsure of which driver version is in 2.4.6-ac2, but ac3 
+> should have the latest, including all the patches I posted to the list. So 
+> if you could give that kernel a whirl, it would be very useful.
 
-2) if you are coming up with a -new- token, realize that kernel-private
-stuff is the common case, and use LIBC_KERNEL_SHARED_{BEGIN,END} instead
+I spoke too soon. -ac3 has the same starfire version as 2.4.7pre6, and you
+need to apply the last patch I sent to the list on top of it. Email me if
+you don't have it anymore...
+
+Thanks,
+Ion
 
 -- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTFBPND (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:13:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFBPND
+	id S262431AbTFBPP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTFBPP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:13:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:56287 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262429AbTFBPNB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:13:01 -0400
-Date: Mon, 2 Jun 2003 17:25:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Tom Sightler <ttsig@tuxyturvy.com>, Andrew Morton <akpm@digeo.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-In-Reply-To: <1054567475.5187.3.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.44.0306021725001.7676-100000@localhost.localdomain>
+	Mon, 2 Jun 2003 11:15:57 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15757 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262431AbTFBPPx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:15:53 -0400
+Date: Mon, 2 Jun 2003 11:31:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Mike Dresser <mdresser_l@windsormachine.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>, linux-smp@vger.kernel.org
+Subject: Re: Hyper-threading
+In-Reply-To: <Pine.LNX.4.33.0306021052450.31561-100000@router.windsormachine.com>
+Message-ID: <Pine.LNX.4.53.0306021124570.16188@chaos>
+References: <Pine.LNX.4.33.0306021052450.31561-100000@router.windsormachine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2 Jun 2003, Mike Dresser wrote:
 
-On 2 Jun 2003, Arjan van de Ven wrote:
+>
+>
+> On Sun, 1 Jun 2003, Richard B. Johnson wrote:
+>
+> > CPU0: Intel(R) Pentium(R) 4 CPU 2.66GHz stepping 07
+>
+> I wouldn't worry about hyperthreading too much anyways, seeing as how this
+> cpu doesn't support it anyways.
+>
+> Mike
+>
 
-> given that audio mixing also happens in userspace it doesn't sound that
-> weird..... niceing wine gives the userspace sound mixer more cpu time :)
+Well it is supposed to. It's a pentium 4 Xeon. If it doesn't
+support it, ether the CPU or the motherboard are broken.
+I'll bet on the motherboard.
+Look further up the dmesg output and you'll see XEON(tm) and
+2 CPUs total.
 
-well, this depends on the circumstances. Normally the mixing shouldnt take
-all that much CPU time, and thus the audio server thread should in theory
-be quite interactive.
-
-	Ingo
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

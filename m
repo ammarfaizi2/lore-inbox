@@ -1,37 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268070AbUHVSj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268067AbUHVSjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268070AbUHVSj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 14:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268071AbUHVSj3
+	id S268067AbUHVSjn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 14:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268071AbUHVSjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 14:39:29 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:31296 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268070AbUHVSj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 14:39:28 -0400
-Date: Sun, 22 Aug 2004 22:40:02 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Greg Norris <haphazard@kc.rr.com>, linux-kernel@vger.kernel.org,
-       akpm <akpm@osdl.org>, sam@ravnborg.org
-Subject: Re: [PATCH] scripts/patch-kernel: use EXTRAVERSION
-Message-ID: <20040822204002.GB8639@mars.ravnborg.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	Greg Norris <haphazard@kc.rr.com>, linux-kernel@vger.kernel.org,
-	akpm <akpm@osdl.org>, sam@ravnborg.org
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <411E0A37.5040507@anomalistic.org> <20040814205707.GA11936@yggdrasil.localdomain> <20040818135751.197ce3c9.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818135751.197ce3c9.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 22 Aug 2004 14:39:43 -0400
+Received: from qfep05.superonline.com ([212.252.122.162]:8922 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S268067AbUHVSjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 14:39:36 -0400
+From: "Josan Kadett" <corporate@superonline.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Cursed Checksums
+Date: Sun, 22 Aug 2004 21:39:37 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: <1093174820.24319.60.camel@localhost.localdomain>
+Thread-Index: AcSIRYUTto1yacZeQUW0oRMfU6WipQAOMDiA
+Message-Id: <S268067AbUHVSjg/20040822183936Z+59@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 01:57:51PM -0700, Randy.Dunlap wrote:
-> 
-> Update 'scripts/patch-kernel' to support EXTRAVERSION.
+Well, I have patched the kernel with the following code in ip_input.c 
 
-I saw no complains, so applied.
+--- /usr/src/linux-2.4.26/net/ipv4/ip_input.c   2002-08-03
+04:39:46.000000000 +0400
++++ net/ipv4/ip_input.c 2004-08-22 12:22:41.000000000 +0400
+@@ -417,6 +417,10 @@
 
-	Sam
+         if (ip_fast_csum((u8 *)iph, iph->ihl) != 0)
+                 goto inhdr_error;
++       printk("Ip saddr %08x  --  ",iph->saddr);
++       if (iph->saddr == 0x0101a8c0) // 192.168.1.1
++               iph->saddr = 0x014da8c0; // 192.168.77.1
++       printk("Ip saddr %08x\n",iph->saddr);
+
+         {
+                 __u32 len = ntohs(iph->tot_len);
+
+This way whenever an IP packet with the source address of 192.168.1.1
+reaches the patched box, the code changes that address of 192.168.77.1
+
+Thus at the time before the box was not patched, this was happening;
+ping 192.168.77.1 
+ping reply from 192.168.1.1
+
+Now with the patch, this is corrected;
+ping 192.167.77.1
+ping reply from 192.167.77.1
+
+This is a type of packet mangling, but there is still one problem we could
+not resolve. Iptables SNAT does not work in this configuration, the box just
+does not redirect the ping replies to the SNATted host. Tcpdump shows that
+the ping replies reach the patched box which will do the NAT, but the system
+just does not redirect them back to the requesting host.
+
+I thought the patch was in socket-level, and my prediction was correct. Even
+the tcpdump (presumably the lowest layer application that receives raw
+packs) shows that system is told to receive packets from 192.168.77.1 even
+if they are originally from 192.168.1.1
+
+But now, NAT does not work in anyway. Is IPTables working in a lower-level
+than tcpdump itself, how can this be? It should have received the packets as
+tcpdump receives them (manipulated). Can I debug IPTables by actually
+viewing what it receives from the socket? Or perhaps the patch I applied to
+ip_input.c just does not affect Iptables at all? (I still cannot believe it)
+
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+Sent: Sunday, August 22, 2004 1:40 PM
+To: Josan Kadett
+Cc: Linux Kernel Mailing List
+Subject: Re: Cursed Checksums
+
+It depends on your hardware. With modern network cards we do the
+checksum processing in hardware. For older setups passing a packet
+through a Linux box won't directly help as the ttl recomputation is done
+without recalculation from scratch.
+
+We also have a pile of paths for checksumming including copy/checksum
+rolled into one so it isn't easy to remove there.
+
+I'd take up the issue with the vendor of the broken object. If its
+something like an internal prototype you need to test then you'll
+probably have to write a user space application using raw sockets to
+communicate with it and do the fixups/passthrough in use space. Pretty
+horrible either way.
+
+Alan
+
+
+Alan
+
+
+

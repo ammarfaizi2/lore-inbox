@@ -1,120 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129079AbQJ0GYq>; Fri, 27 Oct 2000 02:24:46 -0400
+	id <S129244AbQJ0Gaf>; Fri, 27 Oct 2000 02:30:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQJ0GYf>; Fri, 27 Oct 2000 02:24:35 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:20984 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S129079AbQJ0GYU>; Fri, 27 Oct 2000 02:24:20 -0400
-From: kumon@flab.fujitsu.co.jp
-Date: Fri, 27 Oct 2000 15:24:07 +0900
-Message-Id: <200010270624.PAA22920@asami.proc.flab.fujitsu.co.jp>
-To: kumon@flab.fujitsu.co.jp
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Negative scalability by removal of lock_kernel()?
-	(Was: Strange performance behavior of 2.4.0-test9)
-In-Reply-To: <200010261405.XAA19135@asami.proc.flab.fujitsu.co.jp>
-In-Reply-To: <200010250736.QAA12373@asami.proc.flab.fujitsu.co.jp>
-	<Pine.LNX.4.21.0010251242050.943-100000@duckman.distro.conectiva>
-	<200010260138.KAA17028@asami.proc.flab.fujitsu.co.jp>
-	<200010261405.XAA19135@asami.proc.flab.fujitsu.co.jp>
-Reply-To: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129232AbQJ0GaZ>; Fri, 27 Oct 2000 02:30:25 -0400
+Received: from 24.68.3.210.on.wave.home.com ([24.68.3.210]:59129 "EHLO
+	phlegmish.com") by vger.kernel.org with ESMTP id <S129094AbQJ0GaP>;
+	Fri, 27 Oct 2000 02:30:15 -0400
+From: David Won <phlegm@home.com>
+Date: Fri, 27 Oct 2000 02:26:10 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: kernel newby help.... What's causing my Oops
+MIME-Version: 1.0
+Message-Id: <00102702261003.01068@phlegmish.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Finally, I found:
-Removal of lock_kernel in fs/fcntl.c causes the strange performance of
-2.4.0-test9.
+I need some help. My system keeps locking up on me or suddenly rebooting.
+Sometimes I'm able to telnet in and shutdown but usually I have to hit
+the power button and pray that the disk isn't thrashed. I'm running
+RedHat 7 and it happens with the supplied kernel or with a new kernel.
+I'm currently running linux-2.4.0-test8 right now and it is compiled
+using kgcc. (Found that tip in a message here) I searched through my logs
+for help and find lots of these Oops messages. I then did some searching
+on what Oops is. I was told to run ksymoops to get more info but this
+extra info is way over my head. I'm posting this here in the hopes that
+somebody can help me pin down what module or kernel setting is causing
+all my problems. Thanks for any help.
 
 
-The removal causes following negative scalability on Apache-1.3.9:
-	* 8-way performance dropped to 60% of 4-way performance.
-	* Adding lock_kernel() gains 2.4x performance on 8-way.
+Oct 22 22:37:20 phlegmish kernel: Unable to handle kernel paging request at 
+virtual address 00018486
+Oct 22 22:37:20 phlegmish kernel: c880eae3
+Oct 22 22:37:20 phlegmish kernel: *pde = 00000000
+Oct 22 22:37:20 phlegmish kernel: Oops: 0000
+Oct 22 22:37:20 phlegmish kernel: CPU:    0
+Oct 22 22:37:20 phlegmish kernel: EIP:    
+0010:[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-234781/96]
+Oct 22 22:37:20 phlegmish kernel: EFLAGS: 00010046
+Oct 22 22:37:20 phlegmish kernel: eax: 00000012   ebx: 00000000   ecx: 
+00000000   edx: 00014402
+Oct 22 22:37:20 phlegmish kernel: esi: c1715ef8   edi: 00014402   ebp: 
+c697e4e0   esp: c1715ec4
+Oct 22 22:37:20 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
+Oct 22 22:37:20 phlegmish kernel: Process esd (pid: 2356, stackpage=c1715000)
+Oct 22 22:37:20 phlegmish kernel: Stack: 00000000 c49e5204 00014402 c697e4e0 
+c671c000 00000012 00200203 c71d3008 
+Oct 22 22:37:20 phlegmish kernel:        00000086 c8812457 00014402 00000000 
+00000012 00000000 00000003 0000ffff 
+Oct 22 22:37:20 phlegmish kernel:        10100001 00000000 00000002 0000ffff 
+00000000 00000000 00000000 c49e5200 
+Oct 22 22:37:20 phlegmish kernel: Call Trace: 
+[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-220073/96] 
+[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-237584/96] 
+[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-245443/96] 
+[__fput+35/144] [_fput+17/64] [fput+18/24] [filp_close+82/92] 
+Oct 22 22:37:20 phlegmish kernel: Code: 0f b7 aa 84 40 00 00 89 ef 83 c7 04 
+89 4c 24 1c 83 c6 04 8b 
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-This suggests some design malfunction exist in the fs-code.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f b7 aa 84 40 00 00      movzwl 0x4084(%edx),%ebp
+Code;  00000007 Before first symbol
+   7:   89 ef                     mov    %ebp,%edi
+Code;  00000009 Before first symbol
+   9:   83 c7 04                  add    $0x4,%edi
+Code;  0000000c Before first symbol
+   c:   89 4c 24 1c               mov    %ecx,0x1c(%esp,1)
+Code;  00000010 Before first symbol
+  10:   83 c6 04                  add    $0x4,%esi
+Code;  00000013 Before first symbol
+  13:   8b 00                     mov    (%eax),%eax
 
-The lock_kernel() is removed in test9, as shown in below, then the
-strange behavior appeared.
-
-linux-2.4.0-test8/fs/fcntl.c:
-asmlinkage long sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
-{	
-	struct file * filp;
-	long err = -EBADF;
-
-	filp = fget(fd);
-	if (!filp)
-		goto out;
-
--->	lock_kernel();
-	err = do_fcntl(fd, cmd, arg, filp);
--->	unlock_kernel();
-
- 	fput(filp);
-out:
-	return err;
-}
-
-Adding the lock_kernel()/unlock_kernel() to test9:fs/fcntl.c,
-	The performance is restored,
-	The number of task switch is reduced, and
-	Positive scalability is observed.
-
-The lock region may be narrowed to around call of posix_lock_file()
-in fcntl_setlk() (fs/locks.c).
-
-I usually prefer removal of kernel_lock, but at this time,
-the removal severy struck the performance.
-
-Please give me suggestions..
-
-
-kumon@flab.fujitsu.co.jp writes:
- > kumon@flab.fujitsu.co.jp writes:
- >  > Rik van Riel writes:
- >  >  > On Wed, 25 Oct 2000 kumon@flab.fujitsu.co.jp wrote:
- >  >  > > I found very odd performance behavior of 2.4.0-test9 on a large SMP
- >  >  > > server, and I want some clues to investigate it.
- >  >  > > 
- >  >  > > 1) At the 8 cpu configuration, test9 shows extremely inferior
- >  >  > >    performance.
- >  >  > > 2) on test8, 8-cpu configuration shows about 2/3 performance of 4-cpu.
- >  >  >         ^^^^^ test9 ??
- > 
- > IMHO, the modification of file-system code causes the weird
- > performance.
- > 
- > Most of processes are slept at:
- > 	posix_lock_file()->locks_block_on()->interruptible_sleep_on_locks()
- > 
- > We revert two of test9 files (fs/fcntl.c fs/flock.c), to the previous
- > version, the performance problem disappeared and it becomes to the
- > same level as test8.
- > 
- > To narrow the problem, we measured performance of 3 configuration:
- > 1) test9 with test8 fs/fcntl.c, test8 fs/flock.c
- > 2) test9 with test8 fs/fcntl.c
- > 3) test9 with test8 fs/flock.c
- > 
- > Only 3) shows the problem, so the main problem reside in fcntl.c (not
- > in flock.c).
- > 
- > So it seems:
- > the web-server, apache-1.3.9 in the redhat-6.1, issues lots of fcntl
- > to the file and those fcntls collide each other, and the processes
- > are blocked.
- > 
- > 
- > What has happend to fcntl.c?
- > 
- > --
- > Computer Systems Laboratory, Fujitsu Labs.
- > kumon@flab.fujitsu.co.jp
+Oct 22 23:00:02 phlegmish kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000018
+Oct 22 23:00:02 phlegmish kernel: c015984b
+Oct 22 23:00:02 phlegmish kernel: *pde = 00000000
+Oct 22 23:00:02 phlegmish kernel: Oops: 0000
+Oct 22 23:00:02 phlegmish kernel: CPU:    0
+Oct 22 23:00:02 phlegmish kernel: EIP:    0010:[shm_swap_core+55/168]
+Oct 22 23:00:02 phlegmish kernel: EFLAGS: 00013286
+Oct 22 23:00:02 phlegmish kernel: eax: 0a0d0a0d   ebx: c1283400   ecx: 
+00000031   edx: 00000000
+Oct 22 23:00:02 phlegmish kernel: esi: 00000000   edi: c31d0540   ebp: 
+00000001   esp: c1217f58
+Oct 22 23:00:02 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
+Oct 22 23:00:02 phlegmish kernel: Process kswapd (pid: 2, stackpage=c1217000)
+Oct 22 23:00:02 phlegmish kernel: Stack: c31d0540 00000000 c024b111 00000003 
+c01599f7 c31d0540 00000001 001fa100 
+Oct 22 23:00:02 phlegmish kernel:        c1217f88 c1217f8c c024b10c c024b114 
+00000007 c01272bf 001fa100 c012735d 
+Oct 22 23:00:02 phlegmish kernel:       
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

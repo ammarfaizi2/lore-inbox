@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUE3GaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbUE3GnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUE3GaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 02:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUE3GaW
+	id S261791AbUE3GnG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 02:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUE3GnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 02:30:22 -0400
-Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:45956
-	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
-	id S261779AbUE3GaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 02:30:19 -0400
-Message-ID: <40B97F6A.1030008@freemail.hu>
-Date: Sun, 30 May 2004 08:30:02 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
-X-Accept-Language: hu, en-US
-MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: bk-drm patch missing from 2.6.6-mm2 and later?
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 30 May 2004 02:43:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40858 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261791AbUE3GnE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 02:43:04 -0400
+Date: Sat, 29 May 2004 23:42:58 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix typo in pmac_zilog
+Message-Id: <20040529234258.42a2dc64.davem@redhat.com>
+In-Reply-To: <1085715655.6320.138.camel@gaston>
+References: <1085715655.6320.138.camel@gaston>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 28 May 2004 13:40:55 +1000
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-2.6.6-mm1 has it, 2.6.6-mm2 and later does not
-and announce.txt from 2.6.6-mm2 does not say
-anything about why it has been dropped.
-2.6.7-rc1 does not seem to have it either.
-Would you please include it again or at least
-say something about it...
+> This patch fixes a typo preventing channel B from working on the Rx
+> path of pmac zilog (never calling tty_flip_*). I think I never tested
+> channel B :)
 
-Best regards,
-Zoltán Böszörményi
+Ben, why do you do the tty_flip_buffer_push() outside of
+the port lock?  Just because it's expensive and therefore
+this decreases the lock hold time, or is there some deadlock
+issue?
 
+Sounds like I should make the change to sunzilog :-)

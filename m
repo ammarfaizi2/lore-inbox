@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280949AbRKTHoO>; Tue, 20 Nov 2001 02:44:14 -0500
+	id <S280957AbRKTIFY>; Tue, 20 Nov 2001 03:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280950AbRKTHoF>; Tue, 20 Nov 2001 02:44:05 -0500
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:1413 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S280949AbRKTHn4>; Tue, 20 Nov 2001 02:43:56 -0500
-Message-ID: <3BFA09B3.20F31B78@randomlogic.com>
-Date: Mon, 19 Nov 2001 23:43:47 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac10 i686)
-X-Accept-Language: en
+	id <S280958AbRKTIFO>; Tue, 20 Nov 2001 03:05:14 -0500
+Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:9365 "EHLO
+	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S280957AbRKTIFF>; Tue, 20 Nov 2001 03:05:05 -0500
+From: "Sameer K S" <kssameer@home.com>
+To: "Akshat Kapoor" <akshat@mercurykr.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Query - How to Send Signal to application from kernel module !
+Date: Tue, 20 Nov 2001 00:05:08 -0800
+Message-ID: <JPEEJKELOKAGJLNKDMJPCEAECJAA.kssameer@home.com>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <20011113.183256.15406047.davem@redhat.com> <Pine.LNX.4.30.0111131910440.9658-100000@anime.net> <20011113.191607.00304518.davem@redhat.com> <3BF31459.BB4BE456@randomlogic.com> <20011116144835.A22537@weta.f00f.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <001401c17192$ebf8ce80$150d85a5@mercurykr.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> 
-> On Wed, Nov 14, 2001 at 05:03:21PM -0800, Paul G. Allen wrote:
-> 
->     I am running 2.4.9ac10 with a few minor tweaks, agpgart slightly
->     tweaked compiled in, and a tweaked Detonator 3 nVidia driver. I
->     plan to upgrade all these soon and see what happens.
-> 
-> Is this different from 1541? If so, where might I find this
-> 
+You might want to check out async notification stuff at
+http://www.xml.com/ldd/chapter/book/ch05.html#t4
 
-I just D/L, modified and compiled 1541. A cat of /proc/nv/card0 shows:
+Sameer.
 
-[root@keroon /root]# cat /proc/nv/card0 
------ Driver Info ----- 
-NVRM Version: 1.0-1541
------- Card Info ------
-Model:        GeForce3
-IRQ:          17
-Video BIOS:   03.20.00.10
------- AGP Info -------
-AGP status:   Enabled
-AGP Driver:   NVIDIA
-Bridge:       AMD Irongate MP
-SBA:          Supported [enabled]
-FW:           Supported [disabled]
-Rates:        4x 2x 1x  [4x]
-Registers:    0x0f000217:0x00000304
-[root@keroon /root]# 
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Akshat Kapoor
+Sent: Monday, November 19, 2001 11:14 PM
+To: linux-kernel@vger.kernel.org
+Subject: Query - How to Send Signal to application from kernel module !
 
-So, AGP 4x and Side Band Addressing is enabled, but for some reason Fast
-Writes are not. I am still using the 2.06 Tyan BIOS (as shipped) and
-need to upgrade to the latest (I've had trouble getting the BIOS file
-from the Tyan web site). agpgart is not compiled into this kernel, so as
-you can see it's using the NVIDIA driver instead. I e-mailed developer
-support at nVidia to ask why FW is disabled even though it's supported
-(it could very well be the BIOS).
 
-I also installed thier GLX libraries.
+Hi All,
+         I'm writing a network device driver.  I want to communicate with an
+application running in user mode. I want to send a signal (using
+something like kill) on which the application would be listening.
+Subsequently the application will send an IOCTL call to the driver to fetch
+the information.
+Is it possible in Linux to send  a signal to an application from a driver ?
+I've done this in Windows NT but Idont know how to do it in Linux. I
+searched
+the archives but couldn't find any relevant thread. I tried to use the kill
+system call but when I compiled the driver with  <signal.h> it gave me all
+sorts of errors. Also the equivalent signal.h in kernel source tree doesn't
+have a proto for kill().
+Am I missing something ?
+Sorry if I'm asking something silly as I'm new to this but can somebody
+kindly point me to the right direction ?
 
-PGA
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+TIA,
+Regards,
+Akshat
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271388AbRIAVHd>; Sat, 1 Sep 2001 17:07:33 -0400
+	id <S271421AbRIAVOe>; Sat, 1 Sep 2001 17:14:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271401AbRIAVHZ>; Sat, 1 Sep 2001 17:07:25 -0400
-Received: from oe24.law9.hotmail.com ([64.4.8.81]:41230 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S271388AbRIAVHQ>;
-	Sat, 1 Sep 2001 17:07:16 -0400
-X-Originating-IP: [65.92.117.123]
-From: "Camiel Vanderhoeven" <camiel_toronto@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: CR3 (PDPTR) format when PAE is enabled
-Date: Sat, 1 Sep 2001 17:07:42 -0400
-Message-ID: <004501c1332a$2398bd20$0100a8c0@kiosks.hospitaladmission.com>
+	id <S271419AbRIAVOY>; Sat, 1 Sep 2001 17:14:24 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:15112
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S271413AbRIAVOL>; Sat, 1 Sep 2001 17:14:11 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200109012058.f81KwIB08343@www.hockin.org>
+Subject: Re: natsemi.c (linux 2.4.9) - Something Wicked happened! 18000
+To: slug@aeminium.org (Nuno Miguel Fernandes Sucena Almeida)
+Date: Sat, 1 Sep 2001 13:58:18 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com (Manfred Spraul),
+        thockin@hockin.org (Tim Hockin)
+In-Reply-To: <Pine.LNX.4.21.0109012152330.1086-100000@aeminium.aeminium.pt> from "Nuno Miguel Fernandes Sucena Almeida" at Sep 01, 2001 10:02:17 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
-X-OriginalArrivalTime: 01 Sep 2001 21:07:29.0952 (UTC) FILETIME=[1C4CC200:01C1332A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > Which compiler do you use?
+> > gcc-2.95-1 is known to miscompile the current linux driver, and at least
+> 
+> i'm using gcc 2.95.2 (from debian stable) and i saw a post about
+> that but it made me belive it was fixed at the time. My mistake!
 
-I am confused about Intel's documentation regarding PAE. When PAE is
-enabled, CR3 contains a few flags (write-through and cache disabled), 3
-reserved bits, and - and here is my confusion - a 27-bit
-page-directory-pointer-table base address field, "providing the 27 most
-significant bits of the physical address of the PDPT, which forces the
-table to be located on a 32-byte boundary."
 
-Now, in PAE, the physical address is a 36-bit value. If we take off 27
-bits, there are 9 bits left, forcing the table to be located on a
-512-byte boundary. 
-
-Is this correct, or do the 27-bits present the bits 6..31 of the
-physical address, forcing the table to be located on a 32-byte boundary
-AND below 4GB (physical)?
-
-Camiel.
+yes - check that before we go any further :)

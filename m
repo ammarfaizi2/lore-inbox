@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276933AbRJCJJB>; Wed, 3 Oct 2001 05:09:01 -0400
+	id <S276934AbRJCJLb>; Wed, 3 Oct 2001 05:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276932AbRJCJIv>; Wed, 3 Oct 2001 05:08:51 -0400
-Received: from csa.iisc.ernet.in ([144.16.67.8]:53772 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S276931AbRJCJIl>;
-	Wed, 3 Oct 2001 05:08:41 -0400
-Date: Wed, 3 Oct 2001 14:39:09 +0530 (IST)
-From: "M.Gopi Krishna" <mgopi@csa.iisc.ernet.in>
-To: Jan Hudec <bulb@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: wait_event() :(
-In-Reply-To: <20011003110629.A29671@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.21.0110031437570.21820-100000@opal.csa.iisc.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276932AbRJCJLV>; Wed, 3 Oct 2001 05:11:21 -0400
+Received: from mta.sara.nl ([145.100.16.144]:31916 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S276934AbRJCJLE>;
+	Wed, 3 Oct 2001 05:11:04 -0400
+Message-Id: <200110030911.LAA03639@zhadum.sara.nl>
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Remco Post <r.post@sara.nl>
+To: "Dan Mann" <daniel_b_mann@hotmail.com>
+cc: "Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Re: QNX Scheduler patch 
+In-Reply-To: Message from "Dan Mann" <daniel_b_mann@hotmail.com> 
+   of "Mon, 01 Oct 2001 12:19:50 EDT." <OE309IcVux1Zcn8TtEv00006b70@hotmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 03 Oct 2001 11:11:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Oct 2001, Jan Hudec wrote:
+> Can anyone tell me about experience with the QNX scheduler patch done way
+> back for kernel 2.0.31?  I've been wanting to try it on a 2.4 series kernel
+> (I'm looking for best possible interactive performance under X), and I want
+> to know if it is worth porting to the 2.4 line.
+> 
+> Thanks,
+> 
+> Dan
 
-> > I have a doubt regarding wait_event.
-> > In the macro __wait_event, the calling process changes its state to
-> > TASK_UNINTERRUPTIBLE and calls schedule.
-> > And does this in infinite loop.
-> > After the loop, it itself changes its state to TASK_RUNNING.
-> > 
-> > Once it calls schedule(), the scheduler will remove it from task list as
-> > it is in uninterruptible mode.
-> > Then when does it come again into running state to check the condition.
-> > 
-> > kindly cc the reply to me as i'm not subscribed to the list
-> > thanks
-> 
-> It inserts itself in a wait queue. The schedule returns when wakeup is called
-> on the wait queue.
-> 
-> --------------------------------------------------------------------------------
->                   				- Jan Hudec `Bulb' <bulb@ucw.cz>
-> 
+I tried the patch once or twice. On small systems or systems under heavy load it did give a more responsive feeling on interactive applications. With more modern systems (I tested it on my PowerMac 7200/75) I think the difference is not worth the effort of porting the scheduler.
 
-Then why does it have a for(;;) around it when anyway someone is going to
-wake it up after the condition is true.
-Or is that it may be woken up even when the condition is not true.
 -- 
-gopi.
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
 

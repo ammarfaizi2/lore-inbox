@@ -1,56 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129996AbRAWGYQ>; Tue, 23 Jan 2001 01:24:16 -0500
+	id <S132173AbRAWG15>; Tue, 23 Jan 2001 01:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132173AbRAWGYH>; Tue, 23 Jan 2001 01:24:07 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6923 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129996AbRAWGXv>; Tue, 23 Jan 2001 01:23:51 -0500
-Message-ID: <3A6D2365.EB7F2F31@transmeta.com>
-Date: Mon, 22 Jan 2001 22:23:33 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S136149AbRAWG1i>; Tue, 23 Jan 2001 01:27:38 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:32530 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132173AbRAWG1b>; Tue, 23 Jan 2001 01:27:31 -0500
+Date: Tue, 23 Jan 2001 02:37:29 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-test10
+In-Reply-To: <Pine.LNX.4.10.10101221711560.1309-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101230236350.9138-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Partition IDs in the New World TM
-In-Reply-To: <200101230447.f0N4lpf23686@webber.adilger.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> H. Peter Anvin writes:
-> > We have:
-> >
-> >    0x82 - Linux swap
-> >    0x83 - Linux filesystem
-> >    0x85 - Linux extended partition (yes, this one does matter!)
-> >
-> > There seems to be some value in having a different value for swap.  It
-> > lets an automatic program find a partition that does not contain data.
-> 
-> What would be wrong with changing the kernel to skip the first page of
-> swap, and allowing us to put a signature there?  This would be really
-> useful for systems that mount ext2 filesystems by LABEL or UUID.  With
-> the exception of swap, you currently don't need to care about what disk
-> a filesystem is on.  Of course, LVM also fixes this, but not everyone
-> runs LVM.
-> 
 
-It already does that, you know.  Nothing inherently wrong, *EXCEPT* that
-it breaks a bunch of programs already out there.
+Any technical reason why the background page aging fix was not applied?
 
-	-hpa
+On Mon, 22 Jan 2001, Linus Torvalds wrote:
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> The ChangeLog may not be 100% complete. The physically big things are the
+> PPC and ACPI updates, even if most people won't notice.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

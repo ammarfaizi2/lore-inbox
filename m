@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262101AbSIPPIW>; Mon, 16 Sep 2002 11:08:22 -0400
+	id <S262113AbSIPPMS>; Mon, 16 Sep 2002 11:12:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262113AbSIPPIW>; Mon, 16 Sep 2002 11:08:22 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:2001 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262101AbSIPPIW>; Mon, 16 Sep 2002 11:08:22 -0400
-Date: Mon, 16 Sep 2002 12:12:46 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Daniel Phillips <phillips@arcor.de>, Andrew Morton <akpm@digeo.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] per-zone kswapd process
-In-Reply-To: <20020916074602.GK3530@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0209161212130.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262246AbSIPPMS>; Mon, 16 Sep 2002 11:12:18 -0400
+Received: from dsl-213-023-040-192.arcor-ip.net ([213.23.40.192]:15239 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S262113AbSIPPMR>;
+	Mon, 16 Sep 2002 11:12:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Date: Mon, 16 Sep 2002 17:15:41 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Brownell <david-b@pacbell.net>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <E17qejV-00008L-00@starship> <20020916090616.GF12364@suse.de>
+In-Reply-To: <20020916090616.GF12364@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17qxbC-0000JO-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Sep 2002, William Lee Irwin III wrote:
+On Monday 16 September 2002 11:06, Jens Axboe wrote:
+> On Sun, Sep 15 2002, Daniel Phillips wrote:
+> > > I did. Matt probably did. But I didn't see you fixing it with your
+> > > debugger.
+> > 
+> > I am setting up the debugger to work on the DAC960.
+> 
+> See, even though I'm not fundamentally against using kernel debuggers, I
+> think this is very wrong. Where are you now? You are just learning about
+> the bio interface and the changes needed to make it run. And this is
+> definitely the most wrong point to start using a debugger, and can only
+> result in a dac960 that works by trial and error.
 
-> This notion apparently got shot down somewhere, and I don't care to rise
-> to its defense. I've lost enough debates this release to know better
-> than to try.
+I am not using the debugger to learn about bio, I use LXR for that.  I
+am using the debugger because of the nature of the bugs I expect and
+already seen.  Jens, I have 27 years of professional programming
+experience, you do not have to tell me when to use a debugger and when
+not to.
 
-Don't worry about this, there are bigger fish around, lower
-hanging sea fruit, so to say. ;)
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Daniel

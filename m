@@ -1,91 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVAXVDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVAXUnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVAXVDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVAXVCo
+	id S261638AbVAXUnK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAXUlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:02:44 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:13679 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261650AbVAXU4w (ORCPT
+	Mon, 24 Jan 2005 15:41:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5082 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261642AbVAXUjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:56:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=tScBHukNrXdJLK6i8OtYEqn4NpaftnOWhSBKSeU/jiAJPn4sS4OnnEI+Wj9BLTA/xQF6E4Q4E9sloBgrCt8XUSmPbEOU+zjykvT9zpukoDxl5pjd8Zxnsm+Gv4thDhe/tGjqBsA/58+w2lZQsJrs8UuBNUSCf9e+6zsV7C2vHZg=
-Message-ID: <5a4c581d0501241256608d3d1a@mail.gmail.com>
-Date: Mon, 24 Jan 2005 21:56:48 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: DVD burning still have problems
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050124204529.GA19242@suse.de>
+	Mon, 24 Jan 2005 15:39:52 -0500
+Date: Mon, 24 Jan 2005 21:39:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Elias da Silva <silva@aurigatec.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drivers/block/scsi_ioctl.c, Video DVD playback support
+Message-ID: <20050124203948.GR2707@suse.de>
+References: <200501220327.38236.silva@aurigatec.de> <20050124083600.GA3347@suse.de> <200501242059.06307.silva@aurigatec.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de>
-	 <5a4c581d050123125967a65cd7@mail.gmail.com>
-	 <20050124150755.GH2707@suse.de>
-	 <1106594023.6154.89.camel@localhost.localdomain>
-	 <20050124204529.GA19242@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501242059.06307.silva@aurigatec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 21:45:29 +0100, Jens Axboe <axboe@suse.de> wrote:
-> On Mon, Jan 24 2005, Alan Cox wrote:
-> > On Llu, 2005-01-24 at 15:07, Jens Axboe wrote:
-> > > >  794034176/4572807168 (17.4%) @2.4x, remaining 18:47
-> > > >  805339136/4572807168 (17.6%) @2.4x, remaining 18:42
-> > > > :-[ WRITE@LBA=60eb0h failed with SK=3h/ASC=0Ch/ACQ=00h]: Input/output error
-> > > > builtin_dd: 396976*2KB out @ average 2.4x1385KBps
-> > > > :-( write failed: Input/output error
-> > >
-> > > As with the original report, the drive is sending back a write error to
-> > > the issuer. Looks like bad media.
-> >
-> > I've got several reports like this that only happen with ACPI, and one
-> > user whose burns report fine but are corrupted if ACPI is allowed to do
-> > power manglement.
+On Mon, Jan 24 2005, Elias da Silva wrote:
+> > On Sat, Jan 22 2005, Elias da Silva wrote:
+> > > Attached patch fixes a problem of reading Video DVDs
+> > > through the cdrom_ioctl interface. VMware is among
+> > > the prominent victims.
+> > > 
+> > > The bug was introduced in kernel version 2.6.8 in the
+> > > function verify_command().
+> > 
+> > It's not a bug, add write permission to the device for the user using
+> > the drive.
+> Hi.
 > 
-> Really weird, I cannot begin to explain that. Perhaps the two reporters
-> in this thread can try it as well?
+> The device already has write permission for the user using the
+> drive... and this is not the point.
 > 
+> The point is
+> 	a. the user (program) wants to read a protected DVD,
+> 
+> 	b. the user has permission to read the device,
+> 
+> 	c. since kernel 2.6.8 the user can't use his right to read a
+> 	DVD media, because according to verify_command() he is forced
+> 	to open the device with RW mode instead of RONLY.
 
-...my K7-800 is so old that the FC3 kernel disables ACPI itself:
+Right, it's an unfortunate side effect of the command table.
 
-Linux version 2.6.10-1.737_FC3 (bhcompile@porky.build.redhat.com) (gcc
-version 3.4.2 20041017 (Red Hat 3.4.2-6.fc3)) #1 Mon Jan 10 13:50:10
-EST 2005
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000ec000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
- BIOS-e820: 000000000fff0000 - 000000000fff8000 (ACPI data)
- BIOS-e820: 000000000fff8000 - 0000000010000000 (ACPI NVS)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-0MB HIGHMEM available.
-255MB LOWMEM available.
-On node 0 totalpages: 65520
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 61424 pages, LIFO batch:14
-  HighMem zone: 0 pages, LIFO batch:1
-DMI 2.3 present.
-ACPI: RSDP (v000 AMI                                   ) @ 0x000fa9e0
-ACPI: RSDT (v001 AMIINT          0x00000010 MSFT 0x00000097) @ 0x0fff0000
-ACPI: FADT (v001 AMIINT          0x00000010 MSFT 0x00000097) @ 0x0fff0030
-ACPI: DSDT (v001    VIA   VT8371 0x00001000 MSFT 0x0100000b) @ 0x00000000
-ACPI: BIOS age (1997) fails cutoff (2001), acpi=force is required to enable ACPI
-ACPI: Disabling ACPI support
+> This is true for protected media because of the authentication
+> process needed between "host" 	and DVD device. IMHO,
+> the classification of the opcodes
+> 
+> 	a. GPCMD_SEND_KEY and
+> 	b. GPCMD_SET_STREAMING
+> 
+> as only "save for write" is wrong.
 
-But as it stands I'll sacrifice my 11+ days uptime for a -latest
- build from kernel.org and try compiling ACPI out :)
+You need to explain why you think that is so, since this is the core of
+the argument. The only thing I can say is that perhaps SEND_KEY should
+even be root only, since it has a fairly large scope. It's really a
+device exclusive type situation, where is a user has exclusive access to
+the device it would be ok to issue a SEND_KEY but otherwise not. It's
+not clearly a read vs write thing. It's impossible to shoe-horn a more
+complicated permission model on top of something as silly as read vs
+write.
 
---alessandro
- 
- "And every dream, every, is just a dream after all"
-  
-    (Heather Nova, "Paper Cup")
+> Furthermore, if you use
+> 	a. cdrom_ioctl (..., DVD_AUTH,...) instead of
+> 	b. cdrom_ioctl (..., CDROM_SEND_PACKET,...)
+> 	-> scsi_cmd_ioctl()-> sg_io()-> verify_command()
+> 
+> the same authentication procedure works as expected on a
+> RONLY opened device!
+
+DVD_AUTH by-passes scsi_ioctl.c, so yes.
+
+> Please rethink your decisions introduced with verify_command()
+> and make for example VMware work _again_ with Video DVDs.
+
+It's not my decisions. The problem is that it is policy, and it has to
+be restrictive to be safe.
+
+-- 
+Jens Axboe
+

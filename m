@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262751AbTCPUuw>; Sun, 16 Mar 2003 15:50:52 -0500
+	id <S262753AbTCPUyt>; Sun, 16 Mar 2003 15:54:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262753AbTCPUuw>; Sun, 16 Mar 2003 15:50:52 -0500
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:22184 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id <S262751AbTCPUuv>; Sun, 16 Mar 2003 15:50:51 -0500
-Date: Sun, 16 Mar 2003 22:01:44 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, andi@lisas.de
-Subject: Re: [Bug 464] New: 2.5.64: Dell Inspiron 8000 BIOS A04 EMERGENCY SHUTDOWN!
-Message-ID: <20030316210144.GA13472@rhlx01.fht-esslingen.de>
-Reply-To: andi@rhlx01.fht-esslingen.de
-References: <57820000.1047827557@[10.10.2.4]> <20030316203629.GA13006@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030316203629.GA13006@elf.ucw.cz>
-User-Agent: Mutt/1.4i
+	id <S262754AbTCPUyt>; Sun, 16 Mar 2003 15:54:49 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:10901 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262753AbTCPUyt>;
+	Sun, 16 Mar 2003 15:54:49 -0500
+Date: Sun, 16 Mar 2003 22:05:20 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] O(1) proc_pid_readdir
+In-Reply-To: <Pine.LNX.4.44.0303161645030.27928-100000@dbl.q-ag.de>
+Message-ID: <Pine.LNX.4.44.0303162203590.11399-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, Mar 16, 2003 at 09:36:29PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > Steps to reproduce:
-> > I don't want to describe that here, since I really don't intend to put my
-> > machine through yet another emergency shutdown...
-> > You need to produce some high CPU load, though...
-> 
-> Heh, show us /proc/acpi/thermal/*.
-Heh, gotcha!
-It was in the attachments of bug #464 already... ;-)
-(it's /proc/acpi/thermal_zone/*, BTW)
+On Sun, 16 Mar 2003, Manfred Spraul wrote:
 
-And don't expect any spectacular values just before shutdown there...
-The thermal management is almost non-existent according to these values.
+> Below is a proposal to get rid of the quadratic behaviour of
+> proc_pid_readir(): Instead of storing the task number in f_pos and
+> walking tasks by tasklist order, the pid is stored in f_pos and the
+> tasks are walked by (hash-mangled) pid order.
 
-> Also don't fear emergency shutdowns -- they do NOT damage
-> hardware. [This machine survived >20 of them.]
-Yeah, and your 21st shutdown will kill it, for sure ;-)
+have you seen my "procfs/procps threading performance speedup" patch? It
+does something like this.
 
-Thanks for your reply!
+	Ingo
 
-Andreas Mohr
-
--- 
-Help prevent Information Technology Fascism! - before it's too late...
-http://www.againsttcpa.com

@@ -1,57 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbTISQkr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 12:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTISQkr
+	id S261618AbTISQkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 12:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTISQkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 12:40:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22160 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261622AbTISQkp
+	Fri, 19 Sep 2003 12:40:31 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:51689 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261618AbTISQk3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 12:40:45 -0400
-Date: Fri, 19 Sep 2003 17:40:44 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Matthew Wilcox <willy@debian.org>
-Subject: What's the point of __KERNEL_SYSCALLS__?
-Message-ID: <20030919164044.GF21596@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Sep 2003 12:40:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: use O_DIRECT open file, when read will hang.
+Date: Fri, 19 Sep 2003 09:39:18 -0700
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org, Suparna Bhattacharya <suparna@in.ibm.com>
+References: <20030919124631.3b4e6301.hugang@soulinfo.com> <20030918225450.3d6bb72c.akpm@osdl.org>
+In-Reply-To: <20030918225450.3d6bb72c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309190939.18796.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 18 September 2003 10:54 pm, Andrew Morton wrote:
+> Hugang <hugang@soulinfo.com> wrote:
+> > Hello all:
+> >
+> > Steps to reproduce:
+> >
+> > rm -f /tmp/1.log
+> > touch /tmp/1.log
+> > echo << EOF > /tmp/hang.c
+> > #include <sys/types.h>
+> > #include <asm/fcntl.h>
+> >
+> > main()
+> > {
+> >         int i;
+> >         char buf[1025];
+> >
+> >         i = open("/tmp/1.log", O_RDONLY | 040000, 0);
+> >         if ( i != -1) {
+> >                 read(i, buf, 1);
+> >         }
+> >         printf("'%s'", buf);
+> > }
+> > EOF
+> > gcc -o /tmp/hang /tmp/hang.c
+> > /tmp/hang
+>
+> This is due to O_DIRECT-race-fixes.patch forgetting to drop locks
+> on error paths all over the place.
+>
+> I think this patch plugs them all for block-based direct-io, but it needs
+> checking.
+>
+> There's also the little matter of (say) NFS direct-io which doesn't go
+> through fs/direct-io.c at all; it will deadlock in a jiffy.
+>
+> Must say that I am getting very concerned about the general state of the IO
+> paths in the -mm kernel.
 
-As far as I can tell, __KERNEL_SYSCALLS__ (see asm-*/unistd.h) are
-merely an indirection for calling sys_foo -- they don't seem to play
-around with DS or FS or whatever x86 register name got turned into an
-arch-independent way of saying what userspace is.
+Andrew,
 
-Given that, why should they exist?  It only encourages monstrosities
-like sp8870_read_code() in drivers/media/dvb/frontends/alps_tdlb7.c that
-probably don't work anyway.
+I am also seeing some kind of regression on raw in 2.6.0-test5-mm2.
+Unfortunately, this happens only with huge database benchmarks.
+I still haven't narrowed it down.
 
-The following are unused:
-	setsid
-	write
+So I am planning to do following to address your concerns.
 
-read is used by DVB and the wavefront sound driver
-lseek is only used by DVB
-dup is used only by init/main.c and could easily call sys_dup() instead.
-execve is used by kmod, init/main.c, sbus/char/{bbc_,}envctrl.c and
-	arch/sparc64/kernel/power.c
-open is used by DVB, init/main.c and wavefront.
-close is used by wavefront.  (DVB calls sys_close directly).
-_exit is used by arch/ia64/kernel/process.c
-waitpid is used by kernel/workqueue.c and net/ipv4/ipvs/ip_vs_sync.c
+1) I am going to do full code review of DIO & RAW code in -mm tree.
 
-This doesn't seem like a big list to clean up.  Any objections to
-getting rid of them and making the calls directly?  If nothing else,
-at least it would make it explicit when we possibly needed to be calling
-set_fs(KERNEL_DS) instead.
+2) I want to test RAW & DIO code with various test cases we have.
+	- fsx:
+		on  RAW, DIO on files, AIO on RAW, AIO on files, AIO-DIO on files
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+	- rawiobench
+		on  RAW, DIO on files, AIO on RAW, AIO on files, AIO-DIO on files
+
+	- database benchmarks:
+		on RAW, on files
+
+	- can I do fsx, rawiobench on NFS files to test DIO on NFS ?
+
+	- What else you would like to see ?
+
+Thanks,
+Badari
+

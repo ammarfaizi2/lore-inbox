@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263215AbTARHd5>; Sat, 18 Jan 2003 02:33:57 -0500
+	id <S263137AbTARHcv>; Sat, 18 Jan 2003 02:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbTARHd5>; Sat, 18 Jan 2003 02:33:57 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:36308 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S263215AbTARHd4>;
-	Sat, 18 Jan 2003 02:33:56 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S263215AbTARHcv>; Sat, 18 Jan 2003 02:32:51 -0500
+Received: from wall.ttu.ee ([193.40.254.238]:38413 "EHLO wall.ttu.ee")
+	by vger.kernel.org with ESMTP id <S263137AbTARHcu>;
+	Sat, 18 Jan 2003 02:32:50 -0500
+Date: Sat, 18 Jan 2003 09:41:49 +0200 (EET)
+From: Siim Vahtre <siim@pld.ttu.ee>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: i810_audio problems
+In-Reply-To: <1042856440.713.4.camel@chandler>
+Message-ID: <Pine.SOL.4.31.0301180934500.14196-100000@pitsa.pld.ttu.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15913.1396.22808.83238@napali.hpl.hp.com>
-Date: Fri, 17 Jan 2003 23:42:44 -0800
-To: Andrew Morton <akpm@digeo.com>
-Cc: Anton Blanchard <anton@samba.org>, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: recent change to exit_mmap
-In-Reply-To: <20030117224444.08c48290.akpm@digeo.com>
-References: <20030118060522.GE7800@krispykreme>
-	<20030117224444.08c48290.akpm@digeo.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 17 Jan 2003 22:44:44 -0800, Andrew Morton <akpm@digeo.com> said:
+On 17 Jan 2003, Matthew J. Fanto wrote:
+>
+> I'm having problems with the i810_audio driver and the ICH3 chipset.
+>
+> When playing audio, it skips VERY badly. After stopping the audio, I get
+> the message:
+> drain_dac, dma timeout?
 
-  Andrew> Looks like ia64 needs work, too...
+I've also noticed similar problems. Sometimes when I reboot I end up
+having no sound coming from the speakers at all and when I try to play
+something then the player either hangs(mplayer) or starts to skip
+seconds(mp3blaster) (0:00, 0:07, 0:21 ..etc)
 
-Yes, should be the same problem there.  The fix looks fine to me.
-(Let's just hope I remember it when Linus puts it in his tree...).
+Rebooting the computer sevelar times will eventually fix it. Reloading
+the module doesn't seem to help, however.
 
-Thanks,
+2.4.{18;19;20} vanilla kernels all had that problem, now on 2.5.59 I
+haven't noticed it (yet?).
 
-	--david

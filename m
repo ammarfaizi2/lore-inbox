@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293341AbSBYIum>; Mon, 25 Feb 2002 03:50:42 -0500
+	id <S293354AbSBYIyB>; Mon, 25 Feb 2002 03:54:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293349AbSBYIuc>; Mon, 25 Feb 2002 03:50:32 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:4874 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S293341AbSBYIuW>;
-	Mon, 25 Feb 2002 03:50:22 -0500
-Message-ID: <3C79FA85.7010208@evision-ventures.com>
-Date: Mon, 25 Feb 2002 09:49:09 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linuxdiskcert.org>
-CC: Paul Mackerras <paulus@samba.org>, Vojtech Pavlik <vojtech@suse.cz>,
-        Troy Benjegerdes <hozer@drgw.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <Pine.LNX.4.10.10202241418420.8567-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S293350AbSBYIxw>; Mon, 25 Feb 2002 03:53:52 -0500
+Received: from marge.bucknell.edu ([134.82.9.1]:42245 "EHLO mail.bucknell.edu")
+	by vger.kernel.org with ESMTP id <S293349AbSBYIxp>;
+	Mon, 25 Feb 2002 03:53:45 -0500
+Subject: Re: Equal cost multipath crash
+From: Eric Krout <ekrout@bucknell.edu>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+In-Reply-To: <20020225083911.GA18777@informatics.muni.cz>
+In-Reply-To: <20020225083911.GA18777@informatics.muni.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 25 Feb 2002 03:53:52 -0500
+Message-Id: <1014627232.2332.6.camel@ekrout.resnet.bucknell.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-02-25 at 03:39, Jan Kasprzak wrote:
+> 	Hello network hackers,
+> 
+> 	I had a strange failure of my Linux router yesterday. 
+	...
+> Feb 24 21:26:49 router kernel: impossible 888
+> Feb 24 21:39:20 router kernel: ible 888
+> Feb 24 21:39:20 router kernel: impossible 888
+> Feb 24 21:39:20 router last message repeated 42 times
+> Feb 24 21:39:20 router kernel: impossible 888
+> Feb 24 21:39:21 router kernel: NET: 344 messages suppressed.
+> Feb 24 21:39:21 router kernel: dst cache overflow
+> Feb 24 21:39:21 router kernel: impossible 888
+> Feb 24 21:39:21 router last message repeated 275 times
+> [... and so on ...]
+> 
+> 	After few minutes, a co-worker of mine pressed the big red button.
+> 
+	...
 
-> As a point of reference for removal of the pci read/write space to the
-> host, I strongly suggest that be left alone.  As for the removal of the
-> settings file, may of the distributions use this as a means to issue
-> script calls to enable and disable features w/o the use of an additional
-> application like "hdparm".
 
-You are sure the distros write to the PCI config space of the host chip
-device or the IO registers at boot time????!!! In esp. since the
-abolition in case did only just get introduced at 2.4.xx times???
+Most code I've seen that prints "impossible" looks like this:
 
-Just show me one please!
+
+/* This is a disaster if it occurs */
+printk("impossible");
+
+
+I'd say it's a Good Thing(tm) that your co-worker "pressed the big red
+button"  ;-)
+
+(Sorry, that's the best I could come up with at 3:51am)
 

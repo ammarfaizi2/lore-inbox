@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266725AbUITPyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUITQBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266725AbUITPyk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 11:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUITPyk
+	id S266538AbUITQBh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 12:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUITQBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 11:54:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17800 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266725AbUITPyV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 11:54:21 -0400
-Date: Mon, 20 Sep 2004 08:52:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net, adaplas@pol.net
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-Message-Id: <20040920085214.0abe33a0.akpm@osdl.org>
-In-Reply-To: <1095672428.13735.3.camel@gaston>
-References: <1094783022.2667.106.camel@gaston>
-	<200409110504.09812.adaplas@hotpop.com>
-	<1095672428.13735.3.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Sep 2004 12:01:37 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:15530 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S266538AbUITQBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 12:01:36 -0400
+Message-ID: <414EF6FA.10102@drdos.com>
+Date: Mon, 20 Sep 2004 09:27:54 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Max Michaels <mmichaels@rightmedia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-r1 mem issues
+References: <0FC82FC6709BE34CB9118EE0E252FD2307994E70@ehost007.exch005intermedia.net>
+In-Reply-To: <0FC82FC6709BE34CB9118EE0E252FD2307994E70@ehost007.exch005intermedia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Max,
+
+I reported the same problem. There is a patch that gets around this, 
+however, it does
+Ooops in some situations in free_pages if you are using split address space
+AND low memory conditions. Nick Piggin has the patch.
+
+Jeff
+
+
+Max Michaels wrote:
+
+>This is my first post, so please be forgiving of any faux-pas. I am
+>having issues with 2.6.8-r1 with memory being eaten by the kernel. Top
+>reveals that only about 35% of the memory (3GB) is being used but the
+>actual count of free memory is only about 10MB. /proc/slabinfo shows no
+>odd numbers and /proc/meminfo shows the same 10MB as the top total. No
+>processes account for this memory, so I'm assuming it must be the
+>kernel. Eventually, I run out of memory and OOM-killer starts killing
+>processes until it has some memory. Is there some troubleshooting method
+>I am missing or is this a known issue?
 >
->  Andrew, Any reason why this patch isn't upstream ? The recent changes
->  to fbdev in 2.6.9-* are a regression and we need this patch to get bac
->  the video=ofonly feature.
-
-Well I have a whole bunch of fbcon/fbdev patches here, but at some point
-one needs to plug the flow so we can get 2.6.9 out the door.  And nobody
-told me (until now) that we had a problem.
-
-Tony, which of the below shold be merged into 2.6.9?
-
-fbdev-remove-unnecessary-banshee_wait_idle-from-tdfxfb.patch
-fbdev-fix-logo-drawing-failure-for-vga16fb.patch
-fbdev-initialize-i810fb-after-agpgart.patch
-fbdev-fix-userland-compile-breakage.patch
-fbcon-fix-setup-boot-options-of-fbcon.patch
-fbdev-pass-struct-device-to-class_simple_device_add.patch
-fbdev-add-tile-blitting-support.patch
-fbcon-fix-fbcons-setup-routine.patch
-fbdev-arrange-driver-order-in-makefile.patch
-fbdev-fix-scrolling-corruption.patch
-radeonfb-fix-warnings-about-uninitialized-variables.patch
-fbdev-remove-i810fb-explicit-agp-initialization-hack.patch
+>  
+>
 

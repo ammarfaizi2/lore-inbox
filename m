@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263877AbRFDSua>; Mon, 4 Jun 2001 14:50:30 -0400
+	id <S263856AbRFDSno>; Mon, 4 Jun 2001 14:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263120AbRFDSuU>; Mon, 4 Jun 2001 14:50:20 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:19196
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S263878AbRFDSuE>; Mon, 4 Jun 2001 14:50:04 -0400
-Date: Mon, 4 Jun 2001 14:49:45 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Tom Rini <trini@kernel.crashing.org>, Oleg Drokin <green@linuxhacker.ru>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac7
-In-Reply-To: <E156ydR-0005hH-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106041446010.7929-100000@xanadu.home>
+	id <S263857AbRFDSnY>; Mon, 4 Jun 2001 14:43:24 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:8386 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S263856AbRFDSnN>;
+	Mon, 4 Jun 2001 14:43:13 -0400
+Message-ID: <3B1BD6C0.9F54047E@mandrakesoft.com>
+Date: Mon, 04 Jun 2001 14:43:12 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+Cc: jamal <hadi@cyberus.ca>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <Pine.LNX.4.33.0106031401050.31050-100000@kenzo.iwr.uni-heidelberg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bogdan Costescu wrote:
+> 
+> On Sat, 2 Jun 2001, jamal wrote:
+> 
+> > Still, the tx watchdogs are a good source of fault detection in the case
+> > of non-availabilty of MII detection and even with the presence of MII.
+> 
+> Agreed. But my question was a bit different: is there any legit situation
+> where Tx timeouts can happen in a row _without_ having a link loss ? In
+> this situation, we'd have false positives...
 
+yes
 
-On Mon, 4 Jun 2001, Alan Cox wrote:
-
-> > I tried replying to this yesterday and it didn't get through, so..
-> > All of the MPC8xx chips can have a USB controller as well (albiet not OHCI
-> > or UHCI) and none of them have PCI either.
->
-> Ok I will change a future -ac to check PCI for OHCI/UHCI and then check
-> 'any host controller' for the devices
-
-Actually, the SA1111 is rather OHCI even if not PCI.
-
-But still you shouldn't bother with those details until the patch is
-ever sent to you.  It's not like if the proper change was hard to add to the
-SA1111 patch.
-
-
-Nicolas
-
+-- 
+Jeff Garzik      | Echelon words of the day, from The Register:
+Building 1024    | FRU Lebed HALO Spetznaz Al Amn al-Askari Glock 26 
+MandrakeSoft     | Steak Knife Kill the President anarchy echelon
+                 | nuclear assassinate Roswell Waco World Trade Center

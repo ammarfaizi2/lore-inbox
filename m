@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131482AbRCWWVQ>; Fri, 23 Mar 2001 17:21:16 -0500
+	id <S131488AbRCWW3h>; Fri, 23 Mar 2001 17:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131483AbRCWWVH>; Fri, 23 Mar 2001 17:21:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4369 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131482AbRCWWUz>; Fri, 23 Mar 2001 17:20:55 -0500
-Subject: Re: Problems with latest changes in kernel and X
-To: german@piraos.com (German Gomez Garcia)
-Date: Fri, 23 Mar 2001 22:21:58 +0000 (GMT)
-Cc: dri-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org (Mailing List Linux Kernel)
-In-Reply-To: <Pine.LNX.4.21.0103232104590.306-100000@hal9000.piraos.com> from "German Gomez Garcia" at Mar 23, 2001 09:10:31 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131480AbRCWW33>; Fri, 23 Mar 2001 17:29:29 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:51978 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S131479AbRCWW2h>; Fri, 23 Mar 2001 17:28:37 -0500
+Date: Sat, 24 Mar 2001 00:37:16 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Guest section DW <dwguest@win.tue.nl>,
+        Stephen Clouse <stephenc@theiqgroup.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <E14gZvi-0005YW-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103240030310.13864-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14gZwY-0005Yf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	After upgrading to latest 2.4.2-ac23 (that includes latest changes
-> from 2.4.3-pre6) X doesn't start anymore. It was working perfectly for
-> 2.4.2-ac20. I'm using DRI CVS, but it seems to have little to do with DRI
-> as disabling completely DRI doesn't help. 
 
-DRI will not work with ac23 or 3pre6. The mm locking changed to avoid a deadlock
-problem versus procfs and stuff.
+On Fri, 23 Mar 2001, Alan Cox wrote:
+> > > and rely on it. You might find you need a few Gbytes of swap just to
+> > > boot
+> > Seems a bit exaggeration ;) Here are numbers,
+> NetBSD is if I remember rightly still using a.out library styles.
+
+No, it uses ELF today, moreover the numbers were from Solaris. NetBSD
+also switched from non-overcommit to overcommit-only [AFAIK] mode with
+"random" process killing with its new UVM.
+
+> > 6-50% more VM and the performance hit also isn't so bad as it's thought
+> > (Eduardo Horvath sent a non-overcommit patch for Linux about one year
+> > ago).
+> The Linux performance hit would be so close to zero you shouldnt be able to
+> measure it - or it was in 1.2 anyway
+
+Yep, something like this :)
+
+	Szaka
 

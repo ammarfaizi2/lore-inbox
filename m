@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSE0GB2>; Mon, 27 May 2002 02:01:28 -0400
+	id <S314330AbSE0GGP>; Mon, 27 May 2002 02:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314291AbSE0GB0>; Mon, 27 May 2002 02:01:26 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:51405 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S314080AbSE0GB0>;
-	Mon, 27 May 2002 02:01:26 -0400
-Date: Mon, 27 May 2002 16:01:20 +1000
+	id <S314339AbSE0GGO>; Mon, 27 May 2002 02:06:14 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:15054 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S314330AbSE0GGN>;
+	Mon, 27 May 2002 02:06:13 -0400
+Date: Mon, 27 May 2002 16:06:07 +1000
 From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] consolidate generic peices of the siginfo structures and associated stuff
-Message-Id: <20020527160120.3b9bbe5d.sfr@canb.auug.org.au>
+Subject: [PATCH] consolidate do_signal
+Message-Id: <20020527160607.1be0a83e.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -18,16 +18,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch creates asm-generic/siginfo.h and uses it to remove a
-lot of duplicate code in the various asm-*/siginfo.h files.  Some
-if it is a little ugly, but I think it will be worth it just to
-help us eliminate some of the bugs that have come from code copying.
+11 out of our 17 architectures have basically the same code
+in arch/../kernel/signal.c:do_signal.  This patch creates a
+common function for that bit of code and uses it in the places
+it can be.
 
-see <http://www.canb.auug.org.au/~sfr/18-si.1.diff.gz>
+Original extraction by Paul Mackerras, i386 version by Anton Blanchard.
 
-[URL because it is ~120k patch]
+The 2.5.15 version of this patch builds and runs on i386 and PPC and has
+been briefly looked at by the CRIS, PARISC, PPC64 and x86_64 maintainers.
 
-Please have a look and comment.
+As a bonus, this fixes the "ignore SIGURG" bug for 9 more architectures
+(i386 and PPC already were fixed).
+
+see <http://www.canb.auug.org.au/~sfr/18-si.5.diff.gz>
+
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au

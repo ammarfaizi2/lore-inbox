@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267433AbTBXUWo>; Mon, 24 Feb 2003 15:22:44 -0500
+	id <S267427AbTBXUUq>; Mon, 24 Feb 2003 15:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbTBXUWo>; Mon, 24 Feb 2003 15:22:44 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:23242 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S267433AbTBXUWl>; Mon, 24 Feb 2003 15:22:41 -0500
-Subject: CPCI stopped building
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Content-Type: text/plain
+	id <S267429AbTBXUUp>; Mon, 24 Feb 2003 15:20:45 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:38665 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S267427AbTBXUUn>;
+	Mon, 24 Feb 2003 15:20:43 -0500
+Message-ID: <3E5A80F7.5070500@xss.co.at>
+Date: Mon, 24 Feb 2003 21:30:47 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Make Linux 2.4.21pre4-ac6 compile
+References: <200302240030.h1O0UaX14560@devserv.devel.redhat.com>
+In-Reply-To: <200302240030.h1O0UaX14560@devserv.devel.redhat.com>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Feb 2003 12:21:44 -0800
-Message-Id: <1046118108.2099.2.camel@vmhack>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attempting to turn on cpci support on the latest kernel breaks the build.
-The problem is that pci_is_dev_in_use() has been removed, but 
-cpci_hotplug_pci.c still calls the non-existant function in 
-unconfigure_visit_pci_dev_phase1().
+Hi!
 
-It looks like pci_dev_driver(dev) can be used in replacement (since that is
-what driver/pci/hotplug.c is now doing in pci_remove_device_safe(), but 
-I haven't taken the time to really understand what is happening.
+I need two small patches to make 2.4.21-pre4-ac6 compile for me:
 
-    --rustyl
+1.) To solve an "unresolved symbol" error
 
-Here is the changeset comment:
+root@install:/lib/modules/2.4.21-pre4-ac6 {508} $ depmod -ae
+depmod: *** Unresolved symbols in /lib/modules/2.4.21-pre4-ac6/kernel/drivers/char/ipmi/ipmi_kcs_drv.o
+depmod:         acpi_get_firmware_table
 
-ChangeSet 1.1002.8.3 2003/02/21 13:44:13 hch@sgi.com
-  [PATCH] try_module_get(THIS_MODULE) is bogus
-  
-  In most cases the fix is to add an struct module * member to the operations
-  vector instead and manipulate the refcounts in the callers context.
-  
-  For the ALSA cases it was completly superflous (when will people get it that
-  using an exported symbol will make it's module unloadable?..)
-drivers/pci/hotplug.c 1.11 2003/02/21 11:43:17 hch@sgi.com
-  try_module_get(THIS_MODULE) is bogus
+The following patch is needed:
 
+--- linux-2.4.21-pre4-ac6/drivers/acpi/acpi_ksyms.c.orig        Sat Aug  3 02:39:43 2002
++++ linux-2.4.21-pre4-ac6/drivers/acpi/acpi_ksyms.c     Mon Feb 24 20:32:46 2003
+@@ -68,6 +68,7 @@
+  EXPORT_SYMBOL(acpi_get_next_object);
+  EXPORT_SYMBOL(acpi_evaluate_object);
+  EXPORT_SYMBOL(acpi_get_table);
++EXPORT_SYMBOL(acpi_get_firmware_table);
+
+  EXPORT_SYMBOL(acpi_install_notify_handler);
+  EXPORT_SYMBOL(acpi_remove_notify_handler);
 
 
+2.) To make the new Intel i8xx framebuffer driver compile,
+the following patch is needed:
 
+--- linux-2.4.21-pre4-ac6/drivers/video/intel/intelfbdrv.c.orig Mon Feb 24 12:26:51 2003
++++ linux-2.4.21-pre4-ac6/drivers/video/intel/intelfbdrv.c      Mon Feb 24 12:25:52 2003
+@@ -873,7 +873,7 @@
+                 dinfo->cursor.timer.function = intelfb_flashcursor;
+                 dinfo->cursor.timer.data = (unsigned long)dinfo;
+                 dinfo->cursor.state = CM_ERASE;
+-               spin_lock_init(dinfo->DAClock);
++               spin_lock_init(&(dinfo->DAClock));
+         }
 
+         if (bailearly == 19)
 
+Otherwise 2.4.21-pre4-ac6 is now running fine on my test machine.
+
+HTH
+
+- andreas
+
+PS: Any idea about when the new IDE driver can be compiled
+and used completely as modules?
+
+-- 
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
 

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbTIYJyx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 05:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTIYJyx
+	id S261796AbTIYKXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 06:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTIYKXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 05:54:53 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:15885 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261778AbTIYJyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 05:54:53 -0400
-Date: Thu, 25 Sep 2003 10:54:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux/time.h annoyance
-Message-ID: <20030925105436.A8809@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ronald Bultje <rbultje@ronald.bitfreak.net>,
-	linux-kernel@vger.kernel.org
-References: <1064483200.6405.442.camel@shrek.bitfreak.net>
+	Thu, 25 Sep 2003 06:23:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43729 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261796AbTIYKXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 06:23:14 -0400
+Date: Thu, 25 Sep 2003 12:23:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix non-modular ftape compile
+Message-ID: <20030925102309.GI15696@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1064483200.6405.442.camel@shrek.bitfreak.net>; from rbultje@ronald.bitfreak.net on Thu, Sep 25, 2003 at 11:48:01AM +0200
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 11:48:01AM +0200, Ronald Bultje wrote:
-> Hi,
-> 
-> I'm annoyed by something in linux/time.h. The issue is as follows:
-> 
-> -
-> #include <sys/time.h>
-> #include <linux/time.h>
-> int main () { return 0; }
+I got the following link error in 2.60-test5-mm4 (but it doesn't seem 
+to be specific to -mm):
 
-So don't include it.  Userspace should use <sys/time.h>, not kernel
-headers.
+<--  snip  -->
+
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.exit.text+0xfe6): In function `ftape_exit':
+: undefined reference to `ftape_proc_destroy'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+ftape_proc_destroy is only available #ifdef MODULE, the following patch 
+fixes the link error:
+
+--- linux-2.6.0-test5-mm4-no-smp-2.95/drivers/char/ftape/lowlevel/ftape-init.c.old	2003-09-23 00:58:02.000000000 +0200
++++ linux-2.6.0-test5-mm4-no-smp-2.95/drivers/char/ftape/lowlevel/ftape-init.c	2003-09-23 00:58:25.000000000 +0200
+@@ -148,7 +148,7 @@
+ {
+ 	TRACE_FUN(ft_t_flow);
+ 
+-#if defined(CONFIG_PROC_FS) && defined(CONFIG_FT_PROC_FS)
++#if defined(CONFIG_PROC_FS) && defined(CONFIG_FT_PROC_FS) && defined(MODULE)
+ 	ftape_proc_destroy();
+ #endif
+ 	(void)ftape_set_nr_buffers(0);
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266448AbRHFBSm>; Sun, 5 Aug 2001 21:18:42 -0400
+	id <S266263AbRHFCOd>; Sun, 5 Aug 2001 22:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbRHFBSc>; Sun, 5 Aug 2001 21:18:32 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:23568 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266150AbRHFBSX>; Sun, 5 Aug 2001 21:18:23 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-Date: 5 Aug 2001 18:17:47 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9kkr7r$mov$1@cesium.transmeta.com>
-In-Reply-To: <20010805171202.A20716@weta.f00f.org> <200108052341.f75Nfhx08227@penguin.transmeta.com> <20010805204143.A18899@alcove.wittsend.com> <9kkq9k$829$1@penguin.transmeta.com>
+	id <S266400AbRHFCOW>; Sun, 5 Aug 2001 22:14:22 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:5761 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S266263AbRHFCOM>;
+	Sun, 5 Aug 2001 22:14:12 -0400
+Date: Mon, 6 Aug 2001 05:15:14 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: <linux-kernel@vger.kernel.org>
+Subject: smb/mount bug.
+Message-ID: <Pine.LNX.4.33L2.0108060511330.25283-100000@spiral.extreme.ro>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <9kkq9k$829$1@penguin.transmeta.com>
-By author:    torvalds@transmeta.com (Linus Torvalds)
-In newsgroup: linux.dev.kernel
->
-> In article <20010805204143.A18899@alcove.wittsend.com>,
-> Michael H. Warfield <mhw@wittsend.com> wrote:
-> >On Sun, Aug 05, 2001 at 04:41:43PM -0700, Linus Torvalds wrote:
-> >
-> >> We could merge more, but I'm not interested in working around broken
-> >
-> >	If it only causes problems for the broken app, that's fine.  If it
-> >causes problems for the rest of the system, that could be bad.
-> 
-> It only causes problem for the broken app. Even then, the problem is a
-> (likely undetectable) slowdown, or in the extreme case the kernel will
-> just tell it that "Ok, you've allocated enough, no more soup for you".
-> 
 
-Do you count applications which selectively mprotect()'s memory (to
-trap SIGSEGV and maintain coherency with on-disk data structures) as
-"broken applications"?
+This should be self explanatory. My guess is, its probably the smb
+filesystem reporting as mounting again a share after network failure.
 
-Such applications *can* use large amounts of mprotect()'s.
+spiral:~$ uname -a
+Linux spiral.extreme.ro 2.4.6-ac5 #6 Sun Jul 29 12:11:51 EEST 2001 i686
+unknown
+spiral:~$ df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hdb1             29024544  22020024   5530160  80% /
+tmpfs                   485948         0    485948   0% /dev/shm
+/dev/hda1             12277680   9646264   2631416  79% /mnt/win1
+/dev/hda5              2369552   2155780    213772  91% /mnt/win2
+//hq/kits             40201216  22372352  17828864  56% /mnt/hq
+//hq/Homes$           40201216  22372352  17828864  56% /home/pdan/hq
+//hq/kits             40201216  22372352  17828864  56% /mnt/hq
+//hq/Movies           40201216  22372352  17828864  56% /mnt/movies
+//hq/Homes$           40201216  22372352  17828864  56% /home/pdan/hq
+//hq/kits             40201216  22372352  17828864  56% /mnt/hq
+//hq/Movies           40201216  22372352  17828864  56% /mnt/movies
+//hq/Homes$           40201216  22372352  17828864  56% /home/pdan/hq
+/dev/scd0               662752    662752         0 100% /mnt/cdrom
+spiral:~$ mount
+/dev/hdb1 on / type ext2 (rw)
+none on /proc type proc (rw)
+none on /dev/pts type devpts (rw,mode=0620)
+tmpfs on /dev/shm type tmpfs (rw)
+/dev/hda1 on /mnt/win1 type vfat (rw)
+/dev/hda5 on /mnt/win2 type ntfs (ro)
+//hq/kits on /mnt/hq type smbfs (0)
+//hq/Homes$ on /home/pdan/hq type smbfs (0)
+//hq/kits on /mnt/hq type smbfs (0)
+//hq/Movies on /mnt/movies type smbfs (0)
+//hq/Homes$ on /home/pdan/hq type smbfs (0)
+//hq/kits on /mnt/hq type smbfs (0)
+//hq/Movies on /mnt/movies type smbfs (0)
+//hq/Homes$ on /home/pdan/hq type smbfs (0)
+/dev/scd0 on /mnt/cdrom type iso9660 (ro,noexec,nosuid,nodev)
+spiral:~$ cat /proc/mounts
+/dev/root / ext2 rw 0 0
+/proc /proc proc rw 0 0
+none /dev/pts devpts rw 0 0
+tmpfs /dev/shm tmpfs rw 0 0
+/dev/hda1 /mnt/win1 vfat rw 0 0
+/dev/hda5 /mnt/win2 ntfs ro 0 0
+//hq/kits /mnt/hq smbfs rw 0 0
+//hq/Homes$ /home/pdan/hq smbfs rw 0 0
+//hq/kits /mnt/hq smbfs rw 0 0
+//hq/Movies /mnt/movies smbfs rw 0 0
+//hq/Homes$ /home/pdan/hq smbfs rw 0 0
+//hq/kits /mnt/hq smbfs rw 0 0
+//hq/Movies /mnt/movies smbfs rw 0 0
+//hq/Homes$ /home/pdan/hq smbfs rw 0 0
+/dev/cdrom /mnt/cdrom iso9660 ro,noexec,nosuid,nodev 0 0
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+

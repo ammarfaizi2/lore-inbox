@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSK3WGW>; Sat, 30 Nov 2002 17:06:22 -0500
+	id <S261205AbSK3WI1>; Sat, 30 Nov 2002 17:08:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSK3WGW>; Sat, 30 Nov 2002 17:06:22 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16624 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261310AbSK3WGV>;
-	Sat, 30 Nov 2002 17:06:21 -0500
-Message-ID: <3DE93813.C8B61048@digeo.com>
-Date: Sat, 30 Nov 2002 14:13:39 -0800
+	id <S261206AbSK3WI0>; Sat, 30 Nov 2002 17:08:26 -0500
+Received: from packet.digeo.com ([12.110.80.53]:18672 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261205AbSK3WIY>;
+	Sat, 30 Nov 2002 17:08:24 -0500
+Message-ID: <3DE9388F.CD7E33FB@digeo.com>
+Date: Sat, 30 Nov 2002 14:15:43 -0800
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: "J.A. Magallon" <jamagallon@able.es>
-CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       hugang <hugang@soulinfo.com>
-Subject: Re: [BUG] ext3-orlov for 2.4
-References: <20021130161618.GK2517@werewolf.able.es>
+CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.20-jam0
+References: <20021129233807.GA1610@werewolf.able.es> <3DE80AB6.611F3A8C@digeo.com> <20021130144541.GA2517@werewolf.able.es>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Nov 2002 22:13:40.0141 (UTC) FILETIME=[BCABC5D0:01C298BD]
+X-OriginalArrivalTime: 30 Nov 2002 22:15:44.0171 (UTC) FILETIME=[06993FB0:01C298BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 "J.A. Magallon" wrote:
 > 
-> HI all...
+> On 2002.11.30 Andrew Morton wrote:
+> >"J.A. Magallon" wrote:
+> >>
+> >> - Orlov inode allocator for 2.4
+> >
+> >The Orlov allocator in 2.5 has caused a tremendous performance regression
+> >in dbench-on-ext3/ordered-on-scsi.
+> >
+> >I don't know why yet - I doubt if it's due to the allocator itself - more
+> >likely an IO scheduling bug in ext3, or a bug in the 2.5 elevator.
+> >
+> >There is no such regression on IDE - presumably write caching is covering
+> >up the problem.
+> >
 > 
-> Tell me if this is correct. GCC-3.2 spits a wrning like this when
-> building -jam, I did not noticed before:
-> 
-> ialloc.c: In function `ext3_new_inode':
-> ialloc.c:546: warning: comparison between pointer and integer
-> ialloc.c:682: warning: label `out' defined but not used
-> ialloc.c:520: warning: `gdp' might be used uninitialized in this function
-> 
-> Line is question is:
->     if (gdp == -1)
->         goto fail;
-> It comes from the orlov-allocator for ext3.
+> Is there any way I can test that ? I have all scsi drives and can
+> for example remount with 'orlov' or 'oldalloc'...
 
-gdp will be NULL on failure.  The above code isn't right.
+It is specific to SMP, and for some reason doesn't manifest with
+IDE hardware.
 
-> Should not the structure be:
->     gdp = ext3_get_group_desc (sb, group, &bh2);
->     if (!gdp)
->         goto fail;
-
-yes.
- 
-> Can anybody check 2.5 for this also ?
-> 
-
-Is OK.
+See
+http://sourceforge.net/mailarchive/forum.php?thread_id=1365460&forum_id=6379
+for the analysis.

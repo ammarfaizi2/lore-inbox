@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272084AbRHVTAi>; Wed, 22 Aug 2001 15:00:38 -0400
+	id <S272089AbRHVTDS>; Wed, 22 Aug 2001 15:03:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272086AbRHVTA3>; Wed, 22 Aug 2001 15:00:29 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13323 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S272084AbRHVTAR>; Wed, 22 Aug 2001 15:00:17 -0400
-Message-ID: <3B84014C.6DFEA362@delusion.de>
-Date: Wed, 22 Aug 2001 21:00:28 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac9 i686)
-X-Accept-Language: en, de
+	id <S272086AbRHVTDI>; Wed, 22 Aug 2001 15:03:08 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8208 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272089AbRHVTCy>; Wed, 22 Aug 2001 15:02:54 -0400
+Subject: Re: Qlogic/FC firmware
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Wed, 22 Aug 2001 20:05:56 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0108221431060.6389-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 22, 2001 02:46:27 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: Alan Cox <laughing@shared-source.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac9
-In-Reply-To: <20010822124856.A5395@lightning.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZdK8-00025A-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> -#include "qlogicfc_asm.c"
+> +//#include "qlogicfc_asm.c"
 > 
->         ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
-> 
->                  Intermediate diffs are available from
->                         http://www.bzimage.org
-> 
-> 2.4.8-ac9
-> o       Possible usb -110 error fix                     (me)
+> (I will note, that's not even a valid C construct. '//' is a C++ism.)
 
-It's still broken.
+Your C standard is as out of date as your architecture ;)
 
-Regards,
--Udo.

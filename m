@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265885AbTAXX6N>; Fri, 24 Jan 2003 18:58:13 -0500
+	id <S265895AbTAYAQI>; Fri, 24 Jan 2003 19:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265886AbTAXX6N>; Fri, 24 Jan 2003 18:58:13 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:35792 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265885AbTAXX6M>; Fri, 24 Jan 2003 18:58:12 -0500
-Message-ID: <3E31D349.9B8CF412@us.ibm.com>
-Date: Fri, 24 Jan 2003 15:59:06 -0800
-From: Janet Morgan <janetmor@us.ibm.com>
-Reply-To: janetmor@us.ibm.com
-X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hui_Ning@3com.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: epoll patch for 2.4.18
-References: <OFBBFE5834.6A43553D-ON86256CB8.0078A5B3@3com.com>
+	id <S265909AbTAYAQI>; Fri, 24 Jan 2003 19:16:08 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:48772 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S265895AbTAYAQH>;
+	Fri, 24 Jan 2003 19:16:07 -0500
+Date: Sat, 25 Jan 2003 02:25:19 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: John Bradford <john@grabjohn.com>
+Cc: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
+Subject: Re: Server down?
+Message-ID: <20030125002519.GO787@mea-ext.zmailer.org>
+References: <334DD5C2ADAB9245B60F213F49C5EBCD05D54F94@axcs03.cos.agilent.com> <200301231902.h0NJ2Z6s001955@darkstar.example.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200301231902.h0NJ2Z6s001955@darkstar.example.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sys_epoll 2.5.51 (which I believe is still current) was backported to 2.4.20 in
-the following patch and should provide the support you're looking for:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104009079418105&w=2
-Note it won't apply cleanly to 2.4.18, but should be easy to rework.
+On Thu, Jan 23, 2003 at 07:02:35PM +0000, John Bradford wrote:
+> > For some reason, I don't receive mail send to linux kernel anymore.
+> > Is that a server problem or I need to do the subscribe again.  It
+> > happened fron yesterday.
+> 
+> The list server probably de-subscribed you.  Try re-subscribing.
 
-Hui_Ning@3com.com wrote:
+Lets see what logs tell:
 
-> hello,
->
-> is there any epoll patch for 2.4.18 kernel that also supports tty, ppp file
-> descriptor in addition to fds to pipe and socket ?
->
-> thanks
->
-> hui
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+    @grabjohn.com linux-kernel relaying denied
+  yiding_wang@agilent.com linux-kernel user unknown
 
+Agilent had front-end system loosing its database/mind temporarily
+(but 1 hour "temporary" is 10-60 bounces depending on the hour...)
+
+Cases of "relaying denied" (wording varies) are fairly easy to understand.
+Cases where systems have temporary insanities are most difficult to analyze...
+
+> John.
+
+/Matti Aarnio

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265644AbUATUpk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 15:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbUATUpk
+	id S265750AbUATUgO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 15:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265751AbUATUgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 15:45:40 -0500
-Received: from mcgroarty.net ([64.81.147.195]:38537 "EHLO pinkbits.internal")
-	by vger.kernel.org with ESMTP id S265644AbUATUph (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 15:45:37 -0500
-Date: Tue, 20 Jan 2004 14:45:37 -0600
-To: linux-kernel@vger.kernel.org
-Subject: Re: HPT370 status [2.4/2.6]
-Message-ID: <20040120204537.GA6820@mcgroarty.net>
-References: <1g0ZG-2q6-15@gated-at.bofh.it> <400D72B5.40705@gmx.at> <yw1x4quqo1gx.fsf@ford.guide>
+	Tue, 20 Jan 2004 15:36:14 -0500
+Received: from SMTP1.andrew.cmu.edu ([128.2.10.81]:32727 "EHLO
+	smtp1.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S265750AbUATUgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 15:36:08 -0500
+Subject: 2.6.1 "clock preempt"?
+From: Steinar Hauan <steinhau@andrew.cmu.edu>
+Reply-To: hauan@cmu.edu
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Carnegie Mellon University
+Message-Id: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
-Content-Disposition: inline
-In-Reply-To: <yw1x4quqo1gx.fsf@ford.guide>
-X-Debian-GNU-Linux: Rocks
-From: Brian McGroarty <brian@mcgroarty.net>
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Tue, 20 Jan 2004 15:36:08 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+  i've started to test the 2.6 series of kernels and observed a
+  strange thing: with moderate background load, the system clock
+  (i.e. time) seems to slow down to about 60% of normal speed
+  and the normally reliable ntp process (v4.2.0)
 
-Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
-> Jan De Luyck wrote:
->> Hello List,
->> Before I start frying my disks and all, what's the usability status
->> of the Hightpoint HPT370 ide "raid" controller on linux 2.4 and 2.6?
->
-> 2.4 is fine if you use the ataraid code. mirroring is not fault
-> tolerant so you would not want to use that.
+  details: working interactively with a couple of background dummy
+  processes (*1), my system clock slowed down approx 90 mins over
+  a period of approx 4 hrs real time.
+ 
+(*1) infinite loop: 1 rip, 1 encode -- both run at nice 10
 
-No problems with 2.4 here.
+  the kernel logs show messages on the form:
 
-2.6 recognizes my 374, which uses the hpt366 driver like the
-370. However, no devices are being made available from it [1].
+localhost kernel: Losing too many ticks!
+localhost kernel: TSC cannot be used as a timesource.
+                       (Are you running with SpeedStep?)
+localhost kernel: Falling back to a sane timesource.
+localhost kernel: set_rtc_mmss: can't update from 5 to 58
 
-If others' experiences are any different, I'd love to hear.
+  without the background load, the system keeps perfect time.
+
+==> any ideas of what could be going on would be appreciated.
+
+  hardware details
+    Intel P4 2.53gz on Supermicro P4SAA mobo (Intel 7205 chipset)
+    1gb memory; multiple drives; Promise Ultra/133 raid controller
+  software
+    kernel 2.6.1 w/APIC and PREEMPT options turned on.
+    Fedora Core 1 + selected development packages (verified on 2.4).
+
+  more info available on request.
+
+regards,
+-- 
+  Steinar Hauan, dept of ChemE  --  hauan@cmu.edu
+  Carnegie Mellon University, Pittsburgh PA, USA
 
 
-[1] http://lkml.org/lkml/2004/1/16/18
-
---GvXjxJ+pjyke8COw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFADZNx2PBacobwYH4RAmNMAJ9cYR+iSutoVw5fdaTfWkinHk1RhACcDIi8
-XoBY5Y4kR3Wn09oxa3d0TfU=
-=dU/v
------END PGP SIGNATURE-----
-
---GvXjxJ+pjyke8COw--

@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUJDMqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUJDMrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268128AbUJDMqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUJDMqZ
+	id S268105AbUJDMrf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbUJDMrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:46:25 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22280 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S268128AbUJDMqQ convert rfc822-to-8bit (ORCPT
+	Mon, 4 Oct 2004 08:47:35 -0400
+Received: from [217.222.53.238] ([217.222.53.238]:17572 "EHLO mail.gts.it")
+	by vger.kernel.org with ESMTP id S268105AbUJDMr3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:46:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Alessandro Sappia <a.sappia@ngi.it>, linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation of Linux in Telsey Video Station Product
-Date: Mon, 4 Oct 2004 13:44:45 +0000
-X-Mailer: KMail [version 1.4]
-References: <41613F2F.2000706@ngi.it>
-In-Reply-To: <41613F2F.2000706@ngi.it>
+	Mon, 4 Oct 2004 08:47:29 -0400
+Message-ID: <4161462A.5040806@gts.it>
+Date: Mon, 04 Oct 2004 14:46:34 +0200
+From: Stefano Rivoir <s.rivoir@gts.it>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200410041344.45700.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm2
+References: <20041004020207.4f168876.akpm@osdl.org>
+In-Reply-To: <20041004020207.4f168876.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 October 2004 12:16, Alessandro Sappia wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Good Morning,
-> I'm a Customer of a broadband ISP in Italy; They sell ont only the
-> connection, but they add VoIP Phone and TVoIP. (Both TV on Demand and TV
-> Broadcasting).
-> I bought a Video Station branded by my carrier and surprisingly I found
-> that the operating system the use is a modified version of linux.
-> It was possible for me to see it because the Videostation Itself is just
-> a PC with an Ethernet Card on it and it does boot from remotely.
+Andrew Morton wrote:
 
-Does it itself contain Linux? It is possible that bootstrap
-tftp loader isn't Linux. In this case Videostation itself does not
-contain Linux until you turn it on.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/
+> 
+> 
+> - Hopefully those x86 compile errors are fixed up.
+> 
+> - Various fairly minor updates
 
-But downloading Linux kernel and GPLed software via
-tftp and NFS is itself an act of distribution, and I think you
-have the right to obtain source from distributor (in this case,
-your ISP).
+(#ifdef around is_irq_stack_ptr already applied)
 
-> I sniffed tftp traffic upon boot and in it it is possible to recognize
-> linux, over that the / dir is mounted over NFS and it was possible for
-> me to see more and more file belonging to it.
-> I then asked my seller if they use linux on my VideoStation and call
-> center tell me yes, but the call center people don't know where to find
-> source code of their linux version.
-> I contacted the the real producer of the videostation but they told me
-> the the contract they have with the carrier told they sell without OS
-> videostatiuons to them.
-> What to do now ?
+Kernel BUGs at boot time, here is what I see (copied by hand, I hope 
+Stack and Code hex values are not that important :)):
 
-Send text of GPL to the ISP and state that you'd like to get
-complete, buildable source tree for each GPLed binary component you
-received over the wire.
---
-vda
+[...]
+IP: routing cache hash table of 4096 buckets, 32KBytes
+kmem_cache_create: Early error in slab ip_fib_hash
+-----[ cut here ] -----
+kernel BUG at mm/slab.c:1185!
+invalid operand: 0000 [#1]
+PREEMPT
+Modules linked in:
+CPU:	0
+EIP:	0060:[<c01348f6>]	Not tainted VLI
+EFLAGS: 00010282 (2.6.9-rc3-mm2)
+EIP is at kmem_cache_create+0x51d/0x53e
+eax: 00000036  ebx: 00000000  ecx: c02b7f04  edx: 00001d9f
+esi: 00000000  edi: 000000ff  ebp: c15fe3c0  esp: dff83f30
+ds: 007b    es: 007b    ss: 0068
+Process swapper: (pid: 1, threadinfo=dff82000 task=dff815f0)
+Stack: (stripped, hope you don't need this :)
+Call trace:
+  [<>] fib_hash_init+0xd8/0xe2
+  [<>] ip_fib_init+0xa/0x32
+  [<>] ip_rt_init+0x1cc/0x2e3
+  [<>] ip_init+0xf/0x14
+  [<>] inet_init+0xd0/0x1b3
+  [<>] do_initcalls+0x27/0xad
+  [<>] init+0x0/0xf8
+  [<>] init+0x0/0xf8
+  [<>] init+0x2a/0xf8
+  [<>] kernel_thread_helper+0x0/0xb
+  [<>] kernel_thread_helper+0x5/0xb
+
+Bye.
+
+-- 
+Stefano RIVOIR
+

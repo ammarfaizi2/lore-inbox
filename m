@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVAYVlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVAYVom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVAYVlN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVAYVkd
+	id S262160AbVAYVom (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:44:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVAYVol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:40:33 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:31642
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262174AbVAYVjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 16:39:47 -0500
-Subject: Re: User space out of memory approach
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Mauricio Lin <mauriciolin@gmail.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <3f250c7105012513136ae2587e@mail.gmail.com>
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <20050111083837.GE26799@dualathlon.random>
-	 <3f250c71050121132713a145e3@mail.gmail.com>
-	 <3f250c7105012113455e986ca8@mail.gmail.com>
-	 <20050122033219.GG11112@dualathlon.random>
-	 <3f250c7105012513136ae2587e@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 22:39:39 +0100
-Message-Id: <1106689179.4538.22.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 16:44:41 -0500
+Received: from fsmlabs.com ([168.103.115.128]:43689 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262160AbVAYVlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:41:53 -0500
+Date: Tue, 25 Jan 2005 14:42:13 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Matt Mackall <mpm@selenic.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1 Random related problems
+In-Reply-To: <20050125204056.GL12076@waste.org>
+Message-ID: <Pine.LNX.4.61.0501251442020.7989@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0501242134390.3010@montezuma.fsmlabs.com>
+ <20050125204056.GL12076@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 17:13 -0400, Mauricio Lin wrote:
-> Hi Andrea,
+On Tue, 25 Jan 2005, Matt Mackall wrote:
+
+> On Mon, Jan 24, 2005 at 09:36:37PM -0700, Zwane Mwaikambo wrote:
+> > I'm having trouble booting here, were those random-* patches tested?
+> > 
+> > EIP is at __add_entropy_words+0xc5/0x1c0
+> > eax: 0000002d   ebx: 0000000f   ecx: 0000007b   edx: f5e50000
+> > esi: c0810980   edi: 0000000f   ebp: f5e4fea4   esp: f5e4fe5c
+> > ds: 007b   es: 007b   ss: 0068
+> > Process dd (pid: 2255, threadinfo=f5e4e000 task=ebdd7ac0)
+> > Stack: 00000010 78000000 c07043e0 00000286 0000007b 0000001f 00000001 00000007
+> >        0000000e 00000014 0000001a 00000000 0000002d f5e50000 c07043c0 00000080
+> >        c0704340 c07043c0 f5e4ff40 c037a4e0 00000000 00000010 2cda69d0 f7b9f75e
+> > Call Trace:
+> >  [<c010403a>] show_stack+0x7a/0x90
+> >  [<c01041c6>] show_registers+0x156/0x1c0
+> >  [<c01043e0>] die+0x100/0x190
+> >  [<c0116d59>] do_page_fault+0x349/0x63f
+> >  [<c0103cc7>] error_code+0x2b/0x30
+> >  [<c037a4e0>] xfer_secondary_pool+0xb0/0xe0
 > 
-> Your OOM Killer patch was tested and a strange behaviour was found.
-> Basically as normal user we started some applications as openoffice,
-> mozilla and emacs.
-> And as a root (in another tty) we started a simple program that uses
-> malloc in a forever loop as below:
+> This oops is add_entropy_words running off the top of the stack
+> reading its input. The overrun is harmless until it causes a page
+> fault. After much staring:
 > 
-> int main (void)
-> {
->   int * mem;
->   for (;;)
->         mem = (int *) malloc(sizeof(int));
->   return 0;
-> }
-> 
-> 
-> Using the original OOM Killer, malloc is the first killed application
-> and the sytem is restored in a useful state. After applying your patch
-> and accomplish the same experiment, the OOM Killer it does not kill
-> malloc program and it enters in a kind of forever loop as below:
-> 
-> 1) out_of_memory is invoked;
-> 2) select_bad_process is invoked;
+> This should fix Zwane's oops. Looks like I introduced this bug in Aug
+> 2003, but it was hard to trigger until the recent changes. But it
+> ought to make it to mainline soonish.
 
-Which process is selected ?
-
-> 3) the following condition is fullfied;
-> if ((unlikely(test_tsk_thread_flag(p, TIF_MEMDIE)) || (p->flags &
-> PF_EXITING)) &&
-> 			    !(p->flags & PF_DEAD))
-> 				return ERR_PTR(-1UL);
-
-???
-
-Can you please show the kernel messages ?
-
-tglx
-
+Thanks Matt, that fixes it.
 

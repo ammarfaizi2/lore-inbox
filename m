@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTKBMwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 07:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTKBMwk
+	id S261684AbTKBNLf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 08:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTKBNLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 07:52:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8462 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261683AbTKBMwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 07:52:39 -0500
-Date: Sun, 2 Nov 2003 12:52:03 +0000
-From: Dave Jones <davej@redhat.com>
-To: Geoffrey Lee <glee@gnupilgrims.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] reproducible athlon mce fix
-Message-ID: <20031102125202.GA7992@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Geoffrey Lee <glee@gnupilgrims.org>, linux-kernel@vger.kernel.org
-References: <20031102055748.GA1218@anakin.wychk.org>
+	Sun, 2 Nov 2003 08:11:35 -0500
+Received: from dsl093-039-041.pdx1.dsl.speakeasy.net ([66.93.39.41]:38865 "EHLO
+	raven.beattie-home.net") by vger.kernel.org with ESMTP
+	id S261684AbTKBNLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 08:11:34 -0500
+Subject: Re: Things that Longhorn seems to be doing right
+From: Brian Beattie <beattie@beattie-home.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 02 Nov 2003 08:11:32 -0500
+Message-Id: <1067778693.1315.76.camel@kokopelli>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031102055748.GA1218@anakin.wychk.org>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 02, 2003 at 01:57:48PM +0800, Geoffrey Lee wrote:
+On Fri, 2003-10-31 at 08:59, Herman wrote:
+ 
+> BTW, to my mind, the killer app in a business environment is the automatic 
+> file versioning feature in longhorn.  This protects people against fat finger 
+> mistakes, and geez, any business has its fair share of fat head, fat finger 
+> and dumb blond types.  This is the only feature from VMS that I am longing 
+> for...
+> 
 
- >  	preempt_disable(); 
- > +#if CONFIG_MK7
- > +	for (i=1; i<nr_mce_banks; i++) {
- > +#else
- >  	for (i=0; i<nr_mce_banks; i++) {
- > +#endif
- >  		rdmsr (MSR_IA32_MC0_STATUS+i*4, low, high);
-
-This needs to be a runtime check. In 2.6, a K7 can boot
-a P4 kernel, and vice versa.
-
-		Dave
+I have had this idea, for a while, that with the continued fall in price
+per bit of storage, and the fact, that back-up strategies are not
+catching up and are perhaps falling behind, that maybe a new paradyne
+for storage might be feasible soon.  The idea is that you have a
+permanent store, using raid or raid-like redundancy and file versioning
+so that nothing is ever deleted, you just keep adding drives and
+replacing those that fail.  Of course you'd need some geographic
+diversity and a way for storage to migrate to newer "file stores" to
+really work, but just think, no more backups to fail...ever!   
 
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+Brian Beattie            | Experienced kernel hacker/embedded systems
+beattie@beattie-home.net | programmer, direct or contract, short or
+www.beattie-home.net     | long term, available immediately.
+
+"Honor isn't about making the right choices.
+It's about dealing with the consequences." -- Midori Koto
+

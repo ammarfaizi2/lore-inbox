@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbUJ1SAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbUJ1SD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262684AbUJ1SAf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 14:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUJ1SAf
+	id S262709AbUJ1SD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 14:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbUJ1SD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 14:00:35 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:29106 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262684AbUJ1SAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 14:00:31 -0400
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: akpm@osdl.org, jdike@addtoit.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/7] uml: add INITRAMFS_SOURCE support
-Date: Thu, 28 Oct 2004 20:01:26 +0200
-User-Agent: KMail/1.7.1
-Cc: cw@f00f.org, user-mode-linux-devel@lists.sourceforge.net
-References: <200410272223.i9RMNi921842@mail.osdl.org>
-In-Reply-To: <200410272223.i9RMNi921842@mail.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 14:03:26 -0400
+Received: from kludge.physics.uiowa.edu ([128.255.33.129]:3593 "EHLO
+	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S262709AbUJ1SDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 14:03:06 -0400
+Date: Thu, 28 Oct 2004 13:02:30 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: Max groups one can be a member of linux/sched.h and NGROUPS_SMALL
+Message-ID: <20041028180230.GD10255@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410282001.26633.blaisorblade_spam@yahoo.it>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 00:27, akpm@osdl.org wrote:
-> From: Chris Wedgwood <cw@f00f.org>
->
-> Add INITRAMFS_SOURCE support for UML
->
-> Signed-off-by: Chris Wedgwood <cw@f00f.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-Ok, this can go in for me (quite obvious). Thanks for this.
+Hello.
+
+In my quest to try and figure out the max number of groups one can be a
+  member of (and to learn more about the kernel internals), I stumbled
+  across the following tidbit:
+
+(excerpted from linux/sched.h)
+#define NGROUPS_SMALL           32
+#define NGROUPS_PER_BLOCK       ((int)(PAGE_SIZE / sizeof(gid_t)))
+struct group_info {
+        int ngroups;
+        atomic_t usage;
+        gid_t small_block[NGROUPS_SMALL];
+        int nblocks;
+        gid_t *blocks[0];
+};
+
+This seems to be the place where group information is stored (linked to from
+  task_struct).
+
+So, it appears to hold 32 gids, but what is this blocks bit?  Is 32 the max
+  number of groups one can be a member of?
+
+Thanks!
+
+-Joseph
+
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

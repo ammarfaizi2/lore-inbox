@@ -1,93 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264035AbTDWNrg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 09:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTDWNrf
+	id S264046AbTDWNqU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 09:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTDWNqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 09:47:35 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:38365 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264035AbTDWNrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 09:47:32 -0400
-Date: Wed, 23 Apr 2003 09:46:00 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Tony Spinillo <tspinillo@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 23 Apr 2003 09:46:20 -0400
+Received: from [81.80.245.157] ([81.80.245.157]:21933 "EHLO smtp.alcove-fr")
+	by vger.kernel.org with ESMTP id S264046AbTDWNqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 09:46:18 -0400
+Date: Wed, 23 Apr 2003 15:58:14 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Tony Spinillo <tspinillo@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
-Message-ID: <20030423134600.GH354@phunnypharm.org>
+Message-ID: <20030423135814.GJ820@hottah.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Ben Collins <bcollins@debian.org>,
+	Tony Spinillo <tspinillo@yahoo.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 References: <20030423122940.51011.qmail@web14002.mail.yahoo.com> <20030423125315.GH820@hottah.alcove-fr> <20030423130139.GD354@phunnypharm.org> <20030423132227.GI820@hottah.alcove-fr> <20030423133256.GG354@phunnypharm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20030423133256.GG354@phunnypharm.org>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tony, you are seeing a different problem. I'll get you a patch soon (for
-> the record, I'm not even subscribed to linux1394-user, but to
-> linux1394-devel).
+On Wed, Apr 23, 2003 at 09:32:56AM -0400, Ben Collins wrote:
 
-Give this patch a try. It's only a workaround, but this check needs to
-be there anyway for sanity. Seems cameras cause this problem more than
-anything else. Has never happeneed to me with my DV camera and DCAM) so
-I haven't been able to pin down the problem yet.
+> > Can we see it please ?
+> 
+> Stelia,
+> 
+> http://www.linux1394.org/viewcvs/ieee1394/branches/linux-2.4
+> 
+> Click the "Download tarball" link and replace drivers/ieee1394 with what
+> you get.
+
+Hey, that's a whole new version of ieee1394 subsystem, see below the
+diffstat.
+
+There is *NO WAY* Marcelo will accept such a patch in the -rc stage.
+
+>From a quick reading, your version seem to do exactly the same thing
+that my patch suggested (removing the spinlock around kernel_thread()),
+possibly with the locking being moved to the upper layer.
+
+Do you have a stripped down patch correcting only the outstanding issues ?
+If you haven't, the choice will be either accepting my patch or 
+reverting your entire ieee1394 changes for the time being.
+
+Stelian.
 
 
-Index: nodemgr.c
-===================================================================
---- nodemgr.c	(revision 899)
-+++ nodemgr.c	(working copy)
-@@ -1264,7 +1264,7 @@
- /* We need to ensure that if we are not the IRM, that the IRM node is capable of
-  * everything we can do, otherwise issue a bus reset and try to become the IRM
-  * ourselves. */
--static int nodemgr_check_irm_capability(struct hpsb_host *host)
-+static int nodemgr_check_irm_capability(struct hpsb_host *host, int cycles)
- {
- 	quadlet_t bc;
- 	int status;
-@@ -1281,10 +1281,19 @@
- 		/* The current irm node does not have a valid BROADCAST_CHANNEL
- 		 * register and we do, so reset the bus with force_root set */
- 		HPSB_DEBUG("Current remote IRM is not 1394a-2000 compliant, resetting...");
-+
-+		if (cycles >= 5) {
-+			/* Oh screw it! Just leave the bus as it is */
-+			HPSB_DEBUG("Stopping reset loop for IRM sanity");
-+			return 1;
-+		}
-+
- 		hpsb_send_phy_config(host, host->node_id, -1);
- 		hpsb_reset_bus(host, LONG_RESET_FORCE_ROOT);
-+
- 		return 0;
- 	}
-+
- 	return 1;
- }
- 
-@@ -1292,6 +1301,7 @@
- {
- 	struct host_info *hi = (struct host_info *)__hi;
- 	struct hpsb_host *host = hi->host;
-+	int reset_cycles = 0;
- 
- 	/* No userlevel access needed */
- 	daemonize();
-@@ -1324,12 +1334,14 @@
- 				i = HZ/4;
- 		}
- 
--		if (!nodemgr_check_irm_capability(host)) {
-+		if (!nodemgr_check_irm_capability(host, reset_cycles++)) {
- 			/* Do nothing, we are resetting */
- 			up(&nodemgr_serialize);
- 			continue;
- 		}
- 
-+		reset_cycles = 0;
-+
- 		nodemgr_node_probe(hi, generation);
- 		nodemgr_do_irm_duties(host);
- 
+ amdtp.c                 |   78 ++--
+ cmp.c                   |   70 ---
+ csr.c                   |   14 
+ dv1394-private.h        |    2 
+ dv1394.c                |   12 
+ eth1394.c               |  110 +-----
+ eth1394.h               |    1 
+ highlevel.c             |  247 +++++++++++--
+ highlevel.h             |   26 +
+ hosts.c                 |   68 +--
+ hosts.h                 |   21 -
+ ieee1394-ioctl.h        |    4 
+ ieee1394.h              |   10 
+ ieee1394_core.c         |  232 +++++++++---
+ ieee1394_core.h         |   15 
+ ieee1394_hotplug.h      |    2 
+ ieee1394_transactions.c |  473 ++++++++++---------------
+ ieee1394_transactions.h |   57 ---
+ ieee1394_types.h        |   26 +
+ nodemgr.c               |  344 +++++++++---------
+ nodemgr.h               |   23 -
+ ohci1394.c              |   37 --
+ pcilynx.c               |  119 +++++-
+ raw1394-private.h       |    1 
+ raw1394.c               |  151 +++-----
+ sbp2.c                  |  875 +++++++++++++++++-------------------------------
+ sbp2.h                  |  149 ++------
+ video1394.c             |  136 ++-----
+ video1394.h             |    1 
+ 29 files changed, 1562 insertions(+), 1742 deletions(-)
+
+
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

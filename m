@@ -1,44 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278603AbRJSS7Y>; Fri, 19 Oct 2001 14:59:24 -0400
+	id <S278604AbRJSTAP>; Fri, 19 Oct 2001 15:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278604AbRJSS7P>; Fri, 19 Oct 2001 14:59:15 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:48107 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278603AbRJSS7B>; Fri, 19 Oct 2001 14:59:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Patrick Mochel <mochel@osdl.org>
-Subject: Re: [RFC] New Driver Model for 2.5
-Date: Fri, 19 Oct 2001 21:02:09 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33.0110191108590.17647-100000@osdlab.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.33.0110191108590.17647-100000@osdlab.pdx.osdl.net>
-Cc: <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <15uerh-0NbBEeC@fmrl04.sul.t-online.com>
+	id <S278605AbRJSS7z>; Fri, 19 Oct 2001 14:59:55 -0400
+Received: from marine.sonic.net ([208.201.224.37]:50300 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S278604AbRJSS7s>;
+	Fri, 19 Oct 2001 14:59:48 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 19 Oct 2001 11:59:37 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: e2fsck, LVM and 4096-char block problems
+Message-ID: <20011019115937.A10588@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 October 2001 20:26, Patrick Mochel wrote:
-> There are equivalents in USB. But, neither of them are globally unique
-> identifiers for the device. That doesn't necessarily mean that one
-> couldn't be ascertained from the device; ethernet cards do have MAC
-> addresses. But, I don't think that many will have a ID/serial number.
-> [...]
-> Which leads me to the question: what real benefit does this have? Why
-> would you ever want to do a global search in kernel space for a particular
-> device? 
 
-For example for harddisks. You usually want them to be mounted in the same 
-directory. Or if you have several printers of the same type connected your 
-computer you need a way of identifying them. Or for ethernet adapters: 
-because each is connected to a different network, so you need to assign 
-different IP addresses to them.
+Using Linus' 2.4.10, unpatched.  (Perhaps I need to patch the LVM stuff ;-)
 
-Actually most USB harddisks, printers and network adapters have unique serial 
-number (you have to be careful though as some claim to have a serial number, 
-but it is not unique).
+I wanted to extend /usr/src from 19G to 20G.
 
-bye...
+I umounted /usr/src, lvextend -L +1G /dev/vg01/src, fsck -f /usr/src,
+resize2fs /dev/vg01/src
+
+resize2fs tells me to run fsck.  Hmmmm... I just did.
+
+I poke around a bit more and notice the following:
+
+Oct 19 11:45:41 thune kernel: ll_rw_block: device 3a:00: only 4096-char
+blocks implemented (1024)
+
+Of course, dumpe2fs says:
+Block size:               4096
+
+I tried -f on the resize, and got LOTS of the 4096-char messages.
+
+Some perhaps pertinent information.
+
+thune:~# vgdisplay /dev/vg01
+--- Volume group ---
+VG Name               vg01
+VG Access             read/write
+VG Status             available/resizable
+VG #                  0
+MAX LV                256
+Cur LV                9
+Open LV               8
+MAX LV Size           255.99 GB
+Max PV                256
+Cur PV                5
+Act PV                5
+VG Size               150.29 GB
+PE Size               4 MB
+Total PE              38473
+Alloc PE / Size       28746 / 112.29 GB
+Free  PE / Size       9727 / 38 GB
+VG UUID               xdzl14-LsZ2-IA1c-dGk4-F8EK-xPlt-DV31mQ
+
+
+thune:~# lvdisplay /dev/vg01/src
+--- Logical volume ---
+LV Name                /dev/vg01/src
+VG Name                vg01
+LV Write Access        read/write
+LV Status              available
+LV #                   1
+# open                 0
+LV Size                19 GB
+Current LE             4864
+Allocated LE           4864
+Allocation             next free
+Read ahead sectors     120
+Block device           58:0
+
+
+Obviously I have the option of creating a new volume and moving things over
+to that, but that sort of defeats the purpose of these particular tools.
+
+Recommended course of action?
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281456AbRKVTFe>; Thu, 22 Nov 2001 14:05:34 -0500
+	id <S281480AbRKVTIe>; Thu, 22 Nov 2001 14:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281458AbRKVTFY>; Thu, 22 Nov 2001 14:05:24 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:32288 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S281456AbRKVTFQ>; Thu, 22 Nov 2001 14:05:16 -0500
-Date: Thu, 22 Nov 2001 21:05:03 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+	id <S281458AbRKVTIY>; Thu, 22 Nov 2001 14:08:24 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:57724 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281480AbRKVTIP>; Thu, 22 Nov 2001 14:08:15 -0500
+Date: Thu, 22 Nov 2001 20:08:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Paul Mackerras <paulus@samba.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: What are the recommended software RAID patch(es) for 2.2.20?
-Message-ID: <20011122210503.B4809@niksula.cs.hut.fi>
-In-Reply-To: <2173081930.1006455144@[195.224.237.69]>
+Subject: Re: [RFC][PATCH] flush_icache_user_range
+Message-ID: <20011122200815.P1338@athlon.random>
+In-Reply-To: <15356.58612.264155.733585@cargo.ozlabs.ibm.com> <20011122194828.N1338@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <2173081930.1006455144@[195.224.237.69]>; from linux-kernel@alex.org.uk on Thu, Nov 22, 2001 at 06:52:24PM -0000
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011122194828.N1338@athlon.random>; from andrea@suse.de on Thu, Nov 22, 2001 at 07:48:28PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 22, 2001 at 06:52:24PM -0000, you [Alex Bligh - linux-kernel] claimed:
-> What are the recommended software RAID patch(es) for 2.2.20.
+On Thu, Nov 22, 2001 at 07:48:28PM +0100, Andrea Arcangeli wrote:
+> On Thu, Nov 22, 2001 at 10:43:48PM +1100, Paul Mackerras wrote:
+> > The patch below changes access_one_page in kernel/ptrace.c to use a
+> > new function, flush_icache_user_range, instead of flush_icache_page as
+> > at present.  The reason for making this change is that
+> > flush_icache_page is also called in do_no_page and do_swap_page, where
+> > it does a fundamentally different job.  Decoupling the two makes it
+> > possible to improve performance, because we can make flush_icache_page
+> > do the flush only when needed.
+> > 
+> > This patch particularly affects alpha: for alpha I renamed the
+> > existing flush_icache_page to flush_icache_user_range and made
+> > flush_icache_page a no-op.  This is based on a suggestion from
+> > Andrea and the comments in the code.  I would be very interested to
+> > hear how it affects alpha as regards stability and performance.
+> > 
+> > For PPC, I have added a flush_icache_user_range that only flushes the
+> > cachelines that have been modified.  I have a more extensive
+> > cache-flush avoidance patch in the works that depends on this one and
+> > also needs modifications to clear_user_page and copy_user_page.  This
+> > all gives us a substantial performance increase on PPC.
+> > 
+> > For all the other architectures I have made flush_icache_user_range
+> > the same as flush_icache_page, i.e. a no-op for most architectures.
+> > So this patch should have zero impact except on alpha and PPC, and on
+> > alpha it should improve performance.
+> > 
+> > Note that flush_icache_user_range is different from flush_icache_page
+> > now in that flush_icache_user_range is only called when the page has
+> > been modified, so we know we do have to flush (if the icache doesn't
+> > snoop stores by the cpu).  In contrast, flush_icache_page is called in
+> > situations where the page often (usually?) is unmodified, so it makes
+> > sense to try to work out whether the flush is actually needed.
+> > 
+> > Comments?  Linus, would you be willing to apply this?
 > 
-> I have applied, but not yet tested, raid-2.2.19-A1, which
-> fails on one hunk in init.c which I think is unimportant
-> (seemingly 2.2.20 has a full boot line to device translation
-> table without conditionality of compilation).
+> I will try to give it a spin, it should be a very nice speedup for
 
-I just applied raid-2.2.19-A1 on 2.2.20 and have it running.
-I'm not 100% sure it works, though, since I get always the same md5sum from
+it seems to work fine on my dual ev6.
 
-cat /dev/hde | md5sum
-or 
-cat /dev/hdg | md5sum
-(hdg and hde are not the same, but successive hde runs are the same as are
-hdg runs.)
-
-but
-cat /dev/md0 | md5sum
-
-is different every time. md0 consists of hde and hdg striped together.
-(Again, I'm not expecting it to be same as hde or hdg, but consistent over
-successive runs.) Successive hde and hdg runs are consistent even when run
-in parallel.
-
-Any ideas what could cause this? A short read or something else trivial?
-
-I'll try to go back to 2.2.18pre19 soon, and see if it happens there. Also,
-I'll try to see where the difference is. The first GB of md0 md5sums ok.
-
-I'm having a lot of problem with this setup, and raid code is not my primary
-suspect. My gut feeling is that you should be safe with raid-2.2.19-A1 on
-top of 2.2.20 and my problem is elsewhere.
- 
-> Do I need to apply anything else? (-A2, -A3, -B1, -B2 or
-> whatever)
-
-I reckon not. -B3, -A1 etc are version codes Ingo likes to use.
-
-
--- v --
-
-v@iki.fi
+Andrea

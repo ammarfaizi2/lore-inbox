@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264165AbUFPRIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUFPRZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264165AbUFPRIH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 13:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUFPRHz
+	id S264251AbUFPRZY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 13:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUFPRZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 13:07:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:62451 "EHLO
-	orion.mvista.com") by vger.kernel.org with ESMTP id S264247AbUFPRFF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 13:05:05 -0400
-Date: Wed, 16 Jun 2004 10:04:46 -0700
-From: Jun Sun <jsun@mvista.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mips@linux-mips.org, jsun@mvista.com
-Subject: Re: [PATCH] make ps2 mouse work ...
-Message-ID: <20040616100446.J28403@mvista.com>
-References: <20040615191023.G28403@mvista.com> <20040615205611.1e9cbfcc.akpm@osdl.org> <20040616121149.GA9325@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040616121149.GA9325@ucw.cz>; from vojtech@suse.cz on Wed, Jun 16, 2004 at 02:11:49PM +0200
+	Wed, 16 Jun 2004 13:25:24 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:54684 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264251AbUFPRZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 13:25:23 -0400
+Message-ID: <40D08225.6060900@colorfullife.com>
+Date: Wed, 16 Jun 2004 19:23:49 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dimitri Sivanich <sivanich@sgi.com>
+CC: linux-kernel@vger.kernel.org, lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [PATCH]: Option to run cache reap in thread mode
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 02:11:49PM +0200, Vojtech Pavlik wrote:
-> On Tue, Jun 15, 2004 at 08:56:11PM -0700, Andrew Morton wrote:
-> 
-> > > I found this problem on a MIPS machine.  The problem is 
-> > > likely to happen on other register-rich RISC arches too.
-> > > 
-> > > cmdcnt needs to be volatile since it is modified by
-> > > irq routine and read by normal process context.
-> > 
-> > volatile is not the preferred way to fix this up.  This points at either a
-> > locking error in the psmouse driver or a missing "memory" thingy in the
-> > mips port somewhere.
-> > 
-> > Please describe the bug which led to this patch.  Where was it getting stuck?
-> 
-> My current BK tree has this fixed using atomic bitfields, which do
-> compilation and memory barriers. I plan to sync it to Linus post 2.6.7.
-> 
+Dimitri wrote:
 
-Can you post the patch here?  I am sure many people are eagerly waiting
-for the right fix.  Plus there will be extra pairs of eyes to exam the fix.
+>In the process of testing per/cpu interrupt response times and CPU availability,
+>I've found that running cache_reap() as a timer as is done currently results
+>in some fairly long CPU holdoffs.
+>
+What is fairly long?
+If cache_reap() is slow than the caches are too large.
+Could you limit cachep->free_limit and check if that helps? It's right 
+now scaled by num_online_cpus() - that's probably too much. It's 
+unlikely that all 500 cpus will try to refill their cpu arrays at the 
+same time. Something like a logarithmic increase should be sufficient.
+Do you use the default batchcount values or have you increased the values?
+I think the sgi ia64 system do not work with slab debugging, but please 
+check that debugging is off. Debug enabled is slow.
 
-Jun
+--
+    Manfred
+

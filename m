@@ -1,58 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275044AbTHLFim (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 01:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275045AbTHLFim
+	id S275056AbTHLFzf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 01:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275058AbTHLFzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 01:38:42 -0400
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:22759 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S275044AbTHLFil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 01:38:41 -0400
-Subject: Re: NAT + IPsec in 2.6.0-test2
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Jim Carter <jimc@math.ucla.edu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0308112150430.4824@xena.cft.ca.us>
-References: <1060662905.1840.103.camel@iso-8590-lx.zeusinc.com>
-	 <Pine.LNX.4.53.0308112150430.4824@xena.cft.ca.us>
-Content-Type: text/plain
-Message-Id: <1060666691.1840.117.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 12 Aug 2003 01:38:11 -0400
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.7, required 10,
-	AWL, EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_00_01)
+	Tue, 12 Aug 2003 01:55:35 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:52996 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S275056AbTHLFzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 01:55:32 -0400
+Date: Tue, 12 Aug 2003 01:43:36 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>
+Subject: [PATCH][2.6-mm] cpumask_t - ioapic set_ioapic_affinity
+Message-ID: <Pine.LNX.4.53.0308120138400.26153@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-12 at 00:56, Jim Carter wrote:
-> Could it be that the *name* of the ipsec device has changed?  Messing with
-> vtun, I did that to myself recently and suffered a similar loss of
-> connectivity through the tunnel.  My solution was an iptables rule saying
-> that packets going to any interface except the house network get NATted.
+Hi Andi,
+	Would this be an ok way to program the destination? I noticed that 
+your default target is 1 (TARGET_CPUS)
 
-Because the new IPsec code is built in there is no "ipsec" device to
-speak of.  My initial analysis is that FreeS/WAN basically fed a packet
-through the system twice, once via the real interface and once via the
-tunnel.  This allowed for easy separation of rules.
+arch/x86_64/kernel/io_apic.c:1311: warning: initialization from 
+incompatible pointer type
+arch/x86_64/kernel/io_apic.c:1322: warning: initialization from 
+incompatible pointer type
 
-This simply doesn't seem to be the case anymore, packets leaving an
-interface are either encrypted or not based on kernel policies set via
-setkey.  It looks like it's been encrypted before it reaches the
-POSTROUTING rule thus precluding it from being NAT'd.
-
-My rule doesn't use an interface anyway, it's this:
-
-iptables -t nat -A POSTROUTING -s ! 10.250.1.129/32 -d 10.0.0.0/8 -j
-SNAT --to-source 10.250.1.129
-
-Which basically says if a packet is going to 10.0.0.0/8 and it's source
-is not 10.250.1.129 to SNAT it to that address.
-
-Later,
-Tom
-
-
+Index: linux-2.6.0-test3-x86_64/include/asm-x86_64/smp.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test3/include/asm-x86_64/smp.h,v
+retrieving revision 1.2
+diff -u -p -B -r1.2 smp.h
+--- linux-2.6.0-test3-x86_64/include/asm-x86_64/smp.h	12 Aug 2003 05:35:44 -0000	1.2
++++ linux-2.6.0-test3-x86_64/include/asm-x86_64/smp.h	12 Aug 2003 05:36:15 -0000
+@@ -67,8 +67,6 @@ static inline int num_booting_cpus(void)
+ 	return cpus_weight(cpu_callout_map);
+ }
+ 
+-extern cpumask_t cpu_callout_map;
+-
+ #define smp_processor_id() read_pda(cpunumber)
+ 
+ extern __inline int hard_smp_processor_id(void)
+@@ -96,6 +94,12 @@ extern inline int safe_smp_processor_id(
+ #define INT_DELIVERY_MODE 1     /* logical delivery */
+ #define TARGET_CPUS 1
+ 
++#ifndef ASSEMBLY
++static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++{
++	return cpus_coerce_const(cpumask);
++}
++#endif
+ 
+ #ifndef CONFIG_SMP
+ #define stack_smp_processor_id() 0
+Index: linux-2.6.0-test3-x86_64/arch/x86_64/kernel/io_apic.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test3/arch/x86_64/kernel/io_apic.c,v
+retrieving revision 1.2
+diff -u -p -B -r1.2 io_apic.c
+--- linux-2.6.0-test3-x86_64/arch/x86_64/kernel/io_apic.c	12 Aug 2003 04:56:16 -0000	1.2
++++ linux-2.6.0-test3-x86_64/arch/x86_64/kernel/io_apic.c	12 Aug 2003 05:11:50 -0000
+@@ -1278,16 +1278,20 @@ static void end_level_ioapic_irq (unsign
+ 
+ static void mask_and_ack_level_ioapic_irq (unsigned int irq) { /* nothing */ }
+ 
+-static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
++static void set_ioapic_affinity (unsigned int irq, cpumask_t mask)
+ {
+ 	unsigned long flags;
++	unsigned int dest;
++
++	dest = cpu_mask_to_apicid(mk_cpumask_const(mask));
++
+ 	/*
+ 	 * Only the first 8 bits are valid.
+ 	 */
+-	mask = mask << 24;
++	dest = dest << 24;
+ 
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+-	__DO_ACTION(1, = mask, )
++	__DO_ACTION(1, = dest, )
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ }
+ 

@@ -1,85 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281512AbRLGOVU>; Fri, 7 Dec 2001 09:21:20 -0500
+	id <S281541AbRLGO0E>; Fri, 7 Dec 2001 09:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281541AbRLGOVK>; Fri, 7 Dec 2001 09:21:10 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:41961 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S281512AbRLGOUu>; Fri, 7 Dec 2001 09:20:50 -0500
-Message-ID: <3C10D03B.1050405@antefacto.com>
-Date: Fri, 07 Dec 2001 14:20:43 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <p73r8q86lpn.fsf@amdsim2.suse.de.suse.lists.linux.kernel> <Pine.LNX.4.33.0112070710120.747-100000@mikeg.weiden.de.suse.lists.linux.kernel> <9upmqm$7p4$1@penguin.transmeta.com.suse.lists.linux.kernel> <p73n10v6spi.fsf@amdsim2.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S281609AbRLGOZu>; Fri, 7 Dec 2001 09:25:50 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:53510 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S281541AbRLGOZh>;
+	Fri, 7 Dec 2001 09:25:37 -0500
+Date: Fri, 7 Dec 2001 15:25:11 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: m.luca@iname.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.17-pre5
+Message-Id: <20011207152511.178ff974.skraw@ithnet.com>
+In-Reply-To: <32470.1007732114@ocs3.intra.ocs.com.au>
+In-Reply-To: <20011207125530.40a13b87.skraw@ithnet.com>
+	<32470.1007732114@ocs3.intra.ocs.com.au>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Sat, 08 Dec 2001 00:35:14 +1100
+Keith Owens <kaos@ocs.com.au> wrote:
 
-> torvalds@transmeta.com (Linus Torvalds) writes:
+> On Fri, 7 Dec 2001 12:55:30 +0100, 
+> Stephan von Krawczynski <skraw@ithnet.com> wrote:
+> >There is a problem: I made a (really small) patch to Config.in saying:
+> >
+> >   int  '  Maximum number of cards supported by HiSax'
+CONFIG_HISAX_MAX_CARDS 8
+> >
+> >If I check this in the source, it gives me CONFIG_HISAX_MAX_CARDS as (8)
 > 
->>"putc()" is a standard function.  If it sucks, let's get it fixed.  And
->>instead of changing bonnie, how about pinging the _real_ people who
->>write sucky code?
->>
+> Yuck!  CML1 outputs integers as #define CONFIG_foo (number) instead of
+> just number.  CML2 does not do that, I was looking at CML2.  Add this
+> to drivers/isdn/Makefile
 > 
-> It is easy to fix. Just do #define putc putc_unlocked
-> There is just a slight problem: it'll fail if your application is threaded
-> and wants to use the same FILE from multiple threads.
+> CFLAGS_foo.o += -DMAX_CARDS=$(subst (,,$(subst ),,$(CONFIG_HISAX_MAX_CARDS)))
 > 
-> It is a common problem on all OS that eventually got threadsafe stdio. 
-> I bet putc sucks on Solaris too.
-> 
-> -Andi
+> In foo.c, use MAX_CARDS instead of CONFIG_HISAX_MAX_CARDS.  Change foo
+> to the name of the object that you are working on.  When you build, it
+> should say -DMAX_CARDS=8.
 
+Thanks for this hint, but it is not all that easy. Problem is the definition is
+needed for _all_ files in the hisax-subtree, to be more precise for all
+currently including hisax.h. I am not very fond of the idea to add additional
+conditions to the availability of the HISAX_MAX_CARDS symbol, especially if
+they are located in the Makefile. 
+Anyway, how would you generate this additional -D for all files inside a
+certain directory? Obviously the stuff should at least be put inside the
+hisax-Makefile, and not one layer above in isdn-Makefile.
 
-Interesting thread on this:
-http://sources.redhat.com/ml/bug-glibc/2001-11/msg00079.html
+I tried "CFLAGS += ..." but that does not work.
 
-for glibc 2.2.4 with the following program with input file
-of 354371 lines of text(/usr/share/doc/*), where the average line
-length was 37 chars.
-
-getc/putc
-real 
-2.181s
-user 
-2.150s
-sys 
-0.030s
-getc_unlocked/putc_unlocked
-real 
-0.326s
-user 
-0.280s
-sys 
-0.040s
-
-I.E. 669% faster!
-
-Padraig.
-
--------------------
-#include <stdio.h>
-
-#ifndef  _REENTRANT
-#    undef getc
-#    define getc(x)   getc_unlocked(x)
-#    undef putc
-#    define putc(x,y) putc_unlocked(x,y)
-#endif //_REENTRANT
-
-void main(void)
-{
-     int c;
-     while((c=getc(stdin))!=EOF) putc(c,stdout);
-}
-
+Thanks for help,
+Stephan
 

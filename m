@@ -1,77 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTFCWV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 18:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTFCWV1
+	id S261589AbTFCWXi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 18:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbTFCWXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 18:21:27 -0400
-Received: from post-21.mail.nl.demon.net ([194.159.73.20]:55300 "EHLO
-	post-21.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S261566AbTFCWV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 18:21:26 -0400
-Message-ID: <3EDD2260.20200@maatwerk.net>
-Date: Wed, 04 Jun 2003 00:34:08 +0200
-From: Mauk van der Laan <mauk.lists@maatwerk.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	Tue, 3 Jun 2003 18:23:38 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:26265 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261589AbTFCWXg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 18:23:36 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] create /proc/ide/hdX/capacity only once
+Date: Wed, 4 Jun 2003 00:36:41 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: siimage slow on 2.4.21-rc6-ac2
-References: <3EDD1C87.5090906@maatwerk.net> <1054675355.9233.73.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306040036.41227.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
->On Maw, 2003-06-03 at 23:09, Mauk van der Laan wrote:
->  
->
->>I just tested the siimage driver in 2.4.21-rc6-ac2. The errors i get in 
->>-rc6 have disappeared but
->>the computer becomes unresponsive (20 seconds between screen switches) 
->>when I run bonnie
->>and the disk is very slow:
->>    
->>
->
->Sounds like your system has switched back to PIO.
->
->  
->
-Yes, it did. Nothing in the log, though.
+Hi,
+please apply.
+--
+Bartlomiej
 
-Still having problems:
-hdparm -d1 -X66 /dev/hdg
-mke2fs /dev/hdg1
+[ide] create /proc/ide/hdX/capacity only once
 
-See the empty lines and the funny r 18 line?
+In ide_register_subdriver() create drive->proc entries
+only if driver is not idedefault_driver.
 
-Jun  4 00:28:56 debby kernel: blk: queue c0407c34, I/O limit 4095Mb 
-(mask 0xffffffff)
-Jun  4 00:29:42 debby kernel: hdg: dma_timer_expiry: dma status == 0x21
-Jun  4 00:29:52 debby kernel: hdg: dma timeout retry: status=0xd8 { Busy }
-Jun  4 00:29:52 debby kernel:
-Jun  4 00:29:52 debby kernel: hdg: DMA disabled
-Jun  4 00:29:52 debby kernel: ide3: reset phy, status=0x00000113, 
-siimage_reset
-Jun  4 00:30:22 debby kernel: ide3: reset timed-out, status=0xd8
-Jun  4 00:30:22 debby kernel: hdg: status timeout: status=0xd8 { Busy }
-Jun  4 00:30:22 debby kernel:
-Jun  4 00:30:22 debby kernel: ide3: reset phy, status=0x00000113, 
-siimage_reset
-Jun  4 00:30:52 debby kernel: r 18
-Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
-sector 20
-Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
-sector 22
-Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
-sector 4088
-Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
-sector 4090
-(lots more of these)
+[ There won't be /proc/ide/hdX/capacity for devices attached
+  to idedefault_driver now, it reported 0x7fffffff previously. ]
 
-Mauk
+Do not create drive->proc entries in create_proc_ide_drives(),
+they are added later in ide_register_subdriver().
 
+ drivers/ide/ide-proc.c |    8 +-------
+ drivers/ide/ide.c      |    6 ++++--
+ 2 files changed, 5 insertions(+), 9 deletions(-)
+
+diff -puN drivers/ide/ide-proc.c~ide_proc_capacity_fix drivers/ide/ide-proc.c
+--- linux-2.5.70-bk8/drivers/ide/ide-proc.c~ide_proc_capacity_fix	Tue Jun  3 23:07:51 2003
++++ linux-2.5.70-bk8-root/drivers/ide/ide-proc.c	Tue Jun  3 23:13:49 2003
+@@ -712,7 +712,6 @@ void create_proc_ide_drives(ide_hwif_t *
+ 
+ 	for (d = 0; d < MAX_DRIVES; d++) {
+ 		ide_drive_t *drive = &hwif->drives[d];
+-		ide_driver_t *driver = drive->driver;
+ 
+ 		if (!drive->present)
+ 			continue;
+@@ -720,13 +719,8 @@ void create_proc_ide_drives(ide_hwif_t *
+ 			continue;
+ 
+ 		drive->proc = proc_mkdir(drive->name, parent);
+-		if (drive->proc) {
++		if (drive->proc)
+ 			ide_add_proc_entries(drive->proc, generic_drive_entries, drive);
+-			if (driver) {
+-				ide_add_proc_entries(drive->proc, generic_subdriver_entries, drive);
+-				ide_add_proc_entries(drive->proc, driver->proc, drive);
+-			}
+-		}
+ 		sprintf(name,"ide%d/%s", (drive->name[2]-'a')/2, drive->name);
+ 		ent = proc_symlink(drive->name, proc_ide_root, name);
+ 		if (!ent) return;
+diff -puN drivers/ide/ide.c~ide_proc_capacity_fix drivers/ide/ide.c
+--- linux-2.5.70-bk8/drivers/ide/ide.c~ide_proc_capacity_fix	Tue Jun  3 23:07:53 2003
++++ linux-2.5.70-bk8-root/drivers/ide/ide.c	Tue Jun  3 23:12:32 2003
+@@ -2349,8 +2349,10 @@ int ide_register_subdriver (ide_drive_t 
+ 	}
+ 	drive->suspend_reset = 0;
+ #ifdef CONFIG_PROC_FS
+-	ide_add_proc_entries(drive->proc, generic_subdriver_entries, drive);
+-	ide_add_proc_entries(drive->proc, driver->proc, drive);
++	if (drive->driver != &idedefault_driver) {
++		ide_add_proc_entries(drive->proc, generic_subdriver_entries, drive);
++		ide_add_proc_entries(drive->proc, driver->proc, drive);
++	}
+ #endif
+ 	return 0;
+ }
+
+_
 

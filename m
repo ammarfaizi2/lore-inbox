@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266298AbSKOOfg>; Fri, 15 Nov 2002 09:35:36 -0500
+	id <S266314AbSKOOhu>; Fri, 15 Nov 2002 09:37:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266307AbSKOOfg>; Fri, 15 Nov 2002 09:35:36 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16059 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266298AbSKOOff>;
-	Fri, 15 Nov 2002 09:35:35 -0500
-Date: Fri, 15 Nov 2002 14:40:20 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Crooke <dave@convio.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dual athlon XP 1800 problems
-Message-ID: <20021115144020.GA13039@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, David Crooke <dave@convio.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DD4CD06.2010009@convio.com> <1037372088.19971.11.camel@irongate.swansea.linux.org.uk>
+	id <S266318AbSKOOhu>; Fri, 15 Nov 2002 09:37:50 -0500
+Received: from almesberger.net ([63.105.73.239]:8974 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S266314AbSKOOht>; Fri, 15 Nov 2002 09:37:49 -0500
+Date: Fri, 15 Nov 2002 11:37:07 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andy Pfiffer <andyp@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <Martin.Bligh@provisioning.fibertel.com.ar>
+Subject: Re: Kexec for v2.5.47-bk2
+Message-ID: <20021115113707.A3749@almesberger.net>
+References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com> <m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp> <m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp> <m1adkda9dm.fsf_-_@frodo.biederman.org> <20021115145454.B2503@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1037372088.19971.11.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021115145454.B2503@in.ibm.com>; from suparna@in.ibm.com on Fri, Nov 15, 2002 at 02:54:54PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 02:54:48PM +0000, Alan Cox wrote:
- > Make sure you have a current BIOS on dual athlon boxes, the earlier
- > bioses were not terribly good on the whole. Make sure you have a PS/2
- > mouse in the mouse port even if you aren;t going to use it
+Suparna Bhattacharya wrote:
+> What would be best way to pass a parameter or address from the
+> current kernel to kernel being booted (e.g log buffer address
+> or crash dump buffer etc) ?
 
-Unless he's lucky with steppings, it's also possible he's being
-bitten by running XP's instead of MPs.
+At the moment, perhaps the initrd mechanism might be a useful
+interface for this. You'd just leave some space either at the
+beginning or at the end of the real initrd (if there's one),
+and put your data there.
 
-		Dave
+Afterwards, you can extract it either from the kernel, or even
+from user space through /dev/initrd (with "noinitrd")
+
+Advantages:
+ - fairly non-intrusive
+ - (almost ?) all platforms support this way of handling "some
+   object in memory"
+ - easy to play with from user space
+
+Drawbacks:
+ - needs synchronization with existing uses of initrd
+ - a bit hackish
+
+I'd expect that there will be eventually a number of things that
+get passed from old to new kernels (e.g. crash data, device scan
+results, etc.), so it may be useful to delay designing a "clean"
+interface (for this, I expect some TLV structure in the initrd
+area would make most sense) until more of those things have
+shown up.
+
+- Werner
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbULGXbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbULGXhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbULGXbe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 18:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbULGXbe
+	id S261923AbULGXhV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 18:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbULGXhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 18:31:34 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:23271 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S261952AbULGXbb (ORCPT
+	Tue, 7 Dec 2004 18:37:21 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:5248 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261923AbULGXhO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 18:31:31 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH, RFC] protect call to set_tsk_need_resched() by the rq-lock
-Date: Wed, 8 Dec 2004 00:30:58 +0100
-User-Agent: KMail/1.7.1
-References: <200412062339.52695.mbuesch@freenet.de> <20041207131006.GB3710@elte.hu>
-In-Reply-To: <20041207131006.GB3710@elte.hu>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, kernel@kolivas.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1451247.fII86qRS4U";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412080031.08490.mbuesch@freenet.de>
-X-Warning: freenet.de is listed at abuse.rfc-ignorant.org
+	Tue, 7 Dec 2004 18:37:14 -0500
+Date: Wed, 8 Dec 2004 00:36:52 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org, mroos@ut.ee, Riina Kikas <riinak@ut.ee>
+Subject: Re: [PATCH 2.6] clean-up: fixes "comparison between signed
+Message-ID: <20041207233652.GA9939@vana.vc.cvut.cz>
+References: <2C0CC42621D@vcnet.vc.cvut.cz> <Pine.LNX.4.61.0412062352430.3390@dragon.hygekrogen.localhost> <20041207010259.GA12352@vana.vc.cvut.cz> <Pine.LNX.4.61.0412080016570.3320@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412080016570.3320@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1451247.fII86qRS4U
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Dec 08, 2004 at 12:20:01AM +0100, Jesper Juhl wrote:
+> On Tue, 7 Dec 2004, Petr Vandrovec wrote:
+> 
+> > On Tue, Dec 07, 2004 at 12:09:05AM +0100, Jesper Juhl wrote:
+> > > On Mon, 6 Dec 2004, Petr Vandrovec wrote:
+> > > > Correct is (if any fix is needed at all) typecast regs->esp to unsigned
+> > > > long, 
+> > > 
+> > > That would have been my suggestion as well.
+> > > 
+> > > >eventually with check that address is less than (unsigned long)-32,
+> > > > as area at VA 0 is not going to grow "down" to 0xFFFFFxxx, even if you
+> > > > nicely ask.
+> > > 
+> > > you mean something like this - right?
+> > 
+> > Yes.  Though I believe that we already take vma == NULL path when address is that big.
+> 
+> Hmm, where? - maybe I'm blind or just stupid, but I don't seem to be able 
+> to find where we do that.
+> And would it hurt to have that additional check there as well in case 
+> address was modified after the previous check and before being passed to 
+> do_page_fault ? (note: I'm writing this last bit without having mined the 
+> source for info yet).
 
-Quoting Ingo Molnar <mingo@elte.hu>:
->=20
-> * Michael Buesch <mbuesch@freenet.de> wrote:
->=20
-> > The two attached patches (one against vanilla kernel and one against
-> > ck patchset) moves the rq-lock a few lines up in scheduler_tick() to
-> > also protect set_tsk_need_resched().
-> >=20
-> > Is that neccessary?
->=20
-> scheduler_tick() is a special case,
+If find_vma() returns NULL, it is bad_area, and no further tests occur.  Otherwise
+if vma->vm_start <= address, it is good area.
+
+Only when these two conditions are satisifed (find_vma found vma, and this vma begins
+above vma's vm_start, regs->esp is checked.  And as vma->vm_start can be at most 
+0xFFFFF000 (it is page aligned, and you cannot have vma at 4GB - actually you cannot 
+have vma above 3GB on normal kernel, or 4GB-<whatever>MB on 4G/4G kernel), there is 
+no way how 'address' could be in top 4KB, and so adding 32 to it cannot overflow 
+32bit variable.
+
+At least I believe this...
+								Petr Vandrovec
 
 
-> 'current' is pinned and cannot go=20
-> away, nor can it get off the runqueue.
-Can you explain in short, why this is the case, please?
-I don't really get behind it.
-How are the two things enforced?
-
-> So the patch is not needed.=20
->=20
->  Ingo
-
-Thanks.
-
-=2D-=20
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
-
-
---nextPart1451247.fII86qRS4U
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBtj08FGK1OIvVOP4RAs8oAKCbZEGpKMmLzaW7AhCMJfYXP+X92ACePgWr
-6LHTIfAFE/LoHc/Z/CnBk7s=
-=p9Sv
------END PGP SIGNATURE-----
-
---nextPart1451247.fII86qRS4U--

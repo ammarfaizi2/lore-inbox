@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311500AbSCNEPT>; Wed, 13 Mar 2002 23:15:19 -0500
+	id <S311499AbSCNENk>; Wed, 13 Mar 2002 23:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311501AbSCNEPJ>; Wed, 13 Mar 2002 23:15:09 -0500
-Received: from relay1.pair.com ([209.68.1.20]:6665 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S311500AbSCNEO7>;
-	Wed, 13 Mar 2002 23:14:59 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C902631.3A406D51@kegel.com>
-Date: Wed, 13 Mar 2002 20:25:21 -0800
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311500AbSCNENa>; Wed, 13 Mar 2002 23:13:30 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:48135 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S311499AbSCNENR>; Wed, 13 Mar 2002 23:13:17 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: frankeh@watson.ibm.com
+Subject: Re: futex and timeouts 
+Cc: matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: Your message of "Wed, 13 Mar 2002 13:26:53 CDT."
+             <20020313182552.945523FE06@smtp.linux.ibm.com> 
+Date: Thu, 14 Mar 2002 15:15:52 +1100
+Message-Id: <E16lMef-00022r-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Dan Kegel wrote:
-> > I'm all in favor of a userspace fix.  I suggested a patch
-> > to glibc to fix this.  Ulrich rejected it; I'm trying
-> > to coax out of him how he thinks profiling of multithreaded
-> > programs on Linux should be fixed.
+In message <20020313182552.945523FE06@smtp.linux.ibm.com> you write:
 > 
-> Good and I'll reject any kernel patches 8)
+> Ulrich, it seems to me that absolute timeouts are the easiest to do.
 > 
-> If Ulrich won't talk then talk to the NGPT people. Maybe a little
-> competition will warm things up.
+> (a) expand by additional parameter (0) means no timeout desired
+> (b) differentiate the schedule call in futex_down..
+> 
+> Question is whether the granularity of jiffies (10ms) is sufficiently small 
+> for timeouts.....
 
-Surely Ulrich will come up with a constructive proposal for
-how to make gprof work with LinuxThreads.  He wouldn't
-want an important tool like gprof to remain broken for
-years, would he?
+1) You must not export jiffies to userspace.
 
-While I await his constructive response, perhaps I'll get my 
-glibc patch in shape.
-I am maintainer of what amounts to a tiny embedded linux
-distribution, and I'm pretty sure my users would like
-gprof to work.  (In fact, my boss's boss would really
-like gprof to work.  This problem has a lot of visibility.)
+2) They are not a time, they are a counter, and they do wrap.
 
-- Dan
+3) This does not handle the settimeofday case: you need to check in
+   userspace for that anyway.
+
+So, since you need to check if you're trying to sleep for longer than
+(say) 49 days, AND you need to check if you are after the given
+abstime in userspace anyway (settimeofday backwards), you might as
+well convert to relative in userspace.
+
+Sorry,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

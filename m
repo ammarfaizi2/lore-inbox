@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271748AbTHRXGc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 19:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275247AbTHRXGc
+	id S275239AbTHRXLs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 19:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275240AbTHRXLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 19:06:32 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:25259 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S271748AbTHRXGb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 19:06:31 -0400
-Subject: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
-From: Stian Jordet <liste@jordet.nu>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1061237161.614.1.camel@chevrolet.hybel>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC6D@hdsmsx402.hd.intel.com>
-	 <1061234596.594.3.camel@chevrolet.hybel>
-	 <1061237161.614.1.camel@chevrolet.hybel>
-Content-Type: text/plain
-Message-Id: <1061247998.607.2.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 19 Aug 2003 01:06:38 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 19:11:48 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64526 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S275239AbTHRXLr
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 19:11:47 -0400
+Date: Mon, 18 Aug 2003 19:03:30 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Rob Landley <rob@landley.net>
+cc: Linux-Kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
+In-Reply-To: <200308170539.45145.rob@landley.net>
+Message-ID: <Pine.LNX.3.96.1030818185635.2625F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 18.08.2003 kl. 22.06 skrev Stian Jordet:
-> man, 18.08.2003 kl. 21.23 skrev Stian Jordet:
-> > man, 18.08.2003 kl. 19.53 skrev Brown, Len: 
-> > > Try booting with pci=noacpi, and if that doesn't work acpi=off
-> > > If either of those work, then file in bugzilla with component=ACPI and
-> > > assign it to len.brown@intel.com
-> > 
-> > It works when booting with noapic, but not with acpi=off nor pci=noapic.
-> > Does that mean I can't blame you for it?
+On Sun, 17 Aug 2003, Rob Landley wrote:
+
+> On Wednesday 13 August 2003 17:06, Bill Davidsen wrote:
 > 
-> Just to confuse myself (and whoever reading my mails). When I disabled
-> the second onboard ide-port, the kernel booted, but usb didn't work.
-> Absolutely no problem what so ever with -test3.
+> > It would be nice if there were some neat 3-D shreadsheet type thing
+> > listing all drivers, all architectures, UP vs. SMP, and a status such as
+> > WORKS, DOESN'T COMPILE, REPORTED PROBLEMS (SLOW|ERRORS|PANICS) and the
+> > like. I don't even know where to find a good open source 3-D spreadsheet,
+> > and the data certainly is scattered enough to be a project in itself,
+> > chasing a moving target.
+> 
+> You are aware that this would probably take more effort to keep up to date 
+> than the code itself, right?  And that one spreadsheet couldn't 
+> simultaneously be accurate for 2.4, 2.6, -ac, -mm, -redhat, -suse...
 
-I had to enable CONFIG_ACPI_HT=y. But you must have screwed something
-up, since my P3's really, really don't have any Hyper Threading :) ACPI
-was already enabled, and from the help texts, there shouldn't be any
-difference with ACPI_HT then. Nevermind, I'm happy :)
+Did you miss the "It would be nice" and "a project in itself?" I am aware
+of the issues, I was hoping someone would tell me that there was a tool
+which did all this already (bugkeeper?) or suggest some path to a useful
+subset with a manageable resource cost. 
 
-Best regards,
-Stian 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

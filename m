@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267270AbTA0SYB>; Mon, 27 Jan 2003 13:24:01 -0500
+	id <S267266AbTA0SVJ>; Mon, 27 Jan 2003 13:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267273AbTA0SYB>; Mon, 27 Jan 2003 13:24:01 -0500
-Received: from gate.perex.cz ([194.212.165.105]:4618 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S267270AbTA0SX7>;
-	Mon, 27 Jan 2003 13:23:59 -0500
-Date: Mon, 27 Jan 2003 19:33:07 +0100 (CET)
-From: Jaroslav Kysela <perex@perex.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [ALSA] opl3sa2 silence
-In-Reply-To: <200301271854.58093.daniel.ritz@gmx.ch>
-Message-ID: <Pine.LNX.4.44.0301271930020.1279-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267268AbTA0SVI>; Mon, 27 Jan 2003 13:21:08 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24977 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267266AbTA0SVI>;
+	Mon, 27 Jan 2003 13:21:08 -0500
+Date: Mon, 27 Jan 2003 10:18:34 -0800 (PST)
+Message-Id: <20030127.101834.09050196.davem@redhat.com>
+To: zaitcev@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch for fs/partitions/sun.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030127003011.B9530@devserv.devel.redhat.com>
+References: <20030127003011.B9530@devserv.devel.redhat.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jan 2003, Daniel Ritz wrote:
+   From: Pete Zaitcev <zaitcev@redhat.com>
+   Date: Mon, 27 Jan 2003 00:30:11 -0500
 
-> jup, switching mute on/off did the trick. (and i switched to self-compiled
-> alsa-utils since the last mail, not those binaries)
-> however the sound quality is miserable when PCM volume is more than 90%...
-> but what do i care? anyway thanx for the help.
-> 
-> now the question: is it possible to convert the driver to normal pnp, ie. no
-> pnp cards? (forcing the resources by hand is working but using pnp would be
-> much nicer, and since pnpc_ doesn't work for me...)
+   Boots with recent 2.5 greet me with this on the console:
+   
+   [/sbin/fsck.ext2] fsck.ext2 -a /dev/sda6
+   fsck.ext2: Device not configured while trying to open /dev/sda6
+   
+   This happens because I have root on /dev/sda4 and /home on /dev/sda6.
+   Dave, can you take it or should I send it to Trivial?
 
-Yes, this driver might be converted to pnp_device, but I don't like that 
-and I won't do that. I'm actually trying to make some consensus with Adam 
-to remove the whole broken pnpc stuff, because the current model is simply 
-bad and reintroduce something like enhanced pnp_device model when more pnp 
-devices can be probed and grabbed at once. When things are settled down, 
-I'll convert all ALSA drivers to new PnP interface immediately.
+Yes, Viro added this bug in one of his cleanups.  And I just
+continued the bug when I patched in the RAID auto-detect
+support.
 
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
+Applied, thanks.

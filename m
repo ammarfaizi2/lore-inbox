@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVDFWsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVDFWuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbVDFWsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 18:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVDFWsd
+	id S262355AbVDFWuW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 18:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbVDFWuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 18:48:33 -0400
-Received: from gate.crashing.org ([63.228.1.57]:26834 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262352AbVDFWs2 (ORCPT
+	Wed, 6 Apr 2005 18:50:22 -0400
+Received: from fire.osdl.org ([65.172.181.4]:9918 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262353AbVDFWuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 18:48:28 -0400
-Subject: Re: [PATCH] radeonfb: (#2)  Implement proper workarounds for PLL
-	accesses
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <jeoecr1qk8.fsf@sykes.suse.de>
-References: <1110519743.5810.13.camel@gaston>
-	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
-	 <1112743901.9568.67.camel@gaston>  <jeoecr1qk8.fsf@sykes.suse.de>
-Content-Type: text/plain
-Date: Thu, 07 Apr 2005 08:47:35 +1000
-Message-Id: <1112827655.9518.194.camel@gaston>
+	Wed, 6 Apr 2005 18:50:02 -0400
+Date: Wed, 6 Apr 2005 15:43:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ryan Anderson <ryan@michonline.com>
+Cc: gregkh@suse.de, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+       stable@kernel.org, amy.griffis@hp.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, dwmw2@infradead.org
+Subject: Re: [03/08] fix ia64 syscall auditing
+Message-Id: <20050406154316.0b3b3f01.akpm@osdl.org>
+In-Reply-To: <20050405234602.GC4800@mythryan2.michonline.com>
+References: <20050405164539.GA17299@kroah.com>
+	<20050405164647.GD17299@kroah.com>
+	<16978.62622.80542.462568@napali.hpl.hp.com>
+	<1112734158.468.0.camel@localhost.localdomain>
+	<20050405234602.GC4800@mythryan2.michonline.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 00:35 +0200, Andreas Schwab wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Ryan Anderson <ryan@michonline.com> wrote:
+>
+> On Tue, Apr 05, 2005 at 01:49:18PM -0700, Greg KH wrote:
+> > On Tue, 2005-04-05 at 13:27 -0700, David Mosberger wrote:
+> > > >>>>> On Tue, 5 Apr 2005 09:46:48 -0700, Greg KH <gregkh@suse.de> said:
+> > > 
+> > >   Greg> -stable review patch.  If anyone has any objections, please
+> > >   Greg> let us know.
+> > > 
+> > > Nitpick: the patch introduces trailing whitespace.
+> > 
+> > Sorry about that, I've removed it from the patch now.
+> > 
+> > > Why doesn't everybody use emacs and enable show-trailing-whitespace? ;-)
+> > 
+> > Because some of us use vim and ":set list" to see it, when we remember
+> > to... :)
 > 
-> > Hrm... it should only add a few ms, maybe about 20 ms to the mode
-> > switching... If you remove the radeon_msleep(5) call from the
-> > radeon_pll_errata_after_data() routine in radeonfb.h, does it make a
-> > difference ?
+> Try adding this to your .vimrc:
 > 
-> Yes, it does.  Without the sleep, switching is as fast as before.
+> highlight WhitespaceEOL ctermbg=red guibg=red
+> match WhitespaceEOL /\s\+$/
+> 
+> Then you'll have to resist the urge to fix whitespace issues instead of
+> not seeing them at all.
+> 
 
-It is weird tho. Could you try adding a printk or something to figure
-out how much this is called during a typical swich ? It will seriously
-spam your console though ... I would expect only 5 or 6 calls during a
-normal switch (since the PLL value shouldn't change for a flat panel),
-that is no more than maybe 50ms, while it seems you are having a much
-bigger delay.
+Yeah, that's a risk.  But gratuitous trailing whitespace changes shouldn't
+cause a lot of downstream problems due to `patch -l'.
 
-Ben.
+What I do is to ensure that we never _add_ trailing whitespace.  So
+anything which matches
+
+	^+.*[tab or space]$
+
+gets trimmed.  My theory is that after 10 years of this, all the trailing
+whitespace will be gone.  Problem is, I also see the hundreds of lines of
+code in the bk patches which add trailing whitespace :(
+
+Larry sent me a little bk script which would spam the user if they tried to
+commit something which adds trailing whitespace, but maybe that's a bit
+academic right now.
 

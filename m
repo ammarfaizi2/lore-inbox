@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271857AbRH1R2r>; Tue, 28 Aug 2001 13:28:47 -0400
+	id <S271864AbRH1RgS>; Tue, 28 Aug 2001 13:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271861AbRH1R2i>; Tue, 28 Aug 2001 13:28:38 -0400
-Received: from relay1.zonnet.nl ([62.58.50.37]:22210 "EHLO relay1.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S271860AbRH1R22>;
-	Tue, 28 Aug 2001 13:28:28 -0400
-Message-ID: <3B8BD4CB.3D885FC6@linux-m68k.org>
-Date: Tue, 28 Aug 2001 19:28:43 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
+	id <S271862AbRH1RgI>; Tue, 28 Aug 2001 13:36:08 -0400
+Received: from mustard.heime.net ([194.234.65.222]:33408 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S271864AbRH1Rfw>; Tue, 28 Aug 2001 13:35:52 -0400
+Date: Tue, 28 Aug 2001 19:36:01 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Jannik Rasmussen <jannik@east.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: Error 3c900 driver in 2.2.19?
+In-Reply-To: <3B8BD508.47CCA66D@zip.com.au>
+Message-ID: <Pine.LNX.4.30.0108281935230.2909-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
-CC: Andreas Schwab <schwab@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108280617250.8365-100000@penguin.transmeta.com> <3B8BA883.3B5AAE2E@linux-m68k.org> <je4rqsdv4z.fsf@sykes.suse.de> <3B8BCB1B.9C4B35C0@linux-m68k.org> <20010828131229.G9945@ead45>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-"Bill Rugolsky Jr." wrote:
 
-> > Ok, it uses an assignment, but it has almost the same effect (except for
-> > pointer/integer values).
-> 
-> Wrong.  A cast throws away information, making meaningful warnings impossible.
-> The assignment allows the compiler to apply the usual C integral
-> promotions and catch narrowing and non-value-preserving conversions,
-> like unsigned int to int, or an even more common bug, unsigned int to
-> long, which behaves differently depending on whether long is 32 or 64
-> bits.
+On Tue, 28 Aug 2001, Andrew Morton wrote:
 
-Do you have an example? AFAIK this can only be done for constants and
-mosts constants used with min are within usual integer limits.
+> Roy Sigurd Karlsbakk wrote:
+> >
+> > On Tue, 28 Aug 2001, Andrew Morton wrote:
+> >
+> > > Possibly, VM system changes have taken you over some threshold.
+> > > Are you putting a lot of traffic through that machine?
+> >
+> > There's <= 2500 messages (sendmail - usually <5 concurrently) going
+> > through per day, some 10.000 pop connections per day (mostly at working
+> > hours). The server's got some 256 megs of RAM, and is doing some small
+> > databases with postgresql and mysql in addition to the apache server. The
+> > server does not have any problems with swapping, as the text below should
+> > show.
+> >
+> > As far as I can see from linux/mm/swap.c, it shouldn't have anything to do
+> > with freepages... Am I wrong?
+> >
+> > roy
+> >
+> > [root@server log]# free
+> >              total       used       free     shared    buffers     cached
+> > Mem:        257876     252976       4900      64120      65156     147368
+> > -/+ buffers/cache:      40452     217424
+> > Swap:       136512        268     136244
+> >
+>
+> Networking needs to allocate memory at interrupt time.  This is
+> referred to as "atomic allocation".  The only way in which this
+> can be successful is for the VM system to ensure that there is
+> a pool of immediately-allocatable memory lying around.
+>
+> The 2.2 kernel uses the tunables in /proc/sys/vm/freepages to
+> decide how large that pool should be.  Machines which sustain
+> a high network load commonly require more memory than the
+> default freepages setting provides.  People who encounter network
+> Rx allocation failures with 2.2 kernels do report that increasing
+> the freepages tunables fixes the problem.
+>
+> -
+>
 
-bye, Roman
+Thanks
+
+But... Should the server hang after experiencing problems with this? On
+2.2.19?
+
+ory
+

@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUKWSBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUKWSD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUKWSBH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 13:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbUKWSAJ
+	id S261440AbUKWSD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 13:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUKWSDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 13:00:09 -0500
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:60169 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261420AbUKWR6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 12:58:19 -0500
-Date: Tue, 23 Nov 2004 18:58:20 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Justin Thiessen <jthiessen@penguincomputing.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
-Message-Id: <20041123185820.5b58ef86.khali@linux-fr.org>
-In-Reply-To: <20041122194327.GB4698@penguincomputing.com>
-References: <20041102221745.GB18020@penguincomputing.com>
-	<NN38qQl1.1099468908.1237810.khali@gcu.info>
-	<20041103164354.GB20465@penguincomputing.com>
-	<20041118185612.GA20728@penguincomputing.com>
-	<1100945635.2639.31.camel@laptop.fenrus.org>
-	<20041122194327.GB4698@penguincomputing.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 23 Nov 2004 13:03:20 -0500
+Received: from pop.gmx.net ([213.165.64.20]:58859 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261384AbUKWRz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 12:55:27 -0500
+Date: Tue, 23 Nov 2004 18:55:22 +0100 (MET)
+From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mtk-lkml@gmx.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, hugh@veritas.com
+MIME-Version: 1.0
+References: <20041123090449.1672494f.akpm@osdl.org>
+Subject: Re: [PATCH 2.6.10-rc2] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK is broken
+X-Priority: 3 (Normal)
+X-Authenticated: #2864774
+Message-ID: <14793.1101232522@www8.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > int adm1026_attach_adapter(struct i2c_adapter *adapter)
-> > > {
-> > > 	if (!(adapter->class & I2C_CLASS_HWMON)) {
-> > > 		return 0;
-> > > 	}
-> > 
-> > no need for extra { }'s in such a case
+> "Michael Kerrisk" <mtk-lkml@gmx.net> wrote:
+> >
+> > The accounting of shmctl() SHM_LOCK memory locks against the
+> >  user structure is broken.  The problem is that the check
+> >  of the size of the to-be-locked region is based on 
+> >  the size of the segment as specified when it was created
+> >  by shmget() (this size is *not* rounded up to a page 
+> >  boundary).  This size is then rounded down (>> PAGE_SHIFT)
+> >  to PAGE_SIZE during the check in 
+> >  mm/mlock.c::user_shm_lock().
 > 
-> Of course there's no _need_.  But I find the result stylistically
-> easier to read.  Is there any real objection?
+> True.  We should make the same change to user_shm_unlock(), and we may as
+> well tweak the excessive spinlock coverage in there too.
 
-There isn't as far as I can tell. The CodingStyle document doesn't
-mention a preference for any form or the other, nor does Greg's talk
-about coding style. This means that you are free. If anyone wants it the
-other way and is brave enough, he/she can submit an incremental patch
-for Greg to consider and see how Greg receives it ;)
+Thanks for the confirmation Andrew.
 
-> > > static ssize_t show_in(struct device *dev, char *buf, int nr)
-> > > {
-> > > 	struct adm1026_data *data = adm1026_update_device(dev);
-> > > 	return sprintf(buf,"%d\n", INS_FROM_REG(nr, data->in[nr]));
-> > > }
-> > 
-> > any chance you could make this use snprintf instead ?
+[...]
+
+> and then ask Hugh and Manfred to double-check.
 > 
-> I'll defer to Jean's response...
+> Looking at the callers, we do:
+> 
+> 	user_shm_lock(inode->i_size, ...);
+> 
+> then, later:
+> 
+> 	user_shm_unlock(inode->i_size, ...);
+> 
+> which does make one wonder "what happens if the file got larger while it
+> was locked"?
 
-And I'll defer to Arjan's myself. As said in another post, no other i2c
-client driver does use snprintf. If there is no good reason for them to
-do (and actually I don't see any) let's stick to sprintf for everyone.
-If there is, then we shall fix all drivers, not only adm1026.
+Not sure if I'm missing your point, but, just considering it from 
+the point of view of System V shared memory, the segment can't 
+change in size after it has been created.
 
-Thanks,
+Cheers,
+
+Michael
+
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
+++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267583AbRGSPBT>; Thu, 19 Jul 2001 11:01:19 -0400
+	id <S267584AbRGSPPl>; Thu, 19 Jul 2001 11:15:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267584AbRGSPA7>; Thu, 19 Jul 2001 11:00:59 -0400
-Received: from [62.58.73.254] ([62.58.73.254]:61169 "EHLO
-	ats-core-0.atos-group.nl") by vger.kernel.org with ESMTP
-	id <S267582AbRGSPAr>; Thu, 19 Jul 2001 11:00:47 -0400
-Date: Thu, 19 Jul 2001 16:51:48 +0200
-From: Ryan Sweet <rsweet@atos-group.nl>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6 and netboot
-In-Reply-To: <20010719082650.A26980@animx.eu.org>
-Message-ID: <Pine.SGI.4.10.10107191618070.3370909-100000@iapp-0>
+	id <S267594AbRGSPPb>; Thu, 19 Jul 2001 11:15:31 -0400
+Received: from t2.redhat.com ([199.183.24.243]:39155 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S267584AbRGSPP1>; Thu, 19 Jul 2001 11:15:27 -0400
+Message-ID: <3B56F992.915D3DCA@redhat.com>
+Date: Thu, 19 Jul 2001 16:15:30 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-5smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Edouard Soriano <e_soriano@dapsys.com>, linux-kernel@vger.kernel.org
+Subject: Re: 1GB system working with 64MB
+In-Reply-To: <20010719.14393700@dap21.dapsys.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 19 Jul 2001, Wakko Warner wrote:
-
-> I'm using a kernel that is dd'd to a floppy to net boot linux on random
-> machines.  I noticed that 2.4.6 won't get it's IP from the server (it won't
-> even attempt it).  2.4.4 works
+Edouard Soriano wrote:
 > 
-> If any more info is needed, just ask.
+> Hello Folks,
+> 
+> Environment: linux 2.2.16smp
+> RedHat 7.0
 
-It sounds as though you left out CONFIG_IP_PNP in the kernel
-configuration.  netboot works fine under 2.4.6 for me....
 
+> My problem are the 63892K
 
--- 
-Ryan Sweet <ryan.sweet@atosorigin.com>
-Atos Origin Engineering Services
-http://www.aoes.nl
-
+If you upgrade to the 2.2.19 kernel, this will just work,
+no need for extra options. (Red Hat also has a 2.2.19 kernel 
+available as errata release for 7.0)

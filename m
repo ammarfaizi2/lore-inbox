@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317264AbSFGKd3>; Fri, 7 Jun 2002 06:33:29 -0400
+	id <S316598AbSFGKgd>; Fri, 7 Jun 2002 06:36:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317266AbSFGKd2>; Fri, 7 Jun 2002 06:33:28 -0400
-Received: from dsl-213-023-038-153.arcor-ip.net ([213.23.38.153]:50388 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317264AbSFGKd1>;
-	Fri, 7 Jun 2002 06:33:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mark Mielke <mark@mark.mielke.cc>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Date: Fri, 7 Jun 2002 12:32:30 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Pavel Machek <pavel@ucw.cz>, Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206042132450.2614-100000@waste.org> <E17G9hi-0002Qh-00@starship> <20020606224826.C3551@mark.mielke.cc>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17GH2p-0002kY-00@starship>
+	id <S317263AbSFGKgc>; Fri, 7 Jun 2002 06:36:32 -0400
+Received: from slip-202-135-75-200.ca.au.prserv.net ([202.135.75.200]:9089
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316598AbSFGKgb>; Fri, 7 Jun 2002 06:36:31 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: andersen@codepoet.org
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [PATCH] initcall dependency solution. 
+In-Reply-To: Your message of "Fri, 07 Jun 2002 01:26:37 CST."
+             <20020607072636.GA20454@codepoet.org> 
+Date: Fri, 07 Jun 2002 20:15:01 +1000
+Message-Id: <E17GGlp-0000cd-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 June 2002 04:48, Mark Mielke wrote:
-> On Fri, Jun 07, 2002 at 04:42:18AM +0200, Daniel Phillips wrote:
-> > I'll go further and say we need realtime processing in our desktops, not
-> > only for signal processing but for more mundane things like moving the mouse
-> > cursor smoothly (yes, this is another item that sucks in Linux).  Sorry, I'm
-> > a perfectionist, and I like precision.  If you're not and you don't, just
-> > say so, and we'll understand each other perfectly.
+In message <20020607072636.GA20454@codepoet.org> you write:
+> On Fri Jun 07, 2002 at 12:02:11PM +1000, Rusty Russell wrote:
+> > This patch allows you to name initcall dependencies and subsystems.
+> > It is backward compatible with the current initcall levels, but
+> > doesn't respect link order: a couple of changes to make it boot, but
+> > more will be needed I expect.
 > 
-> It's called a hardware cursor... :-)
+> Interesting.  So in theory this mechanism could also be used 
+> to speed booting by parallelizing execution of each independent
+> initcall dependancy tree...
 
-It's called an omiscient harware cursor.  It knows how and where to draw itself
-without being told :-)
+In theory.  But the right solution is to move userspace as soon as
+possible, for spinning up non-root disks, etc.
 
--- 
-Daniel
+More importantly we can use the same mechanism to say "do this after
+all cpus are up" or "do this once we have a userspace" etc, and move
+more things to initcalls (ie. neaten the boot code).
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

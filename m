@@ -1,82 +1,420 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTJVIoX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 04:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbTJVIoW
+	id S263309AbTJVIiG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 04:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263347AbTJVIiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 04:44:22 -0400
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:64640 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S263462AbTJVIoU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 04:44:20 -0400
-Date: Wed, 22 Oct 2003 10:44:13 +0200
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test8, oops, [__remove_from_page_cache+36/112] __remove_from_page_cache+0x24/0x70
-Message-ID: <20031022084413.GA2773@finwe.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 22 Oct 2003 04:38:05 -0400
+Received: from pluvier.ens-lyon.fr ([140.77.167.5]:41612 "EHLO
+	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S263309AbTJVIhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 04:37:53 -0400
+Date: Wed, 22 Oct 2003 10:37:42 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+To: jdike@addtoit.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uml-patch-2.6.0-test8
+Message-ID: <20031022083742.GR8782@ens-lyon.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: multipart/mixed; boundary="+xNpyl7Qekk2NvDX"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-This machine has new RAM, but after about 7 hours of testing, memtest.86 didn't
-show any errors... 
+--+xNpyl7Qekk2NvDX
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-More system details below.
+Hi Jeff,
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000006
- printing eip:
-c01acc43
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[radix_tree_delete+83/256]    Not tainted
-EFLAGS: 00010206
-EIP is at radix_tree_delete+0x53/0x100
-eax: 00000006   ebx: 0000001e   ecx: 00000024   edx: 00000002
-esi: c13a7d3c   edi: 00000000   ebp: c295f490   esp: c13a7d1c
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 8, threadinfo=c13a6000 task=c13aacc0)
-Stack: cffe7b6c c3be4cb0 00000006 00000000 00000000 c295f498 c108e238 c108e23c 
-       00000002 00000006 c10cdaa0 c108d518 c108d4a0 c108e4e0 c108e490 c108e440 
-       c108e418 c108e3c8 c108e2b0 c10bfab8 c108e238 c295f48c 00000001 c13a6000 
-Call Trace:
- [__remove_from_page_cache+36/112] __remove_from_page_cache+0x24/0x70
- [shrink_list+1032/1376] shrink_list+0x408/0x560
- [__pte_chain_free+113/128] __pte_chain_free+0x71/0x80
- [shrink_cache+416/800] shrink_cache+0x1a0/0x320
- [shrink_zone+126/176] shrink_zone+0x7e/0xb0
- [balance_pgdat+410/544] balance_pgdat+0x19a/0x220
- [kswapd+277/304] kswapd+0x115/0x130
- [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
- [ret_from_fork+6/20] ret_from_fork+0x6/0x14
- [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
- [kswapd+0/304] kswapd+0x0/0x130
- [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+Your last UML patch for 2.6.0-test8 looks fine for me,
+except when enabling loadable module support (CONFIG_MODULES).
+.config is attached.
 
-Code: 8b 10 85 d2 74 57 89 56 08 88 d9 89 f8 d3 e8 83 eb 06 83 e0 
- <6>note: kswapd0[8] exited with preempt_count 1
+  CC      arch/um/sys-i386/module.o
+arch/um/sys-i386/module.c: In function apply_relocate':
+arch/um/sys-i386/module.c:79: R_386_32' undeclared (first use in this function)
+arch/um/sys-i386/module.c:79: (Each undeclared identifier is reported only once
+arch/um/sys-i386/module.c:79: for each function it appears in.)
+arch/um/sys-i386/module.c:83: R_386_PC32' undeclared (first use in this function)
+arch/um/sys-i386/module.c:81: warning: unreachable code at beginning of switch statement
+make[1]: *** [arch/um/sys-i386/module.o] Error 1
+make: *** [arch/um/sys-i386] Error 2
 
+Regards,
+--
+Brice Goglin
+================================================
+Ph.D Student
+Laboratoire de l'Informatique et du Parallélisme
+CNRS-INRIA-ENS Lyon
+France
 
-config: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.6.0-test8/config
+--+xNpyl7Qekk2NvDX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=".config"
 
-cpuinfo: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.6.0-test8/cpuinfo
-dmesg: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.6.0-test8/dmesg
-lsmod: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.6.0-test8/lsmod
-lspci: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.6.0-test8/lspci
-vmstat: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.6.0-test8/vmstat
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_USERMODE=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
 
-I can provide more information if needed. :)
+#
+# UML-specific options
+#
+CONFIG_MODE_TT=y
+CONFIG_MODE_SKAS=y
+CONFIG_NET=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_HOSTFS=y
+# CONFIG_MCONSOLE is not set
+# CONFIG_HOST_2G_2G is not set
+# CONFIG_UML_SMP is not set
+# CONFIG_SMP is not set
+CONFIG_NEST_LEVEL=0
+CONFIG_KERNEL_HALF_GIGS=1
+CONFIG_HIGHMEM=y
+CONFIG_PROC_MM=y
+CONFIG_KERNEL_STACK_ORDER=2
 
-bye
+#
+# Code maturity level options
+#
+# CONFIG_EXPERIMENTAL is not set
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
 
--- 
-Jacek Kawa    **W Mys³owicach to wogóle nie ma przyci±gania ziemskiego.
-            Tam trzeba pó³ litra wypiæ, ¿eby by³o przyci±ganie ziemskie.**
+#
+# General setup
+#
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODULE_UNLOAD is not set
+CONFIG_OBSOLETE_MODPARM=y
+# CONFIG_KMOD is not set
+
+#
+# Generic Driver Options
+#
+
+#
+# Character Devices
+#
+CONFIG_STDIO_CONSOLE=y
+CONFIG_SSL=y
+CONFIG_FD_CHAN=y
+CONFIG_NULL_CHAN=y
+CONFIG_PORT_CHAN=y
+CONFIG_PTY_CHAN=y
+CONFIG_TTY_CHAN=y
+CONFIG_XTERM_CHAN=y
+CONFIG_CON_ZERO_CHAN="fd:0,fd:1"
+CONFIG_CON_CHAN="xterm"
+CONFIG_SSL_CHAN="pty"
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+# CONFIG_WATCHDOG is not set
+# CONFIG_UML_SOUND is not set
+# CONFIG_SOUND is not set
+# CONFIG_HOSTAUDIO is not set
+
+#
+# Block Devices
+#
+CONFIG_BLK_DEV_UBD=y
+# CONFIG_BLK_DEV_UBD_SYNC is not set
+CONFIG_BLK_DEV_COW_COMMON=y
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_MMAPPER is not set
+CONFIG_NETDEVICES=y
+
+#
+# UML Network Devices
+#
+# CONFIG_UML_NET is not set
+
+#
+# Networking support
+#
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+# CONFIG_NETLINK_DEV is not set
+CONFIG_UNIX=y
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+# CONFIG_IP_MULTIPLE_TABLES is not set
+# CONFIG_IP_ROUTE_MULTIPATH is not set
+# CONFIG_IP_ROUTE_TOS is not set
+# CONFIG_IP_ROUTE_VERBOSE is not set
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+# CONFIG_IP_PNP_BOOTP is not set
+# CONFIG_IP_PNP_RARP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_INET_AH is not set
+# CONFIG_INET_ESP is not set
+# CONFIG_INET_IPCOMP is not set
+
+#
+# IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+# CONFIG_IP_NF_IRC is not set
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=y
+# CONFIG_IP_NF_MATCH_LIMIT is not set
+# CONFIG_IP_NF_MATCH_IPRANGE is not set
+# CONFIG_IP_NF_MATCH_MAC is not set
+# CONFIG_IP_NF_MATCH_PKTTYPE is not set
+# CONFIG_IP_NF_MATCH_MARK is not set
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+# CONFIG_IP_NF_MATCH_TOS is not set
+# CONFIG_IP_NF_MATCH_RECENT is not set
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+# CONFIG_IP_NF_MATCH_AH_ESP is not set
+# CONFIG_IP_NF_MATCH_LENGTH is not set
+# CONFIG_IP_NF_MATCH_TTL is not set
+# CONFIG_IP_NF_MATCH_TCPMSS is not set
+# CONFIG_IP_NF_MATCH_HELPER is not set
+CONFIG_IP_NF_MATCH_STATE=y
+# CONFIG_IP_NF_MATCH_CONNTRACK is not set
+# CONFIG_IP_NF_MATCH_OWNER is not set
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+# CONFIG_IP_NF_TARGET_REDIRECT is not set
+# CONFIG_IP_NF_TARGET_NETMAP is not set
+# CONFIG_IP_NF_TARGET_SAME is not set
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_FTP=y
+# CONFIG_IP_NF_MANGLE is not set
+CONFIG_IP_NF_TARGET_LOG=y
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+CONFIG_DUMMY=y
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+# CONFIG_NET_ETHERNET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BT is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+# CONFIG_EXT2_FS_XATTR is not set
+CONFIG_EXT3_FS=y
+# CONFIG_EXT3_FS_XATTR is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+# CONFIG_ISO9660_FS is not set
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+# CONFIG_FAT_FS is not set
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+# CONFIG_DEVPTS_FS_XATTR is not set
+CONFIG_TMPFS=y
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_NFS_FS is not set
+# CONFIG_NFSD is not set
+# CONFIG_EXPORTFS is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+
+#
+# Security options
+#
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Library routines
+#
+# CONFIG_CRC32 is not set
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUG_SPINLOCK is not set
+CONFIG_DEBUG_INFO=y
+CONFIG_FRAME_POINTER=y
+# CONFIG_PT_PROXY is not set
+# CONFIG_GPROF is not set
+# CONFIG_GCOV is not set
+
+--+xNpyl7Qekk2NvDX--

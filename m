@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUHJBy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUHJBy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267388AbUHJBy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 21:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267390AbUHJBy2
+	id S267391AbUHJBy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 21:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267390AbUHJBy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 21:54:28 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:12074 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S267388AbUHJBy2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 21:54:28 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [linux-usb-devel] USB shared interrupt problem
-Date: Mon, 9 Aug 2004 18:54:27 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B60B7@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [linux-usb-devel] USB shared interrupt problem
-thread-index: AcR79ec/MJ8wmuxqQ3Kpx+bN4lP3ewChqOXw
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Pete Zaitcev" <zaitcev@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 10 Aug 2004 01:54:27.0330 (UTC) FILETIME=[F7E5E620:01C47E7C]
+	Mon, 9 Aug 2004 21:54:58 -0400
+Received: from imf19aec.mail.bellsouth.net ([205.152.59.67]:60292 "EHLO
+	imf19aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S267391AbUHJBy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 21:54:56 -0400
+Date: Mon, 9 Aug 2004 20:55:02 -0500
+From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Bug zapper?  :)
+Message-Id: <20040809205502.62bec992.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <E1BuKyX-0005hJ-00@calista.eckenfels.6bone.ka-ip.net>
+References: <41180443.9030900@comcast.net>
+	<E1BuKyX-0005hJ-00@calista.eckenfels.6bone.ka-ip.net>
+X-Mailer: Sylpheed version 0.9.12cvs1 (GTK+ 1.2.10; i686-redhat-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I have a patch which prevents SMM BIOS from doing this to us
->by requesting unconditional handoff (it comes from Vojtech @SuSE,
->modified by John Stulz from IBM for 2.4). 
+Uttered Bernd Eckenfels <ecki-news2004-05@lina.inka.de>, spake thus:
 
-Thanks. This patch works fine for me.
+> - no comments are better than wrong comments
+> - code which is understandable w/o comments is better than commented code
 
-Aleks.
+Therefore, kernel code is better than wrong comments?
+
+Just trying to complete the syllogism ;-)

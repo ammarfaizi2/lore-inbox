@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262863AbUCWVuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 16:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUCWVuU
+	id S262866AbUCWVry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 16:47:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbUCWVry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 16:50:20 -0500
-Received: from gprs214-90.eurotel.cz ([160.218.214.90]:35712 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262882AbUCWVsr (ORCPT
+	Tue, 23 Mar 2004 16:47:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30434 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262866AbUCWVrq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 16:48:47 -0500
-Date: Tue, 23 Mar 2004 22:47:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jonathan Sambrook <swsusp@hmmn.org>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040323214734.GD364@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040318193703.4c02f7f5.akpm@osdl.org> <1079661410.15557.38.camel@calvin.wpcb.org.au> <20040318200513.287ebcf0.akpm@osdl.org> <1079664318.15559.41.camel@calvin.wpcb.org.au> <20040321220050.GA14433@elf.ucw.cz> <1079988938.2779.18.camel@calvin.wpcb.org.au> <20040322231737.GA9125@elf.ucw.cz> <20040323095318.GB20026@hmmn.org>
+	Tue, 23 Mar 2004 16:47:46 -0500
+Date: Tue, 23 Mar 2004 13:47:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: mason@suse.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
+Message-Id: <20040323134745.37c3e847.akpm@osdl.org>
+In-Reply-To: <1080077881.2410.18.camel@ibm-c.pdx.osdl.net>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	<20040317155111.49d09a87.akpm@osdl.org>
+	<1079568387.4186.1964.camel@watt.suse.com>
+	<20040317161338.28b21c35.akpm@osdl.org>
+	<1079569870.4186.1967.camel@watt.suse.com>
+	<20040317163332.0385d665.akpm@osdl.org>
+	<1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
+	<1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+	<1079635678.4185.2100.camel@watt.suse.com>
+	<1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
+	<1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+	<1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+	<1079879799.11062.348.camel@watt.suse.com>
+	<1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
+	<1079980512.11058.524.camel@watt.suse.com>
+	<1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
+	<20040322151312.6b629736.akpm@osdl.org>
+	<1080003067.6930.78.camel@ibm-c.pdx.osdl.net>
+	<20040323012514.7670f622.akpm@osdl.org>
+	<1080061501.6930.84.camel@ibm-c.pdx.osdl.net>
+	<20040323095953.72786ccc.akpm@osdl.org>
+	<1080077881.2410.18.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040323095318.GB20026@hmmn.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > Now I have _proof_ that eye-candy is harmfull. What is see on screen is:
-> > > 
-> > > No, that's not proof; just a bug in the code. It's not using the right
-> > > code to display the error message. I'll fix it asap.
-> > 
-> > :-)
-> > 
-> > I'd really like eye-candy code to be gone. Its long, and its not worth
-> > the trouble.
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+>  It looks like every place wbc->nonblocking is set to 1, sync_mode
+>  is set to WB_SYNC_NONE, but there are places where WB_SYNC_NONE is
+>  used and nonblocking is NOT set: 
+>  	balance_dirty_pages()
+>  	try_to_unuse()
 > 
-> Pejorative comments aside Pavel, it is valued feedback for end-user
-> re-assurance. It has also helped swsusp2 get streets ahead of the other
-> implementations by aiding end-user feedback on a wide range of hardware,
-> Which would appear to be well worth it? If it's not broke (and is
-> valuble) why rip it out?
+>  So your patch makes balance_dirty_pages() do the lock_buffer()
+>  in __block_write_full_page() instead of skipping and redirtying
+>  the page.
+> 
+>  I just making sure I understand.
+>  So, WB_SYNC_ALL and nonblocking=1 should never be used?
 
-Its 1000 lines. If it is not broken now, it will be broken in 2.8, and
-because it is in mainline, it will be up to linus to fix it.
-
-Oh and it is enough confusing that it confuses me. Some messages end
-in dmesg, some do not. User feedback can be done with much less code,
-and also slightly less confusing for the user, see swsusp1. [We have
-to switch to another console, anyway; and printing dots is easy.]
-
-Okay, we should probably make suspend more quiet, I can see users
-badly confused by those hdX: spinning down (etc) messages.
-
-Also, in your model, where do messages printk()-ed from drivers during
-suspend/resume end up? Corrupting screen? Lost from sight and only
-accessible from dmesg? I believe driver messages *are* important, and
-do not see how they could coexist with eye-candy.
-
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Correct, setting both WB_SYNC_ALL and nonblocking=1 doesn't make sense.

@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266183AbSL1JtL>; Sat, 28 Dec 2002 04:49:11 -0500
+	id <S266203AbSL1Kd4>; Sat, 28 Dec 2002 05:33:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbSL1JtL>; Sat, 28 Dec 2002 04:49:11 -0500
-Received: from durendal.skynet.be ([195.238.3.91]:46811 "EHLO
-	durendal.skynet.be") by vger.kernel.org with ESMTP
-	id <S266183AbSL1JtK> convert rfc822-to-8bit; Sat, 28 Dec 2002 04:49:10 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Hans Lambrechts <hans.lambrechts@skynet.be>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre2: CPU0 handles all interrupts
-Date: Sat, 28 Dec 2002 10:56:58 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212281056.58419.hans.lambrechts@skynet.be>
+	id <S266210AbSL1Kd4>; Sat, 28 Dec 2002 05:33:56 -0500
+Received: from dp.samba.org ([66.70.73.150]:29842 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266203AbSL1Kdy>;
+	Sat, 28 Dec 2002 05:33:54 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: two 2.5 modules bugs 
+In-reply-to: Your message of "Fri, 27 Dec 2002 17:16:35 BST."
+             <200212271616.RAA03356@harpo.it.uu.se> 
+Date: Sat, 28 Dec 2002 21:37:22 +1100
+Message-Id: <20021228104213.7DA7B2C07C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+In message <200212271616.RAA03356@harpo.it.uu.se> you write:
+> 1. With kernel 2.5.53 and module-init-tools-0.9.6, "modprobe tulip"
+>    fails and goes into an infinite CPU-consuming loop. The problem
+>    appears to be related to the dependency from tulip to crc32. If I
+>    manually modprobe crc32 before modprobe tulip, it works. If crc32
+>    isn't loaded, modprobe tulip first loads crc32 and then loops.
+> 
+>    module-init-tools-0.9.5 did not have this problem.
 
-with kernel 2.4.21-pre2:
+This should be fixed in 0.9.6: a double free caused all kinds of wierd
+behavior.  Please tell me if this fixes it.
 
-pc:~ # cat /proc/interrupts
-           CPU0       CPU1
-  0:      29372          0    IO-APIC-edge  timer
-  1:        504          0    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          2          0    IO-APIC-edge  rtc
-  9:          0          0    IO-APIC-edge  acpi
- 12:       8078          0    IO-APIC-edge  PS/2 Mouse
- 14:          7          0    IO-APIC-edge  ide0
- 16:       8690          0   IO-APIC-level  aic7xxx
- 18:        241          0   IO-APIC-level  eth0
-NMI:          0          0
-LOC:      29276      29275
-ERR:          0
-MIS:          0
+> 2. The implementation of old-style MODULE_PARMs with type "1-16s"
+>    is broken. Instead of splicing the parameter at the commas and
+>    storing pointers to the substrings in consecutive array elements,
+>    the whole string is stored in the array instead.
+> 
+>    Consider parport_pc.c, which contains (simplified):
+> 
+>    static const char *irq[16];
+>    MODULE_PARM(irq, "1-16s");
+> 
+>    "modprobe parport_pc irq=007" should store a pointer to "007" in
+>    irq[0], but instead (unsigned int)irq[0] == 0x00373030, the ASCII
+>    representation of "007" in little-endian. (Kernel 2.5.53 on x86,
+>    with module-init-tools-0.9.[56].)
 
-Booting with "noapic" or "acpi=off" doesn't make a difference.
-With kernel 2.4.20 both CPU's handled the same amount of interrupts.
-I haven't checked this with 2.4.21-pre1.
+Ew.  I horribly misinterpreted "1-16s" to mean "a string 1-16 chars
+long".  The obvious fix (untested) is:
 
-The CPU's are PIII@500
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.53/kernel/module.c working-2.5.53-sparam/kernel/module.c
+--- linux-2.5.53/kernel/module.c	2002-12-26 15:41:06.000000000 +1100
++++ working-2.5.53-sparam/kernel/module.c	2002-12-28 21:32:34.000000000 +1100
+@@ -604,7 +604,8 @@ extern int set_obsolete(const char *val,
+ 		return param_array(kp->name, val, min, max, obsparm->addr,
+ 				   sizeof(long), param_set_long);
+ 	case 's':
+-		return param_string(kp->name, val, min, max, obsparm->addr);
++		return param_array(kp->name, val, min, max, obsparm->addr,
++				   sizeof(char *), param_set_charp);
+ 	}
+ 	printk(KERN_ERR "Unknown obsolete parameter type %s\n", obsparm->type);
+ 	return -EINVAL;
 
-pc:~ # lspci
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge 
-(rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 
-03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
-00:11.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
-1X/2X (rev 5c)
+I'll test this tomorrow...
 
-please cc me because I'm not on the list
+Thanks for the bug report!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

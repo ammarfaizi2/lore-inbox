@@ -1,161 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310361AbSCGP7p>; Thu, 7 Mar 2002 10:59:45 -0500
+	id <S310370AbSCGQAg>; Thu, 7 Mar 2002 11:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310370AbSCGP7g>; Thu, 7 Mar 2002 10:59:36 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:56345 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S310361AbSCGP7Q>;
-	Thu, 7 Mar 2002 10:59:16 -0500
-Date: Thu, 7 Mar 2002 17:02:51 +0100
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: [PATCH-2.5.5-dj3] some OSS link fixes with new binutils
-Message-Id: <20020307170251.1bb14e81.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S310372AbSCGQA3>; Thu, 7 Mar 2002 11:00:29 -0500
+Received: from bitmover.com ([192.132.92.2]:2695 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S310370AbSCGQAR>;
+	Thu, 7 Mar 2002 11:00:17 -0500
+Date: Thu, 7 Mar 2002 08:00:13 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Tom Lord <lord@regexps.com>
+Cc: linux-kernel@vger.kernel.org, lm@bitmover.com, hozer@drgw.net,
+        davej@suse.de
+Subject: Re: Why not an arch mirror for the kernel?
+Message-ID: <20020307080013.B26028@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Tom Lord <lord@regexps.com>, linux-kernel@vger.kernel.org,
+	lm@bitmover.com, hozer@drgw.net, davej@suse.de
+In-Reply-To: <200203071425.GAA06679@morrowfield.home> <20020306190419.E31751@work.bitmover.com> <20020306225652.Q1682@altus.drgw.net> <20020306213238.D3240@work.bitmover.com> <200203072147.NAA08182@morrowfield.home>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.xJvPce(W8aK8hM"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200203072147.NAA08182@morrowfield.home>; from lord@regexps.com on Thu, Mar 07, 2002 at 01:47:07PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.xJvPce(W8aK8hM
-Content-Type: multipart/mixed;
- boundary="Multipart_Thu__7_Mar_2002_17:02:51_+0100_0826b4e8"
+On Thu, Mar 07, 2002 at 01:47:07PM -0800, Tom Lord wrote:
+> 	More than a year ago, we had some research done to see what it
+> 	would cost to reproduce BitKeeper from scratch. At that point,
+> 	it was estimated to be about $12,000,000 and at least 3.5
+> 	years from the time a good team started.
+> 
+> That sounds to me like the kind of research you'd want to include in a
+> proposal to potential investors: to prove that you have a unique
+> strength in the market being addressed (a "barrier to entry").  I find
+> the apparent urgency and hysteria with which you defame arch on this
+> list to be pretty funny.
 
+Hmm, maybe I am urgent, I'm packing for a long weekend.  Anyway, you're
+missing my points, and I don't see why, it's in your best interest to
+get it.  Let's try it as a question, and see if that works.  
 
---Multipart_Thu__7_Mar_2002_17:02:51_+0100_0826b4e8
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Suppose all the kernel people started using your tool today.  On your
+web page, you have a long list of things which need to be done to Arch
+and your best case scenario is that it will take about year to do them
+(your words, not mine).  So suppose the kernel people start using
+your tool right now, bury you in requests for changes, and you can't
+keep up.  They leave because it doesn't work.  End result: big negative
+endorsement from the kernel team.  Obviously, you don't want that, and
+equally obviously, you understand the probability of that (read your
+own website), so maybe with all that, you'll understand why I said that
+if you want to succeed you should pick a small group and work with them
+closely until Arch is ready.
 
-Hi,
-this patch adds __devexit_p where necessary and change some stupid (?) and confusing __devinit to __devexit in the remove functions
-with this and the previous patch for the cs4281 all OSS drivers compile and link fine for me
-I have had some compile errors if gameport/joystick support is disabled and I'll look at the code again later the day
-
-Patch against 2.5.5-dj3 attached
-
-Bye
---Multipart_Thu__7_Mar_2002_17:02:51_+0100_0826b4e8
-Content-Type: application/octet-stream;
- name="ossdrivers.patch"
-Content-Disposition: attachment;
- filename="ossdrivers.patch"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtTnVyIGxpbnV4LTIuNS41LW9sZC9zb3VuZC9vc3MvY3M0Nnh4LmMgbGludXgtMi41LjUv
-c291bmQvb3NzL2NzNDZ4eC5jCi0tLSBsaW51eC0yLjUuNS1vbGQvc291bmQvb3NzL2NzNDZ4eC5j
-CVRodSBNYXIgIDcgMTQ6NTI6NDYgMjAwMgorKysgbGludXgtMi41LjUvc291bmQvb3NzL2NzNDZ4
-eC5jCVRodSBNYXIgIDcgMTQ6NTk6NDcgMjAwMgpAQCAtNTUxOSw3ICs1NTE5LDcgQEAKIAogLy8g
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tIAogCi1zdGF0aWMgdm9pZCBfX2RldmluaXQgY3M0Nnh4X3JlbW92ZShzdHJ1
-Y3QgcGNpX2RldiAqcGNpX2RldikKK3N0YXRpYyB2b2lkIF9fZGV2ZXhpdCBjczQ2eHhfcmVtb3Zl
-KHN0cnVjdCBwY2lfZGV2ICpwY2lfZGV2KQogewogCXN0cnVjdCBjc19jYXJkICpjYXJkID0gUENJ
-X0dFVF9EUklWRVJfREFUQShwY2lfZGV2KTsKIAlpbnQgaTsKQEAgLTU2MjksNyArNTYyOSw3IEBA
-CiAJbmFtZToiY3M0Nnh4IiwKIAlpZF90YWJsZTpjczQ2eHhfcGNpX3RibCwKIAlwcm9iZTpjczQ2
-eHhfcHJvYmUsCi0JcmVtb3ZlOmNzNDZ4eF9yZW1vdmUsCisJcmVtb3ZlOl9fZGV2ZXhpdF9wKGNz
-NDZ4eF9yZW1vdmUpLAogCXN1c3BlbmQ6Q1M0NlhYX1NVU1BFTkRfVEJMLAogCXJlc3VtZTpDUzQ2
-WFhfUkVTVU1FX1RCTCwKIH07CmRpZmYgLU51ciBsaW51eC0yLjUuNS1vbGQvc291bmQvb3NzL2Vz
-MTM3MC5jIGxpbnV4LTIuNS41L3NvdW5kL29zcy9lczEzNzAuYwotLS0gbGludXgtMi41LjUtb2xk
-L3NvdW5kL29zcy9lczEzNzAuYwlUaHUgTWFyICA3IDE0OjUyOjQ3IDIwMDIKKysrIGxpbnV4LTIu
-NS41L3NvdW5kL29zcy9lczEzNzAuYwlUaHUgTWFyICA3IDE1OjAyOjA3IDIwMDIKQEAgLTI2OTMs
-NyArMjY5Myw3IEBACiAJcmV0dXJuIHJldDsKIH0KIAotc3RhdGljIHZvaWQgX19kZXZpbml0IGVz
-MTM3MF9yZW1vdmUoc3RydWN0IHBjaV9kZXYgKmRldikKK3N0YXRpYyB2b2lkIF9fZGV2ZXhpdCBl
-czEzNzBfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpkZXYpCiB7CiAJc3RydWN0IGVzMTM3MF9zdGF0
-ZSAqcyA9IHBjaV9nZXRfZHJ2ZGF0YShkZXYpOwogCkBAIC0yNzI4LDcgKzI3MjgsNyBAQAogCW5h
-bWU6ICJlczEzNzAiLAogCWlkX3RhYmxlOiBpZF90YWJsZSwKIAlwcm9iZTogZXMxMzcwX3Byb2Jl
-LAotCXJlbW92ZTogZXMxMzcwX3JlbW92ZQorCXJlbW92ZTogX19kZXZleGl0X3AoZXMxMzcwX3Jl
-bW92ZSkKIH07CiAKIHN0YXRpYyBpbnQgX19pbml0IGluaXRfZXMxMzcwKHZvaWQpCmRpZmYgLU51
-ciBsaW51eC0yLjUuNS1vbGQvc291bmQvb3NzL2VzMTM3MS5jIGxpbnV4LTIuNS41L3NvdW5kL29z
-cy9lczEzNzEuYwotLS0gbGludXgtMi41LjUtb2xkL3NvdW5kL29zcy9lczEzNzEuYwlUaHUgTWFy
-ICA3IDE0OjUyOjQ3IDIwMDIKKysrIGxpbnV4LTIuNS41L3NvdW5kL29zcy9lczEzNzEuYwlUaHUg
-TWFyICA3IDE1OjAyOjM4IDIwMDIKQEAgLTI5ODIsNyArMjk4Miw3IEBACiAJcmV0dXJuIHJlczsK
-IH0KIAotc3RhdGljIHZvaWQgX19kZXZpbml0IGVzMTM3MV9yZW1vdmUoc3RydWN0IHBjaV9kZXYg
-KmRldikKK3N0YXRpYyB2b2lkIF9fZGV2ZXhpdCBlczEzNzFfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2
-ICpkZXYpCiB7CiAJc3RydWN0IGVzMTM3MV9zdGF0ZSAqcyA9IHBjaV9nZXRfZHJ2ZGF0YShkZXYp
-OwogCkBAIC0zMDIzLDcgKzMwMjMsNyBAQAogCW5hbWU6ICJlczEzNzEiLAogCWlkX3RhYmxlOiBp
-ZF90YWJsZSwKIAlwcm9iZTogZXMxMzcxX3Byb2JlLAotCXJlbW92ZTogZXMxMzcxX3JlbW92ZQor
-CXJlbW92ZTogX19kZXZleGl0X3AoZXMxMzcxX3JlbW92ZSkKIH07CiAKIHN0YXRpYyBpbnQgX19p
-bml0IGluaXRfZXMxMzcxKHZvaWQpCmRpZmYgLU51ciBsaW51eC0yLjUuNS1vbGQvc291bmQvb3Nz
-L2Vzc3NvbG8xLmMgbGludXgtMi41LjUvc291bmQvb3NzL2Vzc3NvbG8xLmMKLS0tIGxpbnV4LTIu
-NS41LW9sZC9zb3VuZC9vc3MvZXNzc29sbzEuYwlUaHUgTWFyICA3IDE0OjUyOjQ3IDIwMDIKKysr
-IGxpbnV4LTIuNS41L3NvdW5kL29zcy9lc3Nzb2xvMS5jCVRodSBNYXIgIDcgMTU6MDE6MDAgMjAw
-MgpAQCAtMjQwMyw3ICsyNDAzLDcgQEAKIAlyZXR1cm4gcmV0OwogfQogCi1zdGF0aWMgdm9pZCBf
-X2RldmluaXQgc29sbzFfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpkZXYpCitzdGF0aWMgdm9pZCBf
-X2RldmV4aXQgc29sbzFfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpkZXYpCiB7CiAJc3RydWN0IHNv
-bG8xX3N0YXRlICpzID0gcGNpX2dldF9kcnZkYXRhKGRldik7CiAJCkBAIC0yNDQzLDcgKzI0NDMs
-NyBAQAogCW5hbWU6ICJFU1MgU29sbzEiLAogCWlkX3RhYmxlOiBpZF90YWJsZSwKIAlwcm9iZTog
-c29sbzFfcHJvYmUsCi0JcmVtb3ZlOiBzb2xvMV9yZW1vdmUsCisJcmVtb3ZlOiBfX2RldmV4aXRf
-cChzb2xvMV9yZW1vdmUpLAogCXN1c3BlbmQ6IHNvbG8xX3N1c3BlbmQsCiAJcmVzdW1lOiBzb2xv
-MV9yZXN1bWUKIH07CmRpZmYgLU51ciBsaW51eC0yLjUuNS1vbGQvc291bmQvb3NzL2l0ZTgxNzIu
-YyBsaW51eC0yLjUuNS9zb3VuZC9vc3MvaXRlODE3Mi5jCi0tLSBsaW51eC0yLjUuNS1vbGQvc291
-bmQvb3NzL2l0ZTgxNzIuYwlUaHUgTWFyICA3IDE0OjUyOjQ4IDIwMDIKKysrIGxpbnV4LTIuNS41
-L3NvdW5kL29zcy9pdGU4MTcyLmMJVGh1IE1hciAgNyAxNTowOToyOCAyMDAyCkBAIC0xODk3LDcg
-KzE4OTcsNyBAQAogICAgIHJldHVybiAtMTsKIH0KIAotc3RhdGljIHZvaWQgX19kZXZpbml0IGl0
-ODE3Ml9yZW1vdmUoc3RydWN0IHBjaV9kZXYgKmRldikKK3N0YXRpYyB2b2lkIF9fZGV2ZXhpdCBp
-dDgxNzJfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpkZXYpCiB7CiAgICAgc3RydWN0IGl0ODE3Ml9z
-dGF0ZSAqcyA9IHBjaV9nZXRfZHJ2ZGF0YShkZXYpOwogCkBAIC0xOTMxLDcgKzE5MzEsNyBAQAog
-ICAgIG5hbWU6IElUODE3Ml9NT0RVTEVfTkFNRSwKICAgICBpZF90YWJsZTogaWRfdGFibGUsCiAg
-ICAgcHJvYmU6IGl0ODE3Ml9wcm9iZSwKLSAgICByZW1vdmU6IGl0ODE3Ml9yZW1vdmUKKyAgICBy
-ZW1vdmU6IF9fZGV2ZXhpdF9wKGl0ODE3Ml9yZW1vdmUpCiB9OwogCiBzdGF0aWMgaW50IF9faW5p
-dCBpbml0X2l0ODE3Mih2b2lkKQpkaWZmIC1OdXIgbGludXgtMi41LjUtb2xkL3NvdW5kL29zcy9u
-ZWNfdnJjNTQ3Ny5jIGxpbnV4LTIuNS41L3NvdW5kL29zcy9uZWNfdnJjNTQ3Ny5jCi0tLSBsaW51
-eC0yLjUuNS1vbGQvc291bmQvb3NzL25lY192cmM1NDc3LmMJVGh1IE1hciAgNyAxNDo1Mjo0OCAy
-MDAyCisrKyBsaW51eC0yLjUuNS9zb3VuZC9vc3MvbmVjX3ZyYzU0NzcuYwlUaHUgTWFyICA3IDE1
-OjA5OjU3IDIwMDIKQEAgLTIwMDUsNyArMjAwNSw3IEBACiAJcmV0dXJuIC0xOwogfQogCi1zdGF0
-aWMgdm9pZCBfX2RldmluaXQgdnJjNTQ3N19hYzk3X3JlbW92ZShzdHJ1Y3QgcGNpX2RldiAqZGV2
-KQorc3RhdGljIHZvaWQgX19kZXZleGl0IHZyYzU0NzdfYWM5N19yZW1vdmUoc3RydWN0IHBjaV9k
-ZXYgKmRldikKIHsKIAlzdHJ1Y3QgdnJjNTQ3N19hYzk3X3N0YXRlICpzID0gcGNpX2dldF9kcnZk
-YXRhKGRldik7CiAKQEAgLTIwNDAsNyArMjA0MCw3IEBACiAJbmFtZTogVlJDNTQ3N19BQzk3X01P
-RFVMRV9OQU1FLAogCWlkX3RhYmxlOiBpZF90YWJsZSwKIAlwcm9iZTogdnJjNTQ3N19hYzk3X3By
-b2JlLAotCXJlbW92ZTogdnJjNTQ3N19hYzk3X3JlbW92ZQorCXJlbW92ZTogX19kZXZleGl0X3Ao
-dnJjNTQ3N19hYzk3X3JlbW92ZSkKIH07CiAKIHN0YXRpYyBpbnQgX19pbml0IGluaXRfdnJjNTQ3
-N19hYzk3KHZvaWQpCmRpZmYgLU51ciBsaW51eC0yLjUuNS1vbGQvc291bmQvb3NzL25tMjU2X2F1
-ZGlvLmMgbGludXgtMi41LjUvc291bmQvb3NzL25tMjU2X2F1ZGlvLmMKLS0tIGxpbnV4LTIuNS41
-LW9sZC9zb3VuZC9vc3Mvbm0yNTZfYXVkaW8uYwlUaHUgTWFyICA3IDE0OjUyOjQ4IDIwMDIKKysr
-IGxpbnV4LTIuNS41L3NvdW5kL29zcy9ubTI1Nl9hdWRpby5jCVRodSBNYXIgIDcgMTU6MDg6MzEg
-MjAwMgpAQCAtMTI2Niw3ICsxMjY2LDcgQEAKICAgICByZXR1cm4gLTE7IC8qIHNob3VsZCBub3Qg
-Y29tZSBoZXJlIC4uLiAqLwogfQogCi1zdGF0aWMgdm9pZCBfX2RldmluaXQKK3N0YXRpYyB2b2lk
-IF9fZGV2ZXhpdAogbm0yNTZfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpwY2lkZXYpIHsKICAgICBz
-dHJ1Y3Qgbm0yNTZfaW5mbyAqeGNhcmQgPSBwY2lfZ2V0X2RydmRhdGEocGNpZGV2KTsKICAgICBz
-dHJ1Y3Qgbm0yNTZfaW5mbyAqY2FyZCwqbmV4dF9jYXJkID0gTlVMTDsKQEAgLTE2NjAsNyArMTY2
-MCw3IEBACiAJbmFtZToibm0yNTZfYXVkaW8iLAogCWlkX3RhYmxlOm5tMjU2X3BjaV90YmwsCiAJ
-cHJvYmU6bm0yNTZfcHJvYmUsCi0JcmVtb3ZlOm5tMjU2X3JlbW92ZSwKKwlyZW1vdmU6X19kZXZl
-eGl0X3Aobm0yNTZfcmVtb3ZlKSwKIH07CiAKIE1PRFVMRV9QQVJNICh1c2VjYWNoZSwgImkiKTsK
-ZGlmZiAtTnVyIGxpbnV4LTIuNS41LW9sZC9zb3VuZC9vc3Mvcm1lOTZ4eC5jIGxpbnV4LTIuNS41
-L3NvdW5kL29zcy9ybWU5Nnh4LmMKLS0tIGxpbnV4LTIuNS41LW9sZC9zb3VuZC9vc3Mvcm1lOTZ4
-eC5jCVRodSBNYXIgIDcgMTQ6NTI6NDggMjAwMgorKysgbGludXgtMi41LjUvc291bmQvb3NzL3Jt
-ZTk2eHguYwlUaHUgTWFyICA3IDE1OjA3OjI4IDIwMDIKQEAgLTc2Nyw3ICs3NjcsNyBAQAogfQog
-CiAKLXN0YXRpYyB2b2lkIF9fZGV2aW5pdCBybWU5Nnh4X3JlbW92ZShzdHJ1Y3QgcGNpX2RldiAq
-ZGV2KQorc3RhdGljIHZvaWQgX19kZXZleGl0IHJtZTk2eHhfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2
-ICpkZXYpCiB7CiAJaW50IGk7CiAJcm1lOTZ4eF9pbmZvICpzID0gcGNpX2dldF9kcnZkYXRhKGRl
-dik7CkBAIC04MTYsNyArODE2LDcgQEAKIAluYW1lOiAicm1lOTZ4eCIsCiAJaWRfdGFibGU6IGlk
-X3RhYmxlLAogCXByb2JlOiBybWU5Nnh4X3Byb2JlLAotCXJlbW92ZTogcm1lOTZ4eF9yZW1vdmUK
-KwlyZW1vdmU6IF9fZGV2ZXhpdF9wKHJtZTk2eHhfcmVtb3ZlKQogfTsKIAogc3RhdGljIGludCBf
-X2luaXQgaW5pdF9ybWU5Nnh4KHZvaWQpCmRpZmYgLU51ciBsaW51eC0yLjUuNS1vbGQvc291bmQv
-b3NzL3NvbmljdmliZXMuYyBsaW51eC0yLjUuNS9zb3VuZC9vc3Mvc29uaWN2aWJlcy5jCi0tLSBs
-aW51eC0yLjUuNS1vbGQvc291bmQvb3NzL3NvbmljdmliZXMuYwlUaHUgTWFyICA3IDE0OjUyOjQ4
-IDIwMDIKKysrIGxpbnV4LTIuNS41L3NvdW5kL29zcy9zb25pY3ZpYmVzLmMJVGh1IE1hciAgNyAx
-NTowOTowMSAyMDAyCkBAIC0yNjY4LDcgKzI2NjgsNyBAQAogCXJldHVybiByZXQ7CiB9CiAKLXN0
-YXRpYyB2b2lkIF9fZGV2aW5pdCBzdl9yZW1vdmUoc3RydWN0IHBjaV9kZXYgKmRldikKK3N0YXRp
-YyB2b2lkIF9fZGV2ZXhpdCBzdl9yZW1vdmUoc3RydWN0IHBjaV9kZXYgKmRldikKIHsKIAlzdHJ1
-Y3Qgc3Zfc3RhdGUgKnMgPSBwY2lfZ2V0X2RydmRhdGEoZGV2KTsKIApAQCAtMjcxMCw3ICsyNzEw
-LDcgQEAKICAgICAgICBuYW1lOiAic29uaWN2aWJlcyIsCiAgICAgICAgaWRfdGFibGU6IGlkX3Rh
-YmxlLAogICAgICAgIHByb2JlOiBzdl9wcm9iZSwKLSAgICAgICByZW1vdmU6IHN2X3JlbW92ZQor
-ICAgICAgIHJlbW92ZTogX19kZXZleGl0X3Aoc3ZfcmVtb3ZlKQogfTsKICAKIHN0YXRpYyBpbnQg
-X19pbml0IGluaXRfc29uaWN2aWJlcyh2b2lkKQo=
-
---Multipart_Thu__7_Mar_2002_17:02:51_+0100_0826b4e8--
-
---=.xJvPce(W8aK8hM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8h48xe9FFpVVDScsRAlcrAJ93wOO5BWDgvCiymkOrdt8VbSI8KQCgjqaG
-/k3MFUu1VfI2vNSuEFiajxk=
-=W8iS
------END PGP SIGNATURE-----
-
---=.xJvPce(W8aK8hM--
-
+OK, let's address your other point.  It sounds like you think we're trying
+to convince VC's of something and somehow doing so means that I need to
+be badmouthing Arch.  Or maybe you think we have VC's leaning on us and
+they are telling us that we'd better kill Arch.  Or some such thing, the
+implication being that investors (or lack of them, or desire for them)
+are causing me to go after Arch.  That's not true, we are not now and
+were not then in discussions with VC's, the only investment BitMover 
+has is from engineers who work here on the code.  We're self supporting
+through sales of the product and we are not dependent on or subject to
+the whims of any VC.  And we've declined offers to be bought so we could
+stay that way.  Go read the ArsDigita archives and you will understand
+why.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

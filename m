@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbSK3Jwp>; Sat, 30 Nov 2002 04:52:45 -0500
+	id <S267229AbSK3KIh>; Sat, 30 Nov 2002 05:08:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267229AbSK3Jwp>; Sat, 30 Nov 2002 04:52:45 -0500
-Received: from odpn1.odpn.net ([212.40.96.53]:34064 "EHLO odpn1.odpn.net")
-	by vger.kernel.org with ESMTP id <S267228AbSK3Jwp>;
-	Sat, 30 Nov 2002 04:52:45 -0500
-To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: hda: task_no_data_intr
-Organization: Who, me?
-User-Agent: tin/1.5.16-20021120 ("Spiders") (UNIX) (Linux/2.4.20-gzp2 (i686))
-Message-ID: <34e8.3de88c28.44a4f@gzp1.gzp.hu>
-Date: Sat, 30 Nov 2002 10:00:08 -0000
+	id <S267230AbSK3KIh>; Sat, 30 Nov 2002 05:08:37 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:56242 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267229AbSK3KIg>;
+	Sat, 30 Nov 2002 05:08:36 -0500
+Message-ID: <3DE88FD9.5010906@colorfullife.com>
+Date: Sat, 30 Nov 2002 11:15:53 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       Bernd Harries <bha@gmx.de>
+Subject: Re: ioremap returns NULL
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What mean this message at boot time?
+ >>[...]
+ >> For each card I ioremap() 2 * 16 MB of PCI memory space.
+ >> It succeeds for the 1st card but for the 2nd card I get NULL
+ >> as result. This means I cannot use the 2nd card...
+ >
+ >I think you are screwed. The ioremap grabs from vmalloc area,
+ >which is something like 64MB on i386. The best option is
+ >to rewrite the driver to allocate less, and perhaps use
+ >fewer modules.
 
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
 
-2.4.20, Pentium 1, Intel HX chipset.
+The size of the vmalloc area is 128 MB, 96 for highmem kernels.
+Either:
+- compile a kernel without 4G support, then you have 128 MB
+- increase PKMAP_BASE (include/asm-i386/highmem.h) to
+	0xff800000 (it's 0xfe000000 in 2.5.50)
+Right now 32 MB virtual memory are reserved for kmap, but only 4 MB are 
+used. Changing PKMAP_BASE gives you 24 MB additional vmalloc space for free.
+- increase __VMALLOC_RESERVE.
 
-ide: Assuming 33MHz system bus speed for PIO modes; override
-with idebus=xx
-PIIX3: IDE controller at PCI slot 00:07.1
-PIIX3: chipset revision 0
-PIIX3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-hda: QUANTUM FIREBALL ST4.3A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: 8418816 sectors (4310 MB) w/81KiB Cache, CHS=524/255/63
+--
+	Manfred
 
-Tried with 3 different hard disks, and got the same message
-every time. Seems like I'm also unable to make ext3 fs on
-the disks.
+
 

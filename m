@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVBXThf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVBXTqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbVBXThf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 14:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVBXThf
+	id S261899AbVBXTqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 14:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVBXTqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 14:37:35 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:39301
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262456AbVBXThb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 14:37:31 -0500
-Date: Thu, 24 Feb 2005 11:33:50 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: nickpiggin@yahoo.com.au, ak@suse.de, benh@kernel.crashing.org,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] page table iterators
-Message-Id: <20050224113350.3b6ebdd9.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com>
-References: <4214A1EC.4070102@yahoo.com.au>
-	<4214A437.8050900@yahoo.com.au>
-	<20050217194336.GA8314@wotan.suse.de>
-	<1108680578.5665.14.camel@gaston>
-	<20050217230342.GA3115@wotan.suse.de>
-	<20050217153031.011f873f.davem@davemloft.net>
-	<20050217235719.GB31591@wotan.suse.de>
-	<4218840D.6030203@yahoo.com.au>
-	<Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>
-	<421B0163.3050802@yahoo.com.au>
-	<Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com>
-	<421D1737.1050501@yahoo.com.au>
-	<Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com>
-	<1109224777.5177.33.camel@npiggin-nld.site>
-	<Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Feb 2005 14:46:55 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:39101 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261899AbVBXTqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 14:46:52 -0500
+Message-ID: <421E2EF9.9010209@nortel.com>
+Date: Thu, 24 Feb 2005 13:46:01 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Chad N. Tindel" <chad@tindel.net>
+CC: Paulo Marques <pmarques@grupopie.com>, Mike Galbraith <EFAULT@gmx.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+References: <20050224075756.GA18639@calma.pair.com> <30111.1109237503@www1.gmx.net> <20050224175331.GA18723@calma.pair.com> <421E1AC1.1020901@nortel.com> <20050224183851.GA24359@calma.pair.com> <421E2528.8060305@grupopie.com> <20050224192237.GA31894@calma.pair.com>
+In-Reply-To: <20050224192237.GA31894@calma.pair.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Feb 2005 11:58:42 +0000 (GMT)
-Hugh Dickins <hugh@veritas.com> wrote:
+Chad N. Tindel wrote:
 
-> Has anyone _ever_ seen a p??_ERROR message?
+>>I personally like the linux way: "root has the ability to shoot himself 
+>>in the foot if he wants to". This is my computer, damn it, I am the one 
+>>who tells it what to do.
 
-It triggers when you're writing new platform pagetable support
-or making drastric changes in same.  But on sparc64 I've set
-them all to nops to make the code output smaller. :-)
+> I'm all for allowing people to shoot themselves in the foot.  That doesn't
+> mean that it is OK for a single userspace thread to mess up a 64-way box.
+
+If root has explicitly stated that the thread in question is the highest 
+priority thing on the entire machine, why would it not be okay.  The 
+fact that root made a mistake is the issue here, not that the system 
+didn't protect itself.
+
+>>This is much, much better than the "users are stupid, we must protect 
+>>them from themselves" kind of way that other OS'es use.
+
+> Isn't this what the kernel attempts to do in many other places?  What else
+> could possibly be the point of sending SIGSEGV and causing applications
+> to dump core when they make a mistake referencing memory?  Isn't it the
+> kernel's job to protect one application from another?
+
+Yes.  But at the same time, if root wants to do something, the kernel 
+should let them.  There are many, many ways that root could trash the 
+system.  "cat /dev/urandom > /dev/kcore"  would do quite nicely.
+
+> I see what you're saying about the swap daemon.  How about if I make my
+> statement less black and white.  Some kernel threads should always have 
+> priority over userspace.
+
+Not necessarily.  The latest latency-reduction patches allow root to 
+specify exactly what the priorities should be.
+
+> I believe the mindset required for a home system that is doing audio recordings
+> is different than the one for enterprise-level systems.  How do we unify
+> the two?
+
+There are professionals who use linux for audio as well, it's not just 
+home systems.  That said, you unify them with reasonable defaults, and 
+the ability for root to override them.
+
+Chris
+

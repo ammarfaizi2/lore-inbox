@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267866AbRGRRaa>; Wed, 18 Jul 2001 13:30:30 -0400
+	id <S267912AbRGRRbK>; Wed, 18 Jul 2001 13:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267912AbRGRRaU>; Wed, 18 Jul 2001 13:30:20 -0400
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:6610 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267864AbRGRRaL>; Wed, 18 Jul 2001 13:30:11 -0400
-Message-ID: <3B55C701.6D291F27@mail.com>
-Date: Wed, 18 Jul 2001 13:27:29 -0400
-From: Thomas Hood <jdthood@mail.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en
+	id <S267867AbRGRRaw>; Wed, 18 Jul 2001 13:30:52 -0400
+Received: from intra.cyclades.com ([209.81.55.6]:525 "HELO intra.cyclades.com")
+	by vger.kernel.org with SMTP id <S267864AbRGRRah>;
+	Wed, 18 Jul 2001 13:30:37 -0400
+Date: Wed, 18 Jul 2001 10:31:50 -0700 (PDT)
+From: Ivan Passos <lists@cyclades.com>
+To: Nick DeClario <nick@guardiandigital.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: RAMDisk Blues
+In-Reply-To: <3B548A9A.2EA1DECA@guardiandigital.com>
+Message-ID: <Pine.LNX.4.30.0107181030000.9956-100000@intra.cyclades.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [INFO] NNTP access to linux-kernel for Sympatico subscribers
-In-Reply-To: <OF67CA15A0.AE538F3E-ON85256A8D.00580180@raleigh.ibm.com> <Pine.LNX.4.33.0107181129430.18913-100000@screwy.haywired.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI I just stumbled upon a newsgroup on Sympatico's news server
-(news1.sympatico.ca, but you should use the server assigned to
-you) that is subscribed to linux-kernel.  (Sympatico is a major
-Canadian ISP.)  The newsgroup is called "linux.kernel".
 
-Thomas Hood
+On Tue, 17 Jul 2001, Nick DeClario wrote:
+
+> Hi,  I know there is this option in the kernel:
+>
+> Default RAM disk size
+> CONFIG_BLK_DEV_RAM_SIZE
+>   The default value is 4096. Only change this if you know what are
+>   you doing. If you are using IBM S/390, then set this to 8192.
+>
+> I grabbed that from ~/linux/Documentation/Configure.help.  I have never
+> gone about changing this before as the largest RAM disks I have delt
+> with were no larger than 3Mb.  But it defaults to 4Mb, so perhaps
+> increasing this would solve your problem.
+
+This is set to 131072 (128MB). Just to make sure, I also set it on the
+lilo.conf in the append line, with "ramdisk_size=131072". Maybe there is a
+limitation in the RAMDisk driver and it doesn't work well with huge
+RAMDisk sizes??
+
+Any other hints?!?!
+
+Later,
+Ivan
+

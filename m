@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUHPWSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUHPWTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267976AbUHPWSR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267978AbUHPWSR
+	id S267977AbUHPWTi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267982AbUHPWTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:18:17 -0400
-Received: from [66.199.228.3] ([66.199.228.3]:38148 "EHLO xdr.com")
-	by vger.kernel.org with ESMTP id S267976AbUHPWSQ (ORCPT
+	Mon, 16 Aug 2004 18:19:38 -0400
+Received: from cantor.suse.de ([195.135.220.2]:7062 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267977AbUHPWTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:18:16 -0400
-Date: Mon, 16 Aug 2004 15:18:15 -0700
-From: David Ashley <dash@xdr.com>
-Message-Id: <200408162218.i7GMIF9I024784@xdr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible 2.4.18 ipv4 memory leak? [SOLVED!]
+	Mon, 16 Aug 2004 18:19:22 -0400
+Date: Tue, 17 Aug 2004 00:19:20 +0200
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: /bin/ls: cannot read symbolic link /proc/$$/exe: Permission denied
+Message-ID: <20040816221920.GA9059@suse.de>
+References: <20040816133730.GA6463@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040816133730.GA6463@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Schmielau wrote:
->There seem to be quite a few fixes for memory leaks since 2.4.18,
->some network/ethernet related:
+ On Mon, Aug 16, Olaf Hering wrote:
 
->http://linux.bkbits.net:8080/linux-2.4/search/?expr=leak&search=ChangeSet+comments
+> 
+> For some reasons ls -l /proc/$$/exe doesnt work all time for me,
+> with 2.6.8.1 on ppc64. Sometimes it does, sometimes not. No pattern.
+> A few printks show that this check in proc_pid_readlink() triggers
+> an -EACCES:
+> 
+>         current->fsuid != inode->i_uid
+> 
+> proc_pid_readlink(755) error -13 ntptrace(11408) fsuid 100 i_uid 0 0
+> sys_readlink(281) ntptrace(11408) error -13 readlink
 
+bprm.interp_flags contains garbage like 0xc0000001,
+that triggers task->mm->dumpable =0;
 
-I followed that link and the second and third lines seemed *very* interesting.
-I looked at that patch:
-http://linux.bkbits.net:8080/linux-2.4/patch@1.1447.1.19
+please apply.
 
-and back ported it to our 2.4.18 tree (very easy) and that fixed the
-problem.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-The file was in arch/ppc/8260_io/fcc_enet.c, however the 8260_io directory
-became cpm2_io in later versions.
+diff -p -purN linux-2.6.8.1.omfg/fs/compat.c linux-2.6.8.1/fs/compat.c
+--- linux-2.6.8.1.omfg/fs/compat.c	2004-08-14 12:55:31.000000000 +0200
++++ linux-2.6.8.1/fs/compat.c	2004-08-17 00:14:56.000000000 +0200
+@@ -1390,6 +1390,7 @@ int compat_do_execve(char * filename,
+ 	bprm.sh_bang = 0;
+ 	bprm.loader = 0;
+ 	bprm.exec = 0;
++	bprm.interp_flags = 0;
+ 	bprm.security = NULL;
+ 	bprm.mm = mm_alloc();
+ 	retval = -ENOMEM;
 
-Thanks very much, Tim!
+-- 
+USB is for mice, FireWire is for men!
 
--Dave
-
+sUse lINUX ag, nÜRNBERG

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131552AbQK2T12>; Wed, 29 Nov 2000 14:27:28 -0500
+        id <S131403AbQK2Tg7>; Wed, 29 Nov 2000 14:36:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131678AbQK2T1S>; Wed, 29 Nov 2000 14:27:18 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:594 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S131552AbQK2T1L>; Wed, 29 Nov 2000 14:27:11 -0500
-Date: Wed, 29 Nov 2000 19:56:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
+        id <S131485AbQK2Tgu>; Wed, 29 Nov 2000 14:36:50 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:15599 "EHLO
+        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+        id <S131403AbQK2Tgp>; Wed, 29 Nov 2000 14:36:45 -0500
+Date: Wed, 29 Nov 2000 17:05:20 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
         Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
 Subject: Re: corruption
-Message-ID: <20001129195630.A6006@athlon.random>
-In-Reply-To: <Pine.LNX.4.10.10011282105040.5871-100000@penguin.transmeta.com> <Pine.GSO.4.21.0011290351080.14112-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0011290351080.14112-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Nov 29, 2000 at 04:08:26AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20001129195630.A6006@athlon.random>
+Message-ID: <Pine.LNX.4.21.0011291704140.5302-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2000 at 04:08:26AM -0500, Alexander Viro wrote:
-> Problem fixed by Jens' patch had been there since March, so if it's a
+On Wed, 29 Nov 2000, Andrea Arcangeli wrote:
+> On Wed, Nov 29, 2000 at 04:08:26AM -0500, Alexander Viro wrote:
+> > Problem fixed by Jens' patch had been there since March, so if it's a
+> 
+> No, it's there only since Jens fixed the request merging bug in
+> test11 or so.
+> 
+> With previous kernel the head pointer couldn't change so that
+> change was unnecessary and initializing it outside the critical
+> section was a micro scalability optimization :).
 
-No, it's there only since Jens fixed the request merging bug in test11 or so.
+To be honest, I have a big problem with micro optimisations
+that prevent the big optimisations from happening.
 
-With previous kernel the head pointer couldn't change so that change
-was unnecessary and initializing it outside the critical section was
-a micro scalability optimization :).
+Would it be an idea to explicitly comment such dangerous
+micro optimisations so people implementing the big optimisations
+later on won't run into nasty surprises?
 
-Andrea
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

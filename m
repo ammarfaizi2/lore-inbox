@@ -1,94 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbTAATwK>; Wed, 1 Jan 2003 14:52:10 -0500
+	id <S261724AbTAAT6s>; Wed, 1 Jan 2003 14:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbTAATwK>; Wed, 1 Jan 2003 14:52:10 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:61962 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262789AbTAATwH>; Wed, 1 Jan 2003 14:52:07 -0500
-Date: Wed, 1 Jan 2003 20:00:32 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
-Subject: Re: RFC/Patch - Implode devfs
-Message-ID: <20030101200032.A29992@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Adam J. Richter" <adam@yggdrasil.com>,
-	linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
-References: <200301011913.LAA02338@baldur.yggdrasil.com>
-Mime-Version: 1.0
+	id <S262394AbTAAT6s>; Wed, 1 Jan 2003 14:58:48 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:27144 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S261724AbTAAT6r>;
+	Wed, 1 Jan 2003 14:58:47 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301012006.h01K6YAg002278@darkstar.example.net>
+Subject: Re: Raw data from dedicated kernel bug database
+To: lm@bitmover.com (Larry McVoy)
+Date: Wed, 1 Jan 2003 20:06:34 +0000 (GMT)
+Cc: mbligh@aracnet.com, hannal@us.ibm.com, eli.carter@inet.com,
+       rddunlap@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20030101194019.GZ5607@work.bitmover.com> from "Larry McVoy" at Jan 01, 2003 11:40:19 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200301011913.LAA02338@baldur.yggdrasil.com>; from adam@yggdrasil.com on Wed, Jan 01, 2003 at 11:13:02AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 11:13:02AM -0800, Adam J. Richter wrote:
-> >I wonder whether some code uses struct devfs_entry * directly, at least
-> >I was tempted to do so in the scsi midlayer.
-> 
-> 	Thankfully, struct devfs_entry* is an opaque pointer.
+> What are the chances that the raw data from the kernel bugdb could be
+> made available?  I bet Bradford wants it and I know I want.
+                         ^^^^^^^^
 
-I know.  IMHO it's still preferable to use struct devfs_entry * over
-devfs_handle_t like all the devfs mess does.  This would work when
-devfs_handle_t suddenly points to something else.
+I do have a first name, you know :-).
 
-The
-> struct is only defined in fs/devfs/base.c.  Searching with
-> "find . -name '*.[ch]' | xargs grep -w devfs_entry" indicates
-> that everyone declares devfs_handle_t instead of "struct devfs_entry*",
-> so that's not a problem either.
+It would be nice to have some more bugs listed in my new database - at
+the moment there is only one, but I was reluctant to spend time
+manually filling it, when that time could be better spent improving
+the system itself.
 
-OK.
+Importing the existing data in to my database isn't going to
+automatically give you all of the advantages of it, because it's
+ability to search via config options, and track version information
+obviously relies on that information being present, but it would be
+simple enough for someone, (me, if nobody else is interested), to add
+it one the database is populated.
 
-> 	Your question prompted me to do a little bit of research.
-> I believe the list of routines that my reduced devfs does not
-> implement is as follows:
-> 
-> devfs_get_handle
-> devfs_get_handle_from_inode
-> devfs_set_file_size
-> devfs_get_info
-> devfs_set_info
-> devfs_get_parent
-> devfs_get_first_child
-> devfs_get_next_sibling
-> devfs_get_name
-> devfs_register_tape
-> devfs_unregister_tape
-> devfs_alloc_major
-> devfs_dealloc_major
-> devfs_alloc_devnum
-> devfs_dealloc_devnum
-> 
-> 	Storing this list in /tmp/names and grepping for these
-> identifiers shows only a small number of hits:
+I'm working on adding more features at the moment, but if you've got
+feedback, (positive or negative), please let me hear it - traffic to
+it has been pretty high, but I'm not getting much mail about it.
 
-<snip>
+Personally, I think the ability to upload your .config file, and have
+it say, "OK, the following bugs are known to be triggered by those
+options", and to have a colour-coded table of
+working/broken/untested/can't test kernel versions for each bug could
+potentially save us all loads of work, but if you disagree, just let
+me know.
 
-At least the devfs_set_* / devfs_get_* can be removed easily when
-leaving the sn1 stuff danling.  But I already discussed that with
-the responsible persons.
+> To calm any fears that we are trying to take over the bugdb, we're not.
+> We just want to track it.  Any changes made in a BK bugdb are trivially
+> exportable to an external format and if the need arises we'll work with
+> IBM/OSDL to make that happen.  In fact, we can automate it.
 
-> >Is it supposed to work out of the box on previously (and for 2.4 use)
-> >non-devfs systems?  I still don't plan to use devfs, but such an effort
-> >is really worth some debugging help..
-> 
-> 	Thanks for the encouragement.
+Let me know if I can add some kind of export function to my DB that
+will help BK users, Larry^WMcVoy, and I'll consider it.
 
-So is the answer yes or no now? :)
-
-> >Why do you want to allocate it statically?
-> 
-> 	A few fields could be initialized statically.  A few bytes
-> would be saved from memory allocation overhead.  Cache locality would
-> improve infinitesemally.  If all one-instance filesystems are changed
-> to do this, it will eliminate one memory allocation failure branch in
-> fs/super.c.  Perhaps the same could be done with the root inode.  I
-> know this is pretty marginal and might end up adding more complexity
-> than it would save.  It's at the bottom of my TODO (or "to try") list.
-
-Hmm.  I don't think it's worth the effort, but if you can do it without
-introducing major ugliness you have my vote.
-
+John.

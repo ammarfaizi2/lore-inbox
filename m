@@ -1,150 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265080AbTLWKK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 05:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLWKK7
+	id S265079AbTLWKNv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 05:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTLWKNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 05:10:59 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:46502 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S265080AbTLWKKz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 05:10:55 -0500
-Date: Tue, 23 Dec 2003 02:10:39 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ioe-lkml@rameria.de,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sylvain Jeaugey <sylvain.jeaugey@bull.net>, Ray Bryant <raybry@sgi.com>,
-       Christoph Hellwig <hch@infradead.org>, Simon Derr <Simon.Derr@bull.net>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] another minor bit of cpumask cleanup
-Message-Id: <20031223021039.5b99a04b.pj@sgi.com>
-In-Reply-To: <20031223124504.29dc5ed1.rusty@rustcorp.com.au>
-References: <20031221180044.0f27eca1.pj@sgi.com>
-	<20031221224745.268db46d.akpm@osdl.org>
-	<20031221231918.34fcca86.pj@sgi.com>
-	<20031223124504.29dc5ed1.rusty@rustcorp.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 23 Dec 2003 05:13:51 -0500
+Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:7088
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S265079AbTLWKNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 05:13:48 -0500
+Date: Tue, 23 Dec 2003 02:13:45 -0800
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.6.0-mm1] kernel BUG in include/linux/list.h:148!
+Message-ID: <20031223101345.GH7522@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PW0Eas8rCkcu1VkF"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty writes:
-> I have a patch which changes these iterators [for_each_cpu] anyway,
 
-Cool.
+--PW0Eas8rCkcu1VkF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Got one of these while messing with some DVDs and CDs (mounting them,
+etc.) One of them was not inside the drive correctly, so i had to eject
+it while mount was running. Could this have happened then? I didn't look
+at dmesg immediately after when that may have occurred.
 
-> I'd rather have 12 crossing patches than silence
+kernel BUG at include/linux/list.h:148!
+invalid operand: 0000 [#2]
+PREEMPT=20
+CPU:    0
+EIP:    0060:[<c016ae51>]    Not tainted VLI
+EFLAGS: 00010202
+EIP is at prune_dcache+0x1dc/0x1e9
+eax: 00000000   ebx: cd4eab80   ecx: cd4eab94   edx: cd537e9c
+esi: cd4eabf0   edi: c13b2000   ebp: 0000007e   esp: c13b3e7c
+ds: 007b   es: 007b   ss: 0068
+Process kswapd0 (pid: 8, threadinfo=3Dc13b2000 task=3Dc13b8d00)
+Stack: cd567480 00000000 00000080 c13b2000 00000004 cffdeb20 c016b2e7 00000=
+080=20
+       c01436c3 00000080 000000d0 0000de8b 001a673c 00000000 0000001e 00000=
+000=20
+       000000f6 c035e874 00000001 ffffff85 c0144a88 000000f6 000000d0 00000=
+0d0=20
+Call Trace:
+ [<c016b2e7>] shrink_dcache_memory+0x23/0x25
+ [<c01436c3>] shrink_slab+0x110/0x153
+ [<c0144a88>] balance_pgdat+0x1d6/0x1f0
+ [<c0144bb4>] kswapd+0x112/0x122
+ [<c011e113>] autoremove_wake_function+0x0/0x4f
+ [<c03001c6>] ret_from_fork+0x6/0x14
+ [<c011e113>] autoremove_wake_function+0x0/0x4f
+ [<c0144aa2>] kswapd+0x0/0x122
+ [<c0109255>] kernel_thread_helper+0x5/0xb
 
-yup
+Code: 01 a8 08 75 12 8b 47 08 83 6f 14 01 a8 08 74 b0 e8 ca 1b fb ff eb a9 =
+e8 c3 1b fb ff eb e7 0f 0b 95 00 9d 96 31 c0 e9 29 ff ff ff <0f> 0b 94 00 9=
+d 96 31 c0 e9 10 ff ff ff 55 57 56 53 83 ec 0c 8b=20
+ <6>note: kswapd0[8] exited with preempt_count 2
 
+--=20
+Joshua Kwan
 
-> For the hotplug CPU stuff,
+--PW0Eas8rCkcu1VkF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Makes sense to me that the hotplug CPU work would be in the drivers seat
-on these cpu looping macros.  I like your patch.  Since your more
-substantial patch negates my trivial patch to remove the old
-for_each_online_cpu(), I'll forget about my patch.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Andrew:
+iQIVAwUBP+gVWKOILr94RG8mAQIPvg/9H2hcpu2aB1KNmFcGMXYmLYHK0U5muoNu
+tN95/SO4frI+RaH8BBRz8qzUgFkkvohHXr4suTl+qSr21Sho1a3n36oE7efoErfm
+UD5M+aOIT8UwxoEX5u4eueFCFeJUkJ88TlSZoOOet/4gOKTa2fxvnQsK/u1l2jPE
+fWN32We/Tyhi3TIvucEhBG4VUrbN510N1p7RGm4lVQmK1tfmVJVHYDPL2nf8BhZD
+AjDSAMhw+NIj2JPlId905OuZEbeXi4sTv53esOgLNwXpdAbbF5SMcdSoBSnwUplM
++720hhMYDcA4xYPkEcll1dwbeSJ8spE7pKAbJ2qxPueZsTCG7o2MqCb9MsP2m75W
+CPs/JLiuK38CUYqvh8HOfK8+KveDPg74dT0zuvsaCiSh3+qCZYEg1LaJuqdL2s1+
+w1VUWZ/hwODjmTF6nc29ROZTb1NBlHFMp5ZfpoJ3uDMvjh7Jy1/uESM2ghCDjmZh
+BMm+B1C7dXbQzPayd+hu+yXgHBbh/tJdI4BSkAWz/wD9T9EdR09m+0T4lFXK2Ujx
+qU+DeOz/FU1weBvGSQa6BlIEbPqcwahqwCfNqiL81QoGwXIzbSzn7sSdoM9pI4Zu
+qV+hlugMJ8tdCbOpg01Xw9qFmlwFJGTMDl5Uwj6U2U8jo/CKjXLbt+DtxExE1wHu
+RYXrqasAVnY=
+=UZzL
+-----END PGP SIGNATURE-----
 
-    You lucked out in dropping my patch to remove for_each_online_cpu(). 
-    Good.
-
-
-Speaking of trivial patches, didn't you (Rusty) used to be the Trivial
-Patch Monkey, and what has become of that esteemed role in 2.6 land?
-
-I do have a more substantial patch that is yet widely published to
-provide an alternative underlying implementation of the cpumask macros
-with something that can be used for both cpu and node masks, that takes
-one file to express instead of 5 or 6, and that has one base type
-(struct of array of unsigned longs) rather than a choice of three or so
-implementations.
-
-For at least one architecture, sparc64 (IIRC), wli informs me that davem
-is quite certain this alternative can't be used (resulting machine code
-way too painful).  But I am hopeful that we can make it cleaner source
-code and just as good machine code, at least for the architectures that
-can use recent gcc optimizing.
-
-The basic goal of this patch-to-be will be to provide a solid 'mask'
-type that can be used within the kernel for various bit masks of known
-(compiled in) lengths of one to quite a few words.  This work stems from
-a suggestion by Christoph Hellwig that I implement numamask_t using an
-ADT shared with cpumask_t.  I originally told Christoph I would have
-that ADT patch up and published in a week.  That was two months ago ;)
-
-Unfortunately, I've just started on vacation for the next month or so,
-so won't likely get much further publishing this right now.  If someone
-has possibly conflicting work, or would like to join in, or otherwise
-raise issues, please speak up.
-
-I have the patch in a healthy state and being used on work that I am
-doing to support the 'cpuset' feature being developed by Simon and
-Sylvain of Bull (France).
-
-There are some performance tests that Ray Bryant has graciously
-volunteered to attempt, which will be critical to my final
-recommendation of this alternative for at least the ia64 arch, which
-tests will not happen until Feb, when I can set Ray up to make the
-comparisons of this new implementation with the current one.  We need to
-know whether for the > 256 bit case, seemingly replacing a call by
-reference (pointer to mask) with a call by value will actually matter to
-performance of the code we care about.
-
-> possible cpu ...  online cpus
-
-I'm not quite sure of the meaning to you of these terms.
-Is it that possible cpus are the union of online and offline cpus?
-
-
-> noone uses them that way (except for arch/i386/mach-voyager, which
-> D: uses for_each_cpu(cpu_online_mask)
-
-What about the one remaining usage of for_each_cpu(), also in
-voyager, but not using cpu_online_mask:
-
-arch/i386/mach-voyager/voyager_smp.c:
-
-	=============================================================
-	#ifdef VOYAGER_DEBUG
-                ...
-                if((isr & (1<<irq) && !(status & IRQ_REPLAY)) == 0) {
-                        ...
-                        int mask;
-
-                        printk("VOYAGER SMP: CPU%d lost interrupt %d\n",
-                               cpu, irq);
-                        for_each_cpu(real_cpu, mask) {
-	=============================================================
-
-You noted that 'mask' needed initializing in a comment in your patch,
-but I don't see that you change the calling signature of for_each_cpu(),
-not that it is clear to what it should be changed ;(.
-
-
-> so the iterators are moved
-> D: from linux/cpumask.h to linux/smp.h, where that is asm/smp.h is included.
-
-This comment says the iterators are moved to smp.h, but the patch seems
-to still show them in cpumask.h.  I suspect that I prefer them in smp.h
-better.
-
-
-> D: Followup patches will convert users.
-
-Looks to me like this here patch is converting some users, such as
-in fork.c and sched.c.  Is this the conversion you speak of, or is
-there more to come in a followup?
-
-Good work, Rusty.  Thanks.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--PW0Eas8rCkcu1VkF--

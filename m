@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273691AbRIQUVn>; Mon, 17 Sep 2001 16:21:43 -0400
+	id <S273692AbRIQU2Q>; Mon, 17 Sep 2001 16:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273692AbRIQUVd>; Mon, 17 Sep 2001 16:21:33 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:40905 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S273691AbRIQUVT>; Mon, 17 Sep 2001 16:21:19 -0400
-Message-ID: <8FB7D6BCE8A2D511B88C00508B68C208197175@orsmsx102.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'SirVer@gmx.de'" <SirVer@gmx.de>, linux-kernel@vger.kernel.org
-Subject: RE: ACPI and SCSI.
-Date: Mon, 17 Sep 2001 13:20:38 -0700
+	id <S273694AbRIQU2F>; Mon, 17 Sep 2001 16:28:05 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:17169 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S273692AbRIQU17>;
+	Mon, 17 Sep 2001 16:27:59 -0400
+Date: Mon, 17 Sep 2001 17:28:31 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+To: Garrett Marone <garrett@garrettm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT370
+In-Reply-To: <200109172006.f8HK6TO01234@archimedes.garrettm.com>
+Message-ID: <Pine.GSO.4.21.0109171727440.4953-100000@jacui>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you tried it with just the base ACPI support (no processor)?
+On Mon, 17 Sep 2001, Garrett Marone wrote:
 
-Please send me your dmesg output and /proc/interrupts, too.
+> I'm unsure of who maintains the driver for the hpt370 ide raid card, but was 
+> wondering if anyone knows when (or if) it will support raid sets instead of 
+> just single disks. 
 
-Regards -- Andy
+Please check
 
-> From: SirVer@gmx.de [mailto:SirVer@gmx.de]
-> just a short question (probably a still unknown bug, I didn't find
-> anything about this): 
->  My Box: a AdvanSys SCSI Low Cost Controller
->          a TEAC CDR 55S CD-Burner connected to it
-> 			a new motherboard (Asus) with ACPI, 
-> without APM support
-> 
-> now, when i enable ACPI Processor support (nothing else) and i try to
-> mount a CD, the computer crashes sometimes, but if it doesn't crash on
-> mounting, it crashes later while accessing the CD. The Display goes
-> black and the computer doesn't make a move anymore. The software power
-> switch doesn't work any longer. 
-> I guess, that this is a bug in the kernel, for the CD works when i
-> disable the ACPI support and for i never had any problems under *BSD.
-> But I wasn't able to track the problem down in the source. 
-> Anyone any ideas?
+http://people.redhat.com/arjanv/pdcraid/ataraidhowto.html
+
+--
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
+

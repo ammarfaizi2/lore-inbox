@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270471AbTGNAWx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 20:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270469AbTGNAWx
+	id S270469AbTGNAXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 20:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270470AbTGNAXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 20:22:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57798 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S270467AbTGNAWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 20:22:50 -0400
-Date: Sun, 13 Jul 2003 17:28:36 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: TCP IP Offloading Interface
-Message-Id: <20030713172836.5dd493f5.davem@redhat.com>
-In-Reply-To: <52llv2vu06.fsf@topspin.com>
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-	<20030713004818.4f1895be.davem@redhat.com>
-	<52u19qwg53.fsf@topspin.com>
-	<20030713160200.571716cf.davem@redhat.com>
-	<52llv2vu06.fsf@topspin.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Sun, 13 Jul 2003 20:23:30 -0400
+Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:19918 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S270469AbTGNAX1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 20:23:27 -0400
+Subject: Re: RFC on io-stalls patch
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <20030713193548.GL16313@dualathlon.random>
+References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
+	 <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>
+	 <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
+	 <20030713090116.GU843@suse.de> <1058113238.13313.127.camel@tiny.suse.com>
+	 <20030713174709.GA843@suse.de>  <20030713193548.GL16313@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058142999.13317.137.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 13 Jul 2003 20:36:40 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jul 2003 17:20:41 -0700
-Roland Dreier <roland@topspin.com> wrote:
-
->     David> I didn't say I agree with all of Moguls ideas, just his
->     David> anti-TOE arguments.  For example, I also think RDMA sucks
->     David> too yet he thinks it's a good iea.
+On Sun, 2003-07-13 at 15:35, Andrea Arcangeli wrote:
+> On Sun, Jul 13, 2003 at 07:47:09PM +0200, Jens Axboe wrote:
+> > Just catering to the sync reads is probably good enough, and I think
+> > that passing in that extra bit of information is done the best through
+> > just a b_state bit.
 > 
-> Sure, he talks about some weaknesses of TOE, but his conclusion is
-> that the time has come for OS developers to start working on TCP
-> offload (for storage).
+> not sure if we should pass this bit of info, I guess if we add it we can
+> just threats all reads equally and give them the spare reserved
+> requests unconditionally, so the highlevel isn't complicated (of course
+> it would be optional, so nothing would break but it would be annoying
+> for benchmarking new fs having to patch stuff first to see the effect of
+> the spare reserved requests).
+> 
 
-The bad assumption here is that this belongs in the OS.
+By goal with the b_state bit was to change this:
 
-Let me ask you this, how many modern scsi drivers have to speak every
-piece of the SCSI bus protocol.  Or fibre channel?  All of it is
-done on the cards, and that is what I think the iSCSI people should
-be doing instead of putting garbage into the OS.
+bread
+submit_bh
+__get_request_wait (unplugs just to get a free rq)
+wait_on_buffer (run tq_disk)
 
-And I've presented a solution to the problem at the OS level that
-doesn't require broken things like TOE and RDMA yet arrives at
-the same solution.
+Into this:
 
-> But I also think Mogul is right: iSCSI HBAs are going to force OS
-> designers to deal with TCP offload.
+bread
+set BH_Sync
+submit_bh
+__make_request (get a reserved sync request, unplugs to start the read)
+buffer up to date
 
-You don't need to offload TCP, it's the segmentation and checksuming
-that has the high cost not the actual TCP logic in the operating
-system.
+It's wishful thinking, since the unplug doesn't mean we end up with an
+unlocked buffer.  But at the very least, taking a reserved sync request
+and unplugging right away shouldn't be worse than the current method of
+unplugging just to get a request.  
 
-RDMA and TOE both add unnecessary complications.  My solution requires
-no protocol changes, just smart hardware which needs to be designed
-for any of the presented ideas anyways.
+And on boxes with lots of busy drives, avoiding tq_disk is a good thing,
+even if we only manage to avoid it for a small percentage of the reads.
+
+> > I'll try and bench a bit tomorrow with that patched in.
+> 
+> Cool thanks.
+
+Thanks Jens
+
+-chris
+
+
 

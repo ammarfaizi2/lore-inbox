@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315717AbSHFVmI>; Tue, 6 Aug 2002 17:42:08 -0400
+	id <S315784AbSHFVml>; Tue, 6 Aug 2002 17:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315721AbSHFVmI>; Tue, 6 Aug 2002 17:42:08 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48884 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315717AbSHFVmH>; Tue, 6 Aug 2002 17:42:07 -0400
-Subject: Re: 2.4.19 See's incorrect cache size on P4 Xeons!?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Austin Gonyou <austin@digitalroadkill.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1028669517.6549.100.camel@UberGeek.coremetrics.com>
-References: <1028669517.6549.100.camel@UberGeek.coremetrics.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 00:04:56 +0100
-Message-Id: <1028675096.18156.220.camel@irongate.swansea.linux.org.uk>
+	id <S315921AbSHFVml>; Tue, 6 Aug 2002 17:42:41 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:49681 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315784AbSHFVmi>;
+	Tue, 6 Aug 2002 17:42:38 -0400
+Date: Tue, 6 Aug 2002 14:43:35 -0700
+From: Greg KH <greg@kroah.com>
+To: jt@hpl.hp.com
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] : ir240_usb_disconnect-2.diff
+Message-ID: <20020806214334.GA2393@kroah.com>
+References: <20020806205251.GF11677@bougret.hpl.hp.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020806205251.GF11677@bougret.hpl.hp.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Tue, 09 Jul 2002 20:23:42 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 06, 2002 at 01:52:51PM -0700, Jean Tourrilhes wrote:
+>  	purb_t purb;
 
-> On boot each processor is says it has 1MB L3, is 2.4.19 unable to read
-> that or something?
+I've gotten rid of this stupid typedef in Marcelo's latest kernel, so
+this patch will probably not apply.
 
-At the moment we report the L1/L2 - we don't actually go decoding L3
-caches. They are quite new. We should do however.
+Sorry about this.  If it's a big problem, I'll do the merge for you.
 
+thanks,
+
+greg k-h

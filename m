@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270759AbTGVAJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 20:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270762AbTGVAJN
+	id S270762AbTGVAT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 20:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbTGVAT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 20:09:13 -0400
-Received: from rrcs-west-24-24-160-174.biz.rr.com ([24.24.160.174]:31979 "EHLO
-	pacserv.unco.de") by vger.kernel.org with ESMTP id S270759AbTGVAJL
+	Mon, 21 Jul 2003 20:19:28 -0400
+Received: from webmail.insa-lyon.fr ([134.214.79.204]:19076 "EHLO
+	mail.insa-lyon.fr") by vger.kernel.org with ESMTP id S270762AbTGVAT0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 20:09:11 -0400
-Date: Mon, 21 Jul 2003 17:24:12 -0700
-From: Hielke Christian Braun <hcb@unco.de>
+	Mon, 21 Jul 2003 20:19:26 -0400
+Date: Tue, 22 Jul 2003 02:34:28 +0200
+From: Aurelien Jarno <aurelien@aurel32.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 cryptoloop & aes & xfs
-Message-ID: <20030722002412.GA13788@pacserv>
-References: <20030720005726.GA735@jolla> <20030720103852.A11298@pclin040.win.tue.nl> <20030720213803.GA777@jolla> <200307211312.40068.jeffpc@optonline.net>
+Subject: Problem with kernel 2.4.21 and bttv
+Message-ID: <20030722003428.GA17392@pc.aurel32>
+Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <200307211312.40068.jeffpc@optonline.net>
-User-Agent: Mutt/1.4i
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi all,
 
-On Mon, Jul 21, 2003 at 01:12:32PM -0400, Jeff Sipek wrote:
-> >
-> > So the new cryptoloop in 2.6.0 is incompatible to the one in the
-> > international crypto patch?
-> >
-> > I could not access my old data. So i created a new one. But when
-> > i copy some data onto it, i get:
-> >
-> > XFS mounting filesystem loop5
-> > Ending clean XFS mount for filesystem: loop5
-> > xfs_force_shutdown(loop5,0x8) called from line 1070 of file
-> > fs/xfs/xfs_trans.c. Return address = 0xc02071ab Filesystem "loop5":
-> > Corruption of in-memory data detected. Shutting down filesystem: loop5
-> > Please umount the filesystem, and rectify the problem(s)
-> >
-> > To setup, i did this:
-> >
-> > losetup -e aes /dev/loop5 /dev/hda4
-> > mkfs.xfs /dev/hda4
-> 
-> No, you should use
-> 
-> mkfs.xfs /dev/loop5
-> 
-> you want to create a fs on the loop device.
-> 
+I have just switch from kernel 2.4.20 to kernel 2.4.21, and my TV card
+(Miro PC/TV, BT878) stopped to work. I got a lot of the following messages 
+when I try to access /dev/video0:
 
-You are right. But i did use the /dev/loop5 device. I just wrote
-it wrong in the email. 
+bttv: vmalloc_32(8519680) failed
+bttv: vmalloc_32(8519680) failed
+...
 
-I retried today on a different spare machine with the same result.
-Then i tried with formating the loopback device with ext2
-filesystem. After filling the the device with about 1GB of data, i
-umounted it and did a file check. A lot of errors where reported.
-Something is not good there too. 
+While grepping vmalloc in the kernel sources, I found the following line
+in include/asm-i386/page.h:
 
+#define __VMALLOC_RESERVE       (128 << 20)
 
-Is anybody using the cryptoloop successful in 2.6.0?
+I changed the value to 128 (MBytes I suppose) to 256, and my TV card 
+started to work.
 
-Best regards,
- Christian.
+My computer is an AMD Ahtlon XP1800+, with a KT266A chipset and 1 GBytes
+of RAM (and thus HighMem is enabled).
+
+Has anybody the same problem, and is there other solutions to solve the
+problem?
+
+Cheers,
+Aurelien

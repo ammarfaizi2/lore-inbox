@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316892AbSFKHpX>; Tue, 11 Jun 2002 03:45:23 -0400
+	id <S316902AbSFKHuC>; Tue, 11 Jun 2002 03:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316895AbSFKHpW>; Tue, 11 Jun 2002 03:45:22 -0400
-Received: from mail.medav.de ([213.95.12.190]:8714 "HELO mail.medav.de")
-	by vger.kernel.org with SMTP id <S316892AbSFKHpP> convert rfc822-to-8bit;
-	Tue, 11 Jun 2002 03:45:15 -0400
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Martin Wilck" <Martin.Wilck@Fujitsu-Siemens.com>
-Cc: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-Date: Tue, 11 Jun 2002 09:45:20 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
-In-Reply-To: <1023780145.23733.352.camel@biker.pdb.fsc.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Serverworks OSB4 in impossible state
-Message-Id: <20020611064201.9F55DEDBE@mail.medav.de>
+	id <S316899AbSFKHto>; Tue, 11 Jun 2002 03:49:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46094 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316902AbSFKHsF>; Tue, 11 Jun 2002 03:48:05 -0400
+Date: Tue, 11 Jun 2002 08:47:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Lightweight patch manager <patch@luckynet.dynu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] Double quote patches part one: drivers 1/2
+Message-ID: <20020611084758.B1346@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0206102101520.20111-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Jun 2002 09:22:24 +0200, Martin Wilck wrote:
+On Mon, Jun 10, 2002 at 09:07:17PM -0600, Lightweight patch manager wrote:
+> I spent my whole night correcting the double quotes. Someone pointed out 
+> yesterday that they had to be corrected. I did a checker script and am now 
+> running over the kernel.
+> 
+> This patch fixes broken double quotes in printk's and asm's.
 
->Am Mon, 2002-06-10 um 18.41 schrieb Daniela Engert:
+Not "broken" as such.  Just "new gcc warns".
 
->> The intersting bits of the DMA status register are bits 0 though 2. A
->> value of 5 indicates the condition "interrupt from unit, DMA state
->> machine active". This is a valid status! It basically means the unit
->> issued an interrupt before the PRD table is exhausted. This makes sense
->> because the CD-ROM units fails to transfer the amount of data described
->> by the PRD table because of the non-recoverable read error.
->
->Shouldn't the error bit be set too? (But that wouldn't make any
->difference with the current driver ...)
+> +	" subs	%3, %3, #2          \n"
+> +	" bmi	2f                  \n"
+> +        "1:                         \n"
 
-No it shouldn't. The error is happening on the unit side and not on the
-host side of the bus. Thus it is correct that the host is *not*
-reporting an error (which is true) but only the CD-ROM unit.
+Yuck.  Yuck yuck yuck yuck yuck.
 
->> What you makes sense (the next DMA transfer is scheduled but never
->> carried out by the CD-ROM unit) except for the panic, ofcoz. The
->> correct driver action in this case were stopping the DMA engine and
->> issuing a reset of the state machines involved (both on the host and
->> the unit side).
->
->The message, the comments in the code, and what Alan wrote here:
->http://groups.google.com/groups?hl=de&lr=&threadm=linux.kernel.Pine.LNX.4.31.0206031234370.12103-100000%40boxer.fnal.gov&rnum=2&prev=/groups%3Fq%3Dosb4-bug%2540ide.cabal.tm%26hl%3Dde%26lr%3D%26selm%3Dlinux.kernel.Pine.LNX.4.31.0206031234370.12103-100000%2540boxer.fnal.gov%26rnum%3D2
->suggest that trying to recover from this condition is extremely
->dangerous (note that the kernel doesn't even panic(), because
->a sync() may kill a disk, the comments say).
+1. Spaces -> source bloat.
+2. No tab at the start of the file -> yuck when reading the ASM.
 
-I'm aware of all of that. By pure chance I have a machine with an OSB4
-sitting on my desk for a couple of days. May be I can find a defect
-CD-ROM to test it with my driver and see if it manages to recover from
-errors like these. Hopefully, the PCI tracer gives some more insight.
+My preferred way of fixing these in ARM stuff is to add <tab><tab><tab>\n\
+to each line (with the appropriate number of tabs.  See
+arch/arm/kernel/semaphore.c for an example.
 
-Ciao,
-  Dani
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

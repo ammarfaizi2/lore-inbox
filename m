@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbTFTNQK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 09:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFTNQK
+	id S261265AbTFTNSq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 09:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFTNSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 09:16:10 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:12449 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261182AbTFTNQI (ORCPT
+	Fri, 20 Jun 2003 09:18:45 -0400
+Received: from host213.137.8.62.manx.net ([213.137.8.62]:21778 "EHLO server")
+	by vger.kernel.org with ESMTP id S261265AbTFTNSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 09:16:08 -0400
-Message-ID: <3EF30C59.1070206@colorfullife.com>
-Date: Fri, 20 Jun 2003 15:30:01 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Moore <neil@s-z.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unix code in Linux
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 Jun 2003 09:18:44 -0400
+Date: Fri, 20 Jun 2003 14:32:38 +0100
+From: Matthew Bell <m.bell@bvrh.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Obvious: CONFIG_ISAPNP #ifdefs wrong in drivers/net/3c515.c
+Message-Id: <20030620143239.4a9a801c.m.bell@bvrh.co.uk>
+Organization: Beach View Residential Home, Ltd.
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil wrote:
-
->Is there any reason to replace this
->code? 
->
-Yes, it's ugly as hell.
-As far as I can see, the only user of ate_malloc are a few rmalloc 
-calls. There is one rmalloc_align call, but afaics the function is not 
-implemented.
-
-The code is filled with #defines that rename linux functions - 
-mutex_spinlock, spin_lock_destroy(), whatever.
-There is so much renaming that they even create a prototype for a #define:
-
-> arch/ia64/sn/io/sn1/pcibr.c
-> L40: #define rmalloc atealloc
-> L331: extern uint64_t rmalloc(struct map *mp, size_t size);
-
-(it seems sn1 got killed recently, I searched in lxr.linux.no)
-
-AFAICS ate_malloc should die, and the rmalloc callers should use 
-request_resource & friends from <linux/ioport.h>.
-
---
-    Manfred
-
+ISAPNP should also work if it is built as a module. Here is a patch that works
+for me:
+--- linux-2.4.19.orig/drivers/net/3c515.c	2002-02-25 19:37:59.000000000 +0000
++++ linux-2.4.19/drivers/net/3c515.c	2002-08-03 18:24:05.000000000 +0100
+@@ -370,7 +370,7 @@
+ 	{ "Default", 0, 0xFF, XCVR_10baseT, 10000},
+ };
+ 
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined
+(CONFIG_ISAPNP_MODULE))
+ static struct isapnp_device_id corkscrew_isapnp_adapters[] = {
+ 	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+ 		ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5051),
+@@ -462,12 +462,12 @@
+ {
+ 	int cards_found = 0;
+ 	static int ioaddr;
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined
+(CONFIG_ISAPNP_MODULE))
+ 	short i;
+ 	static int pnp_cards;
+ #endif
+ 
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined
+(CONFIG_ISAPNP_MODULE))
+ 	if(nopnp == 1)
+ 		goto no_pnp;
+ 	for(i=0; corkscrew_isapnp_adapters[i].vendor != 0; i++) {
+@@ -530,7 +530,7 @@
+ 	/* Check all locations on the ISA bus -- evil! */
+ 	for (ioaddr = 0x100; ioaddr < 0x400; ioaddr += 0x20) {
+ 		int irq;
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined
+(CONFIG_ISAPNP_MODULE))
+ 		/* Make sure this was not already picked up by isapnp */
+ 		if(ioaddr == corkscrew_isapnp_phys_addr[0]) continue;
+ 		if(ioaddr == corkscrew_isapnp_phys_addr[1]) continue;

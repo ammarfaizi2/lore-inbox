@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266457AbUBFEPg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUBFEPg
+	id S266409AbUBFEPI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:15:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266416AbUBFEPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:15:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28647 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266457AbUBFEPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:15:32 -0500
-Date: Thu, 5 Feb 2004 20:13:09 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: jw schultz <jw@pegasys.ws>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.2] Documentation/SubmittingPatches
-Message-Id: <20040205201309.4dac8b8c.rddunlap@osdl.org>
-In-Reply-To: <20040206034509.GI21479@pegasys.ws>
-References: <20040205072303.BCF79FA5F1@mrhankey.megahappy.net>
-	<20040206034509.GI21479@pegasys.ws>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 23:15:08 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:13009 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S266409AbUBFEPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:15:05 -0500
+Date: Thu, 5 Feb 2004 23:15:00 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
+       <johnstul@us.ibm.com>, <drepper@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+In-Reply-To: <20040205214348.GK31926@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004 19:45:09 -0800 jw schultz <jw@pegasys.ws> wrote:
+On Thu, 5 Feb 2004, Andrea Arcangeli wrote:
 
-| On Wed, Feb 04, 2004 at 11:23:03PM -0800, Bryan Whitehead wrote:
-| > 
-| > I've been trying to get my feet wet by submitting trivial patchs to various maintainers and the responses have been, "your not submiting you patches correctly". It seems most developers/maintainers want a diff done like this:
-| > 
-| > cd /source-tree
-| > diff -u linux-2.6.2/FileToPatch.orig linux-2.6.2/FileToPatch
-| > 
-| > instead of the "SubmitingPatches" document way:
-| > cd /source-tree/linux-2.6.2
-| > diff -u FileToPatch.orig FileToPatch
-| > 
-| > It would be _great_ if the Documentation was more accurate to the taste of developers/maintainers...
-| > 
-| > If the SubmittingPatches document is correct, then just toss this patch out because this won't be submitted right... ;)
-| > 
-| > --- linux-2.6.2/Documentation/SubmittingPatches.orig    2004-02-04 22:57:55.818563016 -0800
-| > +++ linux-2.6.2/Documentation/SubmittingPatches 2004-02-04 23:01:28.799185040 -0800
-| > @@ -33,13 +33,15 @@
-| >                                                                                                                                     
-| >  To create a patch for a single file, it is often sufficient to do:
-| >                                                                                                                                     
-| > -       SRCTREE= /devel/linux-2.4
-| > +       SRCTREE= /devel/
-| > +       SRCDIR= linux-2.4
-| >         MYFILE=  drivers/net/mydriver.c
-| >                                                                                                                                     
-| > -       cd $SRCTREE
-| > +       cd $SRCTREE/$SRCDIR
-| >         cp $MYFILE $MYFILE.orig
-| >         vi $MYFILE      # make your change
-| > -       diff -u $MYFILE.orig $MYFILE > /tmp/patch
-| > +       cd $SRCTREE
-| > +       diff -u $SRCDIR/$MYFILE.orig $SRCDIR/$MYFILE > /tmp/patch
-| >                                                                                                                                     
-| 
-| For what it may be worth I find patches a lot more useful
-| for review purposes if the -p (for --show-c-function) option
-| is also used.
+> However I'm unsure if you want all applications to be relocated
+> ranodmly, and in turn if you want the vsyscalls relocated for all apps,
+> exactly because this carry a cost. I think it should be optional.
 
-and which was recently added to SubmittingPatches .
+If you think extra security should be optional, please don't
+argue against it completely.
 
-But this should all get cleaned up...
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
---
-~Randy

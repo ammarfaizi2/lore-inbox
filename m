@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315748AbSEWBki>; Wed, 22 May 2002 21:40:38 -0400
+	id <S315808AbSEWBzp>; Wed, 22 May 2002 21:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315797AbSEWBkh>; Wed, 22 May 2002 21:40:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2315 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315748AbSEWBkg>; Wed, 22 May 2002 21:40:36 -0400
+	id <S315814AbSEWBzo>; Wed, 22 May 2002 21:55:44 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:53403 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315808AbSEWBzn>;
+	Wed, 22 May 2002 21:55:43 -0400
+Date: Thu, 23 May 2002 11:55:09 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Kara <jack@suse.cz.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Quota patches
-To: nathans@sgi.com (Nathan Scott)
-Date: Thu, 23 May 2002 02:56:43 +0100 (BST)
-Cc: jack@suse.cz.com (Jan Kara), hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020523105947.A186660@wobbly.melbourne.sgi.com> from "Nathan Scott" at May 23, 2002 10:59:47 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20020523115509.W180298@wobbly.melbourne.sgi.com>
+In-Reply-To: <20020523105947.A186660@wobbly.melbourne.sgi.com> <E17AhqN-0003Kj-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AhqN-0003Kj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, May 23, 2002 at 09:30:10AM +1000, Nathan Scott wrote:
-> > ... but that should just about do the trick I think.
+hi Alan,
+
+On Thu, May 23, 2002 at 02:56:43AM +0100, Alan Cox wrote:
+> > On Thu, May 23, 2002 at 09:30:10AM +1000, Nathan Scott wrote:
+> > > ... but that should just about do the trick I think.
+> > 
+> > How does the patch below look Jan?
 > 
-> How does the patch below look Jan?
+> Doesn't let me select both ?
+> 
+> > +if [ "$CONFIG_QUOTA" = "y" ]; then
+> > +   define_bool CONFIG_QUOTACTL y
+> > +   if [ "$CONFIG_QIFACE_COMPAT" = "y" ]; then
+> > +       choice '    Compatible quota interfaces' \
+> > +		"Original	CONFIG_QIFACE_V1 \
+> > +		 VFSv0		CONFIG_QIFACE_V2" Original
+> > +   fi
+> >  fi
+> 
 
-Doesn't let me select both ?
+I think that was Jan's intention (the patch I sent doesn't change
+that aspect of things)...
 
-> +if [ "$CONFIG_QUOTA" = "y" ]; then
-> +   define_bool CONFIG_QUOTACTL y
-> +   if [ "$CONFIG_QIFACE_COMPAT" = "y" ]; then
-> +       choice '    Compatible quota interfaces' \
-> +		"Original	CONFIG_QIFACE_V1 \
-> +		 VFSv0		CONFIG_QIFACE_V2" Original
-> +   fi
->  fi
+-if [ "$CONFIG_QUOTA" = "y" -a "$CONFIG_QIFACE_COMPAT" = "y" ]; then
+-   choice '    Compatible quota interfaces' \
+-       "Original       CONFIG_QIFACE_V1 \
+-        VFSv0          CONFIG_QIFACE_V2" Original
 
+
+So all I've really added is the line:
++   define_bool CONFIG_QUOTACTL y
+
+
+wrt having both, iirc there was overlap between the original ABI
+and Jan's new 32bit one - I suspect thats why both together is
+disallowed, but Jan will be able to give the definitive answers
+there.
+
+cheers.
+
+-- 
+Nathan

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272163AbTHDTZo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272166AbTHDTZn
+	id S272167AbTHDTef (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272157AbTHDTef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:25:43 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:31194 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S272163AbTHDTZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:25:40 -0400
-Date: Mon, 4 Aug 2003 21:25:16 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dominik Brugger <ml.dominik83@gmx.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-Message-ID: <20030804192515.GC157@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <1059686596.7187.153.camel@gaston> <20030731220300.GB487@elf.ucw.cz> <1059697660.8184.36.camel@gaston>
-Mime-Version: 1.0
+	Mon, 4 Aug 2003 15:34:35 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:31933 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S272135AbTHDTec
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:34:32 -0400
+Date: Mon, 04 Aug 2003 13:36:13 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>,
+       Patrick Mansfield <patmans@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Badness in device_release at drivers/base/core.c:84
+Message-ID: <1352160000.1060025773@aslan.btc.adaptec.com>
+In-Reply-To: <1060021614.889.6.camel@blaze.homeip.net>
+References: <20030801182207.GA3759@blazebox.homeip.net>	 <20030801144455.450d8e52.akpm@osdl.org>	 <20030803015510.GB4696@blazebox.homeip.net>	 <20030802190737.3c41d4d8.akpm@osdl.org>	 <20030803214755.GA1010@blazebox.homeip.net>	 <20030803145211.29eb5e7c.akpm@osdl.org>	 <20030803222313.GA1090@blazebox.homeip.net>	 <20030803223115.GA1132@blazebox.homeip.net>	 <20030804093035.A24860@beaverton.ibm.com> <1060021614.889.6.camel@blaze.homeip.net>
+X-Mailer: Mulberry/3.1.0b5 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1059697660.8184.36.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Can you mail me a patch? [Where does PCI do its "second round"? From a
-> > quick look I did not see that.]
+> Patrick,
 > 
-> I just comment out the init code in drivers/pci/power.c
+> I enabled CONFIG_SCSI_LOGGING=y in kernel then i used
+> scsi_mod.scsi_logging_level=0x140 and scsi_mod.max_scsi_luns=1 when
+> booting the kernel from lilo.I can see some debug information scroll on
+> the screen and i did see ID0 LUN0 get probed even the correct transfer
+> rate for the SCSI disk is set.I forgot but isn't there a key sequence
+> when pressed it will stop the screen output like pause/break key?
 
-Hmm, in such case whole power.c file can be
-killed. pci_register_driver() should take care of registering proper
-callbacks.
+You might be able to get useful information without using a serial
+console if you turn off your CDROM drives so they don't add extra output,
+but your best bet is to use a serial console.
 
-Apm needs to be fixed to do save_state/resume.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--
+Justin
+

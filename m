@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263956AbTKZDkX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 22:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTKZDkX
+	id S263957AbTKZDiK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 22:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTKZDiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 22:40:23 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:1712 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263956AbTKZDkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 22:40:19 -0500
-Date: Tue, 25 Nov 2003 22:39:10 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Jack Steiner <steiner@sgi.com>
-cc: Anton Blanchard <anton@samba.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
-       "William Lee Irwin, III" <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>, <jbarnes@sgi.com>
-Subject: Re: hash table sizes
-In-Reply-To: <20031125231108.GA5675@sgi.com>
-Message-ID: <Pine.LNX.4.44.0311252238140.22777-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Nov 2003 22:38:10 -0500
+Received: from h80ad25ef.async.vt.edu ([128.173.37.239]:34688 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263957AbTKZDiH (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 22:38:07 -0500
+Message-Id: <200311260337.hAQ3bwmw016622@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org, linux390@de.ibm.com
+Subject: 2.6.0-test10 s390/Kconfig typo?
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_898817537P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Nov 2003 22:37:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003, Jack Steiner wrote:
+--==_Exmh_898817537P
+Content-Type: text/plain; charset=us-ascii
 
-> That was a concern to me too. However, on IA64, all page structs are in
-> the vmalloc region
+OK, it's been a few years since I did S390, but this looks like
+it's confused for 31/32 bit mode (happened to trip over it while digging
+up info for another posting)
 
-Which you'll probably want to fix eventually.  At least
-PAGE_VALID() doesn't seem to work as advertised currently...
+--- linux-2.6.0-test10/arch/s390/Kconfig.dist	2003-11-25 22:35:09.247637990 -0500
++++ linux-2.6.0-test10/arch/s390/Kconfig	2003-11-25 22:35:20.298903222 -0500
+@@ -142,7 +142,7 @@
+ 	default y
+ 
+ config BINFMT_ELF32
+-	tristate "Kernel support for 31 bit ELF binaries"
++	tristate "Kernel support for 32 bit ELF binaries"
+ 	depends on S390_SUPPORT
+ 	help
+ 	  This allows you to run 32-bit Linux/ELF binaries on your zSeries
 
-(occasionally leading to "false positives", with PAGE_VALID()
-saying that a page exists while it really doesn't)
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+--==_Exmh_898817537P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/xCAVcC3lWbTT17ARAi6CAKCLj8Gag4V1Yn8BGqwfaYD6/eMBlACgrVpl
+Q8EwnZuzdLGj9BR+e0AHIvA=
+=dnO/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_898817537P--

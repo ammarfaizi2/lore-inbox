@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315278AbSGUPSk>; Sun, 21 Jul 2002 11:18:40 -0400
+	id <S317638AbSGUPZG>; Sun, 21 Jul 2002 11:25:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317638AbSGUPSk>; Sun, 21 Jul 2002 11:18:40 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:64245 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315278AbSGUPSk>; Sun, 21 Jul 2002 11:18:40 -0400
-Subject: Re: memory leak?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <yw1xwurptb1x.fsf@gladiusit.e.kth.se>
-References: <Pine.LNX.4.44L.0207211118241.12241-100000@imladris.surriel.com> 
-	<yw1xwurptb1x.fsf@gladiusit.e.kth.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Jul 2002 17:33:44 +0100
-Message-Id: <1027269224.17234.101.camel@irongate.swansea.linux.org.uk>
+	id <S317675AbSGUPZG>; Sun, 21 Jul 2002 11:25:06 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:2804 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S317638AbSGUPZF>;
+	Sun, 21 Jul 2002 11:25:05 -0400
+Date: Sun, 21 Jul 2002 11:28:04 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: cpqarray broken since 2.5.19
+Message-ID: <20020721152804.GA6273@www.kroptech.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This memory will be reclaimed when the system needs it.
-> 
-> Does this mean that free and /proc/meminfo are incorrect?
+The cpqarray driver seems to have been broken around 2.5.19 with the
+blk_start_queue/blk_stop_queue changes. As-is, cpqarray deadlocks the entire
+system when it tries to do partition detection. The bits from the 2.5.19 patch
+which seem to relate are:
 
-By its own definition proc/meminfo is correct. top could go rummaging in
-/proc/slabinfo but its questionable if it is meaningful to do so. The
-actually "out of memory" case for a virtual memory system is not "no
-memory pages free" nor "no memory or swap free" its closer to "working
-set plus i/o buffers exceeds memory size".
+> @@ -916,6 +915,7 @@
+>       goto queue_next;
+>
+>  startio:
+> +     blk_stop_queue(q);
+>       start_io(h);
+>  }
+>
+> @@ -1066,8 +1066,8 @@
+>       /*
+>        * See if we can queue up some more IO
+>        */
+> -     do_ida_request(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
+>       spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags);
+> +     blk_start_queue(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
+>  }
+>
+>  /*
 
-That isnt something as easy to visualise or compute as "free"
+Simply reverting these changes allows the driver to successfully do partition
+detect, but it quickly hangs if any significant amount of I/O is attempted. The
+hang in this case seems to just affect processes trying to do I/O on the array;
+it is not a whole-system-deadlock.
+
+Test machine is SMP ppro.
+
+--Adam
 

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264009AbTDWMJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 08:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264011AbTDWMJV
+	id S263967AbTDWMRf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 08:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbTDWMRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 08:09:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:59527 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264009AbTDWMJU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 08:09:20 -0400
-Date: Wed, 23 Apr 2003 08:22:58 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andrew Kirilenko <icedank@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Data storing
-In-Reply-To: <200304231459.37955.icedank@gmx.net>
-Message-ID: <Pine.LNX.4.53.0304230817340.22823@chaos>
-References: <200304231459.37955.icedank@gmx.net>
+	Wed, 23 Apr 2003 08:17:35 -0400
+Received: from web14002.mail.yahoo.com ([216.136.175.93]:44154 "HELO
+	web14002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263967AbTDWMRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 08:17:33 -0400
+Message-ID: <20030423122940.51011.qmail@web14002.mail.yahoo.com>
+Date: Wed, 23 Apr 2003 05:29:40 -0700 (PDT)
+From: Tony Spinillo <tspinillo@yahoo.com>
+Subject: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+To: linux-kernel@vger.kernel.org
+Cc: stelian.pop@fr.alcove.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
+Stelian
 
-> Hello!
+Similiar problem here. Machine boots fine, but when I plug my DV
+camera in I can't cat /proc/bus/ieee1394/ devices, and I get looping
+messages in dmesg. If I move the 1394 drivers from pre-7 in, all works
+fine.
+(Thanks Dan). I submitted my logs and hw info to:
+http://sourceforge.net/mailarchive/forum.php?thread_id=2009188&forum_id=5387
+
+Tony
+
+>Something gone wrong with this changes. My Sony Vaio Picturebook C1VE
+>hangs on boot when the firewire controller is probed by the init
+>scripts.
+
+>This happens exactly in the sequence:
+>	modprobe ohci1394
+>	grep something /proc/bus/ieee1394/devices
+>I'm not sure yet if the lockup is related to the ohci1394
+initialisation
+>or the read in /proc possibly eariler than the driver expects.
 >
-> I need to make some checks (search for particular BIOS version) in the
-> very start of the kernel. I need to store this data (zero page is pretty good
-> for this, I think) and access it from arch/i386/boot/setup.S,
-> arch/i386/boot/compressed/misc.c and in some other places. Can somebody
-> suggest me good place to put check procedure and how to pass data?
+>The kernel still reacts to sysrq (umount/sync etc), however
+task/memory/pc
+>sysrq function do NOT work...
 >
-> Best regards,
-> Andrew.
-
-I use 0x000001f0 (absolute) for relocating virtual disk code
-for booting embedded systems. After Linux is up, the code remains
-untouched. This might be a good location because the BIOS doesn't
-use it during POST/boot and Linux (currently) leaves it alone.
-Of course, this doesn't mean that somebody will not destroy this
-area in the future (probably to spite you and me!!!).
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+>I'll investigate a bit further on this today.

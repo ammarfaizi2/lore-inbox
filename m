@@ -1,110 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272020AbRIMU3w>; Thu, 13 Sep 2001 16:29:52 -0400
+	id <S272057AbRIMUuO>; Thu, 13 Sep 2001 16:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272038AbRIMU3n>; Thu, 13 Sep 2001 16:29:43 -0400
-Received: from cs6625192-102.austin.rr.com ([66.25.192.102]:272 "EHLO
-	mail1.cirrus.com") by vger.kernel.org with ESMTP id <S272020AbRIMU3b>;
-	Thu, 13 Sep 2001 16:29:31 -0400
-Message-ID: <973C11FE0E3ED41183B200508BC7774C022FB771@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <twoller@crystal.cirrus.com>
-To: "'Bao C. Ha'" <baoha@sensoria.com>,
-        "Woller, Thomas" <twoller@crystal.cirrus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Problems with Crystal cs4281 driver in 2.4.8
-Date: Thu, 13 Sep 2001 15:31:16 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S272059AbRIMUuE>; Thu, 13 Sep 2001 16:50:04 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64018 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S272057AbRIMUt5>; Thu, 13 Sep 2001 16:49:57 -0400
+Date: Thu, 13 Sep 2001 22:50:19 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Pavel Machek <pavel@suse.cz>, Edgar Toernig <froese@gmx.de>,
+        linux-kernel@vger.kernel.org, vojtech@ucw.cz,
+        Hamera Erik <HAMERAE@cs.felk.cvut.cz>
+Subject: Re: Booting linux using Novell NetWare Remote Program Loader
+Message-ID: <20010913225019.A9327@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010909230920.A23392@atrey.karlin.mff.cuni.cz> <9nh5p0$3qt$1@cesium.transmeta.com> <20010911005318.C822@bug.ucw.cz> <3BA04514.D65EDF98@gmx.de> <20010913120706.C25204@atrey.karlin.mff.cuni.cz> <3BA0D2BA.8B972B51@gmx.de> <20010913215617.E6820@atrey.karlin.mff.cuni.cz> <3BA10FFA.1050204@zytor.com> <20010913220326.H6820@atrey.karlin.mff.cuni.cz> <3BA1124B.5020302@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3BA1124B.5020302@zytor.com>; from hpa@zytor.com on Thu, Sep 13, 2001 at 01:08:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you send me the source that you have with separate email
-(tar/bzip2)? I am wondering if the source base is old.  Send to
-twoller@crystal.cirrus.com  I'll take a look at it with what I
-have as the latest. 
-I don't know of any such problem on the x86 or the IA64
-platforms.  
-Now, if you are trying use the MMAP interface with capture (ADC)
-then I know that there will be some problems.  non-mmap capture
-should work fine.  Also, if s->dma_adc.count is not decrementing
-then interrupts have ceased or there is a bug in the driver,
-maybe a race condition in the driver that needs to be fixed.
-Thanks
-tom
+Hi!
 
- -----Original Message-----
-From: 	Bao C. Ha [mailto:baoha@sensoria.com] 
-Sent:	Thursday, September 13, 2001 2:29 PM
-To:	twoller@crystal.cirrus.com
-Cc:	audio@crystal.cirrus.com; linux-kernel@vger.kernel.org
-Subject:	Problems with Crystal cs4281 driver in 2.4.8
+> >>Am I guessing correctly that this RPL thing is a floppy image emulator?
+> >>Then it probably becomes a matter of where that image lives (in memory, if
+> >>so where; or on the network and downloaded sector by sector.)  You may
+> >>want to try to make a SYSLINUX image and see if it works.
+> >>
+> > 
+> > Yep, it is floppy image emulator. People are telling me it is
+> > downloaded sector by sector. Do you have some "sure to boot" floppy
+> > image somewhere on ftp?
+> > 								Pavel
+> 
+> 
+> There is no such thing, but this is how you'd build a minimal SYSLINUX
+> floppy image (remove the -s for better performance but somewhat reduced
+> resistance to severe BIOS bugs):
+> 
+> 	su
+> 	dd if=/dev/zero of=floppy.img bs=1024 count=1440
+> 	mkdosfs floppy.img
+> 	syslinux -s floppy.img
+> 	mount -o loop -t msdos floppy.img /mnt
+> 	cp bzImage /mnt/linux
+> 	umount /mnt
+> 	sync
 
-
-We are running kernel 2.4.8 on the sh4 platform.
-We are encoutering a problem with the cs4281
-driver as described in the following:
-
-The device file is opened normally.  Everything
-is working fine.  Then, when it is closed, the
-application hangs.  A ctrl-C is required to get
-out of it.  Upon further examining, we find that
-the close() call is not returning.  It is stuck
-at the drain_adc().
-
-In the cs4281_release(),
-...
-        if (file->f_mode & FMODE_READ) {
------->         drain_adc(s, file->f_flags & O_NONBLOCK);
-                down(&s->open_sem_adc);
-                stop_adc(s);
-...
-
-And in the drain_adc(),
-...
-        for (;;) {
-                set_current_state(TASK_INTERRUPTIBLE);
-                spin_lock_irqsave(&s->lock, flags);
------>          count = s->dma_adc.count;
-                CS_DBGOUT(CS_FUNCTION, 2,
-                          printk(KERN_INFO "cs4281: drain_adc()
-%d\n",
-count));
-                spin_unlock_irqrestore(&s->lock, flags);
-...
-
-It seems that since s->dma_adc.count=8192, we
-are going into an infinite loop there, in
-drain_adc(),
-
-The work-around that we are currently looking
-at is setting the flag to O_NONBLOCKING just
-prior to closing the device to take advantages
-of this.
-...
-                if (nonblock) {
-                        remove_wait_queue(&s->dma_adc.wait,
-&wait);
-                        current->state = TASK_RUNNING;
-                        return -EBUSY;
-                }
-...
-
-Unfortunately, it causes problems later
-since it is in non-blocking mode.  Do a
-fcntl(fd, F_SETFL, 0);
-did not reset to the normal/blocking mode.
-
-What would be the proper way to handle this
-situation?  Since I am not familiar with the
-driver, I don't know if removing the
-drain_adc() from cs4281_release() would cause
-problems later or not.  I am also not sure
-this behavior is specific to the sh4-linux
-port or not.
-
-Appreciate any suggestions/comments.
-
-Regards.
-Bao
+Hey, I tried this with syslinux 1.63, and it boots ;-). Wow. Thanx for
+help, hpa.
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVAKLDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVAKLK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbVAKLDj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 06:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVAKLDj
+	id S262712AbVAKLK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 06:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVAKLKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 06:03:39 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:53849
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262711AbVAKLDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 06:03:33 -0500
-Date: Tue, 11 Jan 2005 12:03:48 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       Mauricio Lin <mauriciolin@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: User space out of memory approach
-Message-ID: <20050111110348.GK26799@dualathlon.random>
-References: <3f250c71050110134337c08ef0@mail.gmail.com> <20050110192012.GA18531@logos.cnet> <4d6522b9050110144017d0c075@mail.gmail.com> <20050110200514.GA18796@logos.cnet> <1105403747.17853.48.camel@tglx.tec.linutronix.de> <20050111074230.GB18796@logos.cnet> <1105440698.17853.102.camel@tglx.tec.linutronix.de>
+	Tue, 11 Jan 2005 06:10:25 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:1541 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S262712AbVAKLKT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 06:10:19 -0500
+Date: Tue, 11 Jan 2005 12:10:15 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alex LIU <alex.liu@st.com>
+Cc: "'Andries Brouwer'" <aebr@win.tue.nl>, "'Pavel Machek'" <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The purpose of PT_TRACESYSGOOD
+Message-ID: <20050111111015.GC2760@pclin040.win.tue.nl>
+References: <20050111023003.GA2760@pclin040.win.tue.nl> <00ac01c4f7a6$c79e03f0$ac655e0a@sha.st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105440698.17853.102.camel@tglx.tec.linutronix.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <00ac01c4f7a6$c79e03f0$ac655e0a@sha.st.com>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: dmv.com: pastinakel.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 11:51:38AM +0100, Thomas Gleixner wrote:
-> Yep. The fixes are around for quite a while and Andrea is bringing the
-> fixes up to kernel current, if I understood one of his previous mails
-> correctly.
+>> /*
+>>  * A child stopped at a syscall has status as if it received SIGTRAP.
+>>  * In order to distinguish between SIGTRAP and syscall, some kernel
+>>  * versions have the PTRACE_O_TRACESYSGOOD option, that sets an extra
+>>  * bit 0x80 in the syscall case.
+>>  */
 
-Yes, it's in my queue (unfortunately I've a few bits to do more urgently
-but Andrew said it's not in a huge rush ;).
+> Then I think the tracing thread should call the ptrace_request to set
+> PTRACE_O_TRACESYSGOOD flag of the traced thread first before
+> ptrace(PTRACE_SYSCALL...) ,right?
+
+Yes.
+
+>From a baby ptrace demo:
+
+#define SIGSYSTRAP      (SIGTRAP | sysgood_bit)
+
+int sysgood_bit = 0;
+
+void set_sysgood(pid_t p) {
+#ifdef PTRACE_O_TRACESYSGOOD
+        int i = ptrace(PTRACE_SETOPTIONS, p, 0, (void*) PTRACE_O_TRACESYSGOOD);
+        if (i == 0)
+                sysgood_bit = 0x80;
+        else
+                perror("PTRACE_O_TRACESYSGOOD");
+#endif
+}
+
+and now the signal SIGSYSTRAP signifies a system call when the sysgood bit
+was implemented, anything different from SIGSYSTRAP is guaranteed to be a signal.
+

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281680AbRKQB7e>; Fri, 16 Nov 2001 20:59:34 -0500
+	id <S281681AbRKQCNq>; Fri, 16 Nov 2001 21:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281681AbRKQB7Y>; Fri, 16 Nov 2001 20:59:24 -0500
-Received: from flounder.jimking.net ([209.205.176.18]:60680 "EHLO
-	flounder.jimking.net") by vger.kernel.org with ESMTP
-	id <S281680AbRKQB7F>; Fri, 16 Nov 2001 20:59:05 -0500
-To: linux-kernel@vger.kernel.org
-Subject: It's me again ...
-From: Tony Reed <Tony@TRLJC.COM>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i586-pc-linux-gnu)
-MIME-Version: 1.0
+	id <S281682AbRKQCNg>; Fri, 16 Nov 2001 21:13:36 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6139
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281681AbRKQCN0>; Fri, 16 Nov 2001 21:13:26 -0500
+Date: Fri, 16 Nov 2001 18:13:20 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: war <war@starband.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Swap Usage with Kernel 2.4.14
+Message-ID: <20011116181320.E21354@mikef-linux.matchmail.com>
+Mail-Followup-To: war <war@starband.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BF5B275.215D6D44@starband.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Message-Id: <20011117015851.531B415B4A@kubrick.trljc.com>
-Date: Fri, 16 Nov 2001 20:58:51 -0500 (EST)
+Content-Disposition: inline
+In-Reply-To: <3BF5B275.215D6D44@starband.net>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been building kernels since 2.2.15 or something, and I've never
-had problems before, so bear with me.
+On Fri, Nov 16, 2001 at 07:42:29PM -0500, war wrote:
+> Regular usage on my box, launching netscape, opera, pan, xchat, gaim;
+> the kernel eventually digs into swap.
+> 
+> However, the swap is never released?
+> 
+> Mem:   900596K av,  185896K used,  714700K free,       0K shrd,    4172K
+> buff
+> Swap: 2048276K av,   63728K used, 1984548K free                   91176K
+> cached
+> 
+> Are there any settings I should have set or be aware of?
+> 
+> I current use 4GB support, 1GB of ram, 2GB of swap.
+> 
+> Having 1GB, I thought I had enough memory for basic operations without
+> the disk swapping like mad.
 
-Where is "deacivate_page" defined?  Because, right at the end, I'm
-getting:
+run top and change it to show the "swap" field.  Now check to see which
+processes are in swap...
 
-ld -m elf_i386 -T /usr/src/linux-2.4.14/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/video/video.o arch/i386/math-emu/math.o \
-        net/network.o \
-        /usr/src/linux-2.4.14/linux/arch/i386/lib/lib.a /usr/src/linux-2.4.14/linux/lib/lib.a /usr/src/linux-2.4.14/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0xa8ad): undefined reference to `deactivate_page'
-drivers/block/block.o(.text+0xa8f9): undefined reference to `deactivate_page'
-make: *** [vmlinux] Error 1
+Does anyone know another way to get this information?  I didn't find
+anything in ps that would help... :(
 
-
-So I'm kinda stuck.  
--- 
-   Tony Reed 
-<Tony@TRLJC.COM>
-My "vendor"?. If I wanna _buy_ an OS, I'll buy an Mac.
+Mike

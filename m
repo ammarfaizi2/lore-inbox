@@ -1,59 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278714AbRKMUQG>; Tue, 13 Nov 2001 15:16:06 -0500
+	id <S278795AbRKMUU4>; Tue, 13 Nov 2001 15:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278732AbRKMUP5>; Tue, 13 Nov 2001 15:15:57 -0500
-Received: from mw3.texas.net ([206.127.30.13]:62119 "EHLO mw3.texas.net")
-	by vger.kernel.org with ESMTP id <S278714AbRKMUPu>;
-	Tue, 13 Nov 2001 15:15:50 -0500
-Message-ID: <3BF17F5F.1090704@btech.com>
-Date: Tue, 13 Nov 2001 14:15:27 -0600
-From: "Malcolm H. Teas" <mhteas@btech.com>
-Organization: Blaze Technology, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S278788AbRKMUUq>; Tue, 13 Nov 2001 15:20:46 -0500
+Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:31703 "EHLO
+	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S278808AbRKMUU3>; Tue, 13 Nov 2001 15:20:29 -0500
+Message-ID: <3BF18144.D0DE0F35@uu.net>
+Date: Tue, 13 Nov 2001 15:23:33 -0500
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Ramdisk ioctl bug fix, kernel 2.4.14
-In-Reply-To: <200111131656.fADGuWn06695@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: cyjamten@ihug.com.au, linux-kernel@vger.kernel.org
+Subject: Re: AMD761Agpgart+Radeon64DDR+kernel+2.4.15-pre2...still testing....
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+add Option "AGPMode" "4"  to the device section of your XF86Config file
+to use 4x AGP.
 
+Alex
 
-Alan Cox wrote:
+------------------------------
 
->>Most disk devices can't change their size with a few commands as a ram disk can 
->>as it's a physical constant.  Ram disks are virtual so their size is whatever 
->>the user specifies, with a kernel configured upper limit.  I argue that the size 
->>is the allocated amount, not the upper limit.
->>
-> 
-> I think your problem is that you are querying the disk to ask it the file
-> system size ? If so you asked the wrong code
+hi all, 
 
+My X server seems to be cooperating with me quite lately... I have tried 
+a new XF86Config file which was patterned to the someone who sent his to 
+me... Thanks for that!! anyway... for extra info here it is: 
 
-I take your point.  The file system knows its right size.  However, it would 
-still be useful to be able to tell what the ram disk allocated size actually is. 
-  Currently there's no good mechanism I know of that returns the actual 
-allocated size.
+root@matrix:~# lspci 
+00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700e 
+(rev 13) 
+00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700f 
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
+40) 
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
+06) 
+00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16) 
+00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16) 
+00:04.4 Non-VGA unclassified device: VIA Technologies, Inc. VT82C686 
+[Apollo Super ACPI] (rev 40) 
+00:0a.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev
+20) 
+00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 
+(rev 05) 
+00:0b.1 Input device controller: Creative Labs SB Live! (rev 05) 
+00:0d.0 Multimedia video controller: Brooktree Corporation Bt878 (rev
+02) 
+00:0d.1 Multimedia controller: Brooktree Corporation Bt878 (rev 02) 
+01:05.0 VGA compatible controller: ATI Technologies Inc: Unknown device
+5144 
 
-I'm using ram disks as a way of building a single floppy linux I'm working on (a 
-variation on LRP and Tom's Root Boot).  Some of the time in this process I have 
-ram disk(s) without filesystems to query for the size.  It's also possible to 
-build a filesystem that's smaller than the allocated size.
+part of glxinfo: 
 
-Mypatch doesn't affect userland tools like "du" and "df" since they query the 
-filesystem for the size.  It does fix lowel-level tools that look at the ramdisk 
-and not the filesystem.
+iceman@matrix:~$ glxinfo 
+name of display: :0.0 
+display: :0 screen: 0 
+direct rendering: Yes 
+server glx vendor string: SGI 
+server glx version string: 1.2 
+server glx extensions: 
+     GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_EXT_import_context 
+client glx vendor string: SGI 
+client glx version string: 1.2 
+client glx extensions: 
+     GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_EXT_import_context 
+GLX extensions: 
+     GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_EXT_import_context 
+OpenGL vendor string: VA Linux Systems, Inc. 
+OpenGL renderer string: Mesa DRI Radeon 20010402 AGP 1x x86/MMX/3DNow! 
+OpenGL version string: 1.2 Mesa 3.4.2 
 
-Having the ramdisk report the max possible size and not the allocated size is 
-akin to having a physical hard disk report the theoretical max that could be 
-achieved using current technology, not the actual blocks the device is built to 
-hold.
+take note: Agp1x :( 
 
--Malcolm
+cheers!! 
 
+cyrus

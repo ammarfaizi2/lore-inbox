@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVC1LEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVC1LIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVC1LEB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 06:04:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVC1LEB
+	id S261516AbVC1LIi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 06:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVC1LIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 06:04:01 -0500
-Received: from tornado.reub.net ([60.234.136.108]:27278 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S261508AbVC1LDs (ORCPT
+	Mon, 28 Mar 2005 06:08:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:50719 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261516AbVC1LIg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 06:03:48 -0500
-Message-ID: <4247E491.2070601@reub.net>
-Date: Mon, 28 Mar 2005 23:03:45 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050325)
-MIME-Version: 1.0
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rmk+serial@arm.linux.org.uk
-Subject: Re: 2.6.12-rc1-mm3
-References: <fa.e0rq9h4.h02o3e@ifi.uio.no> <fa.dhfu5qn.1l68cj1@ifi.uio.no>
-In-Reply-To: <fa.dhfu5qn.1l68cj1@ifi.uio.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 28 Mar 2005 06:08:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Afc/FdL6PtXWi2yY7xn5co+4acWriyCruUTnYkKVPm4UMOjoIrMQOQmugV6l6AB+T6GSufZ4aNHs0SmJu9q22bfPnUwSNCBZh1s8Sfm1SRUGxsLbuBDvmEmoAD5GZeurSmt/P8yEkINck+kungicyJvf6Sj+LfBH8IqddtJP15Y=
+Message-ID: <84fecab05032803082415448f@mail.gmail.com>
+Date: Mon, 28 Mar 2005 13:08:05 +0200
+From: Valery Khamenya <khamenya@gmail.com>
+Reply-To: Valery Khamenya <khamenya@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: reboot problem with VIA EPIA-MS motherboard
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly wrote:
+Hi all,
 
-> 
-> I'm repeatably getting this crash on shutdown in -mm3, and a few 
-> releases earlier (but I can't be certain it was the same crash..)
-> 
-> Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-> ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-> ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-> ttyS4 at I/O 0xa400 (irq = 16) is a 16550A
-> ttyS5 at I/O 0xa408 (irq = 16) is a 16550A
-> 
-> This _may_ be the culprit, but I'm not sure:
-> 
-> 03:03.0 Serial controller: Timedia Technology Co Ltd PCI2S550 (Dual 
-> 16550 UART) (rev 01) (prog-if 02 [16550])
->         Subsystem: Timedia Technology Co Ltd: Unknown device 0002
->         Flags: stepping, medium devsel, IRQ 16
->         I/O ports at a400 [size=32]
+please Cc to me your clues on the following problem:
 
-Ugh.  I'm an idiot, that will teach me for having two sessions to boxes 
-running at once.
+Symptom:
 
-Wrong info above, but the trace is still valid.
+"reboot" or "shutdown -r now" on VIA EPIA-MS motherboard finishes all 
+processes, then comes message "Restarting system.", keyboard LEDs 
+flash and nothing happens anymore -- one has to finalize reboot manually.
 
-Correct info follows:
+Comments:
 
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS14 at I/O 0xb400 (irq = 217) is a 16550A
-ttyS15 at I/O 0xb000 (irq = 217) is a 16550A
+1. Motherboard is really able to reboot: e.g. when after POST comes grub, one
+could enter grub's console and issue "reboot" -- it works fine.
 
-06:02.0 Serial controller: NetMos Technology PCI 9835 Multi-I/O 
-Controller (rev
-01) (prog-if 02 [16550])
-         Subsystem: LSI Logic / Symbios Logic 2S (16C550 UART)
-         Flags: medium devsel, IRQ 217
-         I/O ports at b400 [size=8]
-         I/O ports at b000 [size=8]
-         I/O ports at ac00 [size=8]
-         I/O ports at a800 [size=8]
-         I/O ports at a400 [size=8]
-         I/O ports at a000 [size=16]
+2. different kernel boot options were tried without success, like
+"reboot=b|w|h|c", "acpi=on|off|force", "apm=on|off" -- not in
+all combinations though ;)
 
+3. Linux distro used -- Gentoo. (synced)
 
-> The board is an Intel D925XCV.
-> 
-> Shutdown goes like this:   (yes, hyperterminal sucks for the ^M 
-> characters, sorry)
+4. different 2.6.x kernel were tried: 2.6.9-2.6.12, not only vanilla kernels,
+but Gentoo kernels too. (Now I am stuck to 2.6.12-rc1 as it is exposed via 
+Gentoo portage system)
 
-<trace omitted>
+5. different kernel boot options lead to different reboot implementations.
+One of tracked by me implementations ends up in
+mach-default/mach_reboot.h, inlined function "mach_reboot".
+The second udelay(50) in the loop is the last call,
+after which nothing happens anymore. 
 
-reuben
+6. Any other details/logs might be posted -- just tell me
+which are of interest.
+
+TIA,
+Valery.
+
+P.S. perhaps, I do not violate any rules posting my problem and comments
+to this malinglist.
+-- 
+Valery A.Khamenya

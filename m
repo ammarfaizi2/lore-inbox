@@ -1,182 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263261AbTIVS6W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 14:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbTIVS6W
+	id S263267AbTIVTAC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 15:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbTIVTAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 14:58:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10003 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263261AbTIVS6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 14:58:11 -0400
-Date: Mon, 22 Sep 2003 19:58:05 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-pcmcia@lists.infradead.org
-Subject: [CFT] Socket quiescing changes
-Message-ID: <20030922195805.E31823@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-pcmcia@lists.infradead.org
+	Mon, 22 Sep 2003 15:00:01 -0400
+Received: from thumper2.emsphone.com ([199.67.51.102]:949 "EHLO
+	thumper2.emsphone.com") by vger.kernel.org with ESMTP
+	id S263267AbTIVS6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 14:58:37 -0400
+Date: Mon, 22 Sep 2003 13:58:32 -0500
+From: Andrew Ryan <genanr@emsphone.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at drivers/scsi/scsi_lib.c:544
+Message-ID: <20030922185832.GA10652@thumper2.emsphone.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes the way in which we turn off power to PCMCIA sockets.
-We have traditionally relied on the socket drivers "init" method to
-shut down the power to the socket by calling its own "set_socket" function.
+I hit this bug when trying to mount a md multipath device.  mdadm creates it
+fine, but when I go to mount the device it oops.
 
-Rather than relying on all socket drivers replicating this behaviour, we
-move this into the core by calling the "set_socket" method explicitly
-after we clear out the socket state structure.
+Kernel : 2.6.0-test5
 
-One final note - there is the remote possibility that this may upset some
-pcmcia/cardbus controllers which may cause the power to be left switched
-on to the socket - should this happen, you should see the "*** DANGER ***"
-sign appear in your kernel messages.  Should this happen, I strongly
-advise not plugging in your 3.3V card...
+ksymoops 2.4.4 on i686 2.6.0-test5.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.0-test5/ (default)
+     -m /boot/System.map-2.6.0-test5 (default)
 
-(No warranty, if you blow your hardware up you get to keep both pieces,
-etc etc etc)
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-===== cs.c 1.63 vs edited =====
---- 1.63/drivers/pcmcia/cs.c	Sun Sep 21 21:03:37 2003
-+++ edited/cs.c	Mon Sep 22 19:44:19 2003
-@@ -450,6 +450,7 @@
-     s->state &= SOCKET_PRESENT|SOCKET_INUSE;
-     s->socket = dead_socket;
-     s->ops->init(s);
-+    s->ops->set_socket(s, &s->socket);
-     s->irq.AssignedIRQ = s->irq.Config = 0;
-     s->lock_count = 0;
-     destroy_cis_cache(s);
-@@ -457,15 +458,6 @@
- 	kfree(s->fake_cis);
- 	s->fake_cis = NULL;
-     }
--    /* Should not the socket be forced quiet as well?  e.g. turn off Vcc */
--    /* Without these changes, the socket is left hot, even though card-services */
--    /* realizes that no card is in place. */
--    s->socket.flags &= ~SS_OUTPUT_ENA;
--    s->socket.Vpp = 0;
--    s->socket.Vcc = 0;
--    s->socket.io_irq = 0;
--    s->ops->set_socket(s, &s->socket);
--    /* */
- #ifdef CONFIG_CARDBUS
-     cb_free(s);
- #endif
-@@ -485,6 +477,14 @@
-     }
-     free_regions(&s->a_region);
-     free_regions(&s->c_region);
-+
-+    {
-+	int status;
-+	skt->ops->get_status(skt, &status);
-+	if (status & SS_POWERON) {
-+		printk(KERN_ERR "PCMCIA: socket %p: *** DANGER *** unable to remove socket power\n", skt);
-+	}
-+    }
- } /* shutdown_socket */
- 
- /*======================================================================
-@@ -639,6 +639,12 @@
- 	set_current_state(TASK_UNINTERRUPTIBLE);
- 	schedule_timeout(cs_to_timeout(vcc_settle));
- 
-+	skt->ops->get_status(skt, &status);
-+	if (!(status & SS_POWERON)) {
-+		pcmcia_error(skt, "unable to apply power.\n");
-+		return CS_BAD_TYPE;
-+	}
-+
- 	return socket_reset(skt);
- }
- 
-@@ -698,6 +704,7 @@
- 
- 	skt->socket = dead_socket;
- 	skt->ops->init(skt);
-+	skt->ops->set_socket(skt, &skt->socket);
- 
- 	ret = socket_setup(skt, resume_delay);
- 	if (ret == CS_SUCCESS) {
-@@ -770,6 +777,7 @@
- 
- 	skt->socket = dead_socket;
- 	skt->ops->init(skt);
-+	skt->ops->set_socket(skt, &skt->socket);
- 
- 	/* register with the device core */
- 	ret = class_device_register(&skt->dev);
-===== hd64465_ss.c 1.16 vs edited =====
---- 1.16/drivers/pcmcia/hd64465_ss.c	Sat Sep  6 22:32:53 2003
-+++ edited/hd64465_ss.c	Mon Sep 22 17:52:29 2003
-@@ -347,11 +347,7 @@
-     	hs_socket_t *sp = container_of(s, struct hs_socket_t, socket);
- 	
-     	DPRINTK("hs_init(%d)\n", sp->number);
--	
--	sp->state.Vcc = 0;
--	sp->state.Vpp = 0;
--	hs_set_voltages(sp, 0, 0);
--	
-+
- 	return 0;
- }
- 
-===== i82092.c 1.29 vs edited =====
---- 1.29/drivers/pcmcia/i82092.c	Thu Sep 11 23:46:11 2003
-+++ edited/i82092.c	Mon Sep 22 17:53:00 2003
-@@ -426,7 +426,6 @@
-         enter("i82092aa_init");
-                         
-         mem.sys_stop = 0x0fff;
--        i82092aa_set_socket(sock, &dead_socket);
-         for (i = 0; i < 2; i++) {
-         	io.map = i;
-                 i82092aa_set_io_map(sock, &io);
-===== i82365.c 1.45 vs edited =====
---- 1.45/drivers/pcmcia/i82365.c	Sat Sep  6 22:32:53 2003
-+++ edited/i82365.c	Mon Sep 22 17:53:36 2003
-@@ -1322,7 +1322,6 @@
- 	pccard_mem_map mem = { 0, 0, 0, 0, 0, 0 };
- 
- 	mem.sys_stop = 0x1000;
--	pcic_set_socket(s, &dead_socket);
- 	for (i = 0; i < 2; i++) {
- 		io.map = i;
- 		pcic_set_io_map(s, &io);
-===== sa11xx_core.c 1.13 vs edited =====
---- 1.13/drivers/pcmcia/sa11xx_core.c	Sat Sep  6 21:34:13 2003
-+++ edited/sa11xx_core.c	Mon Sep 22 17:54:15 2003
-@@ -232,8 +232,6 @@
- 	DEBUG(2, "%s(): initializing socket %u\n", __FUNCTION__, skt->nr);
- 
- 	skt->ops->socket_init(skt);
--	sa1100_pcmcia_config_skt(skt, &dead_socket);
--
- 	return 0;
- }
- 
-===== tcic.c 1.34 vs edited =====
---- 1.34/drivers/pcmcia/tcic.c	Sat Sep  6 22:32:54 2003
-+++ edited/tcic.c	Mon Sep 22 17:54:36 2003
-@@ -865,7 +865,6 @@
- 	pccard_mem_map mem = { 0, 0, 0, 0, 0, 0 };
- 
- 	mem.sys_stop = 0x1000;
--	tcic_set_socket(s, &dead_socket);
- 	for (i = 0; i < 2; i++) {
- 		io.map = i;
- 		tcic_set_io_map(s, &io);
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Sep 22 11:06:23 linuxha1 kernel: kernel BUG at drivers/scsi/scsi_lib.c:544!
+Sep 22 11:06:23 linuxha1 kernel: invalid operand: 0000 [#1]
+Sep 22 11:06:23 linuxha1 kernel: CPU:    1
+Sep 22 11:06:23 linuxha1 kernel: EIP:    0060:[<c0232115>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Sep 22 11:06:23 linuxha1 kernel: EFLAGS: 00010046
+Sep 22 11:06:23 linuxha1 kernel: eax: 00000000   ebx: f6cab1b0   ecx: c2707c00   edx: f6d08d20
+Sep 22 11:06:23 linuxha1 kernel: esi: 00000020   edi: f6d08d20   ebp: f6cab1b0   esp: f6aa1d2c
+Sep 22 11:06:23 linuxha1 kernel: ds: 007b   es: 007b   ss: 0068
+Sep 22 11:06:23 linuxha1 kernel: Stack: 00000020 f6cab1b0 00000020 f6d08d20 f6cab1b0 c02326fb f6d08d20 00000020 
+Sep 22 11:06:23 linuxha1 kernel:        f6d08d20 00000020 c2707c00 c023289d f6d08d20 f6cab1b0 f6e75e00 f6aa1dac 
+Sep 22 11:06:23 linuxha1 kernel:        f69e7124 c01f1cf4 f6e75e00 f6cab1b0 f6e75e00 f6e75f50 c01f34d5 f6e75e00 
+Sep 22 11:06:23 linuxha1 kernel:  [<c02326fb>] scsi_init_io+0x5b/0x110
+Sep 22 11:06:23 linuxha1 kernel:  [<c023289d>] scsi_prep_fn+0xed/0x150
+Sep 22 11:06:23 linuxha1 kernel:  [<c01f1cf4>] elv_next_request+0x14/0xe0
+Sep 22 11:06:23 linuxha1 kernel:  [<c01f34d5>] generic_unplug_device+0x45/0x70
+Sep 22 11:06:23 linuxha1 kernel:  [<c01380bf>] do_page_cache_readahead+0x14f/0x170
+Sep 22 11:06:23 linuxha1 kernel:  [<c01f3615>] blk_run_queues+0x75/0xa0
+Sep 22 11:06:23 linuxha1 kernel:  [<c01512c5>] block_sync_page+0x5/0x10
+Sep 22 11:06:23 linuxha1 kernel:  [<c01326bf>] __lock_page+0xaf/0xe0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0118dc0>] autoremove_wake_function+0x0/0x40
+Sep 22 11:06:23 linuxha1 kernel:  [<c01381b5>] page_cache_readahead+0xd5/0x150
+Sep 22 11:06:23 linuxha1 kernel:  [<c0118dc0>] autoremove_wake_function+0x0/0x40
+Sep 22 11:06:23 linuxha1 kernel:  [<c0132baf>] do_generic_mapping_read+0x1cf/0x3a0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0132d80>] file_read_actor+0x0/0xd0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0133045>] __generic_file_aio_read+0x1f5/0x220
+Sep 22 11:06:23 linuxha1 kernel:  [<c0132d80>] file_read_actor+0x0/0xd0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0133138>] generic_file_read+0x78/0xa0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0154092>] do_open+0xf2/0x3a0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0153bcb>] bdget+0xfb/0x110
+Sep 22 11:06:23 linuxha1 kernel:  [<c01543e6>] blkdev_open+0x26/0x60
+Sep 22 11:06:23 linuxha1 kernel:  [<c014bf2b>] dentry_open+0xeb/0x1c0
+Sep 22 11:06:23 linuxha1 kernel:  [<c014ca7a>] vfs_read+0xaa/0xe0
+Sep 22 11:06:23 linuxha1 kernel:  [<c0153830>] block_llseek+0x0/0xe0
+Sep 22 11:06:23 linuxha1 kernel:  [<c014c8f5>] sys_llseek+0xb5/0xe0
+Sep 22 11:06:23 linuxha1 kernel:  [<c014cc6f>] sys_read+0x2f/0x50
+Sep 22 11:06:23 linuxha1 kernel:  [<c0108ff3>] syscall_call+0x7/0xb
+Sep 22 11:06:23 linuxha1 kernel: Code: 0f 0b 20 02 05 64 2d c0 0f b7 82 9e 00 00 00 83 f8 20 7f 1d 
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+>>EIP; c0232115 <scsi_alloc_sgtable+15/f0>   <=====
+Code;  c0232115 <scsi_alloc_sgtable+15/f0>
+00000000 <_EIP>:
+Code;  c0232115 <scsi_alloc_sgtable+15/f0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0232117 <scsi_alloc_sgtable+17/f0>
+   2:   20 02                     and    %al,(%edx)
+Code;  c0232119 <scsi_alloc_sgtable+19/f0>
+   4:   05 64 2d c0 0f            add    $0xfc02d64,%eax
+Code;  c023211e <scsi_alloc_sgtable+1e/f0>
+   9:   b7 82                     mov    $0x82,%bh
+Code;  c0232120 <scsi_alloc_sgtable+20/f0>
+   b:   9e                        sahf   
+Code;  c0232121 <scsi_alloc_sgtable+21/f0>
+   c:   00 00                     add    %al,(%eax)
+Code;  c0232123 <scsi_alloc_sgtable+23/f0>
+   e:   00 83 f8 20 7f 1d         add    %al,0x1d7f20f8(%ebx)
+
+
+1 warning and 1 error issued.  Results may not be reliable.
+
+Andy

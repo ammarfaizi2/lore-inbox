@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268334AbRGWSOC>; Mon, 23 Jul 2001 14:14:02 -0400
+	id <S268323AbRGWS1X>; Mon, 23 Jul 2001 14:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268325AbRGWSNx>; Mon, 23 Jul 2001 14:13:53 -0400
-Received: from web14506.mail.yahoo.com ([216.136.224.69]:5892 "HELO
-	web14506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268326AbRGWSNe>; Mon, 23 Jul 2001 14:13:34 -0400
-Message-ID: <20010723181339.87370.qmail@web14506.mail.yahoo.com>
-Date: Mon, 23 Jul 2001 11:13:39 -0700 (PDT)
-From: Kent Hunt <kenthunt@yahoo.com>
-Subject: Conexant LANfinity is working in 2.2 and 2.4!
-To: tulip <tulip@scyld.com>
-Cc: Donald Becker <becker@scyld.com>, lk <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	id <S268327AbRGWS1N>; Mon, 23 Jul 2001 14:27:13 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:16486 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268323AbRGWS1F>; Mon, 23 Jul 2001 14:27:05 -0400
+Date: Mon, 23 Jul 2001 20:27:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Dike <jdike@karaya.com>, user-mode-linux-user@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, Jan Hubicka <jh@suse.cz>
+Subject: Re: user-mode port 0.44-2.4.7
+Message-ID: <20010723202734.C16919@athlon.random>
+In-Reply-To: <20010723195055.A16919@athlon.random> <Pine.LNX.4.33.0107231103570.13272-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107231103570.13272-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jul 23, 2001 at 11:11:25AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+On Mon, Jul 23, 2001 at 11:11:25AM -0700, Linus Torvalds wrote:
+> Now, the change of algorithm might be something like
+> 
+> 	/*
+> 	 * We need to get _one_ value here, because our
+> 	 * state machine ....
+> 	 */
 
-	To those that are not faint hearted and that cannot
-wait, I managed to have the Conexant LANfinity
-NIC in presario laptops working in both 2.2.19 and
-2.4.7 kernels.
-	For 2.2 just follow the instructions in the
-tulip (2.2) mailing list in July. For 2.4 I've got the
-following.
-	Have your 2.4.7 kernel tree under /usr/src/linux.
-	Get:
-		1. kern_compat.h revision 1.9
-		2. pci-scan.c:v1.06 5/18/2001  
-		3. pci-scan.h:version 1.02 2001/03/18 
-		4. tulip.c:v0.92w 7/9/2001
+gcc can assume 'state' stays constant in memory not just during the
+'case'.
 
-	These can be found somewhere in
-http://www.scyld.com/network/tulip.html
+> The C standard doesn't say crap about volatile. It leaves it up to the
+> compiler to do something about it.
 
-	Create the Makefile:
+The C folks definitely say it is a kernel bug if you don't apply my
+patch and I agree with them.  Ask Jan.
 
-CC = gcc
-OPTIONSCOMMON = -D__KERNEL__ -DMODULE -Wall
--Wstrict-prototypes -O2 -I/usr/src/linux/include
--fomit-frame-pointer -fno-strict-aliasing
--Wno-trigraphs -fno-common -pipe
--mpreferred-stack-boundary=2 -march=i686 -DMODVERSIONS
- -include /usr/src/linux/include/linux/modversions.h
-OPTIONSTULIP = $(OPTIONSCOMMON) 
-OPTIONSPCISN = $(OPTIONSCOMMON)  -DEXPORT_SYMTAB
-all:
-        $(CC) $(OPTIONSTULIP) -c tulip.c
-        $(CC) $(OPTIONSPCISN) -c pci-scan.c
-clean:
-        rm -f *~ pci-scan.o tulip.o
-
-	Type make and then you should have the modules
-pci-scan.o and tulip.o ready to be inserted in your
-kernel and voila.
-
-	Notes: This worked for me but I don't know if this
-will destroy your machine. You may want to change the
-arch flag -march to reflect your CPU. This was done on
-a Debian 2.3 (aka woody) system. This is being posted
-using this driver. The full-duplex mode is known to be
-buggy.
-
-	Great many thanks for Donald Becker for making this
-driver work with the LANfinity chip!
-	Happy networking presario guys!
-
-	Kent
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+Andrea

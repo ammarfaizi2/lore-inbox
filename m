@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288092AbSAHPQV>; Tue, 8 Jan 2002 10:16:21 -0500
+	id <S288089AbSAHPML>; Tue, 8 Jan 2002 10:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288097AbSAHPQL>; Tue, 8 Jan 2002 10:16:11 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38417
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S288092AbSAHPQA>; Tue, 8 Jan 2002 10:16:00 -0500
-Date: Tue, 8 Jan 2002 07:12:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matthew Hunter <matthew@infodancer.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE Patch (fwd)
-In-Reply-To: <20020108150346.GA24479@infodancer.org>
-Message-ID: <Pine.LNX.4.10.10201080709060.991-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288090AbSAHPMB>; Tue, 8 Jan 2002 10:12:01 -0500
+Received: from danielle.hinet.hr ([195.29.148.143]:50309 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S288089AbSAHPLw>; Tue, 8 Jan 2002 10:11:52 -0500
+Date: Tue, 8 Jan 2002 16:11:37 +0100
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: Doug Ledford <dledford@redhat.com>
+Cc: Thomas Gschwind <tom@infosys.tuwien.ac.at>,
+        Nathan Bryant <nbryant@allegientsystems.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: i810_audio
+Message-ID: <20020108161137.A6747@danielle.hinet.hr>
+In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com> <3C3A301A.2050501@redhat.com> <3C3AA6F9.5090407@redhat.com> <3C3AA9AD.6070203@redhat.com> <3C3AB5AB.2080102@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C3AB5AB.2080102@redhat.com>; from dledford@redhat.com on Tue, Jan 08, 2002 at 04:02:35AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Greetings Matthew,
+> OK, various clean ups made, and enough of the SiS code included that I think 
+> it should work, plus one change to the i810 interrupt handler that will 
+> (hopefully) render the other change you made to get_dma_addr and drain_dac 
+> unnecessary.  If people could please download and test the new 0.14 version 
+> of the driver on my site, I would appreciate it.
+> 
+> http://people.redhat.com/dledford/i810_audio.c.gz
 
-Thanks for the feedback, but lkml needs it or it will not be adopted.
-I know the driver is stable and effectively perfect in operations.
-So I do not understand the total ignore I receive about it.
+Hmmm, maybe way too much cleanups !? :)
 
-respectfully
+-->
 
-On Tue, 8 Jan 2002, Matthew Hunter wrote:
+i810_audio.c: In function `i810_get_dma_addr':
+i810_audio.c:658: warning: unused variable `c'
+i810_audio.c: In function `__stop_dac':
+i810_audio.c:747: `PI_OR' undeclared (first use in this function)
+i810_audio.c:747: (Each undeclared identifier is reported only once
+i810_audio.c:747: for each function it appears in.)
+make[2]: *** [i810_audio.o] Error 1
+make[1]: *** [_modsubdir_sound] Error 2
+make: *** [_mod_drivers] Error 2
 
-> On Tue, Jan 08, 2002 at 01:15:38AM -0800, Andre Hedrick <andre@linux-ide.org> wrote:
-> > 
-> > ---------- Forwarded message ----------
-> > Date: Sat, 5 Jan 2002 14:17:00 -0500 (EST)
-> > From: Rob Radez <rob@osinvestor.com>
-> > To: Andre Hedrick <andre@linux-ide.org>
-> > Subject: IDE Patch
-> > 
-> > Hi,
-> > I'm using your ide.2.4.16.12102001 patch with a Promise PDC20269
-> > controller and a Maxtor 160GB hard drive on 2.4.17, and I just wanted to
-> > tell you that it's working great so far.
-> > 
-> > Thanks for all the great code,
-> > Rob Radez
-> 
-> Thought I would take the opportunity to ditto this
-> privately.  I'm using your IDE patch with 2.4.17, on a system
-> with a three-drive RAID5 and a two-drive RAID0.  I gained about 3
-> mb/s on two drives individually.  I haven't rebooted to compare
-> raid performance (though I know it is faster -- just not by how
-> much). 
-> 
-> It's been rock solid, no stability issues.
-> 
-> Looks like great work.
-> 
-> -- 
-> Matthew Hunter (matthew@infodancer.org) Linux-2.4.17 on an i686
-> GPG Public Key: http://www.infodancer.org/users/matthew/public.txt
-> Fingerprint: 0CD5 FE63 0CB3 C996 7FFE  82F7 F9F5 A295 FA92 497C
-> Thousands of years ago, cats were worshipped as gods. Cats have
-> <never forgotten this.  
-> 
-> 
 
+ps
+	just got a note from a friend that .13 has tendency to lockup with
+	heavy network traffic in the same time, no oops, nothing, ..
+
+-- 
+Mario Mikoèeviæ (Mozgy)
+mozgy at hinet dot hr
+My favourite FUBAR ...

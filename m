@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVCHKad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVCHKcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVCHKad (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:30:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVCHKad
+	id S261969AbVCHKcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVCHKbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:30:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31701 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261963AbVCHK3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 05:29:14 -0500
-Date: Tue, 8 Mar 2005 10:46:55 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Fix suspend/resume problems with b44
-Message-ID: <20050308094655.GA16775@elf.ucw.cz>
+	Tue, 8 Mar 2005 05:31:33 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:43784 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261969AbVCHKbG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 05:31:06 -0500
+Date: Tue, 8 Mar 2005 21:30:15 +1100
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       cryptoapi@lists.logix.cz, James Morris <jmorris@redhat.com>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel 2.6
+Message-ID: <20050308103015.GA23565@gondor.apana.org.au>
+References: <11102278521318@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <11102278521318@2ka.mipt.ru>
 User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Mar 07, 2005 at 11:37:32PM +0300, Evgeniy Polyakov wrote:
+> 
+> I'm pleased to announce asynchronous crypto layer for Linux kernel 2.6.
 
-This should fix problems people have with b44 during
-suspend/resume. Please apply,
-								Pavel
+Thanks for your work.  I'll be reviewing your approach as well as others
+over the next week or so.
 
---- clean/drivers/net/b44.c	2004-12-25 13:35:00.000000000 +0100
-+++ linux/drivers/net/b44.c	2005-01-19 11:59:12.000000000 +0100
-@@ -1921,6 +1921,8 @@
- 	b44_free_rings(bp);
- 
- 	spin_unlock_irq(&bp->lock);
-+
-+	free_irq(dev->irq, dev);
- 	return 0;
- }
- 
-@@ -1934,6 +1936,9 @@
- 	if (!netif_running(dev))
- 		return 0;
- 
-+	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
-+		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
-+
- 	spin_lock_irq(&bp->lock);
- 
- 	b44_init_rings(bp);
-
+Cheers,
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

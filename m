@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129448AbQJ0P7P>; Fri, 27 Oct 2000 11:59:15 -0400
+	id <S129783AbQJ0QcD>; Fri, 27 Oct 2000 12:32:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129459AbQJ0P6y>; Fri, 27 Oct 2000 11:58:54 -0400
-Received: from user223.megabit.utoronto.ca ([142.150.241.17]:39940 "EHLO
-	polarbear.homenet") by vger.kernel.org with ESMTP
-	id <S129448AbQJ0P6s>; Fri, 27 Oct 2000 11:58:48 -0400
-Message-ID: <39F9A633.1587AC4@cita.utoronto.ca>
-Date: Fri, 27 Oct 2000 11:58:43 -0400
-From: Dmitri Pogosyan <pogosyan@cita.utoronto.ca>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S129821AbQJ0Qbx>; Fri, 27 Oct 2000 12:31:53 -0400
+Received: from brutus.conectiva.com.br ([200.250.58.146]:53500 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129783AbQJ0Qbn>; Fri, 27 Oct 2000 12:31:43 -0400
+Date: Fri, 27 Oct 2000 14:31:28 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Rui Sousa <rsousa@grad.physics.sunysb.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Blocked processes <=> Elevator starvation?
+In-Reply-To: <Pine.LNX.4.21.0010271658500.1295-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0010271430330.25174-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Off-Topic (or maybe on-topic)
-In-Reply-To: <Pine.LNX.4.21.0010271400540.10504-100000@saturn.homenet>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
+On Fri, 27 Oct 2000, Rui Sousa wrote:
 
-> On Fri, 27 Oct 2000, David Weinehall wrote:
-> > > PS. Leningrad is the old historical name of the modern St. Petersberg but
-> > > we "old-timers" do still call it Leningrad, it seems more appropriate than
-> > > all those "modern" name-changes... ;)
-> >
-> > You're VERY wrong here. St. Petersburg was the name before the Soviet
-> > Union was formed and Russia marched into the Baltics. When the takeover
-> > was made, the city was renamed Leningrad (after V.I. Lenin). When the
-> > Soviet Union finally fell to pieces and the Baltics retained their freedom,
-> > St. Petersburg retained its old name, which it got (if I'm not all wrong)
-> > from Peter the Great.
+> I finally had time to give this a better look. It now seems the
+> problem is in the VM system.
 
-Speaking about Baltics, when St. Petersburg was original St. Petersburg,
-Baltics were in Russia. It was renamed Leningrad at the (approximately)
-same time Baltics were freed first time and Soviet Union was form, if you like
-:).
-SU matched back into Baltics later.
+*sigh*
 
-By the way St. Petersburg is not _formally_ after Peter the Great.
-Peter the Great is not Saint.
+> schedule()
+> ___wait_on_page()
+> do_generic_file_read()
+> generic_file_read()
+> sys_read()
+> system_call()
+> 
+> So it seems the process is either in a loop in ___wait_on_page()
+> racing for the PageLock or it never wakes-up... (I guess I could
+> add a printk to check which)
 
-And yes, my Mom who who was born there still calls it Leningrad (or Piter, but
-not
-St. Petersburg). And so am I.
+It is spinning in ___wait_on_page() because the page never
+becomes available, because the IO doesn't get scheduled to
+disk in time.
+
+This appears to be an elevator problem, not a VM problem.
+
+regards,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

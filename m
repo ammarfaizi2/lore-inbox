@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267885AbRGRN2N>; Wed, 18 Jul 2001 09:28:13 -0400
+	id <S267881AbRGRN0x>; Wed, 18 Jul 2001 09:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267882AbRGRN2E>; Wed, 18 Jul 2001 09:28:04 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49671 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S267876AbRGRN1r>;
-	Wed, 18 Jul 2001 09:27:47 -0400
-Date: Wed, 18 Jul 2001 10:27:48 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Inclusion of zoned inactive/free shortage patch 
-In-Reply-To: <Pine.LNX.4.33.0107172051500.1414-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0107181024270.27454-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267876AbRGRN0n>; Wed, 18 Jul 2001 09:26:43 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:59921 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S267880AbRGRN01>; Wed, 18 Jul 2001 09:26:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hans Reiser <reiser@namesys.com>,
+        Craig Soules <soules@happyplace.pdl.cmu.edu>
+Subject: Re: NFS Client patch
+Date: Wed, 18 Jul 2001 15:30:07 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96L.1010717180713.13980K-100000@happyplace.pdl.cmu.edu> <3B54BA7A.42B0E107@namesys.com>
+In-Reply-To: <3B54BA7A.42B0E107@namesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01071815300708.12129@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jul 2001, Linus Torvalds wrote:
-
-> In that case, what's the argument for not just replacing the zone
-> parameter with
+On Wednesday 18 July 2001 00:21, Hans Reiser wrote:
+> Craig Soules wrote:
+> > On Wed, 18 Jul 2001, Hans Reiser wrote:
+> > > I take issue with the word "properly".  We have bastardized our
+> > > FS design to do it.  NFS should not be allowed to impose stable
+> > > cookie maintenance on filesystems, it violates layering.  Simply
+> > > returning the last returned filename is so simple to code, much
+> > > simpler than what we have to do to cope with cookies.  Linux
+> > > should fix the protocol for NFS, not ask Craig to screw over his
+> > > FS design.  Not that I think that will happen.....
+> >
+> > Unfortunately to comply with NFSv2, the cookie cannot be larger
+> > than 32-bits.  I believe this oversight has been correct in later
+> > NFS versions.
+> >
+> > I do agree that forcing the underlying fs to "fix" itself for NFS
+> > is the wrong solution. I can understand their desire to follow unix
+> > semantics (although I don't entirely agree with them), so until I
+> > think up a more palatable solution for the linux community, I will
+> > just keep my patches to myself :)
+> >
+> > Craig
 >
-> 	/* If we have enough free pages in this zone, don't bother */
-> 	if (page->zone->nrpages > page->zone->high)
-> 		return;
+> 64 bits as in NFS v4 is still not large enough to hold a filename. 
+> For practical reasons, ReiserFS does what is needed to work with NFS,
+> but what is needed bad design features, and any FS designer who
+> doesn't feel the need to get along with NFS should not have
+> acceptance of bad design be made a criterion for the acceptance of
+> his patches.  Just let NFS not work for Craig's FS, what is the
+> problem with that?
 
-> Comments?
+I was planning to add coalesce-on-delete to my ext2 directory index
+patch at some point, now I see I'll step right into this NFS
+doo-d^H^H^H^H^H problem.  What to do?  Obviously it's not an option
+to have NFS not work for ext2.  Just leaving the directory 
+uncoalesced fixes the problem in some sense and doesn't hurt things
+all that much.  Ext2 has been running that way for years.
 
-Won't work.  If it did, it'd just bring us back to the
-pathetic situation we had in 2.3.51, but with the
-introduction of inactive_clean pages and an inactive
-target all this test would do is either preventing
-us from ever making the inactive target or from getting
-the eviction balancing between zones right (see 2.3.51).
+Can I automagically know that a directory is mounted via NFS and
+disable the coalescing?  Or maybe I need a -o coalesce=on/off, with
+"off" as the default.  Ugh.
 
-regards,
+As you point out, this sucks.
 
-Rik
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Daniel

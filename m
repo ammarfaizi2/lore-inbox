@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbUKDQSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbUKDQ1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbUKDQSm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUKDQSm
+	id S262281AbUKDQ1R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 11:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbUKDQ1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:18:42 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:58263 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S262280AbUKDQSh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:18:37 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, kernel@crazytrain.com
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Thu, 4 Nov 2004 11:18:36 -0500
-User-Agent: KMail/1.7
-Cc: DervishD <lkml@dervishd.net>,
-       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-References: <200411030751.39578.gene.heskett@verizon.net> <200411031147.14179.gene.heskett@verizon.net> <1099533471.3448.6.camel@crazytrain>
-In-Reply-To: <1099533471.3448.6.camel@crazytrain>
+	Thu, 4 Nov 2004 11:27:17 -0500
+Received: from dfw-gate4.raytheon.com ([199.46.199.233]:30893 "EHLO
+	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
+	id S262281AbUKDQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 11:27:13 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF5DB3F102.6D3B4834-ON86256F42.00598BFD@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 4 Nov 2004 10:22:02 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/04/2004 10:22:09 AM
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411041118.36204.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.42.194] at Thu, 4 Nov 2004 10:18:36 -0600
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 November 2004 11:01, kernel wrote:
->On Wed, 2004-11-03 at 11:47, Gene Heskett wrote:
->> Finding them is usually an exersize in stretching the
->> top window out till its about 20 screens high as its always going
->> to be at the bottom of the list.
->
->use 'htop' instead, more flexible in showing and parsing.
->
-And where is htop, it apparently isn't part of an FC2 install.
->
->-fd
+>what priority does events/0 and events/1 have? keventd handles part of
+>the mouse/keyboard workload.
+The default priorities and not RT.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+ps -eo pid,pri,rtprio,cmd
+...
+  6  34    -  [events/0]
+  7  34    -  [events/1]
+...
+I can set those as well but then I'd probably have to follow with
+the X server and everything else in the chain. The starvation problem
+ripples across the system.
+
+Will try the patch shortly and get back on the results later today.
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

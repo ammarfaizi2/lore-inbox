@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319341AbSHVNnk>; Thu, 22 Aug 2002 09:43:40 -0400
+	id <S319344AbSHVOBb>; Thu, 22 Aug 2002 10:01:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319342AbSHVNnj>; Thu, 22 Aug 2002 09:43:39 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25348 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S319341AbSHVNnj>; Thu, 22 Aug 2002 09:43:39 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: IDE-flash device and hard disk on same controller
-Date: 22 Aug 2002 13:41:24 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <ak2pm4$6dv$1@gatekeeper.tmr.com>
-References: <A9713061F01AD411B0F700D0B746CA6802FC1464@vacho6misge.cho.ge.com>
-X-Trace: gatekeeper.tmr.com 1030023684 6591 192.168.12.62 (22 Aug 2002 13:41:24 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S319346AbSHVOBa>; Thu, 22 Aug 2002 10:01:30 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:10116 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S319344AbSHVOB3>; Thu, 22 Aug 2002 10:01:29 -0400
+Date: Thu, 22 Aug 2002 15:06:11 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hyperthreading
+In-Reply-To: <200208221115.26458.marc.dietrich@physik.uni-giessen.de>
+Message-ID: <Pine.LNX.4.44.0208221455490.1253-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <A9713061F01AD411B0F700D0B746CA6802FC1464@vacho6misge.cho.ge.com>,
-Heater, Daniel (IndSys, GEFanuc, VMIC) <Daniel.Heater@gefanuc.com> wrote:
+On Thu, 22 Aug 2002, Marc Dietrich wrote:
+> On Wed, 21 Aug 2002, Hugh Dickins wrote:
+> > 
+> > You do need CONFIG_SMP and a processor capable of HyperThreading,
+> > i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
+> > just appropriate to that processor in other ways.
+> 
+> I used KNOPPIX on a 2 way Dell WS 530 (Xeon 2.0 GHz). This distribution has 
+> CONFIG_M386 set (as most others also?) and HT was not enabled. I compiled the 
+> kernel myself (same config as KNOPPIX but with CONFIG_MPENTIUM4) and HT gets 
+> enabled. So is _does_ matter for which processor the kernel is optimized.
 
-| OK. hdc=flash works where hdc=hard drive and hdd=CompactFlash.
-| 
-| Thanks Padraig.
-| 
-| I guess it's 6 of one, half-dozen the other, but telling the kernel that my
-| hard drive is a flash drive just makes me feel squidgy!  I'm still inclined
-| to suggest that the test that _prevents_ hard drive + CF configuration is no
-| longer appropriate now that _some_ (most??) hardware vendors have figured
-| out how to get ide-flash devices to work without "hanging" when no second
-| device is present. Users with incompatible hardware can still prevent the
-| long system hang by using hdx=none.
+I'm surprised - perhaps the Knoppix distribution did not have SMP enabled
+itself, but installed a config with CONFIG_SMP?  Or you built more recent
+kernel sources (2.4.19 defaults to HT on) than the Knoppix distribution
+(vanilla 2.4.18 defaults to HT off)?
 
-I think that traditionally people with broken hardware have been the
-ones to use parameters to warn the kernel about them. I certainly have
-run some ill-behaved hardware that way ;-) Since there is now and will
-be in the future more correct systems than broken, it would seem that
-the default would be to work with correct systems.
+It would be awkward for me to try CONFIG_M386 on our P4 Xeon, but I did
+just try building a CONFIG_M586 CONFIG_SMP kernel for it, which behaved
+as I expected: /proc/cpuinfo showed 4 cpus, but only 2 cpus when booted
+with "noht".
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Hugh
+

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289317AbSAIJwl>; Wed, 9 Jan 2002 04:52:41 -0500
+	id <S289316AbSAIKAp>; Wed, 9 Jan 2002 05:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289315AbSAIJwX>; Wed, 9 Jan 2002 04:52:23 -0500
-Received: from mx1.evotecoai.com ([194.45.20.20]:3594 "EHLO mx1.evotecoai.com")
-	by vger.kernel.org with ESMTP id <S288569AbSAIJwO>;
-	Wed, 9 Jan 2002 04:52:14 -0500
-To: linux-kernel@vger.kernel.org
-Subject: IRIX NFS server/ Linux NFS client problem
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFCEFB95FA.A1E904F6-ONC1256B3C.00358EBC@evotecoai.com>
-From: Nicolas.Fay@evotecoai.com
-Date: Wed, 9 Jan 2002 10:45:39 +0100
-X-MIMETrack: Serialize by Router on MX1/Evotec(Release 5.0.8 |June 18, 2001) at 01/09/2002
- 10:43:36 AM,
-	Serialize complete at 01/09/2002 10:43:36 AM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S289318AbSAIKAd>; Wed, 9 Jan 2002 05:00:33 -0500
+Received: from codepoet.org ([166.70.14.212]:33036 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S289316AbSAIKAO>;
+	Wed, 9 Jan 2002 05:00:14 -0500
+Date: Wed, 9 Jan 2002 03:00:13 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020109100013.GB8743@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020108192450.GA14734@kroah.com> <20020109042331.GB31644@codeblau.de> <20020109043446.GB17655@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020109043446.GB17655@kroah.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm wondering whether anybody experienced problems with Linux NFS clients 
-and IRIX NFS servers like this one:
+On Tue Jan 08, 2002 at 08:34:47PM -0800, Greg KH wrote:
+> On Wed, Jan 09, 2002 at 05:23:31AM +0100, Felix von Leitner wrote:
+> > 
+> > How many programs are we talking about here?  And what should they do?
+> 
+> Very good question that we should probably answer first (I'll follow up
+> to your other points in a separate message).
+> 
+> Here's what I want to have in my initramfs:
+> 	- /sbin/hotplug
+> 	- /sbin/modprobe
+> 	- modules.dep (needed for modprobe, but is a text file)
+> 
+> What does everyone else need/want there?
 
-I mount an xfs-filesystem located on an IRIX-machine v6.5.12 to a Linux 
-box (versions see below) using either Linux kernel-nfs or module-nfs. 
-Listing directory contents shows all the files present. Using the 
-completion functionality fails in showing the complete list of all the 
-files that are present. I'm pretty sure it's not a problem with large 
-files. All kinds of files are affected and it's even worse: the error is 
-not reproducible, i.e. yesterday 'these' files were missing in the 
-'TAB-completion-list', today other files are missing. And it happens with 
-both shells bash and tcsh. It's not obvious which kinds of files are 
-affected.
+I think you want a staticly linked multi-call binary, a 
+trivial shell, and some kernel modules...
+    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0112.2/0681.html
 
-This does not seem to be a serious issue but rather an annoying one, but 
-it slightly rocks my confidence in the nfs code (don't know whether IRIX 
-or Linux) and I suspect that not only the completion function fails but 
-for example also file selection using shell scripts.
+ -Erik
 
-I'm using Kernel 2.4.17, glibc 2.2.4, bash 2.0.5 (SuSE 7.3 installation).
-
-I'd appreciate your opinions.
-
-Thanks in advance,
-Nicolas Fay
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

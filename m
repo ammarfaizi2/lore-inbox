@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269754AbUJALPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269757AbUJALRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269754AbUJALPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 07:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269757AbUJALPZ
+	id S269757AbUJALRk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 07:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJALRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 07:15:25 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:2465 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S269754AbUJALPT (ORCPT
+	Fri, 1 Oct 2004 07:17:38 -0400
+Received: from mx2.magma.ca ([206.191.0.250]:30359 "EHLO mx2.magma.ca")
+	by vger.kernel.org with ESMTP id S269759AbUJALRE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 07:15:19 -0400
-Message-ID: <415D3DD4.E440AB5B@tv-sign.ru>
-Date: Fri, 01 Oct 2004 15:21:56 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 1/2] detach_pid(): restore optimization
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Oct 2004 07:17:04 -0400
+Subject: Re: nforce2 bugs?
+From: Jesse Stockall <stockall@magma.ca>
+To: ross@datscreative.com.au
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Andy Currid <ACurrid@nvidia.com>,
+       "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
+       Allen Martin <AMartin@nvidia.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       white phoenix <white.phoenix@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410011341.04506.ross@datscreative.com.au>
+References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45A1C@hqemmail02.nvidia.com>
+	 <Pine.LNX.4.58L.0409301705180.25286@blysk.ds.pg.gda.pl>
+	 <200410011341.04506.ross@datscreative.com.au>
+Content-Type: text/plain
+Message-Id: <1096629411.5436.17.camel@homer.blizzard.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 01 Oct 2004 07:16:51 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Kirill's kernel/pid.c rework broke optimization logic in detach_pid().
-Non zero return from __detach_pid() was used to indicate, that this pid
-can probably be freed. Current version always (modulo idle threads)
-return non zero value, thus resulting in unneccesary pid_hash scanning.
+> An earlier Thread on the Topic of the time skew with I/O Apic routing:
+> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-01/3129.html
+> 
+> A couple of Skewing Mobos Involved:
+> Abit NF7-S V2.0 motherboard. 
+> A7N8X Deluxe mobo/Athlon
+> 
 
-Also, uninlining __detach_pid() reduces pid.o text size from 2492 to 1600
-bytes.
+I noticed that my MSI K7N2 Delta-ILSR was off by 15 minutes yesterday.
 
-Oleg.
+Jesse
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+-- 
+Jesse Stockall <stockall@magma.ca>
 
---- 2.6.9-rc3/kernel/pid.c~	Thu Sep 30 15:05:25 2004
-+++ 2.6.9-rc3/kernel/pid.c	Fri Oct  1 11:26:11 2004
-@@ -178,15 +178,18 @@ int fastcall attach_pid(task_t *task, en
- 	return 0;
- }
- 
--static inline int __detach_pid(task_t *task, enum pid_type type)
-+static fastcall int __detach_pid(task_t *task, enum pid_type type)
- {
- 	struct pid *pid, *pid_next;
--	int nr;
-+	int nr = 0;
- 
- 	pid = &task->pids[type];
- 	if (!hlist_unhashed(&pid->pid_chain)) {
- 		hlist_del(&pid->pid_chain);
--		if (!list_empty(&pid->pid_list)) {
-+
-+		if (list_empty(&pid->pid_list))
-+			nr = pid->nr;
-+		else {
- 			pid_next = list_entry(pid->pid_list.next,
- 						struct pid, pid_list);
- 			/* insert next pid from pid_list to hash */
-@@ -194,8 +197,8 @@ static inline int __detach_pid(task_t *t
- 				&pid_hash[type][pid_hashfn(pid_next->nr)]);
- 		}
- 	}
-+
- 	list_del(&pid->pid_list);
--	nr = pid->nr;
- 	pid->nr = 0;
- 
- 	return nr;

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbUA3NG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 08:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbUA3NG4
+	id S263834AbUA3NeH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 08:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUA3NeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 08:06:56 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:64448 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263823AbUA3NGz (ORCPT
+	Fri, 30 Jan 2004 08:34:07 -0500
+Received: from linux-bt.org ([217.160.111.169]:61906 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S263834AbUA3NeE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 08:06:55 -0500
-Date: Fri, 30 Jan 2004 10:10:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Adam Koszela <lameaim@bredband.tiscali.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.2-rc2-mm1 scheduler badness
-Message-ID: <20040130091003.GA3841@elte.hu>
-References: <1075317961.3505.4.camel@arrakis>
+	Fri, 30 Jan 2004 08:34:04 -0500
+Subject: Re: Bluetooth oddity
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Anders Karlsson <anders@trudheim.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075462349.9698.4.camel@tor.trudheim.com>
+References: <1075462349.9698.4.camel@tor.trudheim.com>
+Content-Type: text/plain
+Message-Id: <1075469610.26729.108.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075317961.3505.4.camel@arrakis>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin 2.60
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 30 Jan 2004 14:33:30 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Anders,
 
-* Adam Koszela <lameaim@bredband.tiscali.se> wrote:
+> Out of curiosity, has anyone else noticed something odd with Bluetooth
+> in 2.6.x kernels? On my Thinkpad X31 I can switch it on/off with Fn+F5.
+> Switching it on is no problem, but switching it off causes solid hang of
+> the Thinkpad. Only SysRq+b works.
 
-> So here's my problem:
-> Performance, especially when switching/launching apps is awful,
-> and dmesg spits out massive amounts of:
-> 
-> Badness in try_to_wake_up at kernel/sched.c:722
+I assume that you have enabled the SCO support of the HCI USB driver.
+The unlink of ISOC URB's fails on UHCI host controllers and actually I
+don't know why. So disable the SCO support of the HCI USB driver and you
+can switch on and off your Bluetooth device as often as you like.
 
-unapply this patch:
+What is your USB host controller chipset? Do you see an oops?
 
- ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc2/2.6.2-rc2-mm1/broken-out/futex-wakeup-debug.patch
+> It is not the whole world, but a little irritating. Also, I use
+> Bluetooth to hot-sync my Tungsten T|3. Same problem occurs on the 4th -
+> 6th sync, solid hang of the Thinkpad. No debug output yet, if any
+> Bluetooth developers are interested to have this fixed, I am game to
+> help debug this.
 
-	Ingo
+This was a bug in the RFCOMM layer that has been already fixed. Why
+don't you say what 2.6 kernel do you use? Try the latest 2.6.2-rc2 or
+2.6.1-mh3 and this will go away.
+
+Regards
+
+Marcel
+
+

@@ -1,84 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268429AbUH3Asi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUH3BHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268429AbUH3Asi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 20:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267930AbUH3Ash
+	id S265977AbUH3BHR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268405AbUH3BHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 20:48:37 -0400
-Received: from relay.pair.com ([209.68.1.20]:49671 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S265977AbUH3AsI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 20:48:08 -0400
-X-pair-Authenticated: 66.188.111.210
-Message-ID: <4132793C.4030703@cybsft.com>
-Date: Sun, 29 Aug 2004 19:47:56 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 29 Aug 2004 21:07:17 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:47760 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S265977AbUH3BHO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 21:07:14 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q1
+From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
 To: Ingo Molnar <mingo@elte.hu>
-CC: Lee Revell <rlrevell@joe-job.com>, Daniel Schmitt <pnambic@unu.nu>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q4
-References: <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <1093762642.1348.3.camel@krustophenia.net> <20040829190655.GA8840@elte.hu>
-In-Reply-To: <20040829190655.GA8840@elte.hu>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: Scott Wood <scott@timesys.com>, manas.saksena@timesys.com,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@RAYTHEON.COM, nando@ccrma.Stanford.EDU
+In-Reply-To: <20040828130128.GA19751@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys>
+	 <20040824195122.GA9949@yoda.timesys> <20040828123622.GC17908@elte.hu>
+	 <20040828130128.GA19751@elte.hu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093827987.19042.49.camel@cmn37.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Aug 2004 18:06:28 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+On Sat, 2004-08-28 at 06:01, Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
+> > * Scott Wood <scott@timesys.com> wrote:
+> > 
+> > > If I'm missing something, please let me know, but I don't see a good
+> > > way to implement it without blocking for the IRQ thread's completion
+> > > (such as with the per-IRQ waitqueues in M5).
+> > 
+> > agreed, this is a hole in generic_synchronize_irq(). I've added
+> > handler-completion waitqueues to my current tree, it will show up in
+> > -Q1.
 > 
->>>-Q4 reverts this change. (this doesnt solve the problems Scott noticed
->>>though.)
->>>
->>>another solution would be to boot Q3 with preempt_hardirqs=0 and then
->>>turn on threading for all IRQs but the keyboard.
->>>
->>
->>Nope, neither of these fixes the problem.
+> i've uploaded -Q1:
 > 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q1
 > 
-> i can reproduce a PS2 keyboard problem on a testsystem. It's not clear
-> yet what the issue is, something in the atkbd.c code changed between
-> 2.6.8.1 and 2.6.9-rc1-bk4 that broke IRQ redirection - even using the P9
-> hardirq.c code doesnt fix the problem. Investigating it.
+> as with -Q0, the following patch has to be applied to 2.6.8.1 first:
 > 
-> 	Ingo
+>   http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
 > 
+> those who still have DRI problems under -Q1 - please unapply the
+> drm_os_linux.h change, does the fix the lockups?
 
-Something of interest on this, maybe:
+I managed to do a few quick tests yesterday of voluntary Q3:
 
-Here is the (pertinent) log of the system booting:
+SMP kernel on UP machine (Athlon64): hangs during boot, goes a little
+further than before but hangs anyway:
 
-Aug 29 09:32:50 daffy kernel: requesting new irq thread for IRQ1...
-Aug 29 09:32:50 daffy kernel: atkbd.c: Spurious ACK on isa0060/serio1. 
-Some program, like XFree86, might be trying access hardware directly.
-Aug 29 09:32:50 daffy kernel: md: md driver 0.90.0 MAX_MD_DEVS=256, 
-MD_SB_DISKS=27
-Aug 29 09:32:50 daffy kernel: IRQ#1 thread started up.
+requesting new irq thread for IRQ169
+ata1: dev 0 ATA, max UDMA/133 ...
+IRQ#169 thread started up
+ata1: dev 0 configured for UDMA/133 ...
+scsi0: sata_promise
+ata2: dev 0 ATA ...
+  --- hangs ---
 
-And some further entries:
+SMP kernel on SMP machine (dual Athlon):
+softirq-preempt=0 hardirq-preempt=0 acpi=on: hangs
+  afaik hang happens when something needs interrupts, first culprit in
+  my machine is eth0, if I disable it I can go further ahead and boot
+  but alsa has timeouts, presumably because it is not getting
+  interrupts.
+softirq-preempt=0 hardirq-preempt=0 acpi=off: boots normally, 
+  jack, glxgears work fine (but high latency spikes)
+softirq-preempt=1 hardirq-preempt=1 acpi=off: boots normally,
+  jack works fine, glxgears hangs machine after a while
+Sorry I was not able to check all permutations, I was late and stopped
+rebooting the machine :-) I think I did one more test with sort=1,
+hard=1, acpi=off and did not manage to hang the machine. 
 
-Aug 29 16:48:50 daffy kernel: atkbd.c: Spurious NAK on isa0060/serio1. 
-Some program, like XFree86, might be trying access hardware directly.
-Aug 29 16:48:50 daffy kernel: atkbd.c: Unknown key pressed (raw set 2, 
-code 0x0 on isa0060/serio1).
-Aug 29 16:48:50 daffy kernel: atkbd.c: Use 'setkeycodes 00 <keycode>' to 
-make it known.
-Aug 29 16:48:50 daffy kernel: atkbd.c: Unknown key pressed (raw set 2, 
-code 0x18 on isa0060/serio1).
-Aug 29 16:48:50 daffy kernel: atkbd.c: Use 'setkeycodes 18 <keycode>' to 
-make it known.
+-- Fernando
 
-I get the "Unknown key pressed" and "Use 'setkeycodes" messages whenever 
-I press a key on the keyboard. I don't see very many of the "Spurious 
-NAK" messages though.
 
-kr

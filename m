@@ -1,88 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262939AbTCSHao>; Wed, 19 Mar 2003 02:30:44 -0500
+	id <S262942AbTCSHlI>; Wed, 19 Mar 2003 02:41:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262940AbTCSHao>; Wed, 19 Mar 2003 02:30:44 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:35549 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262939AbTCSHam>; Wed, 19 Mar 2003 02:30:42 -0500
-Date: Tue, 18 Mar 2003 23:41:30 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 471] New: Root on software raid don't boot on new 2.5 kernel since after 2.5.45 
-Message-ID: <779600000.1048059690@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262940AbTCSHlI>; Wed, 19 Mar 2003 02:41:08 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:38553 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S262942AbTCSHlH>; Wed, 19 Mar 2003 02:41:07 -0500
+Date: Wed, 19 Mar 2003 08:51:57 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: george anzinger <george@mvista.com>
+cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix nanosleep() granularity bumps
+In-Reply-To: <20030318203125.054b2704.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.33.0303190832430.32325-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=471
 
-           Summary: Root on software raid don't boot on new 2.5 kernel since
-                    after 2.5.45
-    Kernel Version: 2.5.65
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: tlb@rapanden.dk
+On Tue, 18 Mar 2003, Andrew Morton wrote:
+
+> george anzinger <george@mvista.com> wrote:
+> > Here is a fix for the problem that eliminates the index from the
+> > structure.
+[...]
+> Seems to be a nice change.  I think it would be better to get Tim's fix into
+> Linus's tree and let your rationalisation bake for a while in -mm.
+
+I'm all for this way. Push my quick'n ugly patch to mainline soon to get
+thinks working again. Have at least one mainline release before changing
+again to start off from something working. Then add George's patch when
+it has matured.
+
+> There is currently a mysterious timer lockup happening on power4 machines.
+> I'd like to keep these changes well-separated in time so we can get an
+> understanding of what code changes correlate with changed behaviour.
+
+Can this problem be reproduced with INITIAL_JIFFIES=0? Just to make sure I
+didn't break something more.
 
 
-Distribution: 
- Linux Mandrake 9.0 (std kernel 2.4.21-pre1)
-Hardware Environment:
- ASUS A7M266-D ACPI BIOS Revision 1006
- Promise 20268 PCI IDE Controler
- Intel Ethernet Pro 100
- ATI Radeon QD
+On Tue, 18 Mar 2003, George Anzinger wrote:
 
-Problem Description:
- The software raid setup I have boots on 2.4 but not on newer 2.5 kernels, i
-have everything need compiled in and the 2.5 kernel also rapports that it has
-found /dev/md2 but it rapports that is's unable to mount the root partition for
-this device. I have tried to pass /dev/md0 as the root but this hangs the
-kernel, is root on raid broaken in kernel 2.5 or am I doing something wrong?
+> Here is a fix for the problem that eliminates the index from the
+> structure.  The index ALWAYS depends on the current value of
+> base->timer_jiffies in a rather simple way which is I exploit.  Either
+> patch works, but this seems much simpler...
+[...]
+> @@ -384,22 +382,26 @@
+>   * This function cascades all vectors and executes all expired timer
+>   * vectors.
+>   */
+> +#define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS)) &
+TVN_MASK
 
- lilo:
-  image=/boot/vmlinuz-2.4.21-pre1
-        label=linux
-        root=/dev/md2
-        read-only
-        append=" devfs=mount"
+No, with the current implementation we need
+ #define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS) +1) &
+ TVN_MASK
+although I'd like to see that cleaned up.
 
-  image=/boot/vmlinuz-2.5.65
-        label=linux25
-        root=/dev/md2
-        read-only
-        append=" devfs=mount"
+> +
+> static inline void __run_timers(tvec_base_t *base)
+>  {
+> +	int index = base->timer_jiffies & TVR_MASK;
+>  	spin_lock_irq(&base->lock);
+> +	if(jiffies - base->timer_jiffies > 0)
+>  	while ((long)(jiffies - base->timer_jiffies) >= 0) {
+>  		struct list_head *head, *curr;
+>
 
- fdisk:
-  /dev/hda1             1     20318  10240240+   7  HPFS/NTFS
-  /dev/hda2         20319    116301  48375432    5  Extended
-  /dev/hda5         20319     20522    102784+  83  Linux
-  /dev/hda6         20523     22554   1024096+  83  Linux
-  /dev/hda7         22555    116301  47248456+  fd  Linux raid autodetect
+Are the doubled 'if' and 'while' really what you meant?
 
-  mdadm: # UUID removed
-   #devices=/dev/hdd5,/dev/hdc5
-   ARRAY /dev/md0 level=raid1 num-devices=2 
-   #devices=/dev/hdd6,/dev/hdc6
-   ARRAY /dev/md1 level=raid1 num-devices=2
-   #devices=/dev/hdd7,/dev/hdc7
-   ARRAY /dev/md2 level=raid1 num-devices=2 
-   #devices=/dev/hdg5,/dev/hde5
-   ARRAY /dev/md3 level=raid0 num-devices=2
+> @@ -1181,12 +1182,7 @@
+>  	for (j = 0; j < TVR_SIZE; j++)
+>  		INIT_LIST_HEAD(base->tv1.vec + j);
+>
+> -	base->timer_jiffies = INITIAL_JIFFIES;
+> -	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
+> -	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
+> -	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) &
+TVN_MASK;
+> -	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) &
+TVN_MASK;
+> -	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) &
+TVN_MASK;
+> +	base->timer_jiffies = jiffies -1;
+>  }
+>
+>  static int __devinit timer_cpu_notify(struct notifier_block *self,
 
-  mount:
-  /dev/md0 on /boot type ext3 (rw)
-  /dev/md2 on / type reiserfs (rw,notail)
-  /dev/md3 on /dist type reiserfs (rw,notail)
+Why 'jiffies -1'? This will just be made up for in the first
+timer interrupt, where timer_jiffies will get incremented twice.
 
-  fstab:
-   /dev/md2 / reiserfs notail 1 1
-   /dev/md0 /boot ext3 defaults 1 2
-   /dev/md1 swap swap defaults 0 0
-   /dev/md3 /dist reiserfs notail 1 1
+
+Did you bother to test the patch? It doesn't even boot for me, and I don't
+see how it is supposed to.
+I'll look into it more closely in the evening. Have to go to work now.
+
+Tim
 

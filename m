@@ -1,74 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132741AbRDUQjX>; Sat, 21 Apr 2001 12:39:23 -0400
+	id <S132744AbRDUQkn>; Sat, 21 Apr 2001 12:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132742AbRDUQjM>; Sat, 21 Apr 2001 12:39:12 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:52696 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S132741AbRDUQjB>; Sat, 21 Apr 2001 12:39:01 -0400
+	id <S132743AbRDUQke>; Sat, 21 Apr 2001 12:40:34 -0400
+Received: from ns.suse.de ([213.95.15.193]:22794 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132742AbRDUQkW>;
+	Sat, 21 Apr 2001 12:40:22 -0400
+Date: Sat, 21 Apr 2001 18:40:01 +0200
+From: Karsten Keil <kkeil@suse.de>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@mail.hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Request for comment -- a better attribution system
-Date: Sat, 21 Apr 2001 16:38:59 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9bsd33$peb$1@forge.intermeta.de>
-In-Reply-To: <20010421114942.A26415@thyrsus.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 987871139 27449 212.34.181.4 (21 Apr 2001 16:38:59 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 21 Apr 2001 16:38:59 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Cc: ville.holma@pp.htv.fi
+Subject: Re: a way to restore my hd ?
+Message-ID: <20010421184001.C22420@pingi.muc.suse.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, ville.holma@pp.htv.fi
+In-Reply-To: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>; from ville.holma@pp.htv.fi on Sat, Apr 21, 2001 at 06:52:01PM +0300
+Organization: SuSE Muenchen GmbH
+X-Operating-System: Linux 2.2.18-SMP i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> writes:
+On Sat, Apr 21, 2001 at 06:52:01PM +0300, Ville Holma wrote:
+...
+> 
+> debian:~# e2fsck /dev/hdb7
+> e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+> Corruption found in superblock.  (frags_per_group = 2147516416).
+> 
+> The superblock could not be read or does not describe a correct ext2
+> filesystem.  If the device is valid and it really contains an ext2
+> filesystem (and not swap or ufs or something else), then the superblock
+> is corrupt, and you might try running e2fsck with an alternate superblock:
+>     e2fsck -b -2147450879 <device>
+> 
+> 
+> So I tried to use the huge block size like e2fsck suggests and I get this
+> 
+> 
+> debian:~# e2fsck -b -2147450879 /dev/hdb7
+> e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+> e2fsck: Attempt to read block from filesystem resulted in short read while
+> trying to open /dev/hdb7
+> Could this be a zero-length partition?
+> 
+> 
+> This is where the human panic occured. There is data on that partition that
+> I _really_ do not want to loose. I'm clueless and woud appreciate any
+> help/suggestions. If some additonal information is needed I'm more than
+> happy to deliver.
 
->Here is an example map block for my kxref.py tool:
+I run in similar trouble last week after a power breakage.
+My superblock was also corupted and I got also the message to try an other
+superbock, but I don't know at which address it was (e2fsck don't show you
+the correct addresses, it gives only a syntax example). Remembering that
+mke2fs shows it, I use it with the test option "-n" (so it only simulate
+the making of a filesystem) and got the addresses for the spare superblocks
+and was able to recover the filesystem with no data lost.
 
-># %Map
-># T: CONFIG_ namespace cross-reference generator/analyzer
-># P: Eric S. Raymond <esr@thyrsus.com>
-># M: esr@thyrsus.com
-># L: kbuild-devel@kbuild.sourceforge.net
-># W: http://www.tuxedo.org/~esr/cml2
-># D: Sat Apr 21 11:41:52 EDT 2001
-># S: Maintained
+example:
+pingi:~ # mke2fs -n /dev/sdb3
 
->Comments are solicited.
+mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+91392 inodes, 182739 blocks
+9136 blocks (5.00%) reserved for the super user
+First data block=0
+6 block groups
+32768 blocks per group, 32768 fragments per group
+15232 inodes per group
+Superblock backups stored on blocks:
+        32768, 98304, 163840
 
-Hi Eric,
+Don't miss the -n option !!!
 
-please not. If you really want to redo this, please use a simple XML
-markup.  Let's not introduce another kind of markup if there is
-already a well distributed and working.
+e2fsck -b 32768 /dev/sdb3
 
-What's wrong with:
-
-<MAP NAME="CONFIG_ namespace cross-reference generator/analyzer"
-     URL="http://www.tuxedo.org/~esr/cml2"
-     STATUS="Maintained"
-     DATE="Sat Apr 21 11:41:52 EDT 2001">
- <MAINTAINER NAME="Eric S. Raymond"
-             MAIL="esr@thyrsus.com"/>
- <PATCHES DESC="Send all patches here."
-          MAIL="esr@thyrsus.com" />
- <LIST MAIL="kbuild-devel@kbuild.sourceforge.net"
-       DESC="List for developers"/>
- <LIST MAIL="kbuild-user@kbuild.sourceforge.net"
-       DESC="List for users"/>
-</MAP>
-
-	Regards
-		Henning
+Here are also some howtos related to restoring data and undelete files.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Karsten Keil
+SuSE Labs
+ISDN development

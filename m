@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbTIPN6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbTIPN6Q
+	id S261297AbTIPNw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbTIPNw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:58:16 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:7845 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261894AbTIPN6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:58:14 -0400
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309152229390.5337-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0309152229390.5337-100000@localhost.localdomain>
+	Tue, 16 Sep 2003 09:52:27 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:59141 "EHLO
+	sparc1.karlsbakk.net") by vger.kernel.org with ESMTP
+	id S261297AbTIPNw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:52:26 -0400
+Subject: Re: [BUG] 2.4.2(2|3-pre4)? error with ICH5
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1063719740.10793.3.camel@roy-sin>
+References: <1063719740.10793.3.camel@roy-sin>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063720608.10036.26.camel@dhcp23.swansea.linux.org.uk>
+Organization: ProntoTV AS
+Message-Id: <1063720321.10787.6.camel@roy-sin>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Tue, 16 Sep 2003 14:56:49 +0100
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 16 Sep 2003 15:52:01 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-16 at 03:38, Thomas Molina wrote:
-> It seems to me that if you are in the position of tinkering, and 
-> installing an OS you ought to have an understanding of root and boot 
-> disks, and what is in your system.  If you don't understand things well 
-> enough to specify the proper boot disk and root disk you shouldn't be 
-> tinkering and it won't matter how each is specified.
+> using an ICH5 SATA (raid?) controller with two non-raid drives. During
+> boot, it hangs after the following messages:
+> 
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0xc000-0xc007,0xc402 on irq 5
+> ide3 at 0xc800-0xc807,0xcc02 on irq 5
+> hde: attached ide-disk driver
+> 
+> that's a hard hang, and alt+sysrq won't let me do anything about it :(
+> 
+> any ideas?
 
-Your root disk can change for all sorts of non Linux reasons ranging
-from windows config changes to hotplug devices. For example if your root
-is /dev/sdc and /dev/sdb fails you'll want LABEL=.
+I forgot to tell: It works fine with 2.4.20. Haven't tried other
+kernels.
+
+roy
 

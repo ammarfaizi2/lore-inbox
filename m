@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbTIHOGD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTIHOGD
+	id S262441AbTIHOW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTIHOV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:06:03 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:31119 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262304AbTIHOGB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:06:01 -0400
-Date: Mon, 8 Sep 2003 15:05:43 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, jim.houston@comcast.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
-Message-ID: <20030908140543.GA26269@mail.jlokier.co.uk>
-References: <1061498486.3072.308.camel@new.localdomain> <16197.14968.235907.128727@gargle.gargle.HOWL> <20030825060900.GA21213@mail.jlokier.co.uk> <20030903125019.GN1358@openzaurus.ucw.cz>
+	Mon, 8 Sep 2003 10:21:26 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:36303 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262408AbTIHOVU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 10:21:20 -0400
+Date: Mon, 8 Sep 2003 10:21:15 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] caller-save/callee-save register styles
+Message-ID: <20030908142115.GA3497@gtf.org>
+References: <Pine.LNX.4.44.0309072348090.16598-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030903125019.GN1358@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0309072348090.16598-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > "SEP is unsupported".  It's interesting that Pentium Pro erratum #82
-> > is "SYSENTER/SYSEXIT instructions can implicitly load 'null segment
-> > selector' to SS and CS registers", implying that SYSENTER does
-> > _something_ useful on PPros.
-> 
-> Well, with CS==0 machine is not going to survive too long.
-> If it only happens sometimes you might catch the double fault
-> and fixup, but....
+On Sun, Sep 07, 2003 at 11:54:59PM +0530, Nagendra Singh Tomar wrote:
+> I would like to know various people's experiences about the caller-save 
+> and callee-save style of preserving register values across procedure 
+> calls. I feel that the ABI specification should specify that but I was 
+> unable to figure that out in the ELF-ABI specification.
 
-The erratum only applies when you load CS==0 _deliberately_, by setting
-the MSR to that.
+The i386 ELF ABI spec _does_ specify that.
 
-I'm wondering what happens when you don't do silly things - what is
-the undocumented behaviour of SYSENTER/SYSEXIT on those chips?
 
-I vaguely recall reading details about the behaviour change made by
-Intel, around the time it was done, but I can't see to find it
-anywhere.
+> What I have personally seen is only callee-save style in which the 
+> modified registers are PUSHed on the stack on entering the function and 
+> POPed on leaving the function. That means the caller can assume that all 
+> the regsiter values will be same just before and after the 'call' 
+> instruction.
 
--- Jamie
+The caller assumes nothing; the caller is _guaranteed_ the register
+rules described in the i386 ELF ABI.
+
+Compiler writers will sometimes simply avoid registers they must save
+and restore across function calls.  That allows them to avoid push'ing
+and pop'ing outside of calling another function.
+
+	Jeff
+
+
+

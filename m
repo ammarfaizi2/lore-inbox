@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbTEMPTe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTEMPTe
+	id S261727AbTEMPev (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbTEMPev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:19:34 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:6951 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S261388AbTEMPTc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:19:32 -0400
-Subject: Re: 2.5.69+bk: "sleeping function called from illegal context" on
-	card release while shutting down
-From: Paul Fulghum <paulkf@microgate.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: alexander.riesen@synopsys.COM, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052837896.1000.2.camel@teapot.felipe-alfaro.com>
-References: <20030513135759.GG32559@Synopsys.COM>
-	 <1052837896.1000.2.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052839860.2255.19.camel@diemos>
+	Tue, 13 May 2003 11:34:51 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:3728 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S261727AbTEMPet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:34:49 -0400
+Date: Tue, 13 May 2003 16:47:41 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+Message-ID: <20030513154741.GA4511@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <shswugvjcy9.fsf@charged.uio.no> <20030513135756.GA676@suse.de> <16065.3159.768256.81302@charged.uio.no> <20030513152228.GA4388@suse.de> <16065.4109.129542.777460@charged.uio.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 May 2003 10:31:01 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16065.4109.129542.777460@charged.uio.no>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-13 at 09:58, Felipe Alfaro Solana wrote:
-> On Tue, 2003-05-13 at 15:57, Alex Riesen wrote:
-> > Just tried to eject the card while the system was shutting down.
+On Tue, May 13, 2003 at 05:32:29PM +0200, Trond Myklebust wrote:
 
-> Don't know if this is fixed by latest Russell patches, but vanilla and
-> -bk snapshots do *not* contain the latest PCMCIA/CardBus code. Is it
-> possible for you to try 2.5.69-mm4?
+ > That is a server bug. There are no rules for congestion control
+ > etc. in the NFS or SunRPC protocols, so the server is supposed to be
+ > able to cope with whatever the client manages to throw at it.
+ > 
+ > I presume, though, that you are not seeing the 2.4.x NFS server die in
+ > this way when you blast it with a 2.5 client?
 
-Russell's patches do not address this.
+I had thought that the 2.4 server survived this. I just did a test
+with a 2.4.21pre7 kernel and found the same behaviour, so this isn't
+a regression, just something thats not very nice.
 
-Individual PCMCIA drivers need to be updated to call
-thier release function directly when processing a
-CARD_RELEASE message instead of from a timer procedure.
-
-Similar to this patch for synclink_cs.c:
-
-diff -u -4 -r4.9 synclink_cs.c
---- synclink_cs.c	2003/05/08 19:26:53	4.9
-+++ synclink_cs.c	2003/05/13 15:29:15
-@@ -814,9 +814,9 @@
-     case CS_EVENT_CARD_REMOVAL:
- 	    link->state &= ~DEV_PRESENT;
- 	    if (link->state & DEV_CONFIG) {
- 		    ((MGSLPC_INFO *)link->priv)->stop = 1;
--		    mod_timer(&link->release, jiffies + HZ/20);
-+		    mgslpc_release((u_long)link);
- 	    }
- 	    break;
-     case CS_EVENT_CARD_INSERTION:
- 	    link->state |= DEV_PRESENT | DEV_CONFIG_PENDING;
-
-The timer link->release is initialized with the release
-function (in this case mgslpc_release, but called something
-else in your driver). Now it is called directly.
-
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
+		Dave
 

@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUFFXHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263656AbUFFXWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264225AbUFFXHA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 19:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbUFFXHA
+	id S263656AbUFFXWe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 19:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbUFFXWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 19:07:00 -0400
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:36243 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264228AbUFFXG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 19:06:57 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
-Date: Mon, 7 Jun 2004 09:06:46 +1000
-User-Agent: KMail/1.6.1
-Cc: Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <200406060007.10150.kernel@kolivas.org> <Pine.LNX.4.58.0406061408090.202@neptune.local> <20040606203942.GA20267@suse.de>
-In-Reply-To: <20040606203942.GA20267@suse.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 6 Jun 2004 19:22:34 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:12009 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263656AbUFFXWc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 19:22:32 -0400
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+	implementation
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: wli@holomorphy.com, mikpe@csd.uu.se,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040606051657.3c9b44d3.pj@sgi.com>
+References: <16576.16748.771295.988065@alkaid.it.uu.se>
+	 <20040604093712.GU21007@holomorphy.com>
+	 <16576.17673.548349.36588@alkaid.it.uu.se>
+	 <20040604095929.GX21007@holomorphy.com>
+	 <16576.23059.490262.610771@alkaid.it.uu.se>
+	 <20040604112744.GZ21007@holomorphy.com>
+	 <20040604113252.GA21007@holomorphy.com>
+	 <20040604092316.3ab91e36.pj@sgi.com>
+	 <20040604162853.GB21007@holomorphy.com>
+	 <20040604104756.472fd542.pj@sgi.com>
+	 <20040604181233.GF21007@holomorphy.com> <1086487651.11454.19.camel@bach>
+	 <20040606051657.3c9b44d3.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1086564057.18634.29.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 07 Jun 2004 09:20:57 +1000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406070906.46392.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 06:39, Jens Axboe wrote:
-> I could easily imagine some vendors not setting the field, but setting
-> it to some "buggy" value is far less likely. But might as well add the
-> check.
->
-> Con later confirmed that it was 2.6.2 that introduced the breakage, so
-> the patch isn't the culprit after all. There are a few seperate things
-> to look at there - Con, what are you doing when these messages trigger?
-> Is the drive permanently mounted, or does it happen on open?
+On Sun, 2004-06-06 at 22:16, Paul Jackson wrote:
+> Rusty wrote:
+> > Yes, NR_CPUS needs to get to userspace somehow sanely if we want to fix
+> > this in general.
+> 
+> Are you saying that NR_CPUS is needed, or just the number of longs in a
+> cpumask (sizeof (cpumask_t), essentially)?
 
-It only happens on boot and never again. During this part:
-ICH4: IDE controller at PCI slot 0000:00:1f.1
-ICH4: chipset revision 2
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: ST340014A, ATA DISK drive
-hdb: ST340014A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: JLMS XJ-HD165H, ATAPI CD/DVD-ROM drive
-hdd: RICOH CD-R/RW MP7163A, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 1024KiB
-hda: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
- hda: hda1 hda2 < hda5 hda6 hda7 >
-hdb: max request size: 1024KiB
-hdb: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
- hdb: hdb2 < hdb5 hdb6 hdb7 >
-hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hdd: status error: error=0x20LastFailedSense 0x02
-hdd: drive not ready for command
-hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdd: status error: error=0x00
-..etc
+You're right.  Three things are required.
 
-I'll try that other patch when I get a chance later today.
+1) Access to cpu_online_map (currently usually intuited from
+/proc/cpuinfo)
+2) Notification of cpu add/remove (currently via /sbin/hotplug)
+3) Minimum size of cpumask_t (currently hardcoded, could be detected by
+looping).
 
-Con
+Although we don't, in general, know the size of long (think i386 binary
+on x86_64), in practice if you always round NR_CPUS up to 64-bits you
+can get #3.
+
+> I am a firm believer in passing the minimum essential information across
+> major boundaries.  Passing too much creates maintaince problems, and
+> encourages misuse of information, resulting in bogus user code.
+
+In this case, though, the early example programs for setaffinity all
+used "unsigned long mask; sys_sched_setaffinity(...&mask,
+sizeof(mask))", which was both simple and wrong.  Similarly, getaffinity
+users who didn't zero the mask before handing it to the kernel.
+
+Oh well,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

@@ -1,93 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317054AbSH1Q4T>; Wed, 28 Aug 2002 12:56:19 -0400
+	id <S315200AbSH1Q5K>; Wed, 28 Aug 2002 12:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317396AbSH1Q4T>; Wed, 28 Aug 2002 12:56:19 -0400
-Received: from web40203.mail.yahoo.com ([66.218.78.64]:10268 "HELO
-	web40203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317054AbSH1Q4R>; Wed, 28 Aug 2002 12:56:17 -0400
-Message-ID: <20020828170033.10142.qmail@web40203.mail.yahoo.com>
-Date: Wed, 28 Aug 2002 10:00:33 -0700 (PDT)
-From: mike heffner <mdheffner@yahoo.com>
-Subject: Re: PROBLEM:  conflict between apm and system clock on Inspiron 8100
-To: Frank.Otto@tc.pci.uni-heidelberg.de, linux-kernel@vger.kernel.org
-In-Reply-To: <200208281504.g7SF4Xl04292@goedel.pci.uni-heidelberg.de>
+	id <S316795AbSH1Q5K>; Wed, 28 Aug 2002 12:57:10 -0400
+Received: from p0118.as-l043.contactel.cz ([194.108.242.118]:19952 "EHLO
+	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
+	id <S315200AbSH1Q5I> convert rfc822-to-8bit; Wed, 28 Aug 2002 12:57:08 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Tim Waugh <twaugh@redhat.com>
+Subject: parport_serial and serial driver?
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Wed, 28 Aug 2002 18:50:50 +0200
+Message-ID: <m3it1vapw5.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Frank,
+Hi,
 
- From your e-mail it seems that the kernel is the
-problem, not the bios.  Is that your understanding?  I
-started pestering Dell for a bios without this
-problem.  Should I be digging through the kernel code
-instead?
+I use non-modular kernel with parport_serial driver built in (NetMos-based
+cards, 2.4.latest-vanilla patched for NetMos PCI IDs). The problem is that
+parport_serial is initialized before serial driver and thus both serial
+ports on that card are detected as ttyS00. This patch helped me:
 
-Mike
-
---- Frank.Otto@tc.pci.uni-heidelberg.de wrote:
-> Alan Cox wrote:
-> > On Mon, 2002-08-26 at 18:00, mike heffner wrote:
-> > > Well, isn't that a nice feature.  Is there a
-> > > workaround for this hardware?
-> >  
-> >  A thinkpad ;)
-> 
-> Unfortunately, that's not true -- I just got an IBM
-> Thinkpad R32
-> which exhibits the same behaviour as Mike's Dell
-> Inspiron 8100,
-> it's only a tad worse. When I have the
-> battstat_applet running (which
-> checks the battery every second), kernel time runs
-> about 3% slow
-> compared to the RTC (which seems to be half-way
-> accurate on my machine).
-> 
-> The cause seems to be definitely APM. If I shut off
-> battstat_applet
-> and apmd, kernel time and RTC are in sync. With only
-> apmd, I lose about
-> 15 seconds per hour. With battstat_applet, I lose 2
-> minutes per hour.
-> With
->   while true; do cat /proc/apm >/dev/null; done
-> the system runs at about 1/4 of the right speed.
-> Using a kernel with ACPI
-> eliminates the problem (of course, you lose almost
-> all power management
-> functionality too).
-> 
-> BTW, I have set CONFIG_APM_ALLOW_INT, and on startup
-> the kernel even says
-> "IBM machine detected. Enabling interrupts during
-> APM calls." Doesn't
-> seem to help, though.
-> 
-> Alan Cox continues:
-> >  In theory you could try writing some code to
-> measure the elapsed time by
-> >  other means and then correct the kernel for the
-> number of lost ticks.
-> >  Not trivial. Or for that matter dont run battstat
-> 
-> I've hacked together a small daemon that tries to
-> adjust the value
-> and speed of the kernel clock (via adjtimex) to the
-> RTC. An ugly solution,
-> I know, but better than nothing. If anyone is
-> interested, mail me.
-> 
-> Regards,
-> Frank
-> 
-> -- 
-> Please CC replies to me since I'm not on the list.
+--- linux.orig/Makefile	Wed Aug 28 13:46:45 2002
++++ linux/Makefile	Wed Aug 28 13:46:51 2002
+@@ -130,12 +130,13 @@
+ DRIVERS-  :=
+ 
+ DRIVERS-$(CONFIG_ACPI) += drivers/acpi/acpi.o
+-DRIVERS-$(CONFIG_PARPORT) += drivers/parport/driver.o
+ DRIVERS-y += drivers/char/char.o \
+ 	drivers/block/block.o \
+ 	drivers/misc/misc.o \
+ 	drivers/net/net.o \
+ 	drivers/media/media.o
++# Change the order of initialization of parport_serial and serial
++DRIVERS-$(CONFIG_PARPORT) += drivers/parport/driver.o
+ DRIVERS-$(CONFIG_AGP) += drivers/char/agp/agp.o
+ DRIVERS-$(CONFIG_DRM_NEW) += drivers/char/drm/drm.o
+ DRIVERS-$(CONFIG_DRM_OLD) += drivers/char/drm-4.0/drm.o
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+When the same kernel has parport_serial as a module, everything works
+fine, because serial is already initialized.
+
+BTW - Is there a way to specify the order of initialization (module_init)
+of certain drivers? What is the proper solution to my problem?
+-- 
+Pavel Janík
+
+panic("IRQ, you lose...");
+                  -- 2.2.16 arch/mips/sgi/kernel/indy_int.c

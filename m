@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290425AbSAQUL0>; Thu, 17 Jan 2002 15:11:26 -0500
+	id <S290438AbSAQUX3>; Thu, 17 Jan 2002 15:23:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290352AbSAQULQ>; Thu, 17 Jan 2002 15:11:16 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1549 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290332AbSAQUK7>; Thu, 17 Jan 2002 15:10:59 -0500
-Date: Thu, 17 Jan 2002 15:10:33 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: David Weinehall <tao@acc.umu.se>
-cc: romano@dea.icai.upco.es, linux-kernel@vger.kernel.org
-Subject: Re: Power off NOT working, kernel 2.4.16
-In-Reply-To: <20020117175446.P5235@khan.acc.umu.se>
-Message-ID: <Pine.LNX.3.96.1020117150001.2890D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290439AbSAQUXT>; Thu, 17 Jan 2002 15:23:19 -0500
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:11653 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S290438AbSAQUXO>; Thu, 17 Jan 2002 15:23:14 -0500
+Date: Thu, 17 Jan 2002 15:22:53 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Rik spreading bullshit about VM
+Message-ID: <20020117202253.GA3546@opeth.ath.cx>
+In-Reply-To: <200201171908.OAA02671@gatekeeper.tmr.com> <Pine.LNX.4.33L.0201171733280.32617-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0201171733280.32617-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.25i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, David Weinehall wrote:
 
-> On Thu, Jan 17, 2002 at 08:09:59AM -0500, bill davidsen wrote:
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >   I've had that problem with my BP6 for so long I stopped complaining.
-> > Time to start again, I guess.
-> > 
-> >                                  WHINE
-> > 
-> >   There, now I feel better ;-) Really annoying, though, to have to boot
-> > NT just to turn the machine off.
-> 
-> Ever tried holding the power-button for 3 seconds?!
+Excellent, Rik!
 
-Given that it should shut down after a job completes and I work 130+ miles
-away, that's not optimal. I'd rather not use the system to heat air that
-the a/c needs to cool so I can run the idle loop. Currently I just run a
-script to use "lilo -R" to boot to an OS which is smart enough to do the
-job. Actually old kernels did the job until the APC was enhanced. More QA
-buy the "it doesn't break MY system" method of testing...
+I've posted a diff for rmap-11c against vanilla 2.4.18-pre4 at
+http://www.cs.unc.edu/~chenda/Other/2.4.18-pre4_to_rmap11c.diff
 
-At some point I'll convert to ext3, and shutdown with sync() and have the
-X10 module cut power, or use "find why this kernel shuts it down and that
-one doesn't" as an employment test when some kid applies for a kernel
-hacker job ;-) 
+On Thu, Jan 17, 2002 at 05:49:26PM -0200, Rik van Riel wrote:
+> >   Maybe we could deflect the pissing contest back to technical
+> > discussion now?
+>=20
+> I've released rmap-11c today ;)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8RzKdMwVVFhIHlU4RAkNlAJ9PShqsBbhTtWiwvBxHQoog58k86QCdF1g/
+kp/347gLwn0f4uoQeFdPpqQ=
+=+9x2
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--

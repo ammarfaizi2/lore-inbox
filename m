@@ -1,85 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314099AbSDQOtq>; Wed, 17 Apr 2002 10:49:46 -0400
+	id <S314102AbSDQOvc>; Wed, 17 Apr 2002 10:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314100AbSDQOtp>; Wed, 17 Apr 2002 10:49:45 -0400
-Received: from otter.mbay.net ([206.55.237.2]:38410 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S314099AbSDQOtn>;
-	Wed, 17 Apr 2002 10:49:43 -0400
-Date: Wed, 17 Apr 2002 07:49:22 -0700 (PDT)
-From: John Alvord <jalvo@mbay.net>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: Nikita@Namesys.COM, Andrey Ulanov <drey@rt.mipt.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: FPU, i386
-In-Reply-To: <200204171440.JAA76065@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.20.0204170747550.21678-100000@otter.mbay.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314101AbSDQOvb>; Wed, 17 Apr 2002 10:51:31 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55314 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S314100AbSDQOv3>; Wed, 17 Apr 2002 10:51:29 -0400
+Date: Wed, 17 Apr 2002 16:51:30 +0200
+From: Jan Hubicka <jh@suse.cz>
+To: bugtraq@securityfocus.com, linux-kernel@vger.kernel.org,
+        Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>, jakub@redhat.com,
+        aj@suse.de, ak@suse.de
+Subject: SSE related security hole
+Message-ID: <20020417145130.GA29952@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="k1lZvvs/B4yU6o8G"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Jesse Pollard wrote:
 
-> ---------  Received message begins Here  ---------
-> 
-> > 
-> > Andrey Ulanov writes:
-> >  > Look at this:
-> >  > 
-> >  > $ cat test.c
-> >  > #include <stdio.h>
-> >  > 
-> >  > main()
-> >  > {
-> >  > 	double h = 0.2;
-> >  > 	
-> >  > 	if(1/h == 5.0)
-> >  > 	    printf("1/h == 5.0\n");
-> >  > 
-> >  > 	if(1/h < 5.0)
-> >  > 	    printf("1/h < 5.0\n");
-> >  > 	return 0;
-> >  > }
-> >  > $ gcc test.c
-> > 
-> > $ gcc -O test.c
-> > $ ./a.out
-> > 1/h == 5.0
-> > 
-> > without -O, gcc initializes h to 0.2000000000000000111
-> > 
-> >  > $ ./a.out
-> >  > 1/h < 5.0
-> >  > $ 
-> >  > 
-> >  > I also ran same a.out under FreeBSD. It says "1/h == 5.0".
-> >  > It seems there is difference somewhere in FPU 
-> >  > initialization code. And I think it should be fixed.
-> 
-> Nope. -O2 implies constant folding, and h is a constant. What you are
-> compairing is runtime vs compile time values. 5.0 is compile time.
-> 1/h where h is a constant is compile time (O2) and that would
-> come out at 5.0 also
-> 
-> Been there done that... My solution (based on the problem I was working
-> in) was to multiply both sides by the 10^<number of siginificant digits
-> of the problem set>. Taking the simplistic approach:
-> 
-> if (int(1/h * 100) == int(5.0 * 100))
-> 
-> will give a "proper" result within two decimal places. This is still
-> limited since there are irrational numbers within that range that COULD
-> still come out with a wrong answer, but is much less likely to occur.
-> 
-> Exact match of floating point is not possible - 1/h is eleveated to a float.
-> 
-> If your 1/h was actually num/h, and num computed by summing .01 100 times
-> I suspect the result would also be "wrong".
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In most portable floating point work, you never use ==. Instead, the
-difference is compared to a small epsilon value and division is avoided by
-scaling.
+Hi,
+while debugging GCC bugreport, I noticed following behaviour of simple
+program with no syscalls:
 
-john alvord
+hubicka@nikam:~$ ./a.out
+sum of 7 ints: 28
+hubicka@nikam:~$ ./a.out
+sum of 7 ints: 56
+Bad sum (seen with gcc -O -march=pentiumpro -msse)
+hubicka@nikam:~$ ./a.out
+sum of 7 ints: 84
+Bad sum (seen with gcc -O -march=pentiumpro -msse)
+hubicka@nikam:~$ ./a.out
+sum of 7 ints: 112
+Bad sum (seen with gcc -O -march=pentiumpro -msse)
+hubicka@nikam:~$ echo
 
+hubicka@nikam:~$ ./a.out
+sum of 7 ints: 28
+
+
+ie it always returns different value, moreover when something else
+is run in meantime (verified by loading WWW page served by same machine),
+the counter is reinitialized to 28.
+
+I am attaching the source, but it needs to be compiled by cfg-branch GCC
+with settings -O2 -march=pentium3 -mfpmath=sse, so I've placed static
+binary to http://atrey.karlin.mff.cuni.cz/~hubicka/badsum.bin
+
+The problem appears to be reproducible only on pentium3 and athlon4 systems,
+not pentium4 system, where it appears to work as expected.  Reproduced on
+both 2.4.9-RH and 2.4.16 kernels.
+
+Honza
+
+--k1lZvvs/B4yU6o8G
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="badsum.c"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#define t(x) asm("rdtsc":"=A"(x));
+	char str[256],b;
+int m(){
+	long long a,b,c,d;
+int i,n=7;	//choose any n < sqrt(1/FLT_EPSILON)
+    float comp,sum=0;
+	sin(1);
+    for(i=1;i<=n;++i)
+	sum += i;
+    sprintf(str,"sum of %d ints: %g\n",n,sum);
+    comp = n*(n*.5f+.5f);
+    if(sum != comp){
+	    b=1;
+	}
+    printf(str);
+    if (b)
+	printf("Bad sum (seen with gcc -O -march=pentiumpro -msse)\n");
+    return 0;
+}
+main()
+{
+	/*sin(1);*/
+	asm("finit");
+	m();
+}
+
+--k1lZvvs/B4yU6o8G--

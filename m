@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbSLTPrM>; Fri, 20 Dec 2002 10:47:12 -0500
+	id <S262528AbSLTPph>; Fri, 20 Dec 2002 10:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSLTPrM>; Fri, 20 Dec 2002 10:47:12 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:9140 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262646AbSLTPrM>; Fri, 20 Dec 2002 10:47:12 -0500
-Date: Fri, 20 Dec 2002 10:55:16 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@redhat.com>
-Subject: Re: PTRACE_GET_THREAD_AREA
-Message-ID: <20021220105513.J27455@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com> <20021220154829.GB17007@nevyn.them.org>
+	id <S262620AbSLTPph>; Fri, 20 Dec 2002 10:45:37 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:42513 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262528AbSLTPpg>; Fri, 20 Dec 2002 10:45:36 -0500
+Date: Fri, 20 Dec 2002 10:50:19 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: Linux 2.4.21-pre2
+Message-ID: <20021220155019.GR504@hopper.phunnypharm.org>
+References: <Pine.LNX.4.50L.0212181721340.18764-100000@freak.distro.conectiva> <20021220144808.GF27658@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021220154829.GB17007@nevyn.them.org>; from dan@debian.org on Fri, Dec 20, 2002 at 10:48:29AM -0500
+In-Reply-To: <20021220144808.GF27658@fs.tum.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 10:48:29AM -0500, Daniel Jacobowitz wrote:
-> Eventually most or all targets will have thread-specific data
-> implemented; I don't want to have to redo this for each one.
+>         -o vmlinux
+> ld: cannot open drivers/ieee1394/ieee1394drv.o: No such file or directory
+> make: *** [vmlinux] Error 1
 
-Well, but on most arches you don't need any kernel support for TLS.
-On sparc32/sparc64/IA-64/s390/s390x and others you simply have one
-general register reserved for it by the ABI, on Alpha you use a PAL
-call.
-set_thread_area/get_thread_area is IA-32/x86-64 specific.
+I'm not even sure how the hell that change to Makefile got in there.
+Probably something we merged for kernel 2.5 before we branched.
 
-	Jakub
+Thanks, I'll get it fixed up.
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

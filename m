@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278481AbRJVKOX>; Mon, 22 Oct 2001 06:14:23 -0400
+	id <S278484AbRJVKPx>; Mon, 22 Oct 2001 06:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278482AbRJVKON>; Mon, 22 Oct 2001 06:14:13 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:9282 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278481AbRJVKOK>; Mon, 22 Oct 2001 06:14:10 -0400
-Date: Mon, 22 Oct 2001 12:01:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: 2.4.13pre5aa1
-Message-ID: <20011022120113.K8408@athlon.random>
-In-Reply-To: <20011020194024.C10680@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011020194024.C10680@in.ibm.com>; from maneesh@in.ibm.com on Sat, Oct 20, 2001 at 07:40:24PM +0530
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S278485AbRJVKPo>; Mon, 22 Oct 2001 06:15:44 -0400
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:16905 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S278484AbRJVKPd>; Mon, 22 Oct 2001 06:15:33 -0400
+Message-ID: <NPHLGxZPH$07EwlQ@wookie.demon.co.uk>
+Date: Mon, 22 Oct 2001 11:15:43 +0100
+To: linux-kernel@vger.kernel.org
+From: John Beardmore <wookie@wookie.demon.co.uk>
+Subject: ISDN cards and SMP
+MIME-Version: 1.0
+Content-Type: text/plain;charset=us-ascii;format=flowed
+User-Agent: Turnpike/6.00-U (<F7naP4S4l2F1q+EHsIexcg5ozp>)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 20, 2001 at 07:40:24PM +0530, Maneesh Soni wrote:
-> 
-> In article <20011019061914.A1568@athlon.random> you wrote:
-> 
-> > Only in 2.4.13pre3aa1: 00_files_struct_rcu-2.4.10-04-1
-> > Only in 2.4.13pre5aa1: 00_files_struct_rcu-2.4.10-04-2
-> 
-> Hello Andrea,
->  
-> Please apply the following update for the rcu fd patch.
-> This has fixes for two more bugs pointed by Dipankar.
->  
-> 1. fs/file.c
->         in expand_fd_array new_fds is not freed if allocation for arg fails.
->  
-> 2. fs/file.c
->         kmalloc for arg instead of *arg in expand_fd_array and expand_fdset
+I've tried using a Sedlbauer speedcard ISDN controller under Alpha
+RH6.2.
 
-thanks for the update!! Applied.
+This works fine with a single processor kernel, but the module fails to
+load with a kernel compiled for SMP.
 
-Andrea
+I gather this is true for all the Isdn4Linux drivers, though as I have a
+three processor machine, this is a real pain !
+
+Advice seems to be to get an external TA of some kind, but that would
+seem likely to add to ping times, and maybe to create a bottleneck if I
+ever get 128k or compression to my ISP !
+
+So, two questions:
+
+  1) are there any fixes for this problem in the pipeline
+
+and if not,
+
+  2) how easy would it be for the kernel novice to adapt a uniprocessor
+     driver to survive in the SMP environment ?
+
+
+Cheers, J/.
+-- 
+John Beardmore

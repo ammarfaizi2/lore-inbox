@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbUJ0S3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbUJ0SdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbUJ0S3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbUJ0SXg
+	id S262622AbUJ0SdE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbUJ0SaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:23:36 -0400
-Received: from [129.105.5.125] ([129.105.5.125]:5114 "EHLO
-	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S262613AbUJ0STY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:19:24 -0400
-Message-ID: <417FE703.3070608@ece.northwestern.edu>
-Date: Wed, 27 Oct 2004 13:20:51 -0500
-From: Lei Yang <lya755@ece.northwestern.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 27 Oct 2004 14:30:07 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:46779 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S262558AbUJ0S0J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:26:09 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: loopback on block device
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [BK PATCHES] ide-2.6 update
+Date: Wed, 27 Oct 2004 14:26:04 -0400
+User-Agent: KMail/1.7
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-ide@vger.kernel.org
+References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271305.06265.gene.heskett@verizon.net> <Pine.LNX.4.58.0410271019140.28839@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410271019140.28839@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410271426.04051.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 13:26:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday 27 October 2004 13:20, Linus Torvalds wrote:
+>On Wed, 27 Oct 2004, Gene Heskett wrote:
+>> >current linus' -bk tree, latest -bk snapshot should also be OK
+>>
+>> Drat.  I can't afford bitkeeper, either the time or the resources.
+>> So I assume this will be in 2.6.10-rc2 or 3?
+>
+>You can also just do the the daily snapshots - in
+>/pub/linux/kernel/v2.6/snapshots.
+>
+>But yes, I'm also pulling Bartlomiej's tree into the next release,
+> so if you can wait..
+>
+>  Linus
 
-Here is a question for loopback device. As far as I understand,  the 
-loopback device is used to mount files as if they were block devices.
-
-Then Why I could do "losetup -e XOR /dev/loop0 /dev/ram0" ? Notice that 
-ram0 is not mounted anywhere and does not have a filesystem on it. I've 
-tried that command and there seems to be no error. I got confused and 
-looked into loop.c, it seems to me that a loopback device should be 
-associated with a "backing file", why would it work on a block device 
-anyway?
-
-I'd appreciate your comments greatly!
-
-TIA,
-Lei
-
+I don't know for sure if I'm having a problem or not Linus, but I had 
+to dl fc3rc1's iso's several times to get all good md5sums.  
+Something was fscking things using mozilla-1.7.3...  So I wrote a 
+script to use wget for FC3rc2 & we'll see if that works in a few 
+hours when its all here.  On a slow (768/128) DSL, and trying to 
+squeeze an extra character for email in from time to time.
+ 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265656AbSLPOBc>; Mon, 16 Dec 2002 09:01:32 -0500
+	id <S265612AbSLPOAv>; Mon, 16 Dec 2002 09:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266730AbSLPOBc>; Mon, 16 Dec 2002 09:01:32 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61074 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265656AbSLPOBb>;
-	Mon, 16 Dec 2002 09:01:31 -0500
-Date: Mon, 16 Dec 2002 14:08:10 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Scott Robert Ladd <scott@coyotegulch.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S265656AbSLPOAv>; Mon, 16 Dec 2002 09:00:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:23433 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265612AbSLPOAu>; Mon, 16 Dec 2002 09:00:50 -0500
+Date: Mon, 16 Dec 2002 09:10:30 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Brian Jackson <brian-kernel-list@mdrx.com>
+cc: Scott Robert Ladd <scott@coyotegulch.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: /proc/cpuinfo and hyperthreading
-Message-ID: <20021216140809.GE11616@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Scott Robert Ladd <scott@coyotegulch.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021216023453.GA19659@gagarin> <FKEAJLBKJCGBDJJIPJLJCEJPDLAA.scott@coyotegulch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJCEJPDLAA.scott@coyotegulch.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021216135453.3823.qmail@escalade.vistahp.com>
+Message-ID: <Pine.LNX.3.95.1021216090324.20273A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 10:58:12PM -0500, Scott Robert Ladd wrote:
- > During boot, the system reports:
- > Dec 15 14:30:34 Tycho kernel: ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00]
- > enabled)
- > Dec 15 14:30:34 Tycho kernel: Processor #0 15:2 APIC version 16
- > Dec 15 14:30:34 Tycho kernel: ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01]
- > enabled)
- > Dec 15 14:30:34 Tycho kernel: Processor #1 15:2 APIC version 16
- > Dec 15 14:30:34 Tycho kernel: Building zonelist for node : 0
+On Mon, 16 Dec 2002, Brian Jackson wrote:
 
-Looks like you're either missing some ACPI config options, or
-you haven't updated the BIOS yet. On 2.5.51 with latest BIOS on
-the same box, I get..
+> You could always boot once with nosmp and run some benchmarks and then 
+> reboot (with smp) and run some more benchmarks, and see if there is a 
+> difference. 
+> 
+>  --Brian Jackson 
+> 
+> 
+> Scott Robert Ladd writes: 
+> 
+> > Zwane Mwaikambo wrote:
+> >> It's ok.
+> > 
+> > I'm not so sure. 
+> > 
+> > To get the most benefit from two logical CPUs, don't I need the kernel to
+> > operate as a 2-CPU SMP system? 
+> > 
+> > Windows XP initializes the system as SMP with two CPUs; when I run an OpenMP
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How do you know this? How can I learn what Windows does with
+Win/2000/professional? The only way I know I have two CPUs is when the
+machine fails to reboot because the file-system has been completely
+trashed by the two CPUs banging on it at the same time. The solution has
+been to remove one CPU. M$ claims; "Windows will over-power the system
+if two CPUs are present...." Direct quote. If you have two logical
+CPUs, you can't remove one, therefore, unless M$ has fixed the problem(s)
+in XP, you can't use Windows with two logical CPUs, i.e., hyperthreading.
 
-Dec 12 16:28:55 tetrachloride kernel: Processor #1 15:2 APIC version 16
-Dec 12 16:28:55 tetrachloride kernel: ACPI: LAPIC_NMI (acpi_id[0x01] polarity[0x0] trigger[0x0] lint[0x1])
-Dec 12 16:28:55 tetrachloride kernel: ACPI: LAPIC_NMI (acpi_id[0x02] polarity[0x0] trigger[0x0] lint[0x1])
-Dec 12 16:28:55 tetrachloride kernel: ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
-Dec 12 16:28:55 tetrachloride kernel: IOAPIC[0]: Assigned apic_id 2
-Dec 12 16:28:55 tetrachloride kernel: IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, IRQ 0-23
-Dec 12 16:28:55 tetrachloride kernel: ACPI: INT_SRC_OVR (bus[0] irq[0x9] global_irq[0x9] polarity[0x1] trigger[0x3])
-Dec 12 16:28:55 tetrachloride kernel: ACPI: INT_SRC_OVR (bus[0] irq[0x0] global_irq[0x2] polarity[0x0] trigger[0x0])
-Dec 12 16:28:55 tetrachloride kernel: Using ACPI (MADT) for SMP configuration information
-Dec 12 16:28:55 tetrachloride kernel: Building zonelist for node: 0
 
-		Dave
+> > application under Windows, it reports two CPUs and a maximum of two threads.
+> > Under Linux, 
+> >
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

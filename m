@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbUKHDmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbUKHEIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbUKHDmU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 22:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbUKHDmU
+	id S261748AbUKHEIO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 23:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUKHEIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 22:42:20 -0500
-Received: from pat.uio.no ([129.240.130.16]:24977 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261740AbUKHDmR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 22:42:17 -0500
-Subject: Re: [BUG] Nfs 3 ops
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Pedro Larroy <piotr@larroy.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041108022839.GA2560@larroy.com>
-References: <20041108022839.GA2560@larroy.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sun, 07 Nov 2004 19:41:58 -0800
-Message-Id: <1099885318.7922.0.camel@lade.trondhjem.org>
+	Sun, 7 Nov 2004 23:08:13 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:12760 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261748AbUKHEIA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 23:08:00 -0500
+Date: Mon, 8 Nov 2004 09:47:30 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>, linux-aio@kvack.org,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Oops in aio_free_ring on 2.6.9
+Message-ID: <20041108041730.GB3681@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1099683260.12365.348.camel@bluebox> <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
-	RCVD_NUMERIC_HELO 0.33)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-må den 08.11.2004 Klokka 03:28 (+0100) skreiv Pedro Larroy:
-> Hi
+On Sat, Nov 06, 2004 at 07:43:33PM -0800, Linus Torvalds wrote:
 > 
-> Here comes a little ops I got while accessing a remote nfs dir in 2.6.8
-> on i386 SMP
+> On Fri, 5 Nov 2004, Darrick J. Wong wrote:
+> > 
+> > Next, the aio_setup_ring function tries to mmap a bunch of pages and
+> > fails, because in step 1 we used up all the address space. 
+> > aio_setup_ring then calls aio_free_ring to tear all of this down.
+> > (fs/aio.c:143)
+> > 
+> > aio_free_ring sees the block of struct page pointers and calls free_page
+> > (fs/aio.c:88) on the pointers without checking that they're not NULL. 
+> > Unfortunately, they _are_ NULL and *oops*!  My patch amends the function
+> > to include a null pointer check.
+> 
+> I don't disagree with the bug, but I disagree with the fix. 
+> 
+> In my opinion, the problem is that "info->nr_pages" is _wrong_. It's wrong 
+> because it has been initialized to a bogus value. 
+> 
+> I'd much prefer this alternate appended patch. Can you verify that it also 
+> fixes the problem (we can drop the bogus info->nr_pages initialization, 
+> because the context - including the info part - has been cleared when it 
+> was allocated, so nr_pages should already have the _correct_ value of zero 
+> at this point).
 
-...and that Oops is precisely why we put out 2.6.8.1
+Since aio_free_ring uses comparison with info->internal_pages rather than
+nr_pages to decide whether to kfree(info->ring_pages), I see your point.
 
-Cheers,
-  Trond
+Regards
+Suparna
+
+> 
+> 		Linus
+> 
+> -----
+> ===== fs/aio.c 1.60 vs edited =====
+> --- 1.60/fs/aio.c	2004-10-20 01:12:10 -07:00
+> +++ edited/fs/aio.c	2004-11-06 19:41:45 -08:00
+> @@ -118,8 +118,6 @@
+>  	if (nr_pages < 0)
+>  		return -EINVAL;
+>  
+> -	info->nr_pages = nr_pages;
+> -
+>  	nr_events = (PAGE_SIZE * nr_pages - sizeof(struct aio_ring)) / sizeof(struct io_event);
+>  
+>  	info->nr = 0;
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

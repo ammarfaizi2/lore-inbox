@@ -1,100 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283430AbRLINQh>; Sun, 9 Dec 2001 08:16:37 -0500
+	id <S283432AbRLINSH>; Sun, 9 Dec 2001 08:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283432AbRLINQ2>; Sun, 9 Dec 2001 08:16:28 -0500
-Received: from stinky.trash.net ([195.134.144.50]:55010 "HELO stinky.trash.net")
-	by vger.kernel.org with SMTP id <S283430AbRLINQL> convert rfc822-to-8bit;
-	Sun, 9 Dec 2001 08:16:11 -0500
-Date: Sun, 9 Dec 2001 14:16:09 +0100
-From: Thomas Bader <thomasb@trash.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] data_access_exception during chroot()
-Message-ID: <20011209141609.A13900@trash.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
-Organization: Get your free UNIX account @ http://www.trash.net/
-X-URL: <http://www.trash.net/~thomasb/>
-X-Cool: get your free UNIX account @ http://www.trash.net/
-X-PGP-Key: mailto <thomasb+pgpkey@trash.net> (automated reply)
-X-Operating-System: SunOS 5.8 (sun4u)
-X-WM: Enlightenment 0.16.5
-X-Editor: Vim-600 http://www.vim.org
+	id <S283433AbRLINRu>; Sun, 9 Dec 2001 08:17:50 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:20005 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S283432AbRLINRh>;
+	Sun, 9 Dec 2001 08:17:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: SCSI????
+Date: Sun, 9 Dec 2001 13:18:26 +0000
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0112081748080.5506-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.33.0112081748080.5506-100000@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP01dY6hlHK0000d851@smtp.netcabo.pt>
+X-OriginalArrivalTime: 09 Dec 2001 13:16:32.0818 (UTC) FILETIME=[B8A18920:01C180B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+i can show u my boot log... but u aren't after the deamons who start are u 
+????
 
-I'm running 2.4.17-pre6 on my SUN Ultra1.  Further, I've got devfs, RAID and
-LVM support in my kernel config.
+the first part of the boot is so fast i cant read it, i know usb mass storage 
+loads or something like that because i can see something related to that, 
+beside of that i can't read the messages becaus htey prompt out too fast!!!
 
-Now I'm trying to chroot to a specific directory:
+and i can't find a log file for those either!!!
 
-duke:~# mount
-/dev/sda8 on / type ext2 (rw,errors=remount-ro,errors=remount-ro)
-proc on /proc type proc (rw)
-/dev/md/0 on /mnt type ext2 (rw)
-duke:~# cat /proc/mdstat
-Personalities : [raid1]
-read_ahead 1024 sectors
-md1 : active raid1 scsi/host0/bus0/target1/lun0/part2[1] scsi/host0/bus0/target]
-      627648 blocks [2/2] [UU]
+anyway here is my boot log:
 
-md0 : active raid1 scsi/host0/bus0/target1/lun0/part1[1] scsi/host0/bus0/target]
-      3145664 blocks [2/2] [UU]
 
-unused devices: <none>
-duke:~# chroot --version
-chroot (GNU sh-utils) 2.0.11
-duke:~# chroot /mnt /bin/bash
-data_access_exception: SFSR[0000000000801009] SFAR[fffff805b2bf6afc], going.
-              \|/ ____ \|/
-              "@'/ .. \`@"
-              /_| \__/ |_\
-                 \__U_/
-chroot(224): Dax
-TSTATE: 0000000011009603 TPC: 0000000000503464 TNPC: 0000000000503468 Y: 070000d
-g0: 0000000000000000 g1: fffee0058b199b00 g2: 0000000000000001 g3: fffee0058b19c
-g4: fffff80000000000 g5: fffee0058b199b20 g6: fffff8002741c000 g7: 0000000000004
-o0: 0000000000280108 o1: 0000000000000000 o2: fffff800276b60c0 o3: fffff80000ba0
-o4: 0000000000000008 o5: 0000000000000001 sp: fffff8002741e891 ret_pc: fffff800c
-l0: fffff80027a5d000 l1: fffff80027a5d448 l2: 00000000005aa400 l3: 0000000000002
-l4: 0000000000000001 l5: fffff80024fa6da8 l6: fffff8002772f680 l7: 0000000000000
-i0: fffed805b2bf6afc i1: 0000000000000000 i2: 0000000000000000 i3: 0000000000001
-i4: 0000000000000000 i5: fffff80027a5d000 i6: fffff8002741e951 i7: 0000000000500
-Caller[00000000005036c0]
-l0: fffff80027a5d000 l1: fffff80027a5d448 l2: 00000000005aa400 l3: 0000000000002
-l4: 0000000000000001 l5: fffff80024fa6da8 l6: fffff8002772f680 l7: 0000000000000
-i0: fffed805b2bf6afc i1: 0000000000000000 i2: 0000000000000000 i3: 0000000000001
-i4: 0000000000000000 i5: fffff80027a5d000 i6: fffff8002741e951 i7: 0000000000500
-Caller[00000000005036c0]
-Caller[00000000005059c0]
-Caller[00000000004b9cd0]
-Caller[00000000004b9dc0]
-Caller[00000000004b9f90]
-Caller[000000000046353c]
-Caller[0000000000489a58]
-Caller[0000000000477678]
-Caller[00000000004779a8]
-Caller[000000000048aa38]
-Caller[000000000046bbe8]
-Caller[000000000046c058]
-Caller[000000000046c6cc]
-Caller[000000000046966c]
-Caller[000000000042f88c]
-Caller[0000000000410674]
-Caller[00000000700de224]
-Instruction DUMP: 80a6c01c  02400038  8600ffdc <c4060000> 80a0a000  124ffff3  8
-Killed
-duke:~#
+Dec  9 12:57:50 AstinusGod syslog: syslogd startup succeeded
+Dec  9 12:57:50 AstinusGod syslog: klogd startup succeeded
+Dec  9 12:57:50 AstinusGod portmap: portmap startup succeeded
+Dec  9 12:57:50 AstinusGod nfslock: rpc.statd startup succeeded
+Dec  9 12:57:51 AstinusGod keytable: Loading keymap:  succeeded
+Dec  9 12:57:51 AstinusGod keytable: Loading system font:  succeeded
+Dec  9 12:57:51 AstinusGod random: Initializing random number generator:  
+succeeded
+Dec  9 12:57:51 AstinusGod netfs: Mounting other filesystems:  succeeded
+Dec  9 12:57:52 AstinusGod apmd: apmd startup succeeded
+Dec  9 12:57:39 AstinusGod rc.sysinit: Mounting proc filesystem:  succeeded 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Unmounting initrd:  succeeded 
+Dec  9 12:57:39 AstinusGod sysctl: net.ipv4.ip_forward = 0 
+Dec  9 12:57:39 AstinusGod sysctl: net.ipv4.conf.default.rp_filter = 1 
+Dec  9 12:57:39 AstinusGod sysctl: kernel.sysrq = 0 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Configuring kernel parameters:  
+succeeded 
+Dec  9 12:57:39 AstinusGod date: Sun Dec  9 12:57:33 WET 2001 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Setting clock  (localtime): Sun Dec  9 
+12:57:33 WET 2001 succeeded 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Loading default keymap succeeded 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Setting default font (lat0-sun16):  
+succeeded 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Activating swap partitions:  succeeded 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Setting hostname AstinusGod.pt:  
+succeeded 
+Dec  9 12:57:39 AstinusGod fsck: /: clean, 192863/1281696 files, 
+830434/2562367 blocks 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Checking root filesystem succeeded 
+Dec  9 12:57:39 AstinusGod rc.sysinit: Remounting root filesystem in 
+read-write mode:  succeeded 
+Dec  9 12:57:41 AstinusGod rc.sysinit: Finding module dependencies:  
+succeeded 
+Dec  9 12:57:42 AstinusGod fsck: /home: clean, 19308/499968 files, 
+125323/998384 blocks 
+Dec  9 12:57:42 AstinusGod rc.sysinit: Checking filesystems succeeded 
+Dec  9 12:57:42 AstinusGod rc.sysinit: Mounting local filesystems:  succeeded 
+Dec  9 12:57:42 AstinusGod rc.sysinit: Enabling local filesystem quotas:  
+succeeded 
+Dec  9 12:57:43 AstinusGod rc.sysinit: Turning on process accounting 
+succeeded 
+Dec  9 12:57:52 AstinusGod autofs: automount startup succeeded
+Dec  9 12:57:44 AstinusGod rc.sysinit: Enabling swap space:  succeeded 
+Dec  9 12:57:46 AstinusGod ipchains: Flushing all current rules and user 
+defined chains: succeeded 
+Dec  9 12:57:46 AstinusGod ipchains: Clearing all current rules and user 
+defined chains: succeeded 
+Dec  9 12:57:47 AstinusGod ipchains: Applying ipchains firewall rules 
+succeeded 
+Dec  9 12:57:47 AstinusGod sysctl: net.ipv4.ip_forward = 0 
+Dec  9 12:57:47 AstinusGod sysctl: net.ipv4.conf.default.rp_filter = 1 
+Dec  9 12:57:47 AstinusGod sysctl: kernel.sysrq = 0 
+Dec  9 12:57:52 AstinusGod rc: Starting pcmcia:  succeeded
+Dec  9 12:57:47 AstinusGod network: Setting network parameters:  succeeded 
+Dec  9 12:57:48 AstinusGod network: Bringing up interface lo:  succeeded 
+Dec  9 12:57:49 AstinusGod ifup: Determining IP information for eth0... 
+Dec  9 12:57:49 AstinusGod ifup:  done. 
+Dec  9 12:57:49 AstinusGod network: Bringing up interface eth0:  succeeded 
+Dec  9 12:57:52 AstinusGod sshd: Starting sshd:
+Dec  9 12:57:53 AstinusGod sshd:  succeeded
+Dec  9 12:57:53 AstinusGod sshd: 
+Dec  9 12:57:53 AstinusGod rc: Starting sshd:  succeeded
+Dec  9 12:57:56 AstinusGod xinetd: xinetd startup succeeded
+Dec  9 12:57:58 AstinusGod lpd: lpd startup succeeded
+Dec  9 12:57:59 AstinusGod sendmail: sendmail startup succeeded
+Dec  9 12:58:00 AstinusGod gpm: gpm startup succeeded
+Dec  9 12:58:00 AstinusGod crond: crond startup succeeded
+Dec  9 12:58:02 AstinusGod xfs: xfs startup succeeded
+Dec  9 12:58:03 AstinusGod smb: smbd startup succeeded
+Dec  9 12:58:03 AstinusGod smb: nmbd startup succeeded
+Dec  9 12:58:03 AstinusGod anacron: anacron startup succeeded
+Dec  9 12:58:03 AstinusGod atd: atd startup succeeded
+Dec  9 12:58:04 AstinusGod linuxconf: Running Linuxconf hooks:  succeeded
+Dec  9 12:58:04 AstinusGod rc: Starting wine:  succeeded
+ there are no connected devices in /proc/scsi/scsi ( as they should for what 
+i know hp82xxx is treated as a scsi device under linux red hat 7.2 )
+and i can't find no /proc/usb directory
 
-Cheers
--- 
-  .-.   Thomas Bader · thomasb@trash.net.remove · http://www.t-bader.ch/  .-.
-  oo|                                                                     oo|
- /`'\     Einen Unix-Shellaccount gibt es unter http://www.trash.net/    /`'\
-(\_;/)       PGP Key-ID: 0x3A4B7F5D (RSA)  0x7584F5D8 (DSA/EG)          (\_;/)
+regards, AStinus
+
+On Saturday 08 December 2001 22:49, you wrote:
+> > whenever linux boots it trys to load the Scsi modules for the new kernel
+> > but it [ fails ], i figure this is because my previous had scsi as module
+> > and now it isn't a module but a integrated part of the kernel, so i
+> > turned off  the scsi from the service manager. ( don't know if i am right
+> > though ).
+>
+> exactly.  in other words, entirely a user-space issue,
+> nothing to do with linux-kernel.
+>
+> > second, how do i make sure scsi support is actually running???
+>
+> /proc/devices?  dmesg?
+>
+> > third, if scsi is running and if i have the usb mass storage built into
+> > the kernel, why doesn't my cd-rw appear listed  as a scsi connected
+> > device as it should??
+>
+> what usb and scsi-related messages do you see on boot?

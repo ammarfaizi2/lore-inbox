@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277731AbRJROxY>; Thu, 18 Oct 2001 10:53:24 -0400
+	id <S277732AbRJRO7e>; Thu, 18 Oct 2001 10:59:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277732AbRJROxO>; Thu, 18 Oct 2001 10:53:14 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:33030 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S277731AbRJROw4>;
-	Thu, 18 Oct 2001 10:52:56 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200110181453.f9IErMI18783@oboe.it.uc3m.es>
-Subject: Re: Non-GPL modules
-In-Reply-To: <Pine.LNX.3.95.1011018101831.603A-100000@chaos.analogic.com> from
- "Richard B. Johnson" at "Oct 18, 2001 10:46:20 am"
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Thu, 18 Oct 2001 16:53:22 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S277733AbRJRO7Z>; Thu, 18 Oct 2001 10:59:25 -0400
+Received: from adsl-216-102-163-254.dsl.snfc21.pacbell.net ([216.102.163.254]:25255
+	"EHLO windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S277732AbRJRO7R>; Thu, 18 Oct 2001 10:59:17 -0400
+Date: Thu, 18 Oct 2001 07:56:52 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@windmill.gghcwest.com>
+To: Norbert Preining <preining@logic.at>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.12 cannot find root device on raid
+In-Reply-To: <20011018150141.A17493@alpha.logic.tuwien.ac.at>
+Message-ID: <Pine.LNX.4.33.0110180755090.5641-100000@windmill.gghcwest.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson wrote:"
-> We have a data interface that feeds high-speed data from 4,000 +
-> X-Ray detectors directly to memory at RAM/Bus memory speeds. There
-> is no way in hell that we are going to let the world know how this
 
-Oh my gosh. You aren't working on a project for CERN too, are you?
 
-Peter
+On Thu, 18 Oct 2001, Norbert Preining wrote:
+
+> Hi!
+>
+> I have the following problem:
+>
+> kernel 2.4.12, md and raid1 compiled into the kernel.
+> /dev/hdb old linux installation
+> /dev/md0 -> /dev/hde1,/dev/hdg1 new installation
+>
+> When I boot my old installation the md device is automatically configured
+> by the kernel and I can mount it (reiserfs) without any problems.
+>
+> When I try to boot the new installation with the same kernel the md device
+> is initialized, but the kernel cannot mount the root device. I get msgs
+> about FAT problems and about mounting root as msdos.
+>
+> Here some config files:
+> lilo.conf:
+> image = /boot/lx-2.4.12
+> 	root = /dev/hdb1
+> 	label = old
+> image = /boot/lx-2.4.12
+> 	root = /dev/md0
+> 	label = new
+> 	optional
+
+To use a md as root, you need to add a kernel command line:
+
+md0=1,/dev/hde1,/dev/hdg1
+
+Put that in the append= line of lilo.conf or type it at the lilo command
+prompt.
+
+See also Documentation/md.txt in the Linux source tree.
+
+-jwb
+

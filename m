@@ -1,50 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264657AbTATJ7M>; Mon, 20 Jan 2003 04:59:12 -0500
+	id <S261527AbTATKM7>; Mon, 20 Jan 2003 05:12:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264915AbTATJ7M>; Mon, 20 Jan 2003 04:59:12 -0500
-Received: from mario.gams.at ([194.42.96.10]:22810 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S264657AbTATJ7L> convert rfc822-to-8bit;
-	Mon, 20 Jan 2003 04:59:11 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
-From: Bernd Petrovitsch <bernd@gams.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stall-man is Stall-ing 
-References: <200301190330.AA33882268@worldtechtribune.com> 
-In-reply-to: Your message of "Sun, 19 Jan 2003 03:30:55 EST."
-             <200301190330.AA33882268@worldtechtribune.com> 
-X-url: http://www.luga.at/~bernd/
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 20 Jan 2003 11:08:14 +0100
-Message-ID: <8830.1043057294@frodo.gams.co.at>
+	id <S265276AbTATKM7>; Mon, 20 Jan 2003 05:12:59 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:9709 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S261527AbTATKM4>; Mon, 20 Jan 2003 05:12:56 -0500
+From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] unixbench result for kernel 2.5.59
+Date: Mon, 20 Jan 2003 15:51:46 +0530
+Message-ID: <003b01c2c06d$bc9ab920$6009720a@wipro.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
+X-OriginalArrivalTime: 20 Jan 2003 10:21:46.0829 (UTC) FILETIME=[BC9ED7D0:01C2C06D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"joe wagner" <joe_D-.wagner@worldtechtribune.com> wrote:
->day desktop PC.  Yeah, you heard that right.  Microsoft is trying to bring
->military-level security to your desktop PC.  Now everybody wants that,
->right?
+Hi,
 
-Everybody wants it _if_ everybody can control it. And all that stuff 
-is not made to be controlled by the (home-)user but by the OS-vendor, 
-the ISP and probably all that nice 3-letter-govermental organizations 
-found in all countries around the world.
+Here are the unixbench result for kernel 2.5.59. Kernel 2.5.59 when
+compared with kernel 2.5.58 showed difference of performance in
+following tests:- 
+========================================================================
+Execl Throughput[2.5.59]                          952.5lps   
+Execl Throughput[2.5.58]                          866.4lps  
+  
+File Copy 1024 bufsize 2000 maxblocks[2.5.59]     71112.0KBps 
+File Copy 1024 bufsize 2000 maxblocks[2.5.58]     69405.0KBps      
 
->ll, not Richard M. Stallman.
+File Copy 256 bufsize 500 maxblocks[2.5.59]       36978.0KBps     
+File Copy 256 bufsize 500 maxblocks[2.5.58]       34824.0KBps 
+========================================================================
+====
+*There is no much difference in other test result.
 
-If you can guarantee that _I_ can control it all the time on my PCs I 
-might consider to accept it.
+------------------------------------------------------------------------
+----
+					kernel-2.5.59
+------------------------------------------------------------------------
+----
+BYTE UNIX Benchmarks (Version 4.1.0)
+System -- Linux access1 2.5.59 #14 Mon Jan 20 12:12:35 IST 2003 i686
+unknown
+Start Benchmark Run: Mon Jan 20 13:57:54 IST 2003
+1 interactive users.
+1:57pm  up 9 min,  1 user,  load average: 0.01, 0.02, 0.00
+lrwxrwxrwx    1 root     root            4 Oct 22 00:35 /bin/sh -> bash
+/bin/sh: symbolic link to bash
+/dev/hda2              8262068   3315448   4526924  43% /data
 
-Apart from that I have military-grade security on my PC - just 
-install openssl and you have it too.
+Dhrystone 2 using register variables    1804740.6 lps (10.0
+secs,10samples)
+Double-Precision Whetstone              477.1 MWIPS   (10.0
+secs,10samples)
+System Call Overhead                    460969.1lps   (10.0
+secs,10samples)
+Pipe Throughput                         451357.3 lps  (10.0
+secs,10samples)
+Pipe-based Context Switching            205677.1 lps  (10.0
+secs,10samples)
+Process Creation                        4502.7 lps    (30.0 secs,
+3samples)
+Execl Throughput                        952.5 lps     (29.7 secs,
+3samples)
+File Read 1024 bufsize 2000 maxblocks   243601.0KBps  (30.0 secs,
+3samples)
+File Write 1024 bufsize 2000 maxblocks  104533.0KBps  (30.0 secs,
+3samples)
+File Copy 1024 bufsize 2000 maxblocks   71112.0 KBps  (30.0 secs,
+3samples)
+File Read 256 bufsize 500 maxblocks     113743.0KBps  (30.0 secs,
+3samples)
+File Write 256 bufsize 500 maxblocks    61466.0 KBps  (30.0 secs,
+3samples)
+File Copy 256 bufsize 500 maxblocks     36978.0 KBps  (30.0 secs,
+3samples)
+File Read 4096 bufsize 8000 maxblocks   335488.0KBps  (30.0 secs,
+3samples)
+File Write 4096 bufsize 8000 maxblocks  127733.0KBps  (30.0 secs,
+3samples)
+File Copy 4096 bufsize 8000 maxblocks   89889.0 KBps  (30.0 secs,
+3samples)
+Shell Scripts (1 concurrent)            889.8 lpm     (60.0 secs,
+3samples)
+Shell Scripts (8 concurrent)            115.0 lpm     (60.0 secs,
+3samples)
+Shell Scripts (16 concurrent)           58.0 lpm      (60.0 secs,
+3samples)
+Arithmetic Test (type = short)          208210.2 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = int)            225125.9 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = long)           225088.4 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = float)          227555.3 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = double)         227558.8 lps  (10.0 secs,
+3samples)
+Arithoh                                 3998978.2 lps (10.0 secs,
+3samples)
+C Compiler Throughput                   410.0 lpm     (60.0 secs,
+3samples)
+Dc: sqrt(2) to 99 decimal places        34186.5 lpm   (30.0 secs,
+3samples)
+Recursion Test--Tower of Hanoi          28899.1 lps   (20.0 secs,
+3samples)
 
-	Bernd
--- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
 
+                     INDEX VALUES            
+TEST                                      BASELINE     RESULT    INDEX
+
+Dhrystone 2 using register variables      116700.0  1804740.6    154.6
+Double-Precision Whetstone                55.0      477.1        86.7
+Execl Throughput                          43.0      952.5        221.5
+File Copy 1024 bufsize 2000 maxblocks     3960.0    71112.0      179.6
+File Copy 256 bufsize 500 maxblocks       1655.0    36978.0      223.4
+File Copy 4096 bufsize 8000 maxblocks     5800.0    89889.0      155.0
+Pipe Throughput                           12440.0   451357.3     362.8
+Process Creation                          126.0     4502.7       357.4
+Shell Scripts (8 concurrent)              6.0       115.0        191.7
+System Call Overhead                      15000.0   460969.1     307.3
+ 
+=========
+     FINAL SCORE                                                 206.5
+------------------------------------------------------------------------
+----
+Regards
+ 
+Sowmya Adiga
+Project Engineer
+Wipro Technologies
+53/1,Hosur Road,Madivala
+Bangalore-560 068,INDIA
+Tel: +91-80-5502001 Extn.5086
+sowmya.adiga@wipro.com
+ 
 

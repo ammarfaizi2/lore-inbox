@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262489AbRENUyc>; Mon, 14 May 2001 16:54:32 -0400
+	id <S262494AbRENU5c>; Mon, 14 May 2001 16:57:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262493AbRENUyW>; Mon, 14 May 2001 16:54:22 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:18940 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262489AbRENUyH>; Mon, 14 May 2001 16:54:07 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105142053.f4EKrhOh002240@webber.adilger.int>
-Subject: Re: [Re: Inodes]
-In-Reply-To: <9dovmu$eqj$1@cesium.transmeta.com> "from H. Peter Anvin at May
- 14, 2001 09:04:46 am"
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Mon, 14 May 2001 14:53:43 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S262492AbRENU5M>; Mon, 14 May 2001 16:57:12 -0400
+Received: from gso56-168-043.triad.rr.com ([66.56.168.43]:65158 "EHLO
+	hlclabs.dynip.com") by vger.kernel.org with ESMTP
+	id <S262491AbRENU5J>; Mon, 14 May 2001 16:57:09 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Mike Harmon <mikeharmon@usa.net>
+Organization: Harmon Liles Computer Labs
+To: torvalds@transmeta.com
+Subject: [PATCH] Future Domain SCSI controller fix for 2.4.x
+Date: Mon, 14 May 2001 17:07:32 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, faith@cs.unc.edu, linux-scsi@vger.kernel.org
 MIME-Version: 1.0
+Message-Id: <01051417073200.06553@hlclabs.dynip.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HPA writes:
-> Blesson Paul <blessonpaul@usa.net> writes:
-> > You misunderstood my question. Let take an example.  Let I have a msdos
-> > partition. No msdos files has inode numbers, right. Let I mount that
-> > msdos partition. Then what happens, That is my question. Will the
-> > inode numbers are assigned to all msdos files at mounting time itself
-> > 
-> 
-> The inode numbers are "invented" by the MS-DOS filesystem driver.  In
-> the particular case of the "msdos" driver I believe it uses the
-> location of the directory entry (the functional equivalent of the
-> inode) on disk.
 
-Just to clarify, this means that the "inode numbers" reported by an
-msdos filesystem are a function of the disk-layout itself (i.e. they
-are determined at mount time), and not numbers created when the file
-is first accessed (AFAIK).
+Hi, the driver for this card seems to have missed out on one of the changes 
+to the SCSI layer between 2.2 and 2.4.  Specifically, scsi_set_pci_device 
+now wants an entire SCSI host object, instead of just the pci_dev part.   
+Without the patch, we get a null kernel pointer dereference when the driver 
+is initialized.  With the single-line update, the driver works again.  I've 
+also included a patch to change an udelay loop into the equivalent mdelay 
+call for code readability purposes.  These are both against 2.4.4; please 
+apply.
 
-However, other filesystems are free to do this in other ways.  Reiserfs
-has 64-bit "inode numbers" (actually "packing locality" + unique ID),
-as does NTFS and XFS.  Network filesystems may do something completely
-different (I have no idea what SMBFS does).
-
-Cheers, Andreas
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Email:  mikeharmon@usa.net
+
+
+--- linux-2.4.4/drivers/scsi/fdomain.old	Mon May 14 16:33:11 2001
++++ linux-2.4.4/drivers/scsi/fdomain.c	Fri May  4 11:07:41 2001
+ 
+ inline static void fdomain_make_bus_idle( void )
+@@ -971,7 +969,7 @@
+    	return 0;
+    shpnt->irq = interrupt_level;
+    shpnt->io_port = port_base;
+-   scsi_set_pci_device(shpnt->pci_dev, pdev);
++   scsi_set_pci_device(shpnt, pdev);
+    shpnt->n_io_port = 0x10;
+    print_banner( shpnt );
+
+ 
+--- linux-2.4.4/drivers/scsi/fdomain.old	Mon May 14 16:33:11 2001
++++ linux-2.4.4/drivers/scsi/fdomain.c	Fri May  4 11:07:41 2001
+@@ -587,9 +587,7 @@
+ 
+ static void do_pause( unsigned amount )	/* Pause for amount*10 
+milliseconds */
+ {
+-   do {
+-	udelay(10*1000);
+-   } while (--amount);
++   mdelay(10*amount);
+ }
+
+ê2¯@2

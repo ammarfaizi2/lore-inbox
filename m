@@ -1,99 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbTJNLQu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 07:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTJNLQu
+	id S262422AbTJNLdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 07:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbTJNLdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 07:16:50 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:158 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S262330AbTJNLQr
+	Tue, 14 Oct 2003 07:33:32 -0400
+Received: from smtrly01.smartm.com ([158.116.149.131]:51467 "EHLO
+	smtrly01.smartm.com") by vger.kernel.org with ESMTP id S262422AbTJNLd3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 07:16:47 -0400
-Date: Tue, 14 Oct 2003 21:16:39 +1000 (EST)
-From: Michael Still <mikal@stillhq.com>
-To: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: make htmldocs
-In-Reply-To: <20031014120946.A4969@beton.cybernet.src>
-Message-ID: <Pine.LNX.4.44.0310142106220.16081-100000@diskbox.stillhq.com>
+	Tue, 14 Oct 2003 07:33:29 -0400
+Message-ID: <903E17B6FF22A24C96B4E28C2C0214D70104BDD4@sr-bng-exc01.int.tsbu.net>
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>
+To: "'scottm@somanetworks.com'" <scottm@somanetworks.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: 
+Date: Tue, 14 Oct 2003 17:07:31 +0530
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+X-OriginalArrivalTime: 14 Oct 2003 11:32:21.0234 (UTC) FILETIME=[D4D10520:01C39246]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003, [iso-8859-2] Karel Kulhavý wrote:
+hi Scott,
 
-> > > 2) How do I install DocBook stylesheets?
-> > 
-> > Depends on distribution.
-> 
-> How do I determine what distribution I have? I have compiled my whole system
-> manually.
+i am using your hot swap driver for one of our boards here. I have
+back-ported the driver to 2.4.18 kernel.
 
-Then surely you have enough clue to do your own web surf for DocBook 
-information. One way would be to randomly select a disto, and see what 
-they install to make it work.
+the problem is as follows -
+i have a board in the system slot of the chassis for which i am running the
+hot swap driver.
+when i hot insert another board (the configuration is given later) on some
+peripheral slot, i am not able to allocate resources for some of the devices
+beyond that.
 
-> Asking again: how do I install "DocBook stylesheets"?
+the hot swapped board has got a bridge that provides two pmc slots. I have
+two bridges on these pmc slots and they provide 3 pci slots each. I have two
+82559 (e100) ethernet cards beyond the two bridges, one 82559 for each. it
+looks something like this
 
-Let's take the Debian example. The Makefiles state that I need db2html to 
-convert to your chosen HTML format. db2html is provided by docbook-utils, 
-which it would seems installs the files listed publically at:
+peripheral slot ----------- P2P Bridge (Sentinel) -- P2P Bridge (21154) --
+82559 (resources  are  allocated)
+                                                                  |
+			                              -- P2P Bridge (21154)
+-- 82559 (resources NOT allocated)
 
-http://packages.debian.org/cgi-bin/search_contents.pl?word=docbook-utils&searchmode=filelist&case=insensitive&version=unstable&arch=i386
+i am able to assign the resources for the first 82559 correctly and it
+works, but for the other 81559 i am not able to assign resources.
 
-Now, it turns out that docbook-utils is the name of the open source 
-package, as well as the Debian package:
+the following dump will help to see that the driver is trying to assign
+resources to the other 82559 from a wrong resource tree.
+(The debug messages are added by me.)
 
-http://freshmeat.net/projects/docbook-utils/
+----------------------------------------------------------------------------
+-------------------------------
+cpci_hotplug: cpci_configure_dev - enter
+cpci_hotplug: assigning resource [0] (0000-0fff)
+checking bus resource new (0000-0fff) of size 1000 with min 38000000
+resources root->flags 0200 new->flags 0200
+find_resource:root->start: 00000000 root->end:000fffff
+find_resource: new->start: 38000000  new->end: 000fffff
+allocate resource (prefetching) 0(38000000-fffff) failed.
+  PCI: FAILED to allocate resource 0(38000000-fffff) for 05:08.0
+cpci_hotplug: assigning resource [1] (0000-003f)
+checking bus resource new (0000-003f) of size 0040 with min 1000
+resources root->flags 0100 new->flags 0101
+find_resource:root->start: 00000000 root->end:00000fff
+find_resource: new->start: 00001000  new->end: 00000fff
+allocate resource (prefetching) 1(1000-0fff) failed.
+  PCI: FAILED to allocate resource 1(1000-0fff) for 05:08.0
+cpci_hotplug: assigning resource [2] (0000-1ffff)
+checking bus resource new (0000-1ffff) of size 20000 with min 38000000
+resources root->flags 0200 new->flags 0200
+find_resource:root->start: 00000000 root->end:000fffff
+find_resource: new->start: 38000000  new->end: 000fffff
+allocate resource (prefetching) 2(38000000-fffff) failed.
+  PCI: FAILED to allocate resource 2(38000000-fffff) for 05:08.0
+cpci_hotplug: finished assigning resources for 05:08.0
+----------------------------------------------------------------------------
+------------------------------------
 
-So, I guess that tells you what to install.
+Could you please give me some feed back to resolve this issue.
 
-> > > 3) Bugreport: there should be written
-> > > "Linux kernel depends on DocBook stylesheets. You may download DocBook
-> > > stylesheets here-and-there." in README
-> > 
-> > Depends on distribution. We also don't tell for every distribution
-> > where to get gcc and how to install it.
-> 
-> Do you say that the place where DocBook stylesheet sources can be downloaded
-> depends on distribution I have? I have been looking at their sourceforge
-> project page but there is nothing like "download DocBook stylesheets".
-> There are DocBook-dsssl and a ton of other cryptic packages but none of them
-> is stylesheets.
-
-Dude, he was just trying to ask what distro you use, in order to help you 
-out. Of course how you install it changes based on the distro you're 
-using.
-
-> If there doesn't exist any distribution-idependent installation process
-> for "DocBook stylesheets", then "DocBook stylesheets" is not portable,
-> and transitively, "Linux Kernel" is not portable.
-
-Given than most Linux distros are open source themselves, and that the 
-documentation for many of them is open, perhaps we should all now take an 
-opportunity to reflect on how non-sensical this statement is. Did you also 
-consider that a bunch of this documentation is available pre-built on the 
-web? For example, a bunch of the kernel API man pages can be found at:
-
-http://www.stillhq.com/linux/mandocs/
-
-> Could you please
-> recommend me some other open-source free operating system where I don't
-> need to have a "distribution" to be even able to read it's enclosed
-> documentation? I have been using Linux Kernel for 7 years but can't anymore
-> because I am unable to read it's manual.
-
-FreeBSD? OpenBSD? NetBSD? Minix? I recommend you look through the list at 
-http://mirror.aarnet.edu.au if you really feel the urge to move on.
-
-Cheers,
-Mikal
-
--- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
-
+Regards,
+-Adarsh.

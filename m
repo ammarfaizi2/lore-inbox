@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273419AbRIRTZ5>; Tue, 18 Sep 2001 15:25:57 -0400
+	id <S273429AbRIRT3P>; Tue, 18 Sep 2001 15:29:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273418AbRIRTZp>; Tue, 18 Sep 2001 15:25:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29960 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273419AbRIRTZi>; Tue, 18 Sep 2001 15:25:38 -0400
-Subject: Re: ANN: syscalltrack version 0.60 released
-To: mulix@actcom.co.il (mulix)
-Date: Tue, 18 Sep 2001 20:30:46 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, choo@actcom.co.il
-In-Reply-To: <Pine.LNX.4.33.0109182157020.18755-100000@alhambra.merseine.nu> from "mulix" at Sep 18, 2001 10:11:02 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S273425AbRIRT25>; Tue, 18 Sep 2001 15:28:57 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:77 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S273424AbRIRT2m>; Tue, 18 Sep 2001 15:28:42 -0400
+Date: Tue, 18 Sep 2001 15:29:05 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010918152905.C8713@redhat.com>
+In-Reply-To: <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0109181122550.9711-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jQZy-0001aw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0109181122550.9711-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Sep 18, 2001 at 11:27:27AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The syscalltrack project is looking for developers, both for kernel
-> space and user space. If you want to join in on the fun, get in touch
-> with us on the 'syscalltrack-hackers' mailing list
-> (http://lists.sourceforge.net/lists/listinfo/syscalltrack-hackers).
+On Tue, Sep 18, 2001 at 11:27:27AM -0700, Linus Torvalds wrote:
+> I don't have that feeling. I'm happy with having partial merge with ugly
+> warts, if it means that you can get to the final stage _without_ having to
+> have all the problems fixed at one time.
+> 
+> So now we have two _smaller_ merges that will fix two other issues, and
+> remove all the horridness from the original merge.
 
-You might want to take a look at the lsm patches, they are intended to
-add a generic security frame work to Linux. Now its designed for doing
-heavy stuff like the NSA security module it ought to be enough to do
-tracking stuff, and to fit cleaning into that modular infrastructure
+A lot of us would be much happier if you just renamed 2.4.10pre11 to 2.5.1. =)
+Then we can backport things as they become stable.
+
+		-ben

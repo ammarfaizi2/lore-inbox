@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129627AbQLFWko>; Wed, 6 Dec 2000 17:40:44 -0500
+	id <S129406AbQLFW4C>; Wed, 6 Dec 2000 17:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQLFWke>; Wed, 6 Dec 2000 17:40:34 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2832 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129627AbQLFWkX>; Wed, 6 Dec 2000 17:40:23 -0500
-Message-ID: <3A2EB90A.E5B00B56@transmeta.com>
-Date: Wed, 06 Dec 2000 14:09:14 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-pre5 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129765AbQLFWzm>; Wed, 6 Dec 2000 17:55:42 -0500
+Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:32636 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S129406AbQLFWzj>; Wed, 6 Dec 2000 17:55:39 -0500
 MIME-Version: 1.0
-To: Chris Meadors <clubneon@hereintown.net>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        rgooch@atnf.csiro.au
-Subject: Re: Trashing ext2 with hdparm
-In-Reply-To: <Pine.LNX.4.21.0012061521210.83-100000@rc.priv.hereintown.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14894.48314.363938.770481@somanetworks.com>
+Date: Wed, 6 Dec 2000 17:24:58 -0500 (EST)
+From: "Georg Nikodym" <georgn@somanetworks.com>
+To: linux-kernel@vger.kernel.org
+CC: georgn@somanetworks.com, greg@wind.enjellic.com, sct@dcs.ed.ac.uk
+Subject: linux-2.4.0-test11 and sysklogd-1.3-31
+X-Mailer: VM 6.75 under 21.2  (beta37) "Pan" XEmacs Lucid
+Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Meadors wrote:
-> 
-> On 6 Dec 2000, H. Peter Anvin wrote:
-> 
-> > <HARP>
-> > Please don't use the path /var/shm... it was a really bad precedent
-> > set when someone suggested it.  Use /dev/shm.
-> > </HARP>
-> 
-> And I'll ask again...  If this is now the recommend mount point, can we
-> have devfs create this directory for us?
-> 
 
-Richard?
+sysklogd 1.3-31 no longer compiles using the latest headers in test11.
 
-	-hpa
+Strictly speaking this isn't a kernel bug...
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+sysklogd's ksym_mod.c includes <linux/module.h>
+
+In test11, <linux/module.h> added struct inter_module_entry.  Its
+first member is "struct list_head list;".  This necessitates the
+inclusion of <linux/list.h>.
+
+The trouble is that <linux/list.h> is almost completely protected by
+#ifdef __KERNEL__.
+
+sysklogd, obviously, doesn't compile with __KERNEL__ so the struct
+inter_module_entry declaration is impossible and the compilation
+fails.
+
+It's not clear to me who's code needs changing so I'm sending both to
+linux-kernel and to some of the people that have the misfortune of
+being listed on the sysklogd man page.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

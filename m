@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264679AbTFQMAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 08:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264680AbTFQMAY
+	id S264694AbTFQMDb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 08:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbTFQMDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 08:00:24 -0400
-Received: from nat-services-fw.net.nltree.nl ([212.178.7.102]:48807 "EHLO
-	nat-services-fw.net.nltree.nl") by vger.kernel.org with ESMTP
-	id S264679AbTFQMAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 08:00:16 -0400
-Date: Tue, 17 Jun 2003 14:10:54 +0200
-From: Collen <collen@hermanjordan.nl>
-Subject: trying to use a 2.4.18 module in 2.5.71
-To: linux-kernel@vger.kernel.org
-Message-id: <5.2.0.9.0.20030617140233.00b8bd70@pop.kennisnet.nl>
-MIME-version: 1.0
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Content-type: text/plain; format=flowed; charset=us-ascii
+	Tue, 17 Jun 2003 08:03:31 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:60677 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264694AbTFQMD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 08:03:29 -0400
+Date: Tue, 17 Jun 2003 16:16:39 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, evil@g-house.de
+Subject: Re: 2.5.71 compile error on alpha
+Message-ID: <20030617161639.A9777@jurassic.park.msu.ru>
+References: <3EEE4A14.4090505@g-house.de> <yw1xhe6pzkzy.fsf@zaphod.guide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <yw1xhe6pzkzy.fsf@zaphod.guide>; from mru@users.sourceforge.net on Tue, Jun 17, 2003 at 01:00:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-g'day just wandering if some one can help me out here...
+On Tue, Jun 17, 2003 at 01:00:01AM +0200, Måns Rullgård wrote:
+> Not looking at the code, I guess you could just remove the definition
+> of srmcons_ops from srmcons.c.
 
-i'm trying to use a module from a 2.4.18 kernel
-it's for my promise fasttrack s150 tx4 sata cart..
+No, use appended patch.
 
-now i updated to kernel 2.5.71 and installed the module init tools
-copyed the ft3xx.o from 2.4.18 to 2.5.71, made a new initrd
+Ivan.
 
-but it keeps bugging around, i get a "invalid module format"
-
-i built-in all the loadable module support options (incl. module version 
-support)
-
-but i can't get the module loaded..
-annyone anny idea ??
-
-Greetz.
-Collen Blijenberg'
-
-
-
+--- 2.5.72/arch/alpha/kernel/srmcons.c	Mon Jun 16 16:00:39 2003
++++ linux/arch/alpha/kernel/srmcons.c	Mon Jun 16 16:13:17 2003
+@@ -291,6 +291,7 @@ srmcons_init(void)
+ 		driver->type = TTY_DRIVER_TYPE_SYSTEM;
+ 		driver->subtype = SYSTEM_TYPE_SYSCONS;
+ 		driver->init_termios = tty_std_termios;
++		tty_set_operations(driver, &srmcons_ops);
+ 		err = tty_register_driver(driver);
+ 		if (err) {
+ 			put_tty_driver(driver);

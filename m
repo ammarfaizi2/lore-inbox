@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVCATew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVCATgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVCATew (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 14:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVCATew
+	id S262035AbVCATgn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 14:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVCATgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 14:34:52 -0500
-Received: from fire.osdl.org ([65.172.181.4]:57782 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262029AbVCATeb (ORCPT
+	Tue, 1 Mar 2005 14:36:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:18359 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262035AbVCATg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 14:34:31 -0500
-Message-ID: <4224C3E3.6020707@osdl.org>
-Date: Tue, 01 Mar 2005 11:34:59 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 1 Mar 2005 14:36:26 -0500
+Date: Tue, 1 Mar 2005 11:37:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+cc: Matthew Wilcox <matthew@wil.cx>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+In-Reply-To: <20050301192711.GE1220@austin.ibm.com>
+Message-ID: <Pine.LNX.4.58.0503011134470.25732@ppc970.osdl.org>
+References: <422428EC.3090905@jp.fujitsu.com> <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk>
+ <20050301192711.GE1220@austin.ibm.com>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ultralinux@vger.kernel.org
-Subject: Re: SPARC64: Modular floppy?
-References: <200503011926.j21JQ5dP007149@laptop11.inf.utfsm.cl>
-In-Reply-To: <200503011926.j21JQ5dP007149@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> "Randy.Dunlap" <rddunlap@osdl.org> said:
-> 
->>Horst von Brand wrote:
->>
->>>"David S. Miller" <davem@davemloft.net> said:
->>>
->>>>On Mon, 28 Feb 2005 17:07:43 -0300
->>>>Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> 
-> 
->>>[...]
-> 
-> 
->>>>>So, either the dependencies have to get fixed so floppy can't be modular
->>>>>for this architecture, or the relevant functions have to move from entry.S
->>>>>to the module.
-> 
-> 
->>>>I think the former is the best solution.  The assembler code really
->>>>needs to get at floppy.c symbols.
-> 
-> 
->>>>From my cursory look the stuff depending on the floppy.c symbols is just
->>>in the floppy-related code. Can't that be just included in floppy.c?
->>>(Could be quite a mess, but it looks like short stretches).
-> 
-> 
->>The code in entry.S looks self-contained (to me:), so moving it
->>somewhere else should just be a SMOP (mostly kbuild stuff)....
-> 
-> 
-> Right. But where? I was thinking under arch/sparc64/drivers/floppy.S or
-> such. And then there would need to be some make magic for it to get picked
-> up and included only for sparc64. Sounds doable, if somewhat messy.
-> 
-> But thinking a bit farther, if every arch and random driver starts playing
-> this kind of games, we'll soon be in a world of hurt. Not sure if it is
-> worth it.
 
-Then go with Dave's suggestion:  don't allow modular floppy
-in Kconfig.
 
-> Other solution was to #ifdef that stuff into floppy.c, but again at the
-> end of that way lies madness.
+On Tue, 1 Mar 2005, Linas Vepstas wrote:
 > 
-> I'll see what I come up with. Recomended reading on the whole kbuild stuff?
+> > > - Additionally adds special token - abstract "iocookie" structure
+> > >   to control/identifies/manage I/Os, by passing it to OS.
+> > >   Actual type of "iocookie" could be arch-specific. Device drivers
+> > >   could use the iocookie structure without knowing its detail.
+> > 
+> > Fine.
+> 
+> Do we really need a cookie?
 
-It's all in Documentation/kbuild/
+I think you do.
 
--- 
-~Randy
+That pair might have to disable interrupts (if there are any issues about
+concurrent accesses through a shared error bus). In that case, the cooke 
+might be the old "flags" value.
+
+> > But many drivers don't need to save/restore interrupts around IO accesses.
+> > I think defaulting these to disable and restore interrupts is a very bad idea.
+> > They should probably be no-ops in the generic case.
+> 
+> Yes, they should be no-ops. save/resotre interrupts would be a bad idea.
+
+But they may be part of that the architecture wants to do (imagine a 
+spinlock protecting a sub-segment of a bus - you need to disable 
+interrupts to avoid deadlocks).
+
+		Linus

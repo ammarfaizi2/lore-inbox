@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVBVUno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVBVUqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVBVUno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 15:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVBVUnn
+	id S261236AbVBVUqx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVBVUqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 15:43:43 -0500
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:32901 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261240AbVBVUnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 15:43:21 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [BUG: UML 2.6.11-rc4-bk-latest] sleeping function called from invalid context and segmentation fault
-Date: Tue, 22 Feb 2005 21:41:54 +0100
-User-Agent: KMail/1.7.2
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Jeff Dike <jdike@addtoit.com>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <1108381733.10703.5.camel@imp.csi.cam.ac.uk> <200502161935.43820.blaisorblade@yahoo.it> <1108740823.6713.28.camel@imp.csi.cam.ac.uk>
-In-Reply-To: <1108740823.6713.28.camel@imp.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 22 Feb 2005 15:46:52 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:38733 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261236AbVBVUqp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:46:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=H9tN6C4aOXCi6CLe+sWkJ1bFnaK/9bbdHzaT0xamlfZwZ+rlG3Ja+xnv5yZAyZY6vc13a7JdCZKIFyDo34V+slYk1FD0WFTqysuRLsXj0rlGY7VNbGTDZ2dl3duERkp7Jnt+TFMtY9nHn0NWfsjuddtiu+Co0LRmoTtL3E3sTEE=
+Message-ID: <93ca306705022212461f9e0d81@mail.gmail.com>
+Date: Tue, 22 Feb 2005 14:46:44 -0600
+From: Alex Adriaanse <alex.adriaanse@gmail.com>
+Reply-To: Alex Adriaanse <alex.adriaanse@gmail.com>
+To: "Marc A. Lehmann" <pcg@goof.com>, Andreas Steinmetz <ast@domdv.de>,
+       Alex Adriaanse <alex.adriaanse@gmail.com>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: Odd data corruption problem with LVM/ReiserFS
+In-Reply-To: <20050222194900.GB10968@schmorp.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502222141.54891.blaisorblade@yahoo.it>
+References: <93ca3067050220212518d94666@mail.gmail.com>
+	 <4219C811.5070906@domdv.de> <20050222190149.GB9590@schmorp.de>
+	 <421B8A69.8000903@domdv.de> <20050222194900.GB10968@schmorp.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 February 2005 16:33, Anton Altaparmakov wrote:
-> On Wed, 2005-02-16 at 19:35 +0100, Blaisorblade wrote:
-> > On Monday 14 February 2005 12:48, Anton Altaparmakov wrote:
-> > > Hi,
+On Tue, 22 Feb 2005 20:49:00 +0100, Marc A. Lehmann <pcg@goof.com> wrote:
+> > >A reboot fixes this for both ext3 and reiserfs (i.e. the error is gone).
 > > >
-> > > I get a few Debug messages of the form from UML:
-> > >
-> > > Debug: sleeping function called from invalid context at
-> > > include/asm/arch/semaphore.h:107
-> > > in_atomic():0, irqs_disabled():1
-> > > Call Trace:
-> > > 087d77b0:  [<0809aaa5>] __might_sleep+0x135/0x180
-> > > 087d77d8:  [<084d377f>] mcount+0xf/0x20
-> > > 087d77e0:  [<0807cc13>] uml_console_write+0x33/0x80
-> > >
-> > > Most are coming via uml_console_write.
 > >
-> > The problem is that the UML tty drivers use a semaphore instead of a
-> > spinlock for the locking, which also causes some other problems.
-> >
-> > The attached patch should fix this, but I've not yet made sure it is not
-> > deadlock-prone (I didn't hit any during some very limited testing).
-> >
-> > So it's not yet ready for 2.6.11.
->
-> Trying with the above patch in now only get two "sleeping function
-> called from invalid context" warnings during boot and none during
-> running.
-I'll look at whether I can produce them... if it's no problem, post their 
-traces anyway, please.
-> However I get a lot of those errors: 
->
-> arch/um/drivers/line.c:262: spin_lock(arch/um/drivers/line.c:085b5900)
-> already locked by arch/um/drivers/line.c/262
-Ok, I'll be looking into them ASAP (which infortunately means not very soon, 
-sorry).
+> > Well, it didn't fix it for me. The fs was trashed for good. The major
+> > question for me is now usability of md/dm for any purpose with 2.6.x.
+> > For me this is a showstopper for any kind of 2.6 production use.
+> 
+> Well, I do use reiserfs->aes-loop->lvm/dm->md5/raid5, and it never failed
+> for me, except once, and the error is likely to be outside reiserfs, and
+> possibly outside lvm.
 
-At a quick look, I see that line 262 is a "spin_lock" called by 
-line_write_interrupt. I used spin_lock_irqsave everywhere else... but 
-actually the interrupt must explicitly disable interrupts (I forgot) so, the 
-simple answer seems to be using spin_lock_irqsave() would fix it. I cannot 
-make a patch now.
-> Also both before and after the patch I see a lot of messages like:
->
-> kernel: line_write_room: tty2: no room left in buffer
-I've never seen them... which is your test case?
-Anyway, I'm not sure this is a needed warning: 
+Marc, what about you, were you using dm-snapshot when you experienced
+temporary corruption?
 
-in include/linux/tty_driver.h, the .write_room member must tell the available 
-space... it's reasonable that the TTY layer will call a flush_buffers 
-function. However, looking at stdio_console, I'm seeing that, in fact, there 
-is no flush_chars function(!!). I'll provide one ASAP.
-
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
-
-
+Alex

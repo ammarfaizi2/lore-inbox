@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265701AbRGFBp2>; Thu, 5 Jul 2001 21:45:28 -0400
+	id <S265747AbRGFBuI>; Thu, 5 Jul 2001 21:50:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265696AbRGFBpS>; Thu, 5 Jul 2001 21:45:18 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:58374 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264942AbRGFBpJ>;
-	Thu, 5 Jul 2001 21:45:09 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200107060145.f661j5v74941@saturn.cs.uml.edu>
-Subject: Re: [PATCH] more SAK stuff
-To: landley@webofficenow.com
-Date: Thu, 5 Jul 2001 21:45:04 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01070318005005.06999@localhost.localdomain> from "Rob Landley" at Jul 03, 2001 06:00:50 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265743AbRGFBt7>; Thu, 5 Jul 2001 21:49:59 -0400
+Received: from admin.cgocable.net ([24.226.1.21]:27784 "EHLO
+	admin.cgocable.net") by vger.kernel.org with ESMTP
+	id <S265747AbRGFBtt>; Thu, 5 Jul 2001 21:49:49 -0400
+Date: Thu, 5 Jul 2001 21:49:08 -0400
+From: Michael Gold <mgold@scs.carleton.ca>
+To: vojtech@suse.cz
+Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH] gamecon.c: Fix for SNES controllers
+Message-ID: <20010705214908.B1943@linux.box>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley writes:
 
-> Off the top of my head, fun things you can't do suid root:
-...
-> ps  (What the...?  Worked in Red Hat 7, but not in suse 7.1.
-> Huh?  "suid-to  apache ps ax" works fine, though...)
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The ps command used to require setuid root. People would set the
-bit by habit.
+In kernel 2.4.4, a change was made to gamecon.c that causes problems
+with Super Nintendo controllers. The directional pad no longer works
+correctly - only the up and left directions work. The following patch
+fixes the problem by reversing the change. It applies cleanly to
+kernels 2.4.4, 2.4.5, and 2.4.6.
 
-> I keep bumping into more of these all the time.  Often it's fun
-> little warnings "you shouldn't have the suid bit on this
-> executable", which is frustrating 'cause I haven't GOT the suid bit
-> on that executable, it inherited it from its parent process, which
-> DOES explicitly set the $PATH and blank most of the environment
-> variables and other fun stuff...)
+--- linux-2.4.4-orig/drivers/char/joystick/gamecon.c	Wed Apr 11 22:02:30 20=
+01
++++ linux-2.4.4/drivers/char/joystick/gamecon.c	Sat May 26 03:57:13 2001
+@@ -345,8 +345,8 @@
+ 			s =3D gc_status_bit[i];
+=20
+ 			if (s & (gc->pads[GC_NES] | gc->pads[GC_SNES])) {
+-				input_report_abs(dev + i, ABS_X, ! - !(s & data[6]) - !(s & data[7]));
+-				input_report_abs(dev + i, ABS_Y, ! - !(s & data[4]) - !(s & data[5]));
++				input_report_abs(dev + i, ABS_X, !!(s & data[7]) - !!(s & data[6]));
++				input_report_abs(dev + i, ABS_Y, !!(s & data[5]) - !!(s & data[4]));
+ 			}
+=20
+ 			if (s & gc->pads[GC_NES])
 
-Oh, cry me a river. You can set the RUID, EUID, SUID, and FUID
-in that same parent process or after you fork().
 
-Since you didn't set all the UID values, I have to wonder what
-else you forgot to do. Maybe you shouldn't be messing with
-setuid programming.
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjtFGRQACgkQ3Czq7jBypabXBACfWDbgpvadvGpFMneMfIZdyTZV
+g7kAoIelUQSMNuErvIFXEDRkcEcTlMeF
+=dpoH
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291775AbSCIMUf>; Sat, 9 Mar 2002 07:20:35 -0500
+	id <S292662AbSCIMia>; Sat, 9 Mar 2002 07:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292660AbSCIMUQ>; Sat, 9 Mar 2002 07:20:16 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:33541 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S291775AbSCIMUF>;
-	Sat, 9 Mar 2002 07:20:05 -0500
-Date: Sat, 9 Mar 2002 13:19:56 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-Id: <20020309131956.77ebf679.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S292664AbSCIMiW>; Sat, 9 Mar 2002 07:38:22 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:51894 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S292662AbSCIMiH>; Sat, 9 Mar 2002 07:38:07 -0500
+Message-Id: <5.1.0.14.2.20020309123520.04f62420@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 09 Mar 2002 12:38:31 +0000
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: bk://linux.bkbits.net/linux-2.5
+Cc: Russell King <rmk@arm.linux.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3C89E887.D8B9E6C1@mandrakesoft.com>
+In-Reply-To: <15497.26229.778087.419723@argo.ozlabs.ibm.com>
+ <Pine.LNX.4.44L.0203082333380.2181-100000@imladris.surriel.com>
+ <20020309081255.A26922@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+At 10:48 09/03/02, Jeff Garzik wrote:
+>Russell King wrote:
+> > On Fri, Mar 08, 2002 at 11:35:11PM -0300, Rik van Riel wrote:
+> > > For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
+> >
+> > Jeff also does this - http://gkernel.bkbits.net/linus-2.5
+> >
+> > Seems a little wasteful to have multiple trees of the same thing available
+> > from the same place.
+>
+>Rik thinks that a cron job will somehow notice Linus updates faster than
+>I do :)
 
-I just upgraded a host from 2.2.19 to 2.2.21-pre3 and discovered a problem with kernel nfs. Setup is this:
+Jeff, even you have to sleep from time to time while the cron job is a true 
+somnambulist. (-:
 
-knfs-server is 2.4.19-pre2
-knfs-client is 2.2.21-pre3
+And thanks a lot to both of you for providing us with more uptodate kernel 
+bk repositories!
 
-First mount some fs (mountpoint /backup). Then go and mount some other fs from the same server (mountpoint /mnt), do some i/o on the latter and umount it again. Now try to access /backup. You see:
-1) /backup (as a fs) vanished, you get a stale nfs handle.
-2) umount /backup; mount /backup does not work. client tells "permission denied". server tells "rpc.mountd: getfh failed: Operation not permitted"
+Anton
 
-Only solution: restart nfs-server (no reboot required), then everything works again.
-Same setup works with 2.2.19-client.
 
-Any hints?
-
-Regards,
-Stephan
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287369AbSACVru>; Thu, 3 Jan 2002 16:47:50 -0500
+	id <S285556AbSACVtA>; Thu, 3 Jan 2002 16:49:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287366AbSACVrl>; Thu, 3 Jan 2002 16:47:41 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:60643 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S287312AbSACVr3>;
-	Thu, 3 Jan 2002 16:47:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: swsnyder@home.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "APIC error on CPUx" - what does this mean?
-Date: Thu, 3 Jan 2002 13:47:24 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020103195551.BEHH23959.femail47.sdc1.sfba.home.com@there>
-In-Reply-To: <20020103195551.BEHH23959.femail47.sdc1.sfba.home.com@there>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16MFhs-00046N-00@phalynx>
+	id <S287359AbSACVsv>; Thu, 3 Jan 2002 16:48:51 -0500
+Received: from vena.lwn.net ([206.168.112.25]:27146 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S285556AbSACVsk>;
+	Thu, 3 Jan 2002 16:48:40 -0500
+Message-ID: <20020103214839.9953.qmail@eklektix.com>
+To: Michael Zhu <mylinuxk@yahoo.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The CURRENT macro 
+From: corbet@lwn.net (Jonathan Corbet)
+In-Reply-To: Your message of "Thu, 03 Jan 2002 16:34:55 EST."
+             <20020103213455.34699.qmail@web14911.mail.yahoo.com> 
+Date: Thu, 03 Jan 2002 14:48:39 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 3, 2002 11:55, Steve Snyder wrote:
-> I just noticed the following events in my system log:
->
->   Jan  3 14:03:39 mercury kernel: APIC error on CPU1: 00(02)
->   Jan  3 14:03:39 mercury kernel: APIC error on CPU0: 00(02)
->
-> Below I've listed the CPU/APIC-related parts of my system start-up.
+> In Alessandro Rubini's book Linux Device Driver(Second
+> Edition), Chatper 12
 
-I occasionaly get the same errors on my UP XP1800+ on a KT133A MB, except 
-they look like this:
-APIC error on CPU0: 08(02)
-APIC error on CPU0: 02(08)
+Alessandro and...um...some other guy...:)
 
-uname -a:
-Linux phalynx 2.4.17 #8 Wed Dec 26 20:41:16 PST 2001 i686 unknown
+> he said that "By accessing the
+> fields in the request structure, usually by way of
+> CURRENT" and "CURRENT is just a pointer into
+> blk_dev[MAJOR_NR].request_queue". I know CURRENT is
+> just a macro. Where can I find the definition of this
+> macro?
 
-/proc/interrupts:
-           CPU0
-  0:   66440674    IO-APIC-edge  timer
-  1:     378128    IO-APIC-edge  keyboard
-  2:          0          XT-PIC  cascade
-  8:          2    IO-APIC-edge  rtc
-  9:   13768184   IO-APIC-level  eth0
- 10:        131   IO-APIC-level  usb-uhci, usb-uhci
- 11:   22007511   IO-APIC-level  EMU10K1
- 12:   10497666    IO-APIC-edge  PS/2 Mouse
- 14:    3717339    IO-APIC-edge  ide0
- 15:      18254    IO-APIC-edge  ide1
-NMI:          0
-LOC:   66439861
-ERR:         45
-MIS:          0
+A little grepping in the source would give you the answer there.  It's in
+.../include/linux/blk.h.  
+
+> I just don't know how to get the struct request from
+> the request_queue(a request_queue_t struct). CURRENT
+> points to which field in the
+> blk_dev[MAJOR_NR].request_queue? Thank you very much.
+
+CURRENT is one way.  There's also functions like blkdev_entry_next_request
+(also described in that chapter) that will pull a request off the queue for
+you, if that's what you need.
+
+Note that all this stuff has changed quite a bit in 2.5.
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264561AbTLKJ1h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 04:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbTLKJ1g
+	id S264604AbTLKJar (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 04:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTLKJaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 04:27:36 -0500
-Received: from AGrenoble-101-1-4-17.w217-128.abo.wanadoo.fr ([217.128.202.17]:3213
-	"EHLO awak") by vger.kernel.org with ESMTP id S264561AbTLKJ1f convert rfc822-to-8bit
+	Thu, 11 Dec 2003 04:30:46 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:32693 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264604AbTLKJai
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 04:27:35 -0500
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Witukind <witukind@nsbm.kicks-ass.org>
-Cc: mru@kth.se, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031210210614.625ccfcc.witukind@nsbm.kicks-ass.org>
-References: <1070963757.869.86.camel@nomade>
-	 <Pine.LNX.4.44.0312091358210.21314-100000@gaia.cela.pl>
-	 <20031209183001.GA9496@kroah.com> <yw1xvfop257d.fsf@kth.se>
-	 <1071039765.1790.94.camel@nomade>
-	 <20031210210614.625ccfcc.witukind@nsbm.kicks-ass.org>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1071134837.1789.123.camel@nomade>
+	Thu, 11 Dec 2003 04:30:38 -0500
+Subject: Re: [2.6.0-test11] reiserfs io failures
+From: Vladimir Saveliev <vs@namesys.com>
+To: "Max Paynemax.." <payne@freemail.hu>
+Cc: linux-kernel@vger.kernel.org, lkml@kcore.org
+In-Reply-To: <freemail.20031110152024.4445@fm3.freemail.hu>
+References: <freemail.20031110152024.4445@fm3.freemail.hu>
+Content-Type: text/plain
+Message-Id: <1071135036.26354.49.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 10:27:18 +0100
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 11 Dec 2003 12:30:36 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 10/12/2003 à 21:06, Witukind a écrit :
-> On Wed, 10 Dec 2003 08:02:46 +0100
-> Xavier Bestel <xavier.bestel@free.fr> wrote:
-> > Come on ... the stock kernel from your distribution will do the
-> > modprobe for you when you access the floppy, I'm sure you're skilled
-> > enough to configure your own kernel to do the same.
-> > And if you don't want to recompile, just chmod +s modprobe - on your
-> > small machine which needs to save 60k, I bet you're the only user. Or
-> > use sudo.
-> > 
-> > 	Xav
+On Wed, 2003-12-10 at 17:20, Max Payne wrote:
+> Hi!
 > 
-> I was expecting this kind of reply. Like "if you have an older hardware you
-> can fuck off".
+> I've got exactly same message on my machines with vanilla
+> 2.6.0-test11 kernel. On my IBM notebook and my desktop. Is
+> this reiserfs bug?  reiserfsck --rebuild-tree /dev/hdaX
+> resolved the problem. But very distressing. Any idea?
+> 
 
-Wow ... how can you understand this in my text ? Because I'm guessing he
-is the only user on his machine ? This has nothing to do with small
-machines, but with system configuration: load on-demand may be done
-without devfs.
-Well, I wish do apologize to Måns if he thought I was ridiculing his
-hardware. Just take out the last sentence with "modprobe" if it bothers
-you.
+These messages indicate that reiserfs meta data block is corrupted. So,
+if access to a file requires passing through this node - the file is
+unavailable.
+Currently, we used to suppose that this kind of corruptions are caused
+by hardward faults. However, if one knew a way to encounter this problem
+on demand - we would try to find what is causing corruption
 
-	Xav
+> Thanks:
+> 
+> Max
+> 
+> | is_leaf: free space seems wrong: level=1, nr_items=41, 
+> free_space=65224 rdkey 
+> | vs-5150: search_by_key: invalid format found in block
+> 283191. Fsck?
+> | vs-13070: reiserfs_read_locked_inode: i/o failure occurred
+> trying to find stat data of [11 12795 0x0 SD]
+> | is_leaf: free space seems wrong: level=1, nr_items=41,
+> free_space=65224 rdkey 
+> | vs-5150: search_by_key: invalid format found in block
+> 283191. Fsck?
+> | vs-13070: reiserfs_read_locked_inode: i/o failure occurred
+> trying to find stat data of [11 12798 0x0 SD]
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

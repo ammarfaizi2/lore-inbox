@@ -1,33 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUHIEEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUHIEGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUHIEEa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 00:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUHIEEa
+	id S264833AbUHIEGz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 00:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUHIEGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 00:04:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34987 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264936AbUHIEE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 00:04:29 -0400
-Date: Sun, 8 Aug 2004 20:55:15 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: kconfig.debug patch updated
-Message-Id: <20040808205515.06b00d5a.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 9 Aug 2004 00:06:55 -0400
+Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:18072 "EHLO
+	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264833AbUHIEGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 00:06:49 -0400
+Message-ID: <cone.1092024397.462058.26660.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Cc: ck@vds.kolivas.org
+Subject: [PATCH] Staircase scheduler for 2.6.8-rc3-mm2
+Date: Mon, 09 Aug 2004 14:06:37 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've resynced the latest version of my staircase scheduler to suit 
+2.6.8-rc3-mm2.
 
-FYI, I've updated the Kconfig.debug patch for 2.6.8-rc3-bk3.
-It's available at
+There have been a number of changes made to the scheduler to address 
+all the concerns raised about it when it was included in 2.6.8-rc2-mm2.
 
-  http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268-rc3bk3.patch
+Here is a link to a patch that includes the nmi fix and adds staircase v7.I
 
---
-~Randy
+http://ck.kolivas.org/patches/2.6/2.6.8/2.6.8-rc3-mm2/2.6.8-rc3-mm2-fixes-an 
+d-staircase7.I.bz2
+
+Cheers,
+Con
+

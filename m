@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319447AbSH2WUL>; Thu, 29 Aug 2002 18:20:11 -0400
+	id <S319392AbSH2WVT>; Thu, 29 Aug 2002 18:21:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319394AbSH2Vwy>; Thu, 29 Aug 2002 17:52:54 -0400
-Received: from smtpout.mac.com ([204.179.120.88]:17401 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319391AbSH2Vwj>;
-	Thu, 29 Aug 2002 17:52:39 -0400
-Message-Id: <200208292157.g7TLv1KN026489@smtp-relay03.mac.com>
+	id <S319435AbSH2WUZ>; Thu, 29 Aug 2002 18:20:25 -0400
+Received: from smtpout.mac.com ([204.179.120.97]:64472 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S319392AbSH2VxD>;
+	Thu, 29 Aug 2002 17:53:03 -0400
+Message-Id: <200208292157.g7TLvQ72021684@smtp-relay04-en1.mac.com>
 Date: Thu, 29 Aug 2002 21:56:27 +0200
 Mime-Version: 1.0 (Apple Message framework v482)
 Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 24/41 sound/oss/sys_timer.c - convert cli to spinlocks
+Subject: [PATCH] 27/41 sound/oss/opl3sa2.c - convert cli to spinlocks
 From: pwaechtler@mac.com
 To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
@@ -19,57 +19,52 @@ X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/sys_timer.c	Sat Apr 20 18:25:21 2002
-+++ linux-2.5-cli-oss/sound/oss/sys_timer.c	Thu Aug 15 14:30:00 2002
-@@ -15,6 +15,7 @@
-  * Thomas Sailer   : ioctl code reworked (vmalloc/vfree removed)
-  * Andrew Veliath  : adapted tmr2ticks from level 1 sequencer (avoid overflow)
-  */
-+#include <linux/spinlock.h>
- #include "sound_config.h"
+--- vanilla-2.5.32/sound/oss/opl3sa2.c	Sat Apr 20 18:25:21 2002
++++ linux-2.5-cli-oss/sound/oss/opl3sa2.c	Tue Aug 13 15:37:21 2002
+@@ -149,6 +149,8 @@
+ static struct address_info cfg_mss[OPL3SA2_CARDS_MAX];
+ static struct address_info cfg_mpu[OPL3SA2_CARDS_MAX];
  
- static volatile int opened = 0, tmr_running = 0;
-@@ -26,7 +27,7 @@
- static unsigned long prev_event_time;
- 
- static void     poll_def_tmr(unsigned long dummy);
--
-+static spinlock_t lock=SPIN_LOCK_UNLOCKED;
- 
- static struct timer_list def_tmr =
- {function: poll_def_tmr};
-@@ -62,6 +63,7 @@
- 
- 		  if (tmr_running)
- 		    {
-+				spin_lock(&lock);
- 			    tmr_ctr++;
- 			    curr_ticks = ticks_offs + tmr2ticks(tmr_ctr);
- 
-@@ -70,6 +72,7 @@
- 				      next_event_time = (unsigned long) -1;
- 				      sequencer_timer(0);
- 			      }
-+				spin_unlock(&lock);
- 		    }
- 	  }
- }
-@@ -79,15 +82,14 @@
- {
- 	unsigned long   flags;
++static spinlock_t	lock=SPIN_LOCK_UNLOCKED;
++
+ /* Our parameters */
+ static int __initdata io	= -1;
+ static int __initdata mss_io	= -1;
+@@ -927,8 +929,7 @@
+ 	if (!pdev)
+ 		return -EINVAL;
  
 -	save_flags(flags);
 -	cli();
 +	spin_lock_irqsave(&lock,flags);
- 	tmr_offs = 0;
- 	ticks_offs = 0;
- 	tmr_ctr = 0;
- 	next_event_time = (unsigned long) -1;
- 	prev_event_time = 0;
- 	curr_ticks = 0;
+ 
+ 	p = (opl3sa2_mixerdata *) pdev->data;
+ 	p->in_suspend = 1;
+@@ -951,7 +952,7 @@
+ 	opl3sa2_read(p->cfg_port, OPL3SA2_PM, &p->reg);
+ 	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg | pm_mode);
+ 
 -	restore_flags(flags);
 +	spin_unlock_irqrestore(&lock,flags);
+ 	return 0;
  }
  
- static int
+@@ -964,15 +965,14 @@
+ 		return -EINVAL;
+ 
+ 	p = (opl3sa2_mixerdata *) pdev->data;
+-	save_flags(flags);
+-	cli();
++	spin_lock_irqsave(&lock,flags);	
+ 
+ 	/* I don't think this is necessary */
+ 	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg);
+ 	opl3sa2_mixer_restore(p, p->card);
+ 	p->in_suspend = 0;
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&lock,flags);
+ 	return 0;
+ }
+ 
 

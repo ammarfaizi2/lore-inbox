@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbTI3Rus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 13:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTI3Rus
+	id S261659AbTI3RyP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 13:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTI3RyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 13:50:48 -0400
-Received: from law11-f109.law11.hotmail.com ([64.4.17.109]:35084 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261200AbTI3Ruq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 13:50:46 -0400
-X-Originating-IP: [220.224.20.124]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: diegocg@teleline.es
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't X be elemenated?
-Date: Tue, 30 Sep 2003 23:20:44 +0530
+	Tue, 30 Sep 2003 13:54:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:38043 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261659AbTI3RyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 13:54:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Schwarz <usenet.2117@andreas-s.net>
+Subject: Re: ERR in /proc/interrupts
+Date: Tue, 30 Sep 2003 17:54:07 +0000 (UTC)
+Message-ID: <slrnbnjgqc.3qq.usenet.2117@home.andreas-s.net>
+References: <slrnbnijq7.41m.usenet.2117@home.andreas-s.net> <3F795816.7050805@g-house.de> <slrnbnin20.41m.usenet.2117@home.andreas-s.net>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law11-F109mjl6uvoIt00006d23@hotmail.com>
-X-OriginalArrivalTime: 30 Sep 2003 17:50:45.0121 (UTC) FILETIME=[5F9ABF10:01C3877B]
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what about the rest?
-
-
->From: Diego Calleja García <diegocg@teleline.es>
->To: "kartikey bhatt" <kartik_me@hotmail.com>
->Subject: Re: Can't X be elemenated?
->Date: Tue, 30 Sep 2003 18:47:19 +0200
+Andreas Schwarz wrote:
+> Christian wrote:
+>> Andreas Schwarz wrote:
+>>> I get a very high ERR count in /proc/interrupts. If I move my USB mouse
+>>> the number increases.
+>>> 
+>>> What does ERR mean? Nothing good, I suppose?
+>>> 
+>>
+>> ../Documentation/filesystems/proc.txt says:
+>>
+>> ERR is incremented in the case of errors in the IO-APIC bus (the bus 
+>> that connects the CPUs in a SMP system. This means that an error has 
+>> been detected, the IO-APIC automatically retry the transmission, so it 
+>> should not be a big problem, but you should read the SMP-FAQ.
 >
->El Tue, 30 Sep 2003 13:39:22 +0530 "kartikey bhatt" <kartik_me@hotmail.com> 
->escribió:
->
-> > your graphics card (hw) is resource that needs to be managed by OS.
->
->It is managed by the OS (the voodoo DRI driver, which lives in the kernel)
+> I don't have a SMP kernel. I compiled the kernel with IO APIC support,
+> but disabled it later with the noapic kernel boot option.
 
-_________________________________________________________________
-Reconnect with old pals. Relive past joys. http://www.batchmates.com/msn.asp 
-All it takes is a click!
+I recompiled the kernel with both APIC options disabled. Result: ERR is
+0, and my USB mouse is no longer choppy.
+
+APIC = evil (at least on my K7S5A Pro)!
+
+-- 
+AVR-Tutorial, über 350 Links
+Forum für AVRGCC und MSPGCC
+-> http://www.mikrocontroller.net
 

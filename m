@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271637AbRHUKqe>; Tue, 21 Aug 2001 06:46:34 -0400
+	id <S271311AbRHUK6q>; Tue, 21 Aug 2001 06:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271388AbRHUKqY>; Tue, 21 Aug 2001 06:46:24 -0400
-Received: from Morgoth.esiway.net ([193.194.16.157]:37392 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S271311AbRHUKqQ>; Tue, 21 Aug 2001 06:46:16 -0400
-Date: Tue, 21 Aug 2001 12:46:28 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-cc: David Wagner <daw@mozart.cs.berkeley.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <605512235.998386789@[169.254.45.213]>
-Message-ID: <Pine.LNX.4.33.0108211212570.20625-100000@Megathlon.ESI>
+	id <S271388AbRHUK6h>; Tue, 21 Aug 2001 06:58:37 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:57258 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S271311AbRHUK6Q>; Tue, 21 Aug 2001 06:58:16 -0400
+Date: Tue, 21 Aug 2001 11:59:53 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Christoph Rohland <cr@sap.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Erik Andersen <andersee@debian.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] sysinfo compatibility
+In-Reply-To: <m3lmkd6ds0.fsf@linux.local>
+Message-ID: <Pine.LNX.4.21.0108211137340.1320-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001, Alex Bligh - linux-kernel wrote:
+On 21 Aug 2001, Christoph Rohland wrote:
+> 
+> sysinfo does use a new mem_unit field if ram+swap > MAX_ULONG. That
+> breaks 2.2 compatibility for a lot machines.
+> 
+> I think it is more resonable to use the mem_unit field only if one of
+> ram or swap is bigger than MAX_ULONG. (And 2.2 was only broken in that
+> case)
 
-> So writers of ssh, ssl etc. all go use /dev/random, which is not
-> 'theoretically vulnerable to a cryptographic attack'. This means,
-> in practice, that they are dysfunctional on some headless systems
-> without Robert's patch. Robert's patch may make them slightly
-> less 'perfect', but not as imperfect as using /dev/urandom instead.
-> Using /dev/urandom has another problem: Do we expect all applications
-> now to have a compile option 'Are you using this on a headless
-> system in which case you might well want to use /dev/urandom
-> instead of /dev/random?'. By putting a config option in the kernel,
-> this can be set ONCE and only degrade behaviour to the minimal
-> amount possible.
+It's arguable.  When I went there a few months back, I was a little
+surprised by the way it adds ram+swap (it mistakenly added in more
+before) to make that decision; but concluded it was helping callers
+who might well go on to add ram+swap, and felt no overriding reason
+to change that.  But you can certainly argue that's inappropriate
+for the kernel to do, that it should only guard the validity of
+the actual numbers it returns to the caller.  No strong feelings.
 
-A little question: I used to believe that crypto software requires
-strong random source to generate key pairs, but this requirement in
-not true for session keys.  You don't usually generate a key pair on
-a remote system, of course, so that's not a big issue. On low-entropy
-systems (headless servers) is /dev/urandom strong enough to generate
-session keys? I guess the little entropy collected by the system is
-enough to feed the crypto secure PRNG for /dev/urandom, is it correct?
+> The appended patch implements that (and makes the logic a little bit
+> easier)
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+Alan, please don't apply.  The patch made the logic a lot easier,
+but sadly wrong: try what happens to totalswap 0x00120000 with
+mem_unit 0x1000 - wrong decision since 0x20000000 > 0x00120000.
+
+Hugh
 

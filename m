@@ -1,134 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbTIYERM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 00:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTIYERM
+	id S261687AbTIYETo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 00:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbTIYETo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 00:17:12 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:50308 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S261678AbTIYERC (ORCPT
+	Thu, 25 Sep 2003 00:19:44 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:2185 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261687AbTIYETm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 00:17:02 -0400
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
-Subject: Oops in vanilla 2.4.22 serial-usb driver
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 24 Sep 2003 21:17:00 -0700
-Message-ID: <87llsdy01v.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 25 Sep 2003 00:19:42 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16242.27867.715648.392875@napali.hpl.hp.com>
+Date: Wed, 24 Sep 2003 21:19:39 -0700
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: akpm@zip.com.au, neilb@cse.unsw.edu.au, braam@clusterfs.com,
+       davem@redhat.com, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       David Mosberger-Tang <davidm@HPL.HP.COM>, tridge@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl-controlled number of groups.
+In-Reply-To: <20030925035943.AE41C2C04B@lists.samba.org>
+References: <20030925035943.AE41C2C04B@lists.samba.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@HPL.HP.COM
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This happened at the end of a Palm sync.
-The machine went on, but USB is not irresponsive to USB attach/detach
-since khubd is dead. The USB low-level driver is UHCI_ALT, compiled
-in-kernel.
+>From the ia64-side, it looks mostly fine to me.  Some minor things:
 
-BTW, is there any way to restart khubd without rebooting?
+ - Typo in first sentence of patch comment (can be -> to be ?)
+ - If I'm reading the patch right, there will be identical sys32_getgroups16()
+   definitions in .../ia32/sys_ia32.c and and compat_linux.c; did you mean
+   to name the latter compat_getgroups16()?  (ditto for setgroups16 and s390
+   and sparc64, i think)
+ - I suspect removing NGROUPS from param.h will break glibc and/or user-level
+   apps.  param.h is one of those kernel files that are directly exposed
+   to user-level; may want to keep NGROUPS inside an #ifndef __KERNEL__.
 
-Phil.
+	--david
 
-Kernel info:
+>>>>> On Thu, 25 Sep 2003 13:21:01 +1000, Rusty Russell <rusty@rustcorp.com.au> said:
 
-vanilla 2.4.22 + vfs-lock + lvm-1.0.7 + kmsgdump 0.4.4
-Linux ceramic 2.4.22 #1 SMP Tue Sep 16 18:14:44 PDT 2003 i686 unknown
+  Rusty> We have a client (using SAMBA) who has people in 190 groups.  Since NT
+  Rusty> has hierarchical groups, this is not all that rare.
 
-Oops:
+  Rusty> What do people think of this patch?
 
-Unable to handle kernel NULL pointer dereference at virtual address 000009a4
-ed341d05
-*pde = 00000000
-Oops: 0002
-CPU:    1
-EIP:    0010:[<ed341d05>]    Tainted: P 
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: dae4bc90   ecx: 00000046   edx: 00000001
-esi: 00000002   edi: dae4bc00   ebp: 00000000   esp: e7d1df48
-ds: 0018   es: 0018   ss: 0018
-Process khubd (pid: 10, stackpage=e7d1d000)
-Stack: ed342e20 d16591e0 ed342e40 c01f2fd0 ce5eac00 dae4bc00 00000100 00000002 
-       e7d2b000 00000001 00000000 ce5eac00 c01f539e e7d2b114 00000001 00000002 
-       e7d2b000 e7d1f8a0 00000001 00000001 0000000a c01f565d e7d1f8a0 00000001 
-Call Trace:    [<ed342e20>] [<ed342e40>] [<c01f2fd0>] [<c01f539e>] [<c01f565d>]
-  [<c01f584b>] [<c0105a54>]
-Code: c7 80 a4 09 00 00 00 00 00 00 8d 4b 5c f0 ff 43 5c 0f 8e ae 
+  Rusty> Name: Dynamic Allocation of Groups Array When Required: With Refcounting
+  Rusty> Author: Rusty Russell
+  Rusty> Status: Tested on 2.6.0-test5-bk5
+  Rusty> Depends: Misc/qemu-page-offset.patch.gz
 
+  Rusty> D: This patch allows the maximum number of groups can be varied using
+  Rusty> D: sysctl.  To do this, we use a separate group allocation if >
+  Rusty> D: NGROUPS_INTERNAL, which we reference count (sharing being
+  Rusty> D: v. v. common).
+  Rusty> D: 
+  Rusty> D: Changes:
+  Rusty> D: 1) Remove the NGROUPS define from archs.
+  Rusty> D: 2) Fixup the few places which declare [NGROUPS] arrays on the stack.
+  Rusty> D: 3) The ia64, s390 and sparc64 ports have their own setgroups/getgroups
+  Rusty> D:    implementations: unify them on the ia64 one, which calls the core
+  Rusty> D:    functions.
+  Rusty> D: 4) Change the task_struct to have an [NGROUPS_INTERNAL] array and
+  Rusty> D:    a pointer (not convinced this is worth it at all, might skip it
+  Rusty> D:    and always use external).
+  Rusty> D: 5) Use a reference counted external array, fix up fork() to deal.
+  Rusty> D: 6) Introduce max_groups and use it instead of NGROUPS.
+  Rusty> D: 7) Add a sysctl to vary max_groups.
+  Rusty> D: 
+  Rusty> D: This patch scars nfs: artificially restrict the groups there to 
+  Rusty> D: SVC_CRED_NGROUPS (32), which is probably wrong, but won't break if
+  Rusty> D: they don't change the default.
+  Rusty> D: 
+  Rusty> D: This patch breaks intermezzo: I'm not sure how they want to deal
+  Rusty> D: with it.
 
->>EIP; ed341d05 <[usbserial]usb_serial_disconnect+6d/1ec>   <=====
-
->>ebx; dae4bc90 <_end+1aae7f44/284a02b4>
->>edi; dae4bc00 <_end+1aae7eb4/284a02b4>
->>esp; e7d1df48 <_end+279ba1fc/284a02b4>
-
-Trace; ed342e20 <[usbserial]usb_serial_driver+0/0>
-Trace; ed342e40 <[usbserial].data.start+20/3c>
-Trace; c01f2fd0 <usb_disconnect+88/128>
-Trace; c01f539e <usb_hub_port_connect_change+4a/20c>
-Trace; c01f565d <usb_hub_events+fd/29c>
-Trace; c01f584b <usb_hub_thread+4f/f4>
-Trace; c0105a54 <arch_kernel_thread+28/38>
-
-Code;  ed341d05 <[usbserial]usb_serial_disconnect+6d/1ec>
-00000000 <_EIP>:
-Code;  ed341d05 <[usbserial]usb_serial_disconnect+6d/1ec>   <=====
-   0:   c7 80 a4 09 00 00 00      movl   $0x0,0x9a4(%eax)   <=====
-Code;  ed341d0c <[usbserial]usb_serial_disconnect+74/1ec>
-   7:   00 00 00 
-Code;  ed341d0f <[usbserial]usb_serial_disconnect+77/1ec>
-   a:   8d 4b 5c                  lea    0x5c(%ebx),%ecx
-Code;  ed341d12 <[usbserial]usb_serial_disconnect+7a/1ec>
-   d:   f0 ff 43 5c               lock incl 0x5c(%ebx)
-Code;  ed341d16 <[usbserial]usb_serial_disconnect+7e/1ec>
-  11:   0f 8e ae 00 00 00         jle    c5 <_EIP+0xc5> ed341dca <[usbserial]usb_serial_disconnect+132/1ec>
-
-Module list:
-
-nfsd                   67264  12
-visor                  10624   0
-usbserial              16224   0 [visor]
-microcode               3744   0 (autoclean)
-mousedev                3904   1
-lvm-mod                59680   9
-quota_v2                6376   2
-nfs                    69372   5
-lockd                  47648   1 [nfsd nfs]
-sunrpc                 65396   1 [nfsd nfs lockd]
-vfat                    9308   0 (unused)
-msdos                   4828   0
-fat                    29944   0 [vfat msdos]
-isofs                  17408   0 (unused)
-udf                    79392   0 (unused)
-eeprom                  3520   0 (unused)
-mtp008                  8064   0 (unused)
-i2c-proc                5952   0 [eeprom mtp008]
-i2c-viapro              3848   0 (unused)
-i2c-core               12192   0 [eeprom mtp008 i2c-proc i2c-viapro]
-syncfb                 12098   0 (unused)
-matroxfb_base          19040  63
-matroxfb_DAC1064        5312   0 [matroxfb_base]
-matroxfb_accel          7264   0 [matroxfb_base matroxfb_DAC1064]
-matroxfb_misc          14528   0 [matroxfb_base matroxfb_DAC1064 matroxfb_accel]fbcon-cfb24             4192   0 [matroxfb_accel]
-fbcon-cfb8              3264   0 [matroxfb_accel]
-fbcon-cfb32             3616   0 [matroxfb_accel]
-fbcon-cfb16             3904   0 [matroxfb_accel]
-mga_vid                 8256   0
-mga                    98576   1
-agpgart                17696   3
-emu10k1                56512   2
-sound                  52940   0 [emu10k1]
-ac97_codec             11648   0 [emu10k1]
-soundcore               3460   7 [emu10k1 sound]
-apm                     9504   0
-softdog                 1764   1
-loop                    8624   0
-floppy                 47072   0
-sg                     25092   0 (unused)
-sr_mod                 11896   0
-cdrom                  26976   0 [sr_mod]
-st                     27344   0
-3c59x                  25864   1
-af_packet              13096   0 (unused)

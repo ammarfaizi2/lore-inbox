@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318487AbSGZUyL>; Fri, 26 Jul 2002 16:54:11 -0400
+	id <S318497AbSGZVId>; Fri, 26 Jul 2002 17:08:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318489AbSGZUyL>; Fri, 26 Jul 2002 16:54:11 -0400
-Received: from dns1.arrancar.com ([209.92.187.33]:5524 "EHLO core.arrancar.com")
-	by vger.kernel.org with ESMTP id <S318487AbSGZUyL>;
-	Fri, 26 Jul 2002 16:54:11 -0400
-Subject: Re: Funding GPL projects or funding the GPL?
-From: Federico Ferreres <fferreres@ojf.com>
-To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207261558430.30504-100000@alumno.inacap.cl>
-References: <Pine.LNX.4.44.0207261558430.30504-100000@alumno.inacap.cl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 26 Jul 2002 17:53:41 -0300
-Message-Id: <1027716828.1301.26.camel@fede>
+	id <S318498AbSGZVId>; Fri, 26 Jul 2002 17:08:33 -0400
+Received: from [210.111.56.70] ([210.111.56.70]:33039 "HELO mail.csdot.com")
+	by vger.kernel.org with SMTP id <S318497AbSGZVId>;
+	Fri, 26 Jul 2002 17:08:33 -0400
+Message-ID: <B0001142388@mail.csdot.com>
+Date: Fri, 26 Jul 2002 23:09:42 +0200
+From: moli@yahoo.com
+X-Priority: 3
+To: linux-kernel@vger.kernel.org
+Subject: Join the best program on the net
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 17:07, Robinson Maureira Castillo wrote:
-> On Fri, 26 Jul 2002, Cort Dougan wrote:
-> 
-> > The problem of not having enough resources to achieve a given goal has
-> > plagued mankind for years.  Open-source, GPL or magic dust are not going
-> > to solve that problem.
-> 
-> I Agree.
-> 
-> But I don't think that the kernel should adopt this new license, what stop 
-> some developers to fork another tree under the GPL?
+  Maybe you are interested in home based income opportunity. There are no special skills or experience required. We will give you all the training and personal support to ensure your success.
+But first of all, you have to join for FREE through my web page:
 
-Nothing is preventing them, and that's a good thing. As at is now,
-everyone can fork a kernel. And everybody is inteligent enough to know
-which one to pick.
+http://members.lycos.co.uk/myjob/
 
-If they want to switch the license to GPL, they have to start with a 1
-year old source or stick to the fGPL.
+On this page you have a link to translate to any language you want if it is easier for you, just click on <<TRANSLATE THIS PAGE>>.
+When you submit your application, I'll contact you and give you some free software.
+When you join, you have no obligations but you can buy from our mall, there you can find over 100 well known stores, and get a discount in them.
+Also you can start your own online business but I will tell you all about that when you become a member of our team.
+Believe me that you wouldn't regret it if you join.
 
-Now, It may be true that some projects should not be fGPLd or have
-exceptions, for one reason or another. It's up to the developers to
-decide what's best for them.
+Best regards.
 
-> IMHO, kernel should stay free...
+Note: You don't need to request for removal.
+This is a one time email.
+Your email address will be automatically de-activated in our list if you
+don't reply in this mail.
 
-Free as in no money to the developers? It isn't really free. You need
-Internet access to download the kernel (or to buy a CD), a computer and
-electricity among other things. And the developers need to eat, to have
-bandwith donate, hardware donated, etc.
-
-Federico
-
-> Best regards
-> -- 
-> Robinson Maureira Castillo
-> Asesor DAI
-> INACAP
-> 
-
-
+The best opportunity, because it 
+attracts the best people. 
+Save money, make money! 
+http://members.lycos.co.uk/myjob/
+Maja V.

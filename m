@@ -1,106 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135523AbRALGVO>; Fri, 12 Jan 2001 01:21:14 -0500
+	id <S129183AbRALG2E>; Fri, 12 Jan 2001 01:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135521AbRALGVE>; Fri, 12 Jan 2001 01:21:04 -0500
-Received: from d83b5259.dsl.flashcom.net ([216.59.82.89]:61322 "EHLO
-	home.lameter.com") by vger.kernel.org with ESMTP id <S132941AbRALGU6>;
-	Fri, 12 Jan 2001 01:20:58 -0500
-Date: Thu, 11 Jan 2001 22:20:56 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-To: khttpd-users@zgp.org
-cc: linux-kernel@vger.kernel.org
-Subject: khttpd beaten by boa
-In-Reply-To: <Pine.LNX.4.21.0101071655090.1110-100000@home.lameter.com>
-Message-ID: <Pine.LNX.4.21.0101112214040.22231-100000@home.lameter.com>
+	id <S129226AbRALG1y>; Fri, 12 Jan 2001 01:27:54 -0500
+Received: from austin.jhcloos.com ([206.224.83.202]:41738 "HELO
+	austin.jhcloos.com") by vger.kernel.org with SMTP
+	id <S129183AbRALG1r>; Fri, 12 Jan 2001 01:27:47 -0500
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: named streams, extended attributes, and posix
+In-Reply-To: <3A5E10F5.716F83B7@holly-springs.nc.us>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <3A5E10F5.716F83B7@holly-springs.nc.us>
+Date: 12 Jan 2001 00:27:46 -0600
+Message-ID: <m3snmpgu8t.fsf@austin.jhcloos.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got into a bragging game whose webserver is the fastest with Jim Nelson
-one of the authors of the boa webserver. We finally settled on the Zeus
-test to decide the battle.
+Michael> Please read and comment! :)
 
-First boa won hands down because it supports persistant connections. Boa
-on port 6000. Khttpd on port 80:
- 
-clameter@melchi:~$ ./zb localhost /index.html -k -c 215 -n 20000 -p 6000
- 
----
-Server:                 Boa/0.94.8.3
-Doucment Length:        1666
-Concurency Level:       215
-Time taken for tests:   33.865 seconds
-Complete requests:      20000
-Failed requests:        0
-Keep-Alive requests:    20001
-Bytes transfered:       37882109
-HTML transfered:        33321666
-Requests per seconds:   590.58
-Transfer rate:          1118.62 kb/s
- 
-Connnection Times (ms)
-           min   avg   max
-Connect:     0     2   346
-Total:     258   360   485
----
+There should be some discussion on what to do about filenames which
+contain colons in such a setup.  Moving a file w/ a colon from a fs
+which does not support named streams to one which does should DTRT;
+exactly what TRT is should be discussed.
 
-clameter@melchi:~$ ./zb localhost /index.html -k -c 215 -n 20000
- 
----
-Server:                 kHTTPd/0.1.6
-Doucment Length:        1666
-Concurency Level:       215
-Time taken for tests:   101.735 seconds
-Complete requests:      20000
-Failed requests:        0
-Keep-Alive requests:    0
-Bytes transfered:       37096378
-HTML transfered:        33643204
-Requests per seconds:   196.59
-Transfer rate:          364.64 kb/s
- 
-Connnection Times (ms)
-           min   avg   max
-Connect:    36   438  1084
-Total:     394  1070  2009
----
-
-
-Then we decided to switch persistant connection off... But boa still wins.
-
-clameter@melchi:~$ ./zb localhost /index.html -c 215 -n 20000 -p 6000
- 
----
-Server:                 Boa/0.94.8.3
-Doucment Length:        1666
-Concurency Level:       215
-Time taken for tests:   88.040 seconds
-Complete requests:      20000
-Failed requests:        0
-Bytes transfered:       37352000
-HTML transfered:        33528250
-Requests per seconds:   227.17
-Transfer rate:          424.26 kb/s
- 
-Connnection Times (ms)
-           min   avg   max
-Connect:     1   305  3417
-Total:     458   932  4232
----
-
-This shows the following problems with khttpd:
-
-1. Connect times are on average longer than boa. Why???
-
-2. Transfers also take longer,
-
-
-What is wrong here? I would expect transferates of a 3-4 megabytes over a
-localhost interface. The file is certainly in some kind of cache.
- 
-
+-JimC
+-- 
+James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
+<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

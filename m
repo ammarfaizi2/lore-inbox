@@ -1,169 +1,246 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbTJBVL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 17:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTJBVL4
+	id S263494AbTJBVWs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 17:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTJBVWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 17:11:56 -0400
-Received: from karpfen.mathe.tu-freiberg.de ([139.20.24.195]:53901 "EHLO
-	karpfen.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id S263491AbTJBVLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 17:11:52 -0400
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: "Nikolay Nikolov" <ndnikolov@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test6 alsa sound bug
-Date: Thu, 2 Oct 2003 23:18:37 +0200
-User-Agent: KMail/1.5.3
-References: <BAY7-F67hOY4l6Etx5300009dc0@hotmail.com>
-In-Reply-To: <BAY7-F67hOY4l6Etx5300009dc0@hotmail.com>
+	Thu, 2 Oct 2003 17:22:48 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:1249 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263494AbTJBVWn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 17:22:43 -0400
+Message-ID: <3F7C967F.A06A512E@us.ibm.com>
+Date: Thu, 02 Oct 2003 14:19:59 -0700
+From: Jim Keniston <jkenisto@us.ibm.com>
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310022318.37159.dreher@math.tu-freiberg.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: LKML <linux-kernel@vger.kernel.org>, jkenisto <jkenisto@us.ibm.com>
+Subject: [PATCH] Net device error logging
+Content-Type: multipart/mixed;
+ boundary="------------01B433A7898C00D9C9065A8C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Montag, 29. September 2003 16:30 wrote Nikolay Nikolov:
-> I have i810 motherboard with onboard sound card. When I play some
-> sound file with play for the first time after the boot, the kernel
-> module snd_pcm_oss crashes. 
+This is a multi-part message in MIME format.
+--------------01B433A7898C00D9C9065A8C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I can confirm this, but with other hardware, namely:
+The enclosed patch, updated for v2.6.0-test6, implements the previously
+discussed netdev_* error-logging macros for network drivers.  Please apply.
 
-karpfen:/usr/src/linux # lspci -v
-00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo 
-KT266/A/333]
-        Subsystem: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-        Flags: bus master, 66Mhz, medium devsel, latency 0
-        Memory at e0000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [a0] AGP version 2.0
-        Capabilities: [c0] Power Management version 2
-.......
+RECAP (from previous posts):
+Calls to the netdev_* macros (netdev_printk and wrappers such as
+netdev_err) are intended to replace calls to printk in network device
+drivers.  These macros have the following characteristics:
+- Same format + args as the corresponding printk call.
+- Approximately the same amount of text as the corresponding printk call.
+- The first arg is a pointer to the net_device struct.
+- The second arg, which is a NETIF_MSG_* message level, can be used to
+implement verbosity control.
+- Standard message prefixes: verbose (interface name, driver name, bus ID)
+during probe, or just the interface name once the device is registered.
+- The current implementation just calls printk.  However, the netdev_*
+interface (and availability of the net_device pointer) opens the door
+for logging additional information (via printk, via evlog/netlink, etc.)
+as desired, with no change to driver code.
 
+Examples:
+        netdev_err(netdev, RX_ERR, "No mem: dropped packet\n");
+logs a message such as the following if the NETIF_MSG_RX_ERR bit is set
+in netdev->msg_enable.
+        eth2: No mem: dropped packet
 
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 
-Audio Controller (rev 40)
-        Subsystem: AOPEN Inc.: Unknown device 01ae
-        Flags: medium devsel, IRQ 5
-        I/O ports at e800 [size=256]
-        Capabilities: [c0] Power Management version 2
+        netdev_fatal(netdev, PROBE, "The EEPROM Checksum Is Not Valid\n");
+or
+        netdev_err(netdev, ALL, "The EEPROM Checksum Is Not Valid\n");
+unconditionally logs a message such as:
+        eth%d (e1000 0000:00:03.0): The EEPROM Checksum Is Not Valid
+The message's prefix includes the driver name and bus ID because the
+message is logged at probe time, before netdev is registered.
 
-The symptoms are: playwave does not work. xmms works, but much too slow.
+SAMPLE DRIVERS
+As examples of how the netdev_* macros could be used, patches for the
+v2.6.0-test6 e100, e1000, and tg3 drivers are available on request.
 
-The relevant part of dmesg is this:
+LINUX v2.4 SUPPORT
+Since there is no v2.6-style struct device underlying the net_device,
+the v2.4.22 version of netdev_printk always logs the interface name
+as the message prefix:
 
-via82xx: Assuming DXS channels with 48k fixed sample rate.
-         Please try dxs_support=1 option and report if it works on your 
-machine.
-PCI: Setting latency timer of device 0000:00:11.5 to 64
-ksysguardd: numerical sysctl 7 2 1 is obsolete.
-Unable to handle kernel paging request at virtual address e089a000
- printing eip:
-c034b69c
-*pde = 016bf067
-*pte = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c034b69c>]    Not tainted
-EFLAGS: 00010216
-EIP is at snd_pcm_format_set_silence+0x12c/0x1d0
-eax: 00000000   ebx: e0896000   ecx: 00000d2d   edx: 000074b4
-esi: 00000002   edi: e089a000   ebp: c92dfee8   esp: c92dfed0
-ds: 007b   es: 007b   ss: 0068
-Process playwave (pid: 1785, threadinfo=c92de000 task=c93869e0)
-Stack: 00000002 0000000c dffee730 00003a5a d0bd8bf8 ccbcdf38 c92dff08 
-c033774f
-       00000002 e0896000 00003a5a c2c7df78 c4cfb33c cfcb4df8 c92dff24 
-c0338d23
-       c4cfb33c c05c5cf0 c2c7df78 c0338d00 dffc780c c92dff48 c015ad7d 
-de4bceb4
-Call Trace:
- [<c033774f>] snd_pcm_oss_sync+0x6f/0x170
- [<c0338d23>] snd_pcm_oss_release+0x23/0xe0
- [<c0338d00>] snd_pcm_oss_release+0x0/0xe0
- [<c015ad7d>] __fput+0x10d/0x150
- [<c0159277>] filp_close+0x57/0x90
- [<c01239c7>] put_files_struct+0x67/0xd0
- [<c0124689>] do_exit+0x119/0x410
- [<c011e9e0>] default_wake_function+0x0/0x30
- [<c0124a22>] do_group_exit+0x32/0xa0
- [<c010b17b>] syscall_call+0x7/0xb
+#define netdev_printk(sevlevel, netdev, msglevel, format, arg...)	\
+do {									\
+	if (NETIF_MSG_##msglevel == NETIF_MSG_ALL			\
+	    || (netdev->msg_enable & NETIF_MSG_##msglevel)) {		\
+		printk(sevlevel "%s: " format , netdev->name , ## arg);	\
+	}								\
+} while (0)
 
-Code: f3 ab f6 c2 02 74 02 66 ab f6 c2 01 74 01 aa e9 04 ff ff ff
- <1>Unable to handle kernel paging request at virtual address e093f000
- printing eip:
-c034b69c
-*pde = 016bf067
-*pte = 00000000
-Oops: 0002 [#2]
-CPU:    0
-EIP:    0060:[<c034b69c>]    Not tainted
-EFLAGS: 00010216
-EIP is at snd_pcm_format_set_silence+0x12c/0x1d0
-eax: 00000000   ebx: e093b000   ecx: 00000d2d   edx: 000074b4
-esi: 00000002   edi: e093f000   ebp: c92dfee8   esp: c92dfed0
-ds: 007b   es: 007b   ss: 0068
-Process playwave (pid: 1823, threadinfo=c92de000 task=c93869e0)
-Stack: 00000002 dffed668 c92dfeec 00003a5a c5d4cbf8 ccbc1f38 c92dff08 
-c033774f
-       00000002 e093b000 00003a5a c4cf0f78 d930acb0 cfcb4df8 c92dff24 
-c0338d23
-       d930acb0 c05c5cf0 c4cf0f78 c0338d00 dffc780c c92dff48 c015ad7d 
-de4bceb4
-Call Trace:
- [<c033774f>] snd_pcm_oss_sync+0x6f/0x170
- [<c0338d23>] snd_pcm_oss_release+0x23/0xe0
- [<c0338d00>] snd_pcm_oss_release+0x0/0xe0
- [<c015ad7d>] __fput+0x10d/0x150
- [<c0159277>] filp_close+0x57/0x90
- [<c01239c7>] put_files_struct+0x67/0xd0
- [<c0124689>] do_exit+0x119/0x410
- [<c011e9e0>] default_wake_function+0x0/0x30
- [<c0124a22>] do_group_exit+0x32/0xa0
- [<c010b17b>] syscall_call+0x7/0xb
+Full patch for v2.4.22 available on request.
 
-Code: f3 ab f6 c2 02 74 02 66 ab f6 c2 01 74 01 aa e9 04 ff ff ff
+Jim Keniston
+IBM Linux Technology Center
+--------------01B433A7898C00D9C9065A8C
+Content-Type: text/plain; charset=us-ascii;
+ name="netdev-2.6.0-test6.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="netdev-2.6.0-test6.patch"
 
+diff -Naur linux.org/include/linux/netdevice.h linux.netdev.patched/include/linux/netdevice.h
+--- linux.org/include/linux/netdevice.h	Tue Sep 30 16:21:21 2003
++++ linux.netdev.patched/include/linux/netdevice.h	Tue Sep 30 16:21:21 2003
+@@ -467,6 +467,9 @@
+ 	struct divert_blk	*divert;
+ #endif /* CONFIG_NET_DIVERT */
+ 
++	/* NETIF_MSG_* flags to control the types of events we log */
++	int msg_enable;
++
+ 	/* class/net/name entry */
+ 	struct class_device	class_dev;
+ };
+@@ -746,6 +749,7 @@
+ 	NETIF_MSG_PKTDATA	= 0x1000,
+ 	NETIF_MSG_HW		= 0x2000,
+ 	NETIF_MSG_WOL		= 0x4000,
++	NETIF_MSG_ALL		= -1,		/* always log message */
+ };
+ 
+ #define netif_msg_drv(p)	((p)->msg_enable & NETIF_MSG_DRV)
+@@ -904,6 +908,40 @@
+ extern void		dev_clear_fastroute(struct net_device *dev);
+ #endif
+ 
++/* debugging and troubleshooting/diagnostic helpers. */
++/**
++ * netdev_printk() - Log message with interface name, gated by message level
++ * @sevlevel: severity level -- e.g., KERN_INFO
++ * @netdev: net_device pointer
++ * @msglevel: a standard message-level flag with the NETIF_MSG_ prefix removed.
++ *	Unless msglevel is NETIF_MSG_ALL, log the message only if that flag
++ *	is set in netdev->msg_enable.
++ * @format: as with printk
++ * @args: as with printk
++ */
++extern int __netdev_printk(const char *sevlevel,
++	const struct net_device *netdev, int msglevel, const char *format, ...);
++#define netdev_printk(sevlevel, netdev, msglevel, format, arg...)	\
++	__netdev_printk(sevlevel , netdev , NETIF_MSG_##msglevel ,	\
++	format , ## arg)
++
++#ifdef DEBUG
++#define netdev_dbg(netdev, msglevel, format, arg...)		\
++	netdev_printk(KERN_DEBUG , netdev , msglevel , format , ## arg)
++#else
++#define netdev_dbg(netdev, msglevel, format, arg...) do {} while (0)
++#endif
++
++#define netdev_err(netdev, msglevel, format, arg...)		\
++	netdev_printk(KERN_ERR , netdev , msglevel , format , ## arg)
++#define netdev_info(netdev, msglevel, format, arg...)		\
++	netdev_printk(KERN_INFO , netdev , msglevel , format , ## arg)
++#define netdev_warn(netdev, msglevel, format, arg...)		\
++	netdev_printk(KERN_WARNING , netdev , msglevel , format , ## arg)
++
++/* report fatal error unconditionally; msglevel ignored for now */
++#define netdev_fatal(netdev, msglevel, format, arg...)		\
++	netdev_printk(KERN_ERR , netdev , ALL , format , ## arg)
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -Naur linux.org/net/core/dev.c linux.netdev.patched/net/core/dev.c
+--- linux.org/net/core/dev.c	Tue Sep 30 16:21:21 2003
++++ linux.netdev.patched/net/core/dev.c	Tue Sep 30 16:21:21 2003
+@@ -3036,3 +3036,75 @@
+ }
+ 
+ subsys_initcall(net_dev_init);
++
++static spinlock_t netdev_printk_lock = SPIN_LOCK_UNLOCKED;
++/**
++ * __netdev_printk() - Log message with interface name, gated by message level
++ * @sevlevel: severity level -- e.g., KERN_INFO
++ * @netdev: net_device pointer
++ * @msglevel: a standard message-level flag such as NETIF_MSG_PROBE.
++ *	Unless msglevel is NETIF_MSG_ALL, log the message only if
++ *	that flag is set in netdev->msg_enable.
++ * @format: as with printk
++ * @args: as with printk
++ *
++ * Does the work for the netdev_printk macro.
++ * For a lot of network drivers, the probe function looks like
++ *	...
++ *	netdev = alloc_netdev(...);	// or alloc_etherdev(...)
++ *	SET_NETDEV_DEV(netdev, dev);
++ *	...
++ *	register_netdev(netdev);
++ *	...
++ * netdev_printk and its wrappers (e.g., netdev_err) can be used as
++ * soon as you have a valid net_device pointer -- e.g., from alloc_netdev,
++ * alloc_etherdev, or init_etherdev.  (Before that, use dev_printk and
++ * its wrappers to report device errors.)  It's common for an interface to
++ * have a name like "eth%d" until the device is successfully configured,
++ * and the call to register_netdev changes it to a "real" name like "eth0".
++ *
++ * If the interface's reg_state is NETREG_REGISTERED, we assume that it has
++ * been successfully set up in sysfs, and we prepend only the interface name
++ * to the message -- e.g., "eth0: NIC Link is Down".  The interface
++ * name can be used to find eth0's driver, bus ID, etc. in sysfs.
++ *
++ * For any other value of reg_state, we prepend the driver name and bus ID
++ * as well as the (possibly incomplete) interface name -- e.g.,
++ * "eth%d (e100 0000:00:03.0): Failed to map PCI address..."
++ *
++ * Probe functions that alloc and register in one step (via init_etherdev),
++ * or otherwise register the device before the probe completes successfully,
++ * may need to take other steps to ensure that the failing device is clearly
++ * identified.
++ */
++int __netdev_printk(const char *sevlevel, const struct net_device *netdev,
++	int msglevel, const char *format, ...)
++{
++	if (!netdev || !format) {
++		return -EINVAL;
++	}
++	if (msglevel == NETIF_MSG_ALL || (netdev->msg_enable & msglevel)) {
++		static char msg[512];	/* protected by netdev_printk_lock */
++		unsigned long flags;
++		va_list args;
++		struct device *dev = netdev->class_dev.dev;
++		
++		spin_lock_irqsave(&netdev_printk_lock, flags);
++		va_start(args, format);
++		vsnprintf(msg, 512, format, args);
++		va_end(args);
++
++		if (!sevlevel) {
++			sevlevel = "";
++		}
++
++		if (netdev->reg_state == NETREG_REGISTERED || !dev) {
++			printk("%s%s: %s", sevlevel, netdev->name, msg);
++		} else {
++			printk("%s%s (%s %s): %s", sevlevel, netdev->name,
++				dev->driver->name, dev->bus_id, msg);
++		}
++		spin_unlock_irqrestore(&netdev_printk_lock, flags);
++	}
++	return 0;
++}
+diff -Naur linux.org/net/netsyms.c linux.netdev.patched/net/netsyms.c
+--- linux.org/net/netsyms.c	Tue Sep 30 16:21:21 2003
++++ linux.netdev.patched/net/netsyms.c	Tue Sep 30 16:21:21 2003
+@@ -210,6 +210,7 @@
+ EXPORT_SYMBOL(net_ratelimit);
+ EXPORT_SYMBOL(net_random);
+ EXPORT_SYMBOL(net_srandom);
++EXPORT_SYMBOL(__netdev_printk);
+ 
+ /* Needed by smbfs.o */
+ EXPORT_SYMBOL(__scm_destroy);
 
-If you need more info, just ask.
+--------------01B433A7898C00D9C9065A8C--
 
-Michael
-
-
-
-
-> Here is the Oops:
->
-> Unable to handle kernel paging request at virtual address d4971000
-> printing eip:
-> d4991e1d
-> *pde = 01329067
-> *pte = 00000000
-> Oops: 0002 [#1]
-> CPU:    0
-> EIP:    0060:[<d4991e1d>]    Not tainted
-> EFLAGS: 00210206
-> EIP is at snd_pcm_format_set_silence+0x7d/0x1a0 [snd_pcm]
-> eax: 00000000   ebx: 0000171c   ecx: 0000078e   edx: 00002e38
-> esi: 00000002   edi: d4971000   ebp: c6146380   esp: ce4c3f18
-> ds: 007b   es: 007b   ss: 0068
-> Process sox (pid: 1850, threadinfo=ce4c2000 task=cedd19a0)
-> Stack: 00000001 ce4c2000 0000171c ce7bf000 ceb08ee0 d497a9bc 00000002
-> d4970000
->        0000171c ce42e8a0 c6146380 cec8d800 ce42e8a0 d497bbcc c6146380
-> ce42e8a0
->        cfed4260 cf10c9b8 cf31ed60 c014a10a cf10c9b8 ce42e8a0 c013f74a
-> cfed7cf0
-> Call Trace:
-> [<d497a9bc>] snd_pcm_oss_sync+0x9c/0x140 [snd_pcm_oss]
-> [<d497bbcc>] snd_pcm_oss_release+0x1c/0x90 [snd_pcm_oss]
-> [<c014a10a>] __fput+0x3a/0xd0
-> [<c013f74a>] unmap_vma_list+0x1a/0x30
-> [<c0148d2c>] filp_close+0x5c/0x70
-> [<c0148d85>] sys_close+0x45/0x60
-> [<c010a7eb>] syscall_call+0x7/0xb
->
-> Code: f3 ab f6 c2 02 74 02 66 ab f6 c2 01 74 01 aa e9 05 01 00 00
->

@@ -1,86 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273029AbRIIUXe>; Sun, 9 Sep 2001 16:23:34 -0400
+	id <S273028AbRIIUXY>; Sun, 9 Sep 2001 16:23:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273031AbRIIUXY>; Sun, 9 Sep 2001 16:23:24 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:50188 "EHLO
-	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S273029AbRIIUXN>; Sun, 9 Sep 2001 16:23:13 -0400
-Message-ID: <3B9BCF6C.3BFC9466@t-online.de>
-Date: Sun, 09 Sep 2001 22:22:04 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S273031AbRIIUXP>; Sun, 9 Sep 2001 16:23:15 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:20235 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273028AbRIIUXE>; Sun, 9 Sep 2001 16:23:04 -0400
+Date: Sun, 9 Sep 2001 17:23:04 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <torvalds@transmeta.com>
+Subject: Re: Purpose of the mm/slab.c changes
+In-Reply-To: <001201c13942$b1bec9a0$010411ac@local>
+Message-ID: <Pine.LNX.4.33L.0109091722060.21049-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: rvandam@liwave.com
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: FW: OT: Integrating Directory Services for Linux
-In-Reply-To: <001001c1395f$a246cd70$1f0201c0@w2k001>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ron Van Dam schrieb:
-> 
+On Sun, 9 Sep 2001, Manfred Spraul wrote:
 
-(DS into Kernel for simplifying Management)
+> > it provides lifo allocations from both partial and unused slabs.
+>
+> lifo/fifo for unused slabs is obviously superflous - free is
+> free, it doesn't matter which free page is used first/last.
 
-> I know some one out there is comparing this concept to the Windows registry.
-> I was thinking that this would be a distributed database with journalling,
-> with all of the checks of a filesystem to protect the database. The database
-> would also need to be extensible so that userland developers can import
-> schema to extend the functionally of the database. For instance, the
-> database could be used to manage a DHCP or DNS server, or  storing your user
-> profile (.gnome or .kde) configurations. It should also support partitioning
-> if I have multiple sites connected by a WAN, I can partition the database
-> information so that only the essential information is replicated between
-> sites and the WAN isn't clogged with replication traffic.
-> 
-> Comments?
+Mind that the L2 cache is often as much as 10 times faster
+than RAM, so it would be nice if we had a good chance that
+the slab we just allocated would be in L2 cache.
 
-Hello...
+regards,
 
-Some comments, yes :
-
-1.) Why add an extra-DS-System to the existing ones ?
-We have OpenLDAP, NDS (going down), ADS (going up, pushed by MS) and
-NIS+ out there, plus things like X.500 or how they are called. Currently
-Linux can work with most of them except ADS, AFAIK (better or worse with
-some, but it can)
-Why re-invent the wheel a 4th or even 5th time ?
-I would say that linux is best at working together with nearly every
-other OS or sec-application, so i would suggest that it gets linux
-further if these connections and capabilities are extended, and not by
-re-inventing something like ADS...
-
-2.) I think these DS-Systems are really a part of userland, and the
-kernel itself should never mess around with high-level-security issues
-like Access Controll Lists or such things...this is the job of
-userlandtools.
-The problem i see, if you force these things into the kernel, you will
-get a significant performance impact, because if you start to do
-(perhaps complicated) securitychecks *everytime* before calling a single
-function, you will loose time...and performance is one of the points
-where linux is ahead of other OSes, IMHO.
-
-3.) To the idea of a "linux-registry":
-I do not like this, UNIX lives now 30 years with /etc and human-readable
-configfiles and without a "database", and i think its a good compromise
-between usability and "keep-it-simple".
-And it works.
-We see at WinXY, what problems a "registry" produce, e.g. to be usefull,
-*every* application would have to use it (in the right way!), and we
-see, this does not work, even not under W2k, where MS should have all
-possibilities to prevent applications from messing around with the
-registry, but it is still possible to crash a W2k by simply deleting
-some strings....
-
-Solong..
-Frank.
-
+Rik
 --
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

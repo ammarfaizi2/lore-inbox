@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261511AbREQTVA>; Thu, 17 May 2001 15:21:00 -0400
+	id <S261517AbREQTbK>; Thu, 17 May 2001 15:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261513AbREQTUu>; Thu, 17 May 2001 15:20:50 -0400
-Received: from hypnos.cps.intel.com ([192.198.165.17]:13281 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S261515AbREQTUk>; Thu, 17 May 2001 15:20:40 -0400
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2AB@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'jalaja devi'" <jala_74@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: RE: kernel2.2.x to kernel2.4.x
-Date: Thu, 17 May 2001 12:19:27 -0700
+	id <S261519AbREQTbA>; Thu, 17 May 2001 15:31:00 -0400
+Received: from gopostal.digi.com ([204.221.110.15]:44812 "EHLO
+	gopostal.digi.com") by vger.kernel.org with ESMTP
+	id <S261517AbREQTan>; Thu, 17 May 2001 15:30:43 -0400
+From: Jeff Randall <randall@bif.digi.com>
+Message-Id: <200105171930.OAA26119@bif.digi.com>
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 17 May 2001 14:30:10 -0500 (CDT)
+Cc: phillips@bonn-fries.net (Daniel Phillips), nico@cam.org (Nicolas Pitre),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <m1u22jj44d.fsf@frodo.biederman.org> from "Eric W. Biederman" at May 17, 2001 11:07:46 AM
+Reply-To: Jeff_Randall@digi.com
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-see http://www.firstfloor.org/~andi/softnet/
+Eric W. Biederman wrote:
+> Daniel Phillips <phillips@bonn-fries.net> writes:
+> > On Tuesday 15 May 2001 23:20, Nicolas Pitre wrote:
+> > > Personally, I'd really like to see /dev/ttyS0 be the first detected
+> > > serial port on a system, /dev/ttyS1 the second, etc.
+> > 
+> > There are well-defined rules for the first four on PC's.  The ttySx 
+> > better match the labels the OEM put on the box.
+> 
+> Actually it would be better to have the OEM put a label in the
+> firmware, and then have a way to query the device for it's label.
+> 
+> The legacy rules are nice but serial ports are done with superio chips
+> now.  And superio chips are almost all ISA PNP chips without device
+> enumeration, and isolation. 
 
-~Randy
+Not all serial ports are superio chips.  There's all kinds of serial
+ports on all kinds of different busses being supported under Linux.  The
+company I work for supports serial ports on ISA, PCI, SCSI, Ethernet, and
+USB at the moment...
 
 
-> -----Original Message-----
-> From: jalaja devi [mailto:jala_74@yahoo.com]
-> 
-> How can I handle this from kernel2.2 to kernel2.4
-> 
-> Can I replace like this??
-> 
-> if (test_and_set_bit (0, (void *)&dev->tbusy)){ return
-> EBUSY;} ========== with  netif_stop_queue (dev);
-> 
-> clear_bit ((void *)&dev->tbusy); ===== with
-> netif_start_queue(dev);
-> 
-> Thanks
-> Jalaja
-> 
-> --- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > I tried porting a network driver from kernel2.2.x
-> > to
-> > > 2.4. When i tried loading the driver, it shows the
-> > > unresolved symbols for
-> > > copy_to_user_ret
-> > 
-> > 	if(copy_to_user(...))
-> > 		return -EFAULT
-> > 
-> > > outs
-> > 
-> > 	Has not gone away, your includes are wrong
-> > 
-> > > __bad_udelay
-> > 
-> > 	You are using too large a udelay use mdelay
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Yahoo! Auctions - buy the things you want at great prices
-> http://auctions.yahoo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+Jeff Randall - Jeff_Randall@digi.com  "A paranoid person is never alone,
+                                       he knows he's always the center
+                                       of attention..."

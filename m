@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261665AbSJYXSl>; Fri, 25 Oct 2002 19:18:41 -0400
+	id <S261678AbSJYXTF>; Fri, 25 Oct 2002 19:19:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261677AbSJYXSl>; Fri, 25 Oct 2002 19:18:41 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:31663 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S261665AbSJYXSk>; Fri, 25 Oct 2002 19:18:40 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE70AE@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Robert Love <rml@tech9.net>, Daniel Phillips <phillips@arcor.de>,
+	id <S261677AbSJYXTF>; Fri, 25 Oct 2002 19:19:05 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:52496
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261678AbSJYXTE>; Fri, 25 Oct 2002 19:19:04 -0400
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+From: Robert Love <rml@tech9.net>
+To: "David D. Hagood" <wowbagger@sktc.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Daniel Phillips <phillips@arcor.de>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "'Dave Jones'" <davej@codemonkey.org.uk>,
        "'akpm@digeo.com'" <akpm@digeo.com>,
        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
        "'chrisl@vmware.com'" <chrisl@vmware.com>,
        "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
-Date: Fri, 25 Oct 2002 16:24:45 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+In-Reply-To: <3DB9D1FE.5010607@sktc.net>
+References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>
+	<3DB9CC5D.7000600@pobox.com>  <3DB9D1FE.5010607@sktc.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 19:25:09 -0400
+Message-Id: <1035588310.734.4165.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, the notion of "sibling" is not clear. The other day a person pointed out
-"the number of the siblings does not include yourself" when she saw the
-variable smp_num_siblings. So with HT enabled, for a cpu the number of the
-siblings should be 1, instead of 2, from an English language perspective.
-But we want to mean the number H/W threads in a processor package. 
+On Fri, 2002-10-25 at 19:21, David D. Hagood wrote:
 
-And with multi-core, "sibling" is not clear enough to distiguish "core" in a
-processor package and "thread" in a "core".
+> Might I suggest "subcore", since that's really what it is - a sub-core 
+> in the main chip.
+> 
+> My siblings are distinct entities from me, my sub-parts aren't.
+> (now, were I part of a cojoined twin....)
 
-Jun
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@pobox.com]
-Sent: Friday, October 25, 2002 3:58 PM
-To: Nakajima, Jun
-Cc: Robert Love; Daniel Phillips; Alan Cox; 'Dave Jones';
-'akpm@digeo.com'; 'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com';
-'Martin J. Bligh'
-Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+Sibling makes sense if you look at the N processors in the package as
+"siblings of each other" i.e. not a hierarchy (as subcore implies) but
+just a "set of virtual processors in the same core".
 
+If there are subcores, then I think there must be some major core.  If
+two chips are siblings, then that merely says they are related (in this
+case, the same parent package).
 
-Nakajima, Jun wrote:
-
->The notion of "SMT (Simultaneous Multi-Threaded)" architecture has been
->there for a while (at least 8 years, as far as I know). You would get tons
->of info if you search it in Internet. 
->  
->
-
-
-Certainly.   That however does not imply that Robert's patch should read 
-"number of threads" instead of "number of siblings."  The lone word 
-"thread" does not automatically imply "active thread running on this 
-virtual processor" or anything close to that.
-
-"sibling" makes a lot more sense from an English language perspective.
-
-    Jeff
-
-
+	Robert Love
 

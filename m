@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbTE1LNd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264678AbTE1LNc
+	id S264674AbTE1LLh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264675AbTE1LLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:13:32 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:26406 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264677AbTE1LNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:13:32 -0400
-Date: Wed, 28 May 2003 04:27:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: axboe@suse.de, kernel@kolivas.org, matthias.mueller@rz.uni-karlsruhe.de,
-       manish@storadinc.com, andrea@suse.de, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-Id: <20030528042700.47372139.akpm@digeo.com>
-In-Reply-To: <200305281305.44073.m.c.p@wolk-project.de>
-References: <3ED2DE86.2070406@storadinc.com>
-	<20030528105029.GS845@suse.de>
-	<20030528035939.72a973b0.akpm@digeo.com>
-	<200305281305.44073.m.c.p@wolk-project.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 28 May 2003 07:11:37 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:44433 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S264674AbTE1LLg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:11:36 -0400
+Date: Wed, 28 May 2003 13:24:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.5.70: CODA breaks boot
+Message-ID: <20030528112437.GA442@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 May 2003 11:26:47.0463 (UTC) FILETIME=[06745B70:01C3250C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
->
-> Does the attached one make sense?
+Hi!
 
-Nope.
-
-Guys, you're the ones who can reproduce this.  Please spend more time
-working out which chunk (or combination thereof) actually fixes the
-problem.  If indeed any of them do.  
-
-I'm suspecting that Con's fingers slipped.
-
-
+...it oopses in kmem_cache_create, called from release_console_sem and
+coda_init_inodecache.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

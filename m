@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313430AbSDKMJp>; Thu, 11 Apr 2002 08:09:45 -0400
+	id <S314030AbSDKMY3>; Thu, 11 Apr 2002 08:24:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313479AbSDKMJo>; Thu, 11 Apr 2002 08:09:44 -0400
-Received: from pat.uio.no ([129.240.130.16]:9879 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S313430AbSDKMJo>;
-	Thu, 11 Apr 2002 08:09:44 -0400
-To: Steffen Persvold <sp@scali.com>
-Cc: <nfs@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-        <trond.myklebust@fys.uio.no>
-Subject: Re: IRIX NFS server and Linux NFS client
-In-Reply-To: <Pine.LNX.4.30.0204111218440.30970-100000@elin.scali.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 11 Apr 2002 14:09:22 +0200
-Message-ID: <shs662yjv2l.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S314031AbSDKMY2>; Thu, 11 Apr 2002 08:24:28 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:23888 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314030AbSDKMY2>; Thu, 11 Apr 2002 08:24:28 -0400
+Date: Thu, 11 Apr 2002 14:24:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Martin Devera <devik@cdi.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rb_tree methods export request
+Message-ID: <20020411142447.G14605@dualathlon.random>
+In-Reply-To: <Pine.LNX.4.10.10204111059020.15162-100000@luxik.cdi.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steffen Persvold <sp@scali.com> writes:
+On Thu, Apr 11, 2002 at 11:03:47AM +0200, Martin Devera wrote:
+> Hello Andrea,
+> 
+> I write to you as to maintainer of rb_tree code in 2.4. I'm
+> just finishing module (QoS HTB scheduler) where I need to use 
+> balanced tree and your rb_tree implementation seems as the best
+> one for it.
+> Only problem is that rb_delete and athers are not exported so that
+> I can't use them in the module.
+> Is there some problem to export the symbols or should I duplicate
+> the code ?
+ 
+You don't need to duplicate the code:
 
-     > I forgot to mention that NFSv3 works when an IRIX client mounts
-     > the same directory (i.e the directory shows up as "nfs" and not
-     > "nfs2" in the mount table on the IRIX client).
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre3aa2/00_rb-export-1
 
-     > Could it be that IRIX only supports NFSv3 with TCP and not UDP
-     > (I didn't try TCP mounting on the Linux client) ?
+It is just included in 2.4.19pre6 mainline btw, so just updating to the
+latest kernel should solve your problem with the module.
 
-Have you applied
+2.5 is still missing it, but it should be applied there too eventually.
 
-  http://www.fys.uio.no/~trondmy/src/2.4.18/linux-2.4.18-seekdir.dif
-
-in order to work around the glibc-2.x readdir bugs?
-
-Cheers,
-  Trond
+Andrea

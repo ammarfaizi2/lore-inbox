@@ -1,83 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264077AbTEOPRX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 11:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTEOPRX
+	id S264088AbTEOPRf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 11:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTEOPRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 11:17:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:42882 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264077AbTEOPRU
+	Thu, 15 May 2003 11:17:35 -0400
+Received: from 136.231.118.64.mia-ftl.netrox.net ([64.118.231.136]:427 "EHLO
+	smtp.netrox.net") by vger.kernel.org with ESMTP id S264088AbTEOPRb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 11:17:20 -0400
-Date: Thu, 15 May 2003 11:31:21 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chris Ricker <kaboom@gatech.edu>
-cc: Jesse Pollard <jesse@cats-chateau.net>,
-       Mike Touloumtzis <miket@bluemug.com>, Ahmed Masud <masud@googgun.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <Pine.LNX.4.55.0305150913471.6447@verdande.oobleck.net>
-Message-ID: <Pine.LNX.4.53.0305151121420.19950@chaos>
-References: <20030514074403.GA18152@bluemug.com> <20030514205847.GA18514@bluemug.com>
- <Pine.LNX.4.53.0305141724220.12328@chaos> <03051508174100.25285@tabby>
- <Pine.LNX.4.55.0305150913471.6447@verdande.oobleck.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 May 2003 11:17:31 -0400
+Subject: Re: 2.6 must-fix list, v2
+From: Robert Love <rml@tech9.net>
+To: "Shaheed R. Haque" <srhaque@iee.org>
+Cc: Felipe Alfaro Solana <yo@felipe-alfaro.com>,
+       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052990397.3ec35bbd5e008@netmail.pipex.net>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>
+	 <1052910149.586.3.camel@teapot.felipe-alfaro.com>
+	 <1052927975.883.9.camel@icbm>  <200305142201.59912.srhaque@iee.org>
+	 <1052946917.883.25.camel@icbm> <1052990397.3ec35bbd5e008@netmail.pipex.net>
+Content-Type: text/plain
+Message-Id: <1053012743.899.5.camel@icbm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 15 May 2003 11:32:24 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 May 2003, Chris Ricker wrote:
+On Thu, 2003-05-15 at 05:19, Shaheed R. Haque wrote:
 
-> On Thu, 15 May 2003, Jesse Pollard wrote:
->
-> > On Wednesday 14 May 2003 16:32, Richard B. Johnson wrote:
-> > > Not so, with the latest Red Hat distribution (9). You can no longer
-> > > set init=/bin/bash at the boot prompt.... well you can set it, but
-> > > then you get an error about killing init. This caused a neighbor
-> > > a lot of trouble when she accidentally put a blank line in the
-> > > top of /etc/passwd. Nobody could log-in. I promised to show her
-> > > how to "break in", but I wasn't able to. I had to take her hard-disk
-> > > to my house, mount it, and fix the password file. All these "attempts"
-> > > at so-called security do is make customers pissed.
-> >
-> > I fix those errors with by booting the Slackware CD with the live
-> > filesystem...
-> >
-> > No dependancies on any of the regular disks - then I can fix anything within
-> > reason (haven't tried md raids though).
->
-> You don't have to do that. Richard is mis-informed. Any of the following
-> still work on Red Hat Linux 9:
->
-> init=/bin/bash         # drops you straight to a bash shell
-> init 1                 # runs runlevel 1 SysV init scripts and rc.sysinit
-> init single            # runs rc.sysinit, but not runlevel 1
-> init emergency         # runs a shell
->
-> all without going to rescue media.
->
+> These are the distros I am interested in too. I knew it was in RH AS/ES, but 
+> are you saying it is in RH9.0? That would be good news.
 
-Bullshit. Try it. So called Linux 9 /Professional did **NOT** allow
-anybody to break in. Maybe you didn't try it, or maybe it wasn't
-tested in a machine that uses initrd to make the hard disk accessible,
-but it absolutely positively fails to run any 'init' when the LILO boot
-is interrupted and we entered, in addition to the linux OS label, the
-parameter init=/bin/bash. We even tried, probably nearly a hundred
-boots, over two days various things like init=/bin/csh.... various
-possible shells, plus init=/sbin/init 1, etc. Any time 'init' was
-defined on the boot command-line, the machine would panic with
-'attempting to kill init'.
+No, I am saying with luck it will be in the next RH release.
 
-Also, when booting on the distribution media, the ALF-F2...F5  keys
-no longer function so you can't access a shell. Try it before you
-claim I'm "mis-informed". I wasted an entire weekend until I took
-the damn hard disk out, brought it home, and "fixed" it.
+> On the technical point, I tried out taskset in rc.sysinit, and as you said, it 
+> works just fine.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Good :)
+
+> On reflection, I feel that editing rc.sysinit is not the right 
+> answer given the confidence/competence level of our customers' typical 
+> sysadmins: but I can see that a carefully crafted rc5.d/S00aaaaa script could 
+> set the affinity of the executing shell, and its parent(s) upto init to fix all 
+> subsequent rcN.d children in the desired manner.
+> 
+> I do suspect that other commercial users will also baulk at editing rc.sysint, 
+> and so have to brew the same rcN.d solution. Now, the rcN.d script hackery 
+> would be greatly simplified if taskset had a mode of "set the affinity of the 
+> identified process, and all its parent processes upto init". Would you accept a 
+> patch to taskset along those lines?
+
+It is racey to do this, so its something that should remain a hack and
+not part of taskset, I think.
+
+If you do it in rc.d, you don't need to set all the parents. rc.d is the
+first thing run, so if you do it at the top of the script, nothing else
+is running. Just put:
+
+	taskset <mask> 1
+	taskset <mask> $$
+
+at the top of rc.d.
+
+Another consideration is modifying init (and hopefully having said
+changes merged back). Init could call sched_setaffinity() when it is
+first created, based on a setting in /etc/inittab or a command line
+parameter passed during boot.
+
+My reservation is against doing it in the kernel. I do not particularly
+care _how_ its done in user-space.
+
+	Robert Love
 

@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVADOVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVADOZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVADOVD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 09:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVADOVD
+	id S261661AbVADOZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 09:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVADOZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 09:21:03 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11999 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261653AbVADOU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 09:20:59 -0500
-Date: Mon, 3 Jan 2005 10:42:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Georg Schild <dangertools@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cpu throttling powernow-k8 and acpi in kernel
-Message-ID: <20050103094245.GD2473@openzaurus.ucw.cz>
-References: <41D80CAB.1060903@gmx.net>
+	Tue, 4 Jan 2005 09:25:44 -0500
+Received: from darwin.snarc.org ([81.56.210.228]:10117 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S261661AbVADOZk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 09:25:40 -0500
+Date: Tue, 4 Jan 2005 15:25:38 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kill one "if (X) vfree(X)" usage
+Message-ID: <20050104142538.GA4771@snarc.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41D80CAB.1060903@gmx.net>
-User-Agent: Mutt/1.3.27i
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.6+20040907i
+From: Vincent Hanquez <tab@snarc.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi, the following patch remove a if (x) vfree(x) usage
+please apply.
 
-> I have an acer aspire 1501 lmi with amd64 @3000+. i am running a 
-> gentoo 64bit dist with vanilla 2.6.10 kernel on it.
-> 
-> i encounter some problems with the speed throttling of the cpu. this 
-> kind of cpu has 3 steps which a gouvernor can reach, 1800, 1600 and 
-> 800Mhz. i am using the ondemand gouvernor. so far this works quite 
-> good, ondemand puts it at 800 until i do something. as it should be. 
-> i have also CONFIG_ACPI_PROCESSOR=y and CONFIG_ACPI_THERMAL=y 
-> enabled. when acpi thinks the temperature is too high (95 for cpu) 
-> it throttles the cpu down to 800Mhz, no care what ondemand tells it. 
-> okay, why not, is a good protection for overheating. but i don't 
-> think the cpu has 95, i have run the laptop much hotter once, and 
-> there was no downthrottling. it cannot be that i am not able to 
-> compile a simple package without getting a critical temperature. i am 
-> watching the temps in gkrellm and this leads me to the thing that 
-> there is something wrong with it cause it jumps a bit when the temps 
-> are getting higher and one thing more, when the laptop is doing 
-> nothing, e.g. over night, screen is off, cpu is at 800 the temp is 
-> still at about 55 and more, how can that be? but i cannot disable 
-> the two acpi-options mentionend above. at first the cpu runs at 800, 
-> no problem, fan is almost off. but when i start e.g. a compilation 
-> first the fan starts spinning up a bit, the cpu goes to 1800mhz but 
-> after a while the fan gives all the speed it is able to, much noise, 
-> and after one or 2 minutes the laptop switches off immediate.
-> 
+Signed-off-by: Vincent Hanquez <tab@snarc.org>
 
-It seems your machine indeed is overheating. Modern cpus produce a lot
-of heat.
-
-55C idle temperature seems okay. Open machine and attach your
-own temperature sensor to cpu to verify...
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+--- linux-2.6.10.orig/mm/swapfile.c.orig	2005-01-04 14:59:04 +0100
++++ linux-2.6.10/mm/swapfile.c	2005-01-04 14:59:35 +0100
+@@ -1592,8 +1592,7 @@
+ 		++least_priority;
+ 	swap_list_unlock();
+ 	destroy_swap_extents(p);
+-	if (swap_map)
+-		vfree(swap_map);
++	vfree(swap_map);
+ 	if (swap_file)
+ 		filp_close(swap_file, NULL);
+ out:

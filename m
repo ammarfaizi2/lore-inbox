@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbULERJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbULERIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbULERJW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 12:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbULERJI
+	id S261330AbULERIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 12:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbULERGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 12:09:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:65034 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261347AbULERID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 12:08:03 -0500
-Date: Sun, 5 Dec 2004 18:08:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/n_tty.: make two functions static
-Message-ID: <20041205170801.GU2953@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 5 Dec 2004 12:06:33 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:37778 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261330AbULEQ7s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 11:59:48 -0500
+Message-ID: <41B33E70.2000107@colorfullife.com>
+Date: Sun, 05 Dec 2004 17:59:28 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Stuff <kernel-stuff@comcast.net>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] Document kfree and vfree NULL usage (resend)
+References: <Pine.LNX.4.44.0412051628280.13644-100000@dbl.q-ag.de> <200412051105.10934.kernel-stuff@comcast.net>
+In-Reply-To: <200412051105.10934.kernel-stuff@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes two needlessly global functions static.
+Kernel Stuff wrote:
 
+>>  *	May not be called in interrupt context 
+>>    
+>>
+>Does this need to change to 
+>      * Must not be called in interrupt context 
+>?
+>Is there a case where it is guaranteed that kfree will not sleep?
+>
+kfree never sleeps. The comment you mention is part of the vfree 
+documentation.
 
-diffstat output:
- drivers/char/n_tty.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+And you are right: for vfree, it's "must not be called". I'll send a 
+separate patch. Or Andrew could just change it directly.
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/drivers/char/n_tty.c.old	2004-11-07 00:33:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/n_tty.c	2004-11-07 00:34:05.000000000 +0100
-@@ -152,7 +152,7 @@
-  *	lock_kernel() still.
-  */
-  
--void n_tty_flush_buffer(struct tty_struct * tty)
-+static void n_tty_flush_buffer(struct tty_struct * tty)
- {
- 	/* clear everything and unthrottle the driver */
- 	reset_buffer_flags(tty);
-@@ -174,7 +174,7 @@
-  *	at this instant in time. 
-  */
-  
--ssize_t n_tty_chars_in_buffer(struct tty_struct *tty)
-+static ssize_t n_tty_chars_in_buffer(struct tty_struct *tty)
- {
- 	unsigned long flags;
- 	ssize_t n = 0;
-
+--
+    Manfred

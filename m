@@ -1,24 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131174AbRAXRUY>; Wed, 24 Jan 2001 12:20:24 -0500
+	id <S132578AbRAXRVO>; Wed, 24 Jan 2001 12:21:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRAXRUP>; Wed, 24 Jan 2001 12:20:15 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:39432 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S131174AbRAXRT6>; Wed, 24 Jan 2001 12:19:58 -0500
-Date: Wed, 24 Jan 2001 17:19:55 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: make mrproper
-Message-ID: <Pine.LNX.4.21.0101241718460.10965-100000@mrworry.compsoc.man.ac.uk>
+	id <S132567AbRAXRUy>; Wed, 24 Jan 2001 12:20:54 -0500
+Received: from [212.255.16.226] ([212.255.16.226]:16365 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S131984AbRAXRUc> convert rfc822-to-8bit;
+	Wed, 24 Jan 2001 12:20:32 -0500
+Message-ID: <008f01c08629$f2582d20$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14LOAm-0006z0-00@the-village.bc.nu> <E14LOAm-0006z0-00@the-village.bc.nu> <01012416081105.19999@nessie> <20010124170337Z129710-18594+930@vger.kernel.org>
+Subject: Re: NTFS safety and lack thereof - Was: Re: Linux 2.4.0ac11
+Date: Wed, 24 Jan 2001 17:09:49 -0000
+Organization: eccesys.net Linux Distribution Development
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.3018.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timur Tabi wrote:
+> Isn't it still theoretcially possible for the driver to send commands to the
+> disk controller that cause data to become overwritten, even when it's just
+> supposed to read that data?
 
-Idle curiosity, but what does the "mr" in make mrproper
-stand for ?
+IMHO the NTFS driver creators weren't bloody newbies and won't do such
+a bug, even not by accidence.
+Also I think there might be a VFS protection of R/O space, but I'm not sure.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

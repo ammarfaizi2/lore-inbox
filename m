@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284020AbRLMOrn>; Thu, 13 Dec 2001 09:47:43 -0500
+	id <S284134AbRLMPFh>; Thu, 13 Dec 2001 10:05:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284068AbRLMOrd>; Thu, 13 Dec 2001 09:47:33 -0500
-Received: from mustard.heime.net ([194.234.65.222]:53982 "EHLO
+	id <S284139AbRLMPFR>; Thu, 13 Dec 2001 10:05:17 -0500
+Received: from mustard.heime.net ([194.234.65.222]:58846 "EHLO
 	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284020AbRLMOrY>; Thu, 13 Dec 2001 09:47:24 -0500
-Date: Thu, 13 Dec 2001 15:47:07 +0100 (CET)
+	id <S284090AbRLMPFQ>; Thu, 13 Dec 2001 10:05:16 -0500
+Date: Thu, 13 Dec 2001 16:04:34 +0100 (CET)
 From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>, Tux mailing list <tux-list@redhat.com>
-Subject: [BUG?] RAID sub system / tux
-Message-ID: <Pine.LNX.4.30.0112131530310.25884-100000@mustard.heime.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG?] RAID sub system / tux
+In-Reply-To: <Pine.LNX.4.33.0112130954410.13419-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.30.0112131558510.26038-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+> > After testing this for a while, I'm quite sure there's some kind of bug
+> > that locks up I/O under heavy traffic.
+>
+> there's definitely no problem with heavy load on one stream,
+> or with multistream load and default readahead settings.
+> (I certianly have tested the former, and the latter is tested
+> by all the dbench scores you see here).  I'm guessing you'd
+> see no lockup if you removed the readahead.  though it's also worth
+> asking: have you memtest86's the cpu/ram?  and can you cause the
+> lock with single-threaded bonnie?  also, do you have highmem on?
 
-After testing this for a while, I'm quite sure there's some kind of bug
-that locks up I/O under heavy traffic.
+I have highmem turned off.
 
-Hardware configuration:
+By using default readahead (124), starting the 50 streams, killing them,
+and restarting them, I reproduced the problem. I rebooted the server
+before this.
 
-1xAthlon 1133
-1GB RAM
-1 20G boot disk
-2 120G ide drives on a promise ata133 (20269) controller
-
-Kernel: Vanilla 2.4.16 + tux-D0
-
-/etc/raidtab:
-
-raiddev /dev/md0
-	raid-level              0
-	nr-raid-disks           2
-	persistent-superblock   0
-	chunk-size              4096
-
-	device                  /dev/hde
-	raid-disk               0
-	device                  /dev/hdg
-	raid-disk               1
-
-IDE readahead setting:
-
-echo file_readahead:1024 > /proc/ide/hd[eg]/settings
-(I've tried down to 256 with no change.)
-
-file system: independant. I've tried with xfs and ext2 and get the same
-result.
-
-Testing:
-I make some 100 files, each ~1GB, and start ~100 wget processes to
-retrieve data from http://localhost/file-nnnn. Each process is retrieving
-a separate file, as to simulate the app. Usually, this works fine in the
-beginning, but after a while it all locks up, and the [TUX worker]
-(mother) process stops giving me any data, and starts using 100% system
-time. If I restart tux, I can do some data retrieval for some time, but
-then it locks up again. It's easily reproducable to just start, say, 50
-wget processes, killall wget, and then restart the 50 wget processes.
-
-Thanks for all help
-
-regards
-
-roy
+I haven't memtest86'd the hardware, but I will. I still beleive this is an
+OS problem - not hardware
 
 --
 Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
 Computers are like air conditioners.
 They stop working when you open Windows.
-
 

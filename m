@@ -1,99 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315091AbSEXUhK>; Fri, 24 May 2002 16:37:10 -0400
+	id <S315050AbSEXUio>; Fri, 24 May 2002 16:38:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315096AbSEXUhJ>; Fri, 24 May 2002 16:37:09 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:12114 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315091AbSEXUhH>; Fri, 24 May 2002 16:37:07 -0400
-Date: Fri, 24 May 2002 22:36:30 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: negative dentries wasting ram
-Message-ID: <20020524203630.GJ15703@dualathlon.random>
-In-Reply-To: <20020524194344.GH15703@dualathlon.random> <Pine.GSO.4.21.0205241549520.9792-100000@weyl.math.psu.edu>
+	id <S315198AbSEXUin>; Fri, 24 May 2002 16:38:43 -0400
+Received: from 64-166-72-142.ayrnetworks.com ([64.166.72.142]:28040 "EHLO 
+	ayrnetworks.com") by vger.kernel.org with ESMTP id <S315050AbSEXUij>;
+	Fri, 24 May 2002 16:38:39 -0400
+Date: Fri, 24 May 2002 13:37:12 -0700
+From: William Jhun <wjhun@ayrnetworks.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible discrepancy regarding streaming DMA mappings in DMA-mapping.txt?
+Message-ID: <20020524133711.K7205@ayrnetworks.com>
+In-Reply-To: <20020523162425.G7205@ayrnetworks.com> <20020523.225927.132611174.davem@redhat.com> <20020524104345.J7205@ayrnetworks.com> <20020524.104209.31440798.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 03:55:45PM -0400, Alexander Viro wrote:
+On Fri, May 24, 2002 at 10:42:09AM -0700, David S. Miller wrote:
+> I see what your problem is, the interfaces were designed such
+> that the CPU could read the data.  It did not consider writes.
 > 
-> 
-> On Fri, 24 May 2002, Andrea Arcangeli wrote:
->  
-> > and they provide useful cache, they remebers the i_size and everything
-> > else that you need to read from disk the next time a lookup that ends in
-> > such inode happens. It's not a "this dentry doesn't exist" kind of
-> > info after an unlink, so very very unlikely to be ever needed
-> > information. Furthmore there cannot be an huge grow of those inodes see
-> > below.
-> 
-> That's crap, since there _IS_ such a grow.  Again, they easily sit around
-> for 5-7 minutes without a single attempt to access them, while the system
-> is swapping like hell.
+> It was designed to handle a case like a networking driver where
+> a receive packet is inspected before we decide whether we accept the
+> packet or just give it back to the card.
 
-no-way, that's because your vm is broken then, apply vm-35 and it
-shouldn't really happen, if the system swaps inodes will be pruned
-correcty too, an inode will never stay around for minutes while the
-system is swapping. Actually really you may want to apply also my last
-fix for the inode highmem balance to be sure to rotate the list, maybe
-that could make the difference for this case, but again, if something goes
-wrong in this sense it's a prune_icache bug, not a design bug in iput.
+I was thinking about whether we could keep the same API but change the
+semantics such that, for a cpu-writes-and-gives-to-driver operation, a
+pci_dma_sync_*() called with PCI_DMA_TODEVICE would occur between the
+write and the DMA:
 
-> 
-> > It's a "I know everything about this valid inode" that is been used in
-> > the past and that may be used in the future, so I feel it's an order of
-> > magnitude more useful information.
-> 
-> It's "I hadn't touched that inode in quite a while, but I'll retain it
-> in-core almost indefinitely".
+	1) driver gets buffer from pool and writes into it
+	2) driver calls pci_dma_sync_single(..., PCI_DMA_TODEVICE) which
+	   in turn copies to a bounce buffer, flushes cache and write
+	   buffers (whichever are relevant per architecture)
+	3) driver sets up DMA
+	4) controller DMAs the packet
+	5) driver acknowledges DMA completion, implicitly "takes back"
+	   buffer and puts into pool
+	6) goto 1)
 
-disagree, you can apply the same argument to the whole dcache in the
-first place (not even the negative one!).
+The problem concerns the meaning of the driver or controller "owning" a
+buffer. Should there be a call between steps 4) and 5) where the driver
+"reclaims" the buffer? Yet, by this point, nothing should have changed
+in the buffer, so there's no reason to copy from the bounce-buffer or
+write-back/invalidate cache lines.
 
-> 
-> > means there's mem pressure, so the inode as well will be collected soon,
-> > prune_icache is run right after prune_dcache. So only the very last
-> > inodes will be left there for minutes, and they will belong to the most
-> > hot dentries, so very likely to be required again by a later iget as
-> > soon as the dentry is re-created. It don't see any similarity to the
-> > unlink-dentry-negative issue.
-> 
-> Again, inodes are in that state only if there is no dentry pointing to
-> them.  And in _that_ state (== no references from the rest of kernel)
-> they happily sit around for minutes.
+So the question is: After having written to a buffer, called
+pci_dma_sync_*(), and DMAed the buffer, is there anything left to do
+(for certain architectures) before the driver can re-claim it and begin
+writing into the buffer again? If the answer is no, then I propose we
+keep the API the way it is and change the semantics such that, for
+writing streaming buffers to a driver, pci_dma_sync_*() must be called
+after all driver writes have completed and before the DMA occurs, thus
+transferring "ownership" to the driver.
 
-there is no difference at all from the inode side prospective if there's
-a dentry or not, nothing guarantees that the dentry will be used soon.
+But to contradict myself and say how I think the API should change...
 
-As said unless your vm is broken, freeing the inode at the last iput, so
-to have it allocated only when some dentry is pointing to it, shouldn't
-nearly make any difference in practice, if it makes big difference that's
-a vm problem.
+The pci_(un)map_*() routines provide a convenient model for maintaining
+cache coherency in situations where one maps a buffer, does DMA, and
+unmaps it once again. For streaming DMA where a set of buffers stay
+mapped, however, using pci_dma_sync_*() to handle two different problems
+(providing a mapping that the controller can view and maintaining
+cache/write-buffer coherency) is, IMHO, somewhat confusing.  Having an
+API where separate calls are used for these problems allows the driver
+writer to more explicitly say things such as:
 
-> 
-> > But if you want to change the iput so that the inode is discared at the
-> > last iput that probably won't make much differnce, but I don't see any
-> > benefit. As said until the last prune_icache, most of the inodes are
-> > released anyways after they become unused.  But I just don't see a
-> > problem there, because those inodes won't stays there for minutes
-> > prune_icache will collect them, and if the last one stays for minute
-> > it's fine, the dcache aging made sure that if that was the last inode
-> > left hanging around it is more likely to be reused next and if it's
-> > reused we avoid a lowlevel ->read_inode. In short the part about the
-> > inodes destroy procedure looks all right to me.
-> 
-> It's always a pity when trivial testing spoils a beautiful theory, isn't it?
+[write into buffer]
+pci_dma_sync(buffer, TO_DEVICE)            // -Does writeback and wbflush
+pci_dma_controller_owns(buffer, TO_DEVICE) // -Bounce-buffer copy, etc
+[dma to controller]
+pci_dma_driver_owns(buffer, TO_DEVICE)     // -Prepare for CPU write...
+(no need to sync - the buffer couldn't have changed)
 
-well, try 2.4.19pre8aa3 + the inode fix I posted this morning, and then
-try to spol the theory with the trivial testing again :) I think you
-won't spoil it, but I'd like to know if you can reproduce the problem
-such way too.
+I have a more complex example that could affect this design, but I'm
+going to sit on it for a short while instead of making this e-mail even
+longer. :o)
 
-Andrea
+Thanks,
+William

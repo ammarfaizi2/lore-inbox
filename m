@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbTFBKby (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 06:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTFBKbx
+	id S262153AbTFBKcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 06:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTFBKcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 06:31:53 -0400
-Received: from ns.suse.de ([213.95.15.193]:61709 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262151AbTFBKbu (ORCPT
+	Mon, 2 Jun 2003 06:32:03 -0400
+Received: from ns.suse.de ([213.95.15.193]:63245 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262153AbTFBKb5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 06:31:50 -0400
-Date: Mon, 2 Jun 2003 12:45:12 +0200
+	Mon, 2 Jun 2003 06:31:57 -0400
+Date: Mon, 2 Jun 2003 12:45:17 +0200
 From: Jens Axboe <axboe@suse.de>
 To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5-bkcvs] capability flag for ATAPI MO drives
-Message-ID: <20030602104512.GF9561@suse.de>
-References: <Pine.LNX.4.44.0305291545220.8842-100000@neptune.local>
+Cc: David Wilson <david@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: capability flag for ATAPI MO (from kernel mailing list)
+Message-ID: <20030602104517.GH9561@suse.de>
+References: <20030530015334.GD1120@uow.edu.au> <Pine.LNX.4.44.0305301130070.1076-100000@neptune.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305291545220.8842-100000@neptune.local>
+In-Reply-To: <Pine.LNX.4.44.0305301130070.1076-100000@neptune.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29 2003, Pascal Schmidt wrote:
+On Fri, May 30 2003, Pascal Schmidt wrote:
+> On Fri, 30 May 2003, David Wilson wrote:
 > 
-> Hi!
+> > Is optical (or CDC_OPTICAL) a good name for this capability?
+> > After all, CD CD-R CD-RW DVD DVD+/-R(W) are all optical.
 > 
-> Now that ide-cd in 2.5 deals with ATAPI MO drivers, I think there
-> should be a configuration/capability flag to identify the drive
-> as an MO drive. This will be needed for later write support so that
-> drivers/cdrom.c can tell that this drive is capable of writing.
+> Well, I simply used something similar to ide_optical from IDE code, but
+> I agree that it's not optimal.
 > 
-> Please apply and/or comment.
+> > That said, a better name does not immediately spring to mind
+> > (unless MOPTICAL works for you - magneto-optical seems too long).
 > 
-> Jens, how will ide-cd.c/cdrom.c fly with sector sizes of 512 or
-> 1024 bytes? There are MO disks with those sector sizes. I only have
-> 640 MB disks with 2048 byte sector size, so I can't test.
+> I'll see what Jens has to say about the name. CDC_MOPTICAL looks ugly
+> to me, and CDC_MO too short. Maybe CDC_MO_DRIVE would work if
+> CDC_OPTICAL is not acceptable.
 
-It probably wont. I'd be reluctant to actually allow that without
-someone doing the footwork of making sure it generally works. I'm not
-sure it does.
-
-Patch looks fine, btw.
+CDC_MO_DRIVE would be fine with me, it's right to the point. But
+basically I don't really care, I think it's pretty clear even if named
+CDC_OPTICAL.
 
 -- 
 Jens Axboe

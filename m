@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbTCEBXT>; Tue, 4 Mar 2003 20:23:19 -0500
+	id <S266865AbTCEBt2>; Tue, 4 Mar 2003 20:49:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbTCEBXT>; Tue, 4 Mar 2003 20:23:19 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:145 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S261900AbTCEBXS>; Tue, 4 Mar 2003 20:23:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>, ext2-devel@lists.sf.net
-Subject: Re: ext3 htree brelse problems look to be fixed!
-Date: Wed, 5 Mar 2003 09:24:52 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
-References: <m3of4q4rdl.fsf@lugabout.jhcloos.org>
-In-Reply-To: <m3of4q4rdl.fsf@lugabout.jhcloos.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030305013347.F0C9CECEC3@mx12.arcor-online.net>
+	id <S266907AbTCEBt2>; Tue, 4 Mar 2003 20:49:28 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:18846 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S266865AbTCEBt1>;
+	Tue, 4 Mar 2003 20:49:27 -0500
+Date: Tue, 4 Mar 2003 17:59:57 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Daniel Egger <degger@fhm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel bloat 2.4 vs. 2.5
+Message-ID: <20030305015957.GA27985@f00f.org>
+References: <1046817738.4754.33.camel@sonja> <20030304154105.7a2db7fa.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030304154105.7a2db7fa.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 05 Mar 03 00:57, James H. Cloos Jr. wrote:
-> I beleive (with this patch) htree is now ready for prime time.
+On Tue, Mar 04, 2003 at 03:41:05PM -0800, Andrew Morton wrote:
 
-Good that it's working for you, but it's not quite the last issue.  There is 
-some apparent cache thrashing to track down, and I believe there's still an 
-outstanding NFS issue.  It's getting there, though.
+> Daniel Egger <degger@fhm.edu> wrote:
 
-Regards,
+> > I've seen surprisingly few messages about the dramatic size
+> > increase between a simple 2.4 and a 2.5 kernel image.
 
-Daniel
+> 2.4 has magical size reduction tricks in it which were not brought
+> into 2.5 because we expect that gcc will do it for us.
+
+I can't see it helping *that* much, for me I have:
+
+    charon:~/wk/linux% size 2.4.x-cw/vmlinux bk-2.5.x/vmlinux
+       text    data     bss     dec     hex filename
+    2003887  120260  191657 2315804  23561c 2.4.x-cw/vmlinux
+    2411323  267551  181004 2859878  2ba366 bk-2.5.x/vmlinux
+
+    gcc version 2.95.4 20011002 (Debian prerelease)
+
+this is for functionally (in terms of .config) equivalent kernels.
+
+
+  --cw

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVASRNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVASRPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVASRNf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 12:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVASRNf
+	id S261786AbVASRPN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 12:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVASRPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 12:13:35 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:57310 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261778AbVASRNZ
+	Wed, 19 Jan 2005 12:15:12 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:9186 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261786AbVASROx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 12:13:25 -0500
-Date: Wed, 19 Jan 2005 09:11:06 -0800
+	Wed, 19 Jan 2005 12:14:53 -0500
+Date: Wed, 19 Jan 2005 09:13:23 -0800
 From: Tony Lindgren <tony@atomide.com>
 To: Pavel Machek <pavel@suse.cz>
 Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
@@ -19,64 +19,29 @@ Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
        Martin Schwidefsky <schwidefsky@de.ibm.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119171106.GA14545@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <20050119113642.GA1358@elf.ucw.cz>
+Message-ID: <20050119171323.GB14545@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <20050119094342.GB25623@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050119113642.GA1358@elf.ucw.cz>
+In-Reply-To: <20050119094342.GB25623@elf.ucw.cz>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@suse.cz> [050119 03:32]:
-> Hi!
-> 
-> > As this patch is related to the VST/High-Res timers, there
-> > are probably various things that can be merged. I have not
-> > yet looked at what all could be merged.
+* Pavel Machek <pavel@suse.cz> [050119 01:44]:
+>
 > > 
-> > I'd appreciate some comments and testing!
+> > Please note that this patch alone does not help much with
+> > power savings. More work is needed in that area to make the
+> > system take advantage of the idle time inbetween the skipped
+> > ticks.
 > 
-> Good news is that it does seem to reduce number of interrupts. Bad
-> news is that time now runs faster (like "sleep 10" finishes in ~5
-> seconds) and that I could not measure any difference in power
-> consumption.
+> Well, having HZ=100 instead of HZ=1000 has measurable benefits on
+> power consumption. This should be at least as good, no?
 
-Thanks for trying it out. I have quite accurate time here on my
-systems, and sleep works as it should. I wonder what's happening on
-your system? If you have a chance, could you please post the results
-from following simple tests?
-
-Regards,
+HZ=100 does not allow improving the idle loop much further
+from what we have. We should be able to take advantage of the
+longer idle/sleep periods inbetween the skipped ticks.
 
 Tony
-
-# dmesg | grep -i time
-Using tsc for high-res timesource
-dyn-tick: Registering dynamic tick timer
-per-CPU timeslice cutoff: 731.77 usecs.
-task migration cache decay timeout: 1 msecs.
-..TIMER: vector=0x31 pin1=2 pin2=-1
-Machine check exception polling timer started.
-Real Time Clock Driver v1.12
-dyn-tick: Enabling dynamic tick timer
-dyn-tick: Timer using dynamic tick
-
-# for i in 1 2 3 4 5; do ntpdate -b rinkeli && sleep 10; done
-19 Jan 17:03:16 ntpdate[937]: step time server 192.168.100.254 offset -0.002639 sec
-19 Jan 17:03:26 ntpdate[941]: step time server 192.168.100.254 offset -0.000374 sec
-19 Jan 17:03:36 ntpdate[945]: step time server 192.168.100.254 offset -0.000100 sec
-19 Jan 17:03:47 ntpdate[949]: step time server 192.168.100.254 offset -0.000530 sec
-19 Jan 17:03:57 ntpdate[953]: step time server 192.168.100.254 offset -0.000841 sec
-
-# date && sleep 10 && date
-Wed Jan 19 17:05:35 UTC 2005
-Wed Jan 19 17:05:45 UTC 2005
-
-# while [ 1 ]; do date; done | uniq
-Wed Jan 19 17:06:14 UTC 2005
-Wed Jan 19 17:06:15 UTC 2005
-Wed Jan 19 17:06:16 UTC 2005
-Wed Jan 19 17:06:17 UTC 2005
-...

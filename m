@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbQLNLUq>; Thu, 14 Dec 2000 06:20:46 -0500
+	id <S130425AbQLNLa1>; Thu, 14 Dec 2000 06:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132175AbQLNLUf>; Thu, 14 Dec 2000 06:20:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25616 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129828AbQLNLUV>; Thu, 14 Dec 2000 06:20:21 -0500
-Subject: Re: do NOT compile 2.2.18 with egcs-1.1.2
-To: jamagallon@able.es (J . A . Magallon)
-Date: Thu, 14 Dec 2000 10:51:19 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        dmircea@linux.kappa.ro (Mircea Damian), linux-kernel@vger.kernel.org
-In-Reply-To: <20001214113813.C9662@werewolf.able.es> from "J . A . Magallon" at Dec 14, 2000 11:38:13 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130454AbQLNLaR>; Thu, 14 Dec 2000 06:30:17 -0500
+Received: from a75d1hel.dial.kolumbus.fi ([193.229.161.75]:57607 "EHLO
+	darkmoon.imagesoft") by vger.kernel.org with ESMTP
+	id <S130425AbQLNLaF>; Thu, 14 Dec 2000 06:30:05 -0500
+Message-ID: <3A38A825.DE416521@imagesoft.fi>
+Date: Thu, 14 Dec 2000 12:59:49 +0200
+From: Jussi Laako <jussi.laako@imagesoft.fi>
+Organization: Image Soft Oy
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Memory subsystem error and freeze on 2.4.0-test12
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E146Vys-00047u-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I use 2.2.18 with ne2k-pci from kernel and that of scyld, and work fine under
-> 2.91 (egcs)
-> 
-> BTW, when a resync of 2.2 net drivers with scyld ? perhaps 2.2.19 ? 
+Hello,
 
-I have no plan to do this. Don's drivers depend on some extra glue that was
-rejected from the main kernel tree. Said glue is also buggy causing the same
-card to be multiply detected.
+Is this normal:
 
-If folks want to strip the glue out and get real changes into the tree or
-clean up a given driver then go ahead. (natsemi and the via-rhine updates
-would be nice for example).
+Dec 14 12:33:32 alien kernel: __alloc_pages: 2-order allocation failed.
 
-Don't ask Donald to do it. He isnt hiding from us all, he's very busy doing
-a lot of other cool stuff...
+System deadlocked about one minute later.
 
-Alan
+I have hard resource limits set.
 
+ - Jussi Laako
+
+-- 
+PGP key fingerprint: 3827 6A53 B7F9 180E D971  362B BB53 C8A1 B578 D249
+Available at: ldap://certserver.pgp.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

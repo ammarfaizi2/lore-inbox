@@ -1,45 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263038AbTEBR5p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 13:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbTEBR5p
+	id S262982AbTEBRjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 13:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTEBRjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 13:57:45 -0400
-Received: from oker.escape.de ([194.120.234.254]:7126 "EHLO oker.escape.de")
-	by vger.kernel.org with ESMTP id S263038AbTEBR5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 13:57:42 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] settimeofday(2) succeeds for microsecond value more than USEC_PER_SEC and for negative value
-References: <94F20261551DC141B6B559DC491086723E1028@blr-m3-msg.wipro.com>
-	<3E973546.70809@mvista.com>
-From: Urs Thuermann <urs@isnogud.escape.de>
-Date: 02 May 2003 20:06:13 +0200
-In-Reply-To: <3E973546.70809@mvista.com>; from george anzinger on Fri, 11 Apr 2003 14:36:06 -0700
-Message-ID: <m265otw7e2.fsf@isnogud.escape.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	Fri, 2 May 2003 13:39:25 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:47303 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S262090AbTEBRjV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 13:39:21 -0400
+Date: Fri, 02 May 2003 11:51:28 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Aic7xxx and Aic79xx Driver Updates
+Message-ID: <2274070000.1051897888@aslan.btc.adaptec.com>
+In-Reply-To: <1051885837.1820.34.camel@mulgrave>
+References: <1866260000.1051828092@aslan.btc.adaptec.com> <1051885837.1820.34.camel@mulgrave>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger <george@mvista.com> writes:
-
-> Uh, sure.  This is the test I prefer:
+> First off, could you take a look at
 > 
-> 	if( (unsigned long)tv->usec > USEC_PER_SEC)
-> 		return EINVAL;
+> http://bugzilla.kernel.org/show_bug.cgi?id=608
 > 
-> Note that the unsigned picks up the negative value as well as the >
-> (and it does it in only one machine code test/jmp :)
+> I thought it was an sr problem, but it doesn't seem to show up on
+> anything other than adaptec controllers?  Thanks.
 
-No, don't do the compilers job.  Just write
+I've just updated the bug.
 
-        if (tv->usec < 0 || tv->usec >= USEC_PER_SEC) { ... }
+> On Thu, 2003-05-01 at 17:28, Justin T. Gibbs wrote:
+>> ChangeSet
+>>   1.1118.33.5 03/04/24 15:12:48 gibbs@overdrive.btc.adaptec.com +7 -0
+>>   Aic7xxx and Aic79xx Driver Updates
+>>    o Adapt to new IRQ handler declaration/behavior for 2.5.X
+> 
+> The changes for this:
+> 
+> +#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+> +#define        AIC_LINUX_IRQRETURN_T irqreturn_t
+> +#define        AIC_LINUX_IRQRETURN(ours) return (IRQ_RETVAL(ours))
+> +#else
+> +#define        AIC_LINUX_IRQRETURN_T void
+> +#define        AIC_LINUX_IRQRETURN(ours)  return
+> +#endif
+> 
+> Are rather convoluted.  Could you just remove the wrappering for 2.5?
 
-This is easier to read, portable, and generates the same machine code
-as your C code, at least in all gcc versions since gcc-2.7.2.3 (I
-don't have older gcc versions here on my machine to test).
+The answer to this and your other issues you raise about the driver are
+the same.  I do not want to fork the driver.  I still have to maintain
+support all the way back to 2.4.7 and branching the driver for every
+different supported kernel would be a nightmare to maintain.  As it stands
+now, other than the Makefile and kernel config files, there is just one
+set of files that supports all of these kernels.  It makes it much
+easier for everyone involved including the primary maintainer of the
+driver.
 
+Personally, I don't see how this:
 
-urs
+AIC_LINUX_IRQRETURN_T
+ahd_linux_isr(int irq, void *dev_id, struct pt_regs * regs)
+{
+        struct  ahd_softc *ahd;
+        u_long  flags;
+        int     ours;
+
+...
+
+        AIC_LINUX_IRQRETURN(ours);
+}
+
+Is any harder to parse than:
+
+irqreturn_t
+ahd_linux_isr(int irq, void *dev_id, struct pt_regs * regs)
+{
+        struct  ahd_softc *ahd;
+        u_long  flags;
+        int     ours;
+
+...
+
+        return IRQ_RETVAL(ours);
+}
+
+I've tried hard to make most of the API differences similarly transparent
+within the driver to avoid messy ifdefs.  I haven't succeeded everywhere,
+but this is the price you pay when APIs change so often.  All of the code
+is also setup so that the backwards compatibility hooks have no impact on
+the driver's performance under any support kernel (i.e. each kernel is
+supported as best as it can be supported).
+
+Is there some new policy against having drivers that support multiple
+kernel versions?
+
+--
+Justin
+

@@ -1,113 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbTFCEa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 00:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTFCEa7
+	id S264933AbTFCFLC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 01:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTFCFLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 00:30:59 -0400
-Received: from dyn-ctb-210-9-245-29.webone.com.au ([210.9.245.29]:2820 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264925AbTFCEa5
+	Tue, 3 Jun 2003 01:11:02 -0400
+Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:16652 "EHLO
+	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S264929AbTFCFK6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 00:30:57 -0400
-Message-ID: <3EDC279C.9070300@cyberone.com.au>
-Date: Tue, 03 Jun 2003 14:44:12 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Tue, 3 Jun 2003 01:10:58 -0400
+Message-ID: <3EDC30C7.5060804@torque.net>
+Date: Tue, 03 Jun 2003 15:23:19 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [BENCHMARK] 100Hz v 1000Hz with contest
-References: <200306031322.01389.kernel@kolivas.org>
-In-Reply-To: <200306031322.01389.kernel@kolivas.org>
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] SG_IO readcd and various bugs
+References: <3ED86687.6000805@torque.net> <20030531105742.GC9561@suse.de> <3ED9ADC5.7060006@torque.net> <20030602072756.GC2832@suse.de>
+In-Reply-To: <20030602072756.GC2832@suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well thats nice, AS holds up OK...
+Jens Axboe wrote:
+> On Sun, Jun 01 2003, Douglas Gilbert wrote:
+<snip>
+>>The block layer SG_IO ioctl passes through the SCSI
+>>command set to a device that understands it
+>>(i.e. not necessarily a "SCSI" device in the traditional
+>>sense). Other pass throughs exist (or may be needed) for
+>>ATA's task file interface and SAS's management protocol.
+>>
+>>Even though my tests, shown earlier in this thread, indicated
+>>that the SG_IO ioctl might be a shade faster than O_DIRECT,
+>>the main reason for having it is to pass through "non-block"
+>>commands to a device. Some examples:
+>>  - special writes (e.g. formating a disk, writing a CD/DVD)
+>>  - uploading firmware
+>>  - reading the defect table from a disk
+>>  - reading and writing special areas on a disk
+>>    (e.g. application client log page)
+>>
+>>The reason for choosing this list is that all these
+>>operations potentially move large amounts of data in a
+>>single operation. For such data transfers to be constrained
+>>by max_sectors is questionable. Putting a block paradigm
+>>bypass in the block layer is an interesting design :-)
+> 
+> 
+> I think this is nonsense. The block layer will not accept commands
+> that it cannot handle in one go, what would the point of that be?
+> There's no way for us to break down a single command into pieces,
+> we have no idea how to do that. max_sectors _is_ the natural
+> constraint, it's the hardware limit not something I impose through
+> policy. For SCSI it could be bigger in some cases, that's up to the
+> lldd to set though.
+<snip>
 
-Con Kolivas wrote:
+Jens,
+Reviewing the linix-scsi archives, max_sectors was
+introduced around lk 2.4.7 and you were quite active
+in its promotion. There are also posts about problems
+with qlogic HBAs and their need for a limit to maximum
+transfer length. So there is some hardware justification.
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->I've attempted to answer the question does 1000Hz hurt responsiveness in 2.5 
->as much as I've found in 2.4; since subjectively the difference wasn't there 
->in 2.5. Using the same config with preempt enabled here are results from 
->2.5.70-mm3 set at default 1000Hz and at 100Hz (mm31):
->
->no_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          1   79      94.9    0.0     0.0     1.00
->2.5.70-mm31         1   77      94.8    0.0     0.0     1.00
->cacherun:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          1   76      97.4    0.0     0.0     0.96
->2.5.70-mm31         1   74      98.6    0.0     0.0     0.96
->process_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          2   108     68.5    64.5    28.7    1.37
->2.5.70-mm31         2   107     69.2    67.0    29.0    1.39
->ctar_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          3   114     70.2    1.0     5.3     1.44
->2.5.70-mm31         3   105     73.3    0.7     3.8     1.36
->xtar_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          3   123     62.6    2.3     5.7     1.56
->2.5.70-mm31         3   122     61.5    2.0     4.9     1.58
->io_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          4   116     66.4    40.6    18.8    1.47
->2.5.70-mm31         4   114     65.8    41.0    19.3    1.48
->io_other:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          2   116     66.4    50.0    22.2    1.47
->2.5.70-mm31         2   112     67.9    46.1    21.4    1.45
->read_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          2   104     75.0    8.2     5.8     1.32
->2.5.70-mm31         2   100     76.0    7.5     7.0     1.30
->list_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          2   95      80.0    0.0     7.4     1.20
->2.5.70-mm31         2   92      82.6    0.0     5.4     1.19
->mem_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          2   98      80.6    53.0    2.0     1.24
->2.5.70-mm31         2   95      81.1    53.0    2.1     1.23
->dbench_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.70-mm3          4   313     24.3    5.0     56.9    3.96
->2.5.70-mm31         4   297     24.9    4.5     52.5    3.86
->
->At first glance everything looks faster at 100Hz. However it is well known 
->that it will take slightly longer even with no load at 1000Hz. Taking that 
->into consideration and looking more at the final ratios than the absolute 
->numbers it is apparent that the difference is statistically insignificant, 
->except on ctar_load.
->
->Previously I had benchmark results on 1000Hz which showed preempt improved the 
->results in a few of the loads. For my next experiment I will compare 100Hz 
->with preempt to 100Hz without.
->
->Con
->-----BEGIN PGP SIGNATURE-----
->Version: GnuPG v1.2.1 (GNU/Linux)
->
->iD8DBQE+3BRIF6dfvkL3i1gRAnEbAKCpaj/kajzKV3qVrWGRIhOh+Q8O8gCfZp6c
->M3Iq1D/41t+4SB2jtNYQc48=
->=NMfC
->-----END PGP SIGNATURE-----
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+On 11th April 2002 Justin Gibbs posted this in a mail
+about aic7xxx version 6.2.6:
+"2) Set max_sectors to a sane value.  The aic7xxx driver was not
+    updated when this value was added to the host template structure.
+    In more recent kernels, the default setting for this field, 255,
+    can limit our transaction size to 127K.  This often causes the
+    scsi_merge routines to generate 127k followed by 1k I/Os to complete
+    a client transaction.  The command overhead of such small
+    transactions
+    can severely impact performance.  The driver now sets max_sectors to
+    8192 which equates to the 16MB S/G element limit for these cards as
+    expressed in 2K sectors."
+
+At the time max_sectors defaulted to 255, later it was
+bumped to 256 and is now 1024 in lk 2.5. However Justin's
+post is saying the hardware limit for a data transfer
+associated with a single SCSI command in the aic7xxx
+driver is:
+   sg_tablesize * (2 ** 24) bytes == 2 GB
+as the aic7xxx driver sets sg_tablesize to 128.
+Taking into account the largest practical kmalloc of 128 KB
+(which is not a hardware limitation) this number comes down
+to 16 MB. The 8192 figure that Justin chose is still in place
+in the aic7xxx driver in lk 2.5 and it limits maximum transfer
+size to 4 MB since the unit of max_sectors is now 512 bytes.
+
+Various projects have reported to me success in transferring
+8 and 16 MB individual WRITE commands through the sg driver,
+usually with LSI or Adaptec HBAs. The max_sectors==8192
+set by the aic7xxx is the maximum of any driver in the
+ide or the scsi subsystems (both in lk 2.4 and lk 2.5)
+currently. Most drivers are picking up the default value.
+The definition of "max_sectors" states in
+drivers/scsi/hosts.h:
+   "if the host adapter has limitations beside segment count"
+That could be taken to imply if a LLD does not define
+max_sectors then there is no limit.
+
+In summary, from a HBA drivers point of view, "max_sectors"
+is misnamed (since they transfer bytes) and not precise
+enough to describe any limitations on data transfers they
+may have.
+
+Apologies in advance for propagating further nonsense.
+
+Doug Gilbert
+
 

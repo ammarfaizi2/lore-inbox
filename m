@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbTKHAYq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTKGWG6
+	id S261602AbTKHAYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTKGWGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:06:58 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:47633 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263981AbTKGJd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 04:33:59 -0500
-Date: Fri, 7 Nov 2003 09:33:58 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Message-ID: <20031107093358.A1992@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Linux-SCSI <linux-scsi@vger.kernel.org>
-References: <B179AE41C1147041AA1121F44614F0B060ED69@AVEXCH02.qlogic.org>
+	Fri, 7 Nov 2003 17:06:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:22696 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264595AbTKGT1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 14:27:06 -0500
+Date: Fri, 7 Nov 2003 11:26:20 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More fixes for 2.6.0-test9
+Message-ID: <20031107192620.GA4276@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B060ED69@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Nov 06, 2003 at 09:02:28AM -0800
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	o Failover -- DM and the fastfail infrastructure appear to be
-> 	  in the early stages of adoption (implementation?).  There's
-> 	  no question that QLogic will support the interfaces once
-> 	  they mature.  Let's just agree to disagree...
+Hi,
 
-Hey, there's no one saying you have to kill all your failover stuff.  Just
-make it clearly optional and don't include it if_/when you submit the driver
-for inclusion.  We just can't have a failover implementation for each vendor.
-Not to mention that the LLDD really is the wrong place for it..
+Here are some more minor fixes for 2.6.0-test9.  These fixes do the
+following:
+	- fix oops with cardbus firewire controllers
+	- fix oops with usbnet devices on non-i386 platforms
+	- fix oops when removing the usb-storage module when using
+	  preempt.
+
+Please pull from:  bk://linuxusb.bkbits.net/gregkh-2.6
+
+Patches will be posted as a follow-up thread for those who want to see
+them.
+
+thanks,
+
+greg k-h
+
+ drivers/pci/quirks.c        |    2 +-
+ drivers/usb/host/ehci-hcd.c |    3 +++
+ drivers/usb/net/kaweth.c    |    3 +++
+ drivers/usb/net/usbnet.c    |    3 +++
+ drivers/usb/storage/usb.c   |   19 +++++++++++++++----
+ 5 files changed, 25 insertions(+), 5 deletions(-)
+-----
+
+<michael:metaparadigm.com>:
+  o PCI: Fix oops in quirk_via_bridge
+
+David Brownell:
+  o USB: usb ignores 64bit dma
+
+Matthew Dharm:
+  o USB: fix a thread-exit problem at module unload
 

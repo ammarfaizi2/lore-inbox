@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133051AbRDWNTD>; Mon, 23 Apr 2001 09:19:03 -0400
+	id <S133074AbRDWNc0>; Mon, 23 Apr 2001 09:32:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133073AbRDWNSv>; Mon, 23 Apr 2001 09:18:51 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:12999 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S133066AbRDWNR4>; Mon, 23 Apr 2001 09:17:56 -0400
-Date: Mon, 23 Apr 2001 15:17:53 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: "David L. Parsley" <parsley@linuxjedi.org>, linux-kernel@vger.kernel.org,
-        viro@math.psu.edu
-Subject: Re: hundreds of mount --bind mountpoints?
-Message-ID: <20010423151753.C719@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org> <m3r8yjrgdc.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <m3r8yjrgdc.fsf@linux.local>; from cr@sap.com on Mon, Apr 23, 2001 at 01:43:27PM +0200
+	id <S133073AbRDWNcQ>; Mon, 23 Apr 2001 09:32:16 -0400
+Received: from iris.mc.com ([192.233.16.119]:10464 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S133074AbRDWNcE>;
+	Mon, 23 Apr 2001 09:32:04 -0400
+From: Mark Salisbury <mbs@mc.com>
+To: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>,
+        george anzinger <george@mvista.com>
+Subject: Re: No 100 HZ timer!
+Date: Mon, 23 Apr 2001 09:22:09 -0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AE3FE79.9982.6C4B69@localhost>
+In-Reply-To: <3AE3FE79.9982.6C4B69@localhost>
+MIME-Version: 1.0
+Message-Id: <01042309311509.00685@pc-eng24.mc.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 01:43:27PM +0200, Christoph Rohland wrote:
-> On Sun, 22 Apr 2001, David L. Parsley wrote:
-> > attach packages inside it.  Since symlinks in a tmpfs filesystem
-> > cost 4k each (ouch!), I'm considering using mount --bind for
-> > everything.
+On Mon, 23 Apr 2001, Ulrich Windl wrote:
+> IMHO the POSIX is doable to comply with POSIX. Probably not what many 
+> of the RT freaks expect, but doable. I'm tuning the nanoseconds for a 
+> while now...
 > 
-> What about fixing tmpfs instead?
+> Ulrich
 
-The question is: How? If you do it like ramfs, you cannot swap
-these symlinks and this is effectively a mlock(symlink) operation
-allowed for normal users. -> BAD!
+thanks for calling me a freak :)
 
-One idea is to only use a page, if the entry will be pushed into
-swap and thus only wasting swap, not memory (where we have more
-of it).
+yes, linux could have posix timers cobbled on today and comply with the POSIX
+spec.
 
-But allocating a page on memory pressure is also not a bright
-idea.
+but, we would like to make it better, not just feature complete.
 
-OTOH we could force this entry to swap immedately, after we
-copied it from the dentry. So we can do an GFP_ATOMIC allocation
-and do not too much harm to memory pressure and only make the IO
-a bit stormier.
+10ms timer resolutions, while completely in compliance w/ the posix spec, are
+completely useless for "RT freaks" 
 
-I think there are a lot of races, which I don't see now.
+remember that 95% of all computers in the world are embedded and of those most
+nead at least "soft" RT behavior.  seems like a good growth market for linux to
+me.
 
-So please don't beat me too much, if this is a completly stupid
-idea, ok?  ;-)
+when a PPC G4 is capable of 30 nanosecond resolution, why would you want to
+settle for 10 millisecond  (30 billionths of a second vs 10 thousandths for
+those of you who haven't had to familiarize yourselves with sub-second time
+units)
 
-
-Regards
-
-Ingo Oeser
+> 
+> On 17 Apr 2001, at 11:53, george anzinger wrote:
+> 
+> > I was thinking that it might be good to remove the POSIX API for the
+> > kernel and allow a somewhat simplified interface.  For example, the user
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+/*------------------------------------------------**
+**   Mark Salisbury | Mercury Computer Systems    **
+**   mbs@mc.com     | System OS - Kernel Team     **
+**------------------------------------------------**
+**  I will be riding in the Multiple Sclerosis    **
+**  Great Mass Getaway, a 150 mile bike ride from **
+**  Boston to Provincetown.  Last year I raised   **
+**  over $1200.  This year I would like to beat   **
+**  that.  If you would like to contribute,       **
+**  please contact me.                            **
+**------------------------------------------------*/
+

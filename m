@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313816AbSDPSRQ>; Tue, 16 Apr 2002 14:17:16 -0400
+	id <S313808AbSDPS0S>; Tue, 16 Apr 2002 14:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313817AbSDPSRP>; Tue, 16 Apr 2002 14:17:15 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51697
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313816AbSDPSRO>; Tue, 16 Apr 2002 14:17:14 -0400
-Date: Tue, 16 Apr 2002 11:19:36 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <20020416181936.GC23513@matchmail.com>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020416013016.GA23513@matchmail.com> <Pine.LNX.3.96.1020416095729.26684A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S313810AbSDPS0R>; Tue, 16 Apr 2002 14:26:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57360 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313808AbSDPS0P>;
+	Tue, 16 Apr 2002 14:26:15 -0400
+Message-ID: <3CBC6CB7.C716911B@zip.com.au>
+Date: Tue, 16 Apr 2002 11:25:59 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: readahead
+In-Reply-To: <UTC200204161354.g3GDsFO28323.aeb@smtp.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 10:00:36AM -0400, Bill Davidsen wrote:
-> On Mon, 15 Apr 2002, Mike Fedyk wrote:
+Andries.Brouwer@cwi.nl wrote:
 > 
-> > No matter how much someone can go through their own code and say "it's
-> > ready" there's always a good chance there is some bug that will trigger
-> > under testing.  Also, Andrew found a problem with your locking changes when
-> > he split up your patch, and at the time you were saying it is ready and
-> > there were no bug reports against in...
+> [readahead.c has badly readable comments, on a standard
+> 80-column display: many lines have a size just slightly
+> over 80 chars]
+
+Sigh.  At least it has comments.  Agree with the 80-column
+thing, but I find for the kernel coding style, 80 is just
+5-10 columns too short, often.
+
+> In the good old days we had tunable readahead.
+> Very good, especially for special purposes.
+
+readahead is tunable, but the window size is stored
+at the request queue layer.  If it has never been
+set, or if the device doesn't have a request queue,
+you get the defaults.
+
+Do these cards not have a request queue?  Suggestions
+are sought.
+ 
+> I recall the days where I tried to get something off
+> a bad SCSI disk, and the kernel would die in the retries
+> trying to read a bad block, while the data I needed was
+> not in the block but just before. Set readahead to zero
+> and all was fine.
+
+Yes, but things should be OK as-is.  If the readahead attempt
+gets an I/O error, do_generic_file_read will notice the non-uptodate
+page and will issue a single-page read.  So everything up to
+a page's distance from the bad block should be recoverable.
+That's the theory; can't say that I've tested it.
+
+If the driver is actually dying over the bad block, well, foo.
+
+> Yesterday evening I was playing with my sddr09 driver,
+> reading SmartMedia cards, and found to my dismay that
+> the kernel wants to do a 128 block readahead.
+> Not only is that bad on a slow medium, one is waiting
+> a noticeable time for unwanted data, but it is worse
+> that setting the readahead no longer works.
 > 
-> If you are going to reject code from people who send in code which turns
-> out to have bugs you are going to have a VERY small set of submitters.
+> [Indeed, it is very desirable to be able to set readahead
+> to zero. It is also desirable to be able to set it to a
+> small value. Today on 2.5.8 both are impossible, readahead.c
+> insists on a minimum readahead of 16 sectors.]
 
-No that's not what I was saying.
+Yup.  Permitting a window size of zero is on my todo list,
+but it would require that the device have a request queue.
+Maybe the readahead size should be placed in struct blk_dev_struct,
+and not in the request queue?
 
-> It's good to have someone else read the code, for breakup or whatever, but
-> to avoid cleanup in a stable kernel seems long term the wrong direction.
-> 
-
-Exactly.  I'm just saying that you will get more eyes on the code and less
-possible detrimental impact (if any, which I doubt) if the patches don't all
-go into one set of -pre patches but spread out over a few releases
-(2.4.19,20 and possibly 21).  The -pre kernels get testing, but not nearly
-as much as the releases do.  Test the -pre and -rc kernels as much as
-possible, but also know that something might be flushed out by some people
-that only use the released kernels (non -pre or -rc).
-
-Mike
+-

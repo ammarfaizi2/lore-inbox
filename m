@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272179AbRH3MRc>; Thu, 30 Aug 2001 08:17:32 -0400
+	id <S272178AbRH3MQk>; Thu, 30 Aug 2001 08:16:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272173AbRH3MR2>; Thu, 30 Aug 2001 08:17:28 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:17606 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S272179AbRH3MRO>; Thu, 30 Aug 2001 08:17:14 -0400
-Date: Thu, 30 Aug 2001 22:17:33 +1000
-From: john slee <indigoid@higherplane.net>
-To: Philippe Amelant <philippe.amelant@free.fr>
+	id <S272179AbRH3MQa>; Thu, 30 Aug 2001 08:16:30 -0400
+Received: from web9307.mail.yahoo.com ([216.136.129.56]:13316 "HELO
+	web9307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272178AbRH3MQW>; Thu, 30 Aug 2001 08:16:22 -0400
+Message-ID: <20010830121640.16465.qmail@web9307.mail.yahoo.com>
+Date: Thu, 30 Aug 2001 05:16:40 -0700 (PDT)
+From: John paul R <jpr200012@yahoo.com>
+Subject: Re: dell inspiron 8000 eepro100 problems
+To: Andrey Savochkin <saw@saw.sw.com.sg>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp freeze on 2.4.9
-Message-ID: <20010830221733.A3834@higherplane.net>
-In-Reply-To: <999166237.1257.31.camel@avior>
-Mime-Version: 1.0
+In-Reply-To: <20010830154914.A13392@castle.nmd.msu.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <999166237.1257.31.camel@avior>
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 12:10:37PM +0200, Philippe Amelant wrote:
-> I have an ABIT BP6 mobo with 2 celeron 400 running redhat 7.1 with 2.4.3
 
-before you blame smp, try the usual bp6 stuff:
-*	bigger/better power supply
-*	better cooling
-*	boot with 'noapic' on commandline
+--- Andrey Savochkin <saw@saw.sw.com.sg> wrote:
+> On Wed, Aug 22, 2001 at 01:04:12AM -0700, John paul
+> R wrote:
+> [snip]
+> > sometimes it may take 10 hours to start. what
+> happens
+> > is i lose my ability to connect to anything
+> whether it
+> > be telnet, web browsing, ssh, etc. but i can still
+> > ping sites by ip address. if i am plugged in
+> behind my
+> > router i can ping and connect to other boxes on my
+> > network (i've been browsing through a proxy on one
+> of
+> > them while trying to figure out what the problem
+> is).
+> [snip]
+> 
+> The fact that you can still ping sites by IP is
+> important.
+> 1. Check if it's DNS-related problem.
+> 2. Check if packet size matters.
 
-search a linux-kernel archive (http://marc.theaimsgroup.com)
-for more info.  these boards seem to be a bit of a lucky dip.  some
-never have any problems, others have heaps.  i have a vague memory of
-someone mentioning flaky caps on some revisions...  also are you using
-the onboard ata66 controller?  there's been a fair few reports of
-trouble with those, not sure if it was fixed/hacked-around or not.
+i don't think it is dns related problems because the
+other computers on the network can still use the same
+dns server and rebooting fixes the problem. one other
+thing i should add is that if i have already connect
+to something like aim i can continue using it or
+anything else that i already have established a
+connection to. i have tried what someone else
+suggested and let tcpdump run for a few minutes and it
+seems to clear up the problem.
 
-best of luck,
+> 
+>  Andrey
 
-j.
-
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+__________________________________________________
+Do You Yahoo!?
+Get email alerts & NEW webcam video instant messaging with Yahoo! Messenger
+http://im.yahoo.com

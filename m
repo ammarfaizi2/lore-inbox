@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131375AbQLLMLa>; Tue, 12 Dec 2000 07:11:30 -0500
+	id <S131586AbQLLMPa>; Tue, 12 Dec 2000 07:15:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131684AbQLLMLU>; Tue, 12 Dec 2000 07:11:20 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:57874 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131375AbQLLMLJ>;
-	Tue, 12 Dec 2000 07:11:09 -0500
-Date: Tue, 12 Dec 2000 12:40:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Jonathan Morton <chromatix@penguinpowered.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre24 spurious diskchanges
-Message-ID: <20001212124009.P294@suse.de>
-In-Reply-To: <l03130303b65ba02ad4e6@[192.168.239.101]> <200012121023.LAA05097@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200012121023.LAA05097@microsoft.com>; from xavier.bestel@free.fr on Tue, Dec 12, 2000 at 09:23:35AM -0100
+	id <S131659AbQLLMPU>; Tue, 12 Dec 2000 07:15:20 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:37591 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S131586AbQLLMPL>; Tue, 12 Dec 2000 07:15:11 -0500
+Date: Tue, 12 Dec 2000 06:44:32 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.0-test12 not liking high disk i/o
+Message-ID: <Pine.LNX.4.30.0012120636480.1053-100000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12 2000, Xavier Bestel wrote:
-> > >on my ide CDROm I get, roughly each 2 seconds, disk changes although the
-> > >drive is empty and I don't touch it:
-> > >
-> > >Dec 12 08:57:43 localhost kernel: VFS: Disk change detected on device
-> > >ide0(3,64)
-> > >Dec 12 08:58:14 localhost last message repeated 16 times
-> > >Dec 12 08:59:16 localhost last message repeated 31 times
-> > >Dec 12 09:00:17 localhost last message repeated 30 times
-> > >Dec 12 09:01:19 localhost last message repeated 31 times
-> > >Dec 12 09:02:21 localhost last message repeated 31 times
-> > >etc ...
-> > 
-> > It would probably help if you told us what make/model CD-ROM drive, and
-> > whether you're using any particular driver with it (usually the standard
-> > ATAPI one).
+Hey guys,
 
-Huh? It says (3,64) which would make it hdd -- the only driver possible
-is ide-cd here.
+Any one else experiencing problems when they do lots of disk activity
+in test12?
 
-> Oops, I just killed magicdev, as told by someone, and this is gone.
+I was able to grab the tail end of an oops. Probably not too usefull.
 
-Yep, remove that awful beast.
+Code: 89 42 04 89 10 b8 01 00 00 00 07 43 04 00 00 00 00 c7 03 00
+Aiee, killing interrupt handler
+Kernel panic: Attempted to kill the idle task!
+In interrupt handler - not syncing.
 
+If I Alt+SysRq+s I get more oops (only tails again) and if I do it
+enough times it hits a BUG and reboots immediately.
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

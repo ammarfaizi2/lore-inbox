@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVCEVIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVCEVJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVCEVIt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 16:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVCEVIt
+	id S261152AbVCEVJW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 16:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVCEVJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 16:08:49 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:9925 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261169AbVCEVIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 16:08:43 -0500
-Message-ID: <422A1FB6.3000504@ens-lyon.org>
-Date: Sat, 05 Mar 2005 22:08:06 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
-       Len Brown <len.brown@intel.com>
-Subject: Re: s4bios: does anyone use it?
-References: <20050305191405.GA1463@elf.ucw.cz>
-In-Reply-To: <20050305191405.GA1463@elf.ucw.cz>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
+	Sat, 5 Mar 2005 16:09:22 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:16571 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261152AbVCEVJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 16:09:15 -0500
+Date: Sat, 05 Mar 2005 14:09:02 -0700
+From: Jeremy Nickurak <atrus@rifetech.com>
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+In-reply-to: <87zmxil0g8.fsf@quasar.esben-stien.name>
+To: Esben Stien <b0ef@esben-stien.name>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1110056942.16541.4.camel@localhost>
+MIME-version: 1.0
+X-Mailer: Evolution 2.1.3.2
+Content-type: multipart/signed; boundary="=-Vx8Yw6OarPRmwHRyHUyA";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+ <87zmylaenr.fsf@quasar.esben-stien.name> <20050204195410.GA5279@ucw.cz>
+ <873bvyfsvs.fsf@quasar.esben-stien.name>
+ <87zmxil0g8.fsf@quasar.esben-stien.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek a écrit :
-> Hi!
-> 
-> Is there single user of s4bios? It used to work for me 4 notebooks
-> ago, but I never really used it. I think I'm the only person that ever
-> seen it working, but I could be wrong. Is there anyone using s4bios in
-> 2.6.11?
-> 
-> If not, I guess we should remove that code from kernel. It is not
-> usefull, and it is likely broken.
-> 								Pavel
 
-Hi Pavel,
+--=-Vx8Yw6OarPRmwHRyHUyA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I always suspend my Compaq Evo N6OOc to disk using "echo 4b > /proc/acpi/sleep".
-I don't remember the reason why I originally did choose this one instead of S4.
-I just checked that S4 and S4Bios work the same on 2.6.11-mm1 (even with my
-PCMCIA wireless card connected, great!).
- From what I remember, I didn't see any difference between S4 and S4Bios in
-recent vanilla kernels.
+On sab, 2005-03-05 at 13:52 +0100, Esben Stien wrote:
+>Sorry, false report. 2.6.11-rc3 makes my tilt button show up as 2
+>buttons being pressed simultaneously, just like that previous report.
+>
+>I also tried linux-2.6.11 today and it was the same.=20
+>
+>It shows up as both button 4 and 12 being pressed simultaneously.
 
-By the way, it seems that Radeon makes suspend slower because it needs
-to be blanked or something like that. Is there any way to avoid this ?
+Right, this is just a result of our different xmodmap configurations.
+Otherwise we're seeing exactly the same symptoms.
 
-Regards
+--=20
+Jeremy Nickurak <atrus@rifetech.com>
 
-Brice
+--=-Vx8Yw6OarPRmwHRyHUyA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCKh/utjFmtbiy5uYRAt+fAJ4+GLc1tDlUXo/LrRh0Mjsb/ciqmwCePo0+
+igO2X36WaOfOm264DvBN9Io=
+=rVaf
+-----END PGP SIGNATURE-----
+
+--=-Vx8Yw6OarPRmwHRyHUyA--

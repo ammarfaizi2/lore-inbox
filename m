@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbSLSKrg>; Thu, 19 Dec 2002 05:47:36 -0500
+	id <S267610AbSLSKt1>; Thu, 19 Dec 2002 05:49:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267649AbSLSKrf>; Thu, 19 Dec 2002 05:47:35 -0500
-Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:10762 "EHLO
-	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267647AbSLSKrY>; Thu, 19 Dec 2002 05:47:24 -0500
-Date: Thu, 19 Dec 2002 10:55:30 +0000
-To: lvm-devel@sistina.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] [PATCH] add kobject to struct mapped_device
-Message-ID: <20021219105530.GA2003@reti>
-References: <20021218184307.GA32190@kroah.com>
+	id <S267611AbSLSKt1>; Thu, 19 Dec 2002 05:49:27 -0500
+Received: from holomorphy.com ([66.224.33.161]:56000 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267610AbSLSKt0>;
+	Thu, 19 Dec 2002 05:49:26 -0500
+Date: Thu, 19 Dec 2002 02:55:11 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       David Lang <david.lang@digitalinsight.com>, Robert Love <rml@tech9.net>,
+       Till Immanuel Patzschke <tip@inw.de>,
+       lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: 15000+ processes -- poor performance ?!
+Message-ID: <20021219105511.GV31800@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alex Tomas <bzzz@tmi.comex.ru>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	David Lang <david.lang@digitalinsight.com>,
+	Robert Love <rml@tech9.net>, Till Immanuel Patzschke <tip@inw.de>,
+	lse-tech <lse-tech@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <1040262178.855.106.camel@phantasy> <Pine.LNX.4.44.0212181743350.7848-100000@dlang.diginsite.com> <20021219020552.GO31800@holomorphy.com> <200212191015.gBJAFss28329@Port.imtp.ilyichevsk.odessa.ua> <20021219102720.GT31800@holomorphy.com> <m3u1hapa51.fsf@lexa.home.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021218184307.GA32190@kroah.com>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+In-Reply-To: <m3u1hapa51.fsf@lexa.home.net>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
+William Lee Irwin (WLI) writes:
+WLI> As userspace solutions go your suggestions is just as good. The
+WLI> kernel still needs to get its act together and with some
+WLI> urgency.
 
-This looks like patch 1 of many, since it doesn't actually export any
-attributes through sysfs yet.  Can you please give me more of an idea
-of what the attributes are that you want to export ?  Are you trying
-to move the dmfs functionality into sysfs ?
+On Thu, Dec 19, 2002 at 01:37:30PM +0300, Alex Tomas wrote:
+> what about retreiving info from /proc/kmem or something like? just to 
+> avoid binary -> text(proc) -> binary
 
-I won't accept this patch on it's own, but am sure what you are trying
-to do is the right thing, so will probably have no objections when the
-rest of the patches arrive.
-
-On Wed, Dec 18, 2002 at 10:43:07AM -0800, Greg KH wrote:
-> Oh, and why isn't struct mapped_device declared in dm.h?  If it was,
-> dm_get and dm_put could be inlined, along with a few other potential
-> cleanups.
-
-I'm try to keep implementation details out of header files.  dm_get()
-and dm_put() are not performance critical so I see no need to inline them.
+That would also be an excellent userspace solution to this local DoS.
 
 
-
-> diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
-> --- a/drivers/block/genhd.c	Wed Dec 18 10:39:48 2002
-> +++ b/drivers/block/genhd.c	Wed Dec 18 10:39:48 2002
-> @@ -475,3 +475,4 @@
->  EXPORT_SYMBOL(bdev_read_only);
->  EXPORT_SYMBOL(set_device_ro);
->  EXPORT_SYMBOL(set_disk_ro);
-> +EXPORT_SYMBOL(block_subsys);
-
-
-> diff -Nru a/drivers/md/dm.c b/drivers/md/dm.c
-> --- a/drivers/md/dm.c	Wed Dec 18 10:39:48 2002
-> +++ b/drivers/md/dm.c	Wed Dec 18 10:39:48 2002
-
-   ...
-
-> +
-> +extern struct subsystem block_subsys;
-> +
-
-Please declare this in a suitable header like genhd.h rather than in
-dm.c.  The above two snippets should then be pushed seperately from
-the dm patches.
-
-- Joe
+Bill

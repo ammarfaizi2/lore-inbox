@@ -1,90 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279860AbRKRQBc>; Sun, 18 Nov 2001 11:01:32 -0500
+	id <S279842AbRKRPxL>; Sun, 18 Nov 2001 10:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279891AbRKRQBX>; Sun, 18 Nov 2001 11:01:23 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:21258 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S279860AbRKRQBS>; Sun, 18 Nov 2001 11:01:18 -0500
-Message-ID: <3BF7DB34.ED578280@linux-m68k.org>
-Date: Sun, 18 Nov 2001 17:00:52 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S279860AbRKRPxB>; Sun, 18 Nov 2001 10:53:01 -0500
+Received: from milsum.Biomed.McGill.CA ([132.206.111.48]:35845 "EHLO
+	milsum.biomed.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S279842AbRKRPwv>; Sun, 18 Nov 2001 10:52:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Lavoie <clavoie@bmed.mcgill.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Creating partitions under 2.4.14
+Date: Sun, 18 Nov 2001 10:52:50 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs v196 available
-In-Reply-To: <200111031747.fA3Hl0u19223@vindaloo.ras.ucalgary.ca>
-		<Pine.LNX.4.33.0111162035180.29140-100000@serv> <200111172116.fAHLGxS12195@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011118155255Z279842-17408+15786@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I believe I've hit this bug again:
 
-Richard Gooch wrote:
+http://www.cs.helsinki.fi/linux/linux-kernel/2001-40/0208.html
 
-> That's something that I've already said I'm planning, but that's a 2.5
-> thing, and I'm waiting for the dcache to be split from the icache.
-> Even if the current, horribly bloated, struct inode is trimmed down by
-> removing that union, it will still be too big for my liking. Hence I
-> want the dcache/icache split.
+I'm trying to create a 7.5 gigs partition on /dev/sda, over a aic7xxxx SCSI 
+controller [Adaptec 7892A (rev 2)]. Fdisk will create partition labels right, 
+but mke2fs dies (1.18 and 1.25 both) with "File size limit exceeded".
 
-Why not do it the other way around? Such a change would require changes
-to all filesystems. If devfs would already make better use of existing
-infrastructure, it would be far easier to take the needs of devfs into
-account, instead of trying to fit it in later. A nice side effect would
-be people could help with the conversion.
+I'm running 2.4.14 vanilla, e2fsprogs 1.25, glibc 2.2.1, on a progeny debian 
+system (more or less potato).
 
-> > - you should do something about the recursive calls, it's an
-> >   invitation to abuse them.
-> 
-> That's why I've tagged them as such. I've tried to keep their stack
-> usage low. Switching to a non-recursive algorithm has it's own
-> problems: it's a lot harder to understand, and it's much harder to get
-> right in the first place. Non-recursive algorithms are more fragile.
+Anyone can confirm the patch made it into 2.4.15?
 
-_devfs_walk_path: There is already nicely working code in fs/namei.c.
-unregister: you can easily go back with the parent pointer.
-find_by_dev: this is just wrong (see below)
+----
 
-> > - symlink/slave handling of tapes/disk/cdroms is maybe better done
-> >   in userspace.
-> 
-> No, because you want to be able to mount your root FS using
-> "root=/dev/cdroms/cdrom0", for example.
+/home/clavoie# fdisk -l /dev/sda
 
-That's about the only use of it at boot time and can be achieved easier.
+Disk /dev/sda: 255 heads, 63 sectors, 1115 cylinders
+Units = cylinders of 16065 * 512 bytes
 
-> Again, you're talking about 2.5 stuff. If and when we get a decent
-> block device structure, I'll look at using that.
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1             1        33    265041   82  Linux swap
+/dev/sda2            34      1081   8418060   83  Linux
+/dev/sda3          1082      1115    273105   82  Linux swap
 
-The correct interface in 2.4 is get_blkfops. devfs has to use it like
-everyone else.
+----
 
-> It's questionable
-> whether we'll ever get a generic char device structure, since they're
-> all so different. So for char devices, the ops pointer should be kept
-> inside the devfs entry.
+/home/clavoie# mke2fs -v /dev/sda2
+mke2fs 1.25 (20-Sep-2001)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+1052480 inodes, 2104515 blocks
+105225 blocks (5.00%) reserved for the super user
+First data block=0
+65 block groups
+32768 blocks per group, 32768 fragments per group
+16192 inodes per group
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632
 
-No, find_by_dev is just wrong, scanning a whole tree for a specific
-information is broken. Timing is absolutely unpredictable and prone to
-abuse. The current implementation can even return wrong information.
-The correct place to store char device info is fs/char_dev.c.
+File size limit exceeded
 
-> As for devfs_get_ops(), that has to stay until you can change over all
-> the SGI IA64 drivers, which (ab)use it heavily. API change-> 2.5.
+----
 
-If it depends on devfs, it's simply broken and must be fixed, that has
-nothing to do with the API.
-
-> Yeah, on more than one occasion I've stated that I'd love to rip out
-> all the tree management code in devfs. I'm waiting for VFS changes to
-> make that palatable.
-
-Do the changes now and you can push the responsibility to VFS, but the
-last you should do is to maintain bloat.
-
-bye, Roman
+-- 
+Christian Lavoie
+clavoie@bmed.mcgill.ca

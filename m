@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267275AbTBQSVY>; Mon, 17 Feb 2003 13:21:24 -0500
+	id <S267277AbTBQSX4>; Mon, 17 Feb 2003 13:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267277AbTBQSVY>; Mon, 17 Feb 2003 13:21:24 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:11935 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S267275AbTBQSVX>; Mon, 17 Feb 2003 13:21:23 -0500
-Date: Mon, 17 Feb 2003 19:31:13 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       James Bourne <jbourne@mtroyal.ab.ca>
-Subject: Re: ext3 clings to you like flypaper
-Message-ID: <20030217183113.GA24922@wohnheim.fh-wedel.de>
-References: <78320000.1045465489@[10.10.2.4]> <1045482621.29000.40.camel@passion.cambridge.redhat.com> <2460000.1045500532@[10.10.2.4]> <20030217170851.GA18693@wohnheim.fh-wedel.de> <9850000.1045504008@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9850000.1045504008@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
+	id <S267280AbTBQSXz>; Mon, 17 Feb 2003 13:23:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55826 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267277AbTBQSXz>;
+	Mon, 17 Feb 2003 13:23:55 -0500
+Message-ID: <3E512AF7.50802@pobox.com>
+Date: Mon, 17 Feb 2003 13:33:27 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Brian Gerst <bgerst@didntduck.org>
+CC: Osamu Tomita <tomita@cinet.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (16/26) NIC
+References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217141552.GP4799@yuzuki.cinet.co.jp> <3E5115BB.6020407@pobox.com> <3E5124AC.80505@didntduck.org>
+In-Reply-To: <3E5124AC.80505@didntduck.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 February 2003 09:46:51 -0800, Martin J. Bligh wrote:
+Brian Gerst wrote:
+> Jeff Garzik wrote:
 > 
-> >> The point remains, if I say I want ext2, I should get ext2, not whatever 
-> >> some random developer decides he thinks I should have. Worst of all,
-> >> the system then lies to you and says it's mounted ext2 when it's not.
-
-You appear to not have /etc/mtab as a symlink to /proc/mounts. One of
-the first things I do on fresh debian installations. The kernel should
-know better than some file, especially when / is mounted ro.
-
-> > This is, how things worked for me:
-> > 1. Kernel tries to mount rootfs ext3. If this fails, it will continue
-> > trying ext2. No other fs compiled into kernel.
-> > 2. If there is a journal, it is ext3.
-> > 3. Init scripts read /etc/fstab and read ext2.
-> > 4. root is remounted as ext2.
-> > 5. System allows me to log it, root is ext2, life is good.
-> > 
-> > Where is your behaviour different from this list? Where do you say you
-> > want ext2 but don't get it?
+>>  > -#ifdef __ISAPNP__    > +#if defined(__ISAPNP__) && 
+>> !defined(CONFIG_X86_PC9800)
+>>
+>>
+>> I am curious, does PC9800 support ISAPNP at all?
+>>
+>> Perhaps a dumb question, but I wonder if the above ifdef can be 
+>> simplified by turning off ISAPNP on PC9800?
 > 
-> That's what I'd expect to happen ... as others have pointed out, it may
-> be a distro issue ... do you have the snippet of the init scrips that
-> do the remount as ext2 to hand? Maybe debian is just broken ...
+> 
+> As long as the machine has ISA expansion slots, ISAPNP is possible.  It 
+> is a property of the card, not the system.
 
-My broken memory tells me that Debian is working quite fine. The code
-in question should be in /etc/init.d/checkroot.sh in your system.
 
-But my eye does not find the spot, where / is remounted with a
-different type. This is strange! I've often been surprised that adding
-a journal and putting ext3 support in the kernel without editing
-/etc/fstab was not enough.
+I know that, and that still didn't answer my question :)
 
-I should test it again to prove my eye wrong.
+	Jeff
 
-Jörn
 
--- 
-With a PC, I always felt limited by the software available. On Unix, 
-I am limited only by my knowledge.
--- Peter J. Schoenster
+

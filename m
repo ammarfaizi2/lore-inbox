@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265763AbTF3GnW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 02:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbTF3GnW
+	id S265794AbTF3Gsf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 02:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbTF3Gse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 02:43:22 -0400
-Received: from client73.fre.communitycolo.net ([216.218.240.222]:24534 "EHLO
-	slick.sigje.org") by vger.kernel.org with ESMTP id S265763AbTF3GnV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 02:43:21 -0400
-Date: Sun, 29 Jun 2003 23:57:39 -0700 (PDT)
-From: ahorn@deorth.org
-X-X-Sender: ahorn@slick.sigje.org
-To: David Schwartz <davids@webmaster.com>
-cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: RE: Dell vs. GPL
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEHCEAAA.davids@webmaster.com>
-Message-ID: <Pine.NEB.4.44.0306292354100.7687-100000@slick.sigje.org>
+	Mon, 30 Jun 2003 02:48:34 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:29515 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S265794AbTF3GsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 02:48:24 -0400
+Date: Mon, 30 Jun 2003 08:04:03 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+cc: linux-kernel@vger.kernel.org, <gcc-bugs@gcc.gnu.org>
+Subject: Re: [GCC] gcc vs. indentation
+In-Reply-To: <20030630092015.49dd6969.deepfire@ibe.miee.ru>
+Message-ID: <Pine.LNX.4.44.0306300749400.1400-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 30 Jun 2003, Samium Gromoff wrote:
+> 
+> -  if (Controller->FirmwareType == DAC960_V1_Controller)
+> -    {
+> +  if (Controller->FirmwareType == DAC960_V1_Controller) {
 
-On Sun, 29 Jun 2003, David Schwartz wrote:
+> -origDAC960.o:     file format elf32-i386
+> +./newDAC960.o:     file format elf32-i386
+> 
+>  Disassembly of section .text:
+> 
+> @@ -5837,7 +5837,7 @@
+>      52a8:      84 c0                   test   %al,%al
+>      52aa:      75 14                   jne    52c0 <DAC960_V1_ProcessCompletedCommand+0x80>
+>      52ac:      0f 0b                   ud2a
+> -    52ae:      7d 0d                   jge    52bd <DAC960_V1_ProcessCompletedCommand+0x7d>
+> +    52ae:      7c 0d                   jl     52bd <DAC960_V1_ProcessCompletedCommand+0x7d>
+>      52b0:      27                      daa
+>      52b1:      00 00                   add    %al,(%eax)
+>      52b3:      00 8d b6 00 00 00       add    %cl,0xb6(%ebp)
+> @@ -5951,7 +5951,7 @@
+>      5421:      84 c0                   test   %al,%al
+>      5423:      0f 85 97 fe ff ff       jne    52c0 <DAC960_V1_ProcessCompletedCommand+0x80>
+>      5429:      0f 0b                   ud2a
+> -    542b:      8f 0d 27 00 00 00       popl   0x27
+> +    542b:      8e 0d 27 00 00 00       movl   0x27,%cs
+>      5431:      e9 8a fe ff ff          jmp    52c0 <DAC960_V1_ProcessCompletedCommand+0x80>
+>      5436:      89 1c 24                mov    %ebx,(%esp,1)
+>      5439:      e8 fc ff ff ff          call   543a <DAC960_V1_ProcessCompletedCommand+0x1fa>
+> @@ -7414,7 +7414,7 @@
+>      6ba2:      84 c0                   test   %al,%al
+>      6ba4:      75 0a                   jne    6bb0 <DAC960_V2_ProcessCompletedCommand+0xa0>
+>      6ba6:      0f 0b                   ud2a
+> -    6ba8:      bc 11 27 00 00          mov    $0x2711,%esp
+> +    6ba8:      bb 11 27 00 00          mov    $0x2711,%ebx
+>      6bad:      00 89 f6 83 bc 24       add    %cl,0x24bc83f6(%ecx)
+>      6bb3:      84 00                   test   %al,(%eax)
+>      6bb5:      00 00                   add    %al,(%eax)
+> 
+> Thats it.
+> The point is i thought and hoped that gcc abstract syntax tree constructor is
+> indentation invariant, and that is seemingly not true.
 
->	There are sections of the GPL that specifically state that those who
->receive copies of covered works are intended beneficiaries. Like this
->section:
->
->"For example, if you distribute copies of such a program, whether
->gratis or for a fee, you must give the recipients all the rights that
->you have. You must make sure that they, too, receive or can get the
->source code. And you must show them these terms so they know their
->rights."
->
->	It is quote clear that this entitlement is specifically intended to benefit
->the recipients and not to benefit the copyright holder.
+It's okay, no need to worry.  See the "ud2a"s just above the differences?
+Those are BUG()s, and they're going to be followed by a short __LINE__
+then __FILE__ pointer.  Your indentation change removed one line, so the
+BUG()'s __LINE__ numbers have gone down one.  (And it takes a while for
+the disassembly to get back to sanity with the instructions thereafter.)
 
-I interpret this to mean 'distribute a copy of the GPL with all
-distributions of the source code, and make sure that it's followed', kind
-of a recursive inheritance thing...
-
-I'm still not seeing any evidence of anyone being blocked from obtaining
-the source code (although I haven't followed the whole thread)
-
-I repeat, did anyone ask dell for source code for this supposed violation?
-They are not bound to _distribute_ the source code with their software
-only to make it available in a reasonable fashion upon request.
-
-Or am I missing something here ?
-
-(not being argumentative here by the way, this is really interesting
-discussion)
-
-Cheers,
-
-Al
-
+Hugh
 

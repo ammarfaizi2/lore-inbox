@@ -1,50 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311289AbSCLRCI>; Tue, 12 Mar 2002 12:02:08 -0500
+	id <S311296AbSCLRDS>; Tue, 12 Mar 2002 12:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311292AbSCLRB6>; Tue, 12 Mar 2002 12:01:58 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:5137 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S311289AbSCLRBv>;
-	Tue, 12 Mar 2002 12:01:51 -0500
-Date: Tue, 12 Mar 2002 18:01:42 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Jo?o" Bonina <bonina_2001@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Networking problem with Realtek RTL8139
-Message-Id: <20020312180142.3913483c.skraw@ithnet.com>
-In-Reply-To: <20020312165154.82548.qmail@web12704.mail.yahoo.com>
-In-Reply-To: <20020312165154.82548.qmail@web12704.mail.yahoo.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S311294AbSCLRDF>; Tue, 12 Mar 2002 12:03:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56837 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S311292AbSCLRCt>;
+	Tue, 12 Mar 2002 12:02:49 -0500
+Date: Tue, 12 Mar 2002 14:46:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Karsten Weiss <knweiss@gmx.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3
+Message-ID: <20020312134631.GE1473@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva> <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Mar 2002 08:51:54 -0800 (PST)
- "João"  Bonina <bonina_2001@yahoo.com> wrote:
+On Tue, Mar 12 2002, Karsten Weiss wrote:
+> > Here goes -pre3, with the new IDE code. It has been stable enough time in
 
-> Hello all!
-> 
-> I'm having some networking problems with my Realtek
-> RTL8139 network card (I'm using Suse 7.2 which
-> installs Kernel 2.4.4, I guess).
-> 
-> The host hangs and the card's led starts flashing when
-> I do the following:
-> - access the X server remotely
-> - in a FTP session during file transfer
-> - in a TELNET session, sometimes.
-> 
-> After that all network access is dead.
-> 
-> The 8139too module is the one installed for the card.
-> 
-> How do I solve this problem?
+Oh good god, the nr_sectors/current_nr_sectors for the pio data phases
+haven't been fixed _yet_?!
 
-How about a kernel upgrade? 14 revisions later _can_ make a difference ;-)
+task_in_intr()
+{
+	...
+	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+}
 
-Regards,
-Stephan
+And that's just one instance. Good luck running 2.4.19-pre3, this is
+just so badly broken I can't find words to explain it (again). It's
+really puzzling why this is still broken. I fixed it in 2.5 when the
+merge happened there, the issue has been known for at least that long. I
+can only recommend that no one uses 2.4.19-pre3!
+
+Marcelo, at least apply the noop patch here. If I get motivated I'll fix
+the interrupt handlers as well, can't say I really want to though...
+
+--- drivers/ide/Config.in~	Tue Mar 12 14:22:01 2002
++++ drivers/ide/Config.in	Tue Mar 12 14:22:17 2002
+@@ -159,8 +159,6 @@
+ 	 bool '    UMC-8672 support' CONFIG_BLK_DEV_UMC8672
+       fi
+    fi
+-
+-   bool '  Use the NOOP Elevator (WARNING)' CONFIG_BLK_DEV_ELEVATOR_NOOP
+ else
+    bool 'Old hard disk (MFM/RLL/IDE) driver' CONFIG_BLK_DEV_HD_ONLY
+    define_bool CONFIG_BLK_DEV_HD $CONFIG_BLK_DEV_HD_ONLY
+--- drivers/ide/ide-probe.c~	Tue Mar 12 14:22:06 2002
++++ drivers/ide/ide-probe.c	Tue Mar 12 14:22:23 2002
+@@ -606,12 +606,6 @@
+ 
+ 	q->queuedata = HWGROUP(drive);
+ 	blk_init_queue(q, do_ide_request);
+-
+-	if (drive->media == ide_disk) {
+-#ifdef CONFIG_BLK_DEV_ELEVATOR_NOOP
+-		elevator_init(&q->elevator, ELEVATOR_NOOP);
+-#endif
+-	}
+ }
+ 
+ /*
+
+
+-- 
+Jens Axboe
 

@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265482AbUFVUML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUFVUPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265482AbUFVUML (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUFVUKj
+	id S264629AbUFVUPz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUFVUMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:10:39 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:2909 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S265132AbUFVUCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:02:12 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Question on using MSI in PCI driver
-X-Message-Flag: Warning: May contain useful information
-References: <C7AB9DA4D0B1F344BF2489FA165E5024057E5196@orsmsx404.amr.corp.intel.com>
-	<20040622195151.GA8809@infradead.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 22 Jun 2004 12:55:13 -0700
-In-Reply-To: <20040622195151.GA8809@infradead.org> (Christoph Hellwig's
- message of "Tue, 22 Jun 2004 20:51:51 +0100")
-Message-ID: <52d63rmkpq.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 22 Jun 2004 16:12:40 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:34260 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265118AbUFVUJm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:09:42 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Jun 2004 19:55:13.0569 (UTC) FILETIME=[D506F910:01C45892]
+Content-Transfer-Encoding: 7bit
+Message-ID: <16600.37372.473221.988885@alkaid.it.uu.se>
+Date: Tue, 22 Jun 2004 22:09:32 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6.7-mm1] perfctr ppc32 update
+In-Reply-To: <1087928274.1881.4.camel@gaston>
+References: <200406212014.i5LKElHD019224@alkaid.it.uu.se>
+	<1087928274.1881.4.camel@gaston>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Christoph> Why do you think you want "failure" in that string?
-    Christoph> It's a name that can be used to easily identify the
-    Christoph> MMIO region, and your sentence is a) too long and b)
-    Christoph> doesn't make sense (at least to me, maybe I'm missing
-    Christoph> something important).
+Benjamin Herrenschmidt writes:
+ > Hrm... your code will not work with externally clocked timebases
+ > (like the G5) and I'm not sure you get the core freq. right with
+ > CPU that can do clock slewing or machines that can switch the
+ > core/bus ratio (laptops).
 
-Agreed (and I think Long agrees now too).
+Do you mean the PLL_CFG code that's been in -mm for the last couple
+of weeks, or just the recently posted update? The update replaced
+in-kernel /proc/cpuinfo parsing (gross) with OF queries taken straight
+from the pmac code in arch/ppc/platform/.
 
-    Christoph> Why not just "MSI-X PBA"?
+I'm ignoring 970/G5 until IBM releases the damn documentation.
 
-Just to be clear ... it's not actually the PBA, so I don't think
-that's a good idea.  I believe my suggestion of "MSI-X vector table,"
-which Long accepted, is the right name.
+ > We should rather define an arch API to return those infos...
 
- - Roland
+No argument there.

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291944AbSBTPma>; Wed, 20 Feb 2002 10:42:30 -0500
+	id <S291738AbSBTPsa>; Wed, 20 Feb 2002 10:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291948AbSBTPmT>; Wed, 20 Feb 2002 10:42:19 -0500
-Received: from zephyr.host4u.net ([216.71.64.66]:6157 "EHLO zephyr.host4u.net")
-	by vger.kernel.org with ESMTP id <S291935AbSBTPlh>;
-	Wed, 20 Feb 2002 10:41:37 -0500
-Subject: Re: opengl-nvidia not compiling
-From: lee johnson <lee@imyourhandiman.com>
-To: kernel-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1014182978.21280.14.camel@imyourhandiman>
-In-Reply-To: <20020220015358.A26765@suse.de> 
-	<1014182978.21280.14.camel@imyourhandiman>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 (1.0.1-2) 
-Date: 20 Feb 2002 07:16:26 -0800
-Message-Id: <1014218197.22524.3.camel@imyourhandiman>
-Mime-Version: 1.0
+	id <S291713AbSBTPsL>; Wed, 20 Feb 2002 10:48:11 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53516 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291692AbSBTPsD>; Wed, 20 Feb 2002 10:48:03 -0500
+Date: Wed, 20 Feb 2002 10:46:20 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: george anzinger <george@mvista.com>
+cc: Ben Greear <greearb@candelatech.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: jiffies rollover, uptime etc.
+In-Reply-To: <3C72BBBA.FB79F6D0@mvista.com>
+Message-ID: <Pine.LNX.3.96.1020220104257.23280J-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-02-19 at 21:29, lee johnson wrote:
-> hi..
+On Tue, 19 Feb 2002, george anzinger wrote:
+
+> Bill Davidsen wrote:
+> > 
+> > On Mon, 18 Feb 2002, Ben Greear wrote:
+
+> > > Does this problem still exist on 64-bit machines?
+> > 
+> > Absolutely. But not as often ;-)
 > 
->    hope i'm not repeating a message here if so sorry,- but by any chance
-> does anyone know that nvidia opengl isn't compiling with 2.5.5pre1..
->
+> Actually you will have a VERY hard time getting it to roll over.  Issues
+> of your life time, not to mention the hardware's life time.  64 bits
+> makes a VERY large number and you are counting in 427 day increments. 
+> Remember we have been counting seconds since 1970 in 32 bits and
+> rollover is still, most likely, beyond the capability of any machine
+> running today to get to.  Now consider counting in 427 day increments
+> instead of seconds.
 
--sorry!- about the repeat..it turns out John posted like 10 hrs before I
-did ..lol..I was sure I'd done a search in Evo before posting to avoid
-that ( noted the sorry just in case though) but guess not..;(
+Um, note the odd characters appended to my sentence ";-)" which means
+"not serious here, look for joke, sarcasm, over or understatement.
 
-
-anyway onwards and upwards..
-
-lee
--===
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

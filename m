@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbULRTx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbULRTx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbULRTx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 14:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbULRTx3
+	id S261223AbULRTx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 14:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbULRTx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 14:53:29 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:22437 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261222AbULRTx0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 14:53:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Y0aKpIW2JqU7vHYtvJ9e7vLvYVOqaxCNEqobSB5dZDKI7VseEoJ1Vf0pLMZZQqSIgLc28K1toWS4sXwFb1FpsyUVrMdhWY+rYz5sAn0M4RycltMFUzUc4gI69hWmP1iHGQ5Mzvf3hVPVdQxT+BBaWzhuEaJA8s26ynwdZ91vH84=
-Message-ID: <cce9e37e041218115321c300b9@mail.gmail.com>
-Date: Sat, 18 Dec 2004 19:53:25 +0000
-From: Phil Lougher <phil.lougher@gmail.com>
-Reply-To: Phil Lougher <phil.lougher@gmail.com>
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       "Bhattiprolu, Ravikumar (Ravikumar)" <ravikb@agere.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Magic Number for New File system
-In-Reply-To: <20041218023929.GB19699@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Dec 2004 14:53:59 -0500
+Received: from neopsis.com ([213.239.204.14]:40078 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S261223AbULRTx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 14:53:56 -0500
+Message-ID: <41C48B3F.8010709@dbservice.com>
+Date: Sat, 18 Dec 2004 20:55:43 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Is it possible to access sysfs from within the kernel?
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <6E1F4DB94568BB4AA8A30083E67378924BB67C@iiex2ku01.agere.com>
-	 <20041218023929.GB19699@thunk.org>
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Dec 2004 21:39:29 -0500, Theodore Ts'o <tytso@mit.edu> wrote:
-> There's no standard place to put a magic number, let alone a standard
-> way to generate a magic number.... 
-> 
-> The blkid library, contained in the e2fsprogs distribution, contains a
-> list of magic number and their locations used by various different
-> filesystems, if you'd like to take a look at that for some more
-> information.
+Why? Lets see.
+Sysfs describes the system with all its devices etc but is also an 
+interface to access kernel internal data.
+Sysfs data could easily be put into a hierarchical tree. (I think it 
+even is, but it's not so obvious, because it's done using the fs code 
+(inodes, dentries), maybe the kobjects do play a big role here, too).
+To access sysfs from an application, you have to use extensively open() 
+and close() for each file (attributes) and readdir for directories... or 
+use libsysfs which does these things for you.
+While the current design is good for users (cat /sys/.../.../attribute), 
+it's not very efficient for applications (due to the many syscalls).
+IMO it would be much better (for the applications) to have a device node 
+in /dev which could be used to access the sysfs tree. No ioctl but using 
+simple packets.
+Besides the simple query/result things, you could register for recieving 
+events (now hotplug), with the difference that the current hotplug 
+(AFAIK) can inform (execute) only one application (/sbin/hotplug).
+Or even make it possible to recieve events only from certain 
+classes/devices/subsystems etc.
 
-The disktype program (http://disktype.sourceforge.net)  can be used to
-decode the content type of a disk/filesystem image.  It recognises a
-large amount of filesystems and partition types etc.  From a quick
-glance, the documentation describes the concepts behind magic numbers
-and superblock formats, and gives an overview of the filesystem
-formats recognised.  If you're new to this, this is probably a
-reasonable place to start.
-
-Phillip
+tom

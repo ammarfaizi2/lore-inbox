@@ -1,94 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283413AbRK2V7P>; Thu, 29 Nov 2001 16:59:15 -0500
+	id <S283418AbRK2WNJ>; Thu, 29 Nov 2001 17:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283416AbRK2V7F>; Thu, 29 Nov 2001 16:59:05 -0500
-Received: from pec-4-46.tnt1.m2.uunet.de ([149.225.4.46]:41602 "EHLO
-	avaloon.intern.net") by vger.kernel.org with ESMTP
-	id <S283413AbRK2V6z>; Thu, 29 Nov 2001 16:58:55 -0500
-From: M G Berberich <berberic@fmi.uni-passau.de>
-Date: Thu, 29 Nov 2001 22:58:14 +0100
+	id <S283421AbRK2WM6>; Thu, 29 Nov 2001 17:12:58 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:35592 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S283418AbRK2WMu>; Thu, 29 Nov 2001 17:12:50 -0500
+Message-Id: <200111292212.fATMCoo08605@enterprise.bidmc.harvard.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.16: hda9: attempt to access beyond end of device
-Message-ID: <20011129225814.A464@fmi.uni-passau.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Re: 2.4.16: hda9: attempt to access beyond end of device
+Date: Thu, 29 Nov 2001 17:12:47 -0500
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011129225814.A464@fmi.uni-passau.de>
+In-Reply-To: <20011129225814.A464@fmi.uni-passau.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 29 November 2001 04:58 pm, M G Berberich wrote:
+> Partition boundary problem in 2.4.16 ?!
+> I just tried to make a mke2fs on my /dev/hda9 and mke2fs with kernel
+> 2.4.16 and it failed with a partial write. /var/log/messages says:
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have a similar problem with /dev/sda9.  Booting 2.4.11...16 results in a 
+partition not found error (as reported by fsck).  Going back to 2.4.10ac10, 
+fdisk tells me that the partition ID for sda9 is 0x0000 which is corrupt, and 
+will be fixed on a write.  I do the write, and sda9 is still invisible.  
 
-Hello,
+Delete and recreate the partition with the exact same cylinder values, and 
+the partition comes back, but is unmountable and un-fsck-able.
 
-Partition boundary problem in 2.4.16 ?!
+Examining raw hex data from other partitions, I find that the ext2 label 
+string (as set with the -L flag to mke2fs) occurs at offset 02160 (octal) 
+into the raw partition.  But on /dev/sda9, it is occurring at 01160 instead - 
+off by one 512 byte sector.  Foo.  2.4.16 has not made my day.
 
-I just tried to make a mke2fs on my /dev/hda9 and mke2fs with kernel
-2.4.16 and it failed with a partial write. /var/log/messages says:
-
-  kernel: 03:09: rw=3D0, want=3D289140, limit=3D289138
-  kernel: attempt to access beyond end of device
-
-It works fine with 2.4.13 and it works with 2.4.16 if blocksize ist
-set to 4k (fails with 1k blocks). Both kernel have reiserfs- and
-ext3-support enabled and i2c- and lm_sensors-patches applied. mke2fs is
-version 1.25 (20-Sep-2001), using EXT2FS Library 1.25. Partition table
-is (fdisk -l /dev/hda):
-
-  Disk /dev/hda: 255 heads, 63 sectors, 5005 cylinders
-  Units =3D cylinders of 16065 * 512 bytes
-
-     Device Boot    Start       End    Blocks   Id  System
-  /dev/hda1   *         1        24    192748+  83  Linux
-  /dev/hda2            25        48    192780   83  Linux
-  /dev/hda3            49        72    192780   83  Linux
-  /dev/hda4            73      1432  10924200    5  Extended
-  /dev/hda5            73        96    192748+  82  Linux swap
-  /dev/hda6            97       120    192748+  83  Linux
-  /dev/hda7           121       181    489951   83  Linux
-  /dev/hda8           182       667   3903763+  83  Linux
-  /dev/hda9           668       703    289138+  83  Linux
-  /dev/hda10          704       946   1951866   83  Linux
-  /dev/hda11          947      1432   3903763+  83  Linux
-
-Linux avaloon 2.4.16 SMP i686 unknown
-=20
-Gnu C                  2.95.2	    Gnu make               3.79.1
-binutils               2.9.5.0.37   util-linux             2.11m
-mount                  2.11m	    modutils               2.3.16
-e2fsprogs              1.25	    Linux C Library        2.1.3
-ldd: version 1.9.11		    Procps                 2.0.6
-Net-tools              1.54	    Console-tools          0.2.3
-Sh-utils               2.0
-
-I'm not on linux-kernel mailinglist, so please mail me If you need
-aditional information.
-
-	MfG
-	bmg
-
---=20
-"Des is v=F6llig wurscht, was heut beschlos- | M G Berberich
- sen wird: I bin sowieso dagegn!"          | berberic@fmi.uni-passau.de
-(SPD-Stadtrat Kurt Schindler; Regensburg)  |
-
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Weitere Infos: siehe http://www.gnupg.org
-
-iD8DBQE8Bq92np4msu7jrxMRAgIyAJ4592O7ayOR9fUNkRvbemmpTwOvUwCdFVwx
-NVUJ3tdAuStLy6mce5/gJgc=
-=dogm
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
+Kris

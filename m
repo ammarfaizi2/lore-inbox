@@ -1,54 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271752AbRH2AwS>; Tue, 28 Aug 2001 20:52:18 -0400
+	id <S271775AbRH2BBI>; Tue, 28 Aug 2001 21:01:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271774AbRH2AwI>; Tue, 28 Aug 2001 20:52:08 -0400
-Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:59404 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S271752AbRH2Av4>; Tue, 28 Aug 2001 20:51:56 -0400
-Message-ID: <3B8C3C87.6090307@ixiacom.com>
-Date: Tue, 28 Aug 2001 17:51:19 -0700
-From: Bryan Rittmeyer <bryan@ixiacom.com>
-Organization: Ixia
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
+	id <S271780AbRH2BA7>; Tue, 28 Aug 2001 21:00:59 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:8476 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S271779AbRH2BAw>; Tue, 28 Aug 2001 21:00:52 -0400
+From: volodya@mindspring.com
+Date: Tue, 28 Aug 2001 21:03:21 -0400 (EDT)
+Reply-To: volodya@mindspring.com
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS in 2.4.9
+In-Reply-To: <shsbsl0ij35.fsf@charged.uio.no>
+Message-ID: <Pine.LNX.4.20.0108282041120.23923-100000@node2.localnet.net>
 MIME-Version: 1.0
-To: davem@redhat.com, ak@muc.de, kuznet@ms2.inr.ac.ru
-CC: linux-kernel@vger.kernel.org
-Subject: skb->dev set redundantly in net/ipv4/arp.c:arp_send()
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I think skb->dev is being set twice, for no purpose,
-in net/ipv4/arp.c:489 and net/ipv4/arp.c:563. The
-only external calls between these lines are memcpy
-and dev->hard_header, and neither of those will ever
-change skb->dev. So we can get rid of the redundant
-"skb->dev = dev" line right before dev_queue_xmit()
-unless I'm really stupid :-)
 
-Anyway, here's my proposed patch against 2.4.9:
+On 28 Aug 2001, Trond Myklebust wrote:
 
---- net/ipv4/arp-orig.c Tue Aug 28 17:36:45 2001
-+++ net/ipv4/arp.c      Tue Aug 28 17:38:52 2001
-@@ -560,7 +560,6 @@
-                 memset(arp_ptr, 0, dev->addr_len);
-         arp_ptr+=dev->addr_len;
-         memcpy(arp_ptr, &dest_ip, 4);
--       skb->dev = dev;
+> >>>>> " " == volodya  <volodya@mindspring.com> writes:
+> 
+>      > I have upgraded to 2.4.9 and NFS no longer works for me. I get
+>      > ---------------------------------------------------------------
+>      > NFS: NFSv3 not supported.  nfs warning: mount version older
+>      > than kernel
+> 
+> You forgot to enable NFSv3 support in your 2.4.9 kernel.
 
-         dev_queue_xmit(skb);
-         return;
+I did.. I'll make clean and recompile the kernel again, just in case. 
+But still: why complain about mount ? Why allow to mount a partition ?
+I do not think this is the cause (also see below).
 
-Comments?
+> 
+>      > ---------------------------------------------------------------
+>      > even though I upgraded to the most recent version of util-linux
+>      > (2.11h) and when reading certain files programs lock up and the
+>      > kernel prints out the following messages:
+> 
+>      > nfs: server node4 not responding, still trying nfs: server
+>      > node4 not responding, still trying
+> 
+>      > However, node4 is fine (I can telnet in it) and seems to work
+>      > ok. (node4 is running 2.4.7, with knfsd).
+> 
+> In 99.999% of cases this is due to a network configuration
+> error. Usually it's things like running full-duplex against a
+> half-duplex capable switch etc.
+> TCP is less sensitive to this sort of thing than UDP is, so you won't
+> see it using telnet.
 
--Bryan
+You were right about networking. It turns out that I can ping just fine 
+when the packet size is 5524 and under (with header 5532). When I ping 
+with size 5525 and above (with header 5533) no packets (at all !) get
+thru. Pinging localhost goes fine. None of the machines on my local
+network can ping with sizes about 5525. Using tcpdump shows that packets
+do arrive on the interface. Setting wsize and rsize to 5000 helped - thank
+you very much ! I guess that between 2.4.7 and 2.4.9 the default rsize and
+wsize went up.
 
--- 
-Bryan Rittmeyer
-mailto:bryan@ixiacom.com
+Now I am wondering what is wrong with large udp packets ? (my mtu is 
+1500 and they do get chopped up in smaller packets, but so do size
+5524). Any ideas ?
+
+                  thanks !
+
+                       Vladimir Dergachev
+
+> 
+> If you can't resolve where the problem lies, try setting rsize and
+> wsize manually to some smaller value.
+> 
+> Cheers,
+>   Trond
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268353AbTCCFO1>; Mon, 3 Mar 2003 00:14:27 -0500
+	id <S268390AbTCCFan>; Mon, 3 Mar 2003 00:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268354AbTCCFO1>; Mon, 3 Mar 2003 00:14:27 -0500
-Received: from packet.digeo.com ([12.110.80.53]:5855 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268353AbTCCFO1>;
-	Mon, 3 Mar 2003 00:14:27 -0500
-Date: Sun, 2 Mar 2003 21:25:00 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Dawson Engler <engler@csl.stanford.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] potential deadlocks
-Message-Id: <20030302212500.72fe9b87.akpm@digeo.com>
-In-Reply-To: <200303030335.h233ZTt07857@csl.stanford.edu>
-References: <200303030335.h233ZTt07857@csl.stanford.edu>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268391AbTCCFam>; Mon, 3 Mar 2003 00:30:42 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:441 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268390AbTCCFam>; Mon, 3 Mar 2003 00:30:42 -0500
+Date: Sun, 02 Mar 2003 21:41:05 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 430] New: ACPI + PCI are not aware of ISA interrupts in use or required to be in use 
+Message-ID: <92810000.1046670065@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Mar 2003 05:24:46.0317 (UTC) FILETIME=[341E01D0:01C2E145]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dawson Engler <engler@csl.stanford.edu> wrote:
->
-> Any feedback on the results would be great.  My understanding of linux's
-> sprawling locking rules is less than impressive.
 
-We would be impressed if it wasn't :)
+http://bugme.osdl.org/show_bug.cgi?id=430
 
-> Also, if there are
-> known deadlocks, let me know and I can make sure we're finding them.
+           Summary: ACPI + PCI are not aware of ISA interrupts in use or
+                    required to be in use
+    Kernel Version: 2.5.xx-2.5.63bk5
+            Status: NEW
+          Severity: normal
+             Owner: andrew.grover@intel.com
+         Submitter: spstarr@sh0n.net
 
-There are some real ones there.  The ones surrounding lock_kernel() and
-semaphores are false positives.
 
-lock_kernel() is special, in that the lock is dropped when the caller
-performs a voluntary context switch.  So there are no ordering requirements
-between lock_kernel and the sleeping locks down(), down_read(), down_write().
+Distribution: LFS 
+Hardware Environment: IBM 300PL 6892-N2U PIII (Katmai) 450Mhz 
+Problem Description: ACPI/PCI dont notice ISA irqs used 
+ 
+Steps to reproduce: If I set pci=noacpi I have no IRQ conflicts. However, disabling  
+pci=noacpi I get conflicts even though all IRQs are correct and are properly 
+allocated. 
+ 
+the /proc/interrupts for when pci=noacpi is set and disabled are identical however 
+conflicts are reported by the ISAPnP OSS Soundblaster driver. 
+  
+PCI routing with ACPI isn't aware of ISA interrupts in use or ISA interrupts required.
 
-lock_kernel() inside a spinlock is not necessarily a bug, but almost always
-is.  It should be warned about.
 

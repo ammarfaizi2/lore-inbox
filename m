@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269421AbUINPjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269419AbUINPjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269421AbUINPjH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbUINPgo
+	id S269419AbUINPjb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269439AbUINPja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:36:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23769 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269384AbUINPdU (ORCPT
+	Tue, 14 Sep 2004 11:39:30 -0400
+Received: from holomorphy.com ([207.189.100.168]:28308 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269419AbUINPic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:33:20 -0400
-Date: Tue, 14 Sep 2004 08:28:41 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: displaying kbuild dependancies ...
-Message-Id: <20040914082841.4bde2c77.rddunlap@osdl.org>
-In-Reply-To: <20040912213034.GD24240@MAIL.13thfloor.at>
-References: <20040911202548.GA31680@MAIL.13thfloor.at>
-	<20040911213931.GA22403@mars.ravnborg.org>
-	<20040912213034.GD24240@MAIL.13thfloor.at>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 14 Sep 2004 11:38:32 -0400
+Date: Tue, 14 Sep 2004 08:38:11 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Alex Zarochentsev <zam@namesys.com>, Hugh Dickins <hugh@veritas.com>,
+       Paul Jackson <pj@sgi.com>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [sparc32] add atomic_sub_and_test() to make reiser4 code microoptimized for x86 compile on sparc32
+Message-ID: <20040914153811.GP9106@holomorphy.com>
+References: <Pine.LNX.4.61.0409131608530.877@scrub.home> <Pine.LNX.4.44.0409131545100.17907-100000@localhost.localdomain> <20040913171936.GC2252@backtop.namesys.com> <20040914020614.GI9106@holomorphy.com> <Pine.LNX.4.61.0409141055000.877@scrub.home> <20040914091045.GL9106@holomorphy.com> <20040914091505.GM9106@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040914091505.GM9106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Sep 2004 23:30:34 +0200 Herbert Poetzl wrote:
+On Tue, Sep 14, 2004 at 02:15:05AM -0700, William Lee Irwin III wrote:
+> Repost with appropriate Subject: line (I'm trying to cut down on these).
 
-| On Sat, Sep 11, 2004 at 11:39:31PM +0200, Sam Ravnborg wrote:
-| > On Sat, Sep 11, 2004 at 10:25:48PM +0200, Herbert Poetzl wrote:
-| > > 
-| > > Hi Sam!
-| > > 
-| > > first, thanks for the kbuild stuff and all the 
-| > > time spent on that ... I really love it
-| > > 
-| > > 
-| > > from time to time I encounter some issue which
-| > > usually keeps me busy for a while, and I think
-| > > there probably is a simpler solution to that ...
-| > > 
-| > > the procedure:
-| > > 
-| > > I'm configuring a 2.6.X-rcY-bkZ kernel for testing
-| > > with QEMU, which in my setup basically requires
-| > > some QEMU specific settings, I usually turn on/off
-| > > by just editing the .config file by hand, and then
-| > > invoking 'make oldconfig' ...
-| > > 
-| > > to keep the possibility for error low, I usually
-| > > just remove the entries in question, and oldconfig
-| > > will ask me the relevant question, leading to a
-| > > nice config adapted to my purposes ...
-| > > 
-| > > the issue:
-| > > 
-| > > sometimes a dependancy doesn't allow me to remove
-| > > a config option, I absolutely have to remove for
-| > > my setup, like the VGA_CONSOLE, and then the hunt
-| > > for the option 'requiring' that one unconditinally
-| > > beginns ...
-| > > 
-| > > usually I start with grep and end with trial and
-| > > error, until I find the malicious dependancy ...
-| > 
-| > The only option today is to turn on the debug option
-| > in 'make xconfig'.
-| 
-| hmm, so no luck for the typical console user  :(
-| 
-| > I have been looking inot something better for menuconfig
-| > but frankly kconfig is not where I feel most comfortable.
-| 
-| it would be sufficient to be able to turn on some
-| debug output, which says 'foo selected from bla'
-| or 'foo disabled, requires bla and whatnot' ...
+Repost with a correct patch.
 
-There are some menuconfig patches in -mm (from Yuval Turgeman)
-that add a search option (using '/') to menuconfig.
-E.g., enter / + USB_STORAGE and you can see everywhere
-that USB_STORAGE is used.... and that it SELECTs SCSI.
-To see only the USB_STORAGE kconfig entry, use a regex:
-^USB_STORAGE$
 
-IIRC, Yuval is considering how to enhance this feature.
+-- wli
 
---
-~Randy
+Add atomic_sub_and_test() to sparc32, implemented in terms of
+atomic_sub_return(),  so reiser4 can be simultaneously microoptimized
+for x86 and made to pass compilation testing on sparc32.
+
+Index: mm5-2.6.9-rc1/include/asm-sparc/atomic.h
+===================================================================
+--- mm5-2.6.9-rc1.orig/include/asm-sparc/atomic.h	2004-09-14 08:14:08.215615280 -0700
++++ mm5-2.6.9-rc1/include/asm-sparc/atomic.h	2004-09-14 08:14:41.384572832 -0700
+@@ -46,6 +46,7 @@
+ #define atomic_inc_and_test(v) (atomic_inc_return(v) == 0)
+ 
+ #define atomic_dec_and_test(v) (atomic_dec_return(v) == 0)
++#define atomic_sub_and_test(i, v) (atomic_sub_return(i, v) == 0)
+ 
+ /* This is the old 24-bit implementation.  It's still used internally
+  * by some sparc-specific code, notably the semaphore implementation.

@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281181AbRLDRQF>; Tue, 4 Dec 2001 12:16:05 -0500
+	id <S281546AbRLDRRq>; Tue, 4 Dec 2001 12:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281463AbRLDROc>; Tue, 4 Dec 2001 12:14:32 -0500
-Received: from dsl-213-023-038-097.arcor-ip.net ([213.23.38.97]:1293 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S281391AbRLDROB>;
-	Tue, 4 Dec 2001 12:14:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Linux/Pro  -- clusters
-Date: Tue, 4 Dec 2001 18:16:32 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Donald Becker <becker@scyld.com>, Davide Libenzi <davidel@xmailserver.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10112032057070.978-100000@vaio.greennet> <E16BGhe-0000Pq-00@starship.berlin> <3C0CE97F.74AFFDBC@mandrakesoft.com>
-In-Reply-To: <3C0CE97F.74AFFDBC@mandrakesoft.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16BJBR-0000RM-00@starship.berlin>
+	id <S281214AbRLDRQH>; Tue, 4 Dec 2001 12:16:07 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:24756
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S281530AbRLDROn>; Tue, 4 Dec 2001 12:14:43 -0500
+Date: Tue, 4 Dec 2001 12:06:12 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Giacomo Catenazzi <cate@dplanet.ch>
+Cc: David Woodhouse <dwmw2@infradead.org>, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204120612.B16578@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Giacomo Catenazzi <cate@dplanet.ch>,
+	David Woodhouse <dwmw2@infradead.org>,
+	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de> <20011204081640.A12658@thyrsus.com> <20011204142958.A14069@caldera.de> <19642.1007484062@redhat.com> <3C0CFF5F.3090404@dplanet.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0CFF5F.3090404@dplanet.ch>; from cate@dplanet.ch on Tue, Dec 04, 2001 at 05:52:47PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 4, 2001 04:19 pm, Jeff Garzik wrote:
-> Daniel Phillips wrote:
-> > 
-> > On December 4, 2001 03:09 am, Donald Becker wrote:
-> > > To bring this branch back on point: we should distinguish between
-> > > design for an arbitrary and unpredictable goal (e.g. 128 way SMP)
-> > > vs. putting some design into things that we are supposed to already
-> > > understan
-> > >    [...]
-> > >    a VFS layer that doesn't require the kernel to know a priori all of
-> > >      the filesystem types that might be loaded
-> > 
-> > Right, there's a consensus that the fs includes have to fixed and that it
-> > should be in 2.5.lownum.  The precise plan isn't fully evolved yet ;)
-> > 
-> > See fsdevel for the thread, 3-4 months ago.  IIRC, the favored idea (Linus's)
-> > was to make the generic struct inode part of the fs-specific inode instead of
-> > the other way around, which resolves the question of how the compiler
-> > calculates the size/layout of an inode.
-> > 
-> > This is going to be a pervasive change that someone has to do all in one
-> > day, so it remains to be seen when/if that is actually going to happen.
-> > 
-> > It's also going to break every out-of-tree filesystem.
-> 
-> ug.  what's wrong with a single additional alloc for generic_ip?  [if a
-> filesystem needs to do multiple allocs post-conversion, somebody's doing
-> something wrong]
+Giacomo Catenazzi <cate@dplanet.ch>:
+> I don't think esr changed non problematic rules, but one:
+> all rules without help become automatically dependent to
+> CONFIG_EXPERIMENTAL. I don't like it, but I understand why
+> he makes this decision.
 
-Single additional alloc -> twice as many allocs, two slabs, more cachelines
-dirty.  This was hashed out on fsdevel, though apparently not to everyone's
-satisfaction.
+No, it's CONFIG_EXPERT.  And this change is not wired in.  Comment
+out this declaration in the top-level rulesfile: 
 
-> Using generic_ip in its current form has the advantage of being able to
-> create a nicely-aligned kmem cache for your private inode data.
+condition nohelp on EXPERT
 
-I don't see why that's hard with the combined struct.
+and it reverts to old behavior.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
---
-Daniel
+The conclusion is thus inescapable that the history, concept, and 
+wording of the second amendment to the Constitution of the United 
+States, as well as its interpretation by every major commentator and 
+court in the first half-century after its ratification, indicates 
+that what is protected is an individual right of a private citizen 
+to own and carry firearms in a peaceful manner.
+         -- Report of the Subcommittee On The Constitution of the Committee On 
+            The Judiciary, United States Senate, 97th Congress, second session 
+            (February, 1982), SuDoc# Y4.J 89/2: Ar 5/5

@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289102AbSAJAlG>; Wed, 9 Jan 2002 19:41:06 -0500
+	id <S289099AbSAJAjZ>; Wed, 9 Jan 2002 19:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289103AbSAJAk4>; Wed, 9 Jan 2002 19:40:56 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:62646 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S289102AbSAJAki>; Wed, 9 Jan 2002 19:40:38 -0500
-Date: Thu, 10 Jan 2002 00:42:08 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Andrea Arcangeli <andrea@suse.de>, Dave Jones <davej@suse.de>,
-        Ben LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] pagecache lock ordering
-Message-ID: <Pine.LNX.4.21.0201100007350.1080-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289102AbSAJAjO>; Wed, 9 Jan 2002 19:39:14 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:56840 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S289099AbSAJAi6>; Wed, 9 Jan 2002 19:38:58 -0500
+Date: Thu, 10 Jan 2002 01:38:56 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020110013856.A26151@devcon.net>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <20020109214022.GE21963@kroah.com> <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk> <20020109231528.B25786@devcon.net> <20020110002507.GU13931@cpe-24-221-152-185.az.sprintbbd.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020110002507.GU13931@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 09, 2002 at 05:25:07PM -0700
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's two places, do_buffer_fdatasync and __find_lock_page_helper,
-which violate the pagemap_lru_lock before pagecache_lock rule,
-if page_cache_release frees page calling lru_cache_del.
+On Wed, Jan 09, 2002 at 05:25:07PM -0700, Tom Rini wrote:
+> > 
+> > This could be done anyway: just replace the initramfs image built by 
+> > the kernel build with anotherone built from another source tree. It
+> > would be helpful though if the tools were distributed both standalone
+> > and included into the kernel tree.
+> If the kernel is going to build an initramfs option, it also needs a way
+> to be given one.  The issue I'm thinking of is I know of a few platforms
+> where the initramfs archive will have to be part of the 'zImage' file
+> (much like they do for ramdisks now).
 
-I was worried when I saw Ben's patch to move lru_cache_del down
-into __free_pages_ok: thought it might cause a spinlock ordering
-violation somewhere.  Source check showed up no new problem from
-his patch, but these two already a problem (and still a problem
-when Ben's patch goes in).
+Append it to the zImage and let the kernel look for it there. Plus add
+a tool to util-linux (or maybe an option to rdev?) to let you replace
+the embedded initramfs in a {,b}zImage with a customized one.
 
-Hugh
-
---- 2.4.18-pre2/mm/filemap.c	Wed Jan  9 18:17:39 2002
-+++ linux/mm/filemap.c	Wed Jan  9 19:11:17 2002
-@@ -493,6 +493,7 @@
- {
- 	struct list_head *curr;
- 	struct page *page;
-+	struct page *relpage = NULL;
- 	int retval = 0;
- 
- 	spin_lock(&pagecache_lock);
-@@ -509,6 +510,9 @@
- 
- 		page_cache_get(page);
- 		spin_unlock(&pagecache_lock);
-+		if (relpage)
-+			page_cache_release(relpage);
-+		relpage = page;
- 		lock_page(page);
- 
- 		/* The buffers could have been free'd while we waited for the page lock */
-@@ -518,10 +522,11 @@
- 		UnlockPage(page);
- 		spin_lock(&pagecache_lock);
- 		curr = page->list.next;
--		page_cache_release(page);
- 	}
- 	spin_unlock(&pagecache_lock);
- 
-+	if (relpage)
-+		page_cache_release(relpage);
- 	return retval;
- }
- 
-@@ -900,14 +905,15 @@
- 		if (TryLockPage(page)) {
- 			spin_unlock(&pagecache_lock);
- 			lock_page(page);
--			spin_lock(&pagecache_lock);
- 
- 			/* Has the page been re-allocated while we slept? */
- 			if (page->mapping != mapping || page->index != offset) {
- 				UnlockPage(page);
- 				page_cache_release(page);
-+				spin_lock(&pagecache_lock);
- 				goto repeat;
- 			}
-+			spin_lock(&pagecache_lock);
- 		}
- 	}
- 	return page;
-
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136448AbRD3GNS>; Mon, 30 Apr 2001 02:13:18 -0400
+	id <S136450AbRD3GQj>; Mon, 30 Apr 2001 02:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136450AbRD3GNI>; Mon, 30 Apr 2001 02:13:08 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:11157 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S136448AbRD3GNC>; Mon, 30 Apr 2001 02:13:02 -0400
-Date: Sun, 29 Apr 2001 23:12:18 -0700
-From: David Emory Watson <demoryw@pacbell.net>
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <Pine.GSO.4.21.0104300145050.4113-100000@weyl.math.psu.edu>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: esr@thyrsus.com, aia21@cam.ac.uk, stoffel@casc.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Message-id: <988611138.21363.1.camel@shade>
-MIME-version: 1.0
-X-Mailer: Evolution/0.10 (Preview Release)
-Content-type: text/plain
-In-Reply-To: <Pine.GSO.4.21.0104300145050.4113-100000@weyl.math.psu.edu>
+	id <S136451AbRD3GQa>; Mon, 30 Apr 2001 02:16:30 -0400
+Received: from www.wen-online.de ([212.223.88.39]:42258 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S136450AbRD3GQK>;
+	Mon, 30 Apr 2001 02:16:10 -0400
+Date: Mon, 30 Apr 2001 08:15:43 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Frank de Lange <frank@unternet.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Severe trashing in 2.4.4
+In-Reply-To: <Pine.GSO.4.21.0104291349530.2210-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0104300757110.601-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 29 Apr 2001, Alexander Viro wrote:
 
-Oh.  Well in hindsight, I guess your are right.  After all I wouldn't
-want to be a luser, much less associated with AOL.  Gosh  I never
-realized.  Maybe I just didn't read the right standards manual when I
-started using the internet.  Where did you learn all of this?  No,
-nevermind I don't care.  I'm sorry for contributing to this silly flame
-war.
+> On Sun, 29 Apr 2001, Frank de Lange wrote:
+>
+> > On Sun, Apr 29, 2001 at 12:27:29PM -0400, Alexander Viro wrote:
+> > > What about /proc/slabinfo? Notice that 2.4.4 (and couple of the 2.4.4-pre)
+> > > has a bug in prune_icache() that makes it underestimate the amount of
+> > > freeable inodes.
+> >
+> > Gotcha, wrt. slabinfo. Seems 2.4.4 (at least on my box) only knows how to
+> > allocate skbuff_head_cache entries, not how to free them. Here's the last
+> > /proc/slabinfo entry before I sysRQ'd the box:
+>
+> > skbuff_head_cache 341136 341136    160 14214 14214    1 :  252  126
+> > size-2048          66338  66338   2048 33169 33169    1 :   60   30
+>
+> Hmm... I'd say that you also have a leak in kmalloc()'ed stuff - something
+> in 1K--2K range. From your logs it looks like the thing never shrinks and
+> grows prettu fast...
 
-I think my points been made.  Sorry Al, but this is a bit too silly....
+If it turns out to be difficult to track down, holler and I'll expedite
+updating my IKD tree to 2.4.4.
 
-On 30 Apr 2001 01:50:49 -0400, Alexander Viro wrote:
-> 
-> 
-> On Sun, 29 Apr 2001, David Emory Watson wrote:
-> 
-> > Al,
-> > 
-> > I really don't know why you must complain about Eric's sig.  I
-> 
-> Because violating the common standards is a bad thing?  You know, like
-> 4-lines limit on sig size...  And no, I don't care how many AOL and
-> WebTV lusers do the same thing. 
-> 
+	-Mike  (memleak maintenance weenie)
 

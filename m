@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbTCGBMW>; Thu, 6 Mar 2003 20:12:22 -0500
+	id <S261325AbTCGBWM>; Thu, 6 Mar 2003 20:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbTCGBMW>; Thu, 6 Mar 2003 20:12:22 -0500
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:37638 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261317AbTCGBMU>; Thu, 6 Mar 2003 20:12:20 -0500
-Date: Fri, 7 Mar 2003 02:22:51 +0100 (CET)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.64] oops
-Message-ID: <Pine.LNX.4.51L.0303070221460.23603@piorun.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S261331AbTCGBWM>; Thu, 6 Mar 2003 20:22:12 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:34258 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S261325AbTCGBWL>;
+	Thu, 6 Mar 2003 20:22:11 -0500
+Message-Id: <200303070041.h270efZH007209@eeyore.valparaiso.cl>
+To: Jonathan Lundell <linux@lundell-bros.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux vs Windows temperature anomaly 
+In-Reply-To: Your message of "Wed, 05 Mar 2003 13:52:16 -0800."
+             <p05210507ba8c20241329@[10.2.0.101]> 
+Date: Thu, 06 Mar 2003 21:40:40 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Debug: sleeping function called from illegal context at include/linux/rwsem.h:43
-Call Trace:
- [<c011c394>] __might_sleep+0x54/0x60
- [<c01a3111>] crypto_alg_lookup+0x21/0xd0
- [<d3948570>] in6addr_loopback+0x484/0x3d14 [ipv6]
- [<c01a411d>] crypto_alg_mod_lookup+0xd/0x30
- [<d3948570>] in6addr_loopback+0x484/0x3d14 [ipv6]
- [<c01a3301>] crypto_alloc_tfm+0x11/0xc0
- [<d3948570>] in6addr_loopback+0x484/0x3d14 [ipv6]
- [<d392e4f0>] __ipv6_regen_rndid+0xa0/0x200 [ipv6]
- [<d3948570>] in6addr_loopback+0x484/0x3d14 [ipv6]
- [<c011a86d>] wake_up_process+0xd/0x20
- [<d392e67e>] ipv6_regen_rndid+0x2e/0xc0 [ipv6]
- [<c01250c9>] run_timer_softirq+0xe9/0x140
- [<d392e650>] ipv6_regen_rndid+0x0/0xc0 [ipv6]
- [<c0121791>] do_softirq+0x51/0xb0
- [<c010c5d0>] do_IRQ+0xf0/0x110
- [<c010b04c>] common_interrupt+0x18/0x20
- [<c01c869e>] acpi_processor_idle+0xfe/0x210
- [<c01c85a0>] acpi_processor_idle+0x0/0x210
- [<c0109040>] default_idle+0x0/0x30
- [<c01090f5>] cpu_idle+0x35/0x40
- [<c01090f2>] cpu_idle+0x32/0x40
- [<c0105000>] rest_init+0x0/0x60
- [<c0105055>] rest_init+0x55/0x60
+Jonathan Lundell <linux@lundell-bros.com> said:
+> We've been seeing a curious phenomenon on some PIII/ServerWorks 
+> CNB30-LE systems.
+> 
+> The systems fail at relatively low temperatures. While the failures 
+> are not specifically memory related (ECC errors are never a factor), 
+> we have a memory test that's pretty good at triggering them. Data is 
+> apparently getting corrupted on the front-side bus.
+> 
+> Here's the curious thing: when we run the same memory test on a 
+> Windows 2000 system (same hardware; we just swap the disk), we can 
+> run the ambient temperature up to 60C with no problem at all; the 
+> test will run for days. (It occurred to us to try Win2K because the 
+> hardware vendor was using it to test systems at temperature without 
+> seeing problems.)
+> 
+> Swap in the Linux disk, and at that temperature it'll barely run at 
+> all. The memory test fails quickly at 40C ambient.
 
+Linux gives the hardware a _much_ harder workout than Windows.
 
+My first PC was a P/100, overclocked to /120. WinNT worked fine, Linux
+wouldn't even finish booting.
 -- 
----------------------------------
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-CPU not found - software emulation...
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

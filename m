@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTLMKso (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 05:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264556AbTLMKso
+	id S264562AbTLMLll (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 06:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbTLMLll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 05:48:44 -0500
-Received: from mail.gmx.de ([213.165.64.20]:20696 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264553AbTLMKsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 05:48:43 -0500
-X-Authenticated: #598989
-From: Timo Maier <tam@gmx.de>
-Organization: Freiburg / Germany
-To: linux-kernel@vger.kernel.org
-Subject: Can't access HPFS with Kernel 2.6
-Date: Sat, 13 Dec 2003 11:48:30 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Dec 2003 06:41:41 -0500
+Received: from purplechoc.demon.co.uk ([80.176.224.106]:8064 "EHLO
+	skeleton-jack.localnet") by vger.kernel.org with ESMTP
+	id S264562AbTLMLlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 06:41:40 -0500
+Date: Sat, 13 Dec 2003 11:41:34 +0000
+To: linux-mips@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
+Message-ID: <20031213114134.GA9896@skeleton-jack>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312131148.30938.tam@gmx.de>
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@colonel-panic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The current MIPS 2.4 kernel (from CVS) currently allows fixed shared
+mappings to violate D-cache aliasing constraints.
 
-With Kernel 2.4 it was no problem reading my HPFS partition. Since I 
-switched to 2.6 it's no longer possible to access it. A kernel-bug 
-message pops up in fullscreen window. Currently I use test11 kernel, 
-but it was all the same with older 2.6 kernels.
+The check for illegal fixed mappings is done in
+arch_get_unmapped_area(), but these mappings are granted in
+get_unmapped_area() and arch_get_unmapped_area() is never called.
 
--- 
-Timo
+A quick look at sparc and sparc64 seem to show the same problem.
 
+P.

@@ -1,230 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSAZHSD>; Sat, 26 Jan 2002 02:18:03 -0500
+	id <S289026AbSAZHYd>; Sat, 26 Jan 2002 02:24:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289024AbSAZHRy>; Sat, 26 Jan 2002 02:17:54 -0500
-Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:5000 "EHLO Bluesong.NET")
-	by vger.kernel.org with ESMTP id <S289025AbSAZHRj>;
-	Sat, 26 Jan 2002 02:17:39 -0500
-Message-Id: <200201260722.g0Q7M4C20336@Bluesong.NET>
-From: "Jack F. Vogel" <jfv@trane.bluesong.net>
-Reply-To: jfv@bluesong.net
-To: Ingo Molnar <mingo@elte.hu>, jfv@us.ibm.com
-Subject: [PATCH]: O(1) 2.5.3-pre5  J7 Tuneable Parameters
-Date: Fri, 25 Jan 2002 23:22:04 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, jstultz@us.ibm.com
+	id <S289032AbSAZHYP>; Sat, 26 Jan 2002 02:24:15 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:58637 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289026AbSAZHXz>; Sat, 26 Jan 2002 02:23:55 -0500
+Message-ID: <3C525804.5653DC83@zip.com.au>
+Date: Fri, 25 Jan 2002 23:17:24 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_S4BJI152QL86QCWUHAXD"
+To: "A. Castro" <btcal@earthlink.net>
+CC: linux-kernel@vger.kernel.org, "David F. Skoll" <dfs@roaringpenguin.com>
+Subject: Re: linux select() bug hit
+In-Reply-To: <3C5251BD.7000208@earthlink.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"A. Castro" wrote:
+> 
+> Please CC'ed any answers/questions. I'm not on the mailing list.
+> 
+> Greetings,
+> 
+> Reason for posting/sending this email.
+> 
+> 1. the actual message:
+> pppoe[1857]: Linux select bug hit! This message is harmless, but please
+> ask the Linux kernel developers to fix it.
+> 
 
---------------Boundary-00=_S4BJI152QL86QCWUHAXD
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+hmm. Source is at http://www.roaringpenguin.com/pppoe/rp-pppoe-3.3.tar.gz
 
-This is the 2.5.3-pre 5 version of the O(1) J7 runtime parameters patch. It 
-should be applied over Ingo's J7 patch. With it, his compile time options
-are brought out into /proc/sys/sched for runtime manipulation.
+They have this:
 
-The perfomance hit by doing this is nearly in the noise, so it provides a 
-handy means of perfomance analysis and tuning for both the developer
-as well as a performance conscious sysadmin type.
+            /* There is a bug in Linux's select which returns a descriptor
+             * as readable if N_HDLC line discipline is on, even if
+             * it isn't really readable.  This return happens only when
+             * select() times out.  To avoid blocking forever in read(),
+             * make descriptor 0 non-blocking */
+            flags = fcntl(0, F_GETFL);
+            if (flags < 0) fatalSys("fcntl(F_GETFL)");
+            if (fcntl(0, F_SETFL, (long) flags | O_NONBLOCK) < 0) {
+                fatalSys("fcntl(F_SETFL)");
+            }
 
-In anything like this, use with care.
+and later this:
 
-Cheers,
+syncReadFromPPP(PPPoEConnection *conn, PPPoEPacket *packet)
+{
+    int r;
+#ifndef HAVE_N_HDLC
+    struct iovec vec[2];
+    unsigned char dummy[2];
+    vec[0].iov_base = (void *) dummy;
+    vec[0].iov_len = 2;
+    vec[1].iov_base = (void *) packet->payload;
+    vec[1].iov_len = ETH_DATA_LEN - PPPOE_OVERHEAD;
 
--- 
-Jack F. Vogel
-IBM  Linux Solutions
-jfv@us.ibm.com  (work)
-jfv@Bluesong.NET (home)
+    /* Use scatter-read to throw away the PPP frame address bytes */
+    r = readv(0, vec, 2);
+#else
+    /* Bloody hell... readv doesn't work with N_HDLC line discipline... GRR! */
+    unsigned char buf[ETH_DATA_LEN - PPPOE_OVERHEAD + 2];
+    r = read(0, buf, ETH_DATA_LEN - PPPOE_OVERHEAD + 2);
+    if (r >= 2) {
+        memcpy(packet->payload, buf+2, r-2);
+    }
+#endif
+    if (r < 0) {
+        /* Catch the Linux "select" bug */
+        if (errno == EAGAIN) {
+            rp_fatal("Linux select bug hit!  This message is harmless, but please ask the Linux kernel developers to fix it.");
+        }
+        fatalSys("read (syncReadFromPPP)");
+    }
 
+and
 
---------------Boundary-00=_S4BJI152QL86QCWUHAXD
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="schedtune-2.5.3-J7"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="schedtune-2.5.3-J7"
+    struct timeval *tvp = NULL;
+ ...
+    for (;;) {
+        if (optInactivityTimeout > 0) {
+            tv.tv_sec = optInactivityTimeout;
+            tv.tv_usec = 0;
+            tvp = &tv;
+        }
+        FD_ZERO(&readable);
+        FD_SET(0, &readable);     /* ppp packets come from stdin */
+        if (conn->discoverySocket >= 0) {
+            FD_SET(conn->discoverySocket, &readable);
+        }
+        FD_SET(conn->sessionSocket, &readable);
+        while(1) {
+            r = select(maxFD, &readable, NULL, NULL, tvp);
+            if (r >= 0 || errno != EINTR) break;
+        }
+ ...
+        /* Handle ready sockets */
+        if (FD_ISSET(0, &readable)) {
+            if (conn->synchronous) {
+                syncReadFromPPP(conn, &packet);
+            } else {
+                asyncReadFromPPP(conn, &packet);
+            }
+        }
 
-diff -Naur linux/include/linux/sched.h linux.jfv/include/linux/sched.h
---- linux/include/linux/sched.h	Fri Jan 25 17:20:12 2002
-+++ linux.jfv/include/linux/sched.h	Fri Jan 25 16:59:40 2002
-@@ -422,17 +422,35 @@
-  *
-  * These are the 'tuning knobs' of the scheduler:
-  */
--#define MIN_TIMESLICE		( 10 * HZ / 1000)
--#define MAX_TIMESLICE		(300 * HZ / 1000)
--#define CHILD_FORK_PENALTY	95
--#define PARENT_FORK_PENALTY	100
--#define EXIT_WEIGHT		3
--#define PRIO_INTERACTIVE_RATIO	20
--#define PRIO_CPU_HOG_RATIO	60
--#define PRIO_BONUS_RATIO	70
--#define INTERACTIVE_DELTA	3
--#define MAX_SLEEP_AVG		(2*HZ)
--#define STARVATION_LIMIT	(2*HZ)
-+#define DEFAULT_MIN_TIMESLICE           ( 10 * HZ / 1000)
-+#define DEFAULT_MAX_TIMESLICE           (300 * HZ / 1000)
-+#define DEFAULT_CHILD_FORK_PENALTY      95
-+#define DEFAULT_PARENT_FORK_PENALTY     100
-+#define DEFAULT_EXIT_WEIGHT             3
-+#define DEFAULT_PRIO_INTERACTIVE_RATIO  20
-+#define DEFAULT_PRIO_CPU_HOG_RATIO      60
-+#define DEFAULT_PRIO_BONUS_RATIO        70
-+#define DEFAULT_INTERACTIVE_DELTA       3
-+#define DEFAULT_MAX_SLEEP_AVG           (2*HZ)
-+#define DEFAULT_STARVATION_LIMIT        (2*HZ)
-+
-+extern int min_timeslice, max_timeslice, child_fork_penalty;
-+extern int parent_fork_penalty, prio_cpu_hog_ratio, prio_bonus_ratio;
-+extern int exit_weight, prio_bonus_ratio, interactive_delta;
-+extern int max_sleep_avg, starvation_limit;
-+
-+#define MIN_TIMESLICE           (min_timeslice)
-+#define MAX_TIMESLICE           (max_timeslice)
-+#define CHILD_FORK_PENALTY      (child_fork_penalty)
-+#define PARENT_FORK_PENALTY     (parent_fork_penalty)
-+#define PRIO_INTERACTIVE_RATIO  (prio_interactive_ratio)
-+#define PRIO_CPU_HOG_RATIO      (prio_cpu_hog_ratio)
-+#define PRIO_BONUS_RATIO        (prio_bonus_ratio)
-+#define INTERACTIVE_DELTA       (interactive_delta)
-+#define EXIT_WEIGHT             (exit_weight)
-+#define MAX_SLEEP_AVG           (max_sleep_avg)
-+#define STARVATION_LIMIT        (starvation_limit)
-+
- 
- #define USER_PRIO(p)		((p)-MAX_RT_PRIO)
- #define MAX_USER_PRIO		(USER_PRIO(MAX_PRIO))
-diff -Naur linux/include/linux/sysctl.h linux.jfv/include/linux/sysctl.h
---- linux/include/linux/sysctl.h	Mon Jan 14 13:27:06 2002
-+++ linux.jfv/include/linux/sysctl.h	Fri Jan 25 17:02:43 2002
-@@ -63,7 +63,8 @@
- 	CTL_DEV=7,		/* Devices */
- 	CTL_BUS=8,		/* Busses */
- 	CTL_ABI=9,		/* Binary emulation */
--	CTL_CPU=10		/* CPU stuff (speed scaling, etc) */
-+	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
-+	CTL_SCHED=11
- };
- 
- /* CTL_BUS names: */
-@@ -72,6 +73,22 @@
- 	BUS_ISA=1		/* ISA */
- };
- 
-+/* CTL_SCHED names: */
-+enum
-+{
-+	MAX_SLICE=1,    /* Timeslice scaling */
-+	MIN_SLICE=2,
-+	CHILD_PENALTY=3,
-+	PARENT_PENALTY=4,
-+	INT_RATIO=5,
-+	HOG_RATIO=6,
-+	BONUS_RATIO=7,
-+	INT_DELTA=8,
-+	EWEIGHT=9,
-+	MAX_SLEEP=10,
-+	STARVE_LIM=11
-+};
-+
- /* CTL_KERN names: */
- enum
- {
-diff -Naur linux/kernel/sched.c linux.jfv/kernel/sched.c
---- linux/kernel/sched.c	Fri Jan 25 17:20:12 2002
-+++ linux.jfv/kernel/sched.c	Fri Jan 25 16:52:03 2002
-@@ -22,6 +22,22 @@
- 
- #define BITMAP_SIZE ((((MAX_PRIO+7)/8)+sizeof(long)-1)/sizeof(long))
- 
-+/*
-+**      Tuneable scheduler parameters,
-+**      brought out in /proc/sys/sched
-+*/
-+int	max_timeslice = DEFAULT_MAX_TIMESLICE;
-+int	min_timeslice = DEFAULT_MIN_TIMESLICE;
-+int	child_fork_penalty = DEFAULT_CHILD_FORK_PENALTY;
-+int	parent_fork_penalty = DEFAULT_PARENT_FORK_PENALTY;
-+int	prio_interactive_ratio = DEFAULT_PRIO_INTERACTIVE_RATIO;
-+int	prio_cpu_hog_ratio = DEFAULT_PRIO_CPU_HOG_RATIO;
-+int	prio_bonus_ratio = DEFAULT_PRIO_BONUS_RATIO;
-+int	interactive_delta = DEFAULT_INTERACTIVE_DELTA;
-+int	exit_weight = DEFAULT_EXIT_WEIGHT;
-+int	max_sleep_avg = DEFAULT_MAX_SLEEP_AVG;
-+int	starvation_limit = DEFAULT_STARVATION_LIMIT;
-+
- typedef struct runqueue runqueue_t;
- 
- struct prio_array {
-diff -Naur linux/kernel/sysctl.c linux.jfv/kernel/sysctl.c
---- linux/kernel/sysctl.c	Sat Dec 29 17:30:07 2001
-+++ linux.jfv/kernel/sysctl.c	Fri Jan 25 17:09:14 2002
-@@ -51,6 +51,9 @@
- extern int sysrq_enabled;
- extern int core_uses_pid;
- extern int cad_pid;
-+extern int child_fork_penalty, parent_fork_penalty, prio_interactive_ratio;
-+extern int prio_cpu_hog_ratio, prio_bonus_ratio, interactive_delta;
-+extern int exit_weight, max_sleep_avg, starvation_limit;
- 
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
- static int maxolduid = 65535;
-@@ -110,6 +113,7 @@
- 
- static ctl_table kern_table[];
- static ctl_table vm_table[];
-+static ctl_table sched_table[];
- #ifdef CONFIG_NET
- extern ctl_table net_table[];
- #endif
-@@ -154,6 +158,7 @@
- 	{CTL_FS, "fs", NULL, 0, 0555, fs_table},
- 	{CTL_DEBUG, "debug", NULL, 0, 0555, debug_table},
-         {CTL_DEV, "dev", NULL, 0, 0555, dev_table},
-+        {CTL_SCHED, "sched", NULL, 0, 0555, sched_table},
- 	{0}
- };
- 
-@@ -275,6 +280,32 @@
- 	{0}
- };
- 
-+static ctl_table sched_table[] = {
-+	{MAX_SLICE, "MAX_TIMESLICE",
-+	&max_timeslice, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{MIN_SLICE, "MIN_TIMESLICE",
-+	&min_timeslice, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{CHILD_PENALTY, "CHILD_FORK_PENALTY",
-+	&child_fork_penalty, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{PARENT_PENALTY, "PARENT_FORK_PENALTY",
-+	&parent_fork_penalty, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{INT_RATIO, "PRIO_INTERACTIVE_RATIO",
-+	&prio_interactive_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{HOG_RATIO, "PRIO_CPU_HOG_RATIO",
-+	&prio_cpu_hog_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{BONUS_RATIO, "PRIO_BONUS_RATIO",
-+	&prio_bonus_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{INT_DELTA, "INTERACTIVE_DELTA",
-+	&interactive_delta, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{EWEIGHT, "EXIT_WEIGHT",
-+	&exit_weight, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{MAX_SLEEP, "MAX_SLEEP_AVG",
-+	&max_sleep_avg, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{STARVE_LIM, "INTERACTIVE_DELTA",
-+	&starvation_limit, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{0}
-+};
-+
- static ctl_table proc_table[] = {
- 	{0}
- };
+So as the comment says, they are claiming that select() is returning
+"yes" for an O_NONBLOCK descriptor which has N_HDLC line disc pushed
+onto it, if the select times out.  So a subsequent read() on that
+descriptor returns -1 (EAGAIN).
 
---------------Boundary-00=_S4BJI152QL86QCWUHAXD--
+And from a quick read, the code looks OK.  select() says there's
+activity on fd 0, but there isn't.
+
+Can any ABI gurus confirm that this is actually a kernel bug?
+
+-

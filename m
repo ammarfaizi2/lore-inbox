@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRAVWpc>; Mon, 22 Jan 2001 17:45:32 -0500
+	id <S132943AbRAVWqn>; Mon, 22 Jan 2001 17:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131355AbRAVWpW>; Mon, 22 Jan 2001 17:45:22 -0500
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:9209 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S131205AbRAVWpM>; Mon, 22 Jan 2001 17:45:12 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880958@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: parallel mkfs on ia64 with 2.4.0
-Date: Mon, 22 Jan 2001 17:45:07 -0500
+	id <S131355AbRAVWqe>; Mon, 22 Jan 2001 17:46:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5136 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130794AbRAVWqV>;
+	Mon, 22 Jan 2001 17:46:21 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101222242.WAA00893@raistlin.arm.linux.org.uk>
+Subject: Re: Partition IDs in the New World TM
+To: clausen@conectiva.com.br (Andrew Clausen)
+Date: Mon, 22 Jan 2001 22:42:06 +0000 (GMT)
+Cc: linux-fsdevel@vger.kernel.org, bug-parted@gnu.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A6CB49E.75B8937D@conectiva.com.br> from "Andrew Clausen" at Jan 22, 2001 08:30:54 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Andrew Clausen writes:
+> Why is this necessary?  Can't the RAID drivers probe the device for
+> signatures, the same way file systems do?
 
-I ran mkfs on more than 1 scsi disk partitions
-in parallel in background on ia64 Lion machine with linux kernel 
-2.4.0. And after a few seconds, the system became damn slow. 
-I can swith between the virtual terminals. But I cannot login
-from other virtual terminals. Also, I cannot do anything
-on the terminal on which I started the mkfs processes. 
-If I run the mkfs sequentially, and then mount those
-partitions, then I can run the I/Os to file systems
-in parallel without any problem. Well, definitely, in this
-case, the I/Os are going through the file system layer of
-the kernel whereas in the former case, the I/Os to create
-the file system are not going through the file system layer
-of the kernel (except through the file system layer which
-handles devices). Also, running mkfs in parallel works perfectly
-without any problem on ia32 system with RedHat Linux 7.0 (kernel 2.2.16-22).
-Is there any thing broken in 2.4.0 file system layer which makes system
-damn slow ?
+One possible problem I can see here is to do with removal of RAID.  Think
+of a RAID-1 array (2 or more disks containing identical data).  The
+partition can be validly identified as an ext2 filesystem.  But wait, it
+has a RAID superblock at the end.
 
-If you need any more information, please let me know.
+How do we know if this superblock is current or not?  After all, a mke2fs
+on the device won't remove it.  Yes, you could fill the partition with
+zeros and start again, or you could just change the partition ID.
 
-Thanks and regards,
--hiren
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

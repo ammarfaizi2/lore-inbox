@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261457AbSJHWCo>; Tue, 8 Oct 2002 18:02:44 -0400
+	id <S263210AbSJHV4O>; Tue, 8 Oct 2002 17:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261329AbSJHWCo>; Tue, 8 Oct 2002 18:02:44 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:20920 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261457AbSJHWBX>; Tue, 8 Oct 2002 18:01:23 -0400
-Date: Tue, 8 Oct 2002 19:06:41 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Skip Ford <skip.ford@verizon.net>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem? 
-In-Reply-To: <8973.1034111628@passion.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.44L.0210081906180.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263214AbSJHV4N>; Tue, 8 Oct 2002 17:56:13 -0400
+Received: from thunk.org ([140.239.227.29]:61123 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S263210AbSJHVzq>;
+	Tue, 8 Oct 2002 17:55:46 -0400
+Date: Tue, 8 Oct 2002 18:01:15 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] POSIX ACL configuration option
+Message-ID: <20021008220115.GB9807@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Nathan Scott <nathans@sgi.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+References: <20021007025815.GD700@frodo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021007025815.GD700@frodo>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, David Woodhouse wrote:
-> skip.ford@verizon.net said:
-> >  I sort of had vger in mind, but I could set up a crude read-only list
-> > of some sort if need be on my dynamic IP line.
->
-> If a list is set up on vger I'll feed the patches to it.
+On Mon, Oct 07, 2002 at 12:58:15PM +1000, Nathan Scott wrote:
+> Hi Linus,
+> 
+> This patch provides the configuration entry, help text and basic
+> header file definitions for filesystems that support POSIX ACLs.
+> The code implementing this in XFS is already merged in your tree,
+> we're just missing these enabling pieces and that previous umask
+> patch.
 
-If the vger admins are busy I have no problem setting up a
-linux-patches list on nl.linux.org.
+FWIW, I need this patch as well for as part of porting Andreas's ACL
+code to 2.5.  So if it doesn't get accepted, I'll be resubmitting it
+as part of the ext 2/3 ACL patch set...  
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+(the patch was developed and agreed upon between the XFS team and
+Andreas Gruenbacher, so it's part of the ext 2/3 ACL patches.)
 
+						- Ted

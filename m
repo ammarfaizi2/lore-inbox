@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291236AbSBXUq4>; Sun, 24 Feb 2002 15:46:56 -0500
+	id <S291247AbSBXUy5>; Sun, 24 Feb 2002 15:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291214AbSBXUqp>; Sun, 24 Feb 2002 15:46:45 -0500
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:55507 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S291236AbSBXUql>;
-	Sun, 24 Feb 2002 15:46:41 -0500
-Date: Sun, 24 Feb 2002 20:45:13 +0000
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [PATCH] IDE clean 12 3rd attempt
-Message-ID: <20020224204513.A32303@fenrus.demon.nl>
-In-Reply-To: <200202241954.g1OJsPA32151@fenrus.demon.nl> <3C7946D9.1020908@evision-ventures.com>
+	id <S291251AbSBXUyr>; Sun, 24 Feb 2002 15:54:47 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:34308 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S291246AbSBXUyc>; Sun, 24 Feb 2002 15:54:32 -0500
+Date: Sun, 24 Feb 2002 21:54:22 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Troy Benjegerdes <hozer@drgw.net>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flash Back -- kernel 2.1.111
+Message-ID: <20020224215422.B1706@ucw.cz>
+In-Reply-To: <Pine.LNX.4.10.10202232136560.5715-100000@master.linux-ide.org> <Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com> <20020224013038.G10251@altus.drgw.net> <3C78DA19.4020401@evision-ventures.com> <20020224142902.C1682@altus.drgw.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C7946D9.1020908@evision-ventures.com>; from dalecki@evision-ventures.com on Sun, Feb 24, 2002 at 09:02:33PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020224142902.C1682@altus.drgw.net>; from hozer@drgw.net on Sun, Feb 24, 2002 at 02:29:03PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 24, 2002 at 09:02:33PM +0100, Martin Dalecki wrote:
+On Sun, Feb 24, 2002 at 02:29:03PM -0600, Troy Benjegerdes wrote:
+
+> On Sun, Feb 24, 2002 at 01:18:33PM +0100, Martin Dalecki wrote:
+> > > Ummm, how does this work if I have two PCI ide cards, one on a 66mhz PCI 
+> > > bus, and one on a 33mhz PCI bus?
+> > > 
+> > > Or am I missing something?
 > > 
-> > it was about the i386 architecture, not just 80386 cpus. And yes 2.4 still
-> > runs on those; you'be surprised how many
-> > embedded systems run 80386 equivalents...
+> > You are missing the fact that it didn't work before.
 > 
-> Interresting. But do they still incorporate ST509 and other
-> archaic controllers? Or do they have broken BIOS-es which don't
-> setup the geometry information properly? I don't think so.
+> What hardware, chipsets, situations, etc did the previous code not work
+> on?
+>
+> There is no avoiding the fact you need some kind of per-IDE controller
+> data for the clock for that particular PCI device.
 
-You bet that embedded systems use controllers that emulate archaic ones.
-Oh and bios.... well...... 
+No. You don't need it. The base clock and multiplier are enough and you
+have the multiplier from PCI config.
 
-> Well now I'm quite convinced. We can point those people to the legacy
-> single host driver anyway... And then the tradeoff goes just in favour
-> of supporting more and more common new hardware - it will just make
-> more people happy than it will make people loose :-).
+> I believe there are systems with 33mhz pci and 50mhz pci. Trying to find a
+> 'common' base clock just seems to be an excercise in confusion. The only
+> thing that really makes sense is 'how fast is said PCI device clocked'.
 
-If you drop hardware support for no good reason.... you scare me. you
-really do. Now dropping hardware support (or moving support
-elsewhere) isn't always avoidable, but I'd think you need a pretty
-good reason to do so. 
+Show me one.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

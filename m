@@ -1,42 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278522AbRKSUmb>; Mon, 19 Nov 2001 15:42:31 -0500
+	id <S280686AbRKSUvC>; Mon, 19 Nov 2001 15:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280684AbRKSUmV>; Mon, 19 Nov 2001 15:42:21 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:19412 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S278522AbRKSUmD>;
-	Mon, 19 Nov 2001 15:42:03 -0500
-Date: Mon, 19 Nov 2001 20:41:59 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-Message-ID: <1920682161.1006202518@[195.224.237.69]>
-In-Reply-To: <E165mO5-0006En-00@the-village.bc.nu>
-In-Reply-To: <E165mO5-0006En-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280684AbRKSUux>; Mon, 19 Nov 2001 15:50:53 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:57591 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280686AbRKSUuq>;
+	Mon, 19 Nov 2001 15:50:46 -0500
+Date: Mon, 19 Nov 2001 13:50:11 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: DD-ing from device to device.
+Message-ID: <20011119135011.L1308@lynx.no>
+Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011119130223.K1308@lynx.no> <200111192013.VAA06391@cave.bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200111192013.VAA06391@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Mon, Nov 19, 2001 at 09:13:16PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 19, 2001  21:13 +0100, Rogier Wolff wrote:
+> Andreas Dilger wrote:
+> > dd if=/dev/zero of=tt bs=1k count=1 seek=16M
+> 
+> 
+>  /tmp> dd if=/dev/zero of=tt bs=1k count=1 seek=16M
+> dd: tt: Invalid argument
+> 1+0 records in
+> 1+0 records out
 
+Invalid argument is probably from ftruncate.
 
---On Monday, 19 November, 2001 11:14 AM +0000 Alan Cox 
-<alan@lxorguk.ukuu.org.uk> wrote:
+>  /tmp> dd if=/dev/zero of=tt bs=1k seek=2047k
+> 19913+0 records in
+> 19912+0 records out
+> ^C
+>  /tmp> ls -al tt
+> ls: tt: Value too large for defined data type
+>  /tmp> su
+> Password: 
+>  /tmp# rm tt
+> rm: cannot remove `tt': Value too large for defined data type
+>  /tmp# mv tt xx
+> mv: tt: Value too large for defined data type
+>  /tmp# rm -f tt
+> rm: cannot remove `tt': Value too large for defined data type
+>  /tmp# dd if=/dev/zero of=uu bs=1k count=2050 seek=2047k
+> 2050+0 records in
+> 2050+0 records out
+>  /tmp# l uu
+> ls: uu: Value too large for defined data type
+>  /tmp# 
 
-> You mean like adaptec/aic7xxx/0 for the first aic7xxx controller when you
-> want to refer to an adaptec card ? And yes - you do need the ability to do
-> that kind of thing, not just talk generically about "disks".
+Looks like your fileutils and/or shell and/or glibc are conspiring against
+you.
 
-Which trademark law are you violating by having that in a directory
-name path, which you are not also violating by having it in the
-kernel source, make config, name of the module and its printk()
-on load, etc. etc.
+> > Can you test the "dd" above to ensure it works with your tools and the old
+> > kernel?  For your next 2.4.14 kernel build, it may be instructive to put
+> > a printk() inside the 3 checks in generic_file_write() before it outputs
+> > SIGXFSZ, which tells us limit and RLIM_INIFINITY, pos and count, and pos
+> > and s_maxbytes are, respectively.  This will also tell us what limit is
+> > being hit (although it is most likely a ulimit issue).
+> 
+> Grmbl...  I'll see what I can do. 
 
+Start by upgrading your tools to largefile aware ones.
+
+Cheers, Andreas
 --
-Alex Bligh
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

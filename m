@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbTI3FYB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 01:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTI3FX6
+	id S263120AbTI3F3M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 01:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbTI3F3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 01:23:58 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:17075 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S263152AbTI3FX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 01:23:56 -0400
-Date: Mon, 29 Sep 2003 22:23:45 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: effect of nfs blocksize on I/O ?
-Message-ID: <20030929222345.A3043@google.com>
-References: <20030928234236.A16924@google.com> <16247.56578.861224.328086@charged.uio.no> <20030929005250.A9110@google.com> <16247.60679.415937.295532@charged.uio.no>
+	Tue, 30 Sep 2003 01:29:12 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:30627 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263120AbTI3F3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 01:29:10 -0400
+Subject: Re: HT not working by default since 2.4.22
+From: Len Brown <len.brown@intel.com>
+To: acpi-devel@lists.sourceforge.net,
+       Jan Evert van Grootheest <j.grootheest@euronext.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+In-Reply-To: <3F73EE77.3000906@euronext.nl>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC8718@hdsmsx402.hd.intel.com>
+	 <3F73EE77.3000906@euronext.nl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1064899651.2532.108.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16247.60679.415937.295532@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Sep 29, 2003 at 01:27:51AM -0700
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 30 Sep 2003 01:27:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 01:27:51AM -0700, Trond Myklebust wrote:
-> >>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
-> 
->     >> OTOH, bsize is of informational interest to programs that wish
->     >> to optimize I/O throughput by grouping their data into
->     >> appropriately sized records.
-> 
->      > So then isn't the optimal record size 8192 for r/wsize=8192?
->      > Since the data is going to be grouped into 8192-byte reads and
->      > writes over the wire, shouldn't bsize match that?  Why should I
->      > make 16x 512-byte write() syscalls (if "optimal" I/O size is
->      > bsize=512) instead of 1x 8192-byte syscall?
-> 
-> Yes. It is already on my list of bugs.
-> 
-> We basically need to feed 'wtpref' (a.k.a. 'wsize') into the f_bsize,
-> and 'wtmult' into f_frsize.
+> Marcelo wrote:
 
-Then it sounds like the current wtmult/512 value for f_bsize is a bug.
-Until such time as you get f_frsize going, just directly plugging
-wsize into s_blocksize seems like a win.  Doesn't it?  At least, I don't
-see the advantage of using wtmult.  (but could easily be missing it!)
+> CONFIG_ACPI_HT should be not dependant on CONFIG_ACPI
 
-> OTOH, the s_blocksize (and inode->i_blkbits) might well want to stay
-> with wtmult.
+FYI,
 
-ISTM that f_frsize is pretty useless for NFS.  Even if the server gives
-you this value (as wtmult), what use besides conversion of tbytes/abytes
-values does it have?
+This fix has been integrated with others in the ACPI patch,
+and is available for test now in these bitkeeper trees:
 
-If you like, I can supply such a patch.
+http://linux-acpi.bkbits.net/linux-acpi-test-2.4.22
+http://linux-acpi.bkbits.net/linux-acpi-test-2.4.23
+http://linux-acpi.bkbits.net/linux-acpi-test-2.6.0
 
-- s_blocksize, either
-  . leave it as is (wtmult?wtmult:512)
-  . set to wsize (ie, my first patch in this thread)
-- statfs, both
-  . report wtpref as f_bsize (already done if s_blocksize = wsize)
-  . report (wtmult?wtmult:wtpref) as f_frsize
+It is also available as a plain patch "CONFIG_ACPI" here:
 
-I think the second s_blocksize option is better because not only statfs()
-but also stat() will use this value without any additional work.
+ftp.kernel.org:/pub/linux/kernel/people/lenb/acpi/patches/test/*
 
-/fc
+

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129819AbQK2JjW>; Wed, 29 Nov 2000 04:39:22 -0500
+        id <S129655AbQK2Jts>; Wed, 29 Nov 2000 04:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129761AbQK2JjM>; Wed, 29 Nov 2000 04:39:12 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:40363 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S129655AbQK2Ji6>;
-        Wed, 29 Nov 2000 04:38:58 -0500
-Date: Wed, 29 Nov 2000 04:08:26 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, Tigran Aivazian <tigran@veritas.com>,
-        linux-kernel@vger.kernel.org
+        id <S129761AbQK2Jti>; Wed, 29 Nov 2000 04:49:38 -0500
+Received: from 62-6-231-191.btconnect.com ([62.6.231.191]:54788 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S129655AbQK2Jt0>;
+        Wed, 29 Nov 2000 04:49:26 -0500
+Date: Wed, 29 Nov 2000 09:20:52 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: corruption
-In-Reply-To: <Pine.LNX.4.10.10011282105040.5871-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0011290351080.14112-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0011290351080.14112-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0011290918440.1425-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 28 Nov 2000, Linus Torvalds wrote:
-
-> The fact that it is in-core only doesn't mean that much - it could still
-> easily be just problems at read-time, and if you have an IDE disk I would
-> strongly suggest you try out the patch that Jens Axboe posted,
-> re-initializing the "head" pointer when doing a re-merge.
+On Wed, 29 Nov 2000, Alexander Viro wrote:
 > 
-> That said, the VM/ext2 angle should definitely be looked at too. Nothing
-> has really changed there in some time - can you give a rough estimate on
-> when you suspect you started seeing it? Ie is it new to one of the test11
-> pre-kernels, or does it happen so occasionally that you can't tell whether
-> it happened much earlier too?
+> I'ld really like to see details on the box with ext2 corruption on SCSI.
+> Tigran, IIRC you had it on SCSI boxen, right? Could you send me relevant
+> part of logs?
+> 
 
-Problem fixed by Jens' patch had been there since March, so if it's a
-mix of __make_request() screwing up and something else... Urgh.
+I definitely did have this very corruption on a 4xXeon SCSI-only box. But
+the bad news is that I reinstalled redhat7 on it immediately after this
+happened so I don't have the logs. _However_, I don't need that particular
+root filesystem there anymore (since more disks arrive today and I'm
+rearranging stuff) so I'll try and corrupt it for you right now. Using
+test12-pre3, unless you have better suggestions on what to do to help.
 
-I'ld really like to see details on the box with ext2 corruption on SCSI.
-Tigran, IIRC you had it on SCSI boxen, right? Could you send me relevant
-part of logs?
-
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

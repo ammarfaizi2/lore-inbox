@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318784AbSHWMbv>; Fri, 23 Aug 2002 08:31:51 -0400
+	id <S318787AbSHWMx3>; Fri, 23 Aug 2002 08:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318785AbSHWMbv>; Fri, 23 Aug 2002 08:31:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8466 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318784AbSHWMbv>; Fri, 23 Aug 2002 08:31:51 -0400
-Date: Fri, 23 Aug 2002 13:35:59 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Holger Schurig <h.schurig@mn-logistik.de>
+	id <S318790AbSHWMx3>; Fri, 23 Aug 2002 08:53:29 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27378 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S318787AbSHWMx2>;
+	Fri, 23 Aug 2002 08:53:28 -0400
+Date: Fri, 23 Aug 2002 08:57:34 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Tom <tom@lemuria.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: cell-phone like keyboard driver anywhere?
-Message-ID: <20020823133559.A21251@flint.arm.linux.org.uk>
-References: <200208210932.36132.h.schurig@mn-logistik.de> <200208231205.28764.h.schurig@mn-logistik.de> <20020823113344.B20722@flint.arm.linux.org.uk> <200208231345.34487.h.schurig@mn-logistik.de>
+Subject: Re: page_alloc bug
+Message-ID: <20020823125734.GA8854@www.kroptech.com>
+References: <20020823090527.A7715@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208231345.34487.h.schurig@mn-logistik.de>; from h.schurig@mn-logistik.de on Fri, Aug 23, 2002 at 01:45:34PM +0200
+In-Reply-To: <20020823090527.A7715@lemuria.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 01:45:34PM +0200, Holger Schurig wrote:
-> > Where is the user feedback normally associated with the action of
-> > pressing "1-1-1-pause" ?  Most keypads I know display "a" then "b"
-> > then "c" so the user knows what character they're going to get.
-> 
-> There would be none (maybe a keyboard buzzer).
+On Fri, Aug 23, 2002 at 09:05:27AM +0200, Tom wrote:
+> first time reporting a kernel bug, so please tell me if you need any
+> other details. I'm following the instructions on kernel.org as closely
+> as I can.
 
-Ok, well, I think there may be an example of one in the -rmk patch (aka
-arm) ftp://ftp.arm.linux.org.uk/pub/armlinux/kernel/v2.5
+Actually, you need to follow them a little closer if you want anyone to
+help you. Perhaps you missed this paragraph in REPORTING-BUGS:
 
-See linux/drivers/char/clps711x_keyb.c
+     If the failure includes an "OOPS:" type message in your log or on screen
+     please read "Documentation/oops-tracing.txt" before posting your bug
+     report. This explains what you should do with the "Oops" information to
+     make it useful to the recipient.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> (5) Output of oops:
+> not sure if this is it, but here is what is displayed on the console:
+> kernel BUG at page_alloc.c:91!
+> invalid operand: 0000
+> CPU: 0
+> EIP: 0010:[<c012b96d>] Tainted: P
+                                  ^
+What proprietary modules did you have loaded when this BUG() was hit? nVidia,
+perhaps? Reproduce the problem from a cold boot without ever having loaded the
+closed-source module(s). If you can't, go talk to whomever made the module; the
+community cannot help you solve a problem when we can't see the code.
+
+--Adam
 

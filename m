@@ -1,67 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUISWbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUISWg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUISWbq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 18:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUISWbq
+	id S264704AbUISWg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 18:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUISWg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 18:31:46 -0400
-Received: from cantor.suse.de ([195.135.220.2]:48321 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264571AbUISWbo (ORCPT
+	Sun, 19 Sep 2004 18:36:26 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:5508 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264704AbUISWgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 18:31:44 -0400
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Roland McGrath <roland@redhat.com>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: notify_parent (was: Re: Linux 2.6.9-rc2)
-References: <200409142019.i8EKJ8HG002560@magilla.sf.frob.com>
-	<Pine.LNX.4.61.0409192213250.14392@anakin>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Yow!  Am I having fun yet?
-Date: Mon, 20 Sep 2004 00:31:29 +0200
-In-Reply-To: <Pine.LNX.4.61.0409192213250.14392@anakin> (Geert
- Uytterhoeven's message of "Sun, 19 Sep 2004 22:16:21 +0200 (CEST)")
-Message-ID: <jey8j528n2.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Sun, 19 Sep 2004 18:36:22 -0400
+Message-ID: <414E0A95.2030701@sgi.com>
+Date: Sun, 19 Sep 2004 17:39:17 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Alexander Nyberg <alexn@dsv.su.se>
+CC: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>,
+       lse-tech@lists.sourceforge.net, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] lockmeter: fixes
+References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com> <1095592506.619.8.camel@boxen>
+In-Reply-To: <1095592506.619.8.camel@boxen>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
-
-> -			regs->sr &= ~PS_T;
+Alexander Nyberg wrote:
+>>Andrew,
+>>
+>>The first patch in this series is a replacement patch for the prempt-fix
+>>patch I sent earlier this morning.  There was a missing paren in that
+>>previous version.
+>>
+>>Adding this to 2.6.9-rc2-mm1 (just after lockmeter-2.patch) fixes the
+>>preempt compile problem on ia64, at least.  However, I then started 
+>>getting a missing symbol for generic_raw_read_trylock.  Hence the second
+>>patch of this series.
+> 
+> 
+> Hi Ray
+> 
+> I need the following to compile on x86-64, works fine otherwise.
+> 
+> 
+> --- mm/kernel/lockmeter.c.orig	2004-09-19 12:49:52.000000000 +0200
+> +++ mm/kernel/lockmeter.c	2004-09-19 12:50:25.000000000 +0200
+> @@ -1510,3 +1510,13 @@ int __lockfunc _spin_trylock_bh(spinlock
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL(_spin_trylock_bh);
+> +
+> +int in_lock_functions(unsigned long addr)
+> +{
+> +	/* Linker adds these: start and end of __lockfunc functions */
+> +	extern char __lock_text_start[], __lock_text_end[];
+> +
+> +	return addr >= (unsigned long)__lock_text_start
+> +		&& addr < (unsigned long)__lock_text_end;
+> +}
+> +EXPORT_SYMBOL(in_lock_functions);
+> --- mm/include/asm-x86_64/spinlock.h.orig	2004-09-19 12:31:32.000000000 +0200
+> +++ mm/include/asm-x86_64/spinlock.h	2004-09-19 13:04:56.117109248 +0200
+> @@ -232,16 +232,6 @@ static inline void _raw_write_lock(rwloc
+>  #define _raw_read_unlock(rw)		asm volatile("lock ; incl %0" :"=m" ((rw)->lock) : : "memory")
+>  #define _raw_write_unlock(rw)	asm volatile("lock ; addl $" RW_LOCK_BIAS_STR ",%0":"=m" ((rw)->lock) : : "memory")
+>  
+> -static inline int _raw_read_trylock(rwlock_t *lock)
+> -{
+> -	atomic_t *count = (atomic_t *)lock;
+> -	atomic_dec(count);
+> -	if (atomic_read(count) < RW_LOCK_BIAS)
+> -		return 1;
+> -	atomic_inc(count);
+> -	return 0;
+> -}
 > -
-> -			/* Did we come from a system call? */
-> -			if (regs->orig_d0 >= 0) {
-> -				/* Restart the system call the same way as
-> -				   if the process were not traced.  */
-> -				struct k_sigaction *ka =
-> -					&current->sighand->action[signr-1];
-> -				int has_handler =
-> -					(ka->sa.sa_handler != SIG_IGN &&
-> -					 ka->sa.sa_handler != SIG_DFL);
-> -				handle_restart(regs, ka, has_handler);
-> -			}
+>  static inline int _raw_write_trylock(rwlock_t *lock)
+>  {
+>  	atomic_t *count = (atomic_t *)lock;
+> @@ -262,6 +252,16 @@ static inline int _raw_read_trylock(rwlo
+>  	atomic_inc(count);
+>  	return 0;
+>  }
+> +#else
+> +static inline int _raw_read_trylock(rwlock_t *lock)
+> +{
+> +	atomic_t *count = (atomic_t *)lock;
+> +	atomic_dec(count);
+> +	if (atomic_read(count) < RW_LOCK_BIAS)
+> +		return 1;
+> +	atomic_inc(count);
+> +	return 0;
+> +}
+>  #endif
+>  
+>  #if defined(CONFIG_LOCKMETER) && defined(CONFIG_HAVE_DEC_LOCK)
+>  
+> 
+> 
 
-This should be put in ptrace_signal_deliver.  That had fixed quite a few
-gdb testsuite failures.
+Hi Alex,
 
-> -			/* We're back.  Did the debugger cancel the sig?  */
-> -			if (!(signr = current->exit_code)) {
-> -			discard_frame:
-> -			    /* Make sure that a faulted bus cycle isn't
-> -			       restarted (only needed on the 680[23]0).  */
-> -			    if (regs->format == 10 || regs->format == 11)
-> -				regs->stkadj = frame_extra_sizes[regs->format];
+There were a flurry of spinlock and corresponding lockmeter changes on 
+Thursday and Friday.  One of the patches was to make in_lock_functions()
+an inline, so that solves the first problem you found above.  A second
+one that Andrew found was the duplicate definition of _raw_read_trylock(),
+which is what I think the second part of your patch is.
 
-This is important if you want continue after a SEGV.
+I'm currently working on testing a lockmeter rollup patch.  I'll add the 
+x86_64 _raw_read_trylock() fix unless Andrew has already got that covered.
 
-Andreas.
+Thanks,
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
+

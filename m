@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269306AbTCDOvy>; Tue, 4 Mar 2003 09:51:54 -0500
+	id <S269338AbTCDOwJ>; Tue, 4 Mar 2003 09:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269338AbTCDOvy>; Tue, 4 Mar 2003 09:51:54 -0500
-Received: from divine.city.tvnet.hu ([195.38.100.154]:44068 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S269306AbTCDOvx>; Tue, 4 Mar 2003 09:51:53 -0500
-Date: Tue, 4 Mar 2003 15:51:49 +0100 (MET)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: <linux-kernel@vger.kernel.org>, <linux-ntfs-dev@lists.sourceforge.net>
-Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
-In-Reply-To: <32979.4.64.238.61.1046569101.squirrel@www.osdl.org>
-Message-ID: <Pine.LNX.4.30.0303041520430.21999-100000@divine.city.tvnet.hu>
+	id <S269339AbTCDOwJ>; Tue, 4 Mar 2003 09:52:09 -0500
+Received: from smtp-4.hut.fi ([130.233.228.94]:1681 "EHLO smtp-4.hut.fi")
+	by vger.kernel.org with ESMTP id <S269338AbTCDOwH>;
+	Tue, 4 Mar 2003 09:52:07 -0500
+Date: Tue, 4 Mar 2003 17:02:35 +0200 (EET)
+From: Dmitrii Tisnek <dima@cc.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: n_r3964 -- ad hoc async io vs. multithreading
+Message-ID: <Pine.OSF.4.50.0303041409260.29616-100000@kosh.hut.fi>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (smtp-4.hut.fi)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Sat, 1 Mar 2003, Randy.Dunlap wrote:
+I'm using 3964(r) line discipline in one of the projects and I discovered
+that it is not well suited for multithreaded programs, basically because:
 
-> This is plain vanilla 2.5.63.
+n_r3964 relies on the pid of the process that initialised the line
+discipline on the tty in question.
 
-Ditto, no modules enabled, gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-2mdk)
+as a consequence of this, it is not possible to init this ldisc in one
+thread and then read/write/etc in the other - fork() never gets to the
+line discipline so it cannot know the child pid, and it happily denies
+all access by any pid other than it knows (through open).
 
-> The NTFS filesystem is mounted and I tried to cd several levels
-> deep into it...and voila.
+I'm still looking in the code and I must admit I don't have full
+understanding of the reasons behind using the pid. So far I figured out
+that this line discipline offers such an api to the programmer that
+several processes could open the same tty (say serial port) initialise
+3964(r) line discipline thereon and register different callbacks.
+Thus one process would be a "writer" and another a "reader".
+The callbacks available are transmission completed (whether successfully
+or not) and frame received (allowing to read the content). The code can
+also send a signal to the process(es) with these notifications.
 
-I guess it's not reproducible. I couldn't.
+Personally I'd much rather prefer an api that allows use by multithreaded
+programs and a driver that doesn't know any pid's for any reason.
 
-> Mar  1 13:35:44 midway kernel: Unable to handle kernel paging request at
-> virtual address 0001029a
-> Mar  1 13:35:44 midway kernel: *pde = 00000000
-> Mar  1 13:35:44 midway kernel: Oops: 0002
-> Mar  1 13:35:44 midway kernel: CPU:    0
-> Mar  1 13:35:44 midway kernel: EIP:    0060:[__ntfs_init_inode+169/400]    Not
-> tainted
-> Mar  1 13:35:44 midway kernel: EIP:    0060:[<c01f40f9>]    Not tainted
-> Mar  1 13:35:44 midway kernel: EFLAGS: 00010282
-> Mar  1 13:35:44 midway kernel: EIP is at __ntfs_init_inode+0xa9/0x190
-> Mar  1 13:35:44 midway kernel: eax: f6c0f080   ebx: 0000416d   ecx: 00010282
-> edx: f6c0f0f8
-> Mar  1 13:35:44 midway kernel: esi: c040b078   edi: f6c0f0f8   ebp: f6dd1dbc
-> esp: f6dd1db4
-> Mar  1 13:35:44 midway su(pam_unix)[1839]: session closed for user root
-> Mar  1 13:35:44 midway kernel: ds: 007b   es: 007b   ss: 0068
+I'm sure I can hack it up in such a way that I can use it, no problem
+here. Should I, on the other hand, be willing to make it "right", I would
+like to know:
 
-[...]
+1. is there anyone who really know why n_r3964 is coded this way and how
+   it handles timeouts?
+2. is there a realistic way of providing the current api through something
+   like FIOASYNC or some such?
+3. is there someone out there but me who should be doing this?
 
-> Mar  1 13:35:44 midway kernel: Code: 89 51 18 89 51 1c 31 f6 31 c9 89 b0 80 00
-> 00 00 31 f6 31 d2
-
-   0:   89 51 18                  mov    %edx,0x18(%ecx)
-   3:   89 51 1c                  mov    %edx,0x1c(%ecx)
-
-The only potential match is in this part of __ntfs_init_inode (gcc
-3.2.2 generates totally different and overall 50% less code for
-__ntfs_init_inode):
-
-        ni->seq_no = 0;
-        atomic_set(&ni->count, 1);
-
-However neither the above machine code nor the edx and ecx values are
-correct. How reliable is the oopser? What compiler did you use? Could
-you disassemble __ntfs_init_inode?
-
-	gdb fs/ntfs/ntfs.o
-	gdb> disassemble __ntfs_init_inode
-
-    Szaka
-
-
+Thanx,
+dima

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282424AbRKZTPM>; Mon, 26 Nov 2001 14:15:12 -0500
+	id <S282503AbRKZU5x>; Mon, 26 Nov 2001 15:57:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282040AbRKZTN1>; Mon, 26 Nov 2001 14:13:27 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:9953 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282263AbRKZTM7>;
-	Mon, 26 Nov 2001 14:12:59 -0500
-Date: Mon, 26 Nov 2001 22:10:46 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <Pine.LNX.4.33.0111262201420.18923-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0111262209220.18923-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282522AbRKZU4e>; Mon, 26 Nov 2001 15:56:34 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:25873 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S282503AbRKZUzK>;
+	Mon, 26 Nov 2001 15:55:10 -0500
+Date: Mon, 26 Nov 2001 13:51:42 -0800
+From: Greg KH <greg@kroah.com>
+To: "John D. Davis" <jddavis@triad.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible problems with khub in current 2.4.15-2.4.16 kernels
+Message-ID: <20011126135142.A4675@kroah.com>
+In-Reply-To: <3C029D3F.E43B4E9C@triad.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C029D3F.E43B4E9C@triad.rr.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 29 Oct 2001 19:49:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 26, 2001 at 02:51:27PM -0500, John D. Davis wrote:
+> I've noticed an odd occurance with the 2.4.15 and 2.4.16 kernels during
+> testing.
+> 
+> There seems to be a problem with khub.c  or it could be my hardware but
+> I keep getting the following oops and ptrace about 50% of the time
+> during boot.  The following snip is from the boot log of the 2.4.16
+> kernel compliled this afternoon.
 
-On Mon, 26 Nov 2001, Ingo Molnar wrote:
+Does this happen when you plug in your device after Linux is booted?
+Can you send the output of /proc/bus/usb/devices with the device plugged
+in (if it doesn't always cause an oops)?
+Can you run that oops through ksymoops and post it?
 
-> [...] And it should not be a problem that this is not race-free -
-> missing to set the referenced bit is not a big failure.
+thanks,
 
-(in the swapping code this race might be more lethal - so this
-optimization would only be for the pagecache lookup only.)
-
-	Ingo
-
+greg k-h

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284300AbSALJoB>; Sat, 12 Jan 2002 04:44:01 -0500
+	id <S285516AbSALJyc>; Sat, 12 Jan 2002 04:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285369AbSALJnw>; Sat, 12 Jan 2002 04:43:52 -0500
-Received: from david.siemens.de ([192.35.17.14]:32979 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id <S284300AbSALJnp> convert rfc822-to-8bit;
-	Sat, 12 Jan 2002 04:43:45 -0500
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Thomas Hood <jdthood@mail.com>, Russell King <rmk@arm.linux.org.uk>,
-        Andreas Steinmetz <ast@domdv.de>, linux-laptop@vger.kernel.org,
-        laslo@wodip.opole.pl, linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Combined APM patch
-In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
-In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 12 Jan 2002 12:43:30 +0300
-Message-Id: <1010828612.2501.0.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S285424AbSALJyX>; Sat, 12 Jan 2002 04:54:23 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:23680 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S285369AbSALJyG>;
+	Sat, 12 Jan 2002 04:54:06 -0500
+Message-Id: <m16PKqN-000OVeC@amadeus.home.nl>
+Date: Sat, 12 Jan 2002 09:52:55 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: landley@trommello.org (Rob Landley)
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ðÎÄ, 2002-01-07 at 07:52, Stephen Rothwell wrote:
-> Hi All,
-> 
-> This is my version of the combined APM patches;
-> 
-> 	Change notification order so that user mode is notified
-> 		before drivers of impending suspends.
-> 	Move the idling back into the idle loop.
-> 	A couple of small tidy ups.
-> 
-> See header comments for attributions.
-> 
-> This works for me (including as a module).
-> 
-> Please test and let me know - it seems to lower my power requirements
-> by about 10% on my Thinkpad (over stock 2.4.17).
-> 
-> http://www.canb.auug.org.au/~sfr/2.4.17-APM.1.diff
-> 
+In article <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there> you wrote:
 
-Sorry for delay.
+> The preempt patch is really "SMP on UP".
 
-The patch works just fine here. The only comment is not related to your
-patch - before I did not use this interrupt counting and I have feeling
-that CPU temp went down faster when system became idle. I still do not
-understand what is achieved by it.
+Ok I've seen this misconception quite a lot now. THIS IS NOT TRUE. For one,
+constructs that are ok on SMP are not automatically ok with the -preempt
+patch, like per-cpu data. And there's a LOT more of that than you think.
+Basically with preempt you change the locking rules from under all existing
+code. Most will work, even more will appear to work as preemption isn't
+an event THAT common (by this I mean the chance of getting preempted in your
+4 lines of C code where you have per cpu data).
 
-regards
+Also, once you add locks around the  per-cpu data, for the core code it
+might be close to smp. For drivers it's not though. Drivers assume that when
+they do
 
--andrej
+outb(foo,bar);
+outb(foo2,bar2);
+
+that those happen "close" to eachother in time. Especially in initialisation
+paths (where the driver thread is the only thread that can see the
+datastructures/device) there's no spinlocks helt so preempt can trigger
+here. Sure in the current situation you can get an interrupt but the linux
+interrupt delay is not more than, say, 1ms while a schedule-out can take a
+second or two easily. Do we know all devices can stand such delays ?
+I dare to say we don't as the hardware requirements currently aren't coded
+in the drivers.
+
+Add to that that there's no actual benefit of -preempt over the -lowlat
+patch latency wise (you REALLY need to combine them or -preempt sucks raw
+eggs for latency)....
+
+Greetings,
+   Arjan van de Ven

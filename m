@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131601AbRCURDF>; Wed, 21 Mar 2001 12:03:05 -0500
+	id <S131680AbRCURMf>; Wed, 21 Mar 2001 12:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131613AbRCURCq>; Wed, 21 Mar 2001 12:02:46 -0500
-Received: from snipe.prod.itd.earthlink.net ([207.217.120.62]:5274 "EHLO
-	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S131601AbRCURCd>; Wed, 21 Mar 2001 12:02:33 -0500
-Date: Wed, 21 Mar 2001 09:02:57 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
-Message-ID: <Pine.LNX.4.31.0103210900050.2648-100000@linux.local>
+	id <S131690AbRCURM0>; Wed, 21 Mar 2001 12:12:26 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:55170 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131680AbRCURMK>;
+	Wed, 21 Mar 2001 12:12:10 -0500
+Message-ID: <3AB8E0A1.43C61083@mandrakesoft.com>
+Date: Wed, 21 Mar 2001 12:10:57 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, khc@pm.waw.pl,
+        Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] Re: [PATCH] Re: [PATCH] 2.4.3-pre6 - hdlc/dscc4 missing bits
+In-Reply-To: <20010321163031.A28981@se1.cogenit.fr> <3AB8CDE0.2B2619AF@mandrakesoft.com> <20010321173930.A29474@se1.cogenit.fr>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Francois Romieu wrote:
+> 
+> Jeff Garzik <jgarzik@mandrakesoft.com> écrit :
+> > You should use this patch instead, from Alan's tree, for updating
+> > include/linux/if_arp.h...
+> 
+> It adds confusion: do you imagine the poor soul who discovers hdlc in Linux
+> and sees ARPHRD_CISCO and ARPHRD_HDLC for the same use after some hours
+> of code-greping (both will be used at the moment if hdlc.c do so) ?
+> Don't be surprised if he ends using label pointers everywhere. :o)
+> 
+> What about the following (2.5 ?):
 
->Ok, I see. Currently, the sleep process is started from an ioctl sent to
->another driver, which will in turn call various notifier functions to
->shut down bits of hardware and finally put the machine to sleep. It's not
->a direct ioctl to the /dev/fb (which may not be opened).
+That looks like 2.5 material to me.  Personally I wouldn't want to
+remove identifiers during 2.4 stable series..  Changing all 2.4 code to
+use one identifier or the other seems reasonable.
 
-[snip]...
+Make sure to sync with Alan.  WAN stuff has been occurring in his tree,
+and we want to make sure everybody's on the same page..
 
-I need to ask you where is this code? I like to take a look at it to
-figure out what you are doing.
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full mooon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

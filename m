@@ -1,46 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265271AbUFTNxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUFTORo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265271AbUFTNxE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 09:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUFTNxE
+	id S265288AbUFTORo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUFTORn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 09:53:04 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:44811 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265271AbUFTNxC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 09:53:02 -0400
-Date: Sun, 20 Jun 2004 16:04:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Memory and rsync problem with vanilla 2.6.7
-Message-ID: <20040620140408.GC22689@mars.ravnborg.org>
-Mail-Followup-To: Grzegorz Kulewski <kangur@polcom.net>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20040426013944.49a105a8.akpm@osdl.org> <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net> <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net> <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org> <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net> <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net> <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org> <Pine.LNX.4.58.0406201506500.22369@alpha.polcom.net>
+	Sun, 20 Jun 2004 10:17:43 -0400
+Received: from pdbn-d9bb9eb6.pool.mediaWays.net ([217.187.158.182]:56588 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S265288AbUFTORl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 10:17:41 -0400
+Date: Sun, 20 Jun 2004 16:17:34 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: Kernel 2.6.6 & 2.6.7 sometime hang after much I/O
+Message-ID: <20040620141734.GA28048@citd.de>
+References: <Pine.LNX.4.44.0406201123240.26522-100000@korben.citd.de> <40D56700.2030206@yahoo.com.au> <20040620115908.GA27241@citd.de> <40D58B93.4040304@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406201506500.22369@alpha.polcom.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <40D58B93.4040304@yahoo.com.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 03:24:56PM +0200, Grzegorz Kulewski wrote:
+On Sun, Jun 20, 2004 at 11:05:23PM +1000, Nick Piggin wrote:
+> Matthias Schniedermeyer wrote:
 > 
-> No, I am currently not bk user (but I will probably learn it during 
-> holidays). Is there any easy way to produce patch from that changeset?
+> >Here we go.
+> >
+> >Addendum: After some time more and more konsole froze. Up to the point
+> >where i (had to) kill(ed) X(CTRL-ALT-Backspace) and after i couldn't
+> >even log in at the console anymore i rebooted (into 2.6.5). Then i
+> >recompiled 2.6.7 with SYSRQ-support and tried to reproduce the hanging
+> >without X. After 3 runs i "gave up" and started X. Here i had luck and
+> >the process ('cut-movie.pl') froze at first try. Then i killed X and did
+> >the above on the console.
+> >
+> >As the system is currently unsuable enough to reboot, i will reboot in
+> >2.6.5 after this mail, but i can always reboot into 2.6.7 if you need
+> >more input.
+> >
+> >
+> 
+> The attached trace was with 2.6.7, right?
 
-Goto: http://linus.bkbits.net:8080/linux-2.5/cset@1.1722.88.2
+Yes.
 
-Here there is a link to:
-http://linus.bkbits.net:8080/linux-2.5/gnupatch@40bf3c7byPSs7WNObejgoMcVAD9p5g
+> Can you reproduce the hang, then, as root, do:
+> 
+> 	echo 1024 > /sys/block/sda/queue/nr_requests
+> 
+> Replace sda with whatever devices your hung processes were
+> doing IO to. Do things start up again?
 
-Note: The first link may change since ChangeSet numbers are not fixed.
-The latter is always valid.
+1 try (with X) with unchanged nr_requests. (I was stupid enough to issues the
+command on the wrong HDD :-) )
+(AFAIR i had the same situation with 2.6.6, sometimes the hang didn't happen)
 
-	Sam
+6 tries (with X) with nr_requests=1024 and no hang.
+
+1 try with nr_requests back to 128 and now it hangs.
+now changing to nr_request=1024 doesn't seem to change anyting, my
+konsoles start to freeze.
+
+
+Don't know if it is relevant but the bytes transfered are always rougly
+around 3000-3400MB (1500-1700 MB read & 1500-1700 MB write. The program
+reads 100MB, then writes 100MB, then issues "sync", the hangs happend
+always about every after 15-17 "rounds")
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

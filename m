@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVASW0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVASWjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVASW0g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 17:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVASWWr
+	id S261941AbVASWjH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 17:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVASWjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 17:22:47 -0500
-Received: from gprs215-130.eurotel.cz ([160.218.215.130]:61910 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261942AbVASWUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 17:20:41 -0500
-Date: Wed, 19 Jan 2005 23:20:21 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Wed, 19 Jan 2005 17:39:06 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:65484 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261941AbVASWjE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 17:39:04 -0500
+Subject: Re: 2.6.10-mm1 hang
+From: Robert Love <rml@novell.com>
+To: linux-os@analogic.com
+Cc: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119222021.GC17325@elf.ucw.cz>
-References: <20050119000556.GB14749@atomide.com> <20050119113642.GA1358@elf.ucw.cz> <20050119171106.GA14545@atomide.com>
+In-Reply-To: <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
+References: <1106153215.3577.134.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050119133136.7a1c0454.akpm@osdl.org>
+	 <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
+Content-Type: text/plain
+Date: Wed, 19 Jan 2005 17:40:57 -0500
+Message-Id: <1106174457.5907.40.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050119171106.GA14545@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2005-01-19 at 17:01 -0500, linux-os wrote:
 
-> > > As this patch is related to the VST/High-Res timers, there
-> > > are probably various things that can be merged. I have not
-> > > yet looked at what all could be merged.
-> > > 
-> > > I'd appreciate some comments and testing!
-> > 
-> > Good news is that it does seem to reduce number of interrupts. Bad
-> > news is that time now runs faster (like "sleep 10" finishes in ~5
-> > seconds) and that I could not measure any difference in power
-> > consumption.
-> 
-> Thanks for trying it out. I have quite accurate time here on my
-> systems, and sleep works as it should. I wonder what's happening on
-> your system? If you have a chance, could you please post the results
-> from following simple tests?
+> What would you expect this to do? After the first lock is
+> obtained, the second MUST fail forever or else the spin-lock
+> doesn't work. The code, above, just proves that spin-locks
+> work!
 
-Correction: with patch was not 2.6.11-rc1, but 2.6.11-rc1-bk.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+He has a four processor machine.  Since the lock is local, it is
+somewhat odd that the other three lock up.
+
+	Robert Love
+
+

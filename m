@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266141AbRGDTMC>; Wed, 4 Jul 2001 15:12:02 -0400
+	id <S266142AbRGDTUe>; Wed, 4 Jul 2001 15:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266142AbRGDTLv>; Wed, 4 Jul 2001 15:11:51 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:9089 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S266141AbRGDTLn>;
-	Wed, 4 Jul 2001 15:11:43 -0400
-Message-ID: <3B436A62.8394C783@mirai.cx>
-Date: Wed, 04 Jul 2001 12:11:30 -0700
-From: J Sloan <jjs@mirai.cx>
-Organization: Mirai Consulting
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S266144AbRGDTUY>; Wed, 4 Jul 2001 15:20:24 -0400
+Received: from sal.qcc.sk.ca ([198.169.27.3]:15889 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S266142AbRGDTUU>;
+	Wed, 4 Jul 2001 15:20:20 -0400
+Date: Wed, 4 Jul 2001 13:20:18 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: >128 MB RAM stability problems (again)
+Message-ID: <20010704132018.D10863@qcc.sk.ca>
 In-Reply-To: <994279551.1116.0.camel@tux>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <994279551.1116.0.camel@tux>; from rbultje@ronald.bitfreak.net on Wed, Jul 04, 2001 at 10:45:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Bultje wrote:
+Ronald Bultje <rbultje@ronald.bitfreak.net> wrote:
+> 
+> you might remember an e-mail from me (two weeks ago) with my problems
+> where linux would not boot up or be highly instable on a machine with
+> 256 MB RAM, while it was 100% stable with 128 MB RAM. Basically, I still
+> have this problem, so I am running with 128 MB RAM again.
+[...]
+> I'm getting desperate.... win2k is running stable and it's scary to see
+> linux crash while win2k runs stable and smooth.
 
-> I'm kind of astounded now, WHY can't linux-2.4.x run on ANY machine in
-> my house with more than 128 MB RAM?!? Can someone please point out to me
-> that he's actually running kernel-2.4.x on a machine with more than 128
-> MB RAM and that he's NOT having severe stability problems?
+It's likely hardware problems.  Different OSes excercise the memory subsystems
+quite differently, so it's possible (and common) to see problems in one OS
+where another appears to run fine.
 
-I don't have the answer for your situation, but in
-answer to one of your questions I can happily
-enumerate the following boxes I installed, all of
-which are running 2.4.x kernels on Red Hat 7.1
-with excellent stability and performance:
+Download memtest86 and test your system with 256MB in it -- if it reports any
+problems, it's definitely hardware.
 
-"Name Brand" boxes:
-(3) Dell 2450s, Dual P3-1000, 512 MB RAM
-(2) HP Netservers, P3-700, 512 MB RAM
-Compaq 6500, Quad PPro 200, 1 GB RAM
-
-Self built clone boxes:
-AMD K6/2 450, 256 MB RAM, low end ASUS mb
-P3-933, 512 MB RAM, Intel i810 motherboard
-P3-866, 512 MB RAM, Aopen motherboard
-and more -
-
-These boxes either have an uptime dating from
-the initial 7.1 install (60+ days), or from the last
-kernel update -
-
-cu
-
-jjs
-
-
-
-
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317725AbSFLPaS>; Wed, 12 Jun 2002 11:30:18 -0400
+	id <S317727AbSFLPmQ>; Wed, 12 Jun 2002 11:42:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317726AbSFLPaR>; Wed, 12 Jun 2002 11:30:17 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:28172 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S317725AbSFLPaQ>; Wed, 12 Jun 2002 11:30:16 -0400
-Date: Wed, 12 Jun 2002 16:36:35 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21: kbuild changes broke filenames with commas
-Message-ID: <20020612163635.D22429@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20020611122144.A3665@flint.arm.linux.org.uk> <Pine.LNX.4.44.0206110611590.24261-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S317731AbSFLPmP>; Wed, 12 Jun 2002 11:42:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26643 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317727AbSFLPmP> convert rfc822-to-8bit; Wed, 12 Jun 2002 11:42:15 -0400
+Date: Wed, 12 Jun 2002 08:39:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+        <frankeh@watson.ibm.com>
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <3D071153.9020607@loewe-komp.de>
+Message-ID: <Pine.LNX.4.33.0206120833470.23029-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g5CFfrj29151
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 06:16:10AM -0600, Thunder from the hill wrote:
-> If we allow commas all over the filesystem and likewise say that there is 
-> nothing to mention about it why should we refuse them for kbuild 
-> especially since there is a parallel system which allows commas?
 
-Aehm, if you argument with what we allow in the filesystem, then
-I could argue, that everything except '\0' and '/' is allowed
-to build paths.
+On Wed, 12 Jun 2002, Peter Wächtler wrote:
+> 
+> What are the plans on how to deal with a waiter when the lock holder
+> dies abnormally?
 
-Interesting is what the C-Standard says about naming conventions
-for files.
+That's why they are called FUTEX'es - they're fast. They're NOT SysV 
+semaphores, and they are done 99% in user space. The kernel doesn't even 
+_know_ about them until contention happens, and even then only in a rather 
+dim "somebody wants me to do this, but I don't know _what_ he is doing" 
+way.
 
-The rest is merely taste and limitations of the build system.
+> What about sending a signal (SIGTRAP or SIGLOST), returning -1 and
+> setting errno to a reasonable value (EIO?)
 
-I like ',' as much as ' ' and quotes in file names. But sh*t
-happens and we usally have to cope with it :-/
+There's just nothing the kernel _can_ do. The common case (by far) is that
+the kernel has never seen the futex at all, since many uses are likely to
+not have much contention. So when a user program dies holding such a 
+uncontended lock, the kernel simply _cannot_ do anything.
 
-Regards
+(The kernel also cannot do anything even for the contended locks, because 
+the whole interface is designed for speed and with the knowledge that the 
+kernel won't be able to fix stuff up, so the kernel doesn't actually have 
+enough information even in the contention case. See the "dim notion" 
+above).
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+Besides, if you have a threads package that uses some lock for mutual 
+exclusion, and a thread dies while holding the lock, there's nothign sane 
+anybody can do about it anyway. The data structures are likely to be in an 
+invalid state, and just making every other thread block on the lock until 
+you can attach a debugger is probably the closest to a _right_ thing you 
+can do.
+
+In short: it's not a bug, it's a design feature, and it's very much 
+designed for efficiency.
+
+		Linus
+

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280805AbRLQPvi>; Mon, 17 Dec 2001 10:51:38 -0500
+	id <S280938AbRLQPy6>; Mon, 17 Dec 2001 10:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280938AbRLQPv2>; Mon, 17 Dec 2001 10:51:28 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:6406 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S280805AbRLQPvR>;
-	Mon, 17 Dec 2001 10:51:17 -0500
-Date: Mon, 17 Dec 2001 16:50:47 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-cc: <adam@tabris.net>, <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Is /dev/shm needed?
-In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com>
-Message-ID: <Pine.LNX.4.33.0112171650240.23966-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S280978AbRLQPyt>; Mon, 17 Dec 2001 10:54:49 -0500
+Received: from aaf16.warszawa.sdi.tpnet.pl ([217.97.85.16]:52235 "EHLO
+	aaf16.warszawa.sdi.tpnet.pl") by vger.kernel.org with ESMTP
+	id <S280825AbRLQPyc>; Mon, 17 Dec 2001 10:54:32 -0500
+Date: Mon, 17 Dec 2001 16:54:23 +0100
+From: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why no -march=athlon?
+Message-ID: <20011217155423.GA7123@wonko.esi.org.pl>
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com>
+User-Agent: Mutt/1.3.24i
+X-Linux-Registered-User: 134951
+X-Homepage: http://home.elka.pw.edu.pl/~dmierzej/
+X-PGP-Key-Fingerprint: B546 B96A 4258 02EF 5CAB  E867 3CDA 420F 7802 6AFE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday, 17 December 2001, nbecker@fred.net wrote:
+> I noticed that linux/arch/i386/Makefile says:
+> 
+> ifdef CONFIG_MK7
+> CFLAGS += -march=i686 -malign-functions=4 
+> endif
 
+Hm. As long as I can remember, 2.4 has always had this:
+ifdef CONFIG_MK7
+CFLAGS += $(shell if $(CC) -march=athlon -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=athlon"; else echo "-march=i686 -malign-functions=4"; fi)
+endif
 
-On Mon, 17 Dec 2001, RaúlNúñez de Arenas  Coronado wrote:
+Perhaps you're describing a 2.2 kernel?
 
->     Hello Adam :))
->
-> >> have lots of memory to spare, give it a try.  Mount /tmp or all of /var
-> >> in tmpfs.
-> >Unfortunately, some(many?) distros are b0rken in re /var/. There is
-> >stuff put there that is needed across boots (for example, mandrake
-> >puts the DNS master files in /var/named.)
->
->     Moreover, didn't the LHS say that /var/tmp is supposed to be
-> maintained across reboots? I'm not sure about this, but anyway /var
-> is supposed to hold temporary data, not boot-throwable data, isn't
-> it?
-yes, just think to sysstem logs...
->
->     Raúl
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+"The Universe doesn't give you any points for doing things that are easy."
+        -- Sheridan to Garibaldi in Babylon 5:"The Geometry of Shadows"
+Dominik 'Rathann' Mierzejewski <rathann(at)we.are.one.pl>

@@ -1,39 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292536AbSCIHfy>; Sat, 9 Mar 2002 02:35:54 -0500
+	id <S292589AbSCIHS6>; Sat, 9 Mar 2002 02:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291333AbSCIHeR>; Sat, 9 Mar 2002 02:34:17 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:28421 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S292571AbSCIHdE>;
-	Sat, 9 Mar 2002 02:33:04 -0500
-Date: Fri, 8 Mar 2002 23:24:44 -0800
-From: Greg KH <greg@kroah.com>
+	id <S292473AbSCIHRY>; Sat, 9 Mar 2002 02:17:24 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S292475AbSCIHPG>;
+	Sat, 9 Mar 2002 02:15:06 -0500
+Date: Sat, 9 Mar 2002 03:46:18 +0000 (GMT)
+From: Mark Cooke <mpc@star.sr.bham.ac.uk>
+X-X-Sender: mpc@pc24.sr.bham.ac.uk
 To: Thomas Winischhofer <tw@webit.com>
-Cc: linux-kernel@vger.kernel.org,
+cc: linux-kernel@vger.kernel.org,
         Carl-Johan Kjellander <carljohan@kjellander.com>
 Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-Message-ID: <20020309072443.GD30439@kroah.com>
-In-Reply-To: <3C89273D.28BC97DB@webit.com> <20020308223513.GD28541@kroah.com> <3C8985B5.4D3606C7@webit.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C8985B5.4D3606C7@webit.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 09 Feb 2002 02:08:15 -0800
+In-Reply-To: <3C89273D.28BC97DB@webit.com>
+Message-ID: <Pine.LNX.4.44.0203090344130.8477-100000@pc24.sr.bham.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 09, 2002 at 04:47:01AM +0100, Thomas Winischhofer wrote:
+Just as a FYI, I had similar trouble using usb-uhci (440BX chipset) to 
+a 680K using pwc/pwcx.  I had to add a bunch of error recovery (close 
+/ open device, ignore open() failing and retry, etc).
+
+I get a group of EMC messages logged , then the reset seems to take 
+quite a while.
+
+(2.4.19-pre2-ac2, but have seem this will many recent 2.4.x kernels)
+
+Mark
+
+On Fri, 8 Mar 2002, Thomas Winischhofer wrote:
+
+> > The camera attached to the UHCI-controller running usb-uhci works just 
+> > fine,out the three attached to the OHCI-controllers running usb-ohci don't. 
+> > After a random amount of frames being read from a camera the read()-call 
+> > blocks indefinitely until the device is closed. Next time the v4l-device is 
+> > opened the program can again read frames from the camera but read() always 
+> > blocks after some time.
 > 
-> Sorry if I ask something stupid, I am a total USB rookie - what's that
-> /usr/sbin/usbmodules file for?
+> I can't help, but I have the exact same problem here. Closing the
+> application (eg. camstream) and re-opening it makes it work again for a
+> while.
+> 
+> As Carl-Johan said, this happens with or without the pwcx module, so
+> that's not the problem.
+> 
+> I think it's an ohci problem.
+> 
+> Furthermore, the usb driver(s) behave strangely on
+> connecting/disconnecting the camera. Sometimes this works flawlessly,
+> sometimes I get a lot of USB timeout ("usb_control/bulk_msg: timeout")
+> and/or "USBDEVFS_CONTROL failed dev x rqt 128 rq 6 len 490 ret -110"
+> messages in the syslog. (Kernel is 2.4.16 and 2.4.18 - no difference)
+> After a couple of times disconnecting and reconnecting the camera it's
+> being detected. Since 2.4.18, the camera's LED sometimes is on,
+> sometimes off - seems quite random.
+> 
+> Even closing the cam application (xawtv, camstream) after the camera
+> stopped working never results in any error messages in the log, I only
+> read "pwc: Closing video device: xxx frames received, dumped 0 frames, 0
+> frames with errors"
+> 
+> Thomas
+> 
+> 
 
-The hotplug package uses it to try to determine some stuff about the
-device.  Why it does this, I'm not really sure, it shouldn't be running
-for when a new device is plugged in, but only when the hotplug stuff is
-started the first time.
+-- 
++-------------------------------------------------------------------------+
+Mark Cooke                  The views expressed above are mine and are not
+Systems Programmer          necessarily representative of university policy
+University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
++-------------------------------------------------------------------------+
 
-thanks,
-
-greg k-h

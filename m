@@ -1,99 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264867AbTLVX4d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 18:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTLVX4d
+	id S264591AbTLVXuz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 18:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264594AbTLVXuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 18:56:33 -0500
-Received: from sole.infis.univ.trieste.it ([140.105.134.1]:51865 "EHLO
-	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
-	id S264867AbTLVX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 18:56:27 -0500
-Date: Tue, 23 Dec 2003 00:56:23 +0100
-From: Andrea Barisani <lcars@infis.univ.trieste.it>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.0, wrong Kconfig directives
-Message-ID: <20031222235622.GA17030@sole.infis.univ.trieste.it>
+	Mon, 22 Dec 2003 18:50:55 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:23968 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264591AbTLVXux
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 18:50:53 -0500
+Date: Mon, 22 Dec 2003 15:50:40 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       Joe Thornber <thornber@sistina.com>
+Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
+Message-ID: <20031222235040.GU6438@matchmail.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Fruhwirth Clemens <clemens@endorphin.org>,
+	Joe Thornber <thornber@sistina.com>
+References: <1072129379.5570.73.camel@leto.cs.pocnet.net> <20031222215236.GB13103@leto.cs.pocnet.net> <3FE7794D.7000908@pobox.com> <20031222232433.GT6438@matchmail.com> <3FE77E49.4010303@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-GPG-Key: 0x864C9B9E
-X-GPG-Fingerprint: 0A76 074A 02CD E989 CE7F  AC3F DA47 578E 864C 9B9E
+In-Reply-To: <3FE77E49.4010303@pobox.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 22, 2003 at 06:29:13PM -0500, Jeff Garzik wrote:
+> Mike Fedyk wrote:
+> >Do you dislike the cryptoloop format?
+> >
+> >What if you wanted to take a disk that was used with dm-crypt, and copy it
+> >to a file on a larger filesystem?  Would the data now be inaccessable
+> >because it's not in a format mountable by a loop driver?
+> 
+> Remember we are talking about two -totally different- drivers here.
+> 
+> I can't take my reiserfs data, copy it to a file on a larger filesystem, 
+> and then mount it with ext3.  And that's a good thing.
+> 
 
-Hi folks,
+Aww, why not? ;)
 
-Installing 2.6.0 I've found that some kernel options directives are wrong,
-in fact the option turns out to be always enabled. I don't think this is 
-a desired behaviour.
+> dm-crypt should not be constrained by cryptoloop, and vice versa.
 
-Sorry for the format, yes I know it's ugly :) but I'll leave to you the proper 
-solution :) so I can't make a proper patch.
+It seems dm-crypt was meant to overcome the problems with loop against block
+devices.  If it uses another format, it would loose that ability to be a
+replacement, and unless there are shortcomings in the format, why should
+there be a change?
 
-
-- IPV6_SCTP___ option is always turned on
-
-./net/sctp/Kconfig:
-
-8:  config IPV6_SCTP__
-9: 	    tristate
-10:         default y if IPV6=n
-11:	    default IPV6 if IPV6
-12:
-13: config IP_SCTP
-14:	    tristate "The SCTP Protocol (EXPERIMENTAL)"
-15:	    depends on IPV6_SCTP__
-
-
-I think something is wrong here, why the 'default y if IPV6=n' ???
-
- 
-- INPUT_MOUSEDEV option is always turned on
-
-./drivers/input/Kconfig:
-
-27: config INPUT_MOUSEDEV
-28:	    tristate "Mouse interface" if EMBEDDED
-29:	    default y
-30:	    depends on INPUT
-
-43: config INPUT_MOUSEDEV_PSAUX
-44:         bool "Provide legacy /dev/psaux device" if EMBEDDED
-45:         default y
-46:         depends on INPUT_MOUSEDEV
-
-
-the tristate directive is ignored in most default configurations since EMBEDDED
-is not set, however this doesn't allow to disable INPUT_MOUSEDEV and 
-INPUT_MOUSEDEV_PSAUX. I don't suppose this is right.
-
-
-- SOUND_GAMEPORT option is always turned on
-
-./drivers/input/gameport/Kconfig
-
-22: config SOUND_GAMEPORT
-23:         tristate
-24:         default y if GAMEPORT!=m
-25:         default m if GAMEPORT=m
-
-line 24 is definetly wrong, option is enabled if GAMEPORT=n.
-
-
-Bye 
-
-P.S.
-I'm not subscribed to this list so CC me if it's needed
-
---
-------------------------------------------------------------
-INFIS Network Administrator & Security Officer         .*. 
-Department of Physics       - University of Trieste     V 
-lcars@infis.univ.trieste.it - GPG Key 0x864C9B9E      (   )
-----------------------------------------------------  (   )
-"How would you know I'm mad?" said Alice.             ^^-^^
-"You must be,'said the Cat,'or you wouldn't have come here."
-------------------------------------------------------------
+Also, while cryptoloop on block devices may be bass ackwards to get
+encryption (use a driver meant to turn files into block devices on another
+block device since there is now crypto tied into it...), if there's another
+format, won't that data become inaccessable unless it's in a block device,
+or do you get the dm-crypt -> loop -> file in the case a dm-crypt image gets
+copied to a file?

@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbTHYIdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 04:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbTHYIdp
+	id S261501AbTHYI1a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 04:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbTHYI13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 04:33:45 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:9345 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261657AbTHYIdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 04:33:43 -0400
-Date: Mon, 25 Aug 2003 09:45:30 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200308250845.h7P8jUj8000566@81-2-122-30.bradfords.org.uk>
-To: jamie@shareable.org, vojtech@ucw.cz
-Subject: Re: Input issues - key down with no key up
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
-       vojtech@suse.cz
+	Mon, 25 Aug 2003 04:27:29 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:60338 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261501AbTHYI12
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 04:27:28 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16201.51310.181117.716100@laputa.namesys.com>
+Date: Mon, 25 Aug 2003 12:27:26 +0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel@vger.kernel.org, Reiserfs List <reiserfs-list@namesys.com>
+Subject: Re: FS: hardlinks on directories
+In-Reply-To: <3F48F77D.7040907@namesys.com>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+	<03080416092800.04444@tabby>
+	<20030805003210.2c7f75f6.skraw@ithnet.com>
+	<3F2FA862.2070401@aitel.hist.no>
+	<20030805150351.5b81adfe.skraw@ithnet.com>
+	<20030805220831.GA893@hh.idb.hist.no>
+	<3F48F77D.7040907@namesys.com>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > >   Serge van den Boom reports that his LiteOn MediaTouch Keyboard
-> > > >   has 18 additional keys: Suspend, Coffee, WWW, Calculator, Xfer,
-                                           ^^^^^^
-What does that do?
+Hans Reiser writes:
+ >
 
-> I'll give you a kernel/module option to disable the forced up effect if
-> you have a perfect keyboard. You can then also enable the untranslated
-> mode and set 3. But the default will be translated set 2 with forced
-> keyups if a key is not repeating.
+[...]
 
-Exactly - code to accomodate any PS/2 keyboard that doesn't do
-untranslated set 3 is a workaround, in my opinion.  People with
-perfect keyboards should be able to benefit from the simplicity they
-allow.  Obviously 'set 2 + workarounds' needs to be the default,
-because of the hardware in existance, but there is still an advantage
-to using set 3 where possible.
+ > So, he needs links that count as references, links that don't count as 
+ > references but disappear if the object disappears (without dangling like 
+ > symlinks), and unlinkall(), which removes an object and all of its 
+ > links.  He needs for the first reference to a directory to be removable 
+ > only by removing all links to the object, or designating another link to 
+ > be the "first" reference.
+ > 
+ > Sounds clean to me.  
 
-John.
+Will surely continue to be this way until you start implementing. :)
+
+ >                      This is not to say that I am funded to write 
+ > it.;-)  I'd look at a patch though.....;-)
+ > 
+ > I need to write up a taxonomy of links..... after reiser4 ships.....
+
+http://www.namesys.com/v4/links-taxonomy.html
+
+ > 
+ > -- 
+ > Hans
+ > 
+
+Nikita.
+
+ > 

@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbUBXSSC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 13:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUBXSRE
+	id S262364AbUBXSSB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbUBXSRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 13:17:04 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:7363 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262363AbUBXSPk (ORCPT
+	Tue, 24 Feb 2004 13:17:12 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25773 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262380AbUBXSQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 13:15:40 -0500
-Date: Tue, 24 Feb 2004 10:15:12 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Kai Makisara <Kai.Makisara@metla.fi>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, kai.makisara@kolumbus.fi
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-Message-ID: <20040224101512.A19617@beaverton.ibm.com>
-References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi> <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave> <20040224171629.GA31369@kroah.com>
+	Tue, 24 Feb 2004 13:16:46 -0500
+Date: Tue, 24 Feb 2004 10:03:04 -0800
+From: Greg KH <greg@kroah.com>
+To: "Woodruff, Robert J" <woody@co.intel.com>
+Cc: "Hefty, Sean" <sean.hefty@intel.com>,
+       "Tillier, Fabian" <ftillier@infiniconsys.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       hozer@hozed.org, "Woodruff, Robert J" <woody@jf.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>,
+       infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Message-ID: <20040224180304.GA31826@kroah.com>
+References: <F595A0622682C44DBBE0BBA91E56A5ED1C36C4@orsmsx410.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040224171629.GA31369@kroah.com>; from greg@kroah.com on Tue, Feb 24, 2004 at 09:16:29AM -0800
+In-Reply-To: <F595A0622682C44DBBE0BBA91E56A5ED1C36C4@orsmsx410.jf.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 09:16:29AM -0800, Greg KH wrote:
-
+On Tue, Feb 24, 2004 at 09:55:25AM -0800, Woodruff, Robert J wrote:
 > 
-> Can you print out the sysfs tree this patch creates?
-> 
-> What's that "tape" symlink for?  Does it go from the scsi device in
-> /sys/devices/... to the class device?  Or the other way around?
-> 
-> Other than that question, the patch looks sane to me.
+> Would you like me to submit the patch directly to linux-kernel email
+> list ? 
 
-Current 2.6 kernel default names are of the form: st[0-9]m[0-3][n]
+Yes, please do.  If you want, feel free to cc: me also.
 
-Current /dev naming is of the form: [n]st[0-9][alm]
+But as you have not cleaned up the stuff that everyone has already told
+you to clean up, it might be pretty pointless to do so without fixing
+that code first.  In fact, why even post a patch without making those,
+necessary changes?
 
-Should the st kernel names be changed to map to current /dev names?
+thanks,
 
-For udev, even with that we need differing pre and postfix values wrapped
-around a peristent name.
-
-Here's /dev and /udev (for a dlt tape drive):
-
-[elm3a49 Documentation]$ ls -l /udev/*st0* | sort -k 5
-crw-------    1 root     root       9,   0 Feb 24 17:47 /udev/st0m0
-crw-------    1 root     root       9,  32 Feb 24 17:47 /udev/st0m1
-crw-------    1 root     root       9,  64 Feb 24 17:47 /udev/st0m2
-crw-------    1 root     root       9,  96 Feb 24 17:47 /udev/st0m3
-crw-------    1 root     root       9, 128 Feb 24 17:47 /udev/st0m0n
-crw-------    1 root     root       9, 160 Feb 24 17:47 /udev/st0m1n
-crw-------    1 root     root       9, 192 Feb 24 17:47 /udev/st0m2n
-crw-------    1 root     root       9, 224 Feb 24 17:47 /udev/st0m3n
-[elm3a49 Documentation]$ ls -l /dev/*st0* | sort -k 5
-crw-rw----    1 root     tape       9,   0 Nov 14 14:34 /dev/st0
-crw-rw----    1 root     tape       9,  32 Nov 14 14:34 /dev/st0l
-crw-rw----    1 root     tape       9,  64 Nov 14 14:34 /dev/st0m
-crw-rw----    1 root     tape       9,  96 Nov 14 14:34 /dev/st0a
-crw-rw----    1 root     tape       9, 128 Nov 14 14:34 /dev/nst0
-crw-rw----    1 root     tape       9, 160 Nov 14 14:34 /dev/nst0l
-crw-rw----    1 root     tape       9, 192 Nov 14 14:34 /dev/nst0m
-crw-rw----    1 root     tape       9, 224 Nov 14 14:34 /dev/nst0a
-
--- Patrick Mansfield
+greg k-h

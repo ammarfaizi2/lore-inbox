@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267447AbTBQOvE>; Mon, 17 Feb 2003 09:51:04 -0500
+	id <S267129AbTBQPSS>; Mon, 17 Feb 2003 10:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267459AbTBQOvE>; Mon, 17 Feb 2003 09:51:04 -0500
-Received: from max.fiasco.org.il ([192.117.122.39]:25097 "HELO
-	latenight.fiasco.org.il") by vger.kernel.org with SMTP
-	id <S267447AbTBQOu6>; Mon, 17 Feb 2003 09:50:58 -0500
-Date: Mon, 17 Feb 2003 17:00:00 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Avi Teperman <teperman@il.ibm.com>, Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: hidden assumptions in generic_file_write
-Message-ID: <20030217150000.GI6014@latenight.fiasco.org.il>
-Mime-Version: 1.0
+	id <S267137AbTBQPSR>; Mon, 17 Feb 2003 10:18:17 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:56069 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267129AbTBQPSQ>;
+	Mon, 17 Feb 2003 10:18:16 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302171529.h1HFTVPk010325@darkstar.example.net>
+Subject: Re: Performance of ext3 on large systems
+To: sneakums@zork.net (Sean Neakums)
+Date: Mon, 17 Feb 2003 15:29:31 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6uisvj9bno.fsf@zork.zork.net> from "Sean Neakums" at Feb 17, 2003 03:20:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+> > Can we just say that ext3's talents lie elsewhere?
+> >
+> > I've got some stuff which helps a bit, but nobody has had the time
+> > to implement the significant overhaul which is needed here.
+> >
+> > noatime would help.
+> 
+> ext3 doesn't implement noatime!?  Hurg...
 
-Looking at the following code of generic_file_write(), in 2.4, it
-looks like there is a hidden assumption on the behavior of
-prepare_write() and commit_write() about the behaviour of the file
-system specific prepare_write() and commit_write() functions.
+Actually, it makes sense in a way - noatime only speeds up reads, not
+writes, (access time is always updated on a write), whereas a
+journaled filesystem is presumably intended to be tuned for write
+performance.  So, for it's intended usage, not implementing noatime
+shouldn't be a huge problem, although it would be useful.
 
-		do {
-                .....
-                kaddr = kmap(page);
-                status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
-                if (status)
-                        goto sync_failure;
-                page_fault = __copy_from_user(kaddr+offset, buf, bytes);
-                flush_dcache_page(page);
-                status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
-                if (page_fault)
-                        goto fail_write;
-                if (!status)
-                        status = bytes;
-
-                if (status >= 0) {
-                        written += status;
-                        count -= status;
-                        pos += status;
-                        buf += status;
-                }
-unlock:
-                kunmap(page);
-                /* Mark it unlocked again and drop the page.. */
-                SetPageReferenced(page);
-                UnlockPage(page);
-                page_cache_release(page);
-
-                if (status < 0)
-                        break;
-        } while (count);
-done:
-        ......
-
-Since the data is copied to the page after prepare_write() returns, it 
-seems that the assumption is that prepare_write() is synchronous and
-the page was already read into memory in case it was not there.
-
-Also, after commit_write(), the code immediately falls through unlock 
-which unlocks the page. Since a page is locked during IO, it seems
-that commit_write() is synchronous and the page was already written
-when it returns.
-
-Can anyone clarify if these two assumptions are correct? if not, where
-are we misinterpreting the code? 
-
-Regards, 
-Muli Ben-Yehuda, 
-Avi Teperman 
+John.

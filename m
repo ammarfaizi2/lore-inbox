@@ -1,107 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267110AbRGJTP5>; Tue, 10 Jul 2001 15:15:57 -0400
+	id <S267108AbRGJTU1>; Tue, 10 Jul 2001 15:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbRGJTPi>; Tue, 10 Jul 2001 15:15:38 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:4868 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267104AbRGJTPS>;
-	Tue, 10 Jul 2001 15:15:18 -0400
-Message-ID: <20010709230848.B208@bug.ucw.cz>
-Date: Mon, 9 Jul 2001 23:08:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: andrew.grover@intel.com, kernel list <linux-kernel@vger.kernel.org>
-Cc: ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Cleanup: evevent.c
+	id <S267109AbRGJTUR>; Tue, 10 Jul 2001 15:20:17 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:9988 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267108AbRGJTUM>;
+	Tue, 10 Jul 2001 15:20:12 -0400
+Message-ID: <20010710004415.A557@bug.ucw.cz>
+Date: Tue, 10 Jul 2001 00:44:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org,
+        acpi@phobos.fachschaften.tu-muenchen.de
+Subject: Re: ACPI fundamental locking problems
+In-Reply-To: <3B421AEA.8809D11C@mandrakesoft.com> <E15HW0o-0008FJ-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
+In-Reply-To: <E15HW0o-0008FJ-00@the-village.bc.nu>; from Alan Cox on Tue, Jul 03, 2001 at 08:39:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This kills some whitespace from evevent.c, making code way
-shorter. Please apply.
+> > The difference with ACPI is that vendors can write code that is executed
+> > in the kernel's context (instead of what you can consider the BIOS's
+> > context).  That is a whole new can of worms.
+> 
+> For security reasons alone we need to ensure ACPI can be firmly in the off
+> position. Executing US written binary code in the Linux kernel will not be
+> acceptable to european corporations, non US military bodies and most 
+> Governments. They'd hate the US to get prior warning of say protestors
+> walking into their top secret menwith hill base playing the mission impossible
+> theme tune then chaining themselves to things..
+> 
+> And if the NSA wants the US goverment to execute binary only chinese bios code
+> on all their critical systems I am sure people will be happy.
+
+You already rely on BIOS to boot your kernel. What if that evil
+binary-only BIOS just readed keystrokes stored in 8042, and is sending
+contents of your harddrive over network during memory test?
+
 								Pavel
-
-Only in linux/drivers/acpi/: common
-diff -ur -x .dep* -x .hdep* -x *.[oas] -x *~ -x #* -x *CVS* -x *.orig -x *.rej -x *.old -x .menu* -x asm -x local.h -x System.map -x autoconf.h -x compile.h -x version.h -x .version -x defkeymap.c -x uni_hash.tbl -x zImage -x vmlinu?* -x TAGS -x bootsect -x *RCS* -x conmakehash -x map -x build -x build -x configure -x *target* -x *.flags -x *.bak clean/drivers/acpi/events/evevent.c linux/drivers/acpi/events/evevent.c
---- clean/drivers/acpi/events/evevent.c	Sun Jul  8 23:26:27 2001
-+++ linux/drivers/acpi/events/evevent.c	Sun Jul  8 23:25:01 2001
-@@ -48,25 +50,15 @@
-  ******************************************************************************/
- 
- ACPI_STATUS
--acpi_ev_initialize (
--	void)
-+acpi_ev_initialize (void)
- {
- 	ACPI_STATUS             status;
- 
--
--	/* Make sure we have ACPI tables */
--
--	if (!acpi_gbl_DSDT) {
-+	if (!acpi_gbl_DSDT)		 	/* Make sure we have ACPI tables */
- 		return (AE_NO_ACPI_TABLES);
--	}
--
--
--	/* Make sure the BIOS supports ACPI mode */
- 
--	if (SYS_MODE_LEGACY == acpi_hw_get_mode_capabilities()) {
-+	if (SYS_MODE_LEGACY == acpi_hw_get_mode_capabilities())	/* Make sure the BIOS supports ACPI mode */
- 		return (AE_ERROR);
--	}
--
- 
- 	acpi_gbl_original_mode = acpi_hw_get_mode();
- 
-@@ -76,38 +68,18 @@
- 	 * before handers are installed.
- 	 */
- 
--	status = acpi_ev_fixed_event_initialize ();
--	if (ACPI_FAILURE (status)) {
-+	if (ACPI_FAILURE (status = acpi_ev_fixed_event_initialize ()))
- 		return (status);
--	}
--
--	status = acpi_ev_gpe_initialize ();
--	if (ACPI_FAILURE (status)) {
-+	if (ACPI_FAILURE (status = acpi_ev_gpe_initialize ()))
- 		return (status);
--	}
--
--	/* Install the SCI handler */
--
--	status = acpi_ev_install_sci_handler ();
--	if (ACPI_FAILURE (status)) {
-+	if (ACPI_FAILURE (status = acpi_ev_install_sci_handler ()))
- 		return (status);
--	}
--
--
- 	/* Install handlers for control method GPE handlers (_Lxx, _Exx) */
--
--	status = acpi_ev_init_gpe_control_methods ();
--	if (ACPI_FAILURE (status)) {
-+	if (ACPI_FAILURE (status = acpi_ev_init_gpe_control_methods ()))
- 		return (status);
--	}
--
- 	/* Install the handler for the Global Lock */
--
--	status = acpi_ev_init_global_lock_handler ();
--	if (ACPI_FAILURE (status)) {
-+	if (ACPI_FAILURE (status = acpi_ev_init_global_lock_handler ()))
- 		return (status);
--	}
--
- 
- 	return (status);
- }
-
+[I believe real problem here is correctness, not security, because
+BIOS vendor certainly has ways to screw you up.]
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

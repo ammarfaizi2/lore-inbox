@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267152AbTAKH4K>; Sat, 11 Jan 2003 02:56:10 -0500
+	id <S267158AbTAKIBv>; Sat, 11 Jan 2003 03:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267157AbTAKH4K>; Sat, 11 Jan 2003 02:56:10 -0500
-Received: from waste.org ([209.173.204.2]:16545 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S267152AbTAKH4J>;
-	Sat, 11 Jan 2003 02:56:09 -0500
-Date: Sat, 11 Jan 2003 02:04:48 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andre Hedrick <andre@pyxtechnologies.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: More on Linux and iSCSI [info, not flame :)]
-Message-ID: <20030111080448.GT14778@waste.org>
-References: <20030111053400.GR14778@waste.org> <Pine.LNX.4.10.10301102139200.31168-100000@master.linux-ide.org>
+	id <S267160AbTAKIBv>; Sat, 11 Jan 2003 03:01:51 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:20242 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267158AbTAKIBu>; Sat, 11 Jan 2003 03:01:50 -0500
+Date: Sat, 11 Jan 2003 08:10:25 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Joe Korty <joe.korty@ccur.com>, sct@redhat.com, adilger@clusterfs.com,
+       rusty@rustcorp.com.au, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre2 stalls out when running unixbench
+Message-ID: <20030111081025.A19877@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@digeo.com>, Joe Korty <joe.korty@ccur.com>,
+	sct@redhat.com, adilger@clusterfs.com, rusty@rustcorp.com.au,
+	riel@conectiva.com.br, linux-kernel@vger.kernel.org
+References: <3E15F2F5.356A933D@digeo.com> <200301040111.BAA00401@rudolph.ccur.com> <3E16C171.BFEA45AE@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10301102139200.31168-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E16C171.BFEA45AE@digeo.com>; from akpm@digeo.com on Sat, Jan 04, 2003 at 03:11:45AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 11:10:24PM -0800, Andre Hedrick wrote:
-> On Fri, 10 Jan 2003, Oliver Xymoron wrote:
-> 
-> > On Fri, Jan 10, 2003 at 10:36:50PM -0500, Jeff Garzik wrote:
-> > > 	http://sourceforge.net/projects/intel-iscsi
-[..]
-> > Don't know what the state of interop with other initiators is though.
-> > 
-> > I'll also point out that for many Linux<->Linux purposes, nbd is a workable
-> > substitute. 
-> 
-> You are so correct in the Linux<->Linux model, but remember the other OS
-> has the dominate market space. 
+On Sat, Jan 04, 2003 at 03:11:45AM -0800, Andrew Morton wrote:
+> Sure, we don't need atomic semantics for the BH_Attached bit because
+> it is always read and modified under a global spinlock.  But *other*
+> users of buffer_head.b_state do not run under that lock so the nonatomic
+> RMW will stomp on their changes.   2.4.20 does not have this bug.
 
-Really? Must admit I haven't been paying attention to FreeBSD lately.. ;)
+Thanks, I still had to learn something about *_bit() semantics.
 
-> I have proof of interoperability. Better yet I have performance
-> proof without the ability to control the benchmark environment.
+And sorry for introducing that bug..
 
-I'm sure that's great, but until it's also DFSG compliant, it's
-effectively vaporware in my book.
-
-> IIRC that reference is set at version 6.
-
-They're actually up to 18.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269174AbRHPXps>; Thu, 16 Aug 2001 19:45:48 -0400
+	id <S269155AbRHPXoi>; Thu, 16 Aug 2001 19:44:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269002AbRHPXpj>; Thu, 16 Aug 2001 19:45:39 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:53515 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S269158AbRHPXpV>;
-	Thu, 16 Aug 2001 19:45:21 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108162345.f7GNjUw02993@oboe.it.uc3m.es>
-Subject: scheduling with io_lock held in 2.4.6
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Fri, 17 Aug 2001 01:45:30 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S269158AbRHPXo2>; Thu, 16 Aug 2001 19:44:28 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:24029 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S269155AbRHPXoS>; Thu, 16 Aug 2001 19:44:18 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 16 Aug 2001 09:44:26 -0700
+Message-Id: <200108161644.JAA02547@adam.yggdrasil.com>
+To: gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+Subject: aic7xxx driver that does not need db library?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been plagued for a month by smp lockups in my block driver
-that I eventually deduced were due to somebody else scheduling while
-holding the io_request_lock spinlock.
 
-There's nothing so impressive as a direct test, so I put a test for
-the spinlock being held at the front of schedule(), and sure enough, it
-fires every 20s or so when I'm doing nothing in particular on the
-machine:
+	Currently, building Justin Gibbs's otherwise excellent
+aic7xxx driver requires the Berkeley DB library, because the
+aic7xxx assembler that is used in the build process uses db
+basically just to implement associative arrays in memory.
 
-  Aug 17 01:36:42 xilofon kernel: Scheduling with io lock held in process 0
+	Unfortunately, I'm currently wrestling with db version
+problems because gnome evolution requires the GPL'ed Sleepycat db 3.x,
+so I want to keep db-1.85 around also, and this breaks the aicasm
+build.  I am grateful to aicasm for exposing this problem in my
+Sleepycat and Berkeley db configuration, but looking at the
+aicasm sources makes me think that it would be easy enough to
+make aicasm not to use db, and that would be worth eliminating
+one more software dependency for building the Linux kernel.  It
+also occurred to me that someone else may have already done this,
+so I ought to ask.
 
-doing a dd to /dev/null from the ide disk seems to trigger it, but from
-differnt contexts ...
+	So, has anyone done this already?  If not, I guess I'll take a
+whack at it.
 
-  Aug 17 01:40:58 xilofon kernel: Scheduling with io lock held in process 0
-  Aug 17 01:41:00 xilofon last message repeated 150 times
-  Aug 17 01:41:00 xilofon kernel: Scheduling with io lock held in process 1139
-  Aug 17 01:41:00 xilofon kernel: Scheduling with io lock held in process 0
-  Aug 17 01:41:01 xilofon last message repeated 87 times
-  Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 1141
-  Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 0
-
-
-Surprise, 1139 and 1141 are klogd and syslogd respectively.
-
-Any suggestions as to how to track this further?
-
-Peter
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

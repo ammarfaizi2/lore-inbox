@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264173AbUDROZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 10:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbUDROZr
+	id S261162AbUDROcE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 10:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUDROcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 10:25:47 -0400
-Received: from mta04-svc.ntlworld.com ([62.253.162.44]:54045 "EHLO
-	mta04-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S264173AbUDROZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 10:25:46 -0400
-Message-ID: <40828FBC.1070908@ntlworld.com>
-Date: Sun, 18 Apr 2004 15:25:00 +0100
-From: Matt Keenan <matthew.keenan@ntlworld.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.4-6 StumbleUpon/1.87
-X-Accept-Language: en, en-gb, ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Joystick driver for Zeroplus / Game PSX->USB converter
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Apr 2004 10:32:04 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:38328 "EHLO
+	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261162AbUDROcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 10:32:02 -0400
+Date: Sun, 18 Apr 2004 16:37:34 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Anton Blanchard <anton@samba.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       oprofile-list@lists.sourceforge.net
+Subject: Re: [PATCH] Oprofilefs cant handle > 99 cpus
+Message-ID: <20040418163734.GA384@zaniah>
+References: <20040418110658.GC26086@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040418110658.GC26086@krispykreme>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya,
-    Does anyone know how to get a working setup with one of these? 
-usbserial seems to be working fine on this device, but there doesnt seem 
-to be a working joystick driver for it? Google seems to knwo nothing 
-apart from the single entry in the usb.ids list. Any help would be 
-appreciated.
+On Sun, 18 Apr 2004 at 21:06 +0000, Anton Blanchard wrote:
 
-    Matt
+> 
+> Hi,
+> 
+> Oprofilefs cant handle > 99 cpus. This should fix it.
 
+right.
+ 
+> ===== oprofile_stats.c 1.6 vs edited =====
+> --- 1.6/drivers/oprofile/oprofile_stats.c	Mon Jan 19 17:33:51 2004
+> +++ edited/oprofile_stats.c	Sun Apr 18 19:46:35 2004
+> @@ -55,7 +55,7 @@
+>  			continue;
+>  
+>  		cpu_buf = &cpu_buffer[i]; 
+> -		snprintf(buf, 6, "cpu%d", i);
+> +		snprintf(buf, 10, "cpu%d", i);
+>  		cpudir = oprofilefs_mkdir(sb, dir, buf);
+>   
+>  		/* Strictly speaking access to these ulongs is racy,
+
+Andrew, can you apply this patch ?
+
+regards,
+Phil

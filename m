@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129344AbRBLREI>; Mon, 12 Feb 2001 12:04:08 -0500
+	id <S130116AbRBLRHi>; Mon, 12 Feb 2001 12:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129901AbRBLRD6>; Mon, 12 Feb 2001 12:03:58 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:30452 "HELO
-	burns.conectiva") by vger.kernel.org with SMTP id <S129344AbRBLRDs>;
-	Mon, 12 Feb 2001 12:03:48 -0500
-Date: Mon, 12 Feb 2001 15:06:35 -0200 (EST)
-From: Fernando Fuganti <fuganti@conectiva.com.br>
-To: Paul Powell <moloch16@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Programmatically probe video chipset
-In-Reply-To: <20010212164358.2762.qmail@web119.yahoomail.com>
-Message-ID: <Pine.LNX.4.21.0102121504220.814-100000@ze.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130177AbRBLRH2>; Mon, 12 Feb 2001 12:07:28 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:46351 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S130116AbRBLRH0>;
+	Mon, 12 Feb 2001 12:07:26 -0500
+Date: Mon, 12 Feb 2001 18:07:15 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Mike Harrold <mharrold@cas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:  lkml subject line
+Message-ID: <20010212180715.G11465@marowsky-bree.de>
+In-Reply-To: <20010213014814.7d7f7d33.bruce@ask.ne.jp> <200102121656.LAA17900@mah21awu.cas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <200102121656.LAA17900@mah21awu.cas.org>; from "Mike Harrold" on 2001-02-12T11:56:00
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2001-02-12T11:56:00,
+   Mike Harrold <mharrold@cas.org> said:
 
+> Maybe I don't *want* the LKML messages in a seperate folder.
+> Maybe I just want to identify them at a pinch in my inbox?
 
-On Mon, 12 Feb 2001, Paul Powell wrote:
+You can use procmail to modify the subject line of incoming mail too.
 
-> Is there an API or other means to determine what video
-> card, namely the chipset, that the user has installed
-> on his machine?
+> Maybe my employer doesn't allow me to install additional software anyway?
 
-try kudzu (a hardware detection lib from RedHat) or libdetect (another one
-but from Mandrake)
-they all provide a reasonable interface and database
- 
+Those would all be your problems and I would suggest using a different account
+for mail then.
 
-Fernando Fuganti
+This discussion happens on every mailing list occasionally, and it is just a
+generally bad idea, period.
+
+Especially for a list which is as often crossposted to as lk.
+
+Can we now move on?
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275735AbRI0CUH>; Wed, 26 Sep 2001 22:20:07 -0400
+	id <S275740AbRI0C2A>; Wed, 26 Sep 2001 22:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275736AbRI0CT6>; Wed, 26 Sep 2001 22:19:58 -0400
-Received: from foo-bar-baz.cc.vt.edu ([128.173.14.103]:18560 "EHLO
-	foo-bar-baz.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S275735AbRI0CTn>; Wed, 26 Sep 2001 22:19:43 -0400
-Message-Id: <200109270219.f8R2Jxn03458@foo-bar-baz.cc.vt.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview 
-In-Reply-To: Your message of "Thu, 27 Sep 2001 00:14:33 BST."
-             <E15mNsv-0002Cv-00@the-village.bc.nu> 
-From: Valdis.Kletnieks@vt.edu
-X-URL: http://black-ice.cc.vt.edu/~valdis/
-X-Face-Viewer: See ftp://cs.indiana.edu/pub/faces/index.html to decode picture 
-X-Face: 34C9$Ewd2zeX+\!i1BA\j{ex+$/V'JBG#;3_noWWYPa"|,I#`R"{n@w>#:{)FXyiAS7(8t(
- ^*w5O*!8O9YTe[r{e%7(yVRb|qxsRYw`7J!`AM}m_SHaj}f8eb@d^L>BrX7iO[<!v4-0bVIpaxF#-)
- %9#a9h6JXI|T|8o6t\V?kGl]Q!1V]GtNliUtz:3},0"hkPeBuu%E,j(:\iOX-P,t7lRR#
-In-Reply-To: <E15mNsv-0002Cv-00@the-village.bc.nu>
-Date: Wed, 26 Sep 2001 22:19:59 -0400
+	id <S275739AbRI0C1t>; Wed, 26 Sep 2001 22:27:49 -0400
+Received: from rj.sgi.com ([204.94.215.100]:32204 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S275742AbRI0C1f>;
+	Wed, 26 Sep 2001 22:27:35 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Kiril Vidimce <vkire@pixar.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: max arguments for exec 
+In-Reply-To: Your message of "Wed, 26 Sep 2001 14:25:05 MST."
+             <Pine.LNX.4.21.0109261417110.24013-100000@nevena> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 27 Sep 2001 12:27:52 +1000
+Message-ID: <8237.1001557672@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001 00:14:33 BST, Alan Cox said:
-> > I'm really trying to be constructive here.  There is a real licensing 
-> > problem over whether binary modules are legitimate at all, and the issue 
-> > is not special to LSM. I'm trying to get LSM out of the way so that the 
-> > advocates of either side can fight it out without smushing LSM in the 
-> > middle :-)
-> 
-> Yes - I agree. The question is "can you be using the LSM module" not
-> the headers - since LSM is GPL and your work relies on it 
+On Wed, 26 Sep 2001 14:25:05 -0700 (PDT), 
+Kiril Vidimce <vkire@pixar.com> wrote:
+>Is there any way to reconfigure the kernel at runtime to change the
+>limit for arguments passed during an exec? I guess I am looking for
+>something similar to systune ncargs under IRIX. I found this thread
+>in the archives:
+>
+>http://uwsg.iu.edu/hypermail/linux/kernel/0003.0/0160.html
+>
+>The only suggestion was to patch and recompile the kernel. I looked
+>into sysctl and I couldn't find an appropriate argument to tweak.
 
-Unfortunately, the commentary in /usr/src/linux/COPYING exempting programs
-that use the syscall interface is clear as mud.
+It is controlled by MAX_ARG_PAGES in include/linux/binfmts.h.  Change
+and recompile the kernel, it is not dynamically tunable in Linux.
 
-I can read it as saying "the syscall interface is hereby granted an exemption,
-and other normal uses of the kernel are specifically NOT exempted".  In that
-case, all authors of closed-source loadable modules are heretics and need to
-be burnt at the stake. ;)
-
-I can equally easily read it as "normal use of the kernel does not fall
-under 'derivative work', and the syscall inferface is cited as one example
-of normal use".  Given that Linus has been quoted elsewhere as saying that
-closed-source modules are not *inherently* evil, this may be the intended reading.
-
-I can equally easily read it as "Linus wrote it when the syscall interface WAS
-the only interface, and never updated it for loadable modules...." ;)
-
-Personally, I'd not be at all surprised to find out that none of my 3 readings
-are anywhere close to the actual meaning as decided by a court of law....
-
-				Valdis Kletnieks
-				Operating Systems Analyst
-				Virginia Tech

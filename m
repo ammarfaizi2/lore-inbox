@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129838AbQKAPpM>; Wed, 1 Nov 2000 10:45:12 -0500
+	id <S129508AbQKAQG0>; Wed, 1 Nov 2000 11:06:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129508AbQKAPpC>; Wed, 1 Nov 2000 10:45:02 -0500
-Received: from gatekeeper.trcinc.com ([208.224.120.226]:45049 "HELO gatekeeper")
-	by vger.kernel.org with SMTP id <S131082AbQKAPoq>;
-	Wed, 1 Nov 2000 10:44:46 -0500
-Message-ID: <790BC7A85246D41195770000D11C56F21C847A@trc-tpaexc01.trcinc.com>
-From: Jonathan George <Jonathan.George@trcinc.com>
-To: "'matthew@mattshouse.com'" <matthew@mattshouse.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.0-test10 Sluggish After Load
-Date: Wed, 1 Nov 2000 10:44:14 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130296AbQKAQGQ>; Wed, 1 Nov 2000 11:06:16 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:28670 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129508AbQKAQGK>; Wed, 1 Nov 2000 11:06:10 -0500
+Date: Wed, 01 Nov 2000 08:09:16 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: Linux's implementation of poll() not scalable?
+To: Mike Jagdis <mjagdis@kokuacom.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        "linux-scalability@citi.umich.edu" <linux-scalability@citi.umich.edu>
+Reply-to: dank@alumni.caltech.edu
+Message-id: <3A00402C.6509D58A@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <LPBBLLNMNCOEDEJFALHPAEGBDMAA.mjagdis@kokuacom.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt,
+Mike Jagdis wrote:
+> This patch firstly extends the wait queue mechanism
+> to allow an arbitrary action to be performed. Then I rewrote
+> the select/poll implementation to use event queueing to avoid
+> rescanning descriptors that had not changed - and restructured
+> the loops to be rather more efficient. This approach doesn't
+> need any changes to driver poll routines, it doesn't need
+> backwards mapping struct files. ...
+>   Performance graphs and the lmbench derived test programs I
+> used are at http://www.purplet.demon.co.uk/linux/select/ ...
+>   Oh, and I updated this patch for 2.4.0-test9.
 
-It might be helpful to show the current (post crippled) results of top.
-Futhermore, a list of allocated ipc resources (share memory, etc.) and open
-files (lsof) would be nice.
-
---Jonathan--
+I can't wait to run my benchmark on it... hope I can get to it soon.
+BTW, can you update that web page to also point to your patch?
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

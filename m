@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314339AbSDVRpn>; Mon, 22 Apr 2002 13:45:43 -0400
+	id <S314340AbSDVRrh>; Mon, 22 Apr 2002 13:47:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSDVRpm>; Mon, 22 Apr 2002 13:45:42 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:22283 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S314339AbSDVRpk>;
-	Mon, 22 Apr 2002 13:45:40 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
+	id <S314341AbSDVRrg>; Mon, 22 Apr 2002 13:47:36 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:63174 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S314340AbSDVRqv>;
+	Mon, 22 Apr 2002 13:46:51 -0400
+Date: Mon, 22 Apr 2002 13:46:48 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
 To: Daniel Phillips <phillips@bonn-fries.net>
-Date: Mon, 22 Apr 2002 19:45:09 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-CC: Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
-        linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <31CB8B22019@vcnet.vc.cvut.cz>
+Message-ID: <20020422134648.C11216@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zKy9-0001Hw-00@starship> <20020422131942.A10714@havoc.gtf.org> <E16zLHY-0001IC-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Apr 02 at 19:34, Daniel Phillips wrote:
+On Sun, Apr 21, 2002 at 07:37:47PM +0200, Daniel Phillips wrote:
+> On Monday 22 April 2002 19:19, Jeff Garzik wrote:
+> > (Linus removed from CC)
+> > 
+> > On Sun, Apr 21, 2002 at 07:17:45PM +0200, Daniel Phillips wrote:
+> > > On Monday 22 April 2002 19:10, Jeff Garzik wrote:
+> > > > Do you have a problem with moving other docs out to Websites, which are
+> > > > describing closed-spec hardware?  Such hardware (and their vendors) are
+> > > > actively anti-open source, yet we have documents describing those, too.
+> > > 
+> > > The other example specifically mentioned was the CVS documentation for jfs,
+> > > and yes, I think that moving those instructions to the web site in question
+> > > would make a lot of sense, leaving a URL wherever the docs once were.  By
+> > > definition, the CVS instructions will be available on that site as long as
+> > > they are useful, and not a moment longer.
+> > > 
+> > > This is all irrespective of the fact that CVS does not have the problem of
+> > > having a restrictive license, but since you asked...
+> > 
+> > Well, in order to prove you're being fair, your patch should have
+> > included removal of those CVS instructions, too :)
 > 
-> True, but I'm a contributor and so I have an interest in it.  It would be
-> better if you didn't pursue that line of argument.
+> Would it satisfy you (just talking about *you* now) if I ammended it so it did?
+> This would be purely to satisfy you of course, since the license issue does not
+> exist with CVS, and it would be contingent on negotiating a new home for the
+> jfs CVS instructions.
 > 
-> How about the URL?
+> > That's the point Linus made in his first message, and one I agree with.
+> 
+> You want it, you got it.  Deal?
 
-Why we have kernel tarball at all, then? Just put URLs where you can 
-download different pieces of kernel, and we are done. You finally
-solved problem how to help users who do not want to download different
-arch subdirectories, or different drivers, as they do not need them
-for their hardware, and downloading them takes a precious time.
+You are misunderstanding me and Linus.
 
-As there is definitely at least one developer who uses Bitkeeper, and
-as this information is seen useful at least by some people (me including),
-I see no reason why this information should not be part of kernel.
+The point is that your patch was singling out BK unfairly,
+and the mention of CVS was an _example_ of that.
 
-Otherwise we must remove ncpfs and matroxfb from the kernel immediately, as
-they both use proprietary protocol/interface, and there is available only 
-one vendor on the world who provides/supports this protocol/interface 
-(Novell resp. Matrox), and matroxfb documentation is just hidden advertising
-of Matrox corp.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
+I do not support the removal of the BK docs, nor the CVS docs.
+Linus does not appear to, either.
+
+In fact, if someone wrote a general doc describing productive kernel
+development under CVS, I would support the addition of that.  (though
+Linus may not, since it's not vaguely equivalent to SubmittingPatches)
+
+	Jeff
+
+
+

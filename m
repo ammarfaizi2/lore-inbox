@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVAaLoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVAaLor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVAaLoB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 06:44:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVAaLoB
+	id S261155AbVAaLor (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 06:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVAaLor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 06:44:01 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:20650 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261154AbVAaLn6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 06:43:58 -0500
-Message-ID: <41FE2814.9030503@tiscali.de>
-Date: Mon, 31 Jan 2005 13:44:04 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Mon, 31 Jan 2005 06:44:47 -0500
+Received: from fw91ext.math.uni-frankfurt.de ([141.2.42.131]:3722 "EHLO
+	samson.math.uni-frankfurt.de") by vger.kernel.org with ESMTP
+	id S261155AbVAaLol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 06:44:41 -0500
+Date: Mon, 31 Jan 2005 12:44:39 +0100 (CET)
+From: Bjoern Brill <brill@fs.math.uni-frankfurt.de>
+X-X-Sender: brill@samson.math.uni-frankfurt.de
+To: linux-kernel@vger.kernel.org
+cc: Bjoern Brill <brill@fs.math.uni-frankfurt.de>
+Subject: Re: linux 2.4.28 umount oops
+In-Reply-To: <Pine.LNX.4.58.0501220024310.3368@samson.math.uni-frankfurt.de>
+Message-ID: <Pine.LNX.4.58.0501311238190.28815@samson.math.uni-frankfurt.de>
+References: <Pine.LNX.4.58.0501220024310.3368@samson.math.uni-frankfurt.de>
 MIME-Version: 1.0
-To: Michael Buesch <mbuesch@freenet.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: My System doesn't use swap!
-References: <41FE1B4B.2060305@tiscali.de> <200501311157.10932.mbuesch@freenet.de>
-In-Reply-To: <200501311157.10932.mbuesch@freenet.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
 
->Quoting Matthias-Christian Ott <matthias.christian@tiscali.de>:
->  
->
->>Hi!
->>I have mysterious Problem:
->>90 % of my Ram are used (340 MB), but 0 Byte of my Swap (2GB) is used 
->>and about about 150 MB are swappable.
->>
->>[matthias-christian@iceowl ~]$ free
->>             total       used       free     shared    buffers     cached
->>Mem:        383868     362176      21692          0         12     208956
->>-/+ buffers/cache:     153208     230660
->>    
->>
->                                    ^^^^^^
->You have ~230M of 380M free.
->Nothing mysterious here.
->
->  
->
->>Swap:      2097136          0    2097136
->>
->>[matthias-christian@iceowl ~]$ cat /kernel-2.6.10-rc2-ott/config
->>[..]
->>CONFIG_SWAP=y
->>[..]
->>CONFIG_X86_BSWAP=y
->>[..]
->>
->>[matthias-christian@iceowl ~]$ dmesg
->>[..]
->>Adding 2097136k swap on /dev/discs/disc0/part2.  Priority:-1 extents:1
->>[..]
->>
->>Matthias-Christian Ott
->>
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
->>    
->>
->
->  
->
-Ok maybe I wasn't able to read the /free/ output correctly, but why is 
-no swap used (more than 60% ram are used)?
+On Sat, 22 Jan 2005, Bjoern Brill wrote:
 
-Matthias-Christian Ott
+> Hello list,
+>
+> my machine oopses in the umount script at shutdown once every few
+> weeks (at 1-2 shutdowns / day). Two times this resulted in repairable
+> errors on an EXT3 filesystem during the next bootup.
+>
+[...]
+
+A few days after posting this, the box developed much stranger behaviour,
+like randomly segfaulting applications. A run of memtest86 revealed that
+one of the RAM sticks went bad. It was good when I put it in (I tested it
+back then), but most likely the bad memory is the cause of reported
+oops. Praised be mentest86.
+
+Sorry for the noise.
+
+
+Regards,
+
+Bjoern Brill
+--
+Bj"orn Brill <brill@fs.math.uni-frankfurt.de>
+Frankfurt am Main, Germany
+

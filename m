@@ -1,153 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263610AbTDGT2o (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 15:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTDGT2o (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 15:28:44 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:15364 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S263610AbTDGT2k (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 15:28:40 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Chris Friesen" <cfriesen@nortelnetworks.com>,
-       "Mark Mielke" <mark@mark.mielke.cc>
-Cc: "Helge Hafting" <helgehaf@aitel.hist.no>,
-       "Thomas Schlichter" <schlicht@rumms.uni-mannheim.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: An idea for prefetching swapped memory...
-Date: Mon, 7 Apr 2003 12:39:21 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGKEIGCGAA.rwhite@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3E91C826.8000806@nortelnetworks.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+	id S263615AbTDGT3V (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 15:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTDGT3T (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 15:29:19 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:19885 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263612AbTDGT3L (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 15:29:11 -0400
+Date: Mon, 7 Apr 2003 21:40:39 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: Re: [ANNOUNCE] New kernel tree for embedded linux
+Message-ID: <20030407194039.GF8178@wohnheim.fh-wedel.de>
+References: <20030407171037.GB8178@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <p73r88exh3r.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <p73r88exh3r.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DISCLAIMER: Without having actually looked at the code...
+X-posted to mtd. A lot of embedded people lurk there.
 
-I would say that being able to mark a process or executable as a "should be
-speculatively  reloaded" is... wait for it... a "very bad" idea.  It would
-become far too easy for someone to configure a hugely anti-optimal system by
-just flagging some giant pig-dog program as "favorable for residency" and
-then have the system end up aggressively reloading parts of that program's
-data set that aren't even being used.
+On Mon, 7 April 2003 21:06:16 +0200, Andi Kleen wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
+> 
+> > The RATIONALE is that on a ppc with some flash, memory, network and
+> > nothing much else, I don't feel like parsing MS-DOS partitions,
+> > offering IPX networking etc., but that junk is still included in
+> > 2.[45].current - unconditionally. And there is more...
+> 
+> Both dos partitions and IPX are already CONFIG_* options. As "conditional" 
+> as you can get. 
 
-Consider:  you flag Mozilla and the system starts aggressively loading the
-composer and mail client (etc.) code while all you are doing is looking at a
-help file.
+DOS is always included, unless you are on a very short list (amiga,
+atari, mac, sgi_this, sgi_that). Not a complicated fix, I agree.
 
-Degenerate cases abound.
+You are correct about IPX, but 802.3 is always included, afaics never
+used and the first comment in the code sais, only used by IPX. Again,
+quite simple.
 
-[These issues are, BTW, why the use of the "text sticky bit" pretty much
-deprecated itself.]
+Some more partitioning code that only applies to spinning discs of
+some sort (ide, scsi) or code that emulates spinning discs is always
+included. No config option.
 
-On the other hand, presuming for the moment that the VM system works
-something vaguely like the one in a Sun SVR4 system (because, remember, I
-haven't read the code 8-).  That is, let's say there is a pointer traversing
-along through memory that looks at each page and considers it for writing
-out to swap.  And there is another pointer that cycles through memory behind
-it and, if it hasn't been modified since the first pointer passed, it does
-the write-to-swap and then puts the page on the reclaim-or-overwrite list.
-When a process accesses a page, if it is normal then it is normal, if it is
-on the reclaim-or-overwrite list it reclaims its page, if it isn't on the
-list, the system takes the first page off the list and fills it with the
-swapped-in contents.
+The list goes on, but these were the lowest hanging fruits I could
+see.
 
-Now lets change that list from a list to a priority queue....
+> If you want to reduce memory bloat I would start with shrinking the
+> dynamic sized hashtables. That will likely give you several hundred KB
+> depending on the memory size, much more than you could get from
+> code size reductions.
 
-It would be interesting to have the system keep track of page faults for
-each process and then make a ratio of Page_Faults/Program_Size (or maybe
-RSS?).  The smaller this number is the higher its pages are on the priority
-queue.
+Ok, I will look into this. Do you have a quick pointer or two to start
+with?
 
-Now, programs that are experiencing a large amount of paging (because they
-are large and they are actively getting hit) will tend to have their pages
-preserved on the reclaim/overwrite list.  That is, they are more likely to
-be able to reclaim their pages instead of having to swap them in.
+> Another obvious candidate for memory reduction would be mem_map
+> (struct page). If you accept some total memory size limit (256MB
+> with 4k pages) you could replace next_hash and pprev_hash with an
+> 16bit index into mem_map and save 8 bytes per 4k of memory. Possible even 
+> fold count into flags and save another 4 bytes per 4k of memory
+> For 256MB of memory this would be 768k. That's more than a stripped
+> down kernel has code in total.
 
-The nice parts:
+1. Things matter less, if you already have 256MB. My focus is on
+2-32MB machines, both flash and memory, where O(1) saving do make a
+difference.
+2. My kernels have little less than 2M uncompressed or 700k
+compressed. The platform is not *that* embedded, bit things should
+still go down.
 
-- Small programs that are being intensely used tend to stay in memory
-because of that use.  (e.g. actively grep(ing) a file, not a large data set
-but the continuous use keeps its pages off the queue naturally.
+3. Thanks for the pointer. I'll look into that.
 
-- Large, inactive programs tend to leave memory quickly.
+> Probably more could be saved by attacking other bloated data structures
+> in the kernel.
+> 
+> Really there are many targets that have bigger potential pay off 
+> than just code shrinking.
 
-- Small, moderately inactive programs tend to profile competitively with
-larger active more-active programs (so the large active programs don't
-completely trample over their smaller kin.)
+Yes, I agree. See ps:.
 
-- New (just initiated) programs will tend to profile themselves quickly,
-which will tend to let initialization time code and data subside gracefully.
+> If you want to shrink code:
+> 
+> The TCP/IP stack could be also put on a diet. You likely don't need
+> an backbone router class routing table manager in your embedded
+> system. The code is already modularized enough that it could be 
+> replaced with a simple "client" implementation using linked 
+> lists for routing tables with minor changes.
+> Unfortunately developing it is still quite some work.
 
-- As system run state evolves (people and processes come and go) the
-heuristic can keep up because the processes are only judged against one
-another.
+Good hint. Thank you!
 
-[ASIDE: The tracking might actually be better by "memory image" instead of
-"process" so that multi-threaded code will compete based on the sum of their
-threads activities...?]
+Another one is serial.c. In an ltp test run, plus serial console, some
+90% were unused. And the code gave me some shivers. Volunteers?
 
-Rob.
+Jörn
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Chris Friesen
-Sent: Monday, April 07, 2003 11:49 AM
-To: Mark Mielke
-Cc: Helge Hafting; Thomas Schlichter; linux-kernel@vger.kernel.org
-Subject: Re: An idea for prefetching swapped memory...
+PS: The *real* rationale behind this is my view of embedded
+development:
+1. Take what's availlable.
+2. Make things work.
+3. Ship to customer.
+4. nothing
 
+Most other developers send patches and collaborate somehow. For
+embedded this rarely happens. (It does a little, not all is black.)
 
-Mark Mielke wrote:
-> On Mon, Apr 07, 2003 at 10:19:25AM -0400, Chris Friesen wrote:
+So I wanted to create a focal point for the embedded developers and
+see if I get something back for my work. I had to start with
+something, three simple patches is not much. But if my hopes become
+reality, it will grow. And I really suspect that a lot of the patches
+done in step 2 could be generalized.
 
-> Chris: Based on your usage patterns, how would Linux know that you were
-> going to be opening up Mozilla, and not that you were going to tweak the
-> kernel source and compile it again?
+Your hints were already more valuable than my work investments so far.
+Thank you!
 
-Because it would read my mind and figure out what I wanted!   ;-)
-
-Maybe it would be possible to have some way to tell the kernel, "I would
-prefer
-this process to be in memory, unless you're running short, at which point
-you
-can swap it out."
-
-This would be very similar to the niceness value, except it would control
-what
-memory gets swapped out.  You could tie it in to what processes have been
-running, such that if the system goes idle you could start preferentially
-swapping back in the processes with the memory niceness set.  If you left it
-at
-zero you get the current behaviour (not swapped in until needed) while
-positive
-(or negative, to align with niceness) values would swap that process in
-preferentially when the system goes idle.
-
-This would give similar benefits as mlock without actually robbing the
-kernel of
-the ability to swap out under memory pressure.
-
-Does this sound at all useful, or am I blowing smoke?
-
-Chris
-
-
-
---
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+My second remark is that our intellectual powers are rather geared to
+master static relations and that our powers to visualize processes
+evolving in time are relatively poorly developed.
+-- Edsger W. Dijkstra

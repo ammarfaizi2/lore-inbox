@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132699AbQLaBrF>; Sat, 30 Dec 2000 20:47:05 -0500
+	id <S135664AbQLaBsz>; Sat, 30 Dec 2000 20:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135610AbQLaBqz>; Sat, 30 Dec 2000 20:46:55 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:60876 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S132699AbQLaBqg>; Sat, 30 Dec 2000 20:46:36 -0500
-Date: Sun, 31 Dec 2000 01:16:04 +0000 (GMT)
-From: davej@suse.de
-To: Tony Spinillo <tspin@epix.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TEST13-PRE7 - Nvidia Kernel Module Compile Problem
-In-Reply-To: <20001231140527.A21365@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.21.0012310114510.13512-100000@neo.local>
+	id <S135665AbQLaBsp>; Sat, 30 Dec 2000 20:48:45 -0500
+Received: from slc779.modem.xmission.com ([166.70.6.17]:3079 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S135664AbQLaBsZ>; Sat, 30 Dec 2000 20:48:25 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <Pine.LNX.4.10.10012301441350.1477-100000@penguin.transmeta.com>
+From: ebiederman@uswest.net (Eric W. Biederman)
+Date: 30 Dec 2000 17:26:58 -0700
+In-Reply-To: Linus Torvalds's message of "Sat, 30 Dec 2000 14:44:56 -0800 (PST)"
+Message-ID: <m1pui9ph9p.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2000 at 07:54:21PM +0000, Tony Spinillo wrote:
->   The nvidia kernel module (from www.nvidia.com) has compiled and loaded
->   correctly with all test13-pre series up to pre6. I just tried to
->   compile and load under pre7.
->   I got the following:
->   nv.c:860:unknown field `unmap' specified in initializer
->   nv.c:860:warning: initialization from incompatible pointer type
->   make:*** [nv.o] Error 1
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-Delete the unmap: line somewhere near line 868 of nv.c
-Seems to be working fine here.
+> On 30 Dec 2000, Eric W. Biederman wrote:
+> > 
+> > One other thing to think about for the VFS/MM layer is limiting the
+> > total number of dirty pages in the system (to what disk pressure shows
+> > the disk can handle), to keep system performance smooth when swapping.
+> 
+> This is a separate issue,  and I think that it is most closely tied in to
+> the "RSS limit" kind of patches because of the memory mapping issues. If
+> you've seen the RSS rlimit patch (it's been posted a few times this week),
+> then you could think of that modified by a "Resident writable pages Set
+> Size" approach. 
 
-regards,
+Building on the RSS limit approach sounds much simpler then they way
+I was thinking.
 
-Davej.
+> Not just for shared mappings - this is also an issue with
+> limiting swapout.
+> 
+> (I actually don't think that RSS is all that interesting, it's really the
+> "potentially dirty RSS" that counts for VM behaviour - everything else can
+> be dropped easily enough)
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Definitely.
 
+Now the only tricky bit is how do we sense when we are overloading
+the swap disks.  Well that is the next step.  I'll take a look
+and see what it takes to keep statistics on dirty mapped pages.
+
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

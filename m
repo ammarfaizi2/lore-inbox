@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUIPMfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUIPMlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268043AbUIPMfI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 08:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUIPMdl
+	id S268069AbUIPMlh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 08:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIPMik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 08:33:41 -0400
-Received: from relay.felk.cvut.cz ([147.32.80.7]:11 "EHLO relay.felk.cvut.cz")
-	by vger.kernel.org with ESMTP id S268048AbUIPMbv convert rfc822-to-8bit
+	Thu, 16 Sep 2004 08:38:40 -0400
+Received: from relay.felk.cvut.cz ([147.32.80.7]:4364 "EHLO relay.felk.cvut.cz")
+	by vger.kernel.org with ESMTP id S268048AbUIPMga convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 08:31:51 -0400
+	Thu, 16 Sep 2004 08:36:30 -0400
 From: "Bc. Michal Semler" <cijoml@volny.cz>
 Reply-To: cijoml@volny.cz
 To: Jens Axboe <axboe@suse.de>
 Subject: Re: CD-ROM can't be ejected
-Date: Thu, 16 Sep 2004 14:31:40 +0200
+Date: Thu, 16 Sep 2004 14:36:05 +0200
 User-Agent: KMail/1.6.2
 CC: linux-kernel@vger.kernel.org
 References: <200409160025.35961.cijoml@volny.cz>
@@ -23,7 +23,7 @@ MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain; charset="iso-8859-2"
 Content-Transfer-Encoding: 8BIT
-Message-ID: <200409161431.40185.cijoml@volny.cz>
+Message-ID: <200409161436.05939.cijoml@volny.cz>
 X-MailScanner-felk: Found to be clean
 X-MailScanner-SpamCheck-felk: not spam, SpamAssassin (score=-4.9, required 5,
 	BAYES_00 -4.90)
@@ -121,25 +121,8 @@ Dne èt 16. záøí 2004 14:24 Jens Axboe napsal(a):
 > cannot know which process locked it or not, all it knows is that the
 > usage count is non-zero on umount, so it doesn't unlock the tray.
 
-This is written on cpudyn website:
-Disk Standby
+And very important info is, that same harddisk image I use on about 25 laptops 
+in company and those works fine with it. Only this one doesn't. And I can't 
+send it to Acer, coz under WinXP cdrom works fine :(
 
-Tired of playing with hdparm and /etc/apm to save battery in your laptop or to 
-make your desktop more quiet? Don't waste more time, you've found the 
-solution :-)
-
-Since version 0.2.0, the program is also able to put the computer disks in 
-standby mode, if a given period has passed without any I/O operation.
-
-It works very well even with Journaled File Systems such as Ext3, XFS and 
-ReiserFS.
-
-Options "-t timeout" and "-h dev0[,dev1]..." control this behaviour. It is 
-__not__ activated by default, -t _or_ -h activated. Please check the usage 
-and edit /etc/init.d/cpudyn if you need to activate it at startup time.
-
-This feature works also with Linux 2.4.X and 2.5.X since version 0.30
-
-Example:
-
-     cpudynd -i 1 -t 60 -h /dev/hda,/dev/hdc
+Michal

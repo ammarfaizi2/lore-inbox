@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264721AbSJOQ0k>; Tue, 15 Oct 2002 12:26:40 -0400
+	id <S264701AbSJOQWb>; Tue, 15 Oct 2002 12:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264723AbSJOQ0j>; Tue, 15 Oct 2002 12:26:39 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:32667 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S264721AbSJOQ0i>;
-	Tue, 15 Oct 2002 12:26:38 -0400
-Date: Tue, 15 Oct 2002 09:35:07 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: ebiederm@xmission.com, <eblade@blackmagik.dynup.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend
- devices
-In-Reply-To: <200210132214.PAA00953@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0210150928340.1038-100000@cherise.pdx.osdl.net>
+	id <S264703AbSJOQWa>; Tue, 15 Oct 2002 12:22:30 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:34286 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S264701AbSJOQW0>; Tue, 15 Oct 2002 12:22:26 -0400
+Date: Tue, 15 Oct 2002 11:27:31 -0500 (CDT)
+From: Kent Yoder <key@austin.ibm.com>
+To: acme@conectiva.com.br
+cc: p.norton@computer.org, <linux-kernel@vger.kernel.org>
+Subject: LLC fix (was 2.5 token ring build fails)
+Message-ID: <Pine.LNX.4.44.0210151104530.1086-100000@ennui.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 	device_shutdown and device_suspend are for power management.
-> It is important to turn the device off as soon as possible if a power
-> management routine has told you that the device is not going to be
-> used any more.
+  When building in TR support, LLC must also be included in the kernel, not
+as a module. LLC only builds correctly as a module however, due to
+llc_proc_exit (__exit code) being called from llc_init in llc_main.c.  The
+following patch fixes this.
 
-device_suspend() is for power management. device_shutdown() is for 
-quiescing devices before a system reboot or power off. 
+Please apply...
 
-It's true that the same function is called when the device is physically 
-removed from the system as when the system is shutting down, and that 
-might be kinda bad. If it gets to the point where it's really difficult to 
-deal with for drivers, we can create another callback: ->shutdown() for 
-struct device_driver. 
+Thanks,
+Kent 
 
-> 	If you've identified a bunch of devices that need
-> reboot_notifier, please list them so we can fix them rather than
-> taxing the users with unnecessarily slow reboots or poor battery life
-> (due to device not being shut down when they are no longer being used).
+diff -urN linux-2.5.export/net/llc/llc_proc.c 
+linux-2.5.key/net/llc/llc_proc.c
+--- linux-2.5.export/net/llc/llc_proc.c 2002-10-14 14:40:30.000000000 -0500
++++ linux-2.5.key/net/llc/llc_proc.c    2002-10-15 10:56:37.000000000 -0500
+@@ -258,7 +258,7 @@
+        goto out;
+ }
 
-No, reboot notifiers are the completely wrong way to go, for one reason 
-alone: ordering. device_shutdown() does a depth-first walk of the tree to 
-shut down children devices before ancestors. You cannot guarantee that 
-with reboot notifiers. 
+-void __exit llc_proc_exit(void)
++void llc_proc_exit(void)
+ {
+        remove_proc_entry("socket", llc_proc_dir);
+        remove_proc_entry("core", llc_proc_dir);
+@@ -270,7 +270,7 @@
+        return 0;
+ }
 
-Please don't try and convolute the code because you're worried about a few
-microseconds. It's about correctness first; then we can worry about
-micro-optimizing the hell out of it.
+-void __exit llc_proc_exit(void)
++void llc_proc_exit(void)
+ {
+ }
+ #endif /* CONFIG_PROC_FS */
 
-	-pat
 

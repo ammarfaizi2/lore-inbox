@@ -1,52 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132035AbRARJKl>; Thu, 18 Jan 2001 04:10:41 -0500
+	id <S130349AbRARJUM>; Thu, 18 Jan 2001 04:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132249AbRARJKb>; Thu, 18 Jan 2001 04:10:31 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:42480 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132035AbRARJKY>; Thu, 18 Jan 2001 04:10:24 -0500
-Date: Thu, 18 Jan 2001 09:37:53 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Dan Hollis <goemon@sasami.anime.net>
-cc: Martin Mares <mj@suse.cz>, Adam Lackorzynski <al10@inf.tu-dresden.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
-In-Reply-To: <Pine.LNX.4.30.0101171314380.18147-100000@anime.net>
-Message-ID: <Pine.GSO.3.96.1010118092306.8140D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S130880AbRARJUB>; Thu, 18 Jan 2001 04:20:01 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:43538 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130349AbRARJT5>;
+	Thu, 18 Jan 2001 04:19:57 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Pete Toscano <pete@research.netsol.com>
+Date: Thu, 18 Jan 2001 10:18:50 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: VIA chipset discussion
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <12E94AD3749E@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Dan Hollis wrote:
+On 17 Jan 01 at 17:40, Pete Toscano wrote:
+> according to the linux-usb maintainers, it's a pci irq routing problem.
+> i've asked jeff garzik and martin mares if they'll look into it, but
+> they're pretty busy and i haven't heard anything back from them (not
+> that'd i'd expect to for quite a while, considering their load).  i've
+> asked on the list too, but i've only heard back from people with the
+> same problem, not anyone who can fix the problem.
 
-> They require not only an NDA, but that you also do all development on-site
-> at their santa clara HQ under their direct supervision.
+I'm using kernel module below. Find which device your USB is. If it is
+0:07.2 and 0:07.3, take 7*8 + 2 = 58 (resp. 59). Then try
 
- I haven't went that far -- I'm not going to sign any NDA anytime soon, so
-I haven't asked them for details.  I recall someone writing here it's
-restrictive, indeed. 
+for irq in 16 17 18 19; do
+  insmod setpci devfn=58 irq=$irq
+  insmod setpci devfn=59 irq=$irq
+  modprobe <your usb ohci/uhci/alt-uhci>
+  does it work -> stop
+done
 
-> The only people who have ever got info out of serverworks are the lm78
-> guys and (i think) andre hedrick.
+After you'll find correct IRQ, you are done ;-) Put this into your
+initscript before usb loading (you must compile USB as module), or
+you can insert your devfn/irq pair somewhere into pirq_get_info()...
 
- I was asking for a few I/O APIC details -- apparently there are problems
-with 8254 interoperability and we have to use the awkward through-8259A
-mode for the timer tick.
+My BIOS (Apollo Pro 133x) returns incorrect routing table when LPT is
+not in ECP mode. When it is in ECP, reported routing table is correct
+(and my USB is on IRQ19, if that matters).
 
-> What magic incantations they chanted, or which mafia thugs they hired to
-> manage this, I don't know...
+/*
+# Based on Makefile for the Linux video drivers.
+# 5 Aug 1999, James Simmons, <mailto:jsimmons@edgeglobal.com>
+# Rewritten to use lists instead of if-statements.
 
- And I don't actually care.  If they want to lose in the Linux area, it's
-their own choice. 
+default:
+    (cd /usr/src/linux; make SUBDIRS=/usr/src/linus/pci modules)
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+O_TARGET := setp.o
 
+# All of the (potential) objects that export symbols.
+# This list comes from 'grep -l EXPORT_SYMBOL *.[hc]'.
+
+# Each configuration option enables a list of files.
+
+obj-m += setpci.o
+
+ifdef TOPDIR
+include $(TOPDIR)/Rules.make
+endif
+
+clean:
+    rm -f core *.o *.a *.s
+*/
+
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/errno.h>
+#include <linux/init.h>
+#include <linux/pci.h>
+
+static unsigned int devfn = -1;
+static unsigned int irq   = -1;
+MODULE_PARM(devfn, "i");
+MODULE_PARM(irq, "i");
+
+static int loadme(void) {
+    struct pci_dev* dev;
+    
+    pci_for_each_dev(dev) {
+        printk(KERN_DEBUG "%p: %04X: %04X:%04X -> %d\n",
+            dev, dev->devfn, dev->vendor, dev->device, dev->irq);
+        if (dev->devfn == devfn)
+            dev->irq = irq;
+    }
+    return -EBUSY;
+}
+
+module_init(loadme);
+ 
+
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

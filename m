@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273345AbRJUHhY>; Sun, 21 Oct 2001 03:37:24 -0400
+	id <S275485AbRJUISs>; Sun, 21 Oct 2001 04:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275485AbRJUHhO>; Sun, 21 Oct 2001 03:37:14 -0400
-Received: from shake.vivendi.hu ([213.163.0.180]:17282 "EHLO
-	vega.digitel2002.hu") by vger.kernel.org with ESMTP
-	id <S273345AbRJUHg4>; Sun, 21 Oct 2001 03:36:56 -0400
-Date: Sun, 21 Oct 2001 09:37:28 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The new X-Kernel !
-Message-ID: <20011021093728.A17786@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: vega Linux 2.4.12 i686
+	id <S275680AbRJUISh>; Sun, 21 Oct 2001 04:18:37 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:57326 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S275485AbRJUIS0>; Sun, 21 Oct 2001 04:18:26 -0400
+Message-ID: <3BD28673.1060302@sap.com>
+Date: Sun, 21 Oct 2001 10:25:23 +0200
+From: Christoph Rohland <cr@sap.com>
+Organization: SAP LinuxLab
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jan-Frode Myklebust <janfrode@parallab.uib.no>
+CC: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
+In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com> <m33d4gjaoa.fsf@linux.local> <20011020171730.A28057@parallab.uib.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 20, 2001 at 10:30:00PM +0100, MichaelM wrote:
-> People need a nice stable Operating System for networking purposes of any
-> type, and this exists, linux of course. What else should the world need?
-> 
-> People need a nice stable Operating System for Desktop and Multimedia
-> purposes and this doesn't exist. We should create a new stable X-Kernel with
-> build in support for X. Pressing Alt-F1 a console should pop up.
-> 
-> Boots up with X, that means.
-> 
-> Come on Linus, show the world what you can do, release the X-Kernel 1.01.
-> 
-> Hit the MS dominar where it hurts, THE DESKTOP.
+Hi JF,
 
-I've never understood why people want X, StarOffice (OpenOffice) etc to be
-moved into kernel space :) IMHO it's strictly user space issue. You can
-start X or gdm/xdm/kdm from a boot script and so on. No kernel modification
-is needed for this.
+Jan-Frode Myklebust wrote:
 
-- Gabor
+ > Running BitKeeper regression tests fails for me on tmpfs /tmp/. I have
+ > reported it to the bitkeeper bugtracking, but am not sure if this is a
+ > bitkeeper or tmpfs bug. Any insight?
+ >
+ > 	http://bitkeeper.bkserver.com/cgi-bin/bugview?open/2001-09-11-001
+ >
+ > Last tested with Bitkeeper 2.0 on linux 2.4.10-xfs.
+
+
+Can you test it with 2.4.12?
+
+Greetings
+		Christoph
+
+
+

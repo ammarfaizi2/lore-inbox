@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263132AbTDBTVu>; Wed, 2 Apr 2003 14:21:50 -0500
+	id <S263152AbTDBT1J>; Wed, 2 Apr 2003 14:27:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263133AbTDBTVu>; Wed, 2 Apr 2003 14:21:50 -0500
-Received: from ns.suse.de ([213.95.15.193]:23822 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S263132AbTDBTVt>;
-	Wed, 2 Apr 2003 14:21:49 -0500
-Subject: Re: [PATCH][2.4.21-pre6] update x86_64 for kernel_thread change
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <16011.14209.703212.772185@gargle.gargle.HOWL>
-References: <16011.14209.703212.772185@gargle.gargle.HOWL>
-Content-Type: text/plain
+	id <S263154AbTDBT1J>; Wed, 2 Apr 2003 14:27:09 -0500
+Received: from smtp03.web.de ([217.72.192.158]:49432 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S263152AbTDBT1I>;
+	Wed, 2 Apr 2003 14:27:08 -0500
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: Philippe Troin <phil@fifi.org>
+Subject: Re: subsystem crashes reboot system?
+Date: Wed, 2 Apr 2003 21:32:41 +0200
+User-Agent: KMail/1.5
+References: <200304021806.h32I6M709795@mako.theneteffect.com> <200304022044.27530.freesoftwaredeveloper@web.de> <87k7ecg1kz.fsf@ceramic.fifi.org>
+In-Reply-To: <87k7ecg1kz.fsf@ceramic.fifi.org>
+Cc: Mitch Adair <mitch@theneteffect.com>,
+       rmiller@duskglow.com (Russell Miller), linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Apr 2003 21:33:14 +0200
-Message-Id: <1049311995.10050.47.camel@averell>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200304022132.41821.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-02 at 21:18, Mikael Pettersson wrote:
-> Building an x86_64 kernel from 2.4.21-pre6 results in two linkage
-> errors due to the recent kernel_thread to arch_kernel_thread name change.
-> This patch updates x86_64 for that change.
+On Wednesday 02 April 2003 21:07, you wrote:
 
-You need more changes to fix the ptrace hole completely.
+> > hm, I don't think, that watchdog will catch this, because the
+> > userspace-watchdog daemon will still be running properly in a crash
+> > case (or did I understand something wrong?)
+>
+> Unless you configure it to stat your filesystems, like in:
+>
+>   watchdog-device         = /dev/misc/watchdog
+>   realtime                = yes
+>   priority                = 99
+>   admin                   =
+>   file                    = /
+>   file                    = /var
+>   file                    = /usr
+>   ...
 
-I have it mostly fixed in CVS (except this change), but Marcelo
-currently only applies merges with several weeks delay so don't expect
-it any time soon in official 2.4
+Yes that's true. I didn't remember this option.
+With this, watchdog would be a solution of russel's problem,
+without writing some kernel-error-handling for it.
 
--Andi
- 
+Regards Michael Buesch.
 
+-- 
+-------------
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
 

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUBBTUs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 14:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUBBTUs
+	id S265804AbUBBT3V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 14:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUBBT3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:20:48 -0500
-Received: from mail.kroah.org ([65.200.24.183]:19161 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265772AbUBBTUr (ORCPT
+	Mon, 2 Feb 2004 14:29:21 -0500
+Received: from waste.org ([209.173.204.2]:33230 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265804AbUBBT3U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:20:47 -0500
-Date: Mon, 2 Feb 2004 11:20:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bttv oops
-Message-ID: <20040202192044.GA31435@kroah.com>
-References: <401E69AD.4080606@earthlink.net> <87u129eb5p.fsf@bytesex.org>
+	Mon, 2 Feb 2004 14:29:20 -0500
+Date: Mon, 2 Feb 2004 13:29:05 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.2-rc3-tiny1 for small systems
+Message-ID: <20040202192905.GA21888@waste.org>
+References: <20040201052348.GW21888@waste.org> <20040202183944.GB3177@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87u129eb5p.fsf@bytesex.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040202183944.GB3177@fs.tum.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 04:47:14PM +0100, Gerd Knorr wrote:
-> Stephen Clark <stephen.clark@earthlink.net> writes:
+On Mon, Feb 02, 2004 at 07:39:44PM +0100, Adrian Bunk wrote:
+> On Sat, Jan 31, 2004 at 11:23:48PM -0600, Matt Mackall wrote:
+> >...
 > 
-> > Gentle people,
-> > 
-> > I am having the following problem. Also if I compile bttv into the
-> > kernel I get a panic in the driver at boot.
-> > 
-> > Any ideas?
+> The patch contains 3 .orig files that could be removed:
+> linux-2.6.2-rc3/arch/i386/boot/compressed/misc.c.orig
+> linux-2.6.2-rc3/arch/i386/mm/init.c.orig
+> linux-2.6.2-rc3/fs/proc/proc_misc.c.orig
 > 
-> disable CONFIG_I2C_*_DEBUG, the debug printk() dereference pointers
-> unchecked.
+> > Latest release includes:
+> >...
+> >  - enhanced CPU feature selection (Adrian Bunk)
+> >...
+> 
+> You could kill all the CPU_SUP_* options with my CPU selection scheme.
 
-Oops, what printks do this?  I'll be glad to fix that up.
+I looked at that but ended up deciding I still didn't have the desired
+granularity. So I'm currently thinkg of your stuff as "select family"
+and my stuff as "select vendor support".
 
-thanks,
-
-greg k-h
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

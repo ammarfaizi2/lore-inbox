@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268545AbUHLNDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268546AbUHLNHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268545AbUHLNDM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 09:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268546AbUHLNDM
+	id S268546AbUHLNHM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 09:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268549AbUHLNHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 09:03:12 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:63444 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268545AbUHLNC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 09:02:58 -0400
-Subject: Re: Any news on a higher performance sata_sil SIL_QUIRK_MOD15WRITE
-	workaround?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Clem Taylor <clemtaylor@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <411B118B.4040802@pobox.com>
-References: <411AFD2C.5060701@comcast.net>  <411B118B.4040802@pobox.com>
+	Thu, 12 Aug 2004 09:07:12 -0400
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:18156 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S268546AbUHLNHK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 09:07:10 -0400
+Subject: Re: Memory Stick Pro driver
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1092315367.13824.95.camel@rade7.e.cs.auc.dk>
+References: <1092312640.13824.89.camel@rade7.e.cs.auc.dk>
+	 <yw1xu0v8cyw0.fsf@kth.se>  <1092315367.13824.95.camel@rade7.e.cs.auc.dk>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092312030.21994.25.camel@localhost.localdomain>
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1092315960.13824.97.camel@rade7.e.cs.auc.dk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 13:00:31 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 15:06:02 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 07:43, Jeff Garzik wrote:
-> Older Seagates cannot cope with this unique, but spec-correct behavior.
-> 
-> This issue cannot even be worked around with "nblocks % 15 == 1", as was 
-> previously thought.  Using that formula just makes the problem harder to 
-> reproduce.
+My reader is a MSC-U03.
 
-It fixes it completely on the drivers/ide driver.
+Regards
+-- 
+Emmanuel Fleury
 
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
 

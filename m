@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265599AbUE0WgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265602AbUE0Wjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265599AbUE0WgW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 18:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265602AbUE0WgW
+	id S265602AbUE0Wjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 18:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265604AbUE0Wjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 18:36:22 -0400
-Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:36795 "EHLO
-	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
-	id S265599AbUE0WgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 18:36:21 -0400
-Date: Thu, 27 May 2004 18:36:16 -0400 (EDT)
-From: Nickolai Zeldovich <kolya@MIT.EDU>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@osdl.org
-Subject: [PATCH] report which device failed to suspend
-Message-ID: <Pine.GSO.4.55L.0405271835210.24218@scrubbing-bubbles.mit.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 May 2004 18:39:44 -0400
+Received: from hostmaster.org ([212.186.110.32]:48512 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S265602AbUE0Wjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 18:39:43 -0400
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040527170334.GE23262@krispykreme>
+References: <1085629714.6583.12.camel@hostmaster.org>
+	 <40B578F1.3090704@pobox.com> <1085675774.6583.23.camel@hostmaster.org>
+	 <20040527170334.GE23262@krispykreme>
+Content-Type: text/plain
+Message-Id: <1085697411.29406.386.camel@forum-beta.geizhals.at>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 28 May 2004 00:36:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When your machine stops suspending all of a sudden, a patch such as the
-one below is helpful to diagnose which device or driver is misbehaving and
-causing the suspend sequence to fail.
+Unfortunately I couldn't find much info on the topic, could you please
+provide some more information? Why is there a kirqd at all?
 
--- kolya
+What are the differences/advantages/disadvantages between the kirqd and
+the user space implementation?
 
---- drivers/base/power/suspend.c	2004/05/27 22:09:47	1.1
-+++ drivers/base/power/suspend.c	2004/05/27 22:28:36
-@@ -42,6 +42,10 @@
- 	if (dev->bus && dev->bus->suspend && !dev->power.power_state)
- 		error = dev->bus->suspend(dev,state);
+TIA
+Tom
 
-+	if (error)
-+		printk(KERN_ERR "Could not suspend device %s: error %d\n",
-+			kobject_name(&dev->kobj), error);
-+
- 	return error;
- }
 

@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUKWV5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbUKWVyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUKWV5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 16:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUKWVzD
+	id S261492AbUKWVyy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 16:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUKWVxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 16:55:03 -0500
-Received: from gprs214-143.eurotel.cz ([160.218.214.143]:1674 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261367AbUKWVyP (ORCPT
+	Tue, 23 Nov 2004 16:53:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39579 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261505AbUKWVvp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 16:54:15 -0500
-Date: Tue, 23 Nov 2004 22:54:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com
-Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
-Message-ID: <20041123215402.GE25926@elf.ucw.cz>
-References: <20041119194007.GA1650@hugang.soulinfo.com> <20041122103240.GA11323@hugang.soulinfo.com> <20041122110247.GB1063@elf.ucw.cz> <200411221254.40732.rjw@sisk.pl> <1101160249.7962.52.camel@desktop.cunninghams>
+	Tue, 23 Nov 2004 16:51:45 -0500
+Date: Tue, 23 Nov 2004 13:51:44 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.9] fork: add a hook in do_fork()
+Message-ID: <20041123135144.F14339@build.pdx.osdl.net>
+References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr> <20041123080643.GD23974@kroah.com> <1101219268.6210.133.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1101160249.7962.52.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1101219268.6210.133.camel@frecb000711.frec.bull.fr>; from Guillaume.Thouvenin@Bull.net on Tue, Nov 23, 2004 at 03:14:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* Guillaume Thouvenin (Guillaume.Thouvenin@Bull.net) wrote:
+> static int elsa_task_alloc_security(struct task_struct *p)
+> {
+> 	printk(KERN_ALERT "intercept a fork: %d created by %d\n",
+> 	       p->pid, p->parent->pid);
+		       
+It's created by current.  So, current->pid.  p is not completely setup
+yet, and is still largely duplication of current from dup_task_struct().
 
-> You guys are slowly developing swsusp into suspend2 :>. Just in case
-> you're wondering, I haven't given up on merging; I've just been seeking
-> to get it as bug free as possible, do clean ups and documentation and so
-> on before getting stuck in to submitting it.
+>   PID  PPID USER     %CPU CPU COMMAND
+>  2009  2008 guill     0.0   0 bash
+>  2109  2108 guill     0.0   0 bash
+>  2704  2109 guill     0.0   0 top
+> 
+> and here is the message found in the kernel log:
+> 
+>  intercept a fork: 2704 created by 2108
+> 
+> It should be 2109... not 2108
+> I think that the problem occurs because the security_task_alloc() is
+> called, the field p->parent is not set. 
+> 
+> Is it true? and if it is, is it possible to move the hook after the
+> initialization of the variable p->parent?
 
-:-) Well, see how he is producing relatively small patches ;-).
+No, it's correct where it is.  And, IIRC, elsa is accounting related.
+LSM is not the right framework, you should be using something like PAGG
+or CKRM.
 
-									Pavel
+thanks,
+-chris
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130164AbRA3MtQ>; Tue, 30 Jan 2001 07:49:16 -0500
+	id <S130191AbRA3MyR>; Tue, 30 Jan 2001 07:54:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130191AbRA3MtG>; Tue, 30 Jan 2001 07:49:06 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:14089 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130164AbRA3MtA>;
-	Tue, 30 Jan 2001 07:49:00 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Neale Banks <neale@lowendale.com.au>
-cc: Stephen Rothwell <sfr@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18: apm initialised before dmi_scan? 
-In-Reply-To: Your message of "Tue, 30 Jan 2001 22:47:02 +1100."
-             <Pine.LNX.4.05.10101302229400.12161-100000@marina.lowendale.com.au> 
-Mime-Version: 1.0
+	id <S130860AbRA3MyH>; Tue, 30 Jan 2001 07:54:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:6018 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130191AbRA3Mxt>;
+	Tue, 30 Jan 2001 07:53:49 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jan 2001 23:48:51 +1100
-Message-ID: <1211.980858931@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
+Message-ID: <14966.47384.971741.939842@pizda.ninka.net>
+Date: Tue, 30 Jan 2001 04:52:40 -0800 (PST)
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A76B72D.2DD3E640@uow.edu.au>
+In-Reply-To: <3A728475.34CF841@uow.edu.au>
+	<3A726087.764CC02E@uow.edu.au>
+	<20010126222003.A11994@vitelus.com>
+	<14966.22671.446439.838872@pizda.ninka.net>
+	<3A76B72D.2DD3E640@uow.edu.au>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001 22:47:02 +1100 (EST), 
-Neale Banks <neale@lowendale.com.au> wrote:
->Looking more closely at a 2.2.18 bootup tonight I see that apm stuff
->appears in dmesg before dmi_scan does (I added "#define DUMP_DMI" in
->dmi_scan.c).
->
->If this implies that apm is initialised *before* the dmi_scan then there
->is potentially a problem with buggy BIOSen that oops instead of reporting
->power status
 
-This should fix the link order, at the (small) expense of compiling
-dmi_scan for exported symbols, even though it does not really export
-symbols.  Against 2.2.18.
+Andrew Morton writes:
+ > BTW: can you suggest why I'm not observing any change in NFS client
+ > efficiency?
 
-Index: 18.1/arch/i386/kernel/Makefile
---- 18.1/arch/i386/kernel/Makefile Thu, 23 Nov 2000 11:48:07 +1100 kaos (linux-2.2/E/b/40_Makefile 1.1.4.4 644)
-+++ 18.2(w)/arch/i386/kernel/Makefile Tue, 30 Jan 2001 23:47:17 +1100 kaos (linux-2.2/E/b/40_Makefile 1.1.4.4 644)
-@@ -15,8 +15,8 @@ all: kernel.o head.o init_task.o
- O_TARGET := kernel.o
- O_OBJS   := process.o signal.o entry.o traps.o irq.o vm86.o \
-             ptrace.o ioport.o ldt.o setup.o time.o sys_i386.o \
--	    bluesmoke.o dmi_scan.o
--OX_OBJS  := i386_ksyms.o
-+	    bluesmoke.o
-+OX_OBJS  := i386_ksyms.o dmi_scan.o
- MX_OBJS  :=
- 
- ifdef CONFIG_PCI
+As in "filecopy speed" or "cpu usage while copying a file"?
+
+The current fragmentation code eliminates a full SKB allocation and
+data copy on the NFS file data receive path in the client, CPU has to
+be saved compared to pre-zerocopy or something is very wrong.
+
+File copy speed, well you should be link speed limited as even without
+the zerocopy patches you ought to have enough cpu to keep it busy.
+
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

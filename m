@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290338AbSAXVpB>; Thu, 24 Jan 2002 16:45:01 -0500
+	id <S290355AbSAXVov>; Thu, 24 Jan 2002 16:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290340AbSAXVov>; Thu, 24 Jan 2002 16:44:51 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:1451 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S290338AbSAXVoe>; Thu, 24 Jan 2002 16:44:34 -0500
-Date: Thu, 24 Jan 2002 22:44:27 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Disconnect <lkml@sigkill.net>
-cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [right one][patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <1011899975.2029.9.camel@oscar>
-Message-ID: <Pine.LNX.4.40.0201242240380.9957-100000@infcip10.uni-trier.de>
+	id <S290345AbSAXVol>; Thu, 24 Jan 2002 16:44:41 -0500
+Received: from svr3.applink.net ([206.50.88.3]:52999 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S290321AbSAXVoX>;
+	Thu, 24 Jan 2002 16:44:23 -0500
+Message-Id: <200201242141.g0OLfjL06681@home.ashavan.org.>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Oliver Xymoron <oxymoron@waste.org>,
+        Timothy Covell <timothy.covell@ashavan.org>
+Subject: Re: RFC: booleans and the kernel
+Date: Fri, 25 Jan 2002 15:43:14 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jan 2002, Disconnect wrote:
-
-> I just finished testing the patch, and it shows huge temperature savings
-> (10 to 15C when idle).  The problem is, it screws up v4l (bttv), usb
-> keyboard under X becomes effectively unusable, etc.
+On Thursday 24 January 2002 15:31, Oliver Xymoron wrote:
+> On Fri, 25 Jan 2002, Timothy Covell wrote:
+> > On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
+> > > The compiler _will_ turn if(a==0) into a test of a with itself rather
+> > > than a comparison against a constant. Since PDP days, no doubt.
+> >
+> > I thought that the whole point of booleans was to stop silly errors
+> > like
+> >
+> > if ( x = 1 )
+> > {
+> > 	printf ("\nX is true\n");
+> > }
+> > else
+> > {
+> > 	# we never get here...
+> > }
 >
-> V4l - using xinerama, xvideo, v4l under X4.1.0.1 - the picture gets
-> jagged lines through it (offset scanlines maybe?) and tends to be jumpy.
->
-> usb keyboard - its slightly bad under X anyway (sticky keys, modifiers,
-> etc) but with this patch I had to log in from another system just to
-> shut down - even ctrl-alt-delete wouldn't work. In about 15 mins of
-> arguing with it I probably got 20 keystrokes into the xserver. (mouse
-> continued to work fine however.)
+> And how does s/1/true/ fix that?
 
-phhhwwww ... sound problems, video problems, harddisk-dma problems ... now
-usb problems ... it looks like i am a realy lucky boy that this patch
-works on my computer whithout any problem ...
-but : cause i have no problems with the patch, i have another problem : i
-could not look where the problems come from ... :( ... so i need those on
-of you, who have problems with it, so we could track the cause of the
-problems down ...
+It doesn't fix  "if ( x = true)". If would
+just make it more legit to use "if (x)".
+Just IMHO.
 
->
-> Seems like a great idea, if these problems can be solved. I'd love to
-> get my cpu back down to 30C on a regular basis ;)
->
-> (Currently running the same kernel w/o amd_disconnect=yes and it isn't
-> showing any problems at all.)
->
-> Motherboard is an Iwill kk266 (kt133) w/ a 1.2G tbird, 512M ram, 2
-> aic7xxx (one pcb w/ pci bridge)
-> Primary video: nvidia geforce2 mx (yah yah but it works ;) ..)
-> Second/Third video: matrox mga g100 (4port card, 2 ports in use)
->
-> Also, I noticed an odd problem w/ ACPI. dmesg shows:
-> ACPI: Power Button (FF) found
-> ACPI: Multiple power buttons detected, ignoring fixed-feature
-> ACPI: Power Button (CM) found
-
-as far as i know the power button does not work at all with the curent
-kernel ... so i think it is no problem :)
-
-daniel
-
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+-- 
+timothy.covell@ashavan.org.

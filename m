@@ -1,93 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261546AbSIZWsF>; Thu, 26 Sep 2002 18:48:05 -0400
+	id <S261547AbSIZWs7>; Thu, 26 Sep 2002 18:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbSIZWsF>; Thu, 26 Sep 2002 18:48:05 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:40715 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261546AbSIZWsD>;
-	Thu, 26 Sep 2002 18:48:03 -0400
-Date: Thu, 26 Sep 2002 15:51:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20020926225147.GC7304@kroah.com>
-References: <20020927003210.A2476@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020927003210.A2476@sgi.com>
-User-Agent: Mutt/1.4i
+	id <S261549AbSIZWs7>; Thu, 26 Sep 2002 18:48:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12298 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261547AbSIZWsW>; Thu, 26 Sep 2002 18:48:22 -0400
+Date: Thu, 26 Sep 2002 15:56:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
+In-Reply-To: <Pine.LNX.4.33.0209261533230.1345-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0209261550590.1573-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 12:32:10AM -0400, Christoph Hellwig wrote:
+
+On Thu, 26 Sep 2002, Linus Torvalds wrote:
 > 
-> >  /* Set EXTENT bits starting at BASE in BITMAP to value TURN_ON. */
-> >  static void set_bitmap(unsigned long *bitmap, short base, short extent, int new_value)
-> > @@ -62,7 +63,12 @@
-> >  		return -EINVAL;
-> >  	if (turn_on && !capable(CAP_SYS_RAWIO))
-> >  		return -EPERM;
-> > -
-> > + 
-> > + 	ret = security_ops->ioperm(from, num, turn_on);
-> > + 	if (ret) {
-> > + 		return ret;
-> > + 	}
-> > + 
+> and then when we pin a page, we do
 > 
-> Sorry, but this is bullshit (like most of the lsm changes).  Either you
-> leave the capable in and say it's enough or you add your random hook
-> and remove that one.  Just adding more and more hooks without thinking
-> gets us exactly nowhere except to an unmaintainable codebase.
+> 	/* This is part of the 
+> 	struct page_change_struct pinned_data;
 
-capable is needed to be checked, as we are not modifying the existing
-permission logic.
+That "This is part of the " comment should continue with "struct futex_q", 
+but I went off and was supposed to check what the futex data structure was 
+called, and forgot about updating it.
 
-> Also is there a _real_ need to pass in all the arguments?
+Anyway, the point being that this needs no new allocations in _any_ path,
+and only extends a structure that we already need for the slow case for
+futexes. It does imply a new lock, though, and the COW path would have to
+check that hash (which should scale pretty well, since we only have
+entries here when somebody is blocked on a futex).
 
-I'll let Stephen answer that one, as SELinux uses it.
+Oh, and we need a new hash table, since the native futex hash can't just
+be re-used due to different indexing - the futex hash is based on physical
+page and offset, while the page_change_struct hash is based on virtual
+address and the mm.
 
-Oops, ok, nevermind, I don't see _any_ security module using this hook.
-In fact they are using the capable(CAP_SYS_RAWIO) hook, which is exactly
-what you suggest :)
+(I initially thought we could make the page_change_struct hash be based on 
+physical page, but there can be multiple instances of the same physical 
+page being mapped into the same VM, so that wouldn't be a good thing - 
+we'd get callbacks for the wrong virtual address being COW'ed).
 
-I'll go remove it.
+		Linus
 
-> >  			return -EPERM;
-> >  	}
-> > +	retval = security_ops->iopl(old, level);
-> > +	if (retval) {
-> > +		return retval;
-> > +	}
-> > +
-> 
-> again (and another few times)
-
-Ok, again, no one is using it.  I'll go remove it (and go audit all of
-the other hooks.)
-
-> > + * @module_create:
-> > + *	Check the permission before allocating space for a module.
-> > + *	@name contains the module name.
-> > + *	@size contains the module size.
-> > + *	Return 0 if permission is granted.
-> > + * @module_initialize:
-> > + * 	Check permission before initializing a module.
-> > + * 	@mod contains a pointer to the module being initialized.
-> > + *	Return 0 if permission is granted.
-> 
-> Umm, you can't tell me you deny someone to initialize a module he has
-> just created?
-
-Bah, ok, again no one uses these either.
-
-Consider me roasted, I'll go audit this whole thing to try to justify
-every one of the hooks we ask for.
-
-Very sorry for bothering people.
-
-thanks,
-
-greg k-h

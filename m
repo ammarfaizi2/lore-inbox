@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUA2Wvv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 17:51:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUA2Wvt
+	id S266471AbUA2Wtb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 17:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUA2Wta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 17:51:49 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53771 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S266481AbUA2Wtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 17:49:40 -0500
-Message-ID: <40198DE0.307@zytor.com>
-Date: Thu, 29 Jan 2004 14:49:04 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Frodo Looijaard <frodol@dds.nl>
-CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org,
-       linux-7110-psion@lists.sourceforge.net
-Subject: Re: PATCH to access old-style FAT fs
-References: <20040126173949.GA788@frodo.local> <bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp> <4016B316.4060304@zytor.com> <87ad4987ti.fsf@devron.myhome.or.jp> <20040128115655.GA696@arda.frodo.local> <87y8rr7s5b.fsf@devron.myhome.or.jp> <20040128202443.GA9246@frodo.local> <87bron7ppd.fsf@devron.myhome.or.jp> <20040129223944.GA673@frodo.local>
-In-Reply-To: <20040129223944.GA673@frodo.local>
+	Thu, 29 Jan 2004 17:49:30 -0500
+Received: from mail.kroah.org ([65.200.24.183]:51614 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266471AbUA2Wt3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 17:49:29 -0500
+Date: Thu, 29 Jan 2004 13:54:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] udev 015 release
+Message-ID: <20040129215451.GA9610@kroah.com>
+References: <20040126215036.GA6906@kroah.com> <1075351964.7680.12.camel@nosferatu.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1075351964.7680.12.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frodo Looijaard wrote:
-> Hi,
+On Thu, Jan 29, 2004 at 06:52:44AM +0200, Martin Schlemmer wrote:
+> On Mon, 2004-01-26 at 23:50, Greg KH wrote:
+> > I've released the 015 version of udev.  It can be found at:
+> >  	kernel.org/pub/linux/utils/kernel/hotplug/udev-015.tar.gz
+> > 
 > 
-> I have attached a newer, better behaving version of my patch:
->   * Implements new mount option oldfat for FAT-derived filesystems.
->   * Stops scanning dirs when DIR_Name[0] = 0 when oldfat is set
->   * Writes a 0 to the next entry DIR_Name[0] when overwriting an entry
->     which has DIR_Name[0] = 0 when oldfat is set
-> 
+> '%D' is still being used in some of the examples ...
 
-Please don't call this "oldfat".  There is nothing about this which is
-"old-style"; it's a workaround for a bug in a specific OS.
+Ah, thanks.  I've fixed that up now.
 
-	-hpa
-
+greg k-h

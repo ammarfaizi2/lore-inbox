@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319001AbSHMRhZ>; Tue, 13 Aug 2002 13:37:25 -0400
+	id <S318976AbSHMRjV>; Tue, 13 Aug 2002 13:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319003AbSHMRhZ>; Tue, 13 Aug 2002 13:37:25 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31243 "EHLO
+	id <S318968AbSHMRib>; Tue, 13 Aug 2002 13:38:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33035 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319001AbSHMRhX>; Tue, 13 Aug 2002 13:37:23 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: klibc and logging
-Date: 13 Aug 2002 10:41:03 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ajbgbf$7e7$1@cesium.transmeta.com>
-References: <3D58B14A.5080500@zytor.com> <ajaka7$qb6$1@ncc1701.cistron.net>
+	id <S318975AbSHMRh4>; Tue, 13 Aug 2002 13:37:56 -0400
+Date: Tue, 13 Aug 2002 10:44:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 7/21] batched freeing of anonymous pages
+In-Reply-To: <3D56148E.D06B13F2@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0208131041100.7411-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <ajaka7$qb6$1@ncc1701.cistron.net>
-By author:    "Miquel van Smoorenburg" <miquels@cistron.nl>
-In newsgroup: linux.dev.kernel
->
-> In article <3D58B14A.5080500@zytor.com>,
-> H. Peter Anvin <hpa@zytor.com> wrote:
-> >However, I'm wondering what to do about logging.  Kernel log messages 
-> >get stored away until klogd gets started, but early userspace may need 
-> >some way to log messages -- and syslog is obviously not running.  The 
-> >easiest way to do this would probably be to be able to write to 
-> >/proc/kmsg (which probably really should be /dev/kmsg) and push messages 
-> >onto the kernel's message queue; but we could also have a dedicated 
-> >location in the initramfs for writing logs, and do it all in userspace. 
+
+On Sun, 11 Aug 2002, Andrew Morton wrote:
 > 
-> /dev/shm/log/ ?
-> 
+> The VMA teardown code is currently removing pages from the LRU
+> one-at-a-time.  And it is freeing those pages one-at-a-time.
 
-Requires too much to work before it's can be made available.
+This patch is wrong.
 
-Andrew Morton sent me a proposed patch last night which adds a klogctl
-(a.k.a. sys_syslog) which does a printk() from userspace.  It was less
-than 10 lines; i.e. probably worth it.  I have hooked this up to
-syslog(3) in klibc, although the code is not checked in yet.
+We already _have_ the pagevec for page table teardown, and by making it a 
+per-CPU static structure instead of allocating it on the stack it can be 
+made (and is) quite a lot bigger than a pvec.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+If you want batching here, then the right approach is to just remove the
+"fast" code entirely, and batch it properly at the TLB struct level (since
+we _have_ to batch it there anyway, to fix the the thread unmapping TLB
+race condition)
+
+This is what "tlbgather" is all about.
+
+		Linus
+

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRCSAPB>; Sun, 18 Mar 2001 19:15:01 -0500
+	id <S131318AbRCSB0X>; Sun, 18 Mar 2001 20:26:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131307AbRCSAOv>; Sun, 18 Mar 2001 19:14:51 -0500
-Received: from mail1.svr.pol.co.uk ([195.92.193.18]:42620 "EHLO
-	mail1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S131305AbRCSAOk>; Sun, 18 Mar 2001 19:14:40 -0500
-Date: Mon, 19 Mar 2001 00:16:26 +0000 (GMT)
-From: Will Newton <will@misconception.org.uk>
-X-X-Sender: <will@dogfox.localdomain>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Tim Waugh <twaugh@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA audio and parport in 2.4.2
-In-Reply-To: <Pine.LNX.4.33.0103171951340.440-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33.0103190015080.8534-100000@dogfox.localdomain>
+	id <S131323AbRCSB0D>; Sun, 18 Mar 2001 20:26:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10770 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131318AbRCSBZx>; Sun, 18 Mar 2001 20:25:53 -0500
+Date: Sun, 18 Mar 2001 17:24:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <Andries.Brouwer@cwi.nl>
+cc: <axboe@suse.de>, <alan@lxorguk.ukuu.org.uk>, <andre@linux-ide.org>,
+        <linux-kernel@vger.kernel.org>, <p_gortmaker@yahoo.com>
+Subject: Re: [PATCH] off-by-1 error in ide-probe (2.4.x)
+In-Reply-To: <UTC200103190018.BAA09516.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.31.0103181723160.2981-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Mar 2001, Mike Galbraith wrote:
 
-> No device I'm using has irq troubles.. at least nothing obvious.  I've
-> no idea if the spurious irq is VIA chipset related or not.. only that
-> it's a fairly recent arrival.  All devices work fine here.
 
-In /etc/modules.conf I have:
+On Mon, 19 Mar 2001 Andries.Brouwer@cwi.nl wrote:
+>
+>     Agreed. That would be a trivially easy bug in the firmware, limiting to
+>     255 sectors seems safer.
+>
+>             Linus
+>
+> Yes, possibly.
+> I checked old standards, and see that "0 means 256 as a sector count"
+> is already in ATA-1.
 
-options parport_pc irq=none
+Yes. But we could have some silly bug in the Linux drivers too, if some
+part of the driver reads back the sector count and doesn't do the 0==256
+conversion. So let's not blame the disk quite yet. Although it would be
+interesting to hear if the problem only happens for a specific disk or
+manufacturer...
 
-but dmesg says:
-
-parport0: PC-style at 0x378 (0x778), irq 7, dma 3
-[PCSPP,TRISTATE,COMPAT,ECP,DMA]
-parport0: cpp_mux: aa55f00f52ad51(80)
-parport0: cpp_daisy: aa5500ff(80)
-parport0: assign_addrs: aa5500ff(80)
-parport0: cpp_mux: aa55f00f52ad51(80)
-parport0: cpp_daisy: aa5500ff(80)
-parport0: assign_addrs: aa5500ff(80)
-parport_pc: Via 686A parallel port: io=0x378, irq=7, dma=3
-lp0: using parport0 (interrupt-driven).
-
-How do I stop the parport module from using interrupts?
-
+		Linus
 

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268108AbUHKRCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUHKRF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268108AbUHKRCw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268112AbUHKRCw
+	id S268113AbUHKRF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268114AbUHKRF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:02:52 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:31718 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S268108AbUHKRCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:02:50 -0400
-Date: Wed, 11 Aug 2004 19:02:08 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811170208.GG10100@louise.pinerecords.com>
-References: <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Aug 2004 13:05:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20180 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268113AbUHKRFU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:05:20 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Wed, 11 Aug 2004 10:04:02 -0700
+User-Agent: KMail/1.6.2
+Cc: greg@kroah.com, Martin Mares <mj@ucw.cz>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <20040806211413.77833.qmail@web14926.mail.yahoo.com>
+In-Reply-To: <20040806211413.77833.qmail@web14926.mail.yahoo.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040811175105.A30188@infradead.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408111004.02995.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug-11 2004, Wed, 17:51 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
+On Friday, August 6, 2004 2:14 pm, Jon Smirl wrote:
+> Please check the code out and give it some testing. It will probably
+> needs some adjustment for other platforms.
 
-> On Wed, Aug 11, 2004 at 06:33:33PM +0200, Tomas Szepe wrote:
-> > There are many people who don't want to mess around with hotplug just
-> > to get a single driver to load.
-> 
-> Then use a distribution that gets it right for you.  Having gazillions
-> of diffferent firmware loaders just because people are too lazy to set
-> up the canonical one isn't where we want to go.
+Jon, this works on my machine too.  Greg, if it looks ok can you pull it in?  
+And can you add:
 
-Agreed.  But the point is, in the actual case of ipw2100, will the removal
-of 40 or so lines of code justify killing the functionality for those (lots)
-that use it?  I don't think so.  A nice /* duplicate this in another driver
-and die */ comment in the right place will do the job just fine IMHO.
+ * (C) Copyright 2004 Silicon Graphics, Inc.
+ *       Jesse Barnes <jbarnes@sgi.com>
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+to pci-sysfs.c if you do?
+
+Greg was a little worried that your comment
+	/* .size is set individually for each device, sysfs copies it into dentry */
+might not be correct.  If not, you can reuse the code from my 
+pci-sysfs-rom-7.patch if you want, otherwise it's probably fine aside from a 
+bunch of trailing whitespace in the file.  I added the following to my .emacs 
+to make it obvious so that I could kill it when I saw it:
+(defun linux-c-mode ()
+  "C mode with Linux kernel defaults"
+  (interactive)
+  (c-mode)
+  (c-set-style "K&R")
+  (setq c-basic-offset 8)
+  (setq indent-tabs-mode t)
+  (setq show-trailing-whitespace t))
+
+Thanks,
+Jesse

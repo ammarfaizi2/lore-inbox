@@ -1,190 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbTJJOOA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 10:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTJJOOA
+	id S262788AbTJJOIz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 10:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTJJOIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 10:14:00 -0400
-Received: from relay.dera.gov.uk ([192.5.29.49]:13727 "HELO relay.dstl.gov.uk")
-	by vger.kernel.org with SMTP id S262765AbTJJONy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 10:13:54 -0400
-Subject: Re: Linux 2.4.23-pre7 - boot failure
-From: Tony Gale <gale@syntax.dstl.gov.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0310091939100.6403-100000@dstl.gov.uk>
-References: <Pine.LNX.4.44.0310091939100.6403-100000@dstl.gov.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ESC2MkYVKZoTkzleCIwl"
-Message-Id: <1065795232.2908.2.camel@syntax.dstl.gov.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 10 Oct 2003 15:13:53 +0100
+	Fri, 10 Oct 2003 10:08:55 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:44675 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S262788AbTJJOIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 10:08:53 -0400
+Message-ID: <3F86BD0E.4060607@longlandclan.hopto.org>
+Date: Sat, 11 Oct 2003 00:07:10 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: lgb@lgb.hu, Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>	<20031009115809.GE8370@vega.digitel2002.hu>	<20031009165723.43ae9cb5.skraw@ithnet.com>	<3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com>
+In-Reply-To: <20031010125137.4080a13b.skraw@ithnet.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-ESC2MkYVKZoTkzleCIwl
-Content-Type: multipart/mixed; boundary="=-Wzs8mn1iLZQXWiOIA1EN"
+Stephan von Krawczynski wrote:
 
+> You are obviously not quite familiar with industrial boxes where this is
+> state-of-the-art. 
+ >
+ > [...]
+ >
+> Generally spoken every part of a computer should be thought of as a "resource"
+> that can be added or removed at any time during runtime. CPU or RAM is in no
+> way different.
 
---=-Wzs8mn1iLZQXWiOIA1EN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Oh, okay, this sort of thing is supported by industrial boxes? 
+Interesting... Live and learn I spose ;-) (You're right, I'm not 
+familiar with industrial boxes at all.  My experience is with mostly 
+desktop computers, laptops, and some entry-level servers)
 
-Hi,
+Hotplug RAM I could see would be possible, but hotplug CPUs?  I spose if 
+you've got a multiprocessor box, you could swap them one at a time, but 
+my thinking is that this would cause issues with the OS as it wouldn't 
+be expecting the CPU to suddenly disappear.  Problems would be even 
+worse if the old and new CPUs were of different types too.
 
-Both pre6 and pre7 fail to boot on my P2 450Mhz. Pre5 boots fine. I have
-attached my pre7 .config file.
+Hotplug RAM would also be interesting, but then again, I spose the 
+procedure would be to alert the kernel that the memory area from byte X 
+to byte Y would disappear, so it could page that out to swapspace.
 
-I get the Uncompressing kernel boot message, and that is all. Nothing
-after that.
-
-Cheers,
--tony
-
-
---=-Wzs8mn1iLZQXWiOIA1EN
-Content-Disposition: attachment; filename=config.pre7.gz
-Content-Type: application/x-gzip; name=config.pre7.gz
-Content-Transfer-Encoding: base64
-
-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
-
---=-Wzs8mn1iLZQXWiOIA1EN--
-
---=-ESC2MkYVKZoTkzleCIwl
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
+Anyways, I don't profess to be any hardware/software/kernel guru, I had 
+never heard of this level of hotplug, and it struck me as unusual.
+- -- 
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iQCVAwUAP4a+oB/0GZs/Z0FlAQJvCgP+PGsjkMHV6V8nt8GYLyIXmNxTBuaE6goJ
-5RvaxqVyJcdjzlQpNobi8vOpiXm8RFV6lcsTFAUUi5LeUXJN6ePNdVkgUwRT1BtD
-YZoXqVtZRfgUS3E+aFiNkTJGYWIWlPpq/0xBJIjOvUDpP9bLKTflhvkl2rsR/WR9
-w4Hkh/S6Osg=
-=MoeZ
+iD8DBQE/hr0OIGJk7gLSDPcRAl9CAJ0c+iU//ELVoO8czbezWgvd7UBzjwCeNApa
+ftZkG88NrefELUoGaEop+NI=
+=tTfj
 -----END PGP SIGNATURE-----
-
---=-ESC2MkYVKZoTkzleCIwl--
 

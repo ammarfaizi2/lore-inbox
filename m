@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267891AbUIGLsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267866AbUIGLu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267891AbUIGLsv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 07:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUIGLsu
+	id S267866AbUIGLu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 07:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267869AbUIGLu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 07:48:50 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:3592 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S267891AbUIGLsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 07:48:45 -0400
-Date: Tue, 7 Sep 2004 13:50:03 +0200
-From: DervishD <disposable1@telefonica.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Weird SCSI subsystem behaviour (ISA related?????)
-Message-ID: <20040907115003.GA1412@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Tue, 7 Sep 2004 07:50:28 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:16052 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S267866AbUIGLtc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 07:49:32 -0400
+Date: Tue, 07 Sep 2004 13:48:54 +0200
+From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Organization: Privat.
+To: =?utf-8?Q?J=C3=B6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
+Message-ID: <413DA026.nail9XE11008R@pluto.uni-freiburg.de>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de>
+ <20040904153902.6ac075ea.akpm@osdl.org>
+ <413C5BF2.nail2RA1138AG@pluto.uni-freiburg.de>
+ <20040906133523.GC25429@wohnheim.fh-wedel.de>
+ <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
+ <20040907110913.GA25802@wohnheim.fh-wedel.de>
+In-Reply-To: <20040907110913.GA25802@wohnheim.fh-wedel.de>
+User-Agent: nail 11.6pre 9/7/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+JÃ¶rn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-    I recently upgraded to 2.4.27 and finally remove ISA support
-(CONFIG_ISA is now not set). This may be important because the kernel
-threads named 'usb-storage-0' and 'scsi_eh_0' are both stuck in a
-very high address, namely e086e736 and e086d279. But my ksyms says
-this:
+> Tested, sendfile(2) returns a short count if you send a signal to the
+> calling process.
 
-[...]
-e086b944  scsi_hostlist                     [scsi_mod]
-e086b948  scsi_devicelist                   [scsi_mod]
-e086b94c  scsi_hosts                        [scsi_mod]
-e086b964  scsi_dma_free_sectors             [scsi_mod]
-e086b968  scsi_need_isa_buffer              [scsi_mod]
+Fine, thank you. This makes it really useful.
 
-    As far as I can tell, this means that both kernel threads are
-stuck somewhere in the code of 'scsi_need_isa_buffer'. Does this mean
-that I must set CONFIG_ISA? If the answer is yes: then why
-CONFIG_SCSI doesn't depend on CONFIG_ISA? Is all that not related to
-ISA in any way (I suppose this is the correct answer) and the problem
-is just that both threads are stuck in a wrong address caused by
-only-god-knows?
+> Add another loop in the userspace caller to deal with it, if you don't
+> already have it. It's a valid and documented return value, after all.
 
-    I use scsi for my card reader, that works without problem
-usually. Right now I cannot test if the problem was a loose cable,
-bad insertion of the card, etc. but anyway that shouldn't cause
-kernel threads to get stuck...
+Of course (although cp will be terminated by the SIGINT anyway, so it
+does not matter in this situation).
 
-    Thanks in advance :) If anyone wants additional info, just tell.
-I'm going to reboot ASAP to see if this problem is persistent or if I
-just had bad luck.
+Do I understand this correctly that sendfile now behaves like write with
+SA_RESTART not set for the signal? If so, it might perhaps make sense to
+add SA_RESTART semantics too, so that sendfile then just continues if the
+process catches the signal and does not abort (scenario: SIGWINCH is sent
+to a curses-based file manager).
 
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+	Gunnar

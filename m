@@ -1,81 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbTKLVhd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 16:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbTKLVhd
+	id S261659AbTKLWFM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 17:05:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbTKLWFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 16:37:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35207 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261299AbTKLVhb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 16:37:31 -0500
-Date: Wed, 12 Nov 2003 13:33:01 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: rob@landley.net
-Cc: mzyngier@freesurf.fr, linux-kernel@vger.kernel.org
-Subject: Re: Why can't I shut scsi device support off in -test9?
-Message-Id: <20031112133301.372e1349.rddunlap@osdl.org>
-In-Reply-To: <200311121527.23123.rob@landley.net>
-References: <200311120046.04348.rob@landley.net>
-	<200311120203.51599.rob@landley.net>
-	<20031112085804.0cfbaddf.rddunlap@osdl.org>
-	<200311121527.23123.rob@landley.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Nov 2003 17:05:12 -0500
+Received: from arc-relay3.arc.nasa.gov ([128.102.31.196]:13614 "EHLO
+	arc-relay3.arc.nasa.gov") by vger.kernel.org with ESMTP
+	id S261659AbTKLWFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 17:05:03 -0500
+From: Dan Christian <Daniel.A.Christian@NASA.gov>
+Reply-To: dChristian@mail.arc.nasa.gov
+Organization: NASA Ames Research Center
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 16654 UART drops transmit characters
+Date: Wed, 12 Nov 2003 14:05:01 -0800
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_N6qs/Wd7zU41xsX"
+Message-Id: <200311121405.01631.Daniel.A.Christian@NASA.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Nov 2003 15:27:23 -0600 Rob Landley <rob@landley.net> wrote:
 
-| On Wednesday 12 November 2003 10:58, Randy.Dunlap wrote:
-| > On Wed, 12 Nov 2003 02:03:51 -0600 Rob Landley <rob@landley.net> wrote:
-| > | On Wednesday 12 November 2003 01:34, Marc Zyngier wrote:
-| > | > >>>>> "Rob" == Rob Landley <rob@landley.net> writes:
-| > | >
-| > | > Rob> I tried switching SCSI support off by hand (editing .config) and
-| > | > Rob> it still showed up in the menu.  (Maybe turned back on by a
-| > | > Rob> dependency, but on what?)
-| > | >
-| > | > Care to submit this .config ?
-| >
-| > I also have no trouble disabling CONFIG_SCSI with this .config file,
-| > using any of 'make menuconfig|xconfig|oldconfig' ($EDITOR + oldconfig).
-| >
-| > on 2.6.0-test9 plain
-| >
-| > A quick grep of all Kconfig files finds only USB_STORAGE that
-| > does a "select SCSI" when it (USB_STORAGE) is enabled.
-| 
-| Huh, so IDE scsi emulation doesn't?  (Not that I use it.  I want SCSI _off_.)
+--Boundary-00=_N6qs/Wd7zU41xsX
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-No, ide-scsi, IEEE1394 SBP2, etc., just do this:
-  depends on SCSI [&& others in some cases]
+A 16654 UART (with 64 byte FIFO and hardware flow control) can drop 
+characters on TRANSMIT if hardware flow control is used.  
 
-while USB_STORAGE turns SCSI on if it's selected:
-  select SCSI
+No UART should ever lose data on transmit, so I consider this a major 
+bug.  The bug only shows up if you write chunks of data >64 bytes.
 
-| Hmmm...  I just extracted a fresh tarball and tried again and had the same 
-| problem.  Possibly I'm looking in the wrong place?  "Device drivers"->"SCSI 
-| Devices", top of the menu the option is "---" instead of selectable.  Seems 
-| an odd place to put the SCSI bus, but I can't find it it any of the menus 
-| above that (and I just spent another 5 minutes looking).
-| 
-| It's too late in the development cycle to complain about the menu layout, but 
-| as soon as 2.7 opens...  (Okay, I'll get lost in the noise, but still...)
-| 
-| Rob
-| 
-| Don't worry, if I get really bored, I'll start sticking printfs into kconfig.  
-| In the mean time, I can pipe .config through "grep -v SCSI" for my own 
-| purposes...
+Enclosed is a patch that fixes the problem.  I have tested it under 
+2.4.20.  It also applies cleanly under 2.4.22.
 
-Go for it.  Although others should be able to reproduce it...
+This has been reported before, but apparently the patch never made it 
+into the Linux kernel.  Ed Vance (edv) at MacroLink developed this fix.  
+Part of it fixed some bad code for supporting the buggy Elan 
+interrupts.  That part got fixed and is not in the attached patch.  
+Other than that, I just updated Ed's patch to apply cleanly against 
+current kernels.
 
---
-~Randy
-MOTD:  Always include version info.
+-Dan Christian
+
+--Boundary-00=_N6qs/Wd7zU41xsX
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch_elan4"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch_elan4"
+
+--- linux-2.4.20-20.7/drivers/char/serial.c.orig	Mon Aug 18 11:33:18 2003
++++ linux-2.4.20-20.7/drivers/char/serial.c	Wed Nov 12 11:27:31 2003
+@@ -797,6 +797,23 @@
+ 	}
+ }
+ 
++/*
++ * Returns != 0 (true) if UART is ready for more transmit data.
++ * This function contains a work-around for a silicon bug in the UARTs 
++ * of the AMD Elan microcontroller. The LSR THRE bit is set late and 
++ * may be missed by the interrupt routine, so an IIR THRI status is also
++ * treated as an LSR THRE status. This causes xmit data loss on 16C654 
++ * UARTs (and perhaps others) so the work-around is applied only to 
++ * ports detected as generic UART types 8250, 16450, 16550 and 16550A. 
++ */
++static _INLINE_ int uart_transmit_ready(struct async_struct *info,
++					int status, int iir)
++{
++	return (status & UART_LSR_THRE) || 
++	       ((info->state->type <= PORT_16550A) &&
++	        ((iir & UART_IIR_ID) == UART_IIR_THRI));
++}
++
+ #ifdef CONFIG_SERIAL_SHARE_IRQ
+ /*
+  * This is the serial driver's generic interrupt routine
+@@ -919,9 +936,7 @@
+ 		if (status & UART_LSR_DR)
+ 			receive_chars(info, &status, regs);
+ 		check_modem_status(info);
+-		if ((status & UART_LSR_THRE) ||
+-		    /* For buggy ELAN processors */
+-		    ((iir & UART_IIR_ID) == UART_IIR_THRI))
++		if (uart_transmit_ready(info, status, iir))
+ 			transmit_chars(info, 0);
+ 		if (pass_counter++ > RS_ISR_PASS_LIMIT) {
+ #if SERIAL_DEBUG_INTR
+
+--Boundary-00=_N6qs/Wd7zU41xsX--

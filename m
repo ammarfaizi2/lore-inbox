@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129851AbQKPWKL>; Thu, 16 Nov 2000 17:10:11 -0500
+	id <S129771AbQKPWMb>; Thu, 16 Nov 2000 17:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131103AbQKPWJv>; Thu, 16 Nov 2000 17:09:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21574 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129851AbQKPWJj>; Thu, 16 Nov 2000 17:09:39 -0500
-Subject: Re: Linux 2.2.18pre21
-To: jesse@wirex.com (jesse)
-Date: Thu, 16 Nov 2000 21:40:18 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001116115249.A8115@wirex.com> from "jesse" at Nov 16, 2000 11:52:49 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129957AbQKPWMV>; Thu, 16 Nov 2000 17:12:21 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:59148 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129771AbQKPWMN>;
+	Thu, 16 Nov 2000 17:12:13 -0500
+Date: Thu, 16 Nov 2000 13:42:58 -0800
+From: David Hinds <dhinds@valinux.com>
+To: tytso@valinux.com
+Cc: pavel@suse.cz, jgarzik@mandrakesoft.com, dwmw2@infradead.org,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org, tutso@mit.edu
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+Message-ID: <20001116134258.B5707@valinux.com>
+In-Reply-To: <Pine.LNX.4.30.0011132222070.28525-100000@imladris.demon.co.uk> <3A106F81.FB5BE7F1@mandrakesoft.com> <20000101025452.A53@toy> <E13wWYG-00047b-00@beefcake.hdqt.valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wWlX-0008Oh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <E13wWYG-00047b-00@beefcake.hdqt.valinux.com>; from tytso@valinux.com on Thu, Nov 16, 2000 at 01:26:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's simply not good enough to close all directory file descriptors before chrooting.
+On Thu, Nov 16, 2000 at 01:26:36PM -0800, tytso@valinux.com wrote:
 > 
-> If calling chroot once you're already in a chroot jail was disallowed, it would stop
-> this attack.
+> > Ted, is this true? It would be wonderfull to be able to use i82365 without
+> > need for pcmcia_cs...
+> 
+> > I think in-kernel pcmcia crashing even on simple things *is* critical bug.
 
-I think the problem here is that some people have the idea that chroot is 
-some kind of magical security device. Thats not true at all. You can build an
-environment like that if you wish by closing other directory handles and having
-no suitably priviledged code in the chroot area and stuff.
+It wasn't a critical bug, in the sense that because the i82365 driver
+did not work, it was not even offered as a config option.  If anything
+it was merely a missing feature.  And not a critical one, since the
+feature was available outside of the kernel.
 
-Alan
+It is a moot point, since i82365 works with the new patches.
 
+> That was several months ago, and perhaps things have changed.  But that
+> was I didn't spend time worrying about tracking PCMCIA bug reports;
+> there were a non-trivial number of them, and they were mostly of the
+> form "doesn't work on XXX hardware", "causes kernel oops on YYYY
+> hardware", etc.
 
+Some of these have been resolved, but some remain.  They have not been
+easy things to decipher since they involve interactions between the
+PCI subsystem, PCMCIA, and specific hardware.
+
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVCLDbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVCLDe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVCLDbI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 22:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVCLDbI
+	id S261825AbVCLDe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 22:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVCLDe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 22:31:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44989 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261700AbVCLDa6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 22:30:58 -0500
-Date: Fri, 11 Mar 2005 19:30:10 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Prefaulting
-In-Reply-To: <20050311172228.773cf03d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503111913560.24817@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503110444220.19419@schroedinger.engr.sgi.com>
- <20050311172228.773cf03d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Mar 2005 22:34:26 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:48825 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261825AbVCLDeX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 22:34:23 -0500
+Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
+	interrupts. Fish. Please report.]
+From: Adam Belay <abelay@novell.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0502192000140.14916@ppc970.osdl.org>
+References: <1108858971.8413.147.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org>
+	 <1108863372.8413.158.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0502191757170.14706@ppc970.osdl.org>
+	 <1108870731.8413.163.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0502192000140.14916@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 22:31:31 -0500
+Message-Id: <1110598291.12485.269.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005, Andrew Morton wrote:
+On Sat, 2005-02-19 at 20:02 -0800, Linus Torvalds wrote:
+> 
+> On Sat, 19 Feb 2005, Steven Rostedt wrote:
+> >
+> > On Sat, 2005-02-19 at 18:10 -0800, Linus Torvalds wrote:
+> > 
+> > > I _think_ it's the code in arch/i386/pci/fixup.c that does this. See the
+> > > 
+> > > 	static void __devinit pci_fixup_transparent_bridge(struct pci_dev *dev)
+> > > 
+> > > thing, and try to disable it. Maybe that rule is wrong, and triggers much 
+> > > too often?
+> > > 
+> > 
+> > Linus,
+> > 
+> > Thank you very much! That was it.  The following patch made everything
+> > look good.
+> 
+> Ok. I've fired off an email to some Intel people asking what the
+> real rules are wrt Intel PCI-PCI bridges. It may be that it's not that 
+> particular chip, but some generic rule (like "all Intel bridges act like 
+> they are subtractive decode _except_ if they actually have the IO 
+> start/stop ranges set" or something like that).
+> 
+> If anybody on the list can figure the Intel bridge decoding rules out, 
+> please holler..
+> 
+> 			Linus
 
-> > Results that show the impact of this patch are available at
-> > http://oss.sgi.com/projects/page_fault_performance/
->
-> There are a lot of numbers there.  Was there an executive summary?
+Actually, I've ran into a similar situation on my hardware.  After
+looking into it for a while, I'm pretty sure it's actually a transparent
+bridge (despite it not indicating such in the programing interface class
+code).  Have you heard anything more?
 
-You are right there is none for prefaulting. What all of these patches
-(prezero,atomic pte, prefault) have in common is that they improve
-performance for large number crunching applications but there is barely
-any improvement for kernel compiles and/or LMBench. The best I can do is
-insure that they do no harm. These issues are likely to become more
-pressing as memory sizes and appplication sizes grow.
+Thanks,
+Adam
 
-> >From a quick peek it seems that the patch makes negligible difference for a
-> kernel compilation when prefaulting 1-2 pages and slows the workload down
-> quite a lot when prefaulting up to 16 pages.
 
-Yes. Prefaulting up to 16 pages slows the kernel compile down by
-5% due to overallocating pages.
-
-> And for the uniprocessor "200 Megabyte allocation without prezeroing.
-> Single thread." workload it appears that the prefault patch slowed it down
-> by 4x.
-
-You likely compared the prezeroing performance with the prefaulting
-performance. Prezeroing yields a fourfold improvement gain:
-
- Mb Rep Thr CLine  User      System   Wall  flt/cpu/s fault/wsec
-200  3    1   1    0.00s      0.02s   0.00s3756674.275 3712403.061
-200  3    1   1    0.00s      0.03s   0.00s3488295.668 3501888.597
-200  3    1   1    0.00s      0.03s   0.00s3407159.305 3420844.913
-
-You need to compare the performance without any patches to the performance
-with the prefault patch. There is even a slight performance win in the
-uniprocessor case:
-
-w/o any patch:
-
- Mb Rep Thr CLine  User      System   Wall  flt/cpu/s fault/wsec
-200  3    1   1    0.01s      0.15s   0.01s846860.493 848882.424
-200  3    1   1    0.01s      0.16s   0.01s827724.160 830841.482
-200  3    1   1    0.00s      0.16s   0.01s827724.160 827364.176
-
-w/prefault patch
-
-200 MB allocation
-
- Mb Rep Thr CLine  User      System   Wall  flt/cpu/s fault/wsec
-200  3    1   1    0.02s      0.48s   0.05s860119.275 859918.989
-200  3    1   1    0.02s      0.46s   0.04s886129.730 886551.621
-200  3    1   1    0.01s      0.47s   0.04s887920.166 886855.775
-
-> Am I misreading the results?  If not, it's a bit disappointing.
-
-Yes. The prefault patch actually improves UP performance of the
-Microbenchmark slightly.

@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbUBWU3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUBWU1h
+	id S262037AbUBWU3N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUBWU1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:27:37 -0500
-Received: from mail.kroah.org ([65.200.24.183]:3767 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262038AbUBWU12 (ORCPT
+	Mon, 23 Feb 2004 15:27:34 -0500
+Received: from imap.gmx.net ([213.165.64.20]:20119 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262035AbUBWU1Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:27:28 -0500
-Date: Mon, 23 Feb 2004 12:23:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Pat Gefre <pfg@sgi.com>
-Cc: davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [2.6 PATCH] Altix hotplug
-Message-ID: <20040223202313.GA22207@kroah.com>
-References: <200402231455.i1NEtEqJ041950@fsgi900.americas.sgi.com>
+	Mon, 23 Feb 2004 15:27:25 -0500
+X-Authenticated: #20799612
+Date: Mon, 23 Feb 2004 21:25:24 +0100
+From: Hansjoerg Lipp <hjlipp@web.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-ID: <20040223202524.GC13914@hobbes>
+References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com> <20040222225750.GA27402@mail.shareable.org> <20040222214457.6f8d2224.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402231455.i1NEtEqJ041950@fsgi900.americas.sgi.com>
+In-Reply-To: <20040222214457.6f8d2224.pj@sgi.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 08:55:14AM -0600, Pat Gefre wrote:
+On Sun, Feb 22, 2004 at 09:44:57PM -0800, Paul Jackson wrote:
+> > I believe the question was "which shell expects the name in argv[2]
 > 
-> 2.6 Altix patch for kernel hotplug support
+> The question is more like: examine each shell's argument parsing code to
+> determine which ones will or will not be affected by this.  For a change
+> like this, someone needs to actually look at the code for each major
+> shell, and verify their reading of the code with a little experimentation.
 
-You mean "PCI hotplug support" right?
+I still don't understand your argument... If there is a shell having
+those problems, nobody would use something like
 
-If so, how?  I do not see a single call to pci_hp_register() or friends
-here.  What is the userspace interface to your pci hotplug system?
+#!/shell -foo -bar
 
-thanks,
+And the "old"
 
-greg k-h
+#!/shell -foo
+
+or
+
+#!/shell
+
+still work as usual (if there are no whitespace characters in the
+parameter).
+
+Regards,
+
+	Hansjoerg Lipp

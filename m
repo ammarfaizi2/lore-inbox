@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbRBMT0d>; Tue, 13 Feb 2001 14:26:33 -0500
+	id <S129059AbRBMTo3>; Tue, 13 Feb 2001 14:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBMT0X>; Tue, 13 Feb 2001 14:26:23 -0500
-Received: from sense-gold-134.oz.net ([216.39.162.134]:29956 "EHLO
-	sense-gold-134.oz.net") by vger.kernel.org with ESMTP
-	id <S129042AbRBMT0I>; Tue, 13 Feb 2001 14:26:08 -0500
-Date: Tue, 13 Feb 2001 11:26:23 -0800 (PST)
-From: al goldstein <gold@sense-gold-134.oz.net>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: al goldstein <gold@sense-gold-134.oz.net>,
-        kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1 swaps hardware addresses for ethernet cards
-In-Reply-To: <3A891B97.4F9805A6@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0102131119250.2457-100000@sense-gold-134.oz.net>
+	id <S129098AbRBMToU>; Tue, 13 Feb 2001 14:44:20 -0500
+Received: from mx.interplus.ro ([193.231.252.3]:35081 "EHLO mx.interplus.ro")
+	by vger.kernel.org with ESMTP id <S129059AbRBMToP>;
+	Tue, 13 Feb 2001 14:44:15 -0500
+Message-ID: <3A898EDE.8A8ED25F@interplus.ro>
+Date: Tue, 13 Feb 2001 21:45:34 +0200
+From: Mircea Ciocan <mirceac@interplus.ro>
+Organization: Home Office
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac10 i686)
+X-Accept-Language: ro, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-kernel@vger.kernel.org
+Subject: Issues with parport/parport_pc/lp
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Andrew Morton wrote:
+	Hi all,
 
-Thanks Andrew, I appreciate your note. I'll try it again with 509 as a module.
-I had forgotten about linkage order problems.
+	Yesterday I see a request for help from the cups printing system
+mentainer:
+http://linuxtoday.com/news_story.php3?ltsn=2001-02-12-009-04-OS-CY-HW
+	Basicly it ask you to read the options from the PJL enabled printer you
+may have by running this small shell script:
 
+#!/bin/sh
+echo "Writing PJL options into opts.txt"
+echo -en "\033%-12345X@PJL\r\n@PJL INFO VARIABLES\r\n" > /dev/lp0
+sleep 1
+echo "Press Ctrl+C"
+cat < /dev/lp0 > opts.txt
 
-> al goldstein wrote:
-> > 
-> > I have 2 ether cards 59x (eth0) and 509 (eth1). I have been adding 509
-> > at boot in lilo.conf. Using this same config in 2.4.1 results in
-> > the hardware addresses for the cards to be swapped. If I remove 509 from
-> > Lilo I get the same result. Suggestions would be appreciated
-> 
-> If both drivers are statically linked into the kernel then
-> I guess this is entirely dependent upon the linkage order of
-> net/core/dev.o and drivers/net/3c59x.o.
-> 
-> If you make the drivers modular then you can force the order
-> within your boot scripts.
-> 
-> If you make just one driver modular then that one will be
-> "eth1".
-> 
-> You can grab Andi's "nameif" app which allows you to rename
-> interfaces based on their MAC address, which will certainly
-> put and end to the issue.  I'm not sure whether this
-> app is in net-tools yet.
-> 
-> Finally, you can wait until the Linux hotplug architecture
-> is fully implemented, after which the naming order will
-> be nicely randomised each time you boot :)
-> 
-> It's fun, isn't it?
-> 
-> -
-> 
+ on a machine with CONFIG_PRINTER_READBACK enabled, and send the
+renamed, non-empty opts.txt to a more intuitive printer_name.txt to
+till.kamppeter@gmx.net. (I strongly advise you all to read the link and
+do the deed if you like better printing support with Linux)
 
+	I've got a Kyocera FS-800 that is PJL compatible and have 2.4.1ac10
+with all the parport and printing stuff compiled as modules, and tryed
+running the script.
+	Now the issue:
+The script partially works only first time when is runned, any other
+time it just blocks and wait for Ctrl-C.
+If I remove ALL the modules involved (lp, parport_pc, parport, in that
+order) it works again once and so on.
+It is working only partialy because it only reads a fixed amount of
+data, no matter what the printer have to say :(.
+	This amount is on my machine ( dual PIII 950, Winbond SUPER-i/o chip,
+ECC+EPP dma 3 and irq7 port) always 483 chars.
+By booting in the default Mandrake-7.2 kernel (2.2.17-SMP) the script
+has a totaly different behaviour:
+	It returns different amount of data on each run but is not necessary to
+remove and reload the modules and the maximum data amount that I can
+read back was 1649 chars.
+	I want to know if this issue could be solved with 2.4.x kernels and I'm
+available for testing eventual patches.
+
+				Thank you,
+
+				Mircea C.

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316820AbSGHHkx>; Mon, 8 Jul 2002 03:40:53 -0400
+	id <S316821AbSGHHts>; Mon, 8 Jul 2002 03:49:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSGHHkw>; Mon, 8 Jul 2002 03:40:52 -0400
-Received: from mail12.svr.pol.co.uk ([195.92.193.215]:65308 "EHLO
-	mail12.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S316820AbSGHHkw>; Mon, 8 Jul 2002 03:40:52 -0400
-Date: Mon, 8 Jul 2002 09:43:15 +0100
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.5.25 (and LVM)
-Message-ID: <20020708084315.GA1387@fib011235813.fsnet.co.uk>
-References: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com> <20020706135412.GA19227@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020706135412.GA19227@merlin.emma.line.org>
-User-Agent: Mutt/1.3.28i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S316823AbSGHHtr>; Mon, 8 Jul 2002 03:49:47 -0400
+Received: from samar.sasken.com ([164.164.56.2]:12229 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S316821AbSGHHtr>;
+	Mon, 8 Jul 2002 03:49:47 -0400
+Date: Mon, 8 Jul 2002 13:24:01 +0530 (IST)
+From: Madhavi <madhavis@sasken.com>
+To: Andi Kleen <ak@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: IPv6 multiple routing tables
+In-Reply-To: <p737kk6wueb.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.33.0207081322320.1324-100000@pcz-madhavis.sasken.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 06, 2002 at 03:54:12PM +0200, Matthias Andree wrote:
-> On Fri, 05 Jul 2002, Linus Torvalds wrote:
-> 
-> > More merges all over the map - ppc, scsi, USB, kbuild, input drivers etc.
-> 
-> Did the LVM guys (are you listening?) tell anything if they were about
-> to go fix the current 2.5 LVM breakage? Or does EVMS work on 2.5 instead?
 
-I'll say this yet again:
+Hi
 
-Heinz Mauelshagen is maintaining LVM1.0.x on 2.4 kernels.  This is for
-bug fixes only, no new features will be added.
+Could you tell me where the patch is available. I just need to get an idea
+on how it is implemented.
 
-Alasdair Kergon, Patrick Caulfield and myself are working on the more
-generic device-mapper driver for both 2.4/2.5.  Initially we have
-concentrated on 2.4, this driver is now very stable IMO (I would
-certainly trust my data to it in preference to LVM1).
+regards
+Madhavi.
 
-I will post a URL to the 2.5 patch at some point this week.
+On 8 Jul 2002, Andi Kleen wrote:
 
-There is no intention to maintain the broken design that is LVM1 in
-the 2.5 series - we do not have the spare resources to waste.
+> Madhavi <madhavis@sasken.com> writes:
+>
+> > Hi
+> >
+> > Does linux kernel version 2.4.18 support multiple routing tables for IPv6?
+> > Otherwise, is there some patch available for this support?
+>
+> It's not supported. While there is some code for it in the kernel
+> it is not functional.
+>
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-- Joe

@@ -1,110 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277243AbRJIORG>; Tue, 9 Oct 2001 10:17:06 -0400
+	id <S277246AbRJIOTQ>; Tue, 9 Oct 2001 10:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277241AbRJIOQ5>; Tue, 9 Oct 2001 10:16:57 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:4601 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277243AbRJIOQr>; Tue, 9 Oct 2001 10:16:47 -0400
-Message-ID: <3BC30701.2060908@wipro.com>
-Date: Tue, 09 Oct 2001 19:47:37 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S277241AbRJIOTH>; Tue, 9 Oct 2001 10:19:07 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:55168 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S277246AbRJIOSs>; Tue, 9 Oct 2001 10:18:48 -0400
+Date: Tue, 9 Oct 2001 10:16:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel size
+In-Reply-To: <163112682879.20011009161634@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.3.95.1011009100315.5093A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <Pine.LNX.4.21.0110091031470.5604-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Oct 2001, VDA wrote:
 
-This is a multi-part message in MIME format.
+> Hi folks
+> 
+> I recompiled my kernel with GCC 3.0.1 (was 2.95.x)
+> and guess what - it got bigger...
+> Somehow, I hoped in linux world software gets better
+> with time, not worse...
+> 
+> Maybe that's my fault (misconfigured GCC etc) ?
+> What do you see?
+> 
+> Being curious, I looked into vmlinux (uncompressed kernel).
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+It's much worse than you can imagine!
 
-Most of the traditional unices maintained a pool for each subsystem
-(this is really useful when u have the memory to spare), so not matter
-what they use memory only from their pool (and if needed peek outside),
-but nobody else used the memory from the pool.
+`strings /proc/kcore | grep GNU' >qqq.qqq`
 
-I have seen cases where, I have run out of physical memory on my system,
-so I try to log in using the serial console, but since the serial driver
-does get_free_page (this most likely fails) and the driver complains back.
-So, I had suggested a while back that important subsystems should maintain
-their own pool (it will take a new thread to discuss the right size of
-each pool).
+Causes a file this big to be generated:
+-rw-r--r--   1 root     root      1069748 Oct  9 10:01 qqq.qqq
 
-Why can't Linux follow the same approach? especially on systems with a lot
-of memory.
+That's how much space is being wasted by GNU advertising.
 
+A single program:
 
-Balbir
-
-Marcelo Tosatti wrote:
-
->Hi, 
->
->I've been testing pre6 (actually its pre5 a patch which Linus sent me
->named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
->out some problems. First of all, we need to throttle normal allocators
->more often and/or update the low memory limits for normal allocators to a
->saner value. I already said I think allowing everybody to eat up to
->"freepages.min" is too low for a default.
->
->I've got atomic memory failures with _22GB_ of swap free (32GB total):
->
-> eth0: can't fill rx buffer (force 0)!
->
->Another issue is the damn fork() special case. Its failing in practice:
->
->bash: fork: Cannot allocate memory
->
->Also with _LOTS_ of swap free. (gigs of them)
->
->Linus, we can introduce a "__GFP_FAIL" flag to be used by _everyone_ which
->wants to do higher order allocations as an optimization (eg allocate big
->scatter-gather tables or whatever). Or do you prefer to make the fork()
->allocation a separate case ?
->
->I'll take a closer look at the code now and make the throttling/limits to
->what I think is saner for a default.
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+int foo;
 
 
+Compiled, produces this:
+
+	.file	"xxx.c"
+	.version	"01.01"
+gcc2_compiled.:
+	.comm	foo,4,4
+	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
+
+It __might__ be possible to link, without linking in ".ident", which
+currently shares space with .rodata. My gcc man pages are not any
+better than the usual Red Hat so I can't find out if there is any way
+to turn OFF these spurious strings.
 
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
+Cheers,
+Dick Johnson
 
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 
---------------InterScan_NT_MIME_Boundary--

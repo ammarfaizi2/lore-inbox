@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEQVzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbUEQWEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbUEQVzX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 17:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUEQVzX
+	id S262051AbUEQWEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUEQWEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 17:55:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22422 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262434AbUEQVzS (ORCPT
+	Mon, 17 May 2004 18:04:25 -0400
+Received: from smtp3.att.ne.jp ([165.76.15.139]:6128 "EHLO smtp3.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262051AbUEQWEX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 17:55:18 -0400
-Date: Mon, 17 May 2004 14:46:03 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, jejb <james.bottomley@steeleye.com>
-Subject: [PATCH] init. mca_bus_type even if !MCA_bus
-Message-Id: <20040517144603.1c63895f.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 17 May 2004 18:04:23 -0400
+Message-ID: <05af01c43c5a$786e6340$b7ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@despammed.com>
+To: "Roland Dreier" <roland@topspin.com>
+Cc: "Adrian Bunk" <bunk@fs.tum.de>, <linux-kernel@vger.kernel.org>
+References: <035e01c43b18$69ede9f0$b7ee4ca5@DIAMONDLX60><20040516163644.GN22742@fs.tum.de><058301c43c57$6bcc9f10$b7ee4ca5@DIAMONDLX60> <5265auu3i1.fsf@topspin.com>
+Subject: Re: [patch] kill off PC9800
+Date: Tue, 18 May 2004 06:59:49 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roland Dreier replied to me:
 
-// Linux 2.6.6
-// need to call mca_system_init() to register MCA bus struct,
-// otherwise find_mca_adapter() oopses with a NULL ptr.
-// Fixes this oops reported last week:
-//	http://marc.theaimsgroup.com/?l=linux-kernel&m=108455738606747&w=2
-// Thanks to James Bottomley for pointing this out.
+>     Norman> I'll bet that the number of PC9800 machines still in
+>     Norman> existence is an order of magnitude larger than the number
+>     Norman> of PowerPC machines still in existence (including current
+>     Norman> ones).
+>
+> Do you realize that every Apple Macintosh sold for about the last 10
+> years is PowerPC-based?
 
-diffstat:=
- arch/i386/kernel/mca.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+Do you realize that Apple's market share is still less than NEC's?  And if
+you want to go back 10 years, NEC had about 90% of the PC market and they
+were all 9800 series.
 
+> Not to mention all of IBM's midrange-servers
+> (p and i series).  Plus a huge embedded presense.
 
-diff -Naurp ./arch/i386/kernel/mca.c~check_mca_bus ./arch/i386/kernel/mca.c
---- ./arch/i386/kernel/mca.c~check_mca_bus	2004-05-09 19:33:05.000000000 -0700
-+++ ./arch/i386/kernel/mca.c	2004-05-17 14:50:32.000000000 -0700
-@@ -258,16 +258,16 @@ static int __init mca_init(void)
- 
- 	/* Make sure the MCA bus is present */
- 
--	if(!MCA_bus)
--		return -ENODEV;
--
--	printk(KERN_INFO "Micro Channel bus detected.\n");
--
--	if(mca_system_init()) {
-+	if (mca_system_init()) {
- 		printk(KERN_ERR "MCA bus system initialisation failed\n");
- 		return -ENODEV;
- 	}
- 
-+	if (!MCA_bus)
-+		return -ENODEV;
-+
-+	printk(KERN_INFO "Micro Channel bus detected.\n");
-+
- 	/* All MCA systems have at least a primary bus */
- 	bus = mca_attach_bus(MCA_PRIMARY_BUS);
- 	if (!bus)
+OK, NEC's servers are not PCs.  (Or at least they didn't used to be.)  But
+their numbers hardly affect PC statistics.
 
-
---
-~Randy

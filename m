@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbTABMuk>; Thu, 2 Jan 2003 07:50:40 -0500
+	id <S261847AbTABMvQ>; Thu, 2 Jan 2003 07:51:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTABMuk>; Thu, 2 Jan 2003 07:50:40 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:8380 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP
-	id <S261836AbTABMuj>; Thu, 2 Jan 2003 07:50:39 -0500
-To: linux-kernel@vger.kernel.org
-Subject: /proc/partitions statistics: how to find block size?
-Message-ID: <1041512348.3e14379c5675c@imp.free.fr>
-Date: Thu, 02 Jan 2003 13:59:08 +0100 (CET)
-From: jfontain@free.fr
+	id <S261742AbTABMvQ>; Thu, 2 Jan 2003 07:51:16 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:38150 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261847AbTABMvO>; Thu, 2 Jan 2003 07:51:14 -0500
+Date: Thu, 2 Jan 2003 07:57:36 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.53 : modules_install warnings 
+In-Reply-To: <20030101235118.CE55F2C05E@lists.samba.org>
+Message-ID: <Pine.LNX.3.96.1030102075543.18246D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.6
-X-Originating-IP: 195.101.92.253
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please CC me as I am not subscribed: apologies...)
+On Wed, 1 Jan 2003, Rusty Russell wrote:
 
-First I wish to thank very much those who wrote the 'Per partition statistics in
-/proc/partitions' patch, now available in 2.4.20. It is a very useful feature IMHO.
-I am using it to write a new module for the modular monotoring software moodss
-(http://jfontain.free.fr/moodss/).
+> In message <Pine.LNX.3.96.1021231091929.10362B-100000@gatekeeper.tmr.com> you write:
+> > If they didn't work in 2.5.47, before the module change, then clearly they
+> > are broken on their own. If they worked until then, and especially if they
+> > work built-in still, I would certainly suspect that the problem is related
+> > to the module change.
+> 
+> That's the point: they use cli, sti and save_flags.  All three were
+> eliminated in SMP completely independently of the module changes.
+> 
+> Hope I'm being clearer?
 
-Now, from /proc/partitions, I can find the number of blocks per partition or
-disk, but what I also need is the size of each disk, or the block size of each
-disk, so that I could display the size in bytes for each disk, which would be
-more user friendly.
+Okay, so there are two issues, the SMP issue noted and and changes which
+might be needed to make them work as modules. Gotit, thanks.
 
-Is there a way to find that information within the /proc filesystem or by any
-other mean (that has to work for any disk type (IDE, SCSI, USB, ...)).
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Many thanks in advance and sorry for posting here, but I really need expert
-advice...
-
-Happy New Year,
-
-Jean-Luc (jfontain@free.fr)

@@ -1,64 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274104AbRISQsf>; Wed, 19 Sep 2001 12:48:35 -0400
+	id <S274107AbRISQuP>; Wed, 19 Sep 2001 12:50:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274107AbRISQsZ>; Wed, 19 Sep 2001 12:48:25 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:21767 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S274104AbRISQsO>; Wed, 19 Sep 2001 12:48:14 -0400
-Date: Wed, 19 Sep 2001 17:37:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "steve j. kondik" <shade@chemlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: encrypted swap on loop in 2.4.10-pre12?
-Message-ID: <20010919173725.B11991@suse.de>
-In-Reply-To: <1000912739.17522.2.camel@discord>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1000912739.17522.2.camel@discord>
+	id <S274106AbRISQuG>; Wed, 19 Sep 2001 12:50:06 -0400
+Received: from CM-46-158.chello.cl ([24.152.46.158]:53641 "EHLO
+	ronto.dewback.cl") by vger.kernel.org with ESMTP id <S274105AbRISQtu>;
+	Wed, 19 Sep 2001 12:49:50 -0400
+Date: Wed, 19 Sep 2001 12:49:54 -0400 (CLT)
+From: Fabian Arias <dewback@vtr.net>
+X-X-Sender: dewback@ronto.dewback.cl
+To: Pavel Roskin <proski@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-ac12 - problem mounting reiserfs (parse error?)
+In-Reply-To: <Pine.LNX.4.33.0109191053400.1244-100000@portland.hansa.lan>
+Message-ID: <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19 2001, steve j. kondik wrote:
-> i've been using encrypted swap over loopdev using the new cryptoapi
-> patches.  i just built a 2.4.10-pre12 kernel and i got a panic doing
-> mkswap on the loopdev.  the mkswap process becomes unkillable after this
-> and never finishes.  this is repeatable everytime.  i've had no problems
-> whatsoever until this kernel even under high load..  any ideas? :>
-> 
-> Sep 19 11:06:13 discord kernel: Unabl
-> Sep 19 11:06:13 discord kernel: e to handle kernel NULL pointer
-> dereference at virtual address 00000000
-> Sep 19 11:06:13 discord kernel:  printing eip:
-> Sep 19 11:06:13 discord kernel: 00000000
-> Sep 19 11:06:13 discord kernel: *pde = 0f444067
-> Sep 19 11:06:13 discord kernel: *pte = 00000000
-> Sep 19 11:06:13 discord kernel: Oops: 0000
-> Sep 19 11:06:13 discord kernel: CPU:    0
-> Sep 19 11:06:13 discord kernel: EIP:    0010:[<00000000>]
-> Sep 19 11:06:13 discord kernel: EFLAGS: 00010206
-> Sep 19 11:06:13 discord kernel: eax: c02fbca0   ebx: cf47d000   ecx:
-> 00000400   edx: cfb428c0
-> Sep 19 11:06:13 discord kernel: esi: 00001000   edi: 00000c00   ebp:
-> c1394d78   esp: cf447efc
-> Sep 19 11:06:13 discord kernel: ds: 0018   es: 0018   ss: 0018
-> Sep 19 11:06:13 discord kernel: Process mkswap (pid: 9902,
-> stackpage=cf447000)
-> Sep 19 11:06:13 discord kernel: Stack: c012a371 cfb428c0 c1394d78
-> 00000400 00001000 cfcd61b0 001828c4 00000000 
-> Sep 19 11:06:13 discord kernel:        00000000 00001000 00000400
-> 00000c00 fffffff4 00000000 00000400 00000000 
-> Sep 19 11:06:13 discord kernel:        cfa9210c cfa92060 00000000
-> c01a1ba0 00126000 00001000 00000003 32000022 
-> Sep 19 11:06:13 discord kernel: Call Trace: [<c012a371>] [<c01a1ba0>]
-> [<c01359c0>] [<c01357fe>] [<c0106ebb>] 
-> Sep 19 11:06:13 discord kernel: 
-> Sep 19 11:06:13 discord kernel: Code:  Bad EIP value.
-> Sep 19 11:06:13 discord kernel:  Unable to find swap-space signature
 
-ksymoops it please
+Same here, cannot mount reiserfs partitions on boot.
 
--- 
-Jens Axboe
+- Debian Sid
+- mount 2.11h
+- gcc-2.95.4 (20010902 Debian prerelease) and 3.0.2pre010908.
+
+But in my case I don't have "defaults" on fstab on my reiserfs partitions:
+
+/dev/hdc1  /      ext2          defaults,errors=remount-ro      0 1
+/dev/hdc5  /home  reiserfs      rw                              0 2
+/dev/hdc6  /usr   reiserfs      rw                              0 2
+/dev/hdc3  /var   reiserfs      rw                              0 2
+
+
+On Wed, 19 Sep 2001, Pavel Roskin wrote:
+
+> Hello!
+>
+> I've compiled 2.4.9-ac12 and it has problems mounting reiserfs partitions.
+>
+> This forks fine:
+>
+> mount /dev/hda6 /usr/local
+>
+> but "mount /dev/hda6" doesn't work if I have this in /etc/fstab:
+>
+> /dev/hda6    /usr/local    reiserfs defaults  0 0
+>
+> It appears that "defaults" is confusing some code in the kernel.  Here are
+> more results:
+>
+> # mount -t reiserfs -o defaults /dev/hda6 /usr/local
+> reiserfs kgetopt: there is not option
+> mount: wrong fs type, bad option, bad superblock on /dev/hda6,
+>        or too many mounted file systems
+> # mount -t reiserfs -o rw /dev/hda6 /usr/local
+> reiserfs kgetopt: there is not option
+> mount: wrong fs type, bad option, bad superblock on /dev/hda6,
+>        or too many mounted file systems
+> # mount -t reiserfs -o bogus /dev/hda6 /usr/local
+> reiserfs kgetopt: there is not option bogus
+> mount: wrong fs type, bad option, bad superblock on /dev/hda6,
+>        or too many mounted file systems
+>
+> As you see, invalid options are distinguished ("there is not option
+> bogus", as opposed to "there is not option"), but all options are
+> considered invalid.
+>
+> "reiserfs kgetopt: there is not option" appears on the console and in the
+> dmesg output, it's not coming from mount.
+>
+> RedHat 7.1, i686, mount-2.11b-3 (from RedHat).
+>
+> No problems with 2.4.9-ac10.  I haven't tried 2.4.9-ac12.
+>
+> I hope to send fix soon.  Sorry, but I'm writing it in hurry to alert
+> others that 2.4.9-ac12 is not quite usable, at least with reiserfs.
+>
+> --
+> Regards,
+> Pavel Roskin
+>
+ ---
+ Fabian Arias Mun~oz                   |              Debian GNU/Linux Sid
+ a.k.a. dewback en		       |		 Kernel 2.4.9-ac10
+ #linuxhelp IRC.CHILE		       |			  ReiserFS
 

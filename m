@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263267AbTK2U0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 15:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTK2U0E
+	id S263609AbTK2UxM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 15:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTK2UxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 15:26:04 -0500
-Received: from holomorphy.com ([199.26.172.102]:60101 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263267AbTK2U0C (ORCPT
+	Sat, 29 Nov 2003 15:53:12 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:5868 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263609AbTK2UxL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 15:26:02 -0500
-Date: Sat, 29 Nov 2003 12:25:59 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: John Zielinski <grim@undead.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rootfs mounted from user space - problem with umount
-Message-ID: <20031129202559.GJ8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	John Zielinski <grim@undead.cc>, linux-kernel@vger.kernel.org
-References: <3FC82D8F.9030100@undead.cc> <20031129053128.GF8039@holomorphy.com> <3FC8394A.7010702@undead.cc> <20031129062136.GH8039@holomorphy.com> <3FC869A3.8070809@undead.cc> <20031129094435.GS14258@holomorphy.com> <3FC8FB58.6080708@undead.cc> <3FC8FF94.3040106@undead.cc>
+	Sat, 29 Nov 2003 15:53:11 -0500
+Subject: Re: i875p
+From: Danny Brow <fms@istop.com>
+To: Joshua Schmidlkofer <kernel@pacrimopen.com>
+Cc: Kernel-Maillist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1070129273.1994.26.camel@menion.home>
+References: <1070125010.3972.2.camel@zeus.fullmotionsolutions.com>
+	 <1070128835.1994.19.camel@menion.home>
+	 <1070129021.1427.0.camel@zeus.fullmotionsolutions.com>
+	 <1070129273.1994.26.camel@menion.home>
+Content-Type: text/plain
+Message-Id: <1070139295.2658.1.camel@zeus.fullmotionsolutions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FC8FF94.3040106@undead.cc>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 29 Nov 2003 15:54:55 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 03:20:36PM -0500, John Zielinski wrote:
-> Doh.  Looks like my mailer combined a few lines when I pasted the patch 
-> into my message.   There's three places shown above where the + is not 
-> at the start of the line.   Just edit that before applying the patch.
+Fixed this issue, I found a patch for 2.4.22 in the mailing list archive
+I just had to updated it a little to get it to apply to the 2.4.23
+kernel. If any one wants it I will post it latter and credit the
+original creator.
 
-Best to just attach it; cut and paste doesn't preserve whitespace.
+On Sat, 2003-11-29 at 13:07, Joshua Schmidlkofer wrote:
+> You have a dual p3 850 with an i875?
+> 
+> On Sat, 2003-11-29 at 10:03, Danny Brow wrote:
+> > ATI Radeon DDR VIVO, it's a little old but even with my dual p3 850 I
+> > was able to play a lot of current games.
+> > 
+> > On Sat, 2003-11-29 at 13:00, Joshua Schmidlkofer wrote:
+> > > On Sat, 2003-11-29 at 08:56, Danny Brow wrote:
+> > > > Is there going to be support for the i875p chipset in 2.4.24? I can't
+> > > > load agpgart with 2.4.23, nor with 2..4.22. 
+> > > 
+> > > 
+> > > What video card do you have?
+> > > 
+> > > 
 
-
--- wli

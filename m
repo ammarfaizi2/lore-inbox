@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129565AbRB0GQ5>; Tue, 27 Feb 2001 01:16:57 -0500
+	id <S129581AbRB0Gcb>; Tue, 27 Feb 2001 01:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129581AbRB0GQr>; Tue, 27 Feb 2001 01:16:47 -0500
-Received: from mail.isis.co.za ([196.15.218.226]:63241 "EHLO mail.isis.co.za")
-	by vger.kernel.org with ESMTP id <S129565AbRB0GQg>;
-	Tue, 27 Feb 2001 01:16:36 -0500
-Message-Id: <4.3.2.7.0.20010227081118.00aa1b80@192.168.0.18>
+	id <S129590AbRB0GcU>; Tue, 27 Feb 2001 01:32:20 -0500
+Received: from mail.isis.co.za ([196.15.218.226]:33034 "EHLO mail.isis.co.za")
+	by vger.kernel.org with ESMTP id <S129581AbRB0GcG>;
+	Tue, 27 Feb 2001 01:32:06 -0500
+Message-Id: <4.3.2.7.0.20010227082751.00aa1c90@192.168.0.18>
 X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 27 Feb 2001 08:16:11 +0200
+Date: Tue, 27 Feb 2001 08:31:52 +0200
 To: Manfred Spraul <manfred@colorfullife.com>,
         Jeff Garzik <jgarzik@mandrakesoft.com>
 From: Pat Verner <pat@isis.co.za>
 Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear
   (Lite-On)
 Cc: linux-kernel@vger.kernel.org, Alan@redhat.com
-In-Reply-To: <3A9AC372.A86DC6C7@colorfullife.com>
-In-Reply-To: <3A9A30C7.3C62E34@colorfullife.com>
- <3A9AB84C.A17D20AE@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Later, for what its worth:
+Up to now, I have only had one of the network cards active, and connected 
+to the hub.  I have just connected a second card to the hub, with an 
+additional IP address.  After running IPTRAF, it hung after about 5 
+minutes, after which BOTH network cards stopped responding.
+=Pat
+----------------
 Good morning all.
 
 First thing this morning I applied Jeff's patch, as below.  Started off 

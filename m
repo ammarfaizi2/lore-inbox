@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUILTez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268828AbUILThx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268805AbUILTez (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 15:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUILTez
+	id S268828AbUILThx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 15:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268848AbUILThx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 15:34:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:21720 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268805AbUILTes (ORCPT
+	Sun, 12 Sep 2004 15:37:53 -0400
+Received: from space.powweb.com ([66.152.97.242]:8719 "EHLO space.powweb.com")
+	by vger.kernel.org with ESMTP id S268828AbUILTgy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 15:34:48 -0400
-Date: Sun, 12 Sep 2004 21:35:42 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjanv@redhat.com>,
-       Andrea Arcangeli <andrea@novell.com>, Hugh Dickins <hugh@veritas.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Message-ID: <20040912193542.GB28791@elte.hu>
-References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com> <1095016687.1306.667.camel@krustophenia.net> <20040912192515.GA8165@taniwha.stupidest.org>
+	Sun, 12 Sep 2004 15:36:54 -0400
+Subject: REQUEST
+From: xiaojun <xiaojun@handbag.com>
+X-Priority: 3 (Normal)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040912192515.GA8165@taniwha.stupidest.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+X-Mailer: RLSP Mailer
+Message-Id: <20040912193644.80B6035288@space.powweb.com>
+Date: Sun, 12 Sep 2004 12:36:44 -0700 (PDT)
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Chris Wedgwood <cw@f00f.org> wrote:
+Dear Sir/Madam,
+I am Mr.Xiao Jun,managinig director of HUAMAO ARTS AND CRAFTS  
+Import/Export Corp.(HMARTS) we are a group of business men who 
+deal on Art and Craft and export into the Canada/America and 
+Europe. 
+We are searching for representatives who can help us establish a 
+medium 
+of getting to our customers in the Canada/America and Europe as 
+well as making payments through you to us.Please if you are 
+interested in transacting business with us we will be very glad. 
+Please contact us for more information.Subject to your satisfaction 
+you will be given the opportunity to negotiate your mode of which we 
+will pay for your services as our representative in Canada/America 
+and Europe Please if you are interested forward to us your phone 
+number/fax and your full contact addresses. 
+Thanks In advance 
+Managing Director, 
+Mr.Xiao Jun.
 
-> > The glaring exception is the IDE io completion, which can run for
-> > 2000+ usec even with a modern chipset and drive.
-> 
-> does un-masking irqs help?
 
-no. A 2 msec nonpreemptable delay is a 2 msec delay, irqs on or off
-alike.
-
-but it's not a big problem with IRQ threading, there most hardirqs are
-preemptable.
-
-	Ingo
+___________________________________________________________________________
+Mail sent from WebMail service at the Tome of Wisdom and Power
+- http://trekie8472.net

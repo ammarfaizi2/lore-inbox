@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268845AbUIXQyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268922AbUIXQyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268845AbUIXQyT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 12:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUIXQmV
+	id S268922AbUIXQyU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 12:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUIXQlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:42:21 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:51943 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268914AbUIXQcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:32:33 -0400
-Subject: Re: ldisc writes during tty release_dev() causing problems.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ryan Arnold <rsa@us.ibm.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1096042734.3355.51.camel@localhost.localdomain>
-References: <1095273835.3294.278.camel@localhost>
-	 <20040915204107.GA26776@thunk.org>
-	 <1095988521.3372.240.camel@localhost.localdomain>
-	 <1096029621.9790.8.camel@localhost.localdomain>
-	 <1096042734.3355.51.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096039802.10145.4.camel@localhost.localdomain>
+	Fri, 24 Sep 2004 12:41:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:49329 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268944AbUIXQaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 12:30:46 -0400
+Message-ID: <5b64f7f040924093035495d74@mail.gmail.com>
+Date: Fri, 24 Sep 2004 12:30:32 -0400
+From: Rahul Karnik <deathdruid@gmail.com>
+Reply-To: Rahul Karnik <deathdruid@gmail.com>
+To: "Johnson, Richard" <rjohnson@analogic.com>
+Subject: Re: Migration to linux-2.6.8 from linux-2.4.26
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0409241038250.24372@quark.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 24 Sep 2004 16:30:04 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.53.0409241038250.24372@quark.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-24 at 17:18, Ryan Arnold wrote:
-> I think I see what you mean.  The ldisc write_chan code is actually
-> invoked from the terminal process and if this is I/O blocked then the
-> terminal process cannot invoke release_dev().  So why did I experience
-> calls to hvc_write() after the final open instance was closed with
-> release_dev()?
-
-At the moment if the user types a character and the line discipline
-echoes it then you can get a write call to the driver. N_TTY tends to do
-this one. When we close the ldisc first this should go away, but we
-aren't quite there yet.
-
-> > I had assumed would have to come from the serial side because if the
-> > last owner is executing close() they can't be executing vhangup on the
-> > same but given a rapid close/re-open/vhangup on a new fd it might be
-> > a dangerous assumption. Added to the TODO pile
+On Fri, 24 Sep 2004 11:10:23 -0400 (EDT), Johnson, Richard
+<rjohnson@analogic.com> wrote:
 > 
-> In hvc_console we don't have a serial side, but I do have the device
-> side which will invoke a tty_hangup() if an hvc adapter was hotplug
-> removed.  This doesn't happen for the actual console adapter (hvc0)
-> because it isn't allowed in firmware.
+> (1) I compiled the new module-init-tools-3.1-pre5.tar.gz. It
+> claimed to be backward-compatible. After installing it, it
+> complained about something then seg-faulted. Nevertheless
+> `insmod` seemed to work so I proceeded.
 
-Ok so this probably is a close v open->hangup race. In which case it
-shouldn't be too hard to fix now the first locking work is done. Until
-then the change you suggest makes sense. I'll investigate that race in
-more detail however because close() v open() and close cancelling the
-workqueue for hangup ought to be stopping it.
+Error message would be nice to have.
+ 
+> (2) `make oldconfig` didn't work after copying over the
+> linux-2.4.26 .config file. This meant that I had to answer
+> hundreds of questions.
 
+This is unavoidable; 2.6 has lots and lots of new features.
+
+> (3) `make bzImage` required that I install a new 'C' compiler.
+> This took several hours.
+
+gcc 2.95 should work for 2.6, although I have heard some mention on
+the list of that not being true anymore.
+
+> (4) Eventually "bzImage" got made. I tried `make modules`.
+> This took over 2 hours, went through everything several times.
+> This is a 2.8 GHz system. It usually takes about 6 minutes
+> to compile the kernel and all the modules. There is something
+> very wrong with the new compile method when it takes 120
+> times longer to compile than previously.
+
+Something is seriously wrong here, and it has nothing to do with the
+"new compile method". Please post your 2.4 and 2.6 config files,
+compiler version and platform info.
+
+> (6)  The system would boot, but not find a file-system to mount.
+
+Details?
+ 
+> (7)  Tried to reboot using previous kernel. It failed to
+> load the required drivers for my SCSI disks so I have no
+> root file-system there.
+> 
+> (8)  I am currently unable to use my main system. I will have
+> mount my main SCSI drive on this system, and replace the
+> module-init-tools with the previous modutils. This should
+> allow me to get "back" to my previous mounted root.
+
+Related to (1), I assume.
+
+Have you tried using a rescue disk to fix the problem? Knoppix (or a
+distro rescue disk) should work fine.
+
+Thanks,
+Rahul

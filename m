@@ -1,79 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293076AbSBWBge>; Fri, 22 Feb 2002 20:36:34 -0500
+	id <S293075AbSBWBox>; Fri, 22 Feb 2002 20:44:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293068AbSBWBe7>; Fri, 22 Feb 2002 20:34:59 -0500
-Received: from u212-239-157-160.goplanet.pi.be ([212.239.157.160]:65029 "EHLO
-	jebril.pi.be") by vger.kernel.org with ESMTP id <S293067AbSBWBej>;
-	Fri, 22 Feb 2002 20:34:39 -0500
-Message-Id: <200202230133.g1N1XjYb030935@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] making aha152x.c compile in 2.5.5
-Date: Sat, 23 Feb 2002 02:33:45 +0100
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S293077AbSBWBop>; Fri, 22 Feb 2002 20:44:45 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:8206 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293075AbSBWBod>; Fri, 22 Feb 2002 20:44:33 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 22 Feb 2002 17:46:54 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Tom Rini <trini@kernel.crashing.org>, Rik van Riel <riel@conectiva.com.br>,
+        Christoph Hellwig <hch@caldera.de>, <hpa@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 bitkeeper repository
+In-Reply-To: <20020222173222.E11156@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0202221744290.1484-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Feb 2002, Larry McVoy wrote:
 
-This patch makes aha152x.c compile in 2.5.5. I'm no SCSI hero,
-but based on what I gathered from earlier related patches, it 
-should also work. Couldn't test it yet, though, due to more 
-compilation problems elsewhere.
+> On Fri, Feb 22, 2002 at 05:35:13PM -0700, Tom Rini wrote:
+> > > You forgot about setting the proper BK_USER, BK_HOST and
+> > > 'bk comment' commands ;)
+> >
+> > heh.  Those are rather new things, aren't they? :)  Anyhow, the goal for
+> > these tree(s) is to keep the PPC children trees up to date.
+>
+> BK_USER, BK_HOST have been around forever but their use is discouraged for
+> the following reason: BK is a distributed system, we need unique names for
+> things, and the user&host are part of the name we make up.
+>
+> bk comments is new and a darned useful thing, too, I'm glad Linus asked
+> for it.  You just have to read the man page and realize that your updates
+> to the comments may not propogate.
 
-    MCE
+Larry, i've a question for you.
+Does BK use the same basic algos of diff+patch ?
+Or, if CVS fails a merge, what is the probability that BK will succeed on
+the same op ?
 
-=======================================================================
---- drivers/scsi/aha152x.c.old	Wed Jan 30 23:15:24 2002
-+++ drivers/scsi/aha152x.c	Sat Feb 23 02:28:26 2002
-@@ -1494,7 +1494,7 @@
- 	   SCp.phase            : current state of the command */
- 	if (SCpnt->use_sg) {
- 		SCpnt->SCp.buffer           = (struct scatterlist *) SCpnt->request_buffer;
--		SCpnt->SCp.ptr              = SCpnt->SCp.buffer->address;
-+		SCpnt->SCp.ptr              = page_address(SCpnt->SCp.buffer->page) + SCpnt->SCp.buffer->offset;
- 		SCpnt->SCp.this_residual    = SCpnt->SCp.buffer->length;
- 		SCpnt->SCp.buffers_residual = SCpnt->use_sg - 1;
- 	} else {
-@@ -2681,7 +2681,7 @@
-                                		/* advance to next buffer */
-                                		CURRENT_SC->SCp.buffers_residual--;
-                                		CURRENT_SC->SCp.buffer++;
--                               		CURRENT_SC->SCp.ptr           = CURRENT_SC->SCp.buffer->address;
-+                               		CURRENT_SC->SCp.ptr           = page_address(CURRENT_SC->SCp.buffer->page) + CURRENT_SC->SCp.buffer->offset;
-                                		CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length;
- 				} 
-                 	}
-@@ -2791,7 +2791,7 @@
- 			/* advance to next buffer */
- 			CURRENT_SC->SCp.buffers_residual--;
- 			CURRENT_SC->SCp.buffer++;
--			CURRENT_SC->SCp.ptr           = CURRENT_SC->SCp.buffer->address;
-+			CURRENT_SC->SCp.ptr           = page_address(CURRENT_SC->SCp.buffer->page) + CURRENT_SC->SCp.buffer->offset;
- 			CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length;
- 		}
- 
-@@ -2821,13 +2821,13 @@
- 		CURRENT_SC->resid += data_count;
- 
- 		if(CURRENT_SC->use_sg) {
--			data_count -= CURRENT_SC->SCp.ptr - CURRENT_SC->SCp.buffer->address;
-+			data_count -= CURRENT_SC->SCp.ptr - (unsigned char*) (page_address(CURRENT_SC->SCp.buffer->page) + CURRENT_SC->SCp.buffer->offset);
- 			while(data_count>0) {
- 				CURRENT_SC->SCp.buffer--;
- 				CURRENT_SC->SCp.buffers_residual++;
- 				data_count -= CURRENT_SC->SCp.buffer->length;
- 			}
--			CURRENT_SC->SCp.ptr           = CURRENT_SC->SCp.buffer->address - data_count;
-+			CURRENT_SC->SCp.ptr           = page_address(CURRENT_SC->SCp.buffer->page) + CURRENT_SC->SCp.buffer->offset - data_count;
- 			CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length + data_count;
- 		} else {
- 			CURRENT_SC->SCp.ptr           -= data_count;
 
--- 
-========================================================================
-M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
-GCS d+ s+:- a36 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
- V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
-========================================================================
+
+- Davide
+
 

@@ -1,95 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUHTTnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUHTTpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268667AbUHTTnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUHTTnJ
+	id S268688AbUHTTpk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:45:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbUHTTpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:43:09 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:38926 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S268667AbUHTTnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:43:00 -0400
-Message-ID: <41265443.9050800@optonline.net>
-Date: Fri, 20 Aug 2004 15:42:59 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-CC: stefandoesinger@gmx.at, acpi-devel@lists.sourceforge.net,
-       "Brown, Len" <len.brown@intel.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
-References: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 15:45:39 -0400
+Received: from mail.cs.umn.edu ([128.101.34.202]:61114 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S268688AbUHTTpf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 15:45:35 -0400
+Date: Fri, 20 Aug 2004 14:45:25 -0500
+From: Dave C Boutcher <sleddog@us.ibm.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
+       martins@au.ibm.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: VPD in sysfs
+Message-ID: <20040820194525.GA13970@cs.umn.edu>
+Reply-To: boutcher@cs.umn.edu
+References: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk> <20040820142143.GB14144@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040820142143.GB14144@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
-
-> The current theory I have for this issue is we resume pci_link driver
-> A bit too late, which is causing this problem.
+On Fri, Aug 20, 2004 at 03:21:43PM +0100, Matthew Wilcox wrote:
+> On Sat, Aug 14, 2004 at 07:29:32PM +0100, Matthew Wilcox wrote:
+> > Thoughts?  Since there's at least four and probably more ways of getting
+> > at VPD, we either need to fill in some VPD structs at initialisation or
+> > have some kind of vpd_ops that a driver can fill in so the core can get
+> > at the data.
 > 
-> Say a particular device doesn't do anything for suspend and resume.
-> So, as soon as we resume this particular device can start  
-> generating interrupts. Once we have PIC enabled, it starts sending 
-> interrupts and no one handles that original IRQ. As pci_link that 
-> resumes later is reprogramming the device to different IRQ, where the 
-> driver is handling the device.
+> I've tried the first option -- creating a large block of sysfs entries for
+> all the VPD entries that are present.  However, I've come upon a problem
+> with sysfs that prevents me from doing so.
 > 
-> That's probably the reason why it works with acpi=noirq or 
-> modified DSDT. Does it make sense?
+> Basically, the problem is that sysfs doesn't pass the attribute that's
+> being invoked to the attribute ->show method.  So I can't determine
+> which one is being read.  This isn't a problem for any other sysfs attribute
+> because they're all static, but for dynamically created attributes, it's
+> not possible to work this way.
 
-Yes. Sometimes acpi=noirq is gentler than ACPI irq mode, because the 
-ACPI bios may not report the current active IRQ (which was assiged by 
-the BIOS during boot) as a "possible" IRQ, even though the south bridge 
-really supports just about any routing.
+Ya, I ran into some similar restrictions with a driver I was
+writing...after talking to gregkh, you are going to have to go down a
+level and use kobjects directly...each piece of data will have a kobject, 
+and that's what you dereference in the show method. 
 
-The result is that the kernel changes the routing when drivers are 
-initialized during boot, and the kernel chooses one of the IRQ's from 
-the possible list. However, during resume from S3, the BIOS will put the 
-routing back the way it was at boot and the kernel has to change the 
-routing again.
-
-acpi=noirq mode doesn't change the hardware's current routing settings 
-if an IRQ is already enabled, so there is less opportunity for things to 
-get out of sync with what the device drivers are expecting.
-
-Something else to watch out for on ICH2 and similar chipsets is that, as 
-long as the IRQ router is steering a PCI link onto a certain IRQ, LPC 
-ISA device are blocked from triggering that IRQ via the SERIRQ protocol. 
-But if we move the all the PCI links elsewhere, the SERIRQ is no longer 
-blocked, and if some ISA LPC device is holding a high level, which 
-normally wouldn't trigger IRQ's under ISA, then the IRQ line will get 
-disabled because the PIC is probably set to level-trigger because it was 
-PCI at one point. I've seen this happen with IRQ 12 when the BIOS 
-decided there was no PS/2 mouse present so it could re-use the IRQ. The 
-real cause is that the i850 has  a register that allows IRQ1 and IRQ12 
-to be disabled on the LPC bus, and this register isn't restored on 
-resume. This probably doesn't apply to IRQ11 on Stefan's system, though...
-
-> 
-> I think we have to resume pci_link device before PIC. 
-
-That's probably a good idea. If your theory is correct, then waiting 
-until the PCI device drivers call pci_enable_device() may be too late, 
-and we might have to do this early in boot. Ideally it wouldn't be a 
-problem, because device drivers would all disable their devices on 
-suspend, but there are driverless devices to worry about, and maybe also 
-badly-behaved hardware that doesn't shut up?
-
-Maybe it's time to look at the suspend/resume callbacks on the ipw2100 
-driver, anyway.
-
-Nathan
-
-> We should be able to achieve this my changing the makefile orders.
-> 
-> Thanks,
-> Venki
->  
-> 
-
+-- 
+Dave Boutcher

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287436AbRL3Pwo>; Sun, 30 Dec 2001 10:52:44 -0500
+	id <S287447AbRL3QGx>; Sun, 30 Dec 2001 11:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287437AbRL3Pwe>; Sun, 30 Dec 2001 10:52:34 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:3660 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S287436AbRL3PwY>;
-	Sun, 30 Dec 2001 10:52:24 -0500
-Message-ID: <3C2F3823.461F36F6@gmx.net>
-Date: Sun, 30 Dec 2001 16:52:03 +0100
-From: Mike <maneman@gmx.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Lionel Bouton <Lionel.Bouton@free.fr>
-Subject: Re: Oops: UMOUNTING in 2.4.17 / Ext2 Partitions destroyed (3x)
-In-Reply-To: <3C2F2948.DB59646A@gmx.net> <3C2F2C1B.2000100@free.fr>
+	id <S287446AbRL3QGn>; Sun, 30 Dec 2001 11:06:43 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:50953 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S287443AbRL3QGX>; Sun, 30 Dec 2001 11:06:23 -0500
+Date: Sun, 30 Dec 2001 11:06:23 -0500
+From: Lennert Buytenhek <buytenh@gnu.org>
+To: linux-kernel@vger.kernel.org
+Cc: jdike@karaya.com
+Subject: [PATCH][RFC] global errno considered harmful
+Message-ID: <20011230110623.A17083@gnu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not too e-mail savvy so I HOPE I've sent this e-mail and CC
-correctly...if not let me know.
 
-Lionel Bouton wrote:
+Hi,
 
-> By any chance do you use a SIS735 based mainboard ?
->
-> If so, try your disks in another system or boot with "ide=nodma".
+Is there any particular reason we need a global errno in the kernel
+at all? (which, by the way, doesn't seem to be subject to any kind of
+locking)  It makes life for User Mode Linux somewhat more complicated than
+it could be, and it generally just seems a bad idea.  Half a dozen places
+in the kernel call syscalls from kernel space (the asm/unistd.h
+__KERNEL_SYSCALLS__ stubs), but it sounds way better to change that limited
+number to check the syscall return code instead of errno.
 
-Yes indeed, it's the (in)famous ECS K7S5A with SiS 735 chipset.
-Thanks I'll try this ASAP (which implies January 3rd or such because
-I'll have to strip the new system bare and reassemble the old one again
-after regaining counsciousness after Jan .1st and a hot date the 2nd.)
-Merci and Greets!
--Mike
+It appears that only one syscall stub caller checks syscall return value
+anyway (exec_usermodehelper in kernel/kmod.c), so removing errno is quite
+painless.  Referenced patch deletes all mention of a global errno from the
+kernel, and fixes up callers where necessary.  I had to change definition
+of _syscallX in various asm/unistd.h's not to use errno which might break
+some userland, but userland shouldn't be touching these anyway.
+
+Only tested on i386.  Feedback appreciated, particularly experiences on
+non-i386.
+
+	http://www.math.leidenuniv.nl/~buytenh/errno_ectomy-1.diff   (33kb)
 
 
+cheers,
+Lennert

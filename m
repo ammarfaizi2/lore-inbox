@@ -1,42 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbTCDX2e>; Tue, 4 Mar 2003 18:28:34 -0500
+	id <S265097AbTCDXdi>; Tue, 4 Mar 2003 18:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbTCDX2e>; Tue, 4 Mar 2003 18:28:34 -0500
-Received: from ns.suse.de ([213.95.15.193]:1298 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S266932AbTCDX2C>;
-	Tue, 4 Mar 2003 18:28:02 -0500
-Date: Wed, 5 Mar 2003 00:37:55 +0100
-From: Olaf Hering <olh@suse.de>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-Message-ID: <20030304233755.GA6896@suse.de>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com> <20030303215356.GE2835@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030303215356.GE2835@ca-server1.us.oracle.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	id <S265285AbTCDXdi>; Tue, 4 Mar 2003 18:33:38 -0500
+Received: from mail.gmx.net ([213.165.65.60]:49532 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265097AbTCDXdg>;
+	Tue, 4 Mar 2003 18:33:36 -0500
+Message-ID: <3E6538EF.3060602@gmx.net>
+Date: Wed, 05 Mar 2003 00:38:23 +0100
+From: Christian <evilninja@gmx.net>
+Reply-To: evilninja@gmx.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030210
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: CONFIG_ALPHA_SRM not compiling on 2.5
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Mar 03, Joel Becker wrote:
+hi,
 
-> On Sun, Mar 02, 2003 at 12:12:58PM -0500, Jeff Garzik wrote:
-> > My counter-question is, why not improve an _existing_ open source SCM to 
-> > read and write BitKeeper files?  Why do we need yet another brand new 
-> > project?
-> 
-> 	Normally, I'd agree with you Jeff.  However, none of the current
-> open source SCM systems are architected in a way that can operate like
-> BK.
+recently i decided to make an Alpha EV45 / Avanti here as a testbed for 
+the latest 2.5 kernels. but it always fails to compile the kernel with
 
-Ah, finally we got to the root of the "problem".
+CONFIG_ALPHA_SRM=y
 
+set. currently 2.4.20 is running stable with this option activiated.
+
+having 2.5 compiled without SRM support, it won't boot (when 
+initializing memory, first step after boot-select via aboot is done, it 
+will get stuck.)
+
+when compiling with SRM i get the following errors:
+------------------------------------
+lila:/usr/src/linux-2.5.x# make vmlinux
+make -f scripts/Makefile.build obj=scripts
+make -f scripts/Makefile.build obj=arch/alpha/kernel 
+arch/alpha/kernel/asm-offsets.s
+make[1]: »arch/alpha/kernel/asm-offsets.s« is up to date.
+   Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
+make -f scripts/Makefile.build obj=init
+   Generating include/linux/compile.h (unchanged)
+make -f scripts/Makefile.build obj=usr
+make -f scripts/Makefile.build obj=arch/alpha/kernel
+[...and so on...]
+make -f scripts/Makefile.build obj=arch/alpha/lib
+echo '  Generating build number'
+   Generating build number
+. ./scripts/mkversion > .tmp_version
+mv -f .tmp_version .version
+make -f scripts/Makefile.build obj=init
+   Generating include/linux/compile.h (updated)
+   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mno-fp-regs -ffixed-8 -mcpu=ev4 -Wa,-mev6 -fomit-frame-pointer 
+-nostdinc -iwithprefix include    -DKBUILD_BASENAME=version 
+-DKBUILD_MODNAME=version -c -o init/version.o init/version.c
+    ld   -r -o init/built-in.o init/main.o init/version.o 
+init/do_mounts.o init/initramfs.o
+   	ld  -static -N  -T arch/alpha/vmlinux.lds.s arch/alpha/kernel/head.o 
+   init/built-in.o --start-group  usr/built-in.o 
+arch/alpha/kernel/built-in.o  arch/alpha/mm/built-in.o 
+arch/alpha/math-emu/built-in.o  kernel/built-in.o  mm/built-in.o 
+fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o 
+lib/lib.a  arch/alpha/lib/lib.a  drivers/built-in.o  sound/built-in.o 
+net/built-in.o --end-group  -o vmlinux
+arch/alpha/kernel/built-in.o: In function `common_shutdown_1':
+arch/alpha/kernel/built-in.o(.text+0x2508): undefined reference to 
+`dummy_con'
+arch/alpha/kernel/built-in.o(.text+0x251c): undefined reference to 
+`take_over_console'
+arch/alpha/kernel/built-in.o(.text+0x2520): undefined reference to 
+`take_over_console'
+make: *** [vmlinux] Error 1
+lila:/usr/src/linux-2.5.x#
+------------------------------------
+
+gcc  v2.95.4
+make v3.79.1
+binutils 2.12.90.0.1
+(all taken from debian/stable)
+
+i have tried this since 2.5.51 (?), and up to 2.5.60 the error is still 
+there. what could be wrong?
+
+Thank you,
+Christian.
 -- 
-A: No.
-Q: Should I include quotations after my reply?
+############ Christian ##############
+########## c_kujau@web.de ###########
+#####################################
+

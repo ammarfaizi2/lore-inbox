@@ -1,118 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVB1NuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVB1OEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVB1NuG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 08:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVB1Nsc
+	id S261620AbVB1OEe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVB1ODh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 08:48:32 -0500
-Received: from lumumba.luc.ac.be ([193.190.9.252]:17678 "EHLO
-	lumumba.luc.ac.be") by vger.kernel.org with ESMTP id S261601AbVB1Nnd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 08:43:33 -0500
-Date: Mon, 28 Feb 2005 14:43:33 +0100
-From: Panagiotis Issaris <takis@lumumba.luc.ac.be>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Possible ENI155P issues
-Message-ID: <20050228144333.A32550@lumumba.luc.ac.be>
-Reply-To: panagiotis.issaris@mech.kuleuven.ac.be
+	Mon, 28 Feb 2005 09:03:37 -0500
+Received: from gprs215-69.eurotel.cz ([160.218.215.69]:31619 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261623AbVB1ODU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 09:03:20 -0500
+Date: Mon, 28 Feb 2005 12:37:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Update suspend-to-RAM vs. video documentation
+Message-ID: <20050228113734.GA1312@elf.ucw.cz>
+References: <20050228012218.GA2014@elf.ucw.cz> <1109565762.16374.9.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1109565762.16374.9.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-In the ENI155P device driver in six possible failure cases the requested
-irq is not being released.
+> A few corrections, nothing major.
 
-In three of the above possible failure cases additionally there seems to
-be a memory leak.
+Thanks a lot, applied.
 
-The patch applies to 2.6.11-rc5-bk2.
+> > +eMachines athlon64 machines	vbetool needed (6) (someone please get me model #s)
+> > +HP NC6000			s3_bios, may not use radeonfb (2)
+> > +HP NX7000			??? (*)
+> > +HP Pavilion ZD7000		vbetool post needed, need open-source nv driver for X
+> > +HP Omnibook XE3	  		none (1)
+> 
+> Which XE3? My 4304 revision with an i830 video card doesn't meet this
+> category.
 
-diff -uprN linux-2.6.11-rc5-bk2/drivers/atm/eni.c linux-2.6.11-rc5-bk2-pi/drivers/atm/eni.c
---- linux-2.6.11-rc5-bk2/drivers/atm/eni.c	2005-02-28 13:31:21.000000000 +0100
-+++ linux-2.6.11-rc5-bk2-pi/drivers/atm/eni.c	2005-02-28 14:16:13.000000000 +0100
-@@ -59,7 +59,6 @@
-  * - doesn't support OAM cells
-  * - eni_put_free may hang if not putting memory fragments that _complete_
-  *   2^n block (never happens in real life, though)
-- * - keeps IRQ even if initialization fails
-  */
- 
- 
-@@ -1802,22 +1801,22 @@ static int __devinit eni_start(struct at
- 	if (request_irq(eni_dev->irq,&eni_int,SA_SHIRQ,DEV_LABEL,dev)) {
- 		printk(KERN_ERR DEV_LABEL "(itf %d): IRQ%d is already in use\n",
- 		    dev->number,eni_dev->irq);
--		return -EAGAIN;
-+		error = -EAGAIN;
-+		goto out;
- 	}
--	/* @@@ should release IRQ on error */
- 	pci_set_master(eni_dev->pci_dev);
- 	if ((error = pci_write_config_word(eni_dev->pci_dev,PCI_COMMAND,
- 	    PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER |
- 	    (eni_dev->asic ? PCI_COMMAND_PARITY | PCI_COMMAND_SERR : 0)))) {
- 		printk(KERN_ERR DEV_LABEL "(itf %d): can't enable memory+"
- 		    "master (0x%02x)\n",dev->number,error);
--		return error;
-+		goto free_irq;
- 	}
- 	if ((error = pci_write_config_byte(eni_dev->pci_dev,PCI_TONGA_CTRL,
- 	    END_SWAP_DMA))) {
- 		printk(KERN_ERR DEV_LABEL "(itf %d): can't set endian swap "
- 		    "(0x%02x)\n",dev->number,error);
--		return error;
-+		goto free_irq;
- 	}
- 	/* determine addresses of internal tables */
- 	eni_dev->vci = eni_dev->ram;
-@@ -1839,7 +1838,8 @@ static int __devinit eni_start(struct at
- 	if (!eni_dev->free_list) {
- 		printk(KERN_ERR DEV_LABEL "(itf %d): couldn't get free page\n",
- 		    dev->number);
--		return -ENOMEM;
-+		error = -ENOMEM;
-+		goto free_irq;
- 	}
- 	eni_dev->free_len = 0;
- 	eni_put_free(eni_dev,buf,buffer_mem);
-@@ -1855,17 +1855,26 @@ static int __devinit eni_start(struct at
- 	 */
- 	eni_out(0xffffffff,MID_IE);
- 	error = start_tx(dev);
--	if (error) return error;
-+	if (error) goto free_list;
- 	error = start_rx(dev);
--	if (error) return error;
-+	if (error) goto free_list;
- 	error = dev->phy->start(dev);
--	if (error) return error;
-+	if (error) goto free_list;
- 	eni_out(eni_in(MID_MC_S) | (1 << MID_INT_SEL_SHIFT) |
- 	    MID_TX_LOCK_MODE | MID_DMA_ENABLE | MID_TX_ENABLE | MID_RX_ENABLE,
- 	    MID_MC_S);
- 	    /* Tonga uses SBus INTReq1 */
- 	(void) eni_in(MID_ISA); /* clear Midway interrupts */
- 	return 0;
-+
-+free_list:
-+	kfree(eni_dev->free_list);
-+	
-+free_irq:
-+	free_irq(eni_dev->irq, eni_dev);
-+	
-+out:
-+	return error;
- }
- 
- 
- 
-With friendly regards,
-Takis
+I had XE3 with athlon 900. i830 sounds like Intel version;
+unfortunately HP marked them almost the same way.
+								Pavel
 -- 
-OpenPGP key: http://lumumba.luc.ac.be/takis/takis_public_key.txt
-fingerprint: 6571 13A3 33D9 3726 F728  AA98 F643 B12E ECF3 E029
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

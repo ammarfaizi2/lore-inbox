@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267033AbTBYOdL>; Tue, 25 Feb 2003 09:33:11 -0500
+	id <S267870AbTBYOg4>; Tue, 25 Feb 2003 09:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267070AbTBYOdL>; Tue, 25 Feb 2003 09:33:11 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:28090 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S267033AbTBYOdK>; Tue, 25 Feb 2003 09:33:10 -0500
-Date: Tue, 25 Feb 2003 15:43:24 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/net/dev with tg3 and 2.4.19
-Message-ID: <20030225154324.A923@pc9391.uni-regensburg.de>
-References: <20030225113429.C1866@pc9391.uni-regensburg.de> <3E5B80AC.2010905@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3E5B80AC.2010905@pobox.com>; from jgarzik@pobox.com on Tue, Feb 25, 2003 at 15:41:48 +0100
-X-Mailer: Balsa 1.2.4
+	id <S267359AbTBYOg4>; Tue, 25 Feb 2003 09:36:56 -0500
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:17805 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id <S267176AbTBYOgy>; Tue, 25 Feb 2003 09:36:54 -0500
+Message-Id: <200302251445.h1PEjpGi030617@locutus.cmf.nrl.navy.mil>
+To: Adrian Bunk <bunk@fs.tum.de>, jgarzik@pobox.com
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63: fore200e.c doesn't compile 
+In-reply-to: Your message of "Tue, 25 Feb 2003 14:15:46 +0100."
+             <20030225131546.GL7685@fs.tum.de> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Tue, 25 Feb 2003 09:45:51 -0500
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25.02.2003   15:41 Jeff Garzik wrote:
-> Christian Guggenberger wrote:
->> Hi,
->> 
->> With tg3 from 2.4.19 the Recieve/Transmit-bytes entries grow to 4294967295, 
->> but then stay at this value. This isn't the expected behaviour, is it? All 
->> other net drivers will jump back to zero and count up again, won't they?
->> Is there a patch available?
->> Otherwise 2.4.19's tg3 seems pretty stable to me, as it's running since 
->> 2002 Oct. 7th with no problems...
-> 
-> 
-> That's fixed in later versions...
-> 
-where can I get later versions for 2.4.19?
+In message <20030225131546.GL7685@fs.tum.de>,Adrian Bunk writes:
+>drivers/atm/fore200e.o drivers/atm/fore200e.c
+>drivers/atm/fore200e.c: In function `fore200e_push_rpd':
+>drivers/atm/fore200e.c:1135: structure has no member named `timestamp'
+>drivers/atm/fore200e.c:1136: structure has no member named `timestamp'
 
-Christian
+it shouldnt be doing that.  you only need to set the timestamp in the 
+skb.  i see the eni driver does the same thing.  i will see about
+a patch for that shortly.
+
+Index: linux/drivers/atm/fore200e.c
+===================================================================
+RCS file: /home/chas/CVSROOT/linux/drivers/atm/fore200e.c,v
+retrieving revision 1.1.1.1
+diff -u -d -b -w -r1.1.1.1 fore200e.c
+--- linux/drivers/atm/fore200e.c	20 Feb 2003 13:45:03 -0000	1.1.1.1
++++ linux/drivers/atm/fore200e.c	25 Feb 2003 14:42:06 -0000
+@@ -1132,8 +1132,7 @@
+ 	return;
+     } 
+ 
+-	do_gettimeofday(&vcc->timestamp);
+-    skb->stamp = vcc->timestamp;
++    do_gettimeofday(&skb->stamp)
+     
+ #ifdef FORE200E_52BYTE_AAL0_SDU
+     if (cell_header) {

@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUJCRDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUJCRIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268013AbUJCRDS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 13:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUJCRDR
+	id S268043AbUJCRIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 13:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUJCRIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 13:03:17 -0400
-Received: from [80.227.59.61] ([80.227.59.61]:59802 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S268013AbUJCRDA (ORCPT
+	Sun, 3 Oct 2004 13:08:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15302 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268043AbUJCRIW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 13:03:00 -0400
-Message-ID: <416030C0.8090900@0Bits.COM>
-Date: Sun, 03 Oct 2004 21:02:56 +0400
-From: Mitch <Mitch@0Bits.COM>
-User-Agent: Application 0.6+ (X11/20041001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ottdot@magma.ca, pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 3 Oct 2004 13:08:22 -0400
+Date: Sun, 3 Oct 2004 10:06:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, dev@sw.ru, torvalds@osdl.org
+Subject: Re: [PATCH] alternate stack dump fix.
+Message-Id: <20041003100603.6429acdd.akpm@osdl.org>
+In-Reply-To: <41602238.A828A852@tv-sign.ru>
+References: <41602238.A828A852@tv-sign.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well it appears that Jesse and Kevin are right and irrespective of the 
-setting of /sys/power/disk, i can get the machine to suspend by first 
-writing 'platform' into the 'disk' file. And it resumes fine ok. Seems 
-to be a false alarm on my part Pavel, although the doc's need updating 
-and /sys/power/disk made to show the correct supported suspension methods ?
-
-Thanks for the tips guys (i didn't need the c code Jesse)
-M
-
--------- Original Message --------
-Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
-Date: Sat, 02 Oct 2004 16:32:33 -0400
-From: Jesse <ottdot@magma.ca>
-To: Mitch <Mitch@HasBox.COM>
-CC: pavel@suse.cz, linux-kernel@vger.kernel.org
-References: <415FFE77.7090908@HasBox.COM>
-
-Mitch wrote:
-> Hi Jesse,
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>
+>  There is another problem in show_trace(). With CONFIG_FRAME_POINTER
+>  every call to print_context_stack() will now print entire call chain,
+>  switching the stacks transparently, beacause valid_stack_ptr()
+>  now accepts ebp in irq stack.
 > 
-> as shown below, that is  not one of the options presented to me in my 
-> 'disk' file
+>  Then show trace switch the stack, and calls print_context_stack()
+>  again with the same value in ebp, and we have the same dump
+>  after printk(" =======================\n").
 > 
-> % cat /sys/power/disk
-> shutdown
+>  What do you think about the following patch?
 > 
+>  Against 2.6.9-rc3.
 
-My machine shows the same thing. Only shutdown in /sys/power/disk
+But it conflicts in a big way with Kirill's patch.  Could you redo it
+against 2.6.9-rc3-mm1, or against just 
 
-Grab the code from Documentation/power/swsusp.txt (starts at line 151)
+fix-of-stack-dump-in-soft-hardirqs.patch
+fix-of-stack-dump-in-soft-hardirqs-cleanup.patch
+fix-of-stack-dump-in-soft-hardirqs-build-fix.patch
 
-I compiled it to an executable called swsusp and I then run 'swsusp' to
-start the suspend process.
+from ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm1/broken-out?
 
-2.6.9-rc3 was my first attempt at suspend, and it worked as designed on
-the first try.
-
-Jesse
-
+Thanks.

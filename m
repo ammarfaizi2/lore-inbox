@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbSJZSrb>; Sat, 26 Oct 2002 14:47:31 -0400
+	id <S261413AbSJZStR>; Sat, 26 Oct 2002 14:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbSJZSrb>; Sat, 26 Oct 2002 14:47:31 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:264 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S261404AbSJZSra>;
-	Sat, 26 Oct 2002 14:47:30 -0400
-Message-ID: <3DBAE4A0.4090802@domdv.de>
-Date: Sat, 26 Oct 2002 20:53:20 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: rootfs exposure in /proc/mounts
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261427AbSJZStR>; Sat, 26 Oct 2002 14:49:17 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36102 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261413AbSJZStQ>;
+	Sat, 26 Oct 2002 14:49:16 -0400
+Date: Sat, 26 Oct 2002 11:53:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Kevin Brosius <cobra@compuserve.com>
+Cc: Oliver Neukum <oliver@neukum.name>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.44-ac3 usb audio - illegal sleep call
+Message-ID: <20021026185333.GA2876@kroah.com>
+References: <3DBAA320.B02AB7FC@compuserve.com> <200210261902.32626.oliver@neukum.name> <3DBADB56.C782BD1D@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DBADB56.C782BD1D@compuserve.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I do oversee the obious but:
+On Sat, Oct 26, 2002 at 02:13:42PM -0400, Kevin Brosius wrote:
+> Oliver Neukum wrote:
+> > 
+> > 
+> > Am Samstag, 26. Oktober 2002 16:13 schrieb Kevin Brosius:
+> > > I've been trying to get USB up to test a audio device and just managed
+> > > to get it all working to some extent.  When using xmms to play audio
+> > > (usb audio module - oss soundcore) I see the following kernel messages
+> > > repeatedly, maybe once a second or so:
+> > 
+> > Go edit usbout_completed() and usbin_completed(). Change the GFP_KERNEL
+> > in usb_submit_urb to GFP_ATOMIC.
+> > Does that help ?
+> > 
+> >         Regards
+> >                 Oliver
+> 
+> 
+> Hi guys,
+>   No... Well, actually, it does change which function gives the
+> warning.  Now usbout_sync_completed is complaining.
 
-can somebody please explain why rootfs is exposed in /proc/mounts (I do 
-mean the "rootfs / rootfs rw 0 0" entry) and if there is a good reason 
-for the exposure?
+Heh, can you change that instance of GFP_KERNEL to GFP_ATOMIC too?
 
--- 
-Andreas Steinmetz
+thanks,
 
+greg k-h

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318838AbSICUla>; Tue, 3 Sep 2002 16:41:30 -0400
+	id <S318914AbSICUmi>; Tue, 3 Sep 2002 16:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318914AbSICUl3>; Tue, 3 Sep 2002 16:41:29 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:23023
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318838AbSICUl2>; Tue, 3 Sep 2002 16:41:28 -0400
-Subject: Re: lockup on Athlon systems, kernel race condition?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3D750548.9D130AB3@zip.com.au>
-References: <20020830204022.GC736@hygelac> <3D6FE062.A48B6F03@zip.com.au>
-	<20020903183524.GC2343@hygelac>  <3D750548.9D130AB3@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 03 Sep 2002 21:46:53 +0100
-Message-Id: <1031086013.21409.20.camel@irongate.swansea.linux.org.uk>
+	id <S318916AbSICUmi>; Tue, 3 Sep 2002 16:42:38 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:24035 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318914AbSICUmh>;
+	Tue, 3 Sep 2002 16:42:37 -0400
+Date: Tue, 3 Sep 2002 13:47:09 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: smc-ircc freeze kernel
+Message-ID: <20020903204709.GC19839@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-03 at 19:54, Andrew Morton wrote:
-> Some systems will drop nasty messages in the logs when APIC checksum
-> errors are detected.  And such systems will also be prone to lockups
-> due to failed delivery.  But whether IPIs can be lost without any such
-> warning signs: don't know, sorry.
+Michal Semler wrote :
+> 
+> ifconfig irda0 192.168.1.1 netmask 255.255.255.0
+> my kernel freeze after 3 seconds and only numlock and scrolllock blinks
 
-Our IPI code requires the other end ack, so its pretty much impossible
-for it to occur at the software end. The hardware in theory can also not
-lose messages both because of queueing and checksums. On pentiums there
-are documented errata with 3 interrupts matched to the same priority but
-not on Athlon
+	Yeah, obviously it should not crash when the user make a
+mistake, but I expect tracking this bug to be non-trivial.
+	BTW : There is a Linux-IrDA mailing list for all your general
+IrDA question, a Linux-IrDA howto, and my web page.
+	Regards,
+
+	Jean
+

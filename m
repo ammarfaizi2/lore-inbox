@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261392AbSIWVXB>; Mon, 23 Sep 2002 17:23:01 -0400
+	id <S261420AbSIWVRe>; Mon, 23 Sep 2002 17:17:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbSIWVXA>; Mon, 23 Sep 2002 17:23:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59665 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261392AbSIWVW7>;
-	Mon, 23 Sep 2002 17:22:59 -0400
-Message-ID: <3D8F874B.3070301@mandrakesoft.com>
-Date: Mon, 23 Sep 2002 17:27:39 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
-Subject: Quick aic7xxx bug hunt...
-References: <20020923180017.GA16270@sexmachine.doom> <2539730816.1032808544@aslan.btc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261428AbSIWVRe>; Mon, 23 Sep 2002 17:17:34 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:59776 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S261420AbSIWVRd>; Mon, 23 Sep 2002 17:17:33 -0400
+Date: Mon, 23 Sep 2002 14:22:40 -0700
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
+       linux-kernel@vger.kernel.org, ingo Molnar <mingo@redhat.com>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020923212240.GC2075@gnuppy.monkey.org>
+References: <20020922143257.A8397@work.bitmover.com> <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
-> On some motherboards with some chipsets, you can get these messages if
-> another busmaster (say an IDE drive or a sound card) is hogging the bus.
-> Usually this is with a VIA chipset.  Its not clear why the aic7xxx_old
-> driver would behave differently other than it disables memory write
-> and invalidate PCI transactions on this chip.  The new driver doesn't
-> need that work around.
+On Mon, Sep 23, 2002 at 06:05:18AM -0400, Bill Davidsen wrote:
+> And BSD? And Solaris?
 
+Me and buddy of mine ran lmbench on NetBSD 1.6 (ppc) and a recent version
+of Linux (same machine) and found that NetBSD was about 2x slower than
+Linux for context switching. It's really not that bad considering that it
+was worse at one point. It might effect things like inter-process pipe
+communication performance, but it's not outside of reasonablility to use
+a 1:1 system in that case.
 
-Justin,
+BTW, NetBSD is moving to a scheduler activations threading system and
+they have some preliminary stuff in the works and working. ;)
 
-One thing I notice is at least one PCI posting bug.  When using MMIO 
-(write[bwlq] under Linux), you _must_ use a read[bwlq] to flush the 
-write to PCI, if you wish to ensure the write posts at a certain point 
-in the code.
+> > If that's a true statement, and in Linux it tends to be far more true
+> > than other operating systems, then there is no reason to have M:N.
+> 
+> No matter how fast you do context switch in and out of kernel and a sched
+> to see what runs next, it can't be done as fast as it can be avoided.
+> Being N:M doesn't mean all implementations must be faster, just that doing
+> it all in user mode CAN be faster.
 
-Here is the example PCI posting bug, in ahc_clear_critical_section:
->                 ahc_outb(ahc, HCNTRL, ahc->unpause);
->                 do {
->                         ahc_delay(200);
->                 } while (!ahc_is_paused(ahc));
+Unless you have a broken architecture like the x86. The FPU in that case
+can be problematic and folks where playing around with adding a syscall
+to query the status of the FPU. They things might be more even, but...
+this is also unclear as to how these variables are going to play out.
 
-As you can see, there is no read before the udelay(), which is very 
-wrong on modern CPUs with write posting...  that's definitely a driver 
-bug that will bite you on modern x86 motherboards [and is totally broken 
-on ia64 and other platforms].
+> Benchmarks are nice, I await results from a loaded production threaded
+> DNS/mail/web/news/database server. Well, I guess production and 2.5 don't
+> really go together, do they, but maybe some experimental site which could
+> use 2.5 long enough to get numbers. If you could get a threaded database
+> to run, that would be a good test of shared resources rather than a bunch
+> of independent activities doing i/o. 
 
-Please let me know if you have further questions on PCI write posting...
+I think that would be interesting too.
 
-	Jeff
-
-
+bill
 

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316795AbSHTKp1>; Tue, 20 Aug 2002 06:45:27 -0400
+	id <S316842AbSHTKzc>; Tue, 20 Aug 2002 06:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSHTKp1>; Tue, 20 Aug 2002 06:45:27 -0400
-Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:10255 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S316795AbSHTKp1>;
-	Tue, 20 Aug 2002 06:45:27 -0400
-Subject: 2.4.20-pre{2-4} boot problems
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 20 Aug 2002 10:49:30 +0000
-Message-Id: <1029840571.2211.15.camel@barrabas>
+	id <S316845AbSHTKzc>; Tue, 20 Aug 2002 06:55:32 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:11963 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S316842AbSHTKzc>; Tue, 20 Aug 2002 06:55:32 -0400
+Date: Tue, 20 Aug 2002 12:36:37 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+Message-ID: <20020820123637.A800@linux-m68k.org>
+References: <Pine.LNX.4.44.0208191036040.11842-100000@home.transmeta.com> <Pine.LNX.4.44.0208192004110.30255-100000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0208192004110.30255-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Aug 19, 2002 at 08:08:10PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When booting any of the above (including -ac), I get the following
-message, 2.4.20-pre1-ac1 is what is currently running fine and the only
-pre1 kernel I've tried. I have reiserfs compiled in, same .config for
-all kernels.
+On Mon, Aug 19, 2002 at 08:08:10PM +0200, Ingo Molnar wrote:
+> 
+> On Mon, 19 Aug 2002, Linus Torvalds wrote:
+> 
+> > I'd be happy to apply this patch (well, your fixed version), but I think
+> > I'd prefer even more to make the whole reparenting go away, and keep the
+> > child list valid all through the lifetime of a process.  How painful
+> > could that be?
+> 
+> the problem is that the tracing task wants to do a wait4() on all traced
+> children, and the only way to get that is to have the traced tasks in the
+> child list. Eg. strace -f traces a random number of tasks, and after the
+> PTRACE_CONTINUE call, the wait4 done by strace must be able to 'get
+> events' from pretty much any of the traced tasks. So unless the ptrace
+> interface is reworked in an incompatible way, i cannot see how this would
+> work. wait4 could perhaps somehow search the whole tasklist, but that
+> could be a pretty big pain even for something like strace.
 
-Freeing initrd memory: 466K freed
-VFS: Mounted root (ext2 filesystem) kmod  failed to exec /sbin/modprobe
--s -k block-major-3, errno = 2
-VFS Cannot open root device "306" or 03:06
-Please append a correct "root=" boot option
-Kernel panic. VFS: Unable to mount rootfs on 03:06
-----------------------------------------------------
-	I have checked the Changelog and I'm at or above the recommended
-levels. I've tried bot gcc-2.95.3 and gcc-3.0.4 with same results.
-------------------------------------------------------------------
+the whole signal driven approach of ptrace is imho not very elegant
+and causes high overhead. So reworking the ptrace interface to avoid 
+signals would be a good idea. Instead of wait4 the tracer could eg 
+block or poll on read of /proc/#num/ptrace.
 
-barrabas:/home/lancelot # uname -r;mount
-2.4.20-pre1-ac1
-/dev/hda6 on / type reiserfs (rw)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,mode=0620,gid=5)
-/dev/hda1 on /boot type ext2 (rw)
-/dev/hdc1 on /usr1 type reiserfs (rw)
-/dev/sda1 on /data1 type reiserfs (rw)
-usbdevfs on /proc/bus/usb type usbdevfs (rw,devmode=0666)
-shmfs on /dev/shm type shm (rw)
-===================================================================
-mount: mount-2.11n
-
-Regards
--- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop
-
+Richard

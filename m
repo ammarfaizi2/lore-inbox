@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262697AbUCEUlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 15:41:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbUCEUlM
+	id S262698AbUCEUtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 15:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbUCEUtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 15:41:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42978 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262697AbUCEUlK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 15:41:10 -0500
-Date: Fri, 5 Mar 2004 12:41:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: mbligh@aracnet.com, mingo@elte.hu, peter@mysql.com, riel@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
- end)
-Message-Id: <20040305124119.756aab4c.akpm@osdl.org>
-In-Reply-To: <20040305202941.GT4922@dualathlon.random>
-References: <1078370073.3403.759.camel@abyss.local>
-	<20040303193343.52226603.akpm@osdl.org>
-	<1078371876.3403.810.camel@abyss.local>
-	<20040305103308.GA5092@elte.hu>
-	<20040305141504.GY4922@dualathlon.random>
-	<20040305143210.GA11897@elte.hu>
-	<20040305145837.GZ4922@dualathlon.random>
-	<39960000.1078512175@flay>
-	<20040305191329.GR4922@dualathlon.random>
-	<56050000.1078516505@flay>
-	<20040305202941.GT4922@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 5 Mar 2004 15:49:31 -0500
+Received: from mail.shareable.org ([81.29.64.88]:41351 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262698AbUCEUta
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 15:49:30 -0500
+Date: Fri, 5 Mar 2004 20:49:16 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: walt <wa1ter@myrealbox.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [2.6.x]  USB Zip drive kills ps2 mouse.
+Message-ID: <20040305204916.GC7254@mail.shareable.org>
+References: <20040301122450.69a1f36e.rddunlap@osdl.org> <20040301215851.737c433d.rddunlap@osdl.org> <40452AB3.2060400@myrealbox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40452AB3.2060400@myrealbox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> > > The main thing you didn't mention is the overhead in the per-cpu data
->  > > structures, that alone generates an overhead of several dozen mbytes
->  > > only in the page allocator, without accounting the slab caches,
->  > > pagetable caches etc.. putting an high limit to the per-cpu caches
->  > > should make a 32-way 32G work fine with 3:1 too though. 8-way is
->  > > fine with 32G currently.
->  > 
->  > Humpf. Do you have a hard figure on how much it actually is per cpu?
+> I've narrowed it down to the uhci_hcd module -- all the rest can
+> be compiled in or as modules, doesn't matter.
 > 
->  not a definitive one, but it's sure more than 2m per cpu, could be 3m
->  per cpu.
+> Just in case I was vague:  the Zip drive works great regardless --
+> it's only the ps2 mouse which is affected by this weird problem.
+> No cursor movement at all if the Zip is plugged in during boot.
 
-It'll average out to 68 pages per cpu.  (4 in ZONE_DMA, 64 in ZONE_NORMAL).
+I don't know if it's related, but whenever I load the uhci_hcd module
+on my laptop, or whenever I plug in a USB device while that module is
+loaded (sorry, I forget which and can't test it now) - the floppy disk
+motor and light are turned on for a couple of seconds!
 
-That's eight megs on 32-way.  Maybe it can be trimmed back a bit, but on
-32-way you probably want the locking amortisation more than the 8 megs.
+Now, why would a USB event trigger the floppy disk motor?  It doesn't
+happen with 2.4, and it doesn't happen on my desktop machine which is
+OHCI+EHCI.
 
-The settings we have in there are still pretty much guesswork.  I don't
-think anyone has done any serious tuning on them.  Any differences are
-likely to be small.
+Perhaps the uhci_hcd driver is trampling on some ISA I/O port that it
+shouldn't be, which is causing both my floppy motor oddity and your
+mouse problem?
 
-
+-- Jamie

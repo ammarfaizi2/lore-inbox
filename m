@@ -1,88 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265564AbSKABCM>; Thu, 31 Oct 2002 20:02:12 -0500
+	id <S265542AbSKABKh>; Thu, 31 Oct 2002 20:10:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265565AbSKABCM>; Thu, 31 Oct 2002 20:02:12 -0500
-Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:4226 "EHLO
-	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
-	id <S265564AbSKABCL>; Thu, 31 Oct 2002 20:02:11 -0500
-Date: Thu, 31 Oct 2002 20:06:07 -0500
-To: tytso@mit.edu, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] [BK] 0/11  Ext2/3 Updates: Extended attributes, ACL, etc.
-Message-ID: <20021101010607.GC1683@rivenstone.net>
-Mail-Followup-To: tytso@mit.edu, linux-kernel@vger.kernel.org,
-	zippel@linux-m68k.org
-References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net> <20021101004751.GB1683@rivenstone.net>
+	id <S265543AbSKABKh>; Thu, 31 Oct 2002 20:10:37 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:32275 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265542AbSKABKg>;
+	Thu, 31 Oct 2002 20:10:36 -0500
+Date: Thu, 31 Oct 2002 17:13:58 -0800
+From: Greg KH <greg@kroah.com>
+To: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
+Cc: andrew.grover@intel.com, jung-ik.lee@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: bare pci configuration access functions ?
+Message-ID: <20021101011358.GF12405@kroah.com>
+References: <20021101083717.IAAOC0A82650.6C9EC293@mvf.biglobe.ne.jp> <20021031235457.GF10689@kroah.com> <20021101092358.JADUC0A8264C.1C79D883@mvf.biglobe.ne.jp>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f+W+jCU1fRNres8c"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021101004751.GB1683@rivenstone.net>
+In-Reply-To: <20021101092358.JADUC0A8264C.1C79D883@mvf.biglobe.ne.jp>
 User-Agent: Mutt/1.4i
-From: jhf@rivenstone.net (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 31, 2002 at 04:23:56PM -0800, KOCHI, Takayoshi wrote:
+> 
+> On Thu, 31 Oct 2002 15:54:57 -0800
+> Greg KH <greg@kroah.com> wrote:
+> 
+> > > That's the way ACPI driver designers took and Linux can benefit
+> > > from other OS's feedback in OS-independent part.
+> > 
+> > Can I ask if any of the development for other OSs has actually helped
+> > Linux development?  I'm just curious.
+> 
+> FreeBSD's acpi project is a good example.
+> http://www.jp.freebsd.org/acpi/index.html
+> (though this page doesn't seem to reflect recent status)
+> 
+> They share the same code base (OS-independent part) as Linux
+> and troubles FreeBSD had are troubles Linux will have or vice versa.
+> 
+> Its mailing-list is based in Japan but most discussions
+> are in English and some intel developers are also in the list.
 
---f+W+jCU1fRNres8c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Nice, thanks for pointing that out.  But what about the fact that I
+think we can now start optimizing certain parts of the "generic" code to
+play nicer with Linux?
 
-On Thu, Oct 31, 2002 at 07:47:51PM -0500, Joseph Fannin wrote:
-> On Thu, Oct 31, 2002 at 07:24:19PM -0500, Joseph Fannin wrote:
-> > On Thu, Oct 31, 2002 at 03:28:29AM -0500, tytso@mit.edu wrote:
-> > > Hi Linus,
-> > >=20
-> > > I've updated the ext2/3 patches for 2.5.45.  All of these changes can
-> > > also be grabbed by pulling from:
-> > >=20
-> > > 	bk://extfs.bkbits.net/extfs-2.5-update
->=20
-> [build error]
->=20
->     Okay, this looks like it's a problem with the transition to
-> kconfig.  I have ext3 built in and ext2 built as a module, but
-> CONFIG_FS_MBCACHE=3Dm.  So the problem would be this bit, right?
->=20
-> # Meta block cache for Extended Attributes (ext2/ext3)
-> config FS_MBCACHE
->        tristate
->        depends on EXT2_FS_XATTR || EXT3_FS_XATTR
->        default m if EXT2_FS=3Dm || EXT3_FS=3Dm
->        default y if EXT2_FS=3Dy || EXT3_FS=3Dy
->=20
->     Which looks right -- it depends on either ext2 or ext3, and needs
-> to be built in if either of ext2 or ext3 are, but if both are modular
-> (or one is modular and the other is not built) then FS_MBCACHE should
-> be modular.  But it doesn't work.
+> AFAIK the aic7xxx driver has similar structure.
 
-    Okay, sorry for all the mails.
+Some other SCSI drivers have this kind of structure.  And in the end,
+it's a big pain.  If it makes the aic7xxx driver author's life easier,
+all the better, as he's doing that work.  I just hope the upcoming 2.5
+scsi core changes will not mess with him too much.
 
-    "If multiple default statements are visible only the first is
-used."
+And that's the biggest problem with portions of code that try to be "os
+independent", it usually causes bloat, and keeps other developers from
+trying to help out with the project (any change I would make would most
+likely be a Linux specific change, and be refused by the maintainer.)
+It requires yet another "shim" layer between the driver's core logic,
+and the OS, and the kernel sure doesn't need anymore of those...
 
-    So the two default lines above need to be reversed.  This seems
-backwards to me (the last should be used), but I've said enough.
+OS independent drivers have been proven to not work, you don't see UDI
+in production use now do you?
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+Now I don't mean this to be an ACPI rant, I know why they did their code
+this way, and without it, there probably would not be any ACPI Linux
+code.  I just don't think it's the best way (from an engineering
+standpoint) to do things.  And again, we are getting way off topic from
+the original problem, sorry.
 
-"For future reference - don't anybody else try to send patches as vi
-scripts, please. Yes, it's manly, but let's face it, so is bungee-jumping
-with the cord tied to your testicles." -- Linus Torvalds
+thanks,
 
---f+W+jCU1fRNres8c
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9wdN/Wv4KsgKfSVgRAkOBAKCMX3igU+Bd4/uaCD0c2NFhN0qBoACeIdGF
-Icodgx+N0OIkA8uHpSsR5Dg=
-=BNaJ
------END PGP SIGNATURE-----
-
---f+W+jCU1fRNres8c--
+greg k-h

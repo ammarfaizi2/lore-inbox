@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbTEGJaG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 05:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263072AbTEGJaG
+	id S263029AbTEGJfX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 05:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263047AbTEGJfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 05:30:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9105 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263071AbTEGJaF (ORCPT
+	Wed, 7 May 2003 05:35:23 -0400
+Received: from zero.aec.at ([193.170.194.10]:21775 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263029AbTEGJfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 05:30:05 -0400
-Date: Wed, 7 May 2003 11:42:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 654] New: Floppy access locks system with endless stream of errors
-Message-ID: <20030507094234.GE823@suse.de>
-References: <Pine.SOL.4.30.0305051932070.27113-100000@mion.elka.pw.edu.pl> <Pine.SOL.4.30.0305052053220.27113-100000@mion.elka.pw.edu.pl>
+	Wed, 7 May 2003 05:35:22 -0400
+Date: Wed, 7 May 2003 11:47:52 +0200
+From: Andi Kleen <ak@muc.de>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix .altinstructions linking failures
+Message-ID: <20030507094752.GA4050@averell>
+References: <20030506063055.GA15424@averell> <20030507092329.GA2389@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0305052053220.27113-100000@mion.elka.pw.edu.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030507092329.GA2389@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05 2003, Bartlomiej Zolnierkiewicz wrote:
-> 
-> Okay, this one is fixed but people keep reporting there is more
-> to be done. So floppy still is not 2.6 ready.
+[cc list trimmed]
 
-2.5.69 works for me...
+On Wed, May 07, 2003 at 11:23:29AM +0200, Jörn Engel wrote:
+> I've been a bit sceptical of the whole .altinstructions idea,
+> self-modifying code opens a can of worms for anyone trying to do code
+> analysis (coverage, verification,...). But with this followup, I
+> personally pay money to get that stuff ripped out again.
 
--- 
-Jens Axboe
+Ok. How much do you pay ? ;@)
 
+Seriously. To give some numbers. This is the maxi kernel (about 8MB .text,
+everything compiled in that compiles in 2.5.69) which is far too big to even 
+even boot.
+
+ 20 .exit.text    00005afa  c0ada3d0  c0ada3d0  009db3d0  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+
+About 20k from 8MB
+
+On a realistic kernel that actually boots we are talking about 1-2KB,
+probably even less. If you really wanted to combat bloat there are a lot 
+other areas where you can avoid much more than 2KB with minimum effort.
+Just go through include/linux/* and move a few unnecessary inlines away, that
+will help much more. If you want to save real memory attack mem_map, like
+I proposed earlier.
+
+-Andi
+
+P.S.: In case someone is interested: The hall of shame for the 2.5.69 SMP
+maxi kernel (stuff that doesn't build) currently is:  Sound/Alsa (one driver 
+doesn't compile), USB (3 drivers don't compile), MTD (lots of stuff doesn't 
+compile).  Everything else is quite good.

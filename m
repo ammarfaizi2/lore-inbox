@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263303AbVCKNau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263308AbVCKN3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbVCKNau (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 08:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbVCKNau
+	id S263308AbVCKN3q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 08:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbVCKN3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 08:30:50 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:204 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S263303AbVCKNai (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 08:30:38 -0500
-Date: Fri, 11 Mar 2005 14:30:36 +0100
-From: maximilian attems <janitor@sternwelten.at>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: [patch] cyrix eliminate bad section references
-Message-ID: <20050311133036.GA10599@sputnik.stro.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 11 Mar 2005 08:29:45 -0500
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:48374
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S263308AbVCKN3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 08:29:35 -0500
+Message-ID: <42319D2D.7060402@ev-en.org>
+Date: Fri, 11 Mar 2005 13:29:17 +0000
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Fabio Coatti <fabio.coatti@wseurope.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Simone Piunno <simone.piunno@wseurope.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bonnie++ uninterruptible under heavy I/O load
+References: <200503111208.20283.simone.piunno@wseurope.com> <200503111335.56782.vda@port.imtp.ilyichevsk.odessa.ua> <200503111420.52890.fabio.coatti@wseurope.com>
+In-Reply-To: <200503111420.52890.fabio.coatti@wseurope.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix cyrix section references:
- convert __initdata to __devinitdata.
+Fabio Coatti wrote:
+> Alle 12:35, venerdì 11 marzo 2005, Denis Vlasenko ha scritto:
+> 
+>>>Unresponsiveness is not 2.6.11 specific (we've seen the same thing on
+>>>2.6.10 and 2.6.8), not I/O scheduler specific ("as" and "deadline" behave
+>>>the same) and not CPU/SMP specific (reproduced on single P4 HT and single
+>>>P3), but only on these two DL585 servers we've seen bonnie++ resisting
+>>>kill -9 for tens of seconds.
+>>>
+>>>Of course on request I can provide any other useful info.
+>>>Any help is appreciated.
+>>
+>>I think Alt-SysRq-T will be interesting to see
+> 
+> Unfortunately this machine is on a remote location, so we don't have access to 
+> keyboard. In some days we will be able to have a report of Alt-SysRq-T, but 
+> until this  of course we can provide any information that can be gathered on 
+> a remote shell.
 
-Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 00000379
-R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 00000399
-R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 000003b3
-R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 000003b9
-R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 000003bf
-R_386_32          .init.data
+echo t > /proc/sysrq-trigger
 
-not many left on my .config, thanks Randy!
+will do the job equivalently.
 
+Baruch
 
-signed-of-by: maximilian attems <janitor@sternwelten.at>
-
-
-
-diff -pruN -X dontdiff linux-2.6.11-bk6/arch/i386/kernel/cpu/mtrr/cyrix.c linux-2.6.11-bk6-max/arch/i386/kernel/cpu/mtrr/cyrix.c
---- linux-2.6.11-bk6/arch/i386/kernel/cpu/mtrr/cyrix.c	2005-03-11 09:28:05.000000000 +0100
-+++ linux-2.6.11-bk6-max/arch/i386/kernel/cpu/mtrr/cyrix.c	2005-03-11 14:15:33.000000000 +0100
-@@ -218,12 +218,12 @@ typedef struct {
- 	mtrr_type type;
- } arr_state_t;
- 
--static arr_state_t arr_state[8] __initdata = {
-+static arr_state_t arr_state[8] __devinitdata = {
- 	{0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL},
- 	{0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}
- };
- 
--static unsigned char ccr_state[7] __initdata = { 0, 0, 0, 0, 0, 0, 0 };
-+static unsigned char ccr_state[7] __devinitdata = { 0, 0, 0, 0, 0, 0, 0 };
- 
- static void cyrix_set_all(void)
- {

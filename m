@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTIGLzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 07:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263223AbTIGLzs
+	id S262994AbTIGMKp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 08:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTIGMKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 07:55:48 -0400
-Received: from babsi.intermeta.de ([212.34.184.3]:4102 "EHLO mail.intermeta.de")
-	by vger.kernel.org with ESMTP id S263195AbTIGLzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 07:55:47 -0400
-Subject: Re: bandwidth for bkbits.net (good news)
-From: Henning Schmiedehausen <hps@intermeta.de>
-Reply-To: hps@intermeta.de
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.33.0309051231110.13584-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0309051231110.13584-100000@sweetums.bluetronic.net>
-Content-Type: text/plain
-Organization: INTERMETA - Gesellschaft  =?ISO-8859-1?Q?=20f=C3=BCr?= Mehrwertdienste mbH
-Message-Id: <1062935718.5167.0.camel@uzi.hutweide.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Sep 2003 13:55:18 +0200
+	Sun, 7 Sep 2003 08:10:45 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:7381
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S262994AbTIGMKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 08:10:44 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: 2.6.0-test4-mm5 and below: Wine and XMMS problems
+Date: Sun, 7 Sep 2003 22:18:27 +1000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <20030902231812.03fae13f.akpm@osdl.org> <20030907100843.GM14436@fs.tum.de>
+In-Reply-To: <20030907100843.GM14436@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -5.2 () BAYES_00
+Content-Disposition: inline
+Message-Id: <200309072218.28116.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 18:43, Ricky Beam wrote:
-
-On 5 Sep 2003, Henning Schmiedehausen wrote:
-> >225kpps * 64 Bytes (minimum packet len) = 13,7 MBytes / sec
+On Sun, 7 Sep 2003 20:08, Adrian Bunk wrote:
+> On Tue, Sep 02, 2003 at 11:18:12PM -0700, Andrew Morton wrote:
+> >...
+> > . Dropped out Con's CPU scheduler work, added Nick's.  This is to help us
+> >   in evaluating the stability, efficacy and relative performance of
+> > Nick's work.
 > >
-> >100 MBit / 8 bit = 12,5 MBytes / sec
-> >
-> >So, IMHO even with a small packet saturated 100 MBit link you won't
-> >reach 225kpps. AFAIK this was Ciscos intention to publish this number.
-> >It basically says "you will have filled your link before you fill our
-> >router".
-> 
-> 64B is the minimum ETHERNET frame size.  That isn't true for PPP, HDLC,
-> Frame relay, ATM, etc.
+> >   We're looking for feedback on the subjective behaviour and on the usual
+> >   server benchmarks please.
+> >...
+>
+> Short story:
+>
+> I'm still using 2.5.72, all of the 2.6.0-test?{,-mm?} kernels have
+> problems
 
-We were talking 100 MBit Ethernet, weren't we? ;-)
+What's your X and xmms nice values? Many X servers are reniced to -10 and some 
+shells spawn new apps at nice 5. After that the most common thing I find in 
+reports are upgrades to newer kernels losing hard disk dma at some stage (due 
+to config changes/movements) and it not being noticed.
 
-	Regards
-		Henning
-
+Con
 

@@ -1,67 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264340AbTEHAZs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 20:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTEHAZs
+	id S264196AbTEHAfT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 20:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbTEHAfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 20:25:48 -0400
-Received: from hypatia.llnl.gov ([134.9.11.73]:20096 "EHLO hypatia.llnl.gov")
-	by vger.kernel.org with ESMTP id S264340AbTEHAZq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 20:25:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Peterson <dsp@llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] fixes for linked list bugs in block I/O code
-Date: Wed, 7 May 2003 17:38:09 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, davej@suse.de
-References: <Pine.SOL.4.30.0305080214580.5113-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0305080214580.5113-100000@mion.elka.pw.edu.pl>
+	Wed, 7 May 2003 20:35:19 -0400
+Received: from web14006.mail.yahoo.com ([216.136.175.122]:12044 "HELO
+	web14006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264196AbTEHAfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 20:35:18 -0400
+Message-ID: <20030508004753.74841.qmail@web14006.mail.yahoo.com>
+Date: Wed, 7 May 2003 17:47:53 -0700 (PDT)
+From: Tony Spinillo <tspinillo@yahoo.com>
+Subject: Re: Kernel Panic - IDE-SCSI
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305071738.09209.dsp@llnl.gov>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 May 2003 05:26 pm, Bartlomiej Zolnierkiewicz wrote:
-> On Wed, 7 May 2003, Dave Peterson wrote:
-> > On Wednesday 07 May 2003 04:42 pm, Bartlomiej Zolnierkiewicz wrote:
-> > > > ========== START OF 2.5.69 PATCH FOR drivers/block/ll_rw_blk.c
-> > > > =========== --- ll_rw_blk.c.old     Wed May  7 15:55:18 2003
-> > > > +++ ll_rw_blk.c.new     Wed May  7 16:01:56 2003
-> > > > @@ -1721,6 +1721,7 @@
-> > > >                                 break;
-> > > >                         }
-> > > >
-> > > > +                       bio->bi_next = req->biotail->bi_next;
-> > >
-> > > This is simply wrong, look at the line below.
-> > >
-> > > >                         req->biotail->bi_next = bio;
-> > >
-> > > req->bio - first bio
-> > > req->bio->bi_next - next bio
-> > > ...
-> > > req->biotail - last bio
-> > >
-> > > so req->biotail->bi_next should be NULL
-> >
-> > I believe it is correct.  Assuming that the list is initially in a
-> > sane state, req->biotail->bi_next will be NULL immediately before
-> > executing the statement that I added.  Therefore, my fix will set
-> > bio->bi_next to NULL, which is what we want because bio becomes the
-> > new end of the list.
->
-> Yes, but bio->bi_next is a NULL already.
+Same here. 
 
-I think assuming this is bad programming form.  You are assuming that
-the memory allocator zeros out newly allocated memory.  Though your
-assumption may be correct, it's always possible that this behavior will
-change some day (perhaps for efficiency reasons), causing your code
-to break.  In my opinion, the savings of a few cpu clock cycles that
-you gain by omitting the initialization isn't worth compromising
-the robustness of your code.
+Kernel 2.4.21-pre1 with RedHat 9. INTEL 845PESVL motherboard. 
+It oopses and logs me off from the console.
+Thanks,
 
--Dave
+T
+
+Here is my oops:
+
+ksymoops 2.4.9 on i686 2.4.21-rc1b.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21-rc1b/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+kernel: Unable to handle kernel NULL pointer dereference at virtual
+address 00000000
+kernel: 00000000
+kernel: *pde = 00000000
+kernel: Oops: 0000
+kernel: CPU:    0
+kernel: EIP:    0010:[<00000000>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+kernel: EFLAGS: 00010246
+kernel: eax: f6e33f70   ebx: 00000004   ecx: 00000000   edx: c03398e0
+kernel: esi: f6e1b000   edi: f7e5b680   ebp: 00000004   esp: f6e33f54
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process bash (pid: 13515, stackpage=f6e33000)
+kernel: Stack: c021c590 f6e1b000 f6e33f70 00000000 00000004 00000002
+00000001 0000000a 
+kernel:        00000000 f7805c00 ffffffea c015daf0 f7805c00 080e8408
+00000004 f7e5b680 
+kernel:        c013d1f3 f7805c00 080e8408 00000004 f7805c20 00000003
+00000000 f6e32000 
+kernel: Call Trace:    [<c021c590>] [<c015daf0>] [<c013d1f3>]
+[<c01090ef>]
+kernel: Code:  Bad EIP value.
+>>EIP; 00000000 Before first symbol
+>>eax; f6e33f70 <_end+36a78878/3848c968>
+>>edx; c03398e0 <idescsi_template+0/80>
+>>esi; f6e1b000 <_end+36a5f908/3848c968>
+>>edi; f7e5b680 <_end+37a9ff88/3848c968>
+>>esp; f6e33f54 <_end+36a7885c/3848c968>
+
+Trace; c021c590 <proc_scsi_write+a0/c0>
+Trace; c015daf0 <proc_file_write+40/50>
+Trace; c013d1f3 <sys_write+a3/140>
+Trace; c01090ef <system_call+33/38>
+
+1 warning issued.  Results may not be reliable.
+

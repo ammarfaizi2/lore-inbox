@@ -1,78 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269208AbUIYD0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUIYD2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269208AbUIYD0f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 23:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269213AbUIYD0e
+	id S269214AbUIYD2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 23:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269213AbUIYD1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 23:26:34 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:18044 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269209AbUIYD0F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 23:26:05 -0400
-Subject: Re: 2.6.9-rc2-mm3
-From: Paul Fulghum <paulkf@microgate.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20040925013135.GJ9106@holomorphy.com>
-References: <Xine.LNX.4.44.0409241127220.7816-300000@thoron.boston.redhat.com>
-	 <Xine.LNX.4.44.0409241210220.8009-100000@thoron.boston.redhat.com>
-	 <20040925013135.GJ9106@holomorphy.com>
-Content-Type: text/plain
-Message-Id: <1096082711.7111.38.camel@at2.pipehead.org>
+	Fri, 24 Sep 2004 23:27:04 -0400
+Received: from holomorphy.com ([207.189.100.168]:55012 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269211AbUIYD0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 23:26:22 -0400
+Date: Fri, 24 Sep 2004 20:26:16 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [sched.h 6/8] move aio include to mm.h
+Message-ID: <20040925032616.GR9106@holomorphy.com>
+References: <20040925024513.GL9106@holomorphy.com> <20040925024917.GM9106@holomorphy.com> <20040925025304.GN9106@holomorphy.com> <20040925030802.GO9106@holomorphy.com> <20040925031912.GP9106@holomorphy.com> <20040925032419.GQ9106@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 24 Sep 2004 22:25:11 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040925032419.GQ9106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-24 at 20:31, William Lee Irwin III wrote:
-> Thanks for tracking these down. Those appear to be the culprits here
-> also. Are there patches implementing the fixes Paul Fulghum suggested
-> yet? Successful bootlog on 4x x86-64 included as a MIME attachment.
+On Fri, Sep 24, 2004 at 08:24:19PM -0700, William Lee Irwin III wrote:
+> This patch moves mm_struct and the helpers to handle it into mm.h
 
-My suggestion was flawed in that it could
-violate POSIX requirements (as Russell pointed out).
+This patch moves the aio inclusion from sched.h to mm.h, while leaving
+workqueue.h directly included by sched.h; a large sweep is required to
+clean up drivers including workqueue.h indirectly via sched.h
 
-Removing the lock from tty_termios_baud_rate(), tty_io.c
-corrects the problem for the path from change_termios()
-to tty_termios_baud_rate(), which is causing the deadlock.
 
-This may not be, and probably is not,
-correct for all paths to tty_termios_baud_rate().
+-- wli
 
-The following patch (against 2.6.9-rc2-mm3)
-fixes the deadlock for testing purposes,
-but is not a complete solution.
-
-As Alan works through this feedback,
-the final fix will emerge.
-
--- 
-Paul Fulghum
-paulkf@microgate.com
-
---- a/drivers/char/tty_io.c	2004-09-24 22:12:40.000000000 -0500
-+++ b/drivers/char/tty_io.c	2004-09-24 22:14:53.000000000 -0500
-@@ -2478,9 +2478,7 @@
- int tty_termios_baud_rate(struct termios *termios)
- {
- 	unsigned int cbaud;
--	unsigned long flags;
+Index: mm3-2.6.9-rc2/fs/ext3/file.c
+===================================================================
+--- mm3-2.6.9-rc2.orig/fs/ext3/file.c	2004-09-24 17:37:18.000000000 -0700
++++ mm3-2.6.9-rc2/fs/ext3/file.c	2004-09-24 19:22:09.556759880 -0700
+@@ -23,6 +23,7 @@
+ #include <linux/jbd.h>
+ #include <linux/ext3_fs.h>
+ #include <linux/ext3_jbd.h>
++#include <linux/aio.h>
+ #include "xattr.h"
+ #include "acl.h"
  
--	spin_lock_irqsave(&tty_termios_lock, flags);
- 	cbaud = termios->c_cflag & CBAUD;
+Index: mm3-2.6.9-rc2/include/linux/mm.h
+===================================================================
+--- mm3-2.6.9-rc2.orig/include/linux/mm.h	2004-09-24 19:08:34.310696120 -0700
++++ mm3-2.6.9-rc2/include/linux/mm.h	2004-09-24 19:17:00.863688360 -0700
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/aio.h>
  
- 	if (cbaud & CBAUDEX) {
-@@ -2491,7 +2489,6 @@
- 		else
- 			cbaud += 15;
- 	}
--	spin_unlock_irqrestore(&tty_termios_lock, flags);
- 	return baud_table[cbaud];
- }
+ struct mempolicy;
+ struct anon_vma;
+Index: mm3-2.6.9-rc2/include/linux/sched.h
+===================================================================
+--- mm3-2.6.9-rc2.orig/include/linux/sched.h	2004-09-24 19:07:27.493853824 -0700
++++ mm3-2.6.9-rc2/include/linux/sched.h	2004-09-24 19:16:49.428426784 -0700
+@@ -14,6 +14,7 @@
+ #include <linux/thread_info.h>
+ #include <linux/cpumask.h>
+ #include <linux/nodemask.h>
++#include <linux/workqueue.h>
  
-
-
+ #include <asm/system.h>
+ #include <asm/semaphore.h>
+@@ -176,8 +177,6 @@
+ 
+ extern int sysctl_max_map_count;
+ 
+-#include <linux/aio.h>
+-
+ struct sighand_struct {
+ 	atomic_t		count;
+ 	struct k_sigaction	action[_NSIG];

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314469AbSDSC3g>; Thu, 18 Apr 2002 22:29:36 -0400
+	id <S314515AbSDSCcf>; Thu, 18 Apr 2002 22:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314473AbSDSC3e>; Thu, 18 Apr 2002 22:29:34 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:6885 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S314469AbSDSC3b>;
-	Thu, 18 Apr 2002 22:29:31 -0400
-Date: Thu, 18 Apr 2002 19:28:00 -0700
+	id <S314516AbSDSCcd>; Thu, 18 Apr 2002 22:32:33 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:23781 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S314515AbSDSCbN>;
+	Thu, 18 Apr 2002 22:31:13 -0400
+Date: Thu, 18 Apr 2002 19:29:39 -0700
 To: Jeff Garzik <jgarzik@mandrakesoft.com>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         irda-users@lists.sourceforge.net
-Subject: [PATCH] : ir258_flow_sched_lap_lmp-6.diff
-Message-ID: <20020418192800.B988@bougret.hpl.hp.com>
+Subject: [PATCH] : ir258_wait_event_fixes-2.diff
+Message-ID: <20020418192939.D988@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,216 +24,281 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir258_flow_sched_lap_lmp-6.diff :
--------------------------------
-		<Won't compile without ir258_flow_sched_ttp-6.diff>
-	o [FEATURE] Reduce LAP Tx queue to 2 packets (from 10)
-		Improve latency, reduce buffer usage
-	o [FEATURE] LAP Tx queue not full notification (flow start)
-		Poll higher layer to fill synchronously LAP window (7 packets)
-	o [FEATURE] LMP LSAP scheduler
-		Ensure Tx fairness between LSAPs (sockets, IrCOMM, IrNET...)
+ir258_wait_event_fixes-2.diff :
+-----------------------------
+	        <Following patch from Martin Diehl, mangled by me>
+	o [FEATURE] Replace interruptible_sleep_on() with wait_event().
+		Most races were taken care off, but cleaner anyway
 
-------------------------------------
+--------------------------------------------
 
-diff -u -p -r linux/include/net/irda/irlap.d6.h linux/include/net/irda/irlap.h
---- linux/include/net/irda/irlap.d6.h	Wed Apr 10 14:04:21 2002
-+++ linux/include/net/irda/irlap.h	Wed Apr 10 16:31:38 2002
-@@ -52,8 +52,32 @@
- #define CBROADCAST 0xfe       /* Connection broadcast address */
- #define XID_FORMAT 0x01       /* Discovery XID format */
+diff -u -p linux/net/irda/ircomm/ircomm_tty.d7.c linux/net/irda/ircomm/ircomm_tty.c
+--- linux/net/irda/ircomm/ircomm_tty.d7.c	Wed Apr 10 16:44:12 2002
++++ linux/net/irda/ircomm/ircomm_tty.c	Wed Apr 10 16:44:40 2002
+@@ -453,8 +453,21 @@ static int ircomm_tty_open(struct tty_st
+ 	 */
+ 	if (tty_hung_up_p(filp) ||
+ 	    (self->flags & ASYNC_CLOSING)) {
+-		if (self->flags & ASYNC_CLOSING)
+-			interruptible_sleep_on(&self->close_wait);
++
++		/* Hm, why are we blocking on ASYNC_CLOSING if we
++		 * do return -EAGAIN/-ERESTARTSYS below anyway?
++		 * IMHO it's either not needed in the first place
++		 * or for some reason we need to make sure the async
++		 * closing has been finished - if so, wouldn't we
++		 * probably better sleep uninterruptible?
++		 */
++
++		if (wait_event_interruptible(self->close_wait, !(self->flags&ASYNC_CLOSING))) {
++			WARNING("%s - got signal while blocking on ASYNC_CLOSING!\n",
++				__FUNCTION__);
++			return -ERESTARTSYS;
++		}
++
+ 		/* MOD_DEC_USE_COUNT; "info->tty" will cause this? */
+ #ifdef SERIAL_DO_RESTART
+ 		return ((self->flags & ASYNC_HUP_NOTIFY) ?
+diff -u -p linux/net/irda/af_irda.d7.c linux/net/irda/af_irda.c
+--- linux/net/irda/af_irda.d7.c	Wed Apr 10 16:44:21 2002
++++ linux/net/irda/af_irda.c	Fri Apr 12 16:25:19 2002
+@@ -568,15 +568,17 @@ static int irda_find_lsap_sel(struct ird
+ 	if(self->iriap == NULL)
+ 		return -ENOMEM;
  
-+/* Nobody seems to use this constant. */
- #define LAP_WINDOW_SIZE 8
--#define LAP_MAX_QUEUE  10
-+/* We keep the LAP queue very small to minimise the amount of buffering.
-+ * this improve latency and reduce resource consumption.
-+ * This work only because we have synchronous refilling of IrLAP through
-+ * the flow control mechanism (via scheduler and IrTTP).
-+ * 2 buffers is the minimum we can work with, one that we send while polling
-+ * IrTTP, and another to know that we should not send the pf bit.
-+ * Jean II */
-+#define LAP_HIGH_THRESHOLD     2
-+/* Some rare non TTP clients don't implement flow control, and
-+ * so don't comply with the above limit (and neither with this one).
-+ * For IAP and management, it doesn't matter, because they never transmit much.
-+ *.For IrLPT, this should be fixed.
-+ * - Jean II */
-+#define LAP_MAX_QUEUE 10
-+/* Please note that all IrDA management frames (LMP/TTP conn req/disc and
-+ * IAS queries) fall in the second category and are sent to LAP even if TTP
-+ * is stopped. This means that those frames will wait only a maximum of
-+ * two (2) data frames before beeing sent on the "wire", which speed up
-+ * new socket setup when the link is saturated.
-+ * Same story for two sockets competing for the medium : if one saturates
-+ * the LAP, when the other want to transmit it only has to wait for
-+ * maximum three (3) packets (2 + one scheduling), which improve performance
-+ * of delay sensitive applications.
-+ * Jean II */
+-	/* Treat unexpected signals as disconnect */
++	/* Treat unexpected wakeup as disconnect */
+ 	self->errno = -EHOSTUNREACH;
  
- #define NR_EXPECTED     1
- #define NR_UNEXPECTED   0
-diff -u -p -r linux/include/net/irda/irlmp.d6.h linux/include/net/irda/irlmp.h
---- linux/include/net/irda/irlmp.d6.h	Wed Apr 10 16:30:08 2002
-+++ linux/include/net/irda/irlmp.h	Wed Apr 10 16:31:38 2002
-@@ -132,6 +132,7 @@ struct lap_cb {
+ 	/* Query remote LM-IAS */
+ 	iriap_getvaluebyclass_request(self->iriap, self->saddr, self->daddr,
+ 				      name, "IrDA:TinyTP:LsapSel");
+-	/* Wait for answer (if not already failed) */
+-	if(self->iriap != NULL)
+-		interruptible_sleep_on(&self->query_wait);
++
++	/* Wait for answer, if not yet finished (or failed) */
++	if (wait_event_interruptible(self->query_wait, (self->iriap==NULL)))
++		/* Treat signals as disconnect */
++		return -EHOSTUNREACH;
  
- 	struct irlap_cb *irlap;   /* Instance of IrLAP layer */
- 	hashbin_t *lsaps;         /* LSAP associated with this link */
-+	struct lsap_cb *flow_next;	/* Next lsap to be polled for Tx */
+ 	/* Check what happened */
+ 	if (self->errno)
+@@ -877,16 +879,47 @@ static int irda_accept(struct socket *so
+ 	 *	The read queue this time is holding sockets ready to use
+ 	 *	hooked into the SABM we saved
+ 	 */
+-	do {
+-		if ((skb = skb_dequeue(&sk->receive_queue)) == NULL) {
+-			if (flags & O_NONBLOCK)
+-				return -EWOULDBLOCK;
  
- 	__u8  caddr;  /* Connection address */
-  	__u32 saddr;  /* Source device address */
-@@ -235,6 +236,7 @@ void irlmp_connless_data_indication(stru
+-			interruptible_sleep_on(sk->sleep);
+-			if (signal_pending(current)) 
+-				return -ERESTARTSYS;
++	/*
++	 * We can perform the accept only if there is incomming data
++	 * on the listening socket.
++	 * So, we will block the caller until we receive any data.
++	 * If the caller was waiting on select() or poll() before
++	 * calling us, the data is waiting for us ;-)
++	 * Jean II
++	 */
++	skb = skb_dequeue(&sk->receive_queue);
++	if (skb == NULL) {
++		int ret = 0;
++		DECLARE_WAITQUEUE(waitq, current);
++
++		/* Non blocking operation */
++		if (flags & O_NONBLOCK)
++			return -EWOULDBLOCK;
++
++		/* The following code is a cut'n'paste of the
++		 * wait_event_interruptible() macro.
++		 * We don't us the macro because the condition has
++		 * side effects : we want to make sure that only one
++		 * skb get dequeued - Jean II */
++		add_wait_queue(sk->sleep, &waitq);
++		for (;;) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			skb = skb_dequeue(&sk->receive_queue);
++			if (skb != NULL)
++				break;
++			if (!signal_pending(current)) {
++				schedule();
++				continue;
++			}
++			ret = -ERESTARTSYS;
++			break;
+ 		}
+-	} while (skb == NULL);
++		current->state = TASK_RUNNING;
++		remove_wait_queue(sk->sleep, &waitq);
++		if(ret)
++			return -ERESTARTSYS;
++	}
  
- void irlmp_status_request(void);
- void irlmp_status_indication(struct lap_cb *, LINK_STATUS link, LOCK_STATUS lock);
-+void irlmp_flow_indication(struct lap_cb *self, LOCAL_FLOW flow);
+  	newsk = newsock->sk;
+ 	newsk->state = TCP_ESTABLISHED;
+@@ -1024,19 +1057,9 @@ static int irda_connect(struct socket *s
+ 	if (sk->state != TCP_ESTABLISHED && (flags & O_NONBLOCK))
+ 		return -EINPROGRESS;
  
- int  irlmp_slsap_inuse(__u8 slsap);
- __u8 irlmp_find_free_slsap(void);
-@@ -252,7 +254,9 @@ extern struct irlmp_cb *irlmp;
+-	/* Here, there is a race condition : the state may change between
+-	 * our test and the sleep, via irda_connect_confirm().
+-	 * The way to workaround that is to sleep with a timeout, so that
+-	 * we don't sleep forever and check the state when waking up.
+-	 * 50ms is plenty good enough, because the LAP is already connected.
+-	 * Jean II */
+-	while (sk->state == TCP_SYN_SENT) {
+-		interruptible_sleep_on_timeout(sk->sleep, HZ/20);
+-		if (signal_pending(current)) {
+-			return -ERESTARTSYS;
+-		}
+-	}
+-	
++	if (wait_event_interruptible(*(sk->sleep), (sk->state!=TCP_SYN_SENT)))
++		return -ERESTARTSYS;
++
+ 	if (sk->state != TCP_ESTABLISHED) {
+ 		sock->state = SS_UNCONNECTED;
+ 		return sock_error(sk);	/* Always set at this point */
+@@ -1280,17 +1303,14 @@ static int irda_sendmsg(struct socket *s
+ 	ASSERT(self != NULL, return -1;);
  
- static inline hashbin_t *irlmp_get_cachelog(void) { return irlmp->cachelog; }
+ 	/* Check if IrTTP is wants us to slow down */
+-	while (self->tx_flow == FLOW_STOP) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IrTTP is busy, going to sleep!\n");
+-		interruptible_sleep_on(sk->sleep);
+-		
+-		/* Check if we are still connected */
+-		if (sk->state != TCP_ESTABLISHED)
+-			return -ENOTCONN;
+-		/* Handle signals */
+-		if (signal_pending(current)) 
+-			return -ERESTARTSYS;
+-	}
++
++	if (wait_event_interruptible(*(sk->sleep),
++	    (self->tx_flow != FLOW_STOP  ||  sk->state != TCP_ESTABLISHED)))
++		return -ERESTARTSYS;
++
++	/* Check if we are still connected */
++	if (sk->state != TCP_ESTABLISHED)
++		return -ENOTCONN;
  
--static inline int irlmp_get_lap_tx_queue_len(struct lsap_cb *self)
-+/* Check if LAP queue is full.
-+ * Used by IrTTP for low control, see comments in irlap.h - Jean II */
-+static inline int irlmp_lap_tx_queue_full(struct lsap_cb *self)
+ 	/* Check that we don't send out to big frames */
+ 	if (len > self->max_data_size) {
+@@ -1382,14 +1402,23 @@ static int irda_recvmsg_dgram(struct soc
+  *
+  *    Sleep until data has arrive. But check for races..
+  *
++ *    The caller is expected to deal with the situation when we return
++ *    due to pending signals. And even if not, the peeked skb might have
++ *    been already dequeued due to concurrent operation.
++ *    Currently irda_recvmsg_stream() is the only caller and is ok.
++ * Return 0 if condition packet has arrived, -ERESTARTSYS if signal_pending()
++ * Only used once in irda_recvmsg_stream() -> inline
+  */
+-static void irda_data_wait(struct sock *sk)
++static inline int irda_data_wait(struct sock *sk)
  {
- 	if (self == NULL)
- 		return 0;
-@@ -261,7 +265,7 @@ static inline int irlmp_get_lap_tx_queue
- 	if (self->lap->irlap == NULL)
- 		return 0;
- 
--	return IRLAP_GET_TX_QUEUE_LEN(self->lap->irlap);
-+	return(IRLAP_GET_TX_QUEUE_LEN(self->lap->irlap) >= LAP_HIGH_THRESHOLD);
- }
- 
- /* After doing a irlmp_dup(), this get one of the two socket back into
-diff -u -p -r linux/net/irda/irlap_event.d6.c linux/net/irda/irlap_event.c
---- linux/net/irda/irlap_event.d6.c	Wed Apr 10 16:30:34 2002
-+++ linux/net/irda/irlap_event.c	Wed Apr 10 16:31:38 2002
-@@ -253,19 +253,45 @@ void irlap_do_event(struct irlap_cb *sel
- 	case LAP_XMIT_P: /* FALLTHROUGH */
- 	case LAP_XMIT_S:
- 		/* 
-+		 * We just received the pf bit and are at the beginning
-+		 * of a new LAP transmit window.
- 		 * Check if there are any queued data frames, and do not
- 		 * try to disconnect link if we send any data frames, since
- 		 * that will change the state away form XMIT
- 		 */
-+		IRDA_DEBUG(2, __FUNCTION__ "() : queue len = %d\n",
-+			   skb_queue_len(&self->txq));
-+
- 		if (skb_queue_len(&self->txq)) {
- 			/* Prevent race conditions with irlap_data_request() */
- 			self->local_busy = TRUE;
- 
-+			/* Theory of operation.
-+			 * We send frames up to when we fill the window or
-+			 * reach line capacity. Those frames will queue up
-+			 * in the device queue, and the driver will slowly
-+			 * send them.
-+			 * After each frame that we send, we poll the higher
-+			 * layer for more data. It's the right time to do
-+			 * that because the link layer need to perform the mtt
-+			 * and then send the first frame, so we can afford
-+			 * to send a bit of time in kernel space.
-+			 * The explicit flow indication allow to minimise
-+			 * buffers (== lower latency), to avoid higher layer
-+			 * polling via timers (== less context switches) and
-+			 * to implement a crude scheduler - Jean II */
-+
- 			/* Try to send away all queued data frames */
- 			while ((skb = skb_dequeue(&self->txq)) != NULL) {
-+				/* Send one frame */
- 				ret = (*state[self->state])(self, SEND_I_CMD,
- 							    skb, NULL);
- 				kfree_skb(skb);
-+
-+				/* Poll the higher layers for one more frame */
-+				irlmp_flow_indication(self->notify.instance,
-+						      FLOW_START);
-+
- 				if (ret == -EPROTO)
- 					break; /* Try again later! */
- 			}
-diff -u -p -r linux/net/irda/irlmp.d6.c linux/net/irda/irlmp.c
---- linux/net/irda/irlmp.d6.c	Wed Apr 10 16:30:51 2002
-+++ linux/net/irda/irlmp.c	Wed Apr 10 16:31:38 2002
-@@ -1213,6 +1213,72 @@ void irlmp_status_indication(struct lap_
++	int ret = 0;
+ 	if (!skb_peek(&sk->receive_queue)) {
+ 		set_bit(SOCK_ASYNC_WAITDATA, &sk->socket->flags);
+-		interruptible_sleep_on(sk->sleep);
++		__wait_event_interruptible(*(sk->sleep),
++			(skb_peek(&sk->receive_queue)!=NULL), ret);
+ 		clear_bit(SOCK_ASYNC_WAITDATA, &sk->socket->flags);
+ 	}
++	return(ret);
  }
  
  /*
-+ * Receive flow control indication from LAP.
-+ * LAP want us to send it one more frame. We implement a simple round
-+ * robin scheduler between the active sockets so that we get a bit of
-+ * fairness. Note that the round robin is far from perfect, but it's
-+ * better than nothing.
-+ * We then poll the selected socket so that we can do synchronous
-+ * refilling of IrLAP (which allow to minimise the number of buffers).
-+ * Jean II
-+ */
-+void irlmp_flow_indication(struct lap_cb *self, LOCAL_FLOW flow)
-+{
-+	struct lsap_cb *next;
-+	struct lsap_cb *curr;
-+	int	lsap_todo;
+@@ -1444,8 +1473,8 @@ static int irda_recvmsg_stream(struct so
+ 
+ 			if (noblock)
+ 				return -EAGAIN;
+-			irda_data_wait(sk);
+-			if (signal_pending(current))
++			/* Wait process until data arrives */
++			if (irda_data_wait(sk))
+ 				return -ERESTARTSYS;
+ 			continue;
+ 		}
+@@ -2281,7 +2310,12 @@ bed:
+ 		self->iriap = iriap_open(LSAP_ANY, IAS_CLIENT, self,
+ 					 irda_getvalue_confirm);
+ 
+-		/* Treat unexpected signals as disconnect */
++		if (self->iriap == NULL) {
++			kfree(ias_opt);
++			return -ENOMEM;
++		}
 +
-+	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
-+	ASSERT(flow == FLOW_START, return;);
++		/* Treat unexpected wakeup as disconnect */
+ 		self->errno = -EHOSTUNREACH;
+ 
+ 		/* Query remote LM-IAS */
+@@ -2289,9 +2323,17 @@ bed:
+ 					      self->saddr, daddr,
+ 					      ias_opt->irda_class_name,
+ 					      ias_opt->irda_attrib_name);
+-		/* Wait for answer (if not already failed) */
+-		if(self->iriap != NULL)
+-			interruptible_sleep_on(&self->query_wait);
 +
-+	/* Get the number of lsap. That's the only safe way to know
-+	 * that we have looped around... - Jean II */
-+	lsap_todo = HASHBIN_GET_SIZE(self->lsaps);
-+	IRDA_DEBUG(4, __FUNCTION__ "() : %d lsaps to scan\n", lsap_todo);
++		/* Wait for answer, if not yet finished (or failed) */
++		if (wait_event_interruptible(self->query_wait,
++					     (self->iriap == NULL))) {
++			/* pending request uses copy of ias_opt-content
++			 * we can free it regardless! */
++			kfree(ias_opt);
++			/* Treat signals as disconnect */
++			return -EHOSTUNREACH;
++		}
 +
-+	/* Poll lsap in order until the queue is full or until we
-+	 * tried them all.
-+	 * Most often, the current LSAP will have something to send,
-+	 * so we will go through this loop only once. - Jean II */
-+	while((lsap_todo--) &&
-+	      (IRLAP_GET_TX_QUEUE_LEN(self->irlap) < LAP_HIGH_THRESHOLD)) {
-+		/* Try to find the next lsap we should poll. */
-+		next = self->flow_next;
-+		if(next != NULL) {
-+			/* Note that if there is only one LSAP on the LAP
-+			 * (most common case), self->flow_next is always NULL,
-+			 * so we always avoid this loop. - Jean II */
-+			IRDA_DEBUG(4, __FUNCTION__ "() : searching my LSAP\n");
+ 		/* Check what happened */
+ 		if (self->errno)
+ 		{
+@@ -2348,12 +2390,14 @@ bed:
+ 		irlmp_update_client(self->ckey, self->mask,
+ 				    irda_selective_discovery_indication,
+ 				    NULL, (void *) self);
+-		
 +
-+			/* We look again in hashbins, because the lsap
-+			 * might have gone away... - Jean II */
-+			curr = (struct lsap_cb *) hashbin_get_first(self->lsaps);
-+			while((curr != NULL ) && (curr != next))
-+				curr = (struct lsap_cb *) hashbin_get_next(self->lsaps);
-+		} else
-+			curr = NULL;
+ 		/* Do some discovery (and also return cached results) */
+ 		irlmp_discovery_request(self->nslots);
+-		
 +
-+		/* If we have no lsap, restart from first one */
-+		if(curr == NULL)
-+			curr = (struct lsap_cb *) hashbin_get_first(self->lsaps);
-+		/* Uh-oh... Paranoia */
-+		if(curr == NULL)
-+			break;
+ 		/* Wait until a node is discovered */
+ 		if (!self->cachediscovery) {
++			int ret = 0;
 +
-+		/* Next time, we will get the next one (or the first one) */
-+		self->flow_next = (struct lsap_cb *) hashbin_get_next(self->lsaps);
-+		IRDA_DEBUG(4, __FUNCTION__ "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
+ 			IRDA_DEBUG(1, __FUNCTION__ 
+ 				   "(), nothing discovered yet, going to sleep...\n");
+ 
+@@ -2362,9 +2406,12 @@ bed:
+ 			self->watchdog.data = (unsigned long) self;
+ 			self->watchdog.expires = jiffies + (val * HZ/1000);
+ 			add_timer(&(self->watchdog));
++			self->errno = 0;
+ 
+ 			/* Wait for IR-LMP to call us back */
+-			interruptible_sleep_on(&self->query_wait);
++			__wait_event_interruptible(self->query_wait,
++			   (self->cachediscovery!=NULL || self->errno==-ETIME),
++						   ret);
+ 
+ 			/* If watchdog is still activated, kill it! */
+ 			if(timer_pending(&(self->watchdog)))
+@@ -2372,6 +2419,9 @@ bed:
+ 
+ 			IRDA_DEBUG(1, __FUNCTION__ 
+ 				   "(), ...waking up !\n");
 +
-+		/* Inform lsap user that it can send one more packet. */
-+		if (curr->notify.flow_indication != NULL)
-+			curr->notify.flow_indication(curr->notify.instance, 
-+						     curr, flow);
-+		else
-+			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
-+	}
-+}
-+
-+/*
-  * Function irlmp_hint_to_service (hint)
-  *
-  *    Returns a list of all servics contained in the given hint bits. This
++			if (ret != 0)
++				return ret;
+ 		}
+ 		else
+ 			IRDA_DEBUG(1, __FUNCTION__ 

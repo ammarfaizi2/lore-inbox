@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTIZEnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 00:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTIZEnl
+	id S261928AbTIZEzo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 00:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTIZEzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 00:43:41 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:39816 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261921AbTIZEnk
+	Fri, 26 Sep 2003 00:55:44 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:32239 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261928AbTIZEzn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 00:43:40 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 25 Sep 2003 21:38:55 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Miles Bader <miles@gnu.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>, andrea@kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: log-buf-len dynamic
-In-Reply-To: <buooex8477g.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Message-ID: <Pine.LNX.4.56.0309252109370.967@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
- <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <buooex8477g.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Fri, 26 Sep 2003 00:55:43 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: HT not working by default since 2.4.22
+Date: Fri, 26 Sep 2003 00:54:44 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC8718@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HT not working by default since 2.4.22
+Thread-Index: AcOD4Xflq5mph2OcS1iIwaa0WhZ6JAAB6b6w
+From: "Brown, Len" <len.brown@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <marcelo@parcelfarce.linux.theplanet.co.uk>,
+       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com.br>,
+       <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+X-OriginalArrivalTime: 26 Sep 2003 04:54:45.0896 (UTC) FILETIME=[4E7DD080:01C383EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2003, Miles Bader wrote:
+> Now that I've thought of it (aren't I humble), I rather like 
+> CONFIG_HT.
+> It's simple and it's effects should be obvious to both developer and
+> user:
+> 
+> 	CONFIG_HT, CONFIG_ACPI == ACPI
+> 	!CONFIG_HT, CONFIG_ACPI == ACPI
+> 	CONFIG_HT, !CONFIG_ACPI == HT-only ACPI
+> 	!CONFIG_HT, !CONFIG_ACPI == no ACPI
+> 
+> Following the "autoconf model", what we really want to be testing with
+> CONFIG_xxx is _features_, where possible. "hyperthreading: yes/no" is
+> IMO more clear than "do I want ht-only ACPI or full ACPI", 
+> while at the
+> same time being more fine-grained and future-proof.
 
-> ebiederm@xmission.com (Eric W. Biederman) writes:
-> > ARCH is barely distributed and architecturally it makes distributed
-> > merging hard.
->
-> Are you are kidding?  Arch is _insanely_ good at handling both
-> distributed repositories and merging -- those are if anything its
-> greatest strengths.  Everyday development of tla (the latest/greatest
-> arch implementation) involves many people with their own repositories,
-> merging back and forth.
+I like positive logic too.
+I went so far as to try to implement this back when I deleted "noht".
 
-I definitely agree. It's about a couple of months that I'm playing with it
-and I have to say that it works great with distributed development. It
-basically born with that as the very first design rule. It also look very
-stable AFAICS. And, the old collection of shell scripts (that I didn't
-like in the beginning) is shaping out toward C code. In three words, I
-like it. I cannot compare it to bk because I never used it (not because
-of the license, and not even for political/personal reasons, but because I
-haven't had any time to do it in the past), and I am sure it still lacks
-of some useful features when matched with bk, but the fundamentals are
-definitely there.
+The problem is that "!CONFIG_HT" is meaningless.  It implies that
+you can have CONFIG_ACPI but still "config-out" HT, which you can't.
 
+Ie. The 2nd row above says to give me ACPI w/o HT.
+If you delete that row and reverse the polarity you get:
 
+!CONFIG_ACPI_HT_ONLY, CONFIG_ACPI == ACPI
+CONFIG_ACPI_HT_ONLY, !CONFIG_ACPI == HT-only ACPI
+!CONFIG_ACPI_HT_ONLY, !CONFIG_ACPI == no ACPI
 
-- Davide
+Here we can use config to emphasize that it is not possible to select
+CONFIG_ACPI and CONFIG_ACPI_HT_ONLY at the same time.
 
+Cheers,
+-Len
+
+Ps. Note that in 2.6 CONFIG_X86_HT exists and covers the sibling code.
+It depends on CONFIG_SMP, and CONFIG_ACPI_HT_ONLY depends on it. (in the
+ACPI patch)

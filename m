@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbTICNiI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 09:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTICNhc
+	id S262169AbTICNf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 09:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTICNf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 09:37:32 -0400
-Received: from chello080109223066.lancity.graz.surfer.at ([80.109.223.66]:20612
-	"EHLO lexx.delysid.org") by vger.kernel.org with ESMTP
-	id S262182AbTICNgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 09:36:49 -0400
-To: linux-kernel@vger.kernel.org
-CC: dave@mielke.cc
-Subject: 2.6.0-test4: fbcon missing con_set_default_unimap?
-From: Mario Lang <mlang@delysid.org>
-Date: Wed, 03 Sep 2003 15:36:54 +0200
-Message-ID: <87fzjegfih.fsf@lexx.delysid.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 3 Sep 2003 09:35:59 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:54926 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262169AbTICNf6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 09:35:58 -0400
+Date: Wed, 3 Sep 2003 15:35:56 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: SPAM
+Message-ID: <20030903133556.GC23293@DUK2.13thfloor.at>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0309030835180.7233@chaos>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0309030835180.7233@chaos>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, Sep 03, 2003 at 08:45:51AM -0400, Richard B. Johnson wrote:
+> 
+> Hello list,
+> Everybody who has an account on yahoo probably knows that
+> they sell their lists of email users to spammers. This is
+> the condition upon which users get "free" service. However,
+> they also send destination addresses to spammers also! This
+> means that if you have a yahoo email address and send your
+> wife or girlfriend a message using yahoo, she will immediately
+> be deluged with spam advertising penis extenders, etc.
+> Be forewarned.
+> 
+> I recently put a new Linux machine "on the air". To see if
+> email worked, I used my yahoo account, N26825@yahoo.com to
+> send mail to the new machine. Within 20 minutes, I had 40
+> SPAM messages on that new machine. Some SPAM arrived BEFORE
+> the message from yahoo. I reported this to abuse@yahoo.com,
+> but it's a logical black hole.
 
-Well, I investigated the previously reported issue
-regarding a empty SFM when using fbcon a bit more.
+well, otherwise they wouldn't have something to
+fight, together with M$ and AOL ...
 
-What looks strange to me is that it seems that con_set_default_unimap
-is never called when using fbcon.  Below patch fixes my problems,
-after boot, I have a correctly defined sfm.  However, since
-I am totally new to kernel hacking, I suspect it is not really
-correct.  However, it is tested, and it works for me as expected.
-
---- linux-2.6.0-test4/drivers/video/console/fbcon.c.orig	2003-09-03 15:32:42.000000000 +0200
-+++ linux-2.6.0-test4/drivers/video/console/fbcon.c	2003-09-03 15:27:09.000000000 +0200
-@@ -695,6 +695,7 @@
- 		fb_display[unit].scrollmode = SCROLL_YNOMOVE;
- 	else
- 		fb_display[unit].scrollmode = SCROLL_YREDRAW;
-+	con_set_default_unimap(unit);
- 	fbcon_set_display(vc, init, !init);
- }
- 
-
--- 
-CYa,
-  Mario | Debian Developer <URL:http://debian.org/>
-        | Get my public key via finger mlang@db.debian.org
-        | 1024D/7FC1A0854909BCCDBE6C102DDFFC022A6B113E44
+> Again, be warned. They ARE out to get you, even if you are
+> paranoid!
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+>             Note 96.31% of all statistics are fiction.

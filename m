@@ -1,149 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266191AbUALOpr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 09:45:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUALOpr
+	id S266181AbUALOvR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 09:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUALOvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 09:45:47 -0500
-Received: from [192.35.37.50] ([192.35.37.50]:56259 "EHLO
-	enterprise.atl.lmco.com") by vger.kernel.org with ESMTP
-	id S266191AbUALOpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 09:45:43 -0500
-Message-ID: <4002B314.2010502@atl.lmco.com>
-Date: Mon, 12 Jan 2004 09:45:40 -0500
-From: Aron Rubin <arubin@atl.lmco.com>
-Organization: Lockheed Martin ATL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031021
-X-Accept-Language: en-us, en
+	Mon, 12 Jan 2004 09:51:17 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:28039 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S266181AbUALOvJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 09:51:09 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: George Anzinger <george@mvista.com>
+Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
+Date: Mon, 12 Jan 2004 20:20:08 +0530
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net, discuss@x86-64.org,
+       ak@suse.de, shivaram.upadhyayula@wipro.com,
+       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <400237F0.9020407@mvista.com>
+In-Reply-To: <400237F0.9020407@mvista.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [patch 2.6.1]  Silicon Image 3512 SATA Controller - Tested
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------000409040003010608060009"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401122020.08578.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000409040003010608060009
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+8250.patch changes generic 8250/16550 driver behavior only in following ways
+1. It adds a function serial8250_release_irq to release those serial ports 
+which share an irq with kgdb irq.
+2. There are checks so that a serial port that uses an irq used by an 
+initialized kgdb can't be initialized or started.
 
-This patch enables the Silicon Image 3512 SATA Controller and has been 
-tested and functioning without any apparent bugs (I do not have a full 
-test suite but I am not booting off a device attached to this 
-controller). This patch is against the Dave Jones 2.6.1-1.34 kernel 
-source rpm.
+File kgdb_8250.c is independent of 8250.c kgdb_8250.c depends on KGDB_8250 and 
+8250.c depends on SERIAL_8250 which can be independently configured. 
+kgdb_8250.c can be compiled even if 8250.c is not included. kgdb_8250.c does 
+only the _minimum_ set of initializations required by hardware.
 
-You may remember I was trying to get help on this chipset before. My 
-patch is simply a duplicate of the entries for the 3112 chipset. It did 
-not work fully with prior kernels, giving me a "Interrupt Lost" errors. 
-Whatever else was done to 2.6.1 had made it happy again. Also I did not 
-have to use any special commandline options.
+Serial interface should be configurable independent of kgdb and may not be 
+configured if ethernet interface is configured.  Serial interface is far 
+simpler hence superior for debugging purposes. If it's available, using 
+ethernet interface is out of question. Ethernet interface can be used when 
+serial hardware isn't present or is being used for some other purposes.
 
-Aron
+On Monday 12 Jan 2004 11:30 am, George Anzinger wrote:
+> Amit S. Kale wrote:
+> > George,
+> >
+> > Well said!
+> >
+> > I have released kgdb 2.0.1 for kernel 2.6.1:
+> > http://kgdb.sourceforge.net/linux-2.6.1-kgdb-2.0.1.tar.bz2
+> >
+> > It doesn't contain any assert stuff. I have split it into multiple parts
+> > to make a merge easier. Please let me know if you want me to further
+> > split them or if you want something to be changed. The README file from
+> > this tarball is pasted below.
+> >
+> > Here is two possible starting points:
+> > 1. SMP stuff -> Replace my old smp and nmi handling code.
+> > 2. Early boot -> Change 8250.patch to make configuration of serial port
+> > either through config options or through command line.
+>
+> What does messing with 8250.c code buy us?  I use a completely independent
+> UART driver and only have "back off" code in the 8250 driver.  In fact, I
+> usually recommend that the serial (i.e. 8250.c) driver not even be loaded. 
+> My code also allows a more aggressive hookup to the interrupt code, to get
+> the ^C to do its thing.  I REALLY would like to keep Mr. Heisenberg out of
+> kgdb.  By using existing kernel code we are inviting him to visit.
+>
+> > I'll attempt reading your patch and merging as much stuff as possible.
+> > Thanks.
+>
+> May I suggest reading the comments preceeding the patch itself in Andrew's
+> breakout code.  These were written by Ingo and, I think, reflect some of
+> the things he found useful.
+>
+> Also, the information found in .../Documentation/i386/kgdb/* of the patch.
+>
+> > Patch:
+> > ------
+> > Patch the kernel out of following patches.
+> > core.patch -	KGDB architecture and interface independent code. Required.
+> > i386.patch -	i386 architecture dependent part. Required only for that
+> > 		architecture.
+> > x86_64.patch -	x86_64 architecture dependent part. Required only for that
+> > 		architecture.
+> > 8250.patch -	Generic serial port (8250 and 16550) interface for kgdb.
+> > This is the only working interface in this release. Hence required.
+> > eth.patch -	Ethernet interface for kgdb. This is still under development.
+> > Use only if you plan to contribute to its development.
+> >
+> > Build:
+> > ------
+> > Enable following config options (in this order).
+> >
+> > Kernel hacking ->
+> > 	KGDB: kernel debugging with remote gdb ->
+> > 		KGDB: Thread analysis
+> > 		KGDB: Console messages through gdb
+> > Device drivers ->
+> > 	Character devices ->
+> > 		Serial drivers ->
+> > 			KGDB: On generic serial port (8250)
+>
+> If KGDB is on, this should not be needed.  Also the driver part of KGDB
+> should be local to the KGDB configure in the configure file.  I think we
+> should ALWAYS have the serial link.  The eth link should be backed up by
+> the serial link.
+>
+> By the way, I will be out of town on Monday, back on Tuesday.
+>
+> George
+>
+> > Boot:
+> > -----
+> > Supply command line options kgdbwait and kgdb8250 to the kernel.
+> > Example:  kgdbwait kgdb8250=1,115200
+> >
+> > On Saturday 10 Jan 2004 3:46 am, George Anzinger wrote:
+> >>Amit,
+> >>
+> >>The base line kgdb code in the mm patches was offered by me.  It derives
+> >>from (a long time ago) a kgdb I got from the RTIA (or was it the RTLINUX)
+> >>folks.  Prio to that, well, your name is on it as well as others.
+> >>
+> >>As you may have noted there have been a lot of changes, mostly for the
+> >>better, I hope.  I think we have slightly different objectives in our
+> >> work. I debug kernels, not drivers, so I am interested in getting into
+> >> kgdb as early as possible.  To this end the current mm patch allows one
+> >> to put a breakpoint() as the first line of C code in the kernel.  This
+> >> required a few adjustments, such as configuring the I/O port at CONFIG
+> >> time, for example.
+> >>
+> >>I would like for the two versions of kgdb to merge while keeping the
+> >>features of both.  The work on seperating the common code is something I
+> >>like and, while I never do modules, the automatic module stuff in gdb
+> >> sound good.
+> >>
+> >>May I suggest that we compare and contrast the two versions and take a
+> >> look at the differences and the overlaps and settle on one way of doing
+> >> the various things.
+> >>
+> >>George
 
 -- 
-
-ssh aron@rubinium.org cat /dev/brain | grep ^work:
-
-Aron Rubin                       Member, Engineering Staff
-Lockheed Martin                  E-Mail: arubin@atl.lmco.com
-Advanced Technology Laboratories Phone:  856.792.9865
-3 Executive Campus               Fax:    856.792.9930
-Cherry Hill, NJ USA 08002        Web:    http://www.atl.lmco.com
-
---------------000409040003010608060009
-Content-Type: text/plain;
- name="SiI3512-2004011201.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="SiI3512-2004011201.patch"
-
---- linux-2.6.1-1.34/include/linux/pci_ids.h.orig	2004-01-11 10:30:11.000000000 -0500
-+++ linux-2.6.1-1.34/include/linux/pci_ids.h	2004-01-11 10:44:25.000000000 -0500
-@@ -883,6 +883,7 @@
- 
- #define PCI_DEVICE_ID_SII_680		0x0680
- #define PCI_DEVICE_ID_SII_3112		0x3112
-+#define PCI_DEVICE_ID_SII_3512		0x3512
- #define PCI_DEVICE_ID_SII_1210SA	0x0240
- 
- #define PCI_VENDOR_ID_VISION		0x1098
---- linux-2.6.1-1.34/drivers/scsi/sata_sil.c.orig	2004-01-11 21:41:36.968803995 -0500
-+++ linux-2.6.1-1.34/drivers/scsi/sata_sil.c	2004-01-11 10:43:09.000000000 -0500
-@@ -39,6 +39,7 @@
- 
- enum {
- 	sil_3112		= 0,
-+	sil_3512		= 1,
- 
- 	SIL_IDE0_TF		= 0x80,
- 	SIL_IDE0_CTL		= 0x8A,
-@@ -62,6 +63,7 @@
- 
- static struct pci_device_id sil_pci_tbl[] = {
- 	{ 0x1095, 0x3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
-+	{ 0x1095, 0x3512, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3512 },
- 	{ }	/* terminate list */
- };
- 
-@@ -121,6 +123,15 @@
- 		.udma_mask	= 0x7f,			/* udma0-6; FIXME */
- 		.port_ops	= &sil_ops,
- 	},
-+	/* sil_3512 */
-+	{
-+		.sht		= &sil_sht,
-+		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
-+				  ATA_FLAG_SRST | ATA_FLAG_MMIO,
-+		.pio_mask	= 0x03,			/* pio3-4 */
-+		.udma_mask	= 0x7f,			/* udma0-6; FIXME */
-+		.port_ops	= &sil_ops,
-+	},
- };
- 
- MODULE_AUTHOR("Jeff Garzik");
---- linux-2.6.1-1.34/drivers/ide/pci/siimage.c.orig	2004-01-11 10:14:19.000000000 -0500
-+++ linux-2.6.1-1.34/drivers/ide/pci/siimage.c	2004-01-11 10:44:12.000000000 -0500
-@@ -55,6 +55,7 @@
- 	switch(pdev->device)
- 	{
- 		case PCI_DEVICE_ID_SII_3112:
-+		case PCI_DEVICE_ID_SII_3512:
- 		case PCI_DEVICE_ID_SII_1210SA:
- 			return 1;
- 		case PCI_DEVICE_ID_SII_680:
-@@ -1179,6 +1180,7 @@
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_680,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_1210SA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-+	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3512, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
- 	{ 0, },
- };
- 
---- linux-2.6.1-1.34/drivers/ide/pci/siimage.h.orig	2004-01-11 10:15:21.000000000 -0500
-+++ linux-2.6.1-1.34/drivers/ide/pci/siimage.h	2004-01-11 10:43:41.000000000 -0500
-@@ -82,6 +82,18 @@
- 		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
- 		.bootable	= ON_BOARD,
- 		.extra		= 0,
-+	},{	/* 3 */
-+		.vendor		= PCI_VENDOR_ID_CMD,
-+		.device		= PCI_DEVICE_ID_SII_3512,
-+		.name		= "SiI3512 Serial ATA",
-+		.init_chipset	= init_chipset_siimage,
-+		.init_iops	= init_iops_siimage,
-+		.init_hwif	= init_hwif_siimage,
-+		.channels	= 2,
-+		.autodma	= AUTODMA,
-+		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
-+		.bootable	= ON_BOARD,
-+		.extra		= 0,
- 	},{
- 		.vendor		= 0,
- 		.device		= 0,
-
---------------000409040003010608060009--
+Amit Kale
+EmSysSoft (http://www.emsyssoft.com)
+KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
 

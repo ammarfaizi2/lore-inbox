@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315168AbSEUQHL>; Tue, 21 May 2002 12:07:11 -0400
+	id <S315167AbSEUQLl>; Tue, 21 May 2002 12:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315167AbSEUQHJ>; Tue, 21 May 2002 12:07:09 -0400
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:24709 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S315168AbSEUQHD>;
-	Tue, 21 May 2002 12:07:03 -0400
-Date: Tue, 21 May 2002 12:07:03 -0400 (EDT)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: <calin@rtlab.med.cornell.edu>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Lazy Newbie Question
-In-Reply-To: <Pine.LNX.3.95.1020521114635.1232B-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33L2.0205211159110.14445-100000@rtlab.med.cornell.edu>
+	id <S315171AbSEUQLk>; Tue, 21 May 2002 12:11:40 -0400
+Received: from cocoa.globalgold.co.uk ([212.250.240.8]:43477 "EHLO
+	cocoa.globalgold.co.uk") by vger.kernel.org with ESMTP
+	id <S315167AbSEUQLi>; Tue, 21 May 2002 12:11:38 -0400
+From: Gareth Fleming <gareth@joocy.com>
+Reply-To: gareth@joocy.com
+Organization: Joocy
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Annotated kernel sources
+Date: Tue, 21 May 2002 17:11:18 +0100
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_UAYGPX1416KK7MG5T1GM"
+Message-Id: <200205211711.18958.gareth@joocy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, Richard B. Johnson wrote:
 
-> On Tue, 21 May 2002, Calin A. Culianu wrote:
->
-> >
-> > Whats the best way to do the equivalent of a stat() on a char * pathname
-> > from inside a kernel module?  Don't ask why I need to do this.. I know it
-> > sounds evil but I just need to do it...  Basically I need to find out the
-> > minor number of a device file.
-> >
->
-> No. You never "need to do it". Some user-mode task, somewhere, installs
-> your module. That same task can open your device and via ioctl() tell
-> it anything it needs to know.
+--------------Boundary-00=_UAYGPX1416KK7MG5T1GM
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Well I need to do it.  I know all about ioctls and the like,
-thank-you-very-much.  I am writing code for COMEDI (have you heard of this
-driver suite?) which uses a kernel-space API for Realtime Linux
-(RTAI/RT-Linux).  So yes, I NEED TO DO IT!  :)
+Is there anywhere I can pick up some annotated kernel sources?
 
->
-> A "file" is something the kernel handles on behalf of a task. That
-> task has a context which, amongst other things, allows the kernel
-> to assign file-descriptors. The kernel is not a task. It does not
-> have a "context". Of course it can create one and it can steal one.
-> These are the two methods used inside the kernel to handle "files".
->
-> And, unless the kernel task "thread" is permanent, it's a dirty
-> way of corrupting the kernel.
->
+(That's not OT, is it?)
 
-Yes, as meantioned above.. my thread is permanent.  It is a periodic
-realtime priority thread.  However, the stuff that needs to determine
-device minors is going to run at non-realtime priority.
+Thanks
 
-At any rate.. please don't chastise me.  I am asking a simple question and
-I wanted a straightforward answer.. I didn't expect to be flamed for it.
+Gareth
+--------------Boundary-00=_UAYGPX1416KK7MG5T1GM
+Content-Type: application/pgp-keys;
+  name="PGP key 0xBAFCB70E"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=0xBAFCB70E.asc
 
-Have a nice day, Dick.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--Calin
+mQGiBDy571cRBADt9vIpzGsx0OPYPaSMC38tKEuy09T2P6mtgrR5z7qM1DiUnV/c
+w5x3QBBCtLiBDyLna0k0OgXYAM5ndWDaWZFgFMoAYrfeVtR7JByOPhGoT9nsH7vk
+vF55maAQ5PhccWx8KLm5qvnJ68ZfBdveCVL7Cp1TsJyK7TVOJRumLc/FKwCg5SL/
+QJQ8zU3auNeOgwG4IZzmONED/0q5sIYduY6MSO95kRUsTKYf40jHmpk4kt7mJ821
+pGWanVUhaOISZzcz52TY7rOoVdfltS3fb8sJ1DefzIsAbkYpEnx3QpGt+YbPSBwt
+ez2evgGciY4ezvTAG/9XJ0Kl2G20Q8ljkPGYWUzS+45isWIZMyL1Ag6fkZHbAmr1
+W+NYA/4lL1crHH6Bf0czt5U3MSJ5fY8757D/3N4bN4wWNFHCMqJGmxzdTB9gDb+Q
+GtNPvECyCW8Fg5nAUZqQdcJFiqEnfckK2r+YgUwr1YPILaTWP5Sylj7nO2qbyPtA
+KXuJPnieDxa2uFcIND+FnUbHvTp1nDZb+Drv0J1A839xWYNsU7QhR2FyZXRoIEZs
+ZW1pbmcgPGdhcmV0aEBqb29jeS5jb20+iF0EExECAB0FAjy571cFCQB2pwAFCwcK
+AwQDFQMCAxYCAQIXgAAKCRCezRK8uvy3DgB1AJ4++nrfTgXDo33/dIbyEXFoHiHB
+NACg0t29KSsMn/nrijY7J4+pWFl1Scq5AQ0EPLnvVxAEAPNNCUXM/eCwa9774k0u
+mAB2CbnhW3pcpzgL5LZwtC5Ied+LQNmjMeca+jJfqczXjP+Dx1E6W7eqXBWH1B+M
+S9MBWRRXXp+Uq9W8J0yzI49BWRCp8/LTcSHgs4C4wC0XoC6o/EGMWZS7YPsGS9O8
+M6wr7G+zgGs6uZjy8m8fHnirAAMFBADxBNsJZdzj8FZjc27NSeJcN3dFAnT/s3fC
+LQtOsxExzlFSmqQhq6W1TTcNXG1I/PdV+e824kItkDa3Tv62NsI/74POLBQSFsoT
+nRWMUxNEmJKVG7HdJavEWPVK/Ujdmx0wIdo8eEGl7iulhtfFpQSm4sPJk6y8qCgN
+H3IDYh+NHYhMBBgRAgAMBQI8ue9XBQkAdqcAAAoJEJ7NEry6/LcOBwcAn1lZ4tMv
+jdrfxC+rekpfKL+IZ3/WAJ9WRgkc2c5LBPx0AvRh8YmRaLKqEQ==
+=eJwK
+-----END PGP PUBLIC KEY BLOCK-----
 
+--------------Boundary-00=_UAYGPX1416KK7MG5T1GM--
 

@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269849AbRHMF27>; Mon, 13 Aug 2001 01:28:59 -0400
+	id <S269877AbRHMFpS>; Mon, 13 Aug 2001 01:45:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269841AbRHMF2t>; Mon, 13 Aug 2001 01:28:49 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:3592 "EHLO mx3.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S269839AbRHMF2g>;
-	Mon, 13 Aug 2001 01:28:36 -0400
-Date: Mon, 13 Aug 2001 13:29:52 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: aic7xxx: Cannot map device: ahc_pci:1:3:0: No SCB space found
-Message-ID: <Pine.LNX.4.33.0108131325290.269-100000@boston.corp.fedex.com>
+	id <S269886AbRHMFpI>; Mon, 13 Aug 2001 01:45:08 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:18451 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269877AbRHMFoz>; Mon, 13 Aug 2001 01:44:55 -0400
+Date: Sun, 12 Aug 2001 22:44:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <andrea@suse.de>, <eyal@eyal.emu.id.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8aa1
+In-Reply-To: <20010812.202918.48532196.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0108122242450.14385-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Help,
+On Sun, 12 Aug 2001, David S. Miller wrote:
+>
+> First, maybe I'm confused about intent.  Are we trying to just hack
+> together something quick for 2.4.x that allows PCI drivers on highmem
+> machines to get at the complete low 4GB of physical memory, even the
+> highmem parts?
 
-I got the following problem (from dmesg) ...
+No, it's more about cleaning up stuff for 2.4.x - the drivers affected
+right now can't use more than 1GB of ram anyway, but as they were written
+they would not compile in Andrea's tree due to having a bit too intimate a
+knowledge of the VM system.
 
-PCI: Enabling device 01:03.0 (0155 -> 0157)
-aic7xxx: PCI1:3:0 MEM region 0xe8100000 in use. Cannot map device.
-ahc_pci:1:3:0: No SCB space found
-Trying to free free IRQ11
+For 2.5.x, we'll see where we end up going in the long run.
 
-
-/proc/pci ...
-
-  Bus  1, device   3, function  0:
-    SCSI storage controller: Adaptec AIC-7881U (rev 1).
-      IRQ 11.
-      Master Capable.  Latency=64.  Min Gnt=8.Max Lat=8.
-      I/O at 0x1400 [0x14ff].
-      Non-prefetchable 32 bit memory at 0x50000000 [0x50000fff].
-  Bus  0, device  18, function  0:
-    Host bridge: Intel Corporation 450NX - 82454NX/84460GX PCI Expander
-Bridge (rev 4).
-      Master Capable.  Latency=72.
-  Bus  1, device   3, function  0:
-    SCSI storage controller: Adaptec AIC-7881U (#2) (rev 1).
-      IRQ 11.
-      Master Capable.  Latency=64.  Min Gnt=8.Max Lat=8.
-      I/O at 0xa000 [0xa0ff].
-      Non-prefetchable 32 bit memory at 0xe8100000 [0xe8100fff].
-
-
-
-I've only one AIC7881 card, but why does it shows up twice?
-
-One another system, it works fine. Could this be due to hardware problem?
-
-It's the same kernel. Linux 2.4.6-pre9 #1 SMP. Both are SMP machines.
-
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+		Linus
 

@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVAWSFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVAWSXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVAWSFc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 13:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVAWSFc
+	id S261246AbVAWSXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 13:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVAWSXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 13:05:32 -0500
-Received: from smtpout4.uol.com.br ([200.221.4.195]:11263 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261194AbVAWSF1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 13:05:27 -0500
-Date: Sun, 23 Jan 2005 16:05:51 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ppp in 2.6.11-rc2 Badness in local_bh_enable at kernel/softirq.c
-Message-ID: <20050123180551.GB7077@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <41F35FAB.1050304@netikka.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41F35FAB.1050304@netikka.fi>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 23 Jan 2005 13:23:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2013 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261246AbVAWSXC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 13:23:02 -0500
+Date: Sun, 23 Jan 2005 10:22:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sergey Vlasov <vsu@altlinux.ru>
+cc: ierdnah <ierdnah@go.ro>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel oops!
+In-Reply-To: <20050123161512.149cc9de.vsu@altlinux.ru>
+Message-ID: <Pine.LNX.4.58.0501230956100.4191@ppc970.osdl.org>
+References: <1106437010.32072.0.camel@ierdnac> <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
+ <20050123161512.149cc9de.vsu@altlinux.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 23 2005, Johnny Strom wrote:
-> I have the same problem with 2.6.11-rc2 I am using ppp with rp-pppoe-3.5 
-> it starts like this as soon as it brings upp the link.
-
-I am also seeing this "Badness in local_bh_enable at kernel/softirq.c:140"
-message spamming my logs. It is quite scary, might I add. I have only seen
-it with 2.6.11-rc2.
-
-Aside from that, the system seems to be working fine, but I only noticed
-this message for the last few hours. Before that, I run kernel 2.6.11-rc2
-for 2 days straight and didn't see anything like that.
-
-It seems to have started when I first loaded the netfilter modules. I can
-provide more information. Just let me know what would be desired and I'll
-try to get it.
 
 
-Hope this helps, Rogério Brito.
+On Sun, 23 Jan 2005, Sergey Vlasov wrote:
+> 
+> tty_poll() grabs ldisc reference for the tty it was called with;
+> however, in this case pty_chars_in_buffer() accesses another ldisc
+> (tty->link->ldisc) without grabbing a reference to it.  BTW, many other
+> pty_* functions do the same thing.
 
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Yes, I think you put the finger on it.
+
+> Is calling tty_ldisc_ref(tty->link) safe here?  There is a comment
+> warning about possible deadlocks before pty_write().
+
+I think it's only the tty_ldisc_ref_wait() thing that can deadlock (and 
+even that is likely safe if you just specify an order - "masters first" or 
+something). Adding a nonblocking "tty_ldisc_ref()" looks safe, ie 
+something like the appended.
+
+This has the problem (apart from the fact that it's obviously totally
+untested ;) that it looks like every single pty function would need to do
+it, so it would be nicer if "tty_ldisc_ref_wait()" would just always get
+both references (ie do the ordering). Alan?
+
+		Linus
+----
+--- 1.32/drivers/char/pty.c	2005-01-10 17:29:36 -08:00
++++ edited/drivers/char/pty.c	2005-01-23 10:21:04 -08:00
+@@ -149,13 +149,17 @@
+ static int pty_chars_in_buffer(struct tty_struct *tty)
+ {
+ 	struct tty_struct *to = tty->link;
+-	int count;
++	int count = 0;
+ 
+-	if (!to || !to->ldisc.chars_in_buffer)
+-		return 0;
+-
+-	/* The ldisc must report 0 if no characters available to be read */
+-	count = to->ldisc.chars_in_buffer(to);
++	if (to) {
++		struct tty_ldisc *ld = tty_ldisc_ref(to);
++		if (ld) {
++			if (ld->chars_in_buffer) {
++				count = ld->chars_in_buffer(to);
++				tty_ldisc_deref(ld);
++			}
++		}
++	}
+ 
+ 	if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
+ 

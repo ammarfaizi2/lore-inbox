@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAPNse>; Tue, 16 Jan 2001 08:48:34 -0500
+	id <S130149AbRAPNtY>; Tue, 16 Jan 2001 08:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbRAPNsY>; Tue, 16 Jan 2001 08:48:24 -0500
-Received: from shell.cyberus.ca ([209.195.95.7]:21418 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S129406AbRAPNsM>;
-	Tue, 16 Jan 2001 08:48:12 -0500
-Date: Tue, 16 Jan 2001 08:47:22 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Pavel Machek <pavel@suse.cz>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+	id <S129485AbRAPNtO>; Tue, 16 Jan 2001 08:49:14 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:24851 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129735AbRAPNtF>; Tue, 16 Jan 2001 08:49:05 -0500
+Date: Tue, 16 Jan 2001 14:48:49 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <20010116001633.A3343@bug.ucw.cz>
-Message-ID: <Pine.GSO.4.30.0101160845490.17392-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010116144849.B19949@pcep-jamie.cern.ch>
+In-Reply-To: <20010116114018.A28720@convergence.de> <Pine.LNX.4.30.0101161338270.947-100000@elte.hu> <20010116134737.A29366@convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010116134737.A29366@convergence.de>; from leitner@convergence.de on Tue, Jan 16, 2001 at 01:47:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felix von Leitner wrote:
+> I cheated.  I was only talking about open().
+> close() is of course more expensive then.
+> 
+> Other than that: where does the requirement come from?
+> Can't we just use a free list where we prepend closed fds and always use
+> the first one on open()?  That would even increase spatial locality and
+> be good for the CPU caches.
 
+You would need to use a new open() flag: O_ANYFD.
+The requirement comes from this like this:
 
-On Tue, 16 Jan 2001, Pavel Machek wrote:
+  close (0);
+  close (1);
+  close (2);
+  open ("/dev/console", O_RDWR);
+  dup ();
+  dup ();
 
-> > TWO observations:
-> > - Given Linux's non-pre-emptability of the kernel i get the feeling that
-> > sendfile could starve other user space programs. Imagine trying to send a
-> > 1Gig file on 10Mbps pipe in one shot.
->
-> Hehe, try sigkilling process doing that transfer. Last time I tried it
-> it did not work.
-
->From Alexey's response: it does get descheduled possibly every sndbuf
-send. So you should be able to sneak that sigkill.
-
-cheers,
-jamal
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUEFJoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUEFJsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbUEFJoB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 05:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUEFJoB
+	id S261939AbUEFJsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 05:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUEFJsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 05:44:01 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:51349 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261932AbUEFJn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 05:43:59 -0400
-Date: Thu, 6 May 2004 11:43:45 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>
-cc: Zhenmin Li <zli4@cs.uiuc.edu>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [OPERA] Potential bugs detected by static analysis tool in 2.6.4
-In-Reply-To: <002701c4331c$092a3b40$76f6ae80@Turandot>
-Message-ID: <Pine.GSO.4.58.0405061141290.12096@waterleaf.sonytel.be>
-References: <002701c4331c$092a3b40$76f6ae80@Turandot>
+	Thu, 6 May 2004 05:48:42 -0400
+Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:9564 "EHLO
+	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261939AbUEFJsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 05:48:41 -0400
+Message-ID: <409A09F7.4080809@blueyonder.co.uk>
+Date: Thu, 06 May 2004 10:48:39 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2004 09:48:43.0216 (UTC) FILETIME=[51458500:01C4334F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 May 2004, Zhenmin Li wrote:
-> We ran our static analysis tool upon Linux 2.6.4 source files, and found
-> some potential errors. Since all of them are detected by the tool, we need
-> more effort to inspect. We would appreciate your help if anyone can verify
-> whether they are bugs or not.
->
-> Thanks a lot,
->
-> OPERA Research Group
-> University of Illinois at Urbana-Champaign
->
->
->
-> Version: 2.6.4
+Not only does it not work, I've cratered two reiserfs installs using 
+4KSTACKS and the nvidia driver, once when I didn't know about the 
+problem and once when I forgot to reverse the patch. I now always check 
+my .config before I start the build. Nvidia like most outfits don't 
+react that swiftly to kernel changes.
+Regards
+Sid.
 
-    [...]
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 
-> 8. /arch/m68k/mac/iop.c, Line 164:
-
-Should be line 264?
-
-> iop_base[IOP_NUM_SCC]->status_ctrl = 0;
->
-> Maybe change to:
-> iop_base[IOP_NUM_ISM]->status_ctrl = 0;
-
-Mac guys, is this correct?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,63 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131582AbQKNXdf>; Tue, 14 Nov 2000 18:33:35 -0500
+	id <S131707AbQKNXgz>; Tue, 14 Nov 2000 18:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131595AbQKNXdZ>; Tue, 14 Nov 2000 18:33:25 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:63757 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131582AbQKNXdI>;
-	Tue, 14 Nov 2000 18:33:08 -0500
-Message-ID: <3A11C445.EB65B9D@mandrakesoft.com>
-Date: Tue, 14 Nov 2000 18:01:25 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): linux-2.4.0-test11-pre4/drivers/sound/yss225.c 
- compilefailure
-In-Reply-To: <Pine.LNX.4.21.0011142345440.2383-100000@tricky>
+	id <S131710AbQKNXgf>; Tue, 14 Nov 2000 18:36:35 -0500
+Received: from lsne-cable-1-p21.vtxnet.ch ([212.147.5.21]:33551 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S131711AbQKNXgZ>;
+	Tue, 14 Nov 2000 18:36:25 -0500
+Date: Wed, 15 Nov 2000 00:06:10 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Message-ID: <20001115000610.F8753@almesberger.net>
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A117311.8DC02909@holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Tue, Nov 14, 2000 at 12:14:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+Michael Rothwell wrote:
+> 2) Continuous operation analogous to power & telephone services. 
 > 
-> On Mon, 13 Nov 2000, Adam J. Richter wrote:
+> No way. Multics could have a whole bank of memory fail and keep running.
+[...]
+
+Considering that it's very cheap nowadays to have redundancy at the
+box level, designs attempting to achieve robustness at the component
+level may fail to benefit from changes in the hardware market in the
+last few decades. Maybe we need a Beowulf for fault tolerance ...
+
+> 3) A wide range of system configurations, changeable without system or
+> user program reorganization. 
+
+I'd say we're largely there: /proc/sys and modules give you a lot of
+freedom, if properly used.
+
+> See comments in #2. Plus, the recent two-kernel-monte, linux-from-linux
+> type stuff would be especially excellent if it will allow the kernel to
+> be upgraded on the fly.
+
+Difficult, because there's no reliable (= automated) means of tracking
+data structures an the semantics of internal interfaces from kernel to
+kernel. Feasible for selected subsystems and with coarse granularity,
+though. (E.g. modules.)
+
+> console ACLs, etc. If there's a function, it probably needs an ACL.
+
+Empirical evidence with VMS suggests that overly sophisticated
+security mechanisms can actually decrease overall security, because
+they may lead people to micro-manage security and to neglect the
+overall security concept.
+
+> 7) Support for a wide range of applications. 
 > 
-> >       linux-2.4.0-test11-pre4/drivers/sound/yss225.c uses __initdata
-> > but does not include <linux/init.h>, so it could not compile.  I have
-> > attached below.
-> >
-> >       Note that I am a bit uncertain about the correctness of
-> > the __initdata prefix here in the first place.  Is yss225 a PCI
-> > device?  If so, a kernel that supports PCI hot plugging should
-> > be prepared to support the possibility of a hot pluggable yss225
-> > card being inserted after the module has already been initialized.
-> > Even if no CardBus or CompactPCI version of yss225 hardware exists
-> > yet, it will require less maintenance for PCI drivers to be prepared
-> > for this possibility from the outset (besides, is it possible to have a
-> > hot pluggable PCI bridge card that bridges to a regular PCI bus?).
-> 
-> Good question....
+> Well... anything wih source or compiled for the Linux ABI. A
+> microkernel-type architecture with servers would provide a lot more of
+> this. See QNX, NT, Mach.
 
-Please err on the conservative side -- IMHO you shouldn't mark a driver
-as hotpluggable (by using the '__dev' prefix) unless you know it is
-necessary.
+Hmm, I don't think you want to say this :)
 
-Otherwise, you rob CONFIG_HOTPLUG people of some memory that could
-otherwise be freed at boot.  And the number of CONFIG_HOTPLUG people is
-not small, it includes not only the CardBus users but USB users too...
+> 9) The ability to evolve the system with changes in technology and in
+> user aspirations.
 
-	Jeff
+That's perhaps the most important point. The computing environment
+has changed a lot. Take for example Google's PC farm and compare
+this with the mainframe approach one would have chosen twenty or
+thirty years ago. Mainframes are still the right answer for some
+problems, but their role in the solution may be very different from
+the days when they were the only solution, and all of the solution.
 
+- Werner
 
 -- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

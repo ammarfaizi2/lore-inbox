@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132627AbRDQN7m>; Tue, 17 Apr 2001 09:59:42 -0400
+	id <S132642AbRDQOKP>; Tue, 17 Apr 2001 10:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132625AbRDQN7d>; Tue, 17 Apr 2001 09:59:33 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:30385 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S132620AbRDQN7X>; Tue, 17 Apr 2001 09:59:23 -0400
-Date: Tue, 17 Apr 2001 15:00:05 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] emu10k1/audio un reserve
-In-Reply-To: <Pine.LNX.4.21.0103291510060.1167-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0104171457110.1062-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132625AbRDQOKG>; Tue, 17 Apr 2001 10:10:06 -0400
+Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:42756 "HELO
+	xena.sind-doof.de") by vger.kernel.org with SMTP id <S132633AbRDQOJy>;
+	Tue, 17 Apr 2001 10:09:54 -0400
+Date: Tue, 17 Apr 2001 16:01:42 +0200
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] scripts/ver_linux not working on Debian
+Message-ID: <20010417160142.H4385@kallisto.sind-doof.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="xA/XKXTdy9G3iaIz"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
+X-Disclaimer: Are you really taking me serious?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code for mem_map_reserving has been copied a little too
-faithfully to the places where it wants to mem_map_unreserve.
 
-Hugh
+--xA/XKXTdy9G3iaIz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---- 2.4.3-ac7/drivers/sound/emu10k1/audio.c	Tue Apr 17 14:43:09 2001
-+++ linux/drivers/sound/emu10k1/audio.c	Tue Apr 17 14:46:20 2001
-@@ -272,7 +272,7 @@
+Hi,
+
+scripts/ver_linux uses fdformat to determine the version of util-linux
+used on the system. However, on Debian GNU/Linux:
+
+---------- snip ----------
+% fdformat --version
+
+Note: /usr/bin/fdformat is obsolete and is no longer available.
+Please use /usr/bin/superformat instead (make sure you have the
+fdutils package installed first).  Also, there had been some
+major changes from version 4.x.  Please refer to the documentation.
+
+---------- snip ----------
+
+Attached is a patch which modifies ver_linux so that it can correctly
+determine the util-linux version on Debian (by using /sbin/hwclock if
+fdformat fails).
+
+Andreas
+-- 
+Bell Labs Unix -- Reach out and grep someone.
+
+--xA/XKXTdy9G3iaIz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ver_linux-debian.patch"
+
+--- linux/scripts/ver_linux.orig	Tue Apr 17 15:49:14 2001
++++ linux/scripts/ver_linux	Tue Apr 17 15:52:04 2001
+@@ -20,7 +20,13 @@
+ ld -v 2>&1 | awk -F\) '{print $1}' | awk \
+       '/BFD/{print "binutils              ",$NF}'
  
- 					/* Undo marking the pages as reserved */
- 					for (i = 0; i < woinst->buffer.pages; i++)
--						mem_map_reserve(virt_to_page(woinst->buffer.addr[i]));
-+						mem_map_unreserve(virt_to_page(woinst->buffer.addr[i]));
- 				}
+-fdformat --version | awk -F\- '{print "util-linux            ", $NF}'
++ut_vers=`fdformat --version | awk -F\- '{print $NF}'`
++if echo "$ut_vers" | grep -q obsolete
++then
++    # Debian does not ship fdformat
++    ut_vers=`/sbin/hwclock --version | awk -F\- '{print $NF}'`
++fi
++echo "util-linux             $ut_vers"
  
- 				emu10k1_waveout_close(wave_dev);
-@@ -322,7 +322,7 @@
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
  
- 					/* Undo marking the pages as reserved */
- 					for (i = 0; i < woinst->buffer.pages; i++)
--						mem_map_reserve(virt_to_page(woinst->buffer.addr[i]));
-+						mem_map_unreserve(virt_to_page(woinst->buffer.addr[i]));
- 				}
- 
- 				emu10k1_waveout_close(wave_dev);
-@@ -1204,7 +1204,7 @@
- 
- 				/* Undo marking the pages as reserved */
- 				for (i = 0; i < woinst->buffer.pages; i++)
--					mem_map_reserve(virt_to_page(woinst->buffer.addr[i]));
-+					mem_map_unreserve(virt_to_page(woinst->buffer.addr[i]));
- 			}
- 
- 			emu10k1_waveout_close(wave_dev);
+
+--xA/XKXTdy9G3iaIz--
 

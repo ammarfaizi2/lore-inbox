@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130887AbRATXMs>; Sat, 20 Jan 2001 18:12:48 -0500
+	id <S129807AbRATXX4>; Sat, 20 Jan 2001 18:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131097AbRATXMi>; Sat, 20 Jan 2001 18:12:38 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56330 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130887AbRATXMU>; Sat, 20 Jan 2001 18:12:20 -0500
-Message-ID: <3A6A1B40.459A1B7@transmeta.com>
-Date: Sat, 20 Jan 2001 15:12:00 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130138AbRATXXr>; Sat, 20 Jan 2001 18:23:47 -0500
+Received: from embolism.psychosis.com ([216.242.103.100]:43780 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S129807AbRATXXg>; Sat, 20 Jan 2001 18:23:36 -0500
+Message-ID: <3A6A1D75.54BFBE42@psychosis.com>
+Date: Sat, 20 Jan 2001 18:21:25 -0500
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+Organization: www.psychosis.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1p8-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Minors remaining in Major 10 ??
-In-Reply-To: <Pine.LNX.4.10.10101201501290.657-100000@master.linux-ide.org>
+To: Douglas Gilbert <dgilbert@interlog.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: md= broken. Found problem. Can't fix it.  : (
+In-Reply-To: <3A6A1512.C2684CCC@interlog.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+Douglas Gilbert wrote:
 > 
-> On Sat, 20 Jan 2001, H. Peter Anvin wrote:
+> Dave,
+> Look at the dmesg output and check that your
+> "Kernel command line:" is what you think it
+> is. Some older versions of lilo truncate it.
+> Here is mine (which is what I expected):
 > 
-> > Andre Hedrick wrote:
-> > >
-> > > HPA,
-> > >
-> > > Thoughts on granting all block subsystems a general access misc-char minor
-> > > to do special service access that can not be down to a given device if it
-> > > is open.  There are some things you can not do to a device if you are
-> > > using its device-point to gain entry.  Also do the grab a neighboor and
-> > > force the migration to find the desired major/minor is painful.
-> > >
-> >
-> > Hmmm... this would be better done using a dedicated major (and then minor
-> > = block major.)  This is something we can do in 2.5 once we have the
-> > larger dev_t; at this point, I'd be really hesitant to allocate
-> > additional that aren't obligatory.
-> 
-> Er, I did not make the point clear enough, drat.
-> 
-> mknod /dev/ide-service c 10 ???
-> mknod /dev/scsi-service c 10 ???
-> 
-> These would be char devices that would allow one to pass a struct to an
-> ioctl to do device or host services that normally have to attempted by
-> opening the device desired.  This fails if you are trying to unload the
-> driver (with KMOD enabled) so that you could switch devices or change
-> driver types.  Yes this is the migration to a hotswap^H^H^H^H^H^H^H
-> general host/device services calls.
-> 
+> Kernel command line: auto BOOT_IMAGE=lin240 ro root=803 scsihosts=imm:advansys:a
+> dvansys:aha1542
 
-No, I think I understood perfectly well.  I said that if it's going to be
-bound to each block device subsystem it would make more sense to
-establish that tie explicitly -- if that isn't possible I'm a bit
-confused.
+No that is not the problem. I'm using GRUB (LILO == poopoo) and 
+have looked at this throughly.
 
-	-hpa
-
+I can see from the dmesg via my debugging printk's output that str is properly
+being passed. 
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+"Nobody will ever be safe until the last cop is dead."
+		NH Rep. Tom Alciere - (My new Hero)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

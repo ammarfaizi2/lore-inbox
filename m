@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130660AbRABJxN>; Tue, 2 Jan 2001 04:53:13 -0500
+	id <S130476AbRABKBc>; Tue, 2 Jan 2001 05:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130562AbRABJxD>; Tue, 2 Jan 2001 04:53:03 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:60547 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130476AbRABJwp>;
-	Tue, 2 Jan 2001 04:52:45 -0500
-Date: Tue, 2 Jan 2001 01:03:48 -0800
-Message-Id: <200101020903.BAA14334@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: grundler@cup.hp.com
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        parisc-linux@thepuffingroup.com
-In-Reply-To: <200101020811.AAA26525@milano.cup.hp.com> (message from Grant
-	Grundler on Tue, 2 Jan 2001 00:11:57 -0800 (PST))
-Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h
-In-Reply-To: <200101020811.AAA26525@milano.cup.hp.com>
+	id <S130562AbRABKBX>; Tue, 2 Jan 2001 05:01:23 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:39632 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130476AbRABKBM>; Tue, 2 Jan 2001 05:01:12 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200101020930.KAA15067@sunrise.pg.gda.pl>
+Subject: Re: IRNET depending on PPP
+To: Oliver.Neukum@lrz.uni-muenchen.de (Oliver Neukum)
+Date: Tue, 2 Jan 2001 10:30:40 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org, mec@shout.net
+In-Reply-To: <01010115524900.10792@ghanima> from "Oliver Neukum" at Jan 01, 2001 03:32:47 PM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Tue, 2 Jan 2001 00:11:57 -0800 (PST)
-   From: Grant Grundler <grundler@cup.hp.com>
+"Oliver Neukum wrote:"
+> 
+> IRNET depends on PPP, but that is not reflected in the configuration files.
+> A patch is attached.
 
-   Fundemental problem is parisc only supports one atomic operation
-   (LDCW/LDCD) and uses spinlocks for all atomic operations including
-   xchg/cmpxchg.
+An incorrect patch.
+Note, that if CONFIG_NETDEVICES=n then CONFIG_PPP is undefined (instead of
+being equal to "n") ...
+ 
+> --- linux-vanilla/net/irda/irnet/Config.in	Mon Jan  1 14:34:02 2001
+> +++ linux/net/irda/irnet/Config.in	Mon Jan  1 15:35:15 2001
+> @@ -1 +1,3 @@
+> -dep_tristate '  IrNET protocol' CONFIG_IRNET $CONFIG_IRDA
 
-Using spinlocks for the implementation of xchg on SMP might be
-problematic.
+The following line
+> +if [ "$CONFIG_PPP" != "n" ]; then
 
-If you implement things like this, several subtle things might
-break.  For example, there is code in a few spots (or, at least at one
-time there was) which assumed the update of the datum itself is atomic
-and uses this assumption to do lock-free read-only accesses of the
-data.
+should be replaced by either
++if [ "$CONFIG_PPP" = "y" -o "$CONFIG_PPP" = "m" ]; then
+or
++if [ "$CONFIG_NETDEVICES" = "y" -a "$CONFIG_PPP" != "n" ]; then
 
-If you require an external agent (f.e. your spinlock) because you
-cannot implement xchg with a real atomic sequence, this breaks the
-above assumptions.
+> +	dep_tristate '  IrNET protocol' CONFIG_IRNET $CONFIG_IRDA
+> +fi
+ 
+Andrzej
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 
-It is very common to do things like:
-
-producer(elem)
-{
-	elem->next = list->head;
-	xchg(&list->head, elem);
-}
-
-consumer()
-{
-	local_list = xchg(&list->head, NULL);
-	for_each(elem, local_list)
-		do_something(elem);
-}
-
-In fact we had code excatly like this in the buffer cache at one
-point in time.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

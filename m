@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277954AbRJWQiR>; Tue, 23 Oct 2001 12:38:17 -0400
+	id <S277966AbRJWQmr>; Tue, 23 Oct 2001 12:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277966AbRJWQiI>; Tue, 23 Oct 2001 12:38:08 -0400
-Received: from imo-r02.mx.aol.com ([152.163.225.98]:54516 "EHLO
-	imo-r02.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S277954AbRJWQhz>; Tue, 23 Oct 2001 12:37:55 -0400
-From: Telford002@aol.com
-Message-ID: <163.2c1a396.2906f6e8@aol.com>
-Date: Tue, 23 Oct 2001 12:38:00 EDT
-Subject: Re: (WAN) network device status
-To: khc@pm.waw.pl, linux-kernel@vger.kernel.org
+	id <S277968AbRJWQmh>; Tue, 23 Oct 2001 12:42:37 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57606 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277966AbRJWQm3>; Tue, 23 Oct 2001 12:42:29 -0400
+Subject: Re: x86 smp_call_function recent breakage
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Tue, 23 Oct 2001 17:49:35 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        robert_macaulay@dell.com (Robert Macaulay)
+In-Reply-To: <20011023182954.O26029@athlon.random> from "Andrea Arcangeli" at Oct 23, 2001 06:29:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 5.0 for Windows sub 139
+Message-Id: <E15w4kB-0006Vf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a message dated 10/23/01 1:59:03 AM Eastern Daylight Time, khc@pm.waw.pl 
-writes:
+> This isn't the right fix:
 
-> I remember a discussion about net_dev->flags and carrier loss etc
->  detection. Did the things change? I mean, do we currently have a way
->  for network device driver to report (to the rest of kernel, to the
->  userland) that the link is down? It would include DCD (carrier) loss,
->  Ethernet link down, IrDA/USB disconnects etc.
->  
->  I think the kernel should deactivate respective routing table entries
->  as well when a link goes down.
+The cache thing you may be right on. The core fix is not about caching
+its about fixing races on IPI replay. We have to handle an IPI reoccuring
+potentially with a small time delay due to a retransmit of a message
+lost by one party on the bus. Furthermore it seems other messages can
+pass the message that then gets retransmitted.
 
-Not if the link can be redialed or reconnected implicitly or on-demand
-in some way.
+> Robert, this explains the missed IPI during drain_cpu_caches, it isn't
+> ram fault or IPI missed by the hardware, so I suggest to just backout
+> the second diff above and try again. Will be fixed also in next -aa of
+> course.
 
-Joachim Martillo
+I'm not sure I follow why it explains a missed IPI. Please explain in
+more detail.
+
+Alan

@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVBWUWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVBWU2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVBWUWD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVBWUWC
+	id S261561AbVBWU2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVBWU2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:22:02 -0500
-Received: from hyperion.affordablehost.com ([12.164.25.86]:28067 "EHLO
-	hyperion.affordablehost.com") by vger.kernel.org with ESMTP
-	id S261558AbVBWUU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:20:27 -0500
-Subject: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
-From: Alan Kilian <kilian@bobodyne.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 14:24:33 -0600
-Message-Id: <1109190273.9116.307.camel@desk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 23 Feb 2005 15:28:35 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:20219 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261561AbVBWU2c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 15:28:32 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hyperion.affordablehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - bobodyne.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Message-ID: <16924.59237.581247.498382@alkaid.it.uu.se>
+Date: Wed, 23 Feb 2005 21:28:21 +0100
+To: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: ppc32 weirdness with gcc-4.0 in 2.6.11-rc4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.6.11-rc4 built with gcc-3.4.3 works fine on my eMac.
+Building with gcc-4.0.0 (20050220) however gives me a kernel
+with dead USB, and thus no keyboard or mouse, but everything
+else seems to be working.
 
+A diff between dmesg on the two kernels has an interesting nugget:
 
-    Folks,
+--- dmesg-2.6.11-rc4-gcc343	2005-02-23 20:57:54.000000000 +0100
++++ dmesg-2.6.11-rc4-gcc400	2005-02-23 21:14:44.000000000 +0100
+@@ -1,5 +1,5 @@
+ Total memory = 256MB; using 512kB for hash table (at c0300000)
+-Linux version 2.6.11-rc4-gcc343 (mikpe@darwin) (gcc version 3.4.3) #1 Wed Feb 23 20:53:57 CET 2005
++Linux version 2.6.11-rc4-gcc400 (mikpe@darwin) (gcc version 4.0.0 20050220 (experimental)) #1 Wed Feb 23 21:10:27 CET 2005
+ Found UniNorth memory controller & host bridge, revision: 210
+ Mapped at 0xfdf00000
+ Found a Intrepid mac-io controller, rev: 0, mapped at 0xfde80000
+@@ -26,11 +26,11 @@
+ OpenPIC timer frequency is 4.160000 MHz
+ PID hash table entries: 2048 (order: 11, 32768 bytes)
+ GMT Delta read from XPRAM: 0 minutes, DST: off
+-time_init: decrementer frequency = 41.600661 MHz
++time_init: decrementer frequency = 41.600571 MHz
+ Console: colour dummy device 80x25
+ Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+ Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+-Memory: 255872k available (1788k kernel code, 976k data, 144k init, 0k highmem)
++Memory: 255872k available (1776k kernel code, 0k data, 144k init, 0k highmem)
+ AGP special page: 0xcffff000
+ Calibrating delay loop... 830.66 BogoMIPS (lpj=4153344)
+ Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+@@ -132,13 +132,7 @@
+ VFS: Mounted root (ext3 filesystem) readonly.
+ Freeing unused kernel memory: 144k init 4k chrp 8k prep
+ usb 3-2: new full speed USB device using ohci_hcd and address 2
+-hub 3-2:1.0: USB hub found
+-hub 3-2:1.0: 3 ports detected
+-usb 3-2.1: new low speed USB device using ohci_hcd and address 3
+-input: USB HID v1.10 Mouse [Logitech Apple Optical USB Mouse] on usb-0001:10:1b.0-2.1
+-usb 3-2.3: new full speed USB device using ohci_hcd and address 4
+-input: USB HID v1.10 Keyboard [Mitsumi Electric Apple Extended USB Keyboard] on usb-0001:10:1b.0-2.3
+-input: USB HID v1.10 Device [Mitsumi Electric Apple Extended USB Keyboard] on usb-0001:10:1b.0-2.3
++usb 3-2: can't connect bus-powered hub to this port
+ EXT3 FS on hda5, internal journal
+ Adding 1048568k swap on /dev/hda3.  Priority:-1 extents:1
+ SCSI subsystem initialized
 
-	This group was instrumental in helping me get my first-ever
-	linux/PCI-bus device driver working last year, and I'm back for
-	some more help if you are willing.
+Note: "Memory: ... 0k data ..." !? Surely that can't be correct.
 
-	I have a PCI card that generates an interrupt when it completes
-	a DMA transfer to the PCs RAM.
-
-	This works just fine on a Dell 4400 running 2.6.10-1.766_FC3
-
-	When I try to run the driver on a Dell 2300 FC2/2.6.5-1.358smp
-	or a Sun W2100Z running FC2/2.6.10-1.14_FC2smp I can see the
-	DMA-done bit set in the device, but my interrupt service routine
-	never gets called.
-
-	On the Sun, I booted with "noapic" option, and it booted OK,
-	but then when my device generated an interrupt, there was a
-	kernel message about Disabling IRQ #5 and the system was hung
-	solidly.
-
-	I think this has something to do with the different interrupt
-	hardware on the more advanced servers compared to my desktop
-	Dell 4400, and I somehow need to "enable" the IOAPIC system
-	so that my interrupt gets through to my service routine, but I
-	don't know how.
-
-	I tried grepping through the kernel/drivers source, and I didn't
-	find anything that jumped out at me.
-
-	The Rubini drivers book didn't help in this area either, 
-	although it's a wonderful book in other areas.
-
-	I can post source somewhere if it will help.
-
-	I can also post the essential bits from /var/log/messages about
-	all the incredibly complicated IOAPIC configuration stuff.
-
-	Thank you for your past help, and thank you in advance for any
-	tips you can provide.
-
-				-Alan
-
--- 
-- Alan Kilian <kilian(at)bobodyne.com>
-
-
+/Mikael

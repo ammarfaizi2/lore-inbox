@@ -1,225 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVAYUvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVAYUvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVAYUvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVAYUvi
+	id S262116AbVAYUvp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVAYUvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:51:38 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22544 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262135AbVAYUtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:49:18 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [PATCH 4/12] random pt4: Cleanup SHA interface
-Date: Tue, 25 Jan 2005 22:49:01 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <5.314297600@selenic.com>
-In-Reply-To: <5.314297600@selenic.com>
-MIME-Version: 1.0
+	Tue, 25 Jan 2005 15:51:45 -0500
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:23229 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262116AbVAYUrJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:47:09 -0500
+Date: Tue, 25 Jan 2005 15:46:42 -0500
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: dtor_core@ameritech.net, Linus Torvalds <torvalds@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050125204642.GC21764@fieldses.org>
+References: <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <d120d50005012510571d77338d@mail.gmail.com> <41F6A45D.1000804@comcast.net> <20050125202501.GA21764@fieldses.org> <41F6AC38.2060307@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501252244.10612.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <41F6AC38.2060307@comcast.net>
+User-Agent: Mutt/1.5.6+20040907i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 January 2005 23:41, Matt Mackall wrote:
-> Clean up SHA hash function for moving to lib/
-> Do proper endian conversion
-> Provide sha_init function
-> Add kerneldoc
-> 
-> Signed-off-by: Matt Mackall <mpm@selenic.com>
-> 
-> Index: rnd2/drivers/char/random.c
-> ===================================================================
-> --- rnd2.orig/drivers/char/random.c	2005-01-20 12:28:27.979725732 -0800
-> +++ rnd2/drivers/char/random.c	2005-01-20 12:28:34.506893589 -0800
-> @@ -671,29 +671,6 @@
->  
->  EXPORT_SYMBOL(add_disk_randomness);
->  
-> -/******************************************************************
-> - *
-> - * Hash function definition
-> - *
-> - *******************************************************************/
-> -
-> -/*
-> - * This chunk of code defines a function
-> - * void sha_transform(__u32 digest[HASH_BUFFER_SIZE + HASH_EXTRA_SIZE],
-> - * 		__u32 const data[16])
-> - *
-> - * The function hashes the input data to produce a digest in the first
-> - * HASH_BUFFER_SIZE words of the digest[] array, and uses HASH_EXTRA_SIZE
-> - * more words for internal purposes.  (This buffer is exported so the
-> - * caller can wipe it once rather than this code doing it each call,
-> - * and tacking it onto the end of the digest[] array is the quick and
-> - * dirty way of doing it.)
-> - *
-> - * For /dev/random purposes, the length of the data being hashed is
-> - * fixed in length, so appending a bit count in the usual way is not
-> - * cryptographically necessary.
-> - */
-> -
->  #define HASH_BUFFER_SIZE 5
->  #define EXTRACT_SIZE 10
->  #define HASH_EXTRA_SIZE 80
-> @@ -717,20 +694,32 @@
->  #define K3  0x8F1BBCDCL			/* Rounds 40-59: sqrt(5) * 2^30 */
->  #define K4  0xCA62C1D6L			/* Rounds 60-79: sqrt(10) * 2^30 */
->  
-> -static void sha_transform(__u32 digest[85], __u32 const data[16])
-> +/*
-> + * sha_transform: single block SHA1 transform
-> + *
-> + * @digest: 160 bit digest to update
-> + * @data:   512 bytes of data to hash
-> + * @W:      80 words of workspace
-> + *
-> + * This function generates a SHA1 digest for a single. Be warned, it
-> + * does not handle padding and message digest, do not confuse it with
-> + * the full FIPS 180-1 digest algorithm for variable length messages.
-> + */
-> +static void sha_transform(__u32 digest[5], const char *data, __u32 W[80])
->  {
-> -	__u32 A, B, C, D, E;     /* Local vars */
-> +	__u32 A, B, C, D, E;
->  	__u32 TEMP;
->  	int i;
-> -#define W (digest + HASH_BUFFER_SIZE)	/* Expanded data array */
->  
-> +	memset(W, 0, sizeof(W));
+On Tue, Jan 25, 2005 at 03:29:44PM -0500, John Richard Moser wrote:
+> This still doesn't give me any way to take a big patch and make little
+> patches without hours of work and (N+2) kernel trees for N patches
 
-Hmm..... Parameter decays into pointer, sizeof(W) != 80*4. See:
+Any path to getting a big complicated patch reviewed and into the kernel
+is going to involve many hours of work, by more people than just the
+submitter.
 
-# cat tt.c
-#include <stdio.h>
-void f(char w[80]) {
-    printf("%d\n", sizeof(w));
-}
-int main() {
-    f(0);
-    return 0;
-}
-# gcc tt.c; ./a.out
-4
-# gcc --version
-gcc (GCC) 3.4.3
+I highly recommend Andrew Morton's patch scripts, or something similar.
 
-In light of this, if your sha1 passed regression tests,
-I conclude that we don't need that memset at all.
+http://www.zip.com.au/~akpm/linux/patches/
 
-> +	for (i = 0; i < 16; i++)
-> +		W[i] = be32_to_cpu(((const __u32 *)data)[i]);
->  	/*
->  	 * Do the preliminary expansion of 16 to 80 words.  Doing it
->  	 * out-of-line line this is faster than doing it in-line on
->  	 * register-starved machines like the x86, and not really any
->  	 * slower on real processors.
->  	 */
-> -	memcpy(W, data, 16*sizeof(__u32));
->  	for (i = 0; i < 64; i++) {
->  		TEMP = W[i] ^ W[i+2] ^ W[i+8] ^ W[i+13];
->  		W[i+16] = rol32(TEMP, 1);
-> @@ -768,7 +757,6 @@
->  	digest[4] += E;
->  
->  	/* W is wiped by the caller */
-> -#undef W
->  }
->  
->  #undef f1
-> @@ -780,6 +768,20 @@
->  #undef K3
->  #undef K4
->  
-> +/*
-> + * sha_init: initialize the vectors for a SHA1 digest
-> + *
-> + * @buf: vector to initialize
-> + */
-> +static void sha_init(__u32 *buf)
-> +{
-> +	buf[0] = 0x67452301;
-> +	buf[1] = 0xefcdab89;
-> +	buf[2] = 0x98badcfe;
-> +	buf[3] = 0x10325476;
-> +	buf[4] = 0xc3d2e1f0;
-> +}
-> +
->  /*********************************************************************
->   *
->   * Entropy extraction routines
-> @@ -870,13 +872,7 @@
->  	int i, x;
->  	__u32 data[16], buf[85];
->  
-> -	/* Hash the pool to get the output */
-> -	buf[0] = 0x67452301;
-> -	buf[1] = 0xefcdab89;
-> -	buf[2] = 0x98badcfe;
-> -	buf[3] = 0x10325476;
-> -	buf[4] = 0xc3d2e1f0;
-> -
-> +	sha_init(buf);
->  	/*
->  	 * As we hash the pool, we mix intermediate values of
->  	 * the hash back into the pool.  This eliminates
-> @@ -886,7 +882,7 @@
->  	 * function can be inverted.
->  	 */
->  	for (i = 0, x = 0; i < r->poolinfo->poolwords; i += 16, x+=2) {
-> -		sha_transform(buf, r->pool+i);
-> +		sha_transform(buf, (__u8 *)r->pool+i, buf + 5);
->  		add_entropy_words(r, &buf[x % 5], 1);
->  	}
->  
-> @@ -896,7 +892,7 @@
->  	 * final time.
->  	 */
->  	__add_entropy_words(r, &buf[x % 5], 1, data);
-> -	sha_transform(buf, data);
-> +	sha_transform(buf, (__u8 *)data, buf + 5);
->  
->  	/*
->  	 * In case the hash function has some recognizable
-> @@ -1771,7 +1767,7 @@
->  	tmp[0]=saddr;
->  	tmp[1]=daddr;
->  	tmp[2]=(sport << 16) + dport;
-> -	sha_transform(tmp+16, tmp);
-> +	sha_transform(tmp+16, (__u8 *)tmp, tmp + 16 + 5);
->  	seq = tmp[17] + sseq + (count << COOKIEBITS);
->  
->  	memcpy(tmp + 3, syncookie_secret[1], sizeof(syncookie_secret[1]));
-> @@ -1779,7 +1775,7 @@
->  	tmp[1]=daddr;
->  	tmp[2]=(sport << 16) + dport;
->  	tmp[3] = count;	/* minute counter */
-> -	sha_transform(tmp + 16, tmp);
-> +	sha_transform(tmp + 16, (__u8 *)tmp, tmp + 16 + 5);
->  
->  	/* Add in the second hash and the data */
->  	return seq + ((tmp[17] + data) & COOKIEMASK);
-> @@ -1808,7 +1804,7 @@
->  	tmp[0]=saddr;
->  	tmp[1]=daddr;
->  	tmp[2]=(sport << 16) + dport;
-> -	sha_transform(tmp + 16, tmp);
-> +	sha_transform(tmp + 16, (__u8 *)tmp, tmp + 16 + 5);
->  	cookie -= tmp[17] + sseq;
->  	/* Cookie is now reduced to (count * 2^24) ^ (hash % 2^24) */
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
+--b.

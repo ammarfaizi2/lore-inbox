@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbULQRDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbULQRFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbULQRDY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 12:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbULQRDY
+	id S262075AbULQRFx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 12:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbULQRFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 12:03:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10127 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261962AbULQRDU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 12:03:20 -0500
-Date: Fri, 17 Dec 2004 09:03:18 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Split bprm_apply_creds into two functions
-Message-ID: <20041217090317.V2357@build.pdx.osdl.net>
-References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com> <1103145355.32732.55.camel@moss-spartans.epoch.ncsc.mil> <20041216182529.GC3260@IBM-BWN8ZTBWA01.austin.ibm.com> <1103292602.3437.40.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 17 Dec 2004 12:05:52 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:25751 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262078AbULQRDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 12:03:48 -0500
+Subject: Re: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with
+	workaround...
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1103300362.12664.53.camel@localhost.localdomain>
+References: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
+	 <1103300362.12664.53.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 17 Dec 2004 12:03:31 -0500
+Message-Id: <1103303011.12664.58.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1103292602.3437.40.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Fri, Dec 17, 2004 at 09:10:02AM -0500
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Thu, 2004-12-16 at 13:25, Serge E. Hallyn wrote:
-> > Thanks.  Here is an updated patch.
+On Fri, 2004-12-17 at 11:19 -0500, Steven Rostedt wrote:
+> On Thu, 2004-12-16 at 11:26 -0500, Valdis.Kletnieks@vt.edu wrote:
+> > (Yes, I know NVidia is evil and all that.. If you're not Ingo or NVidia,
+> > consider this "documenting the workaround" ;)
 > > 
-> > -serge
-> > 
-> > Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+> > For reasons I can't explain, the NVidia module won't initialize
+> > correctly with V0-0.7.33-03 if built with CONFIG_SPINLOCK_BKL.  It however
+> > works fine with CONFIG_PREEMPT_BKL, changing nothing else in the config.
+> > It also works fine with 2.6.10-rc3-mm1 without Ingo's patch.
 > 
-> Ok with me.  Chris, would it help alleviate your concerns to give the
-> hook a clearer name and description, e.g. bprm_post_apply_creds and move
-> the discussion about performing other state changes on the process like
-> closing descriptors from the current description of bprm_apply_creds to
-> it?
+> You were able to get the NVidia driver to work? Most of my machines have
+> the NVidia card (yes evil, but I like them) and I haven't been able to
+> get them to work on the rc3-mm1 (and a few earlier). Grant you, I didn't
+> try hard, but I did try a little on V0.7.33-0, and gave up later. 
+> 
 
-Yes.
+Update: I just tried some of my fixes to the rc3-mm1 kernel, and that
+worked without a problem.  But I still didn't get by the sleep problem
+in Ingo's RT patch.  Did you get further, and did you make fixes to both
+the nvidia module as well as the kernel?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+> How did you get by the...
+> 
+> 1) pgd_offset_k_is_obsolete (not too hard, just a few patches for me)
+> 2) class_simple_create and friends going to GPL (I just removed the GPL
+> from my code)
+> 3) for Ingo's patches only, the might_sleep in the os_interface section.
+> having interrupts turned off. (here's where mine failed, I tried saving
+> and restoring them, turning them on that is, backwards from the normal
+> local_irq_save, and it would just be unstable here).
+> 
+> Do you have it working for the 2.6.10-rc3-mm1 without Ingo's patches?
+> 
+> Thanks,
+> 
+> -- Steve
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

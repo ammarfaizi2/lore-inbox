@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268467AbUIJGlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUIJGpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268467AbUIJGlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 02:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUIJGlI
+	id S263778AbUIJGpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267278AbUIJGpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 02:41:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9124 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268396AbUIJGki (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 02:40:38 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Chris Wedgwood <cw@f00f.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20040909232532.GA13572@taniwha.stupidest.org>
-References: <20040909232532.GA13572@taniwha.stupidest.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T3A3YYdY6MbE8lCGLHpK"
-Organization: Red Hat UK
-Message-Id: <1094798428.2800.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 08:40:28 +0200
+	Fri, 10 Sep 2004 02:45:35 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:27056 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263778AbUIJGpM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 02:45:12 -0400
+Message-ID: <41414D73.5080902@free.fr>
+Date: Fri, 10 Sep 2004 08:45:07 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       petkan@nucleusys.com
+Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
+References: <413DB68C.7030508@free.fr> <4140256C.5090803@free.fr> <20040909152454.14f7ebc9.akpm@osdl.org> <20040909223605.GA17655@kroah.com>
+In-Reply-To: <20040909223605.GA17655@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Thu, Sep 09, 2004 at 03:24:54PM -0700, Andrew Morton wrote:
+> 
+>>Eric Valette <eric.valette@free.fr> wrote:
+>>
+>>>Here is a small patch that makes the card functionnal again. I've 
+>>>forwarded the patch to driver author also.
+>>>
+>>>--- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
+>>>+++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
+>>>@@ -341,7 +341,7 @@
+>>> 
+>>> static int rtl8150_reset(rtl8150_t * dev)
+>>> {
+>>>-	u8 data = 0x11;
+>>>+	u8 data = 0x10;
+>>
+>>hm, OK.  Presumably the change (which comes in via the bk-usb tree) was
+>>made for a reason.  So I suspect both versions are wrong ;)
+>>
+>>But it might be risky for Greg to merge this patch up at present.
+> 
+> 
+> As all your patch does is revert the patch in my tree (it was a one line
+> change), mainline should work just fine for you, right?
+> 
+> I'll defer to Petkan as to what to do about this, as he sent me that
+> patch for a good reason I imagine :)
 
---=-T3A3YYdY6MbE8lCGLHpK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+FYI : I already forwarded the patch to the author. Just copied LKML so 
+that other can get the fix easily.
 
-On Fri, 2004-09-10 at 01:25, Chris Wedgwood wrote:
-> Right now CONFIG_4KSTACKS implies IRQ-stacks.  Some people though
-> really need 8K stacks and it would be nice to have IRQ-stacks for them
-> too.
+NB : I just reverted one small change, the rest of the changes (mainly 
+access to driver private data, and IOCTL ops) are OK...
 
-Well I always assumed the future plan was to remove 8k stacks entirely;
-4k+irqstacks and 8k basically have near comparable stack space, with
-this patch you create an option that has more but that is/should be
-deprecated. I'm not convinced that's a good idea.
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
 
---=-T3A3YYdY6MbE8lCGLHpK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBQUxcxULwo51rQBIRAg8HAJ9cv4w83HkWGZpoNX5L8+gzIgaOiACfbU6a
-rROQbOu0tANjEIArVk0snJY=
-=sHLo
------END PGP SIGNATURE-----
-
---=-T3A3YYdY6MbE8lCGLHpK--
 

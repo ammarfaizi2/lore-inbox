@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264820AbUFLOE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUFLO2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264820AbUFLOE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 10:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbUFLOE7
+	id S264819AbUFLO2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 10:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUFLO2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 10:04:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17860 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264826AbUFLOCR (ORCPT
+	Sat, 12 Jun 2004 10:28:20 -0400
+Received: from nmts-mur.murom.net ([213.177.124.6]:61329 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S264819AbUFLO2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 10:02:17 -0400
-Date: Sat, 12 Jun 2004 16:01:42 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: ganzinger@mvista.com
-Cc: Geoff Levand <geoffrey.levand@am.sony.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-Message-ID: <20040612140142.GA3728@devserv.devel.redhat.com>
-References: <40C7BE29.9010600@am.sony.com> <1086861862.2733.6.camel@laptop.fenrus.com> <40C8F68F.4030601@mvista.com> <20040611062256.GB13100@devserv.devel.redhat.com> <40CA3342.9020105@mvista.com>
+	Sat, 12 Jun 2004 10:28:16 -0400
+Date: Sat, 12 Jun 2004 18:28:02 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: stian@nixia.no
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: timer + fpu stuff locks my console race
+Message-ID: <20040612142802.GB3396@sirius.home>
+References: <Pine.LNX.4.44.0406112308100.13607-100000@chimarrao.boston.redhat.com> <20040612134413.GA3396@sirius.home> <1469.83.109.11.80.1087048662.squirrel@nepa.nlc.no>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
 Content-Disposition: inline
-In-Reply-To: <40CA3342.9020105@mvista.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1469.83.109.11.80.1087048662.squirrel@nepa.nlc.no>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---FL5UXtIhxfXey3p5
+--TRYliJ5NKNqkz5bu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 11, 2004 at 03:33:38PM -0700, George Anzinger wrote:
-> Can I be so bold as to ask about the changed to the timer list code?  
-> Assuming we scrapped all the ifdefs, that is.
+On Sat, Jun 12, 2004 at 03:57:42PM +0200, stian@nixia.no wrote:
+> > --- linux-2.6.6/include/asm-i386/i387.h.fp-lockup	2004-05-10 06:33:06
+> > +0400
+> > +++ linux-2.6.6/include/asm-i386/i387.h	2004-06-12 17:25:56 +0400
+> > @@ -51,7 +51,6 @@
+> >  #define __clear_fpu( tsk )					\
+> >  do {								\
+> >  	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
+> > -		asm volatile("fwait");				\
+> >  		(tsk)->thread_info->status &=3D ~TS_USEDFPU;	\
+> >  		stts();						\
+> >  	}							\
+>=20
+> But what about task-switching and fpu-exceptions that comes in late? I
+> know that the kernel does not use FPU in general, and the places it does,
+> fsave, fwait and frstor embeddes it all in kernel-space.
 
-I wonder what kind of resolution is needed. I'd love for timers to just be
-in "absolute time" using some fixed point arith, and then when the timer
-queue gets run you look at the current time and run all the ones that
-expired so far. That way you can make the HZ timer irq run this list, but if
-it's cheap enough and you then want higher accuracy, also the RTC clock, and
-potentially even some oddball thing like the idle loop or network interrupts
-for network timers, or video vsync irqs or .. or ..
+Kernel code which uses FPU should call kernel_fpu_begin() before it
+and kernel_fpu_end() after.  kernel_fpu_begin() is safe - it uses
+fnsave or fxsave, both of which don't raise pending FPU exceptions.
+Also fnsave performs implicit fninit, and fxsave is followed by
+fnclex, which clears pending exceptions.
 
+However, raid6_before_mmx() [drivers/md/raid6x86.h] seems to be buggy:
 
---FL5UXtIhxfXey3p5
+static inline void raid6_before_mmx(raid6_mmx_save_t *s)
+{
+	s->cr0 =3D raid6_get_fpu();
+	asm volatile("fsave %0 ; fwait" : "=3Dm" (s->fsave[0]));
+}
+
+fsave will raise pending exceptions (unlike fnsave).
+
+--TRYliJ5NKNqkz5bu
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAywzGxULwo51rQBIRAr6pAKCQ5lbQcb2KBAuTUlUXqf6VK9z4MQCghAik
-GckB7Q8JAF27O8UPmwC3v6I=
-=SL9k
+iD8DBQFAyxLyW82GfkQfsqIRAlYoAJ4yxTx/Uvn0h3bW2FzgcLPgUASaZACfYQWP
+5Gnfk8kGotpS7sFy3jeSKbs=
+=tYkH
 -----END PGP SIGNATURE-----
 
---FL5UXtIhxfXey3p5--
+--TRYliJ5NKNqkz5bu--

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130079AbRB1HQk>; Wed, 28 Feb 2001 02:16:40 -0500
+	id <S130094AbRB1HaE>; Wed, 28 Feb 2001 02:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130094AbRB1HQa>; Wed, 28 Feb 2001 02:16:30 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:20868 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S130079AbRB1HQL>;
-	Wed, 28 Feb 2001 02:16:11 -0500
-Message-ID: <3A9CA5C2.936334A6@hkicable.com>
-Date: Wed, 28 Feb 2001 15:16:18 +0800
-From: Thomas Lau <lkthomas@hkicable.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac4 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Report bug in kernel 2.4.x:
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 7bit
+	id <S130082AbRB1H3z>; Wed, 28 Feb 2001 02:29:55 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:56070 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S130081AbRB1H3g>; Wed, 28 Feb 2001 02:29:36 -0500
+Date: Tue, 27 Feb 2001 23:29:09 -0800
+To: Thorsten Glaser Geuer <eccesys@topmail.de>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+        Mack Stevenson <mackstevenson@hotmail.com>
+Subject: Re: ISO-8859-1 completeness of kernel fonts?
+Message-ID: <20010227232909.A2599@ferret.phonewave.net>
+In-Reply-To: <F281raFC8XymNMDdckH00012e6f@hotmail.com> <000001c0a0ed$1ea188d0$742c9c3e@tp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <000001c0a0ed$1ea188d0$742c9c3e@tp.net>; from eccesys@topmail.de on Tue, Feb 27, 2001 at 04:26:21PM -0000
+From: idalton@ferret.phonewave.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, someone using ne2000 chipset have same problem-----drop connection
 
-some people already post in mail list, but the sound like no one
-interested about our problem
+Hello all..
 
-it will auto drop connection when used a long time ( over 24 hours )
-I can not use ifconfig to restart the interface, so I must reboot the
-kernel ( system )
-I didn't reach this problem before, but in 2.4.x, I hope it will fix
-soon and please help us to fix
-my system config:
-Cable modem
-NE2000-PCI
-problem type:
-connection drop when used over 24 hours or more
+I'm interested in making a 16x32 console font, so I can run my 21"
+display at 100x37 text. I've asked on the framebuffer list already, but
+have heard no reply, and the list seems to be defunct.
 
+Since it's a fixed-frequency display, I want to have the framebuffer and
+basic font in-kernel and loaded at boot time. I'm not sure where to find
+the necessary tools/documentation to do all the steps, though. Could
+someone point me in the right direction?
 
-
-Thanks
-
+-- Ferret

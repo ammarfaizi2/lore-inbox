@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263431AbTJQMdF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 08:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbTJQMdF
+	id S263439AbTJQMh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 08:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTJQMh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 08:33:05 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:47111 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263431AbTJQMdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 08:33:03 -0400
-Date: Fri, 17 Oct 2003 13:33:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Denis Zaitsev <zzz@anda.ru>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH TRIVIAL] Compile error in 2.4.22 without PCI
-Message-ID: <20031017133301.B27349@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Denis Zaitsev <zzz@anda.ru>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <20031015003036.A10226@natasha.ward.six>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031015003036.A10226@natasha.ward.six>; from zzz@anda.ru on Wed, Oct 15, 2003 at 12:30:36AM +0600
+	Fri, 17 Oct 2003 08:37:57 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:59520 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263439AbTJQMhz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 08:37:55 -0400
+Date: Fri, 17 Oct 2003 08:38:57 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: unsafe printk
+In-Reply-To: <1066354577.15921.111.camel@cube>
+Message-ID: <Pine.LNX.4.53.0310170834160.2962@chaos>
+References: <1066354577.15921.111.camel@cube>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 12:30:36AM +0600, Denis Zaitsev wrote:
-> I have these warnings when I'm compiling 2.4.22 for a 486 EISA system:
-> 
-> aic7xxx_osm.c: In function `ahc_softc_comp':
-> aic7xxx_osm.c:1560: warning: implicit declaration of function `ahc_get_pci_bus'
-> aic7xxx_osm.c:1568: warning: implicit declaration of function `ahc_get_pci_slot'
-> 
-> And then the make finishes with an error, because these functions
-> really exist only if the PCI support is turned on.
-> 
-> The patch below fixes this.  And the same patch fits for the 2.6
-> kernels.  Please, apply it.
+On Thu, 16 Oct 2003, Albert Cahalan wrote:
 
-You probably want to send this to Justin, the driver Maintainer.  If he
-doesn't reply in say a week I´d suggest submitting it to Marcelo as it's
-obviously correct.
+> Suppose I name an executable this:
+> "\n<0>Oops: EIP=0"
+>
+> That comes out as a KERN_EMERG log message,
+> hitting the console and maybe a pager even.
+>
+> There seem to be a number of places in the
+> kernel that printk current->comm without
+> concern for what it may contain.
+>
+> Escape codes and non-ASCII can make for some
+> interesting log messages as well. Terminals
+> may have some programmable keys or answerback
+> messages. So one day root is using grep on
+> the log files, and they program the answerback
+> string to contain a "\r\nrm -r /\r\n"...
+>
+> BTW, the 0x9b character is often an escape.
+
+I remember this from VAX/VMS "system manager school"!
+"Don't ever read anybody's data from the SYSTEM account...."
+
+The text read could write a whole command-procedure to
+the answer-back buffer, then tell it to answer-back! The
+result would be the execution of anything from a privileged
+account.
+
+I don't think the built-in VT100-220 emulation has an
+answer-back buffer, but there still are RS-232C terminals
+out there........
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

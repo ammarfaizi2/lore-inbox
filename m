@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271388AbTG2Kjl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 06:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271390AbTG2Kjl
+	id S271383AbTG2Ki6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 06:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271388AbTG2Ki6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 06:39:41 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:29372 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271388AbTG2Kjj (ORCPT
+	Tue, 29 Jul 2003 06:38:58 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:26556 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S271383AbTG2Ki4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 06:39:39 -0400
-Date: Tue, 29 Jul 2003 12:39:36 +0200 (MEST)
-Message-Id: <200307291039.h6TAda0x026973@harpo.it.uu.se>
+	Tue, 29 Jul 2003 06:38:56 -0400
+Date: Tue, 29 Jul 2003 12:38:52 +0200 (MEST)
+Message-Id: <200307291038.h6TAcqEM026963@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: cowboy@vnet.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: ACPI failure (2.6.0-test<x> and 2.4.22-pre<x>)
+To: andrew.grover@intel.com, jacob@netg.se, linux-kernel@vger.kernel.org
+Subject: RE: PROBLEM: ACPI hangs when invoked from keyboard
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 14:09:40 -0400 (EDT), Richard A Nelson wrote:
->IBM T30 Laptop:
->IBM machine detected. Enabling interrupts during APM calls.
->IBM machine detected. Disabling SMBus accesses.  <- 2.6 only
->No local APIC present or hardware disabled       <- 2.4 only
->Local APIC disabled by BIOS -- reenabling.       <- 2.6 only
->Found and enabled local APIC!                    <- 2.6 only
+On Mon, 28 Jul 2003 16:04:59 -0700, andrew.grover@intel.com wrote:
+>This isn't ACPI, it's because 2.5.74+ force the APIC enabled.
 
-This is the 2.5.74 patch for P4 kicking in. Without it
-you wouldn't have access to the local APIC.
+In this case, the problematic 2.5.74 patch you're referring to
+is NOT the culprit.
 
->On either 2.6, or 2.4, booting with ACPI enabled gets as far as
->parsing the ACPI EC table - at which point it oops with bad pointer
->and halts the system.  Sorry at this point I don't have the register
->contents; it took a while to narrow it this far - and have the
->screen in such a state that I can see any relevant information other
->than the the trying to kill init message :)
+His machine is a P3 not P4, and we've _always_ force-enabled the
+local APICs for all P6/K7-family processors. The 2.5.74 patch
+only affects P4s.
 
-Since 2.4 also oopses it can't be the local APIC. I'm saying
-this because ACPI + local APIC doesn't work with some BIOSen.
+(I'm thinking about a lapic/nolapic pair of kernel command-line
+options, and possibly changing the P4 default to only enable
+if lapic was on the command line. That should solve the issues
+with local APIC + ACPI in broken BIOSen.)
+
+...
+>> IBM Thinkpad X30
+...
+>> processor       : 0
+>> vendor_id       : GenuineIntel
+>> cpu family      : 6
+>> model           : 11
+>> model name      : Mobile Intel(R) Pentium(R) III CPU - M  1200MHz
+>> stepping        : 4

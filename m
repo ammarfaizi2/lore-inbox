@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbTKYU0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 15:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTKYU0G
+	id S263060AbTKYUcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 15:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTKYUcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 15:26:06 -0500
-Received: from smtp02.web.de ([217.72.192.151]:35604 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263142AbTKYU0C (ORCPT
+	Tue, 25 Nov 2003 15:32:43 -0500
+Received: from main.gmane.org ([80.91.224.249]:65416 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263060AbTKYUcl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 15:26:02 -0500
-Subject: Re: 2.6.0-preX causes memory corruption
-From: Ali Akcaagac <aliakc@web.de>
+	Tue, 25 Nov 2003 15:32:41 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1069791966.2343.4.camel@localhost>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Copy protection of the floppies
+Date: Tue, 25 Nov 2003 21:32:39 +0100
+Message-ID: <yw1xoev0yys8.fsf@kth.se>
+References: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com> <20031125201842.GC30083@wind.cocodriloo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 25 Nov 2003 21:26:07 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:o+AObOvD3WJNFfsc+dm1TwfFcfw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > After installing 2.6.0-pre9 the System seemed to work normally,
-> > all the
+Antonio Vargas <wind@cocodriloo.com> writes:
 
-> You mean 2.6.0-test9, don't you?
+> Usual PC floppy controllers are not very flexible, so you just need
+> some more-flexible controller to do the trick. A popular choice
+> for creating master disks is to get an Amiga with an 1.44 floppy
+> (any A4000 will do), make some scratched disks and then duplicate
+> them with some fine 1990-ish hardware disk copier.
 
-Yes
+If I'd like to copy those disks, I'd just have to dig out the old
+Amiga, right?
 
-> > stuff I did before worked normally but when doing large
-> > fileoperation including crunching stuff using bzip2 (e.g.
-> > checking out modules from CVS and tar'ing them up) the
-> > archives get corrupt. I was first assuming that this was
-> > a onetime mistake and thus I deleted the corrupt file and
-> > re-run my normal operations. But after a while I noticed
-> > that this problem occoured more and more and I was starting
-> > to worry. Archives are showing to be corrupted but after an
-> > reset these archives can be unpacked normally again.
-
-> Do you have preemptive kernel enabled (CONFIG_PREEMPT=y)?
-
-Yes
-
-> There's been some discussion about it possibly causing strange
-> things in some configurations. If it helps to disable it, please
-> post your .config, so we can compare with others.
-
-Yes, saw it after I've posted my mail. But here is my config.
-
-http://www.akcaagac.com/.config
-
-Hope it helps.
+-- 
+Måns Rullgård
+mru@kth.se
 

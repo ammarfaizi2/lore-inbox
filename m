@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265987AbUBJR0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUBJRXG
+	id S266016AbUBJRdA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266028AbUBJR35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:23:06 -0500
-Received: from hera.kernel.org ([63.209.29.2]:32211 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266064AbUBJRTM (ORCPT
+	Tue, 10 Feb 2004 12:29:57 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:27792 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266024AbUBJR23 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:19:12 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Does anyone still care about BSD ptys?
-Date: Tue, 10 Feb 2004 17:19:04 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0b3q8$uf3$1@terminus.zytor.com>
-References: <c07c67$vrs$1@terminus.zytor.com> <20040209175119.GC1795@intern.kubla.de> <Pine.LNX.4.53.0402091327020.9986@chaos> <20040210111632.GA1229@intern.kubla.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1076433544 31204 63.209.29.3 (10 Feb 2004 17:19:04 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 10 Feb 2004 17:19:04 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 10 Feb 2004 12:28:29 -0500
+Date: Tue, 10 Feb 2004 18:28:20 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: Linux 2.6.3-rc2
+In-Reply-To: <200402101717.14934.bzolnier@elka.pw.edu.pl>
+Message-ID: <Pine.GSO.4.58.0402101722150.2261@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
+ <Pine.GSO.4.58.0402101352320.2261@waterleaf.sonytel.be>
+ <200402101558.59344.bzolnier@elka.pw.edu.pl> <200402101717.14934.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040210111632.GA1229@intern.kubla.de>
-By author:    Dominik Kubla <dominik@kubla.de>
-In newsgroup: linux.dev.kernel
-> 
-> Try removing you BSD pty's and most likely you will see that telnetd
-> happily uses System V pty's. If not then you should really update your
-> telnetd.  Both netkit-telnetd and telnetd-ssl, which is derived from it,
-> can use System V-ptys since at least 5 years, probably even longer.
-> If both BSD and System V pty's are present on the system, the code will use
-> BSD. (That's why i removed the BSD pty's in the first place!)
-> 
+On Tue, 10 Feb 2004, Bartlomiej Zolnierkiewicz wrote:
+> > It fails with `unterminated `#if' conditional'.
+>
+> Please pass me brown paper bag...
+>
+> [PATCH] fix build for CONFIG_BLK_DEV_IDEDMA=n
+>
+> "fix duplication of DMA {black,white}list in icside.c" patch broke it.
+>
+> Noticed by Geert Uytterhoeven <geert@linux-m68k.org>.
+>
+>  linux-2.6.3-rc2-root/include/linux/ide.h |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+>
+> diff -puN include/linux/ide.h~ide_release_dma_fix include/linux/ide.h
+> --- linux-2.6.3-rc2/include/linux/ide.h~ide_release_dma_fix	2004-02-10 16:30:48.085986376 +0100
+> +++ linux-2.6.3-rc2-root/include/linux/ide.h	2004-02-10 16:35:38.959766840 +0100
+> @@ -1626,6 +1626,7 @@ extern int __ide_dma_count(ide_drive_t *
+>  extern int __ide_dma_verbose(ide_drive_t *);
+>  extern int __ide_dma_lostirq(ide_drive_t *);
+>  extern int __ide_dma_timeout(ide_drive_t *);
+> +#endif /* CONFIG_BLK_DEV_IDEDMA_PCI */
+>
+>  #ifdef CONFIG_BLK_DEV_IDE_TCQ
+>  extern int __ide_dma_queued_on(ide_drive_t *drive);
+> @@ -1634,13 +1635,12 @@ extern ide_startstop_t __ide_dma_queued_
+>  extern ide_startstop_t __ide_dma_queued_write(ide_drive_t *drive);
+>  extern ide_startstop_t __ide_dma_queued_start(ide_drive_t *drive);
+>  #endif
+> +#endif /* CONFIG_BLK_DEV_IDEDMA */
+>
+> -#else
+> +#ifndef CONFIG_BLK_DEV_IDEDMA_PCI
+>  static inline void ide_release_dma(ide_hwif_t *drive) {;}
+>  #endif
+>
+> -#endif /* CONFIG_BLK_DEV_IDEDMA */
+> -
+>  extern int ide_hwif_request_regions(ide_hwif_t *hwif);
+>  extern void ide_hwif_release_regions(ide_hwif_t* hwif);
+>  extern void ide_unregister (unsigned int index);
 
-Eep!
+This one seems to work fine. Thanks!
 
-Using BSD ptys is a security hazard.  They should *definitely* not be
-usef preferentially.  On my system (RH9) they aren't used by telnet
-even though they exist.
+Gr{oetje,eeting}s,
 
-	-hpa
--- 
-PGP public key available - finger hpa@zytor.com
-Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
-"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
-Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

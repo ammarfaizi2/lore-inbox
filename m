@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261501AbSJ2Cns>; Mon, 28 Oct 2002 21:43:48 -0500
+	id <S261509AbSJ2C6f>; Mon, 28 Oct 2002 21:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261497AbSJ2Cns>; Mon, 28 Oct 2002 21:43:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:51682 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261501AbSJ2Cnr>;
-	Mon, 28 Oct 2002 21:43:47 -0500
+	id <S261514AbSJ2C6f>; Mon, 28 Oct 2002 21:58:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:39652 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261509AbSJ2C6e>;
+	Mon, 28 Oct 2002 21:58:34 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: cmm@us.ibm.com
-Cc: dipankar@gamebox.net, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+To: Hugh Dickins <hugh@veritas.com>
+Cc: mingming cao <cmm@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH]updated ipc lock patch 
-In-reply-to: Your message of "Mon, 28 Oct 2002 14:07:23 -0800."
-             <3DBDB51B.84F97EC1@us.ibm.com> 
-Date: Tue, 29 Oct 2002 12:06:49 +1100
-Message-Id: <20021029025009.969372C28F@lists.samba.org>
+In-reply-to: Your message of "Tue, 29 Oct 2002 00:26:27 -0000."
+             <Pine.LNX.4.44.0210282357450.1315-100000@localhost.localdomain> 
+Date: Tue, 29 Oct 2002 13:51:20 +1100
+Message-Id: <20021029030456.F06272C259@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DBDB51B.84F97EC1@us.ibm.com> you write:
-> > Yes, this is the typical RCU model, except that in this case (IPC),
-> > I am not quite sure if it is in effect that different from what Ming/Hugh
-> > have done.
+In message <Pine.LNX.4.44.0210282357450.1315-100000@localhost.localdomain> you 
+write:
+> > 2) This is a problem, because other tasks could be OOM killed during
+> >    that period, and could also try to use this mempool.
 > 
-> Rusty's patch looks good to me. I would like to replace the mempool in
-> IPC with this typical RCU model. Rusty, if you like, I will make a patch
-> against mm6.  There need some cleanups. One thing is that ipc_alloc()
-> are called by other places(besides grow_ary()), and they don't need to
-> the RCU header structure. 
+> They'll try to use the mempool, maybe some will be allowed to wait
+> for their kmalloc(GFP_KERNEL) memory, and others will be PF_MEMDIEd and
+> proceed to take a reserved mempool buffer, and others will be PF_MEMDIEd
+> and have to wait for a reserved mempool buffer.  Which will be released
+> to them in due course.  No worries there.
 
-Yes, I noticed that, but I'm not sure it's worth separating
-ipc_alloc() and ipc_rcu_alloc() for a couple of temporary allocations.
+Oh.
 
-Anyway, glad you like the patch,
+You are (of course) correct.  Thankyou for your patience.  Your
+solution is elegant and correct.
+
+Feeling dimwitted,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

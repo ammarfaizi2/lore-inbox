@@ -1,58 +1,205 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261572AbSJPWI7>; Wed, 16 Oct 2002 18:08:59 -0400
+	id <S261581AbSJPWN1>; Wed, 16 Oct 2002 18:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSJPWI7>; Wed, 16 Oct 2002 18:08:59 -0400
-Received: from tailtiu.davidcoulson.net ([194.159.156.4]:25011 "EHLO
-	mail.mx.davidcoulson.net") by vger.kernel.org with ESMTP
-	id <S261572AbSJPWI5>; Wed, 16 Oct 2002 18:08:57 -0400
-Message-ID: <3DADE4DA.9080508@davidcoulson.net>
-Date: Wed, 16 Oct 2002 23:14:50 +0100
-From: David Coulson <david@davidcoulson.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
-X-Accept-Language: en-gb
+	id <S261580AbSJPWN1>; Wed, 16 Oct 2002 18:13:27 -0400
+Received: from [207.34.103.174] ([207.34.103.174]:46838 "EHLO cdlsystems.com")
+	by vger.kernel.org with ESMTP id <S261579AbSJPWNX>;
+	Wed, 16 Oct 2002 18:13:23 -0400
+Message-ID: <0d9501c27562$64609050$2c0e10ac@frinkiac7>
+From: "Mark Cuss" <mcuss@cdlsystems.com>
+To: <linux-kernel-owner+mcuss=40cdlsystems.com@vger.kernel.org>
+Cc: <jamesclv@us.ibm.com>, <root@chaos.analogic.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1021016135105.150A-100000@chaos.analogic.com> <200210161228.58897.jamesclv@us.ibm.com> <0d3901c2754c$7bf17060$2c0e10ac@frinkiac7> <3DADD064.8010707@rackable.com>
+Subject: Re: Kernel reports 4 CPUS instead of 2...
+Date: Wed, 16 Oct 2002 16:21:37 -0600
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org,
-       UML devel <user-mode-linux-devel@lists.sourceforge.net>
-Subject: Re: swap_dup/swap_free errors with 2.4.20-pre10
-References: <Pine.LNX.4.44L.0210161922570.5583-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Return-Path: mcuss@cdlsystems.com
+Reply-To: mcuss@cdlsystems.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Marcelo,
+It turns out that some part of Red Hat 8 was at fault.
 
-> Any news on this one, David?
+I installed Red Hat 7.3 and compiled a custom 2.4.19 kernel.
 
-Sorry, I forgot to follow up - I spend most of yesterday morning trying 
-to stabalise the thing and didn't end up posting my results. Basically, 
-my board can only handle 1.5Gb of PC133 properly, even though it will 
-try to use 2Gb if you put that much in it. Interestingly enough, it 
-passed the memtest86 tests I ran on it the other night, so I'm not sure 
-what's going on there. Tyan, the board manufacturer, confirmed that the 
-system is only stable with 1.5Gb of PC133, which is somewhat 
-disappointing, but I guess I'll have to live. Interestingly, it ran fine 
-for about 8hrs before going funny the first time, then it would spit out 
-swap_dup/free errors within 30 to 60mins five times in a row.
+Speaking of the previous compile test:  The dual PIII 1 Gig box took 9.2s to
+compile my test block of code...  The new Dual Xeon 2.2 now takes 4.26 s
+(with hyperthreading.  Its about 1/2 a second slower without) - thats better
+than double.  I'm not sure if its just the kernel that was running slower on
+Red Hat 8, or maybe gcc 3.2 is just a lot slower than 2.96...
 
-I had weird lockups under 2.4.20-pre9, where the system would behave 
-oddly - Most commands would work, but 'ps' simply locked up and I 
-couldn't Ctrl-C out of it. I've moved back to 2.4.19-ck7-rmap, which 
-seems to be stable at the moment, although I may take another look at 
-the 2.4.20-pre10 kernel sometime. As always, I didn't have a keyboard or 
-monitor hooked up to it, so I couldn't do too much with sysrq, but I'll 
-be ready if it does it again.
 
-Any points about the above lock-ups would be useful - Since 'ps' locks 
-and others don't (e.g. 'ls'), I think it's quite a specific issue, 
-although I've so far been unable to track it down.
 
-Thanks,
-David
+Thanks to everyone for your help
 
--- 
-David Coulson                                  http://davidcoulson.net/
-d@vidcoulson.com                       http://journal.davidcoulson.net/
+Mark
+
+----- Original Message -----
+From: "Samuel Flory" <sflory@rackable.com>
+To: <mcuss@cdlsystems.com>
+Cc: <jamesclv@us.ibm.com>; <root@chaos.analogic.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 16, 2002 2:47 PM
+Subject: Re: Kernel reports 4 CPUS instead of 2...
+
+
+> Mark Cuss wrote:
+>
+> >Speaking of performance.... :)
+> >
+> >Has anyone done any testing on a dual CPU configuration like this?  I've
+> >been testing this box with both the RedHat 8 Stock Kernel
+(2.4.18.something)
+> >and 2.4.19 from kernel.org.  Currently, I can't make the thing perform
+> >anywhere near as fast as my Dual PIII 1 Ghz box (running 2.4.7 for the
+last
+> >325 days...) .  I've been compiling the same block of code on both the
+> >machines and comparing the times.  The PIII box is around 7 s, while the
+new
+> >Xeon Box is 13 or 14s...
+> >
+> >My thinking was that since the CPUs are much faster, and the FSB is
+faster,
+> >and the disk controller is faster, that the computer would be faster.
+> >
+> >The hardware is obviously faster, I'm sure its just something I've done
+> >wrong in the kernel configuration...  If anyone has any advice or words
+of
+> >wisdom, I'd really appreciate them...
+> >
+> >
+>
+>    Try shutting off hyperthreading in the bios.  Keep in mind
+> hyperthreading is net loss if you are running a single nonthreaded app.
+>  Also you might want to check if there aren't io speed issues.
+>
+>   A good way to see the effects positive effects of hyperthreading is a
+> kernel compile.  A "make -j 4 bzImage" should be much much faster on the
+> Xeon system with hyperthreading than a P3.
+>
+> >
+> >Mark
+> >
+> >----- Original Message -----
+> >From: "James Cleverdon" <jamesclv@us.ibm.com>
+> >To: <root@chaos.analogic.com>; "Samuel Flory" <sflory@rackable.com>
+> >Cc: "Mark Cuss" <mcuss@cdlsystems.com>; <linux-kernel@vger.kernel.org>
+> >Sent: Wednesday, October 16, 2002 1:28 PM
+> >Subject: Re: Kernel reports 4 CPUS instead of 2...
+> >
+> >
+> >
+> >
+> >>On Wednesday 16 October 2002 10:54 am, Richard B. Johnson wrote:
+> >>
+> >>
+> >>>On Wed, 16 Oct 2002, Samuel Flory wrote:
+> >>>
+> >>>
+> >>>>>On Wed, 16 Oct 2002, Mark Cuss wrote:
+> >>>>>
+> >>>>>This is the correct behavior. If you don't like this, you can
+> >>>>>swap motherboards with me ;) Otherwise, grin and bear it!
+> >>>>>
+> >>>>>
+> >>>>  Wouldn't it be easier just to turn off the hypertreading or jackson
+> >>>>tech option in the bios ;-)
+> >>>>
+> >>>>
+> >>>Why would you ever want to turn it off?  You paid for a CPU with
+> >>>two execution units and you want to disable one?  This makes
+> >>>no sense unless you are using Windows/2000/Professional, which
+> >>>will trash your disks and all their files if you have two
+> >>>or more CPUs (true).
+> >>>
+> >>>
+> >>No, you're thinking of IBM's Power4 chip, which really does have two CPU
+> >>
+> >>
+> >cores
+> >
+> >
+> >>on one chip, sharing only the L2 cache.
+> >>
+> >>The P4 hyperthreading shares just about all CPU resources between the
+two
+> >>threads of execution.  There are only separate registers, local APIC,
+and
+> >>some other minor logic for each "CPU" to call its own.  All execution
+> >>
+> >>
+> >units
+> >
+> >
+> >>are demand shared between them.  (The new "pause" opcode, rep nop,
+allows
+> >>
+> >>
+> >one
+> >
+> >
+> >>half to yield resources to the other half.)
+> >>
+> >>That's why typical job mixes only get around 20% improvement.  Even
+> >>
+> >>
+> >optimized
+> >
+> >
+> >>benchmarks, which run only integer code on one side and floating point
+on
+> >>
+> >>
+> >the
+> >
+> >
+> >>other only get around a 40% boost.  The P4 just doesn't have all that
+many
+> >>execution units to go around.  Future chips will probably do better.
+> >>
+> >>
+> >>
+> >>>Cheers,
+> >>>Dick Johnson
+> >>>Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> >>>The US military has given us many words, FUBAR, SNAFU, now ENRON.
+> >>>Yes, top management were graduates of West Point and Annapolis.
+> >>>
+> >>>
+> >>--
+> >>James Cleverdon
+> >>IBM xSeries Linux Solutions
+> >>{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+> >>
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >>
+> >>
+> >
+> >
+> >
+> >
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

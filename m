@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278550AbRJXPLn>; Wed, 24 Oct 2001 11:11:43 -0400
+	id <S278551AbRJXPRE>; Wed, 24 Oct 2001 11:17:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278551AbRJXPLd>; Wed, 24 Oct 2001 11:11:33 -0400
-Received: from etna.trivadis.com ([193.73.126.2]:50414 "EHLO lttit")
-	by vger.kernel.org with ESMTP id <S278550AbRJXPLX>;
-	Wed, 24 Oct 2001 11:11:23 -0400
-Date: Wed, 24 Oct 2001 17:09:15 +0200
-From: Tim Tassonis <timtas@dplanet.ch>
-To: linux-kernel@vger.kernel.org
-Subject: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
-X-Mailer: Sylpheed version 0.6.3cvs10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S278567AbRJXPQy>; Wed, 24 Oct 2001 11:16:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56076 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S278556AbRJXPQi>; Wed, 24 Oct 2001 11:16:38 -0400
+Date: Wed, 24 Oct 2001 17:16:58 +0200
+From: Jan Kara <jack@suse.cz>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+Message-ID: <20011024171658.B10075@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15wPed-0000HM-00@lttit>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody
+  Hello,
 
-When I try to create a partition of 2GB using fdisk or parted, I get the
-error "File size limit exceeded (core dumped)". I already read about this
-error on the mailing list, but sadly not of any solution.
+>  In my ongoing effort to provide centralised file storage that I can
+>  be proud of, I have put together some code to implement tree quotas.
+> 
+>  The idea of a tree quota is that the block and inode usage of a file
+>  is charged to the (owner of the root of the) tree rather than the
+>  owner (or group owner) of the file.
+>  This will (I hope) make life easier for me.  There are several
+>  reasons that I have documented (see URL below) but a good one is that
+>  they are transparent and predictable.  du -s $HOME should *always*
+>  match your usage according to "quota".
+> 
+>  I have written a patch which is included below, but also is at
+>     htttp://www.cse.unsw.edu.au/~neilb/patches/linux/
+> 
+>  which defines a third type of quotas for Linux, named "treequotas".
+>  The patch supports these quotas for ext2 by borrowing (or is that
+>  stealing) i_reserved2 from the on-disc inode to store the "tid",
+>  which is the uid of the ultimate non-root parent of the file.
+> 
+>  There are obvious issues with hardlinks between trees with different
+>  tree-ids, but they can be easily restricted to root who should know
+>  better.
+> 
+>  The patch introduces the concept of a "Treeid" or "tid" which is
+>  inherited from the parent, if not zero, or set from the uid
+>  otherwise.
+>  Thus if root creates a directory near the top of a filesystem and
+>  chowns it to someone, all files created beneath that directory,
+>  independant of ownership, get charged to the someone (for the purpose
+>  of treequotaing).
+  But how do you solve the following: mv <dir> <some_other_dir>
+The parent changes. You need to go through all the subdirs of <dir> and change
+the TID. This is really hard to get right and to avoid deadlocks
+and races... At least it seems to me so.
 
-Has anybody got one?
-
-Btw: If happend with fdisk from util-linux-2.10f until util-linux-2.11l.
-
-P.S. I'm not subscribed to the list bla bla bla (but read it rather
-often).
-
-Bye
-Tim
+									Honza

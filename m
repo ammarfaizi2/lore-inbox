@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbUFIUE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265902AbUFIUK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265825AbUFIUE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 16:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUFIUE0
+	id S265902AbUFIUK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 16:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265921AbUFIUK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 16:04:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11676 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265825AbUFIUEK (ORCPT
+	Wed, 9 Jun 2004 16:10:56 -0400
+Received: from smtp1.pp.htv.fi ([213.243.153.34]:14814 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S265902AbUFIUKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 16:04:10 -0400
-Date: Wed, 9 Jun 2004 13:04:06 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
-Message-Id: <20040609130406.7942507c@lembas.zaitcev.lan>
-In-Reply-To: <mailman.1086629984.12568.linux-kernel2news@redhat.com>
-References: <mailman.1086629984.12568.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 9 Jun 2004 16:10:54 -0400
+Subject: Re: [PATCH] ALSA: Remove subsystem-specific malloc (1/8)
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, tiwai@suse.de
+In-Reply-To: <20040609113455.U22989@build.pdx.osdl.net>
+References: <200406082124.i58LOuOL016163@melkki.cs.helsinki.fi>
+	 <20040609113455.U22989@build.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1086812001.13026.63.camel@cherry>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Jun 2004 23:13:21 +0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 18:03:49 +0200
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+On Wed, 2004-06-09 at 21:34, Chris Wright wrote:
+> This looks more like the kzalloc() that pops up every now and then.
+> Wouldn't it make more sense to give kcalloc() a true calloc() style
+> interface?
 
-> --- linux-2.6/arch/s390/kernel/compat_wrapper.S	Mon Jun  7 16:07:24 2004
-> +++ linux-2.6-s390/arch/s390/kernel/compat_wrapper.S	Mon Jun  7 16:07:53 2004
-> @@ -1097,6 +1097,8 @@
->  	lgfr	%r4,%r4			# int
->  	llgtr	%r5,%r5			# struct compat_timespec *
->  	llgtr	%r6,%r6			# u32 *
-> +	lgf	%r0,164(%r15)		# int
-> +	stg	%r0,160(%r15)
->  	jg	compat_sys_futex	# branch to system call
->  
->  	.globl	sys32_setxattr_wrapper
+I can go either way. Takashi, do you want me to update the ALSA patches
+to use this version?
 
-Is it just me, or this could he above stand a use of STACK_FRAME_OVERHEAD
-instead of 160? I envision a time when Ulrich Weigand comes out with
-a gcc -fkernel, and at that time we'll need all such references
-configurable.
+		Pekka
 
-> diff -urN linux-2.6/include/asm-s390/ptrace.h linux-2.6-s390/include/asm-s390/ptrace.h
-> --- linux-2.6/include/asm-s390/ptrace.h	Mon May 10 04:32:54 2004
-> +++ linux-2.6-s390/include/asm-s390/ptrace.h	Mon Jun  7 16:07:53 2004
-> @@ -303,6 +303,7 @@
->   */
->  struct pt_regs 
->  {
-> +	unsigned long args[1];
->  	psw_t psw;
+diff -urN linux-2.6.6/include/linux/slab.h kcalloc-2.6.6/include/linux/slab.h
+--- linux-2.6.6/include/linux/slab.h	2004-06-09 22:56:11.874249056 +0300
++++ kcalloc-2.6.6/include/linux/slab.h	2004-06-09 23:03:10.597593432 +0300
+@@ -95,6 +95,7 @@
+ 	return __kmalloc(size, flags);
+ }
+ 
++extern void *kcalloc(size_t, size_t, int);
+ extern void kfree(const void *);
+ extern unsigned int ksize(const void *);
+ 
+diff -urN linux-2.6.6/mm/slab.c kcalloc-2.6.6/mm/slab.c
+--- linux-2.6.6/mm/slab.c	2004-06-09 22:59:13.081701336 +0300
++++ kcalloc-2.6.6/mm/slab.c	2004-06-09 23:07:51.262925816 +0300
+@@ -2332,6 +2332,22 @@
+ EXPORT_SYMBOL(kmem_cache_free);
+ 
+ /**
++ * kcalloc - allocate memory for an array. The memory is set to zero.
++ * @n: number of elements.
++ * @size: element size.
++ * @flags: the type of memory to allocate.
++ */
++void *kcalloc(size_t n, size_t size, int flags)
++{
++	void *ret = kmalloc(n * size, flags);
++	if (ret)
++		memset(ret, 0, n * size);
++	return ret;
++}
++
++EXPORT_SYMBOL(kcalloc);
++
++/**
+  * kfree - free previously allocated memory
+  * @objp: pointer returned by kmalloc.
+  *
 
-This worries me, together with
-   (__u32*)((addr_t) &__KSTK_PTREGS(child)->psw
 
-Why not to place the necessary word outside of the struct?
-It just logically doesn't belong. Might be just as easy to
-do that mvc to other place.
-
-I think I'll try to scope such an implemenation.
-
--- Pete

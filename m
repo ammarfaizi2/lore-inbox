@@ -1,969 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268396AbTGOPJw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 11:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268470AbTGOPJv
+	id S268256AbTGOPMo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 11:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268522AbTGOPMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:09:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:5791 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268396AbTGOPD4 (ORCPT
+	Tue, 15 Jul 2003 11:12:44 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:56710 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268256AbTGOPEJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:03:56 -0400
+	Tue, 15 Jul 2003 11:04:09 -0400
 From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16148.6938.551232.876021@gargle.gargle.HOWL>
-Date: Tue, 15 Jul 2003 10:17:46 -0500
+Message-ID: <16148.6952.56851.689890@gargle.gargle.HOWL>
+Date: Tue, 15 Jul 2003 10:18:00 -0500
 To: linux-kernel@vger.kernel.org
 Cc: karim@opersys.com, bob@watson.ibm.com
-Subject: [RFC][PATCH 4/5] relayfs API and common code
+Subject: [RFC][PATCH 5/5] relayfs scheme-dependent code
 X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/relay.c linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay.c
---- linux-2.6.0-test1/fs/relayfs/relay.c	Wed Dec 31 18:00:00 1969
-+++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay.c	Sun Jul 13 22:32:44 2003
-@@ -0,0 +1,2000 @@
+diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/relay_locking.c linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_locking.c
+--- linux-2.6.0-test1/fs/relayfs/relay_locking.c	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_locking.c	Sun Jul 13 22:32:49 2003
+@@ -0,0 +1,632 @@
 +/*
-+ * Public API and common code for RelayFS.
++ * RelayFS locking scheme implementation.
 + *
-+ * Please see Documentation/filesystems/relayfs.txt for API description.
-+ * 
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
 + * Copyright (C) 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
 + *
 + * This file is released under the GPL.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/stddef.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/string.h>
-+#include <linux/time.h>
-+#include <linux/page-flags.h>
-+#include <linux/vmalloc.h>
-+#include <linux/mm.h>
-+#include <linux/mman.h>
-+#include <linux/delay.h>
-+
-+#include <asm/io.h>
-+#include <asm/current.h>
-+#include <asm/uaccess.h>
-+#include <asm/bitops.h>
-+#include <asm/pgtable.h>
 +#include <asm/relay.h>
-+#include <asm/hardirq.h>
-+
-+#include "relay_lockless.h"
 +#include "relay_locking.h"
 +
-+/* Relay channel table, indexed by channel id */
-+static struct rchan *	rchan_table[RELAY_MAX_CHANNELS];
-+static rwlock_t		rchan_table_lock = RW_LOCK_UNLOCKED;
-+
-+/* Relay operation structs, one for each scheme */
-+static struct relay_ops lockless_ops = {
-+	.reserve = lockless_reserve,
-+	.commit = lockless_commit,
-+	.get_offset = lockless_get_offset,
-+	.resume = lockless_resume,
-+	.finalize = lockless_finalize,
-+	.copy_contents = lockless_copy_contents
-+};
-+
-+static struct relay_ops locking_ops = {
-+	.reserve = locking_reserve,
-+	.commit = locking_commit,
-+	.get_offset = locking_get_offset,
-+	.resume = locking_resume,
-+	.finalize = locking_finalize,
-+	.copy_contents = locking_copy_contents
-+};
-+
 +/**
-+ *	rchan_alloc_id - reserve a channel id and store associated channel
++ *	expand_check - check whether the channel needs expanding
 + *	@rchan: the channel
++ *	@active_bufs: the number of unread sub-buffers
 + *
-+ *	Returns channel id if successful, -1 otherwise.
++ *	If the channel is above 1/3 full, it will be doubled in
++ *	size.  This low threshold has to do with the fact that we
++ *	only have two buffers and they're checked during buffer
++ *	switches only.
++ *
++ *	Returns the suggested sub-buffer size for the new buffer.
++ *
++ *	NOTE: this check will only work correctly during buffer switches.
 + */
-+static inline int 
-+rchan_alloc_id(struct rchan *rchan)
++static u32
++expand_check(struct rchan *rchan)
 +{
-+	int i;
-+	int rchan_id = -1;
-+	
-+	if (rchan == NULL)
-+		return -1;
++	u32 bytes_ready;
++	u32 bytes_consumed;
++	u32 bytes_produced;
++	u32 new_bufsize = 0;
++	u32 cur_idx = cur_write_pos(rchan) - rchan->buf;
 +
-+	write_lock(&rchan_table_lock);
-+	for (i = 0; i < RELAY_MAX_CHANNELS; i++) {
-+		if (rchan_table[i] == NULL) {
-+			rchan_table[i] = rchan;
-+			rchan_id = rchan->id = i;
-+			break;
-+		}
-+	}
-+	if (rchan_id != -1)
-+		atomic_inc(&rchan->refcount);
-+	write_unlock(&rchan_table_lock);
++	bytes_consumed = rchan->bufs_consumed * rchan->buf_size;
++	bytes_consumed += rchan->bytes_consumed;
++	bytes_produced = rchan->bufs_produced * rchan->buf_size;
++	bytes_produced += bytes_produced(rchan) + cur_idx;
++	if (cur_idx > rchan->buf_size)
++		bytes_produced -= rchan->buf_size;
++
++	bytes_ready = bytes_produced - bytes_consumed;
++
++	if (rchan->resize_max && !rchan->mapped && bytes_ready > 
++	   (rchan->n_bufs * rchan->buf_size) * RESIZE_THRESHOLD_LOCKING)
++		new_bufsize = rchan->buf_size * 2;
 +	
-+	return rchan_id;
++	return new_bufsize;
 +}
 +
 +/**
-+ *	rchan_free_id - revoke a channel id and remove associated channel
-+ *	@rchan_id: the channel id
++ *	shrink_check - check whether the channel needs shrinking
++ *	@rchan: the channel
++ *	@active_bufs: the number of unread sub-buffers
++ *
++ *	If a minute has passed since the last resize, and it's no 
++ *	longer full, it will be shrunk to whatever size	will comfortably
++ *	fit the contents.
++ *
++ *	Returns the suggested sub-buffer size for the new buffer.
 + */
-+static inline void 
-+rchan_free_id(int rchan_id)
++static u32
++shrink_check(struct rchan *rchan)
 +{
-+	struct rchan *rchan;
++	u32 needed_bufsize;
++	struct timeval ts;
++	u32 low_water_delta;
++	u32 bytes_ready;
++	u32 bytes_consumed;
++	u32 bytes_produced;
++	u32 new_bufsize = 0;
++	u32 cur_idx = cur_write_pos(rchan) - rchan->buf;
++	u32 n;
 +
-+	if ((rchan_id < 0) || (rchan_id >= RELAY_MAX_CHANNELS))
-+		return;
-+
-+	write_lock(&rchan_table_lock);
-+	rchan = rchan_table[rchan_id];
-+	rchan_table[rchan_id] = NULL;
-+	write_unlock(&rchan_table_lock);
-+}
-+
-+/* This inspired by rtai/shmem */
-+#define FIX_SIZE(x) (((x) - 1) & PAGE_MASK) + PAGE_SIZE
-+
-+/* \begin{Code inspired from BTTV driver} */
-+static inline unsigned long 
-+kvirt_to_pa(unsigned long adr)
-+{
-+	unsigned long kva, ret;
-+
-+	kva = (unsigned long) page_address(vmalloc_to_page((void *) adr));
-+	kva |= adr & (PAGE_SIZE - 1);
-+	ret = __pa(kva);
-+	return ret;
-+}
-+
-+static void *
-+rvmalloc(unsigned long size)
-+{
-+	void *mem;
-+	unsigned long adr;
-+
-+	mem = vmalloc_32(size);
-+	if (!mem)
-+		return NULL;
-+	memset(mem, 0, size);
-+	adr = (unsigned long) mem;
-+	while (size > 0) {
-+		SetPageReserved(vmalloc_to_page((void *) adr));
-+		adr += PAGE_SIZE;
-+		size -= PAGE_SIZE;
-+	}
-+	return mem;
-+}
-+
-+static void 
-+rvfree(void *mem, unsigned long size)
-+{
-+	unsigned long adr;
-+
-+	if (!mem)
-+		return;
-+	adr = (unsigned long) mem;
-+	while ((long) size > 0) {
-+		ClearPageReserved(vmalloc_to_page((void *) adr));
-+		adr += PAGE_SIZE;
-+		size -= PAGE_SIZE;
-+	}
-+	
-+	vfree(mem);
-+}
-+
-+static int 
-+relay_mmap_region(struct vm_area_struct *vma,
-+		  const char *adr,
-+		  const char *start_pos,
-+		  unsigned long size)
-+{
-+	unsigned long start = (unsigned long) adr;
-+	unsigned long page, pos;
-+
-+	pos = (unsigned long) start_pos;
-+
-+	while (size > 0) {
-+		page = kvirt_to_pa(pos);
-+		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+			return -EAGAIN;
-+		start += PAGE_SIZE;
-+		pos += PAGE_SIZE;
-+		size -= PAGE_SIZE;
-+	}
-+
-+	return 0;
-+}
-+/* \end{Code inspired from BTTV driver} */
-+
-+/**
-+ *	relaybuf_alloc - allocate a new resized channel buffer
-+ *	@private: pointer to the channel struct
-+ */
-+static void 
-+relaybuf_alloc(void *private)
-+{
-+	struct rchan *rchan = (struct rchan *)private;
-+
-+	rchan->resize_buf = (char *) rvmalloc(rchan->resize_alloc_size);
-+	
-+	if (rchan->resize_buf == NULL)
-+		rchan->resize_err = -ENOMEM;
++	bytes_consumed = rchan->bufs_consumed * rchan->buf_size;
++	bytes_consumed += rchan->bytes_consumed;
++	bytes_produced = rchan->bufs_produced * rchan->buf_size;
++	bytes_produced += bytes_produced(rchan);
++	if (cur_idx > rchan->buf_size)
++		bytes_produced += cur_idx - rchan->buf_size;
 +	else
-+		rchan->resize_err = 0;
-+
-+	rchan->replace_buffer = 1;
-+	rchan->resizing = 0;
-+
-+	rchan->callbacks->needs_resize(rchan->id, RELAY_RESIZE_REPLACE, 0, 0);
-+}
-+
-+/**
-+ *	relaybuf_free - free a resized channel buffer
-+ *	@private: pointer to the channel struct
-+ */
-+static void
-+relaybuf_free(void *private)
-+{
-+	struct free_rchan_buf *free_buf = (struct free_rchan_buf *)private;
-+
-+	if (free_buf->free_buf)
-+		rvfree(free_buf->free_buf, free_buf->free_alloc_size);
-+	kfree(free_buf);
-+}
-+
-+/**
-+ *	calc_order - determine the power-of-2 order of a resize
-+ *	@high: the larger size
-+ *	@low: the smaller size
-+ */
-+static inline int
-+calc_order(u32 high, u32 low)
-+{
-+	int order = 0;
++		bytes_produced += cur_idx;
 +	
-+	if (!high || !low || high <= low)
-+		return 0;
++	bytes_ready = bytes_produced - bytes_consumed;
 +	
-+	while (high > low) {
-+		order++;
-+		high /= 2;
++	if (!rchan->resize_min || rchan->mapped ||
++	   rchan->resize_min >= rchan->n_bufs * rchan->buf_size)
++		goto out;
++
++	if (bytes_ready > (rchan->n_bufs * rchan->buf_size) * RESIZE_THRESHOLD_LOCKING) {
++		do_gettimeofday(&rchan->low_water_time);
++		goto out;
 +	}
 +	
-+	return order;
-+}
++	do_gettimeofday(&ts);
++	low_water_delta = calc_time_delta(&ts, &rchan->low_water_time);
++	if (low_water_delta > LOW_WATER_TIME) {
++		needed_bufsize = bytes_ready;
 +
-+/**
-+ *	check_size - check the sanity of the requested channel size
-+ *	@rchan: the channel
-+ *	@bufsize: the new sub-buffer size
-+ *	@nbufs: the new number of sub-buffers
-+ *	@err: return code
-+ *
-+ *	Returns the non-zero total buffer size if ok, otherwise 0 and
-+ *	sets errcode if not.
-+ */
-+static inline u32
-+check_size(struct rchan *rchan, u32 bufsize, u32 nbufs, int *err)
-+{
-+	u32 new_channel_size = 0;
-+
-+	*err = 0;
-+	
-+	if (bufsize > rchan->buf_size || nbufs > rchan->n_bufs) {
-+		if (using_lockless(rchan)) {
-+			resize_order(rchan) = calc_order(nbufs, rchan->n_bufs);
-+			if (!resize_order(rchan)) {
-+				*err = -EINVAL;
-+				goto out;
-+			}
++		for (n = RELAY_MIN_BUFSIZE; n < rchan->buf_size; n *= 2) {
++			if ((n * rchan->n_bufs >= rchan->resize_min) &&
++			   (n * rchan->n_bufs <= rchan->resize_max) &&
++			   (n * rchan->n_bufs * RESIZE_THRESHOLD_LOCKING > needed_bufsize))
++				break;
 +		}
 +
-+		new_channel_size = bufsize * nbufs;
-+		if (new_channel_size > rchan->resize_max) {
-+			*err = -EINVAL;
++		if (n >= rchan->buf_size)
 +			goto out;
-+		}
-+	} else if (bufsize < rchan->buf_size || nbufs < rchan->n_bufs) {
-+		if (using_lockless(rchan)) {
-+			if (rchan->n_bufs == 2) {
-+				*err = -EINVAL;
-+				goto out;
-+			}
-+			resize_order(rchan) = -calc_order(rchan->n_bufs, nbufs);
-+			if (!resize_order(rchan)) {
-+				*err = -EINVAL;
-+				goto out;
-+			}
-+		} else {
-+			if (rchan->buf_size == RELAY_MIN_BUFSIZE) {
-+				*err = -EINVAL;
-+				goto out;
-+			}
-+		}
 +		
-+		new_channel_size = bufsize * nbufs;
-+		if (new_channel_size < rchan->resize_min) {
-+			*err = -EINVAL;
-+			goto out;
-+		}
-+	} else {
-+		*err = -EINVAL;
-+		goto out;
++		new_bufsize = n;
 +	}
 +out:
-+	return new_channel_size;
++	return new_bufsize;
 +}
 +
 +/**
-+ *	_relay_realloc_buffer - allocate a new channel buffer
++ *	switch_buffers - switches between read and write buffers.
++ *	@cur_time: current time.
++ *	@cur_tsc: the TSC associated with current_time, if applicable
 + *	@rchan: the channel
-+ *	@bufsize: the new sub-buffer size
-+ *	@nbufs: the new number of sub-buffers
++ *	@finalizing: if true, don't start a new buffer 
 + *
-+ *	Allocates a new channel buffer using the specified sub-buffer size
-+ *	and count.  If called from within interrupt context, the allocation
-+ *	is put onto a work queue.  When the allocation has completed,
-+ *	the needs_resize() callback is called with a resize_type of
-+ *	RELAY_RESIZE_REPLACE.  This function doesn't copy the old buffer
-+ *	contents to the new buffer - see relay_replace_buffer().
-+ *
-+ *	This function (or rather the handle version, relay_realloc_buffer())
-+ *	is called by kernel clients in response to a needs_resize() callback
-+ *	call with a resize type of RELAY_RESIZE_EXPAND or RELAY_RESIZE_SHRINK.
-+ *	That callback also includes a suggested new_bufsize and new_nbufs
-+ *	which should be used when calling this function.
-+ *
-+ *	Returns 0 on success, or errcode if the channel is busy or if
-+ *	the allocation couldn't happen for some reason.
-+ *	
-+ *	NOTE: should not be called with a lock held, as it may sleep.
-+ */
-+static int
-+_relay_realloc_buffer(struct rchan *rchan, u32 new_bufsize, u32 new_nbufs)
-+{
-+	u32 new_channel_size;
-+	int err = 0;
-+	
-+	if ((using_lockless(rchan) && new_nbufs == rchan->n_bufs) ||
-+	   (!using_lockless(rchan) && new_bufsize == rchan->buf_size))
-+		return -EINVAL;
-+		
-+	if (down_trylock(&rchan->resize_sem))
-+		return -EBUSY;
-+
-+	if (rchan->resizing) {
-+		err = -EBUSY;
-+		goto out;
-+	}
-+	else
-+		rchan->resizing = 1;
-+
-+	if (rchan->replace_buffer) {
-+		err = -EBUSY;
-+		goto out;
-+	}
-+
-+	if (rchan->resize_failures > MAX_RESIZE_FAILURES) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	new_channel_size = check_size(rchan, new_bufsize, new_nbufs, &err);
-+	if (err)
-+		goto out;
-+	
-+	rchan->resize_buf_size = new_bufsize;
-+	rchan->resize_n_bufs = new_nbufs;
-+	rchan->resize_alloc_size = FIX_SIZE(new_channel_size);
-+	
-+	if (in_interrupt()) {
-+		INIT_WORK(&rchan->work, relaybuf_alloc, rchan);
-+		schedule_work(&rchan->work);
-+	} else
-+		relaybuf_alloc((void *)rchan);
-+out:
-+	up(&rchan->resize_sem);
-+	
-+	return err;
-+}
-+
-+/**
-+ *	relay_realloc_buffer - allocate a new channel buffer
-+ *	@rchan_id: the channel id
-+ *	@bufsize: the new sub-buffer size
-+ *	@nbufs: the new number of sub-buffers
-+ *
-+ *	The handle version - see _relay_realloc_buffer for details.
-+ */
-+int
-+relay_realloc_buffer(int rchan_id, u32 new_bufsize, u32 new_nbufs)
-+{
-+	int err;
-+	
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	err = _relay_realloc_buffer(rchan, new_bufsize, new_nbufs);
-+	
-+	rchan_put(rchan);
-+
-+	return err;
-+}
-+
-+/**
-+ *	do_replace_buffer - does the work of channel buffer replacement
-+ *	@rchan: the channel
-+ *	@newsize: new channel buffer size
-+ *	@oldsize: old channel buffer size
-+ *	@oldbuf: pointer to the old channel buffer
-+ *	@old_buf_size: old channel sub-buffer size
-+ *	@old_n_bufs: old channel sub-buffer count
-+ *
-+ *	Does the work of copying old buffer contents to new and fixing
-+ *	everything up so the channel can continue with a new size.
-+ */
-+static void
-+do_replace_buffer(struct rchan *rchan,
-+		  int newsize,
-+		  int oldsize,
-+		  char * oldbuf,
-+		  u32 old_buf_size,
-+		  u32 old_n_bufs)
-+{
-+	u32 old_cur_idx;
-+	
-+	if (using_lockless(rchan))
-+		old_cur_idx = relay_get_offset(rchan, NULL) & idx_mask(rchan);
-+	else
-+		old_cur_idx = relay_get_offset(rchan, NULL);
-+	
-+	rchan->buf = rchan->resize_buf;
-+	rchan->alloc_size = rchan->resize_alloc_size;
-+	rchan->buf_size = rchan->resize_buf_size;
-+	rchan->n_bufs = rchan->resize_n_bufs;
-+
-+	rchan->relay_ops->copy_contents(rchan, newsize, oldsize, oldbuf, old_cur_idx, old_buf_size, old_n_bufs);
-+
-+	rchan->resize_buf = NULL;
-+	rchan->resize_buf_size = 0;
-+	rchan->resize_alloc_size = 0;
-+	rchan->resize_n_bufs = 0;
-+	rchan->resize_err = 0;
-+	if (using_lockless(rchan))
-+		resize_order(rchan) = 0;
-+
-+	rchan->callbacks->needs_resize(rchan->id,
-+				       RELAY_RESIZE_REPLACED,
-+				       rchan->buf_size,
-+				       rchan->n_bufs);
-+}
-+
-+/**
-+ *	free_replaced_buffer - free a channel's old buffer
-+ *	@rchan: the channel
-+ *	@oldbuf: the old buffer
-+ *	@oldsize: old buffer size
-+ *
-+ *	Frees a channel buffer via a work queue.
-+ */
-+static int
-+free_replaced_buffer(struct rchan *rchan, char *oldbuf, int oldsize)
-+{
-+	struct free_rchan_buf *free_buf;
-+
-+	free_buf = kmalloc(sizeof(struct free_rchan_buf), GFP_ATOMIC);
-+	if (!free_buf) {
-+		return -ENOMEM;
-+	}
-+	free_buf->free_buf = oldbuf;
-+	free_buf->free_alloc_size = oldsize;
-+	INIT_WORK(&free_buf->work, relaybuf_free, free_buf);
-+	schedule_work(&free_buf->work);
-+
-+	return 0;
-+}
-+
-+/**
-+ *	_relay_replace_buffer - replace channel buffer with new buffer
-+ *	@rchan: the channel
-+ *
-+ *	Replaces the current channel buffer with the new buffer allocated
-+ *	by relay_alloc_buffer and contained in rchan.
-+ *	When the replacement is done, the needs_resize() callback is 
-+ *	called with a resize_type of RELAY_RESIZE_REPLACED.
-+ *	
-+ *	This function (or rather the handle version, relay_replace_buffer())
-+ *	is called by kernel clients in response to a needs_resize() callback
-+ *	call with a resize type of RELAY_RESIZE_REPLACE.  Because the copy
-+ *	of contents from the old buffer into the new can result in sections
-+ *	of the buffer being rearranged, if the client is using offsets to
-+ *	reference positions within the buffer, those offsets may no longer
-+ *	be valid.  The resize_offset() callback is used to deal with this
-+ *	situation.
-+ *
-+ *	Returns 0 on success, or errcode if the channel is busy or if
-+ *	the replacement or previous allocation didn't happen for some reason.
-+ *	
-+ *	NOTE: This function will not sleep, so can called in any context
-+ *	and with locks held.  The client should, however, ensure that the
-+ *	channel isn't actively being read from or written to.
-+ */
-+static int
-+_relay_replace_buffer(struct rchan *rchan)
-+{
-+	int oldsize;
-+	int err = 0;
-+	char *oldbuf;
-+	
-+	if (down_trylock(&rchan->resize_sem)) {
-+		return -EBUSY;
-+	}
-+
-+	if (!rchan->replace_buffer)
-+		goto out;
-+
-+	if (rchan->resizing) {
-+		err = -EBUSY;
-+		goto out;
-+	}
-+
-+	if (rchan->resize_buf == NULL) {
-+		err = rchan->resize_err;
-+		rchan->resize_failures++;
-+		goto out;
-+	}
-+
-+	if (rchan->buf == NULL) {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	oldbuf = rchan->buf;
-+	oldsize = rchan->alloc_size;
-+
-+	do_replace_buffer(rchan, rchan->resize_alloc_size, oldsize, oldbuf,
-+			  rchan->buf_size, rchan->n_bufs);
-+
-+	err = free_replaced_buffer(rchan, oldbuf, oldsize);
-+	if (err)
-+		goto out;
-+	
-+	do_gettimeofday(&rchan->low_water_time);
-+out:
-+	rchan->replace_buffer = 0;
-+	up(&rchan->resize_sem);
-+	
-+	return err;
-+}
-+
-+/**
-+ *	relay_replace_buffer - replace channel buffer with new buffer
-+ *	@rchan_id: the channel id
-+ *
-+ *	The handle version - see _relay_replace_buffer for details.
-+ */
-+int
-+relay_replace_buffer(int rchan_id)
-+{
-+	int err;
-+	
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	err = _relay_replace_buffer(rchan);
-+	
-+	rchan_put(rchan);
-+
-+	return err;
-+}
-+
-+/**
-+ *	relay_busy - determine whether or not relay is busy
-+ *
-+ *	Returns 1 if busy, 0 otherwise.
-+ */
-+int 
-+relay_busy(void)
-+{
-+	int i, busy = 0;
-+	
-+	read_lock(&rchan_table_lock);
-+	for (i = 0; i < RELAY_MAX_CHANNELS; i++)
-+		if (rchan_table[i] != NULL) {
-+			busy = 1;
-+			break;
-+		}
-+	read_unlock(&rchan_table_lock);
-+
-+	return busy;
-+}
-+
-+/**
-+ *	relay_finalize - perform end-of-buffer processing for last buffer
-+ *	@rchan_id: the channel id
-+ *	@releasing: true if called when releasing file
-+ *
-+ *	Returns 0 if successful, negative otherwise.
-+ */
-+static int 
-+relay_finalize(int rchan_id)
-+{
-+	struct rchan *rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	if (rchan->finalized == 0) {
-+		rchan->relay_ops->finalize(rchan);
-+		rchan->finalized = 1;
-+	}
-+
-+	if (waitqueue_active(&rchan->read_wait))
-+		wake_up_interruptible(&rchan->read_wait);
-+
-+	rchan_put(rchan);
-+
-+	return 0;
-+}
-+
-+/**
-+ *	relay_release - perform end-of-buffer processing for last buffer
-+ *	@rchan: the channel
-+ *
-+ *	Returns 0 if successful, negative otherwise.
-+ *
-+ *	Releases the channel buffer, destroys the channel, and removes the
-+ *	relay file from the relayfs filesystem.  Should only be called from 
-+ *	rchan_put().  If we're here, it means by definition refcount is 0.
-+ */
-+static int 
-+relay_release(struct rchan *rchan)
-+{
-+	if (rchan == NULL)
-+	   return -EBADF;
-+
-+	if (rchan->buf != NULL)
-+		rvfree(rchan->buf, rchan->alloc_size);
-+
-+	rchan_free_id(rchan->id);
-+	relayfs_remove_file(rchan->dentry);
-+	kfree(rchan);
-+
-+	return 0;
-+}
-+
-+/**
-+ *	rchan_create - allocate and initialize a channel, including buffer
-+ *	@chanpath: path specifying the relayfs channel file to create
-+ *	@bufsize: the size of the sub-buffers within the channel buffer
-+ *	@nbufs: the number of sub-buffers within the channel buffer
-+ *	@rchan_flags: flags specifying buffer attributes
-+ *	@err: err code
-+ *
-+ *	Returns channel if successful, NULL otherwise, err receives errcode.
-+ *
-+ *	Allocates a struct rchan representing a relay channel, according
-+ *	to the attributes passed in via rchan_flags.  Does some basic sanity
-+ *	checking but doesn't try to do anything smart.  In particular, the
-+ *	number of buffers must be a power of 2, and if the lockess scheme
-+ *	is being used, the sub-buffer size must also be a power of 2.  The
-+ *	locking scheme can use buffers of any size, but is hardcoded at 2.
-+ */
-+static struct rchan *
-+rchan_create(char *chanpath, 
-+	     int bufsize_lockless, 
-+	     int nbufs_lockless, 
-+	     int bufsize_locking,
-+	     int nbufs_locking, 
-+	     u32 rchan_flags, 
-+	     int *err)
-+{
-+	int size_alloc;
-+	struct rchan *rchan = NULL;
-+
-+	*err = 0;
-+
-+	rchan = (struct rchan *)kmalloc(sizeof(struct rchan), GFP_KERNEL);
-+	if (rchan == NULL) {
-+		*err = -ENOMEM;
-+		return NULL;
-+	}
-+
-+	if (nbufs_lockless == 1 && bufsize_lockless) {
-+		rchan->n_bufs = nbufs_lockless;
-+		rchan->buf_size = bufsize_lockless;
-+		size_alloc = bufsize_lockless;
-+		goto alloc;
-+	}
-+	
-+	if (hweight32(nbufs_lockless) != 1 || hweight32(nbufs_locking) != 1 ||
-+	    (rchan_flags & RELAY_SCHEME_LOCKING && nbufs_locking != 2) ||
-+	    nbufs_lockless < RELAY_MIN_BUFS ||
-+	    nbufs_lockless > RELAY_MAX_BUFS || bufsize_lockless <= 0 ||
-+	    nbufs_locking < RELAY_MIN_BUFS ||
-+	    nbufs_locking > RELAY_MAX_BUFS || bufsize_locking <= 0) {
-+		*err = -EINVAL;
-+		goto exit;
-+	}
-+
-+	if (rchan_flags & RELAY_SCHEME_LOCKING) {
-+		rchan->n_bufs = 2;
-+		rchan->buf_size = bufsize_locking;
-+		size_alloc = FIX_SIZE(bufsize_locking << 1);
-+	} else {
-+		if (hweight32(bufsize_lockless) != 1) {
-+			*err = -EINVAL;
-+			goto exit;
-+		}
-+		offset_bits(rchan) = ffs(bufsize_lockless) - 1;
-+		offset_mask(rchan) =  RELAY_BUF_OFFSET_MASK(offset_bits(rchan));
-+		size_alloc = FIX_SIZE(bufsize_lockless * nbufs_lockless);
-+		if (size_alloc > RELAY_LOCKLESS_MAX_BUF_SIZE) {
-+			*err = -EINVAL;
-+			goto exit;
-+		}
-+		bufno_bits(rchan) = ffs(nbufs_lockless) - 1;
-+		rchan->n_bufs = RELAY_MAX_BUFNO(bufno_bits(rchan));
-+		rchan->buf_size = bufsize_lockless;
-+	}
-+
-+alloc:
-+
-+	if ((rchan->buf = (char *) rvmalloc(size_alloc)) == NULL) {
-+		*err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	if (rchan_alloc_id(rchan) == -1) {
-+		*err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	rchan->alloc_size = size_alloc;
-+
-+	if (rchan_flags & RELAY_SCHEME_LOCKLESS)
-+		rchan->relay_ops = &lockless_ops;
-+	else
-+		rchan->relay_ops = &locking_ops;
-+
-+exit:
-+	if (*err) {
-+		kfree(rchan);
-+		rchan = NULL;
-+	}
-+
-+	return rchan;
-+}
-+
-+/**
-+ *	rchan_init - initialize channel
-+ *	@rchan: the channel
++ *	This should be called from with interrupts disabled.
 + */
 +static void 
-+rchan_init(struct rchan *rchan)
++switch_buffers(struct timeval cur_time,
++	       u32 cur_tsc,
++	       struct rchan *rchan,
++	       int finalizing)
 +{
-+	unsigned i;
-+
-+	rchan->version = RELAYFS_CHANNEL_VERSION;
-+	rchan->buf_id = 0;
-+	atomic_set(&rchan->suspended, 0);
-+	rchan->events_lost = 0;
-+	rchan->bufs_produced = 0;
-+	rchan->bufs_consumed = 0;
-+	rchan->bytes_consumed = 0;
-+	rchan->initialized = 0;
-+	rchan->finalized = 0;
-+	rchan->mapped = 0;
-+	rchan->resize_min = rchan->resize_max = 0;
-+	rchan->resizing = 0;
-+	rchan->replace_buffer = 0;
-+	rchan->resize_buf = NULL;
-+	rchan->resize_buf_size = 0;
-+	rchan->resize_alloc_size = 0;
-+	rchan->resize_n_bufs = 0;
-+	rchan->resize_err = 0;
-+	rchan->resize_failures = 0;
-+	rchan->offsets_changed = 0;
-+
-+	do_gettimeofday(&rchan->low_water_time);
-+	init_MUTEX(&rchan->resize_sem);
++	char *temp_buf;
++	char *temp_buf_end;
++	int bytes_written;
++	u32 new_bufsize;
 +	
-+	init_waitqueue_head(&rchan->read_wait);
-+	atomic_set(&rchan->refcount, 0);
++	bytes_written = rchan->callbacks->buffer_end(rchan->id,
++			     cur_write_pos(rchan), write_buf_end(rchan),
++			     cur_time, cur_tsc, using_tsc(rchan));
++	if (bytes_written == 0)
++		rchan->unused_bytes[rchan->buf_id % rchan->n_bufs] = 
++			write_buf_end(rchan) - cur_write_pos(rchan);
 +
-+	for (i = 0; i < RELAY_MAX_BUFS; i++)
-+		rchan->unused_bytes[i] = 0;
++	new_bufsize = expand_check(rchan);
++	if (new_bufsize)
++		rchan->callbacks->needs_resize(rchan->id,
++					       RELAY_RESIZE_EXPAND,
++					       new_bufsize,
++					       rchan->n_bufs);
++
 +	
-+	if (using_locking(rchan)) {
-+		write_buf(rchan) = rchan->buf;
-+		read_buf(rchan) = rchan->buf + rchan->buf_size;
-+		write_buf_end(rchan) = write_buf(rchan) + rchan->buf_size;
-+		read_buf_end(rchan) = read_buf(rchan) + rchan->buf_size;
-+		cur_write_pos(rchan) = write_buf(rchan);
-+		read_limit(rchan) = read_buf(rchan);
-+		write_limit(rchan) = write_buf_end(rchan) - rchan->end_reserve;
-+		in_progress_event_pos(rchan) = NULL;
-+		in_progress_event_size(rchan) = 0;
-+		interrupted_pos(rchan) = NULL;
-+		interrupting_size(rchan) = 0;
-+		channel_lock(rchan) = SPIN_LOCK_UNLOCKED;
-+		bytes_produced(rchan) = 0;
-+	} else {
-+		resize_order(rchan) = 0;
-+		/* Start first buffer at 0 - (end_reserve + 1) so that it
-+		   gets initialized via buffer_start callback as well. */
-+		idx(rchan) =  0UL - (rchan->end_reserve + 1);
-+		idx_mask(rchan) =
-+			(1UL << (bufno_bits(rchan) + offset_bits(rchan))) - 1;
-+		atomic_set(&fill_count(rchan, 0), 
-+			   (int)rchan->start_reserve + 
-+			   (int)rchan->rchan_start_reserve);
-+		for (i = 1; i < rchan->n_bufs; i++)
-+			atomic_set(&fill_count(rchan, i),
-+				   (int)RELAY_BUF_SIZE(offset_bits(rchan)));
++	cur_write_pos(rchan) += bytes_written;
++	temp_buf = read_buf(rchan);
++	read_buf(rchan) = write_buf(rchan);
++	write_buf(rchan) = temp_buf;
++	temp_buf_end = read_buf_end(rchan);
++	read_buf_end(rchan) = write_buf_end(rchan);
++	write_buf_end(rchan) = temp_buf_end;
++	read_limit(rchan) = read_buf_end(rchan);
++	write_limit(rchan) = write_buf_end(rchan) - rchan->end_reserve;
++	cur_write_pos(rchan) = write_buf(rchan);
++
++	rchan->buf_start_time = cur_time;
++	rchan->buf_start_tsc = cur_tsc;
++
++	rchan->buf_id++;
++	if (!packet_delivery(rchan))
++		rchan->unused_bytes[rchan->buf_id % rchan->n_bufs] = 0;
++	rchan->bufs_produced++;
++
++	if (!finalizing) {
++		bytes_written = rchan->callbacks->buffer_start(rchan->id, cur_write_pos(rchan), rchan->buf_id, cur_time, cur_tsc, using_tsc(rchan));
++		cur_write_pos(rchan) += bytes_written;
 +	}
 +}
 +
-+static char tmpname[NAME_MAX];
-+
 +/**
-+ *	rchan_create_dir - create directory for file
-+ *	@chanpath: path to file, including filename
-+ *	@residual: filename remaining after parse
-+ *	@topdir: the directory filename should be created in
-+ *
-+ *	Returns 0 if successful, negative otherwise.
-+ *
-+ *	Inspired by xlate_proc_name() in procfs.  Given a file path which
-+ *	includes the filename, creates any and all directories necessary 
-+ *	to create the file.
-+ */
-+static int 
-+rchan_create_dir(char * chanpath, 
-+		 char **residual, 
-+		 struct dentry **topdir)
-+{
-+	char *cp = chanpath, *next;
-+	struct dentry *parent = NULL;
-+	int len, err = 0;
-+	
-+	while (1) {
-+		next = strchr(cp, '/');
-+		if (!next)
-+			break;
-+
-+		len = next - cp;
-+
-+		strncpy(tmpname, cp, len);
-+		tmpname[len] = '\0';
-+		err = relayfs_create_dir(tmpname, parent, &parent);
-+		if (err && (err != -EEXIST))
-+			return err;
-+		cp += len + 1;
-+	}
-+
-+	*residual = cp;
-+	*topdir = parent;
-+
-+	return err;
-+}
-+
-+/**
-+ *	rchan_create_file - create file, including parent directories
-+ *	@chanpath: path to file, including filename
-+ *	@dentry: result dentry
-+ *	@data: data to associate with the file
-+ *
-+ *	Returns 0 if successful, negative otherwise.
-+ */
-+static int 
-+rchan_create_file(char * chanpath, 
-+		  struct dentry **dentry, 
-+		  struct rchan * data)
-+{
-+	int err;
-+	char * fname;
-+	struct dentry *topdir;
-+
-+	err = rchan_create_dir(chanpath, &fname, &topdir);
-+	if (err && (err != -EEXIST))
-+		return err;
-+
-+	err = relayfs_create_file(fname, topdir, dentry, (void *)data);
-+
-+	return err;
-+}
-+
-+/*
-+ * Low-level relayfs kernel API.  These functions should not normally be 
-+ * used by clients.  See high-level kernel API below.
-+ */
-+
-+/**
-+ *	rchan_get - get channel associated with id, incrementing refcount 
-+ *	@rchan_id: the channel id
-+ *
-+ *	Returns channel if successful, NULL otherwise.
-+ */
-+struct rchan *
-+rchan_get(int rchan_id)
-+{
-+	struct rchan *rchan;
-+	
-+	if ((rchan_id < 0) || (rchan_id >= RELAY_MAX_CHANNELS))
-+		return NULL;
-+	
-+	read_lock(&rchan_table_lock);
-+	rchan = rchan_table[rchan_id];
-+	if (rchan)
-+		atomic_inc(&rchan->refcount);
-+	read_unlock(&rchan_table_lock);
-+
-+	return rchan;
-+}
-+
-+/**
-+ *	rchan_get - decrement channel refcount, releasing it if 0
++ *	locking_reserve - reserve a slot in the trace buffer for an event.
 + *	@rchan: the channel
-+ *
-+ *	If the refcount reaches 0, the channel will be destroyed.
-+ */
-+void 
-+rchan_put(struct rchan *rchan)
-+{
-+	if (atomic_dec_and_test(&rchan->refcount))
-+		relay_release(rchan);
-+}
-+
-+/**
-+ *	relay_reserve -  reserve a slot in the channel buffer
-+ *	@rchan: the channel
-+ *	@len: the length of the slot to reserve
-+ *	@td: the time delta between buffer start and current write, or TSC
++ *	@slot_len: the length of the slot to reserve
++ *	@ts: variable that will receive the time the slot was reserved
++ *	@tsc: the timestamp counter associated with time
 + *	@err: receives the result flags
-+ *	@interrupting: 1 if interrupting previous, used only in locking scheme
++ *	@interrupting: if this write is interrupting another, set to non-zero 
 + *
 + *	Returns pointer to the beginning of the reserved slot, NULL if error.
 + *
-+ *	The errcode value contains the result flags and is an ORed combination 
++ *	The err value contains the result flags and is an ORed combination 
 + *	of the following:
 + *
 + *	RELAY_BUFFER_SWITCH_NONE - no buffer switch occurred
@@ -971,1061 +221,1438 @@ diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/relay.c linux-2.6.0-test1-re
 + *	RELAY_BUFFER_SWITCH - buffer switch occurred
 + *	RELAY_EVENT_DISCARD - event should be discarded (all buffers are full)
 + *	RELAY_EVENT_TOO_LONG - event won't fit into even an empty buffer
-+ *
-+ *	buffer_start, buffer_end and buffers_full callbacks are triggered
-+ *	at this point if applicable.
-+ *
 + */
-+char *relay_reserve(struct rchan *rchan,
-+		    u32 len,
-+		    struct timeval *ts,
-+		    u32 *td,
-+		    int *err,
-+		    int *interrupting)
++inline char *
++locking_reserve(struct rchan *rchan,
++		u32 slot_len,
++		struct timeval *ts,
++		u32 *tsc,
++		int *err,
++		int *interrupting)
 +{
-+	*interrupting = 0;
-+	
-+	return rchan->relay_ops->reserve(rchan, len, ts, td, err, interrupting);
++	int bytes_written;
++
++	*err = RELAY_BUFFER_SWITCH_NONE;
++
++	if (slot_len >= rchan->buf_size) {
++		*err = RELAY_WRITE_DISCARD | RELAY_WRITE_TOO_LONG;
++		rchan->events_lost++;
++		return NULL;
++	}
++
++	if (rchan->initialized == 0) {
++		rchan->initialized = 1;
++		get_timestamp(&rchan->buf_start_time, 
++			      &rchan->buf_start_tsc, rchan);
++		rchan->unused_bytes[0] = 0;
++		bytes_written = rchan->callbacks->buffer_start(
++			rchan->id, cur_write_pos(rchan), 
++			rchan->buf_id, rchan->buf_start_time, 
++			rchan->buf_start_tsc, using_tsc(rchan));
++		cur_write_pos(rchan) += bytes_written;
++		*tsc = get_time_delta(ts, rchan);
++		return cur_write_pos(rchan);
++	}
++
++	*tsc = get_time_delta(ts, rchan);
++
++	if (in_progress_event_size(rchan)) {
++		interrupted_pos(rchan) = cur_write_pos(rchan);
++		cur_write_pos(rchan) = in_progress_event_pos(rchan) 
++			+ in_progress_event_size(rchan) 
++			+ interrupting_size(rchan);
++		*interrupting = 1;
++	} else {
++		in_progress_event_pos(rchan) = cur_write_pos(rchan);
++		in_progress_event_size(rchan) = slot_len;
++		interrupting_size(rchan) = 0;
++	}
++
++	if (cur_write_pos(rchan) + slot_len > write_limit(rchan)) {
++		if (atomic_read(&rchan->suspended) == 1) {
++			*err = RELAY_WRITE_DISCARD;
++			rchan->events_lost++;
++			return NULL;
++		}
++
++		if (rchan->bufs_produced - rchan->bufs_consumed > 0) {
++			if (rchan->callbacks->buffers_full(rchan->id)) {
++				atomic_set(&rchan->suspended, 1);
++				*err = RELAY_WRITE_DISCARD;
++				rchan->events_lost++;
++				return NULL;
++			}
++		}
++
++		get_timestamp(ts, tsc, rchan);
++		switch_buffers(*ts, *tsc, rchan, 0);
++		recalc_time_delta(ts, tsc, rchan);
++		*err = RELAY_BUFFER_SWITCH;
++	}
++
++	return cur_write_pos(rchan);
 +}
 +
 +/**
-+ *	relay_commit - commit a reserved slot in the buffer
++ *	locking_resume - resume a suspended channel
++ *	@rchan: the channel
++ */
++inline void 
++locking_resume(struct rchan *rchan)
++{
++	atomic_set(&rchan->suspended, 0);
++}
++
++
++/**
++ *	lockless_commit - commit a reserved slot in the buffer
 + *	@rchan: the channel
 + *	@from: commit the length starting here
 + *	@len: length committed
-+ *	@interrupting: 1 if interrupting previous, used only in locking scheme
++ *	@deliver: length committed
++ *	@interrupting: not used
 + *
-+ *      After the write into the reserved buffer has been complted, this
-+ *      function must be called in order for the relay to determine whether 
-+ *      buffers are complete and to wake up VFS readers.
-+ *
-+ *	delivery callback is triggered at this point if applicable.
++ *      Commits len bytes and calls deliver callback if applicable.
 + */
-+void relay_commit(struct rchan *rchan,
-+		  char *from, 
-+		  u32 len, 
-+		  int reserve_code,
-+		  int interrupting)
++inline void
++locking_commit(struct rchan *rchan,
++	       char *from,
++	       u32 len, 
++	       int deliver, 
++	       int interrupting)
 +{
-+	int deliver;
-+
-+	deliver = packet_delivery(rchan) || 
-+		   (reserve_code & RELAY_BUFFER_SWITCH);
-+
-+	rchan->relay_ops->commit(rchan, from, len, deliver, interrupting);
-+
-+	if (deliver && waitqueue_active(&rchan->read_wait))
-+		wake_up_interruptible(&rchan->read_wait);
-+}
-+
-+/**
-+ *	relay_mmap_buffer: - mmap buffer to process address space
-+ *	@rchan_id: relay channel id
-+ *	@vma: vm_area_struct describing memory to be mapped
-+ *
-+ *	Returns:
-+ *	0 if ok
-+ *	-EAGAIN, when remap failed
-+ *	-EINVAL, invalid requested length
-+ *	-EBUSY, channel already mapped
-+ *
-+ *	Caller should already have grabbed mmap_sem.  Currently only
-+ *	the whole buffer can be mapped and only once.
-+ */
-+int 
-+relay_mmap_buffer(int rchan_id,
-+		  struct vm_area_struct *vma)
-+{
-+	int err = 0;
-+	unsigned long length = vma->vm_end - vma->vm_start;
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	if (length != (unsigned long)rchan->alloc_size) {
-+		err = -EINVAL;
-+		goto exit;
-+	}
-+
-+	if (rchan->mapped) {
-+		err = -EBUSY;
-+		goto exit;
-+	}
-+
-+	err = relay_mmap_region(vma,
-+				(char *)vma->vm_start,
-+				rchan->buf,
-+				rchan->alloc_size);
-+
-+	if (!err)
-+		rchan->mapped = 1;
-+exit:	
-+	rchan_put(rchan);
++	u32 new_bufsize;
 +	
-+	return err;
++	cur_write_pos(rchan) += len;
++	
++	if (interrupting) {
++		cur_write_pos(rchan) = interrupted_pos(rchan);
++		interrupting_size(rchan) += len;
++	} else {
++		in_progress_event_size(rchan) = 0;
++		if (interrupting_size(rchan)) {
++			cur_write_pos(rchan) += interrupting_size(rchan);
++			interrupting_size(rchan) = 0;
++		}
++	}
++
++	if (deliver) {
++		rchan->callbacks->deliver(rchan->id, from, len);
++		new_bufsize = shrink_check(rchan);
++		if (new_bufsize)
++			rchan->callbacks->needs_resize(rchan->id,
++						       RELAY_RESIZE_SHRINK,
++						       new_bufsize,
++						       rchan->n_bufs);
++	}
 +}
 +
 +/**
-+ *	relay_get_offset - get current and max 'file' offsets for VFS
++ *	locking_finalize: - finalize last buffer at end of channel use
++ *	@rchan: the channel
++ */
++inline void 
++locking_finalize(struct rchan *rchan)
++{
++	unsigned long int flags;
++	struct timeval time;
++	u32 tsc;
++
++	local_irq_save(flags);
++	get_timestamp(&time, &tsc, rchan);
++	switch_buffers(time, tsc, rchan, 1);
++	local_irq_restore(flags);
++}
++
++/**
++ *	locking_get_offset - get current and max 'file' offsets for VFS
 + *	@rchan: the channel
 + *	@max_offset: maximum channel offset
 + *
 + *	Returns the current and maximum buffer offsets in VFS terms.
 + */
 +u32 
-+relay_get_offset(struct rchan *rchan, u32 *max_offset)
++locking_get_offset(struct rchan *rchan,
++		   u32 *max_offset)
 +{
-+	return rchan->relay_ops->get_offset(rchan, max_offset);
++	if (max_offset)
++		*max_offset = rchan->buf_size * rchan->n_bufs - 1;
++
++	return cur_write_pos(rchan) - rchan->buf;
 +}
 +
-+/*
-+ * High-level relayfs kernel API.  See Documentation/filesystems/relafys.txt.
-+ */
-+
-+/*
-+ * rchan_callback implementations defining default channel behavior.  Used
-+ * in place of corresponding NULL values in client callback struct.
-+ */
-+
-+/*
-+ * Do nothing at buffer_end.  Return 0 bytes written.
-+ */
-+static int 
-+buffer_end_default_callback(int rchan_id,
-+			    char *current_write_pos,
-+			    char *end_of_buffer,
-+			    struct timeval end_time,
-+			    u32 end_tsc,
-+			    int using_tsc) 
-+{
-+	return 0;
-+}
-+
-+/*
-+ * Do nothing at buffer_start.  Return 0 bytes written.
-+ */
-+static int 
-+buffer_start_default_callback(int rchan_id,
-+			      char *current_write_pos,
-+			      u32 buffer_id,
-+			      struct timeval start_time,
-+			      u32 start_tsc,
-+			      int using_tsc)
-+{
-+	return 0;
-+}
-+
-+/*
-+ * Do nothing upon delivery.
-+ */
-+static void 
-+deliver_default_callback(int rchan_id, char *from, u32 len)
-+{
-+}
-+
-+/*
-+ * Do nothing when buffers_full condition detected.  Return 0 i.e. continue.
-+ */
-+static int 
-+buffers_full_default_callback(int rchan_id)
-+{
-+	return 0;
-+}
-+
-+/*
-+ * Do nothing for resize events.
++/**
++ *	copy_split - helper function used to copy to expanded buffer
++ *
++ *	Copies the contents of the current relay channel buffer into the
++ *	new channel buffer, splitting them at old_cur_idx, the bottom
++ *	half of the old buffer going to the bottom of the new, likewise
++ *	for the top half.
 + */
 +static void
-+needs_resize_default_callback(int rchan_id,
-+			      int resize_type,
-+			      u32 suggested_buf_size,
-+			      u32 suggested_n_bufs)
++copy_split(struct rchan *rchan, int newsize, int oldsize, char * oldbuf, u32 old_cur_idx, u32 old_buf_size)
 +{
-+}
-+
-+
-+/*
-+ * Do nothing for resized offsets.
-+ */
-+static void
-+resize_offset_default_callback(int rchan_id,
-+			       u32 ge_offset,
-+			       u32 le_offset,
-+			       int delta)
-+{
-+}
-+
-+/* relay channel default callbacks */
-+static struct rchan_callbacks default_channel_callbacks = {
-+	.buffer_start = buffer_start_default_callback,
-+	.buffer_end = buffer_end_default_callback,
-+	.deliver = deliver_default_callback,
-+	.buffers_full = buffers_full_default_callback,
-+	.needs_resize = needs_resize_default_callback,
-+	.resize_offset = resize_offset_default_callback
-+};
-+
-+/**
-+ *	check_attribute_flags - check sanity of channel attributes
-+ *	@flags: channel attributes
-+ *	@nbufs: receives the new number of nbufs to use, if applicable
-+ *
-+ *	Returns 0 if successful, negative otherwise.
-+ */
-+static int
-+check_attribute_flags(u32 *attribute_flags)
-+{
-+	u32 flags = *attribute_flags;
-+	
-+	if (!(flags & RELAY_DELIVERY_BULK) && !(flags & RELAY_DELIVERY_PACKET))
-+		return -EINVAL; /* Delivery mode must be specified */
-+	
-+	if (!(flags & RELAY_USAGE_SMP) && !(flags & RELAY_USAGE_GLOBAL))
-+		return -EINVAL; /* Usage must be specified */
-+	
-+	if (!(flags & RELAY_SCHEME_ANY))
-+		return -EINVAL; /* One or both must be specified */
-+	else if (flags & RELAY_SCHEME_LOCKLESS) {
-+		if (have_cmpxchg())
-+			*attribute_flags &= ~RELAY_SCHEME_LOCKING;
-+		else if (flags & RELAY_SCHEME_LOCKING)
-+			*attribute_flags &= ~RELAY_SCHEME_LOCKLESS;
-+		else
-+			return -EINVAL; /* Locking scheme not an alternative */
-+	}
-+	
-+	if (!(flags & RELAY_TIMESTAMP_ANY))
-+		return -EINVAL; /* One or both must be specified */
-+	else if (flags & RELAY_TIMESTAMP_TSC) {
-+		if (have_tsc())
-+			*attribute_flags &= ~RELAY_TIMESTAMP_GETTIMEOFDAY;
-+		else if (flags & RELAY_TIMESTAMP_GETTIMEOFDAY)
-+			*attribute_flags &= ~RELAY_TIMESTAMP_TSC;
-+		else
-+			return -EINVAL; /* gettimeofday not an alternative */
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * High-level API functions.
-+ */
-+
-+/**
-+ *	relay_open - create a new file/channel buffer in relayfs
-+ *	@chanpath: name of file to create, including path
-+ *	@bufsize_lockless: size of lockless sub-buffers, if scheme is lockless
-+ *	@nbufs_lockless: number of lockless sub-buffers, if scheme is lockless
-+ *	@bufsize_locking: size of locking sub-buffers, if scheme is locking
-+ *	@nbufs_locking: number of locking sub-buffers, if scheme is locking
-+ *	@flags: channel attributes
-+ *	@callbacks: client callback functions
-+ *	@start_reserve: number of bytes to reserve at start of each sub-buffer
-+ *	@end_reserve: number of bytes to reserve at end of each sub-buffer
-+ *	@rchan_start_reserve: additional reserve at start of first sub-buffer
-+ *	@resize_min: minimum total buffer size, if set
-+ *	@resize_max: maximum total buffer size, if set
-+ *
-+ *	Returns channel id if successful, negative otherwise.
-+ *
-+ *	Creates a relay channel using the sizes and attributes specified.
-+ *	If RELAY_SCHEME_ANY is specified, the lockless scheme will be used
-+ *	if the architecture supports it (i.e. has_cmpxchg()), otherwise
-+ *	the locking scheme will be used.  If RELAY_TIMESTAMP_ANY is specified,
-+ *	TSC timestamping will be used if the architecture supports it,
-+ *	otherwise the delta between gettimeofday calls between the beginning
-+ *	of the sub-buffer and the current write is used.  Note that these
-+ *	timestamps and time deltas aren't written anywhere in the channel
-+ *	unless requested, and are available via the channel callbacks.  Both
-+ *	the delivery mode (RELAY_DELIVERY_xxx) and the usage mode 
-+ *	(RELAY_USAGE_xxx) must be explicitly specified.
-+ *
-+ *	The total size of the channel buffer is bufsize * nbufs rounded up 
-+ *	to the next kernel page size.  If the lockless scheme is used, both
-+ *	bufsize and nbufs must be a power of 2.  If the locking scheme is
-+ *	used, the bufsize can be anything and nbufs should be 2.  If
-+ *	RELAY_SCHEME_ANY is specified, clients should specify a bufsize that's
-+ *	a power of 2, and an nbufs value that would be preferred for the 
-+ *	lockless scheme - if the locking scheme is chosen, nbufs will be 
-+ *	automatically set to 2.
-+ *
-+ *	start_reserve and end_reserve allow clients to specify areas at the 
-+ *	beginning and end of each sub-buffer which will be 'reserved' for
-+ *	private use by the client.  The client has the opportunity to write
-+ *	into the corresponding sub-buffer area when the buffer_start and
-+ *	buffer_end callbacks are invoked.  The rchan_start_reserve param
-+ *	specifies an additional area at the beginning of the first buffer
-+ *	that the client can use to write information for instance describing
-+ *	the channel as a whole.
-+ *
-+ *	Any NULL rchan_callback function contained in the callbacks
-+ *	struct will be filled in with a default callback function that does
-+ *	nothing.  The default buffers_full callback returns 0, which will
-+ *	cause the channel to wrap around continuously.
-+ */
-+int 
-+relay_open(char *chanpath,
-+	   int bufsize_lockless,
-+	   int nbufs_lockless,
-+	   int bufsize_locking,
-+	   int nbufs_locking,
-+	   u32 flags,
-+	   struct rchan_callbacks *channel_callbacks,
-+	   u32 start_reserve,
-+	   u32 end_reserve,
-+	   u32 rchan_start_reserve,
-+	   u32 resize_min,
-+	   u32 resize_max)
-+{
-+	int err;
-+	struct rchan *rchan;
-+	struct dentry *dentry;
-+	struct rchan_callbacks *callbacks = NULL;
-+
-+	if (chanpath == NULL)
-+		return -EINVAL;
-+
-+	if (channel_callbacks == NULL)
-+		callbacks = &default_channel_callbacks;
-+	else
-+		callbacks = channel_callbacks;
-+
-+	if (nbufs_lockless != 1) {
-+		err = check_attribute_flags(&flags);
-+		if (err)
-+			return err;
-+	}
-+	
-+	rchan = rchan_create(chanpath, bufsize_lockless, nbufs_lockless,
-+			     bufsize_locking, nbufs_locking, flags, &err);
-+
-+	if (err < 0)
-+		return err;
-+
-+	/* Create file in fs */
-+	if ((err = rchan_create_file(chanpath, &dentry, rchan)) < 0) {
-+		rchan_free_id(rchan->id);
-+		kfree(rchan);
-+		return err;
-+	}
-+
-+	rchan->dentry = dentry;
-+
-+	if (callbacks->buffer_end == NULL)
-+		callbacks->buffer_end = buffer_end_default_callback;
-+	if (callbacks->buffer_start == NULL)
-+		callbacks->buffer_start = buffer_start_default_callback;
-+	if (callbacks->deliver == NULL)
-+		callbacks->deliver = deliver_default_callback;
-+	if (callbacks->buffers_full == NULL)
-+		callbacks->buffers_full = buffers_full_default_callback;
-+	if (callbacks->needs_resize == NULL)
-+		callbacks->needs_resize = needs_resize_default_callback;
-+	if (callbacks->resize_offset == NULL)
-+		callbacks->resize_offset = resize_offset_default_callback;
-+	rchan->callbacks = callbacks;
-+
-+	/* Just to let the client know the sizes used */
-+	rchan->callbacks->needs_resize(rchan->id,
-+				       RELAY_RESIZE_REPLACED,
-+				       rchan->buf_size,
-+				       rchan->n_bufs);
-+
-+	rchan->flags = flags;
-+	rchan->start_reserve = start_reserve;
-+	rchan->end_reserve = end_reserve;
-+	rchan->rchan_start_reserve = rchan_start_reserve;
-+
-+	rchan_init(rchan);
-+
-+	if (resize_min > 0 && resize_max > 0 && 
-+	   resize_max < RELAY_LOCKLESS_MAX_TOTAL_BUF_SIZE) {
-+		rchan->resize_min = resize_min;
-+		rchan->resize_max = resize_max;
-+	}
-+
-+	rchan_get(rchan->id);
-+
-+	return rchan->id;
-+}
-+
-+/**
-+ *	relay_write - reserve a slot in the channel and write data into it
-+ *	@rchan_id: relay channel id
-+ *	@data_ptr: data to be written into reserved slot
-+ *	@count: number of bytes to write
-+ *	@td_offset: optional offset where time delta should be written
-+ *
-+ *	Returns number of bytes written, negative number on failure.
-+ *
-+ *	Reserves space in the channel and writes count bytes of data_ptr
-+ *	to it.  Automatically performs any necessary locking, depending
-+ *	on the scheme and SMP usage in effect (no locking is done for the
-+ *	lockless scheme regardless of usage). 
-+ *
-+ *	If td_offset is >= 0, the internal time delta calculated when
-+ *	slot was reserved will be written at that offset.
-+ */
-+int 
-+relay_write(int rchan_id, 
-+	    const void *data_ptr, 
-+	    size_t count,
-+	    int td_offset)
-+{
-+	unsigned long flags;
-+	char *reserved, *write_pos;
-+	int bytes_written = 0;
-+	int reserve_code, interrupting;
-+	struct timeval ts;
-+	u32 td;
-+	struct rchan *rchan;
-+	
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	relay_lock_channel(rchan, flags); /* nop for lockless */
-+
-+	write_pos = reserved = relay_reserve(rchan, count, &ts, &td, 
-+					     &reserve_code, &interrupting);
-+
-+	if (reserved != NULL) {
-+		relay_write_direct(write_pos, data_ptr, count);
-+		if ((td_offset >= 0) && (td_offset < count - sizeof(td)))
-+			*((u32 *)(reserved + td_offset)) = td;
-+		bytes_written = count;
-+	} else if (reserve_code == RELAY_WRITE_TOO_LONG)
-+		bytes_written = -EINVAL;
-+
-+	if (bytes_written > 0)
-+		relay_commit(rchan, write_pos, bytes_written, reserve_code,
-+			     interrupting);
-+
-+	relay_unlock_channel(rchan, flags); /* nop for lockless */
-+
-+	rchan_put(rchan);
-+
-+	return bytes_written;
-+}
-+
-+/**
-+ *	do_read - utility function to do the actual read to user
-+ *	@rchan: the channel
-+ *	@buf: user buf to read into, NULL if just getting info
-+ *	@count: bytes requested
-+ *	@read_offset: offset into file
-+ *	@new_offset: new offset into file
-+ *
-+ *	Attempt to read count bytes into buffer.  See relay_read for
-+ *	full description.
-+ *
-+ *	Returns the number of bytes read, or negative on error.
-+ */
-+static ssize_t
-+do_read(struct rchan *rchan, char *buf, size_t count, u32 read_offset, u32 *new_offset)
-+{
-+	u32 read_bufno;
-+	u32 avail_offset, max_offset, buf_end_offset;
-+	u32 avail_count, buf_size;
-+	int unused_bytes = 0;
-+	size_t read_count = 0;
-+
-+	buf_size = rchan->buf_size;
-+	if (buf_size) { /* paranoia */
-+		read_bufno = read_offset / buf_size;
-+		if (read_bufno < RELAY_MAX_BUFS)
-+			unused_bytes = rchan->unused_bytes[read_bufno];
-+		else
-+			return -EINVAL;
-+	} else
-+		return -EINVAL;
-+
-+	avail_offset = relay_get_offset(rchan, &max_offset);
-+	buf_end_offset = (read_bufno + 1) * buf_size - unused_bytes;
-+	if (avail_offset > buf_end_offset)
-+		avail_offset = buf_end_offset;
-+	else if (avail_offset < read_offset)
-+		avail_offset = buf_end_offset;
-+	avail_count = avail_offset - read_offset;
-+	read_count = avail_count >= count ? count : avail_count;
-+
-+	if (read_count && buf != NULL)
-+		if (copy_to_user(buf, rchan->buf + read_offset, read_count))
-+			return -EFAULT;
-+
-+	if (read_offset + read_count + unused_bytes >= max_offset)
-+		*new_offset = 0;
-+	else if (read_offset + read_count >= buf_end_offset)
-+		*new_offset = read_offset + read_count + unused_bytes;
-+	else
-+		*new_offset = read_offset + read_count;
-+
-+	return read_count;
-+}
-+
-+/**
-+ *	_relay_read - read file op for relayfs files
-+ *	@rchan: the channel
-+ *	@buf: user buf to read into, NULL if just getting info
-+ *	@count: bytes requested
-+ *	@read_offset: offset into file
-+ *	@new_offset: new offset into file
-+ *	@wait: if non-zero, wait for something to read
-+ *
-+ *	Attempt to read count bytes into buffer.  If there are fewer
-+ *	than count bytes available, return available.  if the read would
-+ *	cross a sub-buffer boundary, this function will only return the
-+ *	bytes available to the end of the sub-buffer; a subsequent read
-+ *	would get the remaining bytes (starting from the beginning of the
-+ *	buffer).  Because we're	reading from a circular buffer, if the
-+ *	read would wrap around to sub-buffer 0, offset will be reset
-+ *	to 0 to mark the beginning of the buffer.  If nothing at all
-+ *	is available, the caller will be put on a wait queue until
-+ *	there is.  This function takes into account the 'unused bytes',
-+ *	if any, at the end of each sub-buffer, and will transparently
-+ *	skip over them.  If the return value is <= 0, *new_offset contains
-+ *	unpredictable data.  If buf is NULL, will return the read_count
-+ *	and new offset without actually doing the read.
-+ */
-+static ssize_t
-+_relay_read(struct rchan *rchan, char * buf, size_t count, u32 read_offset, u32 *new_offset, int wait)
-+{
-+	int err = 0;
-+	size_t read_count = 0;
-+
-+	if (rchan->replace_buffer)
-+		return 0;
-+	
-+	if (using_lockless(rchan))
-+		read_offset &= idx_mask(rchan);
-+
-+	if (read_offset >= rchan->n_bufs * rchan->buf_size) {
-+		*new_offset = 0;
-+		return 0;
-+	}
-+	
-+	if (buf != NULL && wait) {
-+		err = wait_event_interruptible(rchan->read_wait,
-+		       ((rchan->finalized == 1) ||
-+			(relay_get_offset(rchan, NULL) != read_offset)));
-+
-+		if (rchan->finalized)
-+			return -EINTR;
-+
-+		if (rchan->offsets_changed) {
-+			rchan->offsets_changed = 0;
-+			return -EINTR;
-+		}
-+
-+		if (rchan->replace_buffer)
-+			return -EINTR;
-+
-+		if (err)
-+			return err;
-+	}
-+
-+	read_count = do_read(rchan, buf, count, read_offset, new_offset);
-+	if (read_count < 0)
-+		err = read_count;
-+	
-+	if (err)
-+		return err;
-+	else
-+		return read_count;
-+}
-+
-+/**
-+ *	relay_read - read file op for relayfs files
-+ *	@rchan_id: the channel
-+ *	@buf: user buf to read into, NULL if just getting info
-+ *	@count: bytes requested
-+ *	@read_offset: offset into file
-+ *	@new_offset: new offset into file
-+ *	@wait: if non-zero, wait for something to read
-+ *
-+ *	The handle version - see _relay_read for details.
-+ */
-+ssize_t
-+relay_read(int rchan_id, char * buf, size_t count, u32 read_offset, u32 *new_offset, int wait)
-+{
-+	ssize_t read_count;
-+	
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	read_count = _relay_read(rchan, buf, count, read_offset,
-+				 new_offset, wait);
-+
-+	rchan_put(rchan);
-+
-+	return read_count;
-+}
-+
-+/**
-+ *	find_last_start - find start buffer/offset for relay_read_last
-+ *	@rchan: the channel
-+ *	@count: bytes requested
-+ *	@start_bufno: the sub-buffer to start copying from
-+ *	@start_offset: the offset within sub-buffer to start copying from
-+ *	@use_nbufs: this many sub-buffers are needed to fullfill the request
-+ *
-+ *	Returns the # of bytes available within the buffer, or negative
-+ *	errcode on error.
-+ */
-+static size_t
-+find_last_start(struct rchan *rchan, size_t count, int *start_bufno, u32 *start_offset, int *use_nbufs)
-+{
-+	int err = 0;
-+	int try_bufcount, cur_bufno = 0, include_nbufs = 1;
-+	u32 cur_idx, buf_size;
-+	size_t avail_count, avail_in_buf;
-+	int unused_bytes = 0;
-+
-+	if (rchan->bufs_produced < rchan->n_bufs)
-+		try_bufcount = rchan->bufs_produced;
-+	else
-+		try_bufcount = rchan->n_bufs - 1;
-+
-+	if (using_lockless(rchan))
-+		cur_idx = relay_get_offset(rchan, NULL) & idx_mask(rchan);
-+	else {
-+		cur_idx = relay_get_offset(rchan, NULL);
-+		try_bufcount = 1;
-+	}
-+
-+	buf_size = rchan->buf_size;
-+	if (buf_size) /* paranoia */
-+		cur_bufno = cur_idx / buf_size;
-+	else {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	avail_count = cur_idx % buf_size;
-+	*start_offset = 0;
-+
-+	if (avail_count > count)
-+		*start_offset = avail_count - count;
-+
-+	while ((avail_count < count) && (try_bufcount > 0)) {
-+		cur_bufno -= 1;
-+		if (cur_bufno < 0)
-+			cur_bufno = rchan->n_bufs - 1;
-+		if (cur_bufno < RELAY_MAX_BUFS)
-+			unused_bytes = rchan->unused_bytes[cur_bufno];
-+		else {
-+			err = -EINVAL;
-+			goto out;
-+		}
-+
-+		avail_in_buf = buf_size - unused_bytes;
-+		if (avail_count + avail_in_buf > count)
-+			*start_offset = buf_size - (count - avail_count) - unused_bytes;
-+		avail_count += avail_in_buf;
-+		include_nbufs++;
-+		try_bufcount--;
-+	}
-+out:
-+	if (err)
-+		return err;
-+	else {
-+		*start_bufno = cur_bufno;
-+		*use_nbufs = include_nbufs;
-+		return avail_count;
-+	}
-+}
-+
-+/**
-+ *	_relay_read_last - read last count bytes from channel
-+ *	@rchan: the channel
-+ *	@buf: user buf to read into
-+ *	@count: bytes requested
-+ *
-+ *	Copies the last count bytes in the channel into the user
-+ *	buffer.  Skips over unused bytes at the end of sub-buffers.
-+
-+ *	Returns # bytes actually read, or negative on error.
-+ */
-+static ssize_t
-+_relay_read_last(struct rchan *rchan, char * buf, size_t count)
-+{
-+	size_t avail_count;
-+	u32 buf_size = rchan->buf_size;
-+	int err = 0, unused_bytes = 0;
-+	int include_nbufs = 1;
-+	int write_count, total_write_count = 0;
-+	int cur_bufno = 0;
-+	u32 start_offset;
-+	int i;
-+
-+	if (buf == NULL)
-+		return -EINVAL;
-+
-+	avail_count = find_last_start(rchan, count, &cur_bufno, &start_offset,
-+				      &include_nbufs);
-+	if (avail_count <= 0) 
-+	{
-+		err = avail_count;
-+		goto out;
-+	} else if (avail_count > count)
-+		avail_count = count;
-+
-+	for (i=0; i < include_nbufs; i++) {
-+		cur_bufno += i;
-+		if (cur_bufno == rchan->n_bufs)
-+			cur_bufno = 0;
-+		unused_bytes = rchan->unused_bytes[cur_bufno];
-+		if (avail_count > buf_size - unused_bytes - start_offset)
-+			write_count = buf_size - unused_bytes - start_offset;
-+		else
-+			write_count = avail_count;
-+
-+		if ((err = copy_to_user(buf + total_write_count, rchan->buf + cur_bufno * buf_size + start_offset, write_count))) {
-+			err = -EFAULT;
-+			goto out;
-+		}
-+
-+		start_offset = 0;
-+		avail_count -= write_count;
-+		total_write_count += write_count;
-+	}
-+	
-+out:
-+	if (err)
-+		return err;
-+	else
-+		return total_write_count;
-+}
-+
-+/**
-+ *	relay_read_last - read last count bytes from channel
-+ *	@rchan_id: the channel id
-+ *	@buf: user buf to read into
-+ *	@count: bytes requested
-+ *
-+ *	The handle version - see _relay_read_last for details.
-+ */
-+ssize_t
-+relay_read_last(int rchan_id, char * buf, size_t count)
-+{
-+	ssize_t read_count;
-+	
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	read_count = _relay_read_last(rchan, buf, count);
-+
-+	rchan_put(rchan);
-+
-+	return read_count;
-+}
-+
-+/**
-+ *	_relay_bytes_avail - get # bytes available in a sub-buffer
-+ *	@rchan: the channel
-+ *	@read_offset: starting at this offset
-+ *	
-+ *	Returns the number of bytes available in the current buffer,
-+ *	following read_offset.  Note that this doesn't return the total
-+ *	bytes available in the buffer - this is enough though to know
-+ *	if anything is available.
-+ */
-+ssize_t
-+_relay_bytes_avail(struct rchan *rchan, u32 read_offset)
-+{
-+	u32 read_bufno;
-+	u32 avail_offset, max_offset, buf_end_offset;
-+	u32 avail_count = 0, buf_size;
-+	u32 n_bufs;
-+	int err = 0, unused_bytes = 0;
-+
-+	if (rchan->replace_buffer)
-+		return 0;
-+
-+	buf_size = rchan->buf_size;
-+	n_bufs = rchan->n_bufs;
-+	
-+	if ((n_bufs <= 0) || (n_bufs >= RELAY_MAX_BUFS)) {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+	
-+	if (buf_size) { /* paranoia */
-+		read_bufno = read_offset / buf_size;
-+		if (read_bufno < RELAY_MAX_BUFS)
-+			unused_bytes = rchan->unused_bytes[read_bufno];
-+		else {
-+			err = -EINVAL;
-+			goto out;
-+		}
++	u32 old_cur_bufno;
++	int ge = 0, le = 0, delta;
++
++	old_cur_bufno = old_cur_idx / old_buf_size;
++
++	if (old_cur_idx >= old_buf_size) {
++		memcpy(rchan->buf, oldbuf, old_buf_size - rchan->unused_bytes[0]);
++		memcpy(rchan->buf + old_buf_size - rchan->unused_bytes[0], 
++		       oldbuf + old_buf_size, old_cur_idx - old_buf_size);
++
++		ge = old_buf_size;
++		le = old_cur_idx;
++		delta = -rchan->unused_bytes[0];
++		rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++			
++		memcpy(rchan->buf + newsize - (oldsize - old_cur_idx),
++		       oldbuf + old_cur_idx, oldsize - old_cur_idx);
++
++		ge = old_cur_idx;
++		le = oldsize - 1;
++		delta = newsize - oldsize;
++		rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++
++		cur_write_pos(rchan) = rchan->buf + old_cur_idx - rchan->unused_bytes[0];
++		rchan->unused_bytes[0] = 0;
 +	} else {
-+		err = -EINVAL;
-+		goto out;
++		memcpy(rchan->buf, oldbuf, old_cur_idx);
++		memcpy(rchan->buf + newsize - old_buf_size,
++		       oldbuf + old_buf_size, old_buf_size);
++
++		ge = old_buf_size;
++		le = oldsize - 1;
++		delta = newsize - oldsize;
++		rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++
++		memcpy(rchan->buf + newsize - oldsize + rchan->unused_bytes[0],
++		       oldbuf + old_cur_idx, old_buf_size - old_cur_idx);
++
++		ge = old_cur_idx;
++		le = old_buf_size - 1;
++		delta = newsize - oldsize + rchan->unused_bytes[0];
++		rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++
++		cur_write_pos(rchan) = rchan->buf + old_cur_idx;
++		rchan->unused_bytes[0] = 0;
 +	}
-+
-+	avail_offset = relay_get_offset(rchan, &max_offset);
-+	buf_end_offset = (read_bufno + 1) * buf_size - unused_bytes;
-+
-+	if (avail_offset > buf_end_offset || avail_offset < read_offset)
-+		avail_offset = buf_end_offset;
-+
-+	avail_count = avail_offset - read_offset;
-+
-+out:
-+	if (err)
-+		return err;
-+	else
-+		return avail_count;
 +}
 +
 +/**
-+ *	relay_bytes_avail - get # bytes available in a sub-buffer
-+ *	@rchan_id: relay channel id
-+ *	@read_offset: starting at this offset
-+ *	
-+ *	The handle version - see _relay_bytes_avail for details.
-+ */
-+ssize_t
-+relay_bytes_avail(int rchan_id, u32 read_offset)
-+{
-+	ssize_t avail_count;
-+	
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return -EBADF;
-+
-+	avail_count = _relay_bytes_avail(rchan, read_offset);
-+
-+	rchan_put(rchan);
-+
-+	return avail_count;
-+}
-+
-+/**
-+ *	relay_buffers_consumed - add to the # buffers consumed for the channel
-+ *	@rchan_id: relay channel id
-+ *	@bufs_consumed: number of buffers to add to current count for channel
-+ *	
-+ *	In order for the relay to detect the 'buffers full' condition for
-+ *	a channel, it must be kept up-to-date with respect to the number of
-+ *	buffers consumed by the client.  If the channel is being used in a
-+ *	continuous or 'flight recorder' fashion, this function can be ignored.
++ *	copy_expand - copies old buffer to larger buffer
++ *	@rchan: the channel
++ *	@newsize: the size of the new buffer
++ *	@oldsize: the size of the old buffer
++ *	@oldsize: the old buffer
++ *	@old_cur_idx: the current index into the old buffer
++ *	@old_buf_size: the old buffer's sub-buffer size
 + *
-+ *	If the addition of the value of the bufs_consumed param to the current
-+ *	bufs_consumed count for the channel would exceed the bufs_produced
-+ *	count for the channel, the channel's bufs_consumed count will be set
-+ *	to the bufs_produced count for the channel.  This allows clients to
-+ *	'catch up' if necessary.
-+ */
-+void 
-+relay_buffers_consumed(int rchan_id, u32 bufs_consumed)
-+{
-+	struct rchan *rchan;
-+
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return;
-+
-+	rchan->bufs_consumed += bufs_consumed;
-+
-+	if (using_lockless(rchan) && rchan->bufs_consumed > rchan->bufs_produced)
-+		rchan->bufs_consumed = rchan->bufs_produced;
-+
-+	rchan_put(rchan);
-+}
-+
-+/**
-+ *	relay_bytes_consumed - add to the # bytes consumed for the channel
-+ *	@rchan_id: relay channel id
-+ *	@bytes_consumed: number of bytes to add to current count for channel
-+ *	@read_offset: where the bytes were consumed from
-+ *	
-+ *	In order for the relay to detect the 'buffers full' condition for
-+ *	a channel, it must be kept up-to-date with respect to the number of
-+ *	buffers consumed by the client.  If the channel is being used in a
-+ *	continuous or 'flight recorder' fashion, this function can be ignored.
-+ *
-+ *	For packet clients, it makes more sense to update after each read
-+ *	rather than after each complete sub-buffer read.  The bytes_consumed
-+ *	count updates bufs_consumed when a buffer has been consumed so this
-+ *	count remains consistent.
++ *	Copies the contents of the old relay channel buffer into the
++ *	new channel buffer.
 + */
 +void
-+relay_bytes_consumed(int rchan_id, u32 bytes_consumed, u32 read_offset)
++copy_expand(struct rchan *rchan, int newsize, int oldsize, char * oldbuf, u32 old_cur_idx, u32 old_buf_size)
 +{
-+	struct rchan *rchan;
-+	u32 consuming_idx;
-+	u32 unused;
++	u32 total_bytes;
++	u32 cur_idx;
++	
++	copy_split(rchan, newsize, oldsize, oldbuf, old_cur_idx, old_buf_size);
 +
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
-+		return;
++	total_bytes = rchan->bufs_produced * old_buf_size +
++		bytes_produced(rchan) + old_cur_idx;
 +
-+	if (using_lockless(rchan))
-+		consuming_idx = read_offset / rchan->buf_size;
++	if (old_cur_idx > old_buf_size)
++		total_bytes -= old_buf_size;
++
++	cur_idx = cur_write_pos(rchan) - rchan->buf;
++	
++	if (cur_idx >= rchan->buf_size)
++		total_bytes -= (cur_idx - rchan->buf_size);
 +	else
-+		consuming_idx = rchan->bufs_consumed % rchan->n_bufs;
-+
-+	if (consuming_idx >= rchan->n_bufs)
-+		consuming_idx = rchan->n_bufs - 1;
-+
-+	rchan->bytes_consumed += bytes_consumed;
++		total_bytes -= cur_idx;
++	rchan->bufs_produced = total_bytes / rchan->buf_size;
++	bytes_produced(rchan) = total_bytes % rchan->buf_size;
++		
++	total_bytes = rchan->bufs_consumed * old_buf_size +
++		rchan->bytes_consumed;
++	rchan->bufs_consumed = total_bytes / rchan->buf_size;
++	rchan->bytes_consumed = total_bytes % rchan->buf_size;
 +	
-+	unused = rchan->unused_bytes[consuming_idx];
-+	
-+	if (rchan->bytes_consumed + unused >= rchan->buf_size) {
-+		relay_buffers_consumed(rchan_id, 1);
-+
-+		if (using_lockless(rchan))
-+			rchan->bytes_consumed = 0;
-+		else
-+			rchan->bytes_consumed = rchan->bytes_consumed +
-+				unused - rchan->buf_size;
-+	}
-+
-+	rchan_put(rchan);
++	if (rchan->buf_id % 2)
++		rchan->buf_id++;
 +}
 +
 +/**
-+ *	relay_resume - resume a suspended channel
-+ *	@rchan_id: relay channel id
-+ *	
-+ *	A channel that had a 'buffers full' condition detected for it, and
-+ *	was told to 'suspend' via a non-zero buffers_full callback return 
-+ *	value can again be written to following this call.
++ *	copy_from_curbuf - helper function used to copy to shrunken buffer
++ *
++ *	Copies the contents of the current relay channel sub-buffer into the
++ *	new channel buffer.
++ */
++static u32
++copy_from_curbuf(struct rchan *rchan, u32 old_cur_idx, u32 old_buf_size, int newsize, char *oldbuf)
++{
++	u32 old_cur_bufno;
++	u32 copy_bytes;
++	char *copy_to;
++	char *copy_from;
++	int ge = 0, le = 0, delta;
++
++	old_cur_bufno = old_cur_idx / old_buf_size;
++	copy_bytes = old_cur_idx;
++
++	if (old_cur_idx >= old_buf_size) {
++		copy_bytes -= old_buf_size;
++		if (copy_bytes > newsize)
++			copy_bytes = newsize;
++
++		delta = -(old_buf_size - newsize) - old_cur_idx;
++	} else {
++		copy_bytes = old_cur_idx;
++		if (copy_bytes > newsize) {
++			copy_bytes = newsize;
++			delta = -(old_buf_size - (newsize + 
++					  (old_buf_size - old_cur_idx)));
++		} else
++			delta = newsize - copy_bytes;
++	}
++
++	ge = old_cur_idx - copy_bytes;
++	le = old_cur_idx;
++
++	copy_to = rchan->buf + newsize - copy_bytes;
++	copy_from = oldbuf + old_cur_idx - copy_bytes;
++		
++	memcpy(copy_to, copy_from, copy_bytes);
++	rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++
++	return copy_bytes;
++}
++
++/**
++ *	copy_from_otherbuf - helper function used to copy to shrunken buffer
++ *
++ *	Copies the contents of the non-current relay channel sub-buffer into
++ *	the new channel buffer.
++ */
++static void
++copy_from_otherbuf(struct rchan *rchan, u32 old_cur_idx, u32 old_buf_size, int oldsize, int newsize, char *copy_to, u32 copied_bytes, char *oldbuf)
++{
++	char *copy_from;
++	int ge = 0, le = 0, delta;
++	u32 copy_bytes = newsize - copied_bytes;
++
++	if (old_cur_idx >= old_buf_size) {
++		copy_from = oldbuf + old_buf_size -
++			rchan->unused_bytes[0] - copy_bytes;
++		delta = -(old_buf_size - newsize + copied_bytes -
++			  rchan->unused_bytes[0]);
++		ge = old_buf_size - copy_bytes - rchan->unused_bytes[0];
++		le = old_buf_size;
++	} else {
++		copy_from = oldbuf + oldsize -
++			rchan->unused_bytes[1] - copy_bytes;
++		delta = -(oldsize - newsize + copied_bytes -
++			  rchan->unused_bytes[1]);
++		ge = oldsize - copy_bytes - rchan->unused_bytes[1];
++		le = oldsize;
++	}
++
++	memcpy(copy_to, copy_from, copy_bytes);
++	rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++}
++
++/**
++ *	copy_shrink - copies old buffer to smaller buffer
++ *	@rchan: the channel
++ *	@newsize: the size of the new buffer
++ *	@oldsize: the size of the old buffer
++ *	@oldsize: the old buffer
++ *	@old_cur_idx: the current index into the old buffer
++ *	@old_buf_size: the old buffer's sub-buffer size
++ *
++ *	Copies the contents of the old relay channel buffer into the
++ *	new channel buffer.
 + */
 +void 
-+relay_resume(int rchan_id)
++copy_shrink(struct rchan *rchan, int newsize, int oldsize, char *oldbuf, u32 old_cur_idx, u32 old_buf_size)
 +{
-+	struct rchan *rchan;
++	u32 copy_bytes;
++	char *copy_to;
++	u32 total_bytes;
++	
++	copy_bytes = copy_from_curbuf(rchan, old_cur_idx, old_buf_size,
++				      newsize, oldbuf);
 +
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL)
++	copy_to = rchan->buf + newsize - copy_bytes;
++	copy_bytes = newsize - copy_bytes;
++	if (copy_bytes) {
++		copy_to -= copy_bytes;
++		copy_from_otherbuf(rchan, old_cur_idx, old_buf_size, oldsize,
++				   newsize, copy_to, copy_bytes, oldbuf);
++	}
++		
++	cur_write_pos(rchan) = rchan->buf;
++	rchan->unused_bytes[0] = 0;
++	rchan->unused_bytes[1] = 0;
++		
++	total_bytes = rchan->bufs_produced * old_buf_size +
++		bytes_produced(rchan) + old_cur_idx;
++
++	if (old_cur_idx > old_buf_size)
++		total_bytes -= old_buf_size;
++		
++	rchan->bufs_produced = total_bytes / rchan->buf_size;
++	bytes_produced(rchan) = total_bytes % rchan->buf_size;
++	
++	total_bytes = rchan->bufs_consumed * old_buf_size +
++		rchan->bytes_consumed;
++	rchan->bufs_consumed = total_bytes / rchan->buf_size;
++	rchan->bytes_consumed = total_bytes % rchan->buf_size;
++	
++	if (rchan->buf_id % 2)
++		rchan->buf_id++;
++}
++
++/**
++ *	locking_copy_contents - relayfs copy_contents() implementation
++ *	@rchan: the channel
++ *	@newsize: the size of the new buffer
++ *	@oldsize: the size of the old buffer
++ *	@oldsize: the old buffer
++ *	@old_cur_idx: the current index into the old buffer
++ *	@old_buf_size: the old buffer's sub-buffer size
++ *	@old_n_bufs: the old buffer's sub-buffer count
++ *
++ *	Copies the contents of the old relay channel buffer into the
++ *	new channel buffer.
++ */
++void
++locking_copy_contents(struct rchan *rchan, int newsize, int oldsize, char * oldbuf, u32 old_cur_idx, u32 old_buf_size, u32 old_n_bufs)
++{
++	u32 old_cur_bufno;
++	old_cur_bufno = old_cur_idx / old_buf_size;
++
++	if (newsize > oldsize)
++		copy_expand(rchan, newsize, oldsize, oldbuf,
++			    old_cur_idx, old_buf_size);
++	else
++		copy_shrink(rchan, newsize, oldsize, oldbuf,
++			    old_cur_idx, old_buf_size);
++
++	write_buf(rchan) = rchan->buf;
++	read_buf(rchan) = rchan->buf + rchan->buf_size;
++	write_buf_end(rchan) = write_buf(rchan) + rchan->buf_size;
++	read_buf_end(rchan) = read_buf(rchan) + rchan->buf_size;
++	read_limit(rchan) = read_buf(rchan);
++	write_limit(rchan) = write_buf_end(rchan) - rchan->end_reserve;
++
++	rchan->offsets_changed = 1;
++}
++
++
++
++
++
++
++
++
+diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/relay_locking.h linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_locking.h
+--- linux-2.6.0-test1/fs/relayfs/relay_locking.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_locking.h	Sun Jul 13 22:32:49 2003
+@@ -0,0 +1,39 @@
++#ifndef _RELAY_LOCKING_H
++#define _RELAY_LOCKING_H
++
++#define RESIZE_THRESHOLD_LOCKING 1 / 3
++
++extern char *
++locking_reserve(struct rchan *rchan,
++		u32 slot_len, 
++		struct timeval *time_stamp,
++		u32 *tsc,
++		int *err,
++		int *interrupting);
++
++extern void 
++locking_commit(struct rchan *rchan,
++	       char *from,
++	       u32 len, 
++	       int deliver, 
++	       int interrupting);
++
++extern void 
++locking_resume(struct rchan *rchan);
++
++extern void 
++locking_finalize(struct rchan *rchan);
++
++extern u32 
++locking_get_offset(struct rchan *rchan, u32 *max_offset);
++
++extern void 
++locking_copy_contents(struct rchan *rchan,
++		      int newsize,
++		      int oldsize,
++		      char * oldbuf,
++		      u32 old_cur_idx,
++		      u32 old_buf_size,
++		      u32 old_n_bufs);
++
++#endif	/* _RELAY_LOCKING_H */
+diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/relay_lockless.c linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_lockless.c
+--- linux-2.6.0-test1/fs/relayfs/relay_lockless.c	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_lockless.c	Sun Jul 13 22:32:49 2003
+@@ -0,0 +1,905 @@
++/*
++ * RelayFS lockless scheme implementation.
++ *
++ * Copyright (C) 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
++ * Copyright (C) 2002, 2003 - Bob Wisniewski (bob@watson.ibm.com), IBM Corp
++ *
++ * This file is released under the GPL.
++ */
++
++#include <asm/relay.h>
++#include "relay_lockless.h"
++
++/**
++ *	compare_and_store_volatile - self-explicit
++ *	@ptr: ptr to the word that will receive the new value
++ *	@oval: the value we think is currently in *ptr
++ *	@nval: the value *ptr will get if we were right
++ */
++inline int 
++compare_and_store_volatile(volatile u32 *ptr, 
++			   u32 oval,
++			   u32 nval)
++{
++	u32 prev;
++
++	barrier();
++	prev = cmpxchg(ptr, oval, nval);
++	barrier();
++
++	return (prev == oval);
++}
++
++/**
++ *	atomic_set_volatile - atomically set the value in ptr to nval.
++ *	@ptr: ptr to the word that will receive the new value
++ *	@nval: the new value
++ */
++inline void 
++atomic_set_volatile(atomic_t *ptr,
++		    u32 nval)
++{
++	barrier();
++	atomic_set(ptr, (int)nval);
++	barrier();
++}
++
++/**
++ *	atomic_add_volatile - atomically add val to the value at ptr.
++ *	@ptr: ptr to the word that will receive the addition
++ *	@val: the value to add to *ptr
++ */
++inline void 
++atomic_add_volatile(atomic_t *ptr, u32 val)
++{
++	barrier();
++	atomic_add((int)val, ptr);
++	barrier();
++}
++
++/**
++ *	atomic_sub_volatile - atomically substract val from the value at ptr.
++ *	@ptr: ptr to the word that will receive the subtraction
++ *	@val: the value to subtract from *ptr
++ */
++inline void 
++atomic_sub_volatile(atomic_t *ptr, s32 val)
++{
++	barrier();
++	atomic_sub((int)val, ptr);
++	barrier();
++}
++
++/**
++ *	expand_check - check whether the channel needs expanding
++ *	@rchan: the channel
++ *	@active_bufs: the number of unread sub-buffers
++ *
++ *	See resize_check() for details.
++ *
++ *	Returns the suggested number of sub-buffers for the new
++ *	buffer.
++ */
++static inline u32
++expand_check(struct rchan *rchan, u32 active_bufs)
++{
++	u32 new_n_bufs = 0;
++	
++	if (rchan->resize_max && !rchan->mapped &&
++	   active_bufs == (rchan->n_bufs * RESIZE_THRESHOLD_LOCKLESS)) {
++		new_n_bufs = rchan->n_bufs * 2;
++	}
++
++	return new_n_bufs;
++}
++
++/**
++ *	shrink_check - check whether the channel needs shrinking
++ *	@rchan: the channel
++ *	@active_bufs: the number of unread sub-buffers
++ *
++ *	See resize_check() for details.
++ *
++ *	Returns the suggested number of sub-buffers for the new
++ *	buffer.
++ */
++static inline u32
++shrink_check(struct rchan *rchan, u32 active_bufs)
++{
++	u32 needed_bufsize, n;
++	struct timeval ts;
++	u32 low_water_time;
++	u32 new_n_bufs = 0;
++
++	if (rchan->resize_min == 0 || rchan->mapped ||
++	   rchan->resize_min >= rchan->n_bufs * rchan->buf_size)
++		goto out;
++	
++	if (active_bufs > rchan->n_bufs * RESIZE_THRESHOLD_LOCKLESS) {
++		do_gettimeofday(&rchan->low_water_time);
++		goto out;
++	}
++	
++	do_gettimeofday(&ts);
++	low_water_time = calc_time_delta(&ts, &rchan->low_water_time);
++	if (low_water_time > LOW_WATER_TIME) {
++		needed_bufsize = active_bufs * rchan->buf_size;
++		for (n = 4; n < rchan->n_bufs; n *= 2) {
++			if ((n * rchan->buf_size >= rchan->resize_min) &&
++			   (n * rchan->buf_size <= rchan->resize_max) &&
++			   (n * (rchan->buf_size * RESIZE_THRESHOLD_LOCKLESS) > needed_bufsize))
++				break;
++		}
++
++		if (n >= rchan->n_bufs || n < 4)
++			goto out;
++		
++		new_n_bufs = n;
++	}
++
++out:
++	return new_n_bufs;
++}
++
++/**
++ *	resize_check - check whether the channel needs resizing
++ *	@rchan: the channel
++ *
++ *	If the channel is above 3/4 full, it will be doubled in
++ *	size.  If a minute has passed since the last resize, and
++ *	it's no longer full, it will be shrunk to whatever size
++ *	will comfortably fit the contents.
++ */
++static void
++resize_check(struct rchan *rchan)
++{
++	u32 active_bufs;
++	u32 new_n_bufs;
++	int resize_type = RELAY_RESIZE_NONE;
++
++	if (rchan->resize_min == 0)
 +		return;
 +
-+	rchan->relay_ops->resume(rchan);
++	active_bufs = rchan->bufs_produced - rchan->bufs_consumed + 1;
 +
-+	rchan_put(rchan);
++	new_n_bufs = expand_check(rchan, active_bufs);
++	if (new_n_bufs) {
++		resize_type = RELAY_RESIZE_EXPAND;
++	}
++	else {
++		new_n_bufs = shrink_check(rchan, active_bufs);
++		if (new_n_bufs)
++			resize_type = RELAY_RESIZE_SHRINK;
++	}
++	
++	if (resize_type != RELAY_RESIZE_NONE)
++		rchan->callbacks->needs_resize(rchan->id,
++					       resize_type,
++					       rchan->buf_size, 
++					       new_n_bufs);
 +}
 +
 +/**
-+ *	relay_info - get status and other information about a relay channel
-+ *	@rchan_id: relay channel id
-+ *	
-+ *	Fills in an rchan_info struct with channel status and attribute 
-+ *	information such as usage modes, sub-buffer size and count, the
-+ *	allocated size of the entire buffer, buffers produced and consumed,
-+ *	current buffer id, count of writes lost due to buffers full condition.
-+ *	
-+ *	Clients may need to know how many 'unused' bytes there are at the
-+ *	end of a given sub-buffer.  This would only be the case if the client
-+ *	1) didn't either write this count to the end of the sub-buffer or
-+ *	otherwise note it (it's available as the difference between the buffer
-+ *	end and current write pos params in the buffer_end callback) (if the
-+ *	client returned 0 from the buffer_end callback, it's assumed that this
-+ *	is indeed the case)  2) isn't using the read() system call to read the 
-+ *	buffer.  In other words, if the client isn't annotating the stream
-+ *	and is reading the buffer by mmaping it, this information would be
-+ *	needed in order for the client to 'skip over' the unused bytes at the
-+ *	ends of sub-buffers.
++ *	lockless_commit - commit a reserved slot in the buffer
++ *	@rchan: the channel
++ *	@from: commit the length starting here
++ *	@len: length committed
++ *	@deliver: length committed
++ *	@interrupting: not used
 + *
-+ *	Additionally, for the lockless scheme, clients may need to know whether
-+ *	a particular sub-buffer is actually complete.  An array of boolean
-+ *	values, one per sub-buffer, contains non-zero if the buffer is 
-+ *	complete, non-zero otherwise.
++ *      Commits len bytes and calls deliver callback if applicable.
 + */
-+int 
-+relay_info(int rchan_id, struct rchan_info *rchan_info)
++inline void 
++lockless_commit(struct rchan *rchan,
++		char *from,
++		u32 len, 
++		int deliver, 
++		int interrupting)
++{
++	u32 bufno, idx;
++	
++	idx = from - rchan->buf;
++
++	if (len > 0) {
++		bufno = RELAY_BUFNO_GET(idx, offset_bits(rchan));
++		atomic_add_volatile(&fill_count(rchan, bufno), len);
++	}
++
++	if (deliver) {
++		rchan->callbacks->deliver(rchan->id, from, len);
++		resize_check(rchan);
++	}
++}
++
++/**
++ *	get_buffer_end - get the address of the end of buffer 
++ *	@rchan: the channel
++ *	@buf_idx: index into channel corresponding to address
++ */
++static inline char * 
++get_buffer_end(struct rchan *rchan, u32 buf_idx)
++{
++	return rchan->buf
++		+ RELAY_BUF_OFFSET_CLEAR(buf_idx, offset_mask(rchan))
++		+ RELAY_BUF_SIZE(offset_bits(rchan));
++}
++
++/**
++ *	finalize_buffer - utility function consolidating end-of-buffer tasks.
++ *	@end_idx: index into trace buffer to write the end-buffer event at
++ *	@size_lost: number of unused bytes at the end of the buffer
++ *	@time_stamp: the time of the end-buffer event
++ *	@tsc: the timestamp counter associated with time
++ *	@cpu_id: the CPU id associated with the event
++ *
++ *	This function must be called with local irqs disabled.
++ */
++static inline void 
++finalize_buffer(u32 end_idx,
++		u32 size_lost, 
++		struct timeval *time_stamp,
++		u32 *tsc, 
++		struct rchan *rchan)
++{
++	char* cur_write_pos;
++	char* write_buf_end;
++	u32 bufno;
++	int bytes_written;
++
++	cur_write_pos = rchan->buf + end_idx;
++	write_buf_end = get_buffer_end(rchan, end_idx - 1);
++
++	bytes_written = rchan->callbacks->buffer_end(rchan->id, cur_write_pos, 
++		     write_buf_end, *time_stamp, *tsc, using_tsc(rchan));
++	/* We assume that since the client didn't write anything, at some
++	   point the unused_bytes value will be needed. */ 
++	if (bytes_written == 0)
++		rchan->unused_bytes[rchan->buf_id % rchan->n_bufs] = size_lost;
++	
++        bufno = RELAY_BUFNO_GET(end_idx, offset_bits(rchan));
++        atomic_add_volatile(&fill_count(rchan, bufno), size_lost);
++	rchan->bufs_produced++;
++}
++
++/**
++ *	lockless_finalize: - finalize last buffer at end of channel use
++ *	@rchan: the channel
++ */
++inline void
++lockless_finalize(struct rchan *rchan)
++{
++	u32 event_end_idx;
++	u32 size_lost;
++	unsigned long int flags;
++	struct timeval time;
++	u32 tsc;
++
++	event_end_idx = RELAY_BUF_OFFSET_GET(idx(rchan), offset_mask(rchan));
++	size_lost = RELAY_BUF_SIZE(offset_bits(rchan)) - event_end_idx;
++
++	local_irq_save(flags);
++	get_timestamp(&time, &tsc, rchan);
++	finalize_buffer(idx(rchan) & idx_mask(rchan), size_lost, 
++			&time, &tsc, rchan);
++	local_irq_restore(flags);
++}
++
++/**
++ *	discard_check: - determine whether a write should be discarded
++ *	@rchan: the channel
++ *	@old_idx: index into trace buffer where check for space should begin
++ *	@write_len: the length of the write to check
++ *	@time_stamp: the time of the end-buffer event
++ *	@tsc: the timestamp counter associated with time
++ *
++ *	The return value contains the result flags and is an ORed combination 
++ *	of the following:
++ *
++ *	RELAY_WRITE_DISCARD_NONE - write should not be discarded
++ *	RELAY_BUFFER_SWITCH - buffer switch occurred
++ *	RELAY_WRITE_DISCARD - write should be discarded (all buffers are full)
++ *	RELAY_WRITE_TOO_LONG - write won't fit into even an empty buffer
++ */
++static inline int
++discard_check(struct rchan *rchan,
++	      u32 old_idx,
++	      u32 write_len, 
++	      struct timeval *time_stamp,
++	      u32 *tsc)
++{
++	u32 buffers_ready;
++	u32 offset_mask = offset_mask(rchan);
++	u8 offset_bits = offset_bits(rchan);
++	u32 idx_mask = idx_mask(rchan);
++	u32 size_lost;
++	unsigned long int flags;
++
++	if (write_len > RELAY_BUF_SIZE(offset_bits)) {
++		rchan->events_lost++;
++		return RELAY_WRITE_DISCARD | RELAY_WRITE_TOO_LONG;
++	}
++
++	local_irq_save(flags);
++
++	if (atomic_read(&rchan->suspended) == 1) {
++		local_irq_restore(flags);
++		rchan->events_lost++;	
++		return RELAY_WRITE_DISCARD;
++	}
++
++	buffers_ready = rchan->bufs_produced - rchan->bufs_consumed;
++	if (buffers_ready == rchan->n_bufs - 1) {
++		if (rchan->callbacks->buffers_full(rchan->id)) {
++			atomic_set(&rchan->suspended, 1);
++			get_timestamp(time_stamp, tsc, rchan);
++			size_lost = RELAY_BUF_SIZE(offset_bits)
++				- RELAY_BUF_OFFSET_GET(old_idx, offset_mask);
++			finalize_buffer(old_idx & idx_mask, size_lost, 
++					time_stamp, tsc, rchan);
++
++			last_event_index(rchan) = old_idx;
++			last_event_timestamp(rchan) = *time_stamp;
++			last_event_tsc(rchan) = *tsc;
++
++			local_irq_restore(flags);
++
++			rchan->events_lost++;
++
++			return RELAY_BUFFER_SWITCH | RELAY_WRITE_DISCARD;
++		}
++	}
++
++	local_irq_restore(flags);
++
++	return RELAY_WRITE_DISCARD_NONE;
++}
++
++/**
++ *	switch_buffers - switch over to a new sub-buffer
++ *	@rchan: the channel
++ *	@slot_len: the length of the slot needed for the current write
++ *	@offset: the offset calculated for the new index
++ *	@ts: timestamp
++ *	@tsc: the timestamp counter associated with time
++ *	@old_idx: the value of the buffer control index when we were called
++ *	@old_idx: the new calculated value of the buffer control index
++ */
++static inline void
++switch_buffers(struct rchan *rchan,
++	       u32 slot_len,
++	       u32 offset,
++	       struct timeval *ts,
++	       u32 *tsc,
++	       u32 new_idx,
++	       u32 old_idx)
++{
++	u32 size_lost = rchan->end_reserve;
++	unsigned long int flags;
++	u32 idx_mask = idx_mask(rchan);
++	u8 offset_bits = offset_bits(rchan);
++	char *cur_write_pos;
++	u32 new_buf_no;
++	u32 start_reserve = rchan->start_reserve;
++	
++	if (offset > 0)
++		size_lost += slot_len - offset;
++	else
++		old_idx += slot_len;
++
++	local_irq_save(flags);
++	finalize_buffer(old_idx & idx_mask, size_lost, 
++			ts, tsc, rchan);
++	rchan->buf_start_time = *ts;
++	rchan->buf_start_tsc = *tsc;
++
++	local_irq_restore(flags);
++
++	cur_write_pos = rchan->buf + RELAY_BUF_OFFSET_CLEAR((new_idx
++					     & idx_mask), offset_mask(rchan));
++
++	rchan->buf_id++;
++
++	rchan->unused_bytes[rchan->buf_id % rchan->n_bufs] = 0;
++	
++	rchan->callbacks->buffer_start(rchan->id, cur_write_pos, 
++			       rchan->buf_id, *ts, *tsc, using_tsc(rchan));
++
++	new_buf_no = RELAY_BUFNO_GET(new_idx & idx_mask, offset_bits);
++
++	atomic_sub_volatile(&fill_count(rchan, new_buf_no),
++			    RELAY_BUF_SIZE(offset_bits) - start_reserve);
++
++	if (atomic_read(&fill_count(rchan, new_buf_no)) < start_reserve)
++		atomic_set_volatile(&fill_count(rchan, new_buf_no), 
++				    start_reserve);
++}
++
++/**
++ *	lockless_reserve_slow - the slow reserve path in the lockless scheme
++ *	@rchan: the channel
++ *	@slot_len: the length of the slot to reserve
++ *	@ts: variable that will receive the time the slot was reserved
++ *	@tsc: the timestamp counter associated with time
++ *	@old_idx: the value of the buffer control index when we were called
++ *	@err: receives the result flags
++ *
++ *	Returns pointer to the beginning of the reserved slot, NULL if error.
++
++ *	err values same as for lockless_reserve.
++ */
++static inline char *
++lockless_reserve_slow(struct rchan *rchan,
++		      u32 slot_len,
++		      struct timeval *ts,
++		      u32 *tsc,
++		      u32 old_idx,
++		      int *err)
++{
++	u32 new_idx, offset;
++	unsigned long int flags;
++	u32 offset_mask = offset_mask(rchan);
++	u32 idx_mask = idx_mask(rchan);
++	u32 start_reserve = rchan->start_reserve;
++	u32 end_reserve = rchan->end_reserve;
++	int discard_event;
++	u32 reserved_idx;
++	char *cur_write_pos;
++	int initializing = 0;
++
++	*err = RELAY_BUFFER_SWITCH_NONE;
++
++	discard_event = discard_check(rchan, old_idx, slot_len, ts, tsc);
++	if (discard_event != RELAY_WRITE_DISCARD_NONE) {
++		*err = discard_event;
++		return NULL;
++	}
++
++	local_irq_save(flags);
++	if (rchan->initialized == 0) {
++		rchan->initialized = initializing = 1;
++		idx(rchan) = rchan->start_reserve + rchan->rchan_start_reserve;
++	}
++	local_irq_restore(flags);
++
++	do {
++		old_idx = idx(rchan);
++		new_idx = old_idx + slot_len;
++
++		offset = RELAY_BUF_OFFSET_GET(new_idx + end_reserve,
++					      offset_mask);
++
++		if ((offset < slot_len) && (offset > 0)) {
++			reserved_idx = RELAY_BUF_OFFSET_CLEAR(new_idx 
++				+ end_reserve, offset_mask) + start_reserve;
++			new_idx = reserved_idx + slot_len;
++		} else if (offset < slot_len) {
++			reserved_idx = old_idx;
++			new_idx = RELAY_BUF_OFFSET_CLEAR(new_idx
++			      + end_reserve, offset_mask) + start_reserve;
++		} else
++			reserved_idx = old_idx;
++
++		get_timestamp(ts, tsc, rchan);
++	} while (!compare_and_store_volatile(&idx(rchan), old_idx, new_idx));
++
++	reserved_idx &= idx_mask;
++
++	if (initializing == 1) {
++		cur_write_pos = rchan->buf 
++			+ RELAY_BUF_OFFSET_CLEAR((old_idx & idx_mask),
++						 offset_mask(rchan));
++		rchan->buf_start_time = *ts;
++		rchan->buf_start_tsc = *tsc;
++		rchan->unused_bytes[0] = 0;
++
++		rchan->callbacks->buffer_start(rchan->id, cur_write_pos, 
++			       rchan->buf_id, *ts, *tsc, using_tsc(rchan));
++	}
++
++	if (offset < slot_len) {
++		switch_buffers(rchan, slot_len, offset, ts, tsc, new_idx,
++			       old_idx);
++		*err = RELAY_BUFFER_SWITCH;
++	}
++
++	/* If not using TSC, need to calc time delta */
++	recalc_time_delta(ts, tsc, rchan);
++
++	return rchan->buf + reserved_idx;
++}
++
++/**
++ *	lockless_reserve - reserve a slot in the trace buffer for an event.
++ *	@rchan: the channel
++ *	@slot_len: the length of the slot to reserve
++ *	@ts: variable that will receive the time the slot was reserved
++ *	@tsc: the timestamp counter associated with time
++ *	@err: receives the result flags
++ *	@interrupting: not used
++ *
++ *	Returns pointer to the beginning of the reserved slot, NULL if error.
++ *
++ *	The err value contains the result flags and is an ORed combination 
++ *	of the following:
++ *
++ *	RELAY_BUFFER_SWITCH_NONE - no buffer switch occurred
++ *	RELAY_EVENT_DISCARD_NONE - event should not be discarded
++ *	RELAY_BUFFER_SWITCH - buffer switch occurred
++ *	RELAY_EVENT_DISCARD - event should be discarded (all buffers are full)
++ *	RELAY_EVENT_TOO_LONG - event won't fit into even an empty buffer
++ */
++inline char * 
++lockless_reserve(struct rchan *rchan,
++		 u32 slot_len,
++		 struct timeval *ts,
++		 u32 *tsc,
++		 int *err,
++		 int *interrupting)
++{
++	u32 old_idx, new_idx, offset;
++	u32 offset_mask = offset_mask(rchan);
++
++	do {
++		old_idx = idx(rchan);
++		new_idx = old_idx + slot_len;
++
++		offset = RELAY_BUF_OFFSET_GET(new_idx + rchan->end_reserve, 
++					      offset_mask);
++
++		if (offset < slot_len)
++			return lockless_reserve_slow(rchan, slot_len, 
++				     ts, tsc, old_idx, err);
++
++		get_time_or_tsc(ts, tsc, rchan);
++	} while (!compare_and_store_volatile(&idx(rchan), old_idx, new_idx));
++
++	/* If not using TSC, need to calc time delta */
++	recalc_time_delta(ts, tsc, rchan);
++
++	*err = RELAY_BUFFER_SWITCH_NONE;
++
++	return rchan->buf + (old_idx & idx_mask(rchan));
++}
++
++/**
++ *	lockless_resume - resume a suspended channel
++ *	@rchan: the channel
++ */
++inline void 
++lockless_resume(struct rchan *rchan)
++{
++	int discard_size;
++	u32 last_event_buf_no;
++	u32 last_buffer_lost_size;
++	u32 last_event_offset;
++	u32 new_idx;
++	int freed_buf_no;
++	char *cur_write_pos;
++	char *write_buf_end;
++	u32 bufno;
++	u32 size_lost;
++	int bytes_written;
++	
++	freed_buf_no = rchan->bufs_produced % rchan->n_bufs;
++
++	atomic_set_volatile(&fill_count(rchan, freed_buf_no), 
++			    rchan->start_reserve);
++
++	last_event_offset = RELAY_BUF_OFFSET_GET(last_event_index(rchan), 
++						 offset_mask(rchan));
++	last_event_buf_no = RELAY_BUFNO_GET(last_event_index(rchan), 
++					    offset_bits(rchan));
++	last_buffer_lost_size = RELAY_BUF_SIZE(offset_bits(rchan)) 
++		- last_event_offset;
++
++	discard_size = atomic_read(&fill_count(rchan, last_event_buf_no))
++		- last_event_offset - last_buffer_lost_size;
++	if (discard_size > 0)
++		atomic_sub_volatile(&fill_count(rchan, last_event_buf_no), 
++				    discard_size);
++
++	cur_write_pos = rchan->buf
++		+ (last_event_index(rchan) & idx_mask(rchan));
++	
++	write_buf_end = get_buffer_end(rchan, last_event_index(rchan) - 1);
++	size_lost = write_buf_end - cur_write_pos;
++	
++	bytes_written = rchan->callbacks->buffer_end(rchan->id,
++					     cur_write_pos,
++					     write_buf_end,
++					     last_event_timestamp(rchan),
++					     last_event_tsc(rchan),
++					     using_tsc(rchan));
++	/* We assume that since the client didn't write anything, at some
++	   point the unused_bytes value will be needed. */ 
++	if (bytes_written == 0)
++		rchan->unused_bytes[rchan->buf_id % rchan->n_bufs] = size_lost;
++
++        bufno = RELAY_BUFNO_GET(last_event_index(rchan), offset_bits(rchan));
++        atomic_add_volatile(&fill_count(rchan, bufno), size_lost);
++
++	get_timestamp(&rchan->buf_start_time, &rchan->buf_start_tsc, rchan);
++
++	new_idx = idx(rchan) + RELAY_BUF_SIZE(offset_bits(rchan));
++	new_idx = RELAY_BUF_OFFSET_CLEAR(new_idx, 
++				   offset_mask(rchan)) + rchan->start_reserve;
++
++	cur_write_pos = rchan->buf
++		+ RELAY_BUF_OFFSET_CLEAR((new_idx & idx_mask(rchan)),
++					 offset_mask(rchan));
++
++	rchan->buf_id++;
++	rchan->unused_bytes[rchan->buf_id % rchan->n_bufs] = 0;
++	
++	rchan->callbacks->buffer_start(rchan->id,
++				       cur_write_pos,
++				       rchan->buf_id,
++				       rchan->buf_start_time, 
++				       rchan->buf_start_tsc,
++				       using_tsc(rchan));
++
++	bufno = RELAY_BUFNO_GET(new_idx & idx_mask(rchan), 
++				offset_bits(rchan));
++
++	atomic_sub_volatile(&fill_count(rchan, bufno),
++		    RELAY_BUF_SIZE(offset_bits(rchan)) - rchan->start_reserve);
++
++	if (atomic_read(&fill_count(rchan, bufno)) < rchan->start_reserve)
++			atomic_set_volatile(&fill_count(rchan, bufno), 
++					    rchan->start_reserve);
++
++	idx(rchan) = new_idx;
++
++	atomic_set(&rchan->suspended, 0);
++}
++
++/**
++ *	lockless_get_offset - get current and max 'file' offsets for VFS
++ *	@rchan: the channel
++ *	@max_offset: maximum channel offset
++ *
++ *	Returns the current and maximum buffer offsets in VFS terms.
++ */
++u32 
++lockless_get_offset(struct rchan *rchan,
++			u32 *max_offset)
++{
++	if (max_offset)
++		*max_offset = rchan->buf_size * rchan->n_bufs - 1;
++
++	return idx(rchan) & idx_mask(rchan);
++}
++
++/**
++ *	copy_expand - copies old buffer to larger buffer
++ *	@rchan: the channel
++ *	@newsize: the size of the new buffer
++ *	@oldsize: the size of the old buffer
++ *	@oldsize: the old buffer
++ *	@old_cur_idx: the current index into the old buffer
++ *	@old_buf_size: the old buffer's sub-buffer size
++ *
++ *	Copies the contents of the current relay channel buffer into the
++ *	new channel buffer, splitting them at old_cur_idx, the bottom
++ *	half of the old buffer going to the bottom of the new, likewise
++ *	for the top half.
++ */
++static void
++copy_expand(struct rchan *rchan, int newsize, int oldsize, char * oldbuf, u32 old_cur_idx, u32 old_buf_size, u32 old_n_bufs)
++{
++	char *copy_first, *copy_last = NULL;
++	u32 copy_first_size = 0, copy_last_size = 0;
++	u32 new_cur_idx = 0, newbufs;
++	int old_cur_bufno, new_cur_bufno, delta, i;
++	u32 ge, le;
++
++	new_cur_idx = relay_get_offset(rchan, NULL) & idx_mask(rchan);
++	old_cur_bufno = old_cur_idx / old_buf_size;
++	new_cur_bufno = new_cur_idx / rchan->buf_size;
++
++	copy_first = oldbuf;
++	copy_first_size = (old_cur_bufno + 1) * old_buf_size;
++	memcpy(rchan->buf, copy_first, copy_first_size);
++
++	copy_last = copy_first + copy_first_size;
++	copy_last_size = oldsize - copy_first_size;
++	memcpy(rchan->buf + copy_first_size + newsize - oldsize,
++	       copy_last, copy_last_size);
++
++	memset(rchan->buf + copy_first_size, 0, newsize - oldsize);
++
++	newbufs = (newsize - oldsize) / rchan->buf_size;
++	for (i = old_cur_bufno + 1; i < old_n_bufs; i++) {
++		atomic_set(&fill_count(rchan, i + newbufs), atomic_read(&fill_count(rchan, i)));
++		rchan->unused_bytes[i + newbufs] = rchan->unused_bytes[i];
++	}
++	for (i = old_cur_bufno + 1; i < old_cur_bufno + newbufs + 1; i++) {
++		atomic_set(&fill_count(rchan, i),
++			   (int)RELAY_BUF_SIZE(offset_bits(rchan)));
++		rchan->unused_bytes[i] = 0;
++	}
++
++	rchan->buf_id = new_cur_bufno;
++	
++	delta = newsize - oldsize;
++	ge = (old_cur_bufno + 1) * old_buf_size;
++	le = oldsize;
++	rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++
++	rchan->offsets_changed = 1;
++}
++
++/* Used only for buffer shrinking */
++static int tmp_unused[RELAY_MAX_BUFS];
++static atomic_t tmp_fill[RELAY_MAX_BUFS];
++
++/**
++ *	copy_to_bottom - helper function used to copy to shrunken buffer
++ *
++ *	Copies the contents of the current relay channel sub-buffer into
++ *	the bottom of the new channel buffer.
++
++ *	Returns the change in position of the new sub-buffer.
++ */
++static int
++copy_to_bottom(struct rchan *rchan, char * oldbuf, u32 old_buf_size, int old_cur_bufno, int new_cur_bufno)
++{
++	int delta;
++	u32 ge, le;
++
++	memcpy(rchan->buf + new_cur_bufno * old_buf_size,
++	       oldbuf + old_cur_bufno * old_buf_size, old_buf_size);
++	atomic_set(&fill_count(rchan, new_cur_bufno),
++		   atomic_read(&tmp_fill[old_cur_bufno]));
++	rchan->unused_bytes[new_cur_bufno] = tmp_unused[old_cur_bufno];
++
++	ge = old_cur_bufno * old_buf_size;
++	le = (old_cur_bufno + 1) * old_buf_size;
++	delta = -(old_cur_bufno * old_buf_size);
++	if (old_cur_bufno != 0) {
++		rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++		rchan->offsets_changed = 1;
++	}
++
++	return delta;
++}
++
++/**
++ *	copy_rest - helper function used to copy to shrunken buffer
++ *
++ *	Copies the the contents of the rest of the relay channel sub-buffers
++ *	not already copied, into the remainder of the new channel buffer.
++ */
++static void
++copy_rest(struct rchan *rchan, char * oldbuf, u32 old_buf_size, u32 old_n_bufs, int old_cur_bufno, int new_cur_bufno, int copy_n_bufs)
++{
++	int delta = 0, i;
++	u32 ge, le;
++
++	le = (old_cur_bufno + 1) * old_buf_size;
++	ge = le;
++		
++	for (i = 0; i < copy_n_bufs; i++, --old_cur_bufno, --new_cur_bufno) {
++		if (old_cur_bufno < 0) {
++			if (le != ge) {
++				old_cur_bufno = old_n_bufs - 1;
++				rchan->callbacks->resize_offset(rchan->id,
++								ge, le, delta);
++				rchan->offsets_changed = 1;
++				le = (old_cur_bufno + 1) * old_buf_size;
++				ge = le;
++			}
++		}
++
++		memcpy(rchan->buf + new_cur_bufno * old_buf_size,
++		       oldbuf + old_cur_bufno * old_buf_size, old_buf_size);
++		atomic_set(&fill_count(rchan, new_cur_bufno),
++			   atomic_read(&tmp_fill[old_cur_bufno]));
++		rchan->unused_bytes[new_cur_bufno] = tmp_unused[old_cur_bufno];
++
++		ge -= old_buf_size;
++		if (old_cur_bufno >= new_cur_bufno)
++			delta = -(old_cur_bufno - new_cur_bufno);
++		else
++			delta = new_cur_bufno - old_cur_bufno;
++		
++		delta *= old_buf_size;
++	}
++	
++	if (le != ge) {
++		rchan->callbacks->resize_offset(rchan->id, ge, le, delta);
++		rchan->offsets_changed = 1;
++	}
++}
++
++/**
++ *	copy_shrink - copies old buffer to smaller buffer
++ *	@rchan: the channel
++ *	@newsize: the size of the new buffer
++ *	@oldsize: the size of the old buffer
++ *	@oldsize: the old buffer
++ *	@old_cur_idx: the current index into the old buffer
++ *	@old_buf_size: the old buffer's sub-buffer size
++ *	@old_n_buf: the old buffer's sub-buffer count
++ *
++ *	Copies the contents of the old relay channel buffer into the
++ *	new channel buffer.
++ */
++static void
++copy_shrink(struct rchan *rchan, int newsize, int oldsize, char * oldbuf, u32 old_cur_idx, u32 old_buf_size, u32 old_n_bufs)
++{
++	int old_cur_bufno, new_cur_bufno, copy_n_bufs, delta, i;
++
++	for (i = 0; i < RELAY_MAX_BUFS; i++) {
++		tmp_unused[i] = rchan->unused_bytes[i];
++		tmp_fill[i] = rchan->scheme.lockless.fill_count[i];
++	}
++	
++	old_cur_bufno = old_cur_idx / old_buf_size;
++	new_cur_bufno = 0;
++
++	delta = copy_to_bottom(rchan, oldbuf, old_buf_size, old_cur_bufno, new_cur_bufno);
++	idx(rchan) += delta;
++
++	copy_n_bufs = rchan->n_bufs - 1;
++	new_cur_bufno = rchan->n_bufs - 1;
++	old_cur_bufno--;
++	if (old_cur_bufno < 0)
++		old_cur_bufno = old_n_bufs - 1;
++
++	copy_rest(rchan, oldbuf, old_buf_size, old_n_bufs, old_cur_bufno,
++		  new_cur_bufno, copy_n_bufs);
++
++	rchan->buf_id = rchan->buf_id - rchan->buf_id % rchan->n_bufs;
++}
++
++/**
++ *	lockless_copy_contents - relayfs copy_contents() implementation
++ *	@rchan: the channel
++ *	@newsize: the size of the new buffer
++ *	@oldsize: the size of the old buffer
++ *	@oldsize: the old buffer
++ *	@old_cur_idx: the current index into the old buffer
++ *	@old_buf_size: the old buffer's sub-buffer size
++ *	@old_n_bufs: the old buffer's sub-buffer count
++ *
++ *	Copies the contents of the old relay channel buffer into the
++ *	new channel buffer.
++ */
++void
++lockless_copy_contents(struct rchan *rchan, int newsize, int oldsize, char * oldbuf, u32 old_cur_idx, u32 old_buf_size, u32 old_n_bufs)
 +{
 +	int i;
-+	struct rchan *rchan;
 +
-+	rchan = rchan_get(rchan_id);
-+	if (rchan == NULL) {
-+		return -1;
++	bufno_bits(rchan) += resize_order(rchan);
++	idx_mask(rchan) =
++		(1UL << (bufno_bits(rchan) + offset_bits(rchan))) - 1;
++	if (resize_order(rchan) > 0) {
++		for (i = rchan->n_bufs / 2; i < rchan->n_bufs; i++) {
++			atomic_set(&fill_count(rchan, i),
++				   (int)RELAY_BUF_SIZE(offset_bits(rchan)));
++			rchan->unused_bytes[i] = 0;
++		}
 +	}
 +
-+	rchan_info->flags = rchan->flags;
-+	rchan_info->buf_size = rchan->buf_size;
-+	rchan_info->buf_addr = rchan->buf;
-+	rchan_info->alloc_size = rchan->alloc_size;
-+	rchan_info->n_bufs = rchan->n_bufs;
-+	rchan_info->bufs_produced = rchan->bufs_produced;
-+	rchan_info->bufs_consumed = rchan->bufs_consumed;
-+	rchan_info->buf_id = rchan->buf_id;
-+	rchan_info->events_lost = rchan->events_lost;
-+
-+	for (i = 0; i < rchan->n_bufs; i++) {
-+		rchan_info->unused_bytes[i] = rchan->unused_bytes[i];
-+		if (using_lockless(rchan))
-+			rchan_info->buffer_complete[i] = (atomic_read(&fill_count(rchan, i)) == rchan->buf_size);
-+		else
-+			rchan_info->buffer_complete[i] = 0;
-+	}
-+
-+	rchan_put(rchan);
-+
-+	return 0;
++	if (newsize > oldsize)
++		copy_expand(rchan, newsize, oldsize, oldbuf,
++			    old_cur_idx, old_buf_size, old_n_bufs);
++	else
++		copy_shrink(rchan, newsize, oldsize, oldbuf,
++			    old_cur_idx, old_buf_size, old_n_bufs);
 +}
 +
-+/**
-+ *	relay_close - close the channel
-+ *	@rchan_id: relay channel id
-+ *	
-+ *	Finalizes the last sub-buffer and marks the channel as finalized.
-+ *	The release of the channel buffer and channel data structure is
-+ *	handled elsewhere.
-+ */
-+int 
-+relay_close(int rchan_id)
-+{
-+	struct rchan *rchan;
-+	int err;
-+
-+	if ((rchan_id < 0) || (rchan_id >= RELAY_MAX_CHANNELS))
-+		return -EBADF;
-+	
-+	err = relay_finalize(rchan_id);
-+	if (!err) {
-+		read_lock(&rchan_table_lock);
-+		rchan = rchan_table[rchan_id];
-+		read_unlock(&rchan_table_lock);
-+
-+		if (rchan)
-+			rchan_put(rchan);
-+	}
-+	
-+	return err;
-+}
-+
-+EXPORT_SYMBOL(relay_open);
-+EXPORT_SYMBOL(relay_close);
-+EXPORT_SYMBOL(relay_reserve);
-+EXPORT_SYMBOL(relay_commit);
-+EXPORT_SYMBOL(relay_read);
-+EXPORT_SYMBOL(relay_read_last);
-+EXPORT_SYMBOL(relay_write);
-+EXPORT_SYMBOL(relay_buffers_consumed);
-+EXPORT_SYMBOL(relay_bytes_consumed);
-+EXPORT_SYMBOL(relay_resume);
-+EXPORT_SYMBOL(relay_info);
-+EXPORT_SYMBOL(relay_realloc_buffer);
-+EXPORT_SYMBOL(relay_replace_buffer);
-+EXPORT_SYMBOL(relay_bytes_avail);
 +
 +
 +
++
++
++
++
++
++
++
++
++
+diff -urpN -X dontdiff linux-2.6.0-test1/fs/relayfs/relay_lockless.h linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_lockless.h
+--- linux-2.6.0-test1/fs/relayfs/relay_lockless.h	Wed Dec 31 18:00:00 1969
++++ linux-2.6.0-test1-relayfs-printk/fs/relayfs/relay_lockless.h	Sun Jul 13 22:32:49 2003
+@@ -0,0 +1,39 @@
++#ifndef _RELAY_LOCKLESS_H
++#define _RELAY_LOCKLESS_H
++
++#define RESIZE_THRESHOLD_LOCKLESS 3 / 4
++
++extern char *
++lockless_reserve(struct rchan *rchan,
++		 u32 slot_len,
++		 struct timeval *time_stamp,
++		 u32 *tsc,
++		 int * interrupting,
++		 int * errcode);
++
++extern void 
++lockless_commit(struct rchan *rchan,
++		char * from,
++		u32 len, 
++		int deliver, 
++		int interrupting);
++
++extern void 
++lockless_resume(struct rchan *rchan);
++
++extern void 
++lockless_finalize(struct rchan *rchan);
++
++u32 
++lockless_get_offset(struct rchan *rchan, u32 *max_offset);
++
++extern void
++lockless_copy_contents(struct rchan *rchan,
++		       int newsize,
++		       int oldsize,
++		       char * oldbuf,
++		       u32 old_cur_idx,
++		       u32 old_buf_size,
++		       u32 old_n_bufs);
++
++#endif/* _RELAY_LOCKLESS_H */
 
 -- 
 Regards,

@@ -1,67 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268898AbRHBLgd>; Thu, 2 Aug 2001 07:36:33 -0400
+	id <S268893AbRHBLfW>; Thu, 2 Aug 2001 07:35:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268897AbRHBLgX>; Thu, 2 Aug 2001 07:36:23 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:65159 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S268896AbRHBLgK>; Thu, 2 Aug 2001 07:36:10 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <xfs@ragnark.vestdata.no>
-Date: Thu, 2 Aug 2001 21:34:17 +1000 (EST)
+	id <S268896AbRHBLfN>; Thu, 2 Aug 2001 07:35:13 -0400
+Received: from biltenmail.bilten.metu.edu.tr ([144.122.246.3]:19987 "EHLO
+	biltenmail.bilten.metu.edu.tr") by vger.kernel.org with ESMTP
+	id <S268893AbRHBLfG>; Thu, 2 Aug 2001 07:35:06 -0400
+Message-ID: <3B693B46.585CC416@bilten.metu.edu.tr>
+Date: Thu, 02 Aug 2001 14:36:38 +0300
+From: Muzaffer Ozakca <muzaffer.ozakca@bilten.metu.edu.tr>
+Organization: Tubitak - Bilten
+X-Mailer: Mozilla 4.76 [en] (Win95; U)
+X-Accept-Language: tr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: university studies?
+In-Reply-To: <Pine.LNX.4.33.0108020438460.8206-100000@terbidium.openservices.net>
+Content-Type: text/plain; charset=iso-8859-9
 Content-Transfer-Encoding: 7bit
-Message-ID: <15209.15033.502548.995201@notabene.cse.unsw.edu.au>
-Cc: Tad Dolphay <tbd@sgi.com>, mjacob@feral.com,
-        Christian Chip <chip.christian@storageapps.com>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: Busy inodes after umount
-In-Reply-To: message from =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= on Tuesday July 31
-In-Reply-To: <20010719165758.D50024-100000@wonky.feral.com>
-	<200107200038.TAA40153@fsgi158.americas.sgi.com>
-	<20010731021546.A7750@vestdata.no>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday July 31, xfs@ragnark.vestdata.no wrote:
-> On Thu, Jul 19, 2001 at 07:38:15PM -0500, Tad Dolphay wrote:
-> > > > I've now been able to reproduce:
-> > > >
-> > > > * make a filesystem
-> > > > * mount it
-> > > > * export it (nfs)
-> > > > * mount on remote machine
-> > > > * lock file (fcntl)
-> > > > * unexport
-> > > > * unmount
-> > > >
-> > > > Then you get the VFS message about self-destruct. Tested with both ext2
-> > > > and xfs.
-> > > >
-> > > > The lock is still present in /proc/locks after the umount.
-> > > >
-> > > > With ext2 I can remount the filesystem successfully, but with XFS I get
-> > > > the message about duplicate UUIDs and the mount failes. I believe this is a totally
-> > > > different problem from the one you were experiencing. (and blockdev doesn't help for me)
-> > > >
-> > > > I suppose this is a generic kernel bug?
 
-Yep.  It is not filesystem specific.  
-nfsd does not flush locks when a filesystem is un-exported, only when
-a client is removed, and that actually never happens.
-In fs/nfsd/lockd.c there is a comment:
+I don't think, one should learn all the "hot" languages of the day to
+become a good programmer. A computer science student should (and will)
+learn the theoretical background that lays beneath. Data structures,
+graph theory, computational linguistics, compiler theory, OS, AI, so on.
+Practical studies such as programming projects will let the students
+solid the theory. These thoughts are not actually mine, most of the
+computer science departments -more or less- follow a cirriculum
+appreciating these ideas, I think. However, a kernel (or systems)
+programmer should also know basics of microprocessors, interrupts, etc.
+and programming in assembly, besides the theory given in a university.
 
-/*
- * When removing an NFS client entry, notify lockd that it is gone.
- * FIXME: We should do the same when unexporting an NFS volume.
- */
+After getting the theory and completing the understanding by practice,
+learning a programming language is just a detail. Always solving
+problems "C" style, may not be the best approach, a functional language
+may better suit the needs -usually not in our course.
 
-That FIXME needs to be fixed.  I need to read through some more code
-before I am sure how to do it, but it shouldn't be too hard.
+As far I could see, kernel programming (talking about the whole)
+requires the use of computer science, heavily.
 
-NeilBrown
+
+Ignacio Vazquez-Abrams wrote:
+> 
+> On Thu, 2 Aug 2001, Riley Williams wrote:
+> 
+> > One thing I will add, from long experience: If you learned BASIC
+> > first, then learn Pascal BEFORE you try to learn C or C++ as you'll
+> > come out a much better programmer than trying to learn C or C++
+> > directly after BASIC.
+> 
+> Once you've finished learning BASIC, unlearn all the crap you won't need for
+> Pascal.
+> 
+> Also, add Python for good programming style (or replace BASIC and Pascal
+> with it entirely if you're feeling brave) and some sort of FP to sharpen your
+> pure algorithmic skills. If you don't want to go into full-fledged Lisp, then
+> take a look at XSLT.
+> 
+> PHP is good if you're going to do anything web-oriented, but it's very similar
+> to C, so...
+> 
+> Also, Perl doesn't hurt, but I've found that it isn't entirely neccessary if
+> you can deal with sed and awk, which I also suggest you pick up.
+> 
+> --
+> Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Muzaffer Ozakca
+Researcher/Software Engineer  -  muzaffer.ozakca@bilten.metu.edu.tr
+TUBITAK-Bilten-ODTU - Communications Systems and Comp. Networks Group
+ODTU, Ankara, Turkey
+http://www.bilten.metu.edu.tr   tel: +90-312-210 1311

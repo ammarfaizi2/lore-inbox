@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264511AbRFZU2Z>; Tue, 26 Jun 2001 16:28:25 -0400
+	id <S263918AbRFZUhQ>; Tue, 26 Jun 2001 16:37:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265108AbRFZU2U>; Tue, 26 Jun 2001 16:28:20 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:33540 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S264511AbRFZUTm>; Tue, 26 Jun 2001 16:19:42 -0400
-Message-ID: <3B38EE96.A6C11980@t-online.de>
-Date: Tue, 26 Jun 2001 22:20:38 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S263605AbRFZUhI>; Tue, 26 Jun 2001 16:37:08 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:46097 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S265111AbRFZU1I>; Tue, 26 Jun 2001 16:27:08 -0400
+Date: Tue, 26 Jun 2001 13:26:29 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Romain Dolbeau <dolbeau@irisa.fr>
+cc: linux fbdev <Linux-fbdev-devel@lists.sourceforge.net>,
+        Romain Dolbeau <dolbeaur@club-internet.fr>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbgen & multiple RGBA
+In-Reply-To: <3B36F2D1.175CD2E@irisa.fr>
+Message-ID: <Pine.LNX.4.10.10106261324280.30394-100000@transvirtual.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
-CC: andre@linux-ide.org
-Subject: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-this patch fixes the hard hang (no SYSRQ) on inserting
-any PCMCIA ATA/IDE card (e.g. CompactFlash, Clik40 etc)
-to a PCI-Cardbus bridge add-in card.
+> For the color component, yes, but you can't use a memcmp
+> on the 'fb_var_screeninfo', as some member of the struct
+> are irrelevant to colormap switching (you don't want
+> to reinstall the colormap if only the refresh rate changed,
+> for instance).
 
-Thanks David for his valuable explanation about what happens:
-ide-probe registers it's irq handler too late! After it
-triggers the interrupt during the probe the (shared) irq
-loops forever, effectively wedging the machine completely.
+But it does. If you look at the console code it always calls set_palette
+which in turn calls fbcon_set_palette which in turn calls fb_set_cmap. 
+This happens every time you VC switch. A few driver writers noticed this
+and don't bother with calling fb_Set_var in con_switch but instead a few
+pieces of the function. But because of the way the current console system
+is designed the colormap will always be set on VC switches.
 
-Regards, Gunther
-
-
-
---- linux245.orig/drivers/ide/ide-cs.c  Fri Feb  9 20:40:02 2001
-+++ linux/drivers/ide/ide-cs.c  Tue Jun 26 21:22:19 2001
-@@ -324,6 +324,9 @@
-     if (link->io.NumPorts2)
-        release_region(link->io.BasePort2, link->io.NumPorts2);
- 
-+    outb(0x02, ctl_base); // Set nIEN = disable device interrupts
-+                         // else it hangs on PCI-Cardbus add-in cards, wedging irq
-+
-     /* retry registration in case device is still spinning up */
-     for (i = 0; i < 10; i++) {
-        hd = ide_register(io_base, ctl_base, link->irq.AssignedIRQ);
---- linux245.orig/drivers/ide/ide-probe.c       Sun Mar 18 18:25:02 2001
-+++ linux/drivers/ide/ide-probe.c       Tue Jun 26 21:25:07 2001
-@@ -685,6 +685,8 @@
- #else /* !CONFIG_IDEPCI_SHARE_IRQ */
-                int sa = (hwif->chipset == ide_pci) ? SA_INTERRUPT|SA_SHIRQ : SA_INTERRUPT;
- #endif /* CONFIG_IDEPCI_SHARE_IRQ */
-+
-+               outb(0x00, hwif->io_ports[IDE_CONTROL_OFFSET]); // clear nIEN == enable irqs
-                if (ide_request_irq(hwif->irq, &ide_intr, sa, hwif->name, hwgroup)) {
-                        if (!match)
-                                kfree(hwgroup);

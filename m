@@ -1,115 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVANJUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVANJVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVANJUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 04:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVANJUq
+	id S261840AbVANJVl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 04:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVANJVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 04:20:46 -0500
-Received: from opersys.com ([64.40.108.71]:20754 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261840AbVANJUY (ORCPT
+	Fri, 14 Jan 2005 04:21:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:61394 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261840AbVANJVd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 04:20:24 -0500
-Message-ID: <41E7908E.6090101@opersys.com>
-Date: Fri, 14 Jan 2005 04:27:42 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>, Larry Kessler <kessler@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
-In-Reply-To: <m1zmzcpfca.fsf@muc.de>
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 Jan 2005 04:21:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZXXhj3SB7uIvUl2+BoHutBIvsvT/YCyEHhPG9bjK96WFGRPNG5/r1QIItTv26cyoKx0i0wg5WUYb7kaQ9scNnL78zChDPPPCn5gs3tScRmu02Lefwi2n/fjNYksfD/+qxTjxJkP6Z0IvfG0nv5nAz2l1HZ6VZWrql8UM5L3GHcw=
+Message-ID: <8e6f947205011401213c39b785@mail.gmail.com>
+Date: Fri, 14 Jan 2005 04:21:33 -0500
+From: Will Dyson <will.dyson@gmail.com>
+Reply-To: Will Dyson <will.dyson@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>, lkml@s2y4n2c.de,
+       rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com, chrisw@osdl.org,
+       mpm@selenic.com, hch@infradead.org, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <1105673482.5402.58.camel@npiggin-nld.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <1105669451.5402.38.camel@npiggin-nld.site>
+	 <200501140240.j0E2esKG026962@localhost.localdomain>
+	 <20050113191237.25b3962a.akpm@osdl.org> <41E739F4.1030902@kolivas.org>
+	 <1105673482.5402.58.camel@npiggin-nld.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Andi Kleen wrote:
-> I think it would be better to have a standard set of kprobes instead
-> of all the ugly LTT hooks. kprobes could then log to relayfs or another
-> fast logging mechanism.
+On Fri, 14 Jan 2005 14:31:21 +1100, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+ 
+> It sounds to me like both your proposals may be too complex and not
+> sufficiently deterministic (I don't know for sure, maybe that's
+> exactly what the RT people want).
 > 
-> Advantage of this would be that it had no impact on fast paths 
-> unless enabled (LTT slows down a kernel quite considerable just
-> by compiling it in) 
+> I wouldn't have thought it is so much a matter of having real-time-ish
+> scheduling available that tries to play nicely in a multi user machine.
+> That must still imply that either the user is able to unduly tie up
+> resources (and thus it has to be a privileged operation), or that it
+> sometimes can't meet its "guarantees" (in which case, is it useful?).
 
-There are different ways to look at this. For one thing, the current
-ltt hooks aren't as fast as they should be (i.e. we check whether
-the tracing is enabled for a certain event way too far in the code-path.)
-This should be rather simple to fix. Whether it be by checking for the
-event's logging as early as possible or by using one of the hooking
-frameworks that generate noops which cost nothing until tracing is
-enabled. None of this is really difficult. What is difficult is trying
-to maintain the LTT patches outside the kernel while trying to add all
-the bells-and-whistles that make such a thing lightweight and effective.
+The VM system with overcommit is in a similar pickle. It can't honor
+the "guarantees" it makes. Yet, I think it is in wide use. Overcommit
+is a useful behavior for many people, despite the fact that it allows
+any user to turn loose the oom_killer on the system.
 
-As far as kprobes go, then you still need to have some form or another
-of marking the code for key events, unless you keep maintaining a set
-of kprobes-able points separately, which really makes it unusable for
-the rest of us, as the users of LTT have discovered over time (having
-to create a new patch for every new kernel that comes out.) Yet I do
-see the point of being able to add the stuff dynamically.
+So I think many people would also find a best-effort-at-realtime
+SCHED_ISO type thing pretty useful, even if it allowed unprivileged
+users to tie up resources (while protecting the system from DOS).
+Heck, we don't have to allow unprivileged users to tie up resources.
+SCHED_ISO use could be limited to members of a certain group, possibly
+implemented using some sort of LSM module... :)
 
-So lately I've been thinking that there may be a middle-ground here
-where everyone could be happy. Define three states for the hooks:
-disabled, static, marker. The third one just adds some info into
-System.map for allowing the automation of the insertion of kprobes
-hooks (though you would still need the debugging info to find the
-values of the variables that you want to log.) Hence, you get to
-choose which type of poison you prefer. For my part, I think the
-noop/early-check should be sufficient to get better performance from
-the existing hook-set.
+Of course, suggesting that access to SCHED_ISO be limited pretty much
+admits that running processes as SCHED_ISO should be a privileged
+operation, like accessing /dev/dsp (a privilege that is granted
+through group membership on most desktops).
 
-> imho relayfs and netlink are for completely problem spaces.
-> relayfs is for relaying a lot of data quickly (e.g. for kernel
-> instrumentation). There it fills a niche that printk doesn't fill
-> (since it's too slow). netlink is quite slow (allocates data for each
-> event, does lots of other gunk), but an useful extensible format
-> for low frequency events.
-> 
-> For the problems that relayfs solves netlink is totally unusable
-> due to low efficiency (you could as well use printk, but that is
-> also to slow). I think a low overhead logging mechanism is very
-> much needed, because I find myself reinventing it quite often
-> when I need to debug some timing sensitive problem. Trying to 
-> tackle these with printk is hopeless because it changes timing too much.
+> I was thinking that the solution might be more along the lines of
+> a nice way to handle privileges for these guys.
 
-This is a very positive review, thanks.
+A nice,  flexible way to hand out scheduler (and perhaps other)
+privileges would be... nice. Are you thinking of something more
+fine-grained than per-user?
 
-> The problem relayfs has IMHO is that it is too complicated. It 
-> seems to either suffer from a overfull specification or second system
-> effect. There are lots of different options to do everything,
-> instead of a nice simple fast path that does one thing efficiently.
-> IMHO before merging it should go through a diet and only keep
-> the paths that are actually needed and dropping a lot of the current
-> baggage.
-> 
-> Preferably that would be only the fastest options (extremly simple
-> per CPU buffer with inlined fast path that drop data on buffer overflow), 
-> with leaving out anything more complicated. My ideal is something
-> like the old SGI ktrace which was an extremly simple mechanism
-> to do lockless per CPU logging of binary data efficiently and
-> reading that from a user daemon.
-
-Certainly we are more than willing to accomodate any reasonable
-changes. Some of the "overfeatures" you've noticed actually stem
-from our trying to implement a number of things over relayfs. For
-example, we've ported printk over to relayfs and have been able
-to obtain lossless printk by implementing dynamically resizable
-buffers. That doesn't mean there isn't room for improvement. If
-there are any specific changes you think are required, we'd be
-glad to take a look at them.
-
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Will Dyson

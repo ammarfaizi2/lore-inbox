@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbTKZUk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264335AbTKZUk2
+	id S264303AbTKZUck (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbTKZUck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:40:28 -0500
-Received: from pop.gmx.net ([213.165.64.20]:44739 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264329AbTKZUkY (ORCPT
+	Wed, 26 Nov 2003 15:32:40 -0500
+Received: from holomorphy.com ([199.26.172.102]:26558 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264303AbTKZUcj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:40:24 -0500
-X-Authenticated: #524548
-From: rgx <rgx@gmx.de>
-To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
-Subject: Re: kernel 2.4-22 won't compile...
-Date: Wed, 26 Nov 2003 21:40:15 +0100
-User-Agent: KMail/1.5.4
-References: <200311261734.23177.rgx@gmx.de> <200311261935.03860.rgx@gmx.de> <1069873394.25657.28.camel@tweedy.ksc.nasa.gov>
-In-Reply-To: <1069873394.25657.28.camel@tweedy.ksc.nasa.gov>
+	Wed, 26 Nov 2003 15:32:39 -0500
+Date: Wed, 26 Nov 2003 12:32:31 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Gene Heskett <gene.heskett@verizon.net>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Subject: Re: amanda vs 2.6
+Message-ID: <20031126203231.GV8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <200311261212.10166.gene.heskett@verizon.net> <200311261443.43695.gene.heskett@verizon.net> <20031126195049.GT8039@holomorphy.com> <200311261523.33524.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311262140.15049.rgx@gmx.de>
+In-Reply-To: <200311261523.33524.gene.heskett@verizon.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob Chiodini schrieb am Mittwoch, 26. November 2003 20:03:
-...
-> See include/linux/autoconf.h: around line 2167, my 2.4.20 source:
->
-> #define CONFIG_NLS_DEFAULT "iso8859-1"
->
-> Which corresponds to its usage in
-> /data/src/linux-2.4.22/fs/fat/inode.c, char *.
+On Wednesday 26 November 2003 14:50, William Lee Irwin III wrote:
+>> Okay, then we need to figure out what the hung process was doing.
+>> Can you find its pid and check /proc/$PID/wchan?
 
-here we go! seems as we are approaching the core of all trouble: my  
-include/linux/autoconf.h lacks the corresponding entry. How big is your 
-autoconf.h? Mine is about 19k. For now, I'll add that line and go 
-on ...
->
-> Is this a ix86 kernel?
-it is (amd 1800+)
+On Wed, Nov 26, 2003 at 03:23:33PM -0500, Gene Heskett wrote:
+> Ok, repeat, us is PID 1843, so:
+> [root@coyote root]# ps -ea|grep su
+>  1843 pts/1    00:00:00 su
+> [root@coyote root]# cat /proc/1843/wchan
+> sys_wait4[root@coyote root]#
+> Unforch, echoing a 0 to that variable doesn't fix it, reboot time 
+> again.
+> Do you need my .config?
 
-thanx!
-ralf
->
-> Bob..
+su had apparently spawned something and is waiting on it in the
+wchan you showed. Could you find the shell it spawned as an amanda
+user and syslogd (as per Linus' suggestion) also?
 
+
+-- wli

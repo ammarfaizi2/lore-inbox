@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272427AbTGZIut (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 04:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272401AbTGZIuf
+	id S272401AbTGZJP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 05:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272420AbTGZJP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 04:50:35 -0400
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:33419 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S272418AbTGZIu1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 04:50:27 -0400
-Date: Sat, 26 Jul 2003 11:05:23 +0200
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Repost: Bug with select?
-Message-ID: <20030726090523.GA25539@localhost>
-References: <20030725134155.GA19211@localhost> <3F21C93D.6000005@candelatech.com>
+	Sat, 26 Jul 2003 05:15:27 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:22025 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272401AbTGZJP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 05:15:26 -0400
+Subject: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: kernel@kolivas.org, mingo@elte.hu
+Content-Type: text/plain
+Message-Id: <1059211833.576.13.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <3F21C93D.6000005@candelatech.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3.99 
+Date: Sat, 26 Jul 2003 11:30:33 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday July 25th 2003 at 17:20 uur Ben Greear wrote:
+Hi, everyone,
 
-> I thought select is supposed to tell you when you can read/write at least
-> something without failing. Otherwise it would be worthless when doing
-> non-blocking IO because you can both read and write w/out blocking at all
-> times. If you run similar code on a tcp socket instead of std-out, do you see
-> the same busy spin? (To do it right, make sure the network between source and
-> destination is slower than the CPU can handle, ie 10bt hub.)
+In first place, let me publicly thanks both of you (Info and Con) for
+your great work at fixing/tuning the 2.6 scheduler to its best.
 
-My 'analysis' was indeed based on experience with sockets, where you
-don't get the busy spin. It's indeed a bit baffling why select keeps
-insisting that fd 1 is writable. A quick test on kernel versions
-2.2.12-20, 2.4.20 and 2.6.0-test1 all give the same results, so I
-suppose select itself is doing it's expected duty, and that in that case
-the special underlying mechanics of stdout require special mechanics to
-find out if it's blocked?! Beats me, but that's pretty easy... ;-)
- 
-Marco Roeland
+Now that Ingo seems to be working again on the scheduler, I feel that
+Con and Ingo work is starting to collide. I have been testing Con's
+interactivity changes to the scheduler for a very long time, since it's
+first O1int patch and I must say that, for my specific workloads, it
+gives me the best end-user experience with interactive usage.
+
+I just only wanted to publicly invite Con Kolivas to keep on working
+with the scheduler patches he has been doing and that have required a
+constant and fair amount of time from him. I don't know if Con patches
+do work as good for others in this list as for me, so I also invite
+everyone who is/has been testing them to express their feelings so we
+all can know what's the current status of the 2.6 scheduler.
+
+As the last point, I do want to invite Ingo and Con to work together to
+fix things up definitively. I feel Con scheduler patches give better
+interactive results (at least for me) but still feels a little bit slow
+when the system is under heavy load and I try to launch new processes,
+like a new xterm, for example. On the other side, Ingo patch makes the
+system feel much more responsive under heavy loads when launching new
+processes, like opening a new konsole tab, but still suffers from
+jerkyness on interactive tasks, like the X server.
+
+I think the more people working on the scheduler, the more probability
+we have of fixing/tuning the last pieces of code so we can enjoy a full
+enterprise-level, but well-behaved with interactive jobs, 2.6 scheduler.
+
+Thanks for listening.
+
+   Felipe Alfaro
+   Scheduler tester :-)
+
+

@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263944AbUFPOy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUFPO5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263944AbUFPOy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 10:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUFPOy4
+	id S263980AbUFPO5I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 10:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266299AbUFPO5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 10:54:56 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:44216 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263944AbUFPOyx (ORCPT
+	Wed, 16 Jun 2004 10:57:08 -0400
+Received: from mail.dif.dk ([193.138.115.101]:62437 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S263980AbUFPO5E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 10:54:53 -0400
-Date: Wed, 16 Jun 2004 07:54:35 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-cc: mingo@elte.hu, kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       piggin@cyberone.com.au, akpm@osdl.org, wli@holomorphy.com,
-       markw@osdl.org
-Subject: Re: [PATCH] Performance regression in 2.6.7-rc3
-Message-ID: <3040000.1087397675@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0406152004540.4142@ppc970.osdl.org>
-References: <E1BaPwX-0007k0-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0406152004540.4142@ppc970.osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 16 Jun 2004 10:57:04 -0400
+Date: Wed, 16 Jun 2004 16:56:09 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Kalin KOZHUHAROV <kalin@ThinRope.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.7
+In-Reply-To: <40CFEFAD.2060207@ThinRope.net>
+Message-ID: <Pine.LNX.4.56.0406161649330.10708@jjulnx.backbone.dif.dk>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+ <40CFEFAD.2060207@ThinRope.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > How the hell can that have any effect on non-threaded workloads? Perhaps
->> > some part of kernel compile *is* multi-threaded. It does seem to get 
->> 
->> make(1) with vfork(2) perhaps?
-> 
-> Very likely. And in the vfork() case it is definitely WRONG to try to
-> reschedule (either threads _or_ processes), since the parent is going to
-> go to sleep real soon now.
-> 
-> I think this code:
-> 
->                         if (clone_flags & CLONE_VM)
->                                 wake_up_forked_thread(p);
->                         else
->                                 wake_up_forked_process(p);
-> 
-> is just wrong, and it should be replaced with
-> 
-> 			wake_up_new_process(p, clone_flags);
-> 
-> and then "wake_up_new_process()" can do the right thing, which is 
-> basically:
-> 
-> 	if (clone_flags & CLONE_VFORK)
-> 		synchronous wakeup, same as pipe-will-block case
-> 	else if (clone_flags & CLONE_VM)
-> 		thread-wakeup-case
-> 	else
-> 		process-wakeup-case
-> 
-> No?
+On Wed, 16 Jun 2004, Kalin KOZHUHAROV wrote:
 
-Looks much better ... but I'd still dispute whether we need to throw 
-non-vfork threads cross node by default. I'd suggest that's disabled
-by default, and is either enabled by a global userspace option, or a
-per-process one (or the option of both). Most thing (except benchmarks)
-simply don't want this in real life ...
+> When I unpack linux sources (`tar xjvf linux-${KV}.tar.bz2`), I usually do that in /usr/src/ and do it as root the first time.
 
-M.
+Why?
 
+Why not just do the sane thing and unpack the tarball as a normal user (in
+your homedir) configure as normal user, build as normal user, install as root
+
+Have you ever read this btw? :
+http://www.linuxmafia.com/faq/Kernel/usr-src-linux-symlink.html
+
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>

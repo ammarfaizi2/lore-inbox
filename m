@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130214AbRAaIEq>; Wed, 31 Jan 2001 03:04:46 -0500
+	id <S130367AbRAaIOH>; Wed, 31 Jan 2001 03:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130367AbRAaIEg>; Wed, 31 Jan 2001 03:04:36 -0500
-Received: from smtp.mountain.net ([198.77.1.35]:21509 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S130214AbRAaIER>;
-	Wed, 31 Jan 2001 03:04:17 -0500
-Message-ID: <3A77C6E7.606DDA67@mountain.net>
-Date: Wed, 31 Jan 2001 03:03:51 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
-MIME-Version: 1.0
-To: David Ford <david@linux.com>
-CC: Stephen Frost <sfrost@snowman.net>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-In-Reply-To: <3A777E1A.8F124207@linux.com> <20010130220148.Y26953@ns> <3A77966E.444B1160@linux.com>
+	id <S130921AbRAaIN5>; Wed, 31 Jan 2001 03:13:57 -0500
+Received: from mail.linux.com ([198.186.203.59]:13319 "EHLO mail.i.linux.com")
+	by vger.kernel.org with ESMTP id <S130367AbRAaINr>;
+	Wed, 31 Jan 2001 03:13:47 -0500
+Date: Wed, 31 Jan 2001 00:13:46 -0800
+From: Andrew Prins <next@linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: possible bug with adaptec aic-7896 and 2.4.x
+Message-ID: <20010131001346.A29375@linux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-Operating-System: Linux shiftq.linux.com 2.2.16 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
-> 
-> Mhm.  Is it worth the effort to make a dependancy on the CPU type for SMP?
-> 
-> </idle questions>
-> 
-> -d
-> 
-> Stephen Frost wrote:
-> 
-> > * David Ford (david@linux.com) wrote:
-> > > A person just brought up a problem in #kernelnewbies, building an SMP
-> > > kernel doesn't work very well, current is undefined.  I don't have more
-> > > time to debug it but I'll strip the config and put it up at
-> > > http://stuph.org/smp-config
-> >
-> >         They're trying to compile SMP for Athlon/K7 (CONFIG_MK7=y).
-> 
 
-It's not an incompatibility with the k7 chip, just bad code in
-include/asm-i386/string.h. in_interrupt() cannot be called from there.
+in 2.4.0 and 2.4.1 on a pentium 3 with an onboard adaptec AIC-7896, i 
+receive the following after it is detected:
 
-I have posted a patch here many times since last May. Most recent was
-Saturday.
+scsi: aborting command due to timeout: pid 0, scsi0, channel 0, id 0
+lun 0 Inquiry 00 00 00 ff 00
 
-Tom
---
-The Daemons lurk and are dumb. -- Emerson
+i get the error twice, then the box hangs. this occurs on both a single 
+processor box and a dual processor box with a kernel without SMP support. 
+on a dual processor box when SMP is compiled in, i receive a similar error:
+
+scsi: aborting command due to timeout: pid 0, scsi0, channel 0, id 1 
+lun 1 Inquiry 20 00 00 ff 00
+
+but the box continues to boot fine.
+
+the same hardware configuration in 2.2.15 works fine, and a similar hardware
+configuration using a AIC-7895 instead of a AIC-7896 running 2.4.x works
+fine.
+
+any ideas?
+
+thanks,
+
+a
+
+-- 
+andrew prins (linux & diet coke advocate)
+finger next@keys.boca.verio.net for pgp key.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271961AbRIDMu1>; Tue, 4 Sep 2001 08:50:27 -0400
+	id <S271963AbRIDM62>; Tue, 4 Sep 2001 08:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271963AbRIDMuR>; Tue, 4 Sep 2001 08:50:17 -0400
-Received: from mcp.csh.rit.edu ([129.21.60.9]:45063 "EHLO mcp.csh.rit.edu")
-	by vger.kernel.org with ESMTP id <S271961AbRIDMuI>;
-	Tue, 4 Sep 2001 08:50:08 -0400
-Date: Tue, 4 Sep 2001 08:50:23 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc architecture
-Message-ID: <20010904085023.C13887@fury.csh.rit.edu>
-In-Reply-To: <20010902105538.A15344@middle.of.nowhere.suse.lists.linux.kernel> <20010902150023.U5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <20010902195717.A21209@middle.of.nowhere.suse.lists.linux.kernel> <20010903003437.A385@linux-m68k.org.suse.lists.linux.kernel> <20010903213835.A13887@fury.csh.rit.edu.suse.lists.linux.kernel> <oupoforxpc1.fsf@pigdrop.muc.suse.de>
+	id <S271965AbRIDM6S>; Tue, 4 Sep 2001 08:58:18 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:52520 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271963AbRIDM6K>; Tue, 4 Sep 2001 08:58:10 -0400
+Date: Tue, 4 Sep 2001 14:58:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Richard Henderson <rth@twiddle.net>, David Mosberger <davidm@hpl.hp.com>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [PATCH] avoid unnecessary cache flushes
+Message-ID: <20010904145843.I699@athlon.random>
+In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com> <20010903131436.A16069@twiddle.net> <15251.59286.154267.431231@napali.hpl.hp.com> <20010903134125.B16069@twiddle.net> <15252.13330.652765.959658@cargo.ozlabs.ibm.com> <20010904043151.H699@athlon.random> <15252.21426.787059.469270@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <oupoforxpc1.fsf@pigdrop.muc.suse.de>; from ak@suse.de on Tue, Sep 04, 2001 at 11:44:30AM +0200
-X-Operating-System: SunOS 5.8 (sun4u)
+In-Reply-To: <15252.21426.787059.469270@cargo.ozlabs.ibm.com>; from paulus@samba.org on Tue, Sep 04, 2001 at 02:08:18PM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04, 2001 at 11:44:30AM +0200, Andi Kleen wrote:
-> Jeff Mahoney <jeffm@suse.com> writes:
-> 
-> 
-> >     I did kick around the idea of making those macros the default accessors for
-> >     the deh_state member (which is the only place they're used), but it unfairly
-> >     penalizes arches that don't need them.
-> 
-> On archs that don't need them {get,put}_unaligned should be just normal
-> assignments. They are certainly on i386.
+On Tue, Sep 04, 2001 at 02:08:18PM +1000, Paul Mackerras wrote:
+> flush_icache_page is not a good function to use because it is called
+> in do_swap_page and in do_no_page in mm/memory.c and in those cases
+> the page might already be i-cache clean and so we don't want to do any
+> flush.  In those cases, if the page does actually get read in from
+> disk then we do want to do the flush, if it was in the page cache or
+> swap cache and has been flushed before then we don't want to do the
+> flush.  (Actually doesn't that mean that on alpha you are throwing
+> away the whole icache for the process every time it faults in an
+> executable page?)
 
-    Sorry, I guess I wasn't clear.
+Actually alpha is wasting lots of asn at evey swapin or pagein! See what
+the specification (implementation independent) says:
 
-    When I mentioned "make those macros the default ..", I was referring to the
-    reiserfs-defined macros, not the asm/unaligned.h macros.
+	Virtual instruction caches are not required to notice modifications of
+	the virtual I-stream (they need not be coherent with the rest of
+	memory). Software that creates or modifies the instruction stream must
+	execute a CALL_PAL IMB before trying to exe-cute the new instructions.
+	In this context, to "modify the virtual I-stream" means either:   any
+									  ^^^
+	Store to the same physical address that is subsequently fetched as an
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	instruction by some corresponding (virtual address, ASN) pair, or   any
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ (ptrace case thus we need imb or bumping the asn there)
+	change to the virtual-to-physical address mapping so that different
+	values are fetched. For example, if two different virtual addresses, VA1
+	and VA2, map to the same page frame, a store to VA1 modifies the virtual
+	I-stream fetched by VA2. However, the following sequence does not modify
+				 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	the virtual I-stream (this might happen in soft page faults). 1. Change
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	the mapping of an I-stream page from valid to invalid. 2. Copy the
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	corresponding page frame to a new page frame. 3. Change the original
+							 ^^^^^^^^^^^^^^^^^^^
+	mapping to be valid and point to the new page frame.
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    In my previous message, I had mentioned that the get/put _unaligned macros
-    from asm/unaligned.h don't work in all cases. Specifically, the S/390 (and
-    S/390x) versions won't work with ReiserFS, since they're nothing more than
-    a normal access/mutate put into a compatible macro. Through testing on the
-    S/390{,x}, I found that using the reiserfs-defined unaligned macros did the
-    trick. The only place these reiserfs-defined macros are used is to
-    access/mutate the reiserfs_de_head->deh_state member, which contains flags
-    for the on-disk directory entry representation.
- 
-    Are the S/390 asm/unaligned.h versions broken, or is the ReiserFS code doing
-    something not planned for? It's a 16-bit member, at a 16-bit alignment
-    in the structure.  The structure itself need not be aligned in any
-    particular manner as it is read directly from disk, and is a packed structure.
+As far I can tell during pageins/swapins we really don't need to flush
+the icache (we literally always mark the pagetable invalid + flush the
+tlb before any swapin or pagein so I think it fully applies to our
+case). Infact 2.2 never do any asn change or imb during the
+swapins/pageins and we never had a problem.
 
-    -Jeff
+On alpha we need to flush the icache only when we mess with the memory
+contents under the icache, not when we pageout pagein this memory.
 
--- 
-Jeff Mahoney           |   "Bill Gates is a monocle and a Persian cat away
-jeffm@suse.com         |    from being the villain in a James Bond movie."
-jeffm@csh.rit.edu      |                   -- Dennis Miller
+I believe the point here is that swapins and pageins of .text segments
+aren't going to want to change the contents of the icache anyways.
+
+Actually one could argue that if we map an executable segment and then
+the vm unmaps the page, then somebody else changes the page in the disk
+and pagecache writing to it, then we fault on the page again with the
+l1 dcache, in this case I guess the cpu could still exectue the old
+istream and not notice that it's changed but who cares about this weird
+case anyways? If anybody does self modifying code this way he should
+serialize in userspace.
+
+So in short I'd prefer to undefine the flush_icache_page on alpha and to
+have it used in the common code only from the paging activity. I'd
+really like if you could arrange this modification in a new release of
+your anti-cache-flushes patch.
+
+> flush_icache_page is also not a good choice because it is overkill to
+> flush a whole page when you have just written one word, to put in a
+> breakpoint or something.
+
+Ok I see why you changed it than (just to flush one word and not the
+whole page), but we cannot just flush one word of icache on alpha (I was
+biased and this is why I didn't seen the point of the change ;), either
+we flush the whole icache or we flush only the address space of the
+ptraced mm by bumping its asn, so yes, we'd like a kind of
+flush_icache_range_mm (or _vma or whatever that pass the mm somehow). If
+you could add this modification to your patch as well that would be
+fine!
+
+> I would be happy with an interface that took a struct page *, and
+> preferably an offset and length within the page.  That would be a new
+> interface though.  Note that the caller of access_process_vm can't
+
+yes, as mentioned above a new flush_icache_range_mm/vma/user would be
+enough, the other flush_icache_range should be used only for the kernel
+side.
+
+Andrea

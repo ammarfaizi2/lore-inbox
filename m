@@ -1,109 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291531AbSBAEMo>; Thu, 31 Jan 2002 23:12:44 -0500
+	id <S291532AbSBAESd>; Thu, 31 Jan 2002 23:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291530AbSBAEMd>; Thu, 31 Jan 2002 23:12:33 -0500
-Received: from mx3.fuse.net ([216.68.1.123]:52677 "EHLO mta03.fuse.net")
-	by vger.kernel.org with ESMTP id <S291529AbSBAEM1>;
-	Thu, 31 Jan 2002 23:12:27 -0500
-Message-ID: <3C5A159F.2010108@fuse.net>
-Date: Thu, 31 Jan 2002 23:12:15 -0500
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
-X-Accept-Language: en
+	id <S291533AbSBAESY>; Thu, 31 Jan 2002 23:18:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56337 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291532AbSBAESU>; Thu, 31 Jan 2002 23:18:20 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
+Date: 31 Jan 2002 20:18:01 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3d4tp$nlu$1@cesium.transmeta.com>
+In-Reply-To: <20020131.162549.74750188.davem@redhat.com> <E16WRmu-0003iO-00@the-village.bc.nu> <20020131.163054.41634626.davem@redhat.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [Fwd: Re: Linux 2.5.3-dj1]
-Content-Type: multipart/mixed;
- boundary="------------060308010404020802020801"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060308010404020802020801
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Followup to:  <20020131.163054.41634626.davem@redhat.com>
+By author:    "David S. Miller" <davem@redhat.com>
+In newsgroup: linux.dev.kernel
+>    
+>    tristate_orif "blah" CONFIG_FOO $CONFIG_SMALL
+>    
+> This doesn't solve the CRC32 case.  What if you want
+> CONFIG_SMALL, yet some net driver that needs the crc32
+> routines?
+> 
 
+We could do it something like what I did with inflate_fs -- build it
+as a module if the kernel proper doesn't need it (and modules are
+enabled.)
 
+It *does* mean the configure rules need to contain these dependencies,
+though.
 
---------------060308010404020802020801
-Content-Type: message/rfc822;
- name="Re: Linux 2.5.3-dj1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: Linux 2.5.3-dj1"
+crc32 is an interesting case... you can create code to make the tables
+with a very small amount of code.  This saves space on disk, but not
+in memory; in fact, if you can't jettison this code you lose in
+memory...
 
-
->From - Thu Jan 31 23:07:29 2002
-X-Mozilla-Status2: 00000000
-Message-ID: <3C5A147F.6040800@fuse.net>
-Date: Thu, 31 Jan 2002 23:07:27 -0500
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-Subject: Re: Linux 2.5.3-dj1
-In-Reply-To: <20020201013930.A24971@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Dave Jones wrote:
-
->And we start all over again.. Sync against 2.5.3, and merge some
->more pending items. Hopefully this fixes the reiserfs issues
->that popped up in -dj7 (but mysteriously not in mainline).
->please report reiserfs success/failure stories.
->
->Patch against 2.5.3 vanilla is available from:
->ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
->
-> -- Davej.
->
-[snip]
-
-Compiling with ZISOFS I get an undefined reference to "zisofs_cleanup":
-
-ld -m elf_i386 -T 
-/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/arch/i386/vmlinux.lds 
--e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o 
-init/main.o init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-mm/mm.o fs/fs.o ipc/ipc.o \
-        
-/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/arch/i386/lib/lib.a 
-/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/lib/lib.a 
-/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/arch/i386/lib/lib.a 
-\
-         drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o 
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
-drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o 
-drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o 
-drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o 
-drivers/pnp/pnp.o drivers/video/video.o drivers/input/inputdrv.o 
-drivers/input/serio/seriodrv.o \
-        net/network.o \
-        --end-group \
-        -o vmlinux
-fs/fs.o: In function `init_iso9660_fs':
-fs/fs.o(.text.init+0xe71): undefined reference to `zisofs_cleanup'
-make: *** [vmlinux] Error 1
-
-Kernel is patched thus:
-2.5.3
-2.5.3-dj1
-preempt-kernel-2.5.3-1
-acpi-2.4.17 (again missing some Configure.help entries, manually deleted 
-acpitable.c from arch/i386/kernel)
-acpi-pci-irq-routing patch
-
-Thanks!
-
---Nathan
-
-
-
---------------060308010404020802020801--
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282419AbRKZT2n>; Mon, 26 Nov 2001 14:28:43 -0500
+	id <S282433AbRKZTcL>; Mon, 26 Nov 2001 14:32:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282411AbRKZT1Y>; Mon, 26 Nov 2001 14:27:24 -0500
-Received: from dozer.billjonas.com ([207.106.130.91]:62473 "EHLO
-	dozer.billjonas.com") by vger.kernel.org with ESMTP
-	id <S282040AbRKZT0N>; Mon, 26 Nov 2001 14:26:13 -0500
-Date: Mon, 26 Nov 2001 14:23:02 -0500
-From: Bill Jonas <bill@billjonas.com>
+	id <S282263AbRKZT27>; Mon, 26 Nov 2001 14:28:59 -0500
+Received: from mta21-acc.tin.it ([212.216.176.74]:28390 "EHLO fep21-svc.tin.it")
+	by vger.kernel.org with ESMTP id <S282037AbRKZT2b>;
+	Mon, 26 Nov 2001 14:28:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Flavio Stanchina <flavio.stanchina@tin.it>
+Organization: not at all
 To: linux-kernel@vger.kernel.org
-Subject: [OT] Re: Loopback sound driver?
-Message-ID: <20011126142301.U17545@billjonas.com>
-In-Reply-To: <200111261902.fAQJ27U09373@ambassador.mathewson.int>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YzdYn+D7cUqe+VA3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200111261902.fAQJ27U09373@ambassador.mathewson.int>; from joe@mathewson.co.uk on Mon, Nov 26, 2001 at 07:02:06PM -0000
-X-Ambivalence: Maybe
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Date: Mon, 26 Nov 2001 20:28:29 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva> <p05100307b82842b5492a@[207.213.214.37]>
+In-Reply-To: <p05100307b82842b5492a@[207.213.214.37]>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011126192830.SKQB3006.fep21-svc.tin.it@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 26 November 2001 20:06, Jonathan Lundell wrote:
 
---YzdYn+D7cUqe+VA3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >Agreed. I stick with the -rc naming convention for 2.4+...
+> A quibble: "release" seems an odd word to choose for a Linux kernel.
+> Since we're calling the target kernel "final", how about -fc1,
+> -fc2...?
 
-On Mon, Nov 26, 2001 at 07:02:06PM -0000, Joseph Mathewson wrote:
-> Has anyone yet written a loopback sound driver, that is a module that
-> provides a "fake" /dev/dsp that will actually save sound to file on
-> disk rather than playing thru a hardware sound card.
+Sounds a bit too much like the f-word.
 
-No need for kernel support.  Check out vsound.  (Requires sox.)  On
-Debian, "apt-get install vsound".
+"rc" is the universally recognized name for such things (heck, even 
+Microsoft) so I'd stick with it.
 
-http://www.zip.com.au/~erikd/vsound/
+-- 
+Ciao,
+    Flavio Stanchina
+    Trento - Italy
 
---=20
-Bill Jonas    *    bill@billjonas.com    *    http://www.billjonas.com/
-
-Developer/SysAdmin for hire!   See http://www.billjonas.com/resume.html
-
---YzdYn+D7cUqe+VA3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8ApaVdmHcUxFvDL0RAhVZAKCKPOuTfDz7oIBpLIsU8NRbeeofsACePl+v
-gA8z78RWmdMQul8EdbwWNC0=
-=sJwH
------END PGP SIGNATURE-----
-
---YzdYn+D7cUqe+VA3--
+"The best defense against logic is ignorance."
+http://spazioweb.inwind.it/fstanchina/

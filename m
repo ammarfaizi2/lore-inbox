@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266093AbSKFUC4>; Wed, 6 Nov 2002 15:02:56 -0500
+	id <S266060AbSKFTZ6>; Wed, 6 Nov 2002 14:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266096AbSKFUC4>; Wed, 6 Nov 2002 15:02:56 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52619 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266093AbSKFUCz>;
-	Wed, 6 Nov 2002 15:02:55 -0500
-Subject: Re: Voyager subarchitecture for 2.5.46
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0211060729210.2393-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0211060729210.2393-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Nov 2002 12:07:53 -0800
-Message-Id: <1036613273.6099.164.camel@cog>
+	id <S266061AbSKFTZ6>; Wed, 6 Nov 2002 14:25:58 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:7180 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S266060AbSKFTZz>; Wed, 6 Nov 2002 14:25:55 -0500
+Message-Id: <200211061932.gA6JWKa03782@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, jejb@SteelEye.com,
+       Andrew Morton <akpm@zip.com.au>, dipankar@in.ibm.com
+Subject: Re: Strange panic as soon as timer interrupts are enabled (recent 
+ 2.5)
+In-Reply-To: Message from "Martin J. Bligh" <Martin.Bligh@us.ibm.com> 
+   of "Wed, 06 Nov 2002 12:11:09 PST." <116630000.1036613469@flay> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 06 Nov 2002 14:32:20 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 07:45, Linus Torvalds wrote:
-> The solution is to make all the TSC calibration and offsets be per-CPU.  
-> That should be fairly trivial, since we _already_ do the calibration
-> per-CPU anyway for bogomips (for no good reason except the whole process
-> is obviously just a funny thing to do, which is the point of bogomips).
+Martin.Bligh@us.ibm.com said:
+> Conversations on IRC revealed that jejb has hit the same thing on
+> voyager ... as I understood him, he felt the cause was the CPU was
+> taking an interrupt before cpu_up was called, and the interrupt was
+> going back through a non existent tasklet structure (tasklets now
+> have per_cpu areas which are allocated as the cpu comes up) I'll let
+> him discuss what he did to fix that, but the ensuing discussion made
+> me think that taking this out to a wider audience for an appropriate
+> long-term solution would be prudent. 
 
-This was discussed earlier, but dismissed as being a can of worms. It
-still is possible to do (and can be added as just another timer_opt
-stucture), but uglies like the spread-spectrum feature on the x440,
-which actually runs each node at slightly varying speeds, pop up and
-make my head hurt. Regardless, the attempt would probably help clean
-things up, as you mentioned below. We also would need to round-robin the
-timer interrupt, as each cpu would need a last_tsc_low point to generate
-an offset. So I'm not opposed to it, but I'm not exactly eager to
-implement it. 
+Yes, this caused for me, a completely reliable boot time panic with 2.5.46.  
+The problem is that per_cpu areas aren't initiallised until cpu_up is called, 
+so a cpu cannot now take an interrupt before cpu_up is called.  My hack was 
+this:
 
-> Let's face it, we don't have that many tsc-related data structures. What, 
-> we have:
-> 
->  - loops_per_jiffy, which is already a per-CPU thing, used by udelay()
->  - fast_gettimeoffset_quotient - which is global right now and shouldn't 
->    be.
+# --------------------------------------------
+# 02/11/04	jejb@mulgrave.(none)	1.819
+# [VOYAGER] CPU bring up changes for new per_cpu softirqs
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/mach-voyager/voyager_smp.c b/arch/i386/mach-voyager/voyag
+er_smp.c
+--- a/arch/i386/mach-voyager/voyager_smp.c	Wed Nov  6 14:27:11 2002
++++ b/arch/i386/mach-voyager/voyager_smp.c	Wed Nov  6 14:27:11 2002
+@@ -507,6 +508,11 @@
+ 	/* if we're a quad, we may need to bootstrap other CPUs */
+ 	do_quad_bootstrap();
+ 
++	/* FIXME: this is rather a poor hack to prevent the CPU
++	 * activating softirqs while it's supposed to be waiting for
++	 * permission to proceed.  Without this, the new per CPU stuff
++	 * in the softirqs will fail */
++	local_irq_disable();
+ 	set_bit(cpuid, &cpu_callin_map);
+ 
+ 	/* signal that we're done */
+@@ -514,6 +520,7 @@
+ 
+ 	while (!test_bit(cpuid, &smp_commenced_mask))
+ 		rep_nop();
++	local_irq_enable();
+ 
+ 	local_flush_tlb();
+ 
+All it's really doing is disabling the interrupts before the booting secondary 
+cpu waits on the smp_commenced_mask.
 
-Good to see its on your hit-list. :) I mailed out a patch for this
-earlier, I'll resend later today.
+It's a hack because on voyager (and APIC) any interrupt will remain 
+permanently pending at the CPU.  If the interrupt were vital to the boot 
+sequence, we could be in trouble.  The correct way to fix this is probably to 
+raise the CPUs external interrupt mask so any pending interrupt is pushed off 
+onto the boot CPU.
 
->  - delay_at_last_interrupt. See previous.
-
-I'll get to this one too, as well as a few other spots where the
-timer_opts abstraction isn't clean enough (cpu_khz needs to be pulled
-out of the timer_tsc code, etc)
-
-thanks for the feedback
--john
+James
 
 

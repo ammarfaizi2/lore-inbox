@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135427AbRDRWZC>; Wed, 18 Apr 2001 18:25:02 -0400
+	id <S135432AbRDRW3m>; Wed, 18 Apr 2001 18:29:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135428AbRDRWYw>; Wed, 18 Apr 2001 18:24:52 -0400
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:7930 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S135427AbRDRWYi>; Wed, 18 Apr 2001 18:24:38 -0400
-Date: Wed, 18 Apr 2001 15:23:35 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: gcc-2.95.3
-In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.33.0104181521580.16915-100000@sol.compendium-tech.com>
+	id <S135434AbRDRW3d>; Wed, 18 Apr 2001 18:29:33 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12044 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135432AbRDRW3Z>; Wed, 18 Apr 2001 18:29:25 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: /dev/pts question
+Date: 18 Apr 2001 15:29:01 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9bl4fd$amr$1@cesium.transmeta.com>
+In-Reply-To: <01041822354404.00617@ElkOS>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <01041822354404.00617@ElkOS>
+By author:    elko <elko@home.nl>
+In newsgroup: linux.dev.kernel
+> 
+> as I understand, /dev/pts was created
+> to make an end to the overload in /dev/<devices>
+> and let the kernel put the entries in /dev/pts
+> when they are used/needed/installed.
+> 
 
-cx863877-d% gcc --version
-2.95.3
-cx863877-d% uptime
-  3:26pm  up 14 days, 15:15, 15 users,  load average: 2.01, 2.01, 2.00
-cx863877-d% uname -a
-Linux cx863877-d.cv1.sdca.home.com 2.4.3 #3 SMP Wed Apr 4 00:06:17 PDT
-2001 i686 unknown
+You understand wrong.  /dev/pts was constructed because the semantics
+of BSD pty's is broken (there are issues with permissions.)
 
-No problems at all :)
+> but still, when I enable /dev/pts, I have to
+> keep the /dev/<devices> for backward compatibility
+> with already installed applications that rely on them.
 
+You should fix your applications.
 
+> would it be possible/sane to make like a
+> /dev/* (some sort of a /dev/B-compatible) besides
+> /dev/pts, where the kernel `translates' the
+> /dev/<device> request to /dev/* and then
+> `translate' that to the correct /dev/pts entry ??
 
-On Fri, 6 Apr 2001, Jeff Chua wrote:
-> Does anybody have bad experience with gcc-2.95.3?
->
-> I'm using gcc-2.95.2 with linux 2.4.3 and have no problem with it.
->
->
-> Thanks,
-> Jeff
-> [ jchua@fedex.com ]
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Absolutely not.  BSD and Unix98 ptys have different semantics, and
+absolutely, positively, must be kept separate -- or you have a
+security hole in your machine.
 
+Fix your old applications.
+
+	-hpa
 -- 
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136148AbRECH35>; Thu, 3 May 2001 03:29:57 -0400
+	id <S136146AbRECH31>; Thu, 3 May 2001 03:29:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136149AbRECH3s>; Thu, 3 May 2001 03:29:48 -0400
-Received: from css-1.cs.iastate.edu ([129.186.3.24]:273 "EHLO
-	css-1.cs.iastate.edu") by vger.kernel.org with ESMTP
-	id <S136148AbRECH3b>; Thu, 3 May 2001 03:29:31 -0400
-Date: Thu, 3 May 2001 02:29:28 -0500 (CDT)
-From: "C.Praveen" <cpraveen@cs.iastate.edu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: "David S. Miller" <davem@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <3AF10648.C5986A8E@mandrakesoft.com>
-Message-ID: <Pine.HPX.4.31.0105030222230.17348-100000@beast.cs.iastate.edu>
+	id <S136148AbRECH3H>; Thu, 3 May 2001 03:29:07 -0400
+Received: from hqvsbh1-x0.ms.com ([205.228.12.101]:35555 "EHLO hqvsbh1.ms.com")
+	by vger.kernel.org with ESMTP id <S136146AbRECH3E>;
+	Thu, 3 May 2001 03:29:04 -0400
+Message-ID: <3AF108BE.E8957686@morganstanley.com>
+Date: Thu, 03 May 2001 08:29:02 +0100
+From: Richard Polton <Richard.Polton@morganstanley.com>
+Reply-To: Richard.Polton@morganstanley.com
+Organization: Morgan Stanley
+X-Mailer: Mozilla 4.75 [en]C-CCK-MCD MS4.75 V20001029.1  (WinNT; U)
+X-Accept-Language: en,ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: cannot find directory on cdrom
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I apologize for ccing this to people not on the kernel list too, but i
-hope  the more expert heads, the better ...
+Hi,
 
-Can i do a
+I have a cdrom burnt by a friend with W2000 (I know, friends don't let
+friends use W ;-) which has (at least) one directory on it which I
+cannot
+see when mounting the disk under linux. I am using kernel 2.4.4 and
+the mount command is the usual
 
-if (softirq_active(cpu) & softirq_mask(cpu))
-    {
-        do_softirq();
-    }
+mount /dev/cdrom /mnt/cdrom -t iso9660
 
-at the end of smp_apic_timer_interrupt ? i mean
+I have Joliet compiled into the kernel too. I can send by private email
+the
+first 120 blocks or so of the disk if anyone is interested. I looked at
+this
+with hexlify and can see the mysterious directory (s?) which is called
+'sturf'.
 
-smp_apic_timer_interrupt ()
-{
-  irq_enter
-  All it does normally.
-  irq_exit
-  if (softirq_active(cpu) & softirq_mask(cpu))
-  {
-        do_softirq();
-  }
-}
+Thanks,
 
-My understanding is that smp_apic_timer_interrupt is very similar to
-do_IRQ but it knows which function to call already,
-and since the do_IRQ does this at the end of its execution, it
-should be ok here too. Am i ok in doing this ? basically the function
-smp_apic_timer_interrupt activates a tasklet, that i would like done here
-at this point, executed as a tasklet itself. If this is not ok, can
-someone suggest something for acheiving this ?
+Richard
 
-Thanks for any help!
-
-CP
+P.S. Incidentally, there is an undefined symbol in video/media/buz.c --
+KMALLOC_MAXSIZE, which I found by accidentally trying to build this
+module even though I do not have the requisite hardware 8-)
 

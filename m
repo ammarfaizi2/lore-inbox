@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272567AbTHEIGn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 04:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHEIGn
+	id S272584AbTHEIFv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 04:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272586AbTHEIFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 04:06:43 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23567 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272567AbTHEIGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 04:06:37 -0400
-Date: Tue, 5 Aug 2003 09:06:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Make yenta work
-Message-ID: <20030805090631.A28546@flint.arm.linux.org.uk>
-Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20030726225915.GA537@elf.ucw.cz> <Pine.LNX.4.44.0308041804020.23977-100000@cherise>
+	Tue, 5 Aug 2003 04:05:50 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:49643 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272584AbTHEIFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 04:05:44 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 10:05:42 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Edgar Toernig <froese@gmx.de>
+Cc: bentson@holmsjoen.com, jesse@cats-chateau.net, aebr@win.tue.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805100542.2fd8f386.skraw@ithnet.com>
+In-Reply-To: <3F2F11EA.68E127A8@gmx.de>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+	<03080416092800.04444@tabby>
+	<20030805003210.2c7f75f6.skraw@ithnet.com>
+	<20030804160009.B3751@grieg.holmsjoen.com>
+	<20030805021046.06008535.skraw@ithnet.com>
+	<3F2F11EA.68E127A8@gmx.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0308041804020.23977-100000@cherise>; from mochel@osdl.org on Mon, Aug 04, 2003 at 06:04:37PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 06:04:37PM -0700, Patrick Mochel wrote:
-> I believe I saw a patch from Russell get in over the weekend that did 
-> this, right? 
+On Tue, 05 Aug 2003 04:09:46 +0200
+Edgar Toernig <froese@gmx.de> wrote:
 
-Correct.
+> Stephan von Krawczynski wrote:
+> >
+> > The setup you describe is exactly the reason why I suggested elsewhere (in a
+> > private discussion) to single-link all directory entries pointing to the same
+> > directory in a list. In case of deletion of the "main" entry, the "main" simply
+> > can walk on to the next (former) hardlink, if there are any left the tree is
+> > deleted completely. That's it.
+> 
+> Amiga-FFS challenged? ;-)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Ah, he knows the roots ;-)
 
+Regards,
+Stephan

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280059AbRKSXIa>; Mon, 19 Nov 2001 18:08:30 -0500
+	id <S280388AbRKSXNk>; Mon, 19 Nov 2001 18:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280410AbRKSXIU>; Mon, 19 Nov 2001 18:08:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3337 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280388AbRKSXIM>; Mon, 19 Nov 2001 18:08:12 -0500
-Date: Mon, 19 Nov 2001 15:03:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@marcelothewonderpenguin.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Simon Kirby <sim@netnation.com>, Andrea Arcangeli <andrea@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: VM-related Oops: 2.4.15pre1
-In-Reply-To: <Pine.LNX.4.33L.0111192056310.4079-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0111191501080.8727-100000@penguin.transmeta.com>
+	id <S280410AbRKSXNa>; Mon, 19 Nov 2001 18:13:30 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:19215 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280388AbRKSXNU>; Mon, 19 Nov 2001 18:13:20 -0500
+Message-ID: <3BF991D3.A5220A36@zip.com.au>
+Date: Mon, 19 Nov 2001 15:12:19 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: alex.buell@tahallah.demon.co.uk
+CC: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3Com 3c905c invalid checksum?
+In-Reply-To: <Pine.LNX.4.33.0111192234340.9417-100000@tahallah.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Buell wrote:
+> 
+> The network card in the docking station I plug my Inspirion 8100 in, is a
+> 3Com 3c905C Tornado but apparently at boot time when it is identified, it
+> prints "***INVALID CHECKSUM 00e0**. I can't ping other boxes on the
+> network, nor can I ping other boxes from the laptop. I've double checked
+> and triple checked, and the configuration is indeed correct.
+> 
+> What does the error message INVALID CHECKSUM means?
+> 
 
-On Mon, 19 Nov 2001, Rik van Riel wrote:
->
-> Oh dear, that's an interesting case, too.
->
-> __add_to_page_cache() blindly sets the PG_locked bit, but
-> it's possible for other functions to acquire the page lock
-> before that.
+It means that 3com keep on changing the EEPROM checksum
+algorithm and nobody has got around to reverse engineering
+it on the 905C.  It's harmless.
 
-No. The page is either already locked (add_to_swap_cache()), or
-exclusively owned by us..
+Usual routine: check the routing, check the counters
+in `ifconfig'.  If it's really a driver problem, please
+send me a description as per the final section of
+Documentation/networking/vortex.txt
 
-At least that's how it is _supposed_ to be.
-
-		Linus
-
+-

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289622AbSAJTZ3>; Thu, 10 Jan 2002 14:25:29 -0500
+	id <S289644AbSAJT07>; Thu, 10 Jan 2002 14:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289621AbSAJTZV>; Thu, 10 Jan 2002 14:25:21 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:43198 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289622AbSAJTZG>; Thu, 10 Jan 2002 14:25:06 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201101924.g0AJO6s02748@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Thu, 10 Jan 2002 11:24:06 -0800 (PST)
-Cc: axboe@suse.de (Jens Axboe), pbadari@us.ibm.com (Badari Pulavarty),
-        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br, axboe@brick.kernel.dk
-In-Reply-To: <20020110120926.J3357@inspiron.school.suse.de> from "Andrea Arcangeli" at Jan 10, 2002 11:09:26 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S289624AbSAJT0q>; Thu, 10 Jan 2002 14:26:46 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:17823 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S289638AbSAJT0A>;
+	Thu, 10 Jan 2002 14:26:00 -0500
+Date: Thu, 10 Jan 2002 10:20:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, Mike Kravetz <kravetz@us.ibm.com>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0201101457390.4885-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0201101017380.2723-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> fair enough. one way to do it certainly safely is to add a bitflag to
-> the struct blkkdev.
-> 
-> Andrea
-> 
 
-Thanks to Andrea !! 
+On Thu, 10 Jan 2002, Ingo Molnar wrote:
+>
+> First it cleans up the load balancer's interaction with the timer tick.
+> There are now two functions called from the timer tick: busy_cpu_tick()
+> and idle_cpu_tick(). It's completely up to the scheduler to use them
+> appropriately.
 
-How about adding a flag in blk_dev structure. (I currently couldn't find one).
-Set the flag for the drivers which support multiple bufferhead sizes in
-a single IO request and use this flag to do RAW VARY or not.
+This is _wrong_. The timer doesn't even know whether something is an idle
+task or not.
 
-Does this address everyones concerns ? I am willing to work with the
-drivers I tested/reviewed/verified to make the change to set the flag.
-As driver owners verify their drivers, could set the flag (in future).
+Proof: kapmd (right now the scheduler doesn't know this either, but at
+least we could teach it to know).
 
-If everyone is okay with this approach, I can make a new patch for this.
+Don't try to make the timer code know stuff that the timer code should not
+and does not know about. Just call the scheduler on each tick, and let the
+scheduler make its decision.
 
-Thanks,
-Badari
+		Linus
 

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262790AbSI2QKm>; Sun, 29 Sep 2002 12:10:42 -0400
+	id <S262791AbSI2QMX>; Sun, 29 Sep 2002 12:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262793AbSI2QKm>; Sun, 29 Sep 2002 12:10:42 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:2291 "EHLO
+	id <S262792AbSI2QMX>; Sun, 29 Sep 2002 12:12:23 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:19443 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262790AbSI2QKm>; Sun, 29 Sep 2002 12:10:42 -0400
+	id <S262791AbSI2QMW>; Sun, 29 Sep 2002 12:12:22 -0400
 Subject: Re: v2.6 vs v3.0
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20020929154254.GD1014@suse.de>
-References: <200209290114.15994.jdickens@ameritech.net>
-	<Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net>
-	<20020929134620.GD2153@gallifrey>  <20020929154254.GD1014@suse.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020929152652.GF29737@merlin.emma.line.org>
+References: <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain>
+	<Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> 
+	<20020929152652.GF29737@merlin.emma.line.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 29 Sep 2002 17:21:49 +0100
-Message-Id: <1033316509.13001.23.camel@irongate.swansea.linux.org.uk>
+Date: 29 Sep 2002 17:24:07 +0100
+Message-Id: <1033316647.13001.26.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-29 at 16:42, Jens Axboe wrote:
-> Has anyone actually sent patches to Linus removing LVM completely from
-> 2.5 and adding the LVM2 device mapper? If I used LVM, I would have done
-> exactly that long ago. Linus, what's your oppinion on this?
+On Sun, 2002-09-29 at 16:26, Matthias Andree wrote:
+> I personally have the feeling that 2.2.x performed better than 2.4.x
+> does, but I cannot go figure because I'm using ReiserFS 3.6 file
 
-I added LVM2 a while ago for my 2.4-ac tree and haven't looked back, its
-much nicer code and its clean and easy to understand. I wouldnt
-guarantee its bug free but its the kind of code where you can *find* a
-bug if one turns up
+On low end boxes the benchmarks I did show later 2.4-rmap beats 2.2. 2.0
+worked suprisingly well (better than pre-rmap 2.4) and as Stephen
+claimed the best code was about 2.1.100, 2.2 then dropped badly from
+that point.
+
+Low memory is of course where rmap does best, so the 2.4-rmap v 2.4
+parts of such testing are not actually that useful
+
 

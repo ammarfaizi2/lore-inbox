@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318144AbSHULop>; Wed, 21 Aug 2002 07:44:45 -0400
+	id <S318259AbSHUMN4>; Wed, 21 Aug 2002 08:13:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318259AbSHULop>; Wed, 21 Aug 2002 07:44:45 -0400
-Received: from ns1.ionium.org ([62.27.22.2]:63501 "HELO mail.ionium.org")
-	by vger.kernel.org with SMTP id <S318144AbSHULoo> convert rfc822-to-8bit;
-	Wed, 21 Aug 2002 07:44:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Justin Heesemann <jh@ionium.org>
-Organization: ionium Technologies
-To: linux-kernel@vger.kernel.org
-Subject: Re: shared graphic ram hangs kernel since 2.4.3-ac1
-Date: Wed, 21 Aug 2002 13:52:29 +0200
-User-Agent: KMail/1.4.2
-References: <200208201527.51649.jh@ionium.org>
-In-Reply-To: <200208201527.51649.jh@ionium.org>
+	id <S318263AbSHUMNz>; Wed, 21 Aug 2002 08:13:55 -0400
+Received: from [204.60.9.96] ([204.60.9.96]:18841 "HELO myeastern.com")
+	by vger.kernel.org with SMTP id <S318259AbSHUMNz>;
+	Wed, 21 Aug 2002 08:13:55 -0400
+Message-ID: <3D638501.1020108@myeastern.com>
+Date: Wed, 21 Aug 2002 08:18:09 -0400
+From: Rohan Deshpande <rohan@myeastern.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020818
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208211352.29994.jh@ionium.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: preempt count -- logging off?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok.. i finally managed to get the exact file that causes the problems.
+Hi,
 
+The subject basically says it all .. I want to turn off kernel logging 
+of preempt, but I see no option in kernel config.  It is all over my 
+dmesg and various logs, and I fear it is slowing my system's 
+responsiveness. Any ideas? ex.:
 
-2.4.19-pre6 works.
-2.4.19-pre7 doesnt: hangs right after "Ok, booting the kernel"
-2.4.19-pre7 with pre6  arch/i386/kernel/setup.c   works ! 
-as i dont have any highmem support configured and as i always have to provide 
-the option   mem=511M   (due to 1MB shared video ram) i suspect that part of 
-setup.c. but as i'm not a kernel hacker, any help would be appreciated.
-note: any kernel prior to 2.4.3 was able to boot without the mem=511M option.
+mozilla[11409] exited with preempt_count 2
+mozilla-bin[18289] exited with preempt_count 3
+mozilla-bin[1531] exited with preempt_count 1
+netstat[28025] exited with preempt_count 3
+xmms[19505] exited with preempt_count 1
 
-http://www.kernel.org/diff/diffview.cgi?css=%2Fdiff%2Fdiff.css;file=%2Fpub%2Flinux%2Fkernel%2Fv2.4%2Ftesting%2Fincr%2Fpatch-2.4.19-pre6-pre7.gz;z=54
+Thanks a lot!
 
-shows the diff which causes my problems..
-anyone ?
+-R
 
---
-Best Regards,
-Justin Heesemann

@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbUCXKXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 05:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbUCXKXh
+	id S263210AbUCXKYw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 05:24:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbUCXKYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 05:23:37 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:57230 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S263258AbUCXKXf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 05:23:35 -0500
-Message-ID: <4061619F.4020704@stesmi.com>
-Date: Wed, 24 Mar 2004 11:23:27 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Non-Exec stack patches
-References: <1D3lO-3dh-13@gated-at.bofh.it> <1D3YZ-3Gl-1@gated-at.bofh.it> <m3n066eqbf.fsf@averell.firstfloor.org>
-In-Reply-To: <m3n066eqbf.fsf@averell.firstfloor.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 Mar 2004 05:24:52 -0500
+Received: from fmr11.intel.com ([192.55.52.31]:44943 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263210AbUCXKYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 05:24:47 -0500
+Subject: Re: ACPI Shutdown 2.6.3
+From: Len Brown <len.brown@intel.com>
+To: Bruce Park <bpark@dolda2000.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F5F35@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F5F35@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080123875.18508.254.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Mar 2004 05:24:35 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi.
+Bruce,
+This failure is common on some laptops (except min;-(
+and seems to have bubbled to near the top of the priority list.
 
->>Which architectures are currently making their pre-page execute permissions
->>depend upon VM_EXEC?  
->>Would additional arch patches be needed for this?
+acpi-devel@lists.sourceforge.net is the right place to discuss,
+and this bug report is the right place to stash the info:
+http://bugzilla.kernel.org/show_bug.cgi?id=1355
+
+thanks,
+-Len
+
+On Sun, 2004-03-21 at 09:58, Bruce Park wrote:
+> Dear LMKL users,
 > 
+> I'm experiencing a problem with ACPI and it's ability to shutdown the
+> machine. I'm 
+> currently using Debian GNU/Linux with the 2.6.3 kernel. Before I go
+> on, if this is 
+> the wrong type of material to post on this list, I apologize in
+> advance. Kindly state 
+> what I'm doing wrong and I will not make the same mistake.
 > 
-> Yes, they would need some straight forward minor patches e.g. in the
-> 32bit emulation. IA64 would be a candidate I guess.
+> The following information is about my mobo and BIOS:
+> Award Modular BIOS v6.0
+> 04/29/2002 - SiS745
+> ASUS A7S333 ACPI BIOS rv 1006
 > 
-> i386 could do it on NX capable CPUs with PAE kernels (but it would require 
-> backporting some fixes from x86-64). However currently it doesn't make
-> much sense because all x86 CPUs that support NX (AMD K8 currently only) 
-> support 64bit kernels and people can as well run 64bit kernels.
->  
-> Doing it on i386 would only make sense if non 64bit capable CPUs ever get
-> NX. I heard VIA may be planning that, but so far there is nothing in their
-> shipping CPUs, so I guess we can skip that for now.
+> When I run the shutdown command, the last thing I see is the
+> following:
+> Power Down
+> acpi_power_off called
+> hwsleep_0265 [24] acpi_enter_sleep_state: Entering sleep state [S5]
+> 
+> Here is a result of 'grep -i acpi /var/log/kern.log'. After looking at
+> the output, I 
+> realized that there was a pattern. I am pasting all the lines that
+> aren't repetitious.
+> http://www.dolda2000.com/~bpark/kern.log
+> 
+> This is just the output of dmesg:
+> http://www.dolda2000.com/~bpark/dmesg.txt
+> 
+> I am using the testing release of Debian along with acpid version
+> 1.0.3-2. The funny 
+> thing is, I have used Fedora Core 1 and even Windows 2000 with ACPI
+> and have been 
+> able to shutdown the machine without any problems.
+> 
+> Any help is greatly appreciated.
+> 
+> bp
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Well, there's also the case that (unknown if rumour or confirmed) there
-will be AthlonXPs based on the K8 core that do NOT run 64bit code.
-
-I would THINK they would include the NX bit but that's just a guess of
-course.
-
-// Stefan

@@ -1,157 +1,253 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQKMVg4>; Mon, 13 Nov 2000 16:36:56 -0500
+	id <S129475AbQKMVhR>; Mon, 13 Nov 2000 16:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129405AbQKMVgp>; Mon, 13 Nov 2000 16:36:45 -0500
+	id <S129708AbQKMVg4>; Mon, 13 Nov 2000 16:36:56 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:55311 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129429AbQKMVgg>;
-	Mon, 13 Nov 2000 16:36:36 -0500
-Date: Mon, 13 Nov 2000 22:50:05 +0100 (MET)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: <linux-kernel@vger.kernel.org>
-cc: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Subject: [PATCH] Re: reliability of linux-vm subsystem
-Message-ID: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com>
+	by vger.kernel.org with ESMTP id <S129429AbQKMVgs>;
+	Mon, 13 Nov 2000 16:36:48 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14864.16395.652711.596971@charged.uio.no>
+Date: Mon, 13 Nov 2000 20:24:59 +0100 (CET)
+To: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: [PATCH 2.2.18pre21] Fix 3 leaks in lockd...
+X-Mailer: VM 6.71 under 21.1 (patch 3) "Acadia" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, Nov 13, 2000 Erik Mouw wrote:
-> On Mon, Nov 13, 2000 at 05:29:48PM +0530, aprasad@in.ibm.com wrote:
-> > System becomes useless till all of the instance of this  programming are
-> > killed by vmm.
-> Good, so the OOM killer works.
+As usual, I messed up the list addresses. Here's a resend (not Cced to
+Alan since he should already have received it).
 
-But it doesn't work for this kind of application misbehaviours (or
-user attacks):
-
-main() { while(1) if (fork()) malloc(1); }
-
-or using IPC shared memory (code by Michal Zalewski)
-
-int i,d=1; char*x; main(){ while(1){ x=shmat(shmget(0,10000000/d,511),0,0);
-if(x==-1){ d*=10; continue; } for(i=0;i<10000000/d;i++) if(*(x+i)); } }
-
-Linux 2.[24] "deadlocks" (without quotas). BTW, apparently FreeBSD, OpenBSD,
-SCO also become unusable while e.g. Solaris and Tru64 survives (root can
-clean up) both in non-overcommit and overcommit mode (no user quotas in
-any case).
-
-With the patch below [tried only with 2.2.18pre21 but it's easy to port to
-2.4 and should apply to any late 2.2 kernels] Linux should also survive in
-both cases without any performance loss (well, trashing would start about
-the same time by adding 1.66% extra swap as the original one).
-
-> Sounds quite normal to me. If you don't enforce process limits, you
-> allow a normal user to thrash the system.
-
-Home users don't quote themself so they must hit the reset button. Really
-is this the maximum that the kernel can do? Also many enterprises expect
-the OS won't deadlock in case of application misbehaviours so they don't
-have to care about quota setup and can keep the good performance. This
-shortcoming^Wfeature of the kernel is one of the reasons Linux is still
-considered a toy or hobby OS by many ....
-
-	Szaka
-
-PS: The reserved system memory protection could be much better but I'm
-pessimistic Linux kernel developers care about this kind of user issues
-[it's a longstanding continuous problem, still never tried to be solved].
-
-diff -urw linux-2.2.18pre21/include/linux/sysctl.h linux/include/linux/sysctl.h
---- linux-2.2.18pre21/include/linux/sysctl.h	Thu Nov  9 08:20:19 2000
-+++ linux/include/linux/sysctl.h	Thu Nov  9 06:30:11 2000
-@@ -122,7 +122,8 @@
- 	VM_PAGECACHE=7,		/* struct: Set cache memory thresholds */
- 	VM_PAGERDAEMON=8,	/* struct: Control kswapd behaviour */
- 	VM_PGT_CACHE=9,		/* struct: Set page table cache parameters */
--	VM_PAGE_CLUSTER=10	/* int: set number of pages to swap together */
-+	VM_PAGE_CLUSTER=10,	/* int: set number of pages to swap together */
-+	VM_RESERVED=11		/* int: number of pages reserved for root */
- };
+Cheers,
+  Trond
 
 
-diff -urw linux-2.2.18pre21/ipc/shm.c linux/ipc/shm.c
---- linux-2.2.18pre21/ipc/shm.c	Wed Jun  7 17:26:44 2000
-+++ linux/ipc/shm.c	Mon Nov 13 03:50:51 2000
-@@ -101,8 +101,8 @@
- 		return -ENOMEM;
- 	}
+Forwarded message ----------------------------------
 
--	shp->shm_pages = (ulong *) vmalloc (numpages*sizeof(ulong));
--	if (!shp->shm_pages) {
-+	if (!vm_enough_memory(numpages)
-+	    || !(shp->shm_pages = (ulong *) vmalloc(numpages*sizeof(ulong)))) {
- 		shm_segs[id] = (struct shmid_kernel *) IPC_UNUSED;
- 		wake_up (&shm_lock);
- 		kfree(shp);
-diff -urw linux-2.2.18pre21/kernel/sysctl.c linux/kernel/sysctl.c
---- linux-2.2.18pre21/kernel/sysctl.c	Thu Nov  9 08:20:19 2000
-+++ linux/kernel/sysctl.c	Fri Nov 10 06:29:56 2000
-@@ -32,6 +32,7 @@
- #if defined(CONFIG_SYSCTL)
 
- /* External variables not in a header file. */
-+extern int vm_reserved;
- extern int panic_timeout;
- extern int console_loglevel, C_A_D;
- extern int bdf_prm[], bdflush_min[], bdflush_max[];
-@@ -249,6 +250,8 @@
- 	 &bdflush_min, &bdflush_max},
- 	{VM_OVERCOMMIT_MEMORY, "overcommit_memory", &sysctl_overcommit_memory,
- 	 sizeof(sysctl_overcommit_memory), 0644, NULL, &proc_dointvec},
-+	{VM_RESERVED, "reserved",
-+	 &vm_reserved, sizeof(int), 0644, NULL, &proc_dointvec},
- 	{VM_BUFFERMEM, "buffermem",
- 	 &buffer_mem, sizeof(buffer_mem_t), 0644, NULL, &proc_dointvec},
- 	{VM_PAGECACHE, "pagecache",
-diff -urw linux-2.2.18pre21/mm/mmap.c linux/mm/mmap.c
---- linux-2.2.18pre21/mm/mmap.c	Thu Nov  9 08:20:19 2000
-+++ linux/mm/mmap.c	Mon Nov 13 11:27:56 2000
-@@ -40,6 +40,7 @@
- kmem_cache_t *vm_area_cachep;
+Hi Alan,
 
- int sysctl_overcommit_memory;
-+int vm_reserved;
+  The following patch fixes 3 leaks in the 2.2.18pre21 'lockd'
+server:
 
- /* Check that a process has enough memory to allocate a
-  * new virtual mapping.
-@@ -67,6 +68,8 @@
- 	free += nr_free_pages;
- 	free += nr_swap_pages;
- 	free -= (page_cache.min_percent + buffer_mem.min_percent + 2)*num_physpages/100;
-+	if (vm_reserved > 0 && current->uid && free < vm_reserved)
-+		return 0;
- 	return free > pages;
- }
+  - The nlm_host h_count leaks in nlm{,4}svc_callback(). This is due
+    to both nlmsvc_async_call() and the above functions incrementing
+    the h_count.
+    Backport the 2.4.0 definitions of nlm{clnt,svc}_async_call() in
+    order to fix problem and to avoid having different APIs in 2.2.x
+    and 2.4.x lockd.
+    Hopefully we can clean this entire mess out in 2.5.x.
 
-@@ -872,6 +875,23 @@
+  - nlmsvc_share_file() increments the file->f_count. This causes a
+    file leak when using MSDOS-style shares.
+    Instead we should do as per the posix server code, and simply rely
+    on the lockd file garbage collectors to not close a file with
+    pending locks/shares/blocks.
 
- void __init vma_init(void)
+  - nlm{4,}svc_proc_sm_notify() should only call nlm_release_host()
+    when nlm_lookup_host() returns a non-null value.
+
+Cheers,
+  Trond
+
+diff -u --recursive --new-file linux-2.2.18pre21/fs/lockd/clntproc.c linux-2.2.18-fix_leak/fs/lockd/clntproc.c
+--- linux-2.2.18pre21/fs/lockd/clntproc.c	Mon Nov 13 17:15:58 2000
++++ linux-2.2.18-fix_leak/fs/lockd/clntproc.c	Mon Nov 13 19:31:55 2000
+@@ -309,16 +309,14 @@
+ /*
+  * Generic NLM call, async version.
+  */
+-static int
+-_nlmclnt_async_call(struct nlm_rqst *req, u32 proc, rpc_action callback,
+-		    struct rpc_cred *cred)
++int
++nlmsvc_async_call(struct nlm_rqst *req, u32 proc, rpc_action callback)
  {
-+        struct sysinfo i;
-+
-+        /*
-+	 * Setup default reserved VM pages for root. You can tune it
-+         * via /proc/sys/vm/reserved. Default value is based on RAM size
-+         *    - no reserved pages if RAM is less than 8MB
-+         *    - 5MB should be enough on boxes w/ RAM > 100 MB
-+         *    - otherwise reserve 5%
-+	 */
-+        si_meminfo(&i);
-+        if (i.totalram < 8 * 1024 * 1024)
-+                vm_reserved = 0;
-+        else if (i.totalram > 100 * 1024 * 1024)
-+                vm_reserved = 5 * 1024 * 1024 >> PAGE_SHIFT;
-+        else
-+                vm_reserved = (i.totalram >> PAGE_SHIFT) / 20;
-+
- 	vm_area_cachep = kmem_cache_create("vm_area_struct",
- 					   sizeof(struct vm_area_struct),
- 					   0, SLAB_HWCACHE_ALIGN,
-
+ 	struct nlm_host	*host = req->a_host;
+ 	struct rpc_clnt	*clnt;
+ 	struct nlm_args	*argp = &req->a_args;
+ 	struct nlm_res	*resp = &req->a_res;
+ 	struct rpc_message msg;
+-	int		status;
+ 
+ 	dprintk("lockd: call procedure %s on %s (async)\n",
+ 			nlm_procname(proc), host->h_name);
+@@ -327,41 +325,47 @@
+ 	if ((clnt = nlm_bind_host(host)) == NULL)
+ 		return -ENOLCK;
+ 
+-	/* Increment host refcount */
+-        nlm_get_host(host);
+-
+-        /* bootstrap and kick off the async RPC call */
++	/* bootstrap and kick off the async RPC call */
+ 	msg.rpc_proc = proc;
+ 	msg.rpc_argp = argp;
+ 	msg.rpc_resp =resp;
+-	msg.rpc_cred = cred;
+-        status = rpc_call_async(clnt, &msg, RPC_TASK_ASYNC, callback, req);
+-
+-	if (status < 0)
+-		nlm_release_host(host);
+-	return status;
++	msg.rpc_cred = NULL;	
++	return rpc_call_async(clnt, &msg, RPC_TASK_ASYNC, callback, req);
+ }
+ 
+-
+ int
+ nlmclnt_async_call(struct nlm_rqst *req, u32 proc, rpc_action callback)
+ {
++	struct nlm_host	*host = req->a_host;
++	struct rpc_clnt	*clnt;
+ 	struct nlm_args	*argp = &req->a_args;
+-	struct file	*filp = argp->lock.fl.fl_file;
+-	struct rpc_cred *cred = NULL;
++	struct nlm_res	*resp = &req->a_res;
++	struct file	*file = argp->lock.fl.fl_file;
++	struct rpc_message msg;
++	int		status;
+ 
+-	if (filp)
+-		cred = nfs_file_cred(filp);
++	dprintk("lockd: call procedure %s on %s (async)\n",
++			nlm_procname(proc), host->h_name);
+ 
+-	return _nlmclnt_async_call(req, proc, callback, cred);
+-}
++	/* If we have no RPC client yet, create one. */
++	if ((clnt = nlm_bind_host(host)) == NULL)
++		return -ENOLCK;
+ 
+-int
+-nlmsvc_async_call(struct nlm_rqst *req, u32 proc, rpc_action callback)
+-{
+-	return _nlmclnt_async_call(req, proc, callback, NULL);
++	/* bootstrap and kick off the async RPC call */
++	msg.rpc_proc = proc;
++	msg.rpc_argp = argp;
++	msg.rpc_resp =resp;
++	if (file)
++		msg.rpc_cred = nfs_file_cred(file);
++	else
++		msg.rpc_cred = NULL;
++	/* Increment host refcount */
++	nlm_get_host(host);
++	status = rpc_call_async(clnt, &msg, RPC_TASK_ASYNC, callback, req);
++	if (status < 0)
++		nlm_release_host(host);
++	return status;
+ }
+-
+ 
+ /*
+  * TEST for the presence of a conflicting lock
+diff -u --recursive --new-file linux-2.2.18pre21/fs/lockd/svc4proc.c linux-2.2.18-fix_leak/fs/lockd/svc4proc.c
+--- linux-2.2.18pre21/fs/lockd/svc4proc.c	Mon Nov 13 17:15:58 2000
++++ linux-2.2.18-fix_leak/fs/lockd/svc4proc.c	Mon Nov 13 19:51:12 2000
+@@ -450,8 +450,8 @@
+ 		if ((clnt = nlmsvc_ops->exp_getclient(&saddr)) != NULL 
+ 		 && (host = nlm_lookup_host(clnt, &saddr, 0, 0)) != NULL) {
+ 			nlmsvc_free_host_resources(host);
++			nlm_release_host(host);
+ 		}
+-		nlm_release_host(host);
+ 	}
+ 
+ 	return rpc_success;
+@@ -472,7 +472,7 @@
+ 	host = nlmclnt_lookup_host(&rqstp->rq_addr,
+ 				rqstp->rq_prot, rqstp->rq_vers);
+ 	if (!host) {
+-		rpc_free(call);
++		kfree(call);
+ 		return rpc_system_err;
+ 	}
+ 
+@@ -481,9 +481,13 @@
+ 	memcpy(&call->a_args, resp, sizeof(*resp));
+ 
+ 	if (nlmsvc_async_call(call, proc, nlm4svc_callback_exit) < 0)
+-		return rpc_system_err;
++		goto error;
+ 
+ 	return rpc_success;
++ error:
++	kfree(call);
++	nlm_release_host(host);
++	return rpc_system_err;
+ }
+ 
+ static void
+@@ -496,7 +500,7 @@
+ 					task->tk_pid, -task->tk_status);
+ 	}
+ 	nlm_release_host(call->a_host);
+-	rpc_free(call);
++	kfree(call);
+ }
+ 
+ /*
+diff -u --recursive --new-file linux-2.2.18pre21/fs/lockd/svclock.c linux-2.2.18-fix_leak/fs/lockd/svclock.c
+--- linux-2.2.18pre21/fs/lockd/svclock.c	Mon Nov 13 17:15:58 2000
++++ linux-2.2.18-fix_leak/fs/lockd/svclock.c	Mon Nov 13 19:49:12 2000
+@@ -531,8 +531,10 @@
+ 	nlmsvc_insert_block(block, jiffies + 30 * HZ);
+ 
+ 	/* Call the client */
+-	nlmsvc_async_call(&block->b_call, NLMPROC_GRANTED_MSG,
+-						nlmsvc_grant_callback);
++	nlm_get_host(block->b_call.a_host);
++	if (nlmsvc_async_call(&block->b_call, NLMPROC_GRANTED_MSG,
++						nlmsvc_grant_callback) < 0)
++		nlm_release_host(block->b_call.a_host);
+ 	up(&file->f_sema);
+ }
+ 
+diff -u --recursive --new-file linux-2.2.18pre21/fs/lockd/svcproc.c linux-2.2.18-fix_leak/fs/lockd/svcproc.c
+--- linux-2.2.18pre21/fs/lockd/svcproc.c	Mon Nov 13 17:15:59 2000
++++ linux-2.2.18-fix_leak/fs/lockd/svcproc.c	Mon Nov 13 19:51:04 2000
+@@ -463,8 +463,8 @@
+ 		if ((clnt = nlmsvc_ops->exp_getclient(&saddr)) != NULL 
+ 		 && (host = nlm_lookup_host(clnt, &saddr, 0, 0)) != NULL) {
+ 			nlmsvc_free_host_resources(host);
++			nlm_release_host(host);
+ 		}
+-		nlm_release_host(host);
+ 	}
+ 
+ 	return rpc_success;
+@@ -494,9 +494,13 @@
+ 	memcpy(&call->a_args, resp, sizeof(*resp));
+ 
+ 	if (nlmsvc_async_call(call, proc, nlmsvc_callback_exit) < 0)
+-		return rpc_system_err;
++		goto error;
+ 
+ 	return rpc_success;
++ error:
++	nlm_release_host(host);
++	kfree(call);
++	return rpc_system_err;
+ }
+ 
+ static void
+diff -u --recursive --new-file linux-2.2.18pre21/fs/lockd/svcshare.c linux-2.2.18-fix_leak/fs/lockd/svcshare.c
+--- linux-2.2.18pre21/fs/lockd/svcshare.c	Mon Nov 13 17:15:59 2000
++++ linux-2.2.18-fix_leak/fs/lockd/svcshare.c	Mon Nov 13 19:07:12 2000
+@@ -54,7 +54,6 @@
+ 	share->s_owner.len  = oh->len;
+ 	share->s_next       = file->f_shares;
+ 	file->f_shares      = share;
+-	file->f_count	   += 1;
+ 
+ update:
+ 	share->s_access = argp->fsm_access;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,89 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSKHSge>; Fri, 8 Nov 2002 13:36:34 -0500
+	id <S262224AbSKHSnp>; Fri, 8 Nov 2002 13:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262159AbSKHSge>; Fri, 8 Nov 2002 13:36:34 -0500
-Received: from mons.uio.no ([129.240.130.14]:43219 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S262067AbSKHSgd>;
-	Fri, 8 Nov 2002 13:36:33 -0500
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: Jeff Dike <jdike@karaya.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc1 - hang with processes stuck in D
-References: <3DC8645B.A0E99A99@digeo.com>
-	<200211060308.gA638Ui08714@karaya.com>
-	<20021108041755.GD1729@unthought.net>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 08 Nov 2002 19:43:10 +0100
-In-Reply-To: <20021108041755.GD1729@unthought.net>
-Message-ID: <shslm437vi9.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S262248AbSKHSnp>; Fri, 8 Nov 2002 13:43:45 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:37760 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S262224AbSKHSno> convert rfc822-to-8bit; Fri, 8 Nov 2002 13:43:44 -0500
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Paul Larson <plars@linuxtestproject.org>, David Faure <faure@kde.org>
+Subject: Re: 2.5.46-mm1: CONFIG_SHAREPTE do not work with KDE 3
+Date: Fri, 8 Nov 2002 19:50:26 +0100
+User-Agent: KMail/1.4.7
+Cc: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <200211070547.00387.Dieter.Nuetzel@hamburg.de> <3DC9F1C0.70712ED4@digeo.com> <1036779514.17557.7.camel@plars>
+In-Reply-To: <1036779514.17557.7.camel@plars>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200211081950.26382.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jakob Oestergaard <jakob@unthought.net> writes:
+Am Freitag, 8. November 2002 19:18 schrieb Paul Larson:
+> On Wed, 2002-11-06 at 22:53, Andrew Morton wrote:
+> > Dieter Nützel wrote:
+> > > When I enable shared 3rd-level pagetables between processes KDE 3.0.x
+> > > and KDE 3.1 beta2 at least do not work.
+> >
+> > Yup.  That's a bug which happens to everyone in the world
+> > except Dave :(
+>
+> I've tried to reproduce this also on a RH 7.3 box.  ksmserver is
+> running, but strace says it's stuck on a select() call.  There are no
+> kernel messages, but I got this from startx:
+>
+> DCOPServer up and running.
+> Warning: connect() failed: : Connection refused
 
-     > I suspected NFS problems (looks like someone re-wrote NFS
-     > between 2.4.18 and 2.4.20-rc1) - but this is *not* the case.
-     > The pauses happen on locally running processes as well.
+That's similar to mine.
 
-     > It seems to correlate well with a remote host delivering a mail
-     > (using maildir over NFS) - but this is not the only situation
-     > in which it happens.
+> It looks like maybe this problem shows up in different ways.
 
-     > Everything using disk, both on NFS clients and locally running
-     > processes, just pause. Five seconds after everything is like it
-     > never happened.
+Somewhat.
 
-If you are using HIGHMEM, then the stock 2.4.20-rc1 has a known issue
-with an unbalanced kmap. Marcelo has already applied the following
-patch in the latest bitkeeper update.
+> Anyone have ideas about how to debug this?
 
-Cheers,
-  Trond
+See my former post.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.774   -> 1.775  
-#	    net/sunrpc/xdr.c	1.7     -> 1.8    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/11/06	trond.myklebust@fys.uio.no	1.775
-# [PATCH] another kmap imbalance in 2.4.x/2.5.x RPC
-# 
-# >>>>> Andrew Ryan <andrewr@nam-shub.com> writes:
-#      > So far so good on the crashes.  I'm able to get through a
-#      > complete run of dbench using TCP mounts on 2.4.20rc1, which I
-#      > haven't been able to do before this.
-# 
-# Marcelo, Linus
-# 
-#   We've uncovered yet another kmap imbalance in the new RPC code. This
-# looks like it might be the last one (my debugging printks have been
-# unable to unearth any more). One line fix + 4 line comment
-# appended. Please apply to both 2.4.20-rc1 and 2.5.45...
-# 
-# Cheers,
-#   Trond
-# --------------------------------------------
-#
-diff -Nru a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
---- a/net/sunrpc/xdr.c	Fri Nov  8 19:42:24 2002
-+++ b/net/sunrpc/xdr.c	Fri Nov  8 19:42:24 2002
-@@ -244,6 +244,11 @@
- 		pglen -= base;
- 		base  += xdr->page_base;
- 		ppage += base >> PAGE_CACHE_SHIFT;
-+		/* Note: The offset means that the length of the first
-+		 * page is really (PAGE_CACHE_SIZE - (base & ~PAGE_CACHE_MASK)).
-+		 * In order to avoid an extra test inside the loop,
-+		 * we bump pglen here, and just subtract PAGE_CACHE_SIZE... */
-+		pglen += base & ~PAGE_CACHE_MASK;
- 	}
- 	for (;;) {
- 		flush_dcache_page(*ppage);
+Maybe some KDE developers out here? 
+
+-Dieter

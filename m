@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289581AbSBSUCs>; Tue, 19 Feb 2002 15:02:48 -0500
+	id <S289377AbSBSULd>; Tue, 19 Feb 2002 15:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289752AbSBSUCi>; Tue, 19 Feb 2002 15:02:38 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:42739 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289697AbSBSUCZ>;
-	Tue, 19 Feb 2002 15:02:25 -0500
-Date: Tue, 19 Feb 2002 13:01:27 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Jens Schmidt <j.schmidt@paradise.net.nz>, linux-kernel@vger.kernel.org
-Subject: Re: secure erasure of files?
-Message-ID: <20020219130127.C25713@lynx.adilger.int>
-Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	Jens Schmidt <j.schmidt@paradise.net.nz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <31030000.1014141568@flay> <200202191848.TAA08419@cave.bitwizard.nl>
+	id <S289783AbSBSULZ>; Tue, 19 Feb 2002 15:11:25 -0500
+Received: from c207-202-243-179.sea1.cablespeed.com ([207.202.243.179]:53593
+	"EHLO darklands.localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S289377AbSBSULH>; Tue, 19 Feb 2002 15:11:07 -0500
+Date: Tue, 19 Feb 2002 12:09:51 -0800
+From: Thomas Zimmerman <thomas@zimres.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ess Solo-1 interrupt behaviour
+Message-ID: <20020219200951.GA6615@darklands.zimres.net>
+Reply-To: Thomas <thomas@zimres.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E16d8GI-0000CS-00@the-village.bc.nu> <200202191412.g1JECvV12317@ibe.miee.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200202191848.TAA08419@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Tue, Feb 19, 2002 at 07:48:58PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <200202191412.g1JECvV12317@ibe.miee.ru>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux darklands 2.4.18-darklands 
+X-Operating-Status: 10:03:23 up 2 days, 6 min,  1 user,  load average: 0.56, 0.16, 0.05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 19, 2002  19:48 +0100, Rogier Wolff wrote:
-> Maybe the difference is in "what's the goal". For datarecovery we
-> don't really care about just a couple of bits here and there: We want
-> to piece together the whole thing. 
-> 
-> If you don't want a piece of your data getting into wrong hands
-> however, you'd better be safe than sorry.
-> 
-> So I (and the Ibas guy) are talking about practical recovery of a
-> useful amount of data, while even a couple of bits is in theory
-> dangerous if you really want it "gone".
 
-So, as others have said, if your data is so important that you are
-worried about people taking the platter and putting it under a
-scanning-tunneling microscope (or whatever is in vogue) to recover
-deleted data, then you should be one million times as worried about
-undeleted data on the same disk (i.e. what happens if they steal or
-copy the disk _before_ you delete this precious data).
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The net result is that this data should never hit the disk unencrypted
-in the first place, at which point you don't need to worry about the
-deletion step.  You have encrypted swap and encrypted loopback filesystems,
-and you have proper procedure to ensure the keys are safe, and all is well.
+On 19-Feb 05:12, Samium Gromoff wrote:
+> "  Alan Cox wrote:"
+> >=20
+> > > > Thats an esd bug. ESD tries to use ridiculously small fragment sizes
+> > > >=20
+> > >   Wait, wait, but my ISA Vibra 16 generates 20+ times less interrupts=
+, with the
+> > >   _same_ esd!=20
+> >=20
+> > Yes. It has diff fragment limits
+> >=20
+> 	So the point is we should fix esd, not the solo-1 driver, i presume?
+> 	(esd_fixed -> irq_load_fixed -> disk_io_is_back)... sounds ok
+>=20
+> 	EOT
+>=20
+> regards, Samium Gromoff
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+It would be EOT, but there don't seem to _be_ any esd developers. I'd take a
+look but my C skills max out at about "hello world", and there wouldn't be
+anyone to make a new release (google couldn't find a esd homepage at least).
+Maybe the gnome/ximian folks are taking bug reports/fixes in their packages.
+Who knows? This has come up several times with nary a peep from a esd
+developer.
 
+Thomas
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8crEPUHPW3p9PurIRAkHKAJ4zcwDwPswioyTXeEDJqwhhbHB6LQCfZfDl
+t1eg077rLw69AG/Ce2HyIdc=
+=PvIL
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--

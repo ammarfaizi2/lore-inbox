@@ -1,68 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277714AbRJRNv2>; Thu, 18 Oct 2001 09:51:28 -0400
+	id <S277712AbRJRNyS>; Thu, 18 Oct 2001 09:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277716AbRJRNvT>; Thu, 18 Oct 2001 09:51:19 -0400
-Received: from mail.spylog.com ([194.67.35.220]:43442 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S277714AbRJRNvC>;
-	Thu, 18 Oct 2001 09:51:02 -0400
-Date: Thu, 18 Oct 2001 17:47:06 +0400
-From: "Oleg A. Yurlov" <kris@spylog.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
-Organization: SpyLOG Ltd.
-X-Priority: 3 (Normal)
-Message-ID: <111127919712.20011018174706@spylog.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re[2]: "3.5GB user address space" option.
-In-Reply-To: <20011018110914.J12055@athlon.random>
-In-Reply-To: <1981072193242.20011018021819@spylog.com>
- <9qlmcb$4h4$1@cesium.transmeta.com> <20011018110914.J12055@athlon.random>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277718AbRJRNx6>; Thu, 18 Oct 2001 09:53:58 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:5130 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S277712AbRJRNxz>;
+	Thu, 18 Oct 2001 09:53:55 -0400
+Date: Thu, 18 Oct 2001 17:54:28 +0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] pci.ids addition for Moxa serial card
+Message-ID: <20011018175428.B23104@orbita1.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AbQceqfdZEv+FvjW"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 4:36pm  up 6 days,  4:45,  2 users,  load average: 0.00, 0.08, 0.08
+X-Uname: Linux orbita1.ru 2.2.20pre2 
+From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-        Hi,
+--AbQceqfdZEv+FvjW
+Content-Type: multipart/mixed; boundary="B4IIlcmfBL/1gGOG"
+Content-Disposition: inline
 
-Thursday, October 18, 2001, 1:09:14 PM, you wrote:
 
-AA> On Wed, Oct 17, 2001 at 09:38:35PM -0700, H. Peter Anvin wrote:
->> Followup to:  <1981072193242.20011018021819@spylog.com>
->> By author:    "Oleg A. Yurlov" <kris@spylog.com>
->> In newsgroup: linux.dev.kernel
->> >
->> > 
->> >         Hi, folks,
->> > 
->> >         How  I  can  use  3.5GB  in my apps ? I try malloc() and get error on 2G
->> > bounce... :-(
->> > 
->> >         Hardware - SMP server, 2Gb RAM, 8Gb swap, kernel 2.4.12aa1.
->> > 
->> 
->> Get a 64-bit CPU.  You're running into a fundamental limit of 32-bit
->> architectures.
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-AA> Actually 3.5G per-process is theoretically possible using a careful
-AA> userspace as Rik suggested with -aa after enabling the proper
-AA> compile time configuration option. So for apps that needs say 3G
-AA> per-process it should work just fine. But of course for anything that
-AA> needs more than that 64bit is the right way to go :)
+Hi,
 
-        Thanks to all, problem solved :-) Now apps can use about 3.5G.
+please consider applying.
 
-AA> Andrea
-AA> -
-AA> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-AA> the body of a message to majordomo@vger.kernel.org
-AA> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-AA> Please read the FAQ at  http://www.tux.org/lkml/
+Best regards.
 
---
-Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
-mailto:kris@spylog.com                          +7 095 332-03-88
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-moxaids
 
+diff -ur -X /usr/dontdiff /linux.vanilla/drivers/pci/pci.ids /linux/drivers/pci/pci.ids
+--- /linux.vanilla/drivers/pci/pci.ids	Wed Oct 17 11:26:01 2001
++++ /linux/drivers/pci/pci.ids	Thu Oct 18 12:53:58 2001
+@@ -3677,6 +3677,11 @@
+ 1391  Development Concepts Inc
+ 1392  Medialight Inc
+ 1393  Moxa Technologies Co Ltd
++	1040  Smartio C104H/PCI
++	1680  Smartio C168H/PCI
++	2040  Intellio CP-204J
++	2180  Intellio C218 Turbo PCI
++	3200  Intellio C320 Turbo PCI
+ 1394  Level One Communications
+ 1395  Ambicom Inc
+ 1396  Cipher Systems Inc
+
+--B4IIlcmfBL/1gGOG--
+
+--AbQceqfdZEv+FvjW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7zt8UBm4rlNOo3YgRAm9OAJ9TQpWhffCKpLlFPEohO69/IgF/JQCaAxOy
+S6l05fQh3HABMJm/pZkkxeY=
+=0H81
+-----END PGP SIGNATURE-----
+
+--AbQceqfdZEv+FvjW--

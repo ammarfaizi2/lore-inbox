@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTDOPKk (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTDOPKk 
+	id S261651AbTDOPLU (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTDOPLU 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 11:10:40 -0400
-Received: from zeke.inet.com ([199.171.211.198]:2222 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S261605AbTDOPKj 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 11:10:39 -0400
-Message-ID: <3E9C23B3.4090208@inet.com>
-Date: Tue, 15 Apr 2003 10:22:27 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] patch splitting util(s)?
-References: <3E9B2C38.4020405@inet.com> <20030414215128.GA24096@suse.de> <mailman.1050360781.7083.linux-kernel2news@redhat.com> <200304150047.h3F0lXc22483@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Apr 2003 11:11:20 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:5567
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261651AbTDOPLT convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 11:11:19 -0400
+Subject: Re: Writing modules for 2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1xbrz87x59.fsf@zaphod.guide>
+References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel>
+	 <p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide>
+	 <1050406513.27745.32.camel@dhcp22.swansea.linux.org.uk>
+	 <yw1xbrz87x59.fsf@zaphod.guide>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1050416693.27745.44.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Apr 2003 15:24:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
->>> > I didn't have much luck with googling.  I think the words I used are too 
->>> > generic.  :/
->>> 
->>>Google for diffsplit. Its part of Tim Waugh's patchutils.
->>>Patchutils should be part of pretty much every distro these days too.
->>
->>I'm aware of patchutils.  (Check the 0.2.22 Changelog ;) )  However, 
->>splitdiff doesn't do what I'm after, from my initial look.  Though now 
->>that I think about it, it suggests an alternative solution.  A 
->>'shatterdiff' that created one diff file per hunk in a patch would give 
->>me basically what I want.
-> 
-> 
-> I moaned at Tim until he caved in and added an '-s' option
-> couple of weeks ago. It should be in a fresh rawhide srpm.
+On Maw, 2003-04-15 at 13:39, Måns Rullgård wrote:
+> My situation is like this: I am converting a char device driver to
+> work with linux 2.5.  In the open and close functions there are
+> MOD_INC/DEC_USECOUNT calls.  The question is what they should be
+> replaced with.  Will it be handled correctly without them?
 
-I'm not finding a -s option in Tim's 0.2.23pre1 release.  Where should I 
-be looking for it?
-
-> Mind, you can do what you want even now, with -n (for line numbers)
-> and a little bit of sh or perl, but all concievable solutions
-> require several passes over the diff, which gets tiresome
-> if you diff 2.4.9 (RH 7.2) and 2.4.18 (RH 8.0). The -s option
-> does it in one pass.
-
-Thanks,
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Remove the MOD_INC/DEC counts in the open/close path and add
+owner: THIS_MODULE in the file ops, and all is happy.
 

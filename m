@@ -1,141 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVAJAho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVAJAoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVAJAho (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 19:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVAJAhn
+	id S261797AbVAJAoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 19:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVAJAoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 19:37:43 -0500
-Received: from pD953A118.dip.t-dialin.net ([217.83.161.24]:22438 "EHLO
-	tglx.tec.linutronix.de") by vger.kernel.org with ESMTP
-	id S262020AbVAJAf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 19:35:29 -0500
-Date: Mon, 10 Jan 2005 01:35:13 +0100
-From: tglx@linutronix.de
-Message-ID: <20050110013508.1.patchmail@tglx>
+	Sun, 9 Jan 2005 19:44:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:786 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261839AbVAJAnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 19:43:20 -0500
+Date: Mon, 10 Jan 2005 01:43:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
+Subject: Re: removing bcopy... because it's half broken
+Message-ID: <20050110004313.GB1483@stusta.de>
+References: <20050109192305.GA7476@infradead.org> <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-To: akpm@osdl.org
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-mm2] Fix preemption race [1/3] (Core)
+In-Reply-To: <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The idle-thread-preemption-fix.patch introduced a race, which is not 
-critical, but might give us an extra turn through the scheduler. When
-interrupts are reenabled in entry.c and an interrupt occures before we
-reach the add_preempt_schedule() in preempt_schedule we get rescheduled
-again in the return from interrupt path.
+On Sun, Jan 09, 2005 at 12:19:09PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Sun, 9 Jan 2005, Arjan van de Ven wrote:
+> >
+> > Instead of fixing this inconsistency, I decided to remove it entirely,
+> > explicit memcpy() and memmove() are prefered anyway (welcome to the 1990's)
+> > and nothing in the kernel is using these functions, so this saves code size
+> > as well for everyone.
+> 
+> The problem is that at least some gcc versions would historically generate
+> calls to "bcopy" on alpha for structure assignments. Maybe it doesn't any
+> more, and no such old gcc versions exist any more, but who knows?
+>...
 
-The patch prevents this by leaving preemption disabled (set to 1) and 
-providing a seperate function entry_preempt_schedule().
-This was done by moving the inner loop of preempt_schedule() into a
-seperate function do_preempt_schedule(), which has an increment argument.
-The function is called from preempt_schedule() with PREEMPT_ACTIVE and
-from entry_preempt_schedule() with PREEMPT_ACTIVE-1 to fixup the already
-available 1 in preempt_count.
+include/asm-alpha/string.h says:
 
-This split adds different plausibility checks for entry code and kernel
-calls and provides simpler adjusting of other platforms esp. ARM to the
-new code.
+  /*
+   * GCC of any recent vintage doesn't do stupid things with bcopy.
+   * EGCS 1.1 knows all about expanding memcpy inline, others don't.
+   *
+   * Similarly for a memset with data = 0.
+   */
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
----
- sched.c |   44 ++++++++++++++++++++++++++++++++++----------
- entry.S |    3 ++-
- 2 files changed, 36 insertions(+), 11 deletions(-)
----
-Index: 2.6.10-mm1/kernel/sched.c
-===================================================================
---- 2.6.10-mm1/kernel/sched.c	(revision 141)
-+++ 2.6.10-mm1/kernel/sched.c	(working copy)
-@@ -2836,22 +2836,15 @@
-  * off of preempt_enable.  Kernel preemptions off return from interrupt
-  * occur there and call schedule directly.
-  */
--asmlinkage void __sched preempt_schedule(void)
-+static void __sched do_preempt_schedule(int incr)
- {
--	struct thread_info *ti = current_thread_info();
- #ifdef CONFIG_PREEMPT_BKL
- 	struct task_struct *task = current;
- 	int saved_lock_depth;
- #endif
--	/*
--	 * If there is a non-zero preempt_count or interrupts are disabled,
--	 * we do not want to preempt the current task.  Just return..
--	 */
--	if (unlikely(ti->preempt_count || irqs_disabled()))
--		return;
- 
- need_resched:
--	add_preempt_count(PREEMPT_ACTIVE);
-+	add_preempt_count(incr);
- 	/*
- 	 * We keep the big kernel semaphore locked, but we
- 	 * clear ->lock_depth so that schedule() doesnt
-@@ -2865,15 +2858,46 @@
- #ifdef CONFIG_PREEMPT_BKL
- 	task->lock_depth = saved_lock_depth;
- #endif
--	sub_preempt_count(PREEMPT_ACTIVE);
-+	sub_preempt_count(incr);
- 
- 	/* we could miss a preemption opportunity between schedule and now */
- 	barrier();
- 	if (unlikely(test_thread_flag(TIF_NEED_RESCHED)))
- 		goto need_resched;
- }
-+/*
-+ * this is is the entry point to schedule() from in-kernel preemption
-+ * off of preempt_enable.  Kernel preemptions off return from interrupt
-+ * occur there and call schedule directly.
-+ */
-+asmlinkage void __sched preempt_schedule(void)
-+{
-+	struct thread_info *ti = current_thread_info();
-+	/*
-+	 * If there is a non-zero preempt_count or interrupts are disabled,
-+	 * we do not want to preempt the current task.  Just return..
-+	 */
-+	if (unlikely(ti->preempt_count || irqs_disabled()))
-+		return;
-+	do_preempt_schedule(PREEMPT_ACTIVE);
-+}
- 
- EXPORT_SYMBOL(preempt_schedule);
-+
-+asmlinkage void __sched entry_preempt_schedule(void)
-+{
-+	struct thread_info *ti = current_thread_info();
-+	/* 
-+	 * If preempt_count != 1 or interrupts are disabled
-+	 * the calling code is broken.
-+	 */
-+	BUG_ON((ti->preempt_count != 1 || irqs_disabled()));
-+		
-+	do_preempt_schedule(PREEMPT_ACTIVE - 1);
-+}
-+
-+EXPORT_SYMBOL(entry_preempt_schedule);
-+
- #endif /* CONFIG_PREEMPT */
- 
- int default_wake_function(wait_queue_t *curr, unsigned mode, int sync, void *key)
-Index: 2.6.10-mm1/arch/i386/kernel/entry.S
-===================================================================
---- 2.6.10-mm1/arch/i386/kernel/entry.S	(revision 141)
-+++ 2.6.10-mm1/arch/i386/kernel/entry.S	(working copy)
-@@ -197,8 +197,9 @@
- 	jz restore_all
- 	testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
- 	jz restore_all
-+	movl $1,TI_preempt_count(%ebp)
- 	sti
--	call preempt_schedule
-+	call entry_preempt_schedule
- 	cli
- 	movl $0,TI_preempt_count(%ebp)
- 	jmp need_resched
+And Arjan's patch is pretty low-risk:
+
+If it breaks on any architecture with any supported compiler (>= 2.95), 
+it will break at compile time and there will pretty fast be reports of 
+this breakage in which case it would be easy to revert his patch.
+
+
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbUCSASB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 19:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263351AbUCRXyw
+	id S263289AbUCRXsb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 18:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbUCRXrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 18:54:52 -0500
-Received: from mail.kroah.org ([65.200.24.183]:58286 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263281AbUCRXsN (ORCPT
+	Thu, 18 Mar 2004 18:47:46 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:47751 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263306AbUCRXZB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 18:48:13 -0500
-Date: Thu, 18 Mar 2004 15:21:39 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Hicks <mort@wildopensource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Exporting physical topology information
-Message-ID: <20040318232139.GA17586@kroah.com>
-References: <20040317213714.GD23195@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Mar 2004 18:25:01 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: linux-kernel@vger.kernel.org, colpatch@us.ibm.com
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+Date: Thu, 18 Mar 2004 15:23:10 -0800
+User-Agent: KMail/1.6.1
+Cc: mbligh@aracnet.com, akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com
+References: <1079651064.8149.158.camel@arrakis>
+In-Reply-To: <1079651064.8149.158.camel@arrakis>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040317213714.GD23195@localhost>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403181523.10670.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 17, 2004 at 04:37:14PM -0500, Martin Hicks wrote:
-> 
-> Hi,
-> 
-> I'm trying to figure out what the best way is to export a minimal amount
-> of physical topology information to userland.  Would it be acceptable to
-> export this kind of information with sysfs?
-> 
-> I'm not proposing that we build an entire physical topology tree in
-> sysfs, but just providing an attribute file.  The two most obvious
-> examples of where this would be useful is for nodes and pci busses.  The
-> Altix platform is a modular system with CPU bricks and IO bricks.  We
-> currently have no method for locating where "node0" is, nor do we have a
-> method for locating pci bus 0000:20, for example.
-> 
-> If we could physically locate a PCI bus, then it would be much easier
-> to (for example) locate our defective SCSI disk that is target4 on the
-> SCSI controller that is on pci bus 0000:20.
+On Thursday 18 March 2004 3:04 pm, Matthew Dobson wrote:
+> do most anything you'd want to do with a nodemask.  This stops us from
+> open-coding nodemask operations, allows non-consecutive node numbering
+> (ie: nodes don't have to be numbered 0...numnodes-1), gets rid of
+> numnodes entirely (replaced with num_online_nodes()), and will
+> facilitate the hotplugging of whole nodes.
 
-Um, what's wrong with the current /sys/class/pci_bus/*/cpuaffinity files
-for determining this topology information?  That is why it was added.
+My hero! :)  I think this has been needed for awhile, but now that I
+think about it, it begs the question of what a node is.  Is it a set
+of CPUs and blocks of memory (that seems to be the most commonly used
+definition in the code), just memory, just CPUs, or what?  On sn2
+hardware, we have the concept of a node without CPUs.  And due to our
+wacky I/O layout, we also have nodes without CPUs *or* memory!  (The
+I/O guys call these "ionodes".)  And then of course, there are CPUs
+that aren't particularly close to any memory (i.e. they have none of
+their own, and have to go several hops and/or through other CPUs to
+get at memory at all).
 
-thanks,
+I'll take a look at the ia64 bits when I get them (I've only received
+two of the seven patches thus far).
 
-greg k-h
+Jesse
+
+

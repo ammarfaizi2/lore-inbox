@@ -1,71 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbUJXJmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbUJXJmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbUJXJmY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 05:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUJXJmY
+	id S261406AbUJXJmr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 05:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbUJXJmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 05:42:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:51667 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261404AbUJXJmN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 05:42:13 -0400
-Date: Sun, 24 Oct 2004 03:42:10 -0600
+	Sun, 24 Oct 2004 05:42:47 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:61411 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261406AbUJXJm2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 05:42:28 -0400
+Date: Sun, 24 Oct 2004 05:42:17 -0400
 From: Nathan Lynch <nathanl@austin.ibm.com>
 To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, rusty@rustcorp.com.au, mochel@digitalimplant.org,
-       Nathan Lynch <nathanl@austin.ibm.com>, anton@samba.org
-Message-Id: <20041024094551.28808.28284.87316@biclops>
-Subject: [RFC/PATCH 0/4] cpus, nodes, and the device model: dynamic cpu registration
+Cc: greg@kroah.com, rusty@rustcorp.com.au,
+       Nathan Lynch <nathanl@austin.ibm.com>, mochel@digitalimplant.org,
+       anton@samba.org
+Message-Id: <20041024094559.28808.12445.63352@biclops>
+In-Reply-To: <20041024094551.28808.28284.87316@biclops>
+References: <20041024094551.28808.28284.87316@biclops>
+Subject: [RFC/PATCH 1/4] dynamic cpu registration - core changes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there-
 
-I know of at least two platforms (ppc64 and ia64) which allow cpus to
-be physically or logically added and removed from a running system.
-These are distinct operations from onlining or offlining, which is
-well supported already.  Right now there is little support in the core
-cpu "driver" for dynamic addition or removal.  The patch series which
-follows implements support for this in a way which will (hopefully)
-reduce code duplication and enforce some uniformity across the
-relevant architectures.
+Register cpu system devices in the core code instead of leaving it to
+the architecture.  At boot, allocate an array of num_possible_cpus()
+cpu sysdevs, and register sysdevs for cpus which are marked present.
+Also, leave to the node "driver" the creation of symlinks from node to
+cpu devices.
 
-For starters, the current situation is that cpu sysdevs are registered
-from architecture code at boot.  Already we have inconsistencies
-betweeen the arches -- ia64 registers only online cpus, ppc64
-registers all "possible" cpus.  I propose to move the initial cpu
-sysdev registrations to the cpu "driver" itself (drivers/base/cpu.c),
-and to register only "present" cpus at boot.
+Change register_cpu so that it no longer requires struct cpu* and
+struct node * arguments, only a logical cpu number.  Break the weird
+cpu->no_control semantics (for now).  Introduce unregister_cpu, which
+removes the cpu entry from sysfs.
 
-But that breaks all the arch code which explicitly registers cpu
-sysdevs.  For instance, ppc64 wants to hang all kinds of attributes
-off of the cpu devices for performance counter stuff.  So code such as
-this needs to be converted to register a sysdev_driver with the cpu
-device class, which will allow the ppc64 code to be notified when a
-cpu is added or removed.  In the patches that follow I include the
-changes necessary for ppc64, as an example.  (An arch sweep or
-temporary compatibility hack can come later if I get positive
-responses to this approach.)
-
-Also, there is the matter of the base numa "node" driver.  Currently
-the cpu driver makes symlinks from nodes to their cpus.  This seems
-backwards to me, so I have changed the node driver to create or remove
-the symlinks upon cpu addition or removal, respectively, also using
-the sysdev_driver approach.  I've also converted base/drivers/node.c
-to doing the boot-time node registration itself, like the cpu code.
-
-Finally, I've added two new interfaces which wrap all this up --
-cpu_add() and cpu_remove().  These carry out the necessary update to
-cpu_present_map and take care of the cpu device registration.  These
-are meant to be invoked from the platform-specific code which
-discovers and removes processors.
-
-This is the first real device model-related hacking I've done.  I'm
-hoping Greg or Patrick will tell me whether I'm on the right track or
-abusing the APIs :)
-
-These patches have been boot-tested on ppc64.  I haven't gotten to
-test the removal paths yet.
+Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
 
 
-Nathan
+---
+
+
+diff -puN drivers/base/cpu.c~dynamic-cpu-registration drivers/base/cpu.c
+--- 2.6.10-rc1/drivers/base/cpu.c~dynamic-cpu-registration	2004-10-24 00:09:39.000000000 -0500
++++ 2.6.10-rc1-nathanl/drivers/base/cpu.c	2004-10-24 03:50:13.000000000 -0500
+@@ -56,35 +56,60 @@ static inline void register_cpu_control(
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
++static struct cpu *cpu_devices;
++
+ /*
+  * register_cpu - Setup a driverfs device for a CPU.
+- * @cpu - Callers can set the cpu->no_control field to 1, to indicate not to
+- *		  generate a control file in sysfs for this CPU.
+  * @num - CPU number to use when creating the device.
+  *
+  * Initialize and register the CPU device.
+  */
+-int __init register_cpu(struct cpu *cpu, int num, struct node *root)
++int register_cpu(int num)
+ {
+ 	int error;
++	struct cpu *cpu = &cpu_devices[num];
++
++	memset(cpu, 0, sizeof(*cpu));
+ 
+ 	cpu->node_id = cpu_to_node(num);
+ 	cpu->sysdev.id = num;
+ 	cpu->sysdev.cls = &cpu_sysdev_class;
+ 
+ 	error = sysdev_register(&cpu->sysdev);
+-	if (!error && root)
+-		error = sysfs_create_link(&root->sysdev.kobj,
+-					  &cpu->sysdev.kobj,
+-					  kobject_name(&cpu->sysdev.kobj));
++
++	/* XXX FIXME: cpu->no_control is always zero...
++	 * Maybe should introduce an arch-overridable "hotpluggable" map.
++	 */
+ 	if (!error && !cpu->no_control)
+ 		register_cpu_control(cpu);
+ 	return error;
+ }
+ 
++void unregister_cpu(int num)
++{
++	struct cpu *cpu = &cpu_devices[num];
+ 
++	sysdev_remove_file(&cpu->sysdev, &attr_online);
++	sysdev_unregister(&cpu->sysdev);
++}
+ 
+ int __init cpu_dev_init(void)
+ {
+-	return sysdev_class_register(&cpu_sysdev_class);
++	unsigned int cpu;
++	int ret = -ENOMEM;
++	size_t size = sizeof(*cpu_devices) * num_possible_cpus();
++
++	cpu_devices = kmalloc(size, GFP_KERNEL);
++	if (!cpu_devices)
++		goto out;
++
++	sysdev_class_register(&cpu_sysdev_class);
++
++	for_each_present_cpu(cpu) {
++		ret = register_cpu(cpu);
++		if (ret)
++			goto out;
++	}
++out:
++	return ret;
+ }
+diff -puN include/linux/cpu.h~dynamic-cpu-registration include/linux/cpu.h
+--- 2.6.10-rc1/include/linux/cpu.h~dynamic-cpu-registration	2004-10-24 00:09:39.000000000 -0500
++++ 2.6.10-rc1-nathanl/include/linux/cpu.h	2004-10-24 03:52:43.000000000 -0500
+@@ -31,7 +31,8 @@ struct cpu {
+ 	struct sys_device sysdev;
+ };
+ 
+-extern int register_cpu(struct cpu *, int, struct node *);
++extern int register_cpu(int);
++extern void unregister_cpu(int);
+ struct notifier_block;
+ 
+ #ifdef CONFIG_SMP
+
+_

@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVBRPfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVBRPfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVBRPfW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 10:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVBRPfW
+	id S261389AbVBRPfp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 10:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVBRPfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 10:35:22 -0500
-Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:17027 "EHLO
-	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261387AbVBRPfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 10:35:08 -0500
-Subject: Re: [uml-devel] [BUG: UML 2.6.11-rc4-bk-latest] sleeping function
-	called from invalid context and segmentation fault
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502161935.43820.blaisorblade@yahoo.it>
-References: <1108381733.10703.5.camel@imp.csi.cam.ac.uk>
-	 <200502161935.43820.blaisorblade@yahoo.it>
+	Fri, 18 Feb 2005 10:35:45 -0500
+Received: from smtp.nuvox.net ([64.89.70.9]:10902 "EHLO
+	smtp05.gnvlscdb.sys.nuvox.net") by vger.kernel.org with ESMTP
+	id S261208AbVBRPfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 10:35:36 -0500
+Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() &&
+	irqs_disabled()
+From: Dan Dennedy <dan@dennedy.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+In-Reply-To: <1108180477.30605.7.camel@localhost.localdomain>
+References: <41FD498C.9000708@comcast.net>
+	 <20050130131723.781991d3.akpm@osdl.org> <41FD6478.9040404@comcast.net>
+	 <20050130150224.33299170.akpm@osdl.org> <41FD8796.2020509@comcast.net>
+	 <1108136133.4149.3.camel@kino.dennedy.org>
+	 <20050211184307.GQ16141@conscoop.ottawa.on.ca>
+	 <1108180477.30605.7.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Fri, 18 Feb 2005 15:33:43 +0000
-Message-Id: <1108740823.6713.28.camel@imp.csi.cam.ac.uk>
+Date: Fri, 18 Feb 2005 10:32:52 -0500
+Message-Id: <1108740772.4588.3.camel@kino.dennedy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-16 at 19:35 +0100, Blaisorblade wrote:
-> On Monday 14 February 2005 12:48, Anton Altaparmakov wrote:
-> > Hi,
-> >
-> > I get a few Debug messages of the form from UML:
-> >
-> > Debug: sleeping function called from invalid context at
-> > include/asm/arch/semaphore.h:107
-> > in_atomic():0, irqs_disabled():1
-> > Call Trace:
-> > 087d77b0:  [<0809aaa5>] __might_sleep+0x135/0x180
-> > 087d77d8:  [<084d377f>] mcount+0xf/0x20
-> > 087d77e0:  [<0807cc13>] uml_console_write+0x33/0x80
+I have tested the patches (including for allocation), and it is working
+great, but should I only commit for now the deallocation patch? Hmm..
+which is worse the debug or the 200K waste?
+
+On Fri, 2005-02-11 at 22:54 -0500, Parag Warudkar wrote:
+> Jody,
+> This happens every time you connect a device which ends up doing
+> ISO_LISTEN_CHANNEL. We fixed the device disconnect case in -mm recently.
 > 
-> > Most are coming via uml_console_write.
-> The problem is that the UML tty drivers use a semaphore instead of a spinlock 
-> for the locking, which also causes some other problems.
+> I had sent you and Andrew an alternative patch which fixes this
+> dma_pool_create case as well as the dma_pool_destroy case, albeit with a
+> disadvantage - The patch does pre-allocation of the IR Legacy DMA in
+> _pci_probe and deallocates it in _pci_remove. However I am not truly
+> happy with it since it possibly wastes 200K of memory for people who
+> don't have devices which need it.
 > 
-> The attached patch should fix this, but I've not yet made sure it is not 
-> deadlock-prone (I didn't hit any during some very limited testing).
+> As I said earlier, I think the way to fix this is via schedule_work
+> similar to the disconnect case, but it involves good amount of code
+> change. I am working on it - any better ideas most welcome.
 > 
-> So it's not yet ready for 2.6.11.
+> Dan - Can you try the attached patch - on top current -mm1? (It's pretty
+> no brainer that it will fix both cases but two testing heads are better
+> than one.. :)
+> 
 
-Trying with the above patch in now only get two "sleeping function
-called from invalid context" warnings during boot and none during
-running.  However I get a lot of those errors:
-
-arch/um/drivers/line.c:262: spin_lock(arch/um/drivers/line.c:085b5900)
-already locked by arch/um/drivers/line.c/262
-
-Also both before and after the patch I see a lot of messages like:
-
-kernel: line_write_room: tty2: no room left in buffer
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

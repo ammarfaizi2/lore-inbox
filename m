@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266104AbTFWSwh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 14:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266105AbTFWSwh
+	id S266098AbTFWSul (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 14:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbTFWSul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 14:52:37 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:19446 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S266104AbTFWSvk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 14:51:40 -0400
-Subject: Re: [RFC][PATCH] Security hook for vm_enough_memory
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       James Morris <jmorris@intercode.com.au>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>
-In-Reply-To: <1056386424.14228.78.camel@dhcp22.swansea.linux.org.uk>
-References: <1056385527.1709.415.camel@moss-huskers.epoch.ncsc.mil>
-	 <1056386424.14228.78.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1056395094.1709.467.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2003 15:04:55 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jun 2003 14:50:41 -0400
+Received: from mailc.telia.com ([194.22.190.4]:51409 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S266098AbTFWSuD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 14:50:03 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030615001905.A27084@ucw.cz>
+	<m2he6rv8i6.fsf@telia.com> <20030615142838.A3291@ucw.cz>
+	<m2of0zqr4i.fsf@telia.com> <20030615192731.A6972@ucw.cz>
+	<m2d6hbgdhw.fsf@telia.com>
+	<pan.2003.06.23.16.30.42.431561@dungeon.inka.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 23 Jun 2003 21:04:06 +0200
+In-Reply-To: <pan.2003.06.23.16.30.42.431561@dungeon.inka.de>
+Message-ID: <m2isqwr4yh.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 12:40, Alan Cox wrote:
-> Is there any reason for not wrapping the entire vm_enough_memory() function
-> and using the current one as default. In some environments being able to make
-> total commit constraints based on roles may actually be useful.
-> 
-> (Think "sum of students memory < 40% of system" 8))
-> 
-> vm_enough_memory has to be kernel side but its basically policy so pluggable
-> IMHO is good.
+Andreas Jellinghaus <aj@dungeon.inka.de> writes:
 
-This sounds useful; I'll rework the patch accordingly and resubmit.
+> I tried that driver with 2.5.73. The synaptics option is gone, so it is
+> always on by default? No way to turn it off?
+
+Correct. I don't know if it was an accident or if it was an
+intentional decision, but there doesn't seem to be a way to make the
+touchpad operate in relative (compatibility) mode any more.
+
+On the other hand, I don't think there will be any reason to use
+relative mode once we have X and gpm support for absolute mode, and
+when guest devices are supported.
+
+> The touchpad is working ok, but the mouse is moving either slow or too
+> fast. I guess there is a way I can configure that?
+
+Yes, use the synclient program to tweak parameters until you find a
+setting you like. (I use MinSpeed=0.08 and MaxSpeed=0.10). Then put
+them in the XF86Config file. The INSTALL file has an example
+InputDevice section that you may want to start from.
+
+> a bigger problem is: X froze once, but I could login via network and
+> kill -9 it. No idea why, there is nothing special in the log file.
+
+I've seen X freeze too. I'll debug it, but it will have to wait a week
+until I get back from my vacation.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

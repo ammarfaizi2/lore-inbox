@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285229AbSBGH23>; Thu, 7 Feb 2002 02:28:29 -0500
+	id <S285161AbSBGHYS>; Thu, 7 Feb 2002 02:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285273AbSBGH2S>; Thu, 7 Feb 2002 02:28:18 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7691 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S285229AbSBGH2I>; Thu, 7 Feb 2002 02:28:08 -0500
-Message-Id: <200202070725.g177PSt04545@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: [RFC] List of maintainers (draft #2)
-Date: Thu, 7 Feb 2002 09:25:30 -0200
-X-Mailer: KMail [version 1.3.2]
+	id <S285226AbSBGHYI>; Thu, 7 Feb 2002 02:24:08 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:11399 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S285161AbSBGHX7>; Thu, 7 Feb 2002 02:23:59 -0500
+Date: Thu, 7 Feb 2002 08:23:48 +0100
+From: Alex Riesen <riesen@synopsys.COM>
+To: reiserfs-dev@namesys.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua> <20020206193300.GA314@mis-mike-wstn>
-In-Reply-To: <20020206193300.GA314@mis-mike-wstn>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: 2.5.4-pre1: zero-filled files resiserfs
+Message-ID: <20020207082348.A26413@riesen-pc.gr05.synopsys.com>
+Reply-To: riesen@synopsys.COM
+Mail-Followup-To: reiserfs-dev@namesys.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 February 2002 17:33, Mike Fedyk wrote:
-> On Wed, Feb 06, 2002 at 12:08:14PM -0200, Denis Vlasenko wrote:
-> > David S. Miller <davem@redhat.com> [5 feb 2002]
->
-> I am Sparc64 (32?) and Main networking core maintainer.
->
-> > Greg KH <greg@kroah.com> [5 feb 2002]
-> > 	?
->
-> I am USB Maintainer.
->
-> > H. Peter Anvin <hpa@zytor.com> [5 feb 2002]
-> > 	?
->
-> Kernel.org sysadmin.  Contact me if you notice something breaks, or if you
-> want a change make sure you give me at least 1-2 weeks...
->
-> I'm just filling in a couple blanks from memory.  If someone else has
-> better information, use that instead.
+Hi,
 
-Thanks. I'll use it but eventually I hope to hear from people directly
-to avoid any possible misunderstanding.
---
-vda
+I got the zero-filled files after reboot. I've tried
+to compile two kernels (one with make -j2 and
+the other one just with make) simultaneously having
+3 running 'find . -type f print0 | xargs -0 cat >/dev/null'.
+
+After reboot i've got .config of the one of the kernels
+filled with zeroes, also .bash_history and some others
+(all of them reside on a reserfs volume, and my home, btw).
+The copies of the bzImage's and modules are ok (they were
+to ext2 volumes).
+I suppose the files were open for writing at some point
+of that session. I'm sure they were closed to the moment
+of system shutdown (i've killall5 -TERM ... sequence in
+the shutdown scripts).
+
+There were no crashes or suspicious messages on the console.
+Nothing special in logs, and sorry, reiserfs self-debugging
+wasn't enabled.
+
+-alex
+

@@ -1,84 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVCOCfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVCOC6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbVCOCfg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 21:35:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVCOCfg
+	id S261504AbVCOC6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 21:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVCOC6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 21:35:36 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:63432 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262208AbVCOCfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 21:35:23 -0500
-X-Comment: AT&T Maillennium special handling code - c
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
+	Mon, 14 Mar 2005 21:58:41 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:10120 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261504AbVCOC6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 21:58:36 -0500
+Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
 From: Albert Cahalan <albert@users.sf.net>
-To: Matt Mackall <mpm@selenic.com>
-Cc: john stultz <johnstul@us.ibm.com>, Christoph Lameter <clameter@sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-In-Reply-To: <20050314202702.GF32638@waste.org>
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
-	 <20050313004902.GD3163@waste.org>
-	 <1110825765.30498.370.camel@cog.beaverton.ibm.com>
-	 <20050314192918.GC32638@waste.org>
-	 <1110829401.30498.383.camel@cog.beaverton.ibm.com>
-	 <20050314195110.GD32638@waste.org>
-	 <1110830647.30498.388.camel@cog.beaverton.ibm.com>
-	 <20050314202702.GF32638@waste.org>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com
+In-Reply-To: <Pine.LNX.4.58.0503142333480.6357@be1.lrz>
+References: <1110771251.1967.84.camel@cube>
+	 <42355C78.1020307@lsrfire.ath.cx> <1110816803.1949.177.camel@cube>
+	 <Pine.LNX.4.58.0503142333480.6357@be1.lrz>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 21:16:12 -0500
-Message-Id: <1110852973.1967.180.camel@cube>
+Date: Mon, 14 Mar 2005 21:44:27 -0500
+Message-Id: <1110854667.7893.203.camel@cube>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-14 at 12:27 -0800, Matt Mackall wrote:
-> On Mon, Mar 14, 2005 at 12:04:07PM -0800, john stultz wrote:
-> > > > > > > > +static inline cycle_t read_timesource(struct timesource_t* ts)
-> > > > > > > > +{
-> > > > > > > > +	switch (ts->type) {
-> > > > > > > > +	case TIMESOURCE_MMIO_32:
-> > > > > > > > +		return (cycle_t)readl(ts->mmio_ptr);
-> > > > > > > > +	case TIMESOURCE_MMIO_64:
-> > > > > > > > +		return (cycle_t)readq(ts->mmio_ptr);
-> > > > > > > > +	case TIMESOURCE_CYCLES:
-> > > > > > > > +		return (cycle_t)get_cycles();
-> > > > > > > > +	default:/* case: TIMESOURCE_FUNCTION */
-> > > > > > > > +		return ts->read_fnct();
-> > > > > > > > +	}
-> > > > > > > > +}
-> > > Well where we'd read an MMIO address, we'd simply set read_fnct to
-> > > generic_timesource_mmio32 or so. And that function just does the read.
-> > > So both that function and read_timesource become one-liners and we
-> > > drop the conditional branches in the switch.
-> > 
-> > However the vsyscall/fsyscall bits cannot call in-kernel functions (as
-> > they execute in userspace or a sudo-userspace). As it stands now in my
-> > design TIMESOURCE_FUNCTION timesources will not be usable for
-> > vsyscall/fsyscall implementations, so I'm not sure if that's doable.
-> > 
-> > I'd be interested you've got a way around that.
+On Tue, 2005-03-15 at 00:08 +0100, Bodo Eggert wrote:
+> On Mon, 14 Mar 2005, Albert Cahalan wrote:
+> > On Mon, 2005-03-14 at 10:42 +0100, Rene Scharfe wrote:
+> > > Albert Cahalan wrote:
 > 
-> We can either stick all the generic mmio timer functions in the
-> vsyscall page (they're tiny) or leave the vsyscall using type/ptr but
-> have the kernel internally use only the function pointer. Someone
-> who's more familiar with the vsyscall timer code should chime in here.
+> > > Why do you think users should not be allowed to chmod their processes' 
+> > > /proc directories?  Isn't it similar to being able to chmod their home 
+> > > directories?  They own both objects, after all (both conceptually and as 
+> > > attributed in the filesystem).
+> > 
+> > This is, to use your own word, "cloaking". This would let
+> > a bad user or even an unauthorized user hide from the admin.
+> 
+> NACK, the admin (and with the new inherited capabilities all users with 
+> cap_???_override) can see all processes. Only users who don't need to know
+> won't see the other user's processes.
 
-When the vsyscall page is created, copy the one needed function
-into it. The kernel is already self-modifying in many places; this
-is nothing new.
+Capabilities are too broken for most people to use. Normal users
+do not get CAP_DAC_OVERRIDE by default anyway, for good reason.
 
+> > Note that the admin hopefully does not normally run as root.
+> 
+> su1 and sudo exist.
+
+This is a pain. Now every user will need sudo access,
+and the sudoers file will have to disable requesting
+passwords so that scripts will work without hassle.
+
+> > Even if the admin were not running as a normal user, it is
+> > expected that normal users can keep tabs on each other.
+> > The admin may be sleeping. Social pressure is important to
+> > prevent one user from sucking up all the memory and CPU time.
+> 
+> Privacy is important, too. Imagine each user can see the CEO (or the
+> admin) executing "ee nakedgirl.jpg".
+
+Obviously, he likes to have users see him do this.
+He'd use a private machine if he wanted privacy.
+
+> > > > Note: I'm the procps (ps, top, w, etc.) maintainer.
+> > > > 
+> > > > Probably I'd have to make /bin/ps run setuid root
+> > > > to deal with this. (minor changes needed) The same
+> > > > goes for /usr/bin/top, which I know is currently
+> > > > unsafe and difficult to fix.
+> 
+> I used unpatched procps 3.1.11, and it worked for me, except pstree.
+
+It does not work correctly.
+
+Look, patches with this "feature" are called rootkits.
+Think of the headlines: "Linux now with built-in rootkit".
+
+> > > Why do ps and top need to be setuid root to deal with a resticted /proc? 
+> > >     What information in /proc/<pid> needs to be available to any and all 
+> > > users?
+> > 
+> > Anything provided by traditional UNIX and BSD systems
+> > should be available.
+> 
+> e.g. the buffer overflow in sendmail? Or all the open relays? :)
+> 
+> The demands to security and privacy have increased. Linux should be able 
+> to provide the requested privacy.
+
+This really isn't about security. Privacy may be undesirable.
+With privacy comes anti-social behavior. Supposing that the
+users do get privacy, perhaps because the have paid for it:
+
+Xen, UML, VM, VMware, separate computers
+
+Going with separate computers is best. Don't forget to use
+network traffic control to keep users from being able to
+detect the network activity of other users.
+
+> > Users who want privacy can get their
+> > own computer. So, these need to work:
+> > 
+> > ps -ef
+> > ps -el
+> > ps -ej
+> > ps axu
+> > ps axl
+> > ps axj
+> > ps axv
+> > w
+> > top
+> 
+> Works as intended. Only pstree breaks, if init isn't visible.
+
+They work like they do with a rootkit installed.
+Traditional behavior has been broken.
 
 

@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUDDLRR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 07:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUDDLRR
+	id S262322AbUDDLVy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 07:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUDDLVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 07:17:17 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:21730 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S261764AbUDDLRO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 07:17:14 -0400
-Date: Sun, 4 Apr 2004 13:17:12 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: drivers/char/dz.[ch]: reason for keeping?
-Message-ID: <20040404111712.GE27362@lug-owl.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Ralf Baechle <ralf@linux-mips.org>
-References: <20040404101241.A10158@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DmkXRut7/t/4Uxw3"
+	Sun, 4 Apr 2004 07:21:54 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:41111 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262337AbUDDLVa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 07:21:30 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-usb-usersl@lists.sourceforge.net
+Subject: Re: 2.6.5-rc3-mm4 breaks xsane, hangs on device scan at launch
+Date: Sun, 4 Apr 2004 07:21:28 -0400
+User-Agent: KMail/1.6
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+References: <200404032113.01355.gene.heskett@verizon.net>
+In-Reply-To: <200404032113.01355.gene.heskett@verizon.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040404101241.A10158@flint.arm.linux.org.uk>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404040721.28811.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.9.48] at Sun, 4 Apr 2004 06:21:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 03 April 2004 21:13, Gene Heskett wrote:
+>Greetings;
+>
+>You'll find a sysrq -t capture attached.  xsane is hung in the
+> opening device scan, leaving that little window, and its totally
+> unkillable by any means but a reboot, which brings up the you're
+> running as root warning as it restarts xsane, and it can be
+> canceled from there.
+>
+>If, in this condition, I do a lsusb, that too will hang near the end
+>of the mouse report section.  The usb mouse continues to function
+>norrmally.
 
---DmkXRut7/t/4Uxw3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I forgot to mention that lsusb runs normally before xsane has been 
+run.  I didn't make that clear above.
 
-On Sun, 2004-04-04 10:12:41 +0100, Russell King <rmk+lkml@arm.linux.org.uk>
-wrote in message <20040404101241.A10158@flint.arm.linux.org.uk>:
-> Since we have drivers/serial/dz.[ch] now merged, is there a reason to
-> keep drivers/char/dz.[ch] around any more?  I notice people keep doing
-> cleanups, but this is wasted effort if the driver is superseded by the
-> new drivers/serial/dz.[ch] driver.
+>This is 100% repeatable, and everything works nominally if I reboot
+> to 2.6.5-rc3-mm3 or earlier.
 
-The VAX port also (still) uses a modified version of the d/c/dz.[ch]
-driver. Also, the MIPS guys may have some outstanding patches...
+2.6.5 is apparently stable in this regard.
 
-So, please let's do two things before throwing away the old driver:
-
-	- The MIPS guys need to be happy; they might have some
-	  outstanding changes...
-	- The VAX guys need to start using the new driver, I'll just
-	  start and try to port over our changes.
-
-While at it, I've already implemented some SERIO changes. That'll allow
-the dz.c driver to announce that it waits for LK-style keyboard on one
-port and VSXXX-style mouse/digitizer on the 2nd port...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---DmkXRut7/t/4Uxw3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAb+63Hb1edYOZ4bsRAoZeAJwKsMAljraAFQg3bPci/VnhH6dlTQCfWq4l
-bYKAhYZvW1VTK1mFrd75W0U=
-=adIU
------END PGP SIGNATURE-----
-
---DmkXRut7/t/4Uxw3--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

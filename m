@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286386AbRLJVEu>; Mon, 10 Dec 2001 16:04:50 -0500
+	id <S286383AbRLJVFu>; Mon, 10 Dec 2001 16:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286385AbRLJVEk>; Mon, 10 Dec 2001 16:04:40 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:56594 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S286383AbRLJVET>; Mon, 10 Dec 2001 16:04:19 -0500
-Date: Mon, 10 Dec 2001 16:04:28 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@marabou.research.att.com>
-To: <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@redhat.com>
-Subject: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
-Message-ID: <Pine.LNX.4.33.0112101546260.1647-100000@marabou.research.att.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286388AbRLJVFq>; Mon, 10 Dec 2001 16:05:46 -0500
+Received: from mtiwmhc26.worldnet.att.net ([204.127.131.51]:24312 "EHLO
+	mtiwmhc26.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S286383AbRLJVF3>; Mon, 10 Dec 2001 16:05:29 -0500
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+From: Cory Bell <cory.bell@usa.net>
+To: John Clemens <john@deater.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
+In-Reply-To: <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Dec 2001 12:56:00 -0800
+Message-Id: <1008017762.17062.16.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Alan and all!
+On Mon, 2001-12-10 at 07:26, John Clemens wrote:
+> I've updated my bios on my Pavilion N5430 and guess what is shows on
+> the bios boot screen (if you disable the bios splash screen)... Omnibook
+> XE3.  They are one in the same, at least model number wise.  weird,
+> considering there are no AMD omnibooks..
 
-File drivers/scsi/fdomain.h declares a data structure FDOMAIN_16X0 using
-an undeclared function fdomain_16x0_release() in Linux 2.4.17-pre7.
+The DMI info is suspiciously similar to ours, as well. Same "Board
+Version"...
 
-This is not a problem for the kernel itself, but it breaks compilation of
-pcmcia-cs-3.1.30 because the later uses structure FDOMAIN_16X0.
+> Good luck.. I emailed HP support, and got the "we're forwarding your
+> request to the BIOS people".. and that was 4 months ago.
 
-The fix is trivial - declare fdomain_16x0_release() the same way as other
-non-static functions from fdomain.c.
+They never gave you a case number?
 
-Another partly related problem is a warning in fdomain.c:
+> Ohh, and Marcelo accepted the K7/SSE patch for 2.4.17, so no need for that
+> patch anymore..
 
-fdomain.c: In function `fdomain_16x0_release':
-fdomain.c:2045: warning: control reaches end of non-void function
+Woohoo!
 
-I wonder if the patches that introduce warnings should be allowed in the 
-stable branch?  Anyway, comparing with other SCSI drivers I see that 0 
-should be returned and scsi_unregister(shpnt) should be called before 
-that.
+> I will try the ACPI PCI routing stuff if i get time tonight (don't have
+> access to the machine right now).
 
-Here's the patch.  The part for fdomain.h is 100% safe and should be
-applied ASAP.  The part for fdomain.c should be safe too but I'll
-appreciate if somebody tests it on a real Future Domain controller.
+For me, the new ACPI didn't help (just had the same table, USB on IRQ
+9). And, of course, it doesn't actually do the routing, just displays it
+(for now).
 
-------------------------------
---- linux.orig/drivers/scsi/fdomain.c
-+++ linux/drivers/scsi/fdomain.c
-@@ -2042,6 +2042,8 @@ int fdomain_16x0_release(struct Scsi_Hos
- 	if (shpnt->io_port && shpnt->n_io_port)
- 		release_region(shpnt->io_port, shpnt->n_io_port);
- 
-+	scsi_unregister(shpnt);
-+	return 0;
- }
- 
- MODULE_LICENSE("GPL");
---- linux.orig/drivers/scsi/fdomain.h
-+++ linux/drivers/scsi/fdomain.h
-@@ -34,6 +34,7 @@
- int        fdomain_16x0_biosparam( Disk *, kdev_t, int * );
- int        fdomain_16x0_proc_info( char *buffer, char **start, off_t offset,
- 				   int length, int hostno, int inout );
-+int        fdomain_16x0_release(struct Scsi_Host *shpnt);
- 
- #define FDOMAIN_16X0 { proc_info:      fdomain_16x0_proc_info,           \
- 		       detect:         fdomain_16x0_detect,              \
-------------------------------
+I'm leaning toward the "Stolen from Kai" patch over the "stolen from
+you" patch. Seems a bit less hackish, and IMHO, the "correct" behavior
+anyway (honoring the irq mask). Of course, that could bite us on PIR
+tables with bad masks. Thoughts?
 
--- 
-Regards,
-Pavel Roskin
+-Cory
 

@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262721AbSJLCYa>; Fri, 11 Oct 2002 22:24:30 -0400
+	id <S262702AbSJLCV1>; Fri, 11 Oct 2002 22:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262728AbSJLCYa>; Fri, 11 Oct 2002 22:24:30 -0400
-Received: from cpe.atm4-0-51259.0x50a02f76.odnxx3.customer.tele.dk ([80.160.47.118]:16286
-	"EHLO gw.sparre.dk") by vger.kernel.org with ESMTP
-	id <S262721AbSJLCY2>; Fri, 11 Oct 2002 22:24:28 -0400
-Message-ID: <3DA78926.FB2299A@sparre.dk>
-Date: Sat, 12 Oct 2002 04:29:58 +0200
-From: Ole Husgaard <osh@sparre.dk>
-Organization: Sparre Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: da, en, de, sv, no
+	id <S262720AbSJLCV1>; Fri, 11 Oct 2002 22:21:27 -0400
+Received: from fastmail.fm ([209.61.183.86]:22167 "EHLO www.fastmail.fm")
+	by vger.kernel.org with ESMTP id <S262702AbSJLCV0>;
+	Fri, 11 Oct 2002 22:21:26 -0400
+X-Mail-from: robm@fastmail.fm
+X-Spam-score: -0.1
+X-Epoch: 1034389625
+X-Sasl-enc: y7zgfTsPEFYn7WPwMHq51w
+Message-ID: <0f4301c27196$af8a8880$1900a8c0@lifebook>
+From: "Rob Mueller" <robm@fastmail.fm>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>, "Jeremy Howard" <jhoward@fastmail.fm>
+References: <0f3201c2718c$750a13b0$1900a8c0@lifebook> <3DA77A20.2D28DBE7@digeo.com>
+Subject: Re: Strange load spikes on 2.4.19 kernel
+Date: Sat, 12 Oct 2002 12:25:47 +1000
 MIME-Version: 1.0
-To: bidulock@openss7.org
-CC: Christoph Hellwig <hch@infradead.org>, David Grothe <dave@gcom.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
-Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
-References: <5.1.0.14.2.20021010115616.04a0de70@localhost> <4386E3211F1@vcnet.vc.cvut.cz> <5.1.0.14.2.20021010115616.04a0de70@localhost> <20021010182740.A23908@infradead.org> <5.1.0.14.2.20021010140426.0271c6a0@localhost> <20021011180209.A30671@infradead.org> <20021011142657.B32421@openss7.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brian F. G. Bidulock" wrote:
-> On Fri, 11 Oct 2002, Christoph Hellwig wrote:
-> > It is not.  Sys_call_table was exported to allow iBCS/Linux-ABI
-> 
-> I don't know if it matters, but these two calls putpmsg and getpmsg
-> are the calls used by iBCS.
 
-AFAIK, iBCS use these syscalls to emulate TLI, and iBCS
-only has this emulation working for the IP protocol suite.
+> > Filesystem is ext3 with one big / partition (that's a mistake
+> > we won't repeat, but too late now). This should be mounted
+> > with data=journal given the kernel command line above, though
+> > it's a bit hard to tell from the dmesg log:
+> >
+>
+> It's possible tht the journal keeps on filling.  When that happens,
+> everything has to wait for writeback into the main filesystem.
+> Completion of that writeback frees up journal space and then everything
+> can unblock.
+>
+> Suggest you try data=ordered.
 
-LiS is hooking the same syscalls, and is more protocol
-independent.
+We have a 192M journal, and from the dmesg log it's saying that it's got a 5
+second flush interval, so I can't imagine that the journal is filling, but
+we'll try it and see I guess.
 
-In this way, iBCS and LiS are competing projects, even
-if their base objectives are very different (iBCS aims
-for user-level binary portability from SysV, while LiS
-aims for kernel-level STREAMS code portability from SysV
-to extend to Linux).
+What I don't understand is why the spike is so sudden, and decays so slowly.
+It's Friday night now, so the load is fairly low. I setup a loop to dump
+uptime information every 10 seconds and attached the result below. It's
+running smoothly, then 'bam', it's hit with something big, which then slowly
+decays off.
 
-> No, I don't think anyone wants proprietary syscalls to be registered
-> with this facility.  If _GPL can allow an LGPL module to use the
-> facility without problems, that will be the best way to go.
+A few extra things:
+1. It happens every couple of minutes or so, but not exactly on any time, so
+it's not a cron job or anything
+2. Viewing 'top', there are no extra processes obviously running when it
+happens
 
-An LGPL module with proprietary code linked into it will
-taint the kernel. LiS is often linked with proprietary
-code, since it is under LGPL.
+Rob
 
-IMHO, A not-GPL-only export from the kernel is needed
-here.
-
-That will not make these syscalls proprietary. Even with
-proprietary drivers linked into LiS, it is impossible to
-deviate from the SysV definition of putpmsg/getpmsg
-unless the code of LiS itself is modified.
-
-Best Regards,
-
-Ole Husgaard.

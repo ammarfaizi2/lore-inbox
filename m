@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129258AbRBSC4m>; Sun, 18 Feb 2001 21:56:42 -0500
+	id <S129440AbRBSD3U>; Sun, 18 Feb 2001 22:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129440AbRBSC4d>; Sun, 18 Feb 2001 21:56:33 -0500
-Received: from adsl-64-163-64-74.dsl.snfc21.pacbell.net ([64.163.64.74]:41220
-	"EHLO konerding.com") by vger.kernel.org with ESMTP
-	id <S129258AbRBSC4X>; Sun, 18 Feb 2001 21:56:23 -0500
-Message-Id: <200102190256.f1J2uIs23040@konerding.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4 
-In-Reply-To: Your message of "Mon, 19 Feb 2001 11:37:54 +1100."
-             <14992.27362.114723.93990@notabene.cse.unsw.edu.au> 
-Date: Sun, 18 Feb 2001 18:56:18 -0800
-From: dek_ml@konerding.com
+	id <S129991AbRBSD3K>; Sun, 18 Feb 2001 22:29:10 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:13843 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S129440AbRBSD3F>;
+	Sun, 18 Feb 2001 22:29:05 -0500
+Date: Sun, 18 Feb 2001 22:29:03 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Dan Hollis <goemon@anime.net>
+Cc: brian@worldcontrol.com, linux-kernel@vger.kernel.org
+Subject: [OT] Re: Money stifles innovation
+Message-ID: <20010218222903.A32459@xi.linuxpower.cx>
+In-Reply-To: <20010218140839.A14166@top.worldcontrol.com> <Pine.LNX.4.30.0102181745310.18324-100000@anime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <Pine.LNX.4.30.0102181745310.18324-100000@anime.net>; from goemon@anime.net on Sun, Feb 18, 2001 at 05:47:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown writes:
->On Sunday February 18, dek_ml@konerding.com wrote:
->> 
->> Hi,
->> 
->> I migrated some exported disks over to reiserfs and had no luck when I
->> mounted the disk via NFS on another machine.  I've noticed many messages
->> about reiser and NFS in the archives, but my understanding was that
->> it had been cleared up.  In particular, the Configure.help in 2.4.2-pre4
->> says "reiserfs can be used for anything that ext2 can be used for".
->
->
->If you go to
->
->  http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.2-pre3/
->
->and pick up patch-B-nfsdops and patch-C-reisernfs
->you should get reasonable nfs service for reiserfs.
->Note that this is not final code though.  The format of the filehandle
->will probably change shortly as it doesn't currently contain a
->generation number.
->A similar patch is available somewhere under www.namesys.com I
->believe.
+On Sun, Feb 18, 2001 at 05:47:10PM -0800, Dan Hollis wrote:
+> On Sun, 18 Feb 2001 brian@worldcontrol.com wrote:
+> > On Sun, Feb 18, 2001 at 12:57:14AM -0800, Dan Hollis wrote:
+> > > The XOR patent and the fraudulent enforcement of it is the purest
+> > > embodiment of everything that is wrong with the patent system and IP law.
+> > As a person with a some decades of experience with patents and
+> > trademarks, and playing among the various sides, I can state
+> > quite unequivocally that the problem is money.
+> 
+> Actually the problem is lack of morals and bad people who are really evil
+> at the core (you wouldnt want them for your neighbor).
 
-OK, I grabbed these patches and applied them against 2.4.2-pre4 and
-recompiled, rebooted.  I am now able to use reiserfs with NFS,
-basic operations appear to work as expected but I haven't done large amounts
-of file IO or lots of concurrent requests.  
+Actually, it's because we've made it illegal to corporations to behave
+ethically when it conflicts with short-term shareholder profits.
 
-What is the plan with regards to these patches, or ones like it, making it into
-the distribution?  I noticedAlan Cox just posted the following:
+http://www.ratical.com/corporations/
 
->The configure.help is wrong on that and one other thing. NFS doesnt work
->without extra patches and big endian boxes dont work with reiserfs currently
->Chris - would it be worth sending me a patch that notes the NFS thing in
->Configure.help and includes the patch url ?
-
-which suggests that the Configure.help mis-statement is going to be corrected but
-doesn't imply the fix is going in any time soon.  I think NFS over Reiser is going
-to be interesting to people who are running big fileservers, so if this patch
-really does fix it (without breaking anything else) then itwould make sense for it
-to go in.
-
-Dave
+It would be nice if it were so simple as to declare the involved parties as
+evil.

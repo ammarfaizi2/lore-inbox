@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318118AbSHZO3S>; Mon, 26 Aug 2002 10:29:18 -0400
+	id <S318124AbSHZOhm>; Mon, 26 Aug 2002 10:37:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318121AbSHZO3S>; Mon, 26 Aug 2002 10:29:18 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:51717 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318117AbSHZO3R>; Mon, 26 Aug 2002 10:29:17 -0400
-Date: Mon, 26 Aug 2002 16:27:13 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "John D. Coleman" <jdc843@sccoast.net>
-Cc: hjl@gnu.ai.mit.edu, linux-kernel@vger.kernel.org, elenstev@mesatop.com,
-       gnu@gnu.org
-Subject: Re: I have a question about packages of programs
-Message-ID: <20020826142713.GU1529@louise.pinerecords.com>
-References: <3D69AA46.52A2E895@sccoast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D69AA46.52A2E895@sccoast.net>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 4:20
+	id <S318121AbSHZOhl>; Mon, 26 Aug 2002 10:37:41 -0400
+Received: from windsormachine.com ([206.48.122.28]:37130 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S318117AbSHZOhk>; Mon, 26 Aug 2002 10:37:40 -0400
+Date: Mon, 26 Aug 2002 10:41:55 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-ppp@vger.kernel.org>
+cc: <linux-kernel@vger.kernel.org>, <debian-user@lists.debian.org>
+Subject: PPP problems I was having
+Message-ID: <Pine.LNX.4.33.0208261036030.10194-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because my first project is going to be a major
-> overhaul of the make and/or automake programs. That ./configure
-> --prefix=whatever -- src=here command-line-only-interface has got to go.
+Well, I went out and swapped the PCI 3com Sportster modem with another
+spare ISA Sportster I had lying around.  Set it up, same problem of
+persist option not working properly.
+Looking through the syslog again, I noticed this...
 
-Rik was more than polite in his response to this paragraph.
-My comment would be more to the point of "Don't judge stuff
-until you've understood it."
+Aug 26 08:42:32 tilburybackup pppd[330]: Connect time 0.9 minutes.
+Aug 26 08:42:32 tilburybackup pppd[330]: Sent 87 bytes, received 72 bytes.
+Aug 26 08:42:32 tilburybackup pppd[330]: Couldn't release PPP unit: Invalid argument
+Aug 26 08:42:33 tilburybackup pppd[330]: Script /etc/ppp/ip-down finished (pid 862), status = 0x1
+Aug 26 08:43:27 tilburybackup pppd[330]: Serial connection established.
+Aug 26 08:43:27 tilburybackup pppd[330]: using channel 2
+Aug 26 08:43:27 tilburybackup pppd[330]: Couldn't create new ppp unit: Inappropriate ioctl for device
+Aug 26 08:43:28 tilburybackup pppd[330]: Hangup (SIGHUP)
 
-> Having to read upwards of ten or more different documents, scattered in
-> what could be several subdirectories, just to find out what all of the
-> configure switches are is a real pain in the butt. Is anyone out there
-> using anything other than a CRT/monitor with Linux nowadays to compile
-> programs ?
+Furthermore, everytime it tries to reconnect, it increases the channel
+count.  As well, this invalid argument on the release PPP unit seems odd.
 
-Yes. Serial terminals, telnet sessions, hercules monitors serving as
-secondary heads, ... And believe it or not, lots of people prefer the
-classic VGA 80x25 textmode to do their work even on high-end 21" screens.
-In fact anyone who's tried to convince me that having white background
-all over the userland (Hello MS Visual C GUI) is actually _ergonomic_
-failed miserably. (Ever had a headache from staring into high res graphics
-with bright backgrounds? Suppose you've had, just like everyone else.)
+I did find a way to get around having to wait 6 hours for the ISP to
+hangup.  Just pulling the phone cable, letting it time out and attempt to
+shut down, and then plugging the cable back in, works.
 
-T.
+I finally did a work around:
+
+
+tilburybackup:/etc/ppp/ip-down.d# cat reset
+#!/bin/sh
+if [ $PPP_TTY == "/dev/ttyS4" ]; then
+        poff chatham
+        pon chatham
+fi
+
+
+This fixes it for now(as poff shuts it down cleanly, but pppd's persist is
+fubar)
+
+Ideas?
+
+Still running 2.4.19 with pppd 2.4.1
+
+If I get desperate enough, I'll go try 2.2.21 the next time I'm in the
+area of this facility, to see if it's pppd 2.4.1, or the 2.4.19 kernel
+that's causing it.
+
+Mike
+

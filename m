@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267700AbUIOXFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267713AbUIOWod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267700AbUIOXFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267730AbUIOXFG
+	id S267713AbUIOWod (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 18:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267739AbUIOWnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:05:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31633 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267700AbUIOXCw (ORCPT
+	Wed, 15 Sep 2004 18:43:08 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:36363 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S267721AbUIOWmh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 19:02:52 -0400
-Date: Wed, 15 Sep 2004 16:05:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: adilger@clusterfs.com, mbligh@aracnet.com, anton@samba.org,
-       linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: offtopic: how to break huge patch into smaller independent
- patches?
-Message-Id: <20040915160554.6d8350ca.akpm@osdl.org>
-In-Reply-To: <4147C6D6.30508@nortelnetworks.com>
-References: <41474B15.8040302@nortelnetworks.com>
-	<20040915002023.GD5615@krispykreme>
-	<119340000.1095209242@flay>
-	<414799D1.7050609@nortelnetworks.com>
-	<20040915014711.GA30607@schnapps.adilger.int>
-	<4147C6D6.30508@nortelnetworks.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 18:42:37 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+Date: Wed, 15 Sep 2004 15:42:19 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F96E2@hqemmail02.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+Thread-Index: AcSbc27pm3lSQbAiQQOmUQyxWTcFCAAATW7g
+From: "Andrew Chew" <AChew@nvidia.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
+Cc: "Zwane Mwaikambo" <zwane@fsmlabs.com>, <linux-kernel@vger.kernel.org>,
+       <ak@suse.de>, <wli@holomorphy.com>
+X-OriginalArrivalTime: 15 Sep 2004 22:42:22.0666 (UTC) FILETIME=[43F27AA0:01C49B75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortelnetworks.com> wrote:
->
-> Andreas Dilger wrote:
-> 
-> > Consider using a source-control tool next time ;-/.  
-> 
-> We used a source control tool.  Its just not very useful when people do a port 
-> from one kernel version to the next and submit it as one giant patch against the 
-> new kernel rather than new versions of the original individual patches.
-> 
-> I'm the one planning how to avoid this problem in our next development cycle.
-> 
+> > If you enable profiling and frame pointers, profile_pc() goes splat 
+> > dereferencing the `regs' argument when it decides that the 
+> pc refers 
+> > to a lock section.  Ingo said `regs' had a value of 0x2, iirc.  
+> > Consider this a bug report ;)
 
-What others said.
-
-Once you apply those patches to your baseline tree you're dead.  If your
-primary revision-controlled objects are baseline+patch1+patch2+...+patchN
-then life is much simpler when some smarty decides to uprev baseline.
+I've been seeing this as well, although I'm pretty sure I have profiling
+disabled.  Are you sure it isn't the combination of SMP support and
+frame pointers that causes this bug to occur? (It looks like
+profile_pc() takes on a different implementation only if both CONFIG_SMP
+and CONFIG_FRAME_POINTER is defined.)

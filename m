@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVCYI5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVCYJHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVCYI5L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 03:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVCYI5L
+	id S261554AbVCYJHx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 04:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCYJHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 03:57:11 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13276 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261548AbVCYI5I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 03:57:08 -0500
-Date: Fri, 25 Mar 2005 09:53:09 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Airlie <airlied@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.6.12-rc1-mm2: crash in drm_agp_init
-Message-ID: <20050325085306.GA1366@elf.ucw.cz>
-References: <20050325083035.GA1335@elf.ucw.cz> <21d7e99705032500434957cd97@mail.gmail.com>
+	Fri, 25 Mar 2005 04:07:53 -0500
+Received: from mail.renesas.com ([202.234.163.13]:8645 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261554AbVCYJHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 04:07:43 -0500
+Date: Fri, 25 Mar 2005 18:07:36 +0900 (JST)
+Message-Id: <20050325.180736.1021580554.takata.hirokazu@renesas.com>
+To: rmk+lkml@arm.linux.org.uk
+Cc: takata@linux-m32r.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Bitrotting serial drivers
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20050324121746.A4189@flint.arm.linux.org.uk>
+References: <20050319172101.C23907@flint.arm.linux.org.uk>
+	<20050324.191424.233669632.takata.hirokazu@renesas.com>
+	<20050324121746.A4189@flint.arm.linux.org.uk>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e99705032500434957cd97@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > ..with -rc1-mm2 I get crash during bootup, in some function called
-> > from drm_agp_init. I'm turned off CONFIG_AGP for now, and machine now
-> > boots as expected.
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+Date: Thu, 24 Mar 2005 12:17:46 +0000
+> On Thu, Mar 24, 2005 at 07:14:24PM +0900, Hirokazu Takata wrote:
+> > Could you please accept the following patch?
 > 
-> try -mm3 we had a bit of a patch clash between myself, Davej and
-> Adrian, I think -mm3 has all the fixes in it ..
+> Probably, but I'd like to have a reply to my comments below first.
+> 
+> > diff -ruNp a/include/asm-m32r/serial.h b/include/asm-m32r/serial.h
+> > --- a/include/asm-m32r/serial.h	2004-12-25 06:35:40.000000000 +0900
+> > +++ b/include/asm-m32r/serial.h	2005-03-24 17:25:05.812651363 +0900
+> 
+> Can m32r accept PCMCIA cards?  If so, this may mean that 8250.c gets
+> built, which will use this file to determine where it should look for
+> built-in 8250 ports.
+> 
+> If this file is used to describe non-8250 compatible ports, you could
+> end up with a nasty mess.  Therefore, I recommend that you do not use
+> asm-m32r/serial.h to describe your SIO ports.
 
-Thanks for the info and sorry for the noise. (Why does -mm2 kernel have
-tendency to appear within hour from me downloading -mm1? It happened
-two times now...)
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I understand.
+
+You mean I have to keep 8250.c buildable for PCMCIA serial cards, 
+if I make use of both m32r_sio and 8250 compatible drivers at a time, right?
+
+> Instead, since these definitions are private to your own driver, you
+> may consider moving them into the driver, or a header file closely
+> associated with your driver in drivers/serial.
+
+I will try to move these definitions into the m32r_sio driver.
+Please just a moment, I have no time to do it now...
+
+Thank you.
+
+-- Takata

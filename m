@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbTBQCSl>; Sun, 16 Feb 2003 21:18:41 -0500
+	id <S265754AbTBQCTJ>; Sun, 16 Feb 2003 21:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbTBQCSl>; Sun, 16 Feb 2003 21:18:41 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:52099 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S265230AbTBQCSi>; Sun, 16 Feb 2003 21:18:38 -0500
-Message-ID: <3E50491C.2030901@didntduck.org>
-Date: Sun, 16 Feb 2003 21:29:48 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Move __this_module to xxx.mod.c
-References: <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu>
-In-Reply-To: <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265587AbTBQCTJ>; Sun, 16 Feb 2003 21:19:09 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:18844 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S265754AbTBQCTH>; Sun, 16 Feb 2003 21:19:07 -0500
+Date: Sun, 16 Feb 2003 21:28:59 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+Message-ID: <20030217022858.GA25539@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0302141751220.988-100000@blue1.dev.mcafeelabs.com> <Pine.LNX.4.44.0302151202020.11840-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302151202020.11840-100000@home.transmeta.com>
+User-Agent: Mutt/1.5.3i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
+On Sat, Feb 15, 2003 at 12:08:10PM -0800, Linus Torvalds wrote:
+> it could. It still uses multiple allocations, doing a _separate_
+> allocation for the small "pipe_inode_info" instead of doing the embedding 
+> trick.
 
-> On Sun, 16 Feb 2003, Brian Gerst wrote:
->
->
-> >This patch moves the module structure to the generated .mod.c file,
-> >instead of compiling it into each object and relying on the linker to
-> >include it only once.
->
->
-> Yeah, it's something I though about doing, but I was not sure. I think
-> it's up to Rusty to comment ;)
->
-> It will need an associated change to module_init_tools.
->
-> Another comment:
->
-> diff -urN linux-2.5.61-bk1/scripts/modpost.c linux/scripts/modpost.c
-> --- linux-2.5.61-bk1/scripts/modpost.c	2003-02-16 10:06:35.000000000 -0500
-> +++ linux/scripts/modpost.c	2003-02-16 14:10:19.000000000 -0500
-> @@ -287,6 +287,10 @@
->  		/* undefined symbol */
->  		if (ELF_ST_BIND(sym->st_info) != STB_GLOBAL)
->  			break;
-> +
-> +		/* ignore __this_module */
-> +		if (!strcmp(symname, "__this_module"))
-> +			break;
->  		
->  		s = alloc_symbol(symname);
->  		/* add to list */
->
-> Is that necessary? __this_module shouldn't be unresolved, so this case
-> should never be hit AFAICS.
+I believe that is because of named pipes. These are sharing the inode
+with the filesystem in which the named pipe is stored.
 
-After the definition is removed from module.h, it is unresolved before 
-it is linked to xxx.mod.c.
-
---
-				Brian Gerst
-
+Jan

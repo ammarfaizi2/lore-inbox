@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269267AbUJQTdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269301AbUJQTe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269267AbUJQTdq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 15:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269285AbUJQTdp
+	id S269301AbUJQTe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 15:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269285AbUJQTeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 15:33:45 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:15734 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S269267AbUJQTdW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 15:33:22 -0400
-Date: Sun, 17 Oct 2004 23:33:34 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Cc: Martin Waitz <tali@admingilde.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1: initramfs build fix [u]
-Message-ID: <20041017213334.GA8214@mars.ravnborg.org>
-Mail-Followup-To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>,
-	Martin Waitz <tali@admingilde.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20041011032502.299dc88d.akpm@osdl.org> <20041017161554.GD10532@admingilde.org> <1098034147.879.21.camel@nosferatu.lan>
+	Sun, 17 Oct 2004 15:34:04 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:33869 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269272AbUJQTda (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 15:33:30 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aWUuTZ4wjzZhhxyn70dnRZQLbcr7Gwi91+OaUXRCflfV6OAGQyXTt1stg+fvLm9CC380o82RbVfe0TTnxPm+vZnpM9zLjuzLqznQeMsfTfjPpKUnO58M43KNHjwAgmrCWSAbrnbRUbngQKFqloK22MRr38ZON1fncms/3hnSfLc
+Message-ID: <5d6b657504101712336468303c@mail.gmail.com>
+Date: Sun, 17 Oct 2004 21:33:27 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Martijn Sipkema <martijn@entmoot.nl>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Cc: Lars Marowsky-Bree <lmb@suse.de>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <002b01c4b483$b2bef130$161b14ac@boromir>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098034147.879.21.camel@nosferatu.lan>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041016062512.GA17971@mark.mielke.cc>
+	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
+	 <20041017133537.GL7468@marowsky-bree.de>
+	 <5d6b657504101707175aab0fcb@mail.gmail.com>
+	 <20041017150509.GC10280@mark.mielke.cc>
+	 <5d6b65750410170840c80c314@mail.gmail.com>
+	 <000801c4b46f$b62034b0$161b14ac@boromir>
+	 <5d6b65750410171033d9d83ab@mail.gmail.com>
+	 <002b01c4b483$b2bef130$161b14ac@boromir>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin.
+On Sun, 17 Oct 2004 20:58:39 +0100, Martijn Sipkema <martijn@entmoot.nl> wrote:
+> >
+> > But then I am one of those who thinks it's sane to check for
+> > EWOULDBLOCK on a nonblocking socket after blocking in select().
+> 
+> A POSIX comliant implementation would never do this.
 
-Can you submit a new version based on Linus' tree with the following modifications:
-1) Propoer changelog
-2) Document use of .shipped somewhere
+Here's your own quote, from a couple of hundred mails ago:
 
-And the following small comments.
+> According to POSIX:
 
+> A descriptor shall be considered ready for reading when a call to an
+>  input function with O_NONBLOCK clear would not block, whether or not
+>  the function would transfer data successfully.
 
->  # or set INITRAMFS_LIST to another filename.
-> -INITRAMFS_LIST ?= $(obj)/initramfs_list
-> +INITRAMFS_LIST := $(obj)/initramfs_list
+You concluded from this that, if select() says a descriptor is
+readable, the subsequent recvmsg() must not block. The point is, from
+your quote I cannot deduct anything but: a recvmsg() on a descriptor
+that is readable must not block -- which makes perfect sense.
 
-Kbuild style is to reser all-uppercase to external visible variables.
+But unless POSIX also says something about the conservability of
+"readability" of descriptors, specifically in between select() and
+recvmsg(), your conclusion is just wrong.
 
->  # initramfs_data.o contains the initramfs_data.cpio.gz image.
->  # The image is included using .incbin, a dependency which is not
-> @@ -23,6 +23,23 @@ $(obj)/initramfs_data.o: $(obj)/initramf
->  # Commented out for now
->  # initramfs-y := $(obj)/root/hello
->  
-> +quiet_cmd_gen_list = GEN_INITRAMFS_LIST $@
-Please aling output properly with rest of kbuild output.
-> +quiet_cmd_gen_list = GEN     $@
-Should be enough - the filename give some context as well
+> > Let's just document this and move on to something more important.
+> 
+> It actually _is_ important. Just implement select() and recvmsg() as
+> described in the standard.
 
-> +      cmd_gen_list = $(shell \
-> +        if test -f "$(CONFIG_INITRAMFS_SOURCE)"; then \
-> +	  if [ "$(CONFIG_INITRAMFS_SOURCE)" != $@ ]; then \
-> +	    echo 'cp -f "$(CONFIG_INITRAMFS_SOURCE)" $@'; \
-> +	  else \
-> +	    echo 'cp -f "$(srctree)/$(INITRAMFS_LIST).shipped" $@'; \
-Test for .shipped to be present first?
+I am very glad Linux makes sane decisions while trying to adhere to
+the standards as much as possible.
 
 
-> +	  fi; \
-> +	elif test -d "$(CONFIG_INITRAMFS_SOURCE)"; then \
-> +	  echo 'scripts/gen_initramfs_list.sh "$(CONFIG_INITRAMFS_SOURCE)" > $@'; \
-> +	else \
-> +	  echo 'cp -f "$(srctree)/$(INITRAMFS_LIST).shipped" $@'; \
-Same here.
-
-> +	fi)
-> +
-> +$(INITRAMFS_LIST): FORCE
-> +	$(call cmd,gen_list)
-
-How do you secure that the list gets updated when some of the above logic changes?
-Likewise avoid the list to be generated unles required.
-
-	Sam
+Cheers,
+Buddy

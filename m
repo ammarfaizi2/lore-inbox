@@ -1,93 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268794AbTBZPUW>; Wed, 26 Feb 2003 10:20:22 -0500
+	id <S268779AbTBZPP7>; Wed, 26 Feb 2003 10:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268795AbTBZPUW>; Wed, 26 Feb 2003 10:20:22 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:2053 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S268794AbTBZPUU> convert rfc822-to-8bit; Wed, 26 Feb 2003 10:20:20 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
-Date: Wed, 26 Feb 2003 09:29:56 -0600
-Message-ID: <DC900CF28D03B745B2859A0E084F044D043506DD@cceexc19.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
-Thread-Index: AcLdZJaw1xsXJsVxQMKlzJ0tWdnVgQARM0GA
-From: "Rhodes, Tom" <tom.rhodes@hp.com>
-To: <jbourne@mtroyal.ab.ca>, <zaitcev@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Feb 2003 15:30:03.0299 (UTC) FILETIME=[EEA8EF30:01C2DDAB]
+	id <S268780AbTBZPP7>; Wed, 26 Feb 2003 10:15:59 -0500
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:44268 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S268779AbTBZPP6>; Wed, 26 Feb 2003 10:15:58 -0500
+Subject: Re: [PATCH] 2.5.63-current replace its with it's where appropriate.
+From: Steven Cole <elenstev@mesatop.com>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200302261200.h1QC0gs23846@Port.imtp.ilyichevsk.odessa.ua>
+References: <1046227493.7527.272.camel@spc1.mesatop.com> 
+	<200302261200.h1QC0gs23846@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 26 Feb 2003 08:22:21 -0700
+Message-Id: <1046272941.6616.194.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> Since sometime in December two systems we have on site using P4 HT
-> (one
-> >> Dell 2650 and one Dell 4600, both dual CPU, both ht/mce capable)
-have
-> been
-> >> locking up without any kernel output and without sysrq keys working
-> (the
-> >> keyboard is locked solid).
-> >>[...]
-> >> Using nmi_watchdog I've managed to get a stack track and ran
-ksymoops
-> over
-> >> it (attached).
+On Wed, 2003-02-26 at 04:57, Denis Vlasenko wrote:
+> On 26 February 2003 04:44, Steven Cole wrote:
+> > This patch replaces its (possessive of it) with it's (it is)
+> > in the following cases where "it is" is meant.
+> >
+> > its a   -> it's a
+> > its an  -> it's an
+> > its not -> it's not
 > 
-> 
-> > Good report. To tell the truth, I know that this lockup exists,
-> > there's an RH issue-tracker item against me on this.
-> 
-> Several of us at HP have been chasing this problem as well. Here is
-why
-> there is a deadlock: deliver_to_old_ones()attempts to stop all timers
-> from running and then blocks until all the timers are no longer
-running.
-> This code is called from netif_receive_skb which is called from
-tg3_poll
-> while it is holding a lock in the tg3 driver. On another CPU, the
-> tg3_timer routine is run but is blocked by the lock held in the
-tg3_poll
-> routine. The tg3_timer routine never finishes because it can't acquire
-> the lock being held by tg3_poll on another CPU. That prevents
-> deliver_to_old_ones from executing because there is still a timer
-> routine executing.
-> 
-> Here is the call stack of the deadlocked CPUs on a RH8.0 system with a
-> 2.4.18-24.8.0 smp kernel:
-> CPU 2:
-> deliver_to_old_ones+45
-> netif_receive_skb
-> tg3_rx+27b
-> tg3_poll+81
-> net_rx_action
-> do_softirq
-> do_IRQ
-> call_do_IRQ
-> 
-> CPU 6:
-> tg3_timer  (tg3+9fc4)
-> run_timer_list+0x112
-> bh_action+55
-> tasklet_hi_action+67
-> do_softirq+d9
-> do_IRQ
-> call_do_IRQ+5
-> 
-Until this is fixed, there are a couple work-arounds:
-- Put the system behind a NAT firewall. This problem is caused by
-another protocol on the wire, probably IPX (Netware).
-- Switch to a non-NAPI driver. Since you're using the BroadComm NIC, try
-the BCM5700 driver or switch to a different NIC.
+> I'd say it's ok to fix misspellings but this apostrophe
+> chasing is a bit too much. What comes next? Patches to fix
+> violations of "two spaces after the dot" rule?
 
-While troubleshooting this problem here at HP, I have a couple of
-systems that have run for over 2 weeks by using the above work-arounds.
+Nope, no spaces after dots changes.  But, how about
+removing unnecessary parenthesis around the expression in the
+return statement, e.g.
+  
+return(-EBUGGYEDITOR); -> return -EBUGGYEDITOR;
+ 
+Just kidding!  I'll leave that for someone more bold or pedantic.
 
-Tom Rhodes
-tom.rhodes@hp.com
+> 
+> Single quotes in comments do confuse gcc _and_ some
+> text editors with syntax highlighting.
+> --
+> vda
+
+I've been careful about the single quotes where it affects gcc.
+Which brings to mind "affect" (usually a verb, with exceptions) versus
+"effect" (usually a noun, with exceptions). ;)
+
+Steven
+

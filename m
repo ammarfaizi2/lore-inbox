@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280531AbRKKUb6>; Sun, 11 Nov 2001 15:31:58 -0500
+	id <S280764AbRKKUnl>; Sun, 11 Nov 2001 15:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280764AbRKKUbt>; Sun, 11 Nov 2001 15:31:49 -0500
-Received: from ns2.wticorp.com ([209.185.218.3]:49925 "HELO
-	exchange.wticorp.com") by vger.kernel.org with SMTP
-	id <S280531AbRKKUbb>; Sun, 11 Nov 2001 15:31:31 -0500
-Message-ID: <3BEEE054.B645C700@wticorp.com>
-Date: Sun, 11 Nov 2001 12:32:20 -0800
-From: Dennis Vadura <dvadura@wticorp.com>
-Organization: Web Tools International
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S281055AbRKKUne>; Sun, 11 Nov 2001 15:43:34 -0500
+Received: from d-dialin-1179.addcom.de ([62.96.163.227]:35566 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S280764AbRKKUnZ>; Sun, 11 Nov 2001 15:43:25 -0500
+Date: Sun, 11 Nov 2001 21:42:34 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Thomas Hood <jdthood@home.dhs.org>
+cc: <linux-kernel@vger.kernel.org>, <jdthood@mail.com>
+Subject: Re: [PATCH] parport_pc to use pnpbios_register_driver()
+In-Reply-To: <20011110053633.D7D8AB70@thanatos.toad.net>
+Message-ID: <Pine.LNX.4.33.0111112134430.1518-100000@vaio>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: Kernel 2.4.14 - drivers/block/loop.c fails to link
-In-Reply-To: <3BEEDE50.9E91BD99@wticorp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deleted reference to deactivate_page. Tested patch by mounting 
-and reading RH 7.2 ISO images and all seemed fine.
+On Sat, 10 Nov 2001, Thomas Hood wrote:
 
---- linux-2.4.14/drivers/block/loop.c   Thu Oct 25 13:58:34 2001
-+++ linux/drivers/block/loop.c  Sun Nov 11 12:01:29 2001
-@@ -207,7 +207,6 @@
-                index++;
-                pos += size;
-                UnlockPage(page);
--               deactivate_page(page);
-                page_cache_release(page);
-        }
-        return 0;
-@@ -218,7 +217,6 @@
-        kunmap(page);
- unlock:
-        UnlockPage(page);
--       deactivate_page(page);
-        page_cache_release(page);
- fail:
-        return -1;
+> > Here's a patch to make parport_pc.c use pnpbios_register_driver()
+> instead of pnpbios_find_device.
+> 
+> 
+> [...]
+>  
+> +#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
+
+linux/isapnp.h has the following code:
+
+---
+#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE))
+ 
+#define __ISAPNP__
+---
+
+I believe the pnpbios driver should do things something similar. Users of 
+the interface should then only check for #ifdef __PNPBIOS__.
+
+The reasoning behind this is the following: When you have a driver 
+built-in, but pnpbios modular, the driver cannot use pnpbios 
+functionality. The above definition reflects exactly this.
+
+(BTW: The drivers using ISAPnP functionality seem to generally get this 
+wrong, I'll look into cleaning this up. In drivers/scsi/aha152x.c it's 
+done right)
+
+--Kai
+
+
+

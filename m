@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264696AbTE1MKU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 08:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbTE1MKU
+	id S264701AbTE1MOz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 08:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbTE1MOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 08:10:20 -0400
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:31751 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id S264696AbTE1MKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 08:10:18 -0400
-Date: Wed, 28 May 2003 14:23:08 +0200
-From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+	Wed, 28 May 2003 08:14:55 -0400
+Received: from web41510.mail.yahoo.com ([66.218.93.93]:32338 "HELO
+	web41510.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264701AbTE1MOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 08:14:53 -0400
+Message-ID: <20030528122809.16175.qmail@web41510.mail.yahoo.com>
+Date: Wed, 28 May 2003 05:28:09 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: inventing the wheel?
 To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Andrew Morton <akpm@digeo.com>, axboe@suse.de, m.c.p@wolk-project.de,
-       kernel@kolivas.org, manish@storadinc.com, andrea@suse.de,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528122308.GC1193@rz.uni-karlsruhe.de>
-Mail-Followup-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-	Andrew Morton <akpm@digeo.com>, axboe@suse.de,
-	m.c.p@wolk-project.de, kernel@kolivas.org, manish@storadinc.com,
-	andrea@suse.de, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-References: <200305281713.24357.kernel@kolivas.org> <20030528071355.GO845@suse.de> <200305280930.48810.m.c.p@wolk-project.de> <20030528073544.GR845@suse.de> <20030528005156.1fda5710.akpm@digeo.com> <20030528101348.GA804@rz.uni-karlsruhe.de> <20030528032315.679e77b0.akpm@digeo.com> <20030528121040.GA1193@rz.uni-karlsruhe.de> <20030528121446.GB1193@rz.uni-karlsruhe.de> <3ED4A9B4.1050907@gmx.net>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3ED3E224.1000402@gmx.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED4A9B4.1050907@gmx.net>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 02:21:08PM +0200, Carl-Daniel Hailfinger wrote:
-> Matthias Mueller wrote:
-> > On Wed, May 28, 2003 at 02:10:40PM +0200, Matthias Mueller wrote:
-> > 
-> >>Tested all of them and some combinations:
-> >>patch 1 alone: still mouse hangs
-> >>patch 2 alone: still mouse hangs
-> >>patch 3 alone: no hangs, but I get some zombie process (starting a lot of
-> >>               xterms results in zombie xterms, not noticed with vanilla
-> >>               and the other patches)
-> >>patch 1+2: no mouse hangs
-> >>patch 1+2+3: no mouse hangs, no zombies
-> > 
-> > 
-> > Forgot to mention: no zombies with patch 1 or 2
-> 
-> So 1+2 gives you zombies?
 
-No, work ok, just forgot to mention that, too. I think I should go to
-sleep...
+--- Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net> wrote:
 
-Matthias
+> It seems everybody is busy trying Linus' sparse
 
--- 
-Matthias.Mueller@rz.uni-karlsruhe.de
-Rechenzentrum Universitaet Karlsruhe
-Abteilung Netze
+I don't get any sensible output out of the test clients provided by
+Linus for sparse - that is I don't see how to construct the syntax treee
+from the output.
+ 
+> Now we only need one additional tool to *prove* correctness
+> -an automatic race finder 
+> Liberal use of these tools should result in the most stable kernel ever.
+
+For a fact, you do have a point.;-(

@@ -1,68 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264844AbUEPBAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264862AbUEPBXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264844AbUEPBAR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 21:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264849AbUEPBAR
+	id S264862AbUEPBXD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 21:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUEPBXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 21:00:17 -0400
-Received: from florence.buici.com ([206.124.142.26]:65162 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264847AbUEPBAK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 21:00:10 -0400
-Date: Sat, 15 May 2004 18:00:08 -0700
-From: Marc Singer <elf@buici.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][DOC] writing IDE driver guidelines
-Message-ID: <20040516010008.GC23743@buici.com>
-References: <200405151923.50343.bzolnier@elka.pw.edu.pl> <20040515173430.GA28873@havoc.gtf.org> <200405151958.03322.bzolnier@elka.pw.edu.pl> <40A69848.9020304@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40A69848.9020304@pobox.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 15 May 2004 21:23:03 -0400
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.68]:41270 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S264858AbUEPBWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 21:22:55 -0400
+Date: Sat, 15 May 2004 21:22:45 -0400
+From: Mathieu Chouquet-Stringer <mchouque@online.fr>
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
+ 3:{EoxBR
+Subject: [PATCH] Fix for 2.6.6 Makefiles to get KBUILD_OUTPUT working
+To: linux-kernel@vger.kernel.org, rth@twiddle.net, linux-alpha@vger.kernel.org,
+       ralf@gnu.org, linux-mips@linux-mips.org, akpm@osdl.org, bjornw@axis.com,
+       dev-etrax@axis.com
+Mail-followup-to: Mathieu Chouquet-Stringer <mchouque@online.fr>,
+ linux-kernel@vger.kernel.org, rth@twiddle.net, linux-alpha@vger.kernel.org,
+ ralf@gnu.org, linux-mips@linux-mips.org, akpm@osdl.org, bjornw@axis.com,
+ dev-etrax@axis.com
+Message-id: <20040516012245.GA11733@localhost>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15, 2004 at 06:23:04PM -0400, Jeff Garzik wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> >On Saturday 15 of May 2004 19:34, Jeff Garzik wrote:
-> >>On Sat, May 15, 2004 at 07:23:50PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> >>>- host drivers should request/release IO resource
-> >>> themelves and set hwif->mmio to 2
-> >>
-> >>Don't you mean, hwif->mmio==2 for MMIO hardware?
-> >
-> >
-> >It is was historically for MMIO, now it means that driver
-> >handles IO resource itself (per comment in <linux/ide.h>).
-> 
-> Maybe then create a constant HOST_IO_RESOURCES (value==2) to make that 
-> more obvious?
-> 
+	Hi,
 
-Please allow me to advocate for the naive.
+if you use O=/someotherdir or KBUILD_OUTPUT=/someotherdir on the following
+architectures: alpha, mips, sh and cris, the build process is probably
+going to fail at one point or another, depending on the target you used,
+because make can't find scripts/Makefile.build or scripts/Makefile.clean.
 
-While I do not in favor of lengthy commented discourses within the
-code for all of the usual reasons, I do believe that interface
-documentation is always welcome.  It encourages everyone to learn and
-follow the rules.  It allows the subsystem maintainer to establish a
-boundary so that accessing lower-level structures are left alone.
+The following patch (which should apply cleanly to the latest 2.6.6 bk
+tree) fixes this, I greped the whole tree and these four were the only
+"offenders" I found.
 
-I'm not talking about a HOWTO as we know it.  Let's look at this mmio
-flag.  How about writing this at a very minimum.
+PS: Andrew I mailed you because I couldn't find the maintainer for the sh
+    port and you're the last who touched arch/sh/Makefile
 
-  	int mmio; /* 0: iommio; <insert appropriate direction */
-		  /* 2: custom; driver must reserve & release system resources */
-		  
+--- arch/alpha/Makefile.orig	2004-05-15 20:46:06.000000000 -0400
++++ arch/alpha/Makefile	2004-05-15 20:47:52.000000000 -0400
+@@ -106,10 +106,10 @@ boot := arch/alpha/boot
+ all boot: $(boot)/vmlinux.gz
+ 
+ $(boot)/vmlinux.gz: vmlinux
+-	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
++	$(Q)$(MAKE) $(build)=$(boot) $@
+ 
+ bootimage bootpfile bootpzfile: vmlinux
+-	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $(boot)/$@
++	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+ 
+ 
+ prepare: include/asm-$(ARCH)/asm_offsets.h
+@@ -121,7 +121,7 @@ include/asm-$(ARCH)/asm_offsets.h: arch/
+ 	$(call filechk,gen-asm-offsets)
+ 
+ archclean:
+-	$(Q)$(MAKE) -f scripts/Makefile.clean obj=$(boot)
++	$(Q)$(MAKE) $(clean)=$(boot)
+ 
+ CLEAN_FILES += include/asm-$(ARCH)/asm_offsets.h
+ 
+--- arch/mips/Makefile.orig	2004-05-15 20:48:52.000000000 -0400
++++ arch/mips/Makefile	2004-05-15 20:49:58.000000000 -0400
+@@ -686,7 +686,7 @@ vmlinux.64: vmlinux
+ 		--change-addresses=0xa800000080000000 $< $@
+ endif
+ 
+-makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/mips/boot $(1)
++makeboot =$(Q)$(MAKE) $(build)=arch/mips/boot $(1)
+ 
+ ifdef CONFIG_SGI_IP27
+ all:	vmlinux.64
+@@ -708,9 +708,9 @@ CLEAN_FILES += vmlinux.ecoff \
+ 	       vmlinux.rm200
+ 
+ archclean:
+-	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/boot
+-	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/baget
+-	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/lasat
++	@$(MAKE) $(clean)=arch/mips/boot
++	@$(MAKE) $(clean)=arch/mips/baget
++	@$(MAKE) $(clean)=arch/mips/lasat
+ 
+ # Generate <asm/offset.h 
+ #
+--- arch/sh/boot/Makefile.orig	2004-05-15 20:50:11.000000000 -0400
++++ arch/sh/boot/Makefile	2004-05-15 20:50:41.000000000 -0400
+@@ -16,5 +16,5 @@ $(obj)/zImage: $(obj)/compressed/vmlinux
+ 	@echo 'Kernel: $@ is ready'
+ 
+ $(obj)/compressed/vmlinux: FORCE
+-	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(obj)/compressed $@
++	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
+ 
+--- arch/cris/Makefile.orig	2004-05-15 20:59:49.000000000 -0400
++++ arch/cris/Makefile	2004-05-15 21:00:36.000000000 -0400
+@@ -81,7 +81,7 @@ compressed: zImage
+ 
+ archmrproper:
+ archclean:
+-	$(Q)$(MAKE) -f scripts/Makefile.clean obj=arch/$(ARCH)/boot	
++	$(Q)$(MAKE) $(clean)=arch/$(ARCH)/boot	
+ 	rm -f timage vmlinux.bin cramfs.img
+ 	rm -rf $(LD_SCRIPT).tmp
+ 
 
-Certainly, I'd rather see something along the lines of a full
-description.
-
-	int mmio;
-	    /* This field controls whether or not the driver blah,
-	       blah.  If the driver needs to reserve system resources,
-	       e.g. ports of memory, set the value to 2 and blah, blah. */
-
-It isn't much, but it goes a long way.
+-- 
+Mathieu Chouquet-Stringer                 E-Mail: mchouque@online.fr
+       Never attribute to malice that which can be adequately
+                    explained by stupidity.
+                     -- Hanlon's Razor --

@@ -1,137 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315482AbSECAEb>; Thu, 2 May 2002 20:04:31 -0400
+	id <S315480AbSECAHi>; Thu, 2 May 2002 20:07:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSECADC>; Thu, 2 May 2002 20:03:02 -0400
-Received: from melancholia.rimspace.net ([210.23.138.19]:13328 "EHLO
-	melancholia.danann.net") by vger.kernel.org with ESMTP
-	id <S315480AbSECACw>; Thu, 2 May 2002 20:02:52 -0400
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
-In-Reply-To: <87u1pqln4h.fsf@enki.rimspace.net> <3CD191C5.AC09B1F4@zip.com.au>
-	<87znzi18hn.fsf@enki.rimspace.net> <3CD1C50B.1DB3DBA2@zip.com.au>
-From: Daniel Pittman <daniel@rimspace.net>
-Organization: Not today, thank you, Mother.
-Date: Fri, 03 May 2002 10:02:46 +1000
-Message-ID: <874rhq14k9.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
- i686-pc-linux)
-MIME-Version: 1.0
+	id <S315484AbSECAHh>; Thu, 2 May 2002 20:07:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:47320 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315480AbSECAGT>;
+	Thu, 2 May 2002 20:06:19 -0400
+Date: Thu, 2 May 2002 17:05:00 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020503000500.GP32767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Anton Blanchard <anton@samba.org>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+	Jesse Barnes <jbarnes@sgi.com>
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <20020502011750.M11414@dualathlon.random> <20020502002010.GA14243@krispykreme> <E173Pe0-0002Bw-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 May 2002, Andrew Morton wrote:
-> Daniel, this is good stuff.  Thanks.
-> Daniel Pittman wrote:
->> 
->> ...
->> 
->> Not quite. I found the corruption in three places:
->> 
->> * my XEmacs and Gnus mail spool.
->> * gkrellm configuration files.
->> * galeon/mozilla bookmarks and preferences.
-> 
-> So all of those files were written to by their application
-> during the failed session.
+On Thursday 02 May 2002 02:20, Anton Blanchard wrote:
+>> From arch/ppc64/kernel/iSeries_setup.c:
+>>  * The iSeries may have very large memories ( > 128 GB ) and a partition
+>>  * may get memory in "chunks" that may be anywhere in the 2**52 real
+>>  * address space.  The chunks are 256K in size.
+>> Also check out CONFIG_MSCHUNKS code and see why I'd love to see a generic
+>> solution to this problem.
 
-Yes. Files that they accessed in a read-only fashion, and untouched
-files, seem entirely unharmed.
+On Fri, May 03, 2002 at 01:05:45AM +0200, Daniel Phillips wrote:
+> Hmm, I just re-read your numbers above.  Supposing you have 256 GB of
+> 'installed' memory, divided into 256K chunks at random places in the 52
+> bit address space, a hash table with 1M entries could map all that
+> physical memory.  You'd need 16 bytes or so per hash table entry, making
+> the table 16MB in size.  This would be about .0006% of memory.
 
-> Question on the table is: did the kernel write the wrong
-> stuff into those files, or did it forget to write the
-> right stuff?
-
-Wrong stuff.
-
-> Is the incorrect content within those files recognisable
-> at all?  If so, what is it?
-
-Yes. There are three things that I noted as incorrect in the files.
-
-Many of them, but not all, featured large blocks of NULL (0) bytes, on
-the order of 2K worth of them. No exacting counts available but they did
-fill a page in an 80x30 terminal, generally.
-
-Several of the files featured the "right" content, just in the wrong
-location. For example, the galeon 'bookmarks.xbel' file started about a
-third of the way into it's correct content.
-
-Only one of the files seemed to be gratuitously truncated, the mozilla
-prefs.js file.
+Doh! I made all that noise about "contiguously allocated" and the
+relaxation of the contiguous allocation requirement on the aggregate
+was the whole reason I liked trees so much! Regardless, if there's
+virtual contiguity the table can work, and what can I say, it's not my
+patch, and there probably isn't a real difference given that your
+ratio to memory size is probably small enough to cope.
 
 
-The remaining file content seemed to be randomly swizzled. I found part
-of a .overview file in .newsrc.eld, for example, and part of the
-.newsrc.eld elsewhere. Also, 'active' got written to a mail folder...
+On Fri, May 03, 2002 at 01:05:45AM +0200, Daniel Phillips wrote:
+> More-or-less equivalently, a tree could be used, with the tradeoff being
+> a little better locality of reference vs more search steps.  The hash
+> structure can also be tweaked to improve locality by making each hash
+> entry map several adjacent memory chunks, and hoping that the chunks tend
+> to occur in groups, which they most probably do.
+> I'm offering the hash table, combined with config_nonlinear as a generic
+> solution.
+
+Is the virtual remapping for virtual contiguity available at the time
+this remapping table is set up? A 1M-entry table is larger than the
+largest available fragment of physically contiguous memory even at
+1B/entry. If it's used to direct the virtual remapping you might need
+to perform some arch-specific bootstrapping phases. Also, what is the
+recourse of a boot-time allocated table when it overflows due to the
+onlining of sufficient physical memory? Or are there pointer links
+within the table entries so as to provide collision chains? If so,
+then the memory requirements are even larger... If you limit the size
+of the table to consume an entire hypervisor-allocated memory fragment
+would that not require boot-time allocation of a fresh chunk from the
+hypervisor and virtually mapping the new chunk? How do you know what
+the size of the table should be if the number of chunks varies dramatically?
 
 
-There were *no* cases where the file content was unrecognizable with the
-exception of the NULL bytes. In *every* case the content was from a
-*completely* different file.
-
-This included files in different directories getting content swapped, so
-a file in ~ got content from ~/Mail/<group>/, so it's not just within
-the same directory.
-
-
-I can't think of a single verifiable case where a file got the wrong
-data from another process, though. That's not a "didn't", just a "can't
-remember seeing", though, so don't take that as gospel.
-
-[...]
-
->> I also found corruption in the mozilla prefs.js file from the same
->> application[1]. That was simply a truncated file -- no NULL bytes or
->> anything, just a file that cut off half way through a single
->> expression like:
->> 
->> user_pref("wallet.capture
->> 
->> This /may/ be the logical break between two write(2) calls or a
->> partly completed write, though.
-> 
-> That sounds like metadata corruption. Are you sure that the file
-> doesn't have a chunk of invisible nulls in it, after the text? 
-
-Yes. I used an editor that displays the NULL byte correctly in files to
-view it when looking for damage and there was *no* NULL content in this
-file.
-
-None of the NULL bytes were at the end of the file, always in the
-middle of the data. 
-
-> Because if it got chopped off in this manner, e2fsck should have
-> detected something.
-
-Yup. I carefully watched the forced fsck and no errors. This is:
-] fsck.ext3 -V
-e2fsck 1.27 (8-Mar-2002)
-	Using EXT2FS Library version 1.27, 8-Mar-2002
-
->> > And no, it doesn't promise anything good - last time we had crap in
->> > truncate/mmap interaction it was a hell to fix.
->> >
->> > I suspect that you had screwed the truncate exclusion warranties
->> > up. If _any_ IO happens in the area currently manipulated by
->> > ->truncate() - you are screwed and results would look pretty much
->> > like the things mentioned in bug report.
->> 
->> Ick. Er, good luck. I am quite happy to provide more information and
->> even to install a scratch disk and try to get it to fail the same way
->> if you wish.
-> 
-> It would be good if you had the time to do that.
-
-Sure. I will have a run at reproducing it in an hour or two, then post
-the results to the list under this thread, with a direct CC. :)
-
-        Daniel
-
--- 
-Nobody objects to a woman being a good writer or sculptor or geneticist if at
-the same time she manages to be a good wife, good mother, good-looking,
-well-groomed and unaggressive.
-        -- Leslie M. McIntyre
+Cheers,
+Bill

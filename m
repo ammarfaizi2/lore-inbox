@@ -1,155 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285209AbRLXSUM>; Mon, 24 Dec 2001 13:20:12 -0500
+	id <S285210AbRLXSWc>; Mon, 24 Dec 2001 13:22:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285213AbRLXSUD>; Mon, 24 Dec 2001 13:20:03 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:59060 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S285209AbRLXSTu>; Mon, 24 Dec 2001 13:19:50 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Date: Mon, 24 Dec 2001 09:54:05 -0800 (PST)
-Subject: Re: [patch] Assigning syscall numbers for testing
-In-Reply-To: <3C277049.3070000@redhat.com>
-Message-ID: <Pine.LNX.4.40.0112240951030.24605-100000@dlang.diginsite.com>
+	id <S285216AbRLXSWX>; Mon, 24 Dec 2001 13:22:23 -0500
+Received: from otter.mbay.net ([206.40.79.2]:57609 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S285210AbRLXSWG>;
+	Mon, 24 Dec 2001 13:22:06 -0500
+Date: Mon, 24 Dec 2001 10:21:52 -0800 (PST)
+From: John Alvord <jalvo@mbay.net>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Matthew Johnson <matthew@psychohorse.com>, linux-kernel@vger.kernel.org
+Subject: Re: Maybe I have a bad day or something
+In-Reply-To: <Pine.LNX.4.40.0112240934520.24605-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.20.0112241021140.20876-100000@otter.mbay.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-so this just means that an eye needs to be kept on the non-dynamic
-syscalls  and up the starting point for dynamic syscalls significantly
-before we run out of space for the non-dynamic ones.
+Think of L-K as a very lossy communications path where lots of retries are
+necessary. john
 
-running software that depends on features in a new kernel on a
-significantly older kernel is always questionable, if you software really
-needs to do that you need to watch for a bunch of things.
+On Mon, 24 Dec 2001, David Lang wrote:
 
-David Lang
+> response to questions does vary drasticly, I've been reading the list for
+> almost 5 years now and while I seldom post most of the time I get an
+> immediate response (unfortunantly sometimes I can't folow up immediatly
+> with the requested info). When I don't get a response for a few days I try
+> to get more detail on the problem and repost, eventually I do get some
+> response.
+> 
+> one thing to remember about posting here. if you get a response that is
+> just wrong, argue back, point out why it's wrong. Everyone on this list
+> (up to and including Linus) makes mistakes and dismisses stuff to quickly
+> at times. some questions get asked frequently enough that they have a
+> canned answer (useing binary only modules and reporting a bug for example)
+> but most of the time there is a real answer eventually.
+> 
+> David Lang
+> 
+> 
+>  On Mon, 24 Dec 2001, Matthew Johnson wrote:
+> 
+> > Date: Mon, 24 Dec 2001 08:11:28 -0800
+> > From: Matthew Johnson <matthew@psychohorse.com>
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Re: Maybe I have a bad day or something
+> >
+> > On Monday 24 December 2001 06:23 am, Pat Villani wrote:
+> > > You're not alone.  Frankly, I just skim the subjects and some messages to
+> > > figure out whether or not to read further.
+> > >
+> > > Don't get discouraged.  There are way more readers who don't post than the
+> > > vocal minority who whine about coding styles or why Linus didn't pick up
+> > > their patch.  I found this out a while ago.  I wrote the original FreeDOS
+> > > code and ran into this constantly.  I admire Linus for not letting it get
+> > > him down; it did for me.  I eventually quit the project altogether,
+> > > disgusted with the bozos.
+> > >
+> >
+> > I am one of those readers that don't post, well to now. I don't want to make
+> > a fool out of myself, plus nothing yet has really piqued my interest and I
+> > never went to University to do CS or CE, played too much Rugby instead (but I
+> > want to go sometime perhaps), so my prgramming really is not up to scratch
+> > yet. Perhaps this is reflected on others too. Not above beta testing of
+> > course.
+> >
+> > Whining occurs pretty much everywhere, not just here. As this is an open and
+> > free development perhaps people feel free to be a little less professional in
+> > their words, rather than just reporting facts. Linus seems to be very Hobbit
+> > like, very humble indeed. Only Linus probably knows why it does not seem to
+> > get him down.
+> >
+> >
+> > > Well, I know I'm going to get flames on this one.  That's OK, it'll keep me
+> > > warm this Christmas.  May everyone have a safe and happy Holiday Season.
+> > >
+> >
+> > Nope, they may let you freeze instead. Happy Christmas  and New Year to
+> > everyone, may 2002 be very much more successful than 2001. 2001 was probably
+> > jinxed due to Arthur C Clark anyway...
+> >
+> > > Pat
+> >
+> > Matt
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-
-On Mon, 24 Dec 2001, Doug Ledford wrote:
-
-> Date: Mon, 24 Dec 2001 13:13:29 -0500
-> From: Doug Ledford <dledford@redhat.com>
-> To: David Lang <david.lang@digitalinsight.com>
-> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
->      Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-> Subject: Re: [patch] Assigning syscall numbers for testing
->
-> David Lang wrote:
->
-> > you miss the point, the syscall numbers will not nessasarily be consistant
-> > from boot to boot so if your code does not check for them it's seriously
-> > broken (and remember this is only for stuff in experimental status). The
-> > hope is that most if not all of the real checking can end up being done in
-> > glibc
->
->
-> No, I'm not missing the point.  Try to follow with me here, this isn't
-> rocket science.  *NOT* *ALL* *SOFTWARE* *IS* *OR* *WILL* *BE* *USING*
-> *DYNAMIC* *SYSCALLS*.  Your scenario is fine if you want to convert all
-> existing software to dynamic syscalls.  However, my scenario specifically
-> dealt with software that *DOES* *NOT* use dynamic syscalls (and which
-> doesn't need to because the syscalls it *does* use have been allocated).
->
-> Since people are having such a hard time with this, let me spell it out in
-> more detail.  Assume the following scenario:
->
-> Linux 2.4.17 + dynamic syscall patch.  Dynamic syscalls start at 240.
->
-> Linux 2.4.18 comes out, and now there are two *new* *official* *statically*
-> *allocated* syscalls at 240 and 241 (they are SYSGETAMIBLKHEAD and
-> SYSSETAMIBLKHEAD).
->
-> A new piece of software (or an existing one, doesn't matter) is written to
-> take advantage of the new syscalls.  It uses the *predefined* syscall
-> numbers and is compiled against 2.4.18.  It relies upon -ENOSYS (as is
-> typical for non-dynamic syscalls) to indicate if the kernel doesn't support
-> the intended syscalls.
->
-> Now, someone without realizing the implications of what's going on, runs
-> this new program on a machine running the 2.4.17 + dynamic syscall patch.
->
-> BOOM!
->
-> So, to reiterate my points.  This *IS* *NOT* *SAFE* unless either A) the
-> dynamic syscall number range is officially allocated *before* the patch goes
-> into use to avoid these collisions later or B) you switch *all* software to
-> using dynamic syscalls (which does have a performance impact on the software
-> and which would also require lots of work).
->
->
-> > David Lang
-> >
-> >
-> >
-> >  On Mon, 24 Dec 2001, Doug Ledford wrote:
-> >
-> >
-> >>Date: Mon, 24 Dec 2001 12:06:19 -0500
-> >>From: Doug Ledford <dledford@redhat.com>
-> >>To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> >>Cc: Keith Owens <kaos@ocs.com.au>, Benjamin LaHaise <bcrl@redhat.com>,
-> >>     linux-kernel@vger.kernel.org
-> >>Subject: Re: [patch] Assigning syscall numbers for testing
-> >>
-> >>Alan Cox wrote:
-> >>
-> >>
-> >>>>Well, I'm not going to mess with code, but here's the example.  Say you
-> >>>>start at syscall 240 for dynamic registration.  Someone then submits a patch
-> >>>>
-> >>>>
-> >>>The number you start at depends on the kernel you run.
-> >>>
-> >>>
-> >>>
-> >>>>modify the base of your patch, but if it has been accepted into any real
-> >>>>kernels anywhere, then someone could inadvertently end up running a user
-> >>>>space app compiled against Linus' new kernel and that uses the newly
-> >>>>allocated syscalls 240 and 241.  If that's run on an older kernel with your
-> >>>>
-> >>>>
-> >>>The code on execution will read the syscall numbers from procfs. It will
-> >>>find new numbers and call those. Its a very simple implementation of lazy
-> >>>binding. It only breaks if you actually run out of syscalls, and then it
-> >>>fails safe.
-> >>>
-> >>>Alan
-> >>>
-> >>>
-> >>>
-> >>No it doesn't.  You are *assuming* that *all* code will check the lazy
-> >>syscall bindings.  My example was about code using the predefined syscall
-> >>number for new functions on an older kernel where those functions don't
-> >>exist, but where they overlap with the older dynamic syscall numbers.  In
-> >>short, the patch is safe for code that uses the lazy binding, but it can
-> >>still overlap with future syscall numbers and code that doesn't use the lazy
-> >>binding but instead uses predefined numbers.
-> >>
-> >>--
-> >>
-> >>  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-> >>       Please check my web site for aic7xxx updates/answers before
-> >>                       e-mailing me about problems
-> >>
-> >>-
-> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >>Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> >>
-> >
->
->
->
-> --
->
->   Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
->        Please check my web site for aic7xxx updates/answers before
->                        e-mailing me about problems
->

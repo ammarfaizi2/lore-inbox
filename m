@@ -1,88 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbTIBWvS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 18:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTIBWvS
+	id S261300AbTIBXCT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 19:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbTIBXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 18:51:18 -0400
-Received: from mta10.adelphia.net ([68.168.78.202]:16040 "EHLO
-	mta10.adelphia.net") by vger.kernel.org with ESMTP id S261338AbTIBWvQ
+	Tue, 2 Sep 2003 19:02:19 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:15787 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S261300AbTIBXCQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 18:51:16 -0400
-Message-ID: <002f01c371a4$b7207a00$6401a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Andrey Borzenkov" <arvidjaar@mail.ru>
-Cc: <linux-kernel@vger.kernel.org>
-References: <E19uBS4-000AsR-00.arvidjaar-mail-ru@f17.mail.ru>
-Subject: Re: 2.6.0-test4, psmouse doesn't autoload, CONFIG_SERIO doesn't module
-Date: Tue, 2 Sep 2003 18:51:06 -0400
+	Tue, 2 Sep 2003 19:02:16 -0400
+Message-ID: <3F550E0E.7020502@terra.com.br>
+Date: Tue, 02 Sep 2003 18:39:26 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix SMP support on cdu535 cdrom driver
+Content-Type: multipart/mixed;
+ boundary="------------020400010906020401010505"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Andrey Borzenkov" <arvidjaar@mail.ru>
-> > 1. Why doesn't the PS/2 mouse autoload as a module?
-> > Running 2.6.0-test4, psmouse doesn't autoload as a module.  Oddly,
-neither
-> > gpm nor X complains about the missing module, the mouse just doesn't
-work.
-> > But if I modprobe psmouse, the cursor starts moving.  I verified that
-> > /dev/psaux uses char-major-10-1 and that it has an "alias
-char-major-10-1
-> > psaux" in modprobe.conf.
->
-> because in 2.6 user-level programs do not speak with low-level hardware
-> drivers anymore. psmouse feeds events to input midlayer that dispatches
-> them to those handlers that expressed interest. And those handlers speak
-> with user-level tools.
->
-> /dev/psaux is an *emulated* ImPS mouse that is not related to any
-> real hardware. It will convert events from _any_ mouse you have into
-> PS/2 protocol for users but if there is no mouse it just sits there
-> and waits.
+This is a multi-part message in MIME format.
+--------------020400010906020401010505
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> /dev/psaux is provided by mousemod not psmouse.
+	Hi,
 
-> In general there seems to be no way to load low-level input drivers
-> on access because there is no instance that ever accesses them. And
-> as it stands now there is not way to auto-load using some other means.
-> So we are back in static configuration times ...
+	Patch against 2.6-test4.
 
-Ok, I guess.  But isn't there some module reference that can trigger the
-install of psmouse?
+	I'm not sure this is the right fix, since my knowledge on cdrom 
+drivers tends to /dev/zero...but, here we go:
 
-> > 1. What does kmod send to modprobe?  From looking at modprobe.conf
-apparently "char-major-x-y".
->
-> only for misc devices. It is char-major-X for most others
+	Replace cli/sti on sony_sleep with wait_queue, using a device 
+spinlock to lock 'enable_interrupts' and the queueing stuff.
 
-> > 2. Does kmod send any other strings to modprobe?
+	Compile fine, but I don't have the hardware.
 
-> no.
+	Feedback is welcome, since I'm pretty sure I did something wrong.. :)
 
-> > 3. Documentation/kmod.txt says "passing the name (to modprobe) that was
-> > requested", couldn't this be more explicit?
+	Thanks,
 
-> what exactly do you mean?
+Felipe
 
-Something like "...passing the name of the device in the form
-'char-major-x-y' for misc devices and 'char-major-X' for others"
+--------------020400010906020401010505
+Content-Type: text/plain;
+ name="cdu535-cli_sti_removal.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cdu535-cli_sti_removal.patch"
 
-BTW, could kmod just pass the name of the file from the open() call?
-Modprobe could look up the major-minor and/or users could create virtual
-devices.  For example, I create a file /dev/my_psaux which is a symlink to
-/dev/psaux, the name gets passed to modprobe.  modprobe looks it up and
-finds that it's not a device file and looks for an alias, and finds psmouse,
-loads it,...problem solved.
+--- linux-2.6.0-test4/drivers/cdrom/sonycd535.c	Fri Aug 22 20:54:17 2003
++++ linux-2.6.0-test4-fwd/drivers/cdrom/sonycd535.c	Tue Sep  2 18:24:10 2003
+@@ -36,6 +36,10 @@
+  *	            module_init & module_exit.
+  *                  Torben Mathiasen <tmm@image.dk>
+  *
++ * September 2003 - Fix SMP support by removing cli/sti calls.
++ *                  Using spinlocks with a wait_queue instead
++ *                  Felipe Damasio <felipewd@terra.com.br>
++ *
+  * Things to do:
+  *  - handle errors and status better, put everything into a single word
+  *  - use interrupts (code mostly there, but a big hole still missing)
+@@ -219,6 +223,9 @@
+ static unsigned short data_reg;
+ 
+ static spinlock_t sonycd535_lock = SPIN_LOCK_UNLOCKED; /* queue lock */
++
++static spinlock_t cdu535_lock = SPIN_LOCK_UNLOCKED;  /* Device lock */
++
+ static struct request_queue *sonycd535_queue;
+ 
+ static int initialized;			/* Has the drive been initialized? */
+@@ -340,10 +347,16 @@
+ 	if (sony535_irq_used <= 0) {	/* poll */
+ 		yield();
+ 	} else {	/* Interrupt driven */
+-		cli();
++		DEFINE_WAIT(wait);
++		
++		spin_lock_irq(&cdu535_lock);
+ 		enable_interrupts();
+-		interruptible_sleep_on(&cdu535_irq_wait);
+-		sti();
++		prepare_to_wait(&cdu535_irq_wait, &wait, TASK_INTERRUPTIBLE);
++		spin_unlock_irq(&cdu535_lock);
++		schedule();
++		spin_lock_irq(&cdu535_lock);
++		finish_wait(&cdu535_irq_wait, &wait);
++		spin_unlock_irq(&cdu535_lock);
+ 	}
+ }
+ 
 
-thanks for the info,
-
-jeff
+--------------020400010906020401010505--
 

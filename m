@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310862AbSBRQ63>; Mon, 18 Feb 2002 11:58:29 -0500
+	id <S310514AbSBRM1k>; Mon, 18 Feb 2002 07:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310867AbSBRQ6U>; Mon, 18 Feb 2002 11:58:20 -0500
-Received: from [217.89.50.104] ([217.89.50.104]:57870 "EHLO
-	NOTES.INTERCOPE.COM") by vger.kernel.org with ESMTP
-	id <S310862AbSBRQ6K>; Mon, 18 Feb 2002 11:58:10 -0500
-Subject: Dual Athon Rocks!!! (was :Re: A7M266-D works?)
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
-Message-ID: <OFA27E733D.512B7DA6-ONC1256B64.005B1A4A@INTERCOPE.COM>
-From: "Michael Kwasigroch" <mkwasigr@intercope.com>
-Date: Mon, 18 Feb 2002 17:55:15 +0100
-X-MIMETrack: Serialize by Router on ICHH1G02/INTERCOPE/DE(Release 5.0.3 (Intl)|21 March
- 2000) at 18.02.2002 17:57:22
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S310515AbSBRM1a>; Mon, 18 Feb 2002 07:27:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:40214 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S310514AbSBRM1P>; Mon, 18 Feb 2002 07:27:15 -0500
+Date: Mon, 18 Feb 2002 13:27:57 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel@vger.kernel.org, rsf@us.ibm.com
+Subject: Re: [TEST] page tables filling non-highmem
+Message-ID: <20020218132757.K7940@athlon.random>
+In-Reply-To: <20020215045106.GB26322@holomorphy.com> <E16beDZ-0002jy-00@starship.berlin> <20020218023800.A23743@athlon.random> <20020218032644.GD3511@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020218032644.GD3511@holomorphy.com>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Feb 17, 2002 at 07:26:44PM -0800, William Lee Irwin III wrote:
+> On Mon, Feb 18, 2002 at 02:38:00AM +0100, Andrea Arcangeli wrote:
+> > My tree doesn't lock up hard even without pte-highmem applied.  The task
+> > gets killed. backout pte-highmem, try the same testcase again on my tree
+> > and you'll see. The oom handling in mainline is deadlock prone, I always
+> > known this and that's why I always rejected it. Nobody but me
+> > acklowledged this problem and I spent quite an amount of time convincing
+> > mainline maintainers about those deadlock flaws of the mainline approch
+> > but I failed so I giveup waiting for a report like this, just like with
+> > all the other stuff that is now in my vm patch, 90% of it I tried to
+> > push it separately into mainline before having to accumulate it.
+> 
+> This is a basic issue. Does the kernel run or does it crash?
 
-you all might know that already, but http://www.2cpu.com has all the
-information one need to know to run a dual athlon system succesfully.
+It keeps running, there's no way to stop it. Go ahead and try it. I tell
+you I'm sure because when I wrote pte-highmem, before realizing the
+problem with the pagetables, people was very happy with my tree because
+it was the first one not deadlocking, but instead oom killing one of those
+pagetable hogs. Now thanks to pte-highmem all their problems are gone
+and they have no limit any longer (other than cpu resources).
 
-I've bought the Tyan Tiger S2466N which is very similar to the Asus
-A7M266-D but has one 32-Bit PCI slot more, and it has got an onboard 3com
-10/100 Mbit NIC.
+> Mainline can't live without it. Nothing can.
 
-To make it run with a 2.2.19 Linux Kernel get 2.2.19 and patch it with the
-io_apic.c-patch from the latest 2.2.20-pre (or use 2.2.20 ;-). Otherwise it
-will lock up due to interrupts being not correctly routed by the APIC chip.
-Please note that there is currently no way to switch the onboard IDE to
-anything UDMA-ish. Kernel 2.2.x will only be able to use the slow PIO-mode
-due to the lack of a usable ide-patch for the onboard Viper-7441 IDE
-controller.
+Agreed, this is why I fighted with Linus and Marcelo trying to convince
+them not to reintroduce the loop crap into the allocator that leads to
+all sort of oom deadlocks because we lack the knowledge on the amount of
+freeable pages (I even re-read the emails about such stuff in the thread
+"VM tweaks" to be sure I was remembering right). OTOH, I really cannot
+complain, they included so much stuff from my tree that even if we
+disagreed on something at the end I don't mind :).  And this is probably
+also why I don't like very much to restart those threads about oom
+deadlocks, I know my way is the only right way (i.e. non deadlock prone)
+possible, and I live with it just fine.
 
-Because of this all of you would definitely use 2.4.17 and get the latest
-ide-patch from www.linux-ide.org. With that patch I was able to switch
-onboard IDE to ATA33, although my hard drives are UDMA5 (ATA100). I'm
-pretty sure I can push it to ATA100, although I don't care, since this
-thing is so damn fast already (I'm running two Athlon MP 1800+ with 512 MB
-of RAM). 2.4.18 should have the patch included...
+The only way we can learn if a page or a mapping is freeable or not, is
+by trying to free it and by checking if we failed or not. We cannot know
+in another manner, only checking the size of the caches or the amount of
+the swap still unused is totally meaningless and broken. That's
+unfortunate but that's how all linux kernels I know of works, and what I
+did in my tree at the moment is the only possible way to avoid deadlocks
+without having to do a major rework on the accounting side.
 
-It builds a Linux kernel (bzImage + modules) in 85 seconds!!! And yes: I'm
-having around 6100 BogoMips! Not bad for a system worth around 2200 Euro...
-
-
-P.S.: Please cc me directly on any replies since I'm not subscribed to
-linux-kernel. TIA.
-
-
-Mit freundlichen Gruessen / best regards
-
-
-"The sooner you fall behind, the more time you'll have to catch up."
-
-Michael Kwasigroch
-FaxPlus/Open Development
-________________________________________
-
-e-mail:        mkwasigr@intercope.com
-
-INTERCOPE
-International Communication Products Engineering GmbH
-
-www.intercope.com
-
-
+Andrea

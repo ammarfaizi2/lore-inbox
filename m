@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUCSWNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 17:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbUCSWNI
+	id S261821AbUCSWP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 17:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbUCSWP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 17:13:08 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:27025 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S263101AbUCSWNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 17:13:04 -0500
-Subject: Re: CONFIG_PREEMPT and server workloads
-From: Robert Love <rml@ximian.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
-       andrea@suse.de, mjy@geizhals.at, linux-kernel@vger.kernel.org
-In-Reply-To: <200403192203.i2JM3nSN016646@turing-police.cc.vt.edu>
-References: <40591EC1.1060204@geizhals.at>
-	 <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de>
-	 <20040318110159.321754d8.akpm@osdl.org> <s5hd67ac6r8.wl@alsa2.suse.de>
-	 <1079637899.6363.8.camel@localhost>
-	 <200403192203.i2JM3nSN016646@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Message-Id: <1079734375.14039.106.camel@localhost>
+	Fri, 19 Mar 2004 17:15:29 -0500
+Received: from mail.kroah.org ([65.200.24.183]:9386 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261821AbUCSWP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 17:15:26 -0500
+Date: Fri, 19 Mar 2004 14:10:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4 UHCI HCD BUG
+Message-ID: <20040319221055.GA14128@kroah.com>
+References: <20040319184640.GA1938@mail.muni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Fri, 19 Mar 2004 17:12:55 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040319184640.GA1938@mail.muni.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Is one of these yours?  My machine has 3 (but only one soundcard) ;)
+On Fri, Mar 19, 2004 at 07:46:40PM +0100, Lukas Hejtmanek wrote:
+> Hello,
 > 
-> %  find /proc/asound/ -name xrun_debug -ls
->   4480    0 -r--r--r--   1 root     root            0 Mar 19 16:00 /proc/asound/card0/pcm1c/xrun_debug
->   4470    0 -r--r--r--   1 root     root            0 Mar 19 16:00 /proc/asound/card0/pcm0c/xrun_debug
->   4462    0 -r--r--r--   1 root     root            0 Mar 19 16:00 /proc/asound/card0/pcm0p/xrun_debug
-> 
-> (Are these 3 different controls, or 3 places to set the same variable?)
+> with 2.6.4 if I do rmmod uhci_hcd and then modprobe uhci_hcd while running
+> X server with USB mouse connected to UHCI USB I got:
 
-Heh :)
+Try sending this to the linux-usb-devel mailing list and CC the uhci
+driver maintainer.
 
-I suspect I need debugging enabled.
+thanks,
 
-	Robert Love
-
-
+greg k-h

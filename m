@@ -1,113 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267756AbUHJVpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267760AbUHJVtC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267756AbUHJVpA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267751AbUHJVmk
+	id S267760AbUHJVtC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 17:49:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267755AbUHJVtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:42:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:12997 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267740AbUHJVk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:40:27 -0400
-Date: Tue, 10 Aug 2004 14:16:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] hotplug resource limitation
-Message-ID: <20040810211641.GB4124@kroah.com>
-References: <41177703.5070202@suse.de> <20040810001016.GC7131@kroah.com> <411882DA.5090400@suse.de>
+	Tue, 10 Aug 2004 17:49:01 -0400
+Received: from ctb-mesg5.saix.net ([196.25.240.77]:34754 "EHLO
+	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S267763AbUHJVs2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 17:48:28 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: dwmw2@infradead.org, James.Bottomley@steeleye.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, axboe@suse.de, eric@lammerts.org,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408101303.i7AD36bD014078@burner.fokus.fraunhofer.de>
+References: <200408101303.i7AD36bD014078@burner.fokus.fraunhofer.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-P+Jp5F8pLGWPGB5OLJRQ"
+Message-Id: <1092171729.8976.33.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411882DA.5090400@suse.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 23:02:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 10:10:02AM +0200, Hannes Reinecke wrote:
-> Greg KH wrote:
-> >On Mon, Aug 09, 2004 at 03:07:15PM +0200, Hannes Reinecke wrote:
-> >
-> >>Hi all,
-> >>this is the second patch to implement hotplug resource limitation 
-> >>(relative to 2.6.7-rc2-mm2).
-> >>
-> >>In some cases it is preferrable to adapt the number of concurrent 
-> >>hotplug processes on the fly in addition to set the number statically 
-> >>during boot.
-> >
-> >
-> >Why?  This should be "auto-tuning".  We don't want to provide
-> >yet-another-knob-for-people-to-tweak-from-userspace, right?
-> >
-> In principle you're right. But as we don't really now how much resources 
-> the installed hotplug program will require I don't really see another way.
 
-But who is going to know how to tweak such a knob?  How will an admin
-know they should reduce the number of outstanding processes?
+--=-P+Jp5F8pLGWPGB5OLJRQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> >>Additionally, it might be required to disable hotplug / 
-> >>kmod event delivery altogether for debugging purposes (e.g. if a module 
-> >>loaded automatically is crashing the machine).
-> >
-> >
-> >Ugh, that's just not a good thing at all.  You can do that by running:
-> >	echo /bin/true > /proc/sys/kernel/hotplug
-> >today if you have to.  I don't like the ability to stop the kernel from
-> >running properly, like this patch allows you to.
-> >
-> But then you'll lose all events which happen in the meantime.
+On Tue, 2004-08-10 at 15:03, Joerg Schilling wrote:
+> >From: David Woodhouse <dwmw2@infradead.org>
+>=20
+> >On Tue, 2004-08-10 at 14:47 +0200, Joerg Schilling wrote:
+> >> Cdrecord does not read /etc/cdrecord.conf
+>=20
+> >And the world is flat.
+>=20
+> >shinybook /home/dwmw2 $ strace -e open cdrecord -inq 2>&1 | grep /etc/cd=
+record.conf
+> >open("/etc/cdrecord.conf", O_RDONLY)    =3D 3
+> >open("/etc/cdrecord.conf", O_RDONLY)    =3D 3
+> >open("/etc/cdrecord.conf", O_RDONLY)    =3D 3
+> >open("/etc/cdrecord.conf", O_RDONLY)    =3D 3
+>=20
+> It seems that you like to constantly discredit yourself :-(
+>=20
+> What you use if DEFINITELY NOT cdrecord.
+>=20
 
-Yup.
+While I would rather have said something like:
 
-> The dynamic setting is mainly intended for two scenarios:
-> - Booting. You can disable all events on boot with the kernel 
-> commandline and re-enable them once your hotplug subsystem is up and 
-> running. This way you can handle all (ok, all devices appearing in 
-> sysfs) device with hotplug events; there is no need to regenerate / fake 
-> all events which might have been missed. Currently you need two sets of 
-> scripts, one for configuring all devices until hotplug is running and 
-> another one used by hotplug.
+  What you use is DEFINITELY a PATCHED cdrecord
 
-Or just put hotplug into your initramfs to catch all of the events from
-the beginning of kernel time.
+it is not the original:
 
-Actually, we currently only have 1 set of scripts that do the hotplug
-work.  We have an additional one that makes some "fake" hotplug events
-at init time to catch the events that we were not able to catch.  So we
-still only have 1 main code path.
+---
+# strace -e open cdrecord -inq 2>&1 | grep '/etc/.*cdrecord'
+open("/etc/default/cdrecord", O_RDONLY) =3D -1 ENOENT (No such file or dire=
+ctory)
+open("/etc/default/cdrecord", O_RDONLY) =3D -1 ENOENT (No such file or dire=
+ctory)
+open("/etc/default/cdrecord", O_RDONLY) =3D -1 ENOENT (No such file or dire=
+ctory)
+---
 
-> - Debugging. Especially laptops or legacy free machines do have the 
-> problem that hotplug scripts might misconfigure the machine, e.g. by 
-> loading the wrong module. Of course it's possible to keep this 'disable 
-> hotplug events on request' (which should event available during boot) 
-> entirely in userspace. But it would increase the size of /sbin/hotplug 
-> (and hence the running time) by quite a bit; and this would bite us on 
-> every hotplug event generated resulting in a general slowdown of the 
-> hotplug subsystem.
+stupid question: why this name and placement of the config file?
+I would think that /etc/cdrecord.conf or /etc/cdrecord/defaults might
+have made more sence, but this is out of a mostly linux pov.
 
-I'd be very supprised if you could actually measure the hit of adding 2
-more lines of bash to those hotplug scripts.  They aren't exactly the
-fastest thing in the world in the first place, nor do they need to be.
+Also, out of a user point of view:
 
-> If we can stop the hotplug event delivery from within the kernel, we
-> can keep the main hotplug script as small as possible while retaining
-> the functionality of temporarily disabling all hotplug events.
+1)  What is the big issue with supporting -dev=3D/dev/xxx ?  As I did
+    point out above, I have limited experience with solaris and fbsd,
+    but don't they all support and use /dev/ to access devices ?  It
+    really is not a new way to access devices in linux as you tried
+    to point out earlier - and it should be possible to implement it
+    on all *nix OS's ?  Sure, maybe the exact kernel interface might
+    change, but your device node should always (mostly?) point you
+    in the correct direction if you know the correct one to use?
+    I and I am sure many (most?) other users that have ide/usb devices
+    do not want to worry about scsi topology, etc - that and scsi
+    emulation adds extra overhead that we with older machines do not
+    want.
 
-So, add kernel complexity in order to reduce userspace complexity?  I
-don't think that argument is going to win here :)
+    Also, it would be less confusing - on 2.6 currently -scanbus do
+    not even detect any cdrw devices (sure, not a problem of yours).
+    But I still remember the first time I tried to use cdrecord - and
+    later with 2.5 and the -dev=3Dx,y,z syntax ... I just went with
+    gtoaster and did not look back as cli writing is not an issue
+    here.
 
-> What we could do, though, is to implement two semaphores, one for kmod 
-> calls and another one for hotplug calls. Then we can queue or event 
-> delay all hotplug events while any kmod call would just be blocked until 
-> the semaphore is free again.
-> 
-> Better approach?
+2)  As pointed out, some error messages could use some tweaking.
+    There was also some nice examples ...
 
-Drop the whole thing?  I really don't see the need for this part of the
-patch (part 1 makes sense for some limited memory machines like the s390
-boxes.)  But I'm always open to further convincing...
 
-thanks,
+I hope this was put nicely enough (although a tad clueless), and valid
+a similar response.  If not, please refrain from answering.
 
-greg k-h
+
+Regards,
+
+--=20
+Martin Schlemmer
+
+--=-P+Jp5F8pLGWPGB5OLJRQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBGTfRqburzKaJYLYRAmhCAJsF/a+0be62Pp/EVgcYh1XEu6QktwCgjFVV
+h0fYctCMbMZcoXFols0BoY8=
+=GZXG
+-----END PGP SIGNATURE-----
+
+--=-P+Jp5F8pLGWPGB5OLJRQ--
+

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUIOVt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267620AbUIOV5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267624AbUIOVt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUIOVsP
+	id S267620AbUIOV5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUIOV4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:48:15 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:44741 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S267595AbUIOVqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:46:24 -0400
-Date: Wed, 15 Sep 2004 14:46:17 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Love <rml@novell.com>, Kay Sievers <kay.sievers@vrfy.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040915214617.GA22361@hockin.org>
-References: <20040915202234.GA18242@hockin.org> <1095279985.23385.104.camel@betsy.boston.ximian.com> <20040915203133.GA18812@hockin.org> <1095280414.23385.108.camel@betsy.boston.ximian.com> <20040915204754.GA19625@hockin.org> <1095281358.23385.109.camel@betsy.boston.ximian.com> <20040915205643.GA19875@hockin.org> <20040915212322.GB25840@kroah.com> <1095283589.23385.117.camel@betsy.boston.ximian.com> <20040915213526.GD25840@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915213526.GD25840@kroah.com>
-User-Agent: Mutt/1.4.2i
+	Wed, 15 Sep 2004 17:56:44 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:23761 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267646AbUIOVzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 17:55:31 -0400
+Date: Wed, 15 Sep 2004 17:55:30 +0000 (UTC)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+In-Reply-To: <20040915144523.0fec2070.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0409151751140.19505@musoma.fsmlabs.com>
+References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com>
+ <20040915144523.0fec2070.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 02:35:26PM -0700, Greg KH wrote:
-> Hm, this is an issue that I and the FreeBSD author of jail were talking
-> about a week or so ago when I was describing why we did udev in
-> userspace and the hotplug stuff.  He pointed out the namespace issue as
-> the biggest problem for FreeBSD to be able to do the same kind of thing
-> that we are doing.
+On Wed, 15 Sep 2004, Andrew Morton wrote:
+
+> Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+> >
+> > William spotted this stray bit, LOCK_SECTION isn't used anymore on x86_64. 
 > 
-> But I agree, I don't think it's a big deal right now either.
+> btw, Ingo and I were scratching heads over an x86_64 oops in curent -linus
+> trees.
+> 
+> If you enable profiling and frame pointers, profile_pc() goes splat
+> dereferencing the `regs' argument when it decides that the pc refers to a
+> lock section.  Ingo said `regs' had a value of 0x2, iirc.  Consider this a
+> bug report ;)
 
-The "big deal" is that namespaces are not *ever* considered when things
-like this go on.
+Yeah profile_pc on x86_64 is just broken, i'll have a look.
 
-We keep adding things that don't think namepsaces are a big deal, and
-we're painting ourselves into a corner where NONE of the advanced
-functionality will work in the face of namespaces.
+Thanks,
+	Zwane
 

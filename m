@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTEaK3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 06:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTEaK3X
+	id S264268AbTEaKiV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 06:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTEaKiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 06:29:23 -0400
-Received: from imsantv21.netvigator.com ([210.87.250.77]:33986 "EHLO
-	imsantv21.netvigator.com") by vger.kernel.org with ESMTP
-	id S264266AbTEaK3W convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 06:29:22 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: =?iso-8859-1?q?=C9ric=20Brunet?= <Eric.Brunet@lps.ens.fr>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.70 freezes when running hwclock
-Date: Sat, 31 May 2003 18:41:47 +0800
-User-Agent: KMail/1.5.2
-References: <20030531080544.GA13848@lps.ens.fr>
-In-Reply-To: <20030531080544.GA13848@lps.ens.fr>
-X-OS: GNU/Linux 2.4.21-pre5
+	Sat, 31 May 2003 06:38:21 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:46340 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S264268AbTEaKiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 06:38:20 -0400
+Date: Sat, 31 May 2003 20:51:04 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: "David S. Miller" <davem@redhat.com>
+cc: joern@wohnheim.fh-wedel.de, <dwmw2@infradead.org>,
+       <matsunaga_kazuhisa@yahoo.co.jp>, <linux-mtd@lists.infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
+In-Reply-To: <20030530.232004.115919834.davem@redhat.com>
+Message-ID: <Mutt.LNX.4.44.0305312025270.6696-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200305311841.47238.mflt1@micrologica.com.hk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 May 2003 16:05, Éric Brunet wrote:
-> I have tried 2.5.70 on an intel chipset based pc, and I
-> got a reproductible complete freeze during the boot
-> process when hwclock is run. Even Caps Lock wouldn't lit
-> the little led.
->
-> Removing the offending line, 2.5.70 seemed to work... I
-> haven't fully tried it yet.
->
-> Is this problem known/identified/fixed yet, or do you
-> want a more complete bug report ?
+On Fri, 30 May 2003, David S. Miller wrote:
 
-This seems to be an ACPI related problem on ALI 1533/1535 
-compatible implementations frequently seen on Toshiba's.
+>    From: James Morris <jmorris@intercode.com.au>
+>    Date: Sat, 31 May 2003 01:29:42 +1000 (EST)
+>    
+>    This won't work for the bh lock protected case outlined above, and
+>    will cause contention between different users of zlib.
+> 
+> My understanding is that these are just scratchpads.  The contents
+> while a decompress/compress operation is not occuring does not
+> matter.
 
-As a workaround, Boot with ACPI=off and add --directisa to 
-hwclock lines in rc.sysinit and halt (or their equivalents)
+It depends on how the zlib library is used.  The filesystems and crypto
+code use it so that each operation is distinct, although it is possible to
+maintain compression history between operations: PPP does this via a
+sliding compression window, and there are other potential users such as
+ROHC.
 
-If this is really an Intel chipset it would be a first 
+One way of addressing this would to allow the user to supply their own 
+workspace if compression history needs to be maintained.
 
-Please post your problem, solution and system info and lspci 
-to ACPI list.
+> So if we have 2 such scratchpads per cpu, one for normal and one for
+> BH context, his idea truly can work and be useful to everyone.
+> It would also be lockless on SMP.
 
-Regards
-Michael
+And perhaps implement with a lazy allocation scheme so that these
+scratchpads are only allocated if needed (i.e. a caller does not provide
+its own workspace).
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

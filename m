@@ -1,112 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUHBSef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUHBSeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUHBSef (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 14:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbUHBSef
+	id S266316AbUHBSeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 14:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUHBSeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 14:34:35 -0400
-Received: from mxout2.iskon.hr ([213.191.128.16]:27612 "HELO mxout2.iskon.hr")
-	by vger.kernel.org with SMTP id S266319AbUHBSe2 (ORCPT
+	Mon, 2 Aug 2004 14:34:16 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21897 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266316AbUHBSeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 14:34:28 -0400
-X-Remote-IP: 213.191.128.14
-X-Remote-IP: 213.202.124.154
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Bug in ethernet module b44.c (2.6.7)
-X-face: GK)@rjKTDPkyI]TBX{!7&/#rT:#yE\QNK}s(-/!'{dG0r^_>?tIjT[x0aj'Q0u>a
-              yv62CGsq'Tb_=>f5p|$~BlO2~A&%<+ry%+o;k'<(2tdowfysFc:?@($aTGX
-              4fq`u}~4,0;}y/F*5,9;3.5[dv~C,hl4s*`Hk|1dUaTO[pd[x1OrGu_:1%-lJ]W@
-Organization: EINPROGRESS
-X-Operating-System: GNU/Linux 2.6.5
-Mail-Copies-To: never
-References: <lzd629zzcz.fsf@devana.nimium.local>
-	<200408021218.21958.vda@port.imtp.ilyichevsk.odessa.ua>
-From: Miroslav Zubcic <mvz@nimium.com>
-Date: Mon, 02 Aug 2004 20:33:41 +0200
-In-Reply-To: <200408021218.21958.vda@port.imtp.ilyichevsk.odessa.ua> (Denis
- Vlasenko's message of "Mon, 2 Aug 2004 12:18:21 +0300")
-Message-ID: <lz65814cfu.fsf@anthea.home.int>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Mon, 2 Aug 2004 14:34:14 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: OLS and console rearchitecture
+Date: Mon, 2 Aug 2004 11:33:09 -0700
+User-Agent: KMail/1.6.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
+In-Reply-To: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408021133.09935.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+On Monday, August 2, 2004 7:24 am, Jon Smirl wrote:
+> 1) PCI ROMs - these would be exposed via sysfs. A quirk is needed to
+> track the boot video device and expose the contents of C000:0 for that
+> special case. See the lkml thread: Exposing ROM's though sysfs, there
+> are already proposed patches.
 
-> Provide strace of hung nmap.
+I just posted what I hope is a final patch for this one.  We'll see what 
+gregkh comes back with.
 
---------------------------------------
-execve("/usr/bin/nmap", ["nmap", "-sS", "192.168.3.1"], [/* 45 vars */]) = 0
+> 2) VGA control - there needs to be a device for coordinating this. It
+> would ensure that only a single VGA device gets enabled at a time. It
+> would also adjust PCI bus routing as needed. It needs commands for
+> disabling all VGA devices and then enabling a selected one. This device
+> may need to coordinate with VGA console. You have to use this device
+> even if you aren't using VGA console since it ensures that only a
+> single VGA device gets enabled.
+> Alan Cox: what about hardware that supports multiple vga routers? do we
+> care?
+> JS: no design work has been done for this device, what would be it's
+> major/minor? would this be better done in sysfs?
 
-[...]
+It should probably be a real device driver rather than a sysfs pseudofile.  
+Not sure if it should be dynamic or not though.  It would be nice if apps 
+used the driver to do legacy VGA I/O port accesses as well, since that would 
+make things easier on platforms that unconditionally master abort when a PIO 
+times out, and would probably make it easier to deal with multiple domains.
 
-read(3, "Iface\tDestination\tGateway \tFlags"..., 1024) = 640
-read(3, "", 1024)                       = 0
-close(3)                                = 0
-munmap(0x4017d000, 4096)                = 0
-socket(PF_INET, SOCK_RAW, IPPROTO_RAW)  = 3
-setsockopt(3, SOL_SOCKET, SO_BROADCAST, [1], 4) = 0
-socket(PF_INET, SOCK_RAW, IPPROTO_RAW)  = 4
-setsockopt(4, SOL_SOCKET, SO_BROADCAST, [1], 4) = 0
-socket(PF_PACKET, SOCK_RAW, 768)        = 5
-ioctl(5, 0x8933, 0xbfffa650)            = 0
-ioctl(5, 0x8927, 0xbfffa650)            = 0
-ioctl(5, 0x8933, 0xbfffa650)            = 0
-bind(5, {sa_family=AF_PACKET, proto=0x03, if3, pkttype=PACKET_HOST, addr(0)={0, }, 20) = 0
-setsockopt(5, SOL_PACKET, PACKET_ADD_MEMBERSHIP, "\3\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0", 16) = 0
-ioctl(5, 0x8921, 0xbfffa650)            = 0
-socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 6
-ioctl(6, 0x8915, 0xbfffa4c0)            = 0
-ioctl(6, 0x891b, 0xbfffa4c0)            = 0
-close(6)                                = 0
-setsockopt(5, SOL_SOCKET, 0x1a /* SO_??? */, "r\0\0\0\210\35\r\10", 8) = 0
-gettimeofday({1091471189, 938221}, NULL) = 0
-setsockopt(4, SOL_IP, IP_HDRINCL, [1], 4) = 0
-sendto(4, "E\0\0\34\317\6\0\0003\1\3651\0\0\0\0\300\250\3\1\10\0\376"..., 28, 0, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("192.168.3.1")}, 16) =
- 28
-gettimeofday({1091471189, 938342}, NULL) = 0
-setsockopt(3, SOL_IP, IP_HDRINCL, [1], 4) = 0
-sendto(3, "E\0\0(t\377\0\0001\6\215u\300\250\3\n\300\250\3\1\214\n"..., 40, 0, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("192.168.3.1")}, 16) = 
-40
-gettimeofday({1091471189, 938429}, NULL) = 0
-gettimeofday({1091471189, 938446}, NULL) = 0
-gettimeofday({1091471189, 938464}, NULL) = 0
-gettimeofday({1091471189, 938483}, NULL) = 0
-gettimeofday({1091471189, 938501}, NULL) = 0
-select(6, [5], NULL, NULL, {0, 20000})  = 0 (Timeout)
-gettimeofday({1091471189, 958183}, NULL) = 0
-select(6, [5], NULL, NULL, {0, 20000})  = 0 (Timeout)
-gettimeofday({1091471189, 978194}, NULL) = 0
-select(6, [5], NULL, NULL, {0, 20000})  = 0 (Timeout)
-gettimeofday({1091471189, 998175}, NULL) = 0
-select(6, [5], NULL, NULL, {0, 20000})  = 0 (Timeout)
-gettimeofday({1091471190, 18172}, NULL) = 0
-select(6, [5], NULL, NULL, {0, 20000})  = 0 (Timeout)
-gettimeofday({1091471190, 38168}, NULL) = 0
-
-[...]
-
-... and so on and on until interrupted on the console.
-
-[...]
-
---- SIGINT (Interrupt) @ 0 (0) ---
-write(2, "caught SIGINT signal, cleaning u"..., 34) = 34
-munmap(0x40017000, 4096)                = 0
-exit_group(1)       
-
---------------------------------------
-
-> Does just setting promisc with ifconfig or ip tool helps?
-
-Yes, 'ifconfig eth0 promisc' works as a workaround. Just like when I
-do it indirectly with tcpdump(8).
-
-
--- 
-Many men would sooner die then think. In fact they do.
-		-- Bertrand Russell
-
+Jesse

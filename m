@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317263AbSHCEWO>; Sat, 3 Aug 2002 00:22:14 -0400
+	id <S317462AbSHCE3u>; Sat, 3 Aug 2002 00:29:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317440AbSHCEWO>; Sat, 3 Aug 2002 00:22:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18442 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317263AbSHCEWO>; Sat, 3 Aug 2002 00:22:14 -0400
-Date: Fri, 2 Aug 2002 21:26:52 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: davidm@hpl.hp.com
-cc: Gerrit Huizenga <gh@us.ibm.com>, Hubertus Franke <frankeh@watson.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, <wli@holomorpy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd) 
-In-Reply-To: <15691.22889.22452.194180@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.44.0208022125040.2694-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317466AbSHCE3u>; Sat, 3 Aug 2002 00:29:50 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:9491 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317462AbSHCE3t>;
+	Sat, 3 Aug 2002 00:29:49 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.19 vmalloc.h
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 03 Aug 2002 14:33:09 +1000
+Message-ID: <10755.1028349189@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+include/linux/vmalloc.h -> include/asm/pgtable.h which defines
+VMALLOC_END.  Several architectures define VMALLOC_END via PKMAP_BASE
+for CONFIG_HIGHMEM=y but PKMAP_BASE is undefined.  Adding highmem.h to
+vmalloc.h is the simplest fix.
 
-
-On Fri, 2 Aug 2002, David Mosberger wrote:
->
-> My terminology is perhaps a bit too subtle: I user "superpage"
-> exclusively for the case where multiple pages get coalesced into a
-> larger page.  The "large page" ("huge page") case that you were
-> talking about is different, since pages never get demoted or promoted.
-
-Ahh, ok.
-
-> I wasn't disagreeing with your case for separate large page syscalls.
-> Those syscalls certainly simplify implementation and, as you point
-> out, it well may be the case that a transparent superpage scheme never
-> will be able to replace the former.
-
-Somebody already had patches for the transparent superpage thing for
-alpha, which supports it. I remember seeing numbers implying that helped
-noticeably.
-
-But yes, that definitely doesn't work for humongous pages (or whatever we
-should call the multi-megabyte-special-case-thing ;).
-
-		Linus
+Index: 19.1/include/linux/vmalloc.h
+--- 19.1/include/linux/vmalloc.h Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/b/b/38_vmalloc.h 1.1 644)
++++ 19.1(w)/include/linux/vmalloc.h Sat, 03 Aug 2002 14:27:36 +1000 kaos (linux-2.4/b/b/38_vmalloc.h 1.1.2.1 644)
+@@ -5,6 +5,7 @@
+ #include <linux/mm.h>
+ #include <linux/spinlock.h>
+ 
++#include <linux/highmem.h>	/* several arch define VMALLOC_END via PKMAP_BASE */
+ #include <asm/pgtable.h>
+ 
+ /* bits in vm_struct->flags */
 

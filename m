@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267354AbUJIUKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUJIUNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267354AbUJIUKt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUJIUKr
+	id S267350AbUJIUNU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUJIUNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:10:47 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:52440 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S267354AbUJIUJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:09:48 -0400
-Message-ID: <009801c4ae44$59936ea0$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Andries Brouwer" <aebr@win.tue.nl>, "Kyle Moffett" <mrmacman_g4@mac.com>
-Cc: "Andries Brouwer" <aebr@win.tue.nl>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-References: <001601c4ac72$19932760$161b14ac@boromir> <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156727.31753.44.camel@localhost.localdomain> <001f01c4ac8b$35849710$161b14ac@boromir> <1097160628.31614.68.camel@localhost.localdomain> <20041007215834.GA7047@pclin040.win.tue.nl> <CE341A74-18B0-11D9-ABEB-000393ACC76E@mac.com> <20041007224640.GC7047@pclin040.win.tue.nl> <EE2D21FC-18B8-11D9-ABEB-000393ACC76E@mac.com> <20041008091933.GD7047@pclin040.win.tue.nl>
-Subject: Re: mmap specification - was: ... select specification
-Date: Sat, 9 Oct 2004 22:10:04 +0100
+	Sat, 9 Oct 2004 16:13:20 -0400
+Received: from web13723.mail.yahoo.com ([66.163.176.62]:48985 "HELO
+	web13723.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267363AbUJIUL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:11:56 -0400
+Message-ID: <20041009201155.82221.qmail@web13723.mail.yahoo.com>
+Date: Sat, 9 Oct 2004 13:11:55 -0700 (PDT)
+From: Martins Krikis <mkrikis@yahoo.com>
+Subject: Re: Linux 2.4.28-pre4
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, mkrikis@yahoo.com
+In-Reply-To: <20041009155156.GA23965@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Andries Brouwer" <aebr@win.tue.nl>
-> On Thu, Oct 07, 2004 at 07:30:53PM -0400, Kyle Moffett wrote:
-> > On Oct 07, 2004, at 18:46, Andries Brouwer wrote:
-> > >The POSIX text is clear to me, and Linux is compliant.
-> > >On the other hand, I have no idea what you try to say.
-> > 
-> > >On Thu, Oct 07, 2004 at 06:32:43PM -0400, Kyle Moffett wrote:
-> > >
-> > >>>>"References within the address range starting at pa and continuing
-> > >>>>for len bytes to whole pages following the end of an object shall
-> > >>>>result in delivery of a SIGBUS signal."
-> > 
-> > Reviewing this once more:
-> > 
-> > >References within the address range starting at pa and continuing for
-> > >len bytes:
-> > range = {pa ... pa+len};
-> > 
-> > >To whole pages following the end of an object:
-> > range = {pa ... PAGE_ROUND_UP(pa+len)};
-> 
-> It is here you are wrong.
+Marcelo,
 
-Indeed, I think Kyle took ``end of an object'' to mean the end of the
-mapping instead of the end of what is mapped, e.g. EOF in case of a file.
+> New drivers are OK, as long as they dont break existing setups, 
+> and if substantial amount of users will benefit from it.
+
+It cannot possibly break anything for somebody who does not
+use it, and I am not aware of any unresolved problems in it,
+i.e., I don't think it can harm its users either.
+ 
+> You've submitted the patch to this list for review already? 
+> Can't remember from the top of my head.
+
+Yes and no. This driver has been announced here 3 times,
+the latest announcement being this:
+http://www.kerneltraffic.org/kernel-traffic/kt20040807_270.html#7
+
+However, I did not announce the latest release here on the list,
+and only emailed you personally last Sunday, because I felt that
+there are not enough differences with the previous release. This
+was a mistake and I'll make an announcement in a separate email.
+
+> A review by someone with good knowledge on this area (arjan, 
+> bart, alan, ?) would also be a good point on getting it into the
+> tree.
+
+I would appreciate a review of the driver very much.
+
+Thanks again,
+
+  Martins Krikis
+  Storage Components Division
+  Intel Massachusetts
 
 
---ms
 
+		
 

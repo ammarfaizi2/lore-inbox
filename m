@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132736AbRDINQN>; Mon, 9 Apr 2001 09:16:13 -0400
+	id <S132743AbRDINXg>; Mon, 9 Apr 2001 09:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132742AbRDINQE>; Mon, 9 Apr 2001 09:16:04 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:9165 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S132736AbRDINP6>; Mon, 9 Apr 2001 09:15:58 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Multi-function PCI devices
-Date: Mon, 9 Apr 2001 13:15:57 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9ascmd$27d$1@forge.intermeta.de>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 986822157 24657 212.34.181.4 (9 Apr 2001 13:15:57 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 9 Apr 2001 13:15:57 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S132746AbRDINX0>; Mon, 9 Apr 2001 09:23:26 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:48503 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S132743AbRDINXK>; Mon, 9 Apr 2001 09:23:10 -0400
+Date: Mon, 9 Apr 2001 14:23:04 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Jakob Kemi <jakob.kemi@post.utfors.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20010409142304.H1136@redhat.com>
+In-Reply-To: <3.0.1.32.20010402212043.00dadd18@post.utfors.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="QDd5rp1wjxlDmy9q"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3.0.1.32.20010402212043.00dadd18@post.utfors.se>; from jakob.kemi@post.utfors.se on Mon, Apr 02, 2001 at 09:20:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
->Not so hard.
+--QDd5rp1wjxlDmy9q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->There is no need to register more than one driver per PCI device -- just
->create a PCI driver whose probe routine registers serial and parallel,
->and whose remove routine unregisters same.
+On Mon, Apr 02, 2001 at 09:20:43PM +0200, Jakob Kemi wrote:
 
-Sigh. Register a small dummy driver, which takes the device and then hands
-out the parallel ports to the parallel driver and the serial ports to the
-serial driver. All you need are just two small hooks.
+> Ok, maybe this isn't the right list for this question. In 2.2.x the
+> parport_probe module extracted the ieee1284 device id correctly and
+> added to the proc fs. However this doesn't seem to work for me in
+> 2.4.x
 
-	Regards
-		Henning
+It changed place: perhaps that's the problem?  /proc/parport/$n is now
+/proc/sys/dev/parport/$name.
 
+> Is there some option I need to enable. As far as I understand the
+>  CONFIG_PARPORT_1284 should be enough??
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Yes, it should.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Tim.
+*/
+
+--QDd5rp1wjxlDmy9q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE60be4ONXnILZ4yVIRAvFSAJ9r9+t8auFaSs7I8100A8R18M7QagCgmN17
+QJQPUkHUnnFS8e6tgR3fBd0=
+=eDcm
+-----END PGP SIGNATURE-----
+
+--QDd5rp1wjxlDmy9q--

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282845AbRLLXu3>; Wed, 12 Dec 2001 18:50:29 -0500
+	id <S282898AbRLLXx7>; Wed, 12 Dec 2001 18:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282898AbRLLXuV>; Wed, 12 Dec 2001 18:50:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:52040 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S282845AbRLLXuK>; Wed, 12 Dec 2001 18:50:10 -0500
-Date: Thu, 13 Dec 2001 00:49:33 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "H . J . Lu" <hjl@lucon.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Slow Disk I/O with QPS M3 80GB HD
-Message-ID: <20011213004933.T4801@athlon.random>
-In-Reply-To: <20011210203452.A3250@lucon.org> <20011210235708.A17743@lucon.org> <20011211154331.A32433@lucon.org> <20011212092954.N4801@athlon.random> <20011212153806.A22202@lucon.org>
+	id <S282904AbRLLXxu>; Wed, 12 Dec 2001 18:53:50 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49680 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282898AbRLLXxo>; Wed, 12 Dec 2001 18:53:44 -0500
+Date: Wed, 12 Dec 2001 23:53:14 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Daniel Gryniewicz <dang@fprintf.net>
+Cc: Alp ATICI <atici@math.columbia.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Network related
+Message-ID: <20011212235314.B4606@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.40.0112121821260.4894-100000@intel4.math.columbia.edu> <20011212183843.3db1580b.dang@fprintf.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011212153806.A22202@lucon.org>; from hjl@lucon.org on Wed, Dec 12, 2001 at 03:38:06PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011212183843.3db1580b.dang@fprintf.net>; from dang@fprintf.net on Wed, Dec 12, 2001 at 06:38:43PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 03:38:06PM -0800, H . J . Lu wrote:
-> H.J.
-> ----
-> 3 files on USB:
-> 
-> # ls -l
-> total 5984
-> -rwxr-xr-x    1 root     root      1991481 Dec  8 21:44 dsc00002.jpg
-> -rwxr-xr-x    1 root     root      2432127 Dec  8 23:54 dsc00005.jpg
-> -rwxr-xr-x    1 root     root      1675563 Dec  8 23:59 dsc00009.jpg
-> 
-> 1. 2.4.10-pre10
-> 
-> # time /bin/cp * /tmp/
-> real    0m0.623s
-> user    0m0.000s
-> sys     0m0.100s
-> 
-> 2. 2.4.10-pre10aa1
-> 
-> # time /bin/cp * /tmp/
-> real    0m8.952s
-> user    0m0.000s
-> sys     0m0.190s
-> 
-> 
-> 3. 2.4.10-pre11
-> 
-> # time /bin/cp * /tmp/
-> real    0m8.851s
-> user    0m0.000s
-> sys     0m0.170s
+On Wed, Dec 12, 2001 at 06:38:43PM -0500, Daniel Gryniewicz wrote:
+> My guess is that this is becuase you have IPv6 turned on, and these sites
+> resolve to an IPv6 address, as well as an IPv4 address.  Linux will not,
+> under these circumstances, fall back on the IPv4 address.  Turn of IPv6,
+> or connect to the 6bone.
 
-but the above have nothing to do with the blkdev-pagecache.
-Blkdev-pagecache can matter only with blkdev accesses, blkdev-pagecache
-cannot make any difference if the I/O passes through any fs (not via the
-block_dev layer) like in the above case.
+Good theory, apart from a major flaw - www.nvidia.com nor www.sun.com
+resolve to any IPv6 records (AAAA nor A6).
 
-Can you try to take those cp under strace timestamp and see what's the
-syscall that blocks?
+A better explaination would probably be ECN, and indeed, I am unable to
+reach www.sun.com from a local ECN-enabled host.
 
-Andrea
+> On Wed, 12 Dec 2001 18:29:17 -0500 (EST)
+> Alp ATICI <atici@math.columbia.edu> wrote:
+> 
+> > I get a "connection timed out". Most of the sites work ok but some
+> > specific ones like www.nvidia.com, www.sun.com, www.ingdirect.com
+> > never works and gives the same error.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVBBAgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVBBAsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVBBAgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 19:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVBBAgJ
+	id S261948AbVBBAsU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 19:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBBAsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 19:36:09 -0500
-Received: from smtp109.mail.sc5.yahoo.com ([66.163.170.7]:28796 "HELO
-	smtp109.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261973AbVBBAf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 19:35:56 -0500
-Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock
-	in handle_mm_fault
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-In-Reply-To: <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
-References: <41E5B7AD.40304@yahoo.com.au>
-	 <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-	 <41E5BC60.3090309@yahoo.com.au>
-	 <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-	 <20050113031807.GA97340@muc.de>
-	 <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-	 <20050113180205.GA17600@muc.de>
-	 <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
-	 <20050114043944.GB41559@muc.de>
-	 <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
-	 <20050114170140.GB4634@muc.de>
-	 <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
-	 <41FF00CE.8060904@yahoo.com.au>
-	 <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 11:31:36 +1100
-Message-Id: <1107304296.5131.13.camel@npiggin-nld.site>
+	Tue, 1 Feb 2005 19:48:20 -0500
+Received: from soundwarez.org ([217.160.171.123]:14790 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261948AbVBBAsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 19:48:15 -0500
+Date: Wed, 2 Feb 2005 01:48:12 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] driver core: export MAJOR/MINOR to the hotplug env
+Message-ID: <20050202004812.GA29888@vrfy.org>
+References: <20050123041911.GA9209@vrfy.org> <20050201225625.GA14962@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050201225625.GA14962@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 11:01 -0800, Christoph Lameter wrote:
-> On Tue, 1 Feb 2005, Nick Piggin wrote:
-
-> > A per-pte lock is sufficient for this case, of course, which is why the
-> > pte-locked system is completely free of the page table lock.
+On Tue, Feb 01, 2005 at 02:56:25PM -0800, Greg KH wrote:
+> On Sun, Jan 23, 2005 at 05:19:11AM +0100, Kay Sievers wrote:
+> > This patch sequence moves the creation of the sysfs "dev" file of the class
+> > devices into the driver core. The struct class_device contains a dev_t
+> > value now. If set, the driver core will create the "dev" file containing
+> > the major/minor numbers automatically.
+> > 
+> > The MAJOR/MINOR values are also exported to the hotplug environment. This
+> > makes it easy for userspace, especially udev to know if it should wait for
+> > a "dev" file to create a device node or if it can just ignore the event.
+> > We currently carry a compiled in blacklist around for that reason.
+> > 
+> > It would also be possible to run some "tiny udev" while sysfs is not
+> > available - just by reading the hotplug call or the netlink-uevent.
 > 
-> Introducing pte locking would allow us to go further with parallelizing
-> this but its another invasive procedure. I think parallelizing COW is only
-> possible to do reliable with some pte locking scheme. But then the
-> question is if the pte locking is really faster than obtaining a spinlock.
-> I suspect this may not be the case.
-> 
+> This is great, thanks for doing this.  I've applied all of these patches
+> to my trees, and they'll show up in the next -mm release.
 
-Well most likely not although I haven't been able to detect much
-difference. But in your case you would probably be happy to live
-with that if it meant better parallelising of an important
-function... but we'll leave future discussion to another thread ;)
+Fine, thanks.
 
-> > Although I may have some fact fundamentally wrong?
-> 
-> The unmapping in rmap.c would change the pte. This would be discovered
-> after acquiring the spinlock later in do_wp_page. Which would then lead to
-> the operation being abandoned.
-> 
+> Hm, that class_simple interface is looking like the way we should move
+> toward, as it's "simple" to use, instead of the more complex class code.
+> I'll have to look at migrating more code to use it over time, or move
+> that interface back into the class code itself...
 
-Oh yes, but suppose your page_cache_get is happening at the same time
-as free_pages_check, after the page gets freed by the scanner? I can't
-actually think of anything that would cause a real problem (ie. not a
-debug check), off the top of my head. But can you say there _isn't_
-anything?
+Nice idea! What about keeping a list of devices belonging to a
+specific class in an own list in 'struct class' and maintaining that list
+with class_device_add(), class_device_del()?
 
-Regardless, it seems pretty dirty to me. But could possibly be made
-workable, of course.
+A class driver may use that list to keep track of its own devices if
+wanted and class_simple would not be needed anymore as everything
+would be available in the core.
 
-
-
+Thanks,
+Kay

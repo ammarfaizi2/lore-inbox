@@ -1,92 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSHBNzA>; Fri, 2 Aug 2002 09:55:00 -0400
+	id <S314451AbSHBNvs>; Fri, 2 Aug 2002 09:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314551AbSHBNy7>; Fri, 2 Aug 2002 09:54:59 -0400
-Received: from tolkor.sgi.com ([192.48.180.13]:46748 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S314548AbSHBNy5>;
-	Fri, 2 Aug 2002 09:54:57 -0400
-Subject: Re: A new ide warning message
-From: Steve Lord <lord@sgi.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: martin@dalecki.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020802124139.GR3010@suse.de>
-References: <1028288066.1123.5.camel@laptop.americas.sgi.com>
-	<20020802114713.GD1055@suse.de> <3D4A7178.7050307@evision.ag>
-	<1028289940.1123.19.camel@laptop.americas.sgi.com>
-	<3D4A771A.9020308@evision.ag> <20020802123055.GQ3010@suse.de>
-	<3D4A7BBE.90104@evision.ag>  <20020802124139.GR3010@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Aug 2002 08:50:55 -0500
-Message-Id: <1028296255.30192.9.camel@jen.americas.sgi.com>
+	id <S314085AbSHBNvr>; Fri, 2 Aug 2002 09:51:47 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:36368 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314077AbSHBNva>;
+	Fri, 2 Aug 2002 09:51:30 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Jones <davej@suse.de>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] __devexit_p macro 
+In-reply-to: Your message of "Fri, 02 Aug 2002 23:46:39 +1000."
+             <3483.1028295999@ocs3.intra.ocs.com.au> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 02 Aug 2002 23:54:50 +1000
+Message-ID: <3766.1028296490@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-02 at 07:41, Jens Axboe wrote:
-> 
-> Yeah it's a request for data, what else could it be? That's the only
-> place where we call blk_rq_map_sg().
-> 
-> Stephen, please provoke with this patch applied. I hope it works, it's
-> untested :-)
-> 
+On Fri, 02 Aug 2002 23:46:39 +1000, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>On Fri, 2 Aug 2002 14:33:49 +0200, 
+>Dave Jones <davej@suse.de> wrote:
+>>On Fri, Aug 02, 2002 at 09:24:56AM +0000, Felipe W Damasio wrote:
+>> > +#ifdef MODULE || CONFIG_HOTPLUG
+>> > +#define __devexit_p(x)  &(x)
+>> > +#else
+>> >  #define __devexit_p(x)  0
+>> >  #endif
+>>
+>>Instead of making this a maze of #if/else's, you can acheive
+>>the same effect with the following patch that has been in my
+>>tree for a few months.. (hand pasted, may not apply cleanly)
+>
+>Better still, copy the end of 2.5.19-rc5/include/linux/init.h to
 
-Consider it provoked, I added a trace to the submit_bio call in XFS
-as well, dumping sector number, bio length in bytes and number of
-vector elements submitted:
+Duh, that should be 2.4.19-rc5 of course.
 
-submit_bio(READ, sector 0x414870, len 65536 vec_len 16
-submit_bio(READ, sector 0x4148f0, len 65536 vec_len 16
-pcidma: build 2 segments, supplied 1/16, sectors 128/8
-bio 0: phys 1, hw 16
-segment 0: phys 69599232, size 4096
-segment 1: phys 69603328, size 4096
-segment 2: phys 69607424, size 4096
-segment 3: phys 69611520, size 4096
-segment 4: phys 69615616, size 4096
-segment 5: phys 69619712, size 4096
-segment 6: phys 69623808, size 4096
-segment 7: phys 69627904, size 4096
-segment 8: phys 69632000, size 4096
-segment 9: phys 69636096, size 4096
-segment 10: phys 69640192, size 4096
-segment 11: phys 69644288, size 4096
-segment 12: phys 69648384, size 4096
-segment 13: phys 69652480, size 4096
-segment 14: phys 69656576, size 4096
-segment 15: phys 69660672, size 4096
-pcidma: build 2 segments, supplied 1/16, sectors 128/8
-bio 0: phys 1, hw 16
-segment 0: phys 69664768, size 4096
-segment 1: phys 69668864, size 4096
-segment 2: phys 69672960, size 4096
-segment 3: phys 69677056, size 4096
-segment 4: phys 69681152, size 4096
-segment 5: phys 69685248, size 4096
-segment 6: phys 69689344, size 4096
-segment 7: phys 69693440, size 4096
-segment 8: phys 69697536, size 4096
-segment 9: phys 69701632, size 4096
-segment 10: phys 69705728, size 4096
-segment 11: phys 69709824, size 4096
-segment 12: phys 69713920, size 4096
-segment 13: phys 69718016, size 4096
-segment 14: phys 69722112, size 4096
-segment 15: phys 69726208, size 4096
+>2.5.30, from #ifdef CONFIG_HOTPLUG onwards.  There is no point in
+>having slight differences between the 2.4 and 2.5 versions, ATM they
+>should be the same.
 
-And so on.....
-
-The bio size being used is based purely on the BIO_MAX_SECTORS
-constant, same code as ll_rw_kio. Looks like the direct I/O
-path uses similar math.
-
-Steve
-
--- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com

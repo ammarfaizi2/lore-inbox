@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270652AbTHFRBu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 13:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270734AbTHFRBu
+	id S270206AbTHFRBT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 13:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270652AbTHFRBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 13:01:50 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:17507 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S270652AbTHFRBr
+	Wed, 6 Aug 2003 13:01:19 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:46328 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S270206AbTHFRBS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 13:01:47 -0400
-Date: Wed, 6 Aug 2003 12:01:45 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TOE brain dump
-Message-ID: <20030806120145.A15543@hexapodia.org>
-References: <3F2C0C44.6020002@pobox.com> <20030802184901.G5798@almesberger.net> <m1fzkiwnru.fsf@frodo.biederman.org> <20030804162433.L5798@almesberger.net> <m1u18wuinm.fsf@frodo.biederman.org> <20030806021304.E5798@almesberger.net> <m1llu7ushr.fsf@frodo.biederman.org> <20030806103758.H5798@almesberger.net> <20030806105830.B26920@hexapodia.org> <3F312C65.9000201@nortelnetworks.com>
+	Wed, 6 Aug 2003 13:01:18 -0400
+Subject: Re: [patch] real-time enhanced page allocator and throttling
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu,
+       piggin@cyberone.com.au, kernel@kolivas.org, linux-mm@kvack.org
+In-Reply-To: <20030806014148.5408cfbd.akpm@osdl.org>
+References: <1060121638.4494.111.camel@localhost>
+	 <20030805170954.59385c78.akpm@osdl.org>
+	 <1060130368.4494.166.camel@localhost>
+	 <20030805174536.6cb5fbf0.akpm@osdl.org>
+	 <1060142290.4494.197.camel@localhost>
+	 <20030806014148.5408cfbd.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1060189274.4494.212.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3F312C65.9000201@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Wed, Aug 06, 2003 at 12:27:17PM -0400
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
+Date: 06 Aug 2003 10:01:14 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 12:27:17PM -0400, Chris Friesen wrote:
-> Andy Isaacson wrote:
-> > On Wed, Aug 06, 2003 at 10:37:58AM -0300, Werner Almesberger wrote:
-> >>Eric W. Biederman wrote:
-> >>>to keep your latency down.  Do any ethernet switches do cut-through?
-> >>According to Google, many at least claim to do this.
-> > 
-> > Do you have any references for this claim?  I have never seen one that
-> > panned out (at least not since the high-end-10mbps days).
-> > 
-> > Just to be clear, I am asking for an example of a Gigabit Ethernet
-> > switch that supports cut-through switching.  I contend that there is no
-> > such beast commercially available today.
+On Wed, 2003-08-06 at 01:41, Andrew Morton wrote:
+
+> It's pretty easy to demonstrate the benefit of the balance_dirty_pages()
+> change.  Just do:
 > 
-> A few seconds of googling shows that these claim it:
-> http://www.blackbox.com.mx/products/pdf/europdf/81055.pdf
+> while true
+> do
+> 	dd if=/dev/zero of=foo bs=1M count=512 conv=notrunc
+> done
+> 
+> and also:
+> 
+> rm 1 ; sleep 3; time dd if=/dev/zero of=1 bs=16M count=1
+> 
+> The 16M dd normally takes 1.5 seconds (I'm pretty please with that btw. 
+> Very repeatable and fair).  If you run the 16M dd with SCHED_FIFO it takes
+> a repeatable 0.12 seconds.
 
-This is a 100mbit product, not gigabit.
+This is what I did. Same results, basically.
 
-> http://www.directdial.com/dd2/images/pdf_specsheet/J4119AABA.pdf
+What I did not do was prove that the xmms stalls went away for those who
+were seeing that.
 
-The products referred to here are the HP ProCurve Switch 8000M and the
-HP ProCurve Switch 1600M.  The 1600M has only one (optional) GigE port,
-so it's disqualified.  The 8000M has up to 10 GigE ports, so it could be
-interesting.  The PDF says "Cut-through Layer 3 switching", which is a
-bit of marketese that I have trouble deciphering.  I'll run some tests
-on our 4000M and see if I can come to any conclusions...  if anyone can
-point to a whitepaper on the ProCurve chassis design I'd apprecate it.
+> So running a program off disk isn't a very good test.
 
-> I'm sure there are others...
+No, its not. And in general, real-time tasks should not do disk I/O (at
+least not via their core RT thread). And they should mlock() their
+memory.
 
-I'm still curious.
+But circumstances do differ, and these changes are in the right
+direction, I think. It also means e.g. someone can make xmms or whatever
+real-time, and hopefully avoid the memory-related stalls that spawned
+the discussion and this patch.
 
--andy
+	Robert Love
+
+

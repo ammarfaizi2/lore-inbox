@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131425AbRAJRMu>; Wed, 10 Jan 2001 12:12:50 -0500
+	id <S131611AbRAJROK>; Wed, 10 Jan 2001 12:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131611AbRAJRMk>; Wed, 10 Jan 2001 12:12:40 -0500
-Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:24308 "EHLO
-	stefan.sime.com") by vger.kernel.org with ESMTP id <S131425AbRAJRMc>;
-	Wed, 10 Jan 2001 12:12:32 -0500
-Date: Wed, 10 Jan 2001 18:11:46 +0100
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Stefan Traby <stefan@hello-penguin.com>
-Cc: "Vladimir V. Saveliev" <vs@namesys.botik.ru>, Chris Mason <mason@suse.com>,
-        Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE Linux)
-Message-ID: <20010110181146.A2303@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-In-Reply-To: <75150000.979093424@tiny> <3A5C8780.5B02EC8A@namesys.botik.ru> <20010110180353.B2101@stefan.sime.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010110180353.B2101@stefan.sime.com>; from stefan@hello-penguin.com on Wed, Jan 10, 2001 at 06:03:53PM +0100
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.0-fijiji0 (i686)
-X-APM: 100% 400 min
+	id <S132811AbRAJROA>; Wed, 10 Jan 2001 12:14:00 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:11773 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131611AbRAJRNo>; Wed, 10 Jan 2001 12:13:44 -0500
+Date: Wed, 10 Jan 2001 17:13:37 +0000 (GMT)
+From: Charles McLachlan <cim20@mrao.cam.ac.uk>
+To: <linux-kernel@vger.kernel.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: [PATCH] 2.4.0 agpgart with i815 and external card.
+In-Reply-To: <12302DEB1F3D@vcnet.vc.cvut.cz>
+Message-ID: <Pine.SOL.4.30.0101101704070.9183-200000@mraosd.ra.phy.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-979146817=:9183"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 06:03:53PM +0100, Stefan Traby wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Really, the 255-limit is essential as long as "struct dirent/64" has
-> d_name[255] hard coded. Somebody should send Drepper a patch;
+---559023410-758783491-979146817=:9183
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-sorry, d_name[256], not 255 in both, glibc and kernel...
 
--- 
+My problem was that I didn't pay enough attention to the configuration
+options. I opted for *both* the 440LX/BX/GX, 815, 840, 850 support
+(CONFIG_AGP_INTEL) *and* I810/I815 (on-board) support (CONFIG_AGP_I810).
 
-    Stefan
+The latter was taking precedence over the former, and getting confused.
+
+Petr Vandrovec has made the very good point that, to stop others from
+getting as confused as me, agpgart should default to generic intel if it
+can't find the onboard i815 video card.
+
+It's a very small patch (one line really) which I present for your
+consideration.
+
+Thanks to Alan Cox and Petr for putting me right.
+
+Charlie - Queens' College - Cavendish Astrophysics - 07866 636318
+
+---559023410-758783491-979146817=:9183
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=agppatch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SOL.4.30.0101101713370.9183@mraosd.ra.phy.cam.ac.uk>
+Content-Description: 
+Content-Disposition: attachment; filename=agppatch
+
+LS0tIGRyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZV9vcmlnaW5hbC5jCVdl
+ZCBKYW4gMTAgMTY6NTk6MzUgMjAwMQ0KKysrIGRyaXZlcnMvY2hhci9hZ3Av
+YWdwZ2FydF9iZS5jCVdlZCBKYW4gMTAgMTc6MDA6NTQgMjAwMQ0KQEAgLTIz
+NzMsOSArMjM3Myw5IEBADQogCQkJaWYgKGk4MTBfZGV2ID09IE5VTEwpIHsN
+CiAJCQkJcHJpbnRrKEtFUk5fRVJSIFBGWCAiYWdwZ2FydDogRGV0ZWN0ZWQg
+YW4gIg0KIAkJCQkgICAgICAgIkludGVsIGk4MTUsIGJ1dCBjb3VsZCBub3Qg
+ZmluZCB0aGUiDQotCQkJCSAgICAgICAiIHNlY29uZGFyeSBkZXZpY2UuXG4i
+KTsNCi0JCQkJYWdwX2JyaWRnZS50eXBlID0gTk9UX1NVUFBPUlRFRDsNCi0J
+CQkJcmV0dXJuIC1FTk9ERVY7DQorCQkJCSAgICAgICAiIHNlY29uZGFyeSBk
+ZXZpY2UuIEFzc3VtaW5nIGEgIg0KKwkJCQkgICAgICAgIm5vbi1pbnRlZ3Jh
+dGVkIHZpZGVvIGNhcmQuXG4iKTsNCisJCQkJYnJlYWs7DQogCQkJfQ0KIAkJ
+CXByaW50ayhLRVJOX0lORk8gUEZYICJhZ3BnYXJ0OiBEZXRlY3RlZCBhbiBJ
+bnRlbCBpODE1ICINCiAJCQkgICAgICAgIkNoaXBzZXQuXG4iKTsNCg==
+---559023410-758783491-979146817=:9183--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

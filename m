@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130032AbQK3SO6>; Thu, 30 Nov 2000 13:14:58 -0500
+        id <S129226AbQK3SpD>; Thu, 30 Nov 2000 13:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129572AbQK3SOq>; Thu, 30 Nov 2000 13:14:46 -0500
-Received: from tartu.cyber.ee ([193.40.16.128]:36370 "EHLO tartu.cyber.ee")
-        by vger.kernel.org with ESMTP id <S129912AbQK3SEF>;
-        Thu, 30 Nov 2000 13:04:05 -0500
-From: Meelis Roos <mroos@linux.ee>
-To: jbj_ss@mail.tele.dk, linux-kernel@vger.kernel.org
-Subject: Re: Pls add this driver to the kernel tree !!
-In-Reply-To: <200011280251.eAS2p2S15351@localhost.jbj.dk>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.4.0-test10 (i586))
-Message-Id: <E141XZl-0005z9-00@roos.tartu-labor>
-Date: Thu, 30 Nov 2000 19:32:53 +0200
+        id <S129423AbQK3Sox>; Thu, 30 Nov 2000 13:44:53 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:44273 "EHLO
+        webber.adilger.net") by vger.kernel.org with ESMTP
+        id <S130991AbQK3SSC>; Thu, 30 Nov 2000 13:18:02 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011301745.eAUHjOE16081@webber.adilger.net>
+Subject: Re: 'holey files' not holey enough.
+In-Reply-To: <Pine.LNX.4.21.0011300929330.1152-200000@eax.student.umd.edu>
+ "from Adam at Nov 30, 2000 09:34:37 am"
+To: Adam <adam@eax.com>
+Date: Thu, 30 Nov 2000 10:45:23 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>, Marc Mutz <Marc@mutz.com>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JBJ> #ifdef INLINE_PCISCAN
-JBJ> #include "k_compat.h"
-JBJ> #else
-JBJ> #include "pci-scan.h"
-JBJ> #include "kern_compat.h"
-JBJ> #endif
+Adam writes:
+> I just did what suggested, and it seems that DU reports correct values,
+> I have attached 'sript' log of the above example on my filesystem.
+> Here are some highlights:
+> 
+> [adam@pepsi /tmp]$ ls -lis holed.file
+> 3085069 5872 -rw-rw-r--    1 adam     adam      6000000 Nov 30 09:11 holed.file
+> 
+> Block size = 4096, fragment size = 4096
+> Links: 1   Blockcount: 11744
+> TOTAL: 1468
+> 
+> so it seems DU reports correct values as :
+> 	11744/2=5872
+> and
+> 	4096*1468=6012928
 
-I quess you need to convert it to kernel PCI API first and probably also to
-optimize away the LINUX_VERSION_CODE checks (we know it's 2.4).
+I guess the next thing to check is if your "dd" is actually seeking, or
+just pretending to...  Maybe an strace of the "dd" call will tell us if
+it is screwing with our minds.  Also, if you could make a scratch ext2
+filesystem with 1k blocks, and see if it does the same thing.  Even
+better would be to try a different kernel to see if it affects this.
 
+Cheers, Andreas
 -- 
-Meelis Roos (mroos@linux.ee)
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

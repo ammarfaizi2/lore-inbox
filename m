@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUGSKmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUGSKnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbUGSKmv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 06:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUGSKmv
+	id S264980AbUGSKnu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 06:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUGSKnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 06:42:51 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12978 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264957AbUGSKmu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 06:42:50 -0400
-Date: Mon, 19 Jul 2004 12:36:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Mon, 19 Jul 2004 06:43:50 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:10237 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264960AbUGSKnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 06:43:33 -0400
+Message-ID: <40FBA5D2.90107@mindspring.com>
+Date: Mon, 19 Jul 2004 03:43:30 -0700
+From: Steve Bangert <sbangert@mindspring.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.7) Gecko/20040625
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [patch] voluntary-preempt 2.6.8-rc2-H4
-Message-ID: <20040719103637.GA8924@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040709235017.GP20947@dualathlon.random> <20040710075747.GA25052@elte.hu> <2a4f155d040710011041a95210@mail.gmail.com> <20040710082846.GA29275@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040710082846.GA29275@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Subject: make rpm broken in 2.6.8-rc2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[root@localhost linux-2.6]# make rpm
+make clean
+set -e; cd ..; ln -sf /usr/src/linux-2.6 kernel-2.6.8rc2
+set -e; cd ..; tar -cz  -f kernel-2.6.8rc2.tar.gz kernel-2.6.8rc2/.
+set -e; cd ..; rm kernel-2.6.8rc2
+set -e; \
+/bin/sh /usr/src/linux-2.6/scripts/mkversion > 
+/usr/src/linux-2.6/.tmp_version
+set -e; \
+mv -f /usr/src/linux-2.6/.tmp_version /usr/src/linux-2.6/.version
+rpmbuild --target i386 -ta ../kernel-2.6.8rc2.tar.gz
+Building target platforms: i386
+Building for target i386
+Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.72624
++ umask 022
++ cd /usr/src/redhat/BUILD
++ LANG=C
++ export LANG
++ cd /usr/src/redhat/BUILD
++ rm -rf kernel-2.6.8rc1
++ /usr/bin/gzip -dc /usr/src/kernel-2.6.8rc1.tar.gz
++ tar -xf -
+ 
+gzip: /usr/src/kernel-2.6.8rc1.tar.gz: unexpected end of file
+tar: Unexpected EOF in archive
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now
+error: Bad exit status from /var/tmp/rpm-tmp.72624 (%prep)
+ 
+ 
+RPM build errors:
+    Bad exit status from /var/tmp/rpm-tmp.72624 (%prep)
+make[1]: *** [rpm] Error 1
+make: *** [rpm] Error 2
+[root@localhost linux-2.6]#
 
-i've uploaded the latest (-H4) voluntary-preempt patch to:
 
-  http://redhat.com/~mingo/voluntary-preempt/
-
-Changes from -H3 to -H4:
-
- - fixes the ext3 bug reported by Zwane Mwaikambo
- - port to 2.6.8-rc2
-
-There are also patches are against 2.6.7-vanilla, 2.6.7-mm7 and
-2.6.7-bk20.
-
-	Ingo
+Steve Bangert

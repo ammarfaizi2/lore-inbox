@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbTEAXx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 19:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbTEAXx5
+	id S262793AbTEAXt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 19:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbTEAXt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 19:53:57 -0400
+	Thu, 1 May 2003 19:49:57 -0400
 Received: from rth.ninka.net ([216.101.162.244]:46553 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S262813AbTEAXxz (ORCPT
+	by vger.kernel.org with ESMTP id S262793AbTEAXtw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 19:53:55 -0400
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+	Thu, 1 May 2003 19:49:52 -0400
+Subject: Re: must-fix list for 2.6.0
 From: "David S. Miller" <davem@redhat.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Larry McVoy <lm@bitmover.com>, "Downing, Thomas" <Thomas.Downing@ipc.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0304301337320.24575-100000@mooru.gurulabs.com>
-References: <Pine.LNX.4.44.0304301337320.24575-100000@mooru.gurulabs.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+In-Reply-To: <87znm6c3fd.fsf@deneb.enyo.de>
+References: <20030429231009$1e6b@gated-at.bofh.it>
+	 <87k7dcinxg.fsf@deneb.enyo.de> <1051788267.8772.9.camel@rth.ninka.net>
+	 <87znm6c3fd.fsf@deneb.enyo.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1051789446.8772.13.camel@rth.ninka.net>
+Message-Id: <1051790736.8772.23.camel@rth.ninka.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 May 2003 04:44:06 -0700
+Date: 01 May 2003 05:05:36 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-30 at 13:00, Dax Kelson wrote:
-> Current --in production-- DRM. Clearly no. Current DRM is mostly all
-> targeted to audio / video content protection.
+On Thu, 2003-05-01 at 04:27, Florian Weimer wrote:
+> "David S. Miller" <davem@redhat.com> writes:
 > 
-> So, nothing that we have *today* is a response to Open Source.
+> > On Tue, 2003-04-29 at 21:55, Florian Weimer wrote:
+> >> Andrew Morton <akpm@digeo.com> writes:
+> >> 
+> >> > net/
+> >> > ----
+> >> 
+> >> What about the dst cache DoS attack?
+> >
+> > Thanks for the lack of detailed description of the problem.
+> > Without it nobody can help you.
+> 
+> Shall I post the exploit?
 
-I can't believe nobody talks about TiVO and what they're doing (only
-allowing signed Linux kernels to boot on their machines).
+Don't let me stop you.
 
-That is DRM, and directly in response to open source.
+You can't expect us to act on anything based upon vague references
+to "dst cache DoS" and things like that.
 
-Yet at the same time I recognize the truth in Linus's stance here.
-And personally, I'm going to speak with my walet by not buying any
-products from those fucknuts at TIVO.  This is precisely the mechanism
-Linus said would decide if DRM is successful or not.
+I also would appreciate it if you'd actually at least add the
+networking maintainers to the CC: list when asking/discussing
+such problems.  Bringing it up on places like linux-net and
+netdev@oss.sgi.com would be a good idea too.
+
+Random blather on linux-kernel tends to get ignored.
 
 -- 
 David S. Miller <davem@redhat.com>

@@ -1,83 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285475AbRLYLuV>; Tue, 25 Dec 2001 06:50:21 -0500
+	id <S285482AbRLYL5c>; Tue, 25 Dec 2001 06:57:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285481AbRLYLuM>; Tue, 25 Dec 2001 06:50:12 -0500
-Received: from white.pocketinet.com ([12.17.167.5]:30112 "EHLO
-	white.pocketinet.com") by vger.kernel.org with ESMTP
-	id <S285475AbRLYLuF>; Tue, 25 Dec 2001 06:50:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <nknight@pocketinet.com>
-Reply-To: nknight@pocketinet.com
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: minimizing swap usage
-Date: Tue, 25 Dec 2001 03:50:07 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0112200559350.8883-100000@shell1.aracnet.com> <WHITEp4nbukgQu0216A000005b2@white.pocketinet.com> <01122513421800.02101@manta>
-In-Reply-To: <01122513421800.02101@manta>
+	id <S285484AbRLYL5X>; Tue, 25 Dec 2001 06:57:23 -0500
+Received: from mail1.arcor-ip.de ([145.253.2.10]:32718 "EHLO mail1.arcor-ip.de")
+	by vger.kernel.org with ESMTP id <S285482AbRLYL5O>;
+	Tue, 25 Dec 2001 06:57:14 -0500
+Message-ID: <3C28698A.9020606@arcormail.de>
+Date: Tue, 25 Dec 2001 12:56:58 +0100
+From: Hartmut Holz <hartmut.holz@arcormail.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <WHITE9dmLgtgGbEauz0000005b7@white.pocketinet.com>
-X-OriginalArrivalTime: 25 Dec 2001 11:48:27.0599 (UTC) FILETIME=[11011DF0:01C18D3A]
+To: "=?ISO-8859-1?Q?Fr=E9d=E9ric?= L. W. Meunier" <0@pervalidus.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: EMU10K1: IRQ 10 ?
+In-Reply-To: <20011225034725.GA148@pervalidus> <200112250401.fBP41E025476@barn.psychohorse.com> <20011225043232.GC148@pervalidus> <200112250440.fBP4eu025586@barn.psychohorse.com> <20011225054059.GD148@pervalidus>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 December 2001 07:42 am, vda wrote:
-> On Tuesday 25 December 2001 09:02, Nicholas Knight wrote:
-> > > > What's with all the caching when my apps crawl because it's
-> > > > swapping so much ? I've tried to adjust /proc/vm/kswapd
-> > > > parameters but that doesn't seem to help..I'd like to postpone
-> > > > the swapping until its almost out of physical memory..
-> > >
-> > > This may seem counterintuitive, but postponing swapping / cache
-> > > flushing to disk till the last possible moment is
-> > > counterproductive. It's a little like procrastination in the time
-> > > management world --
-> >
-> > Why not add a config option to choose between code for two
-> > behaviors: (1 being the default, of course)
-> > 1. Current behavior.... [snip]
-> > 2. Don't swap ANYTHING to disk until avalible RAM drops below, say,
-> > 15%. And put cache on a sanity check; if the system is going to
-> > swap to disk because avalible RAM drops below 15%, and  cache makes
-> > up more than, say, 45%, start dropping the oldest stuff in the
-> > cache to free up RAM instead of swapping. (I'm assuming 128-256MB+
-> > of RAM here, for anything smaller, default is probably best.)
->
-> There are actually two things which are usually referred to as
-> 'excessive swap':
->
-> (1) 'swap in'. pages which were unused for some time got swapped out
-> over time, but now an app (imagine something big: Mozilla) wants them
-> back and starts to read them all from swap space into RAM (+ possibly
-> swapping out old pages of other apps to free that RAM first). This
-> may feel sluggish but is actually correct behaviour.
+FrÈdÈric L. W. Meunier wrote:
 
-*USUALY* correct.
+> On Mon, Dec 24, 2001 at 08:41:19PM -0800, Matthew Johnson wrote:
+> 
+>>On Monday 24 December 2001 08:32 pm, you wrote:
+>>
+> 
+>>>>I'd cheat and use sndconfig ot yast2 or whatever else.
+>>>>Failing that I can give you some idea via my modules.conf,
+>>>>but I use SuSE, whcih in turn uses Alsa.
+>>>>
+>>>OK, so I'll try ALSA.
+>>>
+>>>My modules.conf just includes 'alias sound emu10k1'.
+>>>
+> 
+> Dec 25 03:13:38 pervalidus kernel: PCI: Found IRQ 10 for device 00:0b.0
+> 
+> OK, ALSA worked, while OSS from the kernel didn't. I don't
+> know why.
+> 
+> I still have a problem. Sound is very distorted with a lot of
+> noise when I do a 'cat /home/ftp/pub/sound/ra/english.au >
+> /dev/audio' . Maybe my speakers are broken ? I never used
+> them before. Time to do more testing. Yes, I know nothing
+> about sound.
+> 
 
->
-> (2) 'bad cache'. Kernel swaps out and back in pages which are NOT old
-> while obviously old pages are sitting in the disk cache. This is a
-> kernel bug in page age calculations: kernel incorrectly thinks that
-> those pages it swaps out are oldest pages in RAM, and cache pages are
-> young.
->
-> If you want to submit a bug report, please make sure you are seeing
-> (2) and not (1).
->
 
-This was not a bug report.
+Same for me. But if you use a real application like plaympeg or
+sox hi.au -t ossdsp /dev/dsp it works fine. I'm using emu10k1
+from http://opensource.creative.com
 
-> If you want to improve swap strategy, talk to Andrea Arcangeli and/or
-> Rik van Riel or search archives and read (long) 2.4.x VM battle
-> threads first.
 
-I didn't email either directly, because I doubt either has time to work 
-on this, since default behavior is seen as "correct", and if they do, 
-they will most likely notice this thread and read my message, or 
-someone else will point it out to them that better knows if it's a pure 
-waste of their time or not.
 
-As for the VM battle threads, I read most of them as they were 
-happening, and I really don't give a shit about them.
+
+
+-- 
+Hartmut Holz                                EMail: H.Holz@hamburg.de
+Kieler Straﬂe 231			    Phone: +49 4085080014	
+22525 Hamburg
+Germany
+

@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261968AbRFGQq6>; Thu, 7 Jun 2001 12:46:58 -0400
+	id <S261969AbRFGQss>; Thu, 7 Jun 2001 12:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261969AbRFGQqs>; Thu, 7 Jun 2001 12:46:48 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14637 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S261968AbRFGQqj>; Thu, 7 Jun 2001 12:46:39 -0400
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com>
-	<3b204fe5.4014698@mail.mbay.net> <3B1E5316.F4B10172@illusionary.com>
-	<m1wv6p5uqp.fsf@frodo.biederman.org> <3B1EA748.6B9C1194@sgi.com>
-	<m1g0dc6blz.fsf@frodo.biederman.org> <3B1F9CEC.928C8E66@sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jun 2001 10:42:55 -0600
-In-Reply-To: <3B1F9CEC.928C8E66@sgi.com>
-Message-ID: <m1ofs044xc.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S262009AbRFGQsi>; Thu, 7 Jun 2001 12:48:38 -0400
+Received: from atlrel2.hp.com ([156.153.255.202]:40191 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S261969AbRFGQsd>;
+	Thu, 7 Jun 2001 12:48:33 -0400
+Message-ID: <3B1FB07D.C6C03EF0@fc.hp.com>
+Date: Thu, 07 Jun 2001 10:49:01 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: markh@compro.net
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: pset patch??
+In-Reply-To: <3B1F7130.94357A3C@compro.net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh <law@sgi.com> writes:
+Try
+<http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html>.
+It may do what you want.
 
->     Now for whatever reason, since 2.4, I consistently use at least
-> a few Mb of swap -- stands at 5Meg now.  Weird -- but I notice things
-> like nscd running 7 copies that take 72M.  Seems like overkill for
-> a laptop.
+--
+Khalid
 
-So the question becomes why you are seeing an increased swap usage.
-Currently there are two canidates in the 2.4.x code path.
+Mark Hounschell wrote:
+> 
+>  Sorry if this is off topic. I've searched the archives and found
+> references to
+> what I'm looking for but the URL's take me nowhere. The references I'm
+> referring to
+> are for pset patches that will enable me to lock down a processor in an
+> smp env.
+> Lock down meaning I need to be able to lock out all system interrupts
+> and tasks from
+> a defined cpu and lock in a particular task/tasks and set of external
+> interrupts to
+> that same cpu. Yes it's for a real time app but not sure if rtlinux is
+> what I am
+> in need of.
+> 
+> I see references to this site http://isunix.it.ilstu.edu/~thockin/pset/.
+> >From reading the archives it looks like what I'm looking for but there
+> is nothing there.
+> 
+> Is what I need to do possible and if I need this patch do to it could
+> someone tell
+> me where I might find it? Sorry if this is OT but I'm at a dead end road
+> and didn't
+> know where else to ask??  Thanks in advance.
+> 
+> Mark Hounschell
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-1) Delayed swap deallocation, when a program exits after it
-   has gone into swap it's swap usage is not freed. Ouch.
-
-2) Increased tenacity of swap caching.  In particular in 2.2.x if a page
-   that was in the swap cache was written to the the page in the swap
-   space would be removed.  In 2.4.x the location in swap space is
-   retained with the goal of getting more efficient swap-ins.
-
-Neither of the known canidates from increasing the swap load applies
-when you aren't swapping in the first place.  They may aggrevate the
-usage of swap when you are already swapping but they do not cause
-swapping themselves.  This is why the intial recommendation for
-increased swap space size was made.  If you are swapping we will use
-more swap.
-
-However what pushes your laptop over the edge into swapping is an
-entirely different question.  And probably what should be solved.
-
->     I think that is the point -- it was supported in 2.2, it is, IMO,
-> a serious regression that it is not supported in 2.4.
-
-The problem with this general line of arguing is that it lumps a whole
-bunch of real issues/regressions into one over all perception.  Since
-there are multiple reasons people are seeing problems, they need to be
-tracked down with specifics.
-
-The swapoff case comes down to dead swap pages in the swap cache.
-Which greatly increases the number of swap pages slows the system
-down, but since these pages are trivial to free we don't generate any
-I/O so don't wait for I/O and thus never enter the scheduler.  Making
-nothing else in the system runnable.
-
-Your case is significantly different.  I don't know if you are seeing 
-any issues with swapping at all.  With a 5M usage it may simply be
-totally unused pages being pushed out to the swap space.
-
-Eric
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

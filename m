@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289781AbSAWKgN>; Wed, 23 Jan 2002 05:36:13 -0500
+	id <S289783AbSAWKin>; Wed, 23 Jan 2002 05:38:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289783AbSAWKgF>; Wed, 23 Jan 2002 05:36:05 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:55168 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S289781AbSAWKfy>; Wed, 23 Jan 2002 05:35:54 -0500
-Message-ID: <004101c1a3f9$dea1bb90$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Justin A" <justin@bouncybouncy.net>, "Andy Carlson" <naclos@swbell.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020122234201.GA835@bouncybouncy.net> <Pine.LNX.4.33.0201221905360.3606-100000@bigandy.naclos.org> <20020123015829.GC835@bouncybouncy.net>
-Subject: Re: via-rhine timeouts
-Date: Wed, 23 Jan 2002 11:36:51 +0100
+	id <S289775AbSAWKie>; Wed, 23 Jan 2002 05:38:34 -0500
+Received: from indyio.rz.uni-sb.de ([134.96.7.3]:25086 "EHLO
+	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
+	id <S289685AbSAWKiZ>; Wed, 23 Jan 2002 05:38:25 -0500
+Message-ID: <3C4E9291.8DA0BD7F@stud.uni-saarland.de>
+Date: Wed, 23 Jan 2002 10:38:09 +0000
+From: Studierende der Universitaet des Saarlandes 
+	<masp0008@stud.uni-saarland.de>
+Reply-To: manfred@colorfullife.com
+Organization: Studierende Universitaet des Saarlandes
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: Daniel Robbins <drobbins@gentoo.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/AGP issue update
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Justin A" <justin@bouncybouncy.net>
-To: "Andy Carlson" <naclos@swbell.net>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, January 23, 2002 2:58 AM
-Subject: Re: via-rhine timeouts
+> 
+> The effect of the store is to write-allocate a cache line in the data
+> cache and fill that cache line with data from the underlying physical
+> memory. Because the line was write-allocated it is subsequently written
+> back to physical memory even though the bits have not been changed by
+> the processor. 
 
+I'm not sure if I understand you correctly:
 
-> ahhh:)
-> I managed to find that driver and installed it
-> (http://www.viaarena.com/?PageID=60)
->
-> I transfered a 100M file to someone here via http at 1.1MB/s(according
-> to IE, which is usually wrong but still)
->
-> Seems to be working great now
-> thanks:)
->
-> I wonder if that driver was included on one of those cd's that came with
-> the board, I never thought to look:)
->
-> -Justin
+speculative write operations always set the cache line dirty bit, even
+if the write operations is not executed (e.g. discarded due to a
+mispredicted jump)
 
-This is extremely interesting! I didn't even know about that page. As I have
-a fondness for the via-rhine driver (I have too much of the DFE-530TX cards
-at home) I'll start to reverse-engineer ASAP =)
+memory mapped by GART is not cache coherent, and the write-back of the
+cache causes data corruptions.
 
- _____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+Result: data corruption.
 
-- ABIT BP6(RU) - 2xCeleron 400 - 128MB/PC100/C2 Acer
-- Maxtor 10/5400/U33 HPT P/M - Seagate 6/5400/DMA2 HPT S/M
-- 2xDE-530TX - 1xTulip - Linux 2.4.17+ide+preempt
+Is that correct?
 
+Then "nopentium" only works by chance: I assume that speculative
+operations do not walk the page tables, thus the probability that a
+valid TLB entry is found for the GART mapped page is slim. But if there
+is an entry, then the corruption would still occur.
+
+How could we work around it?
+a) At GART mapping time, we'd have to
+- flush the cache
+- unmap the pte entries that point to the pages that will be mapped by
+GART
+- create a new, uncached, ioremap mapping to the pages.
+
+Obviously that won't work with 4 MB pages.
+
+b) abuse highmem.
+highmem memory is not mapped. If we only use highmem pages for GART, and
+ensure that page->virtual is 0, then we know that no valid pte points
+into the GART pages.

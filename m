@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267461AbUH3TAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268423AbUH3TAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267461AbUH3TAE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268820AbUH3S5f
+	id S268423AbUH3TAe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268758AbUH3S46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:57:35 -0400
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:32847 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S268383AbUH3S4T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:56:19 -0400
-Date: Mon, 30 Aug 2004 11:52:23 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Jim Houston <jim.houston@comcast.net>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jack Steiner <steiner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       rusty@rustcorp.com.au
-Subject: Re: [RFC&PATCH] Alternative RCU implementation
-Message-ID: <20040830185223.GF1243@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <m3brgwgi30.fsf@new.localdomain> <20040830004322.GA2060@us.ibm.com> <1093886020.984.238.camel@new.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093886020.984.238.camel@new.localdomain>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Aug 2004 14:56:58 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:63476 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268055AbUH3SzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 14:55:24 -0400
+Message-ID: <41337819.4070805@namesys.com>
+Date: Mon, 30 Aug 2004 11:55:21 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       flx@msu.ru, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <Pine.LNX.4.58.0408281011280.2295@ppc970.osdl.org> <20040828190350.GA14152@alias> <20040828190901.GA18083@lst.de> <4130FBF8.8070005@namesys.com> <20040830160205.GA7718@MAIL.13thfloor.at>
+In-Reply-To: <20040830160205.GA7718@MAIL.13thfloor.at>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 01:13:41PM -0400, Jim Houston wrote:
-> I know that I'm questioning one of your design goals for RCU by adding
-> overhead to the read-side.  I have read everything I could find on RCU.
-> My belief is that the cost of the xchg() instruction is small 
-> compared to the cache benifit of freeing memory more quickly.
-> I think it's more interesting to look at the impact of the xchg() at the
-> level of an entire system call.  Adding 30 nanoseconds to a open/close
-> path that tasks 3 microseconds seems reasonable.  It is hard to measure
-> the benefit of reusing the a dcache entry more quickly.
+Herbert Poetzl wrote:
 
-Hello, Jim,
-
-The other thing to keep in mind is that reducing the grace-period
-duration increases the per-access overhead, since each grace period
-incurs a cost.  So there is a balance that needs to be struck between
-overflowing memory with a too-long grace period and incurring too
-much overhead with a too-short grace period.
-
-How does the rest of the kernel work with all interrupts to
-a particular CPU shut off?  For example, how do you timeslice?
-
-						Thanx, Paul
-
-PS.  My concerns with some aspects of your design aside, your
-     getting a significant change to the RCU infrastructure to
-     work reasonably well is quite impressive!
+>
+>hmm, so probably we have to wait until all
+>tar packagers moved to reiser4, so that the
+>available tar files are 'sorted properly' ...
+>
+>best,
+>Herbert
+>
+>  
+>
+Or wait for a repacker, which will probably happen sooner. Distros that 
+use reiser4 will probably tar in reiser4 order.

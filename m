@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269693AbRHSAiu>; Sat, 18 Aug 2001 20:38:50 -0400
+	id <S269739AbRHSAl3>; Sat, 18 Aug 2001 20:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269739AbRHSAij>; Sat, 18 Aug 2001 20:38:39 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:34315 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269693AbRHSAif>;
-	Sat, 18 Aug 2001 20:38:35 -0400
-Date: Sat, 18 Aug 2001 21:38:21 -0300 (BRST)
+	id <S269775AbRHSAlT>; Sat, 18 Aug 2001 20:41:19 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:39691 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269739AbRHSAlF>;
+	Sat, 18 Aug 2001 20:41:05 -0400
+Date: Sat, 18 Aug 2001 21:40:57 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-In-Reply-To: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
-Message-ID: <Pine.LNX.4.33L.0108182137250.5646-100000@imladris.rielhome.conectiva>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: disk I/O slower with kernel 2.4.9 
+In-Reply-To: <Pine.LNX.4.33.0108190037070.1823-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.33L.0108182140350.5646-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,21 +21,22 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Aug 2001, Oliver Xymoron wrote:
-> On 18 Aug 2001, Robert Love wrote:
->
-> > obviously some people fear NICs feeding entropy provides a hazard.  for
-> > those who dont, or are increadibly low on entropy, enable the
-> > configuration option.
->
-> Why don't those who aren't worried about whether they _really_ have
-> enough entropy simply use /dev/urandom?
+On Sun, 19 Aug 2001, Luigi Genoni wrote:
 
-So how are you going to feed /dev/urandom on your firewall ??
-(which has no keyboard, program or disk activity)
+> just making time make -j 2 bzImage with kernel source 2.4.9
+> gives me:
+>
+> real    3m36.041s
+> user    2m2.950s
+> sys     0m9.740s
+>
+> while compiling the same sources running kernel 2.4.7 gives:
+>
+> real    2m28.350s
+> user    1m56.150s
+> sys     0m5.262s
 
-Network entropy is probably better than no entropy for many
-applications.
+How does 2.4.8-ac7 do ?
 
 Rik
 --

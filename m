@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVCJDaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVCJDYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVCJDaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 22:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVCJD1t
+	id S261676AbVCJDYl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVCJBIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 22:27:49 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:42898 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262371AbVCJD0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 22:26:23 -0500
-Date: Wed, 9 Mar 2005 21:25:07 -0600
-To: Jake Moilanen <moilanen@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-       paulus@samba.org
-Subject: Re: [PATCH 2/2] No-exec support for ppc64
-Message-ID: <20050310032507.GC20789@austin.ibm.com>
-References: <20050308165904.0ce07112.moilanen@austin.ibm.com> <20050308171326.3d72363a.moilanen@austin.ibm.com>
+	Wed, 9 Mar 2005 20:08:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:49567 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262618AbVCJAm1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:27 -0500
+Cc: kay.sievers@vrfy.org
+Subject: [PATCH] videodev: pass dev_t to the class core
+In-Reply-To: <11104148823637@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:34:43 -0800
+Message-Id: <11104148831572@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308171326.3d72363a.moilanen@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: olof@austin.ibm.com (Olof Johansson)
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2044, 2005/03/09 09:52:10-08:00, kay.sievers@vrfy.org
 
-On Tue, Mar 08, 2005 at 05:13:26PM -0600, Jake Moilanen wrote:
-> diff -puN arch/ppc64/mm/hash_utils.c~nx-kernel-ppc64 arch/ppc64/mm/hash_utils.c
-> --- linux-2.6-bk/arch/ppc64/mm/hash_utils.c~nx-kernel-ppc64	2005-03-08 16:08:57 -06:00
-> +++ linux-2.6-bk-moilanen/arch/ppc64/mm/hash_utils.c	2005-03-08 16:08:57 -06:00
-> @@ -89,12 +90,23 @@ static inline void loop_forever(void)
->  		;
->  }
->  
-> +int is_kernel_text(unsigned long addr)
-> +{
-> +	if (addr >= (unsigned long)_stext && addr < (unsigned long)__init_end)
-> +		return 1;
-> +
-> +	return 0;
-> +}
+[PATCH] videodev: pass dev_t to the class core
 
-This is used in two files, but never declared extern in the second file
-(iSeries_setup.c). Should it go in a header file as a static inline
-instead?
-
-There also seems to be a local static is_kernel_text() in kallsyms that
-overlaps (but it's not identical). Removing that redundancy can be taken
-care of as a janitorial patch outside of the noexec stuff.
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
+ drivers/media/video/videodev.c |   11 +----------
+ 1 files changed, 1 insertion(+), 10 deletions(-)
 
--Olof
+
+diff -Nru a/drivers/media/video/videodev.c b/drivers/media/video/videodev.c
+--- a/drivers/media/video/videodev.c	2005-03-09 16:29:20 -08:00
++++ b/drivers/media/video/videodev.c	2005-03-09 16:29:20 -08:00
+@@ -46,15 +46,7 @@
+ 	return sprintf(buf,"%.*s\n",(int)sizeof(vfd->name),vfd->name);
+ }
+ 
+-static ssize_t show_dev(struct class_device *cd, char *buf)
+-{
+-	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
+-	dev_t dev = MKDEV(VIDEO_MAJOR, vfd->minor);
+-	return print_dev_t(buf,dev);
+-}
+-
+ static CLASS_DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
+-static CLASS_DEVICE_ATTR(dev,  S_IRUGO, show_dev, NULL);
+ 
+ struct video_device *video_device_alloc(void)
+ {
+@@ -347,12 +339,11 @@
+ 	if (vfd->dev)
+ 		vfd->class_dev.dev = vfd->dev;
+ 	vfd->class_dev.class       = &video_class;
++	vfd->class_dev.devt       = MKDEV(VIDEO_MAJOR, vfd->minor);
+ 	strlcpy(vfd->class_dev.class_id, vfd->devfs_name + 4, BUS_ID_SIZE);
+ 	class_device_register(&vfd->class_dev);
+ 	class_device_create_file(&vfd->class_dev,
+ 				 &class_device_attr_name);
+-	class_device_create_file(&vfd->class_dev,
+-				 &class_device_attr_dev);
+ 
+ #if 1 /* needed until all drivers are fixed */
+ 	if (!vfd->release)
+

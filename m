@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271385AbTG2K0w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 06:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTG2K0w
+	id S271380AbTG2Khz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 06:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271383AbTG2Khz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 06:26:52 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:57502 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S271385AbTG2K0v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 06:26:51 -0400
-Date: Tue, 29 Jul 2003 12:18:16 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.6] Make com20020_cs module compile
-Message-ID: <Pine.LNX.4.53.0307291217580.29995@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="658386544-686579945-1059473856=:29995"
-Content-ID: <Pine.LNX.4.53.0307291217581.29995@dot.kde.org>
+	Tue, 29 Jul 2003 06:37:55 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:17852 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S271380AbTG2Khy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 06:37:54 -0400
+Date: Tue, 29 Jul 2003 12:37:33 +0200 (MEST)
+Message-Id: <200307291037.h6TAbX9G026932@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@suse.de, vherva@niksula.hut.fi
+Subject: Re: [PATCH] NMI watchdog documentation
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 28 Jul 2003 19:53:42 +0200, Andi Kleen wrote:
+>On Wed, 23 Jul 2003 20:43:25 +0300
+>Ville Herva <vherva@niksula.hut.fi> wrote:
+>
+>> Documentation/nmi-watchdoc.txt doesn't actually tell what options need to be
+>> enabled in kernel config in order to use NMI watchdog. I for one found it
+>> confusing.
+>> 
+>> I vaguely recall someone posted a similar patch some time ago, but it still
+>> doesn't seem to be present in 2.4 or 2.6-test.
+>> 
+>> Andi: what about x86-64 - does it have something similar that should be
+>> mentioned?
+>
+>x86-64 is the same, except APIC is always compiled in and the nmi watchdog is
+>always enabled with perfctr mode. mode=2 seems to also not work correctly currently.
+>
+>However one caveat (even for i386): when you use perfctr mode 1 you lose the first
+>performance register which you may need for other things.
 
---658386544-686579945-1059473856=:29995
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.53.0307291217582.29995@dot.kde.org>
+Andi, you have the numbers mixed up. mode 1 is I/O-APIC, mode 2 is local APIC,
+and x86-64 defaults nmi_watchdog to I/O-APIC mode.
+Now, is it the I/O-APIC or local APIC watchdog that doesn't work in x86-64?
 
-com20020_cs was missed out on the hw.open_close_ll -> hw.owner change.
-Patch was diffed against 2.6.0-test2-mm1, but should apply to 
-2.6.0-test2 vanilla as well.
-
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
---658386544-686579945-1059473856=:29995
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.6.0-test2-fix-compile.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0307291217360.29995@dot.kde.org>
-Content-Description: fix build
-Content-Disposition: ATTACHMENT; FILENAME="2.6.0-test2-fix-compile.patch"
-
-LS0tIGxpbnV4LTIuNi4wLXRlc3QyL2RyaXZlcnMvbmV0L3BjbWNpYS9jb20y
-MDAyMF9jcy5jLmFyawkyMDAzLTA3LTI5IDEyOjA1OjI1LjAwMDAwMDAwMCAr
-MDIwMA0KKysrIGxpbnV4LTIuNi4wLXRlc3QyL2RyaXZlcnMvbmV0L3BjbWNp
-YS9jb20yMDAyMF9jcy5jCTIwMDMtMDctMjkgMTI6MDU6NDIuMDAwMDAwMDAw
-ICswMjAwDQpAQCAtMjM3LDcgKzIzNyw3IEBADQogICAgIGxwLT5iYWNrcGxh
-bmUgPSBiYWNrcGxhbmU7DQogICAgIGxwLT5jbG9ja3AgPSBjbG9ja3A7DQog
-ICAgIGxwLT5jbG9ja20gPSBjbG9ja20gJiAzOw0KLSAgICBscC0+aHcub3Bl
-bl9jbG9zZV9sbCA9IGNvbTIwMDIwY3Nfb3Blbl9jbG9zZTsNCisgICAgbHAt
-Pmh3Lm93bmVyID0gVEhJU19NT0RVTEU7DQogDQogICAgIGxpbmstPmlycS5J
-bnN0YW5jZSA9IGluZm8tPmRldiA9IGRldjsNCiAgICAgbGluay0+cHJpdiA9
-IGluZm87DQo=
-
---658386544-686579945-1059473856=:29995--
+/Mikael

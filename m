@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265066AbSLQOPC>; Tue, 17 Dec 2002 09:15:02 -0500
+	id <S265093AbSLQOZN>; Tue, 17 Dec 2002 09:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbSLQOPC>; Tue, 17 Dec 2002 09:15:02 -0500
-Received: from web8206.mail.in.yahoo.com ([203.199.70.75]:32335 "HELO
-	web8206.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id <S265066AbSLQOPB>; Tue, 17 Dec 2002 09:15:01 -0500
-Message-ID: <20021217142247.18564.qmail@web8206.mail.in.yahoo.com>
-Date: Tue, 17 Dec 2002 14:22:47 +0000 (GMT)
-From: =?iso-8859-1?q?Sanjay=20Kumar?= <sanju93csd@yahoo.co.in>
-Subject: How to get the size of the block device ???? (Important)
-To: linux-kernel@vger.kernel.org
-Cc: Matt_Domsch@dell.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S265094AbSLQOZN>; Tue, 17 Dec 2002 09:25:13 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8418
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265093AbSLQOZN>; Tue, 17 Dec 2002 09:25:13 -0500
+Subject: Re: Intel P6 vs P7 system call performance
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hpa@transmeta.com
+In-Reply-To: <Pine.LNX.4.10.10212170144030.31876-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10212170144030.31876-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Dec 2002 15:12:56 +0000
+Message-Id: <1040137976.20018.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I am Sanjay Kumar and wants to write my own file
-system on Linux. I have almost written the code.
-  But,now i have a problem while writing the code 
-for "mkfs" for my filesystem.
+On Tue, 2002-12-17 at 09:45, Andre Hedrick wrote:
+> 
+> Linus,
+> 
+> Are you serious about moving of the banging we currently do on 0x80?
+> If so, I have a P4 development board with leds to monitor all the lower io
+> ports and can decode for you.
 
-Problem Summary : I need the size of the block device
-in bytes on which my file system will be created.
-Actually, there is a feild in the super block, needs
-the total no of blocks on the device while while
-creating the filesystem. So, Can you Plz. help me out
-of this problem.
+Different thing - int 0x80 syscall not i/o port 80. I've done I/O port
+80 (its very easy), but requires we set up some udelay constants with an
+initial safety value right at boot (which we should do - we udelay
+before it is initialised)
 
-I got your email id from :
-
- http://lwn.net/2001/0906/a/last-sector.php3
-
-Sanjay Kumar.
-M.C.A.,
-Univeristy of Pune,
-India.
-
-________________________________________________________________________
-Missed your favourite TV serial last night? Try the new, Yahoo! TV.
-       visit http://in.tv.yahoo.com

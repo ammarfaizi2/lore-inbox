@@ -1,122 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266297AbTBCNOK>; Mon, 3 Feb 2003 08:14:10 -0500
+	id <S266298AbTBCNTs>; Mon, 3 Feb 2003 08:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbTBCNOK>; Mon, 3 Feb 2003 08:14:10 -0500
-Received: from [202.149.212.34] ([202.149.212.34]:7188 "EHLO cmie.com")
-	by vger.kernel.org with ESMTP id <S266297AbTBCNOI>;
-	Mon, 3 Feb 2003 08:14:08 -0500
-Date: Mon, 3 Feb 2003 18:52:14 +0530 (IST)
-From: Nohez <nohez@cmie.com>
-X-X-Sender: <nohez@venus.cmie.ernet.in>
-To: <linux-kernel@vger.kernel.org>
-cc: <bgana@cmie.com>
-Subject: Re: timer interrupts on HP machines
-In-Reply-To: <Pine.LNX.4.33.0301291003220.19934-100000@mars.cmie.ernet.in>
-Message-ID: <Pine.LNX.4.33.0302031706090.28669-100000@venus.cmie.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266308AbTBCNTs>; Mon, 3 Feb 2003 08:19:48 -0500
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:59830 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S266298AbTBCNTr>;
+	Mon, 3 Feb 2003 08:19:47 -0500
+Date: Mon, 3 Feb 2003 08:29:15 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: irony
+Message-ID: <20030203132915.GC4618@rdlg.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3E3DE788.8000101@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hOcCNbCCxyk/YU74"
+Content-Disposition: inline
+In-Reply-To: <3E3DE788.8000101@pobox.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-We have a similar problem with our HP servers. We are facing this problem
-for more than a year. We have reported this problem to HP support.
-
-We have five HP Netserver LH6000 running k_smp-2.4.18-47 (SuSE7.1).
-We are sure that MP spec is v1.4 in the BIOS.  But we have not
-checked /proc/interrupts. Will check the next time this problem occurs.
-
-Problem:
---------
-
-System Time behaved erratically but servers do not hang. We noticed that
-all time related apps (sendmail, ping, top, cron etc) stopped. We
-noticed that time goes forward & backward in seconds only.
-
-server: # date
-Mon Feb  3 17:38:26 IST 2003
-server: # date
-Mon Feb  3 17:38:30 IST 2003
-server: # date
-Mon Feb  3 17:38:20 IST 2003
-server: # date
-Mon Feb  3 17:38:25 IST 2003
-server: # date
-Mon Feb  3 17:38:28 IST 2003
-server: # date
-Mon Feb  3 17:38:21 IST 2003
-
-The above is just an example. We could not find any pattern.
-
-We could not access the server remotely. But we could login from console.
-All programs using system time failed - like sendmail, top, cron etc.
-
-We could umount filesystems. But the server had to be forcibly shut (power
-reset). After system reboot everything was ok.
-
-We have xntpd daemon running on all our servers.
-
-Four servers are file/print servers (samba/nfs/cups) and one is database
-server. The above problem has NEVER occured on the database server.
-The only difference between the file-server and database server is:
-   1. DB server has a external HP Ultrium & HP DDS4 tape drive
-      connected to Adaptec 29160N Ultra160 SCSI adapter.
-   2. DB server has a Intel PRO/1000 Network (gigabit ethernet card)
-
-Hardware details :
-----------------
-HP Netserver LH6000
-6 * 550Mhz Xeon CPUs
-1GB RAM
-Integrated Megaraid Ultra-2 SCSI Raid Controller
-BIOS MP spec is v1.4
-
-Software:
----------
-SuSE Linux 7.1
-kernel 2.4.18 (k_smp-2.4.18-47)
-glibc-2.2-7
-samba-2.0.10-0
-xntp-4.0.99f-6
-"Unsynced TSC support" is enabled in default SuSE kernel k_smp-2.4.18-47
-Kernel debugging is set
+--hOcCNbCCxyk/YU74
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Nohez.
 
-------------------------------------------------------------------------
-List:     linux-kernel
-Subject:  Re: timer interrupts on HP machines
-From:     Matt C <wago () phlinux ! com>
-Date:     2003-01-30 17:01:50
-[Download message RAW]
-
-Hi Praveen-
-
-We have a few LT6000r servers as well, and have the same problem on all
-2.4 kernels -- this happens when your MP spec is set to 1.1 in the BIOS.
-Change it to 1.4 and you should be okay.
-
-The other common problem on these guys is the CPU speed misdetect, which
-causes the kernel to think your CPU is roughly 2x as fast as it really is.
-The solution to that one is to unplug and replug the power cords (even a
-power-off doesn't fix it, go figure).
-
-Hope that helps.
-
--Matt
-
-On Thu, 30 Jan 2003, Praveen Ray wrote:
-
-> We have few HP (LPR NetServers and LT6000) which run 2.4.18  (from RedHat 8.0)
-> . The problem is that sometimes the time interrupts stop coming - i.e. the
-> (time) counts in /proc/interrupts stop getting incremented! When this
-> happens, the date on the system falls behind, 'sleep' calls stop working and
-> basically machine becomes unusable.Has anyone else encountered this problem?
-
-> Is it an HP issue?
-
-> Thanks.
+I dont know.  A guy I used to work with at a Major insurance company in
+Denver Colorado saw the BSOD one day.  From about 30 feet away he
+stopped, looked at it and then me.  "You know, I thought you were
+running windows for a second but then realized the font was wrong..."
+He was very serious.
 
 
+
+Thus spake Jeff Garzik (jgarzik@pobox.com):
+
+> The definition of irony?
+>=20
+> Setting one's xscreensaver to BSOD, and then hours later the Linux box=20
+> has a kernel panic... with the Windows blue screen of death on the screen.
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=3Dpack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10)=
+;'
+
+
+--hOcCNbCCxyk/YU74
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+Pm6r8+1vMONE2jsRAsdUAJkBGxgPwRy9FEM5Xi+4xh07vOPZcwCeOD6w
+JOT6MpwS9wvuPqGyZEDqVoM=
+=xxPv
+-----END PGP SIGNATURE-----
+
+--hOcCNbCCxyk/YU74--

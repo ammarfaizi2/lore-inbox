@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVBVGDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVBVGFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbVBVGDV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 01:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVBVGDV
+	id S262216AbVBVGFh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 01:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVBVGFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 01:03:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:19338 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262212AbVBVGDS (ORCPT
+	Tue, 22 Feb 2005 01:05:37 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:50329 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262216AbVBVGFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 01:03:18 -0500
+	Tue, 22 Feb 2005 01:05:31 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gdvvEqHvm8gb/gJnKUgFQO74Zf2cI9u6kruzguWCAnJibTdw+UCfSH93L7jfOsLHxu9MTd0Hj8UXSmK46tXp8dL5kfaMuuqo0Ba4EvwbXb6a9KPv0EXmxc+on4k9v9Qbr95tfWkdlkftW0O4LZYDr41gCtAED0hCKjgq9faYfIU=
-Message-ID: <9e4733910502212203671eec73@mail.gmail.com>
-Date: Tue, 22 Feb 2005 01:03:17 -0500
+        b=kkZG1MXjWAaM0ZSQaK6YvOBTpf0I6Rg3evTrMgL419uVGsWgwLteqPpP8ksivWNPf7XF7c4SfQcJeTFdYKBKUWl1dL4VCQ6+Ualr8Zmuh6BDDfq+SUQOpJPLKkmsrg0pwLxtMkd0ROM7i2Jiy+M7CUSJ1V/ZMwk+508mxKSfDQY=
+Message-ID: <9e473391050221220564235858@mail.gmail.com>
+Date: Tue, 22 Feb 2005 01:05:31 -0500
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
@@ -42,14 +42,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 22 Feb 2005 16:13:36 +1100, Benjamin Herrenschmidt
 <benh@kernel.crashing.org> wrote:
-> On Mon, 2005-02-21 at 23:56 -0500, Alex Deucher wrote:
-> I think that the driver is the "chief" here and the one to know what to
-> do with the cards it drives. It can detect a non-POSTed card and deal
-> with it.
+> What we can/should provide, is a ncie helper to do the job once the
+> driver decides to have a go at it. I think userspace is the right
+> solution, similar to the firmware loader helpers, as I wrote earlier.
+> There are a few issues related on trying to run these before / is
+> mounted or during the sleep process, but those are things I plan to work
+> on & fix sooner or later. (Which is also why it has to be an
+> asynchronous API, so that the helper can call back "later" when the
+> helper has been found).
 
-What about the x86 case of VGA devices that run without a driver being
-loaded? Do we force people to load an fbdev driver to get the reset?
-The BIOS deficiency strategy works for these devices.
+Can a userspace solution solve the problem of cards that need to be
+posted when they are coming out of suspend?
 
 -- 
 Jon Smirl

@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUASNIV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 08:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUASNIV
+	id S264898AbUASNFX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 08:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUASNFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 08:08:21 -0500
-Received: from ns.suse.de ([195.135.220.2]:23187 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264881AbUASNIT (ORCPT
+	Mon, 19 Jan 2004 08:05:23 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:3515 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S264898AbUASNFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 08:08:19 -0500
-Date: Mon, 19 Jan 2004 14:08:17 +0100
-From: Olaf Hering <olh@suse.de>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Greg KH <greg@kroah.com>, jw schultz <jw@pegasys.ws>,
-       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: Does sysfs really provides persistent hardware path to devices?
-Message-ID: <20040119130817.GA27953@suse.de>
-References: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru> <200308311453.00122.arvidjaar@mail.ru> <20030924211823.GA11234@kroah.com> <200401172334.13561.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200401172334.13561.arvidjaar@mail.ru>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Mon, 19 Jan 2004 08:05:19 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, jbarnes@sgi.com, steiner@sgi.com,
+       torvalds@osdl.org
+Subject: [patch] increse MAX_NR_MEMBLKS to same as MAX_NUMNODES on NUMA
+Message-Id: <E1AiZ5h-00043I-00@jaguar.mkp.net>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: Mon, 19 Jan 2004 08:05:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Jan 17, Andrey Borzenkov wrote:
+Hi,
 
-> > > Well, we did not move a tiny bit since the beginning of this thread :)
-> > > You still did not show me namedev configuration that implements
-> > > persistent name for a device based on its physical location :)))
-> >
-> > Ok, do you have any other ideas of how to do this?
-> >
-> 
-> given current sysfs implementation - using wildcards remains the only 
-> solution. I for now am using this trivial script:
-> 
-> pts/0}% cat /etc/udev/scripts/removables
-> #!/usr/bin/perl
-> 
-> my $devpath, $base;
-> 
-> $base = $1 if ($ARGV[0] =~ /(.*\D)\d*$/);
-> $devpath = readlink "/sys/block/$base/device";
-> 
-> if ($devpath =~ 
-> m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.4/2-2.4:1.0/host\d+/\d+:0:0:0|) 
-> {
->         print "flash0";
-> } elsif ($devpath =~ 
-> m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.1/2-2.1:1.0/host\d+/\d+:0:0:0|) 
-> {
->         print "flash1";
-> } elsif ($devpath =~ m|/devices/legacy/host\d+/\d+:0:4:0|) {
->         print "jaz";
-> } else {
->         exit(1);
-> }
+Since we now support # of CPUs > BITS_PER_LONG with cpumask_t it would
+be nice to be able to support more than BITS_PER_LONG memory blocks.
 
-I'm not sure what you are trying to do. Working with the 'physical
-location' of removeable devices will probably fail. The usb-storage
-devices here have a serial field, I really hope it is unique, use it.
+Patch relative to 2.6.1-mm4.
 
--- 
-USB is for mice, FireWire is for men!
+Cheers,
+Jes
 
-sUse lINUX ag, nÜRNBERG
+--- orig/linux-2.6.1-mm4/include/linux/mmzone.h	Fri Jan 16 01:59:20 2004
++++ linux-2.6.1-mm4/include/linux/mmzone.h	Mon Jan 19 04:44:37 2004
+@@ -296,7 +296,7 @@
+ 					  void *, size_t *);
+ 
+ #ifdef CONFIG_NUMA
+-#define MAX_NR_MEMBLKS	BITS_PER_LONG /* Max number of Memory Blocks */
++#define MAX_NR_MEMBLKS	MAX_NUMNODES /* Max number of Memory Blocks */
+ #else /* !CONFIG_NUMA */
+ #define MAX_NR_MEMBLKS	1
+ #endif /* CONFIG_NUMA */
+
+

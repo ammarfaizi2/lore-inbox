@@ -1,161 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUEKGeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUEKGpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbUEKGeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 02:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUEKGaV
+	id S262208AbUEKGpR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 02:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEKGnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 02:30:21 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:29816 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262256AbUEKGZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 02:25:07 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 3/9] New set of input patches - 04-h3600-fixes.patch
-Date: Tue, 11 May 2004 01:05:05 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200405110101.42805.dtor_core@ameritech.net> <200405110103.27973.dtor_core@ameritech.net> <200405110104.20283.dtor_core@ameritech.net>
-In-Reply-To: <200405110104.20283.dtor_core@ameritech.net>
+	Tue, 11 May 2004 02:43:19 -0400
+Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:21650 "EHLO
+	jg555.com") by vger.kernel.org with ESMTP id S262902AbUEKGke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 02:40:34 -0400
+Message-ID: <01ab01c43722$caafc870$d100a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Kernel" <linux-kernel@vger.kernel.org>
+Subject: OOPS - 2.6.6 - using modules
+Date: Mon, 10 May 2004 23:40:03 -0700
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405110105.08839.dtor_core@ameritech.net>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When booting up the system is fine, the initrd loads the modules no problem,
+but as soon as the network script starts and inserts the tulip module, I get
+the following error: I am using GCC 3.4.0, glibc 05-02-2004, and binutils
+2.15.0.0.3. If I disable the network script, it boots until it gets to
+hotplug, which trys to load the usb driver, and I get a similar message, but
+instead of saying tulip, it says uhci-hcd.
 
-===================================================================
+May 10 23:04:13 linux Unable to handle kernel paging request at virtual
+address e3920e98
+May 10 23:04:13 linux printing eip:
+May 10 23:04:13 linux c01a2d27
+May 10 23:04:13 linux *pde = 015bc067
+May 10 23:04:13 linux *pte = 00000000
+May 10 23:04:13 linux Oops: 0002 [#1]
+May 10 23:04:13 linux PREEMPT
+May 10 23:04:13 linux CPU: 0
+May 10 23:04:13 linux EIP: 0060:[<c01a2d27>] Not tainted
+May 10 23:04:13 linux EFLAGS: 00010292 (2.6.6-lfs-3)
+May 10 23:04:13 linux EIP is at kobject_add+0x77/0x110
+May 10 23:04:13 linux eax: c02b2ee0 ebx: e38eaffc ecx: e3920e98 edx:
+e38eb018
+May 10 23:04:13 linux esi: ffffffea edi: c02b2ee8 ebp: e38eafe4 esp:
+decf3f1c
+May 10 23:04:13 linux ds: 007b es: 007b ss: 0068
+May 10 23:04:13 linux Process modprobe (pid: 499, threadinfo=decf2000
+task=df782090)
+May 10 23:04:13 linux Stack: c02b2ee8 e38eaffc e38eaffc ffffffea 00000000
+c01a2de8 e38eaffc e38eaffc
+May 10 23:04:13 linux c02b2e80 e38eaffc c02b2e80 c01d333a e38eaffc e38e6eda
+e38eafc0 00000000
+May 10 23:04:13 linux e38eb058 c0283f9c c01d37bf e38eafe4 00000400 e38e6f71
+decf3f9c e38ddf74
+May 10 23:04:13 linux Call Trace:
+May 10 23:04:13 linux [<c01a2de8>] kobject_register+0x28/0x70
+May 10 23:04:13 linux [<c01d333a>] bus_add_driver+0x4a/0xc0
+May 10 23:04:13 linux [<c01d37bf>] driver_register+0x2f/0x40
+May 10 23:04:13 linux [<c01aa8ec>] pci_register_driver+0x5c/0x90
+May 10 23:04:13 linux [<e3844038>] tulip_init+0x38/0x46 [tulip]
+May 10 23:04:13 linux [<c012cd3f>] sys_init_module+0x11f/0x250
+May 10 23:04:13 linux [<c0105ab9>] sysenter_past_esp+0x52/0x71
+May 10 23:04:13 linux
+May 10 23:04:13 linux Code: 89 11 89 4a 04 8b 43 28 8b 30 8d 4e 48 89 c8 ba
+ff ff 00 00
 
+----
+Jim Gifford
+maillist@jg555.com
 
-ChangeSet@1.1587.20.5, 2004-05-10 01:29:33-05:00, dtor_core@ameritech.net
-  Input: various fixes for H3600 touchscreen driver 
-         - h3600ts_interrupt, npower_button_handler and action_button_handler
-           should return irqreturn_t
-         - fix missing argument in h3600ts_process_packet call
-         - add MODULE_AUTHOR, MODULE_DESCRIPTION and MODULE_LICENSE
-         - small formatting changes
-
-
- h3600_ts_input.c |   32 +++++++++++++++++++++-----------
- 1 files changed, 21 insertions(+), 11 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
---- a/drivers/input/touchscreen/h3600_ts_input.c	Tue May 11 00:55:38 2004
-+++ b/drivers/input/touchscreen/h3600_ts_input.c	Tue May 11 00:55:38 2004
-@@ -45,6 +45,10 @@
- #include <asm/arch/hardware.h>
- #include <asm/arch/irqs.h>
- 
-+MODULE_AUTHOR("James Simmons <jsimmons@transvirtual.com>");
-+MODULE_DESCRIPTION("H3600 touchscreen driver");
-+MODULE_LICENSE("GPL");
-+
- /*
-  * Definitions & global arrays.
-  */
-@@ -103,7 +107,7 @@
- 	char phys[32];
- };
- 
--static void action_button_handler(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t action_button_handler(int irq, void *dev_id, struct pt_regs *regs)
- {
-         int down = (GPLR & GPIO_BITSY_ACTION_BUTTON) ? 0 : 1;
- 	struct input_dev *dev = (struct input_dev *) dev_id;
-@@ -111,9 +115,11 @@
- 	input_regs(dev, regs);
- 	input_report_key(dev, KEY_ENTER, down);
- 	input_sync(dev);
-+
-+	return IRQ_HANDLED;
- }
- 
--static void npower_button_handler(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t npower_button_handler(int irq, void *dev_id, struct pt_regs *regs)
- {
-         int down = (GPLR & GPIO_BITSY_NPOWER_BUTTON) ? 0 : 1;
- 	struct input_dev *dev = (struct input_dev *) dev_id;
-@@ -126,6 +132,8 @@
- 	input_report_key(dev, KEY_SUSPEND, 1);
- 	input_report_key(dev, KEY_SUSPEND, down);
- 	input_sync(dev);
-+
-+	return IRQ_HANDLED;
- }
- 
- #ifdef CONFIG_PM
-@@ -141,7 +149,7 @@
-  * h3600_flite_power: enables or disables power to frontlight, using last bright */
- unsigned int h3600_flite_power(struct input_dev *dev, enum flite_pwr pwr)
- {
--	unsigned char brightness = ((pwr==FLITE_PWR_OFF) ? 0:flite_brightness);
-+	unsigned char brightness = (pwr == FLITE_PWR_OFF) ? 0 : flite_brightness;
- 	struct h3600_dev *ts = dev->private;
- 
- 	/* Must be in this order */
-@@ -317,8 +325,8 @@
- #define STATE_DATA      2       /* state where we decode data */
- #define STATE_EOF       3       /* state where we decode checksum or EOF */
- 
--static void h3600ts_interrupt(struct serio *serio, unsigned char data,
--                              unsigned int flags)
-+static irqreturn_t h3600ts_interrupt(struct serio *serio, unsigned char data,
-+                                     unsigned int flags, struct pt_regs *regs)
- {
-         struct h3600_dev *ts = serio->private;
- 
-@@ -329,7 +337,7 @@
- 		case STATE_SOF:
-         		if (data == CHAR_SOF)
-                 		state = STATE_ID;
--			return;
-+			break;
-         	case STATE_ID:
- 			ts->event = (data & 0xf0) >> 4;
- 			ts->len = (data & 0xf);
-@@ -339,7 +347,7 @@
-                         	break;
- 			}
- 			ts->chksum = data;
--                	state=(ts->len > 0 ) ? STATE_DATA : STATE_EOF;
-+                	state = (ts->len > 0) ? STATE_DATA : STATE_EOF;
- 			break;
- 		case STATE_DATA:
- 			ts->chksum += data;
-@@ -349,13 +357,15 @@
- 			break;
- 		case STATE_EOF:
-                 	state = STATE_SOF;
--                	if (data == CHAR_EOF || data == ts->chksum )
--				h3600ts_process_packet(ts);
-+                	if (data == CHAR_EOF || data == ts->chksum)
-+				h3600ts_process_packet(ts, regs);
-                 	break;
-         	default:
-                 	printk("Error3\n");
-                 	break;
- 	}
-+
-+	return IRQ_HANDLED;
- }
- 
- /*
-@@ -378,8 +388,8 @@
- 	init_input_dev(&ts->dev);
- 
- 	/* Device specific stuff */
--        set_GPIO_IRQ_edge( GPIO_BITSY_ACTION_BUTTON, GPIO_BOTH_EDGES );
--        set_GPIO_IRQ_edge( GPIO_BITSY_NPOWER_BUTTON, GPIO_RISING_EDGE );
-+        set_GPIO_IRQ_edge(GPIO_BITSY_ACTION_BUTTON, GPIO_BOTH_EDGES);
-+        set_GPIO_IRQ_edge(GPIO_BITSY_NPOWER_BUTTON, GPIO_RISING_EDGE);
- 
-         if (request_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, action_button_handler,
- 			SA_SHIRQ | SA_INTERRUPT | SA_SAMPLE_RANDOM,

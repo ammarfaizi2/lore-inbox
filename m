@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAUVTO>; Sun, 21 Jan 2001 16:19:14 -0500
+	id <S129604AbRAUVYP>; Sun, 21 Jan 2001 16:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbRAUVTE>; Sun, 21 Jan 2001 16:19:04 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:50961 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129584AbRAUVS4>; Sun, 21 Jan 2001 16:18:56 -0500
-Date: Sun, 21 Jan 2001 21:18:52 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: <mkloppstech@freenet.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: oops
-In-Reply-To: <200101191800.TAA00672@john.epistle>
-Message-ID: <Pine.LNX.4.30.0101212118260.1574-100000@imladris.demon.co.uk>
+	id <S129944AbRAUVYG>; Sun, 21 Jan 2001 16:24:06 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:9798 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129604AbRAUVXs>; Sun, 21 Jan 2001 16:23:48 -0500
+From: "LA Walsh" <law@sgi.com>
+To: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: RE: Is sendfile all that sexy?
+Date: Sun, 21 Jan 2001 13:22:02 -0800
+Message-ID: <NBBBJGOOMDFADJDGDCPHCECKCKAA.law@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20010117213459.A14450@zalem.puupuu.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jan 2001 mkloppstech@freenet.de wrote:
+FYI -
+	Another use sendfile(2) might be used for.  Suppose you were to generate
+large amounts of data -- maybe kernel profiling data, audit data, whatever,
+in the kernel.
 
-> Many oopses appeared, among others gcc closed with signal 11.
-> 
-> One output:
+	You want to pull that data out as fast as possible and write it to
+a disk or network socket.  Normally, I think you'd do a "read/write" that
+would xfer the data into user space, then write it back to the target
+in system space.  With sendfile, it seems, one could write a dump-daemon
+that used sendfile to dump the data directly out to a target file descriptor
+w/o it going through user space.
 
-Read http://www.tux.org/lkml/#s4-3
+	Just make sure the internal 'raw' data is massaged into the format
+of a block device and voila!  A side benefit would be that data in the
+kernel that is written to the block device would be 'queued' in the
+block buffers and them being marked 'dirty' and needing to be written out.
+The device driver marks the buffers as clean once they are pushed out
+of a fd by doing a 'seek' to a new (later) position in the file -- whole
+buffers
+before that point are marked 'clean' and freed.
 
--- 
-dwmw2
+	Seems like this would have the benefit of reusing an existing
+buffer management system for buffering while also using a single-copy
+to get data to the target.
+
+???
+-l
+--
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice/Vmail: (650) 933-5338
 
 
 -

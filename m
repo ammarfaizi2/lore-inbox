@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRB0MnS>; Tue, 27 Feb 2001 07:43:18 -0500
+	id <S129112AbRB0Mi2>; Tue, 27 Feb 2001 07:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129126AbRB0MnI>; Tue, 27 Feb 2001 07:43:08 -0500
-Received: from granch.com ([212.109.197.246]:55058 "EHLO granch.com")
-	by vger.kernel.org with ESMTP id <S129115AbRB0Mms>;
-	Tue, 27 Feb 2001 07:42:48 -0500
-Date: Tue, 27 Feb 2001 18:42:01 +0600 (NOVT)
-From: "Yaroslav S. Polyakov" <xenon@granch.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Yaroslav Polyakov <xenon@granch.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sbni: update last_rx after netif_rx
-In-Reply-To: <20010226224911.C8692@conectiva.com.br>
-Message-ID: <Pine.BSF.4.21.0102271834090.640-100000@granch.com>
+	id <S129115AbRB0MiS>; Tue, 27 Feb 2001 07:38:18 -0500
+Received: from [138.6.98.137] ([138.6.98.137]:40710 "EHLO
+	caspian.prebus.uppsala.se") by vger.kernel.org with ESMTP
+	id <S129112AbRB0MiL>; Tue, 27 Feb 2001 07:38:11 -0500
+Message-ID: <E44E649C7AA1D311B16D0008C73304460933AF@caspian.prebus.uppsala.se>
+From: Per Erik Stendahl <PerErik@onedial.se>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Bug in cdrom_ioctl?
+Date: Tue, 27 Feb 2001 13:34:41 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+Hi.
 
- Because there is no stable linux-2.4 version of sbni driver at the moment
- (2.2 driver that comes with 2.4 kernel doesn't working) i dont think
- there is a need in this patch for current kernels. But I'll surely made
- these changes in 2.4 driver before releasing. 
- Thanks for ideas.
+In linux-2.4.2/drivers/cdrom/cdrom.c:cdrom_ioctl() branches
+CDROM_SET_OPTIONS and CDROM_CLEAR_OPTIONS both return like this:
 
-                                       .
-	       Better the devil you know than the devil you don't
-                          Granch ltd.  Security Analyst
+    return cdi->options;
 
+If cdi->options is non-zero, the ioctl() calls returns non-zero.
+My ioctl(2) manpage says that a successful ioctl() should return
+zero. Now I dont know which is at fault here - the cdrom.c code or
+the manpage. :-) Could somebody enlighten me?
+
+/Per Erik Stendahl

@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315562AbSECGFl>; Fri, 3 May 2002 02:05:41 -0400
+	id <S315564AbSECGIr>; Fri, 3 May 2002 02:08:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315564AbSECGFl>; Fri, 3 May 2002 02:05:41 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:27680 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315562AbSECGFj>; Fri, 3 May 2002 02:05:39 -0400
-Date: Fri, 3 May 2002 08:06:20 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <20020503080620.S11414@dualathlon.random>
-In-Reply-To: <20020502180632.I11414@dualathlon.random> <20020502171655.GJ32767@holomorphy.com> <20020502204136.M11414@dualathlon.random> <E173M9Y-00027s-00@starship>
+	id <S315563AbSECGIq>; Fri, 3 May 2002 02:08:46 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:6294 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP
+	id <S315564AbSECGIo>; Fri, 3 May 2002 02:08:44 -0400
+Date: Fri, 3 May 2002 02:11:22 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.13 -- UFS compile error in fs/ufs/super.c:661: In function `ufs_fill_super': parse error before "uspi"
+Mail-Followup-To: Miles Lane <miles@megapathdsl.net>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD22590.5010906@megapathdsl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
+Message-Id: <20020503060836.ZQUP25781.out004.verizon.net@pool-141-150-238-63.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 02, 2002 at 09:22:07PM +0200, Daniel Phillips wrote:
-> On Thursday 02 May 2002 20:41, Andrea Arcangeli wrote:
-> > On Thu, May 02, 2002 at 10:16:55AM -0700, William Lee Irwin III wrote:
-> > > On Thu, May 02, 2002 at 09:10:00AM -0700, Martin J. Bligh wrote:
-> > > >> Even with 64 bit DMA, the real problem is breaking the assumption
-> > > >> that mem between 0 and 896Mb phys maps 1-1 onto kernel space.
-> > > >> That's 90% of the difficulty of what Dan's doing anyway, as I
-> > > >> see it.
-> > > 
-> > > On Thu, May 02, 2002 at 06:40:37PM +0200, Andrea Arcangeli wrote:
-> > > > control on virt_to_page, pci_map_single, __va.  Actually it may be as
-> > > > well cleaner to just let the arch define page_address() when
-> > > > discontigmem is enabled (instead of hacking on top of __va), that's a
-> > > > few liner. (the only true limit you have is on the phys ram above 4G,
-> > > > that cannot definitely go into zone-normal regardless if it belongs to a
-> > > > direct mapping or not because of pci32 API)
-> > > > Andrea
-> > > 
-> > > Being unable to have any ZONE_NORMAL above 4GB allows no change at all.
-> > 
-> > No change if your first node maps the whole first 4G of physical address
-> > space, but in such case nonlinear cannot help you in any way anyways.
-> 
-> You *still don't have a clue what config_nonlinear does*.
-> 
-> It doesn't matter if the first 4G of physical memory belongs to node zero.
-> Config_nonlinear allows you to map only part of that to the kernel virtual
-> space, and the rest would be mapped to highmem.  The next node will map part
-> of its local memory (perhaps the next 4 gig of physical memory) to a different
-> part of the kernel virtual space, and so on, so that in the end, all nodes
-> have at least *some* zone_normal memory.
+Miles Lane wrote:
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+> -pipe -mpreferred-stack-boundary=2 -march=athlon 
+> -DKBUILD_BASENAME=super  -c -o super.o super.c
+> super.c: In function `ufs_fill_super':
+> super.c:661: parse error before "uspi"
+> super.c:666: parse error before "uspi"
+> super.c:676: parse error before "uspi"
+> super.c:681: parse error before "uspi"
+> make[3]: *** [super.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux/fs/ufs'
 
-You are the one that has no clue of what I'm talking about. Go ahead, do
-that and you'll see the corruption you get after the first vmalloc32 or
-similar.
+The fix has already been posted.  4 missing commas.
 
-This has nothing to do with nonlinaer or anything discontigmem/numa.
-This is all about the GFP kernel API with pci32.
+--- fs/ufs/super.c.bak	Fri May  3 01:53:30 2002
++++ fs/ufs/super.c	Fri May  3 01:53:54 2002
+@@ -663,12 +663,12 @@
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize < 512) {
+-		printk("ufs_read_super: fragment size %u is too small\n"
++		printk("ufs_read_super: fragment size %u is too small\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize > 4096) {
+-		printk("ufs_read_super: fragment size %u is too large\n"
++		printk("ufs_read_super: fragment size %u is too large\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+@@ -678,12 +678,12 @@
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize < 4096) {
+-		printk("ufs_read_super: block size %u is too small\n"
++		printk("ufs_read_super: block size %u is too small\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize / uspi->s_fsize > 8) {
+-		printk("ufs_read_super: too many fragments per block (%u)\n"
++		printk("ufs_read_super: too many fragments per block (%u)\n",
+ 			uspi->s_bsize / uspi->s_fsize);
+ 		goto failed;
+ 	}
 
-> 
-> Do you now see why config_nonlinear is needed in this case?  Are you
-> willing to recognize the possibility that you might have missed some other
-> cases where config_nonlinear is needed, and config_discontigmem won't do
-> the job?
-> 
-> -- 
-> Daniel
 
-
-Andrea
+-- 
+Skip

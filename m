@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265163AbRFUTvl>; Thu, 21 Jun 2001 15:51:41 -0400
+	id <S265174AbRFUT4l>; Thu, 21 Jun 2001 15:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265162AbRFUTvc>; Thu, 21 Jun 2001 15:51:32 -0400
-Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:24224 "EHLO
-	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S265163AbRFUTvQ>; Thu, 21 Jun 2001 15:51:16 -0400
-Date: Thu, 21 Jun 2001 15:51:09 -0400
-From: Tom Vier <tmv5@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac17
-Message-ID: <20010621155109.A15532@zero>
-In-Reply-To: <20010621173855.A6444@lightning.swansea.linux.org.uk>
+	id <S265176AbRFUT4c>; Thu, 21 Jun 2001 15:56:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48396 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265174AbRFUT4L>;
+	Thu, 21 Jun 2001 15:56:11 -0400
+Date: Thu, 21 Jun 2001 20:55:37 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Missing help entries in 2.4.6pre5
+Message-ID: <20010621205537.X18978@flint.arm.linux.org.uk>
+In-Reply-To: <20010621154934.A6582@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010621173855.A6444@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Thu, Jun 21, 2001 at 05:38:56PM +0100
+In-Reply-To: <20010621154934.A6582@thyrsus.com>; from esr@thyrsus.com on Thu, Jun 21, 2001 at 03:49:34PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anyone working on a bootflag.c for alpha?
+On Thu, Jun 21, 2001 at 03:49:34PM -0400, Eric S. Raymond wrote:
+> CONFIG_XSCALE_IQ80310
 
-init/main.o: In function `init':
-main.c(.text+0x148): undefined reference to `linux_booted_ok'
-main.c(.text+0x14c): undefined reference to `linux_booted_ok'
-make: *** [vmlinux] Error 1
+I think we've covered this one before.
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+This symbol only exists as an undefined reference at the moment, and
+therefore can never be 'y'.  As such, there is little point in providing
+help for it.
+
+Even the master ARM tree doesn't contain its definition yet, so please,
+stop bringing it up.
+
+The reason you have it is that stuff has come via a different route which
+relies on it - via the MTD CVS tree.
+
+The symbol is therefore currently irrelevent, and can be placed on your
+"ignore" list.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

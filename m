@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262316AbRE2Wi6>; Tue, 29 May 2001 18:38:58 -0400
+	id <S262379AbRE2W6P>; Tue, 29 May 2001 18:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbRE2Wis>; Tue, 29 May 2001 18:38:48 -0400
-Received: from srvr3.telecom.lt ([212.59.0.2]:31421 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S262295AbRE2Wif>;
-	Tue, 29 May 2001 18:38:35 -0400
-Reply-To: <nerijusb@takas.lt>
-From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] fix more typos in Configure.help and fs/nls/Config.in
-Date: Wed, 30 May 2001 00:36:38 +0200
-Message-ID: <NEBBLCJIPPBPKGHOONKOKENEDOAA.nerijus@users.sourceforge.net>
+	id <S262382AbRE2W6F>; Tue, 29 May 2001 18:58:05 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:53733 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S262379AbRE2W56>;
+	Tue, 29 May 2001 18:57:58 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200105292257.PAA00192@csl.Stanford.EDU>
+Subject: Re: [CHECKER] 4 security holes in 2.4.4-ac8
+To: davem@redhat.com (David S. Miller)
+Date: Tue, 29 May 2001 15:57:53 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15124.7615.678503.824814@pizda.ninka.net> from "David S. Miller" at May 29, 2001 03:07:59 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
-In-Reply-To: <E154kmj-0004UA-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	Official country name: Belarus
-> > 	Language/Nationality: Belarusian
-> > 
-> > 	Standard has taken things right as we pronounce them.
-> > 
-> > 	Please apply the patch.
+>  > [BUG] raddr seems to be a user pointer, but is written at the end of
+>  >       the system call.
+>  > 
+>  > ipc/shm.c: ERROR: system call 'sys_shmat' derefs non-tainted param= 3
+>  > 
+>  > asmlinkage long sys_shmat (int shmid, char *shmaddr, int shmflg, ulong *raddr)
+>  > {
+>  >         struct shmid_kernel *shp;
+>  > 
+>  > 
+>  > 	...
+>  >         *raddr = (unsigned long) user_addr;
+>  >         err = 0;
+>  >         if (IS_ERR(user_addr))
+>  >                 err = PTR_ERR(user_addr);
+>  >         return err;
 > 
-> Done. Thanks for confirming it is correct
+> Believe it or not, this one is OK :-)
+> 
+> All callers pass in a pointer to a local stack kernel variable
+> in raddr.
 
-You forgot to apply the second part:
-
---- Config.in.orig      Wed May 30 00:27:45 2001
-+++ Config.in   Mon May 28 19:32:25 2001
-@@ -29,7 +29,7 @@
-   tristate 'Codepage 852 (Central/Eastern Europe)' CONFIG_NLS_CODEPAGE_852
-   tristate 'Codepage 855 (Cyrillic)'               CONFIG_NLS_CODEPAGE_855
-   tristate 'Codepage 857 (Turkish)'                CONFIG_NLS_CODEPAGE_857
--  tristate 'Codepage 860 (Portugese)'              CONFIG_NLS_CODEPAGE_860
-+  tristate 'Codepage 860 (Portuguese)'              CONFIG_NLS_CODEPAGE_860
-   tristate 'Codepage 861 (Icelandic)'              CONFIG_NLS_CODEPAGE_861
-   tristate 'Codepage 862 (Hebrew)'                 CONFIG_NLS_CODEPAGE_862
-   tristate 'Codepage 863 (Canadian French)'        CONFIG_NLS_CODEPAGE_863
- 
+Ah.  I assumed that "sys_*" meant that all pointers were from user space ---
+is this generally not the case?  (Also, are there other functions called 
+directly from user space that don't have the sys_* prefix?)

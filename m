@@ -1,97 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbTLDFjW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 00:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTLDFjW
+	id S261754AbTLDFgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 00:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTLDFgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 00:39:22 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:25739 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262375AbTLDFjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 00:39:02 -0500
-Date: Wed, 03 Dec 2003 21:38:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: memory hotremove prototype, take 3
-Message-ID: <152440000.1070516333@[10.10.2.4]>
-In-Reply-To: <20031204035842.72C9A7007A@sv1.valinux.co.jp>
-References: <20031201034155.11B387007A@sv1.valinux.co.jp><187360000.1070480461@flay> <20031204035842.72C9A7007A@sv1.valinux.co.jp>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 4 Dec 2003 00:36:45 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:45065 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261754AbTLDFgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 00:36:43 -0500
+Date: Thu, 4 Dec 2003 06:33:18 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: XFS for 2.4
+Message-ID: <20031204053318.GB16903@alpha.home.local>
+References: <20031202002347.GD621@frodo> <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet> <bqlbuj$j03$1@gatekeeper.tmr.com> <20031203204518.GA11325@alpha.home.local> <3FCE810F.3050100@tequila.co.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3FCE810F.3050100@tequila.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I used the discontigmem code because this is what we have now.
-> My hacks such as zone_active[] will go away when the memory hot add
-> code (on which Goto-san is working on) is ready.
-
-Understand that, but it'd be much cleaner (and more likely to get 
-accepted) doing it the other way.
+On Thu, Dec 04, 2003 at 09:34:23AM +0900, Clemens Schwaighofer wrote:
  
->> Have you looked at Daniel's CONFIG_NONLINEAR stuff? That provides a much
->> cleaner abstraction for getting rid of discontiguous memory in the non
->> truly-NUMA case, and should work really well for doing mem hot add / remove
->> as well.
-> 
-> Thanks for pointing out.  I looked at the patch.
-> It should be doable to make my patch work with the CONFIG_NONLINEAR
-> code.  For my code to work, basically the following functionarities
-> are necessary:
-> 1. disabling alloc_page from hot-removing area
-> and
-> 2. enumerating pages in use in hot-removing area.
-> 
-> My target is somewhat NUMA-ish and fairly large.  So I'm not sure if
-> CONFIG_NONLINEAR fits, but CONFIG_NUMA isn't perfect either.
+> Well, I had to try that here. I've got a Celeron 650Mhz with 320MB ram
+> and a crappy 14GB HD and yes the finds in the xterms are stopping for
+> some time ... BUT X is 100% responsive.  there is no sluggishness, I can
+> use mozilla, etc without a problem. so seriously, who makes 10 finds at
+> the same time and finds are read from FS (I have XFS) so it might be a
+> problem with that.
 
-If your target is NUMA, then you really, really need CONFIG_NONLINEAR.
-We don't support multiple pgdats per node, nor do I wish to, as it'll
-make an unholy mess ;-). With CONFIG_NONLINEAR, the discontiguities
-within a node are buried down further, so we have much less complexity
-to deal with from the main VM. The abstraction also keeps the poor
-VM engineers trying to read / write the code saner via simplicity ;-)
+This exact workload is probably not needed by anybody. But my concern is
+that if it fails here, then possibily other realistic workloads will fail
+too. But since it's hard to identify, that's why I'm waiting for distros
+to ship first releases, and for a few people to tell us about particular
+cases where they are annoyed. Ingo, Con, Nick and others obviously cannot
+make the greatest scheduler in the world without valuable feedback. And
+I have the feeling that all they got was "bad...bad...bad.. STOP!! don't
+touch anything, XMMS is now great".
 
-WRT generic discontigmem support (not NUMA), doing that via pgdats
-should really go away, as there's no real difference between the 
-chunks of physical memory as far as the page allocator is concerned.
-The plan is to use Daniel's nonlinear stuff to replace that, and keep
-the pgdats strictly for NUMA. Same would apply to hotpluggable zones - 
-I'd hate to end up with 512 pgdats of stuff that are really all the
-same memory types underneath.
+Production workloads are typically different. Perhaps my 10 xterms produce
+the same type of load as 10 persons grepping gigs of logs from memory ?
+And perhaps my "ls -ltr" produce the same workload as... someone searching
+a recent file with "ls -ltr".
 
-The real issue you have is the mapping of the struct pages - if we can
-acheive a non-contig mapping of the mem_map / lmem_map array, we should
-be able to take memory on and offline reasonably easy. If you're willing
-for a first implementation to pre-allocate the struct page array for 
-every possible virtual address, it makes life a lot easier.
+> So I don't think the scheduler is bad, I think it is
+> great. When I switched to 2.5 the first time on that box it was like
+> "WOW", so little swapping and KDE is so smooth ... thats so wow ...
 
-Adding the other layer of indirection for access the struct page array
-should fix up most of that, and is very easily abstracted out via the
-pfn_to_page macros and friends. I ripped out all the direct references
-to mem_map indexing already in 2.6, so it should all be nicely 
-abstracted out.
+I too think it's great and smoother than 2.4. It obviously makes a difference
+if you use X (and I don't use these KDE, etc...). But the smoothness was
+also brought to 2.4 by patches such as rmap, preempt, variable-hz. All of
+them have been merged into 2.6, so we cannot deny that they helped too.
 
->> PS. What's this bit of the patch for?
->> 
->>  void *vmalloc(unsigned long size)
->>  {
->> +#ifdef CONFIG_MEMHOTPLUGTEST
->> +       return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL);
->> +#else
->>         return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL);
->> +#endif
->>  }
-> 
-> This is necessary because kernel memory cannot be swapped out.
-> Only highmem can be hot removed, though it doesn't need to be highmem.
-> We can define another zone attribute such as GFP_HOTPLUGGABLE.
+> But for your problem, it might get better for these kind of things in
+> later versions :)
 
-You could just lock the pages, I'd think? I don't see at a glance
-exactly what you were using this for, but would that work?
+-test10 was NOK. I'll try test11, and when I've time I'll try Nick's
+scheduler too.
 
-M.
+Cheers,
+Willy
 

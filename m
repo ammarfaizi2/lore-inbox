@@ -1,160 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbTESVGn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTESVGn
+	id S262945AbTESVI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 17:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbTESVI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:06:43 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49378 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262878AbTESVGj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:06:39 -0400
-Message-Id: <200305192118.h4JLIu710201@owlet.beaverton.ibm.com>
+	Mon, 19 May 2003 17:08:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60425 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262945AbTESVIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 17:08:54 -0400
 To: linux-kernel@vger.kernel.org
-cc: lm@bitmover.com, cs@tequila.co.jp
-Subject: [PATCH] Documentation for iostats
-Date: Mon, 19 May 2003 14:18:56 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Date: 19 May 2003 14:21:32 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <babhss$sci$1@cesium.transmeta.com>
+References: <1053289316.10127.41.camel@nosferatu.lan> <3EC9212C.4070303@blue-labs.org> <20030519183424.E7061@devserv.devel.redhat.com> <1053373410.7862.60.camel@nosferatu.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As promised, here is a file to add to the Documentation/ directory which
-describes the disk statistics fields.
+Followup to:  <1053373410.7862.60.camel@nosferatu.lan>
+By author:    Martin Schlemmer <azarah@gentoo.org>
+In newsgroup: linux.dev.kernel
+> 
+> I think on the one hand the question is also ... how far will a
+> developer of one distro go to help another.  I cannot say that I
+> have had much success in the past to get a response from one of the
+> 'big guys' to help me/us (the 'small guys') =3D)
+> 
+> Might it be a good thing to start an official project for this ?
+> 
 
-Rick
+Yes.  It's sometimes referenced as the "ABI header" project, and is
+the only way out of this mess.
 
-diff -ruN linux-2.5.69/Documentation/iostats.txt linux-2.5.69-A/Documentation/iostats.txt
---- linux-2.5.69/Documentation/iostats.txt	Wed Dec 31 16:00:00 1969
-+++ linux-2.5.69-A/Documentation/iostats.txt	Mon May 19 13:32:48 2003
-@@ -0,0 +1,131 @@
-+I/O statistics fields
-+---------------
-+
-+Last modified 5/15/03
-+
-+In 2.4.20 (and some versions before, with patches), and 2.5.45,
-+more extensive disk statistics were introduced to help measure disk
-+activity. Tools such as sar and iostat typically interpret these and do
-+the work for you, but in case you are interested in creating your own
-+tools, the fields are explained here.
-+
-+In most versions of the 2.4 patch, the information is found as additional
-+fields in /proc/partitions.  In 2.5, the same information is found
-+within the sysfs file system, which must be mounted in order to obtain
-+the information. Throughout this document we'll assume that sysfs is
-+mounted on /sys, although of course it may be mounted anywhere.
-+
-+Here are examples of these two different formats:
-+
-+2.4:
-+   3     0   39082680 hda 446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
-+   3     1    9221278 hda1 35486 0 35496 38030 0 0 0 0 0 38030 38030
-+
-+
-+2.5:
-+   446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
-+   35486    38030    38030    38030
-+
-+On 2.4 you might execute "grep 'hda ' /proc/partitions". On 2.5, you
-+would instead "cat /sys/block/hda/stat".
-+
-+In 2.4, the statistics fields are those after the device name. In
-+the above example, the first field of statistics would be 446216.
-+By contrast, in 2.5 if you look at /sys/block/hda/stat, you'll find
-+just the eleven fields, beginning with 446216. Each of these formats
-+have eleven fields of statistics, each meaning exactly the same things.
-+All fields except field 9 are cumulative since boot.  Field 9 should
-+go to zero as I/Os complete; all others only increase.  Yes, these are
-+32 bit unsigned numbers, and on a very busy or long-lived system they
-+may wrap. Applications should be prepared to deal with that; unless
-+your observations are measured in large numbers of minutes or hours,
-+they should not wrap twice before you notice them.
-+
-+Each set of stats only applies to the indicated device; if you want
-+system-wide stats you'll have to find all the devices and sum them all up.
-+
-+Field  1 -- # of reads issued
-+    This is the total number of reads completed successfully.
-+Field  2 -- # of reads merged, field 6 -- # of writes merged
-+    Reads and writes which are adjacent to each other may be merged for
-+    efficiency.  Thus two 4K reads may become one 8K read before it is
-+    ultimately handed to the disk, and so it will be counted (and queued)
-+    as only one I/O.  This field lets you know how often this was done.
-+Field  3 -- # of sectors read
-+    This is the total number of sectors read successfully.
-+Field  4 -- # of milliseconds spent reading
-+    This is the total number of milliseconds spent by all reads (as
-+    measured from __make_request() to end_that_request_last()).
-+Field  5 -- # of writes completed
-+    This is the total number of writes completed successfully.
-+Field  7 -- # of sectors written
-+    This is the total number of sectors written successfully.
-+Field  8 -- # of milliseconds spent writing
-+    This is the total number of milliseconds spent by all writes (as
-+    measured from __make_request() to end_that_request_last()).
-+Field  9 -- # of I/Os currently in progress
-+    The only field that should go to zero. Incremented as requests are
-+    given to appropriate request_queue_t and decremented as they finish.
-+Field 10 -- # of milliseconds spent doing I/Os
-+    This field is increases so long as field 9 is nonzero.
-+Field 11 -- weighted # of milliseconds spent doing I/Os
-+    This field is incremented at each I/O start, I/O completion, I/O
-+    merge, or read of these stats by the number of I/Os in progress
-+    (field 9) times the number of milliseconds spent doing I/O since the
-+    last update of this field.  This can provide an easy measure of both
-+    I/O completion time and the backlog that may be accumulating.
-+
-+
-+To avoid introducing performance bottlenecks, no locks are held while
-+modifying these counters.  This implies that minor inaccuracies may be
-+introduced when changes collide, so (for instance) adding up all the
-+read I/Os issued per partition should equal those made to the disks
-+... but due to the lack of locking it may only be very close.
-+
-+In release 2.5.65 these counters were made per-cpu, which made the lack
-+of locking almost a non-issue.  When the statistics are read, the per-cpu
-+counters are summed (possibly overflowing the unsigned 32-bit variable
-+they are summed to) and the result given to the user.  There is no
-+convenient user interface for accessing the per-cpu counters themselves.
-+
-+Disks vs Partitions
-+-------------------
-+
-+There were significant changes between 2.4 and 2.5 in the I/O subsystem.
-+As a result, some statistic information disappeared. The translation from
-+a disk address relative to a partition to the disk address relative to
-+the host disk happens much earlier.  All merges and timings now happen
-+at the disk level rather than at both the disk and partition level
-+as in 2.4.  Consequently, you'll see a different statistics output on
-+2.5 for partitions from that for disks.  There are only *four* fields
-+available for partitions on 2.5 machines.  This is reflected in the
-+example above. To access the statistics for (for example) hda1, you
-+would look at the file /sys/block/hda/hda1/stat.
-+
-+Field  1 -- # of reads issued
-+    This is the total number of reads issued to this partition.
-+Field  2 -- # of sectors read
-+    This is the total number of sectors requested to be read from this
-+    partition.
-+Field  3 -- # of reads issued
-+    This is the total number of writes issued to this partition.
-+Field  4 -- # of sectors read
-+    This is the total number of sectors requested to be written to
-+    this partition.
-+
-+Note that since the address is translated to a disk-relative one, and no
-+record of the partition-relative address is kept, the subsequent success
-+or failure of the read cannot be attributed to the partition.  In other
-+words, the number of reads for partitions is counted slightly before time
-+of queuing for partitions, and at completion for whole disks.  This is
-+a subtle distinction that is probably uninteresting for most cases.
-+
-+Additional notes
-+----------------
-+
-+In 2.5, sysfs is not mounted by default.  Here's the line you'll want
-+to add to your /etc/fstab:
-+
-+none /sys sysfs defaults 0 0
-+
-+-- ricklind@us.ibm.com
+"Copy and cleanup" is not maintainable, so then you end up having to
+make changes in multiple places every time.  Not a good idea.  Thus,
+what we need is ABI headers, which can be included from both kernel
+and userspace.  This is different from the current situation, in which
+userspace includes random kernel headers and hopes someone has put
+#ifdef __KERNEL__ in all the right places.  Not sustainable.
+
+Constructing those ABI headers is going to take a lot of effort.  For
+example <linux/abi/types.h> shouldn't export dev_t, it should export
+something like __kernel_dev64_t, and the structures that uses these
+things should be adjusted accordingly.  The user-space library might
+include this from <sys/types.h> and have typedef __kernel_dev64_t
+dev_t, but that's user-space policy.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

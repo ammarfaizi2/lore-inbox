@@ -1,46 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132338AbRDUAbB>; Fri, 20 Apr 2001 20:31:01 -0400
+	id <S132359AbRDUAdv>; Fri, 20 Apr 2001 20:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132352AbRDUAav>; Fri, 20 Apr 2001 20:30:51 -0400
-Received: from stanis.onastick.net ([207.96.1.49]:36874 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S132338AbRDUAaj>; Fri, 20 Apr 2001 20:30:39 -0400
-Date: Fri, 20 Apr 2001 20:30:29 -0400
-From: Disconnect <lkml@sigkill.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
+	id <S132370AbRDUAdl>; Fri, 20 Apr 2001 20:33:41 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48393 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132359AbRDUAdV>; Fri, 20 Apr 2001 20:33:21 -0400
 Subject: Re: Athlon problem report summary
-Message-ID: <20010420203029.C20176@sigkill.net>
-In-Reply-To: <20010420202235.B20176@sigkill.net> <E14qlGJ-0002b8-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: lkml@sigkill.net (Disconnect)
+Date: Sat, 21 Apr 2001 01:34:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010420203029.C20176@sigkill.net> from "Disconnect" at Apr 20, 2001 08:30:29 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14qlGJ-0002b8-00@the-village.bc.nu>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14qlMO-0002bj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, Alan Cox did have cause to say:
+> Is there anything out there to test/benchmark MMX ops? (Preferably with
+> reporting on MMX and equiv non-MMX ops, tunable memory bandwidth, etc.)
 
-> K7 optimisation basically enabled the MMX copy/clear code which adds 30-40%
-> performance to those functions. It also materially ups the maximum memory
-> bandwidth the processor will use which may be where the fun starts.
+I wrote a set of programs to tune the MMX code. Arjan I suspect did similar
+when he reoptimised the code for the newer Athlon. Simple stuff like
 
-Not to be slow/dull/etc (I -really- appreciate the help here) but possibly
-more stupid questions.
 
-Is there anything out there to test/benchmark MMX ops? (Preferably with
-reporting on MMX and equiv non-MMX ops, tunable memory bandwidth, etc.)
 
-Also, I can try that same kernel w/ memory set to HCLK (pc100) instead of
-HCLK+33 (pc133).  The ram is pc133, but who knows, it might work.  (I'm
-pretty sure I had it at pc100 before with no change, but not positive.)
+#include <stdio.h>
 
----
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
-X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------
+char space[1024*1024];
+char target[1024*1024];
+
+void mmx_copy(char *from, char *to)
+{
+	int i;
+	char fpu_save[108];
+	__asm__ __volatile__ ( " fsave %0; fwait\n"::"m"(fpu_save[0]) );
+	__asm__ __volatile__ (
+		"  prefetch (%0)\n"
+		"  prefetch 64(%0)\n"
+		"  prefetch 128(%0)\n"
+		"  prefetch 192(%0)\n"
+		"  prefetch 256(%0)\n"
+		: : "r" (from) );
+
+	for(i=0;i<4096/64;i++)
+	{
+		__asm__ __volatile__ (
+		"  prefetch 320(%0)\n"
+		"  movq (%0), %%mm0\n"
+		"  movq 8(%0), %%mm1\n"
+		"  movq 16(%0), %%mm2\n"
+		"  movq 24(%0), %%mm3\n"
+		"  movq %%mm0, (%1)\n"
+		"  movq %%mm1, 8(%1)\n"
+		"  movq %%mm2, 16(%1)\n"
+		"  movq %%mm3, 24(%1)\n"
+		"  movq 32(%0), %%mm0\n"
+		"  movq 40(%0), %%mm1\n"
+		"  movq 48(%0), %%mm2\n"
+		"  movq 56(%0), %%mm3\n"
+		"  movq %%mm0, 32(%1)\n"
+		"  movq %%mm1, 40(%1)\n"
+		"  movq %%mm2, 48(%1)\n"
+		"  movq %%mm3, 56(%1)\n"
+		: : "r" (from), "r" (to) : "memory");
+		from+=64;
+		to+=64;
+	}
+	__asm__ __volatile__ ( " frstor %0;\n"::"m"(fpu_save[0]) );
+}
+
+int main(int argc, char *argv)
+{
+	char *from=space;
+	char *to=target;
+	int r;
+	int i;
+	for(r=0;r<2048;r++)
+	{
+		for(i=0;i<256;i++)
+		{
+			mmx_copy(from, to);
+			from+=4096;
+			to+=4096;
+			
+		}
+		from=space;
+		to=target;
+	}
+}

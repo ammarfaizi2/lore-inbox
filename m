@@ -1,87 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319053AbSIJGkl>; Tue, 10 Sep 2002 02:40:41 -0400
+	id <S319055AbSIJGoM>; Tue, 10 Sep 2002 02:44:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319055AbSIJGkl>; Tue, 10 Sep 2002 02:40:41 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:5204 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S319053AbSIJGki>; Tue, 10 Sep 2002 02:40:38 -0400
-Date: Tue, 10 Sep 2002 08:45:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: ltp directio test causes oops on 2.4.20pre5aa2
-Message-ID: <20020910064536.GE17868@dualathlon.random>
-References: <20020909210236.GA3023@rushmore>
+	id <S319056AbSIJGoM>; Tue, 10 Sep 2002 02:44:12 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:10933 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319055AbSIJGoL>;
+	Tue, 10 Sep 2002 02:44:11 -0400
+Date: Tue, 10 Sep 2002 08:48:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USER_HZ & NTP problems
+Message-ID: <20020910084853.A6792@ucw.cz>
+References: <200209092314.g89NEnA05992@fokkensr.vertis.nl> <20020910080941.A6298@ucw.cz> <200209100637.g8A6bMm01628@fokkensr.vertis.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020909210236.GA3023@rushmore>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209100637.g8A6bMm01628@fokkensr.vertis.nl>; from fokkensr@fokkensr.vertis.nl on Tue, Sep 10, 2002 at 08:37:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-while merging the new nfs stuff with nfs-o_direct this bit was left out:
+On Tue, Sep 10, 2002 at 08:37:17AM +0200, Rolf Fokkens wrote:
+> On Tuesday 10 September 2002 08:09, Vojtech Pavlik wrote:
+> > Actually, the clock true frequency is 1193181.8 Hz, although most
+> > manuals say 1.19318 MHz, which, because truncating more digits, also
+> > correct. But 1193180 Hz isn't. If you're trying to count the time
+> > correctly, you should better use 1193182 Hz if staying in integers.
+> 
+> I copied the clock frequency from the kernel source, timex.h defines:
+> 
+> #define CLOCK_TICK_RATE 1193180
+> 
+> If what you're saying is correct, timex.h uses the wrong value as wel I guess.
 
-> diff -u --recursive --new-file linux-2.4.18-pathconf/mm/filemap.c linux-2.4.18-odirect/mm/filemap.c
-> --- linux-2.4.18-pathconf/mm/filemap.c	Wed Feb 20 17:14:28 2002
-> +++ linux-2.4.18-odirect/mm/filemap.c	Wed Feb 20 17:17:19 2002
-> @@ -1515,7 +1515,7 @@
-594a592,606
-> --- 2.4.19pre3aa1/fs/reiserfs/inode.c.~1~	Tue Mar 12 00:07:18 2002
-> +++ 2.4.19pre3aa1/fs/reiserfs/inode.c	Tue Mar 12 01:24:21 2002
-> @@ -2161,10 +2161,11 @@
->  	}
->  }
->  
-> -static int reiserfs_direct_io(int rw, struct inode *inode, 
-> +static int reiserfs_direct_io(int rw, struct file * filp,
->                                struct kiobuf *iobuf, unsigned long blocknr,
->  			      int blocksize) 
->  {
-> +    struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
->      return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
->                               reiserfs_get_block_direct_io) ;
->  }
+Yes, it uses the wrong value.
 
-Trond could you include the reiserfs part in your nfs-o_direct too?
-(ext3 has o_direct in -aa only so you don't need it) I'll keep them in
-separate files so they won't be forgotten again.  In the meantime you
-can test with this incremental fix:
+It's not too big a difference to notice, the error in the frequency from
+the ideal value in most cheap mainboard crystals is greater than 2 Hz.
+So it's lost in the noise.
 
---- 2.4.19pre3aa1/fs/reiserfs/inode.c.~1~	Tue Mar 12 00:07:18 2002
-+++ 2.4.19pre3aa1/fs/reiserfs/inode.c	Tue Mar 12 01:24:21 2002
-@@ -2161,10 +2161,11 @@
- 	}
- }
- 
--static int reiserfs_direct_io(int rw, struct inode *inode, 
-+static int reiserfs_direct_io(int rw, struct file * filp,
-                               struct kiobuf *iobuf, unsigned long blocknr,
- 			      int blocksize) 
- {
-+    struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
-     return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
-                              reiserfs_get_block_direct_io) ;
- }
---- 2.4.20pre5aa2/fs/ext3/inode.c.~1~	Mon Sep  9 02:38:08 2002
-+++ 2.4.20pre5aa2/fs/ext3/inode.c	Tue Sep 10 05:22:18 2002
-@@ -1385,9 +1385,10 @@ static int ext3_releasepage(struct page 
- }
- 
- static int
--ext3_direct_IO(int rw, struct inode *inode, struct kiobuf *iobuf,
-+ext3_direct_IO(int rw, struct file * filp, struct kiobuf *iobuf,
- 		unsigned long blocknr, int blocksize)
- {
-+	struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
- 	struct ext3_inode_info *ei = EXT3_I(inode);
- 	handle_t *handle = NULL;
- 	int ret;
+The clock is generated from a base crystal of 14.3181818 by division by 12.
+The base crystal is the frequency found on ISA for the MDA/CGA adapters,
+and is a NTSC dot-clock. All other frequencies on a motherboard (except
+the RTC, which has a separate 32.000 kHz clock) are derived from it.
 
-thanks for the as usual accurate report,
+It's just if you try to get the computations correct, you may also want
+to have this value correct. :)
 
-Andrea
-
-PS. Later I'll make sure the new sched can't introduce starvation, then
-    I'll upload a new -aa with these few bits.
+-- 
+Vojtech Pavlik
+SuSE Labs

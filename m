@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263957AbUD0J6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263970AbUD0KEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263957AbUD0J6x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 05:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbUD0J6x
+	id S263970AbUD0KEF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 06:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbUD0KEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 05:58:53 -0400
-Received: from mail.gmx.de ([213.165.64.20]:15531 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263957AbUD0J6v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 05:58:51 -0400
-X-Authenticated: #21910825
-Message-ID: <408E2ECE.9050804@gmx.net>
-Date: Tue, 27 Apr 2004 11:58:38 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: de, en
+	Tue, 27 Apr 2004 06:04:05 -0400
+Received: from mail1.webmessenger.it ([193.70.193.50]:51413 "EHLO
+	mail1c.webmessenger.it") by vger.kernel.org with ESMTP
+	id S263970AbUD0KED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 06:04:03 -0400
+From: "Martin Angler" <martin.angler@email.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel space vs. user space for RS-485
+Date: Tue, 27 Apr 2004 12:04:05 +0200
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: Gilles May <gilles@canalmusic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <408DC0E0.7090500@gmx.net> <408DCFE9.3040407@canalmusic.com> <Pine.LNX.4.58.0404270039020.3414@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0404270039020.3414@montezuma.fsmlabs.com>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: AcQsPvkFLo+6wc9pR9GvLJBO68i/AA==
+Message-Id: <S263970AbUD0KED/20040427100403Z+208@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Tue, 27 Apr 2004, Gilles May wrote:
-> 
-> 
->>Carl-Daniel Hailfinger wrote:
->>
->>
->>>The attached patch blacklists all modules having "Linuxant" or "Conexant"
->>>in their author string. This may seem a bit broad, but AFAIK both
->>>companies never have released anything under the GPL and have a strong
->>>history of binary-only modules.
->>>
->>>
->>
->>Blacklisting modules?!
->>
->>Oh come on!
->>I agree the '\0' trick is not really nice, but blacklisting modules is
->>not really better. It's not a functionality that adds anything to the
->>kernel.
->>If ppl want/have to use that module let them!
+Hello,
 
-If you had read the patch instead of complaining, you would have seen that
-the only change is to taint the kernel for those modules.
+I have to develop a pseudo-device driver that gets data from a RS485
+interface, frames it and gives the framed data to libpcap. This whole thing
+is a university project. Now I know, that writing a kernel module I can't be
+using the standard C library for invocations of read() or ioctl() methods in
+order to get the data from the RS485 interface. 
+
+So my plan would be writing a driver xxx which has its file operations
+xxx_read, xxx_open and xxx_release. xxx_read should call then some kind of
+read method in order to get the data from the RS485. Are there any exported
+symbols from the RS485 driver? Or do I have to write the whole driver in
+user space in order to access the RS485 interface?
+
+Thanks in advance,
+
+Martin Angler
 
 
-> Then they should list themselves as proprietory, there will be no problem
-> loading them in that case. No need to tell fibs.
-
-Indeed.
-
-
-Carl-Daniel
--- 
-http://www.hailfinger.org/
 

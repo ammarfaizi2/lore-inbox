@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTLWPmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 10:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTLWPmJ
+	id S261575AbTLWP6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 10:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTLWP6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 10:42:09 -0500
-Received: from mail3-126.ewetel.de ([212.6.122.126]:59796 "EHLO
-	mail3.ewetel.de") by vger.kernel.org with ESMTP id S261539AbTLWPmH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 10:42:07 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm1
-In-Reply-To: <15N7L-7y2-3@gated-at.bofh.it>
-References: <15N7L-7y2-3@gated-at.bofh.it>
-Date: Tue, 23 Dec 2003 16:41:56 +0100
-Message-Id: <E1AYofU-0000QA-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Tue, 23 Dec 2003 10:58:38 -0500
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:23941
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S261575AbTLWP6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 10:58:37 -0500
+Date: Tue, 23 Dec 2003 10:59:30 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: scott.feldman@intel.com
+cc: jgarzik@pobox.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
+Message-ID: <Pine.LNX.4.44.0312231057410.836-100000@coredump.sh0n.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003 06:20:14 +0100, you wrote in linux.kernel:
 
-> +atapi-mo-support.patch
-> 
->  Fix support for ATAPI MO drives (needs updating to reflect the changes in
->  mt-ranier-support.patch).
-> 
-> +mt-ranier-support.patch
-> 
->  Mt Ranier support in the CDROM uniform layer.
+This is correct, when I removed the __devinit's the oops did not occur.
 
-Since the atapi-mo patch is mine, is there something I need to do?
+I see this has been fixed in akpm's 2.6.0-mm1 release :-)
 
--- 
-Ciao,
-Pascal
+Thanks,
+
+Shawn.
+
+List:     linux-kernel
+Subject:  RE: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
+Date:     2003-12-22 19:33:08
+
+> New is a bit non-specific :)  What driver version?
+
+It's got to be the e100-2.3.x driver in 2.6.0.
+
+> If you remove all occurences of "__devinit", does the oops go away?
+
+That's the problem.  __devinit's where there shouldn't be __devinit's.
+
+So e100-3.0.x is pending in -exp queue for 2.6.1; do we fix 2.6.0?
+
+-scott
+
+

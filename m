@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbQLKXDG>; Mon, 11 Dec 2000 18:03:06 -0500
+	id <S130267AbQLKXE0>; Mon, 11 Dec 2000 18:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130686AbQLKXC4>; Mon, 11 Dec 2000 18:02:56 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24848 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130670AbQLKXCk>; Mon, 11 Dec 2000 18:02:40 -0500
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-To: gmack@innerfire.net (Gerhard Mack)
-Date: Mon, 11 Dec 2000 22:06:54 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), riel@conectiva.com.br (Rik van Riel),
-        vii@penguinpowered.com (John Fremlin), scole@lanl.gov,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10012111357430.21909-100000@innerfire.net> from "Gerhard Mack" at Dec 11, 2000 02:03:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130686AbQLKXEQ>; Mon, 11 Dec 2000 18:04:16 -0500
+Received: from catbert.rellim.com ([204.17.205.1]:17425 "EHLO
+	catbert.rellim.com") by vger.kernel.org with ESMTP
+	id <S130267AbQLKXEJ>; Mon, 11 Dec 2000 18:04:09 -0500
+Date: Mon, 11 Dec 2000 14:33:42 -0800 (PST)
+From: "Gary E. Miller" <gem@rellim.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SMBFS does not compile on test12-pre8
+Message-ID: <Pine.LNX.4.30.0012111352360.28287-100000@catbert.rellim.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E145b60-00007M-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How much of that is due to the fact that the 2.4.0 scheduler interrupts
-> processes more often than 2.2.x?  Is the better interactivity worth the
-> slight drop in performance?
+Yo All!
 
-What better interactivity ;)
+I just tried to compile SMBFS in test12-pre8.  Here is the error
+message I get:
+
+make[3]: Entering directory `/u3/local/src/linux-2.4.0-test12-pre8/fs/smbfs'
+gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686  -DSMBFS_PARANOIA  -c -o sock.o sock.c
+sock.c: In function `smb_data_ready':
+sock.c:166: structure has no member named `next'
+make[3]: *** [sock.o] Error 1
+
+This has worked in the recent past.
+
+This is the failing line 166 in fs/smbfs/sock.c:
+	job->cb.next = NULL;
+
+It looks like tq_struct has been changed so that the tq_struct->next
+member is now tq_struct->list.next.
+
+So can we just delete line 166 in fs/smbfs/sock.c?
+
+Or do we still need to initialize next by changing line 166 to:
+	 job->cb.list.next = NULL.
+
+Ideas?
+
+RGDS
+GARY
+---------------------------------------------------------------------------
+Gary E. Miller Rellim 20340 Empire Ave, Suite E-3, Bend, OR 97701
+	gem@rellim.com  Tel:+1(541)382-8588 Fax: +1(541)382-8676
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

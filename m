@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263430AbTHXK4G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 06:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTHXK4G
+	id S263198AbTHXKvw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 06:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbTHXKvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 06:56:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20416 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263430AbTHXK4D (ORCPT
+	Sun, 24 Aug 2003 06:51:51 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:30124 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263198AbTHXKvZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 06:56:03 -0400
-Date: Sun, 24 Aug 2003 03:47:35 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.0-test4][NET] 3c509.c: remove device.name field
-Message-Id: <20030824034735.534b8c68.davem@redhat.com>
-In-Reply-To: <1061644409.1141.18.camel@lima.royalchallenge.com>
-References: <1061644409.1141.18.camel@lima.royalchallenge.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Sun, 24 Aug 2003 06:51:25 -0400
+Date: Sun, 24 Aug 2003 12:46:15 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2 mouse attached
+Message-ID: <20030824104615.GC29804@ucw.cz>
+References: <1061233756.1520.16.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061233756.1520.16.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Aug 2003 18:43:29 +0530
-Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
+On Mon, Aug 18, 2003 at 09:09:16PM +0200, Felipe Alfaro Solana wrote:
 
-> This patch removes the device name field which is no longer present.
+> If I try to boot my P4 box (i845DE motherboard) with no PS/2 mouse
+> plugged into the PS/2 port, the kernel hangs while checking the AUX
+> ports in function i8042_check_aux(). The i8042_check_aux() function is
+> trying to request IRQ #12, but the call to request_irq() causes the
+> hang. The kernel hangs exactly at:
+> 
+>         if (request_irq(values->irq, i8042_interrupt, SA_SHIRQ,
+>                                 "i8042", i8042_request_irq_cookie))
 
-This doesn't look like the right fix.  You can't just
-delete these lines, you should rather replace them with
-accesses to whatever the MCA device struct name field is.
+What happens if you remove the SA_SHIRQ and replace with 0?
+
+> in drivers/input/serio/i8042.c, with a value of 12 for values->irq. If I
+> boot with my PS/2 mouse attached, the kernel is able to boot normally.
+> Also, disabling ACPI support in the kernel allows me to boot
+> 2.6.0-test3-bk6 with no PS/2 mouse plugged in.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

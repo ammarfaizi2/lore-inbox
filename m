@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315607AbSHITLx>; Fri, 9 Aug 2002 15:11:53 -0400
+	id <S315540AbSHITKk>; Fri, 9 Aug 2002 15:10:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSHITLx>; Fri, 9 Aug 2002 15:11:53 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58377 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S315607AbSHITLw>; Fri, 9 Aug 2002 15:11:52 -0400
-Date: Fri, 9 Aug 2002 16:15:26 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: yodaiken@fsmlabs.com
-cc: Daniel Phillips <phillips@arcor.de>, <frankeh@watson.ibm.com>,
-       <davidm@hpl.hp.com>, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <20020809114050.A23656@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44L.0208091613000.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315607AbSHITKj>; Fri, 9 Aug 2002 15:10:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51472 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315540AbSHITKj>; Fri, 9 Aug 2002 15:10:39 -0400
+Message-ID: <3D541478.40808@zytor.com>
+Date: Fri, 09 Aug 2002 12:14:00 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davidm@hpl.hp.com
+CC: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org
+Subject: Re: klibc development release
+References: <aivdi8$r2i$1@cesium.transmeta.com>	<200208090934.g799YVZe116824@d12relay01.de.ibm.com>	<200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com>	<3D541018.4050004@zytor.com> <15700.4689.876752.886309@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Aug 2002 yodaiken@fsmlabs.com wrote:
-> > On Fri, 9 Aug 2002, Rik van Riel wrote:
-> > One problem we're running into here is that there are absolutely
-> > no tools to measure some of the things rmap is supposed to fix,
-> > like page replacement.
->
-> But page replacement is a means to an end. One thing tht would be
-> very interesting to know is how well the basic VM assumptions about
-> locality work in a Linux server, desktop, and embedded environment.
->
-> You have a LRU approximation that is supposed to approximate working
-> sets that were originally understood and measured on < 1Meg machines
-> with static libraries, tiny cache,  no GUI and no mmap.
+David Mosberger wrote:
+>>>>>>On Fri, 09 Aug 2002 11:55:20 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
+>>>>>
+> 
+>   HPA> Hmf... some of these seem to be outright omissions
+>   HPA> (pivot_root() and umount2() especially), and probably indicate
+>   HPA> bugs or that the stock kernel isn't up to date anymore.
+> 
+>   HPA> I can see umount() being missing (as in "use umount2()").
+> 
+> Alpha calls umount2() "oldumount"; ia64 never had a one-argument
+> version of umount(), so there is no point creating legacy (and the
+> naming is inconsistent anyhow...).
+> 
 
-Absolutely, it would be interesting to know this.
-However, up to now I haven't seen any programs that
-measure this.
+The gratuitous inconsistencies between platforms is something that is 
+currently driving me up the wall.  I'm starting to think the NetBSD 
+people have the right idea: when you add a system call on NetBSD, you 
+only have to add it in one place and it becomes available on all the 
+platforms they support.  Of course, you can provide a custom 
+implementation for any one platform, but the idea is to keep as much of 
+the code generic as possible...
 
-In this case we know what we want to measure, know we
-want to measure it for all workloads, but don't know
-how to do this in a quantifyable way.
+	-hpa
 
-> L.T. writes:
->
-> > Read up on positivism.
->
-> It's been discredited as recursively unsound reasoning.
-
-To further this point, by how much has the security number
-of Linux improved as a result of the inclusion of the Linux
-Security Module framework ?  ;)
-
-I'm sure even Linus will agree that the security potential
-has increased, even though he can't measure or quantify it.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBGQjQ>; Wed, 7 Feb 2001 11:39:16 -0500
+	id <S129031AbRBGQlQ>; Wed, 7 Feb 2001 11:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129214AbRBGQjH>; Wed, 7 Feb 2001 11:39:07 -0500
-Received: from npt12056206.cts.com ([216.120.56.206]:63498 "HELO
-	forty.spoke.nols.com") by vger.kernel.org with SMTP
-	id <S129116AbRBGQi4>; Wed, 7 Feb 2001 11:38:56 -0500
-Date: Wed, 7 Feb 2001 08:38:54 -0800
-From: David Rees <dbr@spoke.nols.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-Message-ID: <20010207083854.F24270@spoke.nols.com>
-Mail-Followup-To: David Rees <dbr@spoke.nols.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-In-Reply-To: <3A813A63.EBD1B768@namesys.com> <420500000.981560829@tiny>
+	id <S129214AbRBGQlG>; Wed, 7 Feb 2001 11:41:06 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:21767 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129031AbRBGQk5>;
+	Wed, 7 Feb 2001 11:40:57 -0500
+Date: Wed, 7 Feb 2001 17:40:47 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Paul Powell <moloch16@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ioctl CDROMRESET has no effect
+Message-ID: <20010207174047.D20618@suse.de>
+In-Reply-To: <20010207163432.25823.qmail@web114.yahoomail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <420500000.981560829@tiny>; from mason@suse.com on Wed, Feb 07, 2001 at 10:47:09AM -0500
+In-Reply-To: <20010207163432.25823.qmail@web114.yahoomail.com>; from moloch16@yahoo.com on Wed, Feb 07, 2001 at 08:34:32AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 07, 2001 at 10:47:09AM -0500, Chris Mason wrote:
+On Wed, Feb 07 2001, Paul Powell wrote:
+> I'm attempting to reset a CDROM using the CDROMRESET
+> ioctl.  The reset command only seems to reset the
+> device if the device is not mounted.  If the device is
+> mounted, the reset command seems to have no effect.
 > 
-> Ok, how about we list the known bugs:
+> With the device unmounted, sending the reset command
+> causes the drive to become active and I see the
+> activity light light up.  With the device mounted, the
+> activity light does nothing.  I also can't open the
+> CD-ROM drive using the eject button after resetting a
+> mounted CD.
 > 
-> zeros in log files, apparently only between bytes 2048 and 4096 (not
-> reproduced yet).
+> It seems the reset command should work even if the OS
+> thinks the device is mounted for error recovery.
 
-Could this bug be related to the reported corruption that people with
-new VIA chipsets have been also reporting on ext2?  It seems similar
-because of the location of the corruption:
+There's no special code to send different reset depending
+on whether the drive is mounted or not. If you drive
+reacts differently to a reset if it's locked, then tough
+luck.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98147483712620&w=2
+>    result = ioctl(fd, CDROMRESET, 1);
+                                    ^^
 
-Anyway, it can't hurt to ask the bug reported if they're using a
-newer VIA chipset and see if they will upgrade their BIOS which seems
-to fix the problem.
+There are no valid parameters for a reset.
 
--Dave
+-- 
+Jens Axboe
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

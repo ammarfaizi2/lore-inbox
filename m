@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317691AbSFLMPj>; Wed, 12 Jun 2002 08:15:39 -0400
+	id <S317695AbSFLMVZ>; Wed, 12 Jun 2002 08:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317692AbSFLMPi>; Wed, 12 Jun 2002 08:15:38 -0400
-Received: from s2.relay.oleane.net ([195.25.12.49]:62980 "HELO
-	s2.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S317691AbSFLMPh>; Wed, 12 Jun 2002 08:15:37 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Oliver Neukum <oliver@neukum.name>, Roland Dreier <roland@topspin.com>,
-        "David S. Miller" <davem@redhat.com>
-Cc: <wjhun@ayrnetworks.com>, <paulus@samba.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Date: Tue, 11 Jun 2002 22:06:12 +0200
-Message-Id: <20020611200612.9251@smtp.adsl.oleane.com>
-In-Reply-To: <200206121402.53622.oliver@neukum.name>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+	id <S317693AbSFLMVY>; Wed, 12 Jun 2002 08:21:24 -0400
+Received: from ns3.maptuit.com ([204.138.244.3]:58890 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S317692AbSFLMVX>;
+	Wed, 12 Jun 2002 08:21:23 -0400
+Message-ID: <3D073C4D.3AAB1EED@torque.net>
+Date: Wed, 12 Jun 2002 08:19:25 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: fdisk on scsi disks in 2.5.21
+In-Reply-To: <UTC200206111251.g5BCpDN18038.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If I understand both Davids correctly this is the solution.
->Buffers for dma must be allocated seperately using a special allocation
->function which is given the device so it can allocate correctly.
->David B wants a bus specific pointer to a function in the generic
->driver structure, right ?
+Andries.Brouwer@cwi.nl wrote:
+> 
+> > One head, one cylinder and lots of sectors??
+> 
+> > Is my fdisk (from RH 7.2) too old?
+> 
+> No, it is too modified.
+> Get a vanilla fdisk from a recent util-linux,
+> and probably all will be fine.
+ 
+Andries,
+Thanks. Confirming that the fdisk in util-linux-2.11r
+works fine.
 
-Then let's have those as part of the generic device struct, with
-the default ones pointing to the parent bus ones.
-
-That way, a couple of generic ones could be set at the root of the
-device tree for fully coherent or fully incoherent archs, and
-bus drivers would have the ability to affect their child devices
-ones.
-
-Ben.
-
-
+Doug Gilbert

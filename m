@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVANK50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVANK7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVANK50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 05:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVANK50
+	id S261952AbVANK7F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 05:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVANK7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 05:57:26 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:48057 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261949AbVANK5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 05:57:20 -0500
-Message-ID: <41E7A58C.5010805@yahoo.com.au>
-Date: Fri, 14 Jan 2005 21:57:16 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Fri, 14 Jan 2005 05:59:05 -0500
+Received: from opersys.com ([64.40.108.71]:1555 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261952AbVANK6v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 05:58:51 -0500
+Message-ID: <41E7A7A6.3060502@opersys.com>
+Date: Fri, 14 Jan 2005 06:06:14 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
 To: Andi Kleen <ak@muc.de>
-CC: clameter@sgi.com, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview II
-References: <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com> <20050114043944.GB41559@muc.de> <m14qhkr4sd.fsf_-_@muc.de> <1105678742.5402.109.camel@npiggin-nld.site> <20050114104732.GB72915@muc.de>
-In-Reply-To: <20050114104732.GB72915@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+In-Reply-To: <20050114103836.GA71397@muc.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Andi Kleen wrote:
->>I have a question for the x86 gurus. We're currently using the lock
->>prefix for set_64bit. This will lock the bus for the RMW cycle, but
->>is it a prerequisite for the atomic 64-bit store? Even on UP?
-> 
-> 
-> An atomic 64bit store doesn't need a lock prefix. A cmpxchg will
-> need to though.
+> When you have a timing bug and your logger starts to block randomly
+> you also won't debug anything. Fix is to make your buffers bigger.
 
-Are you sure the cmpxchg8b need a lock prefix? Sure it does to
-get the proper "atomic cmpxchg" semantics, but what about a
-simple 64-bit store... If it boils down to 8 byte load, 8 byte
-store on the memory bus, and that store is atomic, then maybe
-a lock isn't needed at all?
+relayfs allows you to choose which is best for you.
 
-I think when emulating a *load*, then the lock is needed, because
-otherwise the subsequent store may overwrite some value that has
-just been stored by another processor.... but for a store I'm not
-so sure.
+>From Documentation/filesystems/relayfs.txt:
+...
+int    relay_open(channel_path, bufsize, nbufs, channel_flags,
+		  channel_callbacks, start_reserve, end_reserve,
+		  rchan_start_reserve, resize_min, resize_max, mode,
+		  init_buf, init_buf_size)
+...
+- resize_min - if set, this signifies that the channel is
+  auto-resizeable.  The value specifies the size that the channel will
+  try to maintain as a normal working size, and that it won't go
+  below.  The client makes use of the resizing callbacks and
+  relay_realloc_buffer() and relay_replace_buffer() to actually effect
+  the resize.
 
-> Note that UP kernels define LOCK to nothing.
-> 
+- resize_max - if set, this signifies that the channel is
+  auto-resizeable.  The value specifies the maximum size the channel
+  can have as a result of resizing.
+...
 
-Yes. In this case (include/asm-i386/system.h:__set_64bit), it
-is using lowercase lock, which I think is not defined away,
-right?
+LTT uses fixed-sized channels, but the implementation of printk-
+over-relayfs used resize_min and resize_max to allow automatic
+sizing (grep for relay_open):
+http://www.opersys.com/ftp/pub/relayfs/patch-printk-on-relayfs-2.6.0-test1
 
+... now I'm going to get some sleep ... I'll catch up later with
+further discussion ...
 
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

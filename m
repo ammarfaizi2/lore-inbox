@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUFRArJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUFRBAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUFRArJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 20:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264895AbUFRArJ
+	id S264914AbUFRBAP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUFRBAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 20:47:09 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:35014 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S264894AbUFRAqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 20:46:47 -0400
-Date: Thu, 17 Jun 2004 20:40:54 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: <ebuddington@wesleyan.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SATA 3112 errors on 2.6.7
-In-Reply-To: <20040617210751.GA28519@pool-141-154-165-127.wma.east.verizon.net>
-Message-ID: <Pine.GSO.4.33.0406172012220.25702-100000@sweetums.bluetronic.net>
+	Thu, 17 Jun 2004 21:00:14 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:59816 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S264898AbUFRBAC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 21:00:02 -0400
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Proposal for new generic device API: dma_get_required_mask()
+References: <1087481331.2210.27.camel@mulgrave>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 18 Jun 2004 02:46:46 +0200
+In-Reply-To: <1087481331.2210.27.camel@mulgrave> (James Bottomley's message
+ of "17 Jun 2004 09:08:51 -0500")
+Message-ID: <m33c4tsnex.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004, Eric Buddington wrote:
->----------------------------
->ata1: DMA timeout, stat 0x1
->ATA: abnormal status 0x58 on port 0xCF819087
->scsi0: ERROR on channel 0, id 0, lun 0, CDB: Read (10) 00 00 03 ca 47 00 00 00 00
->Current sda: sense key Medium Error
->Additional sense: Unrecovered read error - auto reallocate failed
->end_request: I/O error, dev sda, sector 248391
->ATA: abnormal status 0x58 on port 0xCF819087
->ATA: abnormal status 0x58 on port 0xCF819087
->ATA: abnormal status 0x58 on port 0xCF819087
->----------------------------
+James Bottomley <James.Bottomley@steeleye.com> writes:
 
-I'm seeing the same thing on a 3114. (And even uber flaky behavior on a
-3ware 8506-4LP... rebuilds succeed, OS can pattern fill the array without
-error, but a media scan/parity check fails within minutes.)  There's
-likely nothing wrong with your drives.  Something about that driver and
-the hardware aren't playing nice.
+> If the driver decides to use the mask, it would do another
+> dma_set_mask() to confirm it (this gives the platform the opportunity if
+> it so chooses to return a mask that doesn't quite cover memory, but
+> would be more optimal...say for platforms that have all memory under 4GB
+> bar one small chunk at 64GB or something).
 
-I have 4xST3160023AS's in RAID0 (mirroring what the BIOS does to those drives.
-See other posts.)  I can zero the array @ 35MB/s via O_DIRECT writes without
-any issues.  I can copy gigs of stuff into the array if the fs is mounted
-O_SYNC.  Yet, without O_SYNC, bursts of writes eventually result in a DMA
-timeout.  I tried setting SIL_QUIRK_MOD15WRITE for that drive model, but it
-makes no difference.
+What I think drivers such as AIC7xxx should do is:
 
---Ricky
+#define OUR_COST_32 = 4
+#define OUR_COST_39 = 8
+#define OUR_COST_64 = 10
+
+int cost32 = check_dma_mask(32 bits);
+int cost39 = check_dma_mask(39 bits);
+int cost64 = check_dma_mask(64 bits);
+
+if (!cost32  && !cost39 && !cost64)
+	printk(KERN_ERR "64 bits aren't enough for RAM addressing?\n")
+else
+	use_mode_with_minimal_cost(cost32 * OUR_COST_32,
+				   cost39 * OUR_COST_39,
+				   cost64 * OUR_COST_64);
+
+This check_dma_mask() should be renamed + extended to cover different
+RAM access types:
+- coherent vs non-coherent memory
+- preallocated/initialized memory (such as skb->data passed to
+  hard_start_xmit()) vs uninitialized memory (such as returned by
+  kmalloc()).
+
+The "cost" is needed for cases where both the host and the device can
+support many addressing modes, such as with AIC7xxx, > 4GB of RAM
+and (costly) IO MMU or bounce buffers.
 
 
+Currently, set_dma_mask(less than 32 bits) can return success but then
+the mapping functions can return addresses which don't fit in the
+requested number of bits. In fact set_dma_mask() has any meaning
+only to *alloc functions. The statement "pci_set_consistent_dma_mask()
+will always be able to set the same or a smaller mask as
+pci_set_dma_mask()" doesn't make IMHO sense.
 
+
+If we fix the API we should IMHO also remove set_dma_mask() and add
+the number of address bits to the arguments of actual mapping
+functions. It would make it possible to use different masks for
+different tasks, I'm told there is hardware which can benefit from it.
+Done correctly it wouldn't have any runtime overhead.
+
+I would also change the "u64 mask" into plain number of bits.
+It would be easier for people, cpp, gcc and CPU.
+-- 
+Krzysztof Halasa, B*FH

@@ -1,49 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315438AbSELWEd>; Sun, 12 May 2002 18:04:33 -0400
+	id <S315442AbSELWGp>; Sun, 12 May 2002 18:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315440AbSELWEc>; Sun, 12 May 2002 18:04:32 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:20986 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S315438AbSELWEb>; Sun, 12 May 2002 18:04:31 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S315441AbSELWGo>; Sun, 12 May 2002 18:06:44 -0400
+Received: from inet01.olgc.on.ca ([216.94.172.42]:37905 "EHLO inet01")
+	by vger.kernel.org with ESMTP id <S315440AbSELWGm>;
+	Sun, 12 May 2002 18:06:42 -0400
+To: barryn@pobox.com (Barry K. Nathan)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UDMA Troubles and Possible Physical Damage?!
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15582.59104.448855.21882@wombat.chubb.wattle.id.au>
-Date: Mon, 13 May 2002 08:04:16 +1000
-To: Elladan <elladan@eskimo.com>
-Cc: Jakob ?stergaard <jakob@unthought.net>,
-        Kasper Dupont <kasperd@daimi.au.dk>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-In-Reply-To: <791836807@toto.iv>
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF705FCF97.C476D53D-ON85256BB7.007934A6@LocalDomain>
+From: aeleblanc@olgc.on.ca
+Date: Sun, 12 May 2002 18:04:55 -0400
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "elladan" == elladan  <elladan@eskimo.com> writes:
+Ok thanks for the pointers Barry, I'll try out that other kernel.
 
 
-elladan> It's perfectly legal for the shell to sit around with a file
-elladan> open and pass it off to a child, even if the disk is full.
 
-elladan> It's also perfectly legal for root to write to the fd, even
-elladan> if the disk is full (for normal users).
 
-elladan> It just happens that the suid program wasn't the one who
-elladan> chose what file it was going to write stdout to - the shell
-elladan> did.
 
-This is why in SVr4, struct cred is cloned at open time, and passed
-down to each VFS operation.
 
-There's a choice of security modules here--- should the credentials
-of the opener or the credentials of the writer determine the use of
-the extra space?  I think in this case it ought to be the credentials
-of the opener.  Also, I'm not sure that mount(8) should be a setuid
-program. (I know it's convenient for floppy mounts, but I'd rather
-they were handled by autofs)
+barryn@pobox.com (Barry K. Nathan)
+12-05-02 06:06 PM
 
-Peter C
+ 
+        To:     aeleblanc@olgc.on.ca
+        cc:     linux-kernel@vger.kernel.org
+        Subject:        Re: UDMA Troubles and Possible Physical Damage?!
+
+
+> Duron 1GHz on an ACS Mobo with SiS Chipset. 100MHz FSB & 384 MB PC133 
+> SDRAM.
+> and a Fujitsu 30MB ATA100 Drive
+> 
+> 
+> I Just finished installing Debian - Woody, which installs Kernel Version 
+
+> 2.2.17 I Believe (I may be wrong there)
+
+For anything recent, you really want the IDE support in 2.4.19-preX 
+(latest
+is -pre8).
+
+> I installed and ran hdparm and after telling me that dma and all that 
+> other good stuff was disabled it said "HDIO: Failed to check BUSSTATE"
+> 
+> i ran hdparm -c3 -d1 -X34 to try and get DMA Working... the command ran 
+
+Usually -X## commands are just asking for trouble these days (the driver
+should be doing it on its own, and in the newer kernels, it does). The
+most that should be needed is "hdparm -d1" and that's only needed if the
+"DMA enabled by default" config option wasn't enabled at kernel compile
+time. 
+
+> fine but as soon as I tried to run another command (just 'ls' in fact) 
+the 
+> system Locked up Solid.  upon rebooting my Bios didn't even Pick up the 
+> Hard drive.. I did a Hard reset again and the Bios picked it up, then 
+> reset again and it failed to pick it up again.. is it possible that I 
+> Screwed up my motherboard or Hard drive somehow?
+
+In this kind of situation you want to turn off the power to the machine
+for a few minutes, ideally unplugging the machine from mains if you really
+want to be sure. If the IDE controller somehow gets confused, a "hard
+reset" alone isn't enough to fix things (speaking from personal
+experience).
+
+I doubt there is physical damage, but I don't know for sure. In any case,
+try unplugging the thing for a few minutes, and see if you still have
+problems. (Make sure you do *not* use that hdparm -X34 option.)
+
+> the on a side note, before attempting to use hdparm under the above 
+> mentioned kernel, I compiled a custom 2.4.18 kernel, however it caused 
+> even more problems with ide, a bunch of:
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> Flew by then it said ide0: reset: success, then locked up again.
+> 
+> if anyone can help it would be greatly appreciated.
+
+I would start by trying 2.4.19-pre8. If that doesn't help, there are even
+newer IDE driver patches on http://www.linuxdiskcert.org/ which might be
+worth a try.
+
+-Barry K. Nathan <barryn@pobox.com>
+
+
+

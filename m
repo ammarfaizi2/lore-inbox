@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280840AbRKOOMa>; Thu, 15 Nov 2001 09:12:30 -0500
+	id <S280856AbRKOOZO>; Thu, 15 Nov 2001 09:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280845AbRKOOMU>; Thu, 15 Nov 2001 09:12:20 -0500
-Received: from [160.131.145.246] ([160.131.145.246]:53257 "EHLO W20303512")
-	by vger.kernel.org with ESMTP id <S280840AbRKOOME>;
-	Thu, 15 Nov 2001 09:12:04 -0500
-Message-ID: <015701c16ddf$64adf060$f69183a0@W20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BF3C8DC.C8FE24B8@starband.net>
-Subject: Re: System Locks Temporarily When Untarring Large Files
-Date: Thu, 15 Nov 2001 09:11:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S280845AbRKOOZF>; Thu, 15 Nov 2001 09:25:05 -0500
+Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:48122 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S280856AbRKOOYz>; Thu, 15 Nov 2001 09:24:55 -0500
+Date: Thu, 15 Nov 2001 09:24:52 -0500
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Bug in ext3
+Message-ID: <20011115092452.Z329@visi.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "war" <war@starband.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, November 15, 2001 8:53 AM
-Subject: System Locks Temporarily When Untarring Large Files
+I recently compiled support for ext3 into the kernel (2.4.15-pre4) and
+booted that kernel onto a system that didn't have any ext3 partitions.
+On boot I got these messages:
+
+JBD: no valid journal superblock found
+JBD: no valid journal superblock found
+EXT3-fs: error loading journal.
+
+This was when it mounted the root filesystem. After several minutes of
+disk activity on /, I got this:
+
+EXT2-fs error (device sd(8,20)): ext2_free_blocks: Freeing blocks not in datazone - block = 4294965248, count = 6872
+
+Then it was mounted ro. Nothing happened to any of the other partitions
+(including the 250gig RAID partition, just the root partition. I am
+assuming that even though it was not an ext3 partition, that the ext3
+driver took control of it. I tried fsck and remount,rw, but the problem
+kept occuring (although with a different message about when removing a
+file that the bit was already cleared).
+
+Rebuilding without ext3 solves the symptoms, but of course not the real
+problem.
 
 
-> Forgot to mention.
->
-> Type of Drive:
-> The hard drive is a 40GB IBM-DTLA-305040.
->
+Ben
 
-That's a Deskstar 75GXP. Storage afficionados refer to it as the "Deathstar
-75GXP."
-I highly recommend that you run through IBM's "Drive Fitness Test", etc..
-What you describe is one of the symptoms of a 75GXP about to go off the deep
-end.
-
-They accused us of suppressing freedom of expression.
-This was a lie and we could not let them publish it.
--- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
-
-
-
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/                   Ben Collins    --    Debian GNU/Linux                  \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

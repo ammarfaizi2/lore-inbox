@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265261AbSJWWMn>; Wed, 23 Oct 2002 18:12:43 -0400
+	id <S265262AbSJWWNo>; Wed, 23 Oct 2002 18:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265262AbSJWWMm>; Wed, 23 Oct 2002 18:12:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14332 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265261AbSJWWMl>;
-	Wed, 23 Oct 2002 18:12:41 -0400
-Message-ID: <3DB72027.E59FA802@mvista.com>
-Date: Wed, 23 Oct 2002 15:18:15 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jim.houston@ccur.com
-CC: jim.houston@attbi.com, linux-kernel@vger.kernel.org,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: [PATCH] alternate Posix timer patch
-References: <200210230838.g9N8cac00490@linux.local> <3DB6ED10.A81B0429@mvista.com> <3DB6FD0A.74BB3AD0@ccur.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S265263AbSJWWNo>; Wed, 23 Oct 2002 18:13:44 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:9259 "EHLO alpha.stev.org")
+	by vger.kernel.org with ESMTP id <S265262AbSJWWNn>;
+	Wed, 23 Oct 2002 18:13:43 -0400
+Subject: Re: One for the Security Guru's
+From: James Stevenson <james@stev.org>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021023130251.GF25422@rdlg.net>
+References: <20021023130251.GF25422@rdlg.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 23 Oct 2002 23:15:14 +0100
+Message-Id: <1035411315.5377.8.camel@god.stev.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston wrote:
-> 
-> george anzinger wrote:
-> >
-> > Jim Houston wrote:
-> > I have also looked at the timer index stuff and made a few
-> > changes.  If it get it working today, I will include it
-> > also.  My changes mostly revolved around not caring about
-> > reusing a timer id.  Would you care to comment on why you
-> > think reuse is bad?
-> >
-> > With out this feature the code is much simpler and does not
-> > keep around dead trees.
-> >
-> > -g
-> 
-> Hi George,
-> 
-> I assume the rationale is that not reusing the same id immediately helps
-> catch errors in user code.  Since the id space is global, there
-> is more chance that one process may be manipulating another processes
-> timer.  Reusing the same id makes this sort of problem harder to
-> catch.
 
-Actually the timer itself has an owner field so if the id is
-reused by a different process, the timer will belong to that
-process and attempting to use the id from the prior process
-will fail.  If the same process gets the same id there could
-be a problem of this sort, but, then why would a process
-release and then ask for another if that is not what it
-wanted to do.
-> 
-> The main reason I changed this in my patch is to avoid the CONFIG
-> limit on the number of timers.  Since I don't have the fixed array,
-> I need a way to safely translate a user-space id into a kernel pointer.
+>   The consultants aparantly told the company admins that kernel modules
+> were a massive security hole and extremely easy targets for root kits.
+> As a result every machine has a 100% monolithic kernel, some of them
+> ranging to 1.9Meg in filesize.  This of course provides some other
+> sticky points such as how to do a kernel boot image.
 
-I think this is independent of the reuse of the timer id.  I
-like your id indexing except for the extra code and memory
-required by the delayed reuse.
+i very much doubt this would stop anyone who really wanted todo
+something like loading a module.
 
--g
-> 
-> Jim Houston Concurrent Computer Corp.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Stating something like that would also mean booting the kernel from
+a disk inside the machine is also insecure.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+As to load a module you must be root and if you are root you
+can read / write disks. Thus you could recompile your own kernel
+install it try to force a crash or a reboot which is not hard as root
+and the person may not even notice that the kernel has grown by a few
+bytes after the crash.
+
+The only thing it may do is slow somebody down.
+A lot of people out there if they can get access to a system
+and cannot keep it will also tend todo a rm -rfv /
+or equivelent nasty.
+
+	James
+

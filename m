@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265883AbUGMUuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265880AbUGMUuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbUGMUuk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 16:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUGMUuk
+	id S265880AbUGMUuh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 16:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUGMUuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 16:50:40 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57000 "EHLO
+	Tue, 13 Jul 2004 16:50:37 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56744 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265883AbUGMUug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S265880AbUGMUug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 13 Jul 2004 16:50:36 -0400
-Date: Tue, 13 Jul 2004 22:48:33 +0200
+Date: Tue, 13 Jul 2004 22:06:24 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Murphy hits (Kernel 2.6, ext2, "check=strict"): corrupted filesystem
-Message-ID: <20040713204833.GI3654@openzaurus.ucw.cz>
-References: <40F251F1.1057.35E0C3@rkdvmks1.ngate.uni-regensburg.de>
+To: Steven Dake <sdake@mvista.com>
+Cc: Daniel Phillips <phillips@redhat.com>,
+       Daniel Phillips <phillips@istop.com>,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040713200624.GH3654@openzaurus.ucw.cz>
+References: <200407050209.29268.phillips@redhat.com> <200407111544.25590.phillips@istop.com> <1089605292.19787.62.camel@persist.az.mvista.com> <200407120023.44773.phillips@redhat.com> <1089656497.608.4.camel@persist.az.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40F251F1.1057.35E0C3@rkdvmks1.ngate.uni-regensburg.de>
+In-Reply-To: <1089656497.608.4.camel@persist.az.mvista.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I'd like to present a little story how to shredder your ext2 filesystem:
+> > You missed the point.  The memory deadlock I pointed out occurs in 
+> > _normal operation_.  You have to find a way around it, or kernel 
+> > cluster services win, plain and simple.
+> > 
 > 
-> I was installing SuSE Linux 9.1 when the kernel froze rather late during 
-> installation. So I had to reset the PC. There is a minor bug in the forementioned 
+> The bottom line is that we just don't know if any such deadlock occurs,
+> under normal operations.  The remaining objections to in-kernel cluster
 
-You call this "minor"?
+I did some work on swapping-over-nbd, which has similar issues,
+and yes, the deadlocks were seen under heavy load.
 
-> Why I'm writing this: If something can go wrong, eventually it will. For a true 
-> disaster you always need more than just one problem (1: Kernel freeze, 2: no fsck 
-> being run, 3: kernel happily mounts unclean filesystem for read-write).
-
-3 is feature. It prints warning, but lets you mount it. I sometimes mount
-broken fs's rw; it actually saved me once when I was hitting fsck bug.
-It is also handy when quickly recovering scratch machine.
-
-MS-DOS had no fsck... and survive. ext2 can survive with similar results
-if you just dont fsck...
-
-> I think nobody really wants to read reports where Linux has shreddered a 
-> filesystem, do we?
-
-I actually liked your report ;-).
-				Pavel
+*Designing* something with "lets hope it does not deadlock",
+while deadlock clearly can be triggered, looks like bad idea.
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

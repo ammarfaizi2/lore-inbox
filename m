@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130463AbQKUOVd>; Tue, 21 Nov 2000 09:21:33 -0500
+	id <S130645AbQKUOc7>; Tue, 21 Nov 2000 09:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130657AbQKUOVX>; Tue, 21 Nov 2000 09:21:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62786 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130463AbQKUOVQ>; Tue, 21 Nov 2000 09:21:16 -0500
-Subject: Linux 2.4.0test11-ac1
+	id <S130676AbQKUOct>; Tue, 21 Nov 2000 09:32:49 -0500
+Received: from sirppi.helsinki.fi ([128.214.205.27]:8965 "EHLO
+	sirppi.helsinki.fi") by vger.kernel.org with ESMTP
+	id <S130645AbQKUOcd>; Tue, 21 Nov 2000 09:32:33 -0500
+Date: Tue, 21 Nov 2000 16:02:28 +0200
+From: Aki M Nyrhinen <anyrhine@cc.helsinki.fi>
 To: linux-kernel@vger.kernel.org
-Date: Tue, 21 Nov 2000 13:51:53 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: D-Link DFE-530TX, via-rhine, drops interface when receiving fast
+Message-ID: <20001121160228.A29050@sirppi.helsinki.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13yDpy-0004ir-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Differences between 2.4.0test11ac1 and 2.4.0test11, pretty much all merged
-from stuff off the maintainers and kernel list. 
 
-For newcomers to these patches:
+The D-Link DFE530TX NIC, which is based on the VIA Rhine-II chip,
+doesn't seem to work properly when receiving data fast. Sending isn't a
+problem.
 
--	You can find them on ftp.*.kernel.org/pub/linux/kernel/people/alan
--	They are diffed against the base revision not cumulative diffs
--	Please report -ac bugs to me. I'm sure Linus doesn't want to know
-	unless you can duplicate the problem on unadulterated 2.4test
+---
+via-rhine.c:v1.08b-LK1.1.6  8/9/2000  Written by Donald Becker
+  http://www.scyld.com/network/via-rhine.html
+eth0: VIA VT6102 Rhine-II at 0xd400, 00:50:ba:f1:b5:d3, IRQ 10.
+eth0: MII PHY found at address 8, status 0x7829 advertising 01e1 Link
+      40a1.
+---
 
-Change Log
+when doing 'wget http://a-computer-on-the-same-hub/abt-1MB-file -O /dev/null'
+I get the following on 2.4.0-test11 (and propably with all the other 
+test-kernels):
 
-o	Documentation for CONFIG_TOSHIBA
-o	Updated version of Rusty's kernel-hacking doc
-o	Updated SubmittingDrivers
-o	Added SubmittingPatches
-o	Updated procfs docs
-o	Updated initrd docs
-o	Support kgcc autodetect
-o	Link correctly with ACPI on ACPI_INTERPRETER off
-o	Rusty's fixes/review of unsafe set_bit usage
-o	Cleanup console_verbose() dunplication
-o	MTRR updates (36bit etc)
-o	Dont crash on boot with a dual cpu board holding a non intel cpu
-o	Ramdisk missing blkdev_put
-o	Radio driver cleanups
-o	BTTV radio config option
-o	Fix qcam VIDIOCGWIN bugs
-o	3c503 error return cleanup
-o	8390 seperate tx timeout path
-o	Acenic update
-o	Network driver check/request region fixes
-o	Epic100 update
-o	Tulip crash fix on weird eeproms
-o	ISAPnP hang on boot port fix
-o	CS46xx update
-o	Maestro pci_enable fix
-o	Support mixed pnp and legacy sb cards
-o	Fix function prototype in wacom drivr
-o	Hopefully fix the bugs in the FAT and HPFS file systems that
-	caused fs corruption
-o	Fix cramfs vanishing data bug
-o	Fix NLS config.in bug for SMB
-o	Fix generic bitops bugs
-o	Power management locking fixes
-o	filemap posix compliance fix
-o	Fix pte handling race
+---
+Nov 21 15:37:02 FOO kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov 21 15:37:02 FOO kernel: eth0: Transmit timed out, status 0000, 
+                            PHY status 782d, resetting...
+---
 
-Also the ramfs changes are in my tree. I don't plan to submit the ramfs bits
-to Linus in their current state, thats just an Alan Convenience
+and then it starts looping until something like 'ifconfig eth0 down;
+sleep 10; ifconfig eth0 up; route add default gw ...' is done. 
+in beetween the first message and the ifconfig-stuff, network is
+completely unusable, which is quite annoying I don't happen to be on the
+console.
 
+the very same thing appears on 2.2 kernels with the becker's module from 
+http://www.scyld.com/network/via-rhine.html, but without the
+NETDEV_WATCHDOG-stuff.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbTAIFOy>; Thu, 9 Jan 2003 00:14:54 -0500
+	id <S261624AbTAIFUn>; Thu, 9 Jan 2003 00:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbTAIFOy>; Thu, 9 Jan 2003 00:14:54 -0500
-Received: from holomorphy.com ([66.224.33.161]:34190 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261615AbTAIFOx>;
-	Thu, 9 Jan 2003 00:14:53 -0500
-Date: Wed, 8 Jan 2003 21:23:27 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
-       levon@movementarian.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
-Message-ID: <20030109052327.GC8544@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
-	levon@movementarian.org, linux-kernel@vger.kernel.org
-References: <20030108.150303.130044451.davem@redhat.com> <Pine.LNX.4.44.0301081601300.1096-100000@penguin.transmeta.com> <20030108.160352.78071329.davem@redhat.com> <20030109040025.GA11596@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030109040025.GA11596@nevyn.them.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S261640AbTAIFUm>; Thu, 9 Jan 2003 00:20:42 -0500
+Received: from mta03bw.bigpond.com ([139.134.6.86]:19403 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261624AbTAIFUm>; Thu, 9 Jan 2003 00:20:42 -0500
+Message-ID: <3E1D095D.9080101@bigpond.com>
+Date: Thu, 09 Jan 2003 16:32:13 +1100
+From: Allan Duncan <allan.d@bigpond.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.2) Gecko/20021202
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.4.21pre3-ac2
+References: <20030109015006$7068@gated-at.bofh.it>
+In-Reply-To: <20030109015006$7068@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 04:03:52PM -0800, David S. Miller wrote:
->> A funny way to initialize this could be by reading System.map
->> and seeing how many significant hexidecimal digits are used
->> to list the kernel symbol addresses :-)
+Alan Cox wrote:
+...
+> o	Add the fast IRQ path to via 8233/5 audio	(me)
+...
 
-On Wed, Jan 08, 2003 at 11:00:25PM -0500, Daniel Jacobowitz wrote:
-> Don't try it, the perversity of MIPS will break you :)
-> Just to clarify something that I saw getting lost in this discussion:
-> Oprofile doesn't need to become built as a 64-bit binary, just
-> configured to accept 64-bit kernels.  So this doesn't rule out using a
-> 32-bit oprofile (i.e. not needing a 64-bit libc) on a 64-bit kernel. 
-> It just means that we need to specify it somehow.
-> John, speaking of MIPS perversity: MIPS64 kernels can come in ELF32
-> files.  So you may just want to make this a configure-time option.
+'fraid not:
 
-pkirchner has informed me /proc/kcore returns the correct information
-in this case on MIPS, and I've also received x86-32/64 confirmation.
+gcc -D__KERNEL__ -I/usr/src/lx-2.4.21-p3-ac2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
+-fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 
+-march=athlon  -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=via82cxxx_audio  -c -o 
+via82cxxx_audio.o via82cxxx_audio.c
+via82cxxx_audio.c: In function `via_new_interrupt':
+via82cxxx_audio.c:1927: `status32' undeclared (first use in this function)
+via82cxxx_audio.c:1927: (Each undeclared identifier is reported only once
+via82cxxx_audio.c:1927: for each function it appears in.)
+make[2]: *** [via82cxxx_audio.o] Error 1
+make[2]: Leaving directory `/usr/src/lx-2.4.21-p3-ac2/drivers/sound'
+make[1]: *** [_modsubdir_sound] Error 2
+make[1]: Leaving directory `/usr/src/lx-2.4.21-p3-ac2/drivers'
+make: *** [_mod_drivers] Error 2
 
-64-bit in 32-bit ELF: <pkirchner:#mipslinux>  it does say  abi=674 mips1 not 32bitmode not fp32
-DecStation 5000/200: /proc/kcore:     file format elf32-tradlittlemips
-
-
-Bill

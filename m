@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266859AbTAPRWt>; Thu, 16 Jan 2003 12:22:49 -0500
+	id <S267119AbTAPR1n>; Thu, 16 Jan 2003 12:27:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267119AbTAPRWt>; Thu, 16 Jan 2003 12:22:49 -0500
-Received: from buitenpost.surfnet.nl ([192.87.108.12]:58849 "EHLO
-	buitenpost.surfnet.nl") by vger.kernel.org with ESMTP
-	id <S266859AbTAPRWs>; Thu, 16 Jan 2003 12:22:48 -0500
-Date: Thu, 16 Jan 2003 18:24:48 +0100
-From: otter@kjoe.net
-To: linux-kernel@vger.kernel.org
-Subject: i830 DRM version
-Message-ID: <20030116172448.GB1038@pangsit>
+	id <S267123AbTAPR1n>; Thu, 16 Jan 2003 12:27:43 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:3977 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267119AbTAPR1m>;
+	Thu, 16 Jan 2003 12:27:42 -0500
+Date: Thu, 16 Jan 2003 12:36:34 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Open source hardware
+Message-ID: <20030116173634.GA16376@gtf.org>
+References: <200301161711.h0GHBKMS001969@darkstar.example.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mailer: Mutt on Debian GNU/Linux sid
-X-Editor: vim
-X-Organisation: SURFnet bv
-X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
-X-Phone: +31 302 305 305
-X-Telefax: +31 302 305 329
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200301161711.h0GHBKMS001969@darkstar.example.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have installed a 4.2.99.3 XFree86 on my laptop and needed newer
-i810/i830 DRM drivers to be able to get DRI working. Current version in
-the 2.5.58 kernel is 1.2.1 and a version > 1.3 is needed.  I copied all
-i8* files from the XFree86 CVS linux drm directory to drivers/char/drm
-and this made DRI working again. 
+On Thu, Jan 16, 2003 at 05:11:20PM +0000, John Bradford wrote:
+> I've been reading some of the threads about the GPL, and binary-only
+> drivers, and I'm suprised that nobody has brought up open source
+> hardware, (or rather, the lack of it).
+[...]
+> So, basically, the idea is to design a low-cost,
+> low-computational-power CPU, which works well in multi-processor
+> configurations, and make the specification open source.  Anybody could
+> make the processors, and building a machine of a given computational
+> power would be cheaper using them than using conventional CPUs.
+> 
+> I personally expect to see this within 10 years.
 
-Is an update of the kernel drivers foreseen so that it will work
-seamlessly when XFree86 4.3 is published?
+You're behind the times :)
 
-
--- Niels
+http://www.opencores.org/

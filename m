@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261498AbSKBXE6>; Sat, 2 Nov 2002 18:04:58 -0500
+	id <S261492AbSKBXDP>; Sat, 2 Nov 2002 18:03:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSKBXE6>; Sat, 2 Nov 2002 18:04:58 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:33413 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S261498AbSKBXE5>;
-	Sat, 2 Nov 2002 18:04:57 -0500
-Date: Sat, 2 Nov 2002 15:11:28 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       davej@suse.de
-Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021102231128.GB7854@tapu.f00f.org>
-References: <20021102070607.GB16100@think.thunk.org> <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
+	id <S261493AbSKBXDP>; Sat, 2 Nov 2002 18:03:15 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:64524 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S261492AbSKBXDO>; Sat, 2 Nov 2002 18:03:14 -0500
+Date: Sat, 2 Nov 2002 23:09:45 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon cache-line fix
+Message-ID: <20021102230945.A5273@chiark.greenend.org.uk>
+References: <20021102005122.2205.AKIRA-T@suna-asobi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021102005122.2205.AKIRA-T@suna-asobi.com>; from akira-t@suna-asobi.com on Sat, Nov 02, 2002 at 07:32:02AM +0000
+From: Andrew Kanaber <akanaber@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 10:47:07AM -0800, Linus Torvalds wrote:
+Akira Tsukamoto wrote:
+> For Athlon CPU, CONFIG_X86_MK7,
+> the X86_L1_CACHE_SHIFT is set to 6, 128 Bytes
 
-> - Make a new file type, and put just that information in the
->   directory (so that it shows up in d_type on a readdir()).  Put the
->   real data in the file, ie make it largely look like an "extended
->   symlink".
+Eh? L1_CACHE_BYTES is defined as (1 << L1_CACHE_SHIFT) in
+include/asm-i386/cache.h, which makes for a cache line size of 64 bytes
+which is right. Perhaps you were assuming the cache line size was
+2 << L1_CACHE_SHIFT ?
 
-reading directories therefore causes lots of seeks and performance
-begins to suck again
+>  config X86_L1_CACHE_SHIFT
+>         int
+> -       default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MPENTIUMIII || M686 || M586MMX || M586TSC || M586
+> +       default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MK7|| MPENTIUMIII || M686 || M586MMX || M586TSC || M586
+>         default "4" if MELAN || M486 || M386
+> -       default "6" if MK7
+>         default "7" if MPENTIUM4
 
-IMO, extended attributes are a better place to store this and making
-it per-inode, there is an argument that having a file behave
-differently in different places is unecessaryly complex and really
-doesn't solve any know real-world problems
+Regardless of the above this patch can't be right: the PIII's cache line
+size is 32 bytes and the P4's is 128 bytes. Interesting that it increases
+performance (on at least one benchmark) though.
 
-
-
-  --cw
+Andrew

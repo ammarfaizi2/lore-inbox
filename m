@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSIBIl5>; Mon, 2 Sep 2002 04:41:57 -0400
+	id <S315260AbSIBIqY>; Mon, 2 Sep 2002 04:46:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSIBIl5>; Mon, 2 Sep 2002 04:41:57 -0400
-Received: from netlx010.civ.utwente.nl ([130.89.1.92]:54441 "EHLO
-	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S317521AbSIBIl4>; Mon, 2 Sep 2002 04:41:56 -0400
-Date: Mon, 2 Sep 2002 10:44:42 +0200 (CEST)
-From: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>
-To: linux-kernel@vger.kernel.org
-cc: nfs@lists.sourceforge.net
-Subject: Re: 2.5.32 bootfailure for nfsroot
-In-Reply-To: <Pine.LNX.4.44.0208281746170.21556-100000@cam029208.student.utwente.nl>
-Message-ID: <Pine.LNX.4.44.0209021041260.30980-100000@cam029208.student.utwente.nl>
+	id <S318230AbSIBIqY>; Mon, 2 Sep 2002 04:46:24 -0400
+Received: from xsmtp.ethz.ch ([129.132.97.6]:22799 "EHLO xsmtp.ethz.ch")
+	by vger.kernel.org with ESMTP id <S315260AbSIBIqX>;
+	Mon, 2 Sep 2002 04:46:23 -0400
+Message-ID: <3D732667.70102@debian.org>
+Date: Mon, 02 Sep 2002 10:50:47 +0200
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en, it-ch, it, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thunder from the hill <thunder@lightweight.ods.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] make localconfig
+References: <fa.nh1hfav.83mprq@ifi.uio.no> <fa.lgtjqtv.71gjhi@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Sep 2002 08:50:53.0430 (UTC) FILETIME=[D84F3160:01C2525D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Aug 2002, Gcc k6 testing account wrote:
+Hi.
 
-> 
-> Ave people
-> 
-> The subject says it all. 
-> 2.5.32 doesn't boot when using nfsroot.
-> same systems running fine with 2.4.19/2.5.31
-> 
-> 
-> SYSTEMS:
->    athlon with/without preempt. (flatbak)
->    i586 with preempt.           (cam029205)
-> 
-> The relevant configs/dmesg/lspci are on 
-> cam029208.student.utwente.nl/~caligula. 
-> 
-> 
-> SYMPTOMS:
-> I'm using loadlin to load the kernels. I see the kernel loading,unzipping 
-> and then...black screen followed by reboot.
-> 
-> 
-> Greetz Mu
-> 
-> 
-> 
+I have some bash code (to probe hardware), an hardware/driver database
+and a python script to partly generate the database direct from
+kernel sources.
+It should be in http://people.debian.org/~cate/files/kautoconfigure
+and in http://people.debian.org/~cate/files/gnome-os
 
-Small update.
-Still no joy with 2.5.33. Same results,same symptoms :(
+If someone find it usefull I can continue to work on that.
 
-Greetz Mu
+ciao
+	cate
 
 
-
-
-
-
-
+Thunder from the hill wrote:
+> Hi,
+> 
+> On Sun, 25 Aug 2002, Zwane Mwaikambo wrote:
+> 
+>>For this kind of thing, code talks. Otherwise no one will take heed.
+> 
+> 
+> I can't currently supply code, but the thing I'm doing is:
+> 
+>  - parse the dmesg for the vital stuff (the things that were loaded up to 
+>    the moment may be used very often...)
+>  - Find out what code it's belonging to
+>  - Configure that code in
+>  - The rest is CONFIG_MODULE
+> 
+> So what?
+> 
+> 			Thunder
 
 

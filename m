@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUJVUL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUJVUue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267543AbUJVUL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJVULJ
+	id S267785AbUJVUue (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUJVUsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:11:09 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:20101 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S267543AbUJVUKl (ORCPT
+	Fri, 22 Oct 2004 16:48:46 -0400
+Received: from imag.imag.fr ([129.88.30.1]:45798 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S267565AbUJVUdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:10:41 -0400
-Date: Fri, 22 Oct 2004 22:10:30 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Adrian Cox <adrian@humboldt.co.uk>
-cc: Kendall Bennett <KendallB@scitechsoft.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-In-Reply-To: <1098434942.5755.34.camel@newt>
-Message-ID: <Pine.GSO.4.61.0410222210130.11567@waterleaf.sonytel.be>
-References: <4176E08B.2050706@techsource.com> <4177ABC9.8291.20E9CB7A@localhost>
- <1098434942.5755.34.camel@newt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Oct 2004 16:33:03 -0400
+Date: Fri, 22 Oct 2004 22:32:59 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+Message-ID: <20041022203259.GA23441@linux.ensimag.fr>
+Reply-To: 20041022032039.730eb226.akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
+From: Matthieu Castet <mat@ensilinx1.imag.fr>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Fri, 22 Oct 2004 22:33:00 +0200 (CEST)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004, Adrian Cox wrote:
-> On Thu, 2004-10-21 at 20:30, Kendall Bennett wrote:
-> > Most embedded customers care less about overall performance of the 
-> > graphics hardware but more about low cost, low power and longevity. That 
-> > is the reason that ATI committed to continue production of the Radeon 
-> > Mobility M1 for many years to come. That is also the reason the Chips & 
-> > Tech (now Asiliant) 6900 chipset is so popular for embedded customers, 
-> > because they have been using the same hardware for years (but now that 
-> > the 69000 is winding down, many are moving to the Mobility M1).
+Hi,
+
+> add-acpi-based-floppy-controller-enumeration.patch
+>   Add ACPI-based floppy controller enumeration.
 > 
-> Also consider the Fujitsu Coral parts for embedded use:
-> http://www.fme.gsdc.de/gsdc.htm?macrofam/mb86295.htm
+> add-acpi-based-floppy-controller-enumeration-fix.patch
+>   add-acpi-based-floppy-controller-enumeration fix
 > 
-> They have a large manual, though I can't vouch for completeness. They
-> have 3D and alpha blending. They don't have legacy VGA registers, and
-> they don't have a VGA BIOS. In an embedded system, that's a bonus.
+> update-acpi-floppy-enumeration.patch
+>   update ACPI floppy enumeration
 > 
-> This is the competition facing a new open source graphics chip in the
-> embedded segment. 
+> floppy-acpi-enumeration-update.patch
+>   floppy ACPI enumeration update
 
-And the embedded solutions from Silicon Motion.
+Why not using ACPI pnp patch [1] and convert this driver to use pnp core.
+It will be simpler and compatible with pnpbios...
 
-Gr{oetje,eeting}s,
 
-						Geert
+Matthieu
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+[1]
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109834588507413&w=2

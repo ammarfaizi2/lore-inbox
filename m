@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267280AbTBIPHc>; Sun, 9 Feb 2003 10:07:32 -0500
+	id <S267282AbTBIQB5>; Sun, 9 Feb 2003 11:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbTBIPHc>; Sun, 9 Feb 2003 10:07:32 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:17879 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267280AbTBIPHc>;
-	Sun, 9 Feb 2003 10:07:32 -0500
-Date: Sun, 9 Feb 2003 15:13:20 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Spelling fixes for consistent, dependent, persistent
-Message-ID: <20030209151320.GB12877@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200302090902.h1992KJ05999@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302090902.h1992KJ05999@hera.kernel.org>
-User-Agent: Mutt/1.5.3i
+	id <S267287AbTBIQB5>; Sun, 9 Feb 2003 11:01:57 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:4617 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267282AbTBIQB4>; Sun, 9 Feb 2003 11:01:56 -0500
+Date: Sun, 9 Feb 2003 17:11:37 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Uwe Reimann <linux-kernel@pulsar.homelinux.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ENTRY-macro in linkage.h
+In-Reply-To: <3E464B14.5040004@pulsar.homelinux.net>
+Message-ID: <Pine.LNX.4.44.0302091707320.32518-100000@serv>
+References: <3E45358F.8020509@pulsar.homelinux.net>
+ <1044752435.18908.23.camel@irongate.swansea.linux.org.uk>
+ <3E464B14.5040004@pulsar.homelinux.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 04:11:08PM +0000, Linux Kernel wrote:
- > ChangeSet 1.999, 2003/02/07 08:11:08-08:00, elenstev@mesatop.com
- > 
- > 	[PATCH] Spelling fixes for consistent, dependent, persistent
- > 	
- > 	This fixes the following common misspellings and their variants.
- > 	
- > 	  consistant -> consistent
- > 	  dependant  -> dependent
- > 	  persistant -> persistent
- >
- > <snip 83K patch>
+Hi,
 
-Can we hold off on tree-wide 'corrections' like this until we at least
-get closer to 2.6-test ? Doing these at this point in time really
-screws over a lot of out-of-tree patches.
+On Sun, 9 Feb 2003, Uwe Reimann wrote:
 
-Oh, and Dependant is an allowed variation btw.[1][2]
+> My problem is how to add the whitespace. The preprocessor seems to strip 
+> it. Consider this (test.S):
+> 
+> #define ENTRY(X) \
+>   .global X##; \
+> X##:   
+> 
+> ENTRY(foo)
+> ENTRY(bar)
+> 
+> gcc -S test.S:
+> 
+> .global foo; foo:
+> .global bar; bar:
+> 
+> For c4x-gcc, this has to be like this:
+> 
+>     .global foo
+> foo:
+>     .global bar
+> bar:
+> 
+> Without the leading whitespace, .global is taken as a name of a label. 
+> Without the newline before the labels, they are not recognized (taken as 
+> comments).
 
-		Dave
+You don't have to use the ENTRY macro anymore, it was useful when kernel 
+could be in a.out format, so the underscore was automatically prepended to 
+the symbol.
 
-[1] http://www.m-w.com/cgi-bin/dictionary?va=dependant
-[2] http://dictionary.reference.com/search?q=Dependant
+bye, Roman
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

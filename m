@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274648AbRITVFt>; Thu, 20 Sep 2001 17:05:49 -0400
+	id <S274652AbRITVLI>; Thu, 20 Sep 2001 17:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274649AbRITVFi>; Thu, 20 Sep 2001 17:05:38 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:24326 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S274648AbRITVFc>; Thu, 20 Sep 2001 17:05:32 -0400
-Date: Thu, 20 Sep 2001 17:05:41 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shutdown "anomoly" with kernel 2.4.9
-In-Reply-To: <20010920204319.4E0741F76@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.33.0109201658580.15504-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S274649AbRITVK7>; Thu, 20 Sep 2001 17:10:59 -0400
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:7691 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274654AbRITVKy>; Thu, 20 Sep 2001 17:10:54 -0400
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+From: Robert Love <rml@tech9.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Roger Larsson <roger.larsson@norran.net>, linux-kernel@vger.kernel.org,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <20010920102139.G729@athlon.random>
+In-Reply-To: <1000939458.3853.17.camel@phantasy>
+	<20010920063143.424BD1E41A@Cantor.suse.de>
+	<20010920084131.C1629@athlon.random>
+	<20010920075751.6CA791E6B2@Cantor.suse.de> 
+	<20010920102139.G729@athlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
+Date: 20 Sep 2001 17:10:48 -0400
+Message-Id: <1001020249.6048.152.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Sep 2001, Michael G. Mobley wrote:
+On Thu, 2001-09-20 at 04:21, Andrea Arcangeli wrote:
+> > You've forgotten a one liner.
+> > 
+> >   #include <linux/locks.h>
+> > +#include <linux/compiler.h>
+> 
+> woops, didn't trapped it because of gcc 3.0.2. thanks.
+> 
+> > But this is not enough. Even with reniced artsd (-20).
+> > Some shorter hiccups (0.5~1 sec).
+> 
+> I'm not familiar with the output of the latency bench, but I actually
+> read "4617" usec as the worst latency, that means 4msec, not 500/1000
+> msec.
 
-> When running kernel 2.4.9, my system cannot reliably reboot/
-> halt/shutdown.  It hangs when killall5 sends out the TERM signal, as if
-> init itself is terminating.  This is VERY repeatable (happens pretty
-> much every time, whether the shutdown is through 'shutdown -r now',
-> 'reboot', 'halt', whatever...)
->
-> I wouldn't have thought this is a kernel problem, but, an identical build
-> of 2.4.8 does not seem to exhibit this behavior.  And I've played around,
-> making one change at a time, and that really is the ONLY difference.
->
-> BTW, I'm building both kernels to exactly the same config.  (diff of the
-> .configs show only three commented out sound card options that have been
-> added to 2.4.9 as differences.)
->
-> Brief system setup is:
->
-> 1xPIII/800, Asus P3V4X MB, 640MB RAM
-> AHA29160 SCSI controller w/ 3 HDDs, 2 CDROMs
-> No IDE
-> USB, AGP, etc...
-> etc. etc...  (Can provide more details if needed)
-> GCC version is:  2.96
-> Binutils version is: 2.10.91.0.2
-> (Basically it's a stock RH7.1 install right now)
+Right, the patch is returning the length preemption was unavailable
+(which is when a lock is held) in us. So it is indded 4ms.
 
-Aha! I'm not alone and I'm not nuts. And it doesn't seem to be an Athlon/VIA
-thing either.
-
-This is exactly the same thing I'm seeing. And if I put calls to 'ps aux' in
-/etc/init.d/halt around the killall5 and sleep calls then it shuts down
-properly.
-
-Here's my setup for reference:
-
-1xAthlon 1050/100, Asus A7V, 512 MB PC133 RAM
-2xATA/66, hda:CD-ROM, hdc:CDRW
-2xATA/100 (Promise 20265 on-board), hde:HD (ext3/vfat), hdg:HD (vfat)
-Stock RH7.1+Updates+2.4.9-ac12-preempt1
+But, I think Dieter is saying he _sees_ 0.5~1s latencies (in the form of
+audio skips).  This is despite the 4ms locks being held.
 
 -- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

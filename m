@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbUBUOP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 09:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbUBUOP1
+	id S261559AbUBUOQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 09:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUBUOQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 09:15:27 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:44192 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261558AbUBUOP0 (ORCPT
+	Sat, 21 Feb 2004 09:16:29 -0500
+Received: from gprs154-206.eurotel.cz ([160.218.154.206]:63616 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261559AbUBUOQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 09:15:26 -0500
-Date: Sat, 21 Feb 2004 15:17:25 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GFS requirements (was: Non-GPL export of invalidate_mmap_range)
-Message-ID: <20040221141724.GH6280@marowsky-bree.de>
-References: <20040216190927.GA2969@us.ibm.com> <200402201715.34315.phillips@arcor.de> <20040220235602.GD6280@marowsky-bree.de> <200402202216.09908.phillips@arcor.de>
+	Sat, 21 Feb 2004 09:16:19 -0500
+Date: Sat, 21 Feb 2004 15:16:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel/microcode.c error from new 64bit code
+Message-ID: <20040221141608.GB310@elf.ucw.cz>
+References: <20040218145218.6bae77b5@dell_ss3.pdx.osdl.net> <Pine.LNX.4.58.0402181502260.18038@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200402202216.09908.phillips@arcor.de>
-User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+In-Reply-To: <Pine.LNX.4.58.0402181502260.18038@home.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-02-20T22:16:09,
-   Daniel Phillips <phillips@arcor.de> said:
+Hi!
 
-> I presume you meant "DFS".  I can't comment on the details of the plan
-> for GFS just now, however consider OpenGFS: yes, it needs and has a
-> cluster infrastructure.  The kernel does not dictate anything about
-> that infrastructure.  Each DFS is free to implement its own
-> infrastructure, possibly involving kernel extensions.
+> > In the mad rush to put in Intel 64 bit support, did anyone make sure and not
+> > break the 32 bit build?
+> 
+> Heh. Somebody has the driver enabled ;).
+> 
+> How about this patch?
+> 
+> 		Linus
+> 
+> ---
+> ===== arch/i386/kernel/microcode.c 1.24 vs edited =====
+> --- 1.24/arch/i386/kernel/microcode.c	Tue Feb 17 18:14:37 2004
+> +++ edited/arch/i386/kernel/microcode.c	Wed Feb 18 15:05:38 2004
+> @@ -371,8 +371,9 @@
+>  	spin_lock_irqsave(&microcode_update_lock, flags);          
+>  
+>  	/* write microcode via MSR 0x79 */
+> -	wrmsr(MSR_IA32_UCODE_WRITE, (u64)(uci->mc->bits), 
+> -	      (u64)(uci->mc->bits) >> 32);
+> +	wrmsr(MSR_IA32_UCODE_WRITE,
+> +		(unsigned long) uci->mc->bits, 
+> +		(unsigned long) uci->mc->bits >> 16 >> 16);
+				             ~~~~~~~~~~~~
 
-Yes. Though I do reserve the right to find this highly silly, that we
-might end up with multiple hooks for clustering infrastructure in the
-kernel...
-
-So, how does OpenGFS/GFS achieve the communication? How does it interact
-with the infrastructure (which, I infere from your above comments, is
-meant to reside in user-space)?
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+I see what you are doing, but this is evil. At least comment /* ">> 32"
+is undefined on i386 */ ?
+								Pavel
 
 -- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

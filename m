@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVBGVCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVBGVJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVBGVCx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 16:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVBGVCo
+	id S261274AbVBGVJw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 16:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVBGVJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 16:02:44 -0500
-Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:34225 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S261284AbVBGVCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 16:02:33 -0500
-Subject: Re: 2.6.11-rc2-mm1
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1107797420.24154.25.camel@localhost>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <20050124121729.GA29392@infradead.org>  <20050207115736.GB22948@elte.hu>
-	 <1107797420.24154.25.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 07 Feb 2005 16:02:00 -0500
-Message-Id: <1107810120.12971.5.camel@vertex>
+	Mon, 7 Feb 2005 16:09:52 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:59027 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261274AbVBGVJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 16:09:48 -0500
+Date: Mon, 7 Feb 2005 22:08:09 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: pageexec@freemail.hu
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Message-ID: <20050207210809.GA9781@elte.hu>
+References: <4202BFDB.24670.67046BC@localhost> <42080689.15768.1B0C5E5F@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.2.0, Antispam-Data: 2005.2.7.5
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42080689.15768.1B0C5E5F@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-07 at 12:30 -0500, Robert Love wrote:
-> Well, I don't share the hatred for ioctl, at least compared to another
-> type unsafe interface like write().
+
+* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
+
+> > still wrong. What you get this way is a nice, complicated NOP.
 > 
-> But John and I are open to doing whatever is the consensus.  If there is
-> an agreed alternative, and that is the requirement for merging, I'll do
-> it.
-
-Yes, if ioctl is unacceptable, then providing a write() interface is
-what we will do.
-
+> not only a nop but also a likely crash given that i didn't adjust
+> the declaration of some_function appropriately ;-). let's cater
+> for less complexity too with the following payload (of the 'many
+> other ways' kind):
 > 
-> I'd like to keep the user-space interface and simple, and absolutely
-> want to keep the single file descriptor approach.  How the fd is
-> obtained is up for discussion.
+> [field1 and other locals replaced with shellcode]
+> [space to cover the locals of __libc_dlopen_mode()]
 
-I would still like to keep the character device as the interface for
-getting the fd. I don't see what benefit could be gained by converting
-to a syscall based interface for getting the fd.
+yes, i agree with you, __libc_dlopen_mode() is an easier target (but not
+_that_ easy of a target, see further down), and your code looks right -
+but what this discussion was about was the _dl_make_stack_executable()
+function. Similar 'protection' techniques can be used for
+__libc_dlopen_mode() too, and it's being fixed.
 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+(you'd be correct to point out that what cannot be 'fixed' even this way
+are libdl.so using applications and the dlopen() symbol - for them, if
+randomization is not enough, PaX or SELinux is the fix.)
+
+> one disadvantage of this approach is that now not only the randomness
+> in libc.so has to be found but also that of the stack (repeating parts
+> of the payload would help reduce it though), and if user_input itself
+> is on the heap (and there're no copies on the stack), we'll need that
+> randomness too.
+
+such an attack needs to get 2 or 3 random values right - which,
+considering 13-bits randomization per value is still 26-39 bits (minus
+the constant number of bits you can get away via replication). If the
+stack wasnt nonexec then the attack would need to get only 1 random
+value right. In that sense it still makes quite a difference in
+increasing the complexity of the attack, do you agree?
+
+Yes, the drastic method is to disable the adding of code to a process
+image altogether (PaX did this first, and does a nice job in that, and
+SELinux is catching up as well), but that clearly was not a product
+option when PT_GNU_STACK was written. As you can see on lkml, people are
+resisting changes hard that affect 2-3 apps. What chances do changes
+have that break dozens of common applications? PT_GNU_STACK is not
+perfect, but it was the maximum we could get away on the non-selinux
+side of the distribution, mapping many of the dependencies and
+assumptions of apps.
+
+So PT_GNU_STACK is certainly a beginning, and as the end result
+(hopefully soon) we can do away with libraries having any RWE
+PT_GNU_STACK markings (so that only binaries can carry RWE) and can move
+make_stacks_executable() from libc.so. You seem to consider these steps
+of how Fedora 'morphs' into a productized version of SELinux as 'fully
+vulnerable' (and despise it), there's no way around walking that walk
+and persuading users to actually follow - which is the hardest part.
+
+	Ingo

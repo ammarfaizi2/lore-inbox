@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264511AbUD0Xxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264468AbUD0X5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264511AbUD0Xxi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 19:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUD0Xxi
+	id S264468AbUD0X5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 19:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbUD0X5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 19:53:38 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:40187 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264511AbUD0XxZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 19:53:25 -0400
-Subject: [PATCH] Fix cpu iterator on empty bitmask
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Joel Schopp <jschopp@austin.ibm.com>, Anton Blanchard <anton@samba.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1083109972.2150.124.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Apr 2004 09:52:53 +1000
+	Tue, 27 Apr 2004 19:57:06 -0400
+Received: from mrout1.yahoo.com ([216.145.54.171]:40465 "EHLO mrout1.yahoo.com")
+	by vger.kernel.org with ESMTP id S264468AbUD0X5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 19:57:00 -0400
+Message-ID: <408EF33F.5040104@bigfoot.com>
+Date: Tue, 27 Apr 2004 16:56:47 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5) Gecko/20031111
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+References: <40853060.2060508@bigfoot.com>	 <200404202326.24409.kim@holviala.com> <408A16EB.30208@bigfoot.com>	 <408EEA3E.6030803@bigfoot.com> <1083108549.8203.12.camel@amilo.bradney.info>
+In-Reply-To: <1083108549.8203.12.camel@amilo.bradney.info>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Fix cpumask iterator over empty cpu set
-Status: Trivial
+Craig Bradney wrote:
+> On Wed, 2004-04-28 at 01:18, Erik Steffl wrote:
+> 
+>>Erik Steffl wrote:
+>>
+>>>Kim Holviala wrote:
+>>>
+>>>
+>>>>On Tuesday 20 April 2004 17:14, Erik Steffl wrote:
+>>>>
+>>>>
+>>>>
+>>>>>  it looks that after update to 2.6.5 kernel (debian source package but
+>>>>>I guess it would be the same with stock 2.6.5) the mouse wheel and side
+>>>>>button on Logitech Cordless MouseMan Wheel mouse do not work.
+>>>>
+>>>>
+>>>>
+>>>>Try my patch for 2.6.5: http://lkml.org/lkml/2004/4/20/10
+>>>>
+>>>>Build psmouse into a module (for easier testing) and insert it with 
+>>>>the proto parameter. I'd say "modprobe psmouse proto=exps" works for 
+>>>>you, but you might want to try imps and ps2pp too. The reason I wrote 
+>>>>the patch in the first place was that a lot of PS/2 Logitech mice 
+>>>>refused to work (and yes, exps works for me and others)....
+>>>
+>>>
+>>>  didn't help, I still see (without X running):
+>>>
+>>>8, 0, 0 any button down
+>>>9, 0, 0 left button up
+>>>12, 0, 0 wheel up, sidebutton up
+>>>10, 0, 0 right button up
+>>>
+>>>8, 0, 0 wheel rotation (any direction)
+>>>
+>>>except of some protocols (IIRC ps2pp, bare, genps) ignore wheel 
+>>>completely. is there any way to verify which protocol the mouse is 
+>>>using? modprobe -v printed different messages for each protocol so I 
+>>>think that worked (it said Generic Explorer etc.)
+>>>
+>>>  I tried: exps, imps, ps2pp, bare, genps
+>>>
+>>>  any ideas?
+>>>
+>>>  the mouse says: Cordless MouseMan Wheel (Logitech), it has left/right 
+>>>buttonss, wheel that can be pushed or rotated and a side button, not 
+>>>sure how to better identify it. With 2.4 kernels it used to work with X 
+>>>using protocol MouseManPlusPS/2.
+>>
+>>   anybody? any hints? should I look at driver? are there some docs for 
+>>logitech mice (protocol)?
+> 
+> 
+> err.. they all Just Work (tm) here.. ps2 or USB, IMPS/2 driver
 
-Can't use _ffs() without first checking for zero, and if bits beyond
-NR_CPUS set it'll give bogus results.  Use find_first_bit
+   which kernel (mine doesn't work with 2.6.5, used to work with 2.4.x), 
+which mouse models? I guess there might be more models and for some 
+reason my particular model does not work. Can you find out which 
+protocol the kernel is using (psmouse, not usb)?
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26180-linux-2.6.6-rc2-bk5/include/asm-generic/cpumask_arith.h .26180-linux-2.6.6-rc2-bk5.updated/include/asm-generic/cpumask_arith.h
---- .26180-linux-2.6.6-rc2-bk5/include/asm-generic/cpumask_arith.h	2004-01-10 13:59:33.000000000 +1100
-+++ .26180-linux-2.6.6-rc2-bk5.updated/include/asm-generic/cpumask_arith.h	2004-04-28 09:50:23.000000000 +1000
-@@ -43,7 +43,7 @@
- #define cpus_promote(map)		({ map; })
- #define cpumask_of_cpu(cpu)		({ ((cpumask_t)1) << (cpu); })
- 
--#define first_cpu(map)			__ffs(map)
-+#define first_cpu(map)			find_first_bit(&(map), NR_CPUS)
- #define next_cpu(cpu, map)		find_next_bit(&(map), NR_CPUS, cpu + 1)
- 
- #endif /* __ASM_GENERIC_CPUMASK_ARITH_H */
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+	erik
 

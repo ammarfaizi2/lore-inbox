@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264329AbUD0UW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264337AbUD0U2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbUD0UW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 16:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbUD0UW6
+	id S264337AbUD0U2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 16:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUD0U2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 16:22:58 -0400
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:13495 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S264329AbUD0UW5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 16:22:57 -0400
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
-Subject: Re: [PATCH] SIS AGP vs 2.6.6-rc2
-Date: Tue, 27 Apr 2004 22:22:39 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davej@redhat.com,
-       oschoett@t-online.de
-References: <20040426082159.90513.qmail@web10102.mail.yahoo.com> <200404271929.16786.volker.hemmann@heim9.tu-clausthal.de> <1083094853.7581.14.camel@pandora>
-In-Reply-To: <1083094853.7581.14.camel@pandora>
-MIME-Version: 1.0
+	Tue, 27 Apr 2004 16:28:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41187 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264330AbUD0U2O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 16:28:14 -0400
+Date: Tue, 27 Apr 2004 21:28:13 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
+Message-ID: <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net> <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org> <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com> <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net> <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk> <20040427200459.GJ14129@stingr.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404272222.39646.volker.hemmann@heim9.tu-clausthal.de>
+In-Reply-To: <20040427200459.GJ14129@stingr.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Apr 28, 2004 at 12:04:59AM +0400, Paul P Komkoff Jr wrote:
+> > Excuse me?  The damn thing had found nothing.  However, it didn't care
+> > to release the devices it had claimed - hadn't even closed them, as the
+> > matter of fact.  That's a clear and obvious bug, regardless of any
+> > disagreements.
+> 
+> As far as I can see from here, evms parsed partition table, called
+> dmsetup several times and created corresponding nodes in /dev/evms.
 
-I tried the gzip'ed patch and it applied cleanly. 
-testgart works and gives the usual results, dmesg is ok, showing the warning.
+... without saying anything?
 
-Nvidia is not working with 2.6.6-rc2, so I do not know exactly that everything 
-is ok, but if testgart is fine, X had no problems in the past.
+> Logic is easy - evms trying to concentrate block device management
+> into its own hands, but we have in-kernel partitioning code to
+> consider ...
 
-Glück Auf
-Volker
+How nice of them.
 
--- 
-Conclusions
- In a straight-up fight, the Empire squashes the Federation like a bug. Even 
-with its numerical advantage removed, the Empire would still squash the 
-Federation like a bug. Accept it. -Michael Wong
+Well, AFAICS that means
+	a) either kernel side of the things or the userland tools should
+printk/syslog - at least that evms device had been set up
+	b) any distribution that runs this from initrd/init scripts would
+better take care of having sane fstab.
+	c) nobody sane should put that as default.  Oh, wait, it's gentoo
+we are talking about?  Nevermind, then.

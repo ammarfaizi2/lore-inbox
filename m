@@ -1,80 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277712AbRJRNyS>; Thu, 18 Oct 2001 09:54:18 -0400
+	id <S277720AbRJROBa>; Thu, 18 Oct 2001 10:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277718AbRJRNx6>; Thu, 18 Oct 2001 09:53:58 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:5130 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S277712AbRJRNxz>;
-	Thu, 18 Oct 2001 09:53:55 -0400
-Date: Thu, 18 Oct 2001 17:54:28 +0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] pci.ids addition for Moxa serial card
-Message-ID: <20011018175428.B23104@orbita1.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AbQceqfdZEv+FvjW"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 4:36pm  up 6 days,  4:45,  2 users,  load average: 0.00, 0.08, 0.08
-X-Uname: Linux orbita1.ru 2.2.20pre2 
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S277718AbRJROBW>; Thu, 18 Oct 2001 10:01:22 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:43905 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S277717AbRJROBQ>; Thu, 18 Oct 2001 10:01:16 -0400
+Date: Thu, 18 Oct 2001 09:58:33 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Non-GPL modules
+In-Reply-To: <Pine.NEB.4.40.0110181529400.1110-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.3.95.1011018094613.431A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 Oct 2001, Adrian Bunk wrote:
 
---AbQceqfdZEv+FvjW
-Content-Type: multipart/mixed; boundary="B4IIlcmfBL/1gGOG"
-Content-Disposition: inline
+> On Thu, 18 Oct 2001, Richard B. Johnson wrote:
+> 
+> >...
+> > In the business world, something as simple as puts("Hello World!");
+> > MUST be kept a trade secret. If it was written by an employee
+> > in the context of his or her job, the company's stockholders owns
+> > that line of code so no employee, even the President, is allowed
+> > to give it away.
+> >...
+> 
+> IOW: Companies like IBM, SAP, Sun and SGI that made code available under
+> the GPL (e.g. as part of the linux kernel or with of relicensed programs)
+> weren't allowed to do this???
+> 
+> 
+> Am I allowed to consider this a bad joke?
+> 
+> 
+
+It's no joke. Some companies require, in the process of producing
+goods and services, that certain interface code and documentation
+be provided. For instance, if I make an Ethernet card, it's in
+the best interest of the company to sell as many boards as possible.
+Therefore, certain information must be given away to obtain those
+goals. So, I would provide register-level documentation, sample
+source-code, and maybe even drivers for the majority of the known
+Operating Systems.
+
+However, If my company makes Bomb Scanners (it does), I cannot
+divulge to potential adversaries, either the competition or potential
+bombers, how it works. It's just that simple.
+
+If your end product is a board that plugs into a PC, you have a
+different set of rules than if your end product is a Bomb Scanner,
+a Flight Management System, or a Numerical Milling Machine.
+Basically, embedded stuff, both hardware and software, remains hidden.
 
 
---B4IIlcmfBL/1gGOG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cheers,
+Dick Johnson
 
-Hi,
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-please consider applying.
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-Best regards.
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---B4IIlcmfBL/1gGOG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-moxaids
-
-diff -ur -X /usr/dontdiff /linux.vanilla/drivers/pci/pci.ids /linux/drivers/pci/pci.ids
---- /linux.vanilla/drivers/pci/pci.ids	Wed Oct 17 11:26:01 2001
-+++ /linux/drivers/pci/pci.ids	Thu Oct 18 12:53:58 2001
-@@ -3677,6 +3677,11 @@
- 1391  Development Concepts Inc
- 1392  Medialight Inc
- 1393  Moxa Technologies Co Ltd
-+	1040  Smartio C104H/PCI
-+	1680  Smartio C168H/PCI
-+	2040  Intellio CP-204J
-+	2180  Intellio C218 Turbo PCI
-+	3200  Intellio C320 Turbo PCI
- 1394  Level One Communications
- 1395  Ambicom Inc
- 1396  Cipher Systems Inc
-
---B4IIlcmfBL/1gGOG--
-
---AbQceqfdZEv+FvjW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7zt8UBm4rlNOo3YgRAm9OAJ9TQpWhffCKpLlFPEohO69/IgF/JQCaAxOy
-S6l05fQh3HABMJm/pZkkxeY=
-=0H81
------END PGP SIGNATURE-----
-
---AbQceqfdZEv+FvjW--

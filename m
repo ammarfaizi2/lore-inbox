@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266052AbUGEMPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUGEMRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266052AbUGEMPF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 08:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbUGEMPF
+	id S265872AbUGEMRG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 08:17:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265923AbUGEMRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 08:15:05 -0400
-Received: from mlf.linux.rulez.org ([192.188.244.13]:64520 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S266052AbUGEMPA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 08:15:00 -0400
-Date: Mon, 5 Jul 2004 14:14:50 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
-       buytenh@gnu.org, msw@redhat.com
-Subject: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring
- HDIO_GETGEO semantics)
-In-Reply-To: <20040703005555.GA20808@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.21.0407041920480.11076-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 08:17:06 -0400
+Received: from outmx023.isp.belgacom.be ([195.238.2.204]:54741 "EHLO
+	outmx023.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265872AbUGEMQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 08:16:49 -0400
+Subject: [Patch 2.6.7-mm4] adfs : obsolete comments
+From: FabF <fabian.frederick@skynet.be>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-pAkMCLnzaXr0NJhkWhHp"
+Message-Id: <1089029775.2423.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 05 Jul 2004 14:16:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 3 Jul 2004, Andries Brouwer wrote:
-> 
-> But it is true, returning 0 in all other fields would have made
-> it more clear that there is no attempt to return the BIOS geometry.
-> It might be a good idea to do that.
+--=-pAkMCLnzaXr0NJhkWhHp
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I fail to see how that would solve _now_ the _current_ serious problem
-with HDIO_GETGEO.
+Hi,
 
-There are three different problems.
+	Here are some trivial adfs comment updates.
 
- 1) 2.6 kernels made very visible that the widely used Parted, libparted,
-    etc are severely broken. They should be FIXED. Off-topic on linux-kernel.
+Regards,
+FabF
 
- 2) The semantic change of HDIO_GETGEO severely broke widely used, critical 
-    tools. This issue should be HANDLED, preferable as soon as possible. 
-    The original thread was supposed to be only about this issue.
+--=-pAkMCLnzaXr0NJhkWhHp
+Content-Disposition: attachment; filename=adfs_fix1.patch
+Content-Type: text/x-patch; name=adfs_fix1.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
- 3) There are cases when tools need to invent, not-to-be-discussed-now,
-    geometry for different kind of purposes. This should be IMPLEMENTED.
+Trivial adfs comments update
+	-reserved_lookup no longer exists
+	-get_empty_inode as well
 
-The HDIO_GETGEO facts we have are
+Signed off by FabF
+---
 
-    - the new HDIO_GETGEO code seriously broke backward compatibility
 
-    - the old HDIO_GETGEO code still exists, just the values are thrown 
-      away, as Andries wrote recently
+diff -puN fs/adfs/dir.c~adfs_fix1 fs/adfs/dir.c
+--- linux-2.6.7/fs/adfs/dir.c~adfs_fix1	2004-07-03 20:31:40.000000000 +0200
++++ linux-2.6.7-heatwave/fs/adfs/dir.c	2004-07-05 14:08:59.624800231 +0200
+@@ -160,7 +160,7 @@ adfs_dir_lookup_byname(struct inode *ino
+ 	obj->parent_id = inode->i_ino;
+ 
+ 	/*
+-	 * '.' is handled by reserved_lookup() in fs/namei.c
++	 * '.' is handled by link_path_walk() in fs/namei.c
+ 	 */
+ 	if (name->len == 2 && name->name[0] == '.' && name->name[1] == '.') {
+ 		/*
+@@ -280,8 +280,7 @@ struct dentry *adfs_lookup(struct inode 
+ 	if (error == 0) {
+ 		error = -EACCES;
+ 		/*
+-		 * This only returns NULL if get_empty_inode
+-		 * fails.
++		 * This only returns NULL if new_inode fails
+ 		 */
+ 		inode = adfs_iget(dir->i_sb, &obj);
+ 		if (inode)
+_
 
-    - nobody could point out any _technical_ benefit why the new HDIO_GETGEO
-      code is better than the old one (the _way_ Andries wanted to push the
-      code to user space was quite "unlucky")
-
-    - nobody complained if anything would break if HDIO_GETGEO were restored
-
-    - returning 0 values have an unpredictable impact. Hence perhaps the
-      change shouldn't be done in the 2.6 kernels to avoid yet another 
-      brown paper bag.
-
-Considering all the above points, it seems logical from practical point 
-of view, that the restoration of the old HDIO_GETGEO functionality (or
-something that's very close to its behaviour) _temporarily_ for 2.6
-kernels makes sense.
-
-Of course this wouldn't mean to be as a fix for the above 1) and 3)
-problems. It's the restoration of the user space compatibility _and_
-preparation for appropriate HDIO_GETGEO removal.
-
-	Szaka
+--=-pAkMCLnzaXr0NJhkWhHp--
 

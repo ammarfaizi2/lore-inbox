@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTIRISB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 04:18:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbTIRISB
+	id S263024AbTIRIZA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 04:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbTIRIZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 04:18:01 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:18693 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263019AbTIRIR7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 04:17:59 -0400
-Message-ID: <3F696C36.4020604@aitel.hist.no>
-Date: Thu, 18 Sep 2003 10:26:30 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Terje Eggestad <terje.eggestad@scali.com>, Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Rik's list of CS challenges
-References: <Pine.LNX.4.44.0309101540270.27932-100000@chimarrao.boston.redhat.com>	 <1063792350.2853.73.camel@pc-16.office.scali.no> <1063806002.12270.31.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Sep 2003 04:25:00 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1152 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263025AbTIRIY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 04:24:58 -0400
+Date: Thu, 18 Sep 2003 09:38:44 +0100
+From: John Bradford <john@81-2-122-30.bradfords.org.uk>
+Message-Id: <200309180838.h8I8cioM000312@81-2-122-30.bradfords.org.uk>
+To: Andries.Brouwer@cwi.nl, john@grabjohn.com, linux-kernel@vger.kernel.org,
+       ndiamond@wta.att.ne.jp
+Subject: Re: 2.6.0-test5 vs. APM or keyboard driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2003-09-17 at 10:52, Terje Eggestad wrote:
-> 
->>What become more interesting is that while you may have NV RAM, it's not
->>likely that MRAM is viable on the processor chip. The manufacture
->>process may be too expensive, or outright impossible, (polymers on chips
->>that hold 80 degrees C in not likely), leaving you with volatile
->>register and cache but NV Main RAM. 
-> 
-> 
-> We effectively handle that case now with the suspend-to-ram feature.
-> 
-> 
->>A merge of FS and RAM? (didn't the AS/400 have mmap'ed disks?)
-> 
-> 
-> Persistant storage systems. These tend to look very unlike Linux because
-> they throw out the idea of a file system as such. The issues with
-> debugging if they break and backups make my head hurt but other folk
-> seem to think they are solved problems
+> So far we have heard about precisely one keyboard in the world
+> where scancode mode 3 was useful. It is the Japanese keyboard
+> of John Bradford. He once wrote
+>
+> > My keyboard has a distinct ID, and works fine in set 3,
+>
+> Let me repeat the question:
+> John: What ID does this keyboard report?
 
-I see no reason to get rid of file systems - they provide a nice
-and established way of organizing data.  Persistent RAM offer
-other advantages though - no need for disk caching, mmap
-simply gives access to the memory, execute without loading first.
+Sorry I didn't get back to you earlier about this.
 
-Helge Hafting
+It reports ab90.
 
+Obviously at the moment it defaults to being used in set2, which works
+as well in 2.6 as it does in 2.4 - the only problem is that the
+language keys are indistinguishable from the space key.
+
+Using set3 in 2.6 works, but not without a few problems.
+
+I loaded a Japanese keyboard map, and most keys, (all the alphanumeric
+keys), worked fine.  A few symbols didn't, so I started to do some
+observations with showkey to see what was going on.
+
+(For anybody new to this discussion - I haven't used the Japanese
+keyboard map up until now, because my keyboard emulates a US one when
+in set2.)
+
+The Yen key reports keycode 86.  This is defined as less/greater in
+the Japanese keyboard map I used.
+
+Backslash/underscore reports keycode 43, which the keymap defines as
+bracketright/braceright.
+
+The actual bracketright/braceright key reports 84 on my keyboard,
+whereas backslash/underscore in the keymap is defined for keycode 89.
+
+Here are two more interesting problems, though:
+
+Pressing any of the language keys reports nothing, but causes the next
+keystroke to be lost.
+
+Right alt and right control both generate keycode 100, and are both
+interpreted as alt.
+
+All of these problems should be easily fixable.  The lost keystoke one
+didn't happen last time I actually tested set3 in 2.5, (that was a
+long time ago, though, around 2.5.40).
+
+I'll get some more useful debug information later, but my serial
+terminal is in need of repair at the moment :-(.
+
+John.

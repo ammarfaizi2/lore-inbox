@@ -1,28 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264279AbRF0LXt>; Wed, 27 Jun 2001 07:23:49 -0400
+	id <S264805AbRF0L0t>; Wed, 27 Jun 2001 07:26:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264805AbRF0LXj>; Wed, 27 Jun 2001 07:23:39 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50960 "EHLO
+	id <S264928AbRF0L0j>; Wed, 27 Jun 2001 07:26:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53520 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264279AbRF0LX1>; Wed, 27 Jun 2001 07:23:27 -0400
-Subject: Re: PCI Power Management / Interrupt Context
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Wed, 27 Jun 2001 12:22:39 +0100 (BST)
-Cc: eger@cc.gatech.edu (David T Eger), linux-kernel@vger.kernel.org
-In-Reply-To: <3B395A7A.848908C@mandrakesoft.com> from "Jeff Garzik" at Jun 27, 2001 12:00:58 AM
+	id <S264805AbRF0L01>; Wed, 27 Jun 2001 07:26:27 -0400
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
+To: andre@aslab.com (Andre Hedrick)
+Date: Wed, 27 Jun 2001 12:25:53 +0100 (BST)
+Cc: Gunther.Mayer@t-online.de (Gunther Mayer), linux-kernel@vger.kernel.org,
+        dhinds@zen.stanford.edu
+In-Reply-To: <Pine.LNX.4.10.10106270017350.13459-100000@master.linux-ide.org> from "Andre Hedrick" at Jun 27, 2001 12:29:47 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15FDP5-000528-00@the-village.bc.nu>
+Message-Id: <E15FDSD-00052S-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> if someone yanks the card, how is it going to deliver an interrupt to
-> the CPU?
+> I can not help if you have a device that not compliant to the rules.
+> ATA-2 is OBSOLETED thus we forced (the NCITS Standards Body) the CFA
 
-It can happen actually. There is also a window where you can disable an IRQ
-on a card and then take an IRQ. The ne2k driver has to jump through a couple
-of hoops because of this
+ATA-2 may be obsolete but existing ATA-2 hardware doesnt spontaenously
+combust when the spec changes (much Im sure to some vendors dissappointmnent)
+

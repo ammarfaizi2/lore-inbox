@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264146AbTFUXkV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 19:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFUXkV
+	id S264312AbTFUXna (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 19:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTFUXn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 19:40:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42472 "HELO
+	Sat, 21 Jun 2003 19:43:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39912 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264146AbTFUXkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 19:40:16 -0400
-Date: Sun, 22 Jun 2003 01:54:18 +0200
+	id S264312AbTFUXnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 19:43:24 -0400
+Date: Sun, 22 Jun 2003 01:57:25 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Corey Minyard <minyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [2.4 patch] fix IPMI compile with new ACPI
-Message-ID: <20030621235417.GH23337@fs.tum.de>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] ibmmca cleanup
+Message-ID: <20030621235725.GI23337@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,41 +22,45 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes the compilation of ipmi_kcs_intf.c in 2.4.22-pre1.
+The patch below does the following:
+- remove an unused static function
+- removes the declaration of a function that is no longer present
+- removes a variable declaration that shadows a function parameter
 
-The changes are:
-- remove two now unneeded includes (since the files moved there was a 
-  compile error, but they are indirectly included via linux/acpi.h)
-- remove unneeded COMPILER_DEPENDENT_UINT64; besides that it's
-  unneeded it was wrong on 32 bit architectures
-- s/acpi_table_header/struct acpi_table_header/
-
--ac contains a similar patch that differs because it also adds 
-#include's for acpi/acpi.h and acpi/actypes.h (indirectly included via 
-linux/acpi.h).
+I've tested the compilation with 2.5.72-mm2.
 
 cu
 Adrian
 
---- linux-2.4.22-pre1-full/drivers/char/ipmi/ipmi_kcs_intf.c.old	2003-06-22 01:28:28.000000000 +0200
-+++ linux-2.4.22-pre1-full/drivers/char/ipmi/ipmi_kcs_intf.c	2003-06-22 01:40:12.000000000 +0200
-@@ -1031,10 +1031,6 @@
-    from Hewlett-Packard simple bmc.c, a GPL KCS driver. */
- 
- #include <linux/acpi.h>
--/* A real hack, but everything's not there yet in 2.4. */
--#define COMPILER_DEPENDENT_UINT64 unsigned long
--#include <../drivers/acpi/include/acpi.h>
--#include <../drivers/acpi/include/actypes.h>
- 
- struct SPMITable {
- 	s8	Signature[4];
-@@ -1059,7 +1055,7 @@
- static unsigned long acpi_find_bmc(void)
+--- linux-2.5.72-mm2/drivers/scsi/ibmmca.c.old	2003-06-22 01:10:04.000000000 +0200
++++ linux-2.5.72-mm2/drivers/scsi/ibmmca.c	2003-06-22 01:11:15.000000000 +0200
+@@ -2379,7 +2379,6 @@
  {
- 	acpi_status       status;
--	acpi_table_header *spmi;
-+	struct acpi_table_header *spmi;
- 	static unsigned long io_base = 0;
+ 	int len = 0;
+ 	int i, id, lun, host_index;
+-	struct Scsi_Host *shpnt;
+ 	unsigned long flags;
+ 	int max_pun;
  
- 	if (io_base != 0)
+@@ -2452,11 +2451,6 @@
+ 	return len;
+ }
+ 
+-static void ibmmca_scsi_setup(char *str, int *ints)
+-{
+-	internal_ibmmca_scsi_setup(str, ints);
+-}
+-
+ static int option_setup(char *str)
+ {
+ 	int ints[IM_MAX_HOSTS];
+--- linux-2.5.72-mm2/drivers/scsi/ibmmca.h.old	2003-06-22 01:11:38.000000000 +0200
++++ linux-2.5.72-mm2/drivers/scsi/ibmmca.h	2003-06-22 01:12:00.000000000 +0200
+@@ -13,7 +13,6 @@
+ /* Interfaces to the midlevel Linux SCSI driver */
+ static int ibmmca_detect (Scsi_Host_Template *);
+ static int ibmmca_release (struct Scsi_Host *);
+-static int ibmmca_command (Scsi_Cmnd *);
+ static int ibmmca_queuecommand (Scsi_Cmnd *, void (*done) (Scsi_Cmnd *));
+ static int ibmmca_abort (Scsi_Cmnd *);
+ static int ibmmca_host_reset (Scsi_Cmnd *);

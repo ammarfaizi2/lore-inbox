@@ -1,103 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317637AbSGFMjw>; Sat, 6 Jul 2002 08:39:52 -0400
+	id <S315503AbSGFMrd>; Sat, 6 Jul 2002 08:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317640AbSGFMjv>; Sat, 6 Jul 2002 08:39:51 -0400
-Received: from [194.105.207.66] ([194.105.207.66]:50064 "EHLO
-	vider.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S317637AbSGFMju>; Sat, 6 Jul 2002 08:39:50 -0400
-Message-ID: <004c01c224ea$816bfb80$15cf69c2@nick>
-From: "Nick Evgeniev" <nick@octet.spb.ru>
-To: "Andre Hedrick" <andre@linux-ide.org>
-Cc: "Dave Jones" <davej@suse.de>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.10.10207051710430.25668-100000@master.linux-ide.org>
-Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
-Date: Sat, 6 Jul 2002 16:41:52 +0400
-Organization: M.Y.T.H. Inc
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Scanner: exiscan *17Qosr-0005KZ-00*4Mu9ctJDgpg* (M.Y.T.H. Inc)
+	id <S315517AbSGFMrc>; Sat, 6 Jul 2002 08:47:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25867 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315503AbSGFMrb>;
+	Sat, 6 Jul 2002 08:47:31 -0400
+Date: Sat, 6 Jul 2002 13:50:05 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Witek Kr?cicki <adasi@kernel.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] /proc/cpuinfo output from some arch
+Message-ID: <20020706125005.GD2784@gallifrey>
+References: <003201c224cd$e25df820$0201a8c0@witek>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003201c224cd$e25df820$0201a8c0@witek>
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 13:47:51 up 17:41,  1 user,  load average: 1.99, 2.00, 2.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know. Actually, I'm trying to setup "production" environment :)) &
-i845e (or i845pe) is the only one solution (I don't want to try via+promise
-anymore)
+* Witek Kr?cicki (adasi@kernel.pl) wrote:
+> I'm looking for /proc/cpuinfo output from following architectures: arm m68k
+> mips s390 sparc.
 
------ Original Message -----
-From: "Andre Hedrick" <andre@linux-ide.org>
-To: "Nick Evgeniev" <nick@octet.spb.ru>
-Cc: "Dave Jones" <davej@suse.de>; "Alan Cox" <alan@lxorguk.ukuu.org.uk>;
-<linux-kernel@vger.kernel.org>
-Sent: Saturday, July 06, 2002 4:25 AM
-Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
+Well here are mips and m68k; I don't have an ARM box bootable at the
+moment:
 
+This is from my SG Indy (Dino):
 
->
-> Does it work in 2.5 ?
->
->
-> On Thu, 4 Jul 2002, Nick Evgeniev wrote:
->
-> > Well, anyway, 2.4.19-pre10-ac2 works for me :)
-> >
-> > > No it has everything to do with determining if the HBA is in
-compatablity
-> > > or native mode and if the device is properly enabled.
-> > >
-> > > On Wed, 3 Jul 2002, Dave Jones wrote:
-> > >
-> > > > On Mon, Jul 01, 2002 at 03:49:43PM +0400, Nick Evgeniev wrote:
-> > > >
-> > > >  >     Why are you so assure? It's "msi 845e Max" with LAN on-board
-mb
-> > with
-> > > >  > _latest_ BIOS installed....
-> > > >  > Just FYI 2.4.18 was even unable to run eepro100 driver on it
-while
-> > intels
-> > > >  > e100 driver was working perfectly.
-> > > >
-> > > > Could this be related to the pci id clash I pointed out last week?
-> > > > That id was for an intel IDE device iirc.
-> > > >
-> > > > (Recap: Two id's don't tally between 2.4/2.5)
-> > > >
-> > > >         Dave
-> > > >
-> > > > --
-> > > > | Dave Jones.        http://www.codemonkey.org.uk
-> > > > | SuSE Labs
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe
-linux-kernel"
-> > in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > >
-> > >
-> > > Andre Hedrick
-> > > LAD Storage Consulting Group
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
->
+>>>>>>>>>>>>>>>>>>>>>>
+cpu			: MIPS
+cpu model		: R4600 V2.0
+system type		: SGI Indy
+BogoMIPS		: 132.71
+byteorder		: big endian
+unaligned accesses	: 0
+wait instruction	: yes
+microsecond timers	: yes
+extra interrupt vector	: no
+hardware watchpoint	: no
+VCED exceptions		: not available
+VCEI exceptions		: not available
+>>>>>>>>>>>>>>>>>>>>>>
 
+And the following shows the stunning computing power of my Sun 3/60:
+
+>>>>>>>>>>>>>>>>>>>>>>
+CPU:		68020
+MMU:		Sun-3
+FPU:		68881
+Clocking:	19.3MHz
+BogoMips:	4.83
+Calibration:	24192 loops
+>>>>>>>>>>>>>>>>>>>>>>
+
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

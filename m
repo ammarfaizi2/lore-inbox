@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUDEOV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 10:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUDEOV0
+	id S262650AbUDEOig (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 10:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUDEOig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 10:21:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28619 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262585AbUDEOVW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 10:21:22 -0400
-Subject: Re: 2.6.x kernels and ttyS45 for 6 serial ports ?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Ruud Linders <rkmp@xs4all.nl>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <40716855.50900@xs4all.nl>
-References: <4071367B.2060103@xs4all.nl>
-	 <20040405120452.B31038@flint.arm.linux.org.uk>  <40716855.50900@xs4all.nl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dDopVvZMsjxRtPLIEouj"
-Organization: Red Hat, Inc.
-Message-Id: <1081174866.4679.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 05 Apr 2004 16:21:06 +0200
+	Mon, 5 Apr 2004 10:38:36 -0400
+Received: from cardinal.mail.pas.earthlink.net ([207.217.121.226]:989 "EHLO
+	cardinal.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S262650AbUDEOiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 10:38:02 -0400
+Message-ID: <40716F40.4070609@penguincomputing.com>
+Date: Mon, 05 Apr 2004 07:37:52 -0700
+From: Philip Pokorny <ppokorny@penguincomputing.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Cox <adrian@humboldt.co.uk>
+CC: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org,
+       Michael Hunold <m.hunold@gmx.de>, Greg KH <greg@kroah.com>
+Subject: Re: [RFC|PATCH][2.6] Additional i2c adapter flags for i2c client
+ isolation
+References: <40686476.7020603@convergence.de>	<406EBA38.1030203@gmx.de>	<20040403163031.122b5df8.khali@linux-fr.org> <1081163597.607.15.camel@newt>
+In-Reply-To: <1081163597.607.15.camel@newt>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Cox wrote:
 
---=-dDopVvZMsjxRtPLIEouj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>On Sat, 2004-04-03 at 15:30, Jean Delvare wrote:
+>
+>  
+>
+>>I'm not sure that the function you propose would be really useful. I
+>>guess that most people don't load i2c chip drivers they don't need. The
+>>class filter you propose, added to the different I2C addresses, should
+>>do the rest.
+>>    
+>>
+>
+>What about using two DVB cards of different models to record off one
+>multiplex while watching another?
+>
+>Only an explicit list of which chips should be probed on each I2C bus is
+>safe for this sort of system.
+>
+>  
+>
+You might be able to use the ignore= and force=  parameters to the i2c 
+drivers to accomplish this.  With ignore you can prevent a driver from 
+scanning an address (specify -1 as the bus to ignore that address on all 
+busses) and with force you can specify which bus/address to find the 
+specific chip.
 
-On Mon, 2004-04-05 at 16:08, Ruud Linders wrote:
-> I realise that my 'patch' isn't the perfect solution.
-> But how much sense makes adding a 4-port card and getting
-> ttyS14/15/44/45 for these 4-ports ?
+I haven't read the code in detail yet, but if force doesn't already 
+override ignore, it probably should.  I can't think of reason why you 
+would want ignore to override a force directive.
 
-does it matter really ????
-(and if it does, why aren't you using udev ;)
-
---=-dDopVvZMsjxRtPLIEouj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAcWtSxULwo51rQBIRAmtoAJ9lv+Tglxjq6TkJwzQ/EUOH98lQxwCeM0+z
-qN5j85RFTBIcBW5yHV/Fn8I=
-=V8C2
------END PGP SIGNATURE-----
-
---=-dDopVvZMsjxRtPLIEouj--
+:v)
 

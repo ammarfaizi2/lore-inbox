@@ -1,123 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265632AbUABUMq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 15:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265631AbUABUMq
+	id S265641AbUABUMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 15:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265642AbUABUMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 15:12:46 -0500
-Received: from faraday.dhtns.com ([64.246.11.56]:25999 "EHLO faraday.dhtns.com")
-	by vger.kernel.org with ESMTP id S265640AbUABUMW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 2 Jan 2004 15:12:22 -0500
-Date: Fri, 2 Jan 2004 15:12:21 -0500
-From: Elliott Bennett <lkml@dhtns.com>
-To: linux-kernel@vger.kernel.org
-Cc: lkml@dhtns.com
-Subject: Re: JFS resize=0 problem in 2.6.0
-Message-ID: <20040102201221.GA28116@faraday.dhtns.com>
-References: <20031228153028.GB22247@faraday.dhtns.com> <20031229000503.GD1882@matchmail.com>
+Received: from phoenix.infradead.org ([213.86.99.234]:3346 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265641AbUABUMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 15:12:15 -0500
+Date: Fri, 2 Jan 2004 20:11:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+Message-ID: <20040102201138.A1124@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, akpm@osdl.org,
+	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+References: <20031228143603.A20391@infradead.org> <Pine.SGI.3.96.1031230151441.2502941C-100000@daisy-e236.americas.sgi.com> <20031230212450.A9765@infradead.org> <3FF5CADE.9010703@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031229000503.GD1882@matchmail.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FF5CADE.9010703@sgi.com>; from pfg@sgi.com on Fri, Jan 02, 2004 at 01:47:42PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 04:05:03PM -0800, Mike Fedyk wrote:
-> On Sun, Dec 28, 2003 at 10:30:28AM -0500, lkml@dhtns.com wrote:
-> > It seems to me that line 264 is attempting to test for the mount 
-> > paramater "resize=0", and when it comes across this, resize to the full
-> > size of the volume.  However, this doesn't work.  I believe it should
-> > test for the char '0'  (*resize=='0'), not against literal zero.  
-> > 
-> > Let me know if I'm way off base here.  But the below patch does allow a
-> > $ mount -o remount,resize=0 /mnt/test    
-> > to resize the jfs filesystem to the full size of the volume.
+On Fri, Jan 02, 2004 at 01:47:42PM -0600, Patrick Gefre wrote:
+> OK - I updated the patches as Christoph suggested (removed 
+> hwgraph_path_lookup() from 000, removed
+> snia64_pci_find_bios() from 014, removed pcibr_businfo_get() from 030 
+> and dropped 071).
 > 
-> And it won't without the patch?
+> I took the reorg patch (075) out for now - I am reworking it along with 
+> our next set of patches.
 > 
-> What errors do you get if it fails without the patch?
+> So I think they are ready to go ?
 
-It won't without the patch.  
+Yes.  030 still has some really strange additions but we can back that
+out later.
 
-No errors...it just doesn't resize.  :)
-
-Here's a shell snippit.  I have just resized /dev/vg/lv from 700M to
-900M, and I'm running the ORIGINAL jfs module:
-
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv       713500       220    713280   1% /mnt
-root@tesla:~# mount
-/dev/mapper/vg-lv on /mnt type jfs (rw)
-root@tesla:~# mount -o remount,resize=0 /mnt
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv       713500       220    713280   1% /mnt
-
-	..the resizing failed.  But, switching to the patched module:
-
-root@tesla:~# umount /mnt
-root@tesla:~# rmmod jfs
-root@tesla:~# cp ~/jfs_patch.ko /lib/modules/2.6.0/kernel/fs/jfs/jfs.ko
-root@tesla:~# mount -t jfs /dev/vg/lv /mnt
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv       713500       220    713280   1% /mnt
-root@tesla:~# mount -o remount,resize=0 /mnt
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv       917272       244    917028   1% /mnt
-
-	resizing works.
-
-	
-	Oddly, now, an additional lvextend and remount/resize fails:
-
-root@tesla:~# lvextend /dev/vg/lv -L +200M
-  /dev/hdd: open failed: Read-only file system
-  Extending logical volume lv to 1.07 GB
-  Logical volume lv successfully resized
-root@tesla:~# mount -o remount,resize=0 /mnt
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv       917272       244    917028   1% /mnt
-root@tesla:~# mount
-/dev/mapper/vg-lv on /mnt type jfs (rw,resize=0,resize=0)
-
-	note "resize=0,resize=0" above.
-	...but unmounting it, remounting it, and then resizing it works:
-
-root@tesla:~# umount /mnt
-root@tesla:~# mount -t jfs /dev/vg/lv /mnt
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv       917272       244    917028   1% /mnt
-root@tesla:~# mount -o remount,resize=0 /mnt
-root@tesla:~# df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/vg-lv      1121040       272   1120768   1% /mnt
-root@tesla:~# mount
-/dev/mapper/vg-lv on /mnt type jfs (rw,resize=0)
-
-	It turns out that it's not so much of the fact that this is a
-"second" extention during the same mount as the fact that it was
-extended while mounted.  It seems that nomatter when I lvextend (mounted
-or unmounted), i must unmount (if mounted), then mount, then
-remount/resize for a resize to take effect.  If I don't unmount after
-lvextending, and try to resize, I get:
-jfs_extendfs: volume hasn't grown, returning
-
-
-Soo...I would say that something is awry with the resizing of JFS
-filesystems.  My patch obviously doesn't fix everything, but at least
-makes resizing to fill available space *possible*. :)
-
-The code surrounding my patch change treats the same variable (resize,
-which is a pointer to args[0].from) as a string, so it seems pretty
-obvious to me it should be comparing to '0'.
-
-
--Elliott Bennett
+For the next round of patched I would be nice if you could get the
+attribution of the patches right, though..
 

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130255AbQLXVam>; Sun, 24 Dec 2000 16:30:42 -0500
+	id <S129825AbQLXWPR>; Sun, 24 Dec 2000 17:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130331AbQLXVac>; Sun, 24 Dec 2000 16:30:32 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:14601 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S130255AbQLXVaV>;
-	Sun, 24 Dec 2000 16:30:21 -0500
-Date: Sun, 24 Dec 2000 21:59:48 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sparc 10 w/512 megs hangs during boot
-Message-ID: <20001224215947.A29720@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20001224204844.3587.qmail@web1002.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001224204844.3587.qmail@web1002.mail.yahoo.com>; from ronnnyc@yahoo.com on Sun, Dec 24, 2000 at 12:48:44PM -0800
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+	id <S130238AbQLXWPH>; Sun, 24 Dec 2000 17:15:07 -0500
+Received: from smtp2.free.fr ([212.27.32.6]:35343 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S129825AbQLXWPC>;
+	Sun, 24 Dec 2000 17:15:02 -0500
+From: wtarreau@free.fr
+To: dag@brattli.net
+Subject: [patch] support for FDC37N769 IRDA chip
+Message-ID: <977694274.3a466e42ddfa9@imp.free.fr>
+Date: Sun, 24 Dec 2000 22:44:34 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="-MOQ9776942741a0da5113cfa203c95a617f8500ce6e3"
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 212.27.40.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is in MIME format.
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+---MOQ9776942741a0da5113cfa203c95a617f8500ce6e3
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-On Sun, Dec 24, 2000 at 12:48:44PM -0800, Ron Calderon wrote:
-> I just finished compiling 2.4.0-test5 and that worked
-> fine with 512M ram. I'll start going thru the other
-> kernels. It'll take me sometime since compileing takes
-> a long time.
+Hello Dag,
 
-I've not yet started active searching. However:
-	- test5		is fine
-	- test13-pre3	is not
+I discovered that my notebook supported FIR, but I didn't know the chip (and it
+was not documented). So I disassembled it completely and found an SMC FDC37N769
+inside. It's now correctly detected with the following trivial patch against
+kernel 2.2.18 (the same entry should be added to findchip).
 
-I don't know how fast your machine is, but we should coordinate out
-search... I'll try to build -test10final (with minimal config to
-only test boot) so that shouldn't take so very long... You should
-test sth around -test8...
+Merry Christmas to you and all the folks on LKML,
+Willy
 
-MfG, JBG
 
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+---MOQ9776942741a0da5113cfa203c95a617f8500ce6e3
+Content-Type: application/octet-stream; name="irda-fdc37n769-2.2.18.diff"; name="irda-fdc37n769-2.2.18.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline; filename="irda-fdc37n769-2.2.18.diff"
 
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iEYEARECAAYFAjpGY8MACgkQHb1edYOZ4buWVQCfceD6hPJNOGS1FfXiH+lMMWVy
-zFIAoIbZGYObIJVfa3hvpulC+qLhAaAa
-=nh3I
------END PGP SIGNATURE-----
 
---OgqxwSJOaUobr8KG--
+---MOQ9776942741a0da5113cfa203c95a617f8500ce6e3--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

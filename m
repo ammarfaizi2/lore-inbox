@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263196AbTCYSRn>; Tue, 25 Mar 2003 13:17:43 -0500
+	id <S263227AbTCYSTX>; Tue, 25 Mar 2003 13:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263174AbTCYSRn>; Tue, 25 Mar 2003 13:17:43 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:30024 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S263196AbTCYSRg>; Tue, 25 Mar 2003 13:17:36 -0500
-Date: Tue, 25 Mar 2003 18:30:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: fix unuse_pmd() OOM handling
-In-Reply-To: <20030325181313.GK30140@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0303251819060.10381-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S263226AbTCYSSj>; Tue, 25 Mar 2003 13:18:39 -0500
+Received: from AMarseille-201-1-1-200.abo.wanadoo.fr ([193.252.38.200]:18727
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S263225AbTCYSSf>; Tue, 25 Mar 2003 13:18:35 -0500
+Subject: Re: [BK FBDEV] A few more updates.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>
+References: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048616901.10476.3.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Mar 2003 19:28:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2003, William Lee Irwin III wrote:
-> On Tue, 25 Mar 2003, William Lee Irwin III wrote:
-> >> Fix unuse_pmd() OOM handling for pte_chain_alloc() failures.
-> >> Unfortunately I'm not able to trigger anything more than light
-> >> swapping loads to test this with.
+On Tue, 2003-03-25 at 19:32, James Simmons wrote:
+> Linus, please do a
 > 
-> On Tue, Mar 25, 2003 at 06:04:09PM +0000, Hugh Dickins wrote:
-> > Sorry, Bill: please ignore this one, Andrew: I'm preparing a
-> > better patch for this, extracted from my anobjrmap patches.
+> 	bk pull http://fbdev.bkbits.net/fbdev-2.5
 > 
-> This stuff was relatively brutally crowbarred in. Go ahead and
-> send it in, I'd actually rather have rmap_get_cpu() than this.
+> This will update the following files:
+> 
+>  drivers/video/aty/aty128fb.c  |   16 +++++++---------
+>  drivers/video/console/fbcon.c |    4 ++--
+>  drivers/video/controlfb.c     |   18 +++---------------
+>  drivers/video/platinumfb.c    |   28 ++++++++--------------------
+>  drivers/video/radeonfb.c      |   10 ++++++++++
+>  drivers/video/softcursor.c    |    2 +-
+>  6 files changed, 31 insertions(+), 47 deletions(-)
+> 
+> through these ChangeSets:
+> 
+> <jsimmons@maxwell.earthlink.net> (03/03/25 1.981)
+>    [FBCON] Could be called outside of a process context. This fixes that.
 
-So would I!  but I'm afraid I've done this the pte_chainp way too.
-rmap_get_cpu() becomes attractive when you know that you nowhere
-need more than one per cpu per locking, as in anobjrmap where
-copy_page_range needs none at all; but I don't see much point in
-trying to backport it to mainline/-mm without that assurance.
+You "fixed" it by using GFP_ATOMIC but didn't test the result of
+kmalloc. That is very bad. GFP_ATOMIC can fail (return NULL), thus
+you will crash the kernel under high memory pressure.
 
-Hugh
+I think the proper fix is, as you asked me, using a workqueue,
+that way, you can both use GFP_KERNEL allocations, and avoid
+the spinlock you added to fbmem.c, thus letting the fb_sync()
+ops on fbdev's be able to block.
+
+Ben.
 

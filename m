@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313041AbSDTVxE>; Sat, 20 Apr 2002 17:53:04 -0400
+	id <S312334AbSDTVz0>; Sat, 20 Apr 2002 17:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313174AbSDTVxD>; Sat, 20 Apr 2002 17:53:03 -0400
-Received: from mailbox-14.st1.spray.net ([212.78.202.114]:4499 "EHLO
-	mailbox-14.st1.spray.net") by vger.kernel.org with ESMTP
-	id <S313041AbSDTVxB> convert rfc822-to-8bit; Sat, 20 Apr 2002 17:53:01 -0400
-Posted-Date: Sat, 20 Apr 2002 23:52:54 +0200 (DST)
-Message-Id: <200204202152.XAA20982@mailbox-14.st1.spray.net>
-From: "Manto" <ceri@firemail.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: USED FORMWORK MANTO HUENNEBECK
+	id <S313019AbSDTVzZ>; Sat, 20 Apr 2002 17:55:25 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:51341 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312334AbSDTVzX>;
+	Sat, 20 Apr 2002 17:55:23 -0400
+Date: Sat, 20 Apr 2002 23:55:03 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK patches exported. (fwd)
+Message-ID: <20020420215503.GE10549@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Sat, 20 Apr 2002 23:55:28 +0200
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DEAR SIR,
 
-OUR COMPANY IS TRADING WITH USED CONSTRUCTION EQUIPMENT IN WEST AND EAST EUROPE.
+Hi!
 
-WE HAVE FOR SALE MANTO HUENNEBECK FORMWORK IN VERY GOOD CONDITION COMPLET WITH CLAMPS.
+> For the benefit of the BK haters, or more to the point for my benefit to 
+> shut up the occasional whinging I've heard about needing to use BK to get 
+> at the very latest patches from Linus' tree...
+> 
+> 	http://www.kernel.org/~dwmw2/bk-2.5/
+> 
+> It should be updated every hour on the hour, and has the last week's worth 
+> of changesets exported as patches.
 
-1 000 SQM LOCATION GERMANY
-
-ALSO FOR SALE PERI/DOKA/THYSSEN HUENNEBECK
-
-IF INTEREST WE CAN SEND YOU PICTURES PER E-MAIL.
-
-PRICE 10 % FROM NEW PRICE.
-
-BEST REGARDS.
-
-S.BUTAUX
-
-HTTP://WWW.BAU-CENTER.COM
-
-TEL: 00 49 177 57 57 329
-TEL: 00 48 604 280 506
-FAX: 00 49 25 61 95 950 4001
+Nice! *Very* nice.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

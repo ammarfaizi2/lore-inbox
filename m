@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSDXJXS>; Wed, 24 Apr 2002 05:23:18 -0400
+	id <S310435AbSDXJXZ>; Wed, 24 Apr 2002 05:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310435AbSDXJXR>; Wed, 24 Apr 2002 05:23:17 -0400
-Received: from dsl-213-023-038-128.arcor-ip.net ([213.23.38.128]:57514 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S310224AbSDXJXQ>;
-	Wed, 24 Apr 2002 05:23:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "J.A. Magallon" <jamagallon@able.es>, m.knoblauch@TeraPort.de
-Subject: Re: XFS in the main kernel
-Date: Tue, 23 Apr 2002 11:23:03 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Stephen Lord <lord@sgi.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CC56355.E5086E46@TeraPort.de> <3CC581F5.2FBEA0C1@TeraPort.de> <20020423213750.GA1704@werewolf.able.es>
+	id <S310470AbSDXJXY>; Wed, 24 Apr 2002 05:23:24 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:48906 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310435AbSDXJXX>; Wed, 24 Apr 2002 05:23:23 -0400
+Message-ID: <3CC66AE2.3060606@evision-ventures.com>
+Date: Wed, 24 Apr 2002 10:20:50 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16zwWW-0002Mi-00@starship>
+To: Jens Axboe <axboe@suse.de>
+CC: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
+In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC51494.8040309@evision-ventures.com> <1019583551.1392.5.camel@turbulence.megapathdsl.net> <1019584497.1393.8.camel@turbulence.megapathdsl.net> <3CC66794.5040203@evision-ventures.com> <20020424091151.GD812@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 April 2002 23:37, J.A. Magallon wrote:
-> On 2002.04.23 Martin Knoblauch wrote:
-> If XFS is so good (i do not doubt it), I see some issues (plz correct me
-> if I'm wrong...):
+>>OK I assume that the oops happens inside the ide-scsi module.
+>>This will be fixed in one of the forthcomming patch sets.
 > 
-> - XFS needs substantial changes in the VFS layer to work
-> - This changes are good (or make xfs so good)
-> - *THE THING* to do is to integrate this changes in mainline tree VFS,
->   so XFS will stop duplicating half the kernel code.
 > 
-> Why those features are not merged ? Incompatibilities ? Licensing ?
-> Religious wars about some way of doing things ?
+> Are you sure this isn't just due to ->special being set, and
+> ide_end_request() assuming it's an ar? From ide-cd, that is.
 
-No.  It's simply a matter of nobody having done the required analysis to
-find a really good way to reconcile XFS's way of doing things with
-mainline vfs.  This is time-consuming work that requires a good deal of
-skill, and right now there are many projects in the same category.
+Yes right. Thank you for reminding me. I will have to
+redo the stuff from the "draft" patch I did send you once...
 
-My advice to anyone who wants to make it go faster?  Jump in and start
-doing the analysis (start with xfs/pagebuf.c).  If you are a company who
-wants it to go faster, try offering money.  Otherwise, it goes at its own
-speed, and this work will likely come up to the top of the pile later in
-the 2.5 cycle.
-
--- 
-Daniel

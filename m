@@ -1,66 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280764AbRKYJDV>; Sun, 25 Nov 2001 04:03:21 -0500
+	id <S280771AbRKYJLX>; Sun, 25 Nov 2001 04:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280769AbRKYJDM>; Sun, 25 Nov 2001 04:03:12 -0500
-Received: from cpe-66-1-134-68.ca.sprintbbd.net ([66.1.134.68]:46284 "HELO
-	core.sitedirection.com") by vger.kernel.org with SMTP
-	id <S280764AbRKYJC4>; Sun, 25 Nov 2001 04:02:56 -0500
-Message-ID: <001501c17591$036b5cc0$0f00a8c0@minniemouse>
-From: "Jon" <marsaro@interearth.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <87zo5bgsk6.fsf@toboggan.in.ibm.com><039d01c1758e$51a15d20$0f00a8c0@minniemouse> <87itbzi65e.fsf@toboggan.in.ibm.com>
+	id <S280774AbRKYJLO>; Sun, 25 Nov 2001 04:11:14 -0500
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:12299
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S280771AbRKYJK7>; Sun, 25 Nov 2001 04:10:59 -0500
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200111250847.fAP8lVA27419@www.hockin.org>
 Subject: Re: eepro100 Driver Problems ( wait
-Date: Sun, 25 Nov 2001 01:10:23 -0800
+To: sidcarter@symonds.net
+Date: Sun, 25 Nov 2001 00:47:31 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87zo5bgsk6.fsf@toboggan.in.ibm.com> from "Sid Carter" at Nov 25, 2001 02:01:37 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bad link first time, sorry:
-http://appsr.intel.com/scripts-df/File_Filter.asp?FileName=e100
-
-Regards,
-
-Jon
-
------ Original Message -----
-From: "Sid Carter" <sidcarter@symonds.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, November 25, 2001 12:52 AM
-Subject: Re: eepro100 Driver Problems ( wait
+> Nov 25 13:43:58 toboggan kernel: eepro100: wait_for_cmd_done timeout!
+> Nov 25 13:44:13 toboggan last message repeated 5 times
 
 
-> >>>>> On Sun, 25 Nov 2001 00:51:05 -0800, "Jon" <marsaro@interearth.com>
-said:
->
->     Jon> Try the Intel module e100, that is the Scyld version.
->     Jon> Regards,
->
-> Jon,
->
-> I forgot to mention I am using Debian and I don't see a module name
-> called e100 also. Am I missing something ? The module should be
-> downloaded from somewhere ? WOuld be glad if you can provide a link.
-> TIA
-> Regards
->         Carter
-> --
-> The only difference between your girlfriend and a barracuda is the
-nailpolish.
->
-> Sid Carter                                                   Debian
-GNU/Linux.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+We have a patch for eepro100.c that should fix up a lot of issues - I need
+to clean it up and solicit testers this week.
 

@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263975AbTH1OqE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 10:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264013AbTH1OqE
+	id S264029AbTH1Oyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 10:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTH1Oya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 10:46:04 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43952 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263975AbTH1OqC
+	Thu, 28 Aug 2003 10:54:30 -0400
+Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:7819
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S264029AbTH1Oy1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 10:46:02 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] /proc/ide/hdx/settings with ide-default pseudo-driver is a 2.6/2.7 show-stopper
-Date: Thu, 28 Aug 2003 16:46:16 +0200
-User-Agent: KMail/1.5
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>
+	Thu, 28 Aug 2003 10:54:27 -0400
+Message-ID: <3F4E17ED.8070801@trash.net>
+Date: Thu, 28 Aug 2003 16:55:41 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308281646.16203.bzolnier@elka.pw.edu.pl>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.4.22-bk2 and 2.4.23-pre1 broke routing
+References: <20030828140549.GA698@rdlg.net>
+In-Reply-To: <20030828140549.GA698@rdlg.net>
+Content-Type: multipart/mixed;
+ boundary="------------020901090604030400000205"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020901090604030400000205
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi,
+Please try this patch, i think it should fix it.
 
-Some background first: we need ide-default driver (set as a device driver
-for all driver-less ide devices) mainly because we allow changing devices
-settings through /proc/ide/hdX/settings and some of them (current_speed,
-pio_mode) are processed via request queue (we are currently preallocating
-gendisk and queue structs for all possible ide devices).  The next problem
-is that ide-default doesn't register itself with ide and driverfs.
-If it does it will "steal" devices meaned to be used by other drivers.
+Regards,
+Patrick
 
-If we want dynamic hwifs/devices, moving gendisks/queues allocation
-to device drivers and ide integration with driverfs we need to:
+Robert L. Harris wrote:
 
-(a) kill /proc/ide/hdX/settings for driver-less devices and kill ide-default
+>I'm running 2.4.22 now and have a NAT behind my firewall as well as IPv6
+>happily run through unixcore.com.  I upgraded to 2.4.22-bk2 last night
+>to fix an odd problem where I can't ssh-6 to one host.  All of a sudden
+>it all works within the nat but nothing behind the firewall can get out
+>from behind to the real work though the firewall still can.  Recompiled
+>trying 2.4.23-pre1 and I get the exact same behavior.  All 3 use the
+>same .config file.
+>
+>The only noticable change I can see is a bunch of messages:
+>
+>Aug 27 22:09:10 wally kernel: MASQUERADE: No route: Rusty's brain broke!
+>Aug 27 22:09:16 wally kernel: MASQUERADE: No route: Rusty's brain broke!
+>Aug 27 22:09:16 wally kernel: MASQUERADE: No route: Rusty's brain broke!
+>
+>
+>As soon as I reverted to 2.4.22 everything works great again.  Attaching
+>my .config.  Please contact me directly if you need any additional
+>testing done.
+>  
+>
 
-or
+--------------020901090604030400000205
+Content-Type: text/plain;
+ name="x.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x.diff"
 
-(b) add much more shit to ide-default and deal with driver ordering madness
-    when integrating with driverfs
+===== net/ipv4/netfilter/ipt_MASQUERADE.c 1.6 vs edited =====
+--- 1.6/net/ipv4/netfilter/ipt_MASQUERADE.c	Tue Aug 12 11:30:12 2003
++++ edited/net/ipv4/netfilter/ipt_MASQUERADE.c	Thu Aug 28 16:54:15 2003
+@@ -90,6 +90,7 @@
+ #ifdef CONFIG_IP_ROUTE_FWMARK
+ 	key.fwmark = (*pskb)->nfmark;
+ #endif
++	key.oif = 0;
+ 	if (ip_route_output_key(&rt, &key) != 0) {
+                 /* Funky routing can do this. */
+                 if (net_ratelimit())
 
-Any important reasons why we cant chose solution (a)?
-
---bartlomiej
+--------------020901090604030400000205--
 

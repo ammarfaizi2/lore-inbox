@@ -1,80 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbSK0SVF>; Wed, 27 Nov 2002 13:21:05 -0500
+	id <S262416AbSK0SoO>; Wed, 27 Nov 2002 13:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSK0SVF>; Wed, 27 Nov 2002 13:21:05 -0500
-Received: from packet.digeo.com ([12.110.80.53]:61108 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262208AbSK0SVE>;
-	Wed, 27 Nov 2002 13:21:04 -0500
-Message-ID: <3DE50EC0.31354C37@digeo.com>
-Date: Wed, 27 Nov 2002 10:28:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S262712AbSK0SoO>; Wed, 27 Nov 2002 13:44:14 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7951 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262416AbSK0SoN>; Wed, 27 Nov 2002 13:44:13 -0500
+Date: Wed, 27 Nov 2002 10:51:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: sfr@canb.auug.org.au, <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       <ak@muc.de>, <davidm@hpl.hp.com>, <schwidefsky@de.ibm.com>,
+       <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] Start of compat32.h (again)
+In-Reply-To: <20021126.235810.22015752.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0211271039350.15032-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.5.49-mm2
-References: <3DE48C4A.98979F0C@digeo.com> <Pine.LNX.4.44L.0211270930510.4103-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Nov 2002 18:28:17.0239 (UTC) FILETIME=[C1276E70:01C29642]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+
+On Tue, 26 Nov 2002, David S. Miller wrote:
 > 
-> On Wed, 27 Nov 2002, Andrew Morton wrote:
-> 
-> > +pf_memdie.patch
-> >
-> >  Fix the PF_MEMDIE logic
-> 
-> The first part of the patch looks suspicious. If PF_MEMALLOC
-> is set we shouldn't be allowed to go into try_to_free_pages()
-> in the first place, should we ?
+> Linus what is you big beef with the names used before, the "__kernel"
+> part of the name?  We can't just use "u32" for ino_t althroughout the
+> compat32 code or whatever your idea seems to be.
 
-Long story.  Someone sent out a 2.4 patch quite a long time ago to
-preserve PF_MEMALLOC in there because they were running userspace
-processes as PF_MEMALLOC.  These were realtime "userspace device drivers"
-which actually provided block driver services to the kernel.
+I have two _big_ beefs with the 
 
-When you think about it, that's not totally dumb, and all the recursion
-protection etc works OK.  Supporting it is just a two-liner, so...
+	__kernel_xxx_t32
 
-hm.  OK, let's forget that idea ;)
+naming:
 
-> ...
-> > page-reclaim-motion.patch
-> >   Move reclaimable pages to the tail ofthe inactive list on IO completion
-> 
-> Very nice, though if you're worried about effective reclaiming
-> you might be interested in Arjan's O(1) VM code, which I'll
-> probably forward-port to 2.5 once I've got it properly tuned.
+ - the xxx_t naming is already ugly, but at least it's standard ("_t 
+   stands for typedef"). No such case is true for _t32.
 
-2.5 tends to refile pages more than 2.4, in preference to blocking
-on them (the latency thing).  Of course this blows CPU and perverts
-page aging (not that the LRU lists add much value in page aging under 
-heavy loads anyway...)
+ - the __kernel_ naming is already ugly, but at least it has a _reason_ 
+   for it, namely that we have to have __ to avoid polluting user-space
+   headers with the _one_ thing that the kernel exports, namely
+   architecture types. Again, this is _not_ true for the compat32 stuff, 
+   since it's an ABI, not an API issue, and the types aren't exposed to
+   user space headers.
 
-Under stupid qsbench loads this patch took the reclaimed/scanned ratio
-from ~15% to ~25% and reduced runtime from 7min 45sec to 6min 42sec.
+In short, it's f*cking ugly, for no good reason.  That in itself is _way_ 
+enough reason to say "No FRIGGING WAY!".
 
-Yup, splitting the lists up would make sense.  Of course, the interrupt-time
-motion is "ideal" in that the right pages are placed in the right place
-at the right time - we never have to scan past pages which are still
-under IO due to elevator reordering, device speed differences, etc...
-  
-> > activate-unreleaseable-pages.patch
-> >   Move unreleasable pages onto the active list
-> 
-> Interesting, does this make much difference ?
+The original patch was worse by an order of magnitude for _another_ 
+reason, which has nothing to do with naming:
 
-My notes are not clear :(  No, I wouldn't expect it to make a lot
-of difference.  I was seeing quite a lot of normal zone pages which
-were pinned by buffers getting churned around on the inactive list.
-Things like ext2 group descriptor blocks, etc. 
+Note that I'm not against having architecture-specific "compat32 types". 
+HOWEVER, if they are architecture-specific, then they had better not be in 
+a generic file. So it's just _fundamentally_ wrong to have a <linux/xxx.h> 
+file that then has "architecture-specific" stuff in it. That's just CRAP.
 
-There shouldn't normally be many of these, but there may be some
-scenarios in which there are a lot of these, and the inactive list
-gets really small due to large amounts of pinned memory.
+So the naming is just ugly (but ugly enough that I don't want to see it). 
+The real crap is having a architecture-independent file that defines 
+non-generic types.
+
+I suspect that the correct way to do things is:
+
+ - have an <asm/compat32.h> for the types. The types _are_ different for 
+   different architectures, even if 90% of them look really really 
+   similar. It's just not worth it trying to share code that is not 
+   fundamentally the same - and in this case it isn't.
+
+   This fixes the fundamental objection I had to <linux/compat32.h>
+
+ - use sane naming. Something like "compat32_nlink_t" is sane. Something 
+   like "__kernel_nlink_t32" is not.
+
+You might as well also discuss just dropping the "32" from "compat32"  
+while you're at it. As far as I can tell the code and the fundamental
+issue has nothing to do with 32-bitness per se. It has everything to do
+with compatibility with an older ABI. The 32-bitness is a implementation
+detail, there's nothing that fundamentally says the same compat code might
+not work with a 64(user)->128(kernel) bit (or a 16->32 bit) compatibility
+layer.
+
+			Linus
+

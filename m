@@ -1,192 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268575AbUIXIR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUIXIXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268575AbUIXIR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 04:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUIXIRY
+	id S268578AbUIXIXd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 04:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268581AbUIXIXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 04:17:24 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:49042 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S268575AbUIXIQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 04:16:49 -0400
-Date: Fri, 24 Sep 2004 17:18:28 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [ACPI] [PATCH] Updated patches for PCI IRQ resource deallocation
- support [2/3]
-In-reply-to: <4153B491.7050605@jp.fujitsu.com>
-To: len.brown@intel.com
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, greg@kroah.com,
-       tony.luck@intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       Takayoshi Kochi <t-kochi@bq.jp.nec.com>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-Message-id: <4153D854.5050504@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
- Gecko/20030624 Netscape/7.1 (ax)
-References: <4153B491.7050605@jp.fujitsu.com>
+	Fri, 24 Sep 2004 04:23:33 -0400
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:64151 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S268578AbUIXIXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 04:23:30 -0400
+Date: Fri, 24 Sep 2004 18:23:10 +1000 (EST)
+From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+X-X-Sender: gc1007@fb07-calculator.math.uni-giessen.de
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lost memory on a 4GB amd64
+In-Reply-To: <200409240915.34471.andrew@walrond.org>
+Message-Id: <Pine.LNX.4.58.0409241819370.15313@fb07-calculator.math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+ <Pine.LNX.4.58.0409200815420.3644@fb07-calculator.math.uni-giessen.de>
+ <Pine.LNX.4.58.0409202020370.5797@magvis2.maths.usyd.edu.au>
+ <200409240915.34471.andrew@walrond.org>
+Organization: University of Giessen * Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len,
+On Fri, 24 Sep 2004, Andrew Walrond (AW) wrote:
 
-I've updated ACPI portion of PCI IRQ resource deallocation patch
-again based on the feedback from Takayoshi Kochi. Please apply
-the following patch instead of the patch I sent before.
+AW> On Monday 20 Sep 2004 11:26, Sergei Haller wrote:
+AW> >
+AW> > fang ~sergei> ./memtest 1000000000
+AW> > allocate 1000000000: ok
+AW> >
+AW> > Message from syslogd@fang at Mon Sep 20 18:03:16 2004 ...
+AW> > fang kernel: Oops: 0000 [1] PREEMPT SMP
+AW> >
+AW> 
+AW> Works fine on my 4Gb Tyan thunder K8W machine, even running from an xterm:
+AW> andrew@orac ~ $ uname -a
+AW> Linux orac.walrond.org 2.6.8.1 #3 SMP Sun Aug 29 17:36:49 BST 2004 x86_64 
+AW> unknown unknown GNU/Linux
+AW> 
+AW> andrew@orac ~ $ free -m
+AW>              total       used       free     shared    buffers     cached
+AW> Mem:          4008        263       3744          0          0         66
+AW> -/+ buffers/cache:        195       3812
+AW> Swap:         3827         25       3802
+AW> 
+AW> andrew@orac ~ $ ./memtest 1000000000
+AW> allocate 1000000000: ok
+AW> set them to 0... done
+AW> andrew@orac ~ $ ./memtest 4000000000
+AW> allocate 4000000000: ok
+AW> set them to 0... done
+AW> andrew@orac ~ $ ./memtest 5000000000
+AW> allocate 5000000000: ok
+AW> set them to 0... done
+AW> andrew@orac ~ $
+AW> 
+AW> The last one took a while (using 1Gb swap) but it still worked fine.
 
-Thanks,
-Kenji Kaneshige
+Hi Andrew,
 
-----
-Change Log:
+thanks for your report. 
 
-    - Changed acpi_pci_irq_disable() to leave 'dev->irq' as it
-      is. Clearing 'dev->irq' by some magic constant
-      (e.g. PCI_UNDEFINED_IRQ) is TBD.
-
-Change Log:
-
-    - Fixed some typos in comments.
-
-    - Changed 'unsigned char irq_disabled' to 'unsigned int
-      irq_disabled' because pci_dev.irq is unsigned int.
-
-----
-Name:		IRQ_deallocation_acpi.patch
-Kernel Version:	2.6.9-rc2-mm1
-Depends:	none
-Description:
-
-This patch is ACPI portion of IRQ deallocation. This patch defines the
-following new interface. The implementation of this interface depends
-on each platform.
-
-    o void acpi_unregister_gsi(int irq)
-
-        This is a opposite portion of acpi_register_gsi(). This has a
-        responsibility for deallocating IRQ resources associated with
-        the specified linux IRQ number.
-
-        We need to consider the case of shared interrupt. In the case
-        of shared interrupt, acpi_register_gsi() is called multiple
-        times for one gsi. That is, registrations and unregistrations
-        can be nested.
-
-        This function undoes the effect of one call to
-        acpi_register_gsi(). If this matches the last registration,
-        IRQ resources associated with the specified linux IRQ number
-        are freed.
-
-This patch also adds the following new function.
-
-    o void acpi_pci_irq_disable (struct pci_dev *dev)
-
-        This function is a opposite portion of
-        acpi_pci_enable_irq(). It clears the device's linux IRQ number
-        and calls acpi_unregister_gsi() to deallocate IRQ resources.
-
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+It's the same for me if I use the non-SMP version of the kernel.
+but the SMP one seems to be panicking for some reason.
 
 
----
-
- linux-2.6.9-rc2-mm1-kanesige/arch/i386/kernel/acpi/boot.c |   11 ++++++++
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/acpi.c      |   11 ++++++++
- linux-2.6.9-rc2-mm1-kanesige/drivers/acpi/pci_irq.c       |   19 ++++++++++++++
- linux-2.6.9-rc2-mm1-kanesige/include/linux/acpi.h         |    2 +
- 4 files changed, 43 insertions(+)
-
-diff -puN arch/i386/kernel/acpi/boot.c~IRQ_deallocation_acpi arch/i386/kernel/acpi/boot.c
---- linux-2.6.9-rc2-mm1/arch/i386/kernel/acpi/boot.c~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/i386/kernel/acpi/boot.c	2004-09-22 20:30:41.000000000 +0900
-@@ -480,6 +480,17 @@ unsigned int acpi_register_gsi(u32 gsi, 
- }
- EXPORT_SYMBOL(acpi_register_gsi);
- 
-+/*
-+ * This function undoes the effect of one call to acpi_register_gsi().
-+ * If this matches the last registration, any IRQ resources for gsi
-+ * associated with the irq are freed.
-+ */
-+void
-+acpi_unregister_gsi (unsigned int irq)
-+{
-+}
-+EXPORT_SYMBOL(acpi_unregister_gsi);
-+
- static unsigned long __init
- acpi_scan_rsdp (
- 	unsigned long		start,
-diff -puN arch/ia64/kernel/acpi.c~IRQ_deallocation_acpi arch/ia64/kernel/acpi.c
---- linux-2.6.9-rc2-mm1/arch/ia64/kernel/acpi.c~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/acpi.c	2004-09-24 15:33:01.254399900 +0900
-@@ -516,6 +516,17 @@ acpi_register_gsi (u32 gsi, int edge_lev
- }
- EXPORT_SYMBOL(acpi_register_gsi);
- 
-+/*
-+ * This function undoes the effect of one call to acpi_register_gsi().
-+ * If this matches the last registration, any IRQ resources for gsi
-+ * associated with the irq are freed.
-+ */
-+void
-+acpi_unregister_gsi (unsigned int irq)
-+{
-+}
-+EXPORT_SYMBOL(acpi_unregister_gsi);
-+
- static int __init
- acpi_parse_fadt (unsigned long phys_addr, unsigned long size)
- {
-diff -puN drivers/acpi/pci_irq.c~IRQ_deallocation_acpi drivers/acpi/pci_irq.c
---- linux-2.6.9-rc2-mm1/drivers/acpi/pci_irq.c~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/drivers/acpi/pci_irq.c	2004-09-24 15:46:01.666952803 +0900
-@@ -390,3 +390,22 @@ acpi_pci_irq_enable (
- 
- 	return_VALUE(dev->irq);
- }
-+
-+void
-+acpi_pci_irq_disable (
-+	struct pci_dev		*dev)
-+{
-+	ACPI_FUNCTION_TRACE("acpi_pci_irq_disable");
-+
-+	/*
-+	 * TBD: It might be worth clearing dev->irq by magic constant
-+	 * (e.g. PCI_UNDEFINED_IRQ).
-+	 */
-+
-+	printk(KERN_INFO PREFIX "PCI interrupt for device %s disabled\n",
-+	       pci_name(dev));
-+
-+	acpi_unregister_gsi(dev->irq);
-+
-+	return_VOID;
-+}
-diff -puN include/linux/acpi.h~IRQ_deallocation_acpi include/linux/acpi.h
---- linux-2.6.9-rc2-mm1/include/linux/acpi.h~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/include/linux/acpi.h	2004-09-22 20:29:23.000000000 +0900
-@@ -414,6 +414,7 @@ static inline int acpi_boot_init(void)
- #endif 	/*!CONFIG_ACPI_BOOT*/
- 
- unsigned int acpi_register_gsi (u32 gsi, int edge_level, int active_high_low);
-+void acpi_unregister_gsi (unsigned int);
- int acpi_gsi_to_irq (u32 gsi, unsigned int *irq);
- 
- #ifdef CONFIG_ACPI_PCI
-@@ -439,6 +440,7 @@ extern struct acpi_prt_list	acpi_prt;
- struct pci_dev;
- 
- int acpi_pci_irq_enable (struct pci_dev *dev);
-+void acpi_pci_irq_disable (struct pci_dev *dev);
- 
- struct acpi_pci_driver {
- 	struct acpi_pci_driver *next;
-
-_
-
-
+        Sergei
+-- 
+--------------------------------------------------------------------  -?)
+         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
+-------------------------------------------------------------------- _\_V
+Be careful of reading health books, you might die of a misprint.
+                -- Mark Twain

@@ -1,50 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290445AbSA3Sqg>; Wed, 30 Jan 2002 13:46:36 -0500
+	id <S290338AbSA3SsA>; Wed, 30 Jan 2002 13:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290419AbSA3SpC>; Wed, 30 Jan 2002 13:45:02 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:12699 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290309AbSA3SYW>; Wed, 30 Jan 2002 13:24:22 -0500
-Date: Wed, 30 Jan 2002 13:24:22 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200201301824.g0UIOMO32639@devserv.devel.redhat.com>
-To: raul@viadomus.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
-In-Reply-To: <mailman.1012391761.28301.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1012391761.28301.linux-kernel2news@redhat.com>
+	id <S289840AbSA3Sql>; Wed, 30 Jan 2002 13:46:41 -0500
+Received: from 209-166-219-2.cust.walrus.com ([209.166.219.2]:12804 "EHLO
+	xchange.rsvpusa.com") by vger.kernel.org with ESMTP
+	id <S290351AbSA3SVo>; Wed, 30 Jan 2002 13:21:44 -0500
+Message-ID: <21B5EAC6675ED411B62500105A9C006018D42A@XCHANGE>
+From: Nickolaos Fotopoulos <nick@rsvpusa.com>
+To: "Linux kernel list (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: 
+Date: Wed, 30 Jan 2002 13:21:17 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     The problem is that I don't want to copy the definitions I need
-> from linux/fs.h, because this will lead to problems if those
-> definitions change.
-
-This is a common misconception. Traditional UNIX operates
-this way, indeed. They do "make world" and build everything
-in one go, so programs are automatically compatible with
-the kernel (in theory, anyways). Once programs outside
-of "make world" start to need access to these interfaces,
-the scheme crumbles to the ground.
-
-Linus (and thus Linux) consciously decided that this
-so-called "souce compatibility" is a mirage. Only binary
-compatibility matters. So, you must copy headers that
-you wish to use, including linux/fs.h. Then, your program
-is binary compatible with the kernel from which you took
-them. New kernels may support your program by providing
-the same interface, and they may have NO linux/fs.h
-at all. If you included headers, you would not be
-able to compile your program at all, but the old binary
-would continue to work, and copied headers would continue
-to work.
-
-Those who come from UNIX background keep insisting to
-include kernel headers, especially when they write
-drivers with ioctl argument structures. But there is
-no other way for them, but to educate themselves in
-the Linux lore. Kernel headers are not to be included
-in applications.
-
--- Pete
+I'm new to this list.  Does it get spammed often, like this guy
+(grumph@pakistanmail.com) is doing?  It is allready becoming quite anouying!
+This is by far the busiest list I have ever subscribed to, and there does
+not seem to be any sort of spam blocker working here.  I thought Majodomo
+had stuff like this built in?  If not maybe a list moderator could address
+this.
+				Nick Fotopoulos

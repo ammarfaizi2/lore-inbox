@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVC2VOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVC2VRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVC2VOR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVC2VNd
+	id S261464AbVC2VRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVC2VOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:13:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18627 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261252AbVC2VM4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:12:56 -0500
-Date: Tue, 29 Mar 2005 23:12:39 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Message-ID: <20050329211239.GG8125@elf.ucw.cz>
-References: <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com> <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com> <20050329205225.GF8125@elf.ucw.cz> <d120d500050329130714e1daaf@mail.gmail.com>
+	Tue, 29 Mar 2005 16:14:39 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:65031 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261252AbVC2VNm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 16:13:42 -0500
+Date: Tue, 29 Mar 2005 23:13:45 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: James Courtier-Dutton <James@superbug.co.uk>, Takashi Iwai <tiwai@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, Jaroslav Kysela <perex@suse.cz>
+Subject: Re: [Alsa-devel] Re: 2.6.12-rc1-mm3, sound card lost id
+Message-Id: <20050329231345.281e7323.khali@linux-fr.org>
+In-Reply-To: <1112129571.5141.18.camel@mindpipe>
+References: <20050325002154.335c6b0b.akpm@osdl.org>
+	<20050326111945.5eb58343.khali@linux-fr.org>
+	<s5hr7hyiqra.wl@alsa2.suse.de>
+	<20050329195721.385717aa.khali@linux-fr.org>
+	<1112127424.5141.7.camel@mindpipe>
+	<20050329224630.069cda56.khali@linux-fr.org>
+	<1112129571.5141.18.camel@mindpipe>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d500050329130714e1daaf@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Lee,
 
-> > I don't really want us to try execve during resume... Could we simply
-> > artifically fail that execve with something if (in_suspend()) return
-> > -EINVAL; [except that in_suspend() just is not there, but there were
-> > some proposals to add it].
-> > 
-> > Or just avoid calling hotplug at all in resume case? And then do
-> > coldplug-like scan when userspace is ready...
-> > 
+> Here is the patch (against ALSA CVS) in its preferred format.  You
+> will probably have to apply it by hand.  If the mixer settings can't
+> be restored you'll have to do it manually or edit asound.state by
+> hand.
 > 
-> I am leaning towards calling disable_usermodehelper (not writtent yet)
-> after swsusp completes snapshotting memory. We really don't care about
-> hotplug events in this case and this will allow keeping "normal"
-> resume in drivers as is. What do you think?
+> Lee
+> 
+> Index: alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c
+> ===================================================================
+> RCS file: /cvsroot/alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c,v
+> retrieving revision 1.49
+> diff -u -r1.49 emu10k1_main.c
+> --- alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c	27 Mar 2005 14:00:54 -0000	1.49
+> +++ alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c	29 Mar 2005 20:51:44 -0000
+> @@ -693,6 +693,10 @@
+>  	 .driver = "EMU10K1", .name = "SBLive! Platinum [CT4760P]", 
+>  	 .emu10k1_chip = 1,
+>  	 .ac97_chip = 1} ,
+> +	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80271102,
+> +	 .driver = "EMU10K1", .name = "SBLive! Value [CT4832]", 
+> +	 .emu10k1_chip = 1,
+> +	 .ac97_chip = 1} ,
+>  	{.vendor = 0x1102, .device = 0x0002,
+>  	 .driver = "EMU10K1", .name = "SB Live [Unknown]", 
+>  	 .emu10k1_chip = 1,
 
-That would certianly do the trick.
+Unsurprisingly, my card is now named CT4832. I had to edit
+/etc/asound.state manually to get my mixer settings back (with some
+warnings, but I get some sound).
 
-[Or perhaps in_suspend() is slightly nicer solution? People wanted it
-for other stuff (sanity checking, like BUG_ON(in_suspend())), too....]
+Not sure I quite see the idea of renaming from "Live", which the user
+will understand, to (I suppose) the exact chip name on the card, while
+the user has certainly no idea what it is. But heh I'm not an ALSA
+developer, there must be a good reason.
 
-									Pavel
+Thanks,
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jean Delvare

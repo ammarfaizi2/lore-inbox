@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267307AbSLRSQQ>; Wed, 18 Dec 2002 13:16:16 -0500
+	id <S267311AbSLRSSA>; Wed, 18 Dec 2002 13:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267310AbSLRSQQ>; Wed, 18 Dec 2002 13:16:16 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8465 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267307AbSLRSQO>;
-	Wed, 18 Dec 2002 13:16:14 -0500
-Date: Wed, 18 Dec 2002 10:21:35 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz
-Subject: Re: ALSA update
-Message-ID: <20021218182135.GD31197@kroah.com>
-References: <200212181807.gBII7Wn28845@hera.kernel.org>
-Mime-Version: 1.0
+	id <S267312AbSLRSSA>; Wed, 18 Dec 2002 13:18:00 -0500
+Received: from otter.mbay.net ([206.55.237.2]:23557 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S267311AbSLRSR7> convert rfc822-to-8bit;
+	Wed, 18 Dec 2002 13:17:59 -0500
+From: John Alvord <jalvo@mbay.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@digeo.com>
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Date: Wed, 18 Dec 2002 10:25:39 -0800
+Message-ID: <m8f10v0mecjj714q67jrup4u8vsp3l3t0t@4ax.com>
+References: <20021218164119.GC27695@suse.de> <Pine.LNX.4.44.0212180844550.29852-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0212180844550.29852-100000@home.transmeta.com>
+X-Mailer: Forte Agent 1.92/32.570
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212181807.gBII7Wn28845@hera.kernel.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ChangeSet 1.885.1.5, 2002/12/18 10:13:22+01:00, perex@suse.cz
+On Wed, 18 Dec 2002 08:49:37 -0800 (PST), Linus Torvalds
+<torvalds@transmeta.com> wrote:
 
-<snip>
+>
+>
+>On Wed, 18 Dec 2002, Dave Jones wrote:
+>> On Wed, Dec 18, 2002 at 10:40:24AM -0300, Horst von Brand wrote:
+>>  > [Extremely interesting new syscall mechanism tread elided]
+>>  >
+>>  > What happened to "feature freeze"?
+>>
+>> *bites lip* it's fairly low impact *duck*.
+>
+>However, it's a fair question.
+>
+>I've been wondering how to formalize patch acceptance at code freeze, but
+>it might be a good idea to start talking about some way to maybe put
+>brakes on patches earlier, ie some kind of "required approval process".
+>
+>I think the system call thing is very localized and thus not a big issue,
+>but in general we do need to have something in place.
+>
+>I just don't know what that "something" should be. Any ideas? I thought
+>about the code freeze require buy-in from three of four people (me, Alan,
+>Dave and Andrew come to mind) for a patch to go in, but that's probably
+>too draconian for now. Or is it (maybe start with "needs approval by two"
+>and switch it to three when going into code freeze)?
+>
+>			Linus
 
-> diff -Nru a/sound/usb/usbaudio.c b/sound/usb/usbaudio.c
-> --- a/sound/usb/usbaudio.c	Wed Dec 18 10:07:34 2002
-> +++ b/sound/usb/usbaudio.c	Wed Dec 18 10:07:34 2002
-> @@ -526,7 +526,11 @@
->  /*
->   * complete callback from data urb
->   */
-> +#ifndef OLD_USB
->  static void snd_complete_urb(struct urb *urb, struct pt_regs *regs)
-> +#else
-> +static void snd_complete_urb(struct urb *urb)
-> +#endif
->  {
->  	snd_urb_ctx_t *ctx = (snd_urb_ctx_t *)urb->context;
->  	snd_usb_substream_t *subs = ctx->subs;
-> @@ -551,7 +555,11 @@
->  /*
->   * complete callback from sync urb
->   */
-> +#ifndef OLD_USB
->  static void snd_complete_sync_urb(struct urb *urb, struct pt_regs *regs)
-> +#else
-> +static void snd_complete_sync_urb(struct urb *urb)
-> +#endif
->  {
->  	snd_urb_ctx_t *ctx = (snd_urb_ctx_t *)urb->context;
->  	snd_usb_substream_t *subs = ctx->subs;
-> @@ -583,6 +591,9 @@
+I think there should be a distinction between changes which make an
+API change/new function/user interface change, versus bug fixes,
+adapting to new APIs, documentation, etc.
 
-Ick, you're kidding me, right?  Why do this?  Are you trying to keep a
-common code base with 2.4 and 2.5 USB drivers?  If so, I don't recommend
-it, as the code will be sprinkled with these ifdef's...
-
-thanks,
-
-greg k-h
+john alvord

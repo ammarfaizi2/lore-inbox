@@ -1,84 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268348AbUIWJdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268347AbUIWJgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268348AbUIWJdq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 05:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268347AbUIWJdq
+	id S268347AbUIWJgI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 05:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268349AbUIWJgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 05:33:46 -0400
-Received: from cantor.suse.de ([195.135.220.2]:38850 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268348AbUIWJdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 05:33:42 -0400
-Date: Thu, 23 Sep 2004 11:29:54 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ray Bryant <raybry@austin.rr.com>
-Cc: Andi Kleen <ak@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Jesse Barnes <jbarnes@sgi.com>, Dan Higgins <djh@sgi.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Brent Casavant <bcasavan@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <piggin@cyberone.com.au>, Ray Bryant <raybry@sgi.com>,
-       Paul Jackson <pj@sgi.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH 2/2] mm: eliminate node 0 bias in MPOL_INTERLEAVE
-Message-ID: <20040923092954.GA4836@wotan.suse.de>
-References: <20040923043236.2132.2385.23158@raybryhome.rayhome.net> <20040923043256.2132.93167.33080@raybryhome.rayhome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040923043256.2132.93167.33080@raybryhome.rayhome.net>
+	Thu, 23 Sep 2004 05:36:08 -0400
+Received: from aqua.aspd.pwr.wroc.pl ([156.17.17.24]:27069 "EHLO
+	aqua.aspd.pwr.wroc.pl") by vger.kernel.org with ESMTP
+	id S268347AbUIWJfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 05:35:55 -0400
+Date: Thu, 23 Sep 2004 11:35:54 +0200 (CEST)
+From: Piotr Perak <peri@aqua.aspd.pwr.wroc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8.1 not booting on 405CR
+Message-ID: <Pine.LNX.4.21.0409231056010.24812-100000@aqua.aspd.pwr.wroc.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 11:32:45PM -0500, Ray Bryant wrote:
-> Each of these cases potentially breaks the (assumed) invariant of
+Hi.
 
-I would prefer to keep the invariant.
+We already have 2.4.23 kernel working on our board using IBM 405CR
+processor. Now we're trying to start 2.6.8.1. But we have some strange
+problems.
 
-> +++ linux-2.6.9-rc2-mm1/mm/mempolicy.c	2004-09-21 17:44:58.000000000 -0700
-> @@ -435,7 +435,7 @@ asmlinkage long sys_set_mempolicy(int re
->  		default_policy[policy] = new;
->  	}
->  	if (new && new->policy == MPOL_INTERLEAVE)
-> -		current->il_next = find_first_bit(new->v.nodes, MAX_NUMNODES);
-> +		current->il_next = current->pid % MAX_NUMNODES;
+We use assembler intruction resetting the processor to see what is
+executing (our breakpoint mechanism :) ). No metter what crosstool we use
+the execuiton stops in same function. Here's the call stack.
 
-Please do the find_next/find_first bit here in the slow path. 
+setup_arch() - arch/ppc/kernel/setup.c
+  -> ocp_early_init() - arch/ppc/syslib/ocp.c
+    -> ocp_add_one_device() - arch/ppc/syslib/ocp.c
+      ->  alloc_bootmem MACRO calling __alloc_bootmem_core() -
+mm/bootmem.c
 
-Another useful change may be to check if il_next points to a node
-that is in the current interleaving mask. If yes don't change it.
-This way skew when interleaving policy is set often could be avoided.
+We added our "breakpoint" so __alloc_bootmem_core() looks like:
 
->  	return 0;
->  }
->  
-> @@ -714,6 +714,11 @@ static unsigned interleave_nodes(struct 
->  
->  	nid = me->il_next;
->  	BUG_ON(nid >= MAX_NUMNODES);
-> +	if (!test_bit(nid, policy->v.nodes)) {
-> +		nid = find_next_bit(policy->v.nodes, MAX_NUMNODES, 1+nid);
-> +		if (nid >= MAX_NUMNODES)
-> +			nid = find_first_bit(policy->v.nodes, MAX_NUMNODES);
-> +	}
+/* ... */
+160	eidx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+161	asm ("mtspr 0x3f2, 12"); /* <-- our "breakpoint" */
+162	offset = 0;
+/* ... */
 
-And remove it here.
+What is happening is that in working 2.4.23 kernel this code resets
+processor, but in 2.6.8.1 it doesn't. This is very strange because the
+assembler code generated in both is the same.
 
->  	next = find_next_bit(policy->v.nodes, MAX_NUMNODES, 1+nid);
->  	if (next >= MAX_NUMNODES)
->  		next = find_first_bit(policy->v.nodes, MAX_NUMNODES);
-> Index: linux-2.6.9-rc2-mm1/kernel/fork.c
-> ===================================================================
-> --- linux-2.6.9-rc2-mm1.orig/kernel/fork.c	2004-09-21 16:24:49.000000000 -0700
-> +++ linux-2.6.9-rc2-mm1/kernel/fork.c	2004-09-21 17:41:12.000000000 -0700
-> @@ -873,6 +873,8 @@ static task_t *copy_process(unsigned lon
->  			goto bad_fork_cleanup;
->  		}
->  	}
-> +	/* randomize placement of first page across nodes */
-> +	p->il_next = p->pid % MAX_NUMNODES;
+[root@localhost kernel]# powerpc-405-linux-gnu-objdump -S mm/bootmem.o >
+asm
 
-Same here.
+for kernel 2.4.23:
+eidx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+338:   80 dd 00 00     lwz     r6,0(r29)
+33c:   81 3d 00 04     lwz     r9,4(r29)
+340:   54 c0 a3 3e     rlwinm  r0,r6,20,12,31
+344:   7c e0 48 50     subf    r7,r0,r9
+       asm ("mtspr 0x3f2, 12");
+348:   7d 92 fb a6     mtdbcr0 r12
+       offset = 0;
 
--Andi
+and for kernel 2.6.8.1:
+eidx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+22c:   80 bf 00 00     lwz     r5,0(r31)
+230:   81 3f 00 04     lwz     r9,4(r31)
+234:   54 a0 a3 3e     rlwinm  r0,r5,20,12,31
+238:   7d 80 48 50     subf    r12,r0,r9
+       asm ("mtspr 0x3f2, 12");
+23c:   7d 92 fb a6     mtdbcr0 r12
+       offset = 0;
+
+As you can see only used registers differ.
+
+We moved eidx = bdata->node_low_pfn ... to the local variables definition
+section so it looks like:
+unsigned long eidx = bdata->node_low_pfn - (bdata->node_boot_start >>
+PAGE_SHIFT);
+and now the reset works in 2.6.8.1 too. Why? But then we move our
+breakpoint to:
+
+181	preferred = ((preferred + align - 1) & ~(align - 1)) >> PAGE_SHIFT;
+182	preferred += offset;
+183	areasize = (size+PAGE_SIZE-1)/PAGE_SIZE;
+184     asm ("mtspr 0x3f2, 12");
+185     incr = align >> PAGE_SHIFT ? : 1;
+
+and it doesn't reset the processor. In 2.4.23 it does. We splitted 183
+line into two and it resets then! But after we place reset instruction
+after 185 line (incr = ...) it doesn't reset again! 
+
+Anyone has any ideas? Anyone seen 2.6.8.1 kernel working on 405CR?
+
+
+
+
+ 
+
+
+

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbULBTTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbULBTYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbULBTTU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 14:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbULBTTU
+	id S261732AbULBTYR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 14:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbULBTYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 14:19:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26061 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261731AbULBTTD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 14:19:03 -0500
-Date: Thu, 2 Dec 2004 11:18:59 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       Darrel Goeddel <dgoeddel@trustedcs.com>
-Subject: Re: [PATCH 4/6] Add dynamic context transition support to SELinux
-Message-ID: <20041202111859.A2357@build.pdx.osdl.net>
-References: <1102002189.26015.107.camel@moss-spartans.epoch.ncsc.mil> <20041202103456.O14339@build.pdx.osdl.net> <1102013788.26015.192.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 2 Dec 2004 14:24:17 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:23936
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261732AbULBTYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 14:24:12 -0500
+Subject: Re: [PATCH] oom killer (Core)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: andrea@suse.de, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+In-Reply-To: <20041202112208.34150647.akpm@osdl.org>
+References: <20041201104820.1.patchmail@tglx>
+	 <20041201211638.GB4530@dualathlon.random>
+	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	 <20041202033619.GA32635@dualathlon.random>
+	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	 <20041202164725.GB32635@dualathlon.random>
+	 <20041202085518.58e0e8eb.akpm@osdl.org>
+	 <20041202180823.GD32635@dualathlon.random>
+	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
+	 <20041202110729.57deaf02.akpm@osdl.org>
+	 <1102014493.13353.239.camel@tglx.tec.linutronix.de>
+	 <20041202112208.34150647.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 02 Dec 2004 20:24:10 +0100
+Message-Id: <1102015450.13353.245.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1102013788.26015.192.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Thu, Dec 02, 2004 at 01:56:28PM -0500
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Thu, 2004-12-02 at 13:34, Chris Wright wrote:
-> > That's heavy handed.  Can't you track this at clone time?  Or at least
-> > do this after the AVC check, so it's not always locking task list.
+On Thu, 2004-12-02 at 11:22 -0800, Andrew Morton wrote:
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> >
+> > On Thu, 2004-12-02 at 11:07 -0800, Andrew Morton wrote:
+> > > Thomas Gleixner <tglx@linutronix.de> wrote:
+> > > >
+> > > > FYI, I tried with 2.6 UP and PREEMPT=n. The result is more horrible. The
+> > > > box just gets stuck in an endless swap in/swap out and does not respond
+> > > > to anything else than SysRq-T and the reset button.
+> > > 
+> > > There's a patch in -mm which causes the oom-killer to be invoked each time
+> > > you hit sysrq-F, which sounds like a fine idea to me.
+> > 
+> > Can you please explain, how I can hit sysrq-F when I can't log into the
+> > remote machine ?
+> > 
 > 
-> Hmmm...if the latter is a concern, it seems like there are other cases
-> that likewise need fixing, e.g. sys_getpriority or sys_setpriority. 
+> umm, in the same way you're using "SysRq-T and the reset button"?
+> 
+> You can issue sysrq commands over serial consoles too.
 
-At least not introducing new paths.
+I know, but the console and the reset button are 150km away. When I dial
+into the machine or try to connect via the network, I cannot connect
+with the current kernels. Neither 2.4, because the fork fails, nor 2.6
+because oom killed sshd. So I cannot send anything except a service man,
+who drives 150km to hit sysrq-F or the reset button.
 
-> Earlier version of the patch did a simple check of thread_group_empty()
-> but that didn't catch CLONE_VM w/o CLONE_THREAD, and simple check of
-> mm_users can produce false positives, e.g. another process reading your
-> /proc/pid/<xxx> file and holding a reference to the mm temporarily.
+If this happens the kernel just should make sure to make the machine
+accessible and let me repair the problem. Nothing else.
 
-Yes, number of spots that inc mm_users, and CLONE_VM is clearly the
-critical bit more so than posix thread.
+tglx
 
-> We could set a flag in the task security structure upon
-> selinux_task_create upon CLONE_VM, I suppose, and inherit it in
-> selinux_task_alloc_security.  That would prohibit any use after you've
-> ever created a thread, even if none of the other threads are still
-> around, which is stronger than we need, but probably not an obstacle. 
-> Is that what you had in mind?
 
-No, I was thinking of actually tracking the threads, since you know when
-they come and go.  One way would be to share task_security_struct via
-refcnt for threads, although this could get sticky.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271715AbRICOB7>; Mon, 3 Sep 2001 10:01:59 -0400
+	id <S271718AbRICOZF>; Mon, 3 Sep 2001 10:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271716AbRICOBt>; Mon, 3 Sep 2001 10:01:49 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:7389 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S271715AbRICOBc>;
-	Mon, 3 Sep 2001 10:01:32 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 3 Sep 2001 14:01:47 GMT
-Message-Id: <200109031401.OAA34246@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Re: RFC - how to quota special characters in filenames in /proc files
+	id <S271719AbRICOY4>; Mon, 3 Sep 2001 10:24:56 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:2309 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271718AbRICOYo>; Mon, 3 Sep 2001 10:24:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Subject: Re: Editing-in-place of a large file
+Date: Mon, 3 Sep 2001 16:31:55 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        mcelrath+linux@draal.physics.wisc.edu (Bob McElrath)
+In-Reply-To: <E15drHT-0001TX-00@the-village.bc.nu>
+In-Reply-To: <E15drHT-0001TX-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010903142500Z16351-32383+3245@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Neil Brown <neilb@cse.unsw.edu.au>
+On September 3, 2001 12:48 pm, Alan Cox wrote:
+> > That is reimplementing file system functionality in user space. 
+> > I'm in doubts that this is considered good design...
+> 
+> Keeping things out of the kernel is good design. Your block indirections
+> are no different to other database formats. Perhaps you think we should
+> have fsql_operation() and libdb in kernel 8)
 
-    I am interested in opinions that people might have on how to quote
-    special characters in filenames in files in /proc.
+For that matter, he could use a database file.  I don't know if Postgres (for 
+example) supports streaming read/write from a database record, but if it 
+doesn't it could be made to.
 
-    Is there any convention already used in some other part of the
-    kernel?
+Or if he doesn't want to hack Postgres today, he can put his "metadata" in a 
+database file and the video data in a separate file.
 
-/proc/mounts does what mount does - it uses octal escapes:
-
-# mount /dev/sr0 "/a b" -r -t iso9660
-# mount | tail -1
-/dev/sr0 on /a b type iso9660 (ro)
-# cat /proc/mounts | tail -1
-/dev/sr0 /a\040b iso9660 ro 0 0
-#
-
-Andries
-
-
-
+--
+Daniel

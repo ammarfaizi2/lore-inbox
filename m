@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271667AbRJKGBC>; Thu, 11 Oct 2001 02:01:02 -0400
+	id <S272636AbRJKGIw>; Thu, 11 Oct 2001 02:08:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272080AbRJKGAw>; Thu, 11 Oct 2001 02:00:52 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:64790 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271667AbRJKGAj>; Thu, 11 Oct 2001 02:00:39 -0400
-Date: Thu, 11 Oct 2001 02:01:12 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch to touch up on Dell C600 workaround
-Message-ID: <20011011020112.A12557@devserv.devel.redhat.com>
+	id <S272593AbRJKGIm>; Thu, 11 Oct 2001 02:08:42 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:33520 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S272636AbRJKGIb>; Thu, 11 Oct 2001 02:08:31 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Thu, 11 Oct 2001 00:08:14 -0600
+To: arvest@orphansonfire.com
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 loses sda9
+Message-ID: <20011011000814.B23927@turbolinux.com>
+Mail-Followup-To: arvest@orphansonfire.com,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0110110121270.21168-100000@weyl.math.psu.edu> <01101100452300.00621@lithium>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <01101100452300.00621@lithium>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim's change was good but it did not go far enough. The root of
-the evil was the type mismatch that went undetected because
-definitions were not in a header, and, therefore, diverged.
+On Oct 11, 2001  00:45 -0500, arvest@orphansonfire.com wrote:
+> > On Thu, 11 Oct 2001 arvest@orphansonfire.com wrote:
+> > >   I can get the system booted enough to work on (and totaly up) with this
+> > > partition failing.  I dont know what more information from fdisk I can
+> > > give you, sda9 is there with .10, and gone with .11  It even allowed me
+> > > to add a new partition (i didnt save)  I tried sfdisk but it gave me
+> > > these errors.
+>
+> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+> SCSI device sda: 17783250 512-byte hdwr sectors (9105 MB)
+>  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
+> omitting empty partition (9)
+>  
+> /dev/sda1   *         1       501    513008   83  Linux
+> /dev/sda2           502      3698   3273728   83  Linux
+> /dev/sda3          3699      4199    513024   83  Linux
+> /dev/sda4          4200      8683   4591616    5  Extended
+> /dev/sda5          4200      4700    513008   83  Linux
+> /dev/sda6          4701      5725   1049584   83  Linux
+> /dev/sda7          5726      5918    197616   82  Linux swap
+> /dev/sda8          5919      6419    513008   83  Linux
 
--- Pete
+You probably need to go into fdisk and change the partition type of
+sda9 from "0" to "83" (or any other non-zero type).  There is a
+reason that it is saying "omitting empty partition (9)" at boot,
+and "fdisk -l" doesn't list it - because type "0" means "I don't exist".
 
-diff -ur -X dontdiff linux-2.4.10-ac10/arch/i386/kernel/dmi_scan.c linux-2.4.10-ac10-e/arch/i386/kernel/dmi_scan.c
---- linux-2.4.10-ac10/arch/i386/kernel/dmi_scan.c	Wed Oct 10 21:51:38 2001
-+++ linux-2.4.10-ac10-e/arch/i386/kernel/dmi_scan.c	Wed Oct 10 22:41:10 2001
-@@ -7,7 +7,6 @@
- #include <linux/slab.h>
- #include <asm/io.h>
- #include <linux/pm.h>
--#include <linux/keyboard.h>
- #include <asm/keyboard.h>
- #include <asm/system.h>
- 
-@@ -400,10 +399,6 @@
-  * Some Bioses enable the PS/2 mouse (touchpad) at resume, even if it
-  * was disabled before the suspend. Linux gets terribly confused by that.
-  */
--
--typedef void (pm_kbd_func) (void);
--extern pm_kbd_func *pm_kbd_request_override;
--
- static __init int broken_ps2_resume(struct dmi_blacklist *d)
- {
- #ifdef CONFIG_VT
-@@ -412,10 +407,9 @@
- 		pm_kbd_request_override = pckbd_pm_resume;
- 		printk(KERN_INFO "%s machine detected. Mousepad Resume Bug workaround enabled.\n", d->ident);
- 	}
--#endif	
-+#endif
- 	return 0;
- }
--
- 
- 
- /*
-diff -ur -X dontdiff linux-2.4.10-ac10/include/asm-i386/keyboard.h linux-2.4.10-ac10-e/include/asm-i386/keyboard.h
---- linux-2.4.10-ac10/include/asm-i386/keyboard.h	Wed Oct 10 21:52:11 2001
-+++ linux-2.4.10-ac10-e/include/asm-i386/keyboard.h	Wed Oct 10 22:35:36 2001
-@@ -30,6 +30,7 @@
- extern void pckbd_leds(unsigned char leds);
- extern void pckbd_init_hw(void);
- extern int pckbd_pm_resume(struct pm_dev *, pm_request_t, void *);
-+extern pm_callback pm_kbd_request_override;
- extern unsigned char pckbd_sysrq_xlate[128];
- 
- #define kbd_setkeycode		pckbd_setkeycode
+In fdisk, use the "t" option to set the type of sda9.
+
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

@@ -1,56 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264715AbSKVN3Q>; Fri, 22 Nov 2002 08:29:16 -0500
+	id <S264854AbSKVNhd>; Fri, 22 Nov 2002 08:37:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264771AbSKVN3Q>; Fri, 22 Nov 2002 08:29:16 -0500
-Received: from chico.rediris.es ([130.206.1.3]:60065 "EHLO chico.rediris.es")
-	by vger.kernel.org with ESMTP id <S264715AbSKVN3P>;
-	Fri, 22 Nov 2002 08:29:15 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: David =?iso-8859-15?q?Mart=EDnez=20Moreno?= <ender@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PROBLEM: kernel oopsing in ftp.es.debian.org.
-Date: Fri, 22 Nov 2002 14:36:22 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200211201226.18015.ender@debian.org> <200211201648.58812.ender@debian.org> <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
+	id <S264863AbSKVNhd>; Fri, 22 Nov 2002 08:37:33 -0500
+Received: from isis.telemach.net ([213.143.65.10]:262 "HELO isis.telemach.net")
+	by vger.kernel.org with SMTP id <S264854AbSKVNhc>;
+	Fri, 22 Nov 2002 08:37:32 -0500
+Message-ID: <000701c29229$67be62c0$41448fd5@gregar759sjxvl>
+From: "Grega Fajdiga" <Gregor.Fajdiga@telemach.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Compile error and warings with kernel version 2.5.48-bk4
+Date: Fri, 22 Nov 2002 14:16:44 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211221436.22237.ender@debian.org>
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mié 20 Nov 2002 17:24, Alan Cox escribió:
-> On Wed, 2002-11-20 at 15:48, David Martínez Moreno wrote:
-> > 	The last kernel that it ran stably I think that was 2.4.19-pre10. I can
-> > reboot with this kernel, because the machine has hung again. One more
-> > reboot doesn't mind. :-(
->
-> Stick the last stable kernel on it and see if becomes stable again. My
-> first guess is you've developed a hardware problem, going back to the
-> old kernel will eliminate that doubt
+Good day,
 
-	Hello, Alan, it's me again.
+This is the list of compile errors and warnings I get, while
+compiling version 2.5.48-bk4:
 
-	You were right. After running memtest86 on the box for some time, it began to 
-spit a lot of errors along the whole 512 MB DIMM.
+arch/i386/kernel/apm.c:336:1: warning: "savesegment" redefined
+In file included from include/linux/elf.h:5,
+                 from include/linux/module.h:17,
+                 from arch/i386/kernel/apm.c:205:
+include/asm/elf.h:63:1: warning: this is the location of the previous
+definition
+/tmp/ccryEe4h.s: Assembler messages:
+/tmp/ccryEe4h.s:1363: Warning: using `%ax' instead of `%eax' due to `w'
+suffix
+mm/vmscan.c: In function `shrink_caches':
+mm/vmscan.c:746: warning: duplicate `const'
+mm/swap_state.c: In function `free_pages_and_swap_cache':
+mm/swap_state.c:299: warning: duplicate `const'
+drivers/base/base.h:38: warning: `class_hotplug' defined but not used
+drivers/base/base.h:38: warning: `class_hotplug' defined but not used
+drivers/base/base.h:38: warning: `class_hotplug' defined but not used
+drivers/base/base.h:38: warning: `class_hotplug' defined but not used
+drivers/base/base.h:38: warning: `class_hotplug' defined but not used
+In file included from drivers/char/sysrq.c:30:
+include/linux/suspend.h:76: warning: static declaration for
+`software_suspend' follows non-static
+drivers/char/agp/agp.h:87: warning: `global_cache_flush' defined but not
+used
+drivers/char/agp/agp.h:87: warning: `global_cache_flush' defined but not
+used
+drivers/serial/8250_pci.c:802: warning: `pci_remove_one' defined but not
+used
+net/ipv4/raw.c: In function `raw_get_next':
+net/ipv4/raw.c:717: warning: deprecated use of label at end of compound
+statement
+net/ipv4/arp.c: In function `neigh_get_next':
+net/ipv4/arp.c:1175: warning: deprecated use of label at end of compound
+statement
+arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
+arch/i386/kernel/built-in.o(.data+0x15e4): undefined reference to
+`save_processor_state'
+arch/i386/kernel/built-in.o(.data+0x15ea): undefined reference to
+`saved_context_esp'
+arch/i386/kernel/built-in.o(.data+0x15ef): undefined reference to
+`saved_context_eax'
+arch/i386/kernel/built-in.o(.data+0x15f5): undefined reference to
+`saved_context_ebx'
+arch/i386/kernel/built-in.o(.data+0x15fb): undefined reference to
+`saved_context_ecx'
+arch/i386/kernel/built-in.o(.data+0x1601): undefined reference to
+`saved_context_edx'
+arch/i386/kernel/built-in.o(.data+0x1607): undefined reference to
+`saved_context_ebp'
+arch/i386/kernel/built-in.o(.data+0x160d): undefined reference to
+`saved_context_esi'
+arch/i386/kernel/built-in.o(.data+0x1613): undefined reference to
+`saved_context_edi'
+arch/i386/kernel/built-in.o(.data+0x161a): undefined reference to
+`saved_context_eflags'
+arch/i386/kernel/built-in.o(.data+0x165a): undefined reference to
+`saved_context_esp'
+arch/i386/kernel/built-in.o(.data+0x1660): undefined reference to
+`saved_context_ebp'
+arch/i386/kernel/built-in.o(.data+0x1665): undefined reference to
+`saved_context_eax'
+arch/i386/kernel/built-in.o(.data+0x166b): undefined reference to
+`saved_context_ebx'
+arch/i386/kernel/built-in.o(.data+0x1671): undefined reference to
+`saved_context_ecx'
+arch/i386/kernel/built-in.o(.data+0x1677): undefined reference to
+`saved_context_edx'
+arch/i386/kernel/built-in.o(.data+0x167d): undefined reference to
+`saved_context_esi'
+arch/i386/kernel/built-in.o(.data+0x1683): undefined reference to
+`saved_context_edi'
+arch/i386/kernel/built-in.o(.data+0x1688): undefined reference to
+`restore_processor_state'
+arch/i386/kernel/built-in.o(.data+0x168e): undefined reference to
+`saved_context_eflags'
+make[1]: *** [.tmp_vmlinux1] Error 1
+make: *** [vmlinux] Error 2
 
-	I've replaced the DIMM with a smaller one and had asked for a replacement 
-(thankfully it was under warranty yet). ftp.es.debian.org is up and happily 
-running again.
+.config available upon request. Is my binutils too old?
+This is Red Hat 8.0. Please CC me.
 
-	Thank you for your support, you people in l-k.
+Best Regards,
+Grega Fajdiga
 
-
-		Ender.
--- 
- Why is a cow? Mu. (Ommmmmmmmmm)
---
-Servicios de red - Network services
-Centro de Comunicaciones CSIC/RedIRIS
-Spanish Academic Network for Research and Development
-Madrid (Spain)
-Tlf (+34) 91.585.49.05
 

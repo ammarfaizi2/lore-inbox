@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbTANWrF>; Tue, 14 Jan 2003 17:47:05 -0500
+	id <S265098AbTANWqx>; Tue, 14 Jan 2003 17:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbTANWrF>; Tue, 14 Jan 2003 17:47:05 -0500
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:29423 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S265446AbTANWrE>; Tue, 14 Jan 2003 17:47:04 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S265469AbTANWqx>; Tue, 14 Jan 2003 17:46:53 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:8407 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265098AbTANWqv>;
+	Tue, 14 Jan 2003 17:46:51 -0500
+Date: Tue, 14 Jan 2003 15:53:26 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: <Valdis.Kletnieks@vt.edu>
+cc: <ivangurdiev@attbi.com>, LKML <linux-kernel@vger.kernel.org>,
+       <James.Bottomley@steeleye.com>
+Subject: Re: 2.5.58 Oops when booting from initrd - kobject_del 
+In-Reply-To: <200301141807.h0EI7srO012993@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.33.0301141552130.1025-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15908.38251.398048.612268@wombat.chubb.wattle.id.au>
-Date: Wed, 15 Jan 2003 09:55:39 +1100
-To: root@chaos.analogic.com
-Cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-In-Reply-To: <122203493@toto.iv>
-X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
 
-Richard> On Tue, 14 Jan 2003, DervishD wrote:
->> Hi Richard :)
->> 
->>>> Any header where I can see the length for argv[0] or is this SOME
->>>> kind of unoficial standard? Just doing strcpy seems dangerous to
->>>> me  (you can read 'paranoid'...).  
+On Tue, 14 Jan 2003 Valdis.Kletnieks@vt.edu wrote:
 
->> They need to have space for _POSIX_PATH_MAX (512 bytes), to claim POSIX
->> compatibility so any POSIX system will have at  least 512 bytes
->> available because the pathname of the executable normally goes
->> there.
+> On Tue, 14 Jan 2003 02:47:40 MST, "Ivan G." <ivangurdiev@attbi.com>  said:
+> > Kernel: 2.5.58 (everything but the tag changeset)
+> > 
+> > My attempt to boot an initrd resulted in the following oops:
+> > (scribbled down important parts)
+> > =======================================================
+> > unable to handle kernel NULL pointer at virtual address 00000064
+> 
+> > Call Trace:
+> > ==========
+> > kobject_del+0x13/0x30
+> > kobject_unregister+0x13/0x30
+> > elv_unregister_queue+0x1c/0x30
+> > unlink_gendisk+0x13/0x40
+> > del_gendisk+0x80/0x140
+> > initrd_release+0x4e/0x90
+> > __fput+0xf1/0x100
+> > filp_close+0x74/0xa0
+> > sys_close+0x62/0xa0
+> > syscall_call+0x7/0xb
+> > prepare_namespace+0x13a/0x1b0
+> > init+0x3a/0x160
+> > init+0x0/0x160
+> > kernel_thread_helper+0x5/0x18
+> > ...
+> > Code: 8b 70 28 85 f6 0f 84 1e 01 00 00 8b 06 85 c0 75 08 0f 0b 02
 
-No, because argv[0] is followed immediately  by a NUL then argv[1],
-then argv[2], etc.  They're not fixed length strings -- the kernel
-allocates just enough for the actual arguments, rounded up to
-PAGESIZE.
+Could you please try the following patch and see if it fixes the problem?
 
-So if you copy more than strlen(argv[0]), you'll start overwriting
-argv[1].
+Thanks,
 
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+	-pat
+
+===== drivers/block/elevator.c 1.36 vs edited =====
+--- 1.36/drivers/block/elevator.c	Sun Jan 12 08:10:40 2003
++++ edited/drivers/block/elevator.c	Tue Jan 14 15:46:00 2003
+@@ -431,10 +431,13 @@
+ void elv_unregister_queue(struct gendisk *disk)
+ {
+ 	request_queue_t *q = disk->queue;
+-	elevator_t *e = &q->elevator;
++	elevator_t *e;
+ 
+-	kobject_unregister(&e->kobj);
+-	kobject_put(&disk->kobj);
++	if (q) {
++		e = &q->elevator;
++		kobject_unregister(&e->kobj);
++		kobject_put(&disk->kobj);
++	}
+ }
+ 
+ elevator_t elevator_noop = {
+
+

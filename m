@@ -1,50 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131846AbRAKGGF>; Thu, 11 Jan 2001 01:06:05 -0500
+	id <S132295AbRAKGN0>; Thu, 11 Jan 2001 01:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130436AbRAKGFy>; Thu, 11 Jan 2001 01:05:54 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:23563 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S131846AbRAKGFq>; Thu, 11 Jan 2001 01:05:46 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Antony Suter <antony@mira.net>
-cc: List Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Allen Unueco <allen@premierweb.com>
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
-In-Reply-To: Your message of "Thu, 11 Jan 2001 16:38:50 +1100."
-             <3A5D46EA.280692B2@mira.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 11 Jan 2001 17:05:23 +1100
-Message-ID: <11540.979193123@kao2.melbourne.sgi.com>
+	id <S132291AbRAKGNQ>; Thu, 11 Jan 2001 01:13:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:13454 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132284AbRAKGNL>;
+	Thu, 11 Jan 2001 01:13:11 -0500
+Date: Thu, 11 Jan 2001 01:13:10 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation/filesystems/Locking update
+Message-ID: <Pine.GSO.4.21.0101110109440.15355-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001 16:38:50 +1100, 
-Antony Suter <antony@mira.net> wrote:
->Allen Unueco wrote:
->> I ran into this while hacking the Nvidia kernel driver to work with
->> 2.4.0.  I got the driver working but it's not 100%
->> 
->> Also where did get_module_symbol() and put_module_symbol() go?
->
->Patches for the NVIDIA binary X drivers following all these kernel
->changes can be gotten from IRC server irc.openprojects.net, channel
->#nvidia. Or from http://ex.shafted.com.au/nvidia/
+	Patch updates filesystems/Locking - corrects ->writepage()
+prototype, removes dead vma methods and corrects ->writepage() and
+->readpage() description wrt page lock.
 
-And what a pile of crud those patches are!!  Instead of using the clean
-replacement interface for get_module_symbol, nvidia/patch-2.4.0-PR hard
-codes the old get_module_symbol algorithm as inline code.
+	Please, apply.
 
-This patch violates the modules interface by accessing modules.c
-internal data.  It still suffers from all the problems that
-get_module_symbol had.  Because it is hard coded as inline code instead
-of a common function, will be much harder to fix when it breaks.
-
-Whoever coded that patch should be taken out and shot, hung, drawn and
-quartered then forced to write COBOL for the rest of their natural
-life.
+diff -urN S1-pre1/Documentation/filesystems/Locking S1-pre1-s_lock/Documentation/filesystems/Locking
+--- S1-pre1/Documentation/filesystems/Locking	Fri Jul 28 15:50:51 2000
++++ S1-pre1-s_lock/Documentation/filesystems/Locking	Thu Jan 11 01:01:14 2001
+@@ -117,7 +117,7 @@
+ 
+ --------------------------- address_space_operations --------------------------
+ prototypes:
+-	int (*writepage)(struct file *, struct page *);
++	int (*writepage)(struct page *);
+ 	int (*readpage)(struct file *, struct page *);
+ 	int (*sync_page)(struct page *);
+ 	int (*prepare_write)(struct file *, struct page *, unsigned, unsigned);
+@@ -126,8 +126,8 @@
+ locking rules:
+ 	All may block
+ 		BKL	PageLocked(page)
+-writepage:	no	yes
+-readpage:	no	yes
++writepage:	no	yes, unlocks
++readpage:	no	yes, unlocks
+ sync_page:	no	maybe
+ prepare_write:	no	yes
+ commit_write:	no	yes
+@@ -135,6 +135,7 @@
+ 
+ 	->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
+ may be called from the request handler (/dev/loop).
++	->readpage() and ->writepage() unlock the page.
+ 	->sync_page() locking rules are not well-defined - usually it is called
+ with lock on page, but that is not guaranteed. Considering the currently
+ existing instances of this method ->sync_page() itself doesn't look
+@@ -285,26 +286,13 @@
+ prototypes:
+ 	void (*open)(struct vm_area_struct*);
+ 	void (*close)(struct vm_area_struct*);
+-	void (*unmap)(struct vm_area_struct*, unsigned long, size_t);
+-	void (*protect)(struct vm_area_struct*, unsigned long, size_t, unsigned);
+-	int (*sync)(struct vm_area_struct*, unsigned long, size_t, unsigned);
+ 	struct page *(*nopage)(struct vm_area_struct*, unsigned long, int);
+-	struct page *(*wppage)(struct vm_area_struct*, unsigned long, struct page*);
+-	int (*swapout)(struct page *, struct file *);
+ 
+ locking rules:
+ 		BKL	mmap_sem
+ open:		no	yes
+ close:		no	yes
+-sync:		no	yes
+-unmap:		no	yes
+ nopage:		no	yes
+-swapout:	yes	yes
+-wpppage:				(see below)
+-protect:				(see below)
+-
+-->wppage() and ->protect() have no instances and nothing calls them; looks like
+-they must die...
+ 
+ ================================================================================
+ 			Dubious stuff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

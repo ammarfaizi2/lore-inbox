@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbULIRlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbULIR5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbULIRlq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 12:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbULIRlq
+	id S261559AbULIR5t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 12:57:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbULIR5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 12:41:46 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:6286 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261566AbULIRll (ORCPT
+	Thu, 9 Dec 2004 12:57:49 -0500
+Received: from [218.82.65.31] ([218.82.65.31]:45581 "HELO prn.ee")
+	by vger.kernel.org with SMTP id S261559AbULIR5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 12:41:41 -0500
-Date: Thu, 9 Dec 2004 18:41:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209174107.GF7975@elte.hu>
-References: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 9 Dec 2004 12:57:42 -0500
+Message-ID: <fdf701c4ddd5$8de8c57e$3b7ed2db@prn.ee>
+From: "Heather Huerta" <h_huertajv@rimisp.cl>
+To: linux-kernel@vger.kernel.org
+Subject: Order Royal Replica Watches Online
+Date: Thu, 09 Dec 2004 03:57:14 -0600
+MIME-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Get the Finest Rolex Watch Replica!
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+We only sell premium watches. There's no battery in these replicas just
+like the real ones since they charge themselves as you move. The second hand
+moves JUST like the real ones, too. These original watches sell in stores
+for thousands of dollars. We sell them for much less. 
 
-> Don't take this message the wrong way. I strongly support what Ingo is
-> doing with the 2.6 kernel. Its just sometimes the measurements don't
-> seem to show the improvements everyone wants to see.
+- Replicated to the Smallest Detail
+- 98% Perfectly Accurate Markings 
+- Signature Green Sticker w/ Serial Number on Watch Back
+- Magnified Quickset Date
+- Includes all Proper Markings
 
-just in case it wasnt obvious ... your feedback is really useful, no
-matter in what direction it goes. You have one of the most complex test
-setups, so i pretty much expect your setup to trigger the most problems
-as well (and it is also the hardest to analyze). I think we are fine as
-long as constant progress is made (which i believe we are making, even
-if seemingly not for your particular workload =B-).
+Visit us: http://www.bhex.com/rep/rolx/
 
-	Ingo
+All orders placed before December 12th will be at your door before
+Christmas!
+
+No thanks: http://www.bhex.com/z.php
+

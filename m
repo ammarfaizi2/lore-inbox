@@ -1,44 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264651AbRFPULs>; Sat, 16 Jun 2001 16:11:48 -0400
+	id <S264653AbRFPUde>; Sat, 16 Jun 2001 16:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264652AbRFPULi>; Sat, 16 Jun 2001 16:11:38 -0400
-Received: from [209.250.53.182] ([209.250.53.182]:13572 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S264651AbRFPULU>; Sat, 16 Jun 2001 16:11:20 -0400
-Date: Sat, 16 Jun 2001 15:10:14 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Josh Myer <jbm@joshisanerd.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix warning in tdfxfb.c
-Message-ID: <20010616151014.A2086@hapablap.dyn.dhs.org>
-In-Reply-To: <20010616133243.A1610@hapablap.dyn.dhs.org> <Pine.LNX.4.21.0106161452270.1755-100000@dignity.joshisanerd.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0106161452270.1755-100000@dignity.joshisanerd.com>; from jbm@joshisanerd.com on Sat, Jun 16, 2001 at 02:59:34PM -0500
-X-Uptime: 3:07pm  up  1:29,  0 users,  load average: 1.38, 1.30, 1.23
+	id <S264654AbRFPUdY>; Sat, 16 Jun 2001 16:33:24 -0400
+Received: from smtp-rt-9.wanadoo.fr ([193.252.19.55]:38792 "EHLO
+	alisier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264653AbRFPUdQ>; Sat, 16 Jun 2001 16:33:16 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: pci_disable_device() vs. arch
+Date: Sat, 16 Jun 2001 22:32:31 +0200
+Message-Id: <20010616203231.20775@smtp.wanadoo.fr>
+In-Reply-To: <3B2BBC3C.BEC4B313@mandrakesoft.com>
+In-Reply-To: <3B2BBC3C.BEC4B313@mandrakesoft.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 16, 2001 at 02:59:34PM -0500, Josh Myer wrote:
-> It might be better to add a default case to the switch statement below, so
-> this symbol doesn't just eat up another 4(8 on some platforms, and i'm
-> sure others) bytes of memory unneccesarily.
+>What arch-specific things need to be done?
 
-I'm not quite sure I follow you.  The default case should never be
-reached, because only the three cases currently present are allowed by
-the encapsulating 'if' statement.  Even so, how would adding a default
-case get rid of the variable or save space some other way?
+I can control the gmac cell's clock. Actually, I can do the same
+with the firewire clock (the firewire cell is in the same ASIC)
+and with the firewire cable power.
 
-> anyway, it doesn't really matter. i'd test my hypothesis, but i've got
-> people coming over this afternoon =) the driver looks like it might use
-> some scrubbing anyway (s!//(.*)$!/\* $1 \*/!...)
+>arch-specific pcibios_disable_device may be a good idea... but in this
+>case it sounds like you need to put #ifdef CONFIG_ALL_PPC code in
+>sungem.c instead, if the power-down code is specific to gmacs.
 
-Good point.  Perhaps I'll prepare a larger patch with this and other
-cleanups.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+Well... I did that in gmac.c. With the arrival of sungem, I had in
+mind to avoid clobbering sungem with such things, and since we
+already have arch hook for pci_enable_device(), which I use to turn
+ON the chip, I though about doing the same with pci_disable_device().
+
+(Note that I do turn it ON temporarily during PCI probe so that
+the pci_dev entry exist in the kernel).
+
+It's mostly a mater of taste, I prefered avoiding calling arch
+specific routines if possible in a "generic" driver. Note that I
+will probably have to do some anyway as I need some arch calls
+to control the PHY reset as well.
+
+>Although some drivers already do this, you really need an inactivity
+>timer instead of unconditionally powering-down the hardware on
+>dev->stop().  dhcp and other applications will often bounce the
+>interface...
+
+In that case, it's not a power down, it's just a clock control. 
+Which appear to be reather safe to toggle quickly. 
+
+>For power-down specifically, you should use pci-set-power-state not
+>pci-disable-device.  pci_disable_device is the opposite of
+>pci_enable_device.  pci_enable_device not only wakes up the device, but
+>also assigns resources.  Which implies that pci-disable-device is
+>allowed to un-assign resources.  There shouldn't be a problem with a net
+>device doing that per se, but you should be aware of the implications.
+
+I'm aware of this. Actually, pci_disable_device() doesn't de-assign
+any resource, but well... I guess there should be nothing wrong about
+resources beeing un-assigned and/or re-assigned when the driver is
+rmmod'ed or insmod'ed back.
+
+I agree pci_set_power_state() would be a better choice, but it would
+require some arch hooks as well since this is done done via normal PCI
+power management.
+
+Since I'll have to implement the suspend() and resume() callbacks
+as well, maybe  we can agree on an arch hook for pci_set_power_state().
+Actually, I beleive instead of an arch callback, I'd rather see a
+function pointer in the pci_bus structure of the parent bridge. Our
+arch would then put the proper code for it in the pci_bus associated
+with that side of UniNorth. (UniNorth has 3 host bridges).
+
+That said, a pcibios_disable_device() hook would be logical, since
+there's already one in pcibios_enable_device().
+
+Ben.
+
+

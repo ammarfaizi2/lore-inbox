@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268814AbUHLVma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268801AbUHLVYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268814AbUHLVma (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268825AbUHLVmB
+	id S268801AbUHLVYK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268818AbUHLVYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:42:01 -0400
-Received: from alhambra.mulix.org ([192.117.103.203]:29828 "EHLO
-	granada.merseine.nu") by vger.kernel.org with ESMTP id S268576AbUHLVij
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:38:39 -0400
-Date: Fri, 13 Aug 2004 00:39:36 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org,
-       Stelian Pop <stelian@popies.net>, jgarzik@pobox.com
-Subject: Re: [patch] fix netconsole hang with alt-sysrq-t
-Message-ID: <20040812213936.GC17907@granada.merseine.nu>
-References: <16659.56343.686372.724218@segfault.boston.redhat.com> <20040806195237.GC16310@waste.org> <16659.58271.979999.616045@segfault.boston.redhat.com> <20040806202649.GE16310@waste.org> <16667.55966.317888.504243@segfault.boston.redhat.com> <20040812211841.GB17907@granada.merseine.nu> <16667.57829.212177.183803@segfault.boston.redhat.com>
+	Thu, 12 Aug 2004 17:24:08 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:54229 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268807AbUHLVWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:22:20 -0400
+Subject: Re: SG_IO and security
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040812182914.GA16953@suse.de>
+References: <1092313030.21978.34.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org>
+	 <20040812173532.GD5136@suse.de>  <20040812182914.GA16953@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092341997.22360.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="S1BNGpv0yoYahz37"
-Content-Disposition: inline
-In-Reply-To: <16667.57829.212177.183803@segfault.boston.redhat.com>
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 12 Aug 2004 21:19:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2004-08-12 at 19:29, Jens Axboe wrote:
+> +static int sg_allowed_cmd(unsigned char opcode, int may_write)
+> +{
+> +	if (capable(CAP_SYS_RAWIO))
+> +		return 1;
+> +	if (may_write)
+> +		return 1;
 
---S1BNGpv0yoYahz37
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I agree with passing the data down, unfortunately anyone with a raw
+device access they can open for write can still physically anihiliate
+the hardware. That causes real problems for anyone allocating partitions
+for databases like Oracle, giving direct user access to devices for
+virtualization like UML, giving direct user access to a M/O drive.
 
-On Thu, Aug 12, 2004 at 05:32:21PM -0400, Jeff Moyer wrote:
-> =3D=3D> Regarding Re: [patch] fix netconsole hang with alt-sysrq-t; Muli =
-Ben-Yehuda <mulix@mulix.org> adds:
->=20
-> mulix> On Thu, Aug 12, 2004 at 05:01:18PM -0400, Jeff Moyer wrote:
-> >> So how do you want to deal with this case?  We could do something like:
-> >>=20
-> >> int cpu =3D smp_processor_id();
->=20
-> mulix> That doesn't look right, unless I'm missing something, you could g=
-et
-> mulix> preempted here (between the smp_processor_id() and the
-> mulix> local_irq_save() and end up with 'cpu' pointing to the wrong CPU.
->=20
-> Would a preempt_disable() be too hideous?  Other suggestions?
-
-Maybe, but we could hide it in get_cpu() / put_cpu() ;-)
-
-Cheers,=20
-Muli
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+It also doesn't solve the read/write outside of partition problem.
 
 
---S1BNGpv0yoYahz37
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Alan
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBG+OYKRs727/VN8sRAmvdAJ9mDpAxd7kU64UBco1FSDMC5dHRpwCgo4Co
-iL/k4KcgFhKhokkJsyof/iM=
-=aTPj
------END PGP SIGNATURE-----
-
---S1BNGpv0yoYahz37--

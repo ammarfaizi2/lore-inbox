@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131496AbRDCAaL>; Mon, 2 Apr 2001 20:30:11 -0400
+	id <S131756AbRDCAYb>; Mon, 2 Apr 2001 20:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRDCAaB>; Mon, 2 Apr 2001 20:30:01 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:6611 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S131496AbRDCA3o>;
-	Mon, 2 Apr 2001 20:29:44 -0400
-Message-ID: <3AC9194F.7D7986D5@mandrakesoft.com>
-Date: Mon, 02 Apr 2001 20:29:03 -0400
+	id <S132054AbRDCAYM>; Mon, 2 Apr 2001 20:24:12 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:3539 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S131756AbRDCAYK>;
+	Mon, 2 Apr 2001 20:24:10 -0400
+Message-ID: <3AC91800.22D66B24@mandrakesoft.com>
+Date: Mon, 02 Apr 2001 20:23:28 -0400
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Gustavo Niemeyer <niemeyer@conectiva.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can not compile 2.4.3 on alpha
-In-Reply-To: <3AC86511.F3123F6C@lmt.lv> <20010402100230.B15554@tux.distro.conectiva>
+To: Jeremy Jackson <jerj@coplanar.net>
+Cc: Ian Soboroff <ian@cs.umbc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/config idea
+In-Reply-To: <877l13whzw.fsf@danube.cs.umbc.edu> <3AC89389.46317572@coplanar.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gustavo Niemeyer wrote:
-> Hello Andrejs!!
-> > /usr/src/linux-2.4.3/include/asm/pgalloc.h:334: conflicting types for
-> > `pte_alloc'
+Jeremy Jackson wrote:
+> Yes, I like this.  I do this manually, it allows reproducability, and
+> incremental
+> modifications, tracing how that kernel on that problem system was made...
+> 
+> I think the ultimate would be to put all of .config (gzipped?) in a new ELF
+> section without the Loadable attribute...  I wish System.map was the same.
+> The you're guaranteed you know how a kernel on disk was configured.
+> 
+> To correlate a running kernel to one on disk (vmlinuz) you have LILO...
+> it appends an environment variable to the kernel command line with
+> the name of the file it booted.  This is not infallable, since LILO maps
+> disk sectors, only using the filesystem at map install time.
+> 
+> Permaps an md5sum of the .text ELF section would conclusively
+> link the in-core kernel with an on-disk vmlinuz?  Shouldn't be hard
+> to do with objcopy and /proc/kmem?
+[...]
+> Comments anyone?
 
-> This is happening on ia64 as well. The interface seems to have changed
-> but some architectures were forgotten.
+Instead of doing all this stuff in the kernel, you could simply update
+symlinks to properly installed files at boot time.
 
-The interface changed and other architectures have not caught up yet :) 
-Other archs pretty much always play catch-up to the x86 port.
+Putting _files_ in the kernel is plain silly.  This is unreclaimable
+memory, folks.  There is no need to special case an operation as simple
+as reading a file.  [I think this about firmware images too, but that's
+another thread]
 
 -- 
 Jeff Garzik       | May you have warm words on a cold evening,

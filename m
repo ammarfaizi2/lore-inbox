@@ -1,105 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313181AbSGQMbc>; Wed, 17 Jul 2002 08:31:32 -0400
+	id <S313113AbSGQM0l>; Wed, 17 Jul 2002 08:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313305AbSGQMbb>; Wed, 17 Jul 2002 08:31:31 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:27367 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S313181AbSGQMb2>; Wed, 17 Jul 2002 08:31:28 -0400
-Date: Wed, 17 Jul 2002 14:32:43 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207171232.g6HCWhbE027917@burner.fokus.gmd.de>
-To: James.Bottomley@steeleye.com, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+	id <S313125AbSGQM0k>; Wed, 17 Jul 2002 08:26:40 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:42408 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313113AbSGQM0j>;
+	Wed, 17 Jul 2002 08:26:39 -0400
+Date: Wed, 17 Jul 2002 14:29:33 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PS2 Input Core Support
+Message-ID: <20020717142933.B19385@ucw.cz>
+References: <3D35435F.E5CFA5E2@delusion.de> <20020717122000.A12529@ucw.cz> <3D355940.96EE8327@delusion.de> <20020717141004.C12529@ucw.cz> <3D355FD0.9F0E4F8@delusion.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D355FD0.9F0E4F8@delusion.de>; from reality@delusion.de on Wed, Jul 17, 2002 at 02:15:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 17, 2002 at 02:15:12PM +0200, Udo A. Steinberg wrote:
+> Vojtech Pavlik wrote:
+> > 
+> > This is interesting. Can you try the attached test utility? You need to
+> > enable CONFIG_INPUT_EVDEV, as well, and use it on /dev/input/evdev0 or
+> > 1, depening what's your mouse.
+> > 
+> > I'm wondering whether the scroll events show up or not.
+> 
+> Hello,
+> 
+> They show up in the output. First 4 events are scroll-down, last
+> 4 events are scroll-up.
 
->From James.Bottomley@SteelEye.com Tue Jul 16 16:33:32 2002
->schilling@fokus.gmd.de said:
->> Why should the character interface be connected to the block layer?
->> This would contradict UNIX rules. 
+Ok, another patch. :)  
 
->Well, first and foremost Linux isn't UNIX, especially where block and 
->character devices are concerned.  But secondly, the block layer provides 
->command queueing.  If any device (SCSI, IDE or more exotic) can't accept a 
->character command (like QUEUE_FULL in SCSI), it goes back to the block layer 
->queue to await reissue.  It's really exactly a block request without the block 
->position.
-
-You describe here how the block layer in UNIX works....
-
->This is actually almost the way linux operates now:  all the character tap for 
->a SCSI tape device does is take the read or write and convert it into an 
->appropriate SCSI command, which now has a block extent attached.  Since we 
->have all the machinery for handling block command queuing in the block layer, 
->it makes no sense to duplicate it for the character layer.
-
-If Linux really handles it this way, then I don't see any sense in it.
-If you like to do things that are different from the UNIX default for block
-or character drivers for disk devices, you should try to use mmap() and 
-madvise().
-
->Error handling is more than local.  Some errors, you are correct, can only be 
->handled at the SCSI layer.  However, a large class of drivers (Think 
->multi-path or software raid) want the ability to direct how SCSI handles 
->errors themselves.  It is unacceptable to have SCSI all on its own retry a 
->medium error command x times, taking minutes before the upper layers become 
->aware anything went wrong.
-
-It looks like you have the wrong ideas about software raid. If you have 
-software raid, you will stack a SW raid driver just on top of the disk drivers 
-that handle the access to the real drives. The real drives first do own error 
-handling and if they cannot correct errors, the error is handled inside the 
-raid layer. As the raid layer itself will at it's top level act as if it was a 
-disk driver, there is no relation to the block layer.
+diff -Nru a/drivers/input/mouse/psmouse.c b/drivers/input/mouse/psmouse.c
+--- a/drivers/input/mouse/psmouse.c	Wed Jul 17 12:19:13 2002
++++ b/drivers/input/mouse/psmouse.c	Wed Jul 17 12:19:13 2002
+@@ -142,7 +142,7 @@
+  */
+ 
+ 	if (psmouse->type == PSMOUSE_IMEX) {
+-		input_report_rel(dev, REL_WHEEL, (int) (packet[3] & 8) - (int) (packet[2] & 7));
++		input_report_rel(dev, REL_WHEEL, (int) (packet[3] & 7) - (int) (packet[3] & 8));
+ 		input_report_key(dev, BTN_SIDE, (packet[3] >> 4) & 1);
+ 		input_report_key(dev, BTN_EXTRA, (packet[3] >> 5) & 1);
+ 	}
 
 
->The solution is to have a stacking error handler where the error handler for 
->upper devices would be notified of a problem and asked for direction as soon 
->as it occurs.
+> 
+> Regards,
+> -Udo.
+> 
+> ./evtest /dev/input/event2 
+> Input driver version is 1.0.0
+> Input device ID: bus 0x11 vendor 0x6 product 0x2 version 0x100
+> Input device name: "ImExPS/2 Microsoft IntelliMouse Explorer"
+> Supported events:
+>   Event type 1 (Key)
+>     Event code 272 (LeftBtn)
+>     Event code 273 (RightBtn)
+>     Event code 274 (MiddleBtn)
+>     Event code 275 (SideBtn)
+>     Event code 276 (ExtraBtn)
+>   Event type 2 (Relative)
+>     Event code 0 (X)
+>     Event code 1 (Y)
+>     Event code 8 (Wheel)
+> Testing ... (interrupt to exit)
+> Event: time 1026908021.053509, type 2 (Relative), code 8 (Wheel), value -1
+> Event: time 1026908021.607555, type 2 (Relative), code 8 (Wheel), value -1
+> Event: time 1026908022.017017, type 2 (Relative), code 8 (Wheel), value -1
+> Event: time 1026908022.412833, type 2 (Relative), code 8 (Wheel), value -1
+> Event: time 1026908023.241679, type 2 (Relative), code 8 (Wheel), value -7
+> Event: time 1026908023.711842, type 2 (Relative), code 8 (Wheel), value -7
+> Event: time 1026908024.149266, type 2 (Relative), code 8 (Wheel), value -7
+> Event: time 1026908024.529600, type 2 (Relative), code 8 (Wheel), value -7
 
-See above, this makes no sense.
-
->But the new scheme allows that.  The block queues accept translated requests 
->(that's really what sg does).
-
-A SCSI request is _not_ a translated request. It is the real request itself. 
-You usually even cannot translate a SCSI request into something else.
-
-
->> It would help, if somebody would correct the current SCSI addressng
-
->> Why do you believe that you need to have something that is not a
->> bumber? 
-
->Look at a solaris fibre driver for instance.  On the fabric, most of them 
->think of targets in terms of WWN/PORT (because that's what the fibre LIP 
->uses).  They then have an internal database to translate what they use 
->(WWN/PORT, soft loop ID, etc.) into a target number for the user to see.  
->Next, because the fibre topology is mutable, they have to have a way of 
->mapping the WWN/PORT to the device across reboots, hence persistent binding.  
->Ultimately you get a huge chunk of code whose sole job is to preserve the 
->fiction that targets are numbers.
-
-You also need to authenticate yourself before you may get access to the network 
-media. Once you did this, you simply may assign a Bus number to the cabinet.
-
-
->> Let me add my modified artwork: 
-
->But you're still too SCSI transport specific.  The ongoing goal is to make the 
->physical transport protocol an adjunct to the Linux internal transport (the 
->struct request) so that we can treat all block/character devices on an equal 
->footing.
-
-You seem to forget that all main control is done via SCSI commands. You are too 
-anti SCSI wthout a real reason.
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+-- 
+Vojtech Pavlik
+SuSE Labs

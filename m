@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269052AbRG3Sup>; Mon, 30 Jul 2001 14:50:45 -0400
+	id <S266662AbRG3TM4>; Mon, 30 Jul 2001 15:12:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269079AbRG3Sue>; Mon, 30 Jul 2001 14:50:34 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:27830 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S269078AbRG3Su1>; Mon, 30 Jul 2001 14:50:27 -0400
-Date: Mon, 30 Jul 2001 14:50:21 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: <mingo@devserv.devel.redhat.com>
-To: <kuznet@ms2.inr.ac.ru>
-cc: Linus Torvalds <torvalds@transmeta.com>, <andrea@suse.de>,
-        <maxk@qualcomm.com>, <linux-kernel@vger.kernel.org>,
-        <davem@redhat.com>
-Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
-In-Reply-To: <200107291752.VAA19495@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.33.0107301444430.28294-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267241AbRG3TMo>; Mon, 30 Jul 2001 15:12:44 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2312 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266662AbRG3TMc>; Mon, 30 Jul 2001 15:12:32 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Mon, 30 Jul 2001 10:33:08 -0700
+Message-Id: <200107301733.f6UHX8H01494@penguin.transmeta.com>
+To: mason@suse.com, linux-kernel@vger.kernel.org,
+        "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: BUG at smp.c:481, 2.4.8-pre2
+Newsgroups: linux.dev.kernel
+In-Reply-To: <296370000.996508500@tiny>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+In article <296370000.996508500@tiny> you write:
+>
+>Ok, During boot on 2.4.8-pre2 I'm getting this oops just as it starts to
+>probe my aic7890 card.  Andrea is cc'd because I'm guessing it is due to
+>one of his patches ;-)
 
-> > I think the latency issue was really the fact that we weren't always
-> > running softirqs in a timely fashion after they had been disabled by a
-> > "disable_bh()". That is fixed with the new softirq stuff, regardless of
-> > the other issues.
+It's a sanity check, which I removed (because it's worse to panic in a
+2.4.x kernel than it is to have the sanity problem). But the sanity
+check does show that there is some problem in ahc_pci_map_registers():
+it calls "ioremap()" with interrupts disabled, which is rather broken.
 
-nope. i observed latency issues with restart + ksoftirqd as well. [when i
-first saw these latency problems i basically had ksoftirqd implemented
-independently from your patch, and threw the idea away because it was
-insufficient from the latency point of view.] Those latencies are harder
-to observe because they are not 1/HZ anymore but several hundred millisecs
-at most. Plus, like i said previously, pushing IRQ context work into a
-scheduler-level context 'feels' incorrect to me - it only makes the
-latencies less visible. I'll do some measurements.
+I don't know that driver well enough to understand why the heck it would
+keep interrupts disabled over apparently a _long_ stretch of time during
+probing. The irq disable code seems to be somewhere else..
 
-	Ingo
+Justin?
 
+		Linus

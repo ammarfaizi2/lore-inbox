@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbULUStH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbULUSxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbULUStH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbULUStH
+	id S261834AbULUSxA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbULUSxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:49:07 -0500
-Received: from mout.alturo.net ([212.227.15.21]:751 "EHLO mout.alturo.net")
-	by vger.kernel.org with ESMTP id S261828AbULUSsv (ORCPT
+	Tue, 21 Dec 2004 13:53:00 -0500
+Received: from mail.kroah.org ([69.55.234.183]:63169 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261834AbULUSw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:48:51 -0500
-Message-ID: <41C87099.9040108@datafloater.de>
-Date: Tue, 21 Dec 2004 19:51:05 +0100
-From: Arne Caspari <arne@datafloater.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Arne Caspari <arnem@informatik.uni-bremen.de>,
-       linux1394-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-References: <20041220015320.GO21288@stusta.de> <41C694E0.8010609@informatik.uni-bremen.de> <20041220143901.GD457@phunnypharm.org> <1103555716.29968.27.camel@localhost.localdomain> <20041220154638.GE457@phunnypharm.org> <1103573716.31512.10.camel@localhost.localdomain> <41C7DFE9.5070604@informatik.uni-bremen.de> <20041221120012.GC5217@stusta.de> <41C81BF4.9070602@datafloater.de> <20041221171547.GD1459@kroah.com>
-In-Reply-To: <20041221171547.GD1459@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 13:52:56 -0500
+Date: Tue, 21 Dec 2004 10:52:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Tomas Carnecky <tom@dbservice.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Is it possible to access sysfs from within the kernel?
+Message-ID: <20041221185236.GA8656@kroah.com>
+References: <41C48B3F.8010709@dbservice.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C48B3F.8010709@dbservice.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH schrieb:
+On Sat, Dec 18, 2004 at 08:55:43PM +0100, Tomas Carnecky wrote:
+> Why? Lets see.
+> Sysfs describes the system with all its devices etc but is also an 
+> interface to access kernel internal data.
+> Sysfs data could easily be put into a hierarchical tree. (I think it 
+> even is, but it's not so obvious, because it's done using the fs code 
+> (inodes, dentries), maybe the kobjects do play a big role here, too).
+> To access sysfs from an application, you have to use extensively open() 
+> and close() for each file (attributes) and readdir for directories... or 
+> use libsysfs which does these things for you.
+> While the current design is good for users (cat /sys/.../.../attribute), 
+> it's not very efficient for applications (due to the many syscalls).
 
->On Tue, Dec 21, 2004 at 01:49:56PM +0100, Arne Caspari wrote:
->  
->
->>To make a long decision short:
->>
->>There is no stable kernel API that an external developer can rely on?
->>    
->>
->
->That is correct.  Please see Documentation/stable_api_nonsense.txt for
->details as to why this is so.
->
->  
->
+Why not?  Do you have numbers showing that this is inefficient?  Have
+you looked at using libsysfs to make it easier for your program to
+access sysfs?
 
-There is no such file in the 2.6.9 release :-(
+> IMO it would be much better (for the applications) to have a device node 
+> in /dev which could be used to access the sysfs tree. No ioctl but using 
+> simple packets.
 
-/Arne
+No, please just use the filesystem.
+
+> Besides the simple query/result things, you could register for recieving 
+> events (now hotplug),
+
+And netlink.
+
+> with the difference that the current hotplug 
+> (AFAIK) can inform (execute) only one application (/sbin/hotplug).
+
+Not true.  Please read the /sbin/hotplug script to find out how your
+program can get those notifications.
+
+> Or even make it possible to recieve events only from certain 
+> classes/devices/subsystems etc.
+
+It does that already today.  Again, please read the documentation that
+is already included in the program.
+
+thanks,
+
+greg k-h

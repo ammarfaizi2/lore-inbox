@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSGVQxU>; Mon, 22 Jul 2002 12:53:20 -0400
+	id <S317757AbSGVQzq>; Mon, 22 Jul 2002 12:55:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316682AbSGVQxU>; Mon, 22 Jul 2002 12:53:20 -0400
-Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:37902 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id <S316586AbSGVQxT>;
-	Mon, 22 Jul 2002 12:53:19 -0400
-Subject: Re: [PATCH] 2.5.27 sysctl
-From: Ray Lee <ray-lk@madrabbit.org>
-To: dalecki@evision.ag
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 22 Jul 2002 09:56:22 -0700
-Message-Id: <1027356983.2024.1056.camel@orca>
-Mime-Version: 1.0
+	id <S317759AbSGVQzq>; Mon, 22 Jul 2002 12:55:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:13696 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317757AbSGVQzp>; Mon, 22 Jul 2002 12:55:45 -0400
+Date: Mon, 22 Jul 2002 12:59:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: venom@sns.it
+cc: Karol Olechowski <karol_olechowski@acn.waw.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Athlon XP 1800+ segemntation fault
+In-Reply-To: <Pine.LNX.4.43.0207221829530.29205-100000@cibs9.sns.it>
+Message-ID: <Pine.LNX.3.95.1020722125325.6785A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there,
+On Mon, 22 Jul 2002 venom@sns.it wrote:
 
-> This is making the sysctl code acutally be written in C.
-> It wasn't mostly due to georgeous ommitted size array "forward
-> declarations". As a side effect it makes the table structure easier to
-> deduce.
->
-> diff -urN linux-2.5.27/include/linux/sysctl.h linux/include/linux/sysctl.h
-> --- linux-2.5.27/include/linux/sysctl.h 2002-07-20 21:11:05.000000000 +0200
-> +++ linux/include/linux/sysctl.h 2002-07-21 19:30:43.000000000 +0200
-> @@ -126,7 +126,7 @@
->          KERN_S390_USER_DEBUG_LOGGING=51, /* int: dumps of user faults */
->          KERN_CORE_USES_PID=52, /* int: use core or core.%pid */
->          KERN_TAINTED=53, /* int: various kernel tainted flags */
-> - KERN_CADPID=54, /* int: PID of the process to notify on CAD */
-> + KERN_CADPID=54 /* int: PID of the process to notify on CAD */
->  };
+> As almost 97% of people on this list will write you, run memtest for a
+> night and check your memory.
 
-<snip>
- 
-The comma changes are gratuitous, as pure ANSI C explicitly allows such
-constructs. (It was intended to simplify automatic code generation, as
-well as for programmer ease to automatically deal with initializer
-lists.)
 
->From the grammar section of the 2nd edition (ca. 1988) of K&R:
-	initializer:
-		assignment-expression
-		{ initializer-list }
-		{ initializer-list , }
+> gcc: Internal compiler error:
+> program cc1 got fatal signal 11
+> make[3] : ***[igmp.o] Error 1
 
-...where initializer list is what one would expect.
+99.9999% probability memory error. This may not be 'bad' memory, but
+memory that is running on a front-side bus at a speed for which it
+was not designed. --And many board-vendors don't know the difference.
+As a temporary 'fix', if your BIOS or board pin-headers provide a
+100 MHz setting for the memory-bus, set it and see if it works.
 
-Removing the size forward declarations does make the code quicker to
-read, though.
-
-Ray
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

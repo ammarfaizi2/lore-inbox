@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261921AbSJQS7F>; Thu, 17 Oct 2002 14:59:05 -0400
+	id <S261746AbSJQTES>; Thu, 17 Oct 2002 15:04:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262060AbSJQS7F>; Thu, 17 Oct 2002 14:59:05 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44029 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261921AbSJQS7D>;
-	Thu, 17 Oct 2002 14:59:03 -0400
-Date: Thu, 17 Oct 2002 15:05:00 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Greg KH <greg@kroah.com>
-cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-In-Reply-To: <20021017185352.GA32537@kroah.com>
-Message-ID: <Pine.GSO.4.21.0210171459420.17992-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261836AbSJQTES>; Thu, 17 Oct 2002 15:04:18 -0400
+Received: from pc-62-30-107-77-az.blueyonder.co.uk ([62.30.107.77]:20608 "EHLO
+	bartonsoftware.com") by vger.kernel.org with ESMTP
+	id <S261746AbSJQTER>; Thu, 17 Oct 2002 15:04:17 -0400
+Date: Thu, 17 Oct 2002 20:11:17 +0100
+Message-Id: <200210171911.g9HJBHk02456@bartonsoftware.com>
+From: Eric Barton <eric@bartonsoftware.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel vaddr -> struct page
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-On Thu, 17 Oct 2002, Greg KH wrote:
+I'm trying to turn a kernel virtual address into a struct page that I can
+then pass to tcp_sendpage().  
 
-> Yes, it's a big switch, but what do you propose otherwise?  SELinux
-> would need a _lot_ of different security calls, which would be fine, but
+The kernel virtual address could be {kmalloc(),vmalloc(),kmap()}-ed memory,
+and I guarantee that this memory will not be {kfree(),vfree(),kunmap()}-ed
+until the socket has done with the page (i.e. all the data has been acked).
 
-... or somebody willing to <gasp> try and come up with decent API.
-Had you reviewed their extra syscalls, BTW?  Do it - and remove
-sharp objects before that...
+I'd have thought that vmalloc_to_page(kvaddr) should give me a page I could
+use, since it is walking the page tables to find the pte for 'kvaddr', and
+checking that the physical page is present.
 
-> we don't want to force every security module to try to go through the
-> process of getting their own syscalls.
+However I find I'm sending garbage when I use this method.
 
-... or, heaven forbid, actually designing interfaces instead of putting
-together piles of kludges.  Can't have it...
+Can anyone help me understand?
 
-> And other subsystems in the kernel do the same thing with their syscall,
-> like networking, so there is a past history of this usage.
+-- 
 
-Overloadable by arbitrary protocol family driver?  Where?
+                Cheers,
+                        Eric
 
+----------------------------------------------------
+|Eric Barton        Barton Software                |
+|9 York Gardens     Tel:    +44 (117) 330 1575     |
+|Clifton            Mobile: +44 (7909) 680 356     |
+|Bristol BS8 4LL    Fax:    call first             |
+|United Kingdom     E-Mail: eric@bartonsoftware.com|
+----------------------------------------------------

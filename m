@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUHFCEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUHFCNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268053AbUHFCEf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 22:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUHFCEf
+	id S268057AbUHFCNK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 22:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUHFCNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 22:04:35 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:52404 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268053AbUHFCEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 22:04:15 -0400
-Message-ID: <4112E24A.3060309@yahoo.com>
-Date: Thu, 05 Aug 2004 21:43:38 -0400
-From: "David N. Arnold" <dnarnold@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: David Ford <david+challenge-response@blue-labs.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       wiggly@wiggly.org, matt@mattcaron.net, seymour@astro.utoronto.ca
-Subject: Re: cdrom: dropping to single frame dma
-References: <41040A4B.6080703@blue-labs.org> <20040802132457.GT10496@suse.de> <41102FAB.40701@yahoo.com> <20040804053134.GA10340@suse.de>
-In-Reply-To: <20040804053134.GA10340@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 22:13:07 -0400
+Received: from pirx.hexapodia.org ([65.103.12.242]:33176 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S268057AbUHFCJb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 22:09:31 -0400
+Date: Thu, 5 Aug 2004 21:09:30 -0500
+From: Andy Isaacson <adi@hexapodia.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Mr. Berkley Shands" <berkley@cse.wustl.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Severe I/O performance regression 2.6.6 to 2.6.7 or 2.6.8-rc3
+Message-ID: <20040806020930.GA23072@hexapodia.org>
+References: <41126811.7020607@dssimail.com> <20040805172531.GC17188@holomorphy.com> <4112917A.3080003@cse.wustl.edu> <20040805204615.GJ17188@holomorphy.com> <20040805223319.GA18155@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805223319.GA18155@logos.cnet>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, Aug 03 2004, David N. Arnold wrote:
-> 
->>I don't know if it's a result of upgrading to 2.6.8-rc2 (from 2.6.5) or 
->>from the patch, but it has changed things.  I still get
->>
->>hdd: DMA timeout retry
->>hdd: timeout waiting for DMA
->>hdd: status timeout: status=0xd0 { Busy }
->>hdd: status timeout: error=0x00
->>hdd: drive not ready for command
->>hdd: ATAPI reset complete
->>cdrom: dropping to single frame dma
->>
->>but ripping stays at its normal speed (5.0x instead of 0.6x) and the 
->>file produced is correct instead of skipping/silence.
->>
->>It doesn't fix the true issue of why I'm getting DMA timeouts, but it 
->>does make ripping useable.
-> 
-> 
-> After the 'dropping to single frame' message, does it work reliably
-> after that? And when does the above occur, initially or after some time?
-> Details, please.
-> 
+On Thu, Aug 05, 2004 at 07:33:19PM -0300, Marcelo Tosatti wrote:
+> On Thu, Aug 05, 2004 at 01:46:15PM -0700, William Lee Irwin III wrote:
+> > > the problem does not exist using 2.6.6-bk6, but exists on 2.6.6-bk7. 
+> > > -bk8 and -bk9 faile to build.
+> > > these are from patches-2.6.6-bk6 off snapshots/old and applied to a 
+> > > vanilla 2.6.6 kernel.
+> > 
+> > This is the closest it appears to be possible to narrow down where the
+> > regression happened.
+> > 
+> > Some form of changelogging to enumerate what the contents of the
+> > 2.6.6-bk6 -> 2.6.6-bk7 delta are and to reconstruct intermediate points
+> > between 2.6.6-bk6 and 2.6.6-bk7 is needed.
 
-After the single frame message it completes the CD rip without any other 
-timeouts.  I can't tell if single frame mode impairs the speed, because 
-sound-juicer doesn't rip at full CD speed anyway.  The DMA timeout 
-usually happens in the first few tracks (it's nondeterministic even on 
-the same CD).  The only annoying issue left is that the initial ATAPI 
-reset freezes the system for a few seconds until it completes.
+If you're willing to use bk, it's trivial.  Each changeset refers to a
+particular state of the tree.  If "bk -r check -acv" reports no errors,
+and "bk changes -r+ -d:KEY:" reports a particular key, you are
+guaranteed that your tree state matches exactly the state of anyone else
+who has that key at any point in the past. [1]
 
-I don't know if you're interested, but the DMA timeout only happens in 
-certain usage patterns.  If you grab the data one frame at a time with 
-pauses in between (for example linking an ogg encoder directly to the 
-data stream) it will trigger the DMA timeout.  If you rip the CD at full 
-  drive speed (like ripping to WAV) or batch the read requests together, 
-it doesn't have any problems.  Also, if you slow the max speed of the 
-drive down with 'hdparm -E' so that the drive is operating at max 
-(because it's now slower than the encoder) it works fine.
+So if the -bkX creation script doesn't already, it should "bk changes
+-r+ -d:KEY: > key-bk$X" when it creates the tarball.  Then anyone can
+"bk clone -r`cat key-bk7` linux-2.5 linux-2.6-bk7" and duplicate the
+-bk7 state of the tree, and then "bk changes -L ../linux-2.6-bk6" to
+find the list of changesets differing.
 
-This is all on a JLMS XJ-HD163D DVD drive on the latest firmware.
+> Indeed its nasty, the problem is there is no tagging in the main BK repository
+> representing the -bk tree's. It shouldnt be too hard to do something about 
+> this? I can't think of anything which could help...
 
-Thanks,
-Dave Arnold
+Tagging isn't the answer for snapshots.  Rather, the snapshot metadata
+needs to include the cset key at the snapshot instant.
+
+[1] well, caveat -- bk isn't cryptographically secure, so probably a
+    motivated attacker could construct a tree which would pass this test
+    but have different contents.  This wouldn't allow the attacker to
+    push invalid contents to other trees, just to have different
+    contents in their tree.
+
+-andy

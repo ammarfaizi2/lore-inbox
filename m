@@ -1,87 +1,801 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269409AbUICA3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUICAem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269409AbUICA3M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 20:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269439AbUICA2u
+	id S269470AbUICAem (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 20:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269472AbUICAee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:28:50 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:38838 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S269409AbUICARX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 20:17:23 -0400
-Message-ID: <4137B806.3030501@slaphack.com>
-Date: Thu, 02 Sep 2004 19:17:10 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
-X-Accept-Language: en-us, en
+	Thu, 2 Sep 2004 20:34:34 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:30967 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S269470AbUICA34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 20:29:56 -0400
+Date: Thu, 2 Sep 2004 20:34:18 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH][1/8] Arch agnostic completely out of line locks / generic
+In-Reply-To: <Pine.LNX.4.58.0409021703440.2295@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0409022021100.4481@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0409021208310.4481@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0409021703440.2295@ppc970.osdl.org>
 MIME-Version: 1.0
-To: Spam <spam@tnonline.net>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org> <1591214030.20040902215031@tnonline.net>
-In-Reply-To: <1591214030.20040902215031@tnonline.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2 Sep 2004, Linus Torvalds wrote:
 
-Spam wrote:
-[...]
-|   I doubt that something like file streams and meta-data can
-|   successfully be implemented purely in user-space and get the same
-|   support (ie be used by many programs) if this change doesn't come
-|   from the kernel. I just do not see it happen.
+>
+>
+> On Thu, 2 Sep 2004, Zwane Mwaikambo wrote:
+> > +
+> > +#define __lockfunc fastcall __attribute__((section(".spinlock.text")))
+> > +
+> > +int __lockfunc _spin_trylock(spinlock_t *lock)
+> ...
+>
+> > +int _spin_trylock(spinlock_t *lock);
+>
+> This is horribly horribly wrong.
+>
+> The function is a fastcall function, and it needs to be declared that way,
+> otherwise the callers will use the wrong semantics for calling.
+>
+> This can't have worked.
 
-The issue is not "many programs".  The issue is "all programs".
+I'm a moron, unfortunately CONFIG_REGPARM saved my ass :/ The following
+works without CONFIG_REGPARM.
 
-Even if the political issues were solved -- even if Linus said to us all
-"Thou shalt use this library or suffer my wrath!" -- it'd have to be
-everywhere.  Bash.  Perl.  Make.  Gcc.  Vim.
+Index: linux-2.6.9-rc1-mm1-stage/kernel/Makefile
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/kernel/Makefile,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Makefile
+--- linux-2.6.9-rc1-mm1-stage/kernel/Makefile	26 Aug 2004 13:14:04 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/kernel/Makefile	2 Sep 2004 13:08:16 -0000
+@@ -11,7 +11,7 @@ obj-y     = sched.o fork.o exec_domain.o
 
-And btw, if it was political, you'd get no sympathy here.  ("Oh no,
-everyone's using their own game engine!  We need to put the doom3 engine
-in the kernel, now!")  No, _people_ solve political problems.  Kernels
-don't.
+ obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+-obj-$(CONFIG_SMP) += cpu.o
++obj-$(CONFIG_SMP) += cpu.o spinlock.o
+ obj-$(CONFIG_LOCKMETER) += lockmeter.o
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += module.o
+Index: linux-2.6.9-rc1-mm1-stage/kernel/spinlock.c
+===================================================================
+RCS file: linux-2.6.9-rc1-mm1-stage/kernel/spinlock.c
+diff -N linux-2.6.9-rc1-mm1-stage/kernel/spinlock.c
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ linux-2.6.9-rc1-mm1-stage/kernel/spinlock.c	3 Sep 2004 00:15:24 -0000
+@@ -0,0 +1,260 @@
++/*
++ * Copyright (2004) Linus Torvalds
++ *
++ * Author: Zwane Mwaikambo <zwane@fsmlabs.com>
++ */
++
++#include <linux/config.h>
++#include <linux/linkage.h>
++#include <linux/preempt.h>
++#include <linux/spinlock.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++
++#define __lockfunc fastcall __attribute__((section(".spinlock.text")))
++
++int __lockfunc _spin_trylock(spinlock_t *lock)
++{
++	preempt_disable();
++	if (_raw_spin_trylock(lock))
++		return 1;
++
++	preempt_enable();
++	return 0;
++}
++EXPORT_SYMBOL(_spin_trylock);
++
++int __lockfunc _write_trylock(rwlock_t *lock)
++{
++	preempt_disable();
++	if (_raw_write_trylock(lock))
++		return 1;
++
++	preempt_enable();
++	return 0;
++}
++EXPORT_SYMBOL(_write_trylock);
++
++#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
++void __lockfunc _spin_lock(spinlock_t *lock)
++{
++	preempt_disable();
++	if (unlikely(!_raw_spin_trylock(lock)))
++		__preempt_spin_lock(lock);
++}
++
++void __lockfunc _write_lock(rwlock_t *lock)
++{
++	preempt_disable();
++	if (unlikely(!_raw_write_trylock(lock)))
++		__preempt_write_lock(lock);
++}
++#else
++void __lockfunc _spin_lock(spinlock_t *lock)
++{
++	preempt_disable();
++	_raw_spin_lock(lock);
++}
++
++void __lockfunc _write_lock(rwlock_t *lock)
++{
++	preempt_disable();
++	_raw_write_lock(lock);
++}
++#endif
++EXPORT_SYMBOL(_spin_lock);
++EXPORT_SYMBOL(_write_lock);
++
++void __lockfunc _read_lock(rwlock_t *lock)
++{
++	preempt_disable();
++	_raw_read_lock(lock);
++}
++EXPORT_SYMBOL(_read_lock);
++
++void __lockfunc _spin_unlock(spinlock_t *lock)
++{
++	_raw_spin_unlock(lock);
++	preempt_enable();
++}
++EXPORT_SYMBOL(_spin_unlock);
++
++void __lockfunc _write_unlock(rwlock_t *lock)
++{
++	_raw_write_unlock(lock);
++	preempt_enable();
++}
++EXPORT_SYMBOL(_write_unlock);
++
++void __lockfunc _read_unlock(rwlock_t *lock)
++{
++	_raw_read_unlock(lock);
++	preempt_enable();
++}
++EXPORT_SYMBOL(_read_unlock);
++
++unsigned long __lockfunc _spin_lock_irqsave(spinlock_t *lock)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	preempt_disable();
++	_raw_spin_lock_flags(lock, flags);
++	return flags;
++}
++EXPORT_SYMBOL(_spin_lock_irqsave);
++
++void __lockfunc _spin_lock_irq(spinlock_t *lock)
++{
++	local_irq_disable();
++	preempt_disable();
++	_raw_spin_lock(lock);
++}
++EXPORT_SYMBOL(_spin_lock_irq);
++
++void __lockfunc _spin_lock_bh(spinlock_t *lock)
++{
++	local_bh_disable();
++	preempt_disable();
++	_raw_spin_lock(lock);
++}
++EXPORT_SYMBOL(_spin_lock_bh);
++
++unsigned long __lockfunc _read_lock_irqsave(rwlock_t *lock)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	preempt_disable();
++	_raw_read_lock(lock);
++	return flags;
++}
++EXPORT_SYMBOL(_read_lock_irqsave);
++
++void __lockfunc _read_lock_irq(rwlock_t *lock)
++{
++	local_irq_disable();
++	preempt_disable();
++	_raw_read_lock(lock);
++}
++EXPORT_SYMBOL(_read_lock_irq);
++
++void __lockfunc _read_lock_bh(rwlock_t *lock)
++{
++	local_bh_disable();
++	preempt_disable();
++	_raw_read_lock(lock);
++}
++EXPORT_SYMBOL(_read_lock_bh);
++
++unsigned long __lockfunc _write_lock_irqsave(rwlock_t *lock)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	preempt_disable();
++	_raw_write_lock(lock);
++	return flags;
++}
++EXPORT_SYMBOL(_write_lock_irqsave);
++
++void __lockfunc _write_lock_irq(rwlock_t *lock)
++{
++	local_irq_disable();
++	preempt_disable();
++	_raw_write_lock(lock);
++}
++EXPORT_SYMBOL(_write_lock_irq);
++
++void __lockfunc _write_lock_bh(rwlock_t *lock)
++{
++	local_bh_disable();
++	preempt_disable();
++	_raw_write_lock(lock);
++}
++EXPORT_SYMBOL(_write_lock_bh);
++
++void __lockfunc _spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags)
++{
++	_raw_spin_unlock(lock);
++	local_irq_restore(flags);
++	preempt_enable();
++}
++EXPORT_SYMBOL(_spin_unlock_irqrestore);
++
++void __lockfunc _spin_unlock_irq(spinlock_t *lock)
++{
++	_raw_spin_unlock(lock);
++	local_irq_enable();
++	preempt_enable();
++}
++EXPORT_SYMBOL(_spin_unlock_irq);
++
++void __lockfunc _spin_unlock_bh(spinlock_t *lock)
++{
++	_raw_spin_unlock(lock);
++	preempt_enable();
++	local_bh_enable();
++}
++EXPORT_SYMBOL(_spin_unlock_bh);
++
++void __lockfunc _read_unlock_irqrestore(rwlock_t *lock, unsigned long flags)
++{
++	_raw_read_unlock(lock);
++	local_irq_restore(flags);
++	preempt_enable();
++}
++EXPORT_SYMBOL(_read_unlock_irqrestore);
++
++void __lockfunc _read_unlock_irq(rwlock_t *lock)
++{
++	_raw_read_unlock(lock);
++	local_irq_enable();
++	preempt_enable();
++}
++EXPORT_SYMBOL(_read_unlock_irq);
++
++void __lockfunc _read_unlock_bh(rwlock_t *lock)
++{
++	_raw_read_unlock(lock);
++	preempt_enable();
++	local_bh_enable();
++}
++EXPORT_SYMBOL(_read_unlock_bh);
++
++void __lockfunc _write_unlock_irqrestore(rwlock_t *lock, unsigned long flags)
++{
++	_raw_write_unlock(lock);
++	local_irq_restore(flags);
++	preempt_enable();
++}
++EXPORT_SYMBOL(_write_unlock_irqrestore);
++
++void __lockfunc _write_unlock_irq(rwlock_t *lock)
++{
++	_raw_write_unlock(lock);
++	local_irq_enable();
++	preempt_enable();
++}
++EXPORT_SYMBOL(_write_unlock_irq);
++
++void __lockfunc _write_unlock_bh(rwlock_t *lock)
++{
++	_raw_write_unlock(lock);
++	preempt_enable();
++	local_bh_enable();
++}
++EXPORT_SYMBOL(_write_unlock_bh);
++
++int __lockfunc _spin_trylock_bh(spinlock_t *lock)
++{
++	local_bh_disable();
++	preempt_disable();
++	if (_raw_spin_trylock(lock))
++		return 1;
++
++	preempt_enable();
++	local_bh_enable();
++	return 0;
++}
++EXPORT_SYMBOL(_spin_trylock_bh);
+Index: linux-2.6.9-rc1-mm1-stage/drivers/oprofile/timer_int.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/drivers/oprofile/timer_int.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 timer_int.c
+--- linux-2.6.9-rc1-mm1-stage/drivers/oprofile/timer_int.c	26 Aug 2004 13:13:41 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/drivers/oprofile/timer_int.c	2 Sep 2004 14:05:58 -0000
+@@ -19,7 +19,7 @@ static int timer_notify(struct notifier_
+ {
+ 	struct pt_regs * regs = (struct pt_regs *)data;
+ 	int cpu = smp_processor_id();
+-	unsigned long eip = instruction_pointer(regs);
++	unsigned long eip = profile_pc(regs);
 
-Kernel support automatically adds support for a lot of features without
-patching a thing.
+ 	oprofile_add_sample(eip, !user_mode(regs), 0, cpu);
+ 	return 0;
+Index: linux-2.6.9-rc1-mm1-stage/include/asm-generic/vmlinux.lds.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/include/asm-generic/vmlinux.lds.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 vmlinux.lds.h
+--- linux-2.6.9-rc1-mm1-stage/include/asm-generic/vmlinux.lds.h	26 Aug 2004 13:13:09 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/include/asm-generic/vmlinux.lds.h	2 Sep 2004 13:08:15 -0000
+@@ -80,3 +80,8 @@
+ 		VMLINUX_SYMBOL(__sched_text_start) = .;			\
+ 		*(.sched.text)						\
+ 		VMLINUX_SYMBOL(__sched_text_end) = .;
++
++#define LOCK_TEXT							\
++		VMLINUX_SYMBOL(__lock_text_start) = .;			\
++		*(.lock.text)						\
++		VMLINUX_SYMBOL(__lock_text_end) = .;
+Index: linux-2.6.9-rc1-mm1-stage/include/linux/spinlock.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/include/linux/spinlock.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 spinlock.h
+--- linux-2.6.9-rc1-mm1-stage/include/linux/spinlock.h	26 Aug 2004 13:13:07 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/include/linux/spinlock.h	3 Sep 2004 00:14:58 -0000
+@@ -25,18 +25,18 @@
+ /*
+  * Must define these before including other files, inline functions need them
+  */
+-#define LOCK_SECTION_NAME			\
+-	".text.lock." __stringify(KBUILD_BASENAME)
++#define LOCK_SECTION_NAME                       \
++        ".text.lock." __stringify(KBUILD_BASENAME)
 
-There should be an interface in the filesystem.  And for certain things,
-uservfs will be incredibly slower than reiser4 as that interface.
-(Remember Linus' point about TUX and Apache.)
+-#define LOCK_SECTION_START(extra)		\
+-	".subsection 1\n\t"			\
+-	extra					\
+-	".ifndef " LOCK_SECTION_NAME "\n\t"	\
+-	LOCK_SECTION_NAME ":\n\t"		\
+-	".endif\n\t"
++#define LOCK_SECTION_START(extra)               \
++        ".subsection 1\n\t"                     \
++        extra                                   \
++        ".ifndef " LOCK_SECTION_NAME "\n\t"     \
++        LOCK_SECTION_NAME ":\n\t"               \
++        ".endif\n\t"
 
-I'll say this again:  most of it -- all but the bare interface stuff --
-should be in userspace.  In fact, let's all add this to our signature so
-no one brings it up again. ("Oh no, they want to put tar support in the
-kernel!" no, we don't.)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+-#define LOCK_SECTION_END			\
+-	".previous\n\t"
++#define LOCK_SECTION_END                        \
++        ".previous\n\t"
 
-iQIVAwUBQTe4BXgHNmZLgCUhAQKH1g//WXaL5xdLpX37TdgFhXidiRJGe/ojehj3
-CZ7kseI9GkOBSxHt/yb5/xC6r+XT7JLlvJZybT7HLIRIxGp+WQHHBOD/xezWC+eX
-OyRaOlkZ7o9HRQKhKNRIAwI4jgftpLhFUhePgibubS4UdxtzN2FWuULfKvMKIGHn
-L4Zv4Dpje5ld7l7ce8jhfcURJ7AgAPwja3Tc7C38pmG+dSo2mj0I+YlCUED7mx3R
-ZSv6WtdAUCZjnKv9hSQVruk3fjYZc4dLEGzGH1ZJsD1ZkH5wNmWds5gHGEvQrc4Z
-9reNanTxy+0ECxndk2H/ukw5Wv011rJWubLy/CnaPakPrSvrsmmoEs8ZcVZavlg9
-ABJX/NtyBVl/y8+6Eh6/BdAhQr30U+c/UZLNbOflmcPGPiJCiXfBuaX1OF+qffQ1
-QQvAGPgO2R9egHJWqFhBaLHtBAmiXSRWUU4+4nPBYZ/X5dCmGuV46knQGHdqoAQc
-l/qILh+spY09q9g118QbdnXBseiuVh/a+vf2GrbxbEMuWQu1kAI0DJbN0KKgUdtE
-ZkmIqXYULO6QZsYk3L41ZyKyE7oFMUqbT0uxSQZUCjOcnuBpMn/PzwM0yMJeDUKx
-295Yzq5lkqkGmHJHi7XGOOI5XVIPb++DWXXv9E6Bfgoj4TSZscfwM69PQRoSq0hu
-iL9VOiyLRBU=
-=zrvZ
------END PGP SIGNATURE-----
+ /*
+  * If CONFIG_SMP is set, pull in the _raw_* definitions
+@@ -44,9 +44,38 @@
+ #ifdef CONFIG_SMP
+ #include <asm/spinlock.h>
+
+-#else
++int fastcall _spin_trylock(spinlock_t *lock);
++int fastcall _write_trylock(rwlock_t *lock);
++void fastcall _spin_lock(spinlock_t *lock);
++void fastcall _write_lock(rwlock_t *lock);
++void fastcall _spin_lock(spinlock_t *lock);
++void fastcall _read_lock(rwlock_t *lock);
++void fastcall _spin_unlock(spinlock_t *lock);
++void fastcall _write_unlock(rwlock_t *lock);
++void fastcall _read_unlock(rwlock_t *lock);
++unsigned long fastcall _spin_lock_irqsave(spinlock_t *lock);
++unsigned long fastcall _read_lock_irqsave(rwlock_t *lock);
++unsigned long fastcall _write_lock_irqsave(rwlock_t *lock);
++void fastcall _spin_lock_irq(spinlock_t *lock);
++void fastcall _spin_lock_bh(spinlock_t *lock);
++void fastcall _read_lock_irq(rwlock_t *lock);
++void fastcall _read_lock_bh(rwlock_t *lock);
++void fastcall _write_lock_irq(rwlock_t *lock);
++void fastcall _write_lock_bh(rwlock_t *lock);
++void fastcall _spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags);
++void fastcall _spin_unlock_irq(spinlock_t *lock);
++void fastcall _spin_unlock_bh(spinlock_t *lock);
++void fastcall _read_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
++void fastcall _read_unlock_irq(rwlock_t *lock);
++void fastcall _read_unlock_bh(rwlock_t *lock);
++void fastcall _write_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
++void fastcall _write_unlock_irq(rwlock_t *lock);
++void fastcall _write_unlock_bh(rwlock_t *lock);
++int fastcall _spin_trylock_bh(spinlock_t *lock);
+
+-#define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
++extern unsigned long __lock_text_start;
++extern unsigned long __lock_text_end;
++#else
+
+ #if !defined(CONFIG_PREEMPT) && !defined(CONFIG_DEBUG_SPINLOCK)
+ # define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
+@@ -174,9 +203,9 @@ typedef struct {
+ #define spin_lock_init(lock)	do { (void)(lock); } while(0)
+ #define _raw_spin_lock(lock)	do { (void)(lock); } while(0)
+ #define spin_is_locked(lock)	((void)(lock), 0)
+-#define _raw_spin_trylock(lock)	((void)(lock), 1)
+-#define spin_unlock_wait(lock)	do { (void)(lock); } while(0)
+-#define _raw_spin_unlock(lock)	do { (void)(lock); } while(0)
++#define _raw_spin_trylock(lock)	(((void)(lock), 1))
++#define spin_unlock_wait(lock)	(void)(lock);
++#define _raw_spin_unlock(lock) do { (void)(lock); } while(0)
+ #endif /* CONFIG_DEBUG_SPINLOCK */
+
+ /* RW spinlocks: No debug version */
+@@ -196,152 +225,116 @@ typedef struct {
+ #define _raw_write_unlock(lock)	do { (void)(lock); } while(0)
+ #define _raw_write_trylock(lock) ({ (void)(lock); (1); })
+
+-#endif /* !SMP */
+-
+-#ifdef CONFIG_LOCKMETER
+-extern void _metered_spin_lock   (spinlock_t *lock);
+-extern void _metered_spin_unlock (spinlock_t *lock);
+-extern int  _metered_spin_trylock(spinlock_t *lock);
+-extern void _metered_read_lock    (rwlock_t *lock);
+-extern void _metered_read_unlock  (rwlock_t *lock);
+-extern void _metered_write_lock   (rwlock_t *lock);
+-extern void _metered_write_unlock (rwlock_t *lock);
+-extern int  _metered_write_trylock(rwlock_t *lock);
+-#endif
+-
+-/*
+- * Define the various spin_lock and rw_lock methods.  Note we define these
+- * regardless of whether CONFIG_SMP or CONFIG_PREEMPT are set. The various
+- * methods are defined as nops in the case they are not required.
+- */
+-#define spin_trylock(lock)	({preempt_disable(); _raw_spin_trylock(lock) ? \
++#define _spin_trylock(lock)	({preempt_disable(); _raw_spin_trylock(lock) ? \
+ 				1 : ({preempt_enable(); 0;});})
+
+-#define write_trylock(lock)	({preempt_disable();_raw_write_trylock(lock) ? \
++#define _write_trylock(lock)	({preempt_disable(); _raw_write_trylock(lock) ? \
+ 				1 : ({preempt_enable(); 0;});})
+
+-/* Where's read_trylock? */
+-
+-#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
+-void __preempt_spin_lock(spinlock_t *lock);
+-void __preempt_write_lock(rwlock_t *lock);
+-
+-#define spin_lock(lock) \
+-do { \
+-	preempt_disable(); \
+-	if (unlikely(!_raw_spin_trylock(lock))) \
+-		__preempt_spin_lock(lock); \
+-} while (0)
+-
+-#define write_lock(lock) \
+-do { \
+-	preempt_disable(); \
+-	if (unlikely(!_raw_write_trylock(lock))) \
+-		__preempt_write_lock(lock); \
+-} while (0)
++#define _spin_trylock_bh(lock)	({preempt_disable(); local_bh_disable(); \
++				_raw_spin_trylock(lock) ? \
++				1 : ({preempt_enable(); local_bh_enable(); 0;});})
+
+-#else
+-#define spin_lock(lock)	\
++#define _spin_lock(lock)	\
+ do { \
+ 	preempt_disable(); \
+ 	_raw_spin_lock(lock); \
+ } while(0)
+
+-#define write_lock(lock) \
++#define _write_lock(lock) \
+ do { \
+ 	preempt_disable(); \
+ 	_raw_write_lock(lock); \
+ } while(0)
+-#endif
+-
+-#define read_lock(lock)	\
++
++#define _read_lock(lock)	\
+ do { \
+ 	preempt_disable(); \
+ 	_raw_read_lock(lock); \
+ } while(0)
+
+-#define spin_unlock(lock) \
++#define _spin_unlock(lock) \
+ do { \
+ 	_raw_spin_unlock(lock); \
+ 	preempt_enable(); \
+ } while (0)
+
+-#define write_unlock(lock) \
++#define _write_unlock(lock) \
+ do { \
+ 	_raw_write_unlock(lock); \
+ 	preempt_enable(); \
+ } while(0)
+
+-#define read_unlock(lock) \
++#define _read_unlock(lock) \
+ do { \
+ 	_raw_read_unlock(lock); \
+ 	preempt_enable(); \
+ } while(0)
+
+-#define spin_lock_irqsave(lock, flags) \
+-do { \
++#define _spin_lock_irqsave(lock, flags) \
++do {	\
+ 	local_irq_save(flags); \
+ 	preempt_disable(); \
+-	_raw_spin_lock_flags(lock, flags); \
++	_raw_spin_lock(lock); \
+ } while (0)
+
+-#define spin_lock_irq(lock) \
++#define _spin_lock_irq(lock) \
+ do { \
+ 	local_irq_disable(); \
+ 	preempt_disable(); \
+ 	_raw_spin_lock(lock); \
+ } while (0)
+
+-#define spin_lock_bh(lock) \
++#define _spin_lock_bh(lock) \
+ do { \
+ 	local_bh_disable(); \
+ 	preempt_disable(); \
+ 	_raw_spin_lock(lock); \
+ } while (0)
+
+-#define read_lock_irqsave(lock, flags) \
+-do { \
++#define _read_lock_irqsave(lock, flags) \
++do {	\
+ 	local_irq_save(flags); \
+ 	preempt_disable(); \
+ 	_raw_read_lock(lock); \
+ } while (0)
+
+-#define read_lock_irq(lock) \
++#define _read_lock_irq(lock) \
+ do { \
+ 	local_irq_disable(); \
+ 	preempt_disable(); \
+ 	_raw_read_lock(lock); \
+ } while (0)
+
+-#define read_lock_bh(lock) \
++#define _read_lock_bh(lock) \
+ do { \
+ 	local_bh_disable(); \
+ 	preempt_disable(); \
+ 	_raw_read_lock(lock); \
+ } while (0)
+
+-#define write_lock_irqsave(lock, flags) \
+-do { \
++#define _write_lock_irqsave(lock, flags) \
++do {	\
+ 	local_irq_save(flags); \
+ 	preempt_disable(); \
+ 	_raw_write_lock(lock); \
+ } while (0)
+
+-#define write_lock_irq(lock) \
++#define _write_lock_irq(lock) \
+ do { \
+ 	local_irq_disable(); \
+ 	preempt_disable(); \
+ 	_raw_write_lock(lock); \
+ } while (0)
+
+-#define write_lock_bh(lock) \
++#define _write_lock_bh(lock) \
+ do { \
+ 	local_bh_disable(); \
+ 	preempt_disable(); \
+ 	_raw_write_lock(lock); \
+ } while (0)
+
+-#define spin_unlock_irqrestore(lock, flags) \
++#define _spin_unlock_irqrestore(lock, flags) \
+ do { \
+ 	_raw_spin_unlock(lock); \
+ 	local_irq_restore(flags); \
+@@ -354,65 +347,128 @@ do { \
+ 	local_irq_restore(flags); \
+ } while (0)
+
+-#define spin_unlock_irq(lock) \
++#define _spin_unlock_irq(lock) \
+ do { \
+ 	_raw_spin_unlock(lock); \
+ 	local_irq_enable(); \
+ 	preempt_enable(); \
+ } while (0)
+
+-#define spin_unlock_bh(lock) \
++#define _spin_unlock_bh(lock) \
+ do { \
+ 	_raw_spin_unlock(lock); \
+ 	preempt_enable(); \
+ 	local_bh_enable(); \
+ } while (0)
+
+-#define read_unlock_irqrestore(lock, flags) \
++#define _write_unlock_bh(lock) \
+ do { \
+-	_raw_read_unlock(lock); \
+-	local_irq_restore(flags); \
++	_raw_write_unlock(lock); \
+ 	preempt_enable(); \
++	local_bh_enable(); \
+ } while (0)
+
+-#define read_unlock_irq(lock) \
++#define _read_unlock_irqrestore(lock, flags) \
+ do { \
+ 	_raw_read_unlock(lock); \
+-	local_irq_enable(); \
++	local_irq_restore(flags); \
+ 	preempt_enable(); \
+ } while (0)
+
+-#define read_unlock_bh(lock) \
++#define _write_unlock_irqrestore(lock, flags) \
+ do { \
+-	_raw_read_unlock(lock); \
++	_raw_write_unlock(lock); \
++	local_irq_restore(flags); \
+ 	preempt_enable(); \
+-	local_bh_enable(); \
+ } while (0)
+
+-#define write_unlock_irqrestore(lock, flags) \
++#define _read_unlock_irq(lock)	\
+ do { \
+-	_raw_write_unlock(lock); \
+-	local_irq_restore(flags); \
+-	preempt_enable(); \
++	_raw_read_unlock(lock);	\
++	local_irq_enable();	\
++	preempt_enable();	\
+ } while (0)
+
+-#define write_unlock_irq(lock) \
++#define _read_unlock_bh(lock)	\
+ do { \
+-	_raw_write_unlock(lock); \
+-	local_irq_enable(); \
+-	preempt_enable(); \
++	_raw_read_unlock(lock);	\
++	local_bh_enable();	\
++	preempt_enable();	\
+ } while (0)
+
+-#define write_unlock_bh(lock) \
++#define _write_unlock_irq(lock)	\
+ do { \
+-	_raw_write_unlock(lock); \
+-	preempt_enable(); \
+-	local_bh_enable(); \
++	_raw_write_unlock(lock);	\
++	local_irq_enable();	\
++	preempt_enable();	\
+ } while (0)
+
+-#define spin_trylock_bh(lock)	({ local_bh_disable(); preempt_disable(); \
+-				_raw_spin_trylock(lock) ? 1 : \
+-				({preempt_enable(); local_bh_enable(); 0;});})
++#endif /* !SMP */
++
++#ifdef CONFIG_LOCKMETER
++extern void _metered_spin_lock   (spinlock_t *lock);
++extern void _metered_spin_unlock (spinlock_t *lock);
++extern int  _metered_spin_trylock(spinlock_t *lock);
++extern void _metered_read_lock    (rwlock_t *lock);
++extern void _metered_read_unlock  (rwlock_t *lock);
++extern void _metered_write_lock   (rwlock_t *lock);
++extern void _metered_write_unlock (rwlock_t *lock);
++extern int  _metered_write_trylock(rwlock_t *lock);
++#endif
++
++/*
++ * Define the various spin_lock and rw_lock methods.  Note we define these
++ * regardless of whether CONFIG_SMP or CONFIG_PREEMPT are set. The various
++ * methods are defined as nops in the case they are not required.
++ */
++#define spin_trylock(lock)	_spin_trylock(lock)
++#define write_trylock(lock)	_write_trylock(lock)
++
++/* Where's read_trylock? */
++
++#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
++void __preempt_spin_lock(spinlock_t *lock);
++void __preempt_write_lock(rwlock_t *lock);
++#endif
++
++#define spin_lock(lock)		_spin_lock(lock)
++#define write_lock(lock)	_write_lock(lock)
++#define read_lock(lock)		_read_lock(lock)
++#define spin_unlock(lock)	_spin_unlock(lock)
++#define write_unlock(lock)	_write_unlock(lock)
++#define read_unlock(lock)	_read_unlock(lock)
++
++#ifdef CONFIG_SMP
++#define spin_lock_irqsave(lock, flags)	flags = _spin_lock_irqsave(lock)
++#define read_lock_irqsave(lock, flags)	flags = _read_lock_irqsave(lock)
++#define write_lock_irqsave(lock, flags)	flags = _write_lock_irqsave(lock)
++#else
++#define spin_lock_irqsave(lock, flags)	_spin_lock_irqsave(lock, flags)
++#define read_lock_irqsave(lock, flags)	_read_lock_irqsave(lock, flags)
++#define write_lock_irqsave(lock, flags)	_write_lock_irqsave(lock, flags)
++#endif
++
++#define spin_lock_irq(lock)		_spin_lock_irq(lock)
++#define spin_lock_bh(lock)		_spin_lock_bh(lock)
++
++#define read_lock_irq(lock)		_read_lock_irq(lock)
++#define read_lock_bh(lock)		_read_lock_bh(lock)
++
++#define write_lock_irq(lock)		_write_lock_irq(lock)
++#define write_lock_bh(lock)		_write_lock_bh(lock)
++#define spin_unlock_irqrestore(lock, flags)	_spin_unlock_irqrestore(lock, flags)
++#define spin_unlock_irq(lock)		_spin_unlock_irq(lock)
++#define spin_unlock_bh(lock)		_spin_unlock_bh(lock)
++
++#define read_unlock_irqrestore(lock, flags)	_read_unlock_irqrestore(lock, flags)
++#define read_unlock_irq(lock)			_read_unlock_irq(lock)
++#define read_unlock_bh(lock)			_read_unlock_bh(lock)
++
++#define write_unlock_irqrestore(lock, flags)	_write_unlock_irqrestore(lock, flags)
++#define write_unlock_irq(lock)			_write_unlock_irq(lock)
++#define write_unlock_bh(lock)			_write_unlock_bh(lock)
++
++#define spin_trylock_bh(lock)			_spin_trylock_bh(lock)
+
+ #ifdef CONFIG_LOCKMETER
+ #undef spin_lock
+@@ -555,12 +611,6 @@ do { \
+ extern int atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
+ #endif
+
+-/*
+- *  bit-based spin_lock()
+- *
+- * Don't use this unless you really need to: spin_lock() and spin_unlock()
+- * are significantly faster.
+- */
+ static inline void bit_spin_lock(int bitnum, unsigned long *addr)
+ {
+ 	/*

@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312511AbSC0OJw>; Wed, 27 Mar 2002 09:09:52 -0500
+	id <S313019AbSC0ORp>; Wed, 27 Mar 2002 09:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313016AbSC0OJm>; Wed, 27 Mar 2002 09:09:42 -0500
-Received: from ns.suse.de ([213.95.15.193]:2834 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312511AbSC0OJV>;
-	Wed, 27 Mar 2002 09:09:21 -0500
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S313020AbSC0OR0>; Wed, 27 Mar 2002 09:17:26 -0500
+Received: from rj.sgi.com ([204.94.215.100]:52165 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S313019AbSC0ORF>;
+	Wed, 27 Mar 2002 09:17:05 -0500
 Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
-In-Reply-To: <Pine.LNX.4.33.0203271323330.24894-100000@sphinx.mythic-beasts.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Mar 2002 15:09:19 +0100
-Message-ID: <p73y9ge3xww.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+From: Florin Andrei <florin@sgi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203271323330.24894-100000@sphinx.mythic-beasts.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 27 Mar 2002 06:17:04 -0800
+Message-Id: <1017238624.30397.18.camel@stantz.corp.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Kirkwood <matthew@hairy.beasts.org> writes:
-
-> 		PostgreSQL
-> 	tuning?	single	ir	mx-ir	oltp	mixed-oltp
-> 		(sec)	(tps)	(sec)	(tps)	(sec)
-> ext2	dd	1304.72	66.64	214.25	188.50	230.55
-> 	dn	1288.31	65.93	209.57	234.08	213.75
-> 	bn	1283.50	77.90	1867.71	192.43	226.77
+On Wed, 2002-03-27 at 05:54, Matthew Kirkwood wrote:
 > 
-> ext3	dd	1303.84	66.87	212.49	66.06	361.04
-> 	dn	1288.03	64.62	209.27	111.41	278.54
-> 	bn	1285.32	65.98	1996.41	90.05	307.79
-
-This is ext3 with ordered data? 
-
-> minix	dd	1305.26	67.38	207.74	193.90	228.81
-> 	dn	1331.27	67.14	210.07	223.70	214.33
-> 	bn	1299.24	89.58	1988.31	231.17	231.17
-
-Wow minix is faster than ext2 @)  That certainly looks strange. 
-
-Any chance to test XFS too?
-
 > 3. The journalled filesystems do have measurable overhead
 >    for this workload.
 
-Normally (non data journaling, noatime) journaling fs shouldn't have any
-overhead for database load, because database files should be preallocated
-and the database should do direct IO in/out the preallocated buffers
-with the FS never doing any metadata writes, except for occassional inode
-updates for mtime depending on what sync mode that DB uses (hmm, I guess a 
-nomtime or verylazymtime or alwaysasyncmtime mount option could be helpful 
-for that) 
- 
-That's the theory, but doesn't seem to be the case in your test. I guess
-your test is not very realistic then. 
+Can you repeat the tests with XFS too?
 
-> 2. What does jfs do in the way of data journalling?  Is it
->    "ordered" or "writeback", in ext3-speak?  (I assume
->    fully journalled data would give much worse performance.)
+In my tests, it did the best for database-type workloads (and generally,
+for large files with multiple access).
 
-Kind of ordered I believe.
+-- 
+Florin Andrei
 
--Andi
+"Sorry judge, we would like to publish the file formats, but the data is
+not stored in files. It is stored in a database that is an indivisible
+part of the operating system." - a potential future Microsoft excuse
+

@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271573AbTGQS2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 14:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271551AbTGQS1s
+	id S271563AbTGQSb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 14:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271584AbTGQS2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 14:27:48 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58324 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271584AbTGQSZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 14:25:59 -0400
-Date: Thu, 17 Jul 2003 20:40:46 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>, liam.girdwood@wolfsonmicro.com
+	Thu, 17 Jul 2003 14:28:16 -0400
+Received: from web20006.mail.yahoo.com ([216.136.225.69]:57643 "HELO
+	web20006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S271563AbTGQSZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 14:25:05 -0400
+Message-ID: <20030717183958.74004.qmail@web20006.mail.yahoo.com>
+Date: Thu, 17 Jul 2003 11:39:58 -0700 (PDT)
+From: navneet panda <navneet_panda@yahoo.com>
+Subject: Re: kernel panic at boot
+To: William T Wilson <fluffy@snurgle.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test1-ac2: ac97_plugin_wm97xx.c doesn't compile non-modular
-Message-ID: <20030717184046.GG1407@fs.tum.de>
-References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.44.0307171405460.18906-100000@benatar>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307161816.h6GIGKH09243@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 02:16:20PM -0400, Alan Cox wrote:
+Hi,
 
->...
-> 2.5.75-ac (never released) differences remaining unmerged
->...
-> o	WM97xx touchscreen plugins			(Liam Girdwood)
->...
+Thanks for the suggestion but I already tried that
+with
 
-ac97_plugin_wm97xx.c doesn't compile non-modular:
+root=/dev/hda6 ( same as for working 2.4.20-18 )
 
-<--  snip  -->
+It didn't work
 
-...
-  CC      sound/oss/ac97_plugin_wm97xx.o
-sound/oss/ac97_plugin_wm97xx.c: In function `wm97xx_ts_setup':
-sound/oss/ac97_plugin_wm97xx.c:1274: warning: implicit declaration of 
-function `strtok'
-sound/oss/ac97_plugin_wm97xx.c:1274: warning: assignment makes pointer 
-from integer without a cast
-sound/oss/ac97_plugin_wm97xx.c:1275: warning: assignment makes pointer 
-from integer without a cast
-...  
-LD      .tmp_vmlinux1
-sound/built-in.o(.init.text+0xc4f1): In function `wm97xx_ts_setup':
-: undefined reference to `strtok'
-sound/built-in.o(.init.text+0xc704): In function `wm97xx_ts_setup':
-: undefined reference to `strtok'
-make: *** [.tmp_vmlinux1] Error 1
+Thanks anyway
+Panda
 
-<--  snip  -->
+--- William T Wilson <fluffy@snurgle.org> wrote:
+> On Thu, 17 Jul 2003, navneet panda wrote:
+> 
+> > root=LABEL=/ hdc=ide-scsi idebus=66
+> 
+> Try gettin rid of worthless LABEL= and use a device
+> identifier (i.e.  
+> root=/dev/hda3 or whatever).  I have found that
+> LABEL= is uniformly more
+> trouble than it is worth.
+> 
 
-cu
-Adrian
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130606AbQLIJrZ>; Sat, 9 Dec 2000 04:47:25 -0500
+	id <S130417AbQLIKMV>; Sat, 9 Dec 2000 05:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130481AbQLIJrP>; Sat, 9 Dec 2000 04:47:15 -0500
-Received: from manos.timpanogas.org ([207.109.151.249]:39428 "EHLO
-	manos.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130606AbQLIJrE>; Sat, 9 Dec 2000 04:47:04 -0500
-Date: Sat, 9 Dec 2000 03:12:15 -0700
-From: root <root@manos.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: 2.2.18-25 Video Sickness
-Message-ID: <20001209031215.A6064@manos.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S130481AbQLIKML>; Sat, 9 Dec 2000 05:12:11 -0500
+Received: from c334580-a.snvl1.sfba.home.com ([65.5.27.33]:43271 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S130417AbQLIKMB>; Sat, 9 Dec 2000 05:12:01 -0500
+Message-ID: <011001c061c4$53ee8a00$0400a8c0@playtoy>
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Network delays with NE2K-PCI
+Date: Sat, 9 Dec 2000 01:41:35 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+KERNEL VER: 2.4.0-test11
+ADD. PATCHES: reiserfs patch
+NETWORK CARD: NE2K-PCI Kingston KNE-111TX (P/N: 4460170-001.A00)
+10/100BASE-TX
+MOBO: MSI BX-Master with 20001013 BIOS update
+
+PROBLEM:  Network hangs on all initial outbound traffic.
+
+I need to do a ping in order to get any type of connection. Network response
+starts out in the high thousand ms then "connects" and drops to a normal 23
+ms average. If I do NOT do this initial ping or several nslookups or some
+sort of outbound traffic I can not connect to the net nor does the box
+respond to inbound packets. But once I do that first set of pings everything
+works fine.. until the next reboot and I end up having to do that first set
+of pings again.
+
+This problem does not happen under any of the 2.2.x series of kernels with
+reiserfs patch and same NIC module and network config. All versions of
+network daemons like named, postfix, sendmail sshd ect ect are the same. (I
+purposely built the setups under 2.2 and 2.4 the same just to make sure it
+wasn't a daemon issue.)
+
+I've searched through the list archvies under SUBJECT and found nothing
+related to this.
+
+POSSIBILITY: Driver issue with the 2.4.0-test11 and the ne2k-pci module when
+used with this particular network card? It acts almost like the card is
+"sleeping". I thought it might possibly be the WAKE ON LAN option in the
+BIOS but I turned off all APM options in BIOS, disabled the apmd daemon and
+compiled the kernel without APM support.
+
+I thought it might be the fact that it's a 32 bit bus mastering PCI adapter
+but I've tried enabling and disabling bus mastering in the BIOS to what
+extent it allows.
+
+At this point I'm totally clueless where to look.
+
+All my other machines running various versions of 2.4.0 (test6 through
+test11) all use the NetGear FA-310TX and i don't get this problem. Only with
+this brand of card. (Tried 3 different physical cards of the same model.)
 
 
-Here is the .config file section for turning on the console drivers
-for 2.2.18-25 that causes the sickness with Xconfigurator.
+Any ideas?
 
-Jeff
+David D.W. Downey
 
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_MDA_CONSOLE=m
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_PM2=y
-# CONFIG_FB_PM2_FIFO_DISCONNECT is not set
-# CONFIG_FB_PM2_PCI is not set
-CONFIG_FB_ATY=y
-CONFIG_FB_VESA=y
-# CONFIG_FB_VGA16 is not set
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=m
-CONFIG_FB_MATROX_MILLENIUM=y
-CONFIG_FB_MATROX_MYSTIQUE=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_FB_MATROX_MULTIHEAD=y
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_VIRTUAL is not set
-# CONFIG_FBCON_ADVANCED is not set
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
-# CONFIG_FBCON_FONTS is not set
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132473AbRBRJlk>; Sun, 18 Feb 2001 04:41:40 -0500
+	id <S132471AbRBRJsK>; Sun, 18 Feb 2001 04:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132579AbRBRJla>; Sun, 18 Feb 2001 04:41:30 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42624 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132473AbRBRJlT>;
-	Sun, 18 Feb 2001 04:41:19 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S132373AbRBRJru>; Sun, 18 Feb 2001 04:47:50 -0500
+Received: from mx.interplus.ro ([193.231.252.3]:39181 "EHLO mx.interplus.ro")
+	by vger.kernel.org with ESMTP id <S132360AbRBRJrm>;
+	Sun, 18 Feb 2001 04:47:42 -0500
+Message-ID: <3A8F9A6E.E44261AF@interplus.ro>
+Date: Sun, 18 Feb 2001 11:48:30 +0200
+From: Mircea Ciocan <mirceac@interplus.ro>
+Organization: Home Office
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac10 i686)
+X-Accept-Language: ro, en
 MIME-Version: 1.0
+To: Linux-kernel@vger.kernel.org
+Subject: Can I have my loop FS back, plizzz !!!
+X-Priority: 1 (Highest)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14991.38968.898918.345197@pizda.ninka.net>
-Date: Sun, 18 Feb 2001 01:39:04 -0800 (PST)
-To: kuznet@ms2.inr.ac.ru
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), roger@kea.GRace.CRi.NZ,
-        linux-kernel@vger.kernel.org
-Subject: Re: MTU and 2.4.x kernel
-In-Reply-To: <200102151933.WAA20558@ms2.inr.ac.ru>
-In-Reply-To: <E14TTRF-0000Ul-00@the-village.bc.nu>
-	<200102151933.WAA20558@ms2.inr.ac.ru>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	2.4.1ac18 and loop-4 doesn't mix at all well, it didn't even compile (
+understandably (sp?) if we think that a large hunk of loop.c is
+rejected, and by studing the reject it seem to me that the original
+version and loop-4 are going in differend directions :( ).
+	So, lacking the skills to fix-it myself I'll try a new INNOVATIVE
+approach: "Begging the Developers (TM:)" that was reported to give
+excelent results in the past:
+	" Can I have my lil'ol loop FS back, plizzzz, plizzzz, I need it badly
+but also I need the other improvements in ac18, I know you are busy with
+other important things, but pleeez ( innocent look :)"
+	And it remains to see if once again this method gives results ;)))).
 
-kuznet@ms2.inr.ac.ru writes:
- > A. Datagram protocols do not work with mtus not allowing to send
- >    512 byte frames (even DNS).
-
-This smells bad.  Datagram protocol send sizes are only limited by
-socket buffer size, nothing more.  Fragmentation makes it work.
-
-If you are really talking about side effects of UDP path-mtu, then I
-will turn off UDP path-mtu by default in 2.4.x because it is obviously
-very broken either conceptually or in our implementation. :-)
-
-Later,
-David S. Miller
-davem@redhat.com
+		Mircea "too many bad loops" C.

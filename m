@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSHGDCk>; Tue, 6 Aug 2002 23:02:40 -0400
+	id <S316712AbSHGDLs>; Tue, 6 Aug 2002 23:11:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316712AbSHGDCk>; Tue, 6 Aug 2002 23:02:40 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20752 "EHLO
+	id <S316715AbSHGDLs>; Tue, 6 Aug 2002 23:11:48 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22544 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316695AbSHGDCk>; Tue, 6 Aug 2002 23:02:40 -0400
-Date: Tue, 6 Aug 2002 23:00:18 -0400 (EDT)
+	id <S316712AbSHGDLr>; Tue, 6 Aug 2002 23:11:47 -0400
+Date: Tue, 6 Aug 2002 23:09:14 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: rwhron@earthlink.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.4.19-rc5
-In-Reply-To: <20020806043648.GA23256@rushmore>
-Message-ID: <Pine.LNX.3.96.1020806225736.9964A-100000@gatekeeper.tmr.com>
+To: Nick Orlov <nick.orlov@mail.ru>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pdc20265 problem.
+In-Reply-To: <20020806043304.GA8272@nikolas.hn.org>
+Message-ID: <Pine.LNX.3.96.1020806230434.9964C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002 rwhron@earthlink.net wrote:
+On Tue, 6 Aug 2002, Nick Orlov wrote:
 
-> > I sort of hoped it would be better in performance, not
-> > increasingly worse.
-> 
-> There were a lot of improvements during the 2.4.19-pre series on 
-> several I/O benchmarks.  Comparing 2.4.18 to 2.4.19 on a quad xeon. 
-> Here are a few of the big changes (average of 5 runs):
+> 1. ide0/1 reserved for onboard controllers.
 
-Clearly, I may not have been clear that I expected 2.5.xx to be better
-than 2.4.xx. That may have been an artifact of tuning one kernel or the
-other, I'm waiting to get clarification on that.
+Not sure about that, I've run 2.4.x (ie. x<10} on machines so old that
+they had no onboard anything, and were using "VESA bus" ide controllers. I
+think they were ide0/1.
+
+> 2. on most hardware, pdc20xxx is really additional controller.
+
+That's the problem, most not all. No matter what we assume it will be
+wrong part of the time.
+
+> 3. if we put pdc20265 in "onboard" list on some hardware (mine for example)
+> pdc20265 is assigned to ide0/1 (even if it's really ide2/3)
+
+Does this matter as long as we can force it to be where we want? 
+
+> 4. ide0=<what> ??? (do we have this option?)
+
+I made that up, I believe we do/did if my memory isn't totally kidding me.
  
-> 300% drop in cpu usage on ext3 for tiobench seq reads
+> Correct me, if I'm wrong.
 
-??? I hope you mean 67% drop.
+This is lkml, count on it. Sometimes they correct you if you're right ;-)
 
 -- 
 bill davidsen <davidsen@tmr.com>

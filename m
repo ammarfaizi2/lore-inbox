@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbREOQCw>; Tue, 15 May 2001 12:02:52 -0400
+	id <S261911AbREOQFc>; Tue, 15 May 2001 12:05:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbREOQCm>; Tue, 15 May 2001 12:02:42 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:54285
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S261309AbREOQC3>; Tue, 15 May 2001 12:02:29 -0400
-Date: Tue, 15 May 2001 12:00:43 -0400
-From: Chris Mason <mason@suse.com>
-To: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: Chris Wedgwood <cw@f00f.org>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Getting FS access events
-Message-ID: <1087040000.989942443@tiny>
-In-Reply-To: <Pine.GSO.4.21.0105150424310.19333-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S261910AbREOQFW>; Tue, 15 May 2001 12:05:22 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:39948 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261405AbREOQFN>; Tue, 15 May 2001 12:05:13 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Device Numbers, LILO
+Date: 15 May 2001 09:04:55 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9drk37$51s$1@cesium.transmeta.com>
+In-Reply-To: <20010515121635.B5C402F84AC@www.topmail.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tuesday, May 15, 2001 04:33:57 AM -0400 Alexander Viro
-<viro@math.psu.edu> wrote:
-
+Followup to:  <20010515121635.B5C402F84AC@www.topmail.de>
+By author:    mirabilos <eccesys@topmail.de>
+In newsgroup: linux.dev.kernel
+>
+> >That's not the issue.  LILO takes whatever you pass to root= and converts
+> >it to a device number at /sbin/lilo time.  An idiotic practice on the
+> >part of LILO, in my opinion, that ought to have been fixed a long time
+> >ago.
 > 
+> That's why you have to use append="root=blah" for devfs :)
+> Really it should have been in IMO. Btw, is LBA support in?
+> Last time I saw a LILO manpage it stated that "linear" still
+> is restricted to 16bit (65535 sectors) which normally is much
+> less than 1k cylinders...
 > 
-> On Tue, 15 May 2001, Linus Torvalds wrote:
-> 
->> Looks like there are 19 filesystems that use the buffer cache right now:
->> 
->> 	grep -l bread fs/*/*.c | cut -d/ -f2 | sort -u | wc
->> 
->> So quite a bit of work involved.
-> 
-> Reiserfs... Dunno. They've got a private (slightly mutated) copy of
-> ~60% of fs/buffer.c. 
 
-But, putting the log and the metadata in the page cache makes memory
-pressure and such cleaner, so this is one of my goals for 2.5.  reiserfs
-will still have alias issues due to the packed tails (one copy in the
-btree, another in the page), but it will be no worse than it is now.
+It's in, but for some strange reason you have to ask for it explicitly
+with the "lba32" option.
 
--chris
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTDCS6D 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:58:03 -0500
+	id S263470AbTDCTBR 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:01:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263468AbTDCS6D 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:58:03 -0500
-Received: from granite.he.net ([216.218.226.66]:23304 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263467AbTDCS5y 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 13:57:54 -0500
-Date: Thu, 3 Apr 2003 11:10:35 -0800
-From: Greg KH <greg@kroah.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Stacy Woods <stacyw@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs sitting in the NEW state for more than 2 weeks
-Message-ID: <20030403191035.GA5445@kroah.com>
-References: <3E8C5851.6080200@us.ibm.com> <20030403174343.GA4895@kroah.com> <1950000.1049395076@flay>
+	id S263472AbTDCTBQ 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:01:16 -0500
+Received: from adsl-66-120-100-11.dsl.sndg02.pacbell.net ([66.120.100.11]:14854
+	"HELO glacier.arctrix.com") by vger.kernel.org with SMTP
+	id S263470AbTDCTBC 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 14:01:02 -0500
+Date: Thu, 3 Apr 2003 11:13:12 -0800
+From: Neil Schemenauer <nas@python.ca>
+To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: RAID 5 performance problems
+Message-ID: <20030403191311.GA9406@glacier.arctrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1950000.1049395076@flay>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 03, 2003 at 10:37:56AM -0800, Martin J. Bligh wrote:
-> >> 387  Other      Other      bugme-janitors@lists.osdl.org
-> >> poll on usb device does not return immediatly when device is unplugged
-> >> 
-> >> 388  Other      Other      bugme-janitors@lists.osdl.org
-> >> 2.5.60/ioctl on usb device returns wrong length
-> > 
-> > Any reason why these were not assigned to the USB maintainer, like the
-> > other USB bugs have been?
-> 
-> Looks like someone just filed them under the wrong category ....
-> I can move them and reassign if you like?
+Ross Vandegrift <ross@willow.seitz.com> wrote:
+> Absolutely correct - you should *never* run IDE RAID on a channel that
+> has both a master and slave.  When one disk on an IDE channel has an
+> error, the whole channel is reset - this makes both disks
+> inaccessible,
+> and RAID5 now has two failed disks => you data is gone!  *ALWAYS* use
+> separate IDE channels.
 
-I took care of them.
+I think it's okay to use both channels if you use RAID0+1 (also
+known as RAID10), just be sure to mirror across channels.  As a
+bonus, RAID0+1 is significantly faster than RAID5.
 
-thanks,
-
-greg k-h
+  Neil

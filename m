@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132789AbRDDQLN>; Wed, 4 Apr 2001 12:11:13 -0400
+	id <S132816AbRDDQOD>; Wed, 4 Apr 2001 12:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132784AbRDDQLD>; Wed, 4 Apr 2001 12:11:03 -0400
-Received: from ns.caldera.de ([212.34.180.1]:33540 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S132755AbRDDQKz>;
-	Wed, 4 Apr 2001 12:10:55 -0400
-Date: Wed, 4 Apr 2001 17:55:44 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Khalid Aziz <khalid@fc.hp.com>
-Cc: Hubertus Franke <frankeh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-        Mike Kravetz <mkravetz@sequent.com>,
-        Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: a quest for a better scheduler
-Message-ID: <20010404175544.A6240@caldera.de>
-Mail-Followup-To: Khalid Aziz <khalid@fc.hp.com>,
-	Hubertus Franke <frankeh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-	Mike Kravetz <mkravetz@sequent.com>,
-	Fabio Riccardi <fabio@chromium.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	lse-tech@lists.sourceforge.net
-In-Reply-To: <OF401BD38B.CF3B1E9F-ON85256A24.0048543A@pok.ibm.com> <3ACB4156.160B7937@fc.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <3ACB4156.160B7937@fc.hp.com>; from khalid@fc.hp.com on Wed, Apr 04, 2001 at 09:44:22AM -0600
+	id <S132810AbRDDQNq>; Wed, 4 Apr 2001 12:13:46 -0400
+Received: from dentin.eaze.net ([216.228.128.151]:24078 "EHLO xirr.com")
+	by vger.kernel.org with ESMTP id <S132784AbRDDQNY>;
+	Wed, 4 Apr 2001 12:13:24 -0400
+Date: Wed, 4 Apr 2001 11:12:15 -0500 (CDT)
+From: SodaPop <soda@xirr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [QUESTION] 2.4.x nice level
+Message-ID: <Pine.LNX.4.30.0104041104510.9687-100000@xirr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 04, 2001 at 09:44:22AM -0600, Khalid Aziz wrote:
-> Let me stress that HP scheduler is not meant to be a replacement for the
-> current scheduler. The HP scheduler patch allows the current scheduler
-> to be replaced by another scheduler by loading a module in special
-> cases.
+I too have noticed that nicing processes does not work nearly as
+effectively as I'd like it to.  I run on an underpowered machine,
+and have had to stop running things such as seti because it steals too
+much cpu time, even when maximally niced.
 
-HP also has a simple mq patch that is _not_ integrated into the pluggable
-scheduler framework, I have used it myself.
+As an example, I can run mpg123 and a kernel build concurrently without
+trouble; but if I add a single maximally niced seti process, mpg123 runs
+out of gas and will start to skip while decoding.
 
-	Christoph
+Is there any way we can make nice levels stronger than they currently are
+in 2.4?  Or is this perhaps a timeslice problem, where once seti gets cpu
+time it runs longer than it should since it makes relatively few system
+calls?
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+-dennis T
+

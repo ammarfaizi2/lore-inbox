@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264723AbUEJO6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264727AbUEJPCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264723AbUEJO6x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 10:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbUEJO6x
+	id S264727AbUEJPCO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 11:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUEJPCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 10:58:53 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:38001 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264723AbUEJO6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 10:58:51 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.6
-References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 10 May 2004 07:58:50 -0700
-In-Reply-To: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org>
-Message-ID: <52pt9cpbv9.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Mon, 10 May 2004 11:02:14 -0400
+Received: from host201.200-117-133.telecom.net.ar ([200.117.133.201]:33255
+	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S264727AbUEJPCN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 11:02:13 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Dominik Karall <dominik.karall@gmx.net>
+Subject: Re: 2.6.6-mm1
+Date: Mon, 10 May 2004 12:02:14 -0300
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20040510024506.1a9023b6.akpm@osdl.org> <200405101138.04094.norberto+linux-kernel@bensa.ath.cx> <200405101655.52497.dominik.karall@gmx.net>
+In-Reply-To: <200405101655.52497.dominik.karall@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 May 2004 14:58:50.0339 (UTC) FILETIME=[4DA22B30:01C4369F]
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405101202.14100.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe I have found a severe problem in Linux 2.6.6 that has a
-major impact on all users: the NAME variable in the top-level Makefile
-remains set to "Zonked Quokka," _unchanged from Linux 2.6.5_.
+Dominik Karall wrote:
+> I reverted this patch too, but it works without problems here.
 
-I am unsure of the correct value of NAME, or else I would post a patch.
+Hmmm... Do you use ACPI?
 
- - Roland
-
+Thanks,
+Norberto

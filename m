@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268837AbRHYSsY>; Sat, 25 Aug 2001 14:48:24 -0400
+	id <S270073AbRHYSve>; Sat, 25 Aug 2001 14:51:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270309AbRHYSsP>; Sat, 25 Aug 2001 14:48:15 -0400
-Received: from shared1-batch.whowhere.com ([209.185.123.82]:6863 "HELO
-	shared1-mail.whowhere.com") by vger.kernel.org with SMTP
-	id <S268837AbRHYSsE>; Sat, 25 Aug 2001 14:48:04 -0400
-To: linux-kernel@vger.kernel.org
-Date: Sun, 26 Aug 2001 01:18:13 +0630
-From: "Shyam Kumar Mangayil" <themmadi@eudoramail.com>
-Message-ID: <FCGOKLLNCJBGCBAA@shared1-mail.whowhere.com>
-Mime-Version: 1.0
-X-Sent-Mail: off
-Reply-To: themmadi@eudoramail.com
-X-Mailer: MailCity Service
-Subject: How do I start ?
-X-Sender-Ip: 202.9.167.7
-Organization: QUALCOMM Eudora Web-Mail  (http://www.eudoramail.com:80) 
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+	id <S270101AbRHYSvZ>; Sat, 25 Aug 2001 14:51:25 -0400
+Received: from [205.178.14.190] ([205.178.14.190]:47116 "EHLO
+	orca.desanasystems.com") by vger.kernel.org with ESMTP
+	id <S270073AbRHYSvI>; Sat, 25 Aug 2001 14:51:08 -0400
+Message-ID: <1DF71FB881F4D311A6B700C04FA06A1AC437D0@orca.desanasystems.com>
+From: "Marti, Felix" <fmarti@desanasystems.com>
+To: "'davem@redhat.com'" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: userspace implementation of tcp/ip 
+Date: Sat, 25 Aug 2001 11:47:20 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to write a driver program for EPSON LX 300 printer that I have.
-How doI start ?
+Hi there,
 
-Please help.
+I remember that somebody ported the linux tcp/ip stack to userspace a long
+time ago. Does anybody have a link to that project?
 
-Thanks
-(shyamk@eth.net)
-Shyam
-
-
-Join 18 million Eudora users by signing up for a free Eudora Web-Mail account at http://www.eudoramail.com
+thanx,
+felix

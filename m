@@ -1,57 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTD1Mzz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 08:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTD1Mzz
+	id S263568AbTD1M7K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 08:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbTD1M7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 08:55:55 -0400
-Received: from mail.gmx.net ([213.165.65.60]:20112 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263567AbTD1Mzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 08:55:54 -0400
-Message-ID: <3EAD27B2.9010807@gmx.net>
-Date: Mon, 28 Apr 2003 15:08:02 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	Mon, 28 Apr 2003 08:59:10 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30975 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263568AbTD1M7J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 08:59:09 -0400
+Date: Mon, 28 Apr 2003 15:10:55 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Osamu Tomita <tomita@cinet.co.jp>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.67-ac2 fix new PIO handlers
+In-Reply-To: <3EAC87CD.82C5F4A6@cinet.co.jp>
+Message-ID: <Pine.SOL.4.30.0304281500500.25740-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Henti Smith <bain@tcsn.co.za>
-CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: maximum possible memory limit ..
-References: <20030424200524.5030a86b.bain@tcsn.co.za>
-In-Reply-To: <20030424200524.5030a86b.bain@tcsn.co.za>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CC:ing lse-tech because they know better than me]
 
-Henti Smith wrote:
-> Hi all 
-> 
-> I had a discussion with somebody watching the whole M$ server launch and mentioned then new systems supports up to a terabyte of ram. 
-> I've tried looking for a hint at what the max memory support on linux is and cannot find it anywhere.
-> 
-> can somebody here enlighten me on just what the maximum amount of memory linux can deal with ? 
+On Mon, 28 Apr 2003, Osamu Tomita wrote:
 
-Linux supports up to 4 GB (~2^32 bytes) of memory on 32-bit
-architectures and 64 GB (~2^36 bytes) on x86 with PAE. No other
-operating system can support more on 32-bit since it is a limitation of
-the hardware.
-On 64-bit systems, Linux supports up to 16 EB (~2^64 bytes) of memory,
-which is about 16 million times more than the 1 TB limit of MS.
+> Hi,
+>
+> Bartlomiej Zolnierkiewicz wrote:
+> >
+> > Hi,
+> >
+> > During rewrite of bio walking patch to use rq->cbio instead
+> > of rq->hard_bio I've realized I had screwed orig 2.5.66 patches :\
+> >
+> > I somehow forgot to update task_map_rq(), it should use
+> > __bio_kmap_irq(rq->bio, current_idx, flags) instead of
+> > bio_kmap_irq(rq->bio, flags). The result is that you get
+> > bio corruption (-> data corruption) when using PIO multiple
+> > with sectors multiply > 8 (PAGE_SIZE == bio_vec size).
 
-Current Linux 2.4 allows 32 CPUs for 32-bit arches and 64 CPUs on 64-bit
-arches. However, this limit is (was?) being removed in 2.5, so you can
-have up to 32767 CPUs, which should be enough for you right now.
-(Note: I said _right now_, lest anybody make jokes about 640K limit)
+Hmmm, not only > 8, also 3, 5.
 
+> > Attached patch fixes it and fixes TASKFILE ioctl.
+> >
+> > Please apply to next -ac.
+> Could you please tell me how to apply your patch. Aginst 2.5.62-ac2?
+> I have a ext2 fs corruption problem at PIO mode on 2.5.67-ac2.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Did you use multi PIO? You can check with 'hdparm -m /dev/hdx'.
+If yes this patch should fix the corruption.
+
+> There is no problem on vanilla 2.5.67.
+> I tryed the all patches below.
+>  tf-ioctls-1.diff
+>  tf-ioctls-2a.diff
+>  tf-ioctls-2b.diff
+>  tf-ioctls-3.diff
+>  tf-ioctls-4.diff
+>  tf-dio-1.diff
+>  tf-dio-2.diff
+>  tf-dio-3.diff
+>  tf-dio-4.diff
+>  masked-irq.diff
+> They didn't solve problem.
+
+No, they don't.
+
+> This pio-fixes.diff can't be applied after them?
+>
+> Regards,
+> Osamu Tomita
+
+Could you please apply only pio_fixes.diff on top of the vanilla
+2.5.67-ac2 and tell me if it solves the problem? It should.
+
+Thanks,
+--
+Bartlomiej
 

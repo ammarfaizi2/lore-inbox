@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLBAGC>; Fri, 1 Dec 2000 19:06:02 -0500
+	id <S129226AbQLBAS5>; Fri, 1 Dec 2000 19:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbQLBAFw>; Fri, 1 Dec 2000 19:05:52 -0500
-Received: from 216-99-201-166.hurrah.com ([216.99.201.166]:2313 "EHLO
-	magic.skylab.org") by vger.kernel.org with ESMTP id <S129183AbQLBAFk>;
-	Fri, 1 Dec 2000 19:05:40 -0500
-Date: Fri, 1 Dec 2000 15:35:05 -0800 (PST)
-From: "T. Camp" <campt@openmars.com>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mutliple root devs (take II)
-In-Reply-To: <20001201163525.A25464@wire.cadcamlab.org>
-Message-ID: <Pine.LNX.4.21.0012011529070.4856-100000@magic.skylab.org>
+	id <S129231AbQLBASi>; Fri, 1 Dec 2000 19:18:38 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:54788 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129226AbQLBASe>; Fri, 1 Dec 2000 19:18:34 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: IP fragmentation (DF) and ip_no_pmtu_disc in 2.2 vs 2.4
+Date: 1 Dec 2000 15:47:25 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <909dad$2uk$1@cesium.transmeta.com>
+In-Reply-To: <E141v36-0000Zg-00@the-village.bc.nu> <Pine.LNX.4.30.0012011902010.5623-100000@rossi.itg.ie>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmmm, I don't like your array thing (also in v.I of the patch),
-> limiting us to <n> possible root devices, where n==8.  A better
-> approach might be to iterate over the root= arguments when mounting.  I
-> know why you used the array -- easier to code.
-I was unsure if it was okay to be using kmalloc during early stages of
-init/main.c so I decided to follow the example allready set and just use a
-static array - can anyone advise on being able to do this dynamically?
+Followup to:  <Pine.LNX.4.30.0012011902010.5623-100000@rossi.itg.ie>
+By author:    Paul Jakma <paulj@itg.ie>
+In newsgroup: linux.dev.kernel
+>
+> On Fri, 1 Dec 2000, Alan Cox wrote:
+> 
+> > > Intel PXE uses tftp to download boot images and discards IP packets with
+> > > the DF bit set; so a tftpd server on 2.4 with the default
+> >
+> > Then Intel PXE is buggy and you should go spank whoever provided
+> > it as well as doing the workarounds. Supporting received frames
+> > with DF set is mandatory.
+> >
+> 
 
-> One potential problem with the patch is that you have changed behavior
-> some people are relying on.  If you use 'syslinux' to boot, for
-> example, the SYSLINUX.CFG file can define a default command line
-> including root=.  Then you can augment that line at runtime by typing
-> in your own command line.  Your patch makes it impossible, in this
-> situation, to override the default root device from the syslinux
-> command line.  A kludge to make it work again would be to process the
-> root devices in reverse.  That would be ugly and unintuitive, though.
-Yeah you would need to patch lilo as well to handle the new syntax amongst
-other things.  I use grub and have no troubles along these lines.
-Refrencing the idea in the follow on message about just using the last
-root= only and not allowing multiple root= would work around this.  I
-guess I can't think of any really good reason why having multiple root= is
-a necissary feature.
+Intel PXE is buggier than hell.  Don't even get me started.
 
-t.
-
-Fear the future?  Change the past. 
- This message has resulted in an increase in the entropy of the universe
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,105 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265326AbUBFJ2E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 04:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265321AbUBFJ2E
+	id S265336AbUBFJ0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 04:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbUBFJ0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 04:28:04 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:25554 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265338AbUBFJ1R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 04:27:17 -0500
-Message-Id: <200402060924.i169OWx30517@owlet.beaverton.ibm.com>
-To: piggin@cyberone.com.au, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mjbligh@us.ibm.com, dvhltc@us.ibm.com
-Subject: [PATCH] Load balancing problem in 2.6.2-mm1
-Date: Fri, 06 Feb 2004 01:24:32 -0800
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Fri, 6 Feb 2004 04:26:43 -0500
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:89 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S265336AbUBFJ0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 04:26:38 -0500
+Message-ID: <40235DCC.2060606@ntlworld.com>
+Date: Fri, 06 Feb 2004 09:26:36 +0000
+From: Matt <dirtbird@ntlworld.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.4-6 StumbleUpon/1.87
+X-Accept-Language: en, en-gb, ja
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VFS locking: f_pos thread-safe ?
+References: <402359E1.6000007@ntlworld.com> <20040206011630.42ed5de1.akpm@osdl.org>
+In-Reply-To: <20040206011630.42ed5de1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick, Andrew --
+Andrew Morton wrote:
 
-Found a problem in Nick's code which had it way overbalancing much of
-the time.  I've included a patch below.
+>Matt <dirtbird@ntlworld.com> wrote:
+>  
+>
+>>>Werner Almesberger <wa@almesberger.net> wrote:
+>>>      
+>>>
+>>>>"[...] read( ) [...] shall be atomic with respect to each other
+>>>>  in the effects specified in IEEE Std. 1003.1-200x when they
+>>>>  operate on regular files. If two threads each call one of these
+>>>>  functions, each call shall either see all of the specified
+>>>>  effects of the other call, or none of them."
+>>>>        
+>>>>
+>>>Whichever thread finishes its read last gets to update f_pos.
+>>>      
+>>>
+>>>I'm struggling a bit to understand what they're calling for there.  If
+>>>thread A enters a read and then shortly afterwards thread B enters the
+>>>read, does thread B see an f_pos which starts out at the beginning of A's
+>>>read, or the end of it?
+>>>      
+>>>
+>>>Similar questions apply as the threads exit their read()s.
+>>>      
+>>>
+>>>Either way, there's no way in which we should serialise concurrent readers.
+>>>That would really suck for sensible apps which are using pread64().
+>>>      
+>>>
+>>Surely, we can just serialise read() (and related) calls that modify f_pos?
+>>Since pread() doesn't modify f_pos we shouldn't need to serialise those calls
+>>no? Also doesn't spec make the same claims about other calls that modify
+>>f_pos such as write()?
+>>    
+>>
+>
+>We could do somethnig like that.
+>
+>But is there any application in which two threads simultaneously perform
+>read() against the same fd which is not already buggy?
+>
+>
+>  
+>
+touché :) but still we should do what we can.. want me to make a patch?
 
-I had been porting my schedstats patch to the -mm tree and noticed some
-huge imbalances (on the order of 33 million) being "corrected" and at
-first I thought it was a mis-port. But it was right.  We really were
-deciding 33 million processes had to move.  Of course, we never found
-that many, but we still moved as many as can_migrate_task() would allow.
+    Matt
 
-In find_busiest_group(), after we exit the do/while, we select our
-imbalance.  But max_load, avg_load, and this_load are all unsigned,
-so min(x,y) will make a bad choice if max_load < avg_load < this_load
-(that is, a choice between two negative [very large] numbers).
-
-Unfortunately, there is a bug when max_load never gets changed from zero
-(look in the loop and think what happens if the only load on the machine
-is being created by cpu groups of which we are a member). And you have
-a recipe for some really bogus values for imbalance.
-
-Even if you fix the max_load == 0 bug, there will still be times when
-avg_load - this_load will be negative (thus very large) and you'll make
-the decision to move stuff when you shouldn't have.
-
-This patch allows for this_load to set max_load, which if I understand
-the logic properly is correct.  It then adds a check to imbalance to make
-sure a negative number hasn't been coerced into a large positive number.
-With this patch applied, the algorithm is *much* more conservative ...
-maybe *too* conservative but that's for another round of testing ...
-
-Rick
-
-diff -rup linux-2.6.2-mm1/kernel/sched.c linux-2.6.2-mm1-fix/kernel/sched.c
---- linux-2.6.2-mm1/kernel/sched.c	Thu Feb  5 14:47:17 2004
-+++ linux-2.6.2-mm1-fix/kernel/sched.c	Thu Feb  5 21:44:04 2004
-@@ -1352,7 +1624,7 @@ static struct sched_group *
- find_busiest_group(struct sched_domain *domain, int this_cpu,
- 				unsigned long *imbalance, enum idle_type idle)
- {
--	unsigned long max_load, avg_load, total_load, this_load;
-+	unsigned long max_load, avg_load, total_load, this_load, load_diff;
- 	int modify, total_nr_cpus, busiest_nr_cpus = 0;
- 	enum idle_type package_idle = IDLE;
- 	struct sched_group *busiest = NULL, *group = domain->groups;
-@@ -1407,14 +1679,13 @@ find_busiest_group(struct sched_domain *
- 		total_nr_cpus += nr_cpus;
- 		avg_load /= nr_cpus;
- 
-+		if (avg_load > max_load)
-+			max_load = avg_load;
-+
- 		if (local_group) {
- 			this_load = avg_load;
--			goto nextgroup;
--		}
--
--		if (avg_load >= max_load) {
-+		} else if (avg_load >= max_load) {
- 			busiest = group;
--			max_load = avg_load;
- 			busiest_nr_cpus = nr_cpus;
- 		}
- nextgroup:
-@@ -1437,8 +1708,19 @@ nextgroup:
- 	 * reduce the max loaded cpu below the average load, as either of these
- 	 * actions would just result in more rebalancing later, and ping-pong
- 	 * tasks around. Thus we look for the minimum possible imbalance.
-+	 * Negative imbalances (*we* are more loaded than anyone else) will
-+	 * be counted as no imbalance for these purposes -- we can't fix that
-+	 * by pulling tasks to us.  Be careful of negative numbers as they'll
-+	 * appear as very large values with unsigned longs.
- 	 */
--	*imbalance = min(max_load - avg_load, avg_load - this_load);
-+	if (avg_load > this_load)
-+		load_diff = avg_load - this_load;
-+	else
-+		load_diff = 0;
-+
-+	*imbalance = min(max_load - avg_load, load_diff);
-+	if ((long)*imbalance < 0)
-+		*imbalance = 0;
- 
- 	/* Get rid of the scaling factor now, rounding *up* as we divide */
- 	*imbalance = (*imbalance + SCHED_LOAD_SCALE - 1) >> SCHED_LOAD_SHIFT;

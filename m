@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVCGMsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVCGM7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVCGMsH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 07:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVCGMsH
+	id S261166AbVCGM7e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 07:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVCGM7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 07:48:07 -0500
-Received: from bay24-f18.bay24.hotmail.com ([64.4.18.68]:42759 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261475AbVCGMsD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 07:48:03 -0500
-Message-ID: <BAY24-F18AB80179386A2AAB4DCEAD85F0@phx.gbl>
-X-Originating-IP: [212.18.59.124]
-X-Originating-Email: [janprunk@hotmail.com]
-From: "Jan Prunk" <janprunk@hotmail.com>
+	Mon, 7 Mar 2005 07:59:34 -0500
+Received: from innocence.nightwish.hu ([217.20.130.196]:43402 "EHLO
+	innocence.nightwish.hu") by vger.kernel.org with ESMTP
+	id S261166AbVCGM7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 07:59:31 -0500
+Subject: Re: NMI watchdog question
+From: Pallai Roland <dap@mail.index.hu>
 To: linux-kernel@vger.kernel.org
-Subject: debian kernel 2.4.29
-Date: Mon, 07 Mar 2005 12:48:01 +0000
+In-Reply-To: <200503071016.j27AGnDm016062@harpo.it.uu.se>
+References: <200503071016.j27AGnDm016062@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Mar 2005 14:00:33 +0100
+Message-Id: <1110200433.8018.189.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 07 Mar 2005 12:48:02.0406 (UTC) FILETIME=[E63D6060:01C52313]
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
 
-I tried to compile kernel 2.4.29 on a debian PARISC machine Gecko 712/60, 
-using PA7100LC processor.
-I executed command to build a custom debian kernel:
-fakeroot make-kpkg --revision=custom.1.0 kernel_image
+On Mon, 2005-03-07 at 11:16 +0100, Mikael Pettersson wrote:
+> On Sun, 06 Mar 2005 01:53:25 +0100, Pallai Roland wrote:
+> > and voila, the box is dead, but without any message from the NMI
+> >watchdog :(
+> ...
+> >Kernel command line: auto BOOT_IMAGE=l2611-1S0 ro nfsroot=192.168.4.254:/mnt/daproot,v3 ip=192.
+> >168.4.5::192.168.4.254:255.255.255.0::eth0:none console=tty0 console=ttyS0,115200 nmi_watchdog=
+> >1 3
+> 
+> Please try nmi_watchdog=2.
 
-The kernel config file is available here:
-http://212.18.59.124/kernel-2.4.29/config
+ tried, doesn't work.. much less NMI interrupts in /proc/interrupts this
+time
 
-The errors in the kernel are following:
-signal.c:66: warning: passing arg 1 of `__put_kernel_asm64' makes
-integer from pointer without a cast
-signal.c:66: warning: passing arg 1 of `__put_user_asm64' makes integer
-from pointer without a cast
-gcc -D__ASSEMBLY__ -traditional -D__KERNEL__
--I/usr/src/linux-2.4.29/include  -c -o hpmc.o hpmc.S
-gcc -D__ASSEMBLY__ -traditional -D__KERNEL__
--I/usr/src/linux-2.4.29/include  -c -o real2.o real2.S
-real2.S: Assembler messages:
-real2.S:126: Error: too many positional arguments
-make[2]: *** [real2.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.29/arch/parisc/kernel'
-make[1]: *** [_dir_arch/parisc/kernel] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.29'
-make: *** [stamp-build] Error 2
 
-If you happen to know how to make this work, I appreciate a copy of your 
-email to my address.
-
-Regards, Jan Prunk
-
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today - it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+--
+ dap

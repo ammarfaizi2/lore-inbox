@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314474AbSD1Tvr>; Sun, 28 Apr 2002 15:51:47 -0400
+	id <S314475AbSD1T6U>; Sun, 28 Apr 2002 15:58:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314475AbSD1Tvq>; Sun, 28 Apr 2002 15:51:46 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:33030 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314474AbSD1Tvq>; Sun, 28 Apr 2002 15:51:46 -0400
-Message-ID: <3CCC4426.3040303@evision-ventures.com>
-Date: Sun, 28 Apr 2002 20:49:10 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314477AbSD1T6T>; Sun, 28 Apr 2002 15:58:19 -0400
+Received: from mercury.chembio.ntnu.no ([129.241.80.86]:7634 "EHLO
+	mercury.chembio.ntnu.no") by vger.kernel.org with ESMTP
+	id <S314475AbSD1T6T>; Sun, 28 Apr 2002 15:58:19 -0400
+To: rudmer@legolas.dynup.net
+Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.10-dj1
+In-Reply-To: <20020427030823.GA21608@suse.de>
+	<200204271313.g3RDD4024060@smtp1.wanadoo.nl>
+	<20020427155116.I14743@suse.de>
+	<200204281145.g3SBjJJ20178@smtp2.wanadoo.nl>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 28 Apr 2002 21:53:10 +0200
+Message-ID: <m3lmb7zjkp.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [bk+patch] Let (WIP) be replaced with (EXPERIMENTAL)
-In-Reply-To: <20020428142415.A10747@ucw.cz> <3CCBFAB6.7060607@evision-ventures.com> <20020428212429.A12005@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Vojtech Pavlik napisa?:
-> On Sun, Apr 28, 2002 at 03:35:50PM +0200, Martin Dalecki wrote:
-> 
-> 
->>Uz.ytkownik Vojtech Pavlik napisa?:
->>
->>>ChangeSet@1.571, 2002-04-28 14:22:33+02:00, vojtech@twilight.ucw.cz
->>>  This removes the CONFIG_IDEDMA_PCI_WIP option, replacing it with
->>>  the more common CONFIG_EXPERIMENTAL. It also adds a depencency
->>>  on $CONFIG_EXPERIMENTAL where missing.
->>
->>
->>All fine and all will be taken. However please note that
->>I don't use BK and I don't intend too. My rejection of
->>it isn't based on any idiotic policy - I found it just ugly to
->>use and I was confused about the beta-alpha versions
->>offered on the web site - too much work in progress for my taste.
->>Finally I don't entrust source code to programmers who even don't know
->>the difference between TCP and UDP and use TCP becouse they don't know better.
-> 
-> 
-> Ok - your decision. If you want, I'll omit the BK part of the patches.
-> On the other hand, if you could just forward it to Linus as is (or let
-> me send it to Linus after your confirmation), change comments won't get
-> lost. 
-> 
-> 
->>I preferr a classical diff -urN ;-).
-> 
-> 
-> It's included, anyway.
+Rudmer van Dijk <rudmer@legolas.dynup.net> writes:
 
-Yes but why the hell should I bother looking at some uu-encoded stuff?
-Jet another reason I think BK is plain ugly.
-Anyway. Please send the chipset parts to linus directly. They seem
-fine. However the _WIP change is despite beeing correct, not complete
-and I will prefer to do it myself. OK?
+> On Saturday 27 April 2002 15:51, Dave Jones wrote:
+> > On Sat, Apr 27, 2002 at 02:51:21PM +0200, Rudmer van Dijk wrote:
+> >  > compiled fine, but after booting the system does not respond to the
+> >  > keyboard (I can see the message "serio: i8042 KBD port at 0x60,0x64 irq
+> >  > 1" om my screen)
+> >
+> > There are some reports that ACPI is having a bad interaction with the
+> > keyboard controller. For now, disabling it may fix this.
+> 
+> I have no ACPI or APM enabled (mobo does not know what it is)
+> 
 
+I have an Compaq Armada M700, same problem. No ACPI configured,
+symtoms vary a bit from kernel to kernel, but generally either
+keyboard is totally dead, or it starts to get utterly confused about
+caps lock and shift.
+
+On 2.5.10-dj1 it works like this: keyboard led is responsive to
+hitting caps lock, but when LED is off I get upper case letter typed,
+and when LED is off I get lower case letters. However, the strange bit
+is that lets say I type in my username and password so that they
+appear in lowercase on the screen, I still don't get in. And just fir
+having tried, typing with the caps lock LED off, thus getting upper
+case text, doesn't help either.
+
+Any pointer to where I go off to track this down?
+
+ttfn,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

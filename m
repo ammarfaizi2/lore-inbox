@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283685AbRK3PuP>; Fri, 30 Nov 2001 10:50:15 -0500
+	id <S283690AbRK3Psf>; Fri, 30 Nov 2001 10:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283687AbRK3PuH>; Fri, 30 Nov 2001 10:50:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64784 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283685AbRK3Ptb>; Fri, 30 Nov 2001 10:49:31 -0500
-Subject: Re: Deadlock on kernels > 2.4.13-pre6
-To: emmanuele.bassi@iol.it (Emmanuele Bassi)
-Date: Fri, 30 Nov 2001 15:54:34 +0000 (GMT)
+	id <S283685AbRK3PsZ>; Fri, 30 Nov 2001 10:48:25 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57864 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S283689AbRK3PsN>;
+	Fri, 30 Nov 2001 10:48:13 -0500
+Date: Fri, 30 Nov 2001 07:47:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Armin Obersteiner <armin@xos.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011130164031.A8741@wolverine.lohacker.net> from "Emmanuele Bassi" at Nov 30, 2001 04:40:31 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: usb slow in >2.4.10
+Message-ID: <20011130074753.C9866@kroah.com>
+In-Reply-To: <20011130040719.A21515@elch.elche> <20011129202959.B8633@kroah.com> <20011130141616.B25328@elch.elche>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169pzm-0003sq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20011130141616.B25328@elch.elche>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 02 Nov 2001 06:47:24 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So far, I've excluded everything but a bug in the OSS sound drivers,
-> but, according to the ChangeLogs, they did not change from 2.4.13-pre6
-> (the last working kernel) to 2.4.13.
+On Fri, Nov 30, 2001 at 02:16:16PM +0100, Armin Obersteiner wrote:
+> 
+> Nov 24 12:52:21 elch kernel: uhci.c: USB Universal Host Controller Interface driver v1.1
+> Nov 24 12:52:21 elch kernel: uhci.c: USB UHCI at I/O 0xd000, IRQ 9
+> Nov 24 12:52:21 elch kernel: uhci.c: detected 2 ports
 
-The OSS core and SB AWE driver have to all intents not changed since before
-2.4 was released.
+You're using the uhci driver.  Can you try and see if you have the same
+problem with the usb-uhci driver?  The uhci driver had some big changes
+right around the time that you have reported things slowing down.
 
-You might want to check when the  various VIA chipset fixes went in if you
-are using a VIA chipset
+thanks,
+
+greg k-h

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130776AbQKNSZ7>; Tue, 14 Nov 2000 13:25:59 -0500
+	id <S130848AbQKNS0J>; Tue, 14 Nov 2000 13:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130680AbQKNSZj>; Tue, 14 Nov 2000 13:25:39 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:7663 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129676AbQKNSZa>; Tue, 14 Nov 2000 13:25:30 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011141755.eAEHtQK28643@webber.adilger.net>
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-In-Reply-To: <3A117311.8DC02909@holly-springs.nc.us> "from Michael Rothwell at
- Nov 14, 2000 12:14:57 pm"
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Date: Tue, 14 Nov 2000 10:55:26 -0700 (MST)
-CC: no To-header on input <@fsa.enel.ucalgary.ca@vger.kernel.org>,
-        Josue.Amaro@oracle.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S130847AbQKNS0A>; Tue, 14 Nov 2000 13:26:00 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:64017 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130772AbQKNSZp>;
+	Tue, 14 Nov 2000 13:25:45 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jan Kara <jack@suse.cz>
+Date: Tue, 14 Nov 2000 18:55:13 MET-1
 MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Used space in bytes
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <CD940355CE7@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rothwell writes:
-> 4) A high reliability internal file system. 
+On 14 Nov 00 at 18:39, Jan Kara wrote:
+>   Hello.
 > 
-> Ext2 + bdflush + kupdated? Not likely.  To quote the Be Filesystems
-> book, Ext2 throws safety to the wind to achieve speed. This also ties
-> into Linux' convoluted VM system, and is shot in the foot by NFS. We
-> would need minimally a journaled filesystem and a clean VM design,
-> probably with a unified cache (no separate buffer, directory entry and
-> page caches). The Tux2 Phase Trees look to be a good step in the
-> direction as well, in terms of FS reliability.
+> > On  9 Nov 00 at 19:18, Jan Kara wrote:
+> > > used (I tried to contact Ulrich Drepper <drepper@redhat.com> who should
+> > > be right person to ask about such things (at least I was said so) but go
+> > > no answer...). Does anybody have any better solution?
+> > >   I know about two others - really ugly ones:
+> > >    1) fs specific ioctl()
+> > >    2) compute needed number of bytes from st_size and st_blocks, which is
+> > >       currently possible but won't be in future
+> > 
+> > If I may, please do not add it into stat/stat64 structure. On Netware, 
+> > computing really used space can take eons because of it has to read 
+> > allocation tables to memory to find size. It is usually about 500% 
+> > slower than retrieving all other file informations.
+>   And how do you fill in st_blocks field?
 
-Ext3 is doing pretty well...
-
-> The filesystem would have
-> to do checksums on every block. Some type of mirroring/clustering would
-> be good. And the ability to grow filesystems online, and replace disks
-> online, would be key. If your disks are getting old, you may want to
-> pre-emptively replace them with faster, newer, larger ones with more
-> MTBF left.
-
-You can always do this in the hardware - no reason to do it in software.
-If you are using RAID 5, and you wanted to take the performance hit you
-could always calculate the checksums for each stripe on read to detect
-errors.  You may even be able to add a second parity disk to do ECC on
-the disk data.
-
-As for online resizing, you can do this with ext2 for a long time with
-my ext2online patches/tools.  LVM lets you migrate between disks online.
-You need hardware support (available) to do hot-swap disks - SCSI works,
-but I don't think the IDE code is ready for hot-swap yet.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Currently as st_size / st_blksize. If I'll want to report real used size,
+so that quotas could be built on the top of Netware space restrictions,
+Netware is willing to return size in its allocation blocks after holes 
+and compression takes place, but while computation time is afforable for 
+open(), it is not for stat()ing thousands of entries in directories.
+                                                Best regards,
+                                                      Petr Vandrovec
+                                                      vandrove@vc.cvut.cz
+                                                      
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,217 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267231AbUHOXIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUHOXWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267231AbUHOXIe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 19:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUHOXIe
+	id S267235AbUHOXWM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 19:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUHOXWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 19:08:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44172 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267231AbUHOXIZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 19:08:25 -0400
-Date: Sun, 15 Aug 2004 18:32:29 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.28-pre1
-Message-ID: <20040815213229.GA11500@logos.cnet>
+	Sun, 15 Aug 2004 19:22:12 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27075 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267235AbUHOXWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 19:22:05 -0400
+Date: Mon, 16 Aug 2004 01:22:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Arnd Bergmann <arnd@arndb.de>,
+       Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
+       "David S. Miller" <davem@redhat.com>, schwidefsky@de.ibm.com,
+       linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: architectures with their own "config PCMCIA"
+Message-ID: <20040815232201.GT1387@fs.tum.de>
+References: <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de> <20040811201725.GJ26174@fs.tum.de> <20040811214032.GC7207@mars.ravnborg.org> <20040812001003.GV26174@fs.tum.de> <Pine.LNX.4.58.0408121056270.20634@scrub.home> <20040814204711.GD1387@fs.tum.de> <Pine.LNX.4.61.0408151928490.12687@scrub.home> <Pine.GSO.4.58.0408152136400.9281@waterleaf.sonytel.be> <Pine.LNX.4.61.0408160050440.12687@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.61.0408160050440.12687@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Mon, Aug 16, 2004 at 01:01:35AM +0200, Roman Zippel wrote:
 
-Here goes the first 2.4.28 -pre release.
+> Hi,
 
-It contains a big SATA update with long list of fixes,
-a networking update (mainly SCTP fixes), lib crypto fixes and 
-the addition of the Khazad algorithm, add prism54 wireless driver,
-SPARC64 update, cciss SCSI driver fixes, couple of storage devices 
-added to SCSI device list, agpgart support for i915 chipset, 
-OOM killer rare-case bugfixes, a VM bugfix which could 
-cause deadlocks under OOM conditions, a bunch of warnings fixes, 
-and initial support for gcc 3.4.
+Hi Roman,
 
-I still have a few bugfixes pending on my inbox, which should
-be merged next week.
+> On Sun, 15 Aug 2004, Geert Uytterhoeven wrote:
+> 
+> > > What about normal numbers? I don't think requiring quotes everywhere for
+> > > this is a good idea.
+> > 
+> > And numbers (both decimal and hex) can easily be distinguished from y, n, and m
+> > anyway.
+> 
+> I did consider this at some point, but I didn't want to add further 
+> special cases. Every symbol has a tristate and a string value and so you 
+> can compare pretty much everything with everything else. Splitting the 
+> string value further into other types isn't worth the trouble. The problem 
+> at hand is easy enough to solve by adding a type declaration.
 
-Read the detailed changelog for more details
+if things stay as they are, we _really_ need warnings for !=n and 
+rewrite the correct ones to (FOO=y || FOO=m).
 
+> bye, Roman
 
-Summary of changes from v2.4.27 to v2.4.28-pre1
-============================================
+cu
+Adrian
 
-<achew:nvidia.com>:
-  o [libata] Add NVIDIA SATA driver
-  o [ata] fix reversed bit definitions in linux/ata.h
-  o [libata] unmap MMIO region _after_ last possible usage
+-- 
 
-<ajgrothe:yahoo.com>:
-  o [CRYPTO]: Add Khazad algorithm
-
-<alanh:fairlite.demon.co.uk>:
-  o AGPgart update: Intel i915G support
-
-<castor:3pardata.com>:
-  o Add 3PARdata InServ Virtual Volume to SCSI device list
-
-<frank_borich:us.xyratex.com>:
-  o Add Xyratex 4200 to SCSI blacklist
-
-<ha505:hszk.bme.hu>:
-  o Fix i2o_pci.c warning
-  o Extra tokens at #undef in ma600.c
-  o Missing enforced type conversion in pc300_tty.c
-  o Redefinition before undefinition in pci-pc.c
-  o Redefination before undefination in fore200e.c
-
-<jon:oberheide.org>:
-  o [CRYPTO]: Email update in crypto/arc4.c
-
-<joshk:triplehelix.org>:
-  o [SPARC]: Add missing GPL module license tags to drivers
-
-<mcgrof:ruslug.rutgers.edu>:
-  o [wireless] add new prism54 driver
-
-<sergio.gelato:astro.su.se>:
-  o libata: fix kunmap() of incorrect page, in PIO data xfer
-
-<sezeroz:ttnet.net.tr>:
-  o agpgart: Missing chipset enum entry for i915
-  o warning fixes: ULL-fixes
-  o warning fixes: befs trivial
-  o trivial iph5526.c fixes from 2.6
-  o trivial nwflash.c missing -EFAULT retcode
-  o backport applicom 2.6 fixes
-  o trivial: various "unused" warnings
-  o amd76xrom.c unused warning
-
-Adrian Bunk:
-  o 2.6.7-mm1: drivers/scsi/hosts.h -> scsi/scsi_host.h
-  o update email address of Pedro Roque Marques
-
-Bartlomiej Zolnierkiewicz:
-  o DMA mode setup fixes for piix.c/ata_piix.c
-
-Chris Wright:
-  o fix possible buffer overflow in panic()
-
-Daniel Ritz:
-  o PCI: fix irq routing on acer travelmate 360 laptop
-
-David Dillow:
-  o [SPARC64]: Handle SBUS dma allocations larger than 1MB
-
-David S. Miller:
-  o [SPARC64]: Document reserved and soft2 bits in PTE
-  o [SPARC64]: Reserve a software PTE bit for _PAGE_EXEC
-  o [SPARC64]: Non-executable page support
-  o [SPARC64]: Duh, s/_PAGE_FILE/_PAGE_EXEC/
-  o [SPARC64]: Add CMT register defines
-  o [SPARC64]: Kill all this silly inline memcpy handling
-  o [SPARC64]: Simplify and optimize ultra3 memory copies
-  o [SPARC64]: More entropy in add_timer_randomness
-
-James Morris:
-  o [CRYPTO]: Typo in Documentation/Configure.help
-  o [CRYPTO]: Typo in crypto/twofish.c
-  o [CRYPTO]: Typo in crypto/aes.c
-  o [CRYPTO]: Typo in crypto/scatterwalk.c
-  o [CRYPTO]: Typo in crypto/blowfish.c
-  o [CRYPTO]: Typo in crypto/tcrypt.h
-
-Jeff Garzik:
-  o [libata] don't probe from workqueue
-  o [libata] PCI IDE DMA code shuffling
-  o [libata] PCI IDE command-end/irq-acknowledge cleanup
-  o [libata] ->qc_prep hook
-  o [libata] Add Intel ICH5/6 driver
-  o [IDE] Introduce SATA enable/disable config option
-  o [libata ata_piix] disable combined mode
-  o [libata/IDE nvidia] shuffle pci ids
-  o [libata] move some code around
-  o [libata] fix build error, minor cleanups
-  o [libata ata_piix] combined mode bug fix; improved ICH6 support
-  o [libata sata_sil] Re-fix mod15write bug
-  o [libata] add ->qc_issue hook
-  o [libata] add ata_queued_cmd completion hook
-  o [libata] create, and use, ->irq_clear hook
-  o [ata] add ata_ok() inlined helper, and ATA_{DRDY,DF} bit to linux/ata.h
-  o [libata] split ATA_QCFLAG_SG into ATA_QCFLAG_{SG,SINGLE}
-  o [libata] create, and use aga_sg_init[_one] helpers
-  o [libata sata_promise] update driver to use new ->qc_issue hook
-  o [libata] transfer mode cleanup
-  o [libata] fix completion bug, better debug output
-  o [libata] transfer mode bug fixes and type cleanup
-  o [libata] pio/dma flag bug fix, and cleanup
-  o [libata] convert set-xfer-mode operation to use ata_queued_cmd
-  o [libata sata_promise] convert to using packets for non-data taskfiles
-  o [libata sata_sx4] deliver non-data taskfiles using Promise packet format
-  o [libata] update IDENTIFY DEVICE path to use ata_queued_cmd
-  o [libata] export msleep for use in libata drivers
-  o [libata] ATAPI work - PIO xfer, completion function
-  o [libata ata_piix] make sure AHCI is disabled, if h/w is used by this driver
-  o [libata] flags cleanup
-  o [libata] ATAPI work - cdb len, new taskfile protocol, cleanups
-  o [libata] fix a 2.6-ism that snuck in
-
-Liam Girdwood:
-  o Fix unsafe reset in ac97_codec.c, support WM9713, more fixes
-
-Marcelo Tosatti:
-  o Herbert Xu: delete zero sized files from BK repository
-  o Changed Makefile to 2.4.28-pre1
-
-Martin Devera:
-  o [PKT_SCHED]: Fix borrowing fairness in htb
-
-Mikael Pettersson:
-  o gcc-3.4 fixes 1/3: fastcall mismatches
-  o gcc-3.4 fixes 2/3: bogus lvalues
-  o gcc-3.4 fixes 3/3: misc remaining issues
-
-Mike Miller:
-  o cciss update [1/5] PCI ID fix for cciss SATA hba
-  o cciss update [2/5] fix for 32/64-bit conversions
-  o cciss update [3/5] pci_dev->irq fix
-  o cciss update [4/5] fix for HP utilities
-  o cciss update [5/5] maintainers update for HP drivers
-
-Pat LaVarre:
-  o ata_check_bmdma
-  o SATAPI despite no data
-
-Pete Zaitcev:
-  o David Brownell: Fix uhci-hcd oops
-
-Richard Hitt:
-  o s390x: enable ioctl's for UTS global 3270
-  o UTS Global Cisco CLAW driver: avoid packets from being lost under heavy load
-  o UTS Global Cisco CLAW driver: remove old ifdefs and adds GPL header
-  o UTS Global Cisco CLAW driver: Fix 64-bit handling
-
-Ricky Beam:
-  o [libata sata_sil] add drive to mod15write quirk list
-
-Rik van Riel:
-  o reserved buffers only for PF_MEMALLOC
-
-Sridhar Samudrala:
-  o [SCTP] SPARSE cleanup backported from 2.6
-  o [SCTP] Set/Get default SCTP_PEER_ADDR_PARAMS for endpoint when associd and peer address are 0.
-  o [SCTP] Fix data not being delivered to user in SHUTDOWN_SENT state
-  o [SCTP] Fix issues with handling stale cookie error over multihoming associations.
-  o [SCTP] Fix missing '+' in the computation of sack chunk size in sctp_sm_pull_sack().
-  o [SCTP] Mark chunks as ineligible for fast retransmit after they are retransmitted. Also mark any chunks that could not be fit in the PMTU sized packet as ineligible for fast retransmit.
-
-Tom 'spot' Callaway:
-  o [SPARC]: Fix copy_user.S with gcc 3.3
-
-William Lee Irwin III:
-  o [SPARC32]: Mark William Lee Irwin III as maintainer
-  o Fix OOM killer issues: kill all threads of a process and ignore kernel threads
-  o OOM killer: make jiffies comparison wrap safe
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

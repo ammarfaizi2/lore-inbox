@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269458AbUJUJag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269018AbUJUJWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269458AbUJUJag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 05:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269056AbUJUJ1w
+	id S269018AbUJUJWc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUJUJVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 05:27:52 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:35701 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269399AbUJUJ0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 05:26:40 -0400
-Message-ID: <417780CB.4060106@yahoo.com.au>
-Date: Thu, 21 Oct 2004 19:26:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ncunningham@linuxmail.org
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Proposal: Desktop kernel bk tree/patchset.
-References: <1098344977.4146.21.camel@desktop.cunninghams>
-In-Reply-To: <1098344977.4146.21.camel@desktop.cunninghams>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Oct 2004 05:21:43 -0400
+Received: from i31207.upc-i.chello.nl ([62.195.31.207]:30087 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269029AbUJUJUo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 05:20:44 -0400
+Subject: Re: [patch 2.6.9 0/11] Add MODULE_VERSION to several network
+	drivers
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       davem@davemloft.net, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
+       ctindel@users.sourceforge.net, fubar@us.ibm.com,
+       greearb@candelatech.com
+In-Reply-To: <20041020141146.C8775@tuxdriver.com>
+References: <20041020141146.C8775@tuxdriver.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1098350269.2810.17.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 11:17:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi all.
+On Wed, 2004-10-20 at 20:11, John W. Linville wrote:
+> Patches to add MODULE_VERSION lines to several network drivers...
 > 
-> I want to get some feedback. I'm considering making a tree/patchset
-> aimed at the desktop user: Linus kernel + PM, USB and so on patches,
-> Win4Lin patches and perhaps [I/O] scheduler improvements.
-> 
-> What do people think?
-> 
+> Here is the list:
 
-I don't think it would be a really good idea to have an official tree
-for desktop users. A staging area for desktop improvements, sure that
-would be no problem. But if you really have some good improvements,
-they should eventually get into the mainline kernel where you can
-expect a pretty good (or not terribly bad) review and testing process.
-
-On the other hand, I understand you're probably frustrated at the slow
-pace and politics of getting more ambitious patches into the kernel.
-
-I'd go for angle of aiming to get things into -mm. Andrew generally
-doesn't mind brewing things up there, even if there is no clear path
-for merging into 2.6 at the time... so long as they're pretty stable
-and not going to cause rejects all over the tree, of course.
-
-Just my two cents.
+have you checked if the version of these drivers is actually useful? (eg
+updated when the driver changes) If it's not I'd say adding a
+MODULE_VERSION to it makes no sense whatsoever.

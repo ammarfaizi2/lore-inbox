@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbTIIUNG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTIIUNG
+	id S264521AbTIIUmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTIIUmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:13:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32671 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264485AbTIIUMc (ORCPT
+	Tue, 9 Sep 2003 16:42:15 -0400
+Received: from unthought.net ([212.97.129.24]:8074 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S264521AbTIIUmJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:12:32 -0400
-Date: Tue, 9 Sep 2003 13:06:50 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
+	Tue, 9 Sep 2003 16:42:09 -0400
+Date: Tue, 9 Sep 2003 22:42:07 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Chris Meadors <clubneon@hereintown.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5: configcheck results
-Message-Id: <20030909130650.0670778d.rddunlap@osdl.org>
-In-Reply-To: <20030909194001.GB3009@mars.ravnborg.org>
-References: <20030909100412.A25143@flint.arm.linux.org.uk>
-	<20030909194001.GB3009@mars.ravnborg.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Subject: Re: Panic when finishing raidreconf on 2.4.0-test4 with preempt
+Message-ID: <20030909204206.GA11626@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Chris Meadors <clubneon@hereintown.net>, linux-kernel@vger.kernel.org
+References: <1062883950.1341.26.camel@clubneon.clubneon.com> <20030909181131.GB9079@unthought.net> <1063135290.1119.32.camel@clubneon.priv.hereintown.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1063135290.1119.32.camel@clubneon.priv.hereintown.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003 21:40:01 +0200 Sam Ravnborg <sam@ravnborg.org> wrote:
+On Tue, Sep 09, 2003 at 03:21:31PM -0400, Chris Meadors wrote:
+...
+> I'll mess around this evening a bit if I get a chance.  I really wasn't
+> in the mood to see this error again (losing five years worth of data can
+> do that to a person, but I've come to terms (with my own arrogance and
+> stupidity, along with the data loss (just old e-mails and pictures, but
+> stuff that is nice to hold onto anyway)) and pre-ordered Plextor's new
+> DVD burner). But that does leave me with a few blank drives that I can
+> beat on all anyone needs.
 
-| On Tue, Sep 09, 2003 at 10:04:12AM +0100, Russell King wrote:
-| > Hi all,
-| > 
-| > I just ran make configcheck on 2.6.0-test5 and the results are:
-| > 
-| >     832 files need linux/config.h but don't actually include it.
-| >     689 files which include linux/config.h but don't require the header.
-| 
-| Randy, you have looked into related perl scripts. Is the result of
-| checkconfig.pl reliable?
+Eh, ok, I'm not really sure what you did...
 
-They aren't perfect.  I consider them more like 80-90% solutions.
-Usable until there's a better solution IMO, like maybe sparse.
+You ran raidreconf once, and after the entire reconfiguration had run,
+the kernel barfed.
 
-The perl scripts don't look at other #included files to check if they
-supply any of the needed #defines.  I.e., they look only at the one
-file being searched to check if it uses names (CONFIG_*) without
-#include-ing config.h in this case, so it can produce false positives.
+Then what?  You re-ran the reconfiguration?  Same as before?
 
-I looked quickly at crypto/tcrypt.c (which is listed as needing config.h).
-It #includes linux/init.h, which #includes linux/config.h.
-I expect that there are several...or many like this.
+If so, then I can pretty much guarantee you that your data are lost. You
+may get Ibas (ibas.no) to scrape off the upper layers of your disk
+platters, run some pattern analysis on whats left, and possibly then
+retrieve some of your old data, but that's about the only chance I can
+see you having.
 
---
-~Randy
+If you only ran raidreconf once, then there might still be a good chance
+to get your data back.  To me it doesn't sound like this is the case,
+but if it is, please let me know.
+
+Sorry about your loss (but running an experimental raid reconfiguration
+tool on an experimental kernel without backups, well...  ;)
+
+> 
+> I'll be putting -test5 on first.  I had planned on disabling the
+> preempt, but since that was reported in the oops, I'll leave it on.
+
+Ok. It would be interesting to see if the oops goes away when preempt is
+disabled.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,109 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129251AbRBFNtG>; Tue, 6 Feb 2001 08:49:06 -0500
+	id <S129279AbRBFN6X>; Tue, 6 Feb 2001 08:58:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129279AbRBFNs4>; Tue, 6 Feb 2001 08:48:56 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59779 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129251AbRBFNsu>; Tue, 6 Feb 2001 08:48:50 -0500
-Date: Tue, 6 Feb 2001 08:48:08 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-cc: Peter Horton <pdh@colonel-panic.com>, linux-kernel@vger.kernel.org
-Subject: Re: VIA silent disk corruption - bad news
-In-Reply-To: <3A7F230A.BB1CBA25@Hell.WH8.TU-Dresden.De>
-Message-ID: <Pine.LNX.3.95.1010206083740.22101A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129299AbRBFN6N>; Tue, 6 Feb 2001 08:58:13 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:267 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129279AbRBFN6F>; Tue, 6 Feb 2001 08:58:05 -0500
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christoph Hellwig <hch@caldera.de>, Andi Kleen <ak@suse.de>
+Message-ID: <CA2569EB.004C9A58.00@d73mta03.au.ibm.com>
+Date: Tue, 6 Feb 2001 19:20:21 +0530
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait 
+	/notify + callback chains
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Udo A. Steinberg wrote:
 
-> Peter Horton wrote:
-> > 
-> > The patch doesn't work for me. Maybe I need to disable some more of
-> > those North bridge features :-(
-> > 
-> > Oh bum. Back to testing with "normal" ...
-> 
-> FWIW, here's the output of my lspci for A7V with working 1003 BIOS
-> and still no corruption (after 2 hours stresstest).
-> 
-> 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
->         Subsystem: Asustek Computer, Inc.: Unknown device 8033
->         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
->         Latency: 0
->         Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
->         Capabilities: [a0] AGP version 2.0
->                 Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2
->                 Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
->         Capabilities: [c0] Power Management version 2
->                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 00: 06 11 05 03 06 00 10 a2 02 00 00 06 00 00 00 00
-> 10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
-> 30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-> 
-> I'll leave the comparing work to you. If you need more info, just holler.
-> 
-> -Udo.
+>Hi,
+>
+>On Mon, Feb 05, 2001 at 08:01:45PM +0530, bsuparna@in.ibm.com wrote:
+>>
+>> >It's the very essence of readahead that we wake up the earlier buffers
+>> >as soon as they become available, without waiting for the later ones
+>> >to complete, so we _need_ this multiple completion concept.
+>>
+>> I can understand this in principle, but when we have a single request
+going
+>> down to the device that actually fills in multiple buffers, do we get
+>> notified (interrupted) by the device before all the data in that request
+>> got transferred ?
+>
+>It depends on the device driver.  Different controllers will have
+>different maximum transfer size.  For IDE, for example, we get wakeups
+>all over the place.  For SCSI, it depends on how many scatter-gather
+>entries the driver can push into a single on-the-wire request.  Exceed
+>that limit and the driver is forced to open a new scsi mailbox, and
+>you get independent completion signals for each such chunk.
 
-I have found a way to create the file-system problem!  Just build
-the kernel and, from another terminal execute `sync`. The build will
-fail with multiple errors caused by corrupted files. The files
-are not actually corrupted, though. Just restart the build and it
-will complete.
+I see. I remember Jens Axboe mentioning something like this with IDE.
+So, in this case, you want every such chunk to check if its completed
+filling up a buffer and then trigger a wakeup on that ?
+But, does this also mean that in such a case combining requests beyond this
+limit doesn't really help ? (Reordering requests to get contiguity would
+help of course in terms of seek times, I guess, but not merging beyond this
+limit)
 
-So there is something that `sync` triggers that results in apparent
-file system corruption. Once files are re-read, they are fine.
-This does not explain the permanent file-system corruption that
-sometimes occurs --that may occur during the `umount`.
+>> >Which is exactly why we have one kiobuf per higher-level buffer, and
+>> >we chain together kiobufs when we need to for a long request, but we
+>> >still get the independent completion notifiers.
+>>
+>> As I mentioned above, the alternative is to have the i/o completion
+related
+>> linkage information within the wakeup structures instead. That way, it
+>> doesn't matter to the lower level driver what higher level structure we
+>> have above (maybe buffer heads, may be page cache structures, may be
+>> kiobufs). We only chain together memory descriptors for the buffers
+during
+>> the io.
+>
+>You forgot IO failures: it is essential, once the IO completes, to
+>know exactly which higher-level structures completed successfully and
+>which did not.  The low-level drivers have to have access to the
+>independent completion notifications for this to work.
+>
+No, I didn't forget IO failures; just that I expect the wait structure
+containing the wakeup function to be embedded in a cev structure that
+contains a pointer to the wait_queue_head field in the higher level
+structure. The rest is for the wakeup function to interpret (it can always
+access the other fields in the higher level structure - just like
+list_entry() does)
 
-I don't use IDE. I use BusLogic SCSI, 250 Mb RAM, Pentium-III(2), SMP.
-Linux 2.4.1 (no postfix).
-
-PCI stuff.....
-
-Device      Vendor                    Type
-   0   Intel Corporation              440BX/ZX - 82443BX/ZX Host bridge  
-       I/O memory : 0xe6000000->0xe7fffff7
-   1   Intel Corporation              440BX/ZX - 82443BX/ZX AGP bridge   
-       I/O memory : 0x40010100->0x470101ff
-       I/O memory : 0x22a0d0e0->0x1fffdfef
-       I/O memory : 0xe5c0e5d0->0xe5cfe5df
-       I/O memory : 0xe5f0e600->0xe5ffe60f
-   4   Intel Corporation              82371AB PIIX4 ISA                  
-   9   S3 Inc.                        86c968 [Vision 968 VRAM] rev 0     
-       IRQ 15 Pin 1
-       I/O memory : 0x14000000->0x15ffffff
-  10   Advanced Micro Devices [AMD]   79c970 [PCnet LANCE]               
-       IRQ 12 Pin 1
-       I/O  ports : 0xd000->0xd01e
-       I/O memory : 0xe1800000->0xe180001f
-  11   3Com Corporation               3c905B 100BaseTX [Cyclone]         
-       IRQ 10 Pin 1
-       I/O  ports : 0xb800->0xb87e
-       I/O memory : 0xe1000000->0xe100007f
-  12   BusLogic                       BT-946C (BA80C30), [MultiMaster 10]
-       IRQ 11 Pin 1
-       I/O  ports : 0xb400->0xb402
-       I/O memory : 0xe0800000->0xe0800fff
+Later I realized that instead of having multiple wakeup functions queued on
+the low level structures wait queue, its perhaps better to just sort of
+turn the cev_wait structure upside down (entry on the lower level
+structure's queue should link to the parent entries instead).
 
 
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
 
 
 -

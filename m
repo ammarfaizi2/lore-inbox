@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131955AbRAGNhP>; Sun, 7 Jan 2001 08:37:15 -0500
+	id <S131967AbRAGNl5>; Sun, 7 Jan 2001 08:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132057AbRAGNhF>; Sun, 7 Jan 2001 08:37:05 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:5803 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131955AbRAGNhB>; Sun, 7 Jan 2001 08:37:01 -0500
-Message-ID: <3A58725F.A1E3CD37@uow.edu.au>
-Date: Mon, 08 Jan 2001 00:42:55 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S132056AbRAGNlq>; Sun, 7 Jan 2001 08:41:46 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37646 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132021AbRAGNlj>; Sun, 7 Jan 2001 08:41:39 -0500
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+To: greearb@candelatech.com (Ben Greear)
+Date: Sun, 7 Jan 2001 13:42:50 +0000 (GMT)
+Cc: davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <3A57EB5E.966C91DA@candelatech.com> from "Ben Greear" at Jan 06, 2001 09:06:54 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DHCP Problems with 3com 3c905C Tornado
-In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14FG60-0002eP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Loth wrote:
-> 
-> Hello all,
-> 
->   I recently installed a system with the 3c905C
-> NIC on RedHat 6.2. In our network, IP adresses
-> are granted via DHCP, although every host has
-> a fixed IP instead of a dynamic IP pool. The IP
-> is statically coupled with the MAC adresses of
-> our network.
+> + *      NOTE:  That is no longer true with the addition of VLAN tags.  Not
+> + *             sure which should go first, but I bet it won't make much
+> + *             difference if we are running VLANs.  The good news is that
 
-Christian,
+It makes a lot of difference tha the vlan goes 2nd. Most sane people wont
+have vlans active on a high load interface.
 
-I was able to reproduce this.  All sorts of wierd stuff.
+>  			strcpy(dev->name, buf);
+>  			return i;
+>  		}
+>  	}
+> -	return -ENFILE;	/* Over 100 of the things .. bail out! */
+> +	return -ENFILE;	/* Over 8192 of the things .. bail out! */
 
-All the problems magically disappeared after upgrading
-to pump-0.8.6.
+So fix the algorithm. You want the list sorted at this point, or to generate
+a bitmap of free/used entries and scan the list then scan the map
 
-You wouldn't *believe* how hard it is to find a pump
-tarball, so I've put one at
+Question: How do devices with hardware vlan support fit into your model ?
 
-	http://www.uow.edu.au/~andrewm/pump-0.8.6.tar.gz
+Alan
 
--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

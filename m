@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVCGK0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVCGK26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVCGK0S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 05:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVCGK0S
+	id S261737AbVCGK26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 05:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVCGK26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 05:26:18 -0500
-Received: from ns.suse.de ([195.135.220.2]:24224 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261736AbVCGK0N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 05:26:13 -0500
-Date: Mon, 7 Mar 2005 11:26:09 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Domen Puncer <domen@coderock.org>
-Cc: Ralph Corderoy <ralph@inputplus.co.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-       jlamanna@gmail.com
-Subject: Re: [patch 1/8] isdn_bsdcomp.c - vfree() checking cleanups
-Message-ID: <20050307102609.GB11334@pingi3.kke.suse.de>
-Mail-Followup-To: Domen Puncer <domen@coderock.org>,
-	Ralph Corderoy <ralph@inputplus.co.uk>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-	jlamanna@gmail.com
-References: <20050306223800.1BBDC1EC90@trashy.coderock.org> <200503070007.j2707n403396@blake.inputplus.co.uk> <20050307002133.GG32564@nd47.coderock.org>
+	Mon, 7 Mar 2005 05:28:58 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:4039 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S261737AbVCGK2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 05:28:51 -0500
+Date: Mon, 7 Mar 2005 03:28:46 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Edgar, Bob" <Bob.Edgar@commerzbankib.com>
+Cc: "'Jesper Juhl'" <juhl-lkml@dif.dk>, Steve French <sfrench@us.ibm.com>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Luca Tettamanti <kronos@kronoz.cjb.net>,
+       samba-technical <samba-technical@lists.samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Domen Puncer <domen@coderock.org>
+Subject: Re: [PATCH] whitespace cleanups for fs/cifs/file.c
+Message-ID: <20050307102846.GF27352@schnapps.adilger.int>
+Mail-Followup-To: "Edgar, Bob" <Bob.Edgar@commerzbankib.com>,
+	'Jesper Juhl' <juhl-lkml@dif.dk>, Steve French <sfrench@us.ibm.com>,
+	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Luca Tettamanti <kronos@kronoz.cjb.net>,
+	samba-technical <samba-technical@lists.samba.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Domen Puncer <domen@coderock.org>
+References: <9D248E1E43ABD411A9B600508BAF6E9B0C737269@xmx7fraib.fra.ib.commerzbank.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050307002133.GG32564@nd47.coderock.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <9D248E1E43ABD411A9B600508BAF6E9B0C737269@xmx7fraib.fra.ib.commerzbank.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 01:21:33AM +0100, Domen Puncer wrote:
-> On 07/03/05 00:07 +0000, Ralph Corderoy wrote:
-> > 
-> > Hi Domen,
-> > 
-> > > -		if (db->dict) {
-> > > -			vfree (db->dict);
-> > > -			db->dict = NULL;
-> > > -		}
-> > > +		vfree (db->dict);
-> > > +		db->dict = NULL;
-> > 
-> > Is it really worth always calling vfree() which calls __vunmap() before
-> > db->dict is determined to be NULL in order to turn three lines into two?
+On Mar 07, 2005  10:26 +0100, Edgar, Bob wrote:
+> I lurk on the list and didn't comment last time but there is one aspect
+> of this patch that I think is "bad" style. The function declaration should
+> not be on the same line with the type. Why? Try to find the file where a
+> function is defined instead of used. If you grep "^funcname" you'll find
+> it quite simply. The same is true in YFE (mine being vi) /^funcname gets
+> me there in one shot.
 > 
-> Four lines into two :-)
-> 
-> > Plus the write to db->dict which might otherwise not be needed.  The old
-> > code was clear, clean, and fast, no?
-> 
-> Shorter and more readable code is always better, right? And speed really
-> doesn't seem to be an issue here.
-> 
+> This may not seem an important thing but when you are coming into a
+> project cold and don't know how anything works or where it lives it
+> can be very important. Consider trying to find where some common
+> function from a library is defined in a project with sever 1000 files.
 
-I also prefer the old code, since it make clear, that you must be careful
-here, since the function can be called with already freed db->dict, and for
-me this version is not better readable as the old one.
+Tags is your friend.  See "make tags" (for vim) or "make TAGS" (for *emacs).
+This is far more efficient than "grep -r ^funcname linux" if you don't even
+know what file a function/struct is defined in.  Use CTRL-] to jump to the
+function/struct under the cursor and CTRL-T to pop back out.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+
+Ironically, the whitespace patch gets the small things right, but misses
+on the big readability issues, such as cifs_open() being 220 lines long
+and having a _really_ hard time staying inside 80 columns because of so
+many levels of nested conditionals.
+
+Judicious use of gotos and some helper functions would help a lot
+here (e.g.  after CIFSSMBOpen() "if (rc) { ... goto out; }" and
+"if (!file->private_data) goto out;", would avoid indenting the rest
+of the function 16 columns.  Adding a couple helper functions like
+"cifs_convert_flags()" to return desiredAccess and disposition, and
+"cifs_init_private_data()" to allocate ->private_data and initialize
+the masses of fields would be good.
+
+Is it possible that pCifsInode can ever be NULL???  Similarly, "if (buf)"
+on line 196 is needless, as it has already been checked on line 153
+(and we abort in that case).  Also, kfree() can handle NULL pointers.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+

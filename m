@@ -1,99 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317833AbSIOFYs>; Sun, 15 Sep 2002 01:24:48 -0400
+	id <S317852AbSIOFl3>; Sun, 15 Sep 2002 01:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSIOFYs>; Sun, 15 Sep 2002 01:24:48 -0400
-Received: from mail.seaplace.org ([209.184.155.43]:29062 "EHLO
-	lynn.seaplace.org") by vger.kernel.org with ESMTP
-	id <S317833AbSIOFYr>; Sun, 15 Sep 2002 01:24:47 -0400
-From: Kevin Carpenter <kevinc@seaplace.org>
-Message-Id: <200209150529.g8F5Tgh14760@lynn.seaplace.org>
-Subject: Think 2.4.10 broke my PCI subsystem.
-To: linux-kernel@vger.kernel.org
-Date: Sun, 15 Sep 2002 00:29:42 -0500 (CDT)
-X-Mailer: ELM [version 2.5 PL5]
+	id <S317855AbSIOFl3>; Sun, 15 Sep 2002 01:41:29 -0400
+Received: from pD952A096.dip.t-dialin.net ([217.82.160.150]:14221 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317852AbSIOFl2>; Sun, 15 Sep 2002 01:41:28 -0400
+Date: Sat, 14 Sep 2002 23:46:20 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: mdew <mdew@mdew.dyndns.org>
+cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.34-mcp4
+In-Reply-To: <1032051401.10627.35.camel@mdew>
+Message-ID: <Pine.LNX.4.44.0209142345390.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently been okaying around with low cost motherboards and have been
-problems on two of them:  the BIOSTAT micro-ATX mobo M7VKQ, and the ESC L7SOM
-mobos.
+Hi,
 
-BOth work fine so long as I hold the kernel to 2.4.9 or earlier.  Once the
-2.4.10 patch is applied, the kernel no longer recognises the PCI Buss.
+On 15 Sep 2002, mdew wrote:
+> xfs_dmapi.c:207: `list_t' undeclared (first use in this function)
 
-Under 2.4.9 /proc/pci shows:
+Change this to `struct list_head', since we've kicked out list_t.
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: PCI device 1039:0740 (Silicon Integrated Systems [SiS]) (rev 1).
-      Master Capable.  Latency=32.  
-      Non-prefetchable 32 bit memory at 0xe8000000 [0xe8ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP (rev 0).
-      Master Capable.  Latency=99.  Min Gnt=12.
-  Bus  0, device   2, function  0:
-    ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 0).
-  Bus  0, device   2, function  5:
-    IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 208).
-      Master Capable.  Latency=16.  
-      I/O at 0x4000 [0x400f].
-  Bus  0, device   2, function  7:
-    Multimedia audio controller: PCI device 1039:7012 (Silicon Integrated Systems [SiS]) (rev 160).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=52.Max Lat=11.
-      I/O at 0xe000 [0xe0ff].
-      I/O at 0xe400 [0xe47f].
-  Bus  0, device  15, function  0:
-    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 16).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
-      I/O at 0xe800 [0xe8ff].
-      Non-prefetchable 32 bit memory at 0xe9102000 [0xe91020ff].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: PCI device 1039:6325 (Silicon Integrated Systems [SiS]) (rev 0).
-      Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
-      Non-prefetchable 32 bit memory at 0xe9000000 [0xe901ffff].
-      I/O at 0xd000 [0xd07f].
-
-Using lspci:
-
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 740 Host (rev 01)
-00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-00:02.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS] SiS7012 PCI Audio Accelerator (rev a0)
-00:0f.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]: Unknown device 6325
-
->From DMESG:
-
-POSIX conformance testing by UNIFIX
-PCI: PCI BIOS revision 2.10 entry at 0xfb5f0, last bus=1
-PCI: Probing PCI hardware
-PCI: Using IRQ router SIS [1039/0008] at 00:02.0
-Linux NET4.0 for Linux 2.4
-
-After rebuilding with any kernel greater than patch level 9, I get the following
-messages as part of the boot sequence:
-
-mtrr: detected mtrr type: Intel
-PCI: PCI BIOS revision 2.10 entry at 0xfb5f0, last bus=1
-PCI: System does not support PCI
-isapnp: Scanning for PnP cards...
-
-HELP PLEASE!  I don't want to be stuck on 2.4.9 forever!
-
-I have one development box that I can do just about anything you wish to. 
-Please let me know how to help.
-
-Thanks,
-
-Kevin C.
+			Thunder
 -- 
-Kevin Carpenter:  KevinC@SeaPlace.org
-Kevin's Home Page: http://www.seaplace.org/kevinc
-(Expressing his comments from home in St. Louis, where this message originated)
+!assert(typeof((fool)->next) == (fool));
+

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTLOHZF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 02:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLOHZF
+	id S263356AbTLOHsK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 02:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLOHsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 02:25:05 -0500
-Received: from deagol.email.Arizona.EDU ([128.196.133.142]:12700 "EHLO
-	smtpgate.email.arizona.edu") by vger.kernel.org with ESMTP
-	id S263303AbTLOHZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 02:25:02 -0500
-Subject: Re: 2.4 vs 2.6
-From: Harry McGregor <hmcgregor@espri.arizona.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3FDC9EC8.1000908@mscc.huji.ac.il>
-References: <20031201062052.GA2022@frodo>
-	 <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet>
-	 <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDC0BAC.8020909@mscc.huji.ac.il>
-	 <3FDC8957.4000602@yahoo.es>  <3FDC9EC8.1000908@mscc.huji.ac.il>
-Content-Type: text/plain
-Organization: Tucson Center Support Group - USGS
-Message-Id: <1071473021.30831.5.camel@Sony>
+	Mon, 15 Dec 2003 02:48:10 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:64783 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263356AbTLOHsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 02:48:08 -0500
+Date: Mon, 15 Dec 2003 07:48:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: PCI Express support for 2.4 kernel
+Message-ID: <20031215074807.B5441@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <3FDC9DC5.2070302@intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Dec 2003 00:23:41 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FDC9DC5.2070302@intel.com>; from vladimir.kondratiev@intel.com on Sun, Dec 14, 2003 at 07:28:37PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-12-14 at 10:32, Voicu Liviu wrote:
+On Sun, Dec 14, 2003 at 07:28:37PM +0200, Vladimir Kondratiev wrote:
+> Hi,
+> PCI-Express platforms will soon appear on the market. It is worth to 
+> support it.
+> 
+> Following is patch for 2.4.23 kernel. I tested it on my host, it works 
+> properly.
+> I did it for i386 only, I have no other architecture to test.
 
-> Because i use lvm2 and I could not find the way to get back to lvm1
-> Any clue?
+Patch looks okay (except for totally broken indentation, that needs fixing)
 
-How about using the patches for 2.4 to give you LVM2 support?
-
-http://people.sistina.com/~thornber/
-
-We have it running on one system right now, in fact it is part of the
-reason that we manually patched our 2.4.21 to fix the local root exploit
-that was fixed in 2.4.23, we just had too many external patches
-(FreeSwan, DeviceMapper, XFS, etc) on that system, to do patch and
-recompile in a reasonable amount of time.
-
-
-			Harry
-
-> Liviu
-
+It should go into 2.6 first. though.  And while you're at it add your
+copyright info to the top of the file instead of the middle.
 

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268121AbTAJDLy>; Thu, 9 Jan 2003 22:11:54 -0500
+	id <S268123AbTAJDPN>; Thu, 9 Jan 2003 22:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268122AbTAJDLx>; Thu, 9 Jan 2003 22:11:53 -0500
-Received: from mailhost.NMT.EDU ([129.138.4.52]:21258 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S268121AbTAJDLx>;
-	Thu, 9 Jan 2003 22:11:53 -0500
-Date: Thu, 9 Jan 2003 20:20:31 -0700
-From: Val Henson <val@nmt.edu>
-To: jdow <jdow@earthlink.net>
-Cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
-Subject: Re: "Mother" == "computer-illiterate"
-Message-ID: <20030110032031.GR32193@boardwalk>
-References: <fa.eembe5o.i4osri@ifi.uio.no> <20030109192432.A485131@hiwaay.net> <04a701c2b84e$2bd7ad70$1125a8c0@wizardess.wiz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268124AbTAJDPN>; Thu, 9 Jan 2003 22:15:13 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:63427 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S268123AbTAJDPM>; Thu, 9 Jan 2003 22:15:12 -0500
+Date: Fri, 10 Jan 2003 16:23:31 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Peter Chubb <peter@chubb.wattle.id.au>, eric@andante.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ISO-9660 Rock Ridge gives different links different inums
+Message-ID: <1345590000.1042169011@localhost.localdomain>
+In-Reply-To: <15902.14667.489252.346007@wombat.chubb.wattle.id.au>
+References: <15902.14667.489252.346007@wombat.chubb.wattle.id.au>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <04a701c2b84e$2bd7ad70$1125a8c0@wizardess.wiz>
-User-Agent: Mutt/1.4i
-Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 06:15:39PM -0800, jdow wrote:
-> From: "Chris Adams" <cmadams@hiwaay.net>
-> 
-> > Once upon a time, Alan Cox  <alan@lxorguk.ukuu.org.uk> said:
-> > >and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
-> > >who know what her networking related patent is on)
-> > 
-> > That's HEDLEY!  Oh, but he doesn't have any patents.
-> 
-> No, it's Hedy Lamarr and she invented frequency hopping spread spectrum
-> with George Anthiel. I worked on one of the first practical implementations
-> of the concept back in the early 70s. Somehow it seems appropriate.
 
-Chris was making a joke which you won't get unless you watch "Blazing
-Saddles" (something I've never gotten around to myself).  Hedley
-Lamarr was a character in the movie who, indeed, doesn't have any
-patents.
 
-Neat to hear you got to work on such an interesting project!
+--On Friday, January 10, 2003 14:08:59 +1100 Peter Chubb 
+<peter@chubb.wattle.id.au> wrote:
 
--VAL
+>
+> In linux 2.5.54, multiple links to the same file on a rock-ridge CD
+> have different inode numbers.  This confuses cpio, tar and cp -ra
+> because the multiple links are each copied separately as a single file.
+>
+> It'll probably also confuse NFS, but I haven't tried that.
+
+Shouldn't do, but it will probably make the buffer cache on the server less 
+effective.
+
+> Currently the inode number appears to be the offset in bytes from the
+> start of the file system to the iso directory entry.  Files with multiple
+> directory entries (i.e., links) therefore have different inums.
+>
+> I don't know enough about the ISO9660 standard to be sure what's best
+> to do about this.
+
+Change it to be the offset to the data area, which should be the same for 
+all of them?
+
+>
+> --
+> Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+> You are lost in a maze of BitKeeper repositories, all almost the same.
+

@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135404AbRDWPlD>; Mon, 23 Apr 2001 11:41:03 -0400
+	id <S135427AbRDWPlN>; Mon, 23 Apr 2001 11:41:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135443AbRDWPkv>; Mon, 23 Apr 2001 11:40:51 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:43022 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S135397AbRDWPh6>; Mon, 23 Apr 2001 11:37:58 -0400
-Date: Mon, 23 Apr 2001 09:37:47 -0600
-Message-Id: <200104231537.f3NFblv08166@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jesper Juhl <juhl@eisenstein.dk>
+	id <S135397AbRDWPlG>; Mon, 23 Apr 2001 11:41:06 -0400
+Received: from t2.redhat.com ([199.183.24.243]:20210 "EHLO
+	warthog.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S135427AbRDWPkT>; Mon, 23 Apr 2001 11:40:19 -0400
+To: "Alon Ziv" <alonz@nolaviz.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this?
-In-Reply-To: <3AE449A3.3050601@eisenstein.dk>
-In-Reply-To: <3AE449A3.3050601@eisenstein.dk>
+Subject: Re: light weight user level semaphores 
+In-Reply-To: Your message of "Mon, 23 Apr 2001 16:48:25 +0200."
+             <015001c0cc04$748c4860$910201c0@zapper> 
+Date: Mon, 23 Apr 2001 16:40:04 +0100
+Message-ID: <4586.988040404@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl writes:
-> Hi people,
-> 
-> I'm reading through various pieces of source code to try and get an 
-> understanding of how the kernel works (with the hope that I'll 
-> eventually be able to contribute something really usefull, but you've 
-> got to start somewhere ;)
-> 
-> While reading through the source I've stumbled across various bits and 
-> pieces that are not exactely wrong, but not strictly correct either. I 
-> was wondering if I would be wasting my time by cleaning this up or if it 
-> would actually be appreciated. One example of these things is the patch 
-> below:
-[...]
-> All the above does is to remove the last comma from 3 enumeration
-> lists.  I know that gcc has no problem with that, but to be strictly
-> correct the last entry should not have a trailing comma.
+Alon Ziv <alonz@nolaviz.org> wrote:
+> Obviously... since they're handles, not FDs...
+> [BTW, are you using Windows' idea of storing the objects in process space,
+> in a page that's inaccessible to the app itself, and passing pointers into
+> this page as the handles?]
 
-But it's more people-friendly to have that trailing comma. It makes
-adding new enumerations just slightly easier, and also makes it easier
-to manually apply failed patches. I'd rather see those trailing commas
-left in.
+No... I grab a page in kernel space and use it as an array. One problem is
+that if an exit occurs, I have to be able to discard all attached objects
+after the process's VM has been cleaned up (ie: what if it gets swapped
+out?). Plus, mmap can clobber existing mappings, MapViewOfFile can't.
 
-> Another example is the following line (1266) from linux/include/net/sock.h
-> 
->          return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
-> 
-> To be strictly correct the second expression (between '?' and ':' ) 
-> should not be omitted (all you guys already know that ofcourse).
+> So what if they aren't files?
 
-Yeah, that one's pretty ugly and unreadable.
+Small structures private to my Win32 module.
 
-> Would patches that clean up stuff like that be appreciated or am I just 
-> wasting my time?
+> I'm afraid I'm not following your logic in this; I believe most Win32 attrs
+> can be mapped to more generic abstractions which should be able to exist at
+> 'struct file' level.
 
-Go ahead and make suggestions. I expect some things will be accepted,
-some rejected (just like I did). Steer clear of any brace or tabbing
-style changes, though.
+"Most"...
 
-> Should I just adopt an 'if gcc -Wall does not complain then it's ok' 
-> attitude and leave this stuff alone?
+It'd mean adding extra fields into struct file (and possibly struct inode)
+just for the use of this module (which probably wouldn't be accepted).
 
-Gcc is often too picky. It tries to be clever, but in many cases I've
-found it's not clever enough. It's useful as a mechanism to identify
-potential problems, but just because gcc whinges, doesn't mean there
-is a problem. You'll need to read and analyse the code to be sure gcc
-is correct in throwing a warning.
+> (And even if not, a Win32 file handle could just hold two pointers---
 
-The goal should *not* be to shut up gcc. The goal should be to produce
-more readable code and to fix bugs. Gcc is merely a tool. And a flawed
-one, at that.
+No. the extra data has to be accessible from CreateFile (potentially running
+in other processes), and this'd mean it'd have to go speculatively searching
+all Win32 handle tables currently in use.
 
-				Regards,
+> And breaks _completely_ with the existing scheme :-/
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+So what? This is for a WINE accelerator/Win32 module only. There's already
+been an argument over making the whole lot available as general Linux
+functionality, but most people said that it'd be a bad idea because it'd not
+be portable.
+
+> Huh? Where did you get this?
+> Looking at my copy of MSDN (July '00), the PulseEvent remarks more-or-less
+> suggest an implementation like
+>     SetEvent(e)
+>     ResetEvent(e)
+
+Consider the following:
+
+	WAITER 1	WAITER 2	WAITER 3	WAKER
+	wait-on-event	wait-on-event	wait-on-event
+	sleep		sleep		sleep
+							PulseEvent
+							set-event
+							wake(WAITER 1)
+							wake(WAITER 2)
+							wake(WAITER 3)
+							reset-event
+	wake		wake		wake
+	what-happened?	what-happened?	what-happened?
+	nothing!	nothing!	nothing!
+	sleep		sleep		sleep
+
+All three waiters should wake up with a note that the event triggered, but
+they don't. Plus a fourth waiter who begins to wait on the event after the
+set-event is issue probably shouldn't wake up.
+
+> I wonder if it's possible to add _just_ this to poll()...
+
+No... there's no way to pass this to poll (or select).
+
+Better to add a WaitForMultipleObjects() syscall and have that call
+do_select() with a flag.
+
+David

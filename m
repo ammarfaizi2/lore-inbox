@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130770AbRCWMoP>; Fri, 23 Mar 2001 07:44:15 -0500
+	id <S131527AbRCXAlt>; Fri, 23 Mar 2001 19:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130777AbRCWMoF>; Fri, 23 Mar 2001 07:44:05 -0500
-Received: from [32.97.166.34] ([32.97.166.34]:38024 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S130686AbRCWMmf>;
-	Fri, 23 Mar 2001 07:42:35 -0500
-Message-Id: <m14fr35-001PKoC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: Your message of "Wed, 21 Mar 2001 01:41:25 -0800."
-             <15032.30533.638717.696704@pizda.ninka.net> 
-Date: Thu, 22 Mar 2001 09:25:47 +1100
+	id <S131429AbRCXAli>; Fri, 23 Mar 2001 19:41:38 -0500
+Received: from smtp03.wxs.nl ([195.121.6.37]:65020 "EHLO smtp03.wxs.nl")
+	by vger.kernel.org with ESMTP id <S131346AbRCXAle>;
+	Fri, 23 Mar 2001 19:41:34 -0500
+Message-ID: <386D4D0D.ACE1B9EC@planet.nl>
+Date: Sat, 01 Jan 2000 01:40:45 +0100
+From: Erik van Asselt <e.van.asselt@planet.nl>
+X-Mailer: Mozilla 4.7 [nl] (Win98; U)
+X-Accept-Language: nl
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: promise fasttrak 20265R (onboard) ide raid drivers for linux 2.4 ?
+In-Reply-To: <3AB6A986.1E630EC8@planet.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <15032.30533.638717.696704@pizda.ninka.net> you write:
-> 
-> Keith Owens writes:
->  > Or have I missed something?
-> 
-> Nope, it is a fundamental problem with such kernel pre-emption
-> schemes.  As a result, it would also break our big-reader locks
-> (see include/linux/brlock.h).
+>
 
-Good point: holding a brlock has to block preemption, as per spinlocks.
+i have the source files for compiling the module for 2.2 kernels but i
+can't get the module to work in 2.4
+is anyone programming a 2.4 driver/module ?
+or can someone help me to convert the existing source code to a working 2.4
+kernelmodule (or better in the kernel)
 
-> Basically, anything which uses smp_processor_id() would need to
-> be holding some lock so as to not get pre-empted.
+Erik
 
-When I audited the uses of smp_processor_id() for the hotplug cpu
-stuff, there were surprisingly few calls to smp_processor_id(), and
-most of these will be holding a brlock, so OK already.
-
-Rusty.
---
-Premature optmztion is rt of all evl. --DK

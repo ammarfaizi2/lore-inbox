@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSHDSrT>; Sun, 4 Aug 2002 14:47:19 -0400
+	id <S318186AbSHDSsI>; Sun, 4 Aug 2002 14:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318186AbSHDSrT>; Sun, 4 Aug 2002 14:47:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50703 "EHLO
+	id <S318189AbSHDSsI>; Sun, 4 Aug 2002 14:48:08 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51983 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318184AbSHDSrS>; Sun, 4 Aug 2002 14:47:18 -0400
-Date: Sun, 4 Aug 2002 11:50:39 -0700 (PDT)
+	id <S318186AbSHDSsF>; Sun, 4 Aug 2002 14:48:05 -0400
+Date: Sun, 4 Aug 2002 11:38:12 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Hans Reiser <reiser@namesys.com>, Andreas Gruenbacher <agruen@suse.de>,
-       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Caches that shrink automatically
-In-Reply-To: <Pine.LNX.4.44L.0208041543450.23404-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0208041146380.10314-100000@home.transmeta.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>,
+       <davidm@napali.hpl.hp.com>, <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>,
+       <wli@holomorpy.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: large page patch (fwd) (fwd)
+In-Reply-To: <200208041331.24895.frankeh@watson.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 4 Aug 2002, Rik van Riel wrote:
+On Sun, 4 Aug 2002, Hubertus Franke wrote:
 > 
-> Linus has indicated that he would like to have it page based,
-> but implementation issues point towards letting the subcache
-> manage its objects by itself ;)
+> As of the page coloring !
+> Can we tweak the buddy allocator to give us this additional functionality?
 
-The two are not mutually incompatible.
+I would really prefer to avoid this, and get "95% coloring" by just doing 
+read-ahead with higher-order allocations instead of the current "loop 
+allocation of one block".
 
-I think we've all seen that non-global shrinking just doesn't work very
-well, because one cache that grows too large will end up asking everybody
-else to shrink, even if a global shrinking policy would have realized that
-the memory pressure is due to that one overly large cache. The resulting
-balancing problems are "interesting".
+I bet that you will get _practically_ perfect coloring with just two small 
+changes:
 
-Being purely page-based, together with support for the sub-caches knowing 
-about the page-based aging, should be fine.
+ - do_anonymous_page() looks to see if the page tables are empty around 
+   the faulting address (and check vma ranges too, of course), and 
+   optimistically does a non-blocking order-X allocation.
 
-In particular, it is useless for the sub-caches to try to maintain their 
-own LRU lists and their own accessed bits. But that doesn't mean that they 
-can _act_ as if they updated their own accessed bits, while really just 
-telling the page-based thing that that page is active.
+   If the order-X allocation fails, we're likely low on memory (this is 
+   _especially_ true since the very fact that we do lots of order-X
+   allocations will probably actually help keep fragementation down
+   normally), and we just allocate one page (with a regular GFP_USER this 
+   time).
 
-This is what the buffer cache has been doing for the last two years, ie 
-"touch_buffer()" actually ends up touching the page. Which seems to be 
-working quite well.
+   Map in all pages.
+
+ - do the same for page_cache_readahead() (this, btw, is where radix trees 
+   will kick some serious ass - we'd have had a hard time doing the "is
+   this range of order-X pages populated" efficiently with the old hashes.
+
+I bet just those fairly small changes will give you effective coloring, 
+_and_ they are also what you want for doing small superpages.
+
+And no, I do not want separate coloring support in the allocator. I think 
+coloring without superpage support is stupid and worthless (and 
+complicates the code for no good reason).
 
 		Linus
 

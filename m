@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314723AbSDVUNn>; Mon, 22 Apr 2002 16:13:43 -0400
+	id <S314726AbSDVUSY>; Mon, 22 Apr 2002 16:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314724AbSDVUNm>; Mon, 22 Apr 2002 16:13:42 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:39394 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314723AbSDVUNm>;
-	Mon, 22 Apr 2002 16:13:42 -0400
-Date: Mon, 22 Apr 2002 16:13:41 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Jonathan A. George" <JGeorge@greshamstorage.com>
-cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <3CC46B07.8020604@greshamstorage.com>
-Message-ID: <Pine.GSO.4.21.0204221603070.5686-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314727AbSDVUSX>; Mon, 22 Apr 2002 16:18:23 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:28623 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S314726AbSDVUSW>;
+	Mon, 22 Apr 2002 16:18:22 -0400
+Date: Mon, 22 Apr 2002 16:18:19 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020422161819.F20999@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zLOF-0001II-00@starship> <20020422135221.D11216@havoc.gtf.org> <E16zLiI-0001Ii-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 21, 2002 at 08:05:25PM +0200, Daniel Phillips wrote:
+> On Monday 22 April 2002 19:52, Jeff Garzik wrote:
+> > Should we remove all advertisements from the kernel?  A Big Penguin
+> > would probably object to the removal of this printk advertisement
+> > for Swansea:
+> > 
+> > 	Linux NET4.0 for Linux 2.4
+> > 	Based upon Swansea University Computer Society NET3.039
+> > 
+> > If the answer is no, then you are targetting BitKeeper specifically...
+> 
+> Excellent point.  If the BitKeeper advertising in the kernel source were
+> held to that level, I would be satisfied.
+
+<chuckle> -- and if that occurred, _I_ would fight to remove it as a
+pointless advertisement.
+
+	Jeff
 
 
-On Mon, 22 Apr 2002, Jonathan A. George wrote:
-
-> Alexander Viro wrote:
-
-> >On Mon, 22 Apr 2002, Jonathan A. George wrote:
-
-> >>No need.  His tools are his choice.  The kernel itself is ours not his; 
-                                                              ^^^^^^^^^^^^
-> >> thus the distinction.
-> >
-> >Bullshit.  His copy is his.  Mine is mine.  Yours is yours.  Each of
-> >us is perfectly within his rights when he adds whatever patches he
-> >likes.
-> >
-> Both statements are true.  Imagine that.
-
-So where the hell do you or anybody else get the right to prohibit him adding
-GPLed file to his copy?
-
-RTFGPL.  Again, if you don't like said additions - fucking tough,
-they are explicitly allowed by the license.
 

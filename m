@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319144AbSHMXFr>; Tue, 13 Aug 2002 19:05:47 -0400
+	id <S319081AbSHMW5O>; Tue, 13 Aug 2002 18:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319130AbSHMXFS>; Tue, 13 Aug 2002 19:05:18 -0400
-Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:28924 "EHLO
-	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319168AbSHMXC4>; Tue, 13 Aug 2002 19:02:56 -0400
-Date: Tue, 13 Aug 2002 19:06:40 -0400 (EDT)
+	id <S319084AbSHMW4g>; Tue, 13 Aug 2002 18:56:36 -0400
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:39053 "EHLO
+	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319081AbSHMWzb>; Tue, 13 Aug 2002 18:55:31 -0400
+Date: Tue, 13 Aug 2002 18:59:20 -0400 (EDT)
 From: "Kendrick M. Smith" <kmsmith@umich.edu>
 X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
 To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: patch 25/38: SERVER: return err_nofilehandle if missing fh in
- fh_verify()
-Message-ID: <Pine.SOL.4.44.0208131906180.25942-100000@rastan.gpcc.itd.umich.edu>
+Subject: patch 08/38: CLIENT: change hard limit on symlink length
+Message-ID: <Pine.SOL.4.44.0208131858520.25942-100000@rastan.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Return nfserr_nofilehandle (v4 only) in fh_verify() if the filehandle
-has not been set.
+In NFSv4, there is no hard limit on the length of symlink text.
+This patch changes the -ENAMETOOLONG test in nfs_symlink() accordingly.
 
---- old/fs/nfsd/nfsfh.c	Tue Jul 30 22:20:35 2002
-+++ new/fs/nfsd/nfsfh.c	Mon Jul 29 12:39:43 2002
-@@ -109,6 +109,8 @@ fh_verify(struct svc_rqst *rqstp, struct
- 		error = nfserr_stale;
- 		if (rqstp->rq_vers > 2)
- 			error = nfserr_badhandle;
-+		if (rqstp->rq_vers == 4 && fh->fh_size == 0)
-+			return nfserr_nofilehandle;
+--- old/fs/nfs/dir.c	Mon Jul 29 22:54:08 2002
++++ new/fs/nfs/dir.c	Mon Jul 29 11:50:09 2002
+@@ -898,15 +898,15 @@ nfs_symlink(struct inode *dir, struct de
+ 	struct nfs_fattr sym_attr;
+ 	struct nfs_fh sym_fh;
+ 	struct qstr qsymname;
+-	unsigned int maxlen;
+ 	int error;
 
- 		if (fh->fh_version == 1) {
- 			datap = fh->fh_auth;
+ 	dfprintk(VFS, "NFS: symlink(%s/%ld, %s, %s)\n", dir->i_sb->s_id,
+ 		dir->i_ino, dentry->d_name.name, symname);
+
+ 	error = -ENAMETOOLONG;
+-	maxlen = (NFS_PROTO(dir)->version==2) ? NFS2_MAXPATHLEN : NFS3_MAXPATHLEN;
+-	if (strlen(symname) > maxlen)
++	if (NFS_PROTO(dir)->version == 2 && strlen(symname) > NFS2_MAXPATHLEN)
++		goto out;
++	else if (NFS_PROTO(dir)->version == 3 && strlen(symname) > NFS3_MAXPATHLEN)
+ 		goto out;
+
+ #ifdef NFS_PARANOIA
 

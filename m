@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130028AbQJ0BWK>; Thu, 26 Oct 2000 21:22:10 -0400
+	id <S129722AbQJ0B3W>; Thu, 26 Oct 2000 21:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129938AbQJ0BWB>; Thu, 26 Oct 2000 21:22:01 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:62479
-	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S130028AbQJ0BVj>;
-	Thu, 26 Oct 2000 21:21:39 -0400
-Date: Thu, 26 Oct 2000 18:21:37 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linus@goop.org
-Subject: Re: [PATCH] address-space identification for /proc
-Message-ID: <20001026182137.A31159@goop.org>
-Mail-Followup-To: Jeremy Fitzhardinge <jeremy@goop.org>,
-	Johannes Erdfelt <johannes@erdfelt.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, linus@goop.org
-In-Reply-To: <20001026154527.A30463@goop.org> <20001026155225.B30463@goop.org> <20001026190126.E28472@sventech.com>
+	id <S129938AbQJ0B3M>; Thu, 26 Oct 2000 21:29:12 -0400
+Received: from ns.caldera.de ([212.34.180.1]:59405 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129722AbQJ0B3H>;
+	Thu, 26 Oct 2000 21:29:07 -0400
+Date: Fri, 27 Oct 2000 03:28:22 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Mauelshagen@sistina.com, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, linux-lvm@msede.com, mge@sistina.com
+Subject: Re: [linux-lvm] Re: LVM snapshotting broken?
+Message-ID: <20001027032822.A9936@caldera.de>
+Mail-Followup-To: Mauelshagen@sistina.com,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	linux-lvm@msede.com, mge@sistina.com
+In-Reply-To: <Pine.LNX.4.21.0010261632440.15696-100000@duckman.distro.conectiva> <20001026233707.A12201@srv.t-online.de> <20001027015308.A5034@caldera.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001026190126.E28472@sventech.com>; from johannes@erdfelt.com on Thu, Oct 26, 2000 at 07:01:26PM -0400
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20001027015308.A5034@caldera.de>; from hch@caldera.de on Fri, Oct 27, 2000 at 01:53:08AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 27, 2000 at 01:53:08AM +0200, Christoph Hellwig wrote:
+> Look like a structure mis-match to me, although lv_v2_t is the same for
+> all tools.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry I was wrong. The __unused field is missing.
+Yet another reason for an official 0.8 maintaince release ;)
 
-On Thu, Oct 26, 2000 at 07:01:26PM -0400, Johannes Erdfelt wrote:
-> and even more obvious:
->=20
-> +	buffer +=3D sprintf(buffer, "ASID:\t%p\n", mm);
->=20
-> Actually putting it into the buffer would be useful as well :)
+	Christoph
 
-That serves me right for hand-editing patches.
-
-	J
---
-Repeat to self: I am not Linus
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjn42KEACgkQf6p1nWJ6IgKCIgCdGiEZ8homEHJ7sEK8BAxAm5QV
-ggQAn17XszXbn8xoshWveq2H1yFEzU4T
-=esBN
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
+-- 
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSLUPxU>; Sat, 21 Dec 2002 10:53:20 -0500
+	id <S261644AbSLUP7D>; Sat, 21 Dec 2002 10:59:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbSLUPxU>; Sat, 21 Dec 2002 10:53:20 -0500
-Received: from mnh-1-28.mv.com ([207.22.10.60]:32004 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S261599AbSLUPxU>;
-	Sat, 21 Dec 2002 10:53:20 -0500
-Message-Id: <200212211605.LAA01502@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: John Reiser <jreiser@BitWagon.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Julian Seward <jseward@acm.org>
-Subject: Re: Valgrind meets UML 
-In-Reply-To: Your message of "20 Dec 2002 23:32:21 PST."
-             <1040455941.1841.123.camel@ixodes.goop.org> 
+	id <S261829AbSLUP7D>; Sat, 21 Dec 2002 10:59:03 -0500
+Received: from [217.13.199.129] ([217.13.199.129]:51589 "EHLO
+	server1.netdiscount.de") by vger.kernel.org with ESMTP
+	id <S261644AbSLUP7C>; Sat, 21 Dec 2002 10:59:02 -0500
+Date: Sat, 21 Dec 2002 17:07:06 +0100
+From: Christian Leber <christian@leber.de>
+To: Brian Gerst <bgerst@quark.didntduck.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021221160706.GA26838@core.home>
+References: <Pine.LNX.4.44.0212170850250.2702-100000@home.transmeta.com> <3E0006D2.3000907@quark.didntduck.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 21 Dec 2002 11:05:25 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3E0006D2.3000907@quark.didntduck.org>
+User-Agent: Mutt/1.4i
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeremy@goop.org said:
-> The main problem will be that newly allocated memory will still be
-> considered initialized by its previous owner.  Also, if UML allocates
-> memory using mmap, all memory will be considered to be initialized.
+On Wed, Dec 18, 2002 at 12:25:38AM -0500, Brian Gerst wrote:
 
-What I was doing was having kfree and free_pages set the freed object to
-noaccess.  Presumably, that tells valgrind to consider the memory 
-uninitialized.
+> How about this patch?  Instead of making a per-cpu trampoline, write to 
+> the msr during each context switch.  This means that the stack pointer 
+> is valid at all times, and also saves memory and a cache line bounce.  I 
+> also included some misc cleanups.
 
-Presumably, that will also cause errors from inside the allocator if it
-touches that memory at all before it's allocated again.
+Just a little bit of benchmarking:
+(little testprogram by Linus out of this thread)
+(on a AMD Duron 750)
 
-				Jeff
+2.5.52-bk2+sysenter-1 (Brian Gerst):
+igor3:~# ./a.out
+187.894946 cycles    (call 0xfffff000)
+299.155075 cycles    (int $0x80)
+
+2.5.52-bk6:
+igor3:~# ./a.out
+202.134535 cycles    (call 0xffffe000)
+299.117583 cycles    (int $0x80)
+
+Not really much, but the difference is there. (I don't about other side
+effects)
+
+
+Christian Leber
 

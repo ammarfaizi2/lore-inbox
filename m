@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267642AbTAHBra>; Tue, 7 Jan 2003 20:47:30 -0500
+	id <S267663AbTAHB6I>; Tue, 7 Jan 2003 20:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbTAHBra>; Tue, 7 Jan 2003 20:47:30 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:18185 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267642AbTAHBr2>;
-	Tue, 7 Jan 2003 20:47:28 -0500
-Date: Tue, 7 Jan 2003 17:55:51 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: [PATCH] PCI hotplug changes for 2.5.54
-Message-ID: <20030108015551.GB30924@kroah.com>
-References: <20030108015500.GA30924@kroah.com>
+	id <S267666AbTAHB6I>; Tue, 7 Jan 2003 20:58:08 -0500
+Received: from [24.68.68.53] ([24.68.68.53]:2692 "EHLO kruhft")
+	by vger.kernel.org with ESMTP id <S267663AbTAHB6G>;
+	Tue, 7 Jan 2003 20:58:06 -0500
+Date: Tue, 7 Jan 2003 18:06:14 -0800
+From: Burton Samograd <kruhft@kruhft.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Getting interface IP addresses with proc filesystem
+Message-ID: <20030108020614.GA1480@kruhft.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
 Content-Disposition: inline
-In-Reply-To: <20030108015500.GA30924@kroah.com>
-User-Agent: Mutt/1.4i
+X-GPG-key: http://kruhftwerk.dyndns.org/kruhft.pubkey.asc
+X-Operating-System: Linux kruhft.dyndns.org 2.4.20 
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.894, 2003/01/07 16:24:14-08:00, greg@kroah.com
 
-IBM PCI Hotplug: fix compile time error due to find_bus() function name.
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi all,
 
-diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
---- a/drivers/hotplug/ibmphp_core.c	Tue Jan  7 16:45:11 2003
-+++ b/drivers/hotplug/ibmphp_core.c	Tue Jan  7 16:45:11 2003
-@@ -769,11 +769,11 @@
-  * Parameters: bus number
-  * Returns : pci_bus *  or NULL if not found
-  */
--static struct pci_bus *find_bus (u8 busno)
-+static struct pci_bus *ibmphp_find_bus (u8 busno)
- {
- 	const struct list_head *tmp;
- 	struct pci_bus *bus;
--	debug ("inside find_bus, busno = %x \n", busno);
-+	debug ("inside %s, busno = %x \n", __FUNCTION__, busno);
- 
- 	list_for_each (tmp, &pci_root_buses) {
- 		bus = (struct pci_bus *) pci_bus_b (tmp);
-@@ -1002,7 +1002,7 @@
- 	struct pci_dev *dev;
- 	u16 l;
- 
--	if (find_bus (busno) || !(ibmphp_find_same_bus_num (busno)))
-+	if (ibmphp_find_bus (busno) || !(ibmphp_find_same_bus_num (busno)))
- 		return 1;
- 
- 	bus = kmalloc (sizeof (*bus), GFP_KERNEL);
-@@ -1056,7 +1056,7 @@
- 		func->dev = pci_find_slot (func->busno, (func->device << 3) | (func->function & 0x7));
- 
- 	if (func->dev == NULL) {
--		dev0.bus = find_bus (func->busno);
-+		dev0.bus = ibmphp_find_bus (func->busno);
- 		dev0.devfn = ((func->device << 3) + (func->function & 0x7));
- 		dev0.sysdata = dev0.bus->sysdata;
- 
-@@ -1636,7 +1636,7 @@
- 		return -ENOMEM;
- 	}
- 
--	bus = find_bus (0);
-+	bus = ibmphp_find_bus (0);
- 	if (!bus) {
- 		err ("Can't find the root pci bus, can not continue\n");
- 		return -ENODEV;
+I'm curious how one goes about getting the current IP addresses held by a
+machine.  I saw some rather convoluted code in qmail that shows how to do i=
+t but
+it seems like a rather difficult (and future bug ridden if the interface
+changes) piece of code and was thinking that a /proc/net interface would be=
+ the
+easiest solution, at least on the end user side.
+
+My thinking goes along the lines of adding a file in /proc/net called inter=
+faces
+(or something more appropriate) which gives the following type of listing:
+
+eth0 12.35.23.58
+eth0:0 192.168.0.1
+lo 127.0.0.1
+ppp0 45.3.3.89
+
+etc
+
+for each of the registered interfaces on the machine.  Nice, simple and
+shouldn't be too hard to implement, correct? Is this type of information=20
+already present through some other mechanism that I haven't found yet?
+
+Thanks in advance.
+
+--=20
+burton samograd
+kruhft@kruhft.dyndns.org
+http://kruhftwerk.dyndns.org
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+G4eWLq/0KC7fYbURAnTQAJ94hmOwtdNjlSmjPKxyNTerHKPyfgCfcISC
+JEmm5Gi0k3AXbZyG47oD3t0=
+=gwsW
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--

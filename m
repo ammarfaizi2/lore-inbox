@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131643AbRC3VO5>; Fri, 30 Mar 2001 16:14:57 -0500
+	id <S131644AbRC3VY5>; Fri, 30 Mar 2001 16:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131653AbRC3VOr>; Fri, 30 Mar 2001 16:14:47 -0500
-Received: from crete.csd.uch.gr ([147.52.16.2]:33740 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id <S131643AbRC3VO3>;
-	Fri, 30 Mar 2001 16:14:29 -0500
-Organization: 
-Date: Sat, 31 Mar 2001 00:10:57 +0300 (EET DST)
-From: mythos <papadako@csd.uoc.gr>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Matrox G400 Dualhead
-In-Reply-To: <Pine.LNX.4.10.10103301243360.23679-100000@clueserver.org>
-Message-ID: <Pine.GSO.4.33.0103310006130.8217-100000@iridanos.csd.uch.gr>
+	id <S131653AbRC3VYr>; Fri, 30 Mar 2001 16:24:47 -0500
+Received: from mail.gci.com ([205.140.80.57]:26886 "EHLO daytona.gci.com")
+	by vger.kernel.org with ESMTP id <S131644AbRC3VYj>;
+	Fri, 30 Mar 2001 16:24:39 -0500
+Message-ID: <BF9651D8732ED311A61D00105A9CA3150446D6E5@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: Alan Olsen <alan@clueserver.org>, David Relson <relson@osagesoftware.com>
+Cc: Bruno Avila <jisla@elogica.com.br>, linux-kernel@vger.kernel.org
+Subject: RE: How to compile linux 0.0.0.1?
+Date: Fri, 30 Mar 2001 12:23:51 -0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dualhead is not working with the current kernel(2.4.3).
-With 2.4.2 it was working just fine.
-I have not used any special compiler flags,just the usual ones
-and I am not loading XFree.
-Also does anyone know why when I change from Xfree to console
-most of the times the console is corrupted..?
-This is a problem which I have noticed from Xfree-4.0 and after.
+On Fri, 30 Mar 2001, Alan Olsen wrote:
+> On Fri, 30 Mar 2001, David Relson wrote:
+> 
+>> At 03:06 PM 3/30/01, Alan Olsen wrote:
+>>>On Fri, 30 Mar 2001, Bruno Avila wrote:
+>>>
+>>>> I can't find this anywhere. What is the version of the
+>>>> tools to compile linux kernel 0.0.0.1 (../Historic)? And
+>>>> where can i find them?
+>>>
+>>>Well, first you have to find a good source of obsidean, a 
+>>> couple of sharp rocks, and some flint...
+>> 
+>> I have a friend who's a flintknapper.  He's been doing it 
+>> for decades and does good work.  I'm sure he could set you
+>> up with raw materials or with finished products, i.e.
+>> arrowheads, knife blades, etc.
+> 
+> Yeah, but then you have to find the buffalo and that gets 
+> hard.  (Actually Linus used a carabou, but those are even
+> harder to find...)
 
-Thanks in advance.
+Well, I remember back to 0.12ish and the Caribou around here
+(Alaska) were plentiful then.  Ah, those were the days.
 
-
+<offtopic level=2>
+I did find my 0.95 disk the other day (Yggdrasil distro) and
+toyed with the idea of installing it, just to see how much
+things had really changed.  But i don't have anything
+pre-80686 :-(
+</offtopic>
 

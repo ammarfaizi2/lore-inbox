@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143429AbRELAZm>; Fri, 11 May 2001 20:25:42 -0400
+	id <S143436AbRELA1M>; Fri, 11 May 2001 20:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143428AbRELAZc>; Fri, 11 May 2001 20:25:32 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64782 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S143427AbRELAZU>; Fri, 11 May 2001 20:25:20 -0400
-Subject: Re: OOPS on 2.4.4-ac4
-To: ingo@plato.prima.de (Ingo Renner)
-Date: Sat, 12 May 2001 01:21:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.010512014854.ingo@plato.prima.de> from "Ingo Renner" at May 12, 2001 01:48:54 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S143431AbRELA0z>; Fri, 11 May 2001 20:26:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24733 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S143427AbRELA0j>;
+	Fri, 11 May 2001 20:26:39 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14yNAQ-0001sM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15100.33537.982370.753962@pizda.ninka.net>
+Date: Fri, 11 May 2001 17:25:37 -0700 (PDT)
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new version of singlecopy pipe
+In-Reply-To: <20010512020742.A1054@werewolf.able.es>
+In-Reply-To: <3AFC36BA.B71FC470@colorfullife.com>
+	<20010512020742.A1054@werewolf.able.es>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> computer during this time.=20
-> So I don't know if this has to do with the new networkcard, the new NVIDIA
-> Driver 0.9-769 I installed yesterday with XFree 4.3 or something else. The =
 
-> -----------
-> Module                  Size  Used by
-> via82cxxx_audio        16800   2  (autoclean)
-> soundcore               3600   2  (autoclean) [via82cxxx_audio]
-> ac97_codec              8560   0  (autoclean) [via82cxxx_audio]
-> NVdriver              626480  12  (autoclean)
-> vmnet                  16224   3
-> vmmon                  18224   0
-> dmfe                    9408   1  (autoclean)
+J . A . Magallon writes:
+ > I tried your patch on 2.4.4-ac8, and something strange happens.
+ > Untarring linux-2.4.4 takes a little time, disk light flashes,
+ > but no files appear on the disk (just 'Makefile', as you will see below).
+ > Doing a separate gunzip - tar xf works fine:
 
-You are using binary only drivers. We can't debug them (least of all a 625K
-module thats almost the size of the kernel).  Duplicate the problems on a boot
-that never loaded vmware or nvdriver and its interesting, otherwise take it
-up with vmware and nvidia - they have our source we dont have theirs
+What platform?
 
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUIONg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUIONjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266149AbUIONg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUIONg3
+	id S266115AbUIONjU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUIONg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:36:29 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:44818 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266149AbUION2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:28:41 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Version 0.97 of linld is available
-Date: Wed, 15 Sep 2004 16:28:00 +0300
-User-Agent: KMail/1.5.4
+	Wed, 15 Sep 2004 09:36:56 -0400
+Received: from zero.aec.at ([193.170.194.10]:16646 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266115AbUIONaN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:30:13 -0400
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, kkeil@suse.de
+Subject: Re: [patch] tune vmalloc size
+References: <2EHyq-5or-39@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 15 Sep 2004 15:29:53 +0200
+In-Reply-To: <2EHyq-5or-39@gated-at.bofh.it> (Ingo Molnar's message of "Wed,
+ 15 Sep 2004 15:00:18 +0200")
+Message-ID: <m34qlzbqy6.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409151628.00579.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linld is a Linux boot loader for DOS,
-similar to loadlin.
+Ingo Molnar <mingo@elte.hu> writes:
 
-It was written because I failed to find out why
-loadlin cannot load new, larger kernel images.
-I stuck to using C and ended up with fairly small
-code, partially because linld have no support for
-ancient kernels.
+> there are a few devices that use lots of ioremap space. vmalloc space is
+> a showstopper problem for them.
+>
+> this patch adds the vmalloc=<size> boot parameter to override
+> __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+> doubles the size.
 
-New version addresses the following issue:
-kernel (at least 2.6 one) does not believe in incomplete
-last RAM page, so if boot loader places initrd image
-sot that it's tail end up in that last page,
-kernel thinks that initrd is truncated and drops it.
+Ah, Karsten Keil did a similar patch some months ago. There is 
+clearly a need.
 
-I bas bitten by this when I tried booting on a machine
-which had only 3 kb out of 4 in it's last RAM page
-(1 kb reserved for BIOS or something like that).
+But I think this should be self tuning instead. For a machine with 
+less than 900MB of memory the vmalloc area can be automagically increased,
+growing into otherwise unused address space. 
 
-Available at:
-http://195.66.192.168/linux/linld/
+This way many users wouldn't need to specify weird options.  So far
+most machines still don't have more than 512MB.
 
-HISTORY file
-=======
-Acknowledgements
-----------------
-Lots of code was borrowed from loadlin source
-(author of loadlin is Hans Lermen <lermen@elserv.ffm.fgan.de>).
-Some code from linux kernel (setup.S) was used too.
-Thank you guys!
-
-Todo
-----
-?
-
-Changelog
----------
-0.91    Added support for cl=@filename
-0.92    VCPI vodoo magic: booting under EMM386 and foes :-)
-0.93    Cleanup. cl=@filename: cr/lf will be converted to two spaces
-0.94    Ugly workaround for DOS int 15 fn 88 breakage
-0.95    Bug squashed: vga=NNN did not like dec numbers, oct/hex only
-        Some VCPI comments added
-0.96    Do not lowercase entire command line
-0.97    memtop() must be rounded down to page boundary
---
-vda
+-Andi
 

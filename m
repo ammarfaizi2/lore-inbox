@@ -1,79 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbUAOPib (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 10:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUAOPia
+	id S264272AbUAOPsD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 10:48:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbUAOPsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 10:38:30 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:63398 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S262765AbUAOPi2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 10:38:28 -0500
-Date: Thu, 15 Jan 2004 08:38:24 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] 2.6 && module + -g && kernel w/o -g
-Message-ID: <20040115153824.GE983@stop.crashing.org>
-References: <20040114210937.GA983@stop.crashing.org> <20040115013723.29B912C0DC@lists.samba.org>
+	Thu, 15 Jan 2004 10:48:03 -0500
+Received: from linux-bt.org ([217.160.111.169]:48568 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S264272AbUAOPsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 10:48:01 -0500
+Subject: Support of sysfs for Bluetooth subsystem
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1074181646.2625.59.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115013723.29B912C0DC@lists.samba.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Jan 2004 16:47:27 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 10:00:11AM +1100, Rusty Russell wrote:
+Hi Folks,
 
-> In message <20040114210937.GA983@stop.crashing.org> you write:
-> > Okay.  I've been looking at stock 2.6.1 noticed  that the fix for this
-> > issue that Rusty proposed, and that ultimately made it into 2.6.1-rc3
-> > (or so) is not correct.  The problem is that we do:
-> > 
-> > err = module_frob_arch_sections(hdr, sechdrs, secstrings, mod);
-> > /* Which goes over every .debug section and can take _ages_ on something
-> >  * like ipv6 */
-> 
-> Right.  So the arch-specific module_frob_arch_sections() can be slow.
-> Logically, the fix should be in those module_frob_arch_sections(), not
-> in the generic code.
+I wanna add sysfs support to the Bluetooth subsystem, but actually I
+don't know how and where to start. I don't worry much about the coding
+itself, because I found some very good documents at LWN. My general
+concern is how it should look like. Are there any design rules for a
+subsystem?
 
-So it was right the first time, OK. :)
+Regards
 
-> > +		/* If we find any debug RELAs, frob these away now. */
-> > +		if (sechdrs[i].sh_type == SHT_RELA &&
-> > +				(strstr(secstrings+sechdrs[i].sh_name, ".debug")
-> > +				 != 0))
-> > +			sechdrs[i].sh_type = SHT_NULL;
-> > +
-> 
-> Doesn't cover SHT_REL, and I really dislike name matches: they've bitten
-> us before.
-> 
-> Really, I prefer the arch-specific optimization.
+Marcel
 
-FWIW, this isn't an optimization, taking 12 minutes to load the ipv6
-module is a bug. :)
 
-Andrew, can you please apply the following patch?  Thanks.
---- 1.10/arch/ppc/kernel/module.c	Fri Sep 12 09:26:52 2003
-+++ edited/arch/ppc/kernel/module.c	Thu Jan 15 08:35:40 2004
-@@ -88,6 +88,10 @@
- 		    != is_init)
- 			continue;
- 
-+		/* We don't want to look at debug sections. */
-+		if (strstr(secstrings + sechdrs[i].sh_name, ".debug") != 0)
-+			continue;
-+
- 		if (sechdrs[i].sh_type == SHT_RELA) {
- 			DEBUGP("Found relocations in section %u\n", i);
- 			DEBUGP("Ptr: %p.  Number: %u\n",
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

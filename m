@@ -1,108 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbUKRRbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbUKRRiC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbUKRRbP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 12:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbUKRR3r
+	id S262782AbUKRRiC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 12:38:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbUKRR30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 12:29:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16828 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262782AbUKRRZh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 12:25:37 -0500
-Date: Thu, 18 Nov 2004 12:25:21 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Chris Wright <chrisw@osdl.org>
-cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>, <netdev@oss.sgi.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-In-Reply-To: <Xine.LNX.4.44.0411181158110.5096-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0411181219590.5236-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 12:29:26 -0500
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:51328 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S262804AbUKRR0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 12:26:11 -0500
+Date: Thu, 18 Nov 2004 20:26:06 +0300
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc2
+Message-ID: <20041118172606.GA6729@tentacle.sectorb.msk.ru>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
+X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
+X-Operating-System: Linux 2.6.9-rc2-mm1
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated patch below (with Chris Wright's wrapper idea).
+On Sun, Nov 14, 2004 at 06:49:04PM -0800, Linus Torvalds wrote:
+> 
+> Ok, the -rc2 changes are almost as big as the -rc1 changes, and we should 
+> now calm down, so I do not want to see anything but bug-fixes until 2.6.10 
+> is released. Otherwise we'll never get there.
 
-This now fixes both issues.
+Please accept this fix:
 
-1) Don't call security_unix_may_send() hook during sendmsg() for 
-SOCK_SEQPACKET, and ensure that sendmsg() can only be called on a 
-connected socket so as not to bypass the security_unix_stream_connect() 
-hook.
+[PATCH] fix posix_locks_deadlock().
 
-2) Return -EINVAL if sendto() is called on SOCK_SEQPACKET with an address 
-supplied.
+"blocked_list" may contain both leases and flock locks. Since the latter in
+particular do not initialize the fl_owner field, we have to beware not to
+call posix_same_owner() on them.
 
-Please review and apply if ok.
-
-
-Signed-off-by: James Morris <jmorris@redhat.com>
-
+Signed-off-by: Trond Myklebust <trond.myklebust@fys.uio.no>
 ---
+ locks.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
- net/unix/af_unix.c |   26 ++++++++++++++++++++++----
- 1 files changed, 22 insertions(+), 4 deletions(-)
-
-diff -purN -X dontdiff linux-2.6.10-rc2.o/net/unix/af_unix.c linux-2.6.10-rc2.w2/net/unix/af_unix.c
---- linux-2.6.10-rc2.o/net/unix/af_unix.c	2004-11-15 13:18:56.000000000 -0500
-+++ linux-2.6.10-rc2.w2/net/unix/af_unix.c	2004-11-18 12:09:44.255462368 -0500
-@@ -466,6 +466,8 @@ static int unix_dgram_recvmsg(struct kio
- 			      struct msghdr *, size_t, int);
- static int unix_dgram_connect(struct socket *, struct sockaddr *,
- 			      int, int);
-+static int unix_seqpacket_sendmsg(struct kiocb *, struct socket *,
-+				  struct msghdr *, size_t);
- 
- static struct proto_ops unix_stream_ops = {
- 	.family =	PF_UNIX,
-@@ -524,7 +526,7 @@ static struct proto_ops unix_seqpacket_o
- 	.shutdown =	unix_shutdown,
- 	.setsockopt =	sock_no_setsockopt,
- 	.getsockopt =	sock_no_getsockopt,
--	.sendmsg =	unix_dgram_sendmsg,
-+	.sendmsg =	unix_seqpacket_sendmsg,
- 	.recvmsg =	unix_dgram_recvmsg,
- 	.mmap =		sock_no_mmap,
- 	.sendpage =	sock_no_sendpage,
-@@ -1354,9 +1356,11 @@ restart:
- 	if (other->sk_shutdown & RCV_SHUTDOWN)
- 		goto out_unlock;
- 
--	err = security_unix_may_send(sk->sk_socket, other->sk_socket);
--	if (err)
--		goto out_unlock;
-+	if (sk->sk_type != SOCK_SEQPACKET) {
-+		err = security_unix_may_send(sk->sk_socket, other->sk_socket);
-+		if (err)
-+			goto out_unlock;
-+	}
- 
- 	if (unix_peer(other) != sk &&
- 	    (skb_queue_len(&other->sk_receive_queue) >
-@@ -1506,6 +1510,20 @@ out_err:
- 	return sent ? : err;
- }
- 
-+static int unix_seqpacket_sendmsg(struct kiocb *kiocb, struct socket *sock,
-+				  struct msghdr *msg, size_t len)
-+{
-+	struct sock *sk = sock->sk;
-+	
-+	if (sk->sk_state != TCP_ESTABLISHED)
-+		return -ENOTCONN;
-+
-+	if (msg->msg_name || msg->msg_namelen)
-+		return -EINVAL;
-+
-+	return unix_dgram_sendmsg(kiocb, sock, msg, len);
-+}
-+                                                                                            
- static void unix_copy_addr(struct msghdr *msg, struct sock *sk)
+Index: linux-2.6.9-rc2-up/fs/locks.c
+===================================================================
+--- linux-2.6.9-rc2-up.orig/fs/locks.c	2004-09-19 13:55:33.680258334 -0700
++++ linux-2.6.9-rc2-up/fs/locks.c	2004-09-19 15:37:32.595634679 -0700
+@@ -634,14 +634,13 @@
+ int posix_locks_deadlock(struct file_lock *caller_fl,
+ 				struct file_lock *block_fl)
  {
- 	struct unix_sock *u = unix_sk(sk);
+-	struct list_head *tmp;
++	struct file_lock *fl;
+ 
+ next_task:
+ 	if (posix_same_owner(caller_fl, block_fl))
+ 		return 1;
+-	list_for_each(tmp, &blocked_list) {
+-		struct file_lock *fl = list_entry(tmp, struct file_lock, fl_link);
+-		if (posix_same_owner(fl, block_fl)) {
++	list_for_each_entry(fl, &blocked_list, fl_link) {
++		if (IS_POSIX(fl) && posix_same_owner(fl, block_fl)) {
+ 			fl = fl->fl_next;
+ 			block_fl = fl;
+ 			goto next_task;
+
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286521AbSCCOn5>; Sun, 3 Mar 2002 09:43:57 -0500
+	id <S286825AbSCCPfz>; Sun, 3 Mar 2002 10:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286647AbSCCOns>; Sun, 3 Mar 2002 09:43:48 -0500
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:49159 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S286521AbSCCOnl>; Sun, 3 Mar 2002 09:43:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Stephen Mollett <molletts@yahoo.com>
-Organization: Total lack thereof
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Handling of bogus PCI bus numbering - case closed
-Date: Sun, 3 Mar 2002 14:44:48 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16hWZl-0004OG-00@the-village.bc.nu>
-In-Reply-To: <E16hWZl-0004OG-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16hXDA-0002nr-0K@tele-post-20.mail.demon.net>
+	id <S286959AbSCCPfp>; Sun, 3 Mar 2002 10:35:45 -0500
+Received: from president.eu.org ([194.45.71.67]:34566 "EHLO president.eu.org")
+	by vger.kernel.org with ESMTP id <S286825AbSCCPfe>;
+	Sun, 3 Mar 2002 10:35:34 -0500
+Date: Sun, 3 Mar 2002 13:38:02 +0100
+From: Hans Freitag <macrotron@president.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: sscanf()/vsscanf() isn't able to handle Hex digits
+Message-ID: <20020303133802.A5430@darkzone.president.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-PGP-Ident: 204D1441
+X-PGP-Keyserver: wwwkeys.eu.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 Mar 2002 14:02, Alan Cox wrote:
->> The 2.4 PCI subsystem seems not to handle bogus BIOS-assigned PCI bus
->> numbers well...
-> Does the pci=assign-busses option help ?
+Hi,
 
-Yes :)
+I'm using kernel 2.4.18-pre9.
 
-The CardBus gets assigned a real bus number at last.
+I want to parse a mac adress within a kernel module. I want to
+use int sscanf(const char *buf, const char *fmt, ...) .
 
-I must have been so brain-fried when I was scouring the documentation and 
-source that I overlooked that one.
+This function is located in /usr/src/linux/lib/vsprintf.c .
 
-Thanks
+Mac addresses like 6f:6f:7f:9a:10:11 are parsed correctly,
+fd:23:22:fd:df:77 fails.
 
-Stephen
+The reason is located in vsprintf.c line 640:
+
+if (!*str || !isdigit(*str))
+	break;
+
+I think isxdigit(*str) might be better here.
+
+bye
+-- 
+May the source be with you!

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVACDGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVACDR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVACDGx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 22:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVACDGx
+	id S261285AbVACDR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 22:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVACDR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 22:06:53 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:11448 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261284AbVACDGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 22:06:52 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Date: Sun, 2 Jan 2005 22:06:50 -0500
-User-Agent: KMail/1.6.2
-Cc: Roey Katz <roey@sdf.lonestar.org>
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <200501020152.32207.dtor_core@ameritech.net> <Pine.NEB.4.61.0501030250200.13940@sdf.lonestar.org>
-In-Reply-To: <Pine.NEB.4.61.0501030250200.13940@sdf.lonestar.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501022206.50265.dtor_core@ameritech.net>
+	Sun, 2 Jan 2005 22:17:29 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:42181 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S261285AbVACDR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 22:17:26 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Jim Nelson <james4765@cwazy.co.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       David Howells <dhowells@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: printk loglevel policy? 
+In-reply-to: Your message of "Sun, 02 Jan 2005 13:41:34 -0800."
+             <41D86A8E.9090400@osdl.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Jan 2005 14:17:07 +1100
+Message-ID: <28707.1104722227@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 January 2005 09:53 pm, Roey Katz wrote:
-> Dmitry, here is an output listing of a diff I did between the 
-> .configs of the nonworking 2.6.10 and  the working 2.6.7.
-> 
+On Sun, 02 Jan 2005 13:41:34 -0800, 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>Jim Nelson wrote:
+>> Or does printk() do some tracking that I didn't see as to where in the 
+>> kernel the strings are coming from?
+>
+>That kind of garbled output has been known to happen, but
+>the <console_sem> is supposed to prevent that (along with
+>zap_locks() in kernel/printk.c).
 
-Roey,
+Using multiple calls to printk to print a single line has always been
+subject to the possibility of interleaving on SMP.  We just live with
+the risk.  Printing a complete line in a single call to printk is
+protected by various locks.  Print a line in multiple calls is not
+protected.  If it bothers you that much, build up the line in a local
+buffer then call printk once.
 
-Could you please try compiling a minimal kernel (no ACPI, no USB, etc)
-to make sure that the changes to input system that were merged in 2.6.9
-are to blame.
-
-Also, if you could change #undef DEBUG to #define DEBUG in
-drivers/input/serio/i8042.c and send me the entire dmesg output that
-could help determining what is the problem. You may want to boot with
-log_buf_len=131072 to capture entire dmesg. Don't forget to hit couple
-of keys at the login prompt so we can see if we get them from the KBC
-controller and loose them somewhere or the KBC is left in funky state.
-
-Thanks!
- 
--- 
-Dmitry

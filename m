@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbTCFSmd>; Thu, 6 Mar 2003 13:42:33 -0500
+	id <S268149AbTCFSiz>; Thu, 6 Mar 2003 13:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268168AbTCFSmd>; Thu, 6 Mar 2003 13:42:33 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:32456 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262449AbTCFSmc>; Thu, 6 Mar 2003 13:42:32 -0500
-Date: Thu, 06 Mar 2003 10:43:41 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 443] New: warnings from sound/pci/cs46xx/cs46xx_lib.c
-Message-ID: <1380000.1046976221@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S268190AbTCFSiz>; Thu, 6 Mar 2003 13:38:55 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:55818 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268149AbTCFSiz>; Thu, 6 Mar 2003 13:38:55 -0500
+Date: Thu, 6 Mar 2003 18:49:22 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Gabriel Paubert <paubert@iram.es>,
+       randy.dunlap@verizon.net, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] move SWAP option in menu
+Message-ID: <20030306184922.A15683@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tom Rini <trini@kernel.crashing.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Gabriel Paubert <paubert@iram.es>, randy.dunlap@verizon.net,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <3E657EBD.59E167D6@verizon.net> <20030305181748.GA11729@iram.es> <20030305131444.1b9b0cf2.rddunlap@osdl.org> <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net>; from trini@kernel.crashing.org on Thu, Mar 06, 2003 at 11:43:32AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=443
+On Thu, Mar 06, 2003 at 11:43:32AM -0700, Tom Rini wrote:
+> How's this look?  I picked MMU=x implies SWAP=x for defaults, just
+> because that's how they were before...
 
-           Summary: warnings from sound/pci/cs46xx/cs46xx_lib.c:
-    Kernel Version: 2.5.63
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: mbligh@aracnet.com
-
-
-sound/pci/cs46xx/cs46xx_lib.c: In function `snd_cs46xx_playback_hw_params':
-sound/pci/cs46xx/cs46xx_lib.c:1027: warning: unused variable `period_size'
-sound/pci/cs46xx/cs46xx_lib.c:1026: warning: unused variable `sample_rate'
-sound/pci/cs46xx/cs46xx_lib.c:1025: warning: unused variable `chip'
-sound/pci/cs46xx/cs46xx_lib.c: In function `snd_cs46xx_capture_hw_params':
-sound/pci/cs46xx/cs46xx_lib.c:1214: warning: unused variable `period_size'
-sound/pci/cs46xx/cs46xx_lib.c: At top level:
-sound/pci/cs46xx/cs46xx_lib.c:1406: warning: `hw_constraints_period_sizes'
-defined but not used
-
+CONFIG_SWAP must be n if CONFIG_MMU isn't set either, so it shouldn't
+be an option for those targets.
 

@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUF1V5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUF1V7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbUF1V5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 17:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbUF1V5Q
+	id S265234AbUF1V7z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 17:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUF1V7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 17:57:16 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:9362 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265237AbUF1V43 (ORCPT
+	Mon, 28 Jun 2004 17:59:55 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:20130 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265234AbUF1V7x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 17:56:29 -0400
-Date: Mon, 28 Jun 2004 23:56:01 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paul Maurides <stud1313@di.uoa.gr>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.x signal handler bug
-Message-ID: <20040628215601.GD29901@wohnheim.fh-wedel.de>
-References: <40DCBBC3.2010308@di.uoa.gr>
+	Mon, 28 Jun 2004 17:59:53 -0400
+Date: Mon, 28 Jun 2004 17:59:48 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.7-mm3] cirrusfb: minor fixes
+Message-ID: <20040628215948.GA12415@havoc.gtf.org>
+References: <20040626233105.0c1375b2.akpm@osdl.org> <20040628212727.A23504@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <40DCBBC3.2010308@di.uoa.gr>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040628212727.A23504@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 June 2004 02:56:51 +0300, Paul Maurides wrote:
+On Mon, Jun 28, 2004 at 09:27:27PM +0200, Francois Romieu wrote:
+> Testers welcome.
 > 
-> The bug has been reproduced successfully using the following program
-> on kernel 2.6.5 and 2.6.7, and probably affects any other 2.6 kernel.
-
-All, since about 2.5.71 or so.
-
-> Kernel 2.4 produce the correct behavior, an endless loop of handled 
-> signals, but on kernel 2.6 the program segfaults.
-
-The program never returns from it's signal handler.  Instead, it
-causes yet another segfault.  Any program stupid enough to cause a
-segfault inside the segfault handler, should be killed.  Full stop.
-
-> #include <signal.h>
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <setjmp.h>
+> - fix unbalanced invocation of pci_enable_device();
+> - leaks plugged in cirrusfb_zorro_setup();
+> - move framebuffer_release() into cirrusfb_{pci/zorro}_unmap() to balance
+>   cirrusfb_{pci/zorro}_setup();
+> - make cirrusfb_{pci/zorro}_setup() return adequate error codes when
+>   something fails;
+> - cirrusfb_zorro_unmap: iounmap() now take as argument values previously
+>   returned by ioremap().
 > 
-> volatile int len;
-> volatile int real;
-> volatile int caught;
-> jmp_buf env;
-> 
-> void catcher(int sig){
->    signal(SIGSEGV,catcher);
->    printf("requested: %9d malloced: %9d\n",len,real);
->    longjmp(env, 1);
-> }
-> 
-> int main(){
->    char* p=0;
->    len = 0;
->    signal(SIGSEGV,catcher);
-> 
->    setjmp(env);
->    len++;
->    free(p);
->    p = malloc(len);
->    real = 0;
->    while(1){
->        p[real] = 0;
->        real++;
->    }
->    return 0;
-> }
+> Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
-Jörn
+Your patch looks great.  
 
--- 
-Fancy algorithms are buggier than simple ones, and they're much harder
-to implement. Use simple algorithms as well as simple data structures.
--- Rob Pike
+Not only does it look great, with it X and cirrusfb now play nice with
+each other!  Andrew, please apply.  Feel free to add my:
+
+Signed-off-by: David Eger <eger@havoc.gtf.org>
+
+On another note...
+pci_request_regions() replaces request_mem_region()... 
+looks like virtually all of the FB drivers have suffered from bit
+rot.  I guess that's what you get when people just look at code in
+drivers/video/ to copy..
+
+-dte

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277104AbRJHTjD>; Mon, 8 Oct 2001 15:39:03 -0400
+	id <S277100AbRJHTkY>; Mon, 8 Oct 2001 15:40:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277100AbRJHTiw>; Mon, 8 Oct 2001 15:38:52 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:59147 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S277105AbRJHTig>; Mon, 8 Oct 2001 15:38:36 -0400
-Message-ID: <3BC20077.6020706@zk3.dec.com>
-Date: Mon, 08 Oct 2001 15:37:27 -0400
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S277099AbRJHTkO>; Mon, 8 Oct 2001 15:40:14 -0400
+Received: from anime.net ([63.172.78.150]:38916 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S277108AbRJHTkC>;
+	Mon, 8 Oct 2001 15:40:02 -0400
+Date: Mon, 8 Oct 2001 12:40:06 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Roy-Magne Mo <rmo@sunnmore.net>
+cc: Willem Riede <wriede@home.com>, Steven Walter <srwalter@yahoo.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Tyan Tiger MP AMD760 chipset support
+In-Reply-To: <20011007223400.C8033@akkar.interpost.no>
+Message-ID: <Pine.LNX.4.30.0110081239320.22178-100000@anime.net>
 MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
-In-Reply-To: <Pine.SGI.4.21.0110081207520.1003634-100000@spamtin.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to put in my $0.02 on this...  Compaq systems will span the range 
-on this.  The current Wildfire^WGS Series systems have two levels - 
-either "local" or "remote", which is just under 3:1 latency vs. local. 
-This is all public knowledge, if you care to dig through all the docs. ;)
+On Sun, 7 Oct 2001, Roy-Magne Mo wrote:
+> I can with these modules detect the eeprom, the AMD756 and the
+> winbond W83782D.
+> But, however, inserting the winbond driver locks the computer hard.
 
-With the new EV7 systems coming out soon (next year?) every CPU has a 
-switch and memory controller built in, so as you add CPUs (up to 64) you 
-potentially add levels of latency.  I can't say what they are, but the 
-numbers I've been given so far are _much_ better than that.  Just 
-another data point. :)
+It's a bug in the lm_sensors winbond driver. There's been a patch posted
+in the bugtracker but afaik hasn't been integrated into cvs yet...
 
-  - Pete
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

@@ -1,73 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262550AbTCRTDm>; Tue, 18 Mar 2003 14:03:42 -0500
+	id <S262574AbTCRTMA>; Tue, 18 Mar 2003 14:12:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262551AbTCRTDm>; Tue, 18 Mar 2003 14:03:42 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:21638 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262550AbTCRTDk>; Tue, 18 Mar 2003 14:03:40 -0500
-Date: Tue, 18 Mar 2003 14:17:22 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Steve Lee <steve@tuxsoft.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Linux-2.4.20 modem control
-In-Reply-To: <001601c2ed7c$f984e900$0201a8c0@pluto>
-Message-ID: <Pine.LNX.4.53.0303181404270.27869@chaos>
-References: <001601c2ed7c$f984e900$0201a8c0@pluto>
+	id <S262576AbTCRTMA>; Tue, 18 Mar 2003 14:12:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17157 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262574AbTCRTL7>; Tue, 18 Mar 2003 14:11:59 -0500
+Date: Tue, 18 Mar 2003 11:21:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Kevin Pedretti <ktpedre@sandia.gov>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
+ due to wrmsr (performance)
+In-Reply-To: <3E7765DE.10609@didntduck.org>
+Message-ID: <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003, Steve Lee wrote:
 
-> Richard,
-> 	You might give mgetty a try.  I've been doing the same thing as
-> you with almost every version of Linux 2.4.x and some of 2.2.x.  I don't
-> know the differences between agetty and mgetty, but I would like mgetty
-> could handle your needs.
->
-> Steve
+On Tue, 18 Mar 2003, Brian Gerst wrote:
+> 
+> Here's a few more data points:
 
-They are all basically the same with certain "enhancements"
-(work-arounds) for different things. You can run any of them
-and hook a RS-232C terminal to your 'COM' port and log-in.
+Ok, this shows the behaviour I was trying to explain:
 
-The problem is when you log out! With a terminal connected,
-you get the login prompt again. This is no good if you are
-connected to a modem. The modem will not be disconnected
-and you have to forcably disconnect at the remote end by
-disconnecting the phone line or lowering DTR with your remote
-terminal program. Then the modem will not be ready to
-answer another call. It will remain in a off-line condition
-forever.
+> vendor_id       : AuthenticAMD
+> cpu family      : 5
+> model           : 8
+> model name      : AMD-K6(tm) 3D processor
+> stepping        : 12
+> cpu MHz         : 451.037
+> empty overhead=105 cycles
+> load overhead=-2 cycles
+> I$ load overhead=30 cycles
+> I$ load overhead=90 cycles
+> I$ store overhead=95 cycles
 
-What needs to be done, is when the program (probably /bin/bash)
-logs off (calls exit()), and STDIN_FILENO, STDOUT_FILENO, and
-STDERR_FILENO get closed, the closure of that terminal must
-cause the modem to hang-up and then, when init starts another
-`getty` the modem will wait for another connection. The current
-work-around is to modify a `getty` to hangup the modem, then
-initialize I/O to wait for a new connection. This logic is
-"backwards" and should be done transparently in the terminal
-driver.
+ie loading from the same cacheline shows bad behaviour, most likely due to 
+cache line exclusion. Does anybody have an original Pentium to see if I 
+remember that one right?
 
-This problem is a 'discovered check` which happens with higher
-speed machines. At one time, init was so slow in getting another
-getty on-line that the modem had a chance to hang up. This is
-no longer the case and is being worked on by one of the terminal
-driver contributors as I write this.
+> vendor_id       : AuthenticAMD
+> cpu family      : 6
+> model           : 6
+> model name      : AMD Athlon(tm) Processor
+> stepping        : 2
+> cpu MHz         : 1409.946
+> empty overhead=11 cycles
+> load overhead=5 cycles
+> I$ load overhead=5 cycles
+> I$ load overhead=5 cycles
+> I$ store overhead=826 cycles
+> 
+> The Athlon XP shows really bad behavior when you store to the text area.
 
-It will eventually be fixed. I included the source-code of a
-work-around in some previous communications, just in case others
-have the same problem. Many will not because very few log-in
-using a modem anymore.
+Wow. There aren't many things that AMD tends to show the P4-like "big
+latency in rare cases" behaviour.
 
+But quite honestly, I think they made the right call, and I _expect_ that
+of modern CPU's. The fact is, modern CPU's tend to need to pre-decode the
+instruction stream some way, and storing to it while running from it is
+just a really really bad idea. And since it's so easy to avoid it, you
+really just shouldn't do it.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+			Linus
 

@@ -1,64 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbUJ0LIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbUJ0LMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbUJ0LIn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 07:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbUJ0LIn
+	id S262375AbUJ0LMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 07:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUJ0LMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 07:08:43 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:32176 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262362AbUJ0LIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 07:08:41 -0400
-Date: Wed, 27 Oct 2004 13:09:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041027110939.GA30381@elte.hu>
-References: <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027082831.GA15192@elte.hu> <20041027084401.GA15989@elte.hu> <20041027085221.GA16742@elte.hu> <20041027090620.GA17621@elte.hu> <20041027123329.14570992@mango.fruits.de> <20041027124524.693161b8@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027124524.693161b8@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 27 Oct 2004 07:12:15 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:25472 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262375AbUJ0LLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 07:11:47 -0400
+Message-ID: <417F8269.2070307@grupopie.com>
+Date: Wed, 27 Oct 2004 12:11:37 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       penguinppc-team@lists.penguinppc.org,
+       linuxconsole-dev@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video
+ card BOOT?
+References: <200410160841.08441.adaplas@hotpop.com> <417E9E3D.573.3C0CDE1A@localhost>
+In-Reply-To: <417E9E3D.573.3C0CDE1A@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.11; VDF: 6.28.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> ah, and btw: what does the /proc/sys/kernel/kernel_preemption tunable
-> do with PREEMPT_REALTIME enabled?
-
-it's pretty pointless to offer this tunable, agreed. In theory one could
-try to turn off involuntary preemption but what's the point?
-
-> mango:~# cat /proc/sys/kernel/kernel_preemption 
-> 1
+Kendall Bennett wrote:
+> Paulo Marques <pmarques@grupopie.com> wrote:
+> .....
+>>If the same treatment is applied to ops2.c and prim_ops.c, I
+>>believe it would be possible to have a functional emulator for
+>>about 32kb of kernel code size, which seems pretty reasonable to
+>>me and could solve a lot of problems. 
 > 
-> [all the other VP tunables are not available anymore]
 > 
-> mango:~# cat /proc/sys/kernel/voluntary_preemption
-> cat: /proc/sys/kernel/voluntary_preemption: No such file or directory
-> mango:~# cat /proc/sys/kernel/hardirq_preemption
-> cat: /proc/sys/kernel/hardirq_preemption: No such file or directory
-> mango:~# cat /proc/sys/kernel/softirq_preemption
-> cat: /proc/sys/kernel/softirq_preemption: No such file or directory
+> Wow, that is great!
 
-right - the PREEMPT_REALTIME kernel is only correct if all asynchronous
-processing is done in a process context, so i removed those tunables.
+Thanks :)
 
-	Ingo
+> 
+>>The decrease in source code size also helps maintenance, since
+>>there is not so much repeated code has it was before. 
+>>
+>>Of course, these changes are optimizing the emulator for code
+>>size, and not execution speed. I haven't done any benchmarks to
+>>see if there is a noticeable difference in speed. 
+> 
+> 
+> Did you get the latest code? I have been sick with the flu and I think I 
+> forgot to send you the latest code to play with. We should get you set up 
+> so you can merge your changes into our tree and then we can update the 
+> one in the X.org tree as well (Egbert Eich usually does that from our 
+> tree).
+
+No, I didn't get the latest source (you did disapear for a while :) ).
+
+I started to work on the old source because:
+
+  A - I really wanted to know if this could be done and what kind of 
+improvements could be expected, even if the actual changes were thrown 
+away in the end
+
+  B - you said that only small bug fixes were made since this version, 
+so I probably could diff the source I started from against the latest 
+and do the same fixes to my latest source.
+
+One other thing, is there a simple way to test the emulator? I've been 
+careful with the changes I did not to change the resulting behaviour of 
+the emulator, but I can not _absolutely_ sure that I didn't break 
+anything. It would be very good to try the emulator in a controlled 
+environment.
+
+Anyway, I think I'll have some more time tonight, so probably tomorrow 
+I'll have more information about the final code size.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

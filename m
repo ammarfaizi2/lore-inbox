@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289210AbSBDWPf>; Mon, 4 Feb 2002 17:15:35 -0500
+	id <S289211AbSBDWRp>; Mon, 4 Feb 2002 17:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289211AbSBDWP1>; Mon, 4 Feb 2002 17:15:27 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17668 "EHLO
+	id <S289212AbSBDWRf>; Mon, 4 Feb 2002 17:17:35 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18180 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289210AbSBDWPR>; Mon, 4 Feb 2002 17:15:17 -0500
-Date: Mon, 4 Feb 2002 17:13:44 -0500 (EST)
+	id <S289211AbSBDWR0>; Mon, 4 Feb 2002 17:17:26 -0500
+Date: Mon, 4 Feb 2002 17:16:27 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Continuing /dev/random problems with 2.4
-In-Reply-To: <3C5AF6B5.5080105@zytor.com>
-Message-ID: <Pine.LNX.3.96.1020204171035.31056A-100000@gatekeeper.tmr.com>
+To: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
+In-Reply-To: <20020201100303.A14415@sistina.com>
+Message-ID: <Pine.LNX.3.96.1020204171446.31056B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, H. Peter Anvin wrote:
+On Fri, 1 Feb 2002, Heinz J . Mauelshagen wrote:
 
-> Andreas Dilger wrote:
-> 
-> > 
-> > Maybe, i8XX hardware RNG should feed the /dev/random entropy pool
-> > directly if you enable the chipset support (with an option to turn
-> > it off if you want to use the user-space tools or a separate RNG),
-> > so that people get the benefits of the h/w RNG without having to
-> > install another tool (which they won't know about)?
-> 
-> "Let's put it in the kernel because people are too stupid to install it
-> otherwise"?
-> 
-> No thank you.
+> The LVM2 sofware no longer uses a particular driver which is just
+> usable for its own purpose.
+> It rather accesses a different, so-called 'device-mapper' driver, which
+> implements a generic volume management service for the Linux kernel by
+> supporting arbitray mappings of address ranges to underlying block devices.
+> Because this is a generic service rather than an application within the kernel,
+> it is open to be used by multiple LVM implementations (for eg. EVMS could be
+> ported to use it :-)
 
-Why would the kernel NOT use available source of entropy? If the kernel is
-gathering entropy, in what way is user mode better? Are you going to make
-users install disk, keystroke, packet, etc daemons to do the work of the
-kernel?
-
-The only reason I can see for not doing this is if there is reason to
-believe that it is not producing useful information.
+Interesting concept, but something like the "smitZ" interface to RAID and
+sizing would be really nice to reduce training effort. Since IBM is
+pushing Linux, take this as a HINT.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277178AbRJDIa2>; Thu, 4 Oct 2001 04:30:28 -0400
+	id <S272449AbRJDIeR>; Thu, 4 Oct 2001 04:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277179AbRJDIaR>; Thu, 4 Oct 2001 04:30:17 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:52829 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S277178AbRJDIaC>; Thu, 4 Oct 2001 04:30:02 -0400
-Date: Thu, 4 Oct 2001 11:30:19 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: linux-kernel@vger.kernel.org
+	id <S272882AbRJDIeJ>; Thu, 4 Oct 2001 04:34:09 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:39947 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S272449AbRJDId4>; Thu, 4 Oct 2001 04:33:56 -0400
+Date: Thu, 4 Oct 2001 18:35:07 +1000
+From: john slee <indigoid@higherplane.net>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011004113019.L22640@niksula.cs.hut.fi>
-In-Reply-To: <Pine.GSO.4.21.0110040004430.26177-100000@weyl.math.psu.edu> <m14rpg0w4a.fsf@frodo.biederman.org>
+Message-ID: <20011004183507.A29887@higherplane.net>
+In-Reply-To: <Pine.GSO.4.21.0110040004430.26177-100000@weyl.math.psu.edu> <m14rpg0w4a.fsf@frodo.biederman.org> <20011004182127.B512@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m14rpg0w4a.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Thu, Oct 04, 2001 at 12:15:01AM -0600
+In-Reply-To: <20011004182127.B512@zip.com.au>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 12:15:01AM -0600, you [Eric W. Biederman] claimed:
+[ cc list trimmed ]
+
+On Thu, Oct 04, 2001 at 06:21:27PM +1000, CaT wrote:
+> On Thu, Oct 04, 2001 at 12:15:01AM -0600, Eric W. Biederman wrote:
+> > I have days when I'm frustrated by the size of both glibc and the
+> > linux kernel.  stripped both the linux kernel and glibc are comparable
+> > in size.  Though I think the 400KB of compressed glibc-2.1.2 is
+> > actually smaller than the kernel for the most part.  I have to strip
+> > off practically everthing to get a useable bzImage under 400KB.
+> > 
+> > So any good ideas on how to get the size of linux down?
 > 
-> <snip size of glibc>
+> Mind if I ask why you need a bzimage under 400kb? Just curious as I've
+> never had the need. (And I can see needing it less then 1.4meg - are you
+> trying to get a kernel AND a ramdisk on the one floppy?)
 
-Where size is an issue, diet libc might be an alternative:
+plenty of reasons.  i'm building a compactflash-based linux router which
+will only have 16mb of flash for the entire system... saving 100kb means
+you can fit a few extra userspace tools in there...
 
-http://www.fefe.de/dietlibc/
+-rwxr-xr-x    1 indigoid indigoid    54444 Oct  4 18:30 boa*
 
-(287kB statically linked zsh is not too shabby, I reckon.)
+j.
 
-That and things like busybox:
-
-http://busybox.lineo.com/
-
-I have no suggestion wrt the kernel, though.
-
-
--- v --
-
-v@iki.fi
+-- 
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

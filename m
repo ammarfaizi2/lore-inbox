@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVA0VMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVA0VMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVA0VMs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 16:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVA0VM3
+	id S261220AbVA0VMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 16:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVA0VL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 16:12:29 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:54663 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261200AbVA0VMA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 16:12:00 -0500
-Date: Fri, 28 Jan 2005 08:11:04 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       Chris Wedgwood <cw@f00f.org>
-Cc: Steve Lord <lord@xfs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Preempt & Xfs Question
-Message-ID: <20050128081104.B1238548@wobbly.melbourne.sgi.com>
-References: <41F91470.6040204@tiscali.de> <41F908C4.4080608@xfs.org> <20050127154017.GA12493@taniwha.stupidest.org> <41F9290E.1050209@tiscali.de> <20050127155338.GB12493@taniwha.stupidest.org> <41F931CD.5030401@tiscali.de> <20050127165145.GA13181@taniwha.stupidest.org>
+	Thu, 27 Jan 2005 16:11:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:16849 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261200AbVA0VHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 16:07:37 -0500
+Date: Thu, 27 Jan 2005 21:07:31 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Netdev <netdev@oss.sgi.com>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100, xircom_tulip_cb, iph5526
+Message-ID: <20050127210731.GA2953@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Netdev <netdev@oss.sgi.com>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>
+References: <41F952F4.7040804@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050127165145.GA13181@taniwha.stupidest.org>; from cw@f00f.org on Thu, Jan 27, 2005 at 08:51:45AM -0800
+In-Reply-To: <41F952F4.7040804@pobox.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 08:51:45AM -0800, Chris Wedgwood wrote:
-> On Thu, Jan 27, 2005 at 06:24:13PM +0000, Matthias-Christian Ott wrote:
-> > I'll submit it to the mailinglist as a seperate patch, so Linus can
-> > apply it to the current Kernel.
+On Thu, Jan 27, 2005 at 03:45:40PM -0500, Jeff Garzik wrote:
+> 1) iphase (iph5526 a.k.a. drivers/net/fc/*)
+> 
+> Been broken since 2.3 or 2.4.  Only janitors have kept it compiling.
 
-Chris' fix for this is in Linus' mail, queued to be merged hopefully RSN.
-(*prod prod*)
+No, it doesn't even compile, and didn't so for more than two years.
 
-> XFS patches/suggestions should go to linux-xfs@oss.sgi.com and the
-> maintainers there can comment as needed.
-
-cheers.
-
--- 
-Nathan

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSD3T0e>; Tue, 30 Apr 2002 15:26:34 -0400
+	id <S314085AbSD3Tka>; Tue, 30 Apr 2002 15:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315182AbSD3T0d>; Tue, 30 Apr 2002 15:26:33 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:44451 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S315179AbSD3T0c>; Tue, 30 Apr 2002 15:26:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@linuxfreemail.com>
-Reply-To: ivangurdiev@linuxfreemail.com
-Organization: ( )
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Subject: Re: 2.5.11 ide kernel panic
-Date: Tue, 30 Apr 2002 13:19:39 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <02042920011502.00813@cobra.linux> <3CCE5BED.9010809@evision-ventures.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
+	id <S314583AbSD3Tk3>; Tue, 30 Apr 2002 15:40:29 -0400
+Received: from jane.hollins.EDU ([192.160.94.78]:25868 "EHLO earth.hollins.edu")
+	by vger.kernel.org with ESMTP id <S314085AbSD3Tk3>;
+	Tue, 30 Apr 2002 15:40:29 -0400
+Message-ID: <3CCEF32B.6060807@hollins.edu>
+Date: Tue, 30 Apr 2002 15:40:27 -0400
+From: "Scott A. Sibert" <kernel@hollins.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020122
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <02043013193900.01859@cobra.linux>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.11 and smbfs
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't know if anyone's mentioned this (I tried searching through the 
+recent list archives).  I have 2.5.11 compiled on a dual P3/800 with 
+preempt enabled.  smbfs and 3c905c are compiled into the kernel (not 
+modules).  It has 1gb memory and I have high memory (4gb) compiled.
 
-> Coudl you please remove the following code (or similar)
-> from the ata_irq_request() function and see whatever the crash still
-> happens? It could very well we that hwgroup->drive isn't
-> initialized during boot under seom cirumstances.
+I can mount other samba shares fine (ie. Samba-2.2.2 from OSX 10.1.4 and 
+Samba-2.2.2 from Tru64 5.1) and the directories look fine.  When I mount 
+a share from a Windows 2000 server I only get the first letter of the 
+entry in the shared folder which, of course, makes no sense and 
+generates errors when just trying to get an "ls" of the share.  The 
+Win2K servers are both regular server and Adv Server, both with SP2 and 
+the latest patches.  The linux machine is running RedHat 7.2 with almost 
+all of the latest updates and 2.5.11 compiled.
 
-the code is in function ide_do_request.
-I tested removing it. The problem persists.
+Please let me know if there is any other information needed or if you 
+want me to try something.  (I will try to respond quickly.)
 
+--Scott
 
 

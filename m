@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136660AbREAQy1>; Tue, 1 May 2001 12:54:27 -0400
+	id <S136663AbREAQ45>; Tue, 1 May 2001 12:56:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136659AbREAQyH>; Tue, 1 May 2001 12:54:07 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6378 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S136657AbREAQyE>; Tue, 1 May 2001 12:54:04 -0400
-Date: Tue, 1 May 2001 10:53:58 -0600
-Message-Id: <200105011653.f41Grwm12595@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding PCI bus information to SCSI layer
-In-Reply-To: <20010501104641.C3305@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <CDF99E351003D311A8B0009027457F140810E286@ausxmrr501.us.dell.com>
-	<200104242159.f3OLxoB07000@vindaloo.ras.ucalgary.ca>
-	<p05100313b70bb73ce962@[207.213.214.37]>
-	<200104270431.f3R4V4630593@vindaloo.ras.ucalgary.ca>
-	<p05100303b70eadd613b0@[207.213.214.37]>
-	<200105010127.f411RDP03013@vindaloo.ras.ucalgary.ca>
-	<20010501104641.C3305@nightmaster.csn.tu-chemnitz.de>
+	id <S136662AbREAQ4r>; Tue, 1 May 2001 12:56:47 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:32048 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136657AbREAQ4l>; Tue, 1 May 2001 12:56:41 -0400
+Date: Tue, 1 May 2001 18:55:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.4 sluggish under fork load
+Message-ID: <20010501185517.A31373@athlon.random>
+In-Reply-To: <20010430195149.F19620@athlon.random> <Pine.LNX.4.21.0104302335490.19012-100000@imladris.rielhome.conectiva> <20010501071849.A16474@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010501071849.A16474@athlon.random>; from andrea@suse.de on Tue, May 01, 2001 at 07:18:49AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser writes:
-> On Mon, Apr 30, 2001 at 07:27:13PM -0600, Richard Gooch wrote:
-> > Then, vendors provide their own PCI fixups, which turn /dev/bus/pci0
-> 
-> What about /dev/bus/pci/0 or /dev/bus/pci/pci0 instead?
-> 
-> That way we could hook roots of busses (which are "." nodes, like
-> if they where mounted independently) better into /dev/bus.
+On Tue, May 01, 2001 at 07:18:49AM +0200, Andrea Arcangeli wrote:
+> I'm running with this below patch applied since a some time (I didn't
+> submitted it because for some reason unless I do p->policy &=
+> ~SCHED_YIELD ksoftirqd deadlocks at boot and I didn't yet investigated
+> why, and I'd like to have the whole picture on it first):
 
-I'm wary of this, because Linus has stated that the current "struct
-pci_dev" is really meant to be a generic thing, and it might change to
-"struct dev" (now that we've renamed the old "struct dev" to "struct
-netdev").
+OK I found the explanation now. The reason ksoftirqd was deadlocking on
+me without the explicit clear of SCHED_YIELD in p->policy is because a
+softirq event was pending at the time of the first kernel_thread() and
+then while returning from the syscall it was so taking the ret_from_irq
+path that skips the reschedule [which was supposed to clear the
+sched_yield and to reschedule the child] because CS was pointing to the
+kernel descriptor. So init then runs with SCHED_YIELD set and when it
+executes kernel_thread(ksoftirqd) also ksoftirqd inherit SCHED_YIELD set
+too (copied at top of do_fork) and it never gets scheduled -> deadlock.
 
-So, if the bus management code is maintaining some kind of unified
-tree, it might not make sense to have a /dev/bus/pci and
-/dev/bus/sbus.
+Basically there's no guarantee that any kernel_thread will return with
+SCHED_YIELD cleared.
 
-> And even implement the thing as a mount point later, if we go the way
-> Al Viro suggested and have independent "device filesystems"
-> for the subsystems themselves.
+And if you fork off a child with its p->policy SCHED_YIELD set it will
+never get scheduled in.
 
-As I understand it, Al want to turn every driver into a filesystem,
-instead of using an existing FS (devfs). I can't see the point. There
-certainly haven't been any technical benefits put forward for this
-idea.
+Only "just" running tasks can have SCHED_YIELD set.
 
-I spoke to Linus about this, and he wants to leave the option open for
-some drivers to implement their own FS rather than calling into devfs.
-He cited iSCSI as a case where this might be useful (since you need to
-do something different for readdir() and lookup()). I'll be
-experimenting with iSCSI myself, and I'll try out a modification to
-devfs which allows a driver to register lookup() and readdir() methods
-when calling devfs_mk_dir(). If this can be done sanely, then it would
-provide an easier interface than using the VFS to implement a new FS.
-So this particular issue remains open.
+So the below lines are the *right* and most robust approch as far I can
+tell. (plus counter needs to be volatile, as every variable that can
+change under the C code, even while it's probably not required by the
+code involved with current->counter)
 
-However, it's my understanding that Linus isn't trying to push
-existing drivers, which work well with devfs, into implementing their
-own FS. He just wants the option left open for new drivers where a
-driver-specific FS makes more sense.
+> +	{
+> +		int counter = current->counter >> 1;
+> +		current->counter = p->counter = counter;
+> +		p->policy &= ~SCHED_YIELD;
+> +		current->policy |= SCHED_YIELD;
+> +		current->need_resched = 1;
+> +	}
 
-				Regards,
+Alan, the patch you merged in 2.4.4ac2 can fail like mine, but it may fail in
+a much more subtle way, while I notice if ksoftirqd never get scheduled
+because I synchronize on it and I deadlock, your kupdate/bdflush/kswapd
+may be forked off correctly but they can all have SCHED_YIELD set and
+they will *never* get scheduled. You know what can happen if kupdate
+never gets scheduled... I recommend to be careful with 2.4.4ac2.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+My patch (part of it quoted above) is the right replacement for the code
+in 2.4.4ac2 (you may want to do `counter = current->counter + 1 >> 1'
+tricks additionally to that, I will change it a bit too for that minor
+part.
+
+Andrea

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263963AbUFFSc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUFFShY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbUFFSc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 14:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbUFFSc6
+	id S263979AbUFFShY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 14:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUFFShY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 14:32:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17897 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263963AbUFFSc4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 14:32:56 -0400
-Date: Sun, 6 Jun 2004 11:32:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: ktech@wanadoo.es, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: 2.6.7-rc1 breaks forcedeth
-In-Reply-To: <40C360C4.7010703@pobox.com>
-Message-ID: <Pine.LNX.4.58.0406061127200.7010@ppc970.osdl.org>
-References: <E1BWmws-0005aN-Nw@mb04.in.mad.eresmas.com>
- <Pine.LNX.4.58.0406051958150.7010@ppc970.osdl.org> <40C360C4.7010703@pobox.com>
+	Sun, 6 Jun 2004 14:37:24 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:39174 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S263979AbUFFShX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 14:37:23 -0400
+To: Rik van Riel <riel@redhat.com>
+Cc: Paul Rolland <rol@as2917.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: clone() <-> getpid() bug in 2.6?
+References: <Pine.LNX.4.44.0406061414360.29273-100000@chimarrao.boston.redhat.com>
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5gwu2k1quo.fsf@patl=users.sf.net>
+Date: 06 Jun 2004 14:37:22 -0400
+In-Reply-To: <Pine.LNX.4.44.0406061414360.29273-100000@chimarrao.boston.redhat.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel <riel@redhat.com> writes:
 
-
-On Sun, 6 Jun 2004, Jeff Garzik wrote:
+> On 6 Jun 2004, Patrick J. LoPresti wrote:
 > 
-> So by definition it is a driver bug if the hardware is sending irqs 
-> outside of when the driver indicates interest in the irq via 
-> request_irq...free_irq.
+> > Sure, Bernstein's code is an unmaintainable nightmare.  But his
+> > designs and implementations are usually pretty sound.  The last
+> > release of qmail was in 1998, and we still use it where I work.
+> 
+> Ahhh, so YOU'RE the guy who's flooding the whole world
+> with bounces from spam and virusses to unknown users,
+> with the virusses still attached ? ;)))
 
-Fair enough. It's sometimes easier to just register the driver irq early, 
-though, to take care of all the cases that can happen. In particular, if 
-you know you may have pending interrupts, and your irq handler is good at 
-clearing them (it had better be), the easiest solution may well be to just 
-register early.
+OK, I admit we no longer use it as an external SMTP server.  The world
+has changed a bit since 1998.  :-)
 
-> Also, PCI 2.3 devices have an "interrupt disable" bit in PCI_COMMAND 
-> they can use, iff (a) it's implemented and (b) the driver isn't using MSI.
+My main point still stands, though, which is that djb is crazy, not
+stupid (i.e., a mathematician).
 
-Now _this_ will help. However, I suspect it will help three years down the
-line, not now. It should have been there originally, it would have solved 
-a lot of problems.
-
-		Linus
+ - Pat

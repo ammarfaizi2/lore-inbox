@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262261AbSIZL7O>; Thu, 26 Sep 2002 07:59:14 -0400
+	id <S262497AbSIZMOE>; Thu, 26 Sep 2002 08:14:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262265AbSIZL7O>; Thu, 26 Sep 2002 07:59:14 -0400
-Received: from ns.suse.de ([213.95.15.193]:61195 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262261AbSIZL7N>;
-	Thu, 26 Sep 2002 07:59:13 -0400
-Date: Thu, 26 Sep 2002 14:04:30 +0200
-From: Andi Kleen <ak@suse.de>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: "David S. Miller" <davem@redhat.com>, ak@suse.de, niv@us.ibm.com,
-       linux-kernel@vger.kernel.org, jamal <hadi@cyberus.ca>
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-Message-ID: <20020926140430.E14485@wotan.suse.de>
-References: <3D924F9D.C2DCF56A@us.ibm.com.suse.lists.linux.kernel> <20020925.170336.77023245.davem@redhat.com.suse.lists.linux.kernel> <p73n0q5sib2.fsf@oldwotan.suse.de> <20020925.172931.115908839.davem@redhat.com> <3D92CCC5.5000206@drugphish.ch>
+	id <S262505AbSIZMOE>; Thu, 26 Sep 2002 08:14:04 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:24481 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262497AbSIZMOE>;
+	Thu, 26 Sep 2002 08:14:04 -0400
+Date: Thu, 26 Sep 2002 17:54:45 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020926175445.B18906@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3D92BE07.B6CDFE54@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D92CCC5.5000206@drugphish.ch>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D92BE07.B6CDFE54@digeo.com>; from akpm@digeo.com on Thu, Sep 26, 2002 at 07:59:21AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 11:00:53AM +0200, Roberto Nibali wrote:
-> o we can't filter more than 13Mbit/s anymore after loading around 3000
->   rules into the kernel (problem is gone with nf-hipac for example).
+On Thu, Sep 26, 2002 at 07:59:21AM +0000, Andrew Morton wrote:
+> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.38/2.5.38-mm3/
+> 
+> Includes a SARD update from Rick.  The SARD disk accounting is
+> pretty much final now.
+> 
+> read_barrier_depends.patch
+>   extended barrier primitives
+> 
+> rcu_ltimer.patch
+>   RCU core
+> 
+> dcache_rcu.patch
+>   Use RCU for dcache
+> 
 
-For iptables/ipchain you need to write hierarchical/port range rules 
-in this case and try to terminate searchs early.
+Hi Andrew,
 
-But yes, we also found that the L2 cache is limiting here
-(ip_conntrack has the same problem) 
+Updated 2.5.38 RCU core and dcache_rcu patches are now available
+at http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
 
-> o we can't log all the messages we would like to because the user space
->   log daemon (syslog-ng in our case, but we've tried others too) doesn't
->   get enough CPU time anymore to read the buffer before it will be over-
->   written by the printk's again. This leads to an almost proportial to
->   N^2 log entry loss with increasing number of rules that do not match.
->   This is the worst thing that can happen to you working in the
->   security business: not having an appropriate log trace during a
->   possible incident.
+The differences since earlier versions are -
 
-At least  that is easily fixed. Just increase the LOG_BUF_LEN parameter
-in kernel/printk.c
+rcu_ltimer - call_rcu() fixed for preemption and the earlier fix I had sent
+             to you.
+read_barrier_depends - fixes list_for_each_rcu macro compilation error.
+dcache_rcu - uses list_add_rcu in d_rehash and list_for_each_rcu in d_lookup
+             making the read_barrier_depends() fix I had sent to you
+             earlier unnecessary.
 
-Alternatively don't use slow printk, but nfnetlink to report bad packets
-and print from user space. That should scale much better.
-
--Andi
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

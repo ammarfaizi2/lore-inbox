@@ -1,17 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316491AbSEUCm0>; Mon, 20 May 2002 22:42:26 -0400
+	id <S316492AbSEUCnE>; Mon, 20 May 2002 22:43:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316492AbSEUCmZ>; Mon, 20 May 2002 22:42:25 -0400
-Received: from ns0.auctionwatch.com ([66.7.130.2]:47373 "EHLO
-	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id <S316491AbSEUCmZ>; Mon, 20 May 2002 22:42:25 -0400
-Date: Mon, 20 May 2002 19:42:25 -0700
-From: Petro <petro@auctionwatch.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Just an offer
-Message-ID: <20020521024225.GG20766@auctionwatch.com>
-In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr>
+	id <S316493AbSEUCnD>; Mon, 20 May 2002 22:43:03 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:45800 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S316492AbSEUCnB>;
+	Mon, 20 May 2002 22:43:01 -0400
+Date: Tue, 21 May 2002 12:43:24 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [TRIVIAL PATCH] Missing init.h in drivers/pci/power.c
+Message-ID: <20020521024324.GF4745@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,28 +22,23 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 12:29:46PM -0000, Halil Demirezen wrote:
-> 
-> I wonder if there is a way of making the kernel decide whether it can boot 
-> successfully or not. For example, lets think of that i am compiling an 
-> update kernel not on the local machine but on any other pc using telnet or 
-> ssh emulators. And eventually it is time to reboot the machine and and run 
-> on the new kernel. However there has been an error during the compiling. - 
-> such as misconfiguration. Normally the machine will not boot and halt. So, 
-> is not there any way to reboot itself from the previous kernel after some 
-> time that it realizes it cannot boot properly. Maybe there is such a way. 
-> But, if not, this is an imaginary. Because i usually see these kind of 
-> problems ;)
+Linus, please apply.  This adds a #include to drivers/pci/power.c to
+define __init.  At least on PPC4xx this fixes compile problems.
 
-    (1) Serial console is your buddy. 
+diff -urN /home/dgibson/kernel/linuxppc-2.5/drivers/pci/power.c linux-bluefish/drivers/pci/power.c
+--- /home/dgibson/kernel/linuxppc-2.5/drivers/pci/power.c	Fri May 10 16:27:35 2002
++++ linux-bluefish/drivers/pci/power.c	Mon May 13 14:46:16 2002
+@@ -1,5 +1,6 @@
+ #include <linux/pci.h>
+ #include <linux/pm.h>
++#include <linux/init.h>
+ 
+ /*
+  * PCI Power management..
 
-    (2) Remote power switches save your butt: 
-    http://www.apc.com/resource/include/techspec_index.cfm?base_sku=
-    AP9211&language=en&LOCAL.APCCountryCode=us
-
-    There is only so much software can do. 
-    
 
 -- 
-My last cigarette was roughly 28 days, 17 hours, 11 minutes ago.
-YHBW
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.  -- H.L. Mencken
+http://www.ozlabs.org/people/dgibson

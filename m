@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280305AbRKIXdS>; Fri, 9 Nov 2001 18:33:18 -0500
+	id <S280314AbRKIXhi>; Fri, 9 Nov 2001 18:37:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280297AbRKIXdJ>; Fri, 9 Nov 2001 18:33:09 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:54922 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S280293AbRKIXc4>;
-	Fri, 9 Nov 2001 18:32:56 -0500
-Date: Fri, 9 Nov 2001 18:32:56 -0500 (EST)
+	id <S280323AbRKIXhY>; Fri, 9 Nov 2001 18:37:24 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:56458 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S280314AbRKIXgA>;
+	Fri, 9 Nov 2001 18:36:00 -0500
+Date: Fri, 9 Nov 2001 18:35:59 -0500 (EST)
 From: "Calin A. Culianu" <calin@ajvar.org>
-To: Wilson <defiler@null.net>
-Cc: <linux-kernel@vger.kernel.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Wilson <defiler@null.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
-In-Reply-To: <006c01c168a6$1be38540$c800000a@Artifact>
-Message-ID: <Pine.LNX.4.30.0111091832260.17281-100000@rtlab.med.cornell.edu>
+In-Reply-To: <E161ycB-00016t-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0111091834030.17281-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001, Wilson wrote:
+On Thu, 8 Nov 2001, Alan Cox wrote:
 
-> ----- Original Message -----
-> From: "Mark Hahn" <hahn@physics.mcmaster.ca>
-> To: "Wilson" <defiler@null.net>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, November 08, 2001 5:16 PM
-> Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
->
->
-> > > Bugs in the Athlon optimizations present in the Linux kernel.
+> > > Or are we talking about Athlon-optimizations bugs ? Or about Athlon SMP ?
 > >
-> > what bugs would those be?  if you're thinking of the infamous
-> > "my athlon dies when I boot a CONFIG_MK7 kernel on a kt133",
-> > it is by all accounts a *chipset* bug, not a kernel bug.
-> > it's still unclear whether the voodoo workaround
-> > (in both linux and ac) is doing something sensible.
-> >
-> Perhaps I should have said "Unfortunate interactions" rather than "bug."
-> The bottom line is that some people have trouble running Linux with "Athlon"
-> selected as the processor type.
-> I was just trying to reassure the original poster that there wasn't anything
-> wrong with the Athlon CPU itself.
+> > Bugs in the Athlon optimizations present in the Linux kernel.
+>
+> The only bugs we've seen recently appear to be in Athlon chipsets and/or
+> BIOS  setup. 2.4.14 should sort those by poking around and doing what the
+> BIOS didn't
 
-So you think I should turn Athlon optimizations off?  Exactly what kinds
-of problems were people who use Athlon optimizations experiencing?
+Alan:
 
+Specifically what chipsets are affected, and/or what things in the BIOS
+can trigger problems?  (I have VIA KT266 chipsets on SpaceWalker AK31
+motherboards... 33 of them to be precise.. and many of the machines seem
+to be somewhat unstable!)
 
->
->
->
->
+-Calin
+
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

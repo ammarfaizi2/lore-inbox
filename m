@@ -1,84 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbTDEWh7 (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbTDEWh7 (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:37:59 -0500
-Received: from cpt-dial-196-30-178-31.mweb.co.za ([196.30.178.31]:16257 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S262700AbTDEWh5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 17:37:57 -0500
-Subject: Re: Slab corruption with ext3-handle-cache.patch
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Andrew Morton <akpm@digeo.com>
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030405143852.67833364.akpm@digeo.com>
-References: <1049580790.29758.8.camel@nosferatu.lan>
-	 <20030405143852.67833364.akpm@digeo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-u4bSYd6J/v4LqbOmF1XH"
-Organization: 
-Message-Id: <1049582687.29758.11.camel@nosferatu.lan>
+	id S262708AbTDEWyh (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:54:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbTDEWyg (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:54:36 -0500
+Received: from jalon.able.es ([212.97.163.2]:13280 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id S262708AbTDEWye (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 17:54:34 -0500
+Date: Sun, 6 Apr 2003 01:06:00 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] config/dep bugs
+Message-ID: <20030405230600.GC12864@werewolf.able.es>
+References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva> <20030405224233.GA12746@werewolf.able.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 06 Apr 2003 00:44:48 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030405224233.GA12746@werewolf.able.es>; from jamagallon@able.es on Sun, Apr 06, 2003 at 00:42:33 +0200
+X-Mailer: Balsa 2.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-u4bSYd6J/v4LqbOmF1XH
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 04.06, J.A. Magallon wrote:
+> 
+> On 04.04, Marcelo Tosatti wrote:
+> > 
+> > So here goes -pre7. Hopefully the last -pre.
+> > 
 
-On Sun, 2003-04-06 at 00:38, Andrew Morton wrote:
-> Martin Schlemmer <azarah@gentoo.org> wrote:
-> >
-> > Hi
-> >=20
-> > I tried this patch a few days again, but not in the mm patch set.  So
-> > when I got problems with slab corruption, I figured it was maybe a
-> > patch I missed, and dropped it.
-> >=20
-> > Now with 2.5.66-bk10+, it is merged, and I get it again.
-> >=20
-> > ----------------------------------------------------------
-> > Slab corruption: start=3Dcfaeecc4, expend=3Dcfaeee77, problemat=3Dcfaee=
-d28
-> > Last user: [<c01890de>](ext3_destroy_inode+0x1b/0x1f)
-> > Data:
-> > ***********************************************************************=
-*****************************3C 26 99 DF **********************************=
-***************************************************************************=
-***************************************************************************=
-***************************************************************************=
-************************************************************************A5=20
->=20
-> Do you have CONFIG_EXT3_FS_POSIX_ACL enabled?
-
-Nope.
-
--------------------
- # grep CONFIG_EXT3_FS_POSIX_ACL .config
-# CONFIG_EXT3_FS_POSIX_ACL is not set
- #=20
--------------------
-
-
---=20
-
-Martin Schlemmer
+--- linux/drivers/net/Config.in.orig	2003-03-13 23:48:55.000000000 +0100
++++ linux/drivers/net/Config.in	2003-03-13 23:49:33.000000000 +0100
+@@ -185,7 +185,7 @@
+       dep_tristate '    Davicom DM910x/DM980x support' CONFIG_DM9102 $CONFIG_PCI
+       dep_tristate '    EtherExpressPro/100 support (eepro100, original Becker driver)' CONFIG_EEPRO100 $CONFIG_PCI
+       if [ "$CONFIG_VISWS" = "y" ]; then
+-         define_mbool CONFIG_EEPRO100_PIO y
++         define_bool CONFIG_EEPRO100_PIO y
+       else
+          dep_mbool '      Use PIO instead of MMIO' CONFIG_EEPRO100_PIO $CONFIG_EEPRO100
+       fi  
+--- linux/drivers/ide/Config.in.orig	2003-04-05 02:23:30.000000000 +0200
++++ linux/drivers/ide/Config.in	2003-04-05 02:23:43.000000000 +0200
+@@ -43,7 +43,7 @@
+ 	    define_bool CONFIG_BLK_DEV_IDEDMA $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_bool '      ATA Work(s) In Progress (EXPERIMENTAL)' CONFIG_IDEDMA_PCI_WIP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
+ #	    dep_bool '      Good-Bad DMA Model-Firmware (WIP)' CONFIG_IDEDMA_NEW_DRIVE_LISTINGS $CONFIG_IDEDMA_PCI_WIP
+-            dep_tristate '    Pacific Digital ADMA-100 basic support' CONFIG_BLK_DEV_ADMA100
++            dep_tristate '    Pacific Digital ADMA-100 basic support' CONFIG_BLK_DEV_ADMA100 $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_tristate '    AEC62XX chipset support' CONFIG_BLK_DEV_AEC62XX $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_tristate '    ALI M15x3 chipset support' CONFIG_BLK_DEV_ALI15X3 $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_mbool    '      ALI M15x3 WDC support (DANGEROUS)' CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3
 
 
 
-
---=-u4bSYd6J/v4LqbOmF1XH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+j1xfqburzKaJYLYRAv2pAKCQ4rlbWs4iFGCRNZd1eLsbuaoz8ACfTzgE
-guDWSATwRyHK4GGtqN6EPIw=
-=erPW
------END PGP SIGNATURE-----
-
---=-u4bSYd6J/v4LqbOmF1XH--
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Bamboo) for i586
+Linux 2.4.21-pre7-jam1 (gcc 3.2.2 (Mandrake Linux 9.2 3.2.2-5mdk))

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbTLWSQt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTLWSQs
+	id S262186AbTLWS1a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:27:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTLWS1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:16:48 -0500
-Received: from eta.fastwebnet.it ([213.140.2.50]:33718 "EHLO eta.fastwebnet.it")
-	by vger.kernel.org with ESMTP id S262288AbTLWSQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:16:39 -0500
-Subject: Re: Ooops with kernel 2.4.22 and reiserfs
-From: Carlo <devel@integra-sc.it>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031223152014.GG2099@linuxhacker.ru>
-References: <1072126808.21200.3.camel@atena>
-	 <200312222205.hBMM5vLv012067@car.linuxhacker.ru>
-	 <1072173894.21198.36.camel@atena>  <20031223152014.GG2099@linuxhacker.ru>
+	Tue, 23 Dec 2003 13:27:30 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:50613 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S262186AbTLWS13
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:27:29 -0500
+Subject: Re: SCO's infringing files list
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1072203269.11807.23.camel@harry>
+References: <1072125736.1286.170.camel@duergar>
+	 <200312221519.04677.tcfelker@mtco.com>
+	 <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
+	 <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de>
+	 <3FE811E3.6010708@debian.org>
+	 <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
+	 <20031223160425.GB45620@gaz.sfgoth.com>
+	 <20031223174454.GD45620@gaz.sfgoth.com>
+	 <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
+	 <1072203269.11807.23.camel@harry>
 Content-Type: text/plain
-Message-Id: <1072203437.21198.101.camel@atena>
+Message-Id: <1072204048.2947.47.camel@duergar>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 19:17:18 +0100
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Dec 2003 13:27:28 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il mar, 2003-12-23 alle 16:20, Oleg Drokin ha scritto:
+On Tue, 2003-12-23 at 13:14, Harry McGregor wrote:
+> http://www.ibiblio.org/pub/Linux/libs/oldlibs/libc-2.2.2/
+> 
 
-> Sounds like a list corruption to me.
-> Are you sure the memory in that box is ok?
-> 
-This PC has never gave memory problems and we use it in extensive mode. 
+I believe that is just a binary... :-/
 
-> Run it through ksymoops and see if backtrace is different each time.
-> Usually only first oops per boot is useful.
-> If backtrace is different each time, perhaps list all unique oopses?
+-sb
+
+>                   Harry
 > 
-I run it several time with the same result.
-I think thah it's a bug that is hardware dependant, because the same
-program on another PC with the same HW but different MainBoard run
-without problems
-> Thank you.
-Thank you too
-Saluti Carlo!
 > 
-> Bye,
->     Oleg
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbVAEUgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVAEUgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbVAEUgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 15:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVAEUgn
+	id S262652AbVAEUgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 15:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAEUgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 15:36:43 -0500
-Received: from mail.portrix.net ([212.202.157.208]:40923 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S262651AbVAEUcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 15:32:21 -0500
-Message-ID: <41DC4EC1.5030400@ppp0.net>
-Date: Wed, 05 Jan 2005 21:32:01 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041124 Thunderbird/0.9 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel cross compile tests
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jan 2005 15:36:07 -0500
+Received: from fw.osdl.org ([65.172.181.6]:990 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262652AbVAEUcx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 15:32:53 -0500
+Date: Wed, 5 Jan 2005 12:32:07 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
+       Eirik Thorsnes <eithor@ii.uib.no>, smfrench@austin.rr.com,
+       trond.myklebust@fys.uio.no, matthew@wil.cx
+Subject: Re: panic - Attempting to free lock with active block list
+Message-ID: <20050105123207.J469@build.pdx.osdl.net>
+References: <20050105195736.GA26989@ii.uib.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050105195736.GA26989@ii.uib.no>; from Jan-Frode.Myklebust@bccs.uib.no on Wed, Jan 05, 2005 at 08:57:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+* Jan-Frode Myklebust (Jan-Frode.Myklebust@bccs.uib.no) wrote:
+> We have a couple of mail-servers running first 2.6.9-1.681_FC3smp
+> and was later upgraded to the Fedora test kernel 2.6.10-1.727_FC3smp
+> which I think is pretty plain 2.6.10 + ac2. But they both keep
+> crashing with the message:
+> 
+>        Kernel panic - not syncing: Attempting to free lock with active block list
+> 
+> Any ideas how to attack this?
+> 
+> We're running Centos 3.3, ext3 for root-disks, ext2 on /boot,
+> XFS for mail-spools, lots of nfs-mounted directories..
 
-I've been playing with gcc cross compilers lately and set up
-a small test suite for linux kernels.
-There is a (crude) web page summarizing the results here:
-http://l4x.org/k/ .
-On the web page you can nicely see that the -bk8 snapshot broke
-the build for ia64, ppc64, s390 and sparc. m32r isn't
-buildable anymore since 2.6.10.
-2.6.10-mm1  is worse with only 4 (alpha, arm, i386, ppc) archs
-buildable.
-2.6.10 was quite good with 9 out of 22, 2.6.0 had 8 out of 20.
+It seems likely it's nfs related in this case since it stresses the
+fs/locks code differently than local filesystems.  I recall Steve French
+reporting similar issue with cifs last month.
 
-Notes:
-- for frv I currently don't have a buildable gcc
-  (I tried 3.3.3 and 3.4.2). There doesn't seem to be a list, web
-  site, help forum for that arch. Also no entry in the MAINTAINERS
-  file (2.6.10-mm1).
-- for m68knommu I'm not really sure if m68k-linux is the appropriate
-  toolchain, compiler complains about invalid option 5307
-- dito arm26, 'as' doesn't know about 'no-fpu'
-- h8300 and sh64 need a 'touch .config' before 'make defconfig'
-- v850 is missing a defconfig
-- sh defconfig is probably broken
-- sh64 'as' has unrecognized option -isa=sh64, from help text
-  it should probably be 'shmedia'
+Message-Id: <1102097193.3540.4.camel@smfhome1.smfdom>
 
-If anyone has workable configs for the non working archs I
-could include them in the tests (better would be of course to
-update the defconfig to anything buildable).
-I'm trying to do daily runs of defconfig against -bk. I don't
-know if it's useful - at least it produces a nice table :-).
+Are those three cases really panic-worthy?  Could we change to BUG_ON()
+and try and get some useful debugging?  Trond, Willy, any ideas?
 
-Jan
+thanks,
+-chris
 
-ps: I'm aware of the osdl kernel testing pages, but they don't
-  include that many archs nor do they test bk snapshots.
-
+===== fs/locks.c 1.76 vs edited =====
+--- 1.76/fs/locks.c	2005-01-04 18:48:28 -08:00
++++ edited/fs/locks.c	2005-01-05 12:31:34 -08:00
+@@ -159,14 +159,20 @@ static inline void locks_free_lock(struc
+ 		BUG();
+ 		return;
+ 	}
+-	if (waitqueue_active(&fl->fl_wait))
+-		panic("Attempting to free lock with active wait queue");
++	if (waitqueue_active(&fl->fl_wait)) {
++		printk("Attempting to free lock with active wait queue");
++		BUG();
++	}
+ 
+-	if (!list_empty(&fl->fl_block))
+-		panic("Attempting to free lock with active block list");
++	if (!list_empty(&fl->fl_block)) {
++		printk("Attempting to free lock with active block list");
++		BUG();
++	}
+ 
+-	if (!list_empty(&fl->fl_link))
+-		panic("Attempting to free lock on active lock list");
++	if (!list_empty(&fl->fl_link)) {
++		printk("Attempting to free lock on active lock list");
++		BUG();
++	}
+ 
+ 	if (fl->fl_ops) {
+ 		if (fl->fl_ops->fl_release_private)

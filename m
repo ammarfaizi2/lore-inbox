@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135517AbRAYMZ7>; Thu, 25 Jan 2001 07:25:59 -0500
+	id <S135412AbRAYM17>; Thu, 25 Jan 2001 07:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135499AbRAYMZt>; Thu, 25 Jan 2001 07:25:49 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:7415 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S135517AbRAYMZj>; Thu, 25 Jan 2001 07:25:39 -0500
-Date: Thu, 25 Jan 2001 12:25:17 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: Andi Kleen <ak@suse.de>, kuznet@ms2.inr.ac.ru,
-        Manfred Spraul <manfred@colorfullife.COM>,
-        linux-kernel@vger.kernel.org
+	id <S135442AbRAYM1t>; Thu, 25 Jan 2001 07:27:49 -0500
+Received: from p3EE3C7D3.dip.t-dialin.net ([62.227.199.211]:14606 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S135412AbRAYM1k>; Thu, 25 Jan 2001 07:27:40 -0500
+Date: Thu, 25 Jan 2001 13:27:32 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-In-Reply-To: <14960.3804.197814.496909@pizda.ninka.net>
-Message-ID: <Pine.SOL.4.21.0101251224350.651-100000@orange.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010125132732.A3804@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010125115827.A1483@emma1.emma.line.org> <Pine.SOL.4.21.0101251216070.651-100000@orange.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SOL.4.21.0101251216070.651-100000@orange.csi.cam.ac.uk>; from jas88@cam.ac.uk on Thu, Jan 25, 2001 at 12:17:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jan 2001, David S. Miller wrote:
+On Thu, 25 Jan 2001, James Sutherland wrote:
 
-> 
-> Andi Kleen writes:
->  > It's mostly for security to make it more difficult to nuke connections
->  > without knowing the sequence number.
->  > 
->  > Remember RFC is from a very different internet with much less DoS attacks.
-> 
-> Andi, one of the worst DoSs in the world is not being able to
-> communicate with half of the systems out there.
-> 
-> BSD and Solaris both make these kinds of packets, therefore it is must
-> to handle them properly.  So we will fix Linux, there is no argument.
+> This isn't a violation - the section quoted does not REQUIRE the
+> behaviour, it only RECOMMENDS it as being a good idea. Since implementing
+> it apparently makes DoS attacks easier, NOT implementing it is now a
+> better idea...
 
-Hang on... From what was quoted of the RFC, this behaviour (accepting
-these packets) isn't required of hosts? In which case, if BSD or Solaris
-depend on it, THEY are violating the protocol, not Linux??
+Ok, now for the interoperability. Is there a problem with this when the
+recommendation is not followed?
 
-
-James.
-
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265516AbSKAAFA>; Thu, 31 Oct 2002 19:05:00 -0500
+	id <S265553AbSKAAER>; Thu, 31 Oct 2002 19:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265517AbSKAAE4>; Thu, 31 Oct 2002 19:04:56 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57754 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265516AbSKAAEw>;
-	Thu, 31 Oct 2002 19:04:52 -0500
-Date: Thu, 31 Oct 2002 19:11:19 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Bob Miller <rem@osdl.org>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.45] Export blkdev_ioctl for raw block driver.
-In-Reply-To: <20021031165719.A26498@doc.pdx.osdl.net>
-Message-ID: <Pine.GSO.4.21.0210311909010.16688-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265574AbSKAAER>; Thu, 31 Oct 2002 19:04:17 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65030
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265553AbSKAAEQ>; Thu, 31 Oct 2002 19:04:16 -0500
+Subject: Re: [PATCH 2.5.45] NUMA Scheduler  (1/2)
+From: Robert Love <rml@tech9.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, Erich Focht <efocht@ess.nec.de>
+In-Reply-To: <1010470000.1036108344@flay>
+References: <1036107098.21647.104.camel@dyn9-47-17-164.beaverton.ibm.com> 
+	<1010470000.1036108344@flay>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 19:10:42 -0500
+Message-Id: <1036109447.1067.27.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-10-31 at 18:52, Martin J. Bligh wrote:
 
+> Just wanted to add that everyone that's been involved in this is
+> now in harmonious agreement about this combined solution. If you're
+> curious as to where the benefits come from, the differences in 
+> kernel profiles are included below from a 16-way NUMA-Q doing a
+> kernel compile.
 
-On Thu, 31 Oct 2002, Bob Miller wrote:
+Linus, although these patches are fairly straightforward and
+non-impacting in the !CONFIG_NUMA case, would you prefer it if a
+non-NUMA person who knew the scheduler (say, me) went over these patches
+and merged them with you?
 
-> diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
-> --- a/kernel/ksyms.c	Thu Oct 31 16:47:14 2002
-> +++ b/kernel/ksyms.c	Thu Oct 31 16:47:14 2002
-> @@ -349,6 +349,7 @@
->  EXPORT_SYMBOL(blkdev_open);
->  EXPORT_SYMBOL(blkdev_get);
->  EXPORT_SYMBOL(blkdev_put);
-> +EXPORT_SYMBOL(blkdev_ioctl);
+Ingo, do you have an opinion either way?  I think basic NUMA support,
+especially in the load balancer, should make it in before 2.6.
 
-Why not use ioctl_by_bdev() in the first place?  (and yes, it's very likely
-my fault - I hadn't realized that raw.c went modular at some point).
+	Robert Love
 

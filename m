@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAKLg0>; Thu, 11 Jan 2001 06:36:26 -0500
+	id <S129610AbRAKLiF>; Thu, 11 Jan 2001 06:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129610AbRAKLgQ>; Thu, 11 Jan 2001 06:36:16 -0500
-Received: from ns1.netbauds.net ([194.207.240.11]:5389 "EHLO ns1.netbauds.net")
-	by vger.kernel.org with ESMTP id <S129324AbRAKLgI>;
-	Thu, 11 Jan 2001 06:36:08 -0500
-Message-ID: <3A5D9A82.2568646B@netbauds.net>
-Date: Thu, 11 Jan 2001 11:35:30 +0000
-From: Darryl Miles <darryl@netbauds.net>
-X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.4.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.4.0: Small observation in /proc/sys/net/unix/
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131437AbRAKLh7>; Thu, 11 Jan 2001 06:37:59 -0500
+Received: from pat.uio.no ([129.240.130.16]:48521 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S129610AbRAKLhr>;
+	Thu, 11 Jan 2001 06:37:47 -0500
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: mantel@suse.de (Hubert Mantel), Alan Cox <alan@redhat.com>,
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+Subject: Re: Compatibility issue with 2.2.19pre7
+In-Reply-To: <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 11 Jan 2001 12:37:38 +0100
+In-Reply-To: Russell King's message of "Wed, 10 Jan 2001 06:54:45 +0000 (GMT)"
+Message-ID: <shsy9wi8gl9.fsf@charged.uio.no>
+X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Russell King <rmk@arm.linux.org.uk> writes:
 
-# ls -il /proc/sys/net/unix/
-total 24
-   4446 -rw-------   1 root     root            0 Jan 11 11:06
-max_dgram_qlen
-   4446 -rw-------   1 root     root            0 Jan 11 11:06
-max_dgram_qlen
+     > Hubert Mantel writes:
+    >> is this part of 2.2.19pre7 really a good idea? Even in 2.4.0
+    >> the size field is still a short.
+    >> #define NFS_MAXFHSIZE 64
+    >> struct nfs_fh {
+    >> - unsigned short size;
+    >> + unsigned int size;
+    >> unsigned char data[NFS_MAXFHSIZE]; };
 
-Identical filenames, nothing bad appears to be happening it just looks
-weird.
+     > This is an internal kernel data structure.  Do you know of some
+     > program that breaks as a result of this?
+     >    _____
 
--- 
-Darryl Miles
+Any program which mounts an NFS partition.
+
+If you do this, then you need to provide some sort of compatibility
+layer for nfs_mount.h since the format for version 4 of the NFS mount
+structure was decided more than 2 years ago.
+
+Cheers,
+  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

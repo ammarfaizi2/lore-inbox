@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270248AbTHGQkU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 12:40:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbTHGQkR
+	id S270350AbTHGQeq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 12:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTHGQeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 12:40:17 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:15687 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S270384AbTHGQic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 12:38:32 -0400
-Date: Thu, 7 Aug 2003 12:41:08 -0400 (EDT)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp64-178.boston.redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root solved by patch to 2.4.22-pre7
-In-Reply-To: <1060271448.3123.75.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308071223370.894-100000@dhcp64-178.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Aug 2003 12:34:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:65169 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270350AbTHGQeo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 12:34:44 -0400
+Date: Thu, 7 Aug 2003 09:32:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Alessandro Fiorino <fiorino@chibacity.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Mass storage problem in 2.6
+Message-ID: <20030807163214.GC11433@kroah.com>
+References: <200308071051.14700.fiorino@chibacity.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308071051.14700.fiorino@chibacity.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 07, 2003 at 10:51:14AM +0200, Alessandro Fiorino wrote:
+> I installed the 2.6 kernel to test it and I have some problems with the USB 
+> mass storage driver: my external HD enclousure doesn't work anymore (the 
+> device works perfectly with the 2.4.21 version).
 
+Mind forwarding this info to the linux-usb-devel mailing list?
 
-On 7 Aug 2003, Alan Cox wrote:
+Some people there should be able to help you out.
 
-> On Iau, 2003-08-07 at 16:26, Jason Baron wrote:
-> > it clearly makes a difference.
-> > 
-> > the unshare_files change causes init to no longer share the same fd table
-> > with the other kernel threads. thus, when init closes or opens fds it does
-> 
-> Ah yes.. because of do_basic_setup. Having /sbin/init sharing with
-> kernel threads doesn't actually strike me as too clever anyway although
-> none of them should be using fd stuff.
-> 
-> In which case I guess we should call unshare_files directly before we
-> open /dev/console in init/main.c.
-> 
+thanks,
 
-ok, but what if we re-exec init a couple of times? 
-
+greg k-h

@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVCBNys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVCBN7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbVCBNys (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 08:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVCBNyr
+	id S262294AbVCBN7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 08:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVCBN7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 08:54:47 -0500
-Received: from [151.97.230.9] ([151.97.230.9]:10251 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S262296AbVCBNyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 08:54:45 -0500
-Subject: [patch 1/1] uml: trivial removal of Makefile var
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Tue, 01 Mar 2005 20:46:58 +0100
-Message-Id: <20050301194700.6576A6486@zion>
+	Wed, 2 Mar 2005 08:59:36 -0500
+Received: from smtp.cs.aau.dk ([130.225.194.6]:27786 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S262294AbVCBN7d convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 08:59:33 -0500
+From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
+Organization: Aalborg University
+To: Christophe Lucas <clucas@rotomalug.org>
+Subject: Re: UserMode bug in 2.6.11-rc5? autolearn=disabled version=3.0.2
+Date: Wed, 2 Mar 2005 14:59:39 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200503021236.26561.ks@cs.aau.dk> <20050302134533.GE13075@rhum.iomeda.fr>
+In-Reply-To: <20050302134533.GE13075@rhum.iomeda.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503021459.39846.ks@cs.aau.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 02 March 2005 14:45, Christophe Lucas wrote:
+> Kristian Sørensen (ks@cs.aau.dk) wrote:
+> > Hi!
+> >
+> > I've just tried usermode Linux with a 2.6.11-rc5 kernel. My kernel boots,
+> > but when the shell is to be spawned it freezes:
+> > ----
+> > INIT: Entering runlevel: 2
+> > Starting system log daemon: syslogd.
+> > Starting kernel log daemon: klogd.
+> > Starting internet superserver: inetd.
+> > Starting deferred execution scheduler: atd.
+> > Starting periodic command scheduler: cron.
+> > INIT: Id "0" respawning too fast: disabled for 5 minutes
+> > INIT: Id "1" respawning too fast: disabled for 5 minutes
+> > INIT: Id "2" respawning too fast: disabled for 5 minutes
+> > INIT: Id "c" respawning too fast: disabled for 5 minutes
+> > INIT: no more processes left in this runlevel
+> > ----
+> >
+> > I've attached the .config for both 2.6.10 (working perfectly) and the one
+> > for 2.6.11-rc5. The root filesystem this:
+> > http://prdownloads.sourceforge.net/user-mode-linux/Debian-3.0r0.ext2.bz2
+>
+> Hi,
+>
+> What do you have in your /etc/inittab of your root_fs ?
+> I think you sould replace tty0 by vc/0 such as.
+>
+> I have had this on a kernel 2.6.10 and debian-3.1 root_fs.
+>
+> 	~Christophe
+Hey! Thanks - that fixed the problem! :-D
 
-That var is used only once, use its value directly.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+Best,
+Kristian.
 
- linux-2.6.11-paolo/arch/um/drivers/Makefile |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
 
-diff -puN arch/um/drivers/Makefile~uml-kbuild-another-trivial-cleanup arch/um/drivers/Makefile
---- linux-2.6.11/arch/um/drivers/Makefile~uml-kbuild-another-trivial-cleanup	2005-03-01 20:36:31.485689728 +0100
-+++ linux-2.6.11-paolo/arch/um/drivers/Makefile	2005-03-01 20:44:49.065046168 +0100
-@@ -3,8 +3,6 @@
- # Licensed under the GPL
- #
- 
--CHAN_OBJS := chan_kern.o chan_user.o line.o 
--
- # pcap is broken in 2.5 because kbuild doesn't allow pcap.a to be linked
- # in to pcap.o
- 
-@@ -20,7 +18,7 @@ ubd-objs := ubd_kern.o ubd_user.o
- port-objs := port_kern.o port_user.o
- harddog-objs := harddog_kern.o harddog_user.o
- 
--obj-y := stdio_console.o fd.o $(CHAN_OBJS)
-+obj-y := stdio_console.o fd.o chan_kern.o chan_user.o line.o
- obj-$(CONFIG_SSL) += ssl.o
- obj-$(CONFIG_STDERR_CONSOLE) += stderr_console.o
- 
-_
+-- 
+Kristian Sørensen
+- The Umbrella Project  --  Security for Consumer Electronics
+  http://umbrella.sourceforge.net
+
+E-mail: ipqw@users.sf.net, Phone: +45 29723816

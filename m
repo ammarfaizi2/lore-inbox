@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbUC2Ukl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 15:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbUC2Ukl
+	id S261474AbUC2Upy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 15:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUC2Upy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 15:40:41 -0500
-Received: from dsl081-235-061.lax1.dsl.speakeasy.net ([64.81.235.61]:50084
-	"EHLO ground0.sonous.com") by vger.kernel.org with ESMTP
-	id S262133AbUC2Ukj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 15:40:39 -0500
-Mime-Version: 1.0 (Apple Message framework v613)
+	Mon, 29 Mar 2004 15:45:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:23939 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261474AbUC2Upx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 15:45:53 -0500
+Date: Mon, 29 Mar 2004 12:48:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, hugh@veritas.com
+Subject: Re: 2.6.5-rc2-aa5
+Message-Id: <20040329124803.072bb7c6.akpm@osdl.org>
+In-Reply-To: <20040329150646.GA3808@dualathlon.random>
+References: <20040329150646.GA3808@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Lev Lvovsky <lists1@sonous.com>
-Subject: older kernels + new glibc?
-Date: Mon, 29 Mar 2004 12:40:36 -0800
-X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> Notably there is a BUG_ON(page->mapping) triggering in
+> page_remove_rmap in the pagecache case. that could be ex-pagecache being
+> removed from pagecache before all ptes have been zapped, infact the
+> page_remove_rmap triggers in the vmtruncate path.
 
-I'm not sure what, if any interrelations there are between the various 
-versions of glibc, and the kernel.
-
-Specifically, a piece of telecom hardware that we use out in the field 
-requires a 2.2.x kernel to compile the drivers, however, after choosing 
-an arbitrary "new" release of a linux distro, and downgrading the 
-kernel, we are able to compile and install the drivers, and 
-subsequently use the hardware.
-
-Are there any URLs/Docs that I could look at to understand what, if any 
-relationships glibc, and the kernel have?
-
-thank you!
--lev
+Confused.  vmtruncate zaps the ptes before removing pages from pagecache,
+so I'd expect a non-null ->mapping in page_remove_rmap() is a very common
+thing.  truncate a file which someone has mmapped and it'll happen every
+time, will it not?
 

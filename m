@@ -1,83 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSJWAv0>; Tue, 22 Oct 2002 20:51:26 -0400
+	id <S262397AbSJWAzz>; Tue, 22 Oct 2002 20:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262328AbSJWAv0>; Tue, 22 Oct 2002 20:51:26 -0400
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:29892 "EHLO
+	id <S262414AbSJWAzz>; Tue, 22 Oct 2002 20:55:55 -0400
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:57031 "EHLO
 	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S262324AbSJWAvZ>; Tue, 22 Oct 2002 20:51:25 -0400
-Date: Tue, 22 Oct 2002 20:49:56 -0400 (EDT)
+	id <S262397AbSJWAzy>; Tue, 22 Oct 2002 20:55:54 -0400
+Date: Tue, 22 Oct 2002 20:54:29 -0400 (EDT)
 From: Frank Davis <fdavis@si.rr.com>
 X-X-Sender: fdavis@localhost.localdomain
 To: linux-kernel@vger.kernel.org
 cc: fdavis@si.rr.com, <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.5.44-ac1 : remove STATIC macro within archs
-Message-ID: <Pine.LNX.4.44.0210222042200.913-100000@localhost.localdomain>
+Subject: [PATCH] 2.5.44-ac1 : drivers/net/wan/ remove STATIC macro
+Message-ID: <Pine.LNX.4.44.0210222052180.913-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
-  The following set of patches removes the STATIC macro with the archs 
-(i386, sh, x86_64, arm, cris).
+  The following patches remove STATIC macro references.
 
 Regards,
 Frank
 
---- linux/arch/i386/boot/compressed/misc.c.old	Tue Oct 22 18:22:51 2002
-+++ linux/arch/i386/boot/compressed/misc.c	Tue Oct 22 19:49:22 2002
-@@ -19,7 +19,6 @@
+--- linux/drivers/net/wan/sdlamain.c.old	Sat Oct 19 12:05:27 2002
++++ linux/drivers/net/wan/sdlamain.c	Tue Oct 22 20:24:24 2002
+@@ -173,12 +173,6 @@
+ 
+ /****** Defines & Macros ****************************************************/
+ 
+-#ifdef	_DEBUG_
+-#define	STATIC
+-#else
+-#define	STATIC		static
+-#endif
+-
+ #define	DRV_VERSION	5		/* version number */
+ #define	DRV_RELEASE	0		/* release (minor version) number */
+ #define	MAX_CARDS	16		/* max number of adapters */
+@@ -209,7 +203,7 @@
+ static int ioctl_exec	(sdla_t* card, sdla_exec_t* u_exec, int);
+ 
+ /* Miscellaneous functions */
+-STATIC void sdla_isr	(int irq, void* dev_id, struct pt_regs *regs);
++static void sdla_isr	(int irq, void* dev_id, struct pt_regs *regs);
+ static void release_hw  (sdla_t *card);
+ static void run_wanpipe_tq (unsigned long);
+ 
+@@ -1092,7 +1086,7 @@
+  * o acknowledge SDLA hardware interrupt.
+  * o call protocol-specific interrupt service routine, if any.
   */
+-STATIC void sdla_isr (int irq, void* dev_id, struct pt_regs *regs)
++static void sdla_isr (int irq, void* dev_id, struct pt_regs *regs)
+ {
+ #define	card	((sdla_t*)dev_id)
  
- #define OF(args)  args
--#define STATIC static
- 
- #undef memset
- #undef memcpy
 
---- linux/arch/sh/boot/compressed/misc.c.old	Sat Oct 19 12:03:31 2002
-+++ linux/arch/sh/boot/compressed/misc.c	Tue Oct 22 19:50:46 2002
-@@ -22,7 +22,6 @@
+--- linux/drivers/net/wan/wanpipe_multppp.c.old	Sat Oct 19 12:05:27 2002
++++ linux/drivers/net/wan/wanpipe_multppp.c	Tue Oct 22 20:27:10 2002
+@@ -58,12 +58,6 @@
+ 
+ /****** Defines & Macros ****************************************************/
+ 
+-#ifdef	_DEBUG_
+-#define	STATIC
+-#else
+-#define	STATIC		static
+-#endif
+-
+ /* reasons for enabling the timer interrupt on the adapter */
+ #define TMR_INT_ENABLED_UDP   	0x01
+ #define TMR_INT_ENABLED_UPDATE	0x02
+@@ -1347,7 +1341,7 @@
+ /*============================================================================
+  * Cisco HDLC interrupt service routine.
   */
- 
- #define OF(args)  args
--#define STATIC static
- 
- #undef memset
- #undef memcpy
-
---- linux/arch/x86_64/boot/compressed/misc.c.old	Sat Oct 19 12:03:48 2002
-+++ linux/arch/x86_64/boot/compressed/misc.c	Tue Oct 22 19:52:20 2002
-@@ -17,7 +17,6 @@
-  */
- 
- #define OF(args)  args
--#define STATIC static
- 
- #undef memset
- #undef memcpy
-
---- linux/arch/arm/boot/compressed/misc.c.old	Sat Oct 19 12:02:21 2002
-+++ linux/arch/arm/boot/compressed/misc.c	Tue Oct 22 19:46:17 2002
-@@ -113,7 +113,6 @@
-  * gzip delarations
-  */
- #define OF(args)  args
--#define STATIC static
- 
- typedef unsigned char  uch;
- typedef unsigned short ush;
-
-
---- linux/arch/cris/boot/compressed/misc.c.old	Sat Oct 19 12:02:30 2002
-+++ linux/arch/cris/boot/compressed/misc.c	Tue Oct 22 19:47:58 2002
-@@ -30,7 +30,6 @@
-  */
- 
- #define OF(args)  args
--#define STATIC static
- 
- void* memset(void* s, int c, size_t n);
- void* memcpy(void* __dest, __const void* __src,
+-STATIC void wsppp_isr (sdla_t* card)
++static void wsppp_isr (sdla_t* card)
+ {
+ 	netdevice_t* dev;
+ 	SHARED_MEMORY_INFO_STRUCT* flags = NULL;
 

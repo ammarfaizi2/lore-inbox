@@ -1,50 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268125AbTCCAhM>; Sun, 2 Mar 2003 19:37:12 -0500
+	id <S268093AbTCCAhF>; Sun, 2 Mar 2003 19:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268137AbTCCAhM>; Sun, 2 Mar 2003 19:37:12 -0500
-Received: from mail1.bluewin.ch ([195.186.1.74]:20961 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S268125AbTCCAhL>;
-	Sun, 2 Mar 2003 19:37:11 -0500
-Date: Mon, 3 Mar 2003 01:39:40 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: bert hubert <ahu@ds9a.nl>, Nigel Cunningham <ncunningham@clear.net.nz>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: S4bios support for 2.5.63
-Message-ID: <20030303003940.GA13036@k3.hellgate.ch>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Nigel Cunningham <ncunningham@clear.net.nz>,
-	Pavel Machek <pavel@ucw.cz>, Andrew Grover <andrew.grover@intel.com>,
-	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030226211347.GA14903@elf.ucw.cz> <20030302133138.GA27031@outpost.ds9a.nl> <1046630641.3610.13.camel@laptop-linux.cunninghams> <20030302202118.GA2201@outpost.ds9a.nl>
+	id <S268125AbTCCAhF>; Sun, 2 Mar 2003 19:37:05 -0500
+Received: from sheridan.uel.ac.uk ([161.76.9.2]:47758 "EHLO sheridan.uel.ac.uk")
+	by vger.kernel.org with ESMTP id <S268093AbTCCAhF>;
+	Sun, 2 Mar 2003 19:37:05 -0500
+Date: Mon, 3 Mar 2003 00:47:28 +0000
+From: nickn <nickn@www0.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+Message-ID: <20030303004728.GA5856@www0.org>
+References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030302202118.GA2201@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.63 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+In-Reply-To: <3E623B9A.8050405@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Mar 2003 21:21:18 +0100, bert hubert wrote:
-> In 2.5.63bk5 I get a BUG on drivers/ide/ide-disk.c:1557:
-> 
-> 
->         BUG_ON (HWGROUP(drive)->handler);
-> 
+On Sun, Mar 02, 2003 at 12:12:58PM -0500, Jeff Garzik wrote:
+> My counter-question is, why not improve an _existing_ open source SCM to 
+> read and write BitKeeper files?  Why do we need yet another brand new 
+> project?
 
-That problem has been around for a while. I reported it for 2.5.59 which
-just happened to be the first 2.5 kernel I tested with swsuspend.
-
-I'm seeing the bug every time I try swsuspend on 2.5. The same Vanilla
-kernels seem to work for other people, though.
-
-The only thing that came up at the time was a suggestion to replace BUG_ON
-with while (which I didn't try because I'd like to keep my data).
-
-Roger
+Or improve BK to export and import on demand of an existing open source SCM.

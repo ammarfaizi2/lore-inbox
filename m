@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130444AbQKKAMM>; Fri, 10 Nov 2000 19:12:12 -0500
+	id <S131826AbQKKANL>; Fri, 10 Nov 2000 19:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131610AbQKKAMC>; Fri, 10 Nov 2000 19:12:02 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:14084 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S130444AbQKKALt>;
-	Fri, 10 Nov 2000 19:11:49 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011110011.eAB0BbF244111@saturn.cs.uml.edu>
-Subject: Re: Where is it written?
-To: meissner@spectacle-pond.org (Michael Meissner)
-Date: Fri, 10 Nov 2000 19:11:37 -0500 (EST)
-Cc: george@mvista.com (George Anzinger),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.redhat.com)
-In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> from "Michael Meissner" at Nov 10, 2000 06:40:31 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131815AbQKKANB>; Fri, 10 Nov 2000 19:13:01 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:45200 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S131610AbQKKAMl>;
+	Fri, 10 Nov 2000 19:12:41 -0500
+Date: Fri, 10 Nov 2000 19:12:29 -0500
+Message-Id: <200011110012.TAA22015@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: "Matt D. Robinson" <yakker@alacritech.com>
+CC: Christoph Rohland <cr@sap.com>, "Theodore Y. Ts'o" <tytso@MIT.EDU>,
+        richardj_moore@uk.ibm.com, Paul Jakma <paulj@itg.ie>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: Matt D. Robinson's message of Fri, 10 Nov 2000 10:36:31 -0800,
+	<3A0C402F.8F0BA261@alacritech.com>
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Meissner writes:
+   Date: Fri, 10 Nov 2000 10:36:31 -0800
+   From: "Matt D. Robinson" <yakker@alacritech.com>
 
-> It may be out of print by now, but the original reference
-> for the x86 ABI, is the:
->
-> 	System V Application Binary Interface
-> 	Intel386 (tm) Processor Supplement
->
-> When Cygnus purchased the manual I have, many moons ago,
-> it was published by AT&T, with a copyright date of 1991,
+   As soon as I finish writing raw write disk routines (not using kiobufs),
+   we can _maybe_ get LKCD accepted one of these days, especially now that we
+   don't have to build 'lcrash' against a kernel revision.  I'm in the
+   middle of putting together raw IDE functions now -- see LKCD mailing
+   list for details if you're curious.
 
-Gee that looks old. Might there be better calling conventions
-for the Pentium 4 or Athlon? Memory latency, vector registers,
-and more direct access to floating-point registers may mean
-we ought to change the calling conventions. One would start
-with the kernel of course, because it stands alone.
+Great!  Are you thinking about putting the crash dumper and the raw
+write disk routines in a separate text section, so they can be located
+in pages which are write-protected from accidental modification in case
+some kernel code goes wild?  (Who me?  Paranoid?  :-)
 
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

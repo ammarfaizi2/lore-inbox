@@ -1,151 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263485AbTKCXbw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 18:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTKCXbw
+	id S263491AbTKCXci (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 18:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTKCXci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 18:31:52 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25826 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263485AbTKCXbs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 18:31:48 -0500
+	Mon, 3 Nov 2003 18:32:38 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:9699 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S263491AbTKCXce (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 18:32:34 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: how to restart userland?
+Date: Mon, 3 Nov 2003 23:32:33 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bo6oih$s51$1@news.cistron.nl>
+References: <20031103193940.GA16820@louise.pinerecords.com> <Pine.LNX.4.53.0311031519050.2654@chaos>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Date: Mon, 3 Nov 2003 15:29:21 -0800
-User-Agent: KMail/1.4.1
-References: <3F9D82F0.4000307@mvista.com> <200310290920.06056.dsteklof@us.ibm.com> <1067794124.30274.18.camel@simulacron>
-In-Reply-To: <1067794124.30274.18.camel@simulacron>
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200311031529.21509.dsteklof@us.ibm.com>
+X-Trace: ncc1701.cistron.net 1067902353 28833 62.216.29.200 (3 Nov 2003 23:32:33 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 November 2003 09:28 am, Andreas Jellinghaus wrote:
-> On Wed, 2003-10-29 at 18:20, Daniel Stekloff wrote:
-> > The tdb database is for storing current device information, udev needs to
-> > reference names to devices. The database also enables an api for
-> > applications to query what devices are on the system, their names, and
-> > their nodes.
-> >
-> > Using tdb has its advantages too; it's small, it's flexible, it's fast,
-> > it can be in memory or on disk, and it has locking for multiple accesses.
-> >
-> > IMVHO - tdb isn't bloat.
+In article <Pine.LNX.4.53.0311031519050.2654@chaos>,
+Richard B. Johnson <root@chaos.analogic.com> wrote:
+>On Mon, 3 Nov 2003, Tomas Szepe wrote:
 >
-> Hi Dan,
-
-
-Hi Andreas, 
-
-Sorry for my late reply. 
-
-
-> thanks for your email.
-> I took a look at tdb. Upon adding devices, the DEVPATH is resolved via
-> config files etc. to a final /dev filename. That combination is stored
-> in tdb, and when the device is remove, the same resolution process is
-> not done, but the tdb is looked up to find the filename, and remove
-> the device. Is that right?
-
-
-The device path and device name are stored in the tdb database. The path is 
-used as the primary key, the unique identifier to locate the specific device. 
-A device is added by path and then removed using the path. 
-
-
-> So the advantage would be resistance against config file changes - if
-> the nameing scheme is changed while a devices is added, the remove would
-> get the new name, and that way try to remove the wrong device.
-
-
-Adding and removing device from the tdb database is done based on the device's 
-path and not the generated name. Changing the config file shouldn't impact 
-currently loaded and configured devices. 
-
-
-
-> Also this mechanism could be used to implement counting device names
-> like "disc/0", where the final name depends on the devices currently
-> available, so there is no static translation from devpath to the
-> filename.
+>> Hi,
+>>
+>> Would anyone know of a proven way to completely restart the userland
+>> of a Linux system?
+>>
+>> i.e. something like
+>> # echo whatever-restart >/proc/wherever
+>>
+>> Killing all processes.
+>> Killing init.
+>> Unmounting all filesystems.
+>> VFS: Mounted root (ext2 filesystem).
+>> INIT: v2.84 booting
+>> ...
 >
-> I'd prefer the kernel giving up the old device names, and migrating
-> to counter names i.e. disc/0, cdrom/0, printer/0, etc. Those who
-> still want the old names could use /sys/ to determine the details
-> on the device, and that way create devices per the old naming schema.
-> That way tdb wouldn't be necessary for counting device names, at least
-> if sysfs still has the full information on the device while the hotplug
-> event runs. I guess that is not the case or not guaranteed?
->
-> Also I have to admit, if symlinks like "hpdeskjet" to some usb device
-> are configured in the config, the device is attached, and the config
-> is changed, then a remove event will not find the old symlink and
-> cannot remove it, without tdb.
->
-> But maybe like a coldplug / fulling an empty /dev, there should be
-> rerun command? I.e. like coldplug determine what device and symlinks
-> shold be in /dev, and the remove unnecessary, add missing, and modify
-> outdated entries (devices,files)? If that existed, configuration changes
-> wouldn't be a reason for udev to use tdb?
->
-> So why is tdb currently required? I only see the possibility to use
-> naming schemes like disc/0 as a reason, but that isn't implemented
-> in udev so far...
->
-> other than a theological discussion about needed or not, I guess nobody
-> will complain about it - even people with /dev on tmpfs and a readonly
-> / will have a writable or tmpfs /var so they can live with it anyway.
-> but I'm still not sure, if it isn't unnecessary.
+>If you have an 'old' sys-V installation, you as root can execute
+>`init 0`.
+>Then, after everything has stopped, you can execute
+>`init 5` or `init 6` to restart to the runlevel you had. More
+>modern versions from (probably all) distributions won't allow
+>this.
 
+It's been a while since you used a real sysv right ? Or you've
+used different ones then I did.
 
-Honestly, I'm not exactly sure what you're questioning - is tdb specifically 
-unnecessary or is having a backing store unnecessary. 
+The correct command for single user mode is:
 
-It's true, you could do without a backing store. You could build the reference 
-between device and name every time you wish to work with the device. In some 
-cases that would be easy, such as simply using the kernel naming system. In 
-other cases it might not be so easy, especially if you use a specific and 
-complicated naming scheme. You'd have to pay the processing hit it would take 
-to calculate the names every time you access a device. You'd also have to 
-deal with issues like current devices and adjusting the config files, which 
-you've already brought up. 
+# shutdown now (equivalent to "init 1")
 
-I believe having a backing store - whether tdb, gdbm, a table in memory, or a 
-flat file - is useful for storing the configured devices and their names. 
-It's cheap to submit a small query to find the necessary device, rather than 
-having to go through the naming process every time a device is added, 
-removed, or queried. Having the backing store removes the problem you 
-mentioned about changing config files on the fly, there's no loose ends or 
-missing or changed device names - they are stored in the database. I believe 
-the trade off between backing store complexity and storage versus on the fly 
-calculation is worth it. I can understand if you feel differently.
+Now the system will throw you into single user mode. Here, all
+processed are killed. It's just that all filesystems remain
+mounted
 
-As for tdb specifically being unnecessary, you could most certainly use 
-something else to store device information. You could use a flat file. You 
-could use gdbm. You could use a simple table in memory. I chose tdb for the 
-following reasons: 
+You can now login and enter 'init 2' or 'init 3' or whatever to
+go to that runlevel
 
-- it is a proven mechanism. 
-- it could handle thousands of devices.
-- it is fast to query.
-- it has a small footprint.
+Just exiting the shell (logout) will boot into the default runlevel
 
-It seemed to me like a good solution for udev's backing store need. 
+You can even just not login at all, press ^D and the system will
+boot to the default runlevel.
 
-If you believe udev doesn't need the backing store and/or tdb, let's see your 
-solution and we can decide on its technical merit by looking it over. I'm 
-certainly open to new ideas and solutions. I'm sorry if you felt this was a 
-"theological" discussion, I certainly don't feel the same way.
+The command that is run at single user mode is "sulogin". It's
+invoked by init, as defined in /etc/inittab. If you just add
+a timeout to the sulogin invocation (-t 20 or so) then sulogin
+will exit after that timeout.
 
-Cheers,
+Now that is exactly what you want - add the timeout. Throw the
+system into single user mode with "shutdown now" or "init 1".
+After a while the system will be restarted from scratch
+without a reboot.
 
-Dan
+This will work on Debian. It most likely will works on other
+distributions too, and probably on most System Vs as well.
+Though on System V the shutdown command is "shutdown -i1 -y".
+Which, btw, will work just fine on Linux too ;)
 
- 
-
-
-> Regards, Andreas
+Mike.
 

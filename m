@@ -1,86 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUBFVZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 16:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUBFVZK
+	id S266549AbUBFVR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 16:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbUBFVRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 16:25:10 -0500
-Received: from web40501.mail.yahoo.com ([66.218.78.118]:63411 "HELO
-	web40501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266517AbUBFVWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 16:22:12 -0500
-Message-ID: <20040206212205.46151.qmail@web40501.mail.yahoo.com>
-Date: Fri, 6 Feb 2004 13:22:05 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Issues with linux-2.6.2
-To: linux-kernel@vger.kernel.org
+	Fri, 6 Feb 2004 16:17:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266635AbUBFVQY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 16:16:24 -0500
+Date: Fri, 6 Feb 2004 16:16:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: FATAL: Kernel too old
+Message-ID: <Pine.LNX.4.53.0402061550440.681@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a few issues with 2.6.2. Ths first issue is when upgrading from 2.4, I had to create 
-the symlinks:
 
-   ln -s /usr/include/asm /usr/src/linux/include/asm-i386
-   ln -s /usr/include/asm-generic /usr/src/linux/include/asm-generic
+Who decides that the kernel is too old? Can't log-in over the
+network on a machine that has a lot of uptime. Telnet to the
+mail-server does work, though. It's just that shells don't
+seem to work anymore!!!
 
-This requirement was not mentioned in any documentation I could find.
+Script started on Fri Feb  6 15:44:32 2004
+# rlogin -l johnson quark
+ATAL: kernel too old
+# rlogin -l johnson quark
+ATAL: kernel too old
+# telnet quark
+Trying 10.106.100.200...
+Connected to quark.analogic.com.
+Escape character is '^]'.
+FATAL: kernel too old
+Connection closed by foreign host.
+# ping quark
+64 bytes from 10.106.100.200   icmp-seq:0  ttl:64  time(ms):3.53    lost:0
+64 bytes from 10.106.100.200   icmp-seq:1  ttl:64  time(ms):0.25    lost:0
+Aborted!
+# rsh quark
+ATAL: kernel too old
+#
+# telnet quark 25
+Trying 10.106.100.200...
+Connected to quark.analogic.com.
+Escape character is '^]'.
+220 quark.analogic.com ESMTP Sendmail 8.11.0.Beta3/8.12.0.A; Fri, 6 Feb 2004 15:51:27 -0500
+^]
+telnet> quit
+Connection closed.
 
-The second issue is when trying to build util-linux-2.11z I get the following error:
+It wouldn't let me log in at the console either, got the "init spawing
+too fast..." message. Nothing in the logs. It's a generic RH with
+the Linux-2.4.18-14 that it came with, never been hacked and used
+as an internal mail-forwarding machine. It's been up since, probably
+last April.
 
-cc -pipe -O2 -mcpu=i486 -fomit-frame-pointer -I../lib -Wall -Wmissing-prototypes
--Wstrict-prototypes -I/usr/include/ncurses -DNCH=0   -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\"
--DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\"
--DLOCALEDIR=\"/usr/share/locale\" -O2  -s  blockdev.c   -o blockdev
-blockdev.c:70: error: parse error before '[' token
-blockdev.c:70: error: initializer element is not constant
-blockdev.c:70: error: (near initialization for `bdcms[4].ioc')
-blockdev.c:70: error: initializer element is not constant
-blockdev.c:70: error: (near initialization for `bdcms[4]')
-blockdev.c:73: error: parse error before '[' token
-blockdev.c:73: error: initializer element is not constant
-blockdev.c:73: error: (near initialization for `bdcms[5].ioc')
-blockdev.c:73: error: initializer element is not constant
-blockdev.c:73: error: (near initialization for `bdcms[5]')
-blockdev.c:76: error: initializer element is not constant
-blockdev.c:76: error: (near initialization for `bdcms[6]')
-blockdev.c:79: error: initializer element is not constant
-blockdev.c:79: error: (near initialization for `bdcms[7]')
-blockdev.c:82: error: initializer element is not constant
-blockdev.c:82: error: (near initialization for `bdcms[8]')
-blockdev.c:85: error: initializer element is not constant
-blockdev.c:85: error: (near initialization for `bdcms[9]')
-blockdev.c:89: error: initializer element is not constant
-blockdev.c:89: error: (near initialization for `bdcms[10]')
-blockdev.c: In function `report_device':
-blockdev.c:331: error: parse error before '[' token
-make: *** [blockdev] Error 1
+I couldn't find that "FATAL:" string in /bin/bash, in any
+/lib/libc* files, nor in vmlinux. It's in /bin/rpm and in
+/bin/ash.static. These are not used to log-in (I hope).
+It's also in a bunch of /sbin files, never used to log in
+(like e2fsck).
 
-It seems there is a problem with the BLKBSZGET and the BLKBSZSET macros defined in
-linux/include/linux/fs.h.
-They both indirectly call the _IOC_TYPECHECK macro, which is defined in
-linux/include/asm-386/ioctl.h thusly:
+I crashed it and it rebooted fine, little fsck activity, with
+nothing in any logs that shows there was any problem whatsoever.
 
-#define _IOC_TYPECHECK(t) \
-	((sizeof(t) == sizeof(t[1]) && \
-	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
-	  sizeof(t) : __invalid_size_argument_for_IOC)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-The problem is that _IOC_TYPECHECK is being called with a constant value (size_t), making the 
-array indexing attempt illegal. Using gcc -E, BLKBSZGET expands to:
-(((2U) << (((0 +8)+8)+14)) | (((0x12)) << (0 +8)) | (((112)) << 0) | (((((sizeof(sizeof(int)) == 
-sizeof(sizeof(int)[1]) && sizeof(sizeof(int)) < (1 << 14)) ? sizeof(sizeof(int)) : 
-       ^^^^^^^^^^^^^^  // illegal.
-__invalid_size_argument_for_IOC))) << ((0 +8)+8))) 
-
-Is this a known problem?
-
-=====
-I code, therefore I am
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance: Get your refund fast by filing online.
-http://taxes.yahoo.com/filing.html

@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293163AbSCEX0y>; Tue, 5 Mar 2002 18:26:54 -0500
+	id <S293440AbSCEXep>; Tue, 5 Mar 2002 18:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293243AbSCEX0p>; Tue, 5 Mar 2002 18:26:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9486 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293163AbSCEX03>;
-	Tue, 5 Mar 2002 18:26:29 -0500
-Message-ID: <3C8553C1.5E296978@zip.com.au>
-Date: Tue, 05 Mar 2002 15:24:49 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020305161032.F20606@dualathlon.random> <Pine.LNX.4.44L.0203051354590.1413-100000@duckman.distro.conectiva> <20020305192604.J20606@dualathlon.random>, <20020305192604.J20606@dualathlon.random>; <20020305183053.A27064@fenrus.demon.nl> <3C8518AE.B44AF2D5@zip.com.au> <20020306000314.M20606@dualathlon.random>,
-		<20020306000314.M20606@dualathlon.random> <20020306000532.N20606@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S293243AbSCEXeh>; Tue, 5 Mar 2002 18:34:37 -0500
+Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:6692 "HELO ux3.sp.cs.cmu.edu")
+	by vger.kernel.org with SMTP id <S293403AbSCEXeW>;
+	Tue, 5 Mar 2002 18:34:22 -0500
+Subject: Re: init_idle reaped before final call
+From: Justin Carlson <justincarlson@cmu.edu>
+To: Kip Walker <kwalker@broadcom.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-mips@oss.sgi.com
+In-Reply-To: <3C854399.2BE48DF2@broadcom.com>
+In-Reply-To: <3C8522EA.2A00E880@broadcom.com> <292270000.1015365429@flay> 
+	<3C854399.2BE48DF2@broadcom.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-3TVi76KKpsSwqmdDCj49"
+X-Mailer: Evolution/1.0.2 
+Date: 05 Mar 2002 18:33:08 -0500
+Message-Id: <1015371192.11989.30.camel@gs256.sp.cs.cmu.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> BTW, I noticed one of my last my email was a private reply so I'll
-> answer here too for the buffer_head pagecache I/O part:
 
-Heh.  Me too.
- 
-> Having persistence on the physical I/O information is a good thing, so
-> you don't need to resolve logical to physical block at every I/O and bio
-> has a cost to setup too. The information we carry on the bh isn't
-> superflous, it's needed for the I/O so even if you don't use the
-> buffer_head you will still need some other memory to hold such
-> information, or alternatively you need to call get_block (and serialize
-> in the fs) at every I/O even if you've plenty of ram free. So I don't
-> think the current setup is that stupid, current bh only sucks for the
-> rawio and that's fixed by bio.
+--=-3TVi76KKpsSwqmdDCj49
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The small benefit of caching the get_block result in the buffers
-just isn't worth it.
+On Tue, 2002-03-05 at 17:15, Kip Walker wrote:
+>=20
+> Maybe a better fix is to avoid this double calling of init_idle for the
+> "master" CPU?  From my reading the code, x86 seems to behave the same.
+>=20
 
-At present, a one-megabyte write to disk requires the allocation
-and freeing and manipulation and locking of 256 buffer_heads and
-256 BIOs.  lru_list_lock, hash_table_lock, icache/dcache
-thrashing, etc, etc.   It's an *enormous* amount of work.
+Looks to me like the clean fix would be to call init_idle() from
+rest_init() before the init() thread is spawned, and remove it from
+cpu_idle().  It looks like a pretty straightforward race condition that
+no one else has happened to trigger in a bad way.  I'm no scheduler pro,
+but I don't see any problems with calling init_idle() earlier.
 
-I'm doing the same amount of work with as few as two (yes, 2) BIOs.
+That fix assumes that bringup of non-primary cpus on other architectures
+call init_idle() explicitly before allowing smp_init() to return; this
+is true of mips, but I can't vouch for any other arch's.
 
-This is not something theoretical.  I have numbers, and code.
-20% speedup on a 2-way with a workload which is dominated
-by copy_*_user.  It'll be more significant on larger machines,
-on machines with higher core/main memory speed ratios, on
-machines with higher I/O bandwidth. (OK, that bit was theoretical).
+I'd submit a patch, but I'm sadly lacking in SMP machines for testing.=20
+Anyone who wants to rectify that, I'm open to charity.  :)
 
--
+-Justin
+
+
+--=-3TVi76KKpsSwqmdDCj49
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8hVW047Lg4cGgb74RAjL/AKCaC/5lAa3QQRZJFACqiKGP0YSRGQCfZHS+
+4ihj5Ye/eFN+1FC0rLo+g7Q=
+=fibh
+-----END PGP SIGNATURE-----
+
+--=-3TVi76KKpsSwqmdDCj49--
+

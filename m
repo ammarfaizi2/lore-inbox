@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbTHYKQE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbTHYKQE
+	id S261666AbTHYK2r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTHYK1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:16:04 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:65194 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S261557AbTHYKQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:16:01 -0400
-To: <akpm@osdl.org>
-Subject: [PATCH 2.6.0-test2] Kobject doc precision
-From: <ffrederick@prov-liege.be>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Mon, 25 Aug 2003 12:40:56 CEST
-Reply-To: <ffrederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.30]
-X-Mailer: NOCC v0.9.5
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S261557AbTHYKQB/20030825101601Z+189158@vger.kernel.org>
+	Mon, 25 Aug 2003 06:27:43 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:20167 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261621AbTHYK1f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:27:35 -0400
+Date: Mon, 25 Aug 2003 12:27:20 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 2.6] 1/3 Serio: claim serio early
+Message-ID: <20030825102720.GA4369@ucw.cz>
+References: <200308230131.50388.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308230131.50388.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Sat, Aug 23, 2003 at 01:31:50AM -0500, Dmitry Torokhov wrote:
+> Hi, 
+> 
+> I think that serio_dev in serio_open should claim serio before calling 
+> "open" function as it has already been decided that (in case of success)
+> this serio belongs to that serio_dev. Otherwise it might try to find an
+> owner on its own, like i8042 module that calls serio_interrupt which in 
+> turn will do serio_rescan. From that point on 2 instances may start 
+> fighting over the same serio.
+> 
+> What you think about the patch below?
 
-         Here's an _important_ kobject doc precision patch.
+Agreed.
 
-Could you apply ?
+> 
+> Dmitry
+> 
+> diff -urN --exclude-from=/usr/src/exclude 2.6.0-test4/drivers/input/serio/serio.c linux-2.6.0-test4/drivers/input/serio/serio.c
+> --- 2.6.0-test4/drivers/input/serio/serio.c	2003-08-22 21:53:29.000000000 -0500
+> +++ linux-2.6.0-test4/drivers/input/serio/serio.c	2003-08-22 22:58:37.000000000 -0500
+> @@ -204,9 +204,11 @@
+>  /* called from serio_dev->connect/disconnect methods under serio_sem */
+>  int serio_open(struct serio *serio, struct serio_dev *dev)
+>  {
+> -	if (serio->open(serio))
+> -		return -1;
+>  	serio->dev = dev;
+> +	if (serio->open(serio)) {
+> +		serio->dev = NULL;
+> +		return -1;
+> +	}
+>  	return 0;
+>  }
+>  
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Regards,
-Fabian
-
-diff -Naur orig/Documentation/kobject.txt edited/Documentation/kobject.txt
---- orig/Documentation/kobject.txt	2003-07-27 16:59:34.000000000 +0000
-+++ edited/Documentation/kobject.txt	2003-08-09 21:35:13.000000000 +0000
-@@ -245,7 +245,9 @@
-   see the sysfs documentation for more information. 
- 
- - default_attrs: Default attributes to be exported via sysfs when the
--  object is registered. 
-+  object is registered.Note that the last attribute has to be 
-+  initialized to NULL ! You can find a complete implementation
-+  in drivers/block/genhd.c
- 
- 
- Instances of struct kobj_type are not registered; only referenced by
-
-
-___________________________________
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

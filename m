@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVA1VeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVA1VeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbVA1VeG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 16:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVA1VeG
+	id S262749AbVA1VeT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 16:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVA1VeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 16:34:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43200 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262747AbVA1VeD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 16:34:03 -0500
-Date: Fri, 28 Jan 2005 13:34:08 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Lorenzo =?ISO-8859-1?B?SGVybuFuZGV6IEdhcmPtYS1IaWVycm8=?= 
-	<lorenzo@gnu.org>,
-       linux-kernel@vger.kernel.org, chrisw@osdl.org, netdev@oss.sgi.com,
-       arjan@infradead.org, hlein@progressive-comp.com
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-ID: <20050128133408.49021343@dxpl.pdx.osdl.net>
-In-Reply-To: <20050128124517.36aa5e05.davem@davemloft.net>
-References: <1106932637.3778.92.camel@localhost.localdomain>
-	<20050128100229.5c0e4ea1@dxpl.pdx.osdl.net>
-	<1106937110.3864.5.camel@localhost.localdomain>
-	<20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
-	<1106944492.3864.30.camel@localhost.localdomain>
-	<20050128124517.36aa5e05.davem@davemloft.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Fri, 28 Jan 2005 16:34:19 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15599 "EHLO
+	prometheus.mvista.com") by vger.kernel.org with ESMTP
+	id S262749AbVA1VeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 16:34:10 -0500
+Date: Fri, 28 Jan 2005 13:34:00 -0800
+From: Manish Lachwani <mlachwani@mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mlachwani@mvista.com
+Subject: [PATCH] Fix compile errors with 2.6.11-rc2
+Message-ID: <20050128213400.GA20234@prometheus.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/mixed; boundary="Kj7319i9nmIyA2yE"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 12:45:17 -0800
-"David S. Miller" <davem@davemloft.net> wrote:
 
-> On Fri, 28 Jan 2005 21:34:52 +0100
-> Lorenzo Hernández García-Hierro <lorenzo@gnu.org> wrote:
-> 
-> > Attached the new patch following Arjan's recommendations.
-> 
-> No SMP protection on the SBOX, better look into that.
-> The locking you'll likely need to add will make this
-> routine serialize many networking operations which is
-> one thing we've been trying to avoid.
-> 
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-per-cpu would be the way to go here.
+Hi !
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>
+When compiling 2.6.11-rc2:
+
+...
+
+  CC      kernel/stop_machine.o
+In file included from include/linux/sysdev.h:24,
+                 from include/linux/cpu.h:22,
+                 from include/linux/stop_machine.h:8,
+                 from kernel/stop_machine.c:1:
+include/linux/kobject.h: In function `to_kset':
+include/linux/kobject.h:116: warning: implicit declaration of function `container_of'
+include/linux/kobject.h:116: error: parse error before "struct"
+include/linux/kobject.h:117: warning: no return statement in function returning non-void
+include/linux/kobject.h: In function `subsys_get':
+include/linux/kobject.h:224: error: parse error before "struct"
+include/linux/kobject.h:225: warning: no return statement in function returning non-void
+make[1]: *** [kernel/stop_machine.o] Error 1
+make: *** [kernel] Error 2
+
+Attached patch fixes this.
+
+Thanks
+Manish Lachwani
+
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="patch_kobject.patch"
+
+Signed-off-by: Manish Lachwani <mlachwani@mvista.com>
+
+Index: linux-2.6.11-rc2/include/linux/kobject.h
+===================================================================
+--- linux-2.6.11-rc2.orig/include/linux/kobject.h
++++ linux-2.6.11-rc2/include/linux/kobject.h
+@@ -23,6 +23,7 @@
+ #include <linux/rwsem.h>
+ #include <linux/kref.h>
+ #include <linux/kobject_uevent.h>
++#include <linux/kernel.h>
+ #include <asm/atomic.h>
+ 
+ #define KOBJ_NAME_LEN	20
+
+--Kj7319i9nmIyA2yE--

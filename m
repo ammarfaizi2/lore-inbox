@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVAZXxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVA0Bo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVAZXxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVAZXuv
+	id S262440AbVA0Bo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 20:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVA0Bj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:50:51 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:5646 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261958AbVAZTln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:41:43 -0500
-Subject: Re: don't let mmap allocate down to zero
-From: Arjan van de Ven <arjanv@infradead.org>
-To: linux-os@analogic.com
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
-	 <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
-Content-Type: text/plain
-Date: Wed, 26 Jan 2005 20:41:06 +0100
-Message-Id: <1106768466.6307.157.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 26 Jan 2005 20:39:58 -0500
+Received: from fire.osdl.org ([65.172.181.4]:54462 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262459AbVA0Bgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 20:36:55 -0500
+Message-ID: <41F84313.4030509@osdl.org>
+Date: Wed, 26 Jan 2005 17:25:39 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: /proc parent &proc_root == NULL?
+References: <41F82218.1080705@comcast.net>
+In-Reply-To: <41F82218.1080705@comcast.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-26 at 11:38 -0500, linux-os wrote:
-> On Wed, 26 Jan 2005, Rik van Riel wrote:
+John Richard Moser wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> > With some programs the 2.6 kernel can end up allocating memory
-> > at address zero, for a non-MAP_FIXED mmap call!  This causes
-> > problems with some programs and is generally rude to do. This
-> > simple patch fixes the problem in my tests.
+> proc_misc_init() has both these lines in it:
 > 
-> Does this mean that we can't mmap the screen regen buffer at
-> 0x000b8000 anymore?
+> entry = create_proc_entry("kmsg", S_IRUSR, &proc_root);
+> proc_root_kcore = create_proc_entry("kcore", S_IRUSR, NULL);
+> 
+> Both entries show up in /proc, as /proc/kmsg and /proc/kcore.  So I ask,
+> as I can't see after several minutes of examination, what's the
+> difference?  Why is NULL used for some and &proc_root used for others?
+> 
+> I'm looking at 2.6.10
 
-you're confusing virtual and physical addresses
+create_proc_entry() passes &parent to proc_create().
+See proc_create():
+...
+This is an error path:
+	if (!(*parent) && xlate_proc_name(name, parent, &fn) != 0)
+		goto out;
+but xlate_proc_name() searches for a /proc/.... and returns the 
+all-but-final-part-of-name *parent (hope that makes some sense,
+see the comments above the function), so it returns &proc_root.
 
-
-
+HTH.  If not, fire back.
+-- 
+~Randy

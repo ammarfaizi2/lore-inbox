@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130869AbRBEQhE>; Mon, 5 Feb 2001 11:37:04 -0500
+	id <S131004AbRBEQkZ>; Mon, 5 Feb 2001 11:40:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131004AbRBEQgy>; Mon, 5 Feb 2001 11:36:54 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53001 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130869AbRBEQgi>; Mon, 5 Feb 2001 11:36:38 -0500
-Date: Mon, 5 Feb 2001 08:36:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
- /notify + callback chains
-In-Reply-To: <20010205110336.A1167@redhat.com>
-Message-ID: <Pine.LNX.4.10.10102050826440.30798-100000@penguin.transmeta.com>
+	id <S135342AbRBEQkF>; Mon, 5 Feb 2001 11:40:05 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:16649 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131004AbRBEQj4>; Mon, 5 Feb 2001 11:39:56 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14974.55089.437251.315406@wire.cadcamlab.org>
+Date: Mon, 5 Feb 2001 10:39:13 -0600 (CST)
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /usr/src/linux/scripts/ver_linux prints out incorrect info when "ls" 
+ is aliased.
+In-Reply-To: <3A7D7210.EA87572A@yk.rim.or.jp>
+	<20010205073929.A32155@cadcamlab.org>
+	<3A7ED185.B9AEB000@yk.rim.or.jp>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Ishikawa <ishikawa@yk.rim.or.jp>]
+> I have no idea why I invoked ver_linux using "." : I must have seen
+> it somewhere and just followed it somehow.
 
+Who knows.  Anyway, the following works in 'bash' at least -- don't
+know about other shells -- but it's quite a hack....
 
-On Mon, 5 Feb 2001, Stephen C. Tweedie wrote:
-> 
-> On Sat, Feb 03, 2001 at 12:28:47PM -0800, Linus Torvalds wrote:
-> > 
-> > Neither the read nor the write are page-aligned. I don't know where you
-> > got that idea. It's obviously not true even in the common case: it depends
-> > _entirely_ on what the file offsets are, and expecting the offset to be
-> > zero is just being stupid. It's often _not_ zero. With networking it is in
-> > fact seldom zero, because the network packets are seldom aligned either in
-> > size or in location.
-> 
-> The underlying buffer is.  The VFS (and the current kiobuf code) is
-> already happy about IO happening at odd offsets within a page.
+Peter
 
-Stephen. 
-
-Don't bother even talking about this. You're so damn hung up about the
-page cache that it's not funny.
-
-Have you ever thought about other things, like networking, special
-devices, stuff like that? They can (and do) have packet boundaries that
-have nothing to do with pages what-so-ever. They can have such notions as
-packets that contain multiple streams in one packet, where it ends up
-being split up into several pieces. Where neither the original packet
-_nor_ the final pieces have _anything_ to do with "pages".
-
-THERE IS NO PAGE ALIGNMENT.
-
-So stop blathering about it.
-
-Of _course_ the current kiobuf code has page-alignment assumptions. You
-_designed_ it that way. So bringing it up as an example is a circular
-argument. And a really stupid one at that, as that's the thing I've been
-quoting as the single biggest design bug in all of kiobufs. It's the thing
-that makes them entirely useless for things like describing "struct
-msghdr" etc. 
-
-We should get _away_ from this page-alignment fallacy. It's not true. It's
-not necessarily even true for the page cache - which has no real
-fundamental reasons any more for not being able to be a "variable-size"
-cache some time in the future (ie it might be a per-address-space decision
-on whether the granularity is 1, 2, 4 or more pages).
-
-Anything that designs for "everything is a page" will automatically be
-limited for cases where you might sometimes have 64kB chunks of data.
-
-Instead, just face the realization that "everything is a bunch or ranges",
-and leave it at that. It's true _already_ - thing about fragmented IP
-packets. We may not handle it that way completely yet, but the zero-copy
-networking is going in this direction.
-
-And as long as you keep on harping about page alignment, you're not going
-to play in this game. End of story. 
-
-		Linus
-
+--- scripts/ver_linux~	Tue Sep 19 22:28:37 2000
++++ scripts/ver_linux	Mon Feb  5 10:38:21 2001
+@@ -4,6 +4,15 @@
+ # /bin /sbin /usr/bin /usr/sbin /usr/local/bin, but it may
+ # differ on your system.
+ #
++case "$_" in /*/sh|/*/bash|sh|bash) ;; *)
++  echo '*** Warning: you appear to have used the dreaded'
++  echo '***   . /path/to/ver_linux'
++  echo '*** syntax -- I hope you don'\''t have any aliases set'
++  echo '*** that might affect this script.'
++  echo '*** Recommended syntax is:'
++  echo '***   sh /path/to/ver_linux'
++  ;;
++esac
+ PATH=/sbin:/usr/sbin:/bin:/usr/bin:$PATH
+ echo '-- Versions installed: (if some fields are empty or look'
+ echo '-- unusual then possibly you have very old versions)'
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

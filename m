@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264184AbUDBVdK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbUDBVdJ
+	id S264189AbUDBVe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbUDBVdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:33:09 -0500
-Received: from gprs214-45.eurotel.cz ([160.218.214.45]:7296 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264184AbUDBVcL (ORCPT
+	Fri, 2 Apr 2004 16:33:22 -0500
+Received: from gprs214-45.eurotel.cz ([160.218.214.45]:6528 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264179AbUDBVcI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:32:11 -0500
-Date: Fri, 2 Apr 2004 22:57:23 +0200
+	Fri, 2 Apr 2004 16:32:08 -0500
+Date: Fri, 2 Apr 2004 22:48:55 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Rajsekar <rajsekar@peacock.iitm.ernet.in>, linux-kernel@vger.kernel.org
-Subject: Re: alsamixer muting when restoring from suspend.
-Message-ID: <20040402205723.GJ195@elf.ucw.cz>
-References: <y49y8phn2op.fsf@sahana.cs.iitm.ernet.in> <s5hk710vy8x.wl@alsa2.suse.de>
+To: "La Monte H.P. Yarroll" <piggy@timesys.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Fix sys_time() to get subtick correction from the new xtim
+Message-ID: <20040402204855.GH195@elf.ucw.cz>
+References: <405ED918.2010803@timesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hk710vy8x.wl@alsa2.suse.de>
+In-Reply-To: <405ED918.2010803@timesys.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,21 +27,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > This I think is not a problem but rather a subtle bug.
-> > 
-> > Alsamixer by default mutes all channels when loaded.
-> > So when I `swsusp' my comp while I listen to music and restore the music
-> > plays from where it left alright, but the channels are muted.
-> > Is there a way to unmute them implicitly when restoring.
-> 
-> which driver?
-> not all drivers have suspend/resume callbacks.
 
-Could it be solved at higher layer, perhaps? Setting volume is common
-to all drivers, and some kind of generic_alsa_suspend every alsa
-driver would call might help...
-							Pavel
-PS: I know very little about alsa.
+> --- lkml/arch/ia64/ia32/sys_ia32.c~fix-all-time-sys_time        
+> 2004-03-16 10:01:23.000000000 -0500
+> +++ lkml-piggy/arch/ia64/ia32/sys_ia32.c        2004-03-16 
+> 10:01:23.000000000 -0500
+> @@ -1678,10 +1678,11 @@ asmlinkage long
+> sys32_time (int *tloc)
+> {
+>        int i;
+> +       struct timeval tv;
+> +
+> +       do_gettimeofday(&tv);
+> +       i = tv.tv_sec;
+> 
+> -       /* SMP: This is fairly trivial. We grab CURRENT_TIME and
+> -          stuff it to user space. No side effects */
+> -       i = get_seconds();
+>        if (tloc) {
+>                if (put_user(i, tloc))
+>                        i = -EFAULT;
+
+This patch likely suffered some whitespace damage, and you probably
+want to correct tabs vs. spacing in indentation.
+								Pavel
 
 -- 
 When do you have a heart between your knees?

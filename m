@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289512AbSAJPw7>; Thu, 10 Jan 2002 10:52:59 -0500
+	id <S289521AbSAJQRZ>; Thu, 10 Jan 2002 11:17:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289513AbSAJPwt>; Thu, 10 Jan 2002 10:52:49 -0500
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:29117 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S289512AbSAJPwp>; Thu, 10 Jan 2002 10:52:45 -0500
-Date: Thu, 10 Jan 2002 15:52:44 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: oops with 2.4.17 + mini-ll patch
-Message-ID: <Pine.LNX.4.43.0201101544330.31242-100000@nick.dcs.qmul.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289520AbSAJQRQ>; Thu, 10 Jan 2002 11:17:16 -0500
+Received: from [208.48.139.185] ([208.48.139.185]:21210 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S289519AbSAJQRI>; Thu, 10 Jan 2002 11:17:08 -0500
+Date: Thu, 10 Jan 2002 08:17:01 -0800
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andreas Dilger <adilger@turbolabs.com>, Bruce Guenter <bruceg@em.ca>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Where's all my memory going?
+Message-ID: <20020110081701.A1205@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org,
+	Andreas Dilger <adilger@turbolabs.com>,
+	Bruce Guenter <bruceg@em.ca>, Rik van Riel <riel@conectiva.com.br>
+In-Reply-To: <E16OMpF-0001pj-00@the-village.bc.nu> <Pine.LNX.4.33L.0201092034590.2985-100000@imladris.surriel.com> <20020110024520.A29045@em.ca> <20020110030537.C771@lynx.adilger.int> <20020110145542.B2499@mould.bodgit-n-scarper.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020110145542.B2499@mould.bodgit-n-scarper.com>; from matt@bodgit-n-scarper.com on Thu, Jan 10, 2002 at 02:55:42PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if this is related to your patch (which looked harmless enough to
-me :), but here it is anyway.
+On Thu, Jan 10, 2002 at 02:55:42PM +0000, Matt Dainty wrote:
+>
+> Patch applied cleanly, and I redid the 'test'. I've attached the output
+> of free and /proc/slabinfo, *.1 is without patch, *.2 is with. In both
+> cases postal was left to run for about 35 minutes by which time it had
+> delivered around ~54000 messages locally.
+> 
+> Overall, with the patch, the large numbers in /proc/slabinfo are *still*
+> large, but not as large as without the patch. Overall memory usage still
+> seems similar.
 
-Dual PIII 1GHz, modular everything inc. ATA/IDE (VIA); SCSI (gdth.o);
-NFSv3 (udp, client only); autofs4; ext2 only for local fs. Debian woody.
+So the performance of the test was the same with or without the patch?
 
-HTH (anything else anyone needs, let me know!)
+Does top or vmstat indicate any kind of difference on the system when the
+benchmark is pushing 1500 msgs/s vs 150 msgs/s?
 
-Matt
+There's a kernel profiling tool somewhere that might also help if there's a
+large amount of system time being used up.  (I think this is it:
+http://oss.sgi.com/projects/kernprof/)
 
-ksymoops 2.4.3 on i686 2.4.9-ac18.  Options used
-     -v /usr/src/linux-2.4.17/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /usr/src/linux-2.4.17/System.map (specified)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000001
-00000001
-*pde = 00000000
-Oops: 0000
-CPU:    1
-EIP:    0010:[<00000001>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: c0265f5c   ebx: 00000001   ecx: d26a597c   edx: c0265f5c
-esi: 00000001   edi: 00000020   ebp: 00000000   esp: c181bf0c
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c181b000)
-Stack: c011f106 00000001 00000000 00000001 00000020 00000000 c011b4ab c0265260
-       c011b36c 00000000 00000001 c023e500 fffffffe 00000001 c011b0eb c023e500
-       00000046 00000000 c023a800 00000000 00000020 c0108c1d c01f0168 c0105430
-Call Trace: [<c011f106>] [<c011b4ab>] [<c011b36c>] [<c011b0eb>] [<c0108c1d>]
-   [<c0105430>] [<c0105430>] [<c0105430>] [<c0105430>] [<c010545c>] [<c01054e2>]
-   [<c0116e6b>] [<c0117018]
-Code:  Bad EIP value.
-
->>EIP; 00000000 Before first symbol
-Trace; c011f106 <timer_bh+256/2b0>
-Trace; c011b4aa <bh_action+4a/80>
-Trace; c011b36c <tasklet_hi_action+6c/a0>
-Trace; c011b0ea <do_softirq+7a/e0>
-Trace; c0108c1c <do_IRQ+dc/f0>
-Trace; c0105430 <default_idle+0/40>
-Trace; c0105430 <default_idle+0/40>
-Trace; c0105430 <default_idle+0/40>
-Trace; c0105430 <default_idle+0/40>
-Trace; c010545c <default_idle+2c/40>
-Trace; c01054e2 <cpu_idle+52/70>
-Trace; c0116e6a <call_console_drivers+ea/100>
-
-
+-Dave

@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVBNXqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVBNXt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVBNXqt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVBNXqt
+	id S261191AbVBNXt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVBNXt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:46:49 -0500
-Received: from gprs215-140.eurotel.cz ([160.218.215.140]:6802 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261290AbVBNXqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:46:36 -0500
-Date: Tue, 15 Feb 2005 00:41:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, Bernard Blackham <bernard@blackham.com.au>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Address lots of pending pm_message_t changes
-Message-ID: <20050214234151.GA2134@elf.ucw.cz>
-References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au> <20050214213400.GF12235@elf.ucw.cz> <20050214134658.324076c9.akpm@osdl.org> <1108418226.12611.75.camel@desktop.cunningham.myip.net.au> <20050214220459.GM12235@elf.ucw.cz> <1108418990.12611.86.camel@desktop.cunningham.myip.net.au>
+	Mon, 14 Feb 2005 18:49:27 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:17832 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261191AbVBNXtQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 18:49:16 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+In-Reply-To: <1108423439.4085.121.camel@tyrosine>
+References: <20050214211105.GA12808@elf.ucw.cz>
+	 <1108423439.4085.121.camel@tyrosine>
+Date: Mon, 14 Feb 2005 23:47:59 +0000
+Message-Id: <1108424879.4085.123.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108418990.12611.86.camel@desktop.cunningham.myip.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > > Andrew, if you get one big patch doing only type-safety (u32 ->
-> > > > >  pm_message_t, no code changes), would you still take it this late? I
-> > > > >  promise it is not going to break anything... It would help merge after
-> > > > >  2.6.11 quite a lot...
-> > > > 
-> > > > Problem is, such a megapatch causes grief for all those people who maintain
-> > > > their own trees.  It would be best, please, to split it into 10-20 bits and
-> > > > send the USB parts to Greg and the SCSI bits to James, etc.
-> > > 
-> > > Okay; I can do that if everyone is happy with the thing as a whole.
-> > > Andrew, can I get your answer on Pavel's question - shall I just include
-> > > the u32->pm_message_t part?
+On Mon, 2005-02-14 at 23:23 +0000, Matthew Garrett wrote:
+> On Mon, 2005-02-14 at 22:11 +0100, Pavel Machek wrote:
+> > Hi!
 > > 
-> > Yes, I believe it is too late to do anything than u32->pm_message_t
-> > conversion that changes no code...
+> > Stefan provided me initial list of machines where S3 works (including
+> > video). If you have machine that is not on the list, please send me a
+> > diff. If you have eMachines... I'd like you to try playing with
+> > vbetool (it worked for me), and if it works for you supplying right
+> > model numbers.
 > 
-> I guess I'm wrong then - I thought the other changes avoided compilation
-> errors.
+> http://www.ubuntulinux.org/wiki/HoaryPMTesting has a list of several
+> working machines. HP seem to be the worst supported at the moment.
 
-Well, yes, if you switch pm_message_t into struct. But we are not yet
-ready to do that... it is going to be typedefed to u32 for 2.6.11...
+Sorry - that should be http://www.ubuntulinux.org/wiki/HoaryPMResults
 
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Matthew Garrett | mjg59@srcf.ucam.org
+

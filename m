@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289338AbSA1T3E>; Mon, 28 Jan 2002 14:29:04 -0500
+	id <S289340AbSA1Tby>; Mon, 28 Jan 2002 14:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289339AbSA1T2z>; Mon, 28 Jan 2002 14:28:55 -0500
-Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:32496
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S289338AbSA1T2k>; Mon, 28 Jan 2002 14:28:40 -0500
-Date: Mon, 28 Jan 2002 19:28:36 +0000
-From: Mark Zealey <mark@zealos.org>
+	id <S289339AbSA1Tbp>; Mon, 28 Jan 2002 14:31:45 -0500
+Received: from saturno.fis.uc.pt ([193.136.215.208]:54285 "EHLO
+	saturno.fis.uc.pt") by vger.kernel.org with ESMTP
+	id <S289340AbSA1Tbe>; Mon, 28 Jan 2002 14:31:34 -0500
+Date: Mon, 28 Jan 2002 19:31:31 GMT
+From: Luis Miguel Tavora <lmtavora@saturno.fis.uc.pt>
+Message-Id: <200201281931.TAA87220@saturno.fis.uc.pt>
 To: linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbols __udivdi3 and __umoddi3
-Message-ID: <20020128192836.GB28473@itsolve.co.uk>
-In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com> <3C54D1CB.23664.50D4C3@localhost> <E16VHH9-0000Ba-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16VHH9-0000Ba-00@starship.berlin>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux sunbeam 2.4.17-wli2 
-X-Homepage: http://zealos.org/
+Reply-To: lmtavora@saturno.fis.uc.pt
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP3 Imap webMail Program 2.0.11
+X-Originating-IP: 193.137.239.227
+Subject: apm and (usb) mouse confilct
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 08:17:06PM +0100, Daniel Phillips wrote:
+I've been circulating this message on different
+linux groups but had no luck so far...
 
-> > I also tried this header in a regular application. This failed to return 
-> > the modulus although it works in a module.
-> > 
-> > Is this asm syntax documented anywhere ? 
-> 
-> It's painful, isn't it?  And no, I don't know where it's documented.
 
-I've had these docs for some time, can't remember where I got them from:
-http://pkl.net/~mark/GCC_INLINE_ASM_HOWTO
-http://pkl.net/~mark/rmiyagi-inline-asm.txt
+-------------------------------------------------------
+Dear all,   
 
-They're quite good. the rest is experiance..
+I have just updated my Toshiba 4600 laptop to 
+RedHat7.2. Had some problems to get Xfree4.1 working
+on the CyberBlade XP graphics card, but managed to
+get around it. 
 
--- 
+However now I've noticed that the  laptop has a
+problem with apm. If the computer is  put to rest 
+(apm -s) with the (logitech) usb  mouse plugged in, 
+the  PC doesn't recover at all,  going into a 
+reboot sequence. If the mouse is  unplugged before 
+"apm -s", everything goes  well... 
 
-Mark Zealey
-mark@zealos.org
-mark@itsolve.co.uk
+No problem as  well if the mouse is connected to 
+the PS2 port. 
 
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+This happens executing "apm -s" from both console 
+and X mode. The mouse I'm using is a logitech 
+cordless device with usb uchi interface. 
 
-(www.geekcode.com)
+I belive  RH7.2 comes with apm 3.0final-34. I had no
+problems with RH7.1, wich had version 3.0final-29 of apm. 
+
+I tried this older version on RH7.2 but still had no luck... 
+
+Different kernels were considered, namely 2.4.7-10,
+as well as 2.4.9-13 and 2.4.17 recompiled by
+myself. 
+
+I believe that there might be a conflict with the 
+hotplug utility, cause if I disable it then the laptop recovers well with the usb mouse plugged 
+in... However hotplug is really needed, for 
+example, to get the PCMCIA card working properly. 
+
+Has anybody out there had any problems like this?
+
+Any suggestions? 
+
+Thx in advance. 
+
+Luis
+-------------------------------------------------------
+
+
+
+PS- Please CC replies to lmtavora@saturno.fis.uc.pt
+as I was not able to subscribe to the list
+
+-----------------------------------------------------
+This mail sent through IMP: http://web.horde.org/imp/

@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUKTTLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUKTTMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUKTTLN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 14:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUKTTLN
+	id S263159AbUKTTMd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 14:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUKTTLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 14:11:13 -0500
-Received: from imap.gmx.net ([213.165.64.20]:21916 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263154AbUKTTLH (ORCPT
+	Sat, 20 Nov 2004 14:11:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26284 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263155AbUKTTLK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 14:11:07 -0500
-X-Authenticated: #4399952
-Date: Sat, 20 Nov 2004 20:11:55 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041120201155.6dc43c39@mango.fruits.de>
-In-Reply-To: <1100975745.6879.35.camel@krustophenia.net>
-References: <20041111215122.GA5885@elte.hu>
-	<20041116125402.GA9258@elte.hu>
-	<20041116130946.GA11053@elte.hu>
-	<20041116134027.GA13360@elte.hu>
-	<20041117124234.GA25956@elte.hu>
-	<20041118123521.GA29091@elte.hu>
-	<20041118164612.GA17040@elte.hu>
-	<1100920963.1424.1.camel@krustophenia.net>
-	<20041120125536.GC8091@elte.hu>
-	<1100971141.6879.18.camel@krustophenia.net>
-	<20041120191403.GA16262@elte.hu>
-	<1100975745.6879.35.camel@krustophenia.net>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Nov 2004 14:11:10 -0500
+Date: Sat, 20 Nov 2004 11:10:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Len Brown <len.brown@intel.com>, Chris Wright <chrisw@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+In-Reply-To: <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0411201048470.20993@ppc970.osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe>
+ <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe>
+ <20041120124001.GA2829@stusta.de> <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Nov 2004 13:35:44 -0500
-Lee Revell <rlrevell@joe-job.com> wrote:
 
-> On Sat, 2004-11-20 at 20:14 +0100, Ingo Molnar wrote:
-> > i only tried the !PREEMPT version though - does that one work for you? 
+
+On Sat, 20 Nov 2004, Linus Torvalds wrote:
 > 
-> Not sure, will test.  My goal was to see if I could get the stability
-> and low latency of T3 (this is low enough latency for me!) with the new
-> versions.
-> 
-> > Also, please send me the .config that produces the failing kernel.
-> 
-> Sent (off-list).
+> In particular, the code will disable irq12 (mouse interrupt), so the mouse
+> has no chance of working.
 
-Hi,
+Btw, looking closer still, this all will most likely vary wildly according
+to southbridge (and BIOS setups). At least some SB's seem to put the
+legacy interrupts totally separately from the PIRQ stuff, in which case
+the PIRQ disable will not matter one whit - the legacy interrupt is
+inserted "after" the PIRQ gating/translation anyway. This seems to be
+especially common for controllers for keyboard/mouse/i2c etc that are
+actually on the southbridge itself.
 
-29-4 with PREEMPT works very good (jackd at 64 frames: 0 xruns (running for
-1h now), soundcard irq unthreaded). Opposed to 29-1 PREEMPT_REALTIME which
-showed some very weird jackd behaviour (xruns from 10usec to 50msec [!!!]).
-rtc_wakeup was showing no large jitter for that kernel though, nor did the
-different traces show anything that might have caused the jackd xruns. And
-yes, i configured the irq handlers sanely :)
+But the basic notion remains: disabling a PIRQ line is valid only if you
+know it's only used by PCI devices. There might be other special devices
+on the board that don't show up as PCI devices, eg things like the Sony
+programmable I/O thing that doesn't show up as a PCI device at all, it's
+just "invisibly" connected to the bus (it just hijacks port 0x66 or
+something - the range 0-0x3ff is generally reserved for "motherboard
+devices").
 
-Will build 29-4 PREEMPT_REALTIME now and see how this one behaves.
+These kinds of things hopefully aren't all that common (there can't be a 
+lot of extra hw required to follow the PCI spec _properly_), but if I were 
+a hw designer, I'd connect such a chip to the PIRQ input, and just make 
+the BIOS enable it automatically.
 
-flo
+			Linus

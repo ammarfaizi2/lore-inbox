@@ -1,79 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVA0Wqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVA0WsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVA0Wqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 17:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVA0Wqi
+	id S261261AbVA0WsX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 17:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVA0Wrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 17:46:38 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:901 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261259AbVA0WqQ (ORCPT
+	Thu, 27 Jan 2005 17:47:51 -0500
+Received: from s2.home.ro ([193.231.236.41]:9089 "EHLO s2.home.ro")
+	by vger.kernel.org with ESMTP id S261261AbVA0Wrd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 17:46:16 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Zan Lynx <zlynx@acm.org>
-Subject: Re: thoughts on kernel security issues
-Date: Thu, 27 Jan 2005 16:18:25 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-os <linux-os@analogic.com>,
-       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
-       Linus Torvalds <torvalds@osdl.org>, Valdis.Kletnieks@vt.edu,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Thu, 27 Jan 2005 17:47:33 -0500
+Subject: Re: kernel oops!
+From: ierdnah <ierdnah@go.ro>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1050126143205.24013A-100000@gatekeeper.tmr.com> <05012710374600.20895@tabby> <1106846314.15927.6.camel@localhost>
-In-Reply-To: <1106846314.15927.6.camel@localhost>
-MIME-Version: 1.0
-Message-Id: <05012716182500.22102@tabby>
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
+References: <1106437010.32072.0.camel@ierdnac>
+	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
+	 <1106483340.21951.4.camel@ierdnac>
+	 <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 00:47:46 +0200
+Message-Id: <1106866066.20523.3.camel@ierdnac>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 January 2005 11:18, Zan Lynx wrote:
-> On Thu, 2005-01-27 at 10:37 -0600, Jesse Pollard wrote:
->
-> >
-> > > > Unfortunately, there will ALWAYS be a path, either direct, or
-> > > > indirect between the secure net and the internet.
-> > >
-> > > Other than letting people use secure computers after they have seen the
-> > > Internet, a good setup has no indirect paths.
-> >
-> > Ha. Hahaha...
-> >
-> > Reality bites.
->
-> In the reality I'm familiar with, the defense contractor's secure
-> projects building had one entrance, guarded by security guards who were
-> not cheap $10/hr guys, with strict instructions.  No computers or
-> computer media were allowed to leave the building except with written
-> authorization of a corporate officer.  The building was shielded against
-> Tempest attacks and verified by the NSA.  Any computer hardware or media
-> brought into the building for the project was physically destroyed at
-> the end.
->
+On Sun, 2005-01-23 at 09:51 -0800, Linus Torvalds wrote:
 
-And you are assuming that everybody follows the rules.
 
-when a PHB, whether military or not (and not contractor) comes in and
-says "... I don't care what it takes... get that data over there NOW..."
-guess what - it gets done. Even if it is "less secure" in the process.
+with this patch the oops is gone(also tested with PREEMPT and no oops)
+> 
+> ----
+> --- 1.32/drivers/char/pty.c	2005-01-10 17:29:36 -08:00
+> +++ edited/drivers/char/pty.c	2005-01-23 09:49:16 -08:00
+> @@ -149,13 +149,15 @@
+>  static int pty_chars_in_buffer(struct tty_struct *tty)
+>  {
+>  	struct tty_struct *to = tty->link;
+> +	ssize_t (*chars_in_buffer)(struct tty_struct *);
+>  	int count;
+>  
+> -	if (!to || !to->ldisc.chars_in_buffer)
+> +	/* We should get the line discipline lock for "tty->link" */
+> +	if (!to || !(chars_in_buffer = to->ldisc.chars_in_buffer))
+>  		return 0;
+>  
+>  	/* The ldisc must report 0 if no characters available to be read */
+> -	count = to->ldisc.chars_in_buffer(to);
+> +	count = chars_in_buffer(to);
+>  
+>  	if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
+>  
 
-Oh - and about that "physically destroyed" - that used to be true.
+is this patch better? should i test this too?
 
-Until it was pointed out to them that destruction of 300TB of data
-media would cost them about 2 Million.
+--- 1.32/drivers/char/pty.c     2005-01-10 17:29:36 -08:00
++++ edited/drivers/char/pty.c   2005-01-23 10:21:04 -08:00
+@@ -149,13 +149,17 @@
+ static int pty_chars_in_buffer(struct tty_struct *tty)
+ {
+        struct tty_struct *to = tty->link;
+-       int count;
++       int count = 0;
+ 
+-       if (!to || !to->ldisc.chars_in_buffer)
+-               return 0;
+-
+-       /* The ldisc must report 0 if no characters available to be read
+*/
+-       count = to->ldisc.chars_in_buffer(to);
++       if (to) {
++               struct tty_ldisc *ld = tty_ldisc_ref(to);
++               if (ld) {
++                       if (ld->chars_in_buffer) {
++                               count = ld->chars_in_buffer(to);
++                               tty_ldisc_deref(ld);
++                       }
++               }
++       }
+ 
+        if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
+ 
 
-Suddenly, erasing became popular. And sufficient. Then it was reused
-in a non-secure facility, operated by the same CO.
 
-> Secure nets _are_ possible.
 
-Yes they are. But they are NOT reliable.
-Don't ever assume a "secure" network really is.
 
-All it means is: "as secure as we can manage"
+-- 
+ierdnah <ierdnah@go.ro>
+

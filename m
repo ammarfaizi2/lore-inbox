@@ -1,121 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSHaGxF>; Sat, 31 Aug 2002 02:53:05 -0400
+	id <S316342AbSHaHNj>; Sat, 31 Aug 2002 03:13:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSHaGxF>; Sat, 31 Aug 2002 02:53:05 -0400
-Received: from grace.speakeasy.org ([216.254.0.2]:23057 "HELO
-	grace.speakeasy.org") by vger.kernel.org with SMTP
-	id <S316322AbSHaGxD>; Sat, 31 Aug 2002 02:53:03 -0400
-Date: Sat, 31 Aug 2002 01:57:30 -0500 (CDT)
-From: Mike Isely <isely@pobox.com>
-X-X-Sender: isely@grace.speakeasy.net
-Reply-To: Mike Isely <isely@pobox.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre4-ac1 trashed my system
-In-Reply-To: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0208310138420.23964-100000@grace.speakeasy.net>
+	id <S316408AbSHaHNj>; Sat, 31 Aug 2002 03:13:39 -0400
+Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:23986 "EHLO
+	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
+	id <S316342AbSHaHNi> convert rfc822-to-8bit; Sat, 31 Aug 2002 03:13:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Gabor Kerenyi <wom@tateyama.hu>
+To: Greg KH <greg@kroah.com>
+Subject: Re: extended file permissions based on LSM
+Date: Sat, 31 Aug 2002 09:09:59 +0200
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>
+References: <200208310616.04709.wom@tateyama.hu> <20020831052114.GA12082@kroah.com>
+In-Reply-To: <20020831052114.GA12082@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208310909.59676.wom@tateyama.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Aug 2002, Andre Hedrick wrote:
+On Saturday 31 August 2002 07:21, Greg KH wrote:
+> On Sat, Aug 31, 2002 at 06:16:04AM +0200, Gabor Kerenyi wrote:
+> > In this case we could have some very interesting (useful
+> > or not who knows) features. For example if there are two
+> > hardlinks for an inode in two different directories, the user
+> > could get different rights for the file depending on the
+> > path he reaches it.
+>
+> I think you can already do this with the existing LSM interface, you can
+> always get the dentry for a given inode, right?  
 
-> On Sat, 31 Aug 2002, Mike Isely wrote:
-> 
-> > On Fri, 30 Aug 2002, Andre Hedrick wrote:
-> > 
-> 
-> Okay that sounds more like it.  The driver did not damage the data, only
-> user space forced down the driver trashed it.  Regardless of the
-> definition of "is" you system was wrecked.
+How can I determine the dentry what the user actually acts on? Because
+of  hardlinks I thought it is impossible to find out the dentry having
+only the inode. 1:n (inode:dentry) relation isn't it?
+Or did I miss something?
 
-No permanent harm.  It was a workstation, and most of the 160GB drive
-was being used primarily as a backup device for a separate file server
-machine.  Obviously I'd like to get that "backup device" up and running
-again.
+> > To be honest I'd welcome if the whole file permisssion
+> > part were moved to LSM. It would allow us to override the
+> > currently implemented default behavior easily.
+>
+> No!  One of the main goals of the LSM design was to not override the
+> current Linux permission behavior.  It can only deny access to things,
+> not be a permissive system of allowing access to things that the current
+> system denies.  See the many threads on the LSM mailing list for the
+> reasons behind this.
 
+Well, the current LSM maybe designed this way. But as I see LSM
+is modular. There is a capability.c in the security dir. It could still
+deny access in the way I described, moreover the "security checks"
+would be in the right place -> security/ (at least in my point of
+view)
+The capability.c is only _one_ module. It doesn't mean we can't have
+more that work differently. User can choose among them.
+(it would be great in the future if more sec. modules could be loaded
+for a system - for instance one sec.modules deals with tasks, the
+other deals with file permissions).
 
-> 
-> > 
-> > > Linux failed to understand cut off partitions.
-> > 
-> > ???
-> 
-> This was a great concern of mine when 48-bit was introduced.
+There are many situations where the current right management is
+not good enough and with only having a "deny policy" they can't
+be solved using LSM.
 
-Ah, a riddle answered with another riddle.  I know what 48 bit addresing 
-is; I'm just curious to understand why my system seems to have run afoul 
-of it, especially since things were ok before.  (but read on...)
+It would be up to the LSM to decide whether it wants to apply a "deny
+policy" or an "allow policiy"
 
+If we move all security checks from the VFS to the LSM then
+the bahavior will be determined by the currently loaded LSM.
+In your point of view:
+the capability.c (or def_fileperm.c) can implement a deny policiy.
+For the rest of the LSModules it's up to them.
 
-> > What are the "rules of Promise" or where may I find such information?
-> 
-> You do not want to sign the NDA's to get the data sheets, aquire all the
-> hardware to test, generate tables of irregularities, query Promise, and
-> then scratch your head why.
+Is it acceptable for you?
 
-OK, Uncle!  I detect a lot of pain here and perhaps I'm exacerbating it
-by asking.  The technical side of me just wants to understand.  I write
-code for a living and have had my share of pain with crappy hardware
-(though nothing even close to the scale at which you are working).  I
-hate I2C, by the way, and don't ever ask me about the P.O.S. Philips
-pcf8584.
+Having an "allow policiy" doesn't mean less security _if_ the loaded
+LSM knows what it is doing. It can be as secure as a "deny policy"
+if it is implemented in a proper way - it will always allow or deny
+access exaclty how the root told to by setting permissions etc.
+If the module is not implemented in a proper way then it means
+a problem whether it denies or allows things.
 
+OK. We can state that the current LSM design is restrictive and
+only an extension to the current security checks. So it can't add
+any extra security features (not checks) and therefore it's limitied
+in its own way. With this interface nobody can customize the
+system without hacking the very kernel (vfs for exmaple) to
+achieve new behavior and features.
 
-> 
-> I have a FastTrak 100 TX4 the BIOS fails to see beyond 128GB, but in
-> practice it does.
-> 
-> The PDC20267 will puke in 48-bit DMA, but run clean in 48-bit PIO :-/
-> Oh but that is the primary channel, Seconday Channel is clean both ways :-\
+Or we can create another LSM say Core Linux Security Module
+and its duty will be to move the security checks from the kernel
+to a seperate place and call the LSM functions if needed.
+You can't reprogram the security checks now. I know it's implemented
+to be U*IX like. It's great, it's enough for me too. But why can't we
+provide a possibility (only) to implement something else as well
+instead of and/or in conjunction with the current one?
+Would it be a big harm?
 
-Oh goodie.  This can't be by design, but rather by stupid
-implementation.  But I'll stop now before aggravating your ulcer :-)
+Thanks,
 
-
-> 
-> PDC20262 works in 48-bit DMA every where.
-> 
-> PDC20265 similar to PDC20267 except yours.
-
-But I'd still like to understand why my PDC20265 seems unique.  Earlier
-hardware rev?  Later hardware rev?  Promise BIOS issue?  The Asus
-A7V-266E motherboard was purchased December 2001.  If it's any help, I'm
-staring at the chip on the board now.  The label shows:
-
-  PROMISE (R)
-  TECHNOLOGY INC.
-  PDC20265R
-  (C) 2000-0113
-
-Maybe there is another cleaner way to go at this problem.
-
-
-> 
-> Rules are emperical tests and rants back at the OEM, and ....
-> 
-
-Sounds to me like you need a vacation ;-)
-
-
-> > 
-> > But this wasn't a problem in 2.4.19-ac4; what confounding factor now is 
-> > making it difficult?
-> 
-> Cause there were reports of PDC20265/PDC20267 comming in as deadlocking.
-> Thanks for the wrinkle in the fabric of ruleless world. :-)
-> 
-
-You're welcome :-)
-
-  -Mike
-
-
-                        |         Mike Isely          |     PGP fingerprint
-    POSITIVELY NO       |                             | 03 54 43 4D 75 E5 CC 92
- UNSOLICITED JUNK MAIL! |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
-                        |   (spam-foiling  address)   |
+Gabor
 

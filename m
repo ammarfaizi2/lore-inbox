@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTFXSER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbTFXSER
+	id S264676AbTFXSJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264650AbTFXSJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:04:17 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:62176 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262568AbTFXSEK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:04:10 -0400
-Date: Tue, 24 Jun 2003 11:18:13 -0700
-From: Greg KH <greg@kroah.com>
-To: James Haydon <enochlnx@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.5.73
-Message-ID: <20030624181813.GA1328@kroah.com>
-References: <1056477054.21052.5.camel@daedalus>
+	Tue, 24 Jun 2003 14:09:49 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40145 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264676AbTFXSJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:09:05 -0400
+Date: Tue, 24 Jun 2003 20:23:07 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: John Cherry <cherry@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.73 compile results
+Message-ID: <20030624182307.GA3710@fs.tum.de>
+References: <1056475577.9839.110.camel@cherrypit.pdx.osdl.net> <20030624173900.GV3710@fs.tum.de> <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1056477054.21052.5.camel@daedalus>
+In-Reply-To: <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 01:50:54PM -0400, James Haydon wrote:
-> 1. It does not link.
-> 2. No reason to have hot pci plugins.
-> drivers/pci/hotplug.c: In function `pci_remove_bus_device':
-> drivers/pci/hotplug.c:262: warning: implicit declaration of function
-> `pci_destroy_dev'
-> include/linux/module.h: At top level:
-> drivers/pci/hotplug.c:224: warning: `pci_free_resources' defined but not
-> used
-> 3. Error linking driver/built-in.o
-> drivers/built-in.o(.text+0x31b6): In function `pci_remove_bus_device':
-> : undefined reference to `pci_destroy_dev'
-> make: *** [.tmp_vmlinux1] Error 1
-> 4. Attached .config file
-> 5. OS Redhat 9
+On Tue, Jun 24, 2003 at 11:16:37AM -0700, John Cherry wrote:
+> Unfortunately, the build continues even when it runs into compile or
+> link errors.  So if a binary impacts multiple components in the build,
+> it results in multiple errors.
+> 
+> The root of the nine errors is...
+> 
+> fs/partitions/acorn.c: In function `adfspart_check_EESOX':
+> fs/partitions/acorn.c:541: `first_sector' undeclared (first use in this
+> function)
+> fs/partitions/acorn.c:541: (Each undeclared identifier is reported only
+> once
+> fs/partitions/acorn.c:541: for each function it appears in.)
+> fs/partitions/acorn.c:550: `hd' undeclared (first use in this function)
+> fs/partitions/acorn.c:551: warning: implicit declaration of function
+> `add_gd_partition'
+> fs/partitions/acorn.c:551: `minor' undeclared (first use in this
+> function)
+> make[2]: [fs/partitions/acorn.o] Error 1 (ignored)
+> 
+> Sorry for the confusion....but at least it got your attention!  :)
 
-6. Patch and workaround posted to lkml _many_ times in the past few
-days.  Please search the archives before posting.
+I was surprised about nine new errors just to find it's one error I 
+already reported yesterday...
 
-thanks,
+Could you change your scripts to avoid that such errors are counted that 
+often?
 
-greg k-h
+> John
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

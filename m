@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbUCMWW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 17:22:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUCMWVK
+	id S263201AbUCMW3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 17:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbUCMW3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 17:21:10 -0500
-Received: from marco.bezeqint.net ([192.115.104.4]:37342 "EHLO
-	marco.bezeqint.net") by vger.kernel.org with ESMTP id S263201AbUCMWUZ
+	Sat, 13 Mar 2004 17:29:24 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:26004 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S263201AbUCMW3W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 17:20:25 -0500
-Date: Sun, 14 Mar 2004 00:19:39 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Dealing with swsusp vs. pmdisk
-Message-ID: <20040313221939.GG5960@luna.mooo.com>
-Mail-Followup-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20040312224645.GA326@elf.ucw.cz> <20040313004756.GB5115@thunk.org> <1079146273.1967.63.camel@gaston> <20040313123620.GA3352@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040313123620.GA3352@openzaurus.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 13 Mar 2004 17:29:22 -0500
+Message-ID: <40538B39.90803@zytor.com>
+Date: Sat, 13 Mar 2004 14:29:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386 very early memory detection cleanup patch breaks the build
+References: <1079198139.2512.19.camel@mulgrave> 	<40538091.9050707@zytor.com> <1079215809.2513.39.camel@mulgrave>
+In-Reply-To: <1079215809.2513.39.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 01:36:21PM +0100, Pavel Machek wrote:
-> Hi!
+James Bottomley wrote:
 > 
-> > > Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
-> > > complaint about it is that since it's maintained outside of the
-> > > kernel, it's constantly behind about 0.75 revisions behind the latest
-> > > 2.6 release.  The feature set of swsusp2, if they can ever get it
-> > > completely bugfree(tm) is certainly impressive.
-> > 
-> > I'd like it to be merged upstream too.
+>>I removed it because I removed the VISWS dependency, thus making it 
+>>redundant.  What you seem to be saying is that the dependency should 
+>>have been on SMP not X86_SMP; if that's the issue then please make it so.
+>>
+>>I think you just needed to apply your own rule to the above statement.
 > 
-> Are we talking 2.6 or 2.7 here?
+> If you mean the dependency should be
+> 
+> 	depends X86_SMP || (VOYAGER && SMP)
+> 
+> Then yes, I'm happy with that.
+> 
 
-That would probably depend on which one is more stable, not only
-features. AFAIK swsusp2 is quite stable barring problems with drivers
-with faulty PM code (dri, usb, ...). What is the state of swsusp?
+Actually, I just meant changing:
 
-> -- 
-> 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->  
->  +++++++++++++++++++++++++++++++++++++++++++
->  This Mail Was Scanned By Mail-seCure System
->  at the Tel-Aviv University CC.
-> 
+-obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o trampoline.o
++obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o
++obj-$(CONFIG_SMP)		+= trampoline.o
+
+... which is more like what the original code is doing, minus VISWS.
+
+> I'm still debugging the boot time failure.  As far as I can tell it
+> looks like ioremap is failing (this is after paging_init); does this
+> trigger any associations?
+
+Nope.  It shouldn't be using the boot page tables after paging_init, and 
+even so, the "new" boot page tables look just like the "old" ones except 
+there might be more of them, so there are two resaons that shouldn't be 
+happening.  I'd have been less surprised if you'd seen a problem with 
+boot_ioremap(), although even that shouldn't really be different...
+
+My main guess would be a porting problem (_end -> init_pg_tables_end) in 
+discontig.c, which I believe Voyager uses, right?
+
+I don't have access to any real subarchitectures (I have a visws now, 
+but I haven't actually been able to run it yet), so the discontig stuff 
+didn't get tested; on the other hand the change in there was quite trivial.
+
+Sorry for not being able to be more helpful, but I'm surrounded by boxes 
+and this is the last weekend I have to pack before I move houses...
+
+	-hpa

@@ -1,71 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131810AbRBMPhF>; Tue, 13 Feb 2001 10:37:05 -0500
+	id <S130666AbRBMPt6>; Tue, 13 Feb 2001 10:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131888AbRBMPg4>; Tue, 13 Feb 2001 10:36:56 -0500
-Received: from h201.s254.netsol.com ([216.168.254.201]:14755 "EHLO
-	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
-	id <S131774AbRBMPgp>; Tue, 13 Feb 2001 10:36:45 -0500
-Date: Tue, 13 Feb 2001 10:36:32 -0500
-From: Pete Toscano <pete@research.netsol.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x SMP blamed for Xfree 4.0 crashes
-Message-ID: <20010213103632.R15595@tesla.admin.cto.netsol.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20010213130505.gale@syntax.dera.gov.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="soWJpSPh+l8Y6Fy7"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010213130505.gale@syntax.dera.gov.uk>; from gale@syntax.dera.gov.uk on Tue, Feb 13, 2001 at 01:05:05PM -0000
-X-Uptime: 10:31am  up 10 days, 19:43,  9 users,  load average: 0.09, 0.14, 0.09
-X-Married: 457 days, 14 hours, 46 minutes, and 7 seconds
+	id <S129422AbRBMPts>; Tue, 13 Feb 2001 10:49:48 -0500
+Received: from colorfullife.com ([216.156.138.34]:31495 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130462AbRBMPti>;
+	Tue, 13 Feb 2001 10:49:38 -0500
+Message-ID: <3A895795.56741320@colorfullife.com>
+Date: Tue, 13 Feb 2001 16:49:41 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Martin Rode <Martin.Rode@programmfabrik.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG in sched.c, Kernel 2.4.1?
+In-Reply-To: <3A8942FA.484BE2FC@programmfabrik.de> <3A8944F1.93C252EB@didntduck.org> <3A895194.89D69AE9@programmfabrik.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin Rode wrote:
+> 
+> >
+> > Run this oops message through ksymoops please.  It will make debugging
+> > it alot easier.
+> >
+> >
+> 
+> Since I did not compile the kernel myself, ksymoops is not too happy with
+> what is has to analyse the dump. I tried compile the Mandrake kernel myself
+> but there seems to be something unmatched. See below for what ksymoops
+> gives me.
+>
+looks good.
 
---soWJpSPh+l8Y6Fy7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Warning (compare_maps): mismatch on symbol vt_cons  , ksyms_base says
+> c02b06e0, vmlinux says c02ac6e0.  Ignoring ksyms_base entry
+> 
+> (I get about > 300 msgs of that kind)
+> 
+> Let me know who I can prepare for the next crash with my own kernel. Are
+> there any options I have to turn on for compiling?
+> 
+> kernel BUG at sched.c:714!
+> invalid operand: 0000
+> CPU: 0
+> EIP: 0010:[<c0113781>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010282
+> eax: 0000001b ebx 00000000 ecx df4f6000 edx 00000001
+> esi: 001cffe3 edi db5eede0 ebp dc0e9f40 esp dc0e9ef0
+> stack: c01f26f3 c01f2856 000002ca db5eed80 dc0e8000 db5eede0 dc0e9f18
+> dc0e8000 000033ba 00000000 00000000 000000e7 0000001c 0000001c
+> fffffff3 dc0e8000 00000800 00000000 dc0e8000 dc0e9f68 c0139c44
+> d488bf80 00000000
 
-i have been running 4.0.2 on my smp system using the 2.4.1 kernel.  the
-one thing is, i was using the xfree out of precision insite's cvs with
-the g400 binary-only hal lib dri module loaded.  every-so-often,
-especially when closing windows or switching virtual desktops, the
-kernel would crash.  luckily, i'm also running kdb on a serial console,
-so i am able to check things out and keep a log.  unfortunately, when
-btp all the processes, i found no text.lock, which is as far as i know
-how to "debug" a kernel crash.
+esp is quite high, only 0x110 bytes of the stack are used.
 
-of course, this could very well be something wrong with the binary-only
-module from matrox, so i'm seeing if the same problem presents itself
-with the original mga.o loaded (which also disables hardware dri).
+> call trace: [<cc0139c44>] [<c0139d1c>] [<c0130af6>] [<c0108e93>]
+                ^^^^^^^^^
+> code: 0f 0b 8d 65 bc 5b 5e 5f 89 ec 5d c3 8d 76 00 55 89 e5 83 ec
+> 
+> >>EIP; c0113781 <schedule+421/430>   <=====
+> Trace; cc0139c44 <END_OF_CODE+bdf830401/????>
+         ^^^^^^^^^
 
-pete
+did you manually copy the oops from the screen?
+that value should be c0139c44 <pipe_wait...>
 
-On Tue, 13 Feb 2001, Tony Gale wrote:
+> Trace; c0139d1c <pipe_read+80/238>
+> Trace; c0130af6 <sys_read+5e/c4>
+> Trace; c0108e93 <system_call+33/40>
+>
+> [snip]
+> 
+> Kernel panic: Aiee, killing interrupt handler!
+>
+I don't see that interrupt handler!
+it seems to be a normal syscall, just a pipe read that blocks because
+the pipe is empty.
 
-> Having experienced a number of crashes with Xfree 4.0 with 2.4
-> kernels, that I wasn't getting with 2.2 kernels, a quick search on
-> the xfree Xpert mailing list reveals this:
+Is that the first oops, or was there another oops before this one?
 
---=20
-Pete Toscano         pete@research.netsol.com          703.948.3364
-GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
-
---soWJpSPh+l8Y6Fy7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6iVSAH/Abp5AIJzYRAmMGAJ4z6QwXfQs8mLf28w0RScY3XRFAdQCfbiyn
-k71Ws1SlgEt+fRxKnYb1RR8=
-=al26
------END PGP SIGNATURE-----
-
---soWJpSPh+l8Y6Fy7--
+--
+	Manfred

@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318501AbSIBVo1>; Mon, 2 Sep 2002 17:44:27 -0400
+	id <S318487AbSIBVpw>; Mon, 2 Sep 2002 17:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSIBVo1>; Mon, 2 Sep 2002 17:44:27 -0400
-Received: from pD952A8C0.dip.t-dialin.net ([217.82.168.192]:3969 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318501AbSIBVoZ>; Mon, 2 Sep 2002 17:44:25 -0400
-Date: Mon, 2 Sep 2002 15:48:54 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>,
-       <linux-raid@vger.kernel.org>, <neilb@cse.unsw.edu.au>
-Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
-In-Reply-To: <Pine.LNX.4.44.0209021437310.1374-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209021544460.3270-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318503AbSIBVpv>; Mon, 2 Sep 2002 17:45:51 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:23456 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S318487AbSIBVpv>;
+	Mon, 2 Sep 2002 17:45:51 -0400
+Date: Tue, 3 Sep 2002 00:50:19 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Stupid anti-spam testings...
+Message-ID: <20020902215019.GB5834@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Quite a many of vger's recipients are doing return-path verification
+testing for SMTP's MAIL FROM address.
 
-On Mon, 2 Sep 2002, Linus Torvalds wrote:
-> The point about backwards compatibility is that things WORK.
-> 
-> There's no point in comparing things to how you _want_ them to work. The
-> only thing that matters for bckwards compatibility is how they work
-> _today_.
-> 
-> And your suggestion would break every single installation out there. Not 
-> "maybe a few".  Every single one.
-> 
-> (yeah, you could find some NFS-only setup that doesn't break. Big deal).
-> 
-> And backwards compatibility is extremely important. 
+I would not mind that, EXCEPT that those bloody stupid things don't
+have any sane caches at all!    VGER is sending 300+ messages per
+day to 3500+ recipients of linux-kernel list EVERY DAY, and every
+outgoing message is now getting oodles of those probes!
 
-dep_bool '  New mountalike partitioning code' CONFIG_PARTMOUNTING CONFIG_EXPERIMENTAL CONFIG_WHATEVER
+Folks,  when you deploy that kind of testers, DO VERIFY THAT THEY
+HAVE SANE CACHES!  A positive result shall be cached for at least
+two hours, a negative result shall be cached for at least 30 minutes.
 
-Or, since we're talking about the future:
+That would send a dozen back-probes towards vger from recipient
+system, instead of present 300+ !
 
-<bool name="PARTMOUNTING">
- <title>
-  New mount-alike partitioning code
- </title>
- <dep name="EXPERIMENTAL" sense="include" />
- <dep name="WHATEVER" sense="exclude" />
-</bool>
 
-See? New Deal is for the ones that were annoyed by the old one.
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+/Matti Aarnio -- who considers some cures worse than the original problem...

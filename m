@@ -1,145 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131930AbQKBBS0>; Wed, 1 Nov 2000 20:18:26 -0500
+	id <S131433AbQKBBdG>; Wed, 1 Nov 2000 20:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131951AbQKBBSP>; Wed, 1 Nov 2000 20:18:15 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:26641 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S131930AbQKBBR6>;
-	Wed, 1 Nov 2000 20:17:58 -0500
-Message-Id: <200011020117.eA21Hth14178@sleipnir.valparaiso.cl>
+	id <S131804AbQKBBc4>; Wed, 1 Nov 2000 20:32:56 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:27588 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S131433AbQKBBcj>; Wed, 1 Nov 2000 20:32:39 -0500
+Message-Id: <4.2.0.58.20001101202452.00a79440@engr.de.psu.edu>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
+Date: Wed, 01 Nov 2000 20:32:35 -0500
 To: linux-kernel@vger.kernel.org
-Subject: "Greased weasel" problems on i686
-X-Mailer: MH [Version 6.8.4]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----- =_aaaaaaaaaa0"
-Content-ID: <14162.973127856.0@sleipnir.valparaiso.cl>
-Date: Wed, 01 Nov 2000 22:17:55 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+From: Eric Reischer <emr@engr.de.psu.edu>
+Subject: Issue compiling 2.4test10
+Cc: linuxppc-dev@lists.linuxppc.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------- =_aaaaaaaaaa0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <14162.973127856.1@sleipnir.valparaiso.cl>
+I am attempting to cross-compile a 2.4 kernel for a PowerPC arch on an 
+Intel machine, of which I have Debian 2.2 installed.  I have successfully 
+compiled a 2.4test9 kernel, but I got the following error message the first 
+time I compiled (it failed due to this):
 
-RH 7.0 up to date, kgcc, binutils-2.10.0.33-1
-intel SR440BX motherboard, P3/600; rock solid machine otherwise.
+powerpc-unknown-linux-gnu-ld -T arch/ppc/mm/mm.o <blah blah blah on same 
+command for about 11 lines>
+drivers/input/inputdrv.o: In function 'keybdev_event':
+drivers/input/inputdrv.o(.text+0x16bc): undefined reference to 'emulate_raw'
+drivers/input/inputdrv.o(.text+0x16bc): relocation truncated to fit: 
+R_PPC_REL24 emulate_raw
+make: *** [vmlinux] Error 1
 
-2.4.0-test10 shows a rather unholy appetite for ext2 filesystems (for some
-reason it munches down /dev regularly, and nibbles at others).
 
-Mounting an IDE CD (modular ide-cd, isofs) hangs the system hard: No ping
-response, no SysRq
+Quoting Martin Costabel <costabel@wanadoo.fr>:
 
-Crunched .config follows
+<snip>
+The function emulate_raw is used without any ifs, but its definition
+some lines earlier is enclosed in either
+#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(__alpha__) ||
+defined(__mips__)
+or
+#elif defined(CONFIG_ADB_KEYBOARD)
+So in your case you would need to put CONFIG_ADB_KEYBOARD=y into your
+.config file. Or change these weird #ifs.
+The bitkeeper version of the file is somewhat better in that it uses only 
+one set of conditionals,
+#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(__alpha__) ||
+defined (__mips__) || defined(CONFIG_PPC)
+but the function is still used without any condition.
+</snip>
 
-------- =_aaaaaaaaaa0
-Content-Type: application/octet-stream; name="config.gz"
-Content-ID: <14162.973127856.2@sleipnir.valparaiso.cl>
-Content-Description: .config for 2.4.0-test10
-Content-Transfer-Encoding: base64
-
-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
-+z0XlE8AAA==
-
-------- =_aaaaaaaaaa0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <14162.973127856.3@sleipnir.valparaiso.cl>
-
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+ From what he tells me, this remains an issue in the test10 release.  I 
+disabled the entire feature from within xconfig, recompiled, and it 
+succeeded.  If you need any more info, let me know and I'll see what I can do.
 
 
 
-------- =_aaaaaaaaaa0--
+----------
+Eric Reischer                                   "You can't depend on your eyes
+emr@engr.de.psu.edu                            if your imagination is out 
+of focus."
+emr@ccil.org                                                    -- Mark Twain
+
+----------
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

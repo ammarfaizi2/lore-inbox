@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbTAaPZb>; Fri, 31 Jan 2003 10:25:31 -0500
+	id <S261409AbTAaPcY>; Fri, 31 Jan 2003 10:32:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbTAaPZa>; Fri, 31 Jan 2003 10:25:30 -0500
-Received: from ns.suse.de ([213.95.15.193]:35858 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261448AbTAaPZ3>;
-	Fri, 31 Jan 2003 10:25:29 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
+	id <S261426AbTAaPcY>; Fri, 31 Jan 2003 10:32:24 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:4755 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261409AbTAaPcX>; Fri, 31 Jan 2003 10:32:23 -0500
+Date: Fri, 31 Jan 2003 16:41:41 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5.59 morse code panics
-References: <20030131104326.GF12286@louise.pinerecords.com.suse.lists.linux.kernel> <200301311112.h0VBCv00000575@darkstar.example.net.suse.lists.linux.kernel> <20030131132221.GA12834@codemonkey.org.uk.suse.lists.linux.kernel> <1044025785.1654.13.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 31 Jan 2003 16:34:55 +0100
-In-Reply-To: Alan Cox's message of "31 Jan 2003 15:20:11 +0100"
-Message-ID: <p73hebpqqn4.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+Message-ID: <20030131154141.GH12286@louise.pinerecords.com>
+References: <20030131104326.GF12286@louise.pinerecords.com.suse.lists.linux.kernel> <200301311112.h0VBCv00000575@darkstar.example.net.suse.lists.linux.kernel> <20030131132221.GA12834@codemonkey.org.uk.suse.lists.linux.kernel> <1044025785.1654.13.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <p73hebpqqn4.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73hebpqqn4.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> On Fri, 2003-01-31 at 13:22, Dave Jones wrote:
-> > Or you could put down the crackpipe and run a serial console between
-> > the two boxes. Or even netconsole would make more sense
-> > (and be a lot more reliable).
+> [ak@suse.de]
 > 
-> A lot of newer laptops do not have serial ports. While morse code may
-> be a little silly the general purpose hook  it needs to be done 
-> cleanly is considerably more useful
+> Morse is not helpful.
 
-And how many users and how many kernel hackers are able to decode
-morse on the fly? Are you going to explain to users
-"to debug this you'll need to learn morse" ?
+Of course it is, you're just angry that I've left out your original
+plain_blinking code.
 
-If you want to make debugging easy for laptops write a USB or firewire
-console. Firewire is actually quite interesting because it can even
-do DMA, so you could peek into the memory.
-
-Morse is not helpful.
-
-I admit I was the on who got this ball running by suggesting it "as an 
-exercise for the reader" in the original panic blink code, but
-guys this was intended as a JOKE, not serious. Please get over it
-and don't merge that silly code.
-
-Thanks,
--Andi
+*runs*

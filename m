@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268777AbTBZP1h>; Wed, 26 Feb 2003 10:27:37 -0500
+	id <S268666AbTBZPmC>; Wed, 26 Feb 2003 10:42:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268778AbTBZP1h>; Wed, 26 Feb 2003 10:27:37 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:55700 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S268777AbTBZP1f>;
-	Wed, 26 Feb 2003 10:27:35 -0500
-Date: Wed, 26 Feb 2003 16:37:34 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Marcus Meissner <meissner@suse.de>, "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       engebret@us.ibm.com
-Subject: Re: [PATCH] fixed pcnet32 multicast listen on big endian
-In-Reply-To: <3E5CDB83.1070400@pobox.com>
-Message-ID: <Pine.GSO.4.21.0302261630310.11509-100000@vervain.sonytel.be>
+	id <S268712AbTBZPmC>; Wed, 26 Feb 2003 10:42:02 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:60067 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268666AbTBZPmA>; Wed, 26 Feb 2003 10:42:00 -0500
+Date: Wed, 26 Feb 2003 07:52:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com
+Subject: Re: [BUG] 2.5.63: ESR killed my box!
+Message-ID: <2880000.1046274724@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302260713210.1423-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302260713210.1423-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003, Jeff Garzik wrote:
-> Geert Uytterhoeven wrote:
-> > On Sun, 23 Feb 2003, Geert Uytterhoeven wrote:
-> >>On Wed, 5 Feb 2003, Marcus Meissner wrote:
-> >>>This fixes multicast listen for pcnet32 on at least powerpc and powerpc64
-> >>>kernels.
-> >>>
-> >>>The mcast_table is in memory referenced by the card and so it needs
-> >>>to be accessed in little endian mode.
-> >>>
-> >>>Ciao, Marcus
-> >>>
-> >>>--- linux-2.4.19/drivers/net/pcnet32.c.be	2003-02-05 07:59:27.000000000 +0100
-> >>>+++ linux-2.4.19/drivers/net/pcnet32.c	2003-02-05 08:00:22.000000000 +0100
-> >>>@@ -1534,7 +1534,9 @@
-> >>> 	
-> >>> 	crc = ether_crc_le(6, addrs);
-> >>> 	crc = crc >> 26;
-> >>>-	mcast_table [crc >> 4] |= 1 << (crc & 0xf);
-> >>>+	mcast_table [crc >> 4] = le16_to_cpu(
-> >>
-> >>                                 ^^^^^^^^^^^
-> >>
-> >>>+		le16_to_cpu(mcast_table [crc >> 4]) | (1 << (crc & 0xf))
-> >>>+	);
-> >>
-> >>Shouldn't the first conversion be `cpu_to_le16'?
-> > 
-> > 
-> > Ugh, a quick grep shows that this driver _always_ uses `le*_to_cpu()' to
-> > convert from CPU to little endian.
+>> >> I put an esr_disable flag in there a while back ... does that
+>> >> workaround it?
+>> 
+>> On Wed, Feb 26, 2003 at 06:14:42PM +1100, Rusty Russell wrote:
+>> > Yes.  Hmm.  Wonder if that helps my SMP wierness, too.
+>> 
+>> It shouldn't be set on anything but NUMA-Q and "bigsmp".
 > 
-> Cosmetically you are correct, and I prefer it to be changed eventually.
+> Hmm.. Why is it right on those, but not on normal machines? The APIC is 
+> the same, and if the big machines need it, apparently at least _one_
+> small  machine needs it too..
 > 
-> However programatically, it has no effect, because those cpu_to_foo and 
-> foo_to_cpu functions either swap, or they don't.  Direction doesn't 
-> matter terribly much :)
+> Also, if we find that the ESR value was non-zero, it sounds a bit stupid 
+> to enable error delivery at bootup. We already know there was an error,
+> we  don't need to be told.
 
-That's true.
+There's bugs in the APIC that mean that once we get an error, we never
+manage to get rid of it, I believe. I don't believe Intel have ever
+acknowledged that or worked around it, but I think Sequent engineers spent
+a lot of time with bus analysers, etc looking at this, and that was the
+ultimate conclusion. It's not like we do anything with the error anyway, so
+disabling it seemed like the prudent thing to do.
 
-BTW, you save one swap by changing the code to
+Now in the case Rusty has, would be nice to find why it's changed, this was
+just a workaround. On the NUMA-Qs, this always happened, so it's not so
+interesting ;-)
 
-    mcast_table [crc >> 4] |= cpu_to_le16(1 << (crc & 0xf));
-
-Because the order of bitwise or and swap doesn't matter.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+M.
 

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbTGLGAM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 02:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267724AbTGLGAM
+	id S264689AbTGLGMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 02:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTGLGMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 02:00:12 -0400
-Received: from h80ad26c8.async.vt.edu ([128.173.38.200]:53888 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267563AbTGLGAI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 02:00:08 -0400
-Message-Id: <200307120614.h6C6EhSe019742@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: jcwren@jcwren.com, linux-kernel@vger.kernel.org
-Subject: Re: Bug in open() function (?) 
-In-Reply-To: Your message of "Fri, 11 Jul 2003 22:23:00 PDT."
-             <20030711222300.7627a811.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030712011716.GB4694@bouh.unh.edu> <16143.25800.785348.314274@cargo.ozlabs.ibm.com> <20030712024216.GA399@bouh.unh.edu> <200307112309.08542.jcwren@jcwren.com> <20030711203809.3c320823.akpm@osdl.org> <200307120511.h6C5BCSe017963@turing-police.cc.vt.edu>
-            <20030711222300.7627a811.akpm@osdl.org>
+	Sat, 12 Jul 2003 02:12:36 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:50436 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264689AbTGLGMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 02:12:36 -0400
+Date: Sat, 12 Jul 2003 07:27:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre5
+Message-ID: <20030712072713.A1219@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva> <shsu19siyru.fsf@charged.uio.no> <Pine.LNX.4.55L.0307111752060.5537@freak.distro.conectiva> <16143.10146.718830.585351@charged.uio.no> <Pine.LNX.4.55L.0307111853540.5883@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1141298553P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 12 Jul 2003 02:14:43 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.55L.0307111853540.5883@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Jul 11, 2003 at 06:56:16PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1141298553P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Jul 11, 2003 at 06:56:16PM -0300, Marcelo Tosatti wrote:
+> Well, Jeff, Christoph, do you have any comments on Trond's new
+> O_DIRECT patch?
 
-On Fri, 11 Jul 2003 22:23:00 PDT, Andrew Morton said:
+Patch looks fine.  I don't really like the directfileio name, but
+hey, this cludge is so ugly that it doesn't really matter anymore..
 
-> We've lived with it for this long.
-
-Well... you have a point there..
-
-> Given that the behaviour is undefined, the behaviour which we should
-> implement is clearly "whatever 2.4 is doing".  So let's leave it alone.
-
-I suppose I could live with that *IF* somebody fixes 'man 2 open' to
-reflect reality.
-
-
-
-
---==_Exmh_1141298553P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/D6dTcC3lWbTT17ARAibEAJ9EBPm6XwXM0rXzhI9xt7aGjhNUfQCfWa/b
-v30sikSXCCICNePAFBXLJu0=
-=LffA
------END PGP SIGNATURE-----
-
---==_Exmh_1141298553P--

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318162AbSHNIOg>; Wed, 14 Aug 2002 04:14:36 -0400
+	id <S315282AbSHNINX>; Wed, 14 Aug 2002 04:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318192AbSHNIOg>; Wed, 14 Aug 2002 04:14:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3849 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318162AbSHNIOf>; Wed, 14 Aug 2002 04:14:35 -0400
-Date: Wed, 14 Aug 2002 09:18:26 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg Banks <gnb@alphalink.com.au>
-Cc: Peter Samuelson <peter@cadcamlab.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-Message-ID: <20020814091826.B2407@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0208120924320.5882-100000@chaos.physics.uiowa.edu> <3D587483.1C459694@alphalink.com.au> <20020813033951.GF761@cadcamlab.org> <3D59110B.6D9A1223@alphalink.com.au> <20020813155330.GG761@cadcamlab.org> <3D59AEB7.7B80F33@alphalink.com.au> <20020814032841.GM761@cadcamlab.org> <3D59F22E.D0DA5FC6@alphalink.com.au>
+	id <S318162AbSHNINW>; Wed, 14 Aug 2002 04:13:22 -0400
+Received: from c-180-196-193.ka.dial.de.ignite.net ([62.180.196.193]:911 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id <S315282AbSHNINV>; Wed, 14 Aug 2002 04:13:21 -0400
+Date: Wed, 14 Aug 2002 10:16:54 +0200
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Imran Badr <imran.badr@cavium.com>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Cache coherency and snooping
+Message-ID: <20020814101654.B14197@linux-mips.org>
+References: <20020814022958.B11645@linux-mips.org> <0aa401c2432e$04a95cc0$9e10a8c0@IMRANPC>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D59F22E.D0DA5FC6@alphalink.com.au>; from gnb@alphalink.com.au on Wed, Aug 14, 2002 at 04:01:18PM +1000
+In-Reply-To: <0aa401c2432e$04a95cc0$9e10a8c0@IMRANPC>; from imran.badr@cavium.com on Tue, Aug 13, 2002 at 06:00:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 14, 2002 at 04:01:18PM +1000, Greg Banks wrote:
-> > CONFIG_SERIAL and CONFIG_PCMCIA didn't generate any noise, though.
+On Tue, Aug 13, 2002 at 06:00:43PM -0700, Imran Badr wrote:
+
+> Please advise if following sequence of operations are going to help:
 > 
-> warning:drivers/parport/Config.in:14:forward declared symbol "CONFIG_SERIAL" compared ambiguously to "n"
-> warning:drivers/parport/Config.in:14:forward reference to "CONFIG_SERIAL"
-> warning:drivers/parport/Config.in:15:forward reference to "CONFIG_SERIAL"
+> alloc memory
+> reserve the page
+> flush every cache
 
-I'm probably going to end up sucking the stuff that uses CONFIG_SERIAL in
-parport into drivers/serial in the near future, which should solve this
-problem.
+That's an extremly expensive operation on some platforms and there's no
+portable kernel API to do it.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Note that the flush_cache_*() functions are not suitable for I/O as you
+want to do it.  Many platforms such as i386 implement these functions
+as empty functions.
 
+> call ioremap_nocache
+
+You said you intend to remap memory, that is RAM.  The ioremap*() functions
+will refuse to remap RAM; they're only suitable for other types of memory
+such as PCI boards.  If the latter was your intension then ioremap_nocache()
+will work as intended.
+
+Again, unless your hardware is fucked beyond recognition it'll do a better
+job at keeping cache coherence than software.
+
+  Ralf

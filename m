@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUIBSGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUIBSQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268851AbUIBSGn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 14:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268321AbUIBSFI
+	id S267362AbUIBSQI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 14:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUIBSQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 14:05:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14255 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268227AbUIBSEq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 14:04:46 -0400
-Date: Thu, 2 Sep 2004 11:03:52 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent
- semantic changes with reiser4)
-In-Reply-To: <20040902175034.GA18861@lst.de>
-Message-ID: <Pine.LNX.4.58.0409021059230.2295@ppc970.osdl.org>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
- <20040902175034.GA18861@lst.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 14:16:08 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:57291 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S267362AbUIBSPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 14:15:54 -0400
+Message-Id: <200409021815.i82IFpLT022145@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc1-mm2 - 'journal block not found' - ext3 on crack?
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_729735924P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 02 Sep 2004 14:15:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_729735924P
+Content-Type: text/plain; charset=us-ascii
 
+I built 2.6.9-rc1-mm2 last night, and I've had this happen on 2 separate file systems today:
 
-On Thu, 2 Sep 2004, Christoph Hellwig wrote:
-> 
-> http://oss.oracle.com/projects/userfs/ has code that clues gnomevfs onto
-> a kernel filesystem.  The code is horrible, but it shows that it can
-> be done.
+Sep  2 12:42:50 turing-police kernel: journal_bmap: journal block not found at offset 2316 on dm-6
+Sep  2 12:42:52 turing-police kernel: Aborting journal on device dm-6.
+Sep  2 12:42:52 turing-police kernel: ext3_abort called.
+Sep  2 12:42:53 turing-police kernel: EXT3-fs error (device dm-6): ext3_journal_start: Detected aborted journal
+Sep  2 12:42:53 turing-police kernel: Remounting filesystem read-only
+Sep  2 12:42:54 turing-police kernel: EXT3-fs error (device dm-6) in start_transaction: Journal has aborted
+Sep  2 12:42:54 turing-police kernel: EXT3-fs error (device dm-6) in start_transaction: Journal has aborted
+Sep  2 12:42:54 turing-police kernel: journal commit I/O error
+Sep  2 12:42:54 turing-police kernel: EXT3-fs error (device dm-6) in start_transaction: Journal has aborted
+Sep  2 12:42:57 turing-police last message repeated 15 times
 
-I do like the setup where the extended features are done as a "view" on 
-top of some other filesystem, so that you can choose to _either_ access 
-the raw (and supposedly stable, simply by virtue of simplicity) or the 
-"fancy" interface. Without having to reformat the disk to a filesystem you 
-don't trust, or you have other reasons you can't use (disk sharing with 
-other systems, whatever).
+(This one was /home - I'd paste the other one, but it happened on /var so
+it didn't get logged because /var/adm/messages went R/O..)
 
-It doesn't have to be "user", btw, in the sense that a lot of the normal 
-code could be in kernel mode. Same way as Tux handling all the regular 
-static requests entirely in kernel mode, but having the ability for 
-calling down to apache..
+Of interest:
 
-		Linus
+1) Didn't see this under 2.6.8-mm4.
+2) Neither time had any actual disk I/O error messages...
+3) I'm using ext3-on-LVM, if that matters...
+
+--==_Exmh_729735924P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBN2NWcC3lWbTT17ARAiTfAKCuHIikl1mmd76Lb5G1gXM4mXuO+gCg/v5e
+tujcDUzfO+HAIN1gXSXo18w=
+=flLa
+-----END PGP SIGNATURE-----
+
+--==_Exmh_729735924P--

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263118AbREWPCP>; Wed, 23 May 2001 11:02:15 -0400
+	id <S263120AbREWPDf>; Wed, 23 May 2001 11:03:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263119AbREWPCG>; Wed, 23 May 2001 11:02:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13319 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263118AbREWPCC>; Wed, 23 May 2001 11:02:02 -0400
-Date: Wed, 23 May 2001 10:25:06 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: write drop behind effect on active scanning
-In-Reply-To: <0105231633440L.06233@starship>
-Message-ID: <Pine.LNX.4.21.0105231022060.1874-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263122AbREWPD2>; Wed, 23 May 2001 11:03:28 -0400
+Received: from mail.inup.com ([194.250.46.226]:6148 "EHLO mailhost.lineo.fr")
+	by vger.kernel.org with ESMTP id <S263119AbREWPDH>;
+	Wed, 23 May 2001 11:03:07 -0400
+Date: Wed, 23 May 2001 17:02:15 +0200
+From: =?ISO-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sk_buff destructor in 2.2.18
+Message-ID: <20010523170215.C8075@pc8.lineo.fr>
+In-Reply-To: <20010523161654.C7531@pc8.lineo.fr> <20010523162739.A24463@gruyere.muc.suse.de> <20010523163758.C7823@pc8.lineo.fr> <20010523164036.A24809@gruyere.muc.suse.de> <20010523165028.A7917@pc8.lineo.fr> <20010523165557.A25277@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010523165557.A25277@gruyere.muc.suse.de>; from ak@suse.de on Wed, May 23, 2001 at 16:55:57 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I believe you and It's sure that I have not tested all cases.
+So do you see a way to use a private data buffer ?
 
+Christophe
 
-On Wed, 23 May 2001, Daniel Phillips wrote:
-
-> On Wednesday 23 May 2001 09:33, Marcelo Tosatti wrote:
-> > Hi,
-> >
-> > I just noticed a "bad" effect of write drop behind yesterday during
-> > some tests.
-> >
-> > The problem is that we deactivate written pages, thus making the
-> > inactive list become pretty big (full of unfreeable pages) under
-> > write intensive IO workloads.
-> >
-> > So what happens is that we don't do _any_ aging on the active list,
-> > and in the meantime the inactive list (which should have "easily"
-> > freeable pages) is full of locked pages.
-> >
-> > I'm going to fix this one by replacing "deactivate_page(page)" to
-> > "ClearPageReferenced(page)" in generic_file_write(). This way the
-> > written pages are aged faster but we avoid the bad effect just
-> > described.
-> >
-> > Any comments on the fix ?
+On Wed, 23 May 2001 16:55:57 Andi Kleen wrote:
+> On Wed, May 23, 2001 at 04:50:28PM +0200, christophe barbé wrote:
+> > I don't know about socket but I allocate myself the skbuff and I set
+> the
+> > destructor (and previously the pointer value is NULL). So I don't
+> overwrite
+> > a destructor.
 > 
->   page->age = 0 ?
-
-That would make any full scan through the active list move all dropped
-pages from generic_file_write() to the inactive list.
+> That just means you didn't test all cases; e.g. not TCP or UDP
+> send/receive.
+> 
+> 
+> 
+> > 
+> > I believe net/core/sock.c is not involved in my problem but I can be
+> wrong.
+> > What is worrying me is that I don't know who clones my skbuff and why.
+> 
+> skbuffs are cloned all over the stack for various reasons.
+> 
+>  
+> > To said everything, I know who clones my skbuff because it causes a
+> oops
+> > when it tries to free my buffer If I use my destructor.
+> 
+> Because you're mistakely using a private field.
+> 
+> 
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+-- 
+Christophe Barbé
+Software Engineer - christophe.barbe@lineo.fr
+Lineo France - Lineo High Availability Group
+42-46, rue Médéric - 92110 Clichy - France
+phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
+http://www.lineo.com
 

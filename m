@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277239AbRJIOKq>; Tue, 9 Oct 2001 10:10:46 -0400
+	id <S277235AbRJIOM0>; Tue, 9 Oct 2001 10:12:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277238AbRJIOKg>; Tue, 9 Oct 2001 10:10:36 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54287 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277235AbRJIOKU>; Tue, 9 Oct 2001 10:10:20 -0400
-Date: Tue, 9 Oct 2001 10:48:46 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <Pine.LNX.4.21.0110091031470.5604-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0110091048150.5604-100000@freak.distro.conectiva>
+	id <S277238AbRJIOMQ>; Tue, 9 Oct 2001 10:12:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5385 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277235AbRJIOME>; Tue, 9 Oct 2001 10:12:04 -0400
+Subject: Re: sysctl interface to bootflags?
+To: jdthood@mail.com (Thomas Hood)
+Date: Tue, 9 Oct 2001 15:18:06 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1002636089.953.115.camel@thanatos> from "Thomas Hood" at Oct 09, 2001 10:01:27 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qxhu-0004Js-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Would it be a good idea to do this using the sysctl infrastructure?
+> If so, can someone please suggest an appropriate pathname for
+> the flag files?  How about "/proc/sys/BIOS/bootflags/diagnostics"
+> and "/proc/sys/BIOS/bootflags/PnP-OS" ?
 
-
-On Tue, 9 Oct 2001, Marcelo Tosatti wrote:
-
-> 
-> Hi, 
-> 
-> I've been testing pre6 (actually its pre5 a patch which Linus sent me
-> named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
-
-I haven't woke up correctly yet, I guess. 
-
-I mean its pre6 with a patch named "p5p6" which Linus sent me.
-
+Userspace can already do it via /dev/nvram

@@ -1,98 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbTFXFNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 01:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbTFXFNu
+	id S265704AbTFXFR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 01:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265706AbTFXFR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 01:13:50 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:62425 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S265694AbTFXFN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 01:13:27 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH][v850]  More irqreturn_t changes for v850
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030624052716.B44D23728@mcspd15.ucom.lsi.nec.co.jp>
-Date: Tue, 24 Jun 2003 14:27:16 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	Tue, 24 Jun 2003 01:17:27 -0400
+Received: from angband.namesys.com ([212.16.7.85]:24224 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S265704AbTFXFRW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 01:17:22 -0400
+Date: Tue, 24 Jun 2003 09:31:29 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Nix <nix@esperi.demon.co.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+Subject: Re: 2.4.21 reiserfs oops
+Message-ID: <20030624053129.GA24025@namesys.com>
+References: <87he6iyzyj.fsf@amaterasu.srvr.nix> <20030623095356.GA12936@namesys.com> <87k7bcxww4.fsf@amaterasu.srvr.nix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k7bcxww4.fsf@amaterasu.srvr.nix>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruN -X../cludes linux-2.5.73-moo/arch/v850/kernel/gbus_int.c linux-2.5.73-moo-v850-20030624/arch/v850/kernel/gbus_int.c
---- linux-2.5.73-moo/arch/v850/kernel/gbus_int.c	2003-04-21 10:52:40.000000000 +0900
-+++ linux-2.5.73-moo-v850-20030624/arch/v850/kernel/gbus_int.c	2003-06-24 14:13:19.000000000 +0900
-@@ -1,8 +1,8 @@
- /*
-  * arch/v850/kernel/gbus_int.c -- Midas labs GBUS interrupt support
-  *
-- *  Copyright (C) 2001,02  NEC Corporation
-- *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-+ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-  * Public License.  See the file COPYING in the main directory of this
-@@ -99,9 +99,11 @@
- 
- /* Handle a shared GINT interrupt by passing to the appropriate GBUS
-    interrupt handler.  */
--static void gbus_int_handle_irq (int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t gbus_int_handle_irq (int irq, void *dev_id,
-+					struct pt_regs *regs)
- {
- 	unsigned w;
-+	irqreturn_t rval = IRQ_NONE;
- 	unsigned gint = irq - IRQ_GINT (0);
- 
- 	for (w = 0; w < GBUS_INT_NUM_WORDS; w++) {
-@@ -127,6 +129,7 @@
- 
- 				/* Recursively call handle_irq to handle it. */
- 				handle_irq (irq, regs);
-+				rval = IRQ_HANDLED;
- 			} while (status);
- 		}
- 	}
-@@ -136,6 +139,8 @@
- 	   still pending, and so result in another CPU interrupt.  */
- 	GBUS_INT_ENABLE (0, gint) &= ~0x1;
- 	GBUS_INT_ENABLE (0, gint) |=  0x1;
-+
-+	return rval;
- }
- 
- 
-diff -ruN -X../cludes linux-2.5.73-moo/arch/v850/kernel/simcons.c linux-2.5.73-moo-v850-20030624/arch/v850/kernel/simcons.c
---- linux-2.5.73-moo/arch/v850/kernel/simcons.c	2003-06-16 14:52:17.000000000 +0900
-+++ linux-2.5.73-moo-v850-20030624/arch/v850/kernel/simcons.c	2003-06-24 13:23:27.000000000 +0900
-@@ -30,7 +30,7 @@
- 	V850_SIM_SYSCALL (write, 1, buf, len);
- }
- 
--static int simcons_read (struct console *co, const char *buf, unsigned len)
-+static int simcons_read (struct console *co, char *buf, unsigned len)
- {
- 	return V850_SIM_SYSCALL (read, 0, buf, len);
- }
-diff -ruN -X../cludes linux-2.5.73-moo/arch/v850/kernel/time.c linux-2.5.73-moo-v850-20030624/arch/v850/kernel/time.c
---- linux-2.5.73-moo/arch/v850/kernel/time.c	2003-06-17 14:00:05.000000000 +0900
-+++ linux-2.5.73-moo-v850-20030624/arch/v850/kernel/time.c	2003-06-24 13:51:01.000000000 +0900
-@@ -51,7 +51,7 @@
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-  */
--static void timer_interrupt (int irq, void *dummy, struct pt_regs *regs)
-+static irqreturn_t timer_interrupt (int irq, void *dummy, struct pt_regs *regs)
- {
- #if 0
- 	/* last time the cmos clock got updated */
-@@ -106,6 +106,8 @@
- 	}
- #endif /* CONFIG_HEARTBEAT */
- #endif /* 0 */
-+
-+	return IRQ_HANDLED;
- }
- 
- /*
+Hello!
+
+On Mon, Jun 23, 2003 at 11:16:27PM +0100, Nix wrote:
+
+> >> Jun 22 13:52:42 loki kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000001 
+> > This is very strange address to oops on.
+> I'll say! Looks almost like it JMPed to a null pointer or something.
+
+No, if it'd jumped to a NULL pointer, we'd see 0 in EIP.
+
+> >> Jun 22 13:52:43 loki kernel: EIP:    0010:[<c0092df4>]    Not tainted 
+> > And the EIP is prior to kernel start which is also very strange.
+> > On the other hand the address c0192df4 is somewhere inside reiserfs code,
+> > so it looks like a single bit error, I'd say.
+> I think it unlikely to be RAM problems given that the problem happened
+> shortly after upgrading to 2.4.21; this was about half a day after I
+> rebooted it because it threw a pile of never-seen-again, un-syslogged
+> SCSI abort errors at me (sym53c875); and *that* was a few minutes after
+> I rebooted into 2.4.21 for the first time.
+
+Hm, so first there were some scsi problems and then reiserfs oops?
+
+Actually since the RAM is good, I see no good reason for this to happen.
+(actually I see no good reason for valid code before _text, either).
+
+I wonder if 2.4.21 constantly crashes like that for you, then?
+
+Bye,
+    Oleg

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313512AbSEWHV2>; Thu, 23 May 2002 03:21:28 -0400
+	id <S316253AbSEWH2B>; Thu, 23 May 2002 03:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316195AbSEWHV1>; Thu, 23 May 2002 03:21:27 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:35854 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S313512AbSEWHV0>; Thu, 23 May 2002 03:21:26 -0400
-Date: Thu, 23 May 2002 09:21:22 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2 kernel - Ext3 & Raid patches
-Message-ID: <20020523072122.GB4370@louise.pinerecords.com>
-In-Reply-To: <3CEA7866.23557.390B7FFC@localhost> <20020523011144.GA4006@matchmail.com> <20020523070244.GA4370@louise.pinerecords.com> <20020523.000303.46488296.davem@redhat.com>
+	id <S316260AbSEWH2A>; Thu, 23 May 2002 03:28:00 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:5042 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S316253AbSEWH17>; Thu, 23 May 2002 03:27:59 -0400
+Date: Thu, 23 May 2002 17:30:33 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: alan@lxorguk.ukuu.org.uk, dalecki@evision-ventures.com, davem@redhat.com,
+        paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+Message-Id: <20020523173033.6635611a.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.GSO.4.21.0205221053330.2737-100000@weyl.math.psu.edu>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.2.21 SMP
-X-Architecture: sparc
-X-Uptime: 10:44
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Tomas Szepe <szepe@pinerecords.com>
->    Date: Thu, 23 May 2002 09:02:44 +0200
+On Wed, 22 May 2002 10:54:25 -0400 (EDT)
+Alexander Viro <viro@math.psu.edu> wrote:
+> On Wed, 22 May 2002, Alan Cox wrote:
+> > XFree86 uses /proc/cpuinfo, /proc/bus/pci, /proc/mtrr, /proc/fb, /proc/dri
+> > and even such goodies as /proc/sys/dev/mac_hid/keyboard_sends_linux_keycodes
 > 
->    > > 2. What is the "proper" fix for the patch collision between the raid
->    > > patch and the ext3 patch in /include/linux/fs.h? 
->    > 
->    > Use 2.4.
->    
->    Impossible on sparc32 on account of the lurking SRMMU bug.
->    (See yesterday's post by Joris Braakman <jorisb@nl.euro.net>.)
->    
-> There have been several patches posted to deal with that
-> problem
+> ... and while we are at flamewar-mongering, none of these files have any
+> business being in procfs.
 
-Splendid. Where have they been posted?
+Let it never be said that you lack courage 8)
 
+Let's sort this out at the kernel summit:
+ dev vs. driverfs. vs proc vs sysctl vs boot params vs. module params vs netlink
 
-T.
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264965AbTGCQao (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 12:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbTGCQ23
+	id S265027AbTGCQbS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 12:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbTGCQa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 12:28:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7947 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265062AbTGCQ1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 12:27:41 -0400
-Date: Thu, 3 Jul 2003 17:42:04 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.74] correct gcc bug comment in <linux/spinlock.h>
-Message-ID: <20030703174204.D20336@flint.arm.linux.org.uk>
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200307031608.h63G8B1r006911@harpo.it.uu.se>
+	Thu, 3 Jul 2003 12:30:56 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:49283 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S265062AbTGCQ3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 12:29:02 -0400
+Date: Thu, 3 Jul 2003 18:47:21 +0200
+From: Wiktor Wodecki <wodecki@gmx.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.5.74-mm1
+Message-ID: <20030703164721.GK4266@gmx.de>
+Reply-To: Johoho <johoho@hojo-net.de>
+References: <20030703023714.55d13934.akpm@osdl.org> <20030703103703.GA4266@gmx.de> <20030703120626.D15013@flint.arm.linux.org.uk> <20030703151529.B20336@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x0KprKst+ZOYEj2z"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200307031608.h63G8B1r006911@harpo.it.uu.se>; from mikpe@csd.uu.se on Thu, Jul 03, 2003 at 06:08:11PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030703151529.B20336@flint.arm.linux.org.uk>
+X-message-flag: Linux - choice of the GNU generation
+X-Operating-System: Linux 2.5.73-bk7-O1int0307021808  i686
+X-PGP-KeyID: 182C9783
+X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 06:08:11PM +0200, Mikael Pettersson wrote:
-> Linus,
-> 
-> This patch updates include/linux/spinlock.h's comment regarding gcc
-> bugs for empty struct initializers, to correctly state that the bug
-> is present also in 2.95.x and at least early versions of 2.96 (as
-> reported by one Mandrake user).
-> 
-> /Mikael
-> 
-> --- linux-2.5.74/include/linux/spinlock.h.~1~	2003-07-03 12:32:46.000000000 +0200
-> +++ linux-2.5.74/include/linux/spinlock.h	2003-07-03 16:07:59.772534704 +0200
-> @@ -144,7 +144,7 @@
->  	} while (0)
->  #else
->  /*
-> - * gcc versions before ~2.95 have a nasty bug with empty initializers.
-> + * gcc versions up to 2.95, and early versions of 2.96, have a nasty bug with empty initializers.
->   */
->  #if (__GNUC__ > 2)
->    typedef struct { } spinlock_t;
 
-This also isn't that clear (does it mean up to 2.95.0 but not including
-2.95.1 etc.)  Also, we don't build with gcc < 2.95 anyway, so there's
-no need to mention anything older.  This removes the doubt:
+--x0KprKst+ZOYEj2z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-"All gcc 2.95 versions and early versions of gcc 2.96 have a nasty bug with
- empty initializers."
+On Thu, Jul 03, 2003 at 03:15:29PM +0100, Russell King wrote:
+> Wiktor - short of anyone else responding, you could try reversing each
+> of the nightly -bk patches from .74 to .73 and work out which set of
+> changes broke it.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I have a 2.5.73-bk7 around and it doesn't work with this one. I'm out now
+so I cannot look for other bk snapshots. Could someone please send me the
+other ones since they seem to be gone from the server and I don't feel
+like widdling with the bk tool right now. Thanks.
 
+--=20
+Regards,
+
+Wiktor Wodecki
+
+--x0KprKst+ZOYEj2z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/BF4Z6SNaNRgsl4MRAm6sAJ0U0eZIdcdA8K1oD48WzJJNYD2O1gCePA5a
+I6HaFdpznOKHXpuMIiNUr94=
+=EnHw
+-----END PGP SIGNATURE-----
+
+--x0KprKst+ZOYEj2z--

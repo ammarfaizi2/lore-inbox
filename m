@@ -1,58 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262723AbTJGTFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 15:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTJGTFs
+	id S262736AbTJGTPY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 15:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbTJGTPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 15:05:48 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21646 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262723AbTJGTFr (ORCPT
+	Tue, 7 Oct 2003 15:15:23 -0400
+Received: from gprs149-208.eurotel.cz ([160.218.149.208]:10883 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262736AbTJGTPN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 15:05:47 -0400
-Date: Tue, 7 Oct 2003 12:05:31 -0700
-From: Greg KH <greg@kroah.com>
-To: "Jonathan A. George" <JAGeorge@greshamstorage.com>,
-       linux-kernel@vger.kernel.org
-Cc: viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: Linux 2.6 udev capability question
-Message-ID: <20031007190531.GM1956@kroah.com>
-References: <3F830C49.5070103@greshamstorage.com>
+	Tue, 7 Oct 2003 15:15:13 -0400
+Date: Tue, 7 Oct 2003 21:14:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: lm@bitmover.com
+Subject: bkcvs problems?
+Message-ID: <20031007191433.GA683@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F830C49.5070103@greshamstorage.com>
-User-Agent: Mutt/1.4.1i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 01:56:09PM -0500, Jonathan A. George wrote:
-> Greg & Al,
-> 
-> Will the udev model somehow support the ability to associate a device 
-> node with a specific device?
-> 
-> For example in a Fibre Channel, SCSI, iSCSI (SAN) date network 
-> environment it would be nice to associate a specific device driver 
-> handle per (WorldWideName and/or Type+Vendor+Model+Serial#).
-> 
-> It would also be nice to be able to associate via the LUN target path.
-> 
-> Obviously the same basic problem space applies to USB devices, and I 
-> have admittedly not reviewed the specs for sysfs and udev in 2.6.  If 
-> the answer to all of these questions is Yes+RTFM that would make me very 
-> happy.  Otherwise I would be interested in knowing whether or not it is 
-> even possible in the udev model, and if it is what would be the 
-> recommended approach to implementation.
+Hi!
 
-Yes, RTFM  :)
+According to bkbits, andi's cpufreq changes are in:
 
-> P.S. Feel free to forward your response to LKML since there are no doubt 
-> others with the same question in mind.
+http://linus.bkbits.net:8080/linux-2.5/patch@1.1480?nav=index.html|ChangeSet@-1d|cset@1.1480
+....
+diff -Nru a/arch/x86_64/kernel/Makefile b/arch/x86_64/kernel/Makefile
+--- a/arch/x86_64/kernel/Makefile	Fri Sep 26 06:53:37 2003
++++ b/arch/x86_64/kernel/Makefile	Sun Oct  5 13:31:26 2003
+@@ -26,3 +26,5 @@
+ 
+ bootflag-y			+= ../../i386/kernel/bootflag.o
+ cpuid-$(CONFIG_X86_CPUID)	+= ../../i386/kernel/cpuid.o
++
++obj-$(CONFIG_CPU_FREQ)	+=	cpufreq/
+....
 
-Will do.  Why did you not ask this there in the first place?  Sending
-email directly to developers isn't the nicest thing to do:
-	http://www.arm.linux.org.uk/news/?newsitem=11
+but bkcvs thinks otherwise:
 
-thanks,
+head	1.26;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+expand	@o@;
 
-greg k-h
+
+1.26
+date	2003.09.26.15.56.18;	author ak;	state Exp;
+branches;
+next	1.25;
+...
+1.26
+log
+@Another small x86-64 merge
+
+(Logical change 1.13489)
+@
+text
+@#
+# Makefile for the linux kernel.
+#
+
+extra-y 	:= head.o head64.o init_task.o vmlinux.lds.s
+EXTRA_AFLAGS	:= -traditional
+obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
+		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_x86_64.o \
+		x8664_ksyms.o i387.o syscall.o vsyscall.o \
+		setup64.o bluesmoke.o bootflag.o e820.o reboot.o warmreboot.o
+
+obj-$(CONFIG_MTRR)		+= ../../i386/kernel/cpu/mtrr/
+obj-$(CONFIG_ACPI)		+= acpi/
+obj-$(CONFIG_X86_MSR)		+= msr.o
+obj-$(CONFIG_X86_CPUID)		+= cpuid.o
+obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o
+obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o  nmi.o
+obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o mpparse.o
+obj-$(CONFIG_PM)		+= suspend.o
+obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend_asm.o
+obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o aperture.o
+obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
+
+obj-$(CONFIG_MODULES)		+= module.o
+
+bootflag-y			+= ../../i386/kernel/bootflag.o
+cpuid-$(CONFIG_X86_CPUID)	+= ../../i386/kernel/cpuid.o
+@
+....
+
+(Of course, I initally tried with simple cvs update, then I killed
+whole tree and did cvs update, but that did not help. I did bk sync
+five minutes ago, just to be sure, but it did not help).
+
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262785AbSI1Jqx>; Sat, 28 Sep 2002 05:46:53 -0400
+	id <S262769AbSI1JuU>; Sat, 28 Sep 2002 05:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262786AbSI1Jqx>; Sat, 28 Sep 2002 05:46:53 -0400
-Received: from pD9E23260.dip.t-dialin.net ([217.226.50.96]:4231 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S262785AbSI1Jqw>; Sat, 28 Sep 2002 05:46:52 -0400
-Date: Sat, 28 Sep 2002 03:52:48 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Lightweight Patch Manager <patch@luckynet.dynu.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Tomas Szepe <szepe@pinerecords.com>, Zach Brown <zab@zaboo.net>
-Subject: Re: [PATCH][2.5] Single linked headed lists for Linux, v3
-In-Reply-To: <20020928093335.E7A794@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0209280352270.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S262789AbSI1JuU>; Sat, 28 Sep 2002 05:50:20 -0400
+Received: from pop.gmx.de ([213.165.64.20]:27133 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262769AbSI1JuT>;
+	Sat, 28 Sep 2002 05:50:19 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Subject: Re: System very unstable
+Date: Sat, 28 Sep 2002 11:55:32 +0200
+User-Agent: KMail/1.4.7
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209280348150.7827-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0209280348150.7827-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209281155.32668.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sat, 28 Sep 2002, Lightweight Patch Manager wrote:
-> +/**
-> + * slist_del_init -	remove an entry from list and initialize it
-> + * @head:	head to remove it from
-> + * @entry:	entry to be removed
-> + */
-> +#define slist_del_init(_entry_in)			\
-> +({							\
-> +	typeof(_entry_in) _entry = (_entry_in), _head =	\
-> +	    kmalloc(sizeof(_entry), GFP_KERNEL), _free;	\
-> +	if (_head) {					\
-> +	    memcpy(_head, (_entry), sizeof(_entry));	\
-> +	    _free = (_entry);				\
-> +	    (_entry) = (_entry)->next;			\
-> +	    kfree(_free);				\
-> +	    _head->next = _head;			\
-> +	    _head;					\
-> +	} else						\
-> +	    NULL;					\
-> +})
+Am Samstag, 28. September 2002 11:50 schrieb Thunder from the hill:
+> Hi,
+>
+> On Sat, 28 Sep 2002, Felix Seeger wrote:
+> > Yes I am using the nvidia module. But I don't think that is the problem,
+> > because I never had such problems with it.
+> > The only thing I can imagine is that:
+> > I installed the new module and I looked very unstable. So I installed the
+> > old one again.
+>
+> You got that wrong. It's not meant to be a torture on the user, but it's
+> rather that NVdriver only works on kernels it was explicitly written for.
+> Otherwise most things just won't match. That's where NVdriver uses to hit.
+>
+> Please check again without ever loading the NVdriver. (i.e. from a clean
+> reboot.)
+>
+> 			Thunder
+I know your problems with the NVdriver and I understand it. Also I don't like 
+it. I has many bugs and is not closed source, I understand that no developer 
+wants to work with that.
+But I have a Desktop system. I play games. I can't remove that driver.
+I am running 2.4.19 since it is out and never had such problems with the 
+NVDriver.
 
-Forget this piece...
+I will test my mem this night, and than I slow down the Nvidia chip (sometime 
+that helps).
 
-			Thunder
--- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+If nothing helps, I will try to remove the module.
+
+
+But thanks for your answers
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9lXyUS0DOrvdnsewRAmWpAJ45U7NNwh5+THtIvkBvvg6XB/4UyACfc0i+
+fYT6lxfSX8sNTSUYvmTCMU0=
+=F382
+-----END PGP SIGNATURE-----
 

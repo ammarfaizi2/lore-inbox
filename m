@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUGJO6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUGJPIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUGJO6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 10:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUGJO6Y
+	id S266263AbUGJPIR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 11:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUGJPIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 10:58:24 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:38027 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266275AbUGJO6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 10:58:14 -0400
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: David Teigland <teigland@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 10 Jul 2004 09:58:02 -0500
-Message-Id: <1089471483.1750.31.camel@mulgrave>
+	Sat, 10 Jul 2004 11:08:17 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:39411 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S266263AbUGJPIQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 11:08:16 -0400
+Date: Sat, 10 Jul 2004 11:42:12 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: Tim Bird <tim.bird@am.sony.com>,
+       linux kernel <linux-kernel@vger.kernel.org>,
+       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+Message-ID: <20040710114212.B29889@mail.kroptech.com>
+References: <40EEF10F.1030404@am.sony.com> <20040709193528.A23508@mail.kroptech.com> <40EF3637.4090105@am.sony.com> <20040709220142.B29198@mail.kroptech.com> <40EF4E16.8000709@mvista.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40EF4E16.8000709@mvista.com>; from tpoynor@mvista.com on Fri, Jul 09, 2004 at 07:01:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    gfs needs to run in the kernel.  dlm should run in the kernel since gfs uses it
-    so heavily.  cman is the clustering subsystem on top of which both of those are
-    built and on which both depend quite critically.  It simply makes most sense to
-    put cman in the kernel for what we're doing with it.  That's not a dogmatic
-    position, just a practical one based on our experience.
-    
-    
-This isn't really acceptable.  We've spent a long time throwing things
-out of the kernel so you really need a good justification for putting
-things in again.  "it makes sense" and "its just practical" aren't
-sufficient.
+On Fri, Jul 09, 2004 at 07:01:58PM -0700, Todd Poynor wrote:
+> Adam Kropelin wrote:
+> 
+> > +	if (preset_lpj) {
+> > +		loops_per_jiffy = preset_lpj;
+> > +		printk("Calibrating delay loop (skipped)... ");
+> 
+> Suggest a "\n" at the end of that.
 
-You also face two other additional hurdles:
+Indeed. I propogated that bug from the original patch. I'll fix it.
 
-1) GFS today uses a user space DLM.  What critical problems does this
-have that you suddenly need to move it all into the kernel?
+> Maybe add the precomputed value to 
+> help bring incorrect presets to someone's attention, something like:
+> 
+> +		printk("BogoMIPS preset to %lu.%02lu\n",
+> +			loops_per_jiffy/(500000/HZ),
+> +			(loops_per_jiffy/(5000/HZ)) % 100);
 
-2) We have numerous other clustering products for Linux, none of which
-(well except the Veritas one) has any requirement at all on having
-pieces in the kernel.  If all the others operate in user space, why does
-yours need to be in the kernel?
+Will do.
 
-So do you have a justification for requiring these as kernel components?
+>  > + If unsure, set this to 0. An incorrect value will cause delays in
+>  > + the kernel to be incorrect.  Although unlikely, in the extreme case
+>  > + this might damage your hardware.
+> 
+> I suppose it may result in unpredictable I/O errors, in case we want to 
+> warn against that.
 
-James
+Easy enough to throw it in.
 
+Another patch is forthcoming.
 
+--Adam
 

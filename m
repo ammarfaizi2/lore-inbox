@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbTLXItM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 03:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTLXItL
+	id S263479AbTLXJV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 04:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTLXJV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 03:49:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12997 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263472AbTLXItJ (ORCPT
+	Wed, 24 Dec 2003 04:21:59 -0500
+Received: from [62.29.72.212] ([62.29.72.212]:7040 "EHLO southpark.com")
+	by vger.kernel.org with ESMTP id S263479AbTLXJV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 03:49:09 -0500
-Date: Wed, 24 Dec 2003 09:49:03 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Subject: Re: Question on LFS in Redhat
-Message-ID: <20031224084903.GB20976@devserv.devel.redhat.com>
-References: <20031223151042.GE9089@vnl.com> <1072193917.5262.1.camel@laptop.fenrus.com> <20031223235827.GK9089@vnl.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+	Wed, 24 Dec 2003 04:21:57 -0500
+From: "ismail 'cartman' =?utf-8?q?d=C3=B6nmez?=" <kde@myrealbox.com>
+Reply-To: kde@myrealbox.com
+Organization: Bogazici University
+To: linux-kernel@vger.kernel.org
+Subject: PPP ooopses on 2.6.0-mm1
+Date: Wed, 24 Dec 2003 11:21:56 +0200
+User-Agent: KMail/1.5.94
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20031223235827.GK9089@vnl.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200312241121.56934.kde@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Dec 23, 2003 at 11:58:27PM +0000, Dale Amon wrote:
-> On Tue, Dec 23, 2003 at 04:38:38PM +0100, Arjan van de Ven wrote:
-> > On Tue, 2003-12-23 at 16:10, Dale Amon wrote:
-> > > If there are any Redhat folk around... could you tell
-> > > me if you've included the LFS patches in your:
-> > >=20
-> > > 	2.4.16-9smp
-> >=20
-> > Red Hat never released a 2.4.16 kernel for production use.
->=20
-> Hmmm, that's what is showing and the Raidzone guy here in
-> the UK told me they are stock...=20
-
-Raidzone does not ship a "stock" kernel but a kernel with a lot of changes
-including changes to make their binary only modules possible (the legality
-of this is left as an excercise to the reader).
-
-You really shouldn't be running a 2.4.16 kernel (not without the latest
-security patches for such a kernel from a distro) given the amount of secur=
-ity issues
-fixed since... and since I don't think any distro ever shipped 2.4.16 (some
-shipped 2.4.17, a bunch shipped 2.4.18 but even RH doesn't do patches for
-that 2.4.18 tree anymore since they have been obsoleted by 2.4.20 and newer
-kernels).
+Here is what I get from syslog :
 
 
-> > However we also never released a 2.4 kernel with the large BLOCK patch.
-> > All 2.4 kernels we shipped can do files > 2 Gb of course.
->=20
-> But you wouldn't be able to handle file systems larger
-> than 2TB then I presume?
+Dec 24 11:09:51 southpark kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000065
+Dec 24 11:09:51 southpark kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000065
+Dec 24 11:09:51 southpark kernel:  printing eip:
+Dec 24 11:09:51 southpark kernel: e500dfcb
+Dec 24 11:09:51 southpark kernel: *pde = 00000000
+Dec 24 11:09:51 southpark kernel: *pde = 00000000
+Dec 24 11:09:51 southpark kernel: Oops: 0000 [#1]
+Dec 24 11:09:51 southpark kernel: PREEMPT
+Dec 24 11:09:51 southpark kernel: CPU:    0
+Dec 24 11:09:51 southpark kernel: EIP:    0060:[_end+617343539/1070258792]    Not tainted VLI
+Dec 24 11:09:51 southpark kernel: EFLAGS: 00010002
+Dec 24 11:09:51 southpark kernel: EIP is at process_input_packet+0x6b/0x230 [ppp_async]
+Dec 24 11:09:51 southpark kernel: eax: d5156c00   ebx: 0000007e   ecx: dae99310   edx: 00000000
+Dec 24 11:09:51 southpark kernel: esi: 00000001   edi: dae99710   ebp: d5156c00   esp: e3f8dee8
+Dec 24 11:09:51 southpark kernel: ds: 007b   es: 007b   ss: 0068
+Dec 24 11:09:51 southpark kernel: Process events/0 (pid: 3, threadinfo=e3f8c000 task=c15cecc0)
+Dec 24 11:09:51 southpark kernel: Stack: c02a151c c15cecc0 e3fedc28 dae990bc e3f8df70 0000007e 00000001 dae99710
+Dec 24 11:09:51 southpark kernel:        00000002 e500e34c d5156c00 0000f18b c029fa60 e3f8c000 00000286 d5156c00
+Dec 24 11:09:51 southpark kernel:        dae99000 e500d522 d5156c00 dae99310 dae99710 00000008 dae99000 00000008
+Dec 24 11:09:51 southpark kernel: Call Trace:
+Dec 24 11:09:51 southpark kernel:  [_end+617344436/1070258792] ppp_async_input+0x1bc/0x340 [ppp_async]
+Dec 24 11:09:51 southpark kernel:  [_end+617340810/1070258792] ppp_asynctty_receive+0x52/0xd0 [ppp_async]
+Dec 24 11:09:51 southpark kernel:  [flush_to_ldisc+156/272] flush_to_ldisc+0x9c/0x110
+Dec 24 11:09:51 southpark kernel:  [worker_thread+477/720] worker_thread+0x1dd/0x2d0
+Dec 24 11:09:51 southpark kernel:  [flush_to_ldisc+0/272] flush_to_ldisc+0x0/0x110
+Dec 24 11:09:51 southpark kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
+Dec 24 11:09:51 southpark kernel:  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+Dec 24 11:09:51 southpark kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
+Dec 24 11:09:51 southpark kernel:  [worker_thread+0/720] worker_thread+0x0/0x2d0
+Dec 24 11:09:51 southpark kernel:  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+Dec 24 11:09:51 southpark kernel:
+Dec 24 11:09:51 southpark kernel: Code: 89 d0 c1 e8 08 32 13 43 0f b6 d2 0f b7 94 12 40 f3 00 e5 31 c2 49 75 e8 81 fa b8 f0 00 00 74 4e c7 45 08 04 00 00 00 85 f6 74 25 <8b> 4e 64 85 c9 74 1e 8b 56 68 85 d2 75 1f c7 46 64 00 00 00 00
+Dec 24 11:09:51 southpark kernel:  <6>note: events/0[3] exited with preempt_count 1
 
-correct.
 
-
---yEPQxsgoJgBvi8ip
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/6VL+xULwo51rQBIRAs6UAJwJwUL3HGg2bfI/7kGo7VqBCm2+wACgkos3
-G3zu+vdJnDad7Ga56uHAs1w=
-=f0f7
------END PGP SIGNATURE-----
-
---yEPQxsgoJgBvi8ip--
+This somehow freezes X too. Anyone seen similar problems?
+-- 
+Joe Random Hacker Since 2002

@@ -1,121 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266676AbUFWVMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUFWVQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266676AbUFWVMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 17:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUFWVLu
+	id S266674AbUFWVQE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 17:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUFWVNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 17:11:50 -0400
-Received: from holomorphy.com ([207.189.100.168]:17541 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266678AbUFWVHs (ORCPT
+	Wed, 23 Jun 2004 17:13:24 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:1239 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S263429AbUFWVMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:07:48 -0400
-To: linux-kernel@vger.kernel.org
-From: William Lee Irwin III <wli@holomorphy.com>
-Subject: [oom]: [2/4] add nr_wired to page_state
-Message-ID: <0406231407.Wa3a0aIbWaLbXaJbIb1a1aLbKb2aKb2a3aYaJbYa3a1a4aJbKbWa4a0a4a4aWaHb342@holomorphy.com>
-In-Reply-To: <0406231407.ZaHbZa1aIbIbKbZa3aHbLb3aYa2a3a5aWaIbWaKb2aYaKb4a4aHbIb3aLb5aHb2a342@holomorphy.com>
-CC: akpm@osdl.org
-Date: Wed, 23 Jun 2004 14:07:46 -0700
+	Wed, 23 Jun 2004 17:12:02 -0400
+Date: Wed, 23 Jun 2004 23:11:58 +0200
+From: David Weinehall <tao@debian.org>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: path_resolution.2
+Message-ID: <20040623211158.GL5811@khan.acc.umu.se>
+Mail-Followup-To: Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org
+References: <UTC200406232038.i5NKcTs11770.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200406232038.i5NKcTs11770.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.6.7/include/linux/page-flags.h
-===================================================================
---- linux-2.6.7.orig/include/linux/page-flags.h	2004-06-16 05:19:42.000000000 +0000
-+++ linux-2.6.7/include/linux/page-flags.h	2004-06-23 18:57:13.000000000 +0000
-@@ -77,6 +77,7 @@
- #define PG_compound		19	/* Part of a compound page */
- 
- #define PG_anon			20	/* Anonymous: anon_vma in mapping */
-+#define PG_wired		21	/* wired: can't be evicted */
- 
- 
- /*
-@@ -90,7 +91,8 @@
- 	unsigned long nr_page_table_pages;/* Pages used for pagetables */
- 	unsigned long nr_mapped;	/* mapped into pagetables */
- 	unsigned long nr_slab;		/* In slab */
--#define GET_PAGE_STATE_LAST nr_slab
-+	unsigned long nr_wired;		/* pinned pages */
-+#define GET_PAGE_STATE_LAST nr_wired
- 
- 	/*
- 	 * The below are zeroed by get_page_state().  Use get_full_page_state()
-@@ -302,6 +304,10 @@
- #define SetPageAnon(page)	set_bit(PG_anon, &(page)->flags)
- #define ClearPageAnon(page)	clear_bit(PG_anon, &(page)->flags)
- 
-+#define PageWired(page)		test_bit(PG_wired, &(page)->flags)
-+#define SetPageWired(page)	set_bit(PG_wired, &(page)->flags)
-+#define ClearPageWired(page)	clear_bit(PG_wired, &(page)->flags)
-+
- #ifdef CONFIG_SWAP
- #define PageSwapCache(page)	test_bit(PG_swapcache, &(page)->flags)
- #define SetPageSwapCache(page)	set_bit(PG_swapcache, &(page)->flags)
-@@ -327,4 +333,16 @@
- 	test_set_page_writeback(page);
- }
- 
-+static inline void set_page_wired(struct page *page)
-+{
-+	SetPageWired(page);
-+	inc_page_state(nr_wired);
-+}
-+
-+static inline void clear_page_wired(struct page *page)
-+{
-+	ClearPageWired(page);
-+	dec_page_state(nr_wired);
-+}
-+
- #endif	/* PAGE_FLAGS_H */
-Index: linux-2.6.7/mm/page_alloc.c
-===================================================================
---- linux-2.6.7.orig/mm/page_alloc.c	2004-06-16 05:18:57.000000000 +0000
-+++ linux-2.6.7/mm/page_alloc.c	2004-06-23 18:57:50.000000000 +0000
-@@ -235,6 +235,8 @@
- 		bad_page(function, page);
- 	if (PageDirty(page))
- 		ClearPageDirty(page);
-+	if (PageWired(page))
-+		clear_page_wired(page);
- }
- 
- /*
-@@ -563,6 +565,8 @@
- 		if (order && (gfp_flags & __GFP_COMP))
- 			prep_compound_page(page, order);
- 	}
-+	if (gfp_flags & __GFP_WIRED)
-+		set_page_wired(page);
- 	return page;
- }
- 
-@@ -1695,6 +1699,7 @@
- 	"nr_page_table_pages",
- 	"nr_mapped",
- 	"nr_slab",
-+	"nr_wired",
- 
- 	"pgpgin",
- 	"pgpgout",
-Index: linux-2.6.7/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.7.orig/fs/proc/proc_misc.c	2004-06-16 05:18:58.000000000 +0000
-+++ linux-2.6.7/fs/proc/proc_misc.c	2004-06-23 18:57:33.000000000 +0000
-@@ -204,6 +204,7 @@
- 		"Slab:         %8lu kB\n"
- 		"Committed_AS: %8u kB\n"
- 		"PageTables:   %8lu kB\n"
-+		"Wired:        %8lu kB\n"
- 		"VmallocTotal: %8lu kB\n"
- 		"VmallocUsed:  %8lu kB\n"
- 		"VmallocChunk: %8lu kB\n",
-@@ -226,6 +227,7 @@
- 		K(ps.nr_slab),
- 		K(committed),
- 		K(ps.nr_page_table_pages),
-+		K(ps.nr_wired),
- 		vmtot,
- 		vmi.used,
- 		vmi.largest_chunk
+On Wed, Jun 23, 2004 at 10:38:29PM +0200, Andries.Brouwer@cwi.nl wrote:
+> In order to avoid repeating the same longish text on the man pages
+> for many system calls, I wrote a man page path_resolution.2 that
+> other pages can refer to.
+
+Nice page, but shouldn't this be
+
+7   Miscellaneous (including macro packages and conventions)
+
+rather than
+
+2   System calls (functions provided by the kernel)
+
+
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

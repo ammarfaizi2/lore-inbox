@@ -1,65 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVCIRQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVCIRUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVCIRQr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVCIRQq
+	id S262114AbVCIRUL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCIRUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:16:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24705 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262087AbVCIRQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:16:26 -0500
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
-	ule  for LSI Logic's SAS based MegaRAID controllers
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC1E@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CC1E@exa-atlanta>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 18:16:19 +0100
-Message-Id: <1110388579.6280.134.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 9 Mar 2005 12:20:02 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:29131 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262111AbVCIRSW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 12:18:22 -0500
+Message-ID: <422F2FDD.4050908@us.ltcfwd.linux.ibm.com>
+Date: Wed, 09 Mar 2005 12:18:21 -0500
+From: Wen Xiong <wendyx@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
+References: <42225A47.3060206@us.ltcfwd.linux.ibm.com> <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com> <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com> <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com>
+In-Reply-To: <20050309163518.GC25079@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------020701010509070405030302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-09 at 11:01 -0500, Bagalkote, Sreenivas wrote:
-> >
-> >> . And since this is compile time
-> >> system-wide property, I kept it as driver global.
-> >
-> >that step I don't understand... why is it a global *VARIABLE* if it's
-> >compile time system-wide property...
-> >
-> 
-> I see your point! Are you saying I should use if(sizeof(dma_addr_t)==8)
-> instead of the shortcut if(is_dma64)? 
-yep
-well you can use a preprocessor define of something to make it slightly
-more readable (eg shortcut) if you want, but that's what I mean yeah..
+This is a multi-part message in MIME format.
+--------------020701010509070405030302
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-gcc will optimize the entire unused code away this way, including the
-actual conditional jump, so for performance and bloat-ness point of view
-it's nice.... and of course generic design beauty ;)
+Greg KH wrote:
+
+>On Wed, Mar 09, 2005 at 10:47:22AM -0500, Wen Xiong wrote:
+>  
+>
+>>+static ssize_t jsm_driver_debug_show(struct device_driver *ddp, char *buf)
+>>+{
+>>+	return snprintf(buf, PAGE_SIZE, "0x%x\n", jsm_debug);
+>>+}
+>>+static DRIVER_ATTR(debug, S_IRUSR, jsm_driver_debug_show, NULL);
+>>    
+>>
+>
+>Should just be a module paramater, right?  So you can drop this too...
+>
+>This file is getting quite small now :)
+>
+>thanks,
+>
+>greg k-h
+>
+>  
+>
+If I removed two module paramaters, only two files left: version and state.
+ Removed all of them?
+
+Thanks,
+wendy
+
+
+--------------020701010509070405030302
+Content-Type: text/plain;
+ name="patch4.jasmine"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch4.jasmine"
+
+diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_sysfs.c linux-2.6.11.new/drivers/serial/jsm/jsm_sysfs.c
+--- linux-2.6.11.org/drivers/serial/jsm/jsm_sysfs.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.11.new/drivers/serial/jsm/jsm_sysfs.c	2005-03-09 11:17:37.055947624 -0600
+@@ -0,0 +1,53 @@
++/************************************************************************
++ * Copyright 2003 Digi International (www.digi.com)
++ *
++ * Copyright (C) 2004 IBM Corporation. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ * 
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED; without even the 
++ * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
++ * PURPOSE.  See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License 
++ * along with this program; if not, write to the Free Software 
++ * Foundation, Inc., 59 * Temple Place - Suite 330, Boston,
++ * MA  02111-1307, USA.
++ *
++ * Contact Information:
++ * Scott H Kilau <Scott_Kilau@digi.com>
++ * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
++ *
++ ***********************************************************************/
++#include <linux/device.h>
++#include <linux/serial_reg.h>
++
++#include "jsm_driver.h"
++
++static ssize_t jsm_driver_version_show(struct device_driver *ddp, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%s\n", JSM_VERSION);
++}
++static DRIVER_ATTR(version, S_IRUSR, jsm_driver_version_show, NULL);
++
++static ssize_t jsm_driver_state_show(struct device_driver *ddp, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%s\n", jsm_driver_state_text[jsm_driver_state]);
++}
++static DRIVER_ATTR(state, S_IRUSR, jsm_driver_state_show, NULL);
++
++void jsm_create_driver_sysfiles(struct device_driver *driverfs)
++{
++	driver_create_file(driverfs, &driver_attr_version);
++	driver_create_file(driverfs, &driver_attr_state);
++}
++
++void jsm_remove_driver_sysfiles(struct device_driver  *driverfs)
++{
++	driver_remove_file(driverfs, &driver_attr_version);
++	driver_remove_file(driverfs, &driver_attr_state);
++}
+
+--------------020701010509070405030302--
 

@@ -1,77 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317365AbSFXFmt>; Mon, 24 Jun 2002 01:42:49 -0400
+	id <S317367AbSFXFpK>; Mon, 24 Jun 2002 01:45:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317367AbSFXFms>; Mon, 24 Jun 2002 01:42:48 -0400
-Received: from lsanca2-ar27-4-46-143-199.lsanca2.dsl-verizon.net ([4.46.143.199]:20864
-	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
-	id <S317365AbSFXFms>; Mon, 24 Jun 2002 01:42:48 -0400
-Date: Sun, 23 Jun 2002 22:42:36 -0700 (PDT)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.24-dj1
-In-Reply-To: <20020621025918.GA9415@suse.de>
-Message-ID: <Pine.LNX.4.44.0206232236340.1736-100000@barbarella.hawaga.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317374AbSFXFpJ>; Mon, 24 Jun 2002 01:45:09 -0400
+Received: from [213.22.182.84] ([213.22.182.84]:20686 "HELO promiscua.org")
+	by vger.kernel.org with SMTP id <S317367AbSFXFpI>;
+	Mon, 24 Jun 2002 01:45:08 -0400
+Date: 24 Jun 2002 05:49:59 -0000
+Message-ID: <20020624054959.19187.qmail@promiscua.org>
+From: pah@promiscua.org
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
+
+	I've just found a bug (an unsignificant bug) in the panic() function!
+	There's a possible buffer overflow if the formated string exceeds
+1024 characters (I think that the problem is in all kernel releases).
+	The problem is in the use of vsprintf() insted of vsnprintf()!
+
+	I know that this doesn't compromise any exploitation by an uid
+different than zero, but should be fixed in the case of panic()'s arguments
+exceeds the buffer limit (probably by an lkm or something like that) and
+cause (probably) a system crash.
+
+	Here is the exploitation by an lkm:
 
 
-When I tried to copy around 500Mb of files between two filesystems on the
-same hard-drive, I got the following message on the console:
+/************** LKM ***********/
 
-hda: error: DMA in progress...
+/*
+ * panic()'s buffer overflow test
+ *
+ * By: Pedro Hortas
+ * E-Mail: pah@promiscua.org
+ *
+ */
 
-and the system seems to get stuck - I can't kill the cp with ctrl-c, nor
-can I get getty to let me log in on another console.
+#define __KERNEL__
+#define MODULE
 
-However, the kernel still forwards IP traffic and I presume is managing to
-tickle my hardware watchdog as the system doesn't automatically reboot.
+#define _LOOSE_KERNEL_NAMES
 
-Hopefully, the relevant part of my boot output follows.
+#include <linux/module.h>
+#include <linux/kernel.h>
 
+int init_module(void) {
+        char foo[2048];
+        int i;
 
+        for (i = 0; i < sizeof(foo); i++)
+                foo[i] = '\x90';
+        foo[i - 1] = 0;
+        panic("Overflowing panic()'s buffer: %s\n", foo);
 
-ATA/ATAPI device driver v7.0.0
-ATA: PCI bus speed 33.3MHz
-ATA: Intel Corp. 82801BA IDE U100, PCI slot 00:1f.1
-ATA: chipset rev.: 17
-ATA: non-legacy mode: IRQ probe delayed
-PIIX: Intel Corp. 82801BA IDE U100 UDMA100 controller on pci00:1f.1
-PCI: Setting latency timer of device 00:1f.1 to 64
-    ide0: BM-DMA at 0x2480-0x2487, BIOS settings: hda:DMA, hdb:pio
-PCI: Setting latency timer of device 00:1f.1 to 64
-    ide1: BM-DMA at 0x2488-0x248f, BIOS settings: hdc:DMA, hdd:pio
-hda: WDC WD200EB-11CSF0, DISK drive
-hdc: Compaq CRD-8402B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
- hda: 39102336 sectors w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: [PTBL] [2586/240/63] p1 p2 < p5 p6 p7 
-p8 p9 p
-10 p11 >
+        return 0;
+}
+
+int cleanup_module(void) {
+        return 0;
+}
+
+/************* END OF LKM ************/
 
 
+	And here is the patch to fix the problem:
 
-When I am not doing intensive disk activity, it seems to last longer - it
-has been up one and a half hours so far and hasn't crashed yet, doing a
-mixture of mail reading and running distributed.net.
 
-Ben
-- -- 
-Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
-http://www.hawaga.org.uk/ben/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+/************* PATCH **************/
 
-iD8DBQE9FrFOsYXoezDwaVARApuEAJ9+35KZHMBjLQ53ZPFqLPL+0R5hdACcCOpL
-XRiiRiHA6aueKTat0LsHCfE=
-=avqK
------END PGP SIGNATURE-----
+diff -urP linux/kernel/panic.c linux-patched/kernel/panic.c
+--- linux/kernel/panic.c        Sun Sep 30 20:26:08 2001
++++ linux-patched/kernel/panic.c        Mon Jun 24 06:18:12 2002
+@@ -51,7 +51,7 @@
 
+        bust_spinlocks(1);
+        va_start(args, fmt);
+-       vsprintf(buf, fmt, args);
++       vsnprintf(buf, sizeof(buf), fmt, args);
+        va_end(args);
+        printk(KERN_EMERG "Kernel panic: %s\n",buf);
+        if (in_interrupt())
+
+/************** END OF PATCH *************/
+
+
+
+	Pedro Hortas
+	pah@promiscua.org

@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUIDNqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUIDNsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262837AbUIDNqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 09:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUIDNqQ
+	id S263003AbUIDNsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 09:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUIDNsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 09:46:16 -0400
-Received: from pxy2allmi.all.mi.charter.com ([24.247.15.40]:1476 "EHLO
-	proxy2-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
-	id S262837AbUIDNp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 09:45:56 -0400
-Message-ID: <4139C6E2.1050000@quark.didntduck.org>
-Date: Sat, 04 Sep 2004 09:45:06 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
-X-Accept-Language: en-us, en
+	Sat, 4 Sep 2004 09:48:16 -0400
+Received: from cpe.atm0-0-0-2421032.0x3ef2dbfa.arcnxx7.customer.tele.dk ([62.242.219.250]:48766
+	"EHLO host.kl-teknik.com") by vger.kernel.org with ESMTP
+	id S263003AbUIDNr6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 09:47:58 -0400
+From: Frederik Dannemare <frederik@dannemare.net>
+To: Richard Whittaker <rwhittaker@northwestel.ca>
+Subject: Re: Linux 2.6.8 SegFaulting...
+Date: Sat, 4 Sep 2004 15:52:28 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <4137FC68.3010404@northwestel.ca>
+In-Reply-To: <4137FC68.3010404@northwestel.ca>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] explicity align tss->stack
-Content-Type: multipart/mixed;
- boundary="------------090405050206030806020203"
-X-Charter-Information: 
-X-Charter-Scan: 
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200409041552.29448.frederik@dannemare.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090405050206030806020203
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Use an alignment attribute on the stack member of struct tss_struct 
-instead of padding.  Also mark the limit of the TSS segment.
+On Friday 03 September 2004 07:08, Richard Whittaker wrote:
+> Hiya..
+>
+> We have a Proliant DL360 G3 running Linux 2.6.8. This machine has two
+> CPUs, 3GB of memory, a pair of 146GB disks on the SmartArray 5i
+> contoller, a QL2314 Fibrechannel card, and is using abou 60GB on an
+> HP VA7400 via the Fibrechannel card. Under 2.6.6 and 1GB of memory
+> this machine had run for 4 months without even a hiccup... As of
+> yesterday, I added the space on the VA, and moved our MRTG monitoring
+> system to the machine. Our MRTG currently monitors about 300
+> different elements, and is pretty I/O intensive. The website that the
+> MRTG graphs are being written to is on the VA.
+>
+> This machine crashed and burned in spectacular fashion last night for
+> the first time in 4 months, and I was really suprised. The machine
+> SegFaulted, but I couldn't get a capture of the stack spew... I had
+> to power the machine off, and restart it this morning. The machine
+> ran for about 4 hours, then SegFaulted again... I was able to at
+> least see the Segfault info, and it was saying something about
+> swapper. Power cycled, and about 5 hours later, Segfaulted again, but
+> this time I was able to capture the DMESG output... I thought it
+> might have been the software RAID device I'd made out of the two LUNS
+> on the VA, but after wiping the LUNS out, and rebuilding them, and
+> moving to LVM with striping the problem still persists.
+>
+> Everything in this Kernel is statically linked, and everything is
+> stock, right from ftp.kernel.org...
+>
+> Now, I have a feeling that this has something to do with the I/O that
+> I'm loading on the QLogic controller, but can't be absolutely
+> certain... I pose the question here for perusal by the experts, and
+> hopefully some suggestions about what I should look at, or do next...
+[snip]
+Can you rule out bad memory (try memtest86+ for 10-20 hours)? Or could 
+it be heat? Bad mem and heat problems have been the source of almost 
+all crashes I've witnessed.
+- -- 
+Frederik Dannemare | mailto:frederik@dannemare.net
+http://qa.debian.org/developer.php?login=Frederik+Dannemare
+http://frederik.dannemare.net | http://www.linuxworlddomination.dk
+Key fingerprint: BB7B 078A 0DBF 7663 180A  F84A 2D25 FAD5 9C4E B5A8
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
---
-				Brian Gerst
-
---------------090405050206030806020203
-Content-Type: text/plain;
- name="tss-stack-align"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="tss-stack-align"
-
-diff -urN linux-2.6.9-rc1-bk/include/asm-i386/desc.h linux/include/asm-i386/desc.h
---- linux-2.6.9-rc1-bk/include/asm-i386/desc.h	2004-08-25 11:52:00.000000000 -0400
-+++ linux/include/asm-i386/desc.h	2004-09-04 09:20:29.216440282 -0400
-@@ -47,7 +47,7 @@
- static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
- {
- 	_set_tssldt_desc(&per_cpu(cpu_gdt_table, cpu)[entry], (int)addr,
--		offsetof(struct tss_struct, __cacheline_filler) - 1, 0x89);
-+		offsetof(struct tss_struct, tss_limit) - 1, 0x89);
- }
- 
- #define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
-diff -urN linux-2.6.9-rc1-bk/include/asm-i386/processor.h linux/include/asm-i386/processor.h
---- linux-2.6.9-rc1-bk/include/asm-i386/processor.h	2004-09-03 02:13:03.000000000 -0400
-+++ linux/include/asm-i386/processor.h	2004-09-04 09:20:40.573961012 -0400
-@@ -391,14 +391,11 @@
- 	 * be within the limit.
- 	 */
- 	unsigned long	io_bitmap[IO_BITMAP_LONGS + 1];
--	/*
--	 * pads the TSS to be cacheline-aligned (size is 0x100)
--	 */
--	unsigned long __cacheline_filler[37];
-+	unsigned long	tss_limit[0];
- 	/*
- 	 * .. and then another 0x100 bytes for emergency kernel stack
- 	 */
--	unsigned long stack[64];
-+	unsigned long	stack[64] __attribute__((aligned(0x100)));
- } __attribute__((packed));
- 
- #define ARCH_MIN_TASKALIGN	16
-
---------------090405050206030806020203--
+iD8DBQFBOcicLSX61ZxOtagRAqyNAKCIlPOdU5Je7NSerF2NcD4qxNzlUQCgi1o2
+plUHzPPGixdMT5ULZayszgQ=
+=VvlJ
+-----END PGP SIGNATURE-----

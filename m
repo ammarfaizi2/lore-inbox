@@ -1,113 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267070AbSK2Ovl>; Fri, 29 Nov 2002 09:51:41 -0500
+	id <S267072AbSK2OzR>; Fri, 29 Nov 2002 09:55:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267072AbSK2Ovl>; Fri, 29 Nov 2002 09:51:41 -0500
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:3076 "EHLO
-	lap.molina") by vger.kernel.org with ESMTP id <S267070AbSK2Ovk>;
-	Fri, 29 Nov 2002 09:51:40 -0500
-Date: Fri, 29 Nov 2002 08:50:46 -0600 (CST)
-From: Thomas Molina <tmolina@copper.net>
-X-X-Sender: tmolina@lap.molina
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@yggdrasil.com>,
-       <kaos@sgi.com>
-Subject: Re: [ALPHA RELEASE] module-init-tools 0.9-alpha 
-In-Reply-To: <20021129111730.132532C316@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0211290812500.830-100000@lap.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267078AbSK2OzR>; Fri, 29 Nov 2002 09:55:17 -0500
+Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:22801 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id <S267072AbSK2OzP>;
+	Fri, 29 Nov 2002 09:55:15 -0500
+Date: Fri, 29 Nov 2002 07:00:50 -0800
+From: carbonated beverage <ramune@net-ronin.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20 kernel link error
+Message-ID: <20021129150050.GA5136@net-ronin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Nov 2002, Rusty Russell wrote:
+Anything other info needed?
 
-> 0.9-alpha Version
-> o Fixed patch in NEWS to leave #include linux/elf.h, needed for
->   CONFIG_KALLSYMS.
-> o Fixed extra newline in "in use by" message.
-> o Fixed parsing for new-style /proc/modules.
-> o Fixed version parsing code (thanks to Adam Richter's report)
-> o Fixed "running out of filedescriptors" (Adam Richter)	
-> o Implemented options in modprobe
-> o Implemented install in modprobe
-> o Implemented options in modules.conf2modprobe.conf
-> o Implemented install in modules.conf2modprobe.conf
-> o Implemented probeall in modules.conf2modprobe.conf
-> o Implemented probe in modules.conf2modprobe.conf
-> o Changed modprobe version to be constant string, for "strings" to work easily.
-> 
-> Lightly tested, but seems to work here.  No source RPM, since it's
-> still alpha.
+gcc 2.95.4
+binutils 2.12.90.0.1
+Debian/woody
+Linux 2.4.20
 
-Your make moveold script didn't take into account that the modutils from 
-RedHat and Keith Owens have lsmod, modprobe, and rmmod as symlinks to 
-insmod.  I worked around that by doing a "cp insmod lsmod", etc.
-
-I took a stock 2.5.50-bk and added the namei.c patch and the patch to 
-module.h out of the NEWS file.  The RedHat 8.0 bootup scripts did not 
-autoload the pcmcia_core, yenta_socket, ds, orinoco_cs, orinoco, and 
-hermes modules, but I could load them by hand.  Unfortuantely, it still 
-does not allow the ethernet interface to be brought up an configured.
-
-I then tried using the 2.4.18 kernel provided by RedHat.  I didn't get the 
-error messages I got using your 0.8 module init tools, but it also 
-wouldn't load the ethernet drivers for my SMC2632W PCMCIA card.
-
-When I run stock RedHat I get <beep> <beep> when the card is inserted.  Is 
-it true that the first beep is when the card insertion event is handled by 
-the system, and the second beep is when the ethernet interface is brought 
-up an configured?
-
-In any case, on boot up I get <beep> <boop>.  I believe this means that 
-the card insertion event was handled correctly, but that the ethernet 
-interface was not brought up and configured.  lsmod does show that 
-pcmcia_core, yenta_socket, and ds modules were loaded, but hermes, 
-orinoco, and orinoco_cs were not.  The modules could be loaded by hand, 
-but that still didn't allow the ethernet interface to be brought up and 
-configured.  Following is a console extract from that session (The dhcp 
-command at the end is a bash script which runs dhclient with the 
-parameters required for me to connect):
-
-[root@lap root]# lsmod
-Module                  Size  Used by    Not tainted
-ds                      7944   1
-yenta_socket           11584   1
-pcmcia_core            48608   0  [ds yenta_socket]
-ext3                   61440   1
-jbd                    46932   1  [ext3]
-[root@lap root]# modprobe orinoco_cs
-WARNING: Error inserting hermes (/lib/modules/2.4.18-18.8.0/kernel/drivers/net/wireless/hermes.o): Unknown symbol in module
-WARNING: Error inserting orinoco (/lib/modules/2.4.18-18.8.0/kernel/drivers/net/wireless/orinoco.o): Unknown symbol in module
-FATAL: Error inserting orinoco_cs (/lib/modules/2.4.18-18.8.0/kernel/drivers/net/wireless/orinoco_cs.o): Unknown symbol in module
-[root@lap root]# lsmod
-Module                  Size  Used by    Not tainted
-ds                      7944   1
-yenta_socket           11584   1
-pcmcia_core            48608   0  [ds yenta_socket]
-ext3                   61440   1
-jbd                    46932   1  [ext3]
-[root@lap root]# ls /sbin/*.old
-/sbin/depmod.old  /sbin/insmod.old  /sbin/lsmod.old  /sbin/modprobe.old  /sbin/rmmod.old
-[root@lap root]# /sbin/modprobe.old hermes
-[root@lap root]# /sbin/modprobe.old orinoco
-[root@lap root]# /sbin/modprobe.old orinoco_cs
-[root@lap root]# lsmod
-Module                  Size  Used by    Not tainted
-orinoco_cs              5320   0  (unused)
-orinoco                32824   0  [orinoco_cs]
-hermes                  7204   0  [orinoco_cs orinoco]
-ds                      7944   1  [orinoco_cs]
-yenta_socket           11584   1
-pcmcia_core            48608   0  [orinoco_cs ds yenta_socket]
-ext3                   61440   1
-jbd                    46932   1  [ext3]
-[root@lap root]# dhcp
-SIOCSIFADDR: No such device
-eth0: unknown interface: No such device
-eth0: unknown interface: No such device
-[root@lap root]# uname -a
-Linux lap 2.4.18-18.8.0 #1 Wed Nov 13 23:08:45 EST 2002 i686 i686 i386 GNU/Linux
-[root@lap root]#
-
-
+drivers/net/pcmcia/pcmcia_net.o: In function `smc_link_ok':
+drivers/net/pcmcia/pcmcia_net.o(.text+0x280c): undefined reference to `mii_link_ok'
+drivers/net/pcmcia/pcmcia_net.o: In function `smc_ethtool_ioctl':
+drivers/net/pcmcia/pcmcia_net.o(.text+0x29ce): undefined reference to `mii_ethtool_gset'
+drivers/net/pcmcia/pcmcia_net.o(.text+0x2a7d): undefined reference to `mii_ethtool_sset'
+drivers/net/pcmcia/pcmcia_net.o(.text+0x2b1c): undefined reference to `mii_nway_restart'
+drivers/net/pcmcia/pcmcia_net.o: In function `smc_ioctl':
+drivers/net/pcmcia/pcmcia_net.o(.text+0x2b8d): undefined reference to `generic_mii_ioctl'
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_M586MMX=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_X86_TSC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=y
+CONFIG_TCIC=y
+CONFIG_I82365=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_STATS=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_UNCLEAN=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECS=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_SMC91C92=y
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=800
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=600
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_RTC=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VGA16=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_VGA_PLANES=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y

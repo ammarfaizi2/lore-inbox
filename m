@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289018AbSAIVQQ>; Wed, 9 Jan 2002 16:16:16 -0500
+	id <S284970AbSAIVWs>; Wed, 9 Jan 2002 16:22:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289026AbSAIVQG>; Wed, 9 Jan 2002 16:16:06 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:1689 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S289018AbSAIVPv>;
-	Wed, 9 Jan 2002 16:15:51 -0500
-Date: Wed, 09 Jan 2002 21:15:46 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>
-Cc: felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <1382203430.1010610946@[195.224.237.69]>
-In-Reply-To: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
-In-Reply-To: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S288966AbSAIVWj>; Wed, 9 Jan 2002 16:22:39 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:31245 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S284970AbSAIVW0> convert rfc822-to-8bit; Wed, 9 Jan 2002 16:22:26 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [PATCH} Tape drive support for cciss driver 2.5.2-pre10
+Date: Wed, 9 Jan 2002 15:22:19 -0600
+Message-ID: <45B36A38D959B44CB032DA427A6E10640167CF1E@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH} Tape drive support for cciss driver 2.5.2-pre10
+Thread-Index: AcGZU7ggyhJz4wD5SfaKFzhNjbSCRw==
+From: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
+To: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Cc: "White, Charles" <Charles.White@COMPAQ.com>
+X-OriginalArrivalTime: 09 Jan 2002 21:22:20.0417 (UTC) FILETIME=[B8C26F10:01C19953]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Here's what I want to have in my initramfs:
->>         - /sbin/hotplug
->>         - /sbin/modprobe
->>         - modules.dep (needed for modprobe, but is a text file)
->>
->> What does everyone else need/want there?
->
-> It is planned to move partition discovery to userspace which would then
-> instruct the kernel of the positions of various partitions.
->
-> The program(s) to do this will need to be in pretty much everyones
-> initramfs...
+Hi folks,
 
-What with mounting root via NFS, hence having to set up
-IP et al, mounting various different
-partition types, avoiding the kludge of fsck etc.,
-being able to recover from a corrupted root, you
-might as well just cpio up your /sbin and stick
-that in, and be able to run single user mode without
-a 'normal' root. <FX: ducks & runs>
+Charles White and I have been maintaining a rather large and
+growing patch for the cciss driver, which seems to get mostly
+ignored.
 
-seriously point: ls /sbin gives a /maximum/ range I'd
-have thought.
+So, suspecting perhaps that the problem is the patch is too
+big and tries to do to much, I have started breaking it up
+into pieces.
 
---
-Alex Bligh
+Here is one such piece which applies to 2.5.2-pre10:
+
+http://www.geocities.com/smcameron/ccisstape_for_2.5.2-pre10.patch.gz
+
+This patch adds support for SCSI tape drives and medium changers 
+to the cciss driver.  The patch doesn't do anything else to my
+knowledge.
+I don't think this patch can be made significantly smaller and still 
+be useful.
+
+Note, the changes which this patch implements are already
+described in Documentation/cciss.txt in the current kernel tree
+as the Documentation portion the larger patch (but nothing else)
+was merged in some time ago for some reason.  (So currently
+the Documentation/cciss.txt is incorrect without this patch.)
+
+I have tried the patch booting from the cciss driver
+with two tape drives attached, and can successfully do i/o to 
+disks and both tape drives simultaneously.
+
+The tape drive support can be configured on or off.  If off,
+then the relevant code is not compiled.
+
+Please consider applying, and feel free to comment.
+
+-- steve

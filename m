@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131441AbQKPXkH>; Thu, 16 Nov 2000 18:40:07 -0500
+	id <S131507AbQKPXlR>; Thu, 16 Nov 2000 18:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131507AbQKPXjr>; Thu, 16 Nov 2000 18:39:47 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51213 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131441AbQKPXjo>; Thu, 16 Nov 2000 18:39:44 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: rdtsc to mili secs?
-Date: 16 Nov 2000 15:09:39 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v1pfj$p5e$1@cesium.transmeta.com>
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz>
+	id <S131565AbQKPXlH>; Thu, 16 Nov 2000 18:41:07 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:34491 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131507AbQKPXlB>;
+	Thu, 16 Nov 2000 18:41:01 -0500
+Date: Thu, 16 Nov 2000 18:10:59 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Inconsistent behaviour of rmdir
+In-Reply-To: <8v1ng9$omi$1@cesium.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0011161801380.13047-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001116115730.A665@suse.cz>
-By author:    Vojtech Pavlik <vojtech@suse.cz>
-In newsgroup: linux.dev.kernel
-> 
-> Anyway, this should be solvable by checking for clock change in the
-> timer interrupt. This way we should be able to detect when the clock
-> went weird with a 10 ms accuracy. And compensate for that. It should be
-> possible to keep a 'reasonable' clock running even through the clock
-> changes, where reasonable means constantly growing and as close to real
-> time as 10 ms difference max.
-> 
 
-Actually, on machines where RDTSC works correctly, you'd like to use
-that to detect a lost timer interrupt.
 
-It's tough, it really is :(
+On 16 Nov 2000, H. Peter Anvin wrote:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+[hardlinks on directories]
+
+> I don't believe it's inherently impossible in Linux anymore.  In fact,
+
+Yes, it is. bindings are asymmetrical. And that's the reason why they
+work while links to directories do not. 
+
+> vfsbinds provide a lot of the same kind of functionality; the main
+> difference between vfsbinds and hard links are that the former (a) can
+> cross filesystem boundaries and (b) aren't persistent.
+
+Here's one more: you can't rename across the binding boundary. They _are_
+mounts, so they avoid all that crap with loop creation on rename, etc.
+Take a generic DAG and try to implement rename() analog on it. Have fun
+catching the cases that would make the graph disconnected.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

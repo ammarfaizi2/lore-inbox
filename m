@@ -1,79 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269250AbUINJ4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269251AbUINJ4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269250AbUINJ4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 05:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbUINJ4A
+	id S269251AbUINJ4c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 05:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269252AbUINJ4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 05:56:00 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:22247 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S269250AbUINJzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 05:55:42 -0400
-From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Organization: -ENOENT
+	Tue, 14 Sep 2004 05:56:31 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:61388 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269251AbUINJ4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 05:56:19 -0400
+Date: Tue, 14 Sep 2004 11:57:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc1-mm5
-Date: Tue, 14 Sep 2004 12:00:36 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040913015003.5406abae.akpm@osdl.org>
-In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
-MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
+Subject: [patch] sched: fix latency in random driver
+Message-ID: <20040914095731.GA24622@elte.hu>
+References: <20040914091529.GA21553@elte.hu> <20040914093855.GA23258@elte.hu> <20040914095110.GA24094@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="0OAP2g/MAC+5xKAE"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409141200.36074.l_allegrucci@despammed.com>
+In-Reply-To: <20040914095110.GA24094@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 September 2004 10:50, Andrew Morton wrote:
-> Due to master.kernel.org being on the blink, 2.6.9-rc1-mm5 Is currently at
->
->  http://www.zip.com.au/~akpm/linux/patches/2.6.9-rc1-mm5/
->
-> and will later appear at
->
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6
->.9-rc1-mm5/
 
-100% reproducible under heavy IO load:
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Sep 14 11:42:59 odyssey kernel: journal_bmap: journal block not found at 
-offset 2060 on hda12
-Sep 14 11:42:59 odyssey kernel: Aborting journal on device hda12.
-Sep 14 11:42:59 odyssey kernel: EXT3-fs error (device hda12) in 
-ext3_dirty_inode: IO failure
-Sep 14 11:43:00 odyssey kernel: ext3_abort called.
-Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12): 
-ext3_journal_start: Detected aborted journal
-Sep 14 11:43:00 odyssey kernel: Remounting filesystem read-only
-Sep 14 11:43:00 odyssey kernel: ext3_reserve_inode_write: aborting 
-transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
-error (device hda12) in ext3_reserve_inode_write: Journal has aborted
-Sep 14 11:43:00 odyssey kernel: ext3_reserve_inode_write: aborting 
-transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
-error (device hda12) in ext3_reserve_inode_write: Journal has aborted
-Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12) in 
-ext3_orphan_del: Journal has aborted
-Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12) in ext3_truncate: 
-Journal has aborted
-Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12) in 
-start_transaction: Journal has aborted
-Sep 14 11:43:01 odyssey last message repeated 17 times
-Sep 14 11:43:01 odyssey kernel: or (device hda12) in start_transaction: 
-Journal has aborted
-Sep 14 11:43:01 odyssey kernel: EXT3-fs error (device hda12) in 
-start_transaction: Journal has aborted
-Sep 14 11:43:02 odyssey last message repeated 53 times
-Sep 14 11:43:02 odyssey kernel: EXT3-fs error (device hda12) in staror (device 
-hda12) in start_transaction: Journal has aborted
-Sep 14 11:43:02 odyssey kernel: EXT3-fs error (device hda12) in 
-start_transaction: Journal has aborted
-Sep 14 11:43:03 odyssey last message repeated 53 times
-Sep 14 11:43:03 odyssey kernel: EXT3-fs error (device hda12) in staror (device 
-hda12) in start_transaction: Journal has aborted
-Sep 14 11:43:03 odyssey kernel: EXT3-fs error (device hda12) in 
-start_transaction: Journal has aborted
-Sep 14 11:43:34 odyssey last message repeated 147542 times
+
+the attached patch fixes possibly long scheduling latencies in the
+/dev/random driver's rekey_seq_generator() function, by moving the
+expensive get_random_bytes() function out from under ip_lock.
+
+has been in the -VP patchset for quite some time.
+
+	Ingo
+
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="fix-latency-random.patch"
+
+
+the attached patch fixes possibly long scheduling latencies in the
+/dev/random driver's rekey_seq_generator() function, by moving the
+expensive get_random_bytes() function out from under ip_lock.
+
+has been in the -VP patchset for quite some time.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/drivers/char/random.c.orig	
++++ linux/drivers/char/random.c	
+@@ -2220,17 +2220,18 @@ static unsigned int ip_cnt;
+ 
+ static void rekey_seq_generator(void *private_)
+ {
+-	struct keydata *keyptr;
++	struct keydata *keyptr, tmp;
+ 	struct timeval 	tv;
+ 
+ 	do_gettimeofday(&tv);
++	get_random_bytes(tmp.secret, sizeof(tmp.secret));
+ 
+ 	spin_lock_bh(&ip_lock);
+ 	keyptr = &ip_keydata[ip_cnt&1];
+ 
+ 	keyptr = &ip_keydata[1^(ip_cnt&1)];
+ 	keyptr->rekey_time = tv.tv_sec;
+-	get_random_bytes(keyptr->secret, sizeof(keyptr->secret));
++	memcpy(keyptr->secret, tmp.secret, sizeof(keyptr->secret));
+ 	keyptr->count = (ip_cnt&COUNT_MASK)<<HASH_BITS;
+ 	mb();
+ 	ip_cnt++;
+
+--0OAP2g/MAC+5xKAE--

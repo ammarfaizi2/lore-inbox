@@ -1,90 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbTELWoM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbTELWoM
+	id S262722AbTELWoh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbTELWoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:44:12 -0400
-Received: from continuum.cm.nu ([216.113.193.225]:41959 "EHLO continuum.cm.nu")
-	by vger.kernel.org with ESMTP id S262820AbTELWoK (ORCPT
+	Mon, 12 May 2003 18:44:37 -0400
+Received: from corky.net ([212.150.53.130]:54939 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S262722AbTELWof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:44:10 -0400
-Date: Mon, 12 May 2003 15:56:54 -0700
-From: Shane Wegner <shane@cm.nu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4 ac97_codec micboost control
-Message-ID: <20030512225654.GA27358@cm.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-No-Archive: yes
-User-Agent: Mutt/1.5.4i
+	Mon, 12 May 2003 18:44:35 -0400
+Date: Tue, 13 May 2003 01:57:13 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: 76306.1226@compuserve.com
+Cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <Pine.LNX.4.44.0305130138350.15817-100000@marcellos.corky.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 12 May 2003 17:51:25 EDT, Chuck Ebbert said:
 
-Attached is a small patch to enable the built-in mic boost
-of the ac97_codec.  On my SB-live, it needs this to get
-decent mic volume and I imagine this is the case for some
-other cards as well.  It maps the micboost to
-SOUND_MIXER_AGC which, well, isn't used for anything else
-at present that I know of.
+> > man dd ?
+>
+>   "That can be done manually" does not get you the check mark in
+> the list of features.  Management wants idiot-resistant security.
 
-Applies to 2.4.21-rc2.
+It has nothing to do with idiot-resistance.  Why should this multi-write
+operation be done in kernel ?  mkswap is a usermode program.  mkfs is a
+usermode program.  If you want to have a wipeswap script that copies a
+chunk of your /dev/zero to the swap, it should also be in usermode.  Just
+run it in wherever rc file you use to swapoff.
 
-S
+However, it'll just give you false sense of security.  First of all, its
+hardware dependent.  Second, it won't get wipe in case of a crash (which
+is likely to happen when They come to take your disk).
 
-diff -urN linux.orig/drivers/sound/ac97_codec.c linux/drivers/sound/ac97_codec.c
---- linux.orig/drivers/sound/ac97_codec.c	2003-05-12 15:50:07.000000000 -0700
-+++ linux/drivers/sound/ac97_codec.c	2003-05-12 15:50:52.000000000 -0700
-@@ -400,6 +400,18 @@
- 		if (left >= mh->scale)
- 			left = mh->scale-1;
- 		val |= left & 0x000e;
-+	} else if (oss_channel == SOUND_MIXER_MIC) {
-+		val = codec->codec_read(codec , mh->offset) & ~0x801f;
-+		if (!left)
-+			val |= AC97_MUTE;
-+	 else {
-+			left = ((100 - left) * mh->scale) / 100;
-+			if (left >= mh->scale)
-+				left = mh->scale-1;
-+			val |= left;
-+			/*  the low bit is optional in the tone sliders and masking
-+			    it lets us avoid the 0xf 'bypass'.. */
-+		}
- 	} else if(left == 0) {
- 		val = AC97_MUTE;
- 	} else if (oss_channel == SOUND_MIXER_SPEAKER) {
-@@ -418,14 +430,6 @@
- 		if (left >= mh->scale)
- 			left = mh->scale-1;
- 		val = left;
--	} else if (oss_channel == SOUND_MIXER_MIC) {
--		val = codec->codec_read(codec , mh->offset) & ~0x801f;
--		left = ((100 - left) * mh->scale) / 100;
--		if (left >= mh->scale)
--			left = mh->scale-1;
--		val |= left;
--		/*  the low bit is optional in the tone sliders and masking
--		    it lets us avoid the 0xf 'bypass'.. */
- 	}
- #ifdef DEBUG
- 	printk(" 0x%04x", val);
-@@ -574,6 +578,15 @@
- 			codec->recmask_io(codec, 0, val);
- 
- 			return 0;
-+		case _IOC_NR(SOUND_MIXER_AGC): {
-+			u16 r = codec->codec_read(codec, AC97_MIC_VOL);
-+			if (val)
-+				r |= AC97_MICBOOST;
-+			else
-+				r &= ~AC97_MICBOOST;
-+		codec->codec_write(codec, AC97_MIC_VOL, r);
-+		return 0;
-+		}
- 		default: /* write a specific mixer */
- 			i = _IOC_NR(cmd);
- 
+Until linux gets a real encrypted swap (the kind OpenBSD implements), you
+can settle for encrypting your whole swap with one random key that gets
+lost on reboot.  Encrypted loop dev with a key from /dev/random easily
+gives you that.
+
+Download the latest loop-AES from http://loop-aes.sourceforge.net/ and
+follow the "Encrypting swap on 2.4 kernels" section in README.
+
+

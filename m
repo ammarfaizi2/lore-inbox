@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVAHIdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVAHIdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVAHIdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 03:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVAHI05
+	id S261992AbVAHIdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 03:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVAHIce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 03:26:57 -0500
-Received: from mproxy.gmail.com ([216.239.56.250]:32885 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261955AbVAHFuP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:50:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fcQltHxEw5cMgskqOMH4iy7TKo0JEC1MwT2C6iinoXG5XGs4HQFKTLpB8NeBZWZdpo5a2IVejxA2lyhEPthG0PfJy6cPNLrM5izVJbkmj1z0ePPb8IdsJKbACJciubidG39WgKtXLjGbql1m0gRCbWqDWn6vDOTk+BuBrYTXlpQ=
-Message-ID: <21d7e99705010721504365d373@mail.gmail.com>
-Date: Sat, 8 Jan 2005 16:50:09 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: lindenting the drm directory..
-Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, jonsmirl@gmail.com
-In-Reply-To: <20050107211002.3f86d325.akpm@osdl.org>
+	Sat, 8 Jan 2005 03:32:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12934 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261923AbVAHFsp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 00:48:45 -0500
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <11051632581992@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 7 Jan 2005 21:47:38 -0800
+Message-Id: <11051632582603@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0501080411190.11556@skynet>
-	 <20050107211002.3f86d325.akpm@osdl.org>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's probably best that you wait until the tree is in good shape and stable
-> for a week or two before doing the big reformat because it will introduce a
-> barrier over which patches may not pass in either direction.
+ChangeSet 1.1938.439.54, 2005/01/07 08:46:29-08:00, david-b@pacbell.net
 
-well as most patches come via the CVS tree and myself it shouldn't be
-too bad, the CVS tree has been Lindented for a couple of months so
-I've been dealing with the issues myself as I pass the patches back
-and forth...
+[PATCH] USB: usb makefile tweaks
 
-Dave.
+Two minor Makefile fixes, catching up to some driver removals.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/usb/Makefile |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+
+diff -Nru a/drivers/usb/Makefile b/drivers/usb/Makefile
+--- a/drivers/usb/Makefile	2005-01-07 15:35:42 -08:00
++++ b/drivers/usb/Makefile	2005-01-07 15:35:42 -08:00
+@@ -9,7 +9,7 @@
+ obj-$(CONFIG_USB_EHCI_HCD)	+= host/
+ obj-$(CONFIG_USB_OHCI_HCD)	+= host/
+ obj-$(CONFIG_USB_UHCI_HCD)	+= host/
+-obj-$(CONFIG_USB_SL811HS)	+= host/
++obj-$(CONFIG_USB_SL811_HCD)	+= host/
+ obj-$(CONFIG_ETRAX_USB_HOST)	+= host/
+ 
+ obj-$(CONFIG_USB_ACM)		+= class/
+@@ -49,7 +49,6 @@
+ obj-$(CONFIG_USB_RTL8150)	+= net/
+ obj-$(CONFIG_USB_USBNET)	+= net/
+ 
+-obj-$(CONFIG_USB_DC2XX)		+= image/
+ obj-$(CONFIG_USB_HPUSBSCSI)	+= image/
+ obj-$(CONFIG_USB_MDC800)	+= image/
+ obj-$(CONFIG_USB_MICROTEK)	+= image/
+

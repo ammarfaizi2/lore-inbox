@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbTIZRXn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 13:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbTIZRXn
+	id S261522AbTIZROL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 13:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbTIZROK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 13:23:43 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:26336 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261538AbTIZRXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 13:23:41 -0400
-Message-ID: <3F7475F2.3040207@nortelnetworks.com>
-Date: Fri, 26 Sep 2003 13:22:58 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-References: <A2yd.64p.31@gated-at.bofh.it> <A2yd.64p.29@gated-at.bofh.it>	<A317.6GH.7@gated-at.bofh.it> <m37k3viiqp.fsf@averell.firstfloor.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 26 Sep 2003 13:14:10 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4736 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261522AbTIZROA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 13:14:00 -0400
+Message-Id: <200309261713.h8QHDwXL002422@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] updated exec-shield patch, 2.4/2.6 -G3 
+In-Reply-To: Your message of "Fri, 26 Sep 2003 14:28:54 +0200."
+             <Pine.LNX.4.56.0309261410130.14571@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.56.0309261410130.14571@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1288573740P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 26 Sep 2003 13:13:58 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+--==_Exmh_1288573740P
+Content-Type: text/plain; charset=us-ascii
 
-> The solution proposed by Ivan sounds much better. The basic problem
-> is that the Ethernet header is not a multiple of 4 and that misaligns
-> everything after it.
+On Fri, 26 Sep 2003 14:28:54 +0200, Ingo Molnar <mingo@elte.hu>  said:
 
-At least some hardware will offset the incoming packet by two bytes to 
-align everything.  Whatever mechanism we end up using, it would be nice 
-if it could make use of the hardware that is capable of this.
+> against vanilla 2.6.0-test5:
+> 
+> 	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-G2
 
-Chris
+Ingo, you rock. ;)  I'm using a fairly current Rawhide here (within last 2
+weeks or so).
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Applied with 2 or 3 minor conflicts and a few fuzz/delta messages against
+-test5-mm4 (I have a refactored patch if anybody is interested).  It booted
+OK, seems to be working well enough that e-mail and XFree (even with the
+evil binary NVidia driver) are functional.
 
+>    = 0   exec-shield disabled
+>    = 1   exec-shield on PT_GNU_STACK executables [ie. binaries compiled 
+>                                                   with newest gcc]
+>    = 2   (default) exec-shield on all executables
+> 
+> value 1 is recommended with glibc and gcc versions that support
+> PT_GNU_STACK all across the spectrum. (Fedora Core test2 [released
+> yesterday] includes all of this and all applications were recompiled to
+> have valid PT_GNU_STACK settings.) On other systems the value of '2' is
+> recommended, use setarch for those binaries that cannot take exec-shield
+> [eg. Loki games].
+
+I'm assuming it's this GCC change in Rawhide:
+
+* Wed Jun 04 2003 Jakub Jelinek  <jakub@redhat.com> 3.3-4
+
+- mark object files with .note.GNU-stack notes whether they
+  need or don't need executable stack
+
+(and another at 3.3-5).  Has the current Rawhide been recompiled with this
+support, or should I stick with '2' and use setarch for things that fail?
+
+Now to go build a testcase program and try to shellcode it. ;)
+
+
+--==_Exmh_1288573740P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/dHPVcC3lWbTT17ARAmOEAJwNJvYXd/QDy3hKizae0CPLXa42LwCgoOFk
+KCp6vN3ygdDL+1nekRRg2HE=
+=pJWj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1288573740P--

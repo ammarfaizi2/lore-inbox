@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbUJWQgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUJWXDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbUJWQgr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 12:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUJWQg1
+	id S261329AbUJWXDg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbUJWXDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 12:36:27 -0400
-Received: from main.gmane.org ([80.91.229.2]:6027 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261229AbUJWQa6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 12:30:58 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 23 Oct 2004 19:03:36 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:15081 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261329AbUJWXDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:03:31 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: linux-kernel@vger.kernel.org
-From: Alban Browaeys <prahal@yahoo.com>
-Subject: Re: My thoughts on the
-Date: Sat, 23 Oct 2004 13:27:57 +0000 (UTC)
-Message-ID: <loom.20041023T152357-234@post.gmane.org>
-References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <1098485905.1440.11.camel@krustophenia.net> <200410231001.32080.b.bukowski@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
+Date: Sun, 24 Oct 2004 01:05:26 +0200
+User-Agent: KMail/1.6.2
+Cc: Allan Sandfeld Jensen <allan@carewolf.com>
+References: <200410222354.44563.rjw@sisk.pl> <200410240014.47507.allan@carewolf.com>
+In-Reply-To: <200410240014.47507.allan@carewolf.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 82.125.13.57 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Galeon/1.3.17.99 (Debian package 1.3.17cvs20040930-1))
+Message-Id: <200410240105.26642.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It looks like we need a Community driven Enterprise Kernel.
-> We decided to start testing with 2.6.10 and use it if there are no
-> Problems.
-> Maybe there are other Admins doing the same and we can start our own
-> Enterprise Kernel. 
+On Sunday 24 of October 2004 00:14, Allan Sandfeld Jensen wrote:
+> On Friday 22 October 2004 23:54, you wrote:
+> > Hi,
+> >
+> > I have a problem with 2.6.9-mm1 on an AMD64 NForce3-based box.  Namely,
+> > after some time in X, USB suddenly stops working and sound goes off
+> > simultaneously (it's quite annoying, as I use a USB mouse ;-)).  It is 
+100%
+> > reproducible and it may be related to the sharing of IRQ 5:
+> >
+> Have you tried disabling ioapic? 
 
+In principle I could, but I have no such problems with the 2.6.9 kernel, 
+although the APIC etc., settings are the same.  Which means there's a 
+regression and that's the real issue.
 
-Hum Debian or is it driven by money ?
-I bet Community Driven Entreprise Kernel is way better in marketing than debian
-kernel though are we not driven by stability ...
+Greets,
+RJW
 
-Cheers
-Alban 
-
-
-
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbSIWTqL>; Mon, 23 Sep 2002 15:46:11 -0400
+	id <S261390AbSIWTgj>; Mon, 23 Sep 2002 15:36:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261370AbSIWTqL>; Mon, 23 Sep 2002 15:46:11 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:22536 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S261321AbSIWTqL>;
-	Mon, 23 Sep 2002 15:46:11 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: UP IO-APIC
-Date: Mon, 23 Sep 2002 19:50:56 +0000 (UTC)
-Organization: Cistron
-Message-ID: <amnrb0$nv0$2@ncc1701.cistron.net>
-References: <Pine.GSO.4.33.0209231419230.11624-100000@sweetums.bluetronic.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1032810656 24544 62.216.29.67 (23 Sep 2002 19:50:56 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	id <S261328AbSIWSle>; Mon, 23 Sep 2002 14:41:34 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261306AbSIWSl1>;
+	Mon, 23 Sep 2002 14:41:27 -0400
+Date: Mon, 23 Sep 2002 17:53:55 +0200
+From: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
 To: linux-kernel@vger.kernel.org
+Subject: Serious Problems with PCI and SMP
+Message-ID: <20020923155355.GA565@cognac.physik.uni-erlangen.de>
+Reply-To: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.33.0209231419230.11624-100000@sweetums.bluetronic.net>,
-Ricky Beam  <jfbeam@bluetronic.net> wrote:
->Would someone kindly remove that from the configuration possibilities?  It
->doesn't work -- and hasn't worked for, what, a year.
+Hi there,
 
-What kernel? In 2.4.20-pre<whatever> it works just fine. If it
-doesn't work in 2.5 leave it there as an incentive for someone
-to fix it for 2.6
+after some more tests, I couldn't find a solution for this problem:
 
-Mike.
+We have a number of machines with identical dual PPro 200 mainboards. They all
+run fine on 2.2.13 kernels. Trying 2.4.18,2.4.19,2.4.20-pre7 and even 2.2.19, the same
+problem shows up:
+
+With SMP activated in the kernel, I get the boot-messages
+
+---------
+PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI BIOS passed nonexistent PCI bus 0!
+PCI BIOS passed nonexistent PCI bus 0!
+Limiting direct PCI/PCI transfers.
+---------
+
+Afterwards, everything runs fine, except that PCI seems to be only half-way functional:
+network-cards don't give any error messages but behave just as if the cable was disconnected
+scsi-cards give strange errors (don't recall what exactly)
+
+With SMP disabled in the kernel, everything works just fine.
+
+Neither lspci nor any other status report tool does show any signs of a problem.
+Everything looks identical with or without SMP, except of course for the
+missing second processor and all the signs that would show up if I disconnected
+the network cable.
+
+I tried CONFIG_PCI_GOBIOS and CONFIG_PCI_DIRECT, but it didn't make any difference.
+
+I would really appreciate help! There's a number of rather important tasks here
+that require a kernel-update, and obviously it is not a problem that might just 
+disappear by itself with the next kernel-release...
+
+Ciao,
+Nobbi
+
+PS: Please CC me, I'm not subscribed.
+
 -- 
-Computers are useless, they only give answers. --Pablo Picasso
-
+-- _____________________________________Norbert "Nobbi" Nemec
+-- Hindenburgstr. 44   ...   D-91054 Erlangen   ...   Germany
+-- eMail: <Norbert@Nemec-online.de>  Tel: +49-(0)-9131-204180

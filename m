@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUJMGdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUJMGeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268490AbUJMGdT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 02:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUJMGdT
+	id S268496AbUJMGeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 02:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbUJMGeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 02:33:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36235 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268490AbUJMGdP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 02:33:15 -0400
-Message-ID: <416CCC1A.5020301@pobox.com>
-Date: Wed, 13 Oct 2004 02:32:58 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 13 Oct 2004 02:34:00 -0400
+Received: from virt10p.secure-wi.com ([209.216.203.97]:26322 "EHLO
+	virt10p.secure-wi.com") by vger.kernel.org with ESMTP
+	id S268496AbUJMGdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 02:33:55 -0400
+Message-ID: <001401c4b796$abcddfb0$41c8a8c0@Eshwar>
+From: "eshwar" <eshwar@moschip.com>
+To: "Raj" <inguva@gmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar> <b2fa632f0410122315753f8886@mail.gmail.com>
+Subject: Re: Write USB Device Driver entry not called
+Date: Thu, 21 Oct 2004 23:22:02 +0530
 MIME-Version: 1.0
-To: Danny <dannydaemonic@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mm kernel oops with r8169 & named, PREEMPT
-References: <9625752b041012230068619e68@mail.gmail.com>
-In-Reply-To: <9625752b041012230068619e68@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny wrote:
-> This is with the network driver r8169 and linux-2.6.9-rc4-mm1.  Same
-> thing happened with linux-2.6.9-rc3-mm3 (but also locked up). 
-> linux-2.6.8.1-mm4 didn't seem to have this problem.  This is very
-> repeatable, if this is an unknown issue let me know (CC please, not on
-> the list) and I will jump through the hoops to get a useful oops.
+Open is sucessfull.... I don't think the problem the flags of open
 
-What happens if you disable preempt?
-
-lspci?  config?  Any of the other useful info mentioned in the 
-REPORTING-BUGS file in the kernel tree?
-
-	Jeff
+Eshwar
 
 
+----- Original Message ----- 
+From: "Raj" <inguva@gmail.com>
+To: "eshwar" <eshwar@moschip.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 13, 2004 11:45 AM
+Subject: Re: Write USB Device Driver entry not called
 
+
+> > 
+> >   devfd = open("/dev/usb/dabusb10",O_APPEND | S_IRUSR| S_IWUSR );
+> 
+> Did your open() succeed here ??? i guess S_IRUSR etc is used when you
+> create a new file and not when you open a new one.
+> 
+> >   if ( write(devfd,send,512) < 0) {
+> >        printf ("write Failed\n");
+> >        return  -1;
+> >   }
+> 
+> well , if open fails above, then....
+> 
+> -- Raj

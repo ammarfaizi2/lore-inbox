@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131955AbQL1WMh>; Thu, 28 Dec 2000 17:12:37 -0500
+	id <S132469AbQL1WN4>; Thu, 28 Dec 2000 17:13:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132027AbQL1WM0>; Thu, 28 Dec 2000 17:12:26 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:18444 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S131955AbQL1WMJ>;
-	Thu, 28 Dec 2000 17:12:09 -0500
-Message-ID: <3A4BB303.69AF7E64@innominate.de>
-Date: Thu, 28 Dec 2000 22:39:15 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: test13-pre5
-In-Reply-To: <Pine.LNX.4.21.0012281637200.12364-100000@freak.distro.conectiva> <Pine.LNX.4.10.10012281243010.788-100000@penguin.transmeta.com>
+	id <S132261AbQL1WNg>; Thu, 28 Dec 2000 17:13:36 -0500
+Received: from monza.monza.org ([209.102.105.34]:16145 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S132027AbQL1WN0>;
+	Thu, 28 Dec 2000 17:13:26 -0500
+Date: Thu, 28 Dec 2000 13:42:44 -0800
+From: Tim Wright <timw@splhi.com>
+To: Paul Jakma <paulj@itg.ie>
+Cc: Ian Stirling <root@mauve.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Abysmal RAID 0 performance on 2.4.0-test10 for IDE?
+Message-ID: <20001228134244.A1684@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Paul Jakma <paulj@itg.ie>,
+	Ian Stirling <root@mauve.demon.co.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <200012261952.TAA11390@mauve.demon.co.uk> <Pine.LNX.4.30.0012271620530.24075-100000@rossi.itg.ie>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0012271620530.24075-100000@rossi.itg.ie>; from paulj@itg.ie on Wed, Dec 27, 2000 at 04:23:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->  - global dirty list for global syn(). We don't have one, and I don't
->    think we want one. We could add a few lists, and split up the active
->    list into "active" and "active_dirty", for example, but I don't like
->    the implications that would probably have for the LRU ordering.
+On Wed, Dec 27, 2000 at 04:23:43PM +0000, Paul Jakma wrote:
+> On Tue, 26 Dec 2000, Ian Stirling wrote:
+> 
+> > The PCI bus can move around 130MB/sec,
+> 
+> in bursts yes, but sustained data bandwidth of PCI is a lot lower,
+> maybe 30 to 50MB/s. And you won't get sustained RAID performance >
+> sustained PCI performance.
+> 
 
-This has been the subject of a lot of flam^H^H^H^H discussion on
-#kernelnewbies about this and it's still an open question.  The only way
-to see if a separate active_dirty hurts or helps is to try it.  Later.
-:-)
+No. A well-designed card and driver doing cache-line sized transfers can
+achieve ~100MB/s. On the IBM (Sequent) NUMA machines, we achieved in excess
+of 3GB/s sustained read I/O (database full table scan) on a 16-quad (32 PCI
+bus) system. That works out at around 100MB/s per bus.
 
-I don't see how a separate active_dirty list can hurt LRU ordering.  We
-could still take the pages off the two lists in the same order we did
-with one list if we wanted to, or at least, statistically the same in
-turns of number, age, time since entering the list, etc.  That better
-not cause radically different or undesireable behaviour or something is
-really broken.
+Regards,
 
-By breaking active into two lists we'd get a very interesting tuning
-parameter to play with: the relative rate at which pages are moved from
-active to inactive.  Beyond that, the active_dirty list could be pressed
-into service quite easily as a page-oriented version of kflushd, and
-would obviously be useful as a global sync list.
+Tim
 
---
-Daniel
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

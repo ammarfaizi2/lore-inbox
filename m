@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263279AbSLLMJp>; Thu, 12 Dec 2002 07:09:45 -0500
+	id <S263986AbSLLMZT>; Thu, 12 Dec 2002 07:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267468AbSLLMJo>; Thu, 12 Dec 2002 07:09:44 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:6148 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id <S263279AbSLLMJo>;
-	Thu, 12 Dec 2002 07:09:44 -0500
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Four function buttons on DELL Latitude X200
-References: <m3d6ocjd81.fsf@Janik.cz> <E18LBeK-00046y-00@calista.inka.de>
-	<at2r5v$fib$1@cesium.transmeta.com> <20021210213444.GA451@elf.ucw.cz>
-	<20021212094334.A1403@ucw.cz> <m3fzt35uh7.fsf@lugabout.jhcloos.org>
-	<20021212125114.A10134@ucw.cz>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20021212125114.A10134@ucw.cz>
-Date: 12 Dec 2002 07:17:22 -0500
-Message-ID: <m3znrb4ejx.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263991AbSLLMZT>; Thu, 12 Dec 2002 07:25:19 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:49605
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263986AbSLLMZT>; Thu, 12 Dec 2002 07:25:19 -0500
+Subject: Re: Linux 2.4.21-pre1 IDE
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andersen@codepoet.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021212013546.GA30408@codepoet.org>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> 
+	<20021212013546.GA30408@codepoet.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Dec 2002 13:10:48 +0000
+Message-Id: <1039698648.21446.30.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Vojtech" == Vojtech Pavlik <vojtech@suse.cz> writes:
+On Thu, 2002-12-12 at 01:35, Erik Andersen wrote:
+>     hda: DMA disabled
+>     ^^^^^^^^^^^^^^^^^
+> 
+> What's up with this?  For each drive in my system it claims it
+> has disabled DMA.  But hdparm later reports that DMA is in fact
+> enabled.  In fact, later on the kernel ever reports the drive
+> as being in UDMA 100 mode...  I think these "DMA disabled"
+> messages are bogus.
 
-Vojtech> Do they by any chance produce a kernel warning when pressed?
+Cosmetic and known. It in fact turns DMA back on - quietly
 
-Yes, the two keys that do not generate an event in X syslog these errors:
+>     ide2 at 0x1800-0x1807,0xac02 on irq 11
+>     hda: host protected area => 1
+>     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>     hda: 160836480 sectors (82348 MB) w/1863KiB Cache, CHS=10011/255/63, UDMA(100)
+> 
+> Now we see the funky "host protected area => 1" message.  As
+> discussed earlier with Andre, this message should be removed from
+> the kernel.  The message as written implies that the driv
 
-atkbd.c: Unknown key (set 2, scancode 0x176, on isa0060/serio0) pressed.
-atkbd.c: Unknown key (set 2, scancode 0x176, on isa0060/serio0) released.
-atkbd.c: Unknown key (set 2, scancode 0x11e, on isa0060/serio0) pressed.
-atkbd.c: Unknown key (set 2, scancode 0x11e, on isa0060/serio0) released.
+Before 2.4.21 agreed
 
-where 0x176 is the PLAY key and 0x11e is the PREV key.
-
-Incidently, the FORWARD key is giving the same keycode as the main
-kb's Pause key.
-
--JimC
 

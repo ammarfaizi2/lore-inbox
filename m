@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270040AbUJSWsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUJSWat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270040AbUJSWsq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 18:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270048AbUJSWmy
+	id S268105AbUJSWat (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 18:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUJSWZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:42:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8327 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270040AbUJSWis (ORCPT
+	Tue, 19 Oct 2004 18:25:29 -0400
+Received: from alpha.lic1.vsi.ru ([80.82.34.34]:65218 "EHLO alpha.lic1.vsi.ru")
+	by vger.kernel.org with ESMTP id S269896AbUJSWX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:38:48 -0400
-Date: Tue, 19 Oct 2004 15:28:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] S3C2410 I2C Bus driver
-Message-ID: <20041019222823.GF9521@kroah.com>
-References: <20041017191011.GA17551@home.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041017191011.GA17551@home.fluff.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 19 Oct 2004 18:23:59 -0400
+Message-ID: <417593F1.3090300@lic1.vsi.ru>
+Date: Wed, 20 Oct 2004 02:23:45 +0400
+From: "Igor A. Valcov" <viaprog@lic1.vsi.ru>
+Reply-To: viaprog@lic1.vsi.ru
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040921
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Semen <semen@basdesign.ru>
+Subject: net-tools-1.60 build failed on 2.6.9
+Content-Type: multipart/mixed;
+ boundary="------------000709060405070208030304"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 17, 2004 at 08:10:11PM +0100, Ben Dooks wrote:
-> Bus driver for the Samsung S3C2410 SoC onboard I2C controller
-> 
-> 	Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-> 
->  Files affected:
->    drivers/i2c/busses/Kconfig       |    7 	7 +	0 -	0 !
->    drivers/i2c/busses/Makefile      |    1 	1 +	0 -	0 !
->    drivers/i2c/busses/i2c-s3c2410.c |  877 	877 +	0 -	0 !
->    3 files changed, 885 insertions(+)
+This is a multi-part message in MIME format.
+--------------000709060405070208030304
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Applied, thanks.
+Hi.
 
-greg k-h
+Without this patch (apply to /usr/include/netinet/if_fddi.h) build 
+net-tools-1.60 failed
 
+gcc -D_GNU_SOURCE -O3 -march=pentium4 -mcpu=pentium4 -mmmx -msse -msse2 
+-mfpmath=sse  -I. -idirafter ./include/ -Ilib 
+-I/var/tmp/portage/net-tools-1.60-r9/work/net-tools-1.60 -idirafter 
+/var/tmp/portage/net-tools-1.60-r9/work/net-tools-1.60/include    -c -o 
+fddi.o fddi.c
+In file included from /usr/include/netinet/if_fddi.h:26,
+                  from fddi.c:30:
+/usr/include/linux/if_fddi.h:110: error: field `gen' has incomplete type
+
+-- 
+Igor A. Valcov
+
+--------------000709060405070208030304
+Content-Type: text/plain;
+ name="if_fddi.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="if_fddi.h.diff"
+
+--- if_fddi.h.bak	2004-10-20 02:15:18.127214584 +0400
++++ if_fddi.h	2004-10-20 02:15:32.225071384 +0400
+@@ -23,6 +23,7 @@
+ #include <sys/types.h>
+ #include <asm/types.h>
+ 
++#include <linux/netdevice.h>
+ #include <linux/if_fddi.h>
+ 
+ #ifdef __USE_BSD
+
+--------------000709060405070208030304--

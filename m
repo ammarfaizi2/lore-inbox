@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276369AbRJURZJ>; Sun, 21 Oct 2001 13:25:09 -0400
+	id <S276384AbRJUReU>; Sun, 21 Oct 2001 13:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276384AbRJURY7>; Sun, 21 Oct 2001 13:24:59 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:14880 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S276397AbRJURYk>; Sun, 21 Oct 2001 13:24:40 -0400
-Date: Sun, 21 Oct 2001 20:25:02 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Joerg Schilling <schilling@fokus.gmd.de>
-Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10ac10, cdrecord 1.9-6, Mitsumi CR-4804TE: lock up burning too large image
-Message-ID: <20011021202502.D1598@niksula.cs.hut.fi>
-In-Reply-To: <200110211210.f9LCAIl08971@burner.fokus.gmd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110211210.f9LCAIl08971@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Sun, Oct 21, 2001 at 02:10:18PM +0200
+	id <S276397AbRJUReA>; Sun, 21 Oct 2001 13:34:00 -0400
+Received: from server.igoweb.org ([207.173.200.73]:31178 "HELO
+	server.igoweb.org") by vger.kernel.org with SMTP id <S276384AbRJURdv>;
+	Sun, 21 Oct 2001 13:33:51 -0400
+Message-ID: <3BD3071F.80805@igoweb.org>
+Date: Sun, 21 Oct 2001 10:34:23 -0700
+From: "William M. Shubert" <wms@igoweb.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-US, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Help! Unkillable "dd" in kernel 2.4.9
+In-Reply-To: <3BD21A41.2080608@igoweb.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 02:10:18PM +0200, you [Joerg Schilling] claimed:
-> 
-> >Ok. I'll compile the newest from source.
-> 
-> >But do you think the too-large-image lock up might be cured with a newer
-> >cdrecord, or should is the kernel the prime suspect?
-> 
-> It least recent libscg versions include a workaround for an incorrect
-> Linux kernel return for a timed out SCSI command via ATAPI. So if the kernel 
-> does return at all, cdrecord will know why.
+Oops, just checked the red hat kernel source, found that my bug has been 
+fixed there. Caused by a leak of preallocated raid1 buffer headers. 
+Apparently fixed in the Alan Cox kernel series. Dang, wish I'd known 
+about this fix before I used the vanilla 2.4.9 raid1 system!
 
-Bummer. I'm not able to reproduce it with
+William M. Shubert wrote:
 
-progress -c 1M < /dev/zero | cdrecord dev=0,1,0 speed=4 -dummy -
-(essentially same as 'cdrecord dev=0,1,0 speed=4 -dummy - < /dev/zero')
+> As the subject says, I am running kernel 2.4.9 (from kernel.org, not 
+> the red hat version) and have a "dd" process that stopped halfway 
+> through its work and is now unkillable. The "wchan" reports that dd is 
+> stuck in "raid1_alloc_r1bh".
 
-(The line I originally used was "cdrecord dev=0,1,0 speed=4 -" and the input
-was from mkisofs.)
+...
+-- 
 
-cdrecord-1.9-6
-
-  686.00 MB; elapsed 1172 secs; 0.59 MB/s...
-  cdrecord: Input/output error. write_g1: scsi sendcmd: retryable error
-  CDB:  2A 00 00 05 53 E1 00 00 1F 00
-  status: 0x0 (GOOD STATUS)
-  write track data: error after 715065344 bytes
-  Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
-
-and cdrecord 1.11a08
-
-  686.00 MB; elapsed 1172 secs; 0.59 MB/s...
-  ./cdrecord: Input/output error. write_g1: scsi sendcmd: no error
-  CDB:  2A 00 00 05 53 E1 00 00 1F 00
-  status: 0x2 (CHECK CONDITION)
-  Sense Bytes: 71 00 03 00 00 00 00 0A 00 00 00 00 0C 00 00 00
-  Sense Key: 0x3 Medium Error, deferred error, Segment 0
-  Sense Code: 0x0C Qual 0x00 (write error) Fru 0x0
-  Sense flags: Blk 0 (not valid)
-  cmd finished after 5.706s timeout 40s
-  write track data: error after 715065344 bytes
-  Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
-
-(nothing in dmesg.)
-
-Perhaps it really takes real write to trigger this or the cd media in
-question was somehow flawed. I try again, when I have more time.
+Bill Shubert (wms@igoweb.org) <mailto:wms@igoweb.org>
+http://www.igoweb.org/~wms/ <http://igoweb.org/%7Ewms/>
 
 
--- v --
 
-v@iki.fi

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268055AbRGZPeP>; Thu, 26 Jul 2001 11:34:15 -0400
+	id <S268025AbRGZPhp>; Thu, 26 Jul 2001 11:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268063AbRGZPeF>; Thu, 26 Jul 2001 11:34:05 -0400
-Received: from pop3.telenet-ops.be ([195.130.132.40]:53467 "EHLO
-	pop3.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S268055AbRGZPd6>; Thu, 26 Jul 2001 11:33:58 -0400
-Date: Thu, 26 Jul 2001 17:34:00 +0200
-From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+	id <S267685AbRGZPhf>; Thu, 26 Jul 2001 11:37:35 -0400
+Received: from hypnos.cps.intel.com ([192.198.165.17]:60633 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S268063AbRGZPhX>; Thu, 26 Jul 2001 11:37:23 -0400
+Message-ID: <9678C2B4D848D41187450090276D1FAE1008EAA8@FMSMSX32>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Weird ext2fs immortal directory bug
-Message-ID: <20010726173400.A469@Zenith.starcenter>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1010726105812.16941A-100000@chaos.analogic.com> <Pine.LNX.4.30.0107261104220.18300-100000@spring.webconquest.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0107261104220.18300-100000@spring.webconquest.com>; from sentry21@cdslash.net on Thu, Jul 26, 2001 at 11:04:48AM -0400
-X-Operating-System: Linux 2.4.7-ac1
+Subject: Validating Pointers
+Date: Thu, 26 Jul 2001 08:36:49 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 26, 2001 at 11:04:48AM -0400, sentry21@cdslash.net wrote:
-> sentry21@Petra:1:/$ sudo rm -rf lost+found/
-> rm: cannot unlink `lost+found/#3147': Operation not permitted
-> rm: cannot remove directory `lost+found': Directory not empty
 
-Have you tried "chattr -i \#3147" and then "rm -rf \#3147"? 
+Is there a general (correct) kernel subroutine to validate a pointer
+received in a routine as input from the outside world?  Is access_ok() a
+good one to use?
 
--- 
- Sven Vermeulen            -    Key-ID CDBA2FDB 
- LUG: http://www.lugwv.be  -    http://www.keyserver.net
+Andy
+
 

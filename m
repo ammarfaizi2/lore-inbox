@@ -1,132 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267850AbTBJN6M>; Mon, 10 Feb 2003 08:58:12 -0500
+	id <S261295AbTBJOgs>; Mon, 10 Feb 2003 09:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267853AbTBJN6M>; Mon, 10 Feb 2003 08:58:12 -0500
-Received: from web41404.mail.yahoo.com ([66.218.93.70]:20067 "HELO
-	web41404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267850AbTBJN6K>; Mon, 10 Feb 2003 08:58:10 -0500
-Message-ID: <20030210140751.54202.qmail@web41404.mail.yahoo.com>
-Date: Tue, 11 Feb 2003 01:07:51 +1100 (EST)
-From: =?iso-8859-1?q?Con=20Kolivas?= <ckolivas@yahoo.com.au>
-Subject: [BENCHMARK] 2.5.59-mm10 {+antic I/O sched} with contest
-To: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1569519251-1044886071=:51872"
-Content-Transfer-Encoding: 8bit
+	id <S261426AbTBJOgs>; Mon, 10 Feb 2003 09:36:48 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:8464 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S261295AbTBJOgr>;
+	Mon, 10 Feb 2003 09:36:47 -0500
+Subject: 2.4.20 autofs4 changes
+From: Ian Kent <raven@themaw.net>
+To: linux-kernel@vger.kernel.org
+Cc: autofs@linux.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044888185.10565.36.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 10 Feb 2003 22:43:05 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1569519251-1044886071=:51872
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
 
-Here are contest benchmarks for 2.5.59-mm10 and
-2.5.59-mm10 with the anticipatory I/O scheduler in the
-current experimental patch form. Needs tuning.
+Hi all,
 
-Sorry about the message being an attachment. It's hard
-to keep it formatted from this crappy webmail.
+I have written a patch for the autofs4 kernel module (and autofs
+4.0.0-pre10 daemon) to deal with ghosting of directories (and to a
+limited degree, direct automount maps). Refer to
+http://www.themaw.net/includehtml.php?sendit=ians_html/autofs.html for
+more information if you wish.
 
-Con
+There have been a few changes to the autofs4 module in kernel release
+2.4.20 that break this patch. I have looked through the Changelog for
+2.4.20 and 2.4.19 and don't see any reference to the changes. I have
+also had a brief look through the archives of this list without success.
 
-http://greetings.yahoo.com.au - Yahoo! Greetings
-- Send your seasons greetings online this year!
---0-1569519251-1044886071=:51872
-Content-Type: application/octet-stream; name="encapsulated message"
-Content-Transfer-Encoding: base64
-Content-Description: encapsulated message
-Content-Disposition: attachment; filename="encapsulated message"
+A first look indicates that the problem for me has been caused by the
+removal of the file_operations definition autofs4_dir_operations in
+root.c. Then the dcache default file_operations are used for inode
+initialization in inode.c instead. My initial impression is that if
+there is a specific reason for using the dcache default then I will need
+to work on an autofs4 implementation of dcache_dir_lseek. The rest may
+be OK.
 
-SGVyZSBhcmUgY29udGVzdCBiZW5jaG1hcmtzIGZvciAyLjUuNTktbW0xMCBh
-bmQgMi41LjU5LW1tMTAgd2l0aCB0aGUgCmFudGljaXBhdG9yeSBJL08gc2No
-ZWR1bGVyIGluIHRoZSBjdXJyZW50IGV4cGVyaW1lbnRhbCBwYXRjaCBmb3Jt
-LiBOZWVkcyAKdHVuaW5nLgoKbm9fbG9hZDoKS2VybmVsICAgICAgICAgW3J1
-bnNdICAgVGltZSAgICBDUFUlICAgIExvYWRzICAgTENQVSUgICBSYXRpbwoy
-LjUuNTkgICAgICAgICAgICAgIDMgICA3OSAgICAgIDkzLjcgICAgMC4wICAg
-ICAwLjAgICAgIDEuMDAKMi41LjU5LW1tMTAgICAgICAgICAzICAgNzkgICAg
-ICA5My43ICAgIDAuMCAgICAgMC4wICAgICAxLjAwCjIuNS41OS1tbTEwYWlz
-ICAgICAgMSAgIDgyICAgICAgOTAuMiAgICAwLjAgICAgIDAuMCAgICAgMS4w
-MAoyLjUuNTktbW04ICAgICAgICAgIDMgICA3OSAgICAgIDkzLjcgICAgMC4w
-ICAgICAwLjAgICAgIDEuMDAKY2FjaGVydW46Cktlcm5lbCAgICAgICAgIFty
-dW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExDUFUlICAgUmF0aW8K
-Mi41LjU5ICAgICAgICAgICAgICAzICAgNzYgICAgICA5Ny40ICAgIDAuMCAg
-ICAgMC4wICAgICAwLjk2CjIuNS41OS1tbTEwICAgICAgICAgMyAgIDc2ICAg
-ICAgOTcuNCAgICAwLjAgICAgIDAuMCAgICAgMC45NgoyLjUuNTktbW0xMGFp
-cyAgICAgIDEgICA3NyAgICAgIDk3LjQgICAgMC4wICAgICAwLjAgICAgIDAu
-OTQKMi41LjU5LW1tOCAgICAgICAgICAzICAgNzYgICAgICA5Ny40ICAgIDAu
-MCAgICAgMC4wICAgICAwLjk2CnByb2Nlc3NfbG9hZDoKS2VybmVsICAgICAg
-ICAgW3J1bnNdICAgVGltZSAgICBDUFUlICAgIExvYWRzICAgTENQVSUgICBS
-YXRpbwoyLjUuNTkgICAgICAgICAgICAgIDMgICA5MiAgICAgIDgxLjUgICAg
-MjkuNyAgICAxNy40ICAgIDEuMTYKMi41LjU5LW1tMTAgICAgICAgICAzICAg
-MTg3ICAgICAzOS42ICAgIDE5NC4wICAgNTguOCAgICAyLjM3CjIuNS41OS1t
-bTEwYWlzICAgICAgMSAgIDE4MSAgICAgNDAuOSAgICAxODcuMCAgIDU3Ljcg
-ICAgMi4yMQoyLjUuNTktbW04ICAgICAgICAgIDMgICAxOTMgICAgIDM4Ljkg
-ICAgMjAwLjMgICA2MC4xICAgIDIuNDQKY3Rhcl9sb2FkOgpLZXJuZWwgICAg
-ICAgICBbcnVuc10gICBUaW1lICAgIENQVSUgICAgTG9hZHMgICBMQ1BVJSAg
-IFJhdGlvCjIuNS41OSAgICAgICAgICAgICAgMyAgIDk4ICAgICAgODAuNiAg
-ICAyLjAgICAgIDUuMSAgICAgMS4yNAoyLjUuNTktbW0xMCAgICAgICAgIDMg
-ICA5OSAgICAgIDc4LjggICAgMS43ICAgICA0LjAgICAgIDEuMjUKMi41LjU5
-LW1tMTBhaXMgICAgICAxICAgMTQ4ICAgICA1My40ICAgIDIuMCAgICAgNS40
-ICAgICAxLjgwCjIuNS41OS1tbTggICAgICAgICAgMyAgIDk4ICAgICAgNzku
-NiAgICAyLjAgICAgIDUuMSAgICAgMS4yNAp4dGFyX2xvYWQ6Cktlcm5lbCAg
-ICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExDUFUl
-ICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgMTAyICAgICA3NC41
-ICAgIDEuMCAgICAgMy45ICAgICAxLjI5CjIuNS41OS1tbTEwICAgICAgICAg
-MyAgIDEwMCAgICAgNzYuMCAgICAxLjAgICAgIDQuMCAgICAgMS4yNwoyLjUu
-NTktbW0xMGFpcyAgICAgIDEgICAxNTIgICAgIDUwLjAgICAgMi4wICAgICA0
-LjYgICAgIDEuODUKMi41LjU5LW1tOCAgICAgICAgICAzICAgMTAxICAgICA3
-NS4yICAgIDEuMCAgICAgNC4wICAgICAxLjI4CmlvX2xvYWQ6Cktlcm5lbCAg
-ICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExDUFUl
-ICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgMTUyICAgICA1MC4w
-ICAgIDM0LjEgICAgMTMuMSAgICAxLjkyCjIuNS41OS1tbTEwICAgICAgICAg
-MyAgIDE0OCAgICAgNTEuNCAgICAzNS4yICAgIDE0LjIgICAgMS44NwoyLjUu
-NTktbW0xMGFpcyAgICAgIDMgICAzMjMgICAgIDI0LjEgICAgMTMxLjAgICAy
-NC44ICAgIDMuOTQKMi41LjU5LW1tOCAgICAgICAgICAzICAgMTU1ICAgICA0
-OS4wICAgIDM1LjYgICAgMTIuOSAgICAxLjk2CmlvX290aGVyOgpLZXJuZWwg
-ICAgICAgICBbcnVuc10gICBUaW1lICAgIENQVSUgICAgTG9hZHMgICBMQ1BV
-JSAgIFJhdGlvCjIuNS41OSAgICAgICAgICAgICAgMyAgIDg5ICAgICAgODQu
-MyAgICAxMS4yICAgIDUuNiAgICAgMS4xMwoyLjUuNTktbW0xMCAgICAgICAg
-IDMgICAxMTUgICAgIDY2LjEgICAgMzUuMCAgICAxOC4zICAgIDEuNDYKMi41
-LjU5LW1tMTBhaXMgICAgICAxICAgMTM0ICAgICA1OC4yICAgIDU5LjcgICAg
-MjYuOSAgICAxLjYzCjIuNS41OS1tbTggICAgICAgICAgMyAgIDExNSAgICAg
-NjcuMCAgICAzMy40ICAgIDE3LjQgICAgMS40NgpyZWFkX2xvYWQ6Cktlcm5l
-bCAgICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExD
-UFUlICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgMTAxICAgICA3
-Ny4yICAgIDYuNSAgICAgNS4wICAgICAxLjI4CjIuNS41OS1tbTEwICAgICAg
-ICAgMyAgIDkzICAgICAgODEuNyAgICAyLjggICAgIDIuMiAgICAgMS4xOAoy
-LjUuNTktbW0xMGFpcyAgICAgIDEgICAxMTYgICAgIDY3LjIgICAgOC4yICAg
-ICA2LjAgICAgIDEuNDEKMi41LjU5LW1tOCAgICAgICAgICAzICAgOTMgICAg
-ICA4MS43ICAgIDIuOCAgICAgMi4yICAgICAxLjE4Cmxpc3RfbG9hZDoKS2Vy
-bmVsICAgICAgICAgW3J1bnNdICAgVGltZSAgICBDUFUlICAgIExvYWRzICAg
-TENQVSUgICBSYXRpbwoyLjUuNTkgICAgICAgICAgICAgIDMgICA5NSAgICAg
-IDgwLjAgICAgMC4wICAgICA2LjMgICAgIDEuMjAKMi41LjU5LW1tMTAgICAg
-ICAgICAzICAgOTcgICAgICA3OS40ICAgIDAuMCAgICAgNi4yICAgICAxLjIz
-CjIuNS41OS1tbTEwYWlzICAgICAgMSAgIDk5ICAgICAgNzguOCAgICAxLjAg
-ICAgIDcuMSAgICAgMS4yMQoyLjUuNTktbW04ICAgICAgICAgIDMgICA5NyAg
-ICAgIDc5LjQgICAgMC4wICAgICA2LjIgICAgIDEuMjMKbWVtX2xvYWQ6Cktl
-cm5lbCAgICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAg
-IExDUFUlICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgOTUgICAg
-ICA4Mi4xICAgIDUyLjcgICAgMi4xICAgICAxLjIwCjIuNS41OS1tbTEwICAg
-ICAgICAgMyAgIDk3ICAgICAgNzkuNCAgICA1My43ICAgIDIuMCAgICAgMS4y
-MwoyLjUuNTktbW0xMGFpcyAgICAgIDEgICAxMDMgICAgIDc2LjcgICAgNTMu
-MCAgICAxLjkgICAgIDEuMjYKMi41LjU5LW1tOCAgICAgICAgICAzICAgMTAw
-ICAgICA3OC4wICAgIDU3LjcgICAgMi4wICAgICAxLjI3CmRiZW5jaF9sb2Fk
-OgpLZXJuZWwgICAgICAgICBbcnVuc10gICBUaW1lICAgIENQVSUgICAgTG9h
-ZHMgICBMQ1BVJSAgIFJhdGlvCjIuNS41OSAgICAgICAgICAgICAgMyAgIDIx
-NCAgICAgMzYuNCAgICAyLjMgICAgIDQwLjcgICAgMi43MQoyLjUuNTktbW0x
-MCAgICAgICAgIDMgICAzMDAgICAgIDI1LjMgICAgMy4zICAgICA0MS4yICAg
-IDMuODAKMi41LjU5LW1tMTBhaXMgICAgICAxICAgNTc5ICAgICAxMy4zICAg
-IDguMCAgICAgNTEuNyAgICA3LjA2CjIuNS41OS1tbTggICAgICAgICAgMyAg
-IDM0NSAgICAgMjIuMCAgICA0LjMgICAgIDQ3LjUgICAgNC4zNwoKSSB3ZW50
-IGJhY2sgYW5kIGNoZWNrZWQgdGhlbSBiZWNhdXNlIEkgZGlkbid0IGJlbGll
-dmUgdGhlIHJlc3VsdHMgdGhlIGZpcnN0IAp0aW1lLiBUaGVzZSBhcmUgYSBj
-bGVhbiBzZXQgb2YgcmVzdWx0cywgYW5kIHRoZXkgY29ycmVsYXRlIHdpdGgg
-dGhlIGZpcnN0IApsb3QuIFRoZSBhbnRpY2lwYXRvcnkgc2NoZWR1bGVyIG5l
-ZWRzIHR1bmluZy4gTm90ZSB0aGF0IGV2ZW4gbm9sb2FkIHRha2VzIApsb25n
-ZXIsIGJ1dCB0aGUgY2FjaGVydW4gaXNuJ3QuIEFsbCB0aGUgZGlzayBJL08g
-YmFzZWQgbG9hZHMgdGFrZSBsb25nZXIuCgpDb24=
+To save me some time and possible pain I am hoping to find out the
+reasoning behind this change from the implementor. Please copy any reply
+to my personal email address as I am not subscribed to this list. I
+think that the autofs list is closed to people who are not subscribed so
+I will forward any replies that don't make it there.
 
---0-1569519251-1044886071=:51872--
+Should notification of these changes be posted to the autofs list?
+
+-- 
+Ian Kent <raven@themaw.net>
+

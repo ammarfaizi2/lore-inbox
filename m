@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267244AbTAAO2T>; Wed, 1 Jan 2003 09:28:19 -0500
+	id <S267070AbTAAOhN>; Wed, 1 Jan 2003 09:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267236AbTAAO2T>; Wed, 1 Jan 2003 09:28:19 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:4799 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267244AbTAAO2S>; Wed, 1 Jan 2003 09:28:18 -0500
-Date: Wed, 1 Jan 2003 15:36:42 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] only show the WAN submenu if WAN is selected
-Message-ID: <20030101143642.GK14184@louise.pinerecords.com>
-Mime-Version: 1.0
+	id <S267080AbTAAOhN>; Wed, 1 Jan 2003 09:37:13 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:65030 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267070AbTAAOhM>;
+	Wed, 1 Jan 2003 09:37:12 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301011445.h01EjK3Q000861@darkstar.example.net>
+Subject: Re: a few more "make xconfig" inconsistencies
+To: rpjday@mindspring.com (Robert P. J. Day)
+Date: Wed, 1 Jan 2003 14:45:20 +0000 (GMT)
+Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0301010922160.18348-100000@dell> from "Robert P. J. Day" at Jan 01, 2003 09:32:30 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial: This is a follow-up to your "Gigabit Ethernet submenu" precedent.
+> case in point:  under "General setup", there are two (what do
+> you call those things?) selectable entries for "PCMCIA/CardBus
+> support" and "PCI Hotplug Support".  why not make them selectable
+> entries, so i can deselect *all* of PCMCIA/Cardbus support 
+> immediately right there?
+> 
+> as it is, i have to move on to the actual dialog, in which i
+> can deselect all of it in one click.  there are other examples:
+> "Networking options" -> "Appletalk protocol support".  right now,
+> even though it's deselected, the net line reads "Appletalk devices"
+> and that dialog *will* come up, albeit deactivated.
 
-Only show the WAN submenu if the WAN entry is selected.
+The interfaces for the 2.4 and 2.5 xconfig systems are completely
+different.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+For 2.4, I think it's a very bad idea to not to show the greyed-out
+options, because a switch disabling all of them is set.  Having a
+switch to disable, for example, all of the power management options is
+useful, because they are amoungst other options, and I can just ignore
+them and scroll past quickly and easily.
 
-diff -urN a/drivers/net/wan/Kconfig b/drivers/net/wan/Kconfig
---- a/drivers/net/wan/Kconfig	2002-10-31 02:33:49.000000000 +0100
-+++ b/drivers/net/wan/Kconfig	2003-01-01 15:33:21.000000000 +0100
-@@ -2,10 +2,8 @@
- # wan devices configuration
- #
- 
--menu "Wan interfaces"
--	depends on NETDEVICES
--
- config WAN
-+	depends on NETDEVICES
- 	bool "Wan interfaces support"
- 	---help---
- 	  Wide Area Networks (WANs), such as X.25, frame relay and leased
-@@ -22,6 +20,9 @@
- 
- 	  If unsure, say N.
- 
-+menu "Wan interfaces"
-+	depends on WAN
-+
- # There is no way to detect a comtrol sv11 - force it modular for now.
- config HOSTESS_SV11
- 	tristate "Comtrol Hostess SV-11 support"
+I think it would be a big waste of time if we have to start toggling
+options just to see which options are being hidden.
+
+For 2.5, each subcategory can be 'collapsed', so this problem doesn't
+really occur.
+
+John.

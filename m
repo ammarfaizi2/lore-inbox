@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292529AbSBYRpH>; Mon, 25 Feb 2002 12:45:07 -0500
+	id <S292996AbSBYRqH>; Mon, 25 Feb 2002 12:46:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288980AbSBYRo6>; Mon, 25 Feb 2002 12:44:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44813 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293497AbSBYRot>; Mon, 25 Feb 2002 12:44:49 -0500
-Date: Mon, 25 Feb 2002 09:44:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <mingo@elte.hu>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-In-Reply-To: <E16fPGp-0005bj-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0202250942110.8978-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293349AbSBYRp6>; Mon, 25 Feb 2002 12:45:58 -0500
+Received: from [200.29.13.60] ([200.29.13.60]:52484 "EHLO mail.embedded.cl")
+	by vger.kernel.org with ESMTP id <S292996AbSBYRpo>;
+	Mon, 25 Feb 2002 12:45:44 -0500
+Date: Mon, 25 Feb 2002 14:50:15 -0300
+From: Carlos Manuel Duclos Vergara <carlos@embedded.cl>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: FrameBuffer Monitor Functions
+Message-Id: <20020225145015.46d7c9ad.carlos@embedded.cl>
+Organization: Embedded CL
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+this patch is to avoid the cooking of monitors from inside the
+framebuffer subsystem. Normally this would be made by
+fbmon_valid_timings function, but actually this function does nothing.
+So i start writing a new implementation that will make some checks, note
+that is not the full answer because it requires to user use another data
+structures normally don't used, but for now it checks the basic stuff.
+bye
 
-On Mon, 25 Feb 2002, Alan Cox wrote:
-> 
-> Any kernel special cases it adds will be unswappable because they are in
-> kernel space (not the semaphores here - we want them to be swappable and
-> they can be)
 
-Alan, wake up!
 
-I'm talking about anonymous semaphores, the kernel implementation can just 
-map a normal anonymous page there.
-
-On 99.9% of all machines out there, you can have semaphores in perfectly 
-normal memory.
-
-> When you create a shared mapping by passing -1 to mmap we do
-
-Why are you talking about shared mappings?
-
-The most common case for any fast semaphores are for _threaded_
-applications. No shared memory, no nothing.
-
-		Linus
-
+-- 
+"Solo me arrepiento de unos * de menos y unos ++ de sobra"
+Carlos Manuel Duclos Vergara

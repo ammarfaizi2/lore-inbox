@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVBJRDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVBJRXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVBJRDK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 12:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbVBJRCf
+	id S262165AbVBJRXi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 12:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVBJRXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 12:02:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2712 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262163AbVBJRCc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 12:02:32 -0500
-Date: Thu, 10 Feb 2005 12:02:17 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Fruhwirth Clemens <clemens@endorphin.org>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <michal@logix.cz>, <davem@davemloft.net>, <adam@yggdrasil.com>
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
-In-Reply-To: <1108034244.14335.59.camel@ghanima>
-Message-ID: <Xine.LNX.4.44.0502101159450.9016-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Feb 2005 12:23:38 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:27247 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262165AbVBJRXg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 12:23:36 -0500
+Date: Thu, 10 Feb 2005 11:23:23 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: EDD failures since edd=off patch
+Message-ID: <20050210172323.GA29225@lists.us.dell.com>
+References: <420B6BA8.1040808@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <420B6BA8.1040808@gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Feb 2005, Fruhwirth Clemens wrote:
+On Thu, Feb 10, 2005 at 03:11:52PM +0100, Carl-Daniel Hailfinger wrote:
+> Hi Matt,
+> 
+> it seems the edd=off patch has caused some problems with
+> some machines I have access to. They simply don't boot
+> anymore unless I specify edd=foo. foo can be {off,skip,bar}
+> so it seems the hang on boot is related to the parser
+> not finding the parameter it is looking for.
+> I looked through the code some days ago and it seemed to
+> me that the register used to iterate through the command
+> line buffer only got its lower 16 bit reset before calling
+> into the BIOS. I don't have the code handy right now,
+> but I can look later if the hints I gave are insufficient.
 
-> Hm, alright. So I'm going take the internal of kmap_atomic into
-> scatterwalk.c. to test if the page is in highmem, with PageHighMem. If
-> it is, I'm going to kmap_atomic and mark the fixmap as used. If it's
-> not, I do the "mapping" on my own with page_address.
+Yes, please.  I'm reading the code, and %ecx gets set to
+(COMMAND_LINE_SIZE-7) which is 256-7=249.  So the upper 24 bits of
+%ecx are going to always be zero, and if "edd=" isn't seen, then %ecx
+will be zero when dropping into edd_mbr_sig_start.  The only other
+register touched is %esi, but it's pushed at the beginning, and pop'd
+on all exit cases, so that should be unchanged.
 
-No, you do not need to do any of this.
+ZF is the only other bit I can picture.  On the "no edd= option" path,
+ZF=0 on exit.  With "edd=of" or "edd=sk", ZF=1.  But with "edd=bar",
+ZF=0, which you say works too.  So that's not it...
 
-Per previous email, all you need is the existing two kmaps, pass the tweak 
-in as a linear buffer.
+CF is taken care of around the int13 calls already, so that's not
+it...
 
-> Btw folks: why are there UpperCamelCase functions in linux/page-flags.h
-> and you're whining about my camelcase style in gfmulseq.c? My file isn't
-> even intended to be included by other files, unlike this include file.
+Thanks,
+Matt
 
-I don't know why the code is like that, but it is not an excuse to put 
-more like it into the kernel.
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

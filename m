@@ -1,74 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266211AbUHMRBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUHMRCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266211AbUHMRBN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266214AbUHMRBM
+	id S266214AbUHMRCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 13:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUHMRCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:01:12 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:41649 "EHLO
-	ffke-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id S266211AbUHMRBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:01:08 -0400
-Date: Fri, 13 Aug 2004 21:12:53 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Cornelia Huck <kernel@cornelia-huck.de>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let W1 select NET
-Message-Id: <20040813211253.051d923b@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20040813174522.73221785@gondolin.boeblingen.de.ibm.com>
-References: <20040813101717.GS13377@fs.tum.de>
-	<Pine.LNX.4.58.0408131231480.20635@scrub.home>
-	<20040813105412.GW13377@fs.tum.de>
-	<20040813155233.04ccac4a@gondolin.boeblingen.de.ibm.com>
-	<1092409800.12729.454.camel@uganda>
-	<20040813174522.73221785@gondolin.boeblingen.de.ibm.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Aug 2004 13:02:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:11668 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266214AbUHMRCg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 13:02:36 -0400
+Date: Fri, 13 Aug 2004 13:02:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Latency profiling.
+In-Reply-To: <411CE8DC.9010609@superbug.demon.co.uk>
+Message-ID: <Pine.LNX.4.53.0408131254560.25667@chaos>
+References: <411CE8DC.9010609@superbug.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004 17:45:22 +0200
-Cornelia Huck <kernel@cornelia-huck.de> wrote:
+On Fri, 13 Aug 2004, James Courtier-Dutton wrote:
 
-> On Fri, 13 Aug 2004 19:10:00 +0400
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> 
-> > It is just not a good example.
-> > In other words - it is bad config dependencies.
-> > You just caught error.
-> > Not very good example with depends:
-> > 
-> > config A
-> > 	depends on B
-> > config B
-> > 	depends on C
-> > config C
-> > 	depends on A
-> > 
-> > Just do not create wrong dependencies - although it sounds like "do 
-> > not create deadlocks".
-> 
-> Hm, none too easy with configurations spread over multiple files :) -
-> however, should select really be able to activate an option with unmet
-> dependencies?
+> I have been looking, but I cannot find out if anyone has already done
+> what I want.
+>
+> I have a problem that my desktop linux system becomes un-responsive when
+> there is a lot of Hard Disc access. I.E. During HD access, the mouse
+> fails to move.
+>
 
-We have spinlock debugging, probably we need it in config parser too.
-I think it is better to fix such bugs( or features), then hide them with
-depend/select.
- 
-> (and iirc, you are warned about circular dependencies?)
+	Yes.
 
-I'm sure noone depends on w1 :)
- 
-> Regards,
-> Cornelia
+> I suspect that this is due to a certain kernel process holding onto the
+> CPU resources too long without letting the kernel schedule a different
+> process.
+>
+
+There are no such kernel processes. Linux and other Unixes perform
+functions on behalf of the caller. If there is some task hogging
+the CPU then `top` will show it.
+
+> I therefore need a kernel profiler that will log every kernel
+> schedule/context switch, and if the interval between any switch is
+> greater than X, it will write a log entry, telling me which
+> process/function/module was holding onto the CPU for too long.
+>
+
+Some task, waiting for I/O to complete, will automatically
+get the CPU taken away and given to some other task that
+is not waiting for I/O to complete.
+
+> I could then use this tool to help me track down exactly where the
+> problem is, and therefore hopefully find a fix for it.
+>
+> Does a tool like this already exist?
+>
+> James
+
+The problems you describe are most likely caused by your hard-disk
+and/or driver. If you have an IDE drive with no DMA capability, you
+are stuck. If you have ATA, Fiberchannel, SCSI or something professional
+your processes will get CPU time while I/O is occurring.
 
 
-	Evgeniy Polyakov ( s0mbre )
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Only failure makes us experts. -- Theo de Raadt
+

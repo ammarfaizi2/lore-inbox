@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269466AbSIRWzU>; Wed, 18 Sep 2002 18:55:20 -0400
+	id <S269457AbSIRWzK>; Wed, 18 Sep 2002 18:55:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269468AbSIRWzU>; Wed, 18 Sep 2002 18:55:20 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:6528 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S269466AbSIRWzS>;
-	Wed, 18 Sep 2002 18:55:18 -0400
-Date: Wed, 18 Sep 2002 16:01:53 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Stuart MacDonald <stuartm@connecttech.com>
+	id <S269466AbSIRWzK>; Wed, 18 Sep 2002 18:55:10 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:44818 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S269457AbSIRWzJ>; Wed, 18 Sep 2002 18:55:09 -0400
+Date: Thu, 19 Sep 2002 00:59:37 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.36 Oops on power-down
-In-Reply-To: <058401c25f61$25245640$294b82ce@connecttech.com>
-Message-ID: <Pine.LNX.4.44.0209181558440.968-100000@cherise.pdx.osdl.net>
+Subject: Re: [PATCH] In-kernel module loader 1/7
+In-Reply-To: <20020918021714.E43A92C132@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0209182313360.8911-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> 00000000
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0060: [<00000000>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010246
-> eax: c034f808   ebx: 00000008   ecx: c034f4e0   edx: c034f4e0
-> esi: c11978a0   edi: c11ed800   ebp: c034f808   esp: c362be68
-> ds: 0068   es: 0068   ss: 0068
-> Stack: c019b8bd c11ed800 c034f808 00000000 c11ed850 c11ed850 c11ed450
-> bffffd18
->        c0194db9 c11ed800 c11ed850 c019fc7d c11ed850 01234567 c362a000
-> fee1dead
->        c01228fb c03d7128 00000001 00000000 c139da80 00000000 00000000
-> c222f464
-> Call Trace: [<c019b8bd>] [<c0194db9>] [<c019fc7d>] [<c01228fb>] [<c01515ae>]
->    [<c01513e2>] [<c014fb6c>] [<c013d91d>] [<c013bee9>] [<c013bf5d>]
-> [<c0107493>]
-> Code: Bad EIP value.
-> 
-> >>EIP; 00000000 Before first symbol
-> Trace; c019b8bd <pci_remove_one+3d/60>
-> Trace; c0194db9 <pci_device_remove+19/30>
-> Trace; c019fc7d <device_shutdown+4d/7e>
-> Trace; c01228fb <sys_reboot+fb/280>
-> Trace; c01515ae <clear_inode+e/b0>
-> Trace; c01513e2 <destroy_inode+32/50>
-> Trace; c014fb6c <dput+1c/160>
-> Trace; c013d91d <__fput+bd/e0>
-> Trace; c013bee9 <filp_close+99/b0>
-> Trace; c013bf5d <sys_close+5d/70>
-> Trace; c0107493 <syscall_call+7/b>
+On Wed, 18 Sep 2002, Rusty Russell wrote:
 
-It appears that the 8250_pci serial driver needs a check for NULL when 
-calling the device's re-init function. Could you try the attached patch 
-and let us know if it works for you? 
+> 	I've rewritten my in-kernel module loader: this version breaks
+> much less existing code.  Basically, we go to a model of
+> externally-controlled module refcounts with possibility of failure
+> (ie. try_inc_mod_count, now called try_module_get()).
 
-Thanks,
+You add a lot of complexity in an attempt to solve a quite simple problem.
+I agree that the module load mechanism could be simplified, but why do you
+want to do it in the kernel? Some general module management in userspace
+is needed anyway and all you save is a single call to the kernel.
+Most of the module related changes are rather cosmetic. You still have to
+spread try_module_get() calls all over the kernel, one has to call it
+before calling a function which might sleep, this means we will add it
+everywhere just to be save. What makes it worse is that it's not generally
+usable, a per object reference count can also be used for module
+management, but the module count can't be used for object management. This
+means for modules with more dynamic interfaces, they have to do twice as
+much work.
+I can only refer to my own patch again, which has most of the basic things
+needed to sanely get out of this mess:
+1. Allow module exit to fail. This gives modules far more control over
+module management and the generic module code can be simplified.
+2. The new module layout simplifies module loading, much more than
+relocating isn't necessary, but keeps backward compability as long as
+necessary. This means new modules can be loaded with old modutils and
+modules using the old interface can be kept working for a while.
 
-	-pat
+bye, Roman
 
-===== drivers/serial/8250_pci.c 1.8 vs edited =====
---- 1.8/drivers/serial/8250_pci.c	Mon Jul 29 07:52:41 2002
-+++ edited/drivers/serial/8250_pci.c	Wed Sep 18 15:51:32 2002
-@@ -771,7 +771,8 @@
- 		for (i = 0; i < priv->nr; i++)
- 			unregister_serial(priv->line[i]);
- 
--		priv->board->init_fn(dev, priv->board, 0);
-+		if (priv->board->init_fn)
-+			priv->board->init_fn(dev, priv->board, 0);
- 
- 		pci_disable_device(dev);
- 
 

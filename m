@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130908AbRA3NjS>; Tue, 30 Jan 2001 08:39:18 -0500
+	id <S129776AbRA3OBZ>; Tue, 30 Jan 2001 09:01:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131114AbRA3Ni5>; Tue, 30 Jan 2001 08:38:57 -0500
-Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:33186 "EHLO
-	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S130908AbRA3Nis>; Tue, 30 Jan 2001 08:38:48 -0500
-Message-ID: <03b101c08ac2$377e3380$8d19b018@c779218a>
-From: "Nicholas Knight" <tegeran@home.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: VT82C686A corruption with 2.4.x
-Date: Tue, 30 Jan 2001 05:40:32 -0800
-MIME-Version: 1.0
+	id <S129847AbRA3OBP>; Tue, 30 Jan 2001 09:01:15 -0500
+Received: from eden.dei.uc.pt ([193.137.203.230]:34564 "EHLO eden.dei.uc.pt")
+	by vger.kernel.org with ESMTP id <S129776AbRA3OA4>;
+	Tue, 30 Jan 2001 09:00:56 -0500
+From: Antonio Miguel Trindade <trindade@dei.uc.pt>
+Organization: D.E.I F.C.T.U.C.
+To: linux-kernel@vger.kernel.org
+Subject: RTC hardware clock option
+Date: Tue, 30 Jan 2001 14:00:43 +0000
+X-Mailer: KMail [version 1.1.99]
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+  charset="iso-8859-1"
+MIME-Version: 1.0
+Message-Id: <01013014004308.23105@polaris>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Soyo K7VIA motherboard which uses VT82C686A, with an 800mhz Athlon
-CPU in it.
-So far I've never run a 2.3* or 2.4* kernel on it, I've only done that on my
-P3 using a propriatory micron motherboard that uses an intel BX2 chipset.
-However, I recently trashed my linux installation (doing things totaly
-unrelated to the kernel) and now would be more than happy to assist in
-trying to figure out what the heck is causing the filesystem corruption on
-VIA chipsets, but so far I've only found bits and peices of information on
-it, and have been unable to locate a compiliation of information avalible on
-the problem, so I'd know just where to start.
-If anyone could point me to a good place to start looking, besides the
-thousands of messages containing just bits and peices of information, I
-could get to work on some testing.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
--NK
+I just would like to ask all of you what has the option "RTC stores time in 
+GMT" have to do with APM... The hardware clock in my machine stores time in 
+GMT, but I do not want APM, so why do I have to have APM just to have that 
+option enabled...
 
+Perhaps the intention is to remove that depency, but it has not been done out 
+of lazyness... (no pun intended, Linus).
+
+Yours truly,
+António Trindade
+
+- -- 
+A year spent in artificial intelligence
+is enough to make one believe in God.
+
+    -------------------------------
+     António Miguel F. M. Trindade
+        System's Administrator
+           D.E.I. F.C.T.U.C.
+    -------------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6dskLKh8km1Ma45URAoGmAJ0V/SptLcki2yzq3VIpsJUAl9YIhgCaA5jB
+CUY8kiZto3ZTGnWCPCx/FSg=
+=QUSP
+-----END PGP SIGNATURE-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

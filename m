@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316659AbSGVK0C>; Mon, 22 Jul 2002 06:26:02 -0400
+	id <S315277AbSGUXkt>; Sun, 21 Jul 2002 19:40:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSGVK0C>; Mon, 22 Jul 2002 06:26:02 -0400
-Received: from verein.lst.de ([212.34.181.86]:61449 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S316659AbSGVK0B>;
-	Mon, 22 Jul 2002 06:26:01 -0400
-Date: Mon, 22 Jul 2002 12:29:05 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andreas Schuldei <andreas@schuldei.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: using bitkeeper to backport subsystems?
-Message-ID: <20020722122905.A16423@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Andreas Schuldei <andreas@schuldei.org>,
-	linux-kernel@vger.kernel.org
-References: <20020721233410.GA21907@lukas> <20020722071510.GG16559@boardwalk> <20020722102930.A14802@lst.de> <20020722102705.GB21907@lukas>
+	id <S315279AbSGUXkt>; Sun, 21 Jul 2002 19:40:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24076 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315277AbSGUXks>; Sun, 21 Jul 2002 19:40:48 -0400
+Date: Mon, 22 Jul 2002 00:43:53 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+Message-ID: <20020722004353.S26376@flint.arm.linux.org.uk>
+References: <20020721234619.A10561@lst.de> <Pine.LNX.4.44.0207212345490.29913-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020722102705.GB21907@lukas>; from andreas@schuldei.org on Mon, Jul 22, 2002 at 12:27:05PM +0200
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207212345490.29913-100000@localhost.localdomain>; from mingo@elte.hu on Sun, Jul 21, 2002 at 11:56:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 12:27:05PM +0200, Andreas Schuldei wrote:
-> * Christoph Hellwig (hch@lst.de) [020722 10:29]:
-> > On Mon, Jul 22, 2002 at 01:15:10AM -0600, Val Henson wrote:
-> > > Sigh.  I hate this question: "How will BitKeeper make it easier to
-> > > port something between 2.4 and 2.5?"  Answer: "Bk won't help - at
-> > > least not as much as it would help if 2.5 had been cloned from 2.4."
-> > 
-> > 2.5 _is_ cloned from 2.4..
+On Sun, Jul 21, 2002 at 11:56:11PM +0200, Ingo Molnar wrote:
+> there's even more ancient code in the block driver init path, eg. in
+> drivers/block/ll_rw_blk.c:blk_dev_init():
 > 
-> can one make use of that somehow?
+>         outb_p(0xc, 0x3f2);
+> 
+> i suspect this is ancient Linux code. 0x3f2 is one of the floppy
+> controller ports - many modern x86 boxes do not even have a floppy
+> controller! I've removed this from my tree as well - if this is needed at
+> all then it belongs into the floppy driver.
 
-/me ain't no bk guru.
+Actually its to cover the case where you have a floppy drive, and you've
+booted the kernel from a floppy disk, and the kernel doesn't have the
+floppy driver built in.  It turns the floppy drive off, cause there's
+nothing else to do that.
 
-but I'd be interested in that, too.
+Obviously putting it in the floppy driver wouldn't be meaningful.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

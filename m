@@ -1,212 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269177AbRGaEzW>; Tue, 31 Jul 2001 00:55:22 -0400
+	id <S269176AbRGaF2j>; Tue, 31 Jul 2001 01:28:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269176AbRGaEzN>; Tue, 31 Jul 2001 00:55:13 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:30973 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S269175AbRGaEy6>; Tue, 31 Jul 2001 00:54:58 -0400
-Message-ID: <3B663AC9.3A290C32@ameritech.net>
-Date: Mon, 30 Jul 2001 23:57:45 -0500
-From: paulr <reichp@ameritech.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S269178AbRGaF2a>; Tue, 31 Jul 2001 01:28:30 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:19356
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S269176AbRGaF2M>; Tue, 31 Jul 2001 01:28:12 -0400
+Date: Mon, 30 Jul 2001 22:28:17 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: <Tony.Lill@ajlc.waterloo.on.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: laptops and journalling filesystems
+In-Reply-To: <200107310254.WAA22236@spider.ajlc.waterloo.on.ca>
+Message-ID: <Pine.LNX.4.33.0107302222000.8520-100000@kobayashi.soze.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.7 -- GCC-3.0 -- "multiline string literals deprecated" -- PATCH
-Content-Type: multipart/mixed;
- boundary="------------48CC1BA4F66F3CD8B6AC71DA"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This is a multi-part message in MIME format.
---------------48CC1BA4F66F3CD8B6AC71DA
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Mon, 30 Jul 2001, Tony Lill wrote:
 
-Folks,
+> Do any of the current batch of journalling filesystems NOT diddle the
+> disk every 5 seconds? I've tried reiser and ext3 and they're both
+> antithetic to spinning down the disk. Any plans to fix this bug in
+> future kernels?
 
-While building both kernels 2.4.6 and 2.4.7,
-I encountered a series of compiler warnings,
-
-warning: multiline string literals are deprecated.
-
-The build environment was gcc3.0 and binutils-2.11.2.
-
-In:
-linux/arch/i386/kernel/semaphore.c,
-linux/include/asm-i386/checksum.h, and
-linux/include/asm-i386/floppy.h,
-
-the placement of "" characters in the asm() directives
-appeared to be the source of the messages.
-
-The compiler messages seem harmless.  Unfortunately,
-warnings from these asm() constructs flooded the compile
-log, making it difficult to locate "real" warnings....
-
-I have attached patches against 2.4.7 for the files
-above. " and \n" constructs were added for each asm()
-stanza where the messages occurred.  Please note that
-this seems to be compiler-related.  The 2.4.7 code worked
-fine ;-)
-
-NOTE:
-
-I do *not* have an SMP system to verify the correctness
-of the CONFIG_SMP asm() conditionals in
-
-      linux/arch/i386/kernel/semaphore.c
-
-Please verify the SMP case.....
-
-Please cc: me as needed; I am not subscribed to l-k.
+are you sure this is a product of the journal and not the vm?  a machine
+with 1gig memory doing nothing (<25% physmem used) and ext2 has disk
+accesses ever few minutes too.
 
 
-Regards,
-
-Paul
-
-
--- 
-*********************************************
-Paul Reich              RF/Microwave Engineer
-
-    Support the "Freedom To Innovate"...
-                Just say "No".
-
-*********************************************
---------------48CC1BA4F66F3CD8B6AC71DA
-Content-Type: application/octet-stream;
- name="checksum.h.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="checksum.h.patch"
-
-LS0tIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvY2hlY2tzdW0uaC5vcmlnCVNhdCBKdWwgMjgg
-MTM6NDM6MTYgMjAwMQorKysgbGludXgvaW5jbHVkZS9hc20taTM4Ni9jaGVja3N1bS5oCVNh
-dCBKdWwgMjggMTQ6Mzc6MzEgMjAwMQpAQCAtNjksMjUgKzY5LDI1IEBACiAJCQkJCSAgdW5z
-aWduZWQgaW50IGlobCkgewogCXVuc2lnbmVkIGludCBzdW07CiAKLQlfX2FzbV9fIF9fdm9s
-YXRpbGVfXygiCi0JICAgIG1vdmwgKCUxKSwgJTAKLQkgICAgc3VibCAkNCwgJTIKLQkgICAg
-amJlIDJmCi0JICAgIGFkZGwgNCglMSksICUwCi0JICAgIGFkY2wgOCglMSksICUwCi0JICAg
-IGFkY2wgMTIoJTEpLCAlMAotMToJICAgIGFkY2wgMTYoJTEpLCAlMAotCSAgICBsZWEgNCgl
-MSksICUxCi0JICAgIGRlY2wgJTIKLQkgICAgam5lCTFiCi0JICAgIGFkY2wgJDAsICUwCi0J
-ICAgIG1vdmwgJTAsICUyCi0JICAgIHNocmwgJDE2LCAlMAotCSAgICBhZGR3ICV3MiwgJXcw
-Ci0JICAgIGFkY2wgJDAsICUwCi0JICAgIG5vdGwgJTAKLTI6Ci0JICAgICIKKwlfX2FzbV9f
-IF9fdm9sYXRpbGVfXygKKyIJICAgbW92bCAoJTEpLCAlMFxuIgorIgkgICBzdWJsICQ0LCAl
-MlxuIgorIgkgICBqYmUgMmZcbiIKKyIJICAgYWRkbCA0KCUxKSwgJTBcbiIKKyIJICAgYWRj
-bCA4KCUxKSwgJTBcbiIKKyIJICAgYWRjbCAxMiglMSksICUwXG4iCisiMToJICAgYWRjbCAx
-NiglMSksICUwXG4iCisiCSAgIGxlYSA0KCUxKSwgJTFcbiIKKyIJICAgZGVjbCAlMlxuIgor
-IgkgICBqbmUJMWJcbiIKKyIJICAgYWRjbCAkMCwgJTBcbiIKKyIJICAgbW92bCAlMCwgJTJc
-biIKKyIJICAgc2hybCAkMTYsICUwXG4iCisiCSAgIGFkZHcgJXcyLCAldzBcbiIKKyIJICAg
-YWRjbCAkMCwgJTBcbiIKKyIJICAgbm90bCAlMFxuIgorIjI6IgorCiAJLyogU2luY2UgdGhl
-IGlucHV0IHJlZ2lzdGVycyB3aGljaCBhcmUgbG9hZGVkIHdpdGggaXBoIGFuZCBpcGwKIAkg
-ICBhcmUgbW9kaWZpZWQsIHdlIG11c3QgYWxzbyBzcGVjaWZ5IHRoZW0gYXMgb3V0cHV0cywg
-b3IgZ2NjCiAJICAgd2lsbCBhc3N1bWUgdGhleSBjb250YWluIHRoZWlyIG9yaWdpbmFsIHZh
-bHVlcy4gKi8KQEAgLTEwMiwxMCArMTAyLDEwIEBACiAKIHN0YXRpYyBpbmxpbmUgdW5zaWdu
-ZWQgaW50IGNzdW1fZm9sZCh1bnNpZ25lZCBpbnQgc3VtKQogewotCV9fYXNtX18oIgotCQlh
-ZGRsICUxLCAlMAotCQlhZGNsICQweGZmZmYsICUwCi0JCSIKKwlfX2FzbV9fKAorCSIJYWRk
-bCAlMSwgJTBcbiIKKwkiCWFkY2wgJDB4ZmZmZiwgJTBcbiIKKwogCQk6ICI9ciIgKHN1bSkK
-IAkJOiAiciIgKHN1bSA8PCAxNiksICIwIiAoc3VtICYgMHhmZmZmMDAwMCkKIAkpOwpAQCAt
-MTE4LDEyICsxMTgsMTIgQEAKIAkJCQkJCSAgIHVuc2lnbmVkIHNob3J0IHByb3RvLAogCQkJ
-CQkJICAgdW5zaWduZWQgaW50IHN1bSkgCiB7Ci0gICAgX19hc21fXygiCi0JYWRkbCAlMSwg
-JTAKLQlhZGNsICUyLCAlMAotCWFkY2wgJTMsICUwCi0JYWRjbCAkMCwgJTAKLQkiCisgICAg
-X19hc21fXygKKyIJYWRkbCAlMSwgJTBcbiIKKyIJYWRjbCAlMiwgJTBcbiIKKyIJYWRjbCAl
-MywgJTBcbiIKKyIJYWRjbCAkMCwgJTBcbiIKKwogCTogIj1yIiAoc3VtKQogCTogImciIChk
-YWRkciksICJnIihzYWRkciksICJnIigobnRvaHMobGVuKTw8MTYpK3Byb3RvKjI1NiksICIw
-IihzdW0pKTsKICAgICByZXR1cm4gc3VtOwpAQCAtMTU4LDE5ICsxNTgsMTkgQEAKIAkJCQkJ
-CSAgICAgdW5zaWduZWQgc2hvcnQgcHJvdG8sCiAJCQkJCQkgICAgIHVuc2lnbmVkIGludCBz
-dW0pIAogewotCV9fYXNtX18oIgotCQlhZGRsIDAoJTEpLCAlMAotCQlhZGNsIDQoJTEpLCAl
-MAotCQlhZGNsIDgoJTEpLCAlMAotCQlhZGNsIDEyKCUxKSwgJTAKLQkJYWRjbCAwKCUyKSwg
-JTAKLQkJYWRjbCA0KCUyKSwgJTAKLQkJYWRjbCA4KCUyKSwgJTAKLQkJYWRjbCAxMiglMiks
-ICUwCi0JCWFkY2wgJTMsICUwCi0JCWFkY2wgJTQsICUwCi0JCWFkY2wgJDAsICUwCi0JCSIK
-KwlfX2FzbV9fKAorCSIJYWRkbCAwKCUxKSwgJTBcbiIKKwkiCWFkY2wgNCglMSksICUwXG4i
-CisJIglhZGNsIDgoJTEpLCAlMFxuIgorCSIJYWRjbCAxMiglMSksICUwXG4iCisJIglhZGNs
-IDAoJTIpLCAlMFxuIgorCSIJYWRjbCA0KCUyKSwgJTBcbiIKKwkiCWFkY2wgOCglMiksICUw
-XG4iCisJIglhZGNsIDEyKCUyKSwgJTBcbiIKKwkiCWFkY2wgJTMsICUwXG4iCisJIglhZGNs
-ICU0LCAlMFxuIgorCSIJYWRjbCAkMCwgJTBcbiIKKwogCQk6ICI9JnIiIChzdW0pCiAJCTog
-InIiIChzYWRkciksICJyIiAoZGFkZHIpLCAKIAkJICAiciIoaHRvbmwobGVuKSksICJyIiho
-dG9ubChwcm90bykpLCAiMCIoc3VtKSk7Cg==
---------------48CC1BA4F66F3CD8B6AC71DA
-Content-Type: application/octet-stream;
- name="floppy.h.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="floppy.h.patch"
-
-LS0tIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvZmxvcHB5Lmgub3JpZwlTYXQgSnVsIDI4IDE0
-OjIwOjI2IDIwMDEKKysrIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvZmxvcHB5LmgJU2F0IEp1
-bCAyOCAxNDozNDoxOCAyMDAxCkBAIC03NSwyOCArNzUsMjggQEAKIAogI2lmbmRlZiBOT19G
-TE9QUFlfQVNTRU1CTEVSCiAJX19hc21fXyAoCi0gICAgICAgInRlc3RsICUxLCUxCi0JamUg
-M2YKLTE6CWluYiAldzQsJWIwCi0JYW5kYiAkMTYwLCViMAotCWNtcGIgJDE2MCwlYjAKLQlq
-bmUgMmYKLQlpbmN3ICV3NAotCXRlc3RsICUzLCUzCi0Jam5lIDRmCi0JaW5iICV3NCwlYjAK
-LQltb3ZiICUwLCglMikKLQlqbXAgNWYKLTQ6ICAgICAJbW92YiAoJTIpLCUwCi0Jb3V0YiAl
-YjAsJXc0Ci01OglkZWN3ICV3NAotCW91dGIgJTAsJDB4ODAKLQlkZWNsICUxCi0JaW5jbCAl
-MgotCXRlc3RsICUxLCUxCi0Jam5lIDFiCi0zOglpbmIgJXc0LCViMAotMjoJIgorIiAgICAg
-ICB0ZXN0bCAlMSwlMVxuIgorIglqZSAzZlxuIgorIjE6CWluYiAldzQsJWIwXG4iCisiCWFu
-ZGIgJDE2MCwlYjBcbiIKKyIJY21wYiAkMTYwLCViMFxuIgorIglqbmUgMmZcbiIKKyIJaW5j
-dyAldzRcbiIKKyIJdGVzdGwgJTMsJTNcbiIKKyIJam5lIDRmXG4iCisiCWluYiAldzQsJWIw
-XG4iCisiCW1vdmIgJTAsKCUyKVxuIgorIglqbXAgNWZcbiIKKyI0OiAgICAgbW92YiAoJTIp
-LCUwXG4iCisiCW91dGIgJWIwLCV3NFxuIgorIjU6CWRlY3cgJXc0XG4iCisiCW91dGIgJTAs
-JDB4ODBcbiIKKyIJZGVjbCAlMVxuIgorIglpbmNsICUyXG4iCisiCXRlc3RsICUxLCUxXG4i
-CisiCWpuZSAxYlxuIgorIjM6CWluYiAldzQsJWIwXG4iCisiMjoiCiAgICAgICAgOiAiPWEi
-ICgoY2hhcikgc3QpLCAKICAgICAgICAiPWMiICgobG9uZykgdmlydHVhbF9kbWFfY291bnQp
-LCAKICAgICAgICAiPVMiICgobG9uZykgdmlydHVhbF9kbWFfYWRkcikK
---------------48CC1BA4F66F3CD8B6AC71DA
-Content-Type: application/octet-stream;
- name="semaphore.c.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="semaphore.c.patch"
-
-LS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvc2VtYXBob3JlLmMub3JpZwlTYXQgSnVsIDI4
-IDEzOjU3OjI5IDIwMDEKKysrIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvc2VtYXBob3JlLmMJ
-U2F0IEp1bCAyOCAxNDo1MDo1MCAyMDAxCkBAIC0xODEsNTYgKzE4MSw1NiBAQAogIi50ZXh0
-XG4iCiAiLmFsaWduIDRcbiIKICIuZ2xvYmwgX19kb3duX2ZhaWxlZFxuIgotIl9fZG93bl9m
-YWlsZWQ6XG5cdCIKLQkicHVzaGwgJWVheFxuXHQiCi0JInB1c2hsICVlZHhcblx0IgotCSJw
-dXNobCAlZWN4XG5cdCIKLQkiY2FsbCBfX2Rvd25cblx0IgotCSJwb3BsICVlY3hcblx0Igot
-CSJwb3BsICVlZHhcblx0IgotCSJwb3BsICVlYXhcblx0IgotCSJyZXQiCisiX19kb3duX2Zh
-aWxlZDpcbiIKKyIJcHVzaGwgJWVheFxuIgorIglwdXNobCAlZWR4XG4iCisiCXB1c2hsICVl
-Y3hcbiIKKyIJY2FsbCBfX2Rvd25cbiIKKyIJcG9wbCAgJWVjeFxuIgorIglwb3BsICAlZWR4
-XG4iCisiCXBvcGwgICVlYXhcbiIKKyIJcmV0XG4iCiApOwogCiBhc20oCiAiLnRleHRcbiIK
-ICIuYWxpZ24gNFxuIgogIi5nbG9ibCBfX2Rvd25fZmFpbGVkX2ludGVycnVwdGlibGVcbiIK
-LSJfX2Rvd25fZmFpbGVkX2ludGVycnVwdGlibGU6XG5cdCIKLQkicHVzaGwgJWVkeFxuXHQi
-Ci0JInB1c2hsICVlY3hcblx0IgotCSJjYWxsIF9fZG93bl9pbnRlcnJ1cHRpYmxlXG5cdCIK
-LQkicG9wbCAlZWN4XG5cdCIKLQkicG9wbCAlZWR4XG5cdCIKLQkicmV0IgorIl9fZG93bl9m
-YWlsZWRfaW50ZXJydXB0aWJsZTpcbiIKKyIJcHVzaGwgJWVkeFxuIgorIglwdXNobCAlZWN4
-XG4iCisiCWNhbGwgIF9fZG93bl9pbnRlcnJ1cHRpYmxlXG4iCisiCXBvcGwgICVlY3hcbiIK
-KyIJcG9wbCAgJWVkeFxuIgorIglyZXRcbiIKICk7CiAKIGFzbSgKICIudGV4dFxuIgogIi5h
-bGlnbiA0XG4iCiAiLmdsb2JsIF9fZG93bl9mYWlsZWRfdHJ5bG9ja1xuIgotIl9fZG93bl9m
-YWlsZWRfdHJ5bG9jazpcblx0IgotCSJwdXNobCAlZWR4XG5cdCIKLQkicHVzaGwgJWVjeFxu
-XHQiCi0JImNhbGwgX19kb3duX3RyeWxvY2tcblx0IgotCSJwb3BsICVlY3hcblx0IgotCSJw
-b3BsICVlZHhcblx0IgotCSJyZXQiCisiX19kb3duX2ZhaWxlZF90cnlsb2NrOlxuIgorIglw
-dXNobCAlZWR4XG4iCisiCXB1c2hsICVlY3hcbiIKKyIJY2FsbCAgX19kb3duX3RyeWxvY2tc
-biIKKyIJcG9wbCAgJWVjeFxuIgorIglwb3BsICAlZWR4XG4iCisiCXJldFxuIgogKTsKIAog
-YXNtKAogIi50ZXh0XG4iCiAiLmFsaWduIDRcbiIKICIuZ2xvYmwgX191cF93YWtldXBcbiIK
-LSJfX3VwX3dha2V1cDpcblx0IgotCSJwdXNobCAlZWF4XG5cdCIKLQkicHVzaGwgJWVkeFxu
-XHQiCi0JInB1c2hsICVlY3hcblx0IgotCSJjYWxsIF9fdXBcblx0IgotCSJwb3BsICVlY3hc
-blx0IgotCSJwb3BsICVlZHhcblx0IgotCSJwb3BsICVlYXhcblx0IgotCSJyZXQiCisiX191
-cF93YWtldXA6XG4iCisiCXB1c2hsICVlYXhcbiIKKyIJcHVzaGwgJWVkeFxuIgorIglwdXNo
-bCAlZWN4XG4iCisiCWNhbGwgIF9fdXBcbiIKKyIJcG9wbCAgJWVjeFxuIgorIglwb3BsICAl
-ZWR4XG4iCisiCXBvcGwgICVlYXhcbiIKKyIJcmV0XG4iCiApOwogCiAvKgpAQCAtMjM4LDI5
-ICsyMzgsMjkgQEAKICAqLwogI2lmIGRlZmluZWQoQ09ORklHX1NNUCkKIGFzbSgKLSIKLS5h
-bGlnbgk0Ci0uZ2xvYmwJX193cml0ZV9sb2NrX2ZhaWxlZAotX193cml0ZV9sb2NrX2ZhaWxl
-ZDoKLQkiIExPQ0sgImFkZGwJJCIgUldfTE9DS19CSUFTX1NUUiAiLCglZWF4KQotMToJY21w
-bAkkIiBSV19MT0NLX0JJQVNfU1RSICIsKCVlYXgpCi0Jam5lCTFiCi0KLQkiIExPQ0sgInN1
-YmwJJCIgUldfTE9DS19CSUFTX1NUUiAiLCglZWF4KQotCWpueglfX3dyaXRlX2xvY2tfZmFp
-bGVkCi0JcmV0Ci0KLQotLmFsaWduCTQKLS5nbG9ibAlfX3JlYWRfbG9ja19mYWlsZWQKLV9f
-cmVhZF9sb2NrX2ZhaWxlZDoKLQlsb2NrIDsgaW5jbAkoJWVheCkKLTE6CWNtcGwJJDEsKCVl
-YXgpCi0JanMJMWIKLQotCWxvY2sgOyBkZWNsCSglZWF4KQotCWpzCV9fcmVhZF9sb2NrX2Zh
-aWxlZAotCXJldAotIgorCisiLmFsaWduCQk0XG4iCisiLmdsb2JsCQlfX3dyaXRlX2xvY2tf
-ZmFpbGVkXG4iCisiX193cml0ZV9sb2NrX2ZhaWxlZDpcblx0IgorIgkJIkxPQ0sgImFkZGwJ
-JCIgUldfTE9DS19CSUFTX1NUUiAiLCglZWF4KVxuIgorIjE6CQkgY21wbAkJJCIgUldfTE9D
-S19CSUFTX1NUUiAiLCglZWF4KVxuIgorIgkJam5lCQkxYlxuIgorCisiCQkiIExPQ0sgInN1
-YmwJJCIgUldfTE9DS19CSUFTX1NUUiAiLCglZWF4KVxuIgorIgkJam56CQlfX3dyaXRlX2xv
-Y2tfZmFpbGVkXG4iCisiCQlyZXRcbiIKKworCisiLmFsaWduCQk0XG4iCisiLmdsb2JsCQlf
-X3JlYWRfbG9ja19mYWlsZWRcbiIKKyJfX3JlYWRfbG9ja19mYWlsZWQ6XG4iCisiCQlsb2Nr
-IDsgaW5jbAkoJWVheClcbiIKKyIxOgkJY21wbAkJJDEsKCVlYXgpXG4iCisiCQlqcwkJMWJc
-biIKKworIgkJbG9jayA7IGRlY2wJKCVlYXgpXG4iCisiCQlqcwkJX19yZWFkX2xvY2tfZmFp
-bGVkXG4iCisiCQlyZXRcbiIKKwogKTsKICNlbmRpZgo=
---------------48CC1BA4F66F3CD8B6AC71DA--
+justin
 

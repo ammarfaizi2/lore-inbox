@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264572AbTK0SD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 13:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbTK0SD6
+	id S264575AbTK0SOf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 13:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbTK0SOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 13:03:58 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:53956 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264572AbTK0SDz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 13:03:55 -0500
-Date: Thu, 27 Nov 2003 19:02:55 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: John Public <jqp@park.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Who's responsible for dpt_i2o in 2.6?
-Message-ID: <20031127190255.A15282@electric-eye.fr.zoreil.com>
-References: <3FC63B52.21999.6C3E856@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FC63B52.21999.6C3E856@localhost>; from jqp@park.se on Thu, Nov 27, 2003 at 05:58:36PM +0100
-X-Organisation: Land of Sunshine Inc.
+	Thu, 27 Nov 2003 13:14:35 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:48041 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264575AbTK0SOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 13:14:33 -0500
+Message-ID: <3FC63D60.8020304@colorfullife.com>
+Date: Thu, 27 Nov 2003 19:07:28 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: pinotj@club-internet.fr, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+References: <mnet1.1069781435.24380.pinotj@club-internet.fr> <Pine.LNX.4.58.0311251443280.1524@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0311251443280.1524@home.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Public <jqp@park.se> :
-[...]
-> while with no luck. After reading a couple of bug reports and such I 
-> signed up on Adaptec's forum and found out that the supposed 
-> maintainer, Mark Salyzyn, states
-> "Incorporation into the tree can not be performed as no one is 
-> designated as the gatekeeper."
-> See 
-> http://mbserver.adaptec.com/view.php?site=linux&bn=linux_raid&key=
-> 1069782519&first=1069952140&last=1059760128
-> 
-> I'm not sure if he means gatekeeper out of Adaptec or gatekeeper
-> into the kernel but if it's the latter could someone tell him who
-> to send the patches to.
+Linus Torvalds wrote:
 
-An answer has already been given, see linux-scsi (you probably want to
-send your message there btw):
+>On Tue, 25 Nov 2003 pinotj@club-internet.fr wrote:
+>  
+>
+>>3. 2.6.0-test10 vanilla + PREEMPT_CONFIG=y + patch printk + patch magic numbers
+>>The patch solves the problem, I can compile 4 times a kernel and do heavy work in parallele (load average around 1.2 during 2 hours) without any problems.
+>>    
+>>
+>
+>Those magic numbers don't make any sense. In particular, SLAB_LIMIT is
+>clearly bogus both in the original version and in the "magic number
+>patch". The only place that uses SLAB_LIMIT is the code that decides how
+>many entries fit in one slab, and quite frankly, it makes no _sense_ to
+>have a SLAB_LIMIT that is big enough to be unsigned.
+>
+Object numbers  (kmem_bufctl_t) are unsigned, but some values have a 
+special meaning:
+"-1" is the magic value for end-of-list.
+"-2" is the magic value for object in use.
+All other values are valid object numbers. Right now object numbers are 
+unsigned int, but initially I considered unsigned char or unsigned 
+short. And then an explicit SLAB_LIMIT is necessary - with unsigned 
+char, the limit would be 253 objects per slab, which could be reached if 
+someone creates objects smaller than 16 bytes.
 
-: From: "'Christoph Hellwig'" <hch@infradead.org>
-: Date: Tue, 26 Aug 2003 17:51:35 +0100
-: Subject: Re: dpt_i2o driver
-: From linux-scsi-owner@vger.kernel.org  Tue Aug 26 18:58:17 2003
-: To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-: Cc: Mark Haverkamp <markh@osdl.org>, linux-scsi <linux-scsi@vger.kernel.org>
-: References: <0998F43EAD645A47B3F6507196DD70EA2568DE@OTCEXC01>
-: 
-: On Tue, Aug 26, 2003 at 11:02:48AM -0400, Salyzyn, Mark wrote:
-: > I am close to completing tests surrounding the dpt_i2o driver to support 2.4
-: > + 2.6 kernels as well as bigmem DMA issues. Who, if anyone, has been
-: > designated as the person to accept this updated driver?
-: 
-: Please send it to this list. James Bottomley is official SCSI maintainer
-: for 2.6 but scsi development and code review is a distributed effort
-: these days.
+In Jerome's case, the debug checks noticed that the object-in-use 
+sentinel was not in the bufctl entry during free, instead there was a 
+"-1". There are several sources for the "-1": My initial guess was 
+either a bug in slab, or a bad memory cell (only one bit difference). 
+Thus I sent him a patch that changes multiple bits. Result: It remained 
+a single bit change, i.e it's proven that slab doesn't write BUFCTL_END 
+into the wrong slot.
 
 --
-Ueimor
+    Manfred
+

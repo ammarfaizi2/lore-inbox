@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbUKVK4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbUKVLGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbUKVK4M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUKVKyF
+	id S262075AbUKVLGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 06:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUKVLGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:54:05 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:18560 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262062AbUKVKwS convert rfc822-to-8bit (ORCPT
+	Mon, 22 Nov 2004 06:06:08 -0500
+Received: from gprs214-187.eurotel.cz ([160.218.214.187]:64384 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262063AbUKVLC7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:52:18 -0500
-Date: Mon, 22 Nov 2004 11:48:06 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: And another bug report for UML in latest Linux 2.6-BK repository.
-Message-ID: <20041122104806.GI19738@admingilde.org>
-Mail-Followup-To: Jeff Dike <jdike@addtoit.com>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	user-mode-linux-devel@lists.sourceforge.net,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1100613788.24599.45.camel@imp.csi.cam.ac.uk> <200411180148.iAI1mGQ3006498@ccure.user-mode-linux.org>
+	Mon, 22 Nov 2004 06:02:59 -0500
+Date: Mon, 22 Nov 2004 12:02:47 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
+Message-ID: <20041122110247.GB1063@elf.ucw.cz>
+References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <20041120081219.GA2866@hugang.soulinfo.com> <20041120224937.GA979@elf.ucw.cz> <20041122072215.GA13874@hugang.soulinfo.com> <20041122102612.GA1063@elf.ucw.cz> <20041122103240.GA11323@hugang.soulinfo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <200411180148.iAI1mGQ3006498@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+In-Reply-To: <20041122103240.GA11323@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hoi :)
+Hi!
 
-On Wed, Nov 17, 2004 at 08:48:16PM -0500, Jeff Dike wrote:
-> aia21@cam.ac.uk said:
-> > sleeping process 29410 got unexpected signal : 11
-> > I now have to press Ctrl+C to get back to my shell. 
-> 
-> This one is slightly subtle, but I believe that it is fixed by the following 
-> patch.
+> > Yes, I'd like to get rid of "too many continuous pages" problem
+> > before. Small problem is that it needs to update x86-64 too, but I
+> I have not x86-64, so I have no chance to do it.
 
-It fixes the problem for me. Please send the patch to Linus.
-
+I have access to x86-64, so I can do it...
+								Pavel
 -- 
-Martin Waitz
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,94 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVA0PDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVA0PGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVA0PDT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 10:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVA0PDT
+	id S262481AbVA0PGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 10:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbVA0PGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 10:03:19 -0500
-Received: from imag.imag.fr ([129.88.30.1]:32398 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S262482AbVA0PDM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 10:03:12 -0500
-Date: Thu, 27 Jan 2005 16:03:06 +0100
-From: castet.matthieu@free.fr
-To: linux-kernel@vger.kernel.org
-Subject: Re:parport disabled?
-Message-ID: <20050127150306.GA29334@linux.ensimag.fr>
+	Thu, 27 Jan 2005 10:06:46 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59314 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262481AbVA0PGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 10:06:42 -0500
+Date: Thu, 27 Jan 2005 16:06:33 +0100
+From: Jan Kara <jack@suse.cz>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.11-rc2] kernel BUG at fs/reiserfs/prints.c:362
+Message-ID: <20050127150632.GA17882@atrey.karlin.mff.cuni.cz>
+References: <200501271024.13778.rathamahata@ehouse.ru> <1106821035.3270.30.camel@tribesman> <20050127112647.GA20806@atrey.karlin.mff.cuni.cz> <1106835321.6191.130.camel@tribesman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="5vNYLRcllDrimb99"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Thu, 27 Jan 2005 16:03:07 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+In-Reply-To: <1106835321.6191.130.camel@tribesman>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Whenever I "modprobe parport_pc", I get this message:
-> 
-> Jan 27 10:55:47 hummus kernel: pnp: Device 00:0b activated.
-> Jan 27 10:55:47 hummus kernel: parport: PnPBIOS parport detected.
-> Jan 27 10:55:47 hummus kernel: pnp: Device 00:0b disabled.
-> 
-> and the parallel port is unusable ever after.
-> This is with Kernel 2.6.10-ac10 and 2.6.10-ac11
-> 
-> How can I make my parallel port usable again?
-Try disabling acpi.
+  Hi!
 
-If it works, with acpi enabled send a "for i in /sys/bus/pnp/devices/*; do cat
-$i/*; done"
+> On Thu, 2005-01-27 at 14:26, Jan Kara wrote:
+> >   Hello,
+> > 
+> > > On Thu, 2005-01-27 at 10:24, Sergey S. Kostyliov wrote:
+> > > > Hello all,
+> > > > 
+> > > > Here is a BUG() I've just hited on quota enabled reiserfs disk.
+> > > > 
+> > > > rathamahata@dev rathamahata $ mount | grep /dev/sdb2
+> > > > /dev/sdb2 on /var/www type reiserfs (rw,noatime,nodiratime,data=writeback,grpquota,usrquota)
+> > > > rathamahata@dev rathamahata $
+> > > > 
+> > > > REISERFS: panic (device sdb2): journal_begin called without kernel lock held
+> > > 
+> > > Would you check whether this patch helps, please?
+> >   BTW: What are the exact rules where lock_kernel() should be held for
+> > reiserfs? Is there a doc somewhere? 
+> I do not think so.
+> Earlier reiserfs used to lock_kernel on entering and unlock on exit. The
+> reason is that reiserfs has no fine grain locking protecting access to
+> its data structures.
+> Since that time there could be introduced some minor improvements,
+> though.
+  So in that case reiserfs_quota_read() also needs a BKL
+because it can be called from the quota code without any lock
+guarantees (e.g. quota_on() and quotactl() can call reading routine
+without BKL).
+  Attached patch adds this BKL locking and adds also missing
+lock_buffer() I found.
+  If you agree with the patch then you can forward it to Andrew/Linus.
 
-I could be related to http://bugzilla.kernel.org/show_bug.cgi?id=3912
-and [1]
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
-regards,
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="reiser-lock-fix.diff"
 
-Matthieu
+Add missing locking to reiserfs_quota_read() and reiserfs_quota_write().
 
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-Adam Belay wrote:
+--- linux/fs/reiserfs/super.c	2005-01-27 12:56:27.000000000 +0100
++++ linux/fs/reiserfs/super.c	2005-01-27 17:41:20.000000000 +0100
+@@ -1993,7 +1993,9 @@ static ssize_t reiserfs_quota_read(struc
+ 	tocopy = sb->s_blocksize - offset < toread ? sb->s_blocksize - offset : toread;
+ 	tmp_bh.b_state = 0;
+ 	/* Quota files are without tails so we can safely use this function */
++	reiserfs_write_lock(sb);
+ 	err = reiserfs_get_block(inode, blk, &tmp_bh, 0);
++	reiserfs_write_unlock(sb);
+ 	if (err)
+ 	    return err;
+ 	if (!buffer_mapped(&tmp_bh))    /* A hole? */
+@@ -2041,8 +2043,11 @@ static ssize_t reiserfs_quota_write(stru
+ 	    err = -EIO;
+ 	    goto out;
+ 	}
++	lock_buffer(bh);
+ 	memcpy(bh->b_data+offset, data, tocopy);
++	flush_dcache_page(bh->b_page);
+ 	set_buffer_uptodate(bh);
++	unlock_buffer(bh);
+ 	reiserfs_prepare_for_journal(sb, bh, 1);
+ 	journal_mark_dirty(current->journal_info, sb, bh);
+ 	if (!journal_quota)
 
-> On Mon, Nov 29, 2004 at 10:30:29PM +0100, matthieu castet wrote:
->
->> matthieu castet wrote:
->>
->>> Hello,
->>>
->>> acpi need that the order of the resources are the same as the
->>> possible resources. It could be the same for pnpbios.
->>>
->>> I most of case, it works quite well, but if the independent options
->>> are after dependent, it doesn't work :
->>> in pnp manager, pnp_assign_resources first uses independent_options
->>> and then dependent ones. So we break the order, and it doesn't work.
->>>
->>> What the rules for independent options in pnpbios ?
->>>
->>> If it works like pnpacpi, it is allowed to define them only before
->>> or after dependent option.
->>>
->>> So a solution could be to have a second independent option, and use
->>> it after dependent options in pnp_assign_resources.
->>>
->>> What do you think of that ?
->>>
->>> Matthieu CASTET
->>>
->>
->> I forgot to say that it is probably the bug of meelis roos.
->>
->
->
-> Hmm, I agree this is a problem, and it will be interesting to see if
-> it
-> resolves Meelis's issue.  I don't think a second independent option
-> would be a
-> clean solution.  I think the a slight redesign is in order, with a
-> focus on
-> ensuring resources are assigned in the order they are advertised in
-> all cases.
-> I'm hacking something together now. 
+--5vNYLRcllDrimb99--

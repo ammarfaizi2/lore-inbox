@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbSKYEcg>; Sun, 24 Nov 2002 23:32:36 -0500
+	id <S262414AbSKYEat>; Sun, 24 Nov 2002 23:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSKYEcg>; Sun, 24 Nov 2002 23:32:36 -0500
-Received: from rj.SGI.COM ([192.82.208.96]:43164 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S262415AbSKYEcf>;
-	Sun, 24 Nov 2002 23:32:35 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.22 is available
-Date: Mon, 25 Nov 2002 15:39:38 +1100
-Message-ID: <6714.1038199178@kao2.melbourne.sgi.com>
+	id <S262415AbSKYEat>; Sun, 24 Nov 2002 23:30:49 -0500
+Received: from marcie.netcarrier.net ([216.178.72.21]:59405 "HELO
+	marcie.netcarrier.net") by vger.kernel.org with SMTP
+	id <S262414AbSKYEas>; Sun, 24 Nov 2002 23:30:48 -0500
+Message-ID: <3DE1A91F.8871C2D4@compuserve.com>
+Date: Sun, 24 Nov 2002 23:37:51 -0500
+From: Kevin Brosius <cobra@compuserve.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.49+ and sysrq (may lock with modules loaded)?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I was trying to use sysrq tonight and had a couple problems.  While the
+Doc/sysrq.txt file says it is enabled by default, it does not appear to
+be any longer.  After enabling sysrq with an echo "1" to the sysrq /proc
+entry, I tried an alt-sysrq-t, and promptly had a kernel oops in the
+print routine, for a failed kernel paging request.  The machine is hard
+locked at this point and must be reset (sysrq no longer responds.)
 
-Content-Type: text/plain; charset=us-ascii
+I tried to repeat this, to write down some of the oops, but on reboot
+(prior to loading any modules) I could not get any printout from sysrq
+other than the HELP message.  In response to alt-sysrq-t I only see the
+first "SysRq : " printout with no task info.
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+The first run had some modules I had manually loaded, so I went ahead
+and insmod'd sound.o and usbcore.o.  After that, alt-sysrq-t causes an
+oops.  Here's a snippet (by hand):
 
-modutils-2.4.22.tar.gz          Source tarball, includes RPM spec file
-modutils-2.4.22-1.src.rpm       As above, in SRPM format
-modutils-2.4.22-1.i386.rpm      Compiled with gcc 2.96 20000731,
-                                glibc 2.2.2.
-modutils-2.4.22-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
-				glibc-2.2.3.
-modutils-2.4.22-1.sparc.rpm	Compiled for combined 32/64 sparc, with gcc
-				2.95.4, glibc-2.2.5.
-patch-modutils-2.4.22.gz        Patch from modutils 2.4.21 to 2.4.22.
+Oops
+ EIP 0060:c0134c48
+  __print_symbol+0x48/0x120
+ process swapper
+Call Trace
+  e094ae89 Unable to handle kernel paging request
 
-Changelog extract
+An EIP lookup on my vmlinux yields:
+(gdb) l *0xc0134c48
+Line 190 of "include/asm/string.h" starts at address 0xc0134c3f
+<__print_symbol+63> and ends at 0xc0134c5c <__print_symbol+92>.
+/usr/src/linux-bk/include/asm-i386/string.h:190:4260:beg:0xc0134c3f
 
-	* Avoid unaligned traps on alpha.  Ivan Kokshaysky.
-	* Handle R_PPC64_NONE relocs, remove warnings.  Alan Modra.
-	* Add DESTDIR to build (from SuSe).
-	* Check for special characters in module name (from SuSe).
-	* Check x86_64 for -mcmodel=kernel (from SuSe).
-	* Add alias for osst (from SuSe).
-	* Check for illegal mixture of gcc 2 and 3 (from RedHat).
-	* Build libmodutils.a (from RedHat).
-	* Selectively add aliases, above, below, prune entries (from Mandrake).
-	* Add MODUTILS_MACROS (from Mandrake).
-	* Remove more warnings.
-	* Add Kerntypes to prune list.
+I'm using a recent bk tree (a day or two old), so the relevant portion
+from string.h appears to be:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+#define __HAVE_ARCH_STRLEN
+static inline size_t strlen(const char * s)
+{
+int d0;
+register int __res;
+__asm__ __volatile__(
+    	"repne\n\t"
+    	"scasb\n\t"
+    	"notl %0\n\t"
+    	"decl %0"
+    	:"=c" (__res), "=&D" (d0) :"1" (s),"a" (0), "0" (0xffffffff));
+return __res;
+}
 
-iD8DBQE94amIi4UHNye0ZOoRAm03AJ0ZSirkpfWwpNO0bQnfs9kn2osEIgCcCh4w
-sT7Y8Qc4EE7/cXAf9ult4VE=
-=kpEp
------END PGP SIGNATURE-----
+with the 
+__asm__ __volatile__(
+line being pointed out by my debugger.
 
+
+-- 
+Kevin

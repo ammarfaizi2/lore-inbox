@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129948AbRB0X0z>; Tue, 27 Feb 2001 18:26:55 -0500
+	id <S129935AbRB0X3Z>; Tue, 27 Feb 2001 18:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129964AbRB0X0q>; Tue, 27 Feb 2001 18:26:46 -0500
-Received: from atlrel2.hp.com ([156.153.255.202]:35803 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S129958AbRB0X0g>;
-	Tue, 27 Feb 2001 18:26:36 -0500
-Message-ID: <3A9C1B9A.F695E4A6@fc.hp.com>
-Date: Tue, 27 Feb 2001 16:26:50 -0500
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Camm Maguire <camm@enhanced.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
-In-Reply-To: <Pine.LNX.4.10.10102271223390.32662-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129953AbRB0X3P>; Tue, 27 Feb 2001 18:29:15 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:1543 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129935AbRB0X3B>; Tue, 27 Feb 2001 18:29:01 -0500
+Date: Tue, 27 Feb 2001 23:28:54 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: timing out on a semaphore
+Message-ID: <20010227232854.Z13721@redhat.com>
+In-Reply-To: <20010225224039.W13721@redhat.com> <3A9990EF.8D4ECF49@uow.edu.au> <20010227143942.C13721@redhat.com> <3A9C2CE3.ABA1A6A6@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="3h+hNn3PVp185ISI"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A9C2CE3.ABA1A6A6@uow.edu.au>; from andrewm@uow.edu.au on Tue, Feb 27, 2001 at 10:40:35PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> Hi Khalid,
-> 
-> So, is HP going to allow linux to publsih "Tape Alert" as a means to
-> assist with error checking and testing in general?  Also why did HP
-> take the 14GB/20GB models and move off the standard QIC or TR-4
-> IO-Firmware?
-> 
-> Cheers,
-> 
-> Andre Hedrick
-> Linux ATA Development
-> ASL Kernel Development
 
-Hi Andre,
+--3h+hNn3PVp185ISI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Unfortunately I am not in a position to know answers to these questions.
-These questions would need to go way higher up than to a lowly software
-engineer :-)
+On Tue, Feb 27, 2001 at 10:40:35PM +0000, Andrew Morton wrote:
 
-BTW, I am not familar with "Tape alert". Can you give me more info. A
-private email might be more approrpiate. 
+> 1: Your code is leaving the semaphore in a down'ed state
+>    somehow.
 
--- 
-Khalid
+This was probably it.  I don't know why it works for me but not some
+other people though. :-/
 
-====================================================================
-Khalid Aziz                             Linux Development Laboratory
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+> (As you can tell, I'm desparately avoiding having
+> to understand the semaphore code again :))
+
+:-)
+
+Tim.
+*/
+
+--3h+hNn3PVp185ISI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6nDg1ONXnILZ4yVIRAgAfAKCbAL+dyJ9Mu+dCn0VW0whC1KfjDACfQzgF
+/yJ379IjKOACEm+aCh1CGYk=
+=LWrv
+-----END PGP SIGNATURE-----
+
+--3h+hNn3PVp185ISI--

@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133053AbRDZBww>; Wed, 25 Apr 2001 21:52:52 -0400
+	id <S133055AbRDZByd>; Wed, 25 Apr 2001 21:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133055AbRDZBwn>; Wed, 25 Apr 2001 21:52:43 -0400
-Received: from think.faceprint.com ([166.90.149.11]:20231 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S133053AbRDZBw3>; Wed, 25 Apr 2001 21:52:29 -0400
-Message-ID: <3AE77F56.80770715@faceprint.com>
-Date: Wed, 25 Apr 2001 21:52:22 -0400
-From: Nathan Walp <faceprint@faceprint.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac14 i686)
-X-Accept-Language: en
+	id <S133056AbRDZByY>; Wed, 25 Apr 2001 21:54:24 -0400
+Received: from mailout4-1.nyroc.rr.com ([24.92.226.166]:12948 "EHLO
+	mailout4-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S133055AbRDZByQ>; Wed, 25 Apr 2001 21:54:16 -0400
+Message-ID: <004f01c0cdf4$f17f4ce0$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.gh4u8sv.17i1q6@ifi.uio.no>
+Subject: Re: #define HZ 1024 -- negative effects?
+Date: Wed, 25 Apr 2001 22:02:26 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: random reboots
-In-Reply-To: <3AE5A762.675581E4@faceprint.com> <20010426033643.L1125@ppc.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've gotten a lot more response to this than I'd ever dreamed, but I
-figured out the problem on my own...
+> Are there any negative effects of editing include/asm/param.h to change
+> HZ from 100 to 1024? Or any other number? This has been suggested as a
+> way to improve the responsiveness of the GUI on a Linux system.
 
-I have (had) one of those exhaust fans that fits into a PCI/ISA slot,
-and it died.  Not only did it die, but it started creating heat of it's
-own.  I don't think the video card adjacent to it appreciated this a
-whole lot.  I removed the dead fan, and everything is back to normal, I
-just need to go get a new fan to make myself feel better ;-)
+I have also played around with HZ=1024 and wondered how it affects
+interactivity. I don't quite understand why it could help - one thing I've
+learned looking at kernel traces (LTT) is that interactive processes very,
+very rarely eat up their whole timeslice (even hogs like X). So more
+frequent timer interrupts shouldn't have much of an effect...
 
-The 1007 bios, and ac14 have been perfectly stable, so no worries about
-either.
+If you are burning CPU doing stuff like long compiles, then the increased HZ
+might make the system appear more responsive because the CPU hog gets
+pre-empted more often. However, you could get the same result just by
+running the task 'nice'ly...
 
-Thanks,
-Nathan
+The only other possibility I can think of is a scheduler anomaly. A thread
+arose on this list recently about strange scheduling behavior of processes
+using local IPC - even though one process had readable data pending, the
+kernel would still go idle until the next timer interrupt. If this is the
+case, then HZ=1024 would kick the system back into action more quickly...
 
-Petr Vandrovec wrote:
-> 
-> On Tue, Apr 24, 2001 at 12:18:42PM -0400, Nathan Walp wrote:
-> > I upgraded the BIOS on this Asus A7V sometime in the past week, but I
-> > honestly don't remember when.  From 1005C to 1007.  This was released in
-> > march, so I assumed it was pretty stable, but it could be the cause.
-> > I'm going to go downgrade now, but is this more likely to be a kernel
-> > bug, or a hardware bug/new bios bug?
-> 
-> No problem here. I'm using 1007 since its release in first half
-> of March.
-> 
-> Linux version 2.4.3-ac12-amd (root@ppc) (gcc version 3.0 20010402 (Debian prerelease)) #1 Mon Apr 23 02:31:13 CEST 2001
-> ...
-> Kernel command line: BOOT_IMAGE=Linux ro root=2105 video=matrox:vesa:0x105,fv:85 devfs=nomount
-> Initializing CPU#0
-> Detected 1009.013 MHz processor.
-> ...
-> CPU: AMD Athlon(tm) Processor stepping 02
-> Enabling fast FPU save and restore... done.
-> ...
-> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
-> ...
-> 
-> Except that I got 'ide only func: 14' today with my Promise PDC20265
-> (which looks strange to me - either all Intel, VIA and Promise have
-> same bug in their UDMA hardware, or there is a bug in Linux IDE
-> driver...) (I had to reboot because of kernel somehow believed that
-> it read some garbage instead of MBR from hdg, so I could not run my
-> repartitioning session, as I found no way to invalidate hdg kernel
-> cache).
-> But machine for sure does not spontaneously reboot. And I have
-> enabled local apic in kernel configuration. All previous kernels
-> were built with Debian's 2.95.3-something, ac12 was built with
-> gcc-3.0, as I wanted to update anyway, and ac12 just gave me a reason.
->                                         Best regards,
->                                                 Petr Vandrovec
->                                                 vandrove@vc.cvut.cz
+Of course, the appearance of better interactivity could just be a placebo
+effect. Double-blind trials, anyone? =)
+
+Regards,
+Dan
+

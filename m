@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTL2A23 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 19:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTL2A23
+	id S262327AbTL2Agw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 19:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTL2Agw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 19:28:29 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:64128 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S262181AbTL2A21 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 19:28:27 -0500
-Message-ID: <3FEF7528.1000301@wmich.edu>
-Date: Sun, 28 Dec 2003 19:28:24 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Samuel Flory <sflory@rackable.com>
-CC: Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't eject a previously mounted CD?
-References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org> <3FEC91FA.1050705@rackable.com> <20031226202700.GD12871@triplehelix.org> <3FEF7359.9050900@rackable.com>
-In-Reply-To: <3FEF7359.9050900@rackable.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Dec 2003 19:36:52 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:36095 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262327AbTL2Agv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 19:36:51 -0500
+Date: Sun, 28 Dec 2003 16:36:31 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
+Message-ID: <20031229003631.GE1882@matchmail.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+	linux-kernel@vger.kernel.org
+References: <179fV-1iK-23@gated-at.bofh.it> <179IS-1VD-13@gated-at.bofh.it> <2003Dec27.212103@a0.complang.tuwien.ac.at> <Pine.LNX.4.58.0312271245370.2274@home.osdl.org> <m1smj596t1.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0312272046400.2274@home.osdl.org> <20031228163952.GQ22443@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031228163952.GQ22443@holomorphy.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Flory wrote:
-> Joshua Kwan wrote:
+On Sun, Dec 28, 2003 at 08:39:52AM -0800, William Lee Irwin III wrote:
+> On Sat, 27 Dec 2003, Eric W. Biederman wrote:
+> >> For anyone taking you up on this I'd like to suggest two possible
+> >> directions.
+> >> 1) Increasing PAGE_SIZE in the kernel.
 > 
->> On Fri, Dec 26, 2003 at 11:54:34AM -0800, Samuel Flory wrote:
->>
->>>  What does fuser -kv /mnt/cdrom claim?
->>
->>
->>
->> It's /cdrom here. I tried it on both /cdrom and /dev/cdrom after
->> unmounting it, and the output was blank.
->>
->> While mounted, here was the output:
->>
->>                      USER        PID ACCESS COMMAND
->> /cdrom               root     kernel mount  /cdrom
->> No automatic removal. Please use  umount /cdrom
->>
->> I guess that doesn't say much though...
->>
+> On Sat, Dec 27, 2003 at 08:53:30PM -0800, Linus Torvalds wrote:
+> > Yes. This is something I actually want to do anyway for 2.7.x. Dan 
+> > Phillips had some patches for this six months ago.
+> > You have to be careful, since you have to be able to mmap "partial pages", 
+> > which is what makes it less than trivial, but there are tons of reasons to 
+> > want to do this, and cache coloring is actually very much a secondary 
+> > concern.
 > 
->   It does seem to imply that the cdrom is still mounted, or that 
-> something thinks it's still mounted.
+> I've not seen Dan Phillips' code for this. I've been hacking on
+> something doing this since late last December.
 
+I remember his work on pagetable sharing, but haven't heard anything about
+changing the page size from him.
 
-I dont believe this unable to eject problem has anything to do with 
-anything thinking it's mounted.
-
-famd upon load seems to cause this error.
-end_request: I/O error, dev hdc, sector 0
-
-That's my cdrom.  Perhaps the kernel has a bug in the code dealing with 
-an access to the cdrom where no media is mounted and/or loaded.  Either 
-way, this is at boot and seems to be a kernel bug initiated by FAM. At 
-least the version distributed with debian-unstable.  I dont use gnome (i 
-do have some gnome programs installed to test on) and the error message 
-was reported soon after the loading of FAM.
-
+Could this be what Linus is remembering?

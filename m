@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbTIEPih (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 11:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbTIEPg7
+	id S263065AbTIEPoB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 11:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTIEPoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 11:36:59 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:60504 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S262843AbTIEPgx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 11:36:53 -0400
-Subject: [PATCH] 2.6.0-test4 synclink_cs.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "torvalds@osdl.org" <torvalds@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Fri, 5 Sep 2003 11:44:01 -0400
+Received: from mail.localaccess.com ([69.10.201.41]:3081 "EHLO
+	ATHERA.localaccess.com") by vger.kernel.org with ESMTP
+	id S263065AbTIEPn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 11:43:58 -0400
+Subject: Re: 2.6.0-test4-mm6
+From: Matthew Trent <mtrent@localaccess.com>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Organization: 
-Message-Id: <1062776201.2675.7.camel@diemos>
+Organization: Local Access Communications
+Message-Id: <1062776622.1599.79.camel@alderaan.localaccess.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Sep 2003 10:36:41 -0500
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 05 Sep 2003 08:43:42 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* replace previously removed NULL context check
-  (causes oops when opening non existent device)
+> > 3. The oss mixer emulation doesn't load correctly, I get the following
+> > messages in the syslog, f.e. after a "modprobe snd-mixer-oss":
+> >
+> > snd: Unknown parameter `device_mode'
+> 
+> I had to remove the device_mode option from below in /lib/modules/
+> modprobe.conf. It happens in test4 too i think.
+> 
+> options snd major=116 cards_limit=4 device_mode=0660
 
-Please apply.
+I encountered the same thing with device_mode.
 
+As a side note, I've been lurking here for a while and I've noticed that
+the latest iterations (although I've only tried Nick's once, in -mm5) of
+_both_ schedulers feel great on my system. If I've been following the
+thread correctly, I think the turning point was the addition of some I/O
+scheduler patches (in mm3 or mm4?). Way better since then.
 -- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
-
---- linux-2.6.0-test4/drivers/char/pcmcia/synclink_cs.c	2003-09-05 10:25:25.000000000 -0500
-+++ linux-2.6.0-test4-mg/drivers/char/pcmcia/synclink_cs.c	2003-09-05 10:27:04.000000000 -0500
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/char/pcmcia/synclink_cs.c
-  *
-- * $Id: synclink_cs.c,v 4.13 2003/06/18 15:29:32 paulkf Exp $
-+ * $Id: synclink_cs.c,v 4.15 2003/09/05 15:26:02 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink PC Card
-  * multiprotocol serial adapter.
-@@ -491,7 +491,7 @@
- MODULE_LICENSE("GPL");
- 
- static char *driver_name = "SyncLink PC Card driver";
--static char *driver_version = "$Revision: 4.13 $";
-+static char *driver_version = "$Revision: 4.15 $";
- 
- static struct tty_driver *serial_driver;
- 
-@@ -838,6 +838,9 @@
- 		printk(badmagic, name, routine);
- 		return 1;
- 	}
-+#else
-+	if (!info)
-+		return 1;
- #endif
- 	return 0;
- }
+Matt
+Local Access Communications
+360.330.5535
 
 
 

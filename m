@@ -1,52 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270529AbTGSVs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 17:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270548AbTGSVs1
+	id S270566AbTGSVuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 17:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270553AbTGSVuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 17:48:27 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:7900 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S270529AbTGSVs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 17:48:26 -0400
-Date: Sat, 19 Jul 2003 15:03:06 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ga?l Le Mignot <kilobug@freesurf.fr>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Christian Reichert <c.reichert@resolution.de>,
-       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-       linux-kernel@vger.kernel.org, rms@gnu.org, Valdis.Kletnieks@vt.edu
-Subject: Re: [OT] HURD vs Linux/HURD
-Message-ID: <20030719220306.GE24197@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ga?l Le Mignot <kilobug@freesurf.fr>, Larry McVoy <lm@bitmover.com>,
-	Christian Reichert <c.reichert@resolution.de>,
-	John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-	linux-kernel@vger.kernel.org, rms@gnu.org, Valdis.Kletnieks@vt.edu
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk> <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org> <20030719172311.GA23246@work.bitmover.com> <plopm3he5i8l4h.fsf@drizzt.kilobug.org> <20030719181249.GA24197@work.bitmover.com> <plopm38yqu8epz.fsf@drizzt.kilobug.org>
+	Sat, 19 Jul 2003 17:50:18 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20686 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270566AbTGSVtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 17:49:06 -0400
+Date: Sun, 20 Jul 2003 00:03:56 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Adam Belay <ambx1@neo.rr.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz
+Subject: Re: 2.5.73: ALSA ISA pnp_init_resource_table compile errors
+Message-ID: <20030719220356.GA6942@fs.tum.de>
+References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com> <20030622234447.GB3710@fs.tum.de> <20030623000808.GA14945@neo.rr.com> <20030703025343.GC282@fs.tum.de> <20030703190304.GA17707@neo.rr.com> <20030704121124.GB12633@fs.tum.de> <20030715224732.GA31942@neo.rr.com> <20030716182251.GW10191@fs.tum.de> <20030716184317.GC31942@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <plopm38yqu8epz.fsf@drizzt.kilobug.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <20030716184317.GC31942@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Stop lying. No one at the GNU project ever claimed a code to be his if
-> he didn't  write it. 
+On Wed, Jul 16, 2003 at 06:43:17PM +0000, Adam Belay wrote:
+> 
+> Hi Adrian,
 
-Nonsense.  Go look at the set of code actually funded by the FSF and it
-is tiny.  The FSF tries to get everyone to sign over their copyright to
-the FSF so they can "protect" the code and then they rename it to GNU
-this that or the other thing.  Start reading those copyrights you are
-talking about, of the set of things described as GNU something, I would
-guess than less than 1% of it was paid for by the FSF.  The rest of it
-is all stuff they slapped their name on after convincing people to sign
-over copyrights.
+Hi Adam,
+
+> Thanks for the information, I think I have a good idea of whats going here.
+>...
+
+thanks for looking into my problem.  :-)
+
+> Could I see the following?
+> 
+> 1.) the output of /proc/dma
+
+# cat /proc/dma 
+ 4: cascade
+# 
+
+> 2.) the output of
+> # cd /sys/bus/pnp/devices
+> # find */resources | xargs cat | grep dma
+
+/sys/bus/pnp/devices# find */resources | xargs cat | grep dma
+dma 4
+dma 2
+dma 3
+dma 1
+dma disabled
+/sys/bus/pnp/devices# 
+
+> 3.) the output of
+> # cd /sys/bus/pnp/devices
+> # find */resources | xargs cat | grep io
+
+#  find */resources | xargs cat | grep io
+io 0x20-0x21
+io 0xa0-0xa1
+io 0x0-0xf
+io 0x81-0x83
+io 0x87-0x87
+io 0x89-0x8b
+io 0x8f-0x91
+io 0xc0-0xdf
+io 0x40-0x43
+io 0x70-0x71
+io 0x60-0x60
+io 0x64-0x64
+io 0x61-0x61
+io 0xf0-0xff
+io 0x4d0-0x4d1
+io 0xcf8-0xcff
+io 0x480-0x48f
+io 0x5000-0x507f
+io 0x5080-0x50ff
+io 0x208-0x20f
+io 0x3f8-0x3ff
+io 0x3f2-0x3f5
+io 0x378-0x37f
+io 0x778-0x77a
+io 0x2f8-0x2ff
+io 0x220-0x22f
+io 0x388-0x38b
+io 0x500-0x50f
+io 0x330-0x331
+/sys/bus/pnp/devices# 
+
+
+> Also there is a kernel parameter to allow dma 0.  It is 'allowdma0' and
+> I predict the extra dma will get the sound card working.
+
+Yup, it works.  :-)))
+
+> Thanks,
+> Adam
+
+Thanks
+Adrian
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135589AbRDXNCH>; Tue, 24 Apr 2001 09:02:07 -0400
+	id <S135588AbRDXNFj>; Tue, 24 Apr 2001 09:05:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135588AbRDXNCF>; Tue, 24 Apr 2001 09:02:05 -0400
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:55052 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S135589AbRDXNBg>; Tue, 24 Apr 2001 09:01:36 -0400
-Date: Tue, 24 Apr 2001 14:02:13 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: imel96@trustix.co.id
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+	id <S135592AbRDXNF1>; Tue, 24 Apr 2001 09:05:27 -0400
+Received: from WARSL401PIP7.highway.telekom.at ([195.3.96.115]:39504 "HELO
+	email04.aon.at") by vger.kernel.org with SMTP id <S135594AbRDXNEQ>;
+	Tue, 24 Apr 2001 09:04:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roland Seuhs <rseuhs@aon.at>
+To: <imel96@trustix.co.id>, Alexander Viro <viro@math.psu.edu>
 Subject: Re: [PATCH] Single user linux
-Message-ID: <20010424140213.A18344@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	imel96@trustix.co.id, Alexander Viro <viro@math.psu.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0104240752320.6992-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>; from imel96@trustix.co.id on Tue, Apr 24, 2001 at 07:44:17PM +0700
+Date: Tue, 24 Apr 2001 15:03:57 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
+In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
+MIME-Version: 1.0
+Message-Id: <01042415035700.00839@server>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 07:44:17PM +0700, imel96@trustix.co.id wrote:
+Am Dienstag, 24. April 2001 14:44 schrieb imel96@trustix.co.id:
+> On Tue, 24 Apr 2001, Alexander Viro wrote:
+> > So let him log in as root, do everything as root and be cracked
+> > like a bloody moron he is. Next?
+>
+> come on, it's hard for me as it's hard for you. not everybody
+> expect a computer to be like people here thinks how a computer
+> should be.
+>
+> think about personal devices. something like the nokia communicator.
+> a system security passwd is acceptable, but that's it. no those-
+> device-user would like to know about user account, file ownership,
+> etc. they just want to use it.
+>
+> that also explain why win95 user doesn't want to use NT. not
+> because they can't afford it (belive me, here NT costs only
+> us$2), but additional headache isn't acceptable.
+>
 > with multi-user concept, conceptually there should be an
 > administrator to create account, grant permission, etc.
 > no my sister doesn't want that. i bet there are billions of
 > people not willing to learn how to use a computer, they just
 > want to use it.
+>
+> and yes, mobile devices access network.
 
-So they buy Macs.  <- This is not a joke or a criticism.  My wife is a happy
-and contented ignorant mac user.  
+KDE2.1.1 comes with a password disabling feature. That means that you can log 
+in without password (you have to use KDM). For everything else (ftp, telnet, 
+ssh, text-console-login - whatever) you still need the password. 
+This is very new, KDE-versions prior to 2.1.1 don't have that feature AFAIK.
 
-[snippage]
+So if you've got physical access to the machine you just have to click on 
+your icon/name and cklick "Go!" or press Enter. It can't get much easier than 
+that.
 
-> so what the hell is transmeta doing with mobile linux (midori).
-> is it going to teach multi-user thing to tablet owners?
-> surely mortals expect midori to behave like their pc. lets say
-> on redhat, they have to login as root to access their files,
-> they don't even know what a root is!
-> 
-> lets break unix mind for a while, and give everyone a chance
-> to use linux.
-> 
+I think this is a far better alternative than a single user Linux.
 
-If you wanted to do this, the correct place would be to alter your pam config,
-but then again, if you knew the slightest thing about unix, you'd know that.
+Greetings,
 
-Sean
-
+Roland

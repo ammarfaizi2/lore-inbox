@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293604AbSCPAim>; Fri, 15 Mar 2002 19:38:42 -0500
+	id <S293603AbSCPAkL>; Fri, 15 Mar 2002 19:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293603AbSCPAic>; Fri, 15 Mar 2002 19:38:32 -0500
-Received: from waste.org ([209.173.204.2]:4777 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S293602AbSCPAiO>;
-	Fri, 15 Mar 2002 19:38:14 -0500
-Date: Fri, 15 Mar 2002 18:37:26 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: David Gibson <david@gibson.dropbear.id.au>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Bjorn Wesen <bjorn.wesen@axis.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.19-pre3] New wireless driver API part 1
-In-Reply-To: <20020315023509.GB1289@zax>
-Message-ID: <Pine.LNX.4.44.0203151830450.15926-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293615AbSCPAjy>; Fri, 15 Mar 2002 19:39:54 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:47632 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S293603AbSCPAjj>;
+	Fri, 15 Mar 2002 19:39:39 -0500
+Date: Fri, 15 Mar 2002 17:40:36 -0700
+From: yodaiken@fsmlabs.com
+To: Robert Love <rml@tech9.net>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18 Preempt Freezeups
+Message-ID: <20020315174036.A5068@hq.fsmlabs.com>
+In-Reply-To: <3C9153A7.292C320@ianduggan.net> <1016157250.4599.62.camel@phantasy> <3C91B2A1.48C74B82@ianduggan.net> <1016202310.908.1.camel@phantasy> <15506.7486.729120.64389@kim.it.uu.se> <1016219530.904.21.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <1016219530.904.21.camel@phantasy>; from rml@tech9.net on Fri, Mar 15, 2002 at 02:11:49PM -0500
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Mar 2002, David Gibson wrote:
+On Fri, Mar 15, 2002 at 02:11:49PM -0500, Robert Love wrote:
+> If you "poke the processor", to be SMP-safe, you should hold a lock to
+> prevent multiple concurrent "pokings of the processor" - thus you become
+> preempt-safe.
 
-> On Thu, Mar 14, 2002 at 05:49:15AM -0500, Jeff Garzik wrote:
-> > Bjorn Wesen wrote:
-> >
-> > >Just a datapoint:
-> > >
-> > >The orinico driver (already in the kernel) works fine with the DWL-650
-> > >card. Tried it some days ago.. not a very big field trial but I inserted
-> > >the card and I got an eth0 from it and it worked, so thats the way I like
-> > >it :)
-> >
-> >
-> > Not "just" a datapoint, a useful one.  Thanks.
->
-> Sadly not everybody is having as much luck.  A lot of people are
-> reporting terribly throughput on Intersil cards like the DWL-650 and I
-> haven't managed to track the problem down yet.
+Without preempt:
+	x = movefrom processor register;
+        do_something with x
 
-Here's some further datapoints:
+is safe in SMP
+With SMP it requires a lock.
 
-Vaio Z505SX, kernels through 2.4.16 - works great
-IBM T22, 2.4.16+sound, 2.4.17+lowlatency-sound - works great
-T22, 2.4.18+ and 2.5.5 - 2-3K/s
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264259AbTKKFa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 00:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTKKFa3
+	id S264268AbTKKFqx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 00:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTKKFqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 00:30:29 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:7913 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264259AbTKKFa2 (ORCPT
+	Tue, 11 Nov 2003 00:46:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34784 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264268AbTKKFqv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 00:30:28 -0500
-Date: Mon, 10 Nov 2003 21:30:14 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Joseph Shamash <info@avistor.com>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Peter Chubb <peter@chubb.wattle.id.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2 TB partition support
-Message-ID: <20031110213014.A2274@beaverton.ibm.com>
-References: <16304.23206.924374.529136@wombat.chubb.wattle.id.au> <HBEHKOEIIJKNLNAMLGAOOEDFDKAA.info@avistor.com>
+	Tue, 11 Nov 2003 00:46:51 -0500
+Date: Mon, 10 Nov 2003 21:50:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Venezia <pvenezia@jpj.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I/O issues, iowait problems, 2.4 v 2.6
+Message-Id: <20031110215049.58a1c2d8.akpm@osdl.org>
+In-Reply-To: <1068528589.22809.153.camel@soul.jpj.net>
+References: <1068519213.22809.81.camel@soul.jpj.net>
+	<20031110195433.4331b75e.akpm@osdl.org>
+	<1068523328.25805.97.camel@soul.jpj.net>
+	<20031110202819.7e7433a8.akpm@osdl.org>
+	<1068524657.25804.110.camel@soul.jpj.net>
+	<20031110205443.6422259f.akpm@osdl.org>
+	<1068528589.22809.153.camel@soul.jpj.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <HBEHKOEIIJKNLNAMLGAOOEDFDKAA.info@avistor.com>; from info@avistor.com on Mon, Nov 10, 2003 at 08:03:53PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 08:03:53PM -0800, Joseph Shamash wrote:
-
-> The limitation we have found in 2.6 is lack FC HBA drivers which 
-> are needed to support large storage capacities.
+Paul Venezia <pvenezia@jpj.net> wrote:
+>
+> On Mon, 2003-11-10 at 23:54, Andrew Morton wrote:
 > 
-> Any thoughts?
+>  > OK, the IO rates are obviously very poor, and the context switch rate is
+>  > suspicious as well.  Certainly, testing with the single disk would help.
+> 
+>  I pulled the secondary, reconfigured to single drives and rebooted. All
+>  is now well, performance is right where it should be.
+> 
+> 
+>   0  0      0 1475924   7052  42384    0    0     0     0 1015     6
+>   0  0      0 1475284   7076  42360    0    0     0   156 1041   311
+>   0  0      0 1475284   7076  42360    0    0     0     0 1016    12
+>   0  0      0 1475284   7076  42360    0    0     0     0 1026    30
+>   2  0      0 1252628   7300 258852    0    0     8 37240 1157   119
+>   0  3      0 1027284   7524 478064    0    0     8 66016 1441   317
+>   1  3      0 818132   7728 682948    0    0     4 70752 1439   202 
+>   1  3      0 593236   7944 901760    0    0     4 64576 1452    92 
+>   0  4      0 531412   8008 961876    0    0     4 63680 1434    97 
 
-Please clarify "lack FC HBA drivers".
+OK, so either we broke the driver or there is some tuning sensitivity.
 
-You mean no in kernel drivers? Yeh.
+Could you please do:
 
-The qlogic (qla2xxx) driver is not in the kernel, but is available for use
-with 2.6.
+	mkdir /sys
+	mount none /sys -t sysfs
+	cd /sys/block/sdXX/queue
+	echo 512 > nr_requests
 
-Martin Bligh included an emulex driver in his last 2.6 patch set.
+and retry the RAID setup?
 
--- Patrick Mansfield
+Beyond that, dunno.  We'll need to hunt down the people who worked on that
+driver.
+

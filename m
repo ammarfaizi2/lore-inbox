@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270727AbRHPEAN>; Thu, 16 Aug 2001 00:00:13 -0400
+	id <S270726AbRHPDww>; Wed, 15 Aug 2001 23:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270728AbRHPEAD>; Thu, 16 Aug 2001 00:00:03 -0400
-Received: from ns.caldera.de ([212.34.180.1]:5792 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S270727AbRHPEAA>;
-	Thu, 16 Aug 2001 00:00:00 -0400
-Date: Thu, 16 Aug 2001 05:59:19 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+	id <S270727AbRHPDwn>; Wed, 15 Aug 2001 23:52:43 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:41992 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S270726AbRHPDwe>;
+	Wed, 15 Aug 2001 23:52:34 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108160352.f7G3qbw236026@saturn.cs.uml.edu>
 Subject: Re: daddr_t is inconsistent and barely used
-Message-ID: <20010816055919.A30279@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010816052119.A28800@caldera.de> <200108160352.f7G3qbw236026@saturn.cs.uml.edu>
-Mime-Version: 1.0
+To: hch@ns.caldera.de (Christoph Hellwig)
+Date: Wed, 15 Aug 2001 23:52:37 -0400 (EDT)
+Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
+In-Reply-To: <20010816052119.A28800@caldera.de> from "Christoph Hellwig" at Aug 16, 2001 05:21:19 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108160352.f7G3qbw236026@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Wed, Aug 15, 2001 at 11:52:37PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15, 2001 at 11:52:37PM -0400, Albert D. Cahalan wrote:
-> Christoph Hellwig writes:
-> >>> In article <9980.997929632@kao2.melbourne.sgi.com> you wrote:
-> 
-> >>>> The use of daddr_t in freevxfs may give different in core
-> >>>> and disk layouts on different machines.  Is that intended?.
-> ...
-> > vx_daddr_t is for disk structures, daddr_t for core.
-> 
-> This is asking for trouble. The disk structures aren't about
-> to change. See include/linux/ext2_fs.h for a safe way to do
-> the on-disk structure. For the in-core stuff, "unsigned long"
-> is a perfectly fine data type -- and yes I know it gets wider
-> with a 64-bit system.
+Christoph Hellwig writes:
+>>> In article <9980.997929632@kao2.melbourne.sgi.com> you wrote:
 
-Please take a look how vx_daddr_t is defined - just because I prefer
-descriptive names I am not stupid.
+>>>> The use of daddr_t in freevxfs may give different in core
+>>>> and disk layouts on different machines.  Is that intended?.
+...
+> vx_daddr_t is for disk structures, daddr_t for core.
 
-	Christoph
+This is asking for trouble. The disk structures aren't about
+to change. See include/linux/ext2_fs.h for a safe way to do
+the on-disk structure. For the in-core stuff, "unsigned long"
+is a perfectly fine data type -- and yes I know it gets wider
+with a 64-bit system.
 
-> Don't forget to add explicit padding as needed to give natural alignment.
+To save you the trouble of looking up my example:
 
-Thanks for you help, I have never worked with structure layouts before..
+/*
+ * Structure of a blocks group descriptor
+ */
+struct ext2_group_desc
+{
+        __u32   bg_block_bitmap;                /* Blocks bitmap block */
+        __u32   bg_inode_bitmap;                /* Inodes bitmap block */
+        __u32   bg_inode_table;         /* Inodes table block */
+        __u16   bg_free_blocks_count;   /* Free blocks count */
+        __u16   bg_free_inodes_count;   /* Free inodes count */
+        __u16   bg_used_dirs_count;     /* Directories count */
+        __u16   bg_pad;
+        __u32   bg_reserved[3];
+};
 
-	Christoph
+Don't forget to add explicit padding as needed to give natural alignment.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbUJYNeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbUJYNg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbUJYNeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 09:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbUJYNcH
+	id S261799AbUJYNg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 09:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbUJYNeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 09:32:07 -0400
-Received: from smtp01.symbian.com ([206.165.101.41]:17683 "EHLO
-	smtp01.symbian.com") by vger.kernel.org with ESMTP id S261799AbUJYNaz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 09:30:55 -0400
-Message-ID: <417CFFDE.3070904@symbian.com>
-Date: Mon, 25 Oct 2004 14:30:06 +0100
-From: Johan Groth <johan.groth@symbian.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: External USB harddisk problems
-X-MIMETrack: Itemize by SMTP Server on SymbianUK03/Symbian(651HF487|August 12, 2004) at
- 25/10/2004 14:30:07,
-	Serialize by Router on LONMAILHUB02/LON/H/Symbian(Release 6.5|September 18, 2003) at
- 25/10/2004 14:28:26,
-	Serialize complete at 25/10/2004 14:28:26
+	Mon, 25 Oct 2004 09:34:37 -0400
+Received: from pop.gmx.net ([213.165.64.20]:19681 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261799AbUJYNcT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 09:32:19 -0400
+X-Authenticated: #4399952
+Date: Mon, 25 Oct 2004 15:48:55 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041025154855.21447333@mango.fruits.de>
+In-Reply-To: <20041025153940.1de340b4@mango.fruits.de>
+References: <20041019124605.GA28896@elte.hu>
+	<20041019180059.GA23113@elte.hu>
+	<20041020094508.GA29080@elte.hu>
+	<20041021132717.GA29153@elte.hu>
+	<20041022133551.GA6954@elte.hu>
+	<20041022155048.GA16240@elte.hu>
+	<20041022175633.GA1864@elte.hu>
+	<20041025104023.GA1960@elte.hu>
+	<417CDE90.6040201@cybsft.com>
+	<20041025111046.GA3630@elte.hu>
+	<20041025121210.GA6555@elte.hu>
+	<20041025153940.1de340b4@mango.fruits.de>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset="us-ascii";
-	format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm experiencing problems with a Maxtor USB HD drives that hope someone 
-on this list can shed some light on. When I try to copy a file to or 
-from the HD that is > 100MB the whole system hangs. I can't ping it from 
-another systems, nothing shows up in any logs so I don't know why it 
-hangs. I'm using 2.6.8-k7-smp from Debian unstable. The USB card is a 
-2.0 version with a Nec chipset.
+On Mon, 25 Oct 2004 15:39:40 +0200
+Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-Regards,
-Johan
+> On Mon, 25 Oct 2004 14:12:10 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > i think i found the bug - now selinux boots fine. I've uploaded -V0.1
+> > with the fix included. This fix could solve a number of other complaints
+> > as well.
+> 
+> some more:
 
-PS, please CC me as I'm not subscribed to this list.
+[snip]
 
+i forgot to mention these were from the same session as the previous one.
+also i think i missed the first ones, so the reports in this mail are
+probably useless(?).
 
-
------------------------------------------
-Symbian Software Ltd is a company registered in England and Wales with
-registered number 4190020 and registered office at 2-6 Boundary Row,
-Southwark, London, SE1 8HP, UK. This message is intended only for use by
-the named addressee and may contain privileged and/or confidential
-information. If you are not the named addressee you should not disseminate,
-copy or take any action in reliance on it. If you have received this
-message in error please notify postmaster@symbian.com and delete the
-message and any attachments accompanying it immediately. Neither Symbian
-nor any of its subsidiaries accepts liability for any corruption,
-interception, amendment, tampering or viruses occurring to this message in
-transit or for any message sent by its employees which is not in compliance
-with Symbian corporate policy.
-
+flo

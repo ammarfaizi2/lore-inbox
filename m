@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130940AbRCFFXM>; Tue, 6 Mar 2001 00:23:12 -0500
+	id <S130944AbRCFFeo>; Tue, 6 Mar 2001 00:34:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130941AbRCFFXD>; Tue, 6 Mar 2001 00:23:03 -0500
-Received: from [200.222.192.170] ([200.222.192.170]:40064 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S130940AbRCFFW4>; Tue, 6 Mar 2001 00:22:56 -0500
-Date: Mon, 5 Mar 2001 02:21:17 -0300
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No such file or directory))
-Message-ID: <20010305022117.C103@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.16i
-X-Mailer: Mutt/1.3.16i - Linux 2.4.2
-X-URL: http://www.pervalidus.net/
+	id <S130945AbRCFFee>; Tue, 6 Mar 2001 00:34:34 -0500
+Received: from gear.torque.net ([204.138.244.1]:6411 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S130944AbRCFFeY>;
+	Tue, 6 Mar 2001 00:34:24 -0500
+Message-ID: <3AA47557.1DC03D6@torque.net>
+Date: Tue, 06 Mar 2001 00:27:51 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: scsi vs ide performance on fsync's
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. After a reboot I had to manually run fsck (sulogin from
-sysinit script) since there were failures.
+ 	
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-In my second (and problematic) boot with 2.4.2 I used the
-option mount --bind in my sysinit script to mount the old /dev
-in /dev-old before devfs was mounted, so I could get rid of all
-entries that were still there (I removed most before building a
-Kernel with devfs support).
+Linus Torvalds wrote:
 
-For some reason I couldn't remove /dev-old/hdd2. It reported
-can't state file. Note that I never used /dev/hdd*, since I
-only use hda and hdc, but am sure it was OK with 2.4.0 (mc
-reported an error when I accessed /dev-old, what never happened
-before), the last time I used a Kernel without devfs support.
+> Well, it's entirely possible that the mid-level SCSI layer is doing
+> something horribly stupid.
 
-If you read my old thread, you should notice various
-applications couldn't access (or rename ?) files. It happened
-after ~8h of idle time. It was OK at 5:58, when I last ran cvs
-and killed pppd, but failed at ~14:30, when multilog (from
-daemontools) had to do something to a full dnscache log file (I
-was online).
+Well it's in good company as FreeBSD 4.2 on the same hardware
+returns the same result (including IDE timings that were too
+fast). My timepeg analysis showed that the SCSI disk was consuming
+the time, not any of the SCSI layers.
 
-I'm not sure 2.4.2 is the culprit. I just hope it's the last
-time. There were no errors when I first booted with this Kernel
-(I was using 2.4.1), and my first uptime was ~6 days (~23 with
-2.4.1). Also there were no errors when I booted 2.4.2 for the
-second time.
+> On the other hand, it's also entirely possible that IDE is just a lot
+> better than what the SCSI-bigots tend to claim. It's not all that
+> surprising, considering that the PC industry has pushed untold billions of
+> dollars into improving IDE, with SCSI as nary a consideration. The above
+> may just simply be the Truth, with a capital T.
 
-BTW, /lost+found contains hdd2:
+What exactly do you think fsync() and fdatasync() should
+do? If they need to wait for dirty buffers to get flushed
+to the disk oxide then multiple reported IDE results to
+this thread are defying physics.
 
-brw-r-----    1 root     disk      22,  66 May  8  1995 #518878
 
-The other partitions (/home/ftp/pub and /usr/local/src) have no
-problems.
-
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+Doug Gilbert

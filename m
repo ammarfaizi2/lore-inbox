@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293004AbSBVVhr>; Fri, 22 Feb 2002 16:37:47 -0500
+	id <S293008AbSBVVlH>; Fri, 22 Feb 2002 16:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293006AbSBVVhh>; Fri, 22 Feb 2002 16:37:37 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:26123 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S293004AbSBVVhY>; Fri, 22 Feb 2002 16:37:24 -0500
-Date: Fri, 22 Feb 2002 22:34:44 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: G?rard Roudier <groudier@free.fr>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Message-ID: <20020222223444.A7238@suse.cz>
-In-Reply-To: <20020222154011.B5783@suse.cz> <20020221211606.F1418-100000@gerard>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020221211606.F1418-100000@gerard>; from groudier@free.fr on Thu, Feb 21, 2002 at 09:31:20PM +0100
+	id <S293009AbSBVVk5>; Fri, 22 Feb 2002 16:40:57 -0500
+Received: from infa.abo.fi ([130.232.208.126]:37380 "EHLO infa.abo.fi")
+	by vger.kernel.org with ESMTP id <S293008AbSBVVkr>;
+	Fri, 22 Feb 2002 16:40:47 -0500
+Date: Fri, 22 Feb 2002 23:40:43 +0200
+From: Marcus Alanen <marcus@infa.abo.fi>
+Message-Id: <200202222140.XAA16750@infa.abo.fi>
+To: balbir_soni@hotmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial patch against mempool
+In-Reply-To: <F24fGB9wIWXLU9778dv00003562@hotmail.com>
+In-Reply-To: <F24fGB9wIWXLU9778dv00003562@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 09:31:20PM +0100, G?rard Roudier wrote:
+>Check if the alloc_fn and free_fn are not NULL. The caller generally
+>ensures that alloc_fn and free_fn are valid. It would not harm
+>to check. This makes the checking in mempool_create() more complete.
+>
+>
+>--- mempool.c.org       Fri Feb 22 12:00:58 2002
+>+++ mempool.c   Fri Feb 22 12:01:13 2002
+>@@ -35,7 +35,7 @@
+>        int i;
+>
+>        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
+>-       if (!pool)
+>+       if (!pool || !alloc_fn || !free_fn)
+>                return NULL;
+>        memset(pool, 0, sizeof(*pool));
+>
 
-> > On Fri, Feb 22, 2002 at 02:16:39PM +0000, Arjan van de Ven wrote:
-> >
-> > > > I think it'd be even better if the chipset drivers did the probing
-> > > > themselves, and once they find the IDE device, they can register it with
-> > > > the IDE core. Same as all the other subsystem do this.
-> > >
-> > > Please send me your scsi subsystem then ;)
-> >
-> > I must agree that SCSI controllers aren't doing their probing in a
-> > uniform and clean way even on PCI, but at least they do the probing
-> > themselves and don't have the mid-layer SCSI code do it for them like
-> > IDE.
-> 
-> The problem that bites us since years is not the PCI probing, but the
-> order in which SCSI devices are attached. Microsoft O/Ses have been smart
-> enough for ordering hard disks in the way user sets it from system setup,
-> but Unices just messed up the thing.
+A successful allocation with alloc_fn or free_fn equal to NULL
+would return NULL, without freeing pool. => This check would
+leak memory? Wouldn't it be better to check for !alloc_fn || !free_fn
+before the kmalloc()
 
-For some adapters, this is possible, for other it is not (at all). You
-happen to be a maintainer of one for which it is possible, and thus your
-point of view is quite different from mine - mine comes from USB and
-other parts of the device world, where no order can even be defined.
-
-And because of that, I do not think that having the host adapters decide
-what device gets what number is a good idea. They should provide the
-information if they have it, but the final decision should definitely be
-done in userspace, by the hotplug agent.
-
-Ie. it should be configurable.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Marcus Alanen
+maalanen@abo.fi

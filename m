@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261331AbTCOQlm>; Sat, 15 Mar 2003 11:41:42 -0500
+	id <S261334AbTCOQ5z>; Sat, 15 Mar 2003 11:57:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261332AbTCOQlm>; Sat, 15 Mar 2003 11:41:42 -0500
-Received: from bitmover.com ([192.132.92.2]:19642 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261331AbTCOQll>;
-	Sat, 15 Mar 2003 11:41:41 -0500
-Date: Sat, 15 Mar 2003 08:52:29 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: David Lang <david.lang@digitalinsight.com>, Larry McVoy <lm@bitmover.com>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030315165229.GA23205@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org
-References: <20030312220156.GE30788@work.bitmover.com> <Pine.LNX.4.44.0303121409300.11045-100000@dlang.diginsite.com> <20030312223013.GH7275@work.bitmover.com> <20030312161813.S12806@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312161813.S12806@schatzie.adilger.int>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S261476AbTCOQ5z>; Sat, 15 Mar 2003 11:57:55 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:48045 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261334AbTCOQ5y>;
+	Sat, 15 Mar 2003 11:57:54 -0500
+Message-ID: <33707.4.64.238.61.1047748124.squirrel@www.osdl.org>
+Date: Sat, 15 Mar 2003 09:08:44 -0800 (PST)
+Subject: Re: [PATCH] update filesystems config. menu
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <azarah@gentoo.org>
+In-Reply-To: <1047720287.3505.146.camel@workshop.saharact.lan>
+References: <200303150920.h2F9KGm16328@mako.theneteffect.com>
+        <1047720287.3505.146.camel@workshop.saharact.lan>
+X-Priority: 3
+Importance: Normal
+Cc: <mitch@theneteffect.com>, <davej@codemonkey.org.uk>,
+       <Randy.Dunlap@mako.theneteffect.com>, <randy.dunlap@verizon.net>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I suspect the right answer is that we do the real time updates, see how it
-> > goes, if it starts to suck we'll periodically toss the CVS tree and start
-> > over.  
-> 
-> What you could do is have a CVS "realtime" branch which is forked from the
-> trunk, say once a week, or whenever Linux makes a point release.  
+> On Sat, 2003-03-15 at 11:20, Mitch Adair wrote:
+>
+>> Anyway, I have seen instances where root got mounted ext2 instead of ext3
+>> (faulty initrd or whatever it was) - just wondered if the help should
+>> really push people to unreservedly say Y to ext2 if their root is really
+>> ext3...
+>>
+>
+> Should be safest for most people .. those that have experience will anyhow
+> know to only compile in ext3 support, and ext2 as module (if you ever fsck
+> floppy/whatever as ext2).
 
-I'm not sure it is worth it.  If you are using BK, run revtool and look at
-the recent history in 2.5.  I just updated the CVS tree on kernel.bkbits.net
-and looked carefully at the collapsing it did.  It collapsed a pile of Greg's
-stuff into one cset, but that's actually OK as far as I can tell, it's all
-related.  And there was more work on the other path.
+Hi Martin,
 
-We've done several updates to the 2.5 tree and so far the number of changesets
-we would have gotten if we had done it all in one pass and the number that 
-we actually got is identical.  So maybe the reality of the incremental updates
-is better than we expected.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+I'm having trouble decoding...
+What is it that "should be safest for most people"?
+Are you suggesting any changes here?
+
+And some of us don't use fs modules, just build what we need into the
+kernel.  Do you know of any problems with doing this (related to
+ext2/ext3 for example)?
+
+Thanks,
+~Randy
+
+
+

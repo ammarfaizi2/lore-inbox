@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135939AbRD0LaK>; Fri, 27 Apr 2001 07:30:10 -0400
+	id <S135915AbRD0L2I>; Fri, 27 Apr 2001 07:28:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135942AbRD0LaA>; Fri, 27 Apr 2001 07:30:00 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48146 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135939AbRD0L3u>; Fri, 27 Apr 2001 07:29:50 -0400
-Date: Fri, 27 Apr 2001 06:50:01 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] allow PF_MEMALLOC tasks to directly reclaim pages 
-Message-ID: <Pine.LNX.4.21.0104270511160.2756-100000@freak.distro.conectiva>
+	id <S135939AbRD0L17>; Fri, 27 Apr 2001 07:27:59 -0400
+Received: from kullstam.ne.mediaone.net ([66.30.138.210]:63647 "HELO
+	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
+	id <S135915AbRD0L1o>; Fri, 27 Apr 2001 07:27:44 -0400
+From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: About rebuild 2.4.x kernel to support SMP.
+In-Reply-To: <Pine.LNX.3.96.1010426120128.28828A-100000@kanga.kvack.org>
+Organization: none
+Date: 27 Apr 2001 07:27:31 -0400
+In-Reply-To: <Pine.LNX.3.96.1010426120128.28828A-100000@kanga.kvack.org>
+Message-ID: <m2u23ashuk.fsf@euler.axel.nom>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<kernel@kvack.org> writes:
 
-Linus,
+> On Thu, 26 Apr 2001, Yiping Chen wrote:
+> 
+> > So, I have two question now, 
+> > 1. how to determine whether your kernel support SMP?
+> >     Somebody taugh me that you can type  "uname -r", but it seems not
+> > correct.
+> 
+> No, it's correct: the Red Hat RPM is build from the kernel.spec file which
+> adds the smp string to the version.
 
-Currently __alloc_pages() does not allow PF_MEMALLOC tasks to free clean
-inactive pages.
+"uname -a" will show SMP status.
 
-This is senseless --- if the allocation has __GFP_WAIT set, its ok to grab
-the pagemap_lru_lock/pagecache_lock/etc.
+euler(jk)$ uname -a
+Linux euler.axel.nom 2.4.4-pre5 #1 SMP Thu Apr 19 19:20:40 EDT 2001 i686 unknown
 
-I checked all possible codepaths after reclaim_page() and they are ok.
+this is on a redhat system, but i think it will work on any linux
+system.
 
-The following patch fixes that.
+> > 2. I remember in 2.2.x, when I rebuild the kernel which support SMP, the
+> > compile
+> >     argument will include -D__SMP__ , but this time, when I rebuild kernel
+> > 2.4.2-2 , it didn't  appear.
+> >     Why? 
+> 
+> Because you've made an assumption that holds no value.  2.4 kernels rely
+> on CONFIG_SMP instead of __SMP__.
 
+it's probably easiest to download the latest kernel (2.4.3 at the time
+of this writing) from ftp.XX.kernel.org (XX being your country code).
+then configure using "make xconfig" or "make menuconfig".  choose SMP
+in one of the first menus.  there's a kernel-howto which explains this
+stuff.  btw there is no problem running your own kernels on a redhat
+system bypassing rpm.
 
---- linux/mm/page_alloc.c.orig	Fri Apr 27 05:59:35 2001
-+++ linux/mm/page_alloc.c	Fri Apr 27 05:59:48 2001
-@@ -295,8 +295,7 @@
- 	 * Can we take pages directly from the inactive_clean
- 	 * list?
- 	 */
--	if (order == 0 && (gfp_mask & __GFP_WAIT) &&
--			!(current->flags & PF_MEMALLOC))
-+	if (order == 0 && (gfp_mask & __GFP_WAIT))
- 		direct_reclaim = 1;
- 
- 	/*
+in a source tree in which you've compiled SMP and want UP or
+vice-versa, i think to do a "make distclean" in between switching.
 
-
+-- 
+J o h a n  K u l l s t a m
+[kullstam@ne.mediaone.net]
+Don't Fear the Penguin!

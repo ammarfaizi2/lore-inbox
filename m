@@ -1,68 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTEOJ44 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 05:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263931AbTEOJ44
+	id S263928AbTEOJyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 05:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTEOJyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 05:56:56 -0400
-Received: from hexagon.stack.nl ([131.155.140.144]:45061 "EHLO
-	hexagon.stack.nl") by vger.kernel.org with ESMTP id S263930AbTEOJ4z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 05:56:55 -0400
-Date: Thu, 15 May 2003 12:09:38 +0200 (CEST)
-From: Jos Hulzink <josh@toad.stack.nl>
-To: mikpe@csd.uu.se
-Cc: Rene Rebe <rene.rebe@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: APIC error
-In-Reply-To: <16067.22472.306565.803037@gargle.gargle.HOWL>
-Message-ID: <20030515120614.R94113@toad.stack.nl>
-References: <20030513.213112.184808431.rene.rebe@gmx.net>
- <16066.15561.296849.757291@gargle.gargle.HOWL> <20030514.221858.846957347.rene.rebe@gmx.net>
- <16067.22472.306565.803037@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 May 2003 05:54:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30146 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263928AbTEOJyD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 05:54:03 -0400
+Date: Thu, 15 May 2003 12:06:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Martin Waitz <tali@admingilde.org>
+Subject: Re: [PATCH] 2.4 laptop mode
+Message-ID: <20030515100653.GF15261@suse.de>
+References: <20030514093504.GE17033@suse.de> <20030515085912.GV1253@admingilde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030515085912.GV1253@admingilde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 May 2003 mikpe@csd.uu.se wrote:
+On Thu, May 15 2003, Martin Waitz wrote:
+> hi :)
+> 
+> On Wed, May 14, 2003 at 11:35:04AM +0200, Jens Axboe wrote:
+> > Now, this isn't the prettiest patch in the world. But it does allow me
+> > to get good spin down times on my laptop hard drive. It was somewhat
+> > inspired by the 2.5.early version akpm did. Basically, it adds:
+> 
+> if you are interested in spinning down hard drives, you might want to read
+> http://www4.informatik.uni-erlangen.de/Publications/pdf/Weissel-Beutel-Bellosa-OSDI-CoopIO.pdf
+> 
 
-> Rene Rebe writes:
->  > HI,
->  >
->  > On: Wed, 14 May 2003 14:55:37 +0200,
->  >     mikpe@csd.uu.se wrote:
->  >
->  > >  > Those errors only seem to happen during high disk-io (SCSI or IDE).
->  > >  > What specific meaning do those errors have? Are they dangerous?
->  > >
->  > > They are defined in Intel's IA32 manual set, volume 3,
->  > > "System Programming Guide", downloadable from developer.intel.com.
->  > >
->  > > These errors mean that APIC bus messages are lost or have checksum errors.
->  > > You don't say which kernel you're using or which chipset, but chances are
->  > > your mobo's APIC bus is noisy.
->  > >
->  > >  > Each CPU survives hours in memtest86 ... And with maxcpus=1 it also
->  > >  > does not seem to happen ... The BIOS is latest.
->  > >
->  > > You can try booting with "noapic", that should let you keep using SMP
->  > > while avoiding your possibly buggy APIC bus.
->  >
->  > Thanks for the anwer I googled for this before the mail but only found
->  > much noise ... I'll triy noapic (I thought this would disable SMP,
->  > too), but I already had to notice that with maxcpus=1 I also get some
->  > few APIC errors.
->  >
->  > Is there drawback in using noapic in SMP mode?
->
-> No load balancing of I/O interrupts since they will all be directed to
-> CPU 0 only. Unless your dual P5 is servicing a lot of interrupts, I doubt
-> it will make a noticeable difference.
+Interesting, I did not know about this paper. A lot of what my patch
+does is identical to what they describe, I stop at the OS level though
+and haven't (and don't really want to) extend it to applications. I
+think that we can get 'pretty good' power saves without going that extra
+mile.
 
-On my Dual PII 333, KDE 3.1 runs fine with interrupts mapped to both CPUs,
-and performance is horrible when only CPU0 receives the interrupts.
+Note that I also operate outside of the 4 ide power states described,
+sleep -> standby -> idle -> active. I chose to disregard sleep, because
+it requires a reset and drive program when transitioning from sleep to
+idle. It's my feeling that most drives do the idle -> active transition
+(and vice versa) on their own. So for me, that just leaves on
+interesting operating mode (idle-active :). However, I added the
+acoustic management in-between that. So when the drive is considered
+'active' (ie serving requests), the amount of io will determine how fast
+the seeks go by switching between the acoustic levels.
 
-Especially moving the timer interrupt to both CPUs makes difference like
-night and day.
+So with my patch, we are pretty close to the ECU level described in the
+paper. With the laptop patch, we handle the writeout of dirty data at
+appropriate times (when reads spin up the disk, etc) as well.
 
-Jos
+> they describe strategies to get maximum sleep times for drives by
+> bundling accesses to hard discs.
+
+I bundle writes with reads (slighly postponed), doing more would require
+the added new syscalls.
+
+> they even go a little bit faster and allow user space to give hints
+> about when they need data.
+> i only had a brief look at the sources but i guess this could be folded
+> into the aio interface.
+> (CoopIO as described above adds its own system calls)
+
+Yeah, using aio would make it a lot easier and wouldn't require many
+changes to the existing aio interface.
+
+> it would be great if somethink like that could be ported to 2.5...
+
+What's stopping you?
+
+-- 
+Jens Axboe
+

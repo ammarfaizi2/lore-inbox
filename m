@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310583AbSCPUVl>; Sat, 16 Mar 2002 15:21:41 -0500
+	id <S310606AbSCPUZl>; Sat, 16 Mar 2002 15:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310584AbSCPUVb>; Sat, 16 Mar 2002 15:21:31 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:19985 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S310583AbSCPUVR>;
-	Sat, 16 Mar 2002 15:21:17 -0500
-Date: Sat, 16 Mar 2002 20:20:57 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: roms@lpg.ticalc.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: your mail, [PATCH] tipar
-Message-ID: <20020316202057.A10422@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	roms@lpg.ticalc.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16lHKt-0007dn-00@the-village.bc.nu> <3C935F7A.AD380542@free.fr> <20020316200651.A9072@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020316200651.A9072@infradead.org>; from hch@infradead.org on Sat, Mar 16, 2002 at 08:06:51PM +0000
-X-Operating-System: i586-pc-linux release 2.2.19-6.2.12smp
-X-Useless-Header: =?iso-8859-1?Q?Delete_me=2C_I=B4m_an_useless_header_!?=
+	id <S310598AbSCPUZb>; Sat, 16 Mar 2002 15:25:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3849 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310597AbSCPUZQ>; Sat, 16 Mar 2002 15:25:16 -0500
+Date: Sat, 16 Mar 2002 12:23:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <yodaiken@fsmlabs.com>
+cc: <davidm@hpl.hp.com>, Paul Mackerras <paulus@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <20020316130806.A21439@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33.0203161214380.31971-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 08:06:51PM +0000, Christoph Hellwig wrote:
-> > +static devfs_handle_t devfs_handle = NULL;
-> > +static unsigned int tp_count = 0;   /* tipar count */
-> > +static unsigned long opened = 0;    /* opened devices */
-> 
-> Variables in .bcc are auto-zeroed - you can drop the intialization.
 
-.bss ..
+On Sat, 16 Mar 2002 yodaiken@fsmlabs.com wrote:
+> 
+> AMD claims L1, L2 and with hammer an I/D split as well.
+
+Oh, people have done L1/L2 TLB splits for a long time. The two-level TLB
+exists in Athlon (and I think nexgen did it in the x86 space almost 10
+years ago, and that's probably what got AMD into that game). Others have 
+done it too.
+
+And people have done split TLB's (I/D split is quite common, duplicated by
+memory unit is getting so).
+
+But multiple entries loaded at a time?
+
+		Linus
 

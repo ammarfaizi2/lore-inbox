@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTJHX5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 19:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJHX5z
+	id S261831AbTJIAVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 20:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTJIAVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 19:57:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16826 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261845AbTJHX5x (ORCPT
+	Wed, 8 Oct 2003 20:21:41 -0400
+Received: from gprs147-181.eurotel.cz ([160.218.147.181]:2176 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261831AbTJIAVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 19:57:53 -0400
-Subject: Re: Linux 2.6.0-test7 - stability freeze (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065657470.5691.76.camel@cherrytest.pdx.osdl.net>
+	Wed, 8 Oct 2003 20:21:40 -0400
+Date: Thu, 9 Oct 2003 02:21:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: pmdisk & oldconfig -- bad interaction
+Message-ID: <20031009002126.GA1192@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 08 Oct 2003 16:57:51 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+Hi!
 
-Kernel         bzImage    bzImate  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- ---------
-2.6.0-test7    0w/0e       0w/0e   173w/ 1e   8w/0e   3w/0e    226w/0e
-2.6.0-test6    0w/0e       1w/0e   188w/ 1e  12w/0e   3w/0e    260w/2e
-2.6.0-test5    0w/0e       2w/0e   205w/ 9e  15w/1e   0w/0e    305w/5e
-2.6.0-test4    0w/0e       2w/0e   797w/55e  68w/1e   3w/0e   1016w/34e
-2.6.0-test3    0w/0e       2w/0e   755w/66e  62w/1e   7w/9e    984w/42e
-2.6.0-test2    0w/0e       1w/0e   952w/65e  63w/2e   7w/9e   1201w/43e
-2.6.0-test1    0w/0e       1w/0e  1016w/60e  75w/1e   8w/9e   1319w/38e
+Theres usability problem with make oldconfig & pmdisk:
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+  Software Suspend (EXPERIMENTAL) (SOFTWARE_SUSPEND) [Y/n/?] y
+  Suspend-to-Disk Support (PM_DISK) [Y/n/?] y
+    Default resume partition (PM_DISK_PARTITION) [] (NEW)
 
-Warning Summary
+Unfortunately at this point I do not know if it should be in /dev/hda1
+or hda1 form (I guess its /dev/hda1), so I try to get some help. I
+press ? <enter> and bang, partition is set to "?".
 
-   drivers/atm: 1 warnings, 0 errors
-   drivers/block: 1 warnings, 0 errors
-   drivers/cdrom: 3 warnings, 0 errors
-   drivers/char: 2 warnings, 0 errors
-   drivers/ide: 30 warnings, 0 errors
-   drivers/media: 5 warnings, 0 errors
-   drivers/message: 1 warnings, 0 errors
-   drivers/mtd: 25 warnings, 0 errors
-   drivers/net: 23 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/scsi: 43 warnings, 0 errors
-   drivers/scsi/pcmcia: 4 warnings, 0 errors
-   drivers/serial: 1 warnings, 0 errors
-   drivers/telephony: 5 warnings, 0 errors
-   drivers/video: 8 warnings, 0 errors
-   drivers/video/aty: 3 warnings, 0 errors
-   drivers/video/console: 2 warnings, 0 errors
-   drivers/video/matrox: 5 warnings, 0 errors
-   drivers/video/sis: 1 warnings, 0 errors
-   net: 9 warnings, 0 errors
-   sound/isa: 3 warnings, 0 errors
-   sound/oss: 47 warnings, 0 errors
+I'm not sure how to solve this. Maybe 
 
-Error Summary
+  Software Suspend (EXPERIMENTAL) (SOFTWARE_SUSPEND) [Y/n/?] y
+  Suspend-to-Disk Support (PM_DISK) [Y/n/?] y
+    Default resume partition in /dev/hdXX form (PM_DISK_PARTITION) [] (NEW)
 
-   drivers/net: 0 warnings, 1 errors
-   drivers/scsi/aic7xxx: 0 warnings, 1 errors
-
-John
-
-
-
-
+is good idea? Anyway helptexts for text entries are useless in
+oldconfig :-(.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

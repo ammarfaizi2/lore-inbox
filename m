@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269243AbUJQSEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269245AbUJQSFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269243AbUJQSEo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269245AbUJQSEo
+	id S269245AbUJQSFz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269251AbUJQSFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:04:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:59670 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269243AbUJQSEV (ORCPT
+	Sun, 17 Oct 2004 14:05:55 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:26319 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S269245AbUJQSFi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:04:21 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Spx9NuhzQvgLRGAPoPiFtHmKhXFMjDtmTC4IOEdibrU4Mc58bond4WiNilZ8vcMOSRv7c3I0LjOy5Ajvru3jZMyiKNfNxE8pbVumqqpMITPT3rimuX4dTOle2ShWOeUPvyZHBk67pMq1F0XXKY3AyRxjpc6+K5uU8cAHvmusi8o
-Message-ID: <5d6b65750410171104320bc6a8@mail.gmail.com>
-Date: Sun, 17 Oct 2004 20:04:21 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
+	Sun, 17 Oct 2004 14:05:38 -0400
+Date: Sun, 17 Oct 2004 20:05:28 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Buddy Lucas <buddy.lucas@gmail.com>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Cc: Lars Marowsky-Bree <lmb@suse.de>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0410171921440.2952@dragon.hygekrogen.localhost>
+Message-ID: <20041017180528.GN7468@marowsky-bree.de>
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com> <20041017172244.GM7468@marowsky-bree.de> <5d6b657504101710542e054f53@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041016062512.GA17971@mark.mielke.cc>
-	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
-	 <20041017133537.GL7468@marowsky-bree.de>
-	 <5d6b657504101707175aab0fcb@mail.gmail.com>
-	 <20041017150509.GC10280@mark.mielke.cc>
-	 <5d6b65750410170840c80c314@mail.gmail.com>
-	 <Pine.LNX.4.61.0410171921440.2952@dragon.hygekrogen.localhost>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5d6b657504101710542e054f53@mail.gmail.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004 19:35:03 +0200 (CEST), Jesper Juhl <juhl-lkml@dif.dk> wrote:
+On 2004-10-17T19:54:04, Buddy Lucas <buddy.lucas@gmail.com> wrote:
 
-> Personally I agree that if you want non blocking sockets that's what you
-> should use, but many people expect that if select says a socket is
-> readable then attempting to recieve that data will not block. Many people
-> refer to Stevens "UNIX Network Programming" to find out how select and
-> related networking functions are supposed to behave, and Stevens has this
+> Sigh. Read the quote to which I responded again. Not a word about
+> atomicity. Nowhere does it say that a descriptor which was ready for
+> reading at select() time is still readable at recvmsg() time.
 
-[ snip ]
+That is the _whole point_ of select() on non-O_NONBLOCK sockets.
 
-Also note the examples that Stevens gives. For instance, he explicitly
-checks for EWOULDBLOCK after a read on a nonblocking fd that has been
-reported readable by select().
+> There is no doubt that it would be very nice if select() would say
+> something useful, but that's not the issue here.
+
+According to the specs, it says something useful. It doesn't on Linux,
+agreed.
+
+> > This isn't per se the same as saying that it's not a sensible violation,
+> > but very clearly the specs disagree with the current Linux behaviour.
+> So document it.
+
+That's one way of doing it, yes.
+
+> > If the packet has been dropped in between, which _could_ have happened
+> > because UDP is allowed to be dropped basically anywhere, EIO may be
+> > returned. But blocking or returning EAGAIN/EWOULDBLOCK is verboten. The
+> > spec is very clearly on that.
+> Obviously returning EAGAIN/EWOULDBLOCK while reading from a blocking
+> fd is not what we want (in the situation at hand). I don't see how it
+> relates to the discussion.
+
+Others have suggested it in this thread as a possible error code, so
+that's how it relates to this discussion. Surprise ;-)
+
+> > I'm not so sure what's so hard to accept about that. It may be well that
+> > Linux is following the de-facto industry standard (or even setting it)
+> > here, and I'd agree that if you don't want blocking use O_NONBLOCK, but
+> > in no way can Linux claim POSIX/SuV spec compliance for this behaviour.
+> It doesn't.
+
+*sigh* According to the man pages and the Linux Standard Base it does,
+and it has been claimed repeatedly in this thread too.
+
+Please get your facts straight.
 
 
-Cheers,
-Buddy
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX AG - A Novell company
+

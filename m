@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273333AbRJKGxe>; Thu, 11 Oct 2001 02:53:34 -0400
+	id <S273358AbRJKHGF>; Thu, 11 Oct 2001 03:06:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273141AbRJKGxY>; Thu, 11 Oct 2001 02:53:24 -0400
-Received: from [213.255.45.210] ([213.255.45.210]:64263 "HELO
-	web.g_stazioni.it") by vger.kernel.org with SMTP id <S273333AbRJKGxF>;
-	Thu, 11 Oct 2001 02:53:05 -0400
-Message-ID: <DF71F1B1D60BD5118D2C0004AC538C650D0B7C@DB_SRV>
-From: "Lombardo, Federico" <FLombardo@grandistazioni.it>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Some strange things with kernel 2.4.11 (README PLZ)
-Date: Thu, 11 Oct 2001 08:51:52 +0200
+	id <S273360AbRJKHFz>; Thu, 11 Oct 2001 03:05:55 -0400
+Received: from [213.45.102.230] ([213.45.102.230]:57608 "EHLO
+	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
+	id <S273358AbRJKHFv>; Thu, 11 Oct 2001 03:05:51 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Tulip problem in Kernel 2.4.11
+In-Reply-To: <000701c151c4$0e6933e0$0300a8c0@theburbs.com>
+Reply-To: Pierfrancesco Caci <p.caci@tin.it>
+From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
+Date: 11 Oct 2001 09:06:17 +0200
+In-Reply-To: <000701c151c4$0e6933e0$0300a8c0@theburbs.com>
+Message-ID: <87u1x6zmdy.fsf@penny.ik5pvx.ampr.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've installed 2.4.11 on two different machine:
-> 
-> + IBM X340 SMP Linux Slackware 8
-> + Compaq Proliant 1600 Linux Redhat 7.1
-> 
-> on both the machine I receive this strange problem:
-> 
-> root@norad:~# netstat -pltn
-> Active Internet connections (only servers)
-> Proto Recv-Q Send-Q Local Address           Foreign Address         State
-> PID/Program name
-> tcp        0      0 0.0.0.0:139             0.0.0.0:*               LISTEN
-> 102/smbd
-> tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN
-> 100/httpd
-> tcp        0      0 0.0.0.0:21              0.0.0.0:*               LISTEN
-> 80/inetd
-> tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
-> 82/sshd
-> tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN
-> 100/httpd
-> root@norad:~# fuser -v 22/tcp
-> root@norad:~#
-> I receive this with ALL the services.. either lsof can't see anything
-> with strace i can see the process that work correctly 
-> after this I can't start anymore services by simple users... just like
-> squid (on port 3128)
-> 
-> For better diagnostic, I've reinstalled 2.4.10 and all work fine.
-> 
-> 
-> I'm not been "hacked" from someone... I've realized this after rebooting
-> with the 2.4.11 bzImage.
-> 
-> 
-> 
-> 
-> 
+:-> "Jamie" == Jamie  <darkshad@home.com> writes:
+
+    > Hello there is a definate problem with the tulip drivers in the 2.4.11
+    > kernel.
+    > I have a DEC DC 21041 NIC which uses the tulip drivers.  I use the 2.2.19
+    > kernel and there are
+    > two different sets of tulip drivers listed in that kernel which
+    > I can choose 
+    > from in the 2.4.11 kernel there is only one. When I do a
+    > modprobe tulip the 
+    > driver loads fine as you can see bellow there are no strange
+    > error messages 
+    > ect.  But I can not communicate though this one NIC. When I use
+    > the 2.2.19 
+    > Kernel it works fine.
+
+I can add to this that 2.4.2 works fine, I've tried 2.4.9 and 2.4.11
+and I can't use the lan either. 
+In 2.4.11, I can see that the driver can sense if I plug/unplug the
+connector (10BaseT, connected to a Compaq Netelligent 8 port hub), but
+nothing more.
+
+here's what 2.4.2 says about the card:
+
+# lspci -v -v -s 00:03.0
+00:03.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 11)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 96
+        Interrupt: pin A routed to IRQ 15
+        Region 0: I/O ports at fc00 [size=128]
+        Region 1: Memory at df000000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at de000000 [disabled] [size=256K]
+
+I am now trying to compile again 2.4.11 with the driver as module,
+instead of built-in, just to see if I can pass some parameters to
+force a media type without rebooting every time.
+
+Please suggest any other test I can make, or if you need more informations.
+
+Pf
+
+-- 
+
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.7 #1 Thu Jul 26 14:48:56 CEST 2001 i686 unknown

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273787AbRJIJGX>; Tue, 9 Oct 2001 05:06:23 -0400
+	id <S273870AbRJIJ2Y>; Tue, 9 Oct 2001 05:28:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273495AbRJIJGN>; Tue, 9 Oct 2001 05:06:13 -0400
-Received: from frank.gwc.org.uk ([212.240.16.7]:7942 "EHLO frank.gwc.org.uk")
-	by vger.kernel.org with ESMTP id <S273305AbRJIJGB>;
-	Tue, 9 Oct 2001 05:06:01 -0400
-Date: Tue, 9 Oct 2001 10:06:24 +0100 (BST)
-From: Alistair Riddell <ali@gwc.org.uk>
-To: David Chow <davidchow@rcn.com.hk>
-cc: raid@ddx.a2000.nu, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-Subject: Re: write/read cache raid5
-In-Reply-To: <3BC26BDE.45D893A6@rcn.com.hk>
-Message-ID: <Pine.LNX.4.21.0110091004450.27693-100000@frank.gwc.org.uk>
-X-foo: bar
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273877AbRJIJ2O>; Tue, 9 Oct 2001 05:28:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62092 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S273870AbRJIJ2I>;
+	Tue, 9 Oct 2001 05:28:08 -0400
+Date: Tue, 09 Oct 2001 02:28:34 -0700 (PDT)
+Message-Id: <20011009.022834.26534969.davem@redhat.com>
+To: panto@intracom.gr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Standard way of generating assembler offsets
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BC2A98C.A57EA360@intracom.gr>
+In-Reply-To: <1002563771.21079.3.camel@keller>
+	<3BC1F7D6.E84D617B@mvista.com>
+	<3BC2A98C.A57EA360@intracom.gr>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, David Chow wrote:
 
-> Yes my server serve lots of clients and have lots of NICs even
-> gigabit... how can I increase write/read cache on RAID5 ? It is better
-> performed when big cache allows on top (before) raid computation work
-> and physical disk writes.
+I think your work is way over-engineered and that you really
+need to look at the very simple method by which we do this
+on sparc64.
 
-In that case more memory will certainly help. You might like to check out
-Jens Axboe's block-highmem patch if you have more than 1GB of RAM. It
-allows hardware to DMA direct to high memory, rather than using bounce
-buffers, which can increase performance considerably.
-
--- 
-Alistair Riddell - BOFH
-IT Manager, George Watson's College, Edinburgh
-Tel: +44 131 447 7931 Ext 176       Fax: +44 131 452 8594
-Microsoft - because god hates us
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

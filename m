@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUAVLDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 06:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266212AbUAVLDo
+	id S265980AbUAVO0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 09:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUAVO0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 06:03:44 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:10504 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264113AbUAVLDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 06:03:43 -0500
-Date: Thu, 22 Jan 2004 11:03:42 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc1-mm1
-Message-ID: <20040122110342.A9271@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20040122013501.2251e65e.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 22 Jan 2004 09:26:16 -0500
+Received: from dsl-213-023-011-163.arcor-ip.net ([213.23.11.163]:29386 "EHLO
+	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
+	id S265980AbUAVO0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 09:26:15 -0500
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
+References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
+	<m3u12pgfpr.fsf@reason.gnu-hamburg>
+	<m3ptddgckg.fsf@reason.gnu-hamburg>
+	<20040122120854.GB3534@hell.org.pl>
+	<m3browulc7.fsf@reason.gnu-hamburg>
+From: "Georg C. F. Greve" <greve@gnu.org>
+Organisation: Free Software Foundation Europe - GNU Project
+X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
+X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
+X-Home-Page: http://gnuhh.org
+X-Accept-Language: en, de
+Date: Thu, 22 Jan 2004 15:26:01 +0100
+In-Reply-To: <m3browulc7.fsf@reason.gnu-hamburg> (Georg C. F. Greve's
+ message of "Thu, 22 Jan 2004 15:08:56 +0100")
+Message-ID: <m3llo0qcue.fsf@reason.gnu-hamburg>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040122013501.2251e65e.akpm@osdl.org>; from akpm@osdl.org on Thu, Jan 22, 2004 at 01:35:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sysfs-class-06-raw.patch
->   From: Greg KH <greg@kroah.com>
->   Subject: [PATCH] add sysfs class support for raw devices [06/10]
+ || On Thu, 22 Jan 2004 15:08:56 +0100
+ || "Georg C. F. Greve" <greve@gnu.org> wrote: 
 
-This one exports get_gendisk, which is a no-go.
+ gg> Could we please make sure this doesn't get lost again and makes
+ gg> it into the kernel?
 
+By the way, it seems that 
+
+ http://bugzilla.kernel.org/show_bug.cgi?id=1774
+ http://bugzilla.kernel.org/show_bug.cgi?id=1677
+ http://bugzilla.kernel.org/show_bug.cgi?id=1530
+ http://bugzilla.kernel.org/show_bug.cgi?id=1171
+
+are probably related. So this could get rid of four bugzilla entries
+at once. :)
+
+Regards,
+Georg
+
+-- 
+Georg C. F. Greve                                       <greve@gnu.org>
+Free Software Foundation Europe	                 (http://fsfeurope.org)
+Brave GNU World	                           (http://brave-gnu-world.org)

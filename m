@@ -1,35 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUHPVYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266358AbUHPV01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUHPVYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 17:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUHPVYd
+	id S266358AbUHPV01 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 17:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267965AbUHPV01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 17:24:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11737 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265772AbUHPVYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 17:24:32 -0400
-Date: Mon, 16 Aug 2004 14:22:06 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Cal Peake <cp@absolutedigital.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] net/ipv4/proc.c
-Message-Id: <20040816142206.7d2913af.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.60.0408161505220.29938@linaeum.absolutedigital.net>
-References: <Pine.LNX.4.60.0408161505220.29938@linaeum.absolutedigital.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 17:26:27 -0400
+Received: from cliff.cse.wustl.edu ([128.252.166.5]:21993 "EHLO
+	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S266358AbUHPV0X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 17:26:23 -0400
+From: Berkley Shands <berkley@cs.wustl.edu>
+Date: Mon, 16 Aug 2004 16:25:48 -0500 (CDT)
+Message-Id: <200408162125.i7GLPmT0000019895@mudpuddle.cs.wustl.edu>
+To: akpm@osdl.org, linuxram@us.ibm.com
+Subject: Re:  [PATCH] Re: Fast patch for Severe I/O performance regression 2.6.6 to 2.6.7 or 2.6.8-rc3
+Cc: badari@us.ibm.com, berkley@cse.wustl.edu, linux-kernel@vger.kernel.org,
+       miklos@szeredi.hu, shrybman@aei.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 15:20:18 -0400 (EDT)
-Cal Peake <cp@absolutedigital.net> wrote:
+	I'll be happy to continue trying this patch. I've just got to get over
+the sata panics in 2.6.8.1 to get to it, and the nfs lockups in 2.6.8.1,
+but that is another post when I figure out what happened.
 
-> Between 2.6.8-rc2-bk1 and 2.6.8-rc2-bk2 net/ipv4/proc.c was updated to use 
-> a new mechanism for outputting /proc/net/snmp and /proc/net/netstat. The 
-> small patch attached fixes a problem when doing `netstat -s`
+thanks
 
-Good catch, patch applied thanks Cal.
+berkley

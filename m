@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264229AbRFOEAt>; Fri, 15 Jun 2001 00:00:49 -0400
+	id <S264233AbRFOECT>; Fri, 15 Jun 2001 00:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264233AbRFOEAj>; Fri, 15 Jun 2001 00:00:39 -0400
-Received: from [204.244.205.22] ([204.244.205.22]:3341 "HELO apollo.wizard.ca")
-	by vger.kernel.org with SMTP id <S264229AbRFOEAd>;
-	Fri, 15 Jun 2001 00:00:33 -0400
-Subject: Re: obsolete code must die
-From: Michael Peddemors <michael@linuxmagic.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15ARz4-0004Jm-00@the-village.bc.nu>
-In-Reply-To: <E15ARz4-0004Jm-00@the-village.bc.nu>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 14 Jun 2001 20:58:51 -0700
-Message-Id: <992577531.4884.15.camel@mistress>
-Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S264242AbRFOECK>; Fri, 15 Jun 2001 00:02:10 -0400
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:49793 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S264233AbRFOEB6>; Fri, 15 Jun 2001 00:01:58 -0400
+Date: Thu, 14 Jun 2001 23:01:51 -0500 (CDT)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: <nick@snowman.net>
+cc: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+        Kip Macy <kmacy@netapp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: 3com Driver and the 3XP Processor
+In-Reply-To: <Pine.LNX.4.21.0106142250530.22553-100000@ns>
+Message-ID: <Pine.LNX.4.30.0106142257100.19836-100000@biglinux.tccw.wku.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh come on Alan, I heard that you still get time to sleep at least 4-5
-hours a night.. I am sure you can fit it in..
+Insteresting that this thread fell into this.  I just had one of those
+cards that came across my desk phreak out.  It was 2 days old and placed
+in a win2k server.  Last night it started dumping errors about firmware
+and bad microcde.
+Have yet to test it out on another machine, but I beleive the card went
+bad.  first 3com I have had go bad and first card I have ever had go bad
+inside of 2 days :)
 
-> This should be a FAQ entry.
-> 
-> For folks doing kernel development a split tree is a nightmare to manage so
-> we dont bother. Nothing stops a third party splitting and maintaining the tools
-> to download just the needed bits for those who want to do it that way
-> 
+> I've installed several thousand 3com cards of variousages and types.
+> I've had less than 20 bad cards.
+> 	Nick
 
--- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-WizardInternet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
+Brent Norris
+Executive Advisor -- WKU-Linux
 

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264673AbRF2BS5>; Thu, 28 Jun 2001 21:18:57 -0400
+	id <S265303AbRF2BpJ>; Thu, 28 Jun 2001 21:45:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265262AbRF2BSr>; Thu, 28 Jun 2001 21:18:47 -0400
-Received: from king.mcs.drexel.edu ([129.25.6.170]:3223 "EHLO
-	king.mcs.drexel.edu") by vger.kernel.org with ESMTP
-	id <S264673AbRF2BSh>; Thu, 28 Jun 2001 21:18:37 -0400
-From: David McWherter <udmcwher@mcs.drexel.edu>
+	id <S265314AbRF2BpA>; Thu, 28 Jun 2001 21:45:00 -0400
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:14554 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S265303AbRF2Bo5>; Thu, 28 Jun 2001 21:44:57 -0400
+Date: Thu, 28 Jun 2001 21:46:49 -0400 (EDT)
+From: Garett Spencley <gspen@home.com>
+X-X-Sender: <gspen@localhost.localdomain>
+To: Alan Cox <laughing@shared-source.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac21
+In-Reply-To: <20010629005133.A30356@lightning.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L2.0106282143240.19421-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15163.55148.88937.894314@tangent.mcs.drexel.edu>
-Date: Thu, 28 Jun 2001 21:18:36 -0400
-To: Andreas Schuldei <andreas@schuldei.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: artificial latency for a network interface
-In-Reply-To: <20010629003900.A6065@sigrid.schuldei.com>
-In-Reply-To: <20010629003900.A6065@sigrid.schuldei.com>
-X-Mailer: VM 6.93 under Emacs 20.7.1
-Reply-To: udmcwher@mcs.drexel.edu
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 2.4.5-ac21
+> o	Fix pnpbios compile failure and add docking	(me)
+> 	station hotplug (/sbin/hotplug dock)
 
-I once solved this problem using the QoS qdisc facilites:
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -DEXPORT_SYMTAB -c pnp_bios.c
+pnp_bios.c: In function `pnp_dock_event':
+pnp_bios.c:442: `hotplug_path' undeclared (first use in this function)
+pnp_bios.c:442: (Each undeclared identifier is reported only once
+pnp_bios.c:442: for each function it appears in.)
+pnp_bios.c: In function `pnp_dock_thread':
+pnp_bios.c:496: warning: `d' might be used uninitialized in this function
+pnp_bios.c: At top level:
+pnp_bios.c:597: warning: `pnp_bios_exit' defined but not used
+{standard input}: Assembler messages:
+{standard input}:64: Warning: indirect lcall without `*'
+{standard input}:135: Warning: indirect lcall without `*'
+{standard input}:188: Warning: indirect lcall without `*'
+{standard input}:229: Warning: indirect lcall without `*'
+make[3]: *** [pnp_bios.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/pnp'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/pnp'
+make[1]: *** [_subdir_pnp] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
- http://edge.mcs.drexel.edu/GICL/people/udmcwher/dnt/DNT.html
+I'm using gcc-2.95.6 (Mandrake 8.0) and binutils 2.10.1.0.2.
 
-It works on 2.2 kernels as well.
+-- 
+Garett
 
--david
-
-Andreas Schuldei writes:
- > to simulate a sattelite link, I need to add a latency to a
- > network connection. 
- > 
- > What is the easiest and best way to do that?
- > 
- > I wanted to do that using two tun devices. 
- > I had hoped to have a routing like this:
- > 
- >  <-> eth0 <-> tun0 <-> userspace, waiting queue <-> tun1 <-> eth1
- > 
- > I need to do it this way and not with iptables help, because it
- > needs to work also on 2.2.x kernels.
- > 
- > Now I started experimenting with the tun0 interfaces and got
- > problems: till now I have not succeeded to get a tun0 interface
- > up. the example code (br_select.c) in the package (as found for
- > example on sourceforge) looks fishy and does not work too well. 
- > is it correct that only one /dev/tun file is necessary, but
- > /dev/tun0 and tun1 are opend for reading and writing?
-
-----------------------[=========]------------------------
-David T. McWherter                udmcwher@mcs.drexel.edu
-
-My religion consists of a humble admiration of the illimitable superior
-spirit who reveals himself in the slight details we are able to perceive
-with our frail and feeble mind.
-		-- Albert Einstein

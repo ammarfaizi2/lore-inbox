@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbTJ2T1f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 14:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbTJ2T1f
+	id S261433AbTJ2TTg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 14:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTJ2TTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 14:27:35 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:35500 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261152AbTJ2T1e
+	Wed, 29 Oct 2003 14:19:36 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:14060 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP id S261433AbTJ2TT2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 14:27:34 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 29 Oct 2003 11:27:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: SiS ISA bridge IRQ routing on 2.6 ...
-In-Reply-To: <3F9F4841.2040904@cyberone.com.au>
-Message-ID: <Pine.LNX.4.56.0310291124230.973@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.56.0310281931510.933@bigblue.dev.mdolabs.com>
- <3F9F4841.2040904@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Oct 2003 14:19:28 -0500
+Message-Id: <5.1.1.6.0.20031029120536.03db3840@mail.harddata.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 29 Oct 2003 12:21:16 -0700
+To: linux-kernel@vger.kernel.org
+From: Mark Lane <mark@harddata.com>
+Subject: 2.4.22 and Athlon64
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_68529591==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Oct 2003, Nick Piggin wrote:
+--=====================_68529591==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-> >Linus, I saw that Marcelo merged Alan bits to fix the IRQ routing with the
-> >newest SiS ISA bridges. To make it really short the ISA bridge inside the
-> >SiS 85C503/5513 issue IRQ routing requests on 0x60, 0x61, 0x62 and 0x63
-> >for the USB hosts and the current code does not handle them correctly.
-> >2.6-test9 does not have those bits and the USB  subsystem won't work w/out
-> >that. Did Alan ever posted the patch for 2.6? If yes, did you simply miss
-> >it or you have a particular reason to not merge it?
-> >I really would like to remove the SiS IRQ patch from my to-apply-2.6
-> >folder :)
-> >
->
-> Alan thought I should put SiS IRQ routing on the must-fix list.
-> Doesn't mean it has to go in before 2.6.0, but if its common
-> hardware and its in 2.4 without problems its probably a good idea.
+I am having trouble compiling the 2.4.22 kernel for x86-64 non-smp. I can 
+compile the smp kernel but not the regular kernel.
 
-Alan did not like my approach, so I'll let him post to Linus his work. If
-he doesn't I'll post mine. The solution is trivial though and it works for
-me as long as for many users that google'd about SiS+USB and asked me the
-patch.
+It seems that ksyms.c for x86-64 is looking for some smp stuff from the 
+errors I am getting.
 
+I have tried 2.4.23-8 and the problem seems gone but I get an error when 
+linking fs/fs.o into vmlinux. I have attached the errors I received.
 
+TIA,
 
-- Davide
+-- 
+Mark Lane, CET  mailto:mark@harddata.com
+Hard Data Ltd.  http://www.harddata.com
+T: 01-780-456-9771      F: 01-780-456-9772
+11060 - 166 Avenue Edmonton, AB, Canada, T5X 1Y3
+--> Ask me about our Excellent 1U Systems! <--
+--=====================_68529591==_
+Content-Type: application/octet-stream; name="compile_error.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="compile_error.log"
+
+bGQgLW0gZWxmX3g4Nl82NCAtVCAvdXNyL3NyYy9saW51eC0yLjQuMjIvYXJjaC94ODZfNjQvdm1s
+aW51eC5sZHMgLWUgc3RleHQgYXJjaC94ODZfNjQva2VybmVsL2hlYWQubyBhcmNoL3g4Nl82NC9r
+ZXJuZWwvaGVhZDY0Lm8gYXJjaC94ODZfNjQva2VybmVsL2luaXRfdGFzay5vIGluaXQvbWFpbi5v
+IGluaXQvdmVyc2lvbi5vIGluaXQvZG9fbW91bnRzLm8gXAogICAgICAgIC0tc3RhcnQtZ3JvdXAg
+XAogICAgICAgIGFyY2gveDg2XzY0L2tlcm5lbC9rZXJuZWwubyBrZXJuZWwva2VybmVsLm8gbW0v
+bW0ubyBmcy9mcy5vIGlwYy9pcGMubyBhcmNoL3g4Nl82NC9tbS9tbS5vIGFyY2gveDg2XzY0L2lh
+MzIvaWEzMi5vICBcCiAgICAgICAgIGRyaXZlcnMvY2hhci9jaGFyLm8gZHJpdmVycy9ibG9jay9i
+bG9jay5vIGRyaXZlcnMvbWlzYy9taXNjLm8gZHJpdmVycy9uZXQvbmV0Lm8gZHJpdmVycy9jaGFy
+L2RybS9kcm0ubyBkcml2ZXJzL25ldC9mYy9mYy5vIGRyaXZlcnMvbmV0L2FwcGxldGFsay9hcHBs
+ZXRhbGsubyBkcml2ZXJzL25ldC90b2tlbnJpbmcvdHIubyBkcml2ZXJzL25ldC93YW4vd2FuLm8g
+ZHJpdmVycy9hdG0vYXRtLm8gZHJpdmVycy9pZGUvaWRlZHJpdmVyLm8gZHJpdmVycy9jZHJvbS9k
+cml2ZXIubyBkcml2ZXJzL3BjaS9kcml2ZXIubyBkcml2ZXJzL25ldC93aXJlbGVzcy93aXJlbGVz
+c19uZXQubyBkcml2ZXJzL3ZpZGVvL3ZpZGVvLm8gZHJpdmVycy9tZWRpYS9tZWRpYS5vIGRyaXZl
+cnMvbWQvbWRkZXYubyBkcml2ZXJzL2lzZG4vdm1saW51eC1vYmoubyBjcnlwdG8vY3J5cHRvLm8g
+XAogICAgICAgIG5ldC9uZXR3b3JrLm8gXAogICAgICAgIC91c3Ivc3JjL2xpbnV4LTIuNC4yMi9h
+cmNoL3g4Nl82NC9saWIvbGliLmEgL3Vzci9zcmMvbGludXgtMi40LjIyL2xpYi9saWIuYSBcCiAg
+ICAgICAgLS1lbmQtZ3JvdXAgXAogICAgICAgIC1vIHZtbGludXgKZnMvZnMubygudGV4dCsweDE0
+MjlmKTogSW4gZnVuY3Rpb24gYGRwdXQnOgo6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGF0b21p
+Y19kZWNfYW5kX2xvY2snCm1ha2U6ICoqKiBbdm1saW51eF0gRXJyb3IgMQo=
+--=====================_68529591==_--
 

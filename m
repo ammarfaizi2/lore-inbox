@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVBPByl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVBPBzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVBPByl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 20:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVBPByl
+	id S261969AbVBPBzr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 20:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVBPBzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 20:54:41 -0500
-Received: from gprs214-60.eurotel.cz ([160.218.214.60]:56203 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261968AbVBPBye (ORCPT
+	Tue, 15 Feb 2005 20:55:47 -0500
+Received: from news.cistron.nl ([62.216.30.38]:53644 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261969AbVBPBz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 20:54:34 -0500
-Date: Wed, 16 Feb 2005 02:54:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alistair John Strachan <alistair@devzero.co.uk>
-Cc: Lorenzo Colitti <lorenzo@colitti.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
-Message-ID: <20050216015418.GC13753@elf.ucw.cz>
-References: <20050214211105.GA12808@elf.ucw.cz> <1108500194.12031.21.camel@elrond.flymine.org> <42126506.8020407@colitti.com> <200502160141.11633.alistair@devzero.co.uk>
+	Tue, 15 Feb 2005 20:55:29 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
+ release)
+Date: Wed, 16 Feb 2005 01:54:51 +0000 (UTC)
+Organization: Cistron
+Message-ID: <cuu95b$b5q$1@news.cistron.nl>
+References: <20050211004033.GA26624@suse.de> <4211B8FC.8000600@aitel.hist.no> <1108459982.438.9.camel@tara.firmix.at> <4211F706.4030104@aitel.hist.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502160141.11633.alistair@devzero.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1108518891 11450 194.109.0.112 (16 Feb 2005 01:54:51 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <4211F706.4030104@aitel.hist.no>,
+Helge Hafting  <helge.hafting@aitel.hist.no> wrote:
+>Bernd Petrovitsch wrote:
+>>This would be a win (especially if the numbers are tweked to tune this)
+>>with a relatively small effort.
+>>However for real dependencies and parallelism you want the info similar
+>>to creat a Makefile from it (i.e. the explicit dependency from service X
+>>to service Y). As a consequence you can get rid of the numbers (since
+>>they are not needed any more).
+>>
+>Now that is a really good idea.  Init could simply run "make -j init2" to
+>enter runlevel 2.  A suitable makefile would list all dependencies, and
+>of course the targets needed for "init2", "init3" and so on.
 
-> > I would advise trying to compile a custom kernel from scratch with my
-> > .config first.
-> >
-> > I got S3 working first with a very basic kernel config, but I couldn't
-> > get it to work with my usual kernel. Assuming it was some feature that
-> > caused the problem, I started disabling features in the hope of getting
-> > it to work, but I ended up with two different kernels with seemingly
-> > irrelevant differences, of which one would succesfully resume and one
-> > wouldn't. So I started added features to the other kernel, and I never
-> > found out what caused the problem.
-> 
-> I took your advice and built your kernel with a few modifications (XFS instead 
-> of ext, etc.). If I boot the kernel with init=/bin/sh, I can actually 
-> suspend! Thanks!
-> 
-> I will exhaustively enable and disable drivers tomorrow to figure out which 
-> one is causing suspend to fail when I do a complete boot. Whatever we find is 
-> clearly a bug that should be fixed.
-> 
-> It is not the framebuffer driver (I always ran without vesafb or radeonfb), 
-> and it is not my ipw2200 or USB drivers.
-> 
-> Also, is USB suspend/resume supposed to work? My brief trials involved 
-> modprobing the USB HCD modules, which still allowed me to suspend/resume, but 
-> my USB mouse was non-functional on resume.
+It's not too hard to script it using 'tsort', either.
 
-Yes, it seems to work quite okay. You may need to unplug/replug
-devices after resume, but it should be basically ok.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+The hard part is getting all the dependencies of the scripts right.
+And once you've done that, to _keep_ them right.
+
+Now how do you implement that on a Debian system that is package-wise
+somewhere between potato and sarge ... (yes, I've encountered those).
+
+Solveable, not trivial.
+
+Mike.
+

@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290630AbSBLANb>; Mon, 11 Feb 2002 19:13:31 -0500
+	id <S290627AbSBLAPD>; Mon, 11 Feb 2002 19:15:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290629AbSBLANW>; Mon, 11 Feb 2002 19:13:22 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:19384 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S290627AbSBLANH>; Mon, 11 Feb 2002 19:13:07 -0500
-Subject: Re: ALSA patch for 2.5.4
-From: Dan Mann <mainlylinux@attbi.com>
-To: Jaroslav Kysela <perex@perex.cz>
-Cc: ALSA development <alsa-devel@alsa-project.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.31.0202111429270.500-100000@pnote.perex-int.cz>
-In-Reply-To: <Pine.LNX.4.31.0202111429270.500-100000@pnote.perex-int.cz>
-Content-Type: text/plain
+	id <S290620AbSBLAOn>; Mon, 11 Feb 2002 19:14:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35334 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290625AbSBLAOh>; Mon, 11 Feb 2002 19:14:37 -0500
+Subject: Re: A7M266-D works?
+To: whitney@math.berkeley.edu
+Date: Tue, 12 Feb 2002 00:28:14 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200202112304.g1BN4vh01697@adsl-209-76-109-63.dsl.snfc21.pacbell.net> from "Wayne Whitney" at Feb 11, 2002 03:04:57 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1013472766.19794.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution/1.0.2 
-Date: 11 Feb 2002 19:14:02 -0500
+Message-Id: <E16aQnu-00006k-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-There are at least 2 reasons that I can see why Linus probably won't
-accept your patch:
-
-	1. It is not an inline text attachment (it is a URL).
-	2. It is 79,000 lines long
-
-If you could send the patch in smaller chunks over time, or ask one of
-Linus' closer (read Highly Trusted) patch maintainers to apply it to
-his/her tree first and get some testing, he might be more inclined to
-accept it.
-
-Dan Mann
-
-
-On Mon, 2002-02-11 at 09:16, Jaroslav Kysela wrote:
-> Hello all,
+> > Check PCI register 0x4C if bits 1 and 2 are clear your board is not
+> > running in a PCI compliant mode and anything may happen. 
 > 
-> 	a new ALSA patch for 2.5.4 is available at
-> 
-> ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-2002-02-11-1-linux-2.5.4.patch.gz
-> 
-> 	I repeat myself but anyway. We are open to any suggestions and
-> ideas for this kernel integration patch. Unfortunately, Linus has not
-> approved this directory tree and he is not talking with us at the time.
-> It seems that BIO changes are over, but he's probably busy enough to
-> ignore our e-mails with co-operation requests.
-> 
-> 						Jaroslav
-> 
-> -----
-> Jaroslav Kysela <perex@suse.cz>
-> SuSE Linux    http://www.suse.com
-> ALSA Project  http://www.alsa-project.org
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> The PCI quirk fixup you posted (reproduced below) uses the test
+> "(pcic&6)!=6", so do you mean to say "if bit 1 or bit 2 is clear"?
 
+If either bit is clear then the board (according the the AMD 762 BIOS
+manual from www.amd.com) is not in PCI compliant mode
 
+> > see corruption and failures. Most devices don't have that dependancy
+> > but a few do - and break horribly.
+> 
+> Might this cause random hard lockups under a compute intensive load?
+
+Hard to say. 
+
+> Since the fixup applies to the AMD762 northbridge, common to the 760MP
+> and 760MPX chipsets, this discussion applies to all SMP Athlon
+> motherboards at present, is that right?
+
+I believe so. 
+
+> Lastly, do you know whether the reason that the A7M266-D comes with a
+> PCI USB2 card is that the USB support of the AMD768 southbridge is
+> borked?  Both the Tyan S2466 and the MSI K7D Master come with PCI USB
+> cards.
+
+My guess too - but I don't know

@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTFPIFB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 04:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTFPIFB
+	id S263535AbTFPIJA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 04:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTFPIJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 04:05:01 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19281 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263542AbTFPIE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 04:04:59 -0400
-Date: Mon, 16 Jun 2003 01:19:19 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: rusty@rustcorp.com.au, neilb@cse.unsw.edu.au, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add module_kernel_thread for threads that live in
- modules.
-Message-Id: <20030616011919.009b1c93.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0306160907470.2079-100000@notebook.home.mdiehl.de>
-References: <20030616065058.D1C9E2C08A@lists.samba.org>
-	<Pine.LNX.4.44.0306160907470.2079-100000@notebook.home.mdiehl.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jun 2003 08:18:52.0073 (UTC) FILETIME=[EBA5A190:01C333DF]
+	Mon, 16 Jun 2003 04:09:00 -0400
+Received: from smtp.pentapharm.com ([194.209.245.131]:50701 "HELO
+	fire0002.pentapharm.com") by vger.kernel.org with SMTP
+	id S263535AbTFPII7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 04:08:59 -0400
+Subject: Kernel 2.5.71 cannot unmount nfs
+MIME-Version: 1.0
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+Date: Mon, 16 Jun 2003 10:22:08 +0200
+Message-ID: <0557B834CB410E4EB692BC78504D4C2C02F3EC@dc0011.pefade.pefa.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel 2.5.71 cannot unmount nfs
+Thread-Index: AcMz3XvntEHOatreQBughOJyp2pKjgAArzNQ
+From: "Seifert Guido, gse" <Guido.Seifert@pentapharm.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Jun 2003 08:22:11.0341 (UTC) FILETIME=[626B83D0:01C333E0]
+Content-Type: multipart/mixed; boundary="----=_NextPartTM-000-0a17a1e1-02c8-490b-9906-5690cd3a62f9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Diehl <lists@mdiehl.de> wrote:
->
->  > create_thread would use keventd to start the thread, and stop_thread
->  > would tell keventd to set should_die, wmb(), wake it up, and
->  > sys_wait() for it.
->  > 
->  > Thoughts?
->  > Rusty.
-> 
->  Why using keventd?
+This is a multipart message in MIME format
 
-keventd knows how to clean up children, handle SIGCHLD, etc.  That code was
-hard-won.
+------=_NextPartTM-000-0a17a1e1-02c8-490b-9906-5690cd3a62f9
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-And kernel threads which are parented by userspace processes tend to
-accidentally inherit things we'd rather they didn't.  daemonize() and
-reparent_to_init() try to fix things up, but I'm still not sure we got it
-all.
 
-Using keventd will tend to prevent mistakes.
+Sorry for the incomplete and unprofessional bugreport, I don't have more
+info.=20
+I tried Kernel 2.5.71. Everything seems to work fine until I shut down
+or try to=20
+unmount a mountend nfs filesystem. For several minutes nothing happens,=20
+then I get something what looks like a backtrace from the nfs related
+code=20
+section. Unfortunately there is nothing in the log files afterwards.=20
+G.=20
 
+
+------=_NextPartTM-000-0a17a1e1-02c8-490b-9906-5690cd3a62f9
+Content-Type: text/plain;
+	name="InterScan_SafeStamp.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="InterScan_SafeStamp.txt"
+
+****** Message from InterScan E-Mail VirusWall NT ******
+
+** No virus found in attached file noname.htm
+
+E-mail is virus checked, Pentapharm Group, Switzerland, Support@pentapharm.com
+*****************     End of message     ***************
+
+
+------=_NextPartTM-000-0a17a1e1-02c8-490b-9906-5690cd3a62f9--
+
+------=_NextPartTM-000-0a17a1e1-02c8-490b-9906-5690cd3a62f9--

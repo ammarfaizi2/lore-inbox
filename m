@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265857AbTAOJEy>; Wed, 15 Jan 2003 04:04:54 -0500
+	id <S265885AbTAOJUT>; Wed, 15 Jan 2003 04:20:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbTAOJEy>; Wed, 15 Jan 2003 04:04:54 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:6072 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S265857AbTAOJEw>;
-	Wed, 15 Jan 2003 04:04:52 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15909.9796.157927.447889@harpo.it.uu.se>
-Date: Wed, 15 Jan 2003 10:13:40 +0100
-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>
-Cc: zwane@holomorphy.com, bvermeul@blackstar.nl, ya@slamail.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] cardbus/hotplugging still broken in 2.5.56
-In-Reply-To: <20030115081109.GA3839@valsheda.taprogge.wh>
-References: <20030115081109.GA3839@valsheda.taprogge.wh>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	id <S265895AbTAOJUT>; Wed, 15 Jan 2003 04:20:19 -0500
+Received: from albatross-ext.wise.edt.ericsson.se ([193.180.251.49]:23251 "EHLO
+	albatross.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S265885AbTAOJUT>; Wed, 15 Jan 2003 04:20:19 -0500
+X-Sybari-Trust: 8b89339d 1864f774 206fc897 00000138
+From: Miklos.Szeredi@eth.ericsson.se (Miklos Szeredi)
+Date: Wed, 15 Jan 2003 10:29:01 +0100 (MET)
+Message-Id: <200301150929.h0F9T1I10444@duna48.eth.ericsson.se>
+To: linux-kernel@vger.kernel.org
+Subject: VIA C3 and random SIGTRAP or segfault
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Taprogge writes:
- > The cardbus problems are caused by 
- > 
- > ChangeSet@1.797.145.6  2002-11-25 18:31:10-08:00 davej@codemonkey.org.uk
- > 
- > as far as I can tell. 
- > 
- > pci_enable_device() will fail at least on i386 (see
- > arch/i386/pci/i386.c: pcibios_enable_resource (line 260)) if the
- > resources have not been assigned previously. Hence the ostensible
- > resource collisions.
- > 
- > The attached patch should fix the problem.
- > 
- > I have send the patch to Dave Jones some time ago but did not hear from
- > him yet.
- > 
- > I am not subscribed to the list so please cc me on replys. 
 
-Thanks. Your patch fixed the cardbus hotplug issue perfectly on my laptop.
-It survives multiple insert/eject cycles without any problems.
+I just bought a VIA C3 866 processor, and under very special
+circumstances some programs (e.g. mplayer, xmms) randomly crash with
+trace/breakpoint trap or segmentation fault.  Otherwise the system
+seems stable even under high load.  Tested under various kernels
+(generic i386 2.2.19, 2.4.19, and 2.4.19 compiled for the C3), with
+different memory modules (some known to be good) and various video
+cards and X servers, but the result is always the same.
 
-The patch posted by Yaacov Akiba Slama today also fixed cardbus hotplug
-for me, but with his patch the kernel still prints "PCI: No IRQ known for
-interrupt pin A of device xx:xx.x. Please try using pci=biosirq" when the
-cardbus NIC is inserted; Jens Taprogge's patch silenced that warning.
+Can this be a software fault or is the CPU faulty?  Can anything other
+then a CPU fault cause programs to receive SIGTRAP?
 
-/Mikael
+The system config is:
+
+cpu: C3 866MHz
+mb: asus cuv4x-c (via vt82c694x chipset)
+
+The BIOS recognises the CPU as "VIA Cyrix III 866A", which is not
+exactly right but almost.
+
+Any advice is greatly appreciated!
+Miklos

@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264366AbUADAdM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 19:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264384AbUADAdM
+	id S264371AbUADAo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 19:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUADAo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 19:33:12 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:33037 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S264366AbUADAdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 19:33:11 -0500
-Message-ID: <3FF75D26.5070009@myrealbox.com>
-Date: Sat, 03 Jan 2004 16:24:06 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040103
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Technical udev question for Greg
-References: <3FF72A4C.2040404@myrealbox.com> <20040103214750.GB11061@kroah.com>
-In-Reply-To: <20040103214750.GB11061@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jan 2004 19:44:59 -0500
+Received: from thunk.org ([140.239.227.29]:18305 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S264371AbUADAo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 19:44:57 -0500
+Date: Sat, 3 Jan 2004 19:44:51 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Frank van Maarseveen <frankvm@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4.24-pre3] 0/5  EXT2/3 Updates
+Message-ID: <20040104004451.GB2364@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Frank van Maarseveen <frankvm@xs4all.nl>,
+	linux-kernel@vger.kernel.org
+References: <E1AcAhw-0000LE-Ky@thunk.org> <20040104000747.GA1706@janus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040104000747.GA1706@janus>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sat, Jan 03, 2004 at 12:47:08PM -0800, walt wrote:
+On Sun, Jan 04, 2004 at 01:07:47AM +0100, Frank van Maarseveen wrote:
+> On Thu, Jan 01, 2004 at 04:50:20PM -0500, Theodore Ts'o wrote:
+> > Patch 5:  Add HTREE indexed directory support
+> 
+> Will this work on an NFS server? I remember an issue regarding a cookie
+> representing the directory offset: The problem was that the conversion
+> to HTREE of a directory while at the same time reading that directory
+> over NFS would basically invalidate the directory offset.
 
->>I acidentally ran a script which ran MAKEDEV
->>while udev was running.
->>
->>Now /dev/.udev.tdb is very large and devices have strange permissions
->>they didn't have before.
+Yes, it will work over an NFS server.  We solve this problem by having
+readdir() always return directory entries of small directories (which
+are eligible to be converted into HTREE format) in hash order.
 
-
-> As udev didn't get called when runinng MAKEDEV, I don't see how the udev
-> database could have grown.
-
-Well, after doing the steps below the size of the db didn't seem any
-smaller, true enough.
-
-
->>All I want to do is delete all the extraneous devices in .udev.tdb
->>and start over.  How do I do that?
-
-
-> 	rm -rf /dev/*
-> 	rm -f /dev/.udev.tdb
-> 	/etc/init.d/udev start
-
-However, after doing the above and recreating a few missing devices
-the behavior of the machine seems back to normal, so clearly I did
-something that mattered.  I don't pretend to understand how or why,
-but thanks.
+						- Ted

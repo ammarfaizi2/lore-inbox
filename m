@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbTJNOxY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 10:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbTJNOxY
+	id S262337AbTJNPHv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 11:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTJNPHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 10:53:24 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:12000 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262667AbTJNOxW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 10:53:22 -0400
-Date: Tue, 14 Oct 2003 11:53:57 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-Cc: Linux Kernel Mailing <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages: 0-order allocation failed on 2.4.23-pre5 and pre7
-In-Reply-To: <Pine.OSF.4.51.0310122353440.468559@tao.natur.cuni.cz>
-Message-ID: <Pine.LNX.4.44.0310141152320.3275-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 14 Oct 2003 11:07:50 -0400
+Received: from colin2.muc.de ([193.149.48.15]:51976 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262337AbTJNPHu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 11:07:50 -0400
+Date: 14 Oct 2003 17:08:07 +0200
+Date: Tue, 14 Oct 2003 17:08:07 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide barrier support, #2
+Message-ID: <20031014150807.GA99122@colin2.muc.de>
+References: <GurO.7cg.43@gated-at.bofh.it> <m3zng4ou90.fsf@averell.firstfloor.org> <20031014125723.GR1107@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031014125723.GR1107@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Uh be careful! It must be WRITEBARRIER, not WRITESYNC. I think I'll kill
+> WRITEBARRIER and just call it WRITESYNC, it's more logical. I've added
+> the modified variant, thanks.
 
+Why? The journaling just checks if the write finished and then submits
+the dependent writes. It doesn't care about reordering.
 
-On Mon, 13 Oct 2003, [iso-8859-2] Martin MOKREJ© wrote:
+As long as WRITESYNC guarantees that the data hit disk when completed
+then it should be ok.
 
-> Hi,
->   it's a long time I haven't seen sthis messages, but it just happened that
-> I did on my laptop ASUS L3880C(1GB RAM). The message show on
-> 2.4.23-pre5+acpi20030918 and 2.4.23-pre7. The application get's killed on
-> 2.4.22-acpi20030918 too, just without the "0-order allocation" message.
-> I enabled in kernel the VM allocation debug option when configuring, but
-> apparently I have to turn it on also somewhere else. *Documentation* is
-> missing: 1) the help in "make config/menuconfig" etc. doesn't say anything,
-> the Documentation subdirectory doesn't say anything except "debug" as
-> kernel boot option on command-line(I did that too, but no change) and also
-> linux kernel-FAQ doesn't say either. :(
-> 
-> How I tested?
-> `gzip -dc file | less' and pressed `G' to jump to the very end of the file.
-> The filesize is 280MB only. In a while, the mouse stopps moving for a
-> while, than the system gets sometimes unloaded, fan is raises it's RPM's up
-> and down town to time, and mouse cursor eventually does a move and then
-> less command gets killed. In dmesg I found:
-> 
-> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> VM: killing process less
-
-Did you try to add some swap to the system? 
-
-It seems you have none.
-
+-Andi

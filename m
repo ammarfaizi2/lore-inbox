@@ -1,69 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270365AbTHGPwN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270322AbTHGPtN
+	id S270359AbTHGPwk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHGPwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:49:13 -0400
-Received: from marblerye.cs.uga.edu ([128.192.101.172]:27011 "HELO
-	marblerye.cs.uga.edu") by vger.kernel.org with SMTP id S270237AbTHGPqs
+	Thu, 7 Aug 2003 11:52:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:60288 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S270359AbTHGPvf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:46:48 -0400
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: trivial <trivial@rustcorp.com.au>
-Subject: Re: [TRIVIAL][PATCH] document unused pte bits on i386
-References: <87n0elwky1.fsf@uga.edu>
-From: Ed L Cashin <ecashin@uga.edu>
-Date: Thu, 07 Aug 2003 11:46:47 -0400
-Message-ID: <877k5pwjvc.fsf@uga.edu>
-User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2
- (i386-debian-linux-gnu)
+	Thu, 7 Aug 2003 11:51:35 -0400
+Date: Thu, 7 Aug 2003 11:55:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [BROKEN PATCH] syscalls leak data via registers?
+In-Reply-To: <1060269116.20515.14.camel@ixodes.goop.org>
+Message-ID: <Pine.LNX.4.53.0308071134180.5319@chaos>
+References: <1059815183.18860.55.camel@ixodes.goop.org>  <20030807103043.GB211@elf.ucw.cz>
+ <1060269116.20515.14.camel@ixodes.goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed L Cashin <ecashin@uga.edu> writes:
+On Thu, 7 Aug 2003, Jeremy Fitzhardinge wrote:
 
-> Hi.  This small patch documents that bits 9, 10, and 11 are unused by
-> the Linux kernel.  The IA-32 Intel Architecture Software Developer's
-> Manual says that these bits are available for programmer use.
+> On Thu, 2003-08-07 at 03:30, Pavel Machek wrote:
+> > I believe userspace depends on registers to be preserved over system
+> > call, except for eax.
 >
-> I checked and couldn't see any use of these bits in the Linux kernel.
-> If I'm wrong and these bits *are* being used by the linux kernel, a
-> comment in include/asm-i386/pgtable.h would be helpful.  If they are
-> not, this patch confirms for developers that the kernel isn't using
-> these bits.
+> That's what I was wondering.  Does it?  Is that a documented part of the
+> syscall interface?
+>
+> >  So what you found is not only security problem,
+> > but also crasher bug.
+>
+> In these sense that it crashes userspace?
+>
+> 	J
+>
 
-For consistency, there should be the analogous _PAGE_BIT_XXX macros,
-too, so here's a replacement patch that has those.
+The kernel interface preserves the registers that GCC needs
+preserved, i.e., index registers such as EBX, ESI, and EDI.
+It may not preserve registers that convey information for
+the call unless they are index registers. For instance,
+a system call that takes two parameters has those parameters
+put into EBX and ECX. Register EAX always contains the
+function number. In the case described, only EBX is
+guaranteed to be preserved, this because it's an index
+register.
 
+Typically parameters are passed as:
 
---- linux-2.6.0-test2/include/asm-i386/pgtable.h~	Sun Jul 27 13:06:27 2003
-+++ linux-2.6.0-test2/include/asm-i386/pgtable.h	Thu Aug  7 11:38:17 2003
-@@ -108,6 +108,9 @@
- #define _PAGE_BIT_DIRTY		6
- #define _PAGE_BIT_PSE		7	/* 4 MB (or 2MB) page, Pentium+, if present.. */
- #define _PAGE_BIT_GLOBAL	8	/* Global TLB entry PPro+ */
-+#define _PAGE_BIT_UNUSED1	9	/* available for programmer */
-+#define _PAGE_BIT_UNUSED2	10
-+#define _PAGE_BIT_UNUSED3	11
- 
- #define _PAGE_PRESENT	0x001
- #define _PAGE_RW	0x002
-@@ -118,6 +121,9 @@
- #define _PAGE_DIRTY	0x040
- #define _PAGE_PSE	0x080	/* 4 MB (or 2MB) page, Pentium+, if present.. */
- #define _PAGE_GLOBAL	0x100	/* Global TLB entry PPro+ */
-+#define _PAGE_UNUSED1	0x200	/* available for programmer */
-+#define _PAGE_UNUSED2	0x400
-+#define _PAGE_UNUSED3	0x800
- 
- #define _PAGE_FILE	0x040	/* set:pagecache unset:swap */
- #define _PAGE_PROTNONE	0x080	/* If not present */
+	No parameters		EAX
+	1 parameter		EAX EBX
+	2 parameters		EAX EBX ECX
+	3 parameters		EAX EBX ECX EDX
+	4 parameters		EAX EBX ECX EDX ESI
+	5 parameters		EAX EBX ECX EDX ESI EDI
+	6 parameters		EAX EBX ECX EDX ESI EDI EBP
 
+Upon return only the index registers plus segments and stack
+will be preserved. The other registers can contain anything.
+However, this is hardly an 'information' leak. Even if the
+address of something in the kernel was returned, it can't
+be accessed, and the 'information' is all about the methods
+used to perform a function upon behalf of the caller, not
+some other task. In other words, if you are reading from
+a file, and some register contains 42, you only know that
+that value was used somewhere while helping you get the
+file data. It is never some data from somebody else's file.
+To get to somebody else's data requires a context switch and
+all registers and restored are saved across a context switch.
+In Unix, the kernel performs functions on behalf of the caller,
+within the context of the caller, so register information
+is not an information leak.
 
--- 
---Ed L Cashin            |   PGP public key:
-  ecashin@uga.edu        |   http://noserose.net/e/pgp/
+But, there is the possibility of having data left in memory
+by another task, accessed by the current task. These possibilities
+are constantly reviewed and fixed when found.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

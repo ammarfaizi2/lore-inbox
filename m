@@ -1,191 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262884AbTDAWRn>; Tue, 1 Apr 2003 17:17:43 -0500
+	id <S262893AbTDAWYP>; Tue, 1 Apr 2003 17:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbTDAWRn>; Tue, 1 Apr 2003 17:17:43 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:25140 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S262884AbTDAWRj>; Tue, 1 Apr 2003 17:17:39 -0500
-Date: Tue, 1 Apr 2003 23:31:00 +0100 (BST)
+	id <S262895AbTDAWYP>; Tue, 1 Apr 2003 17:24:15 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:15749 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S262893AbTDAWYL>; Tue, 1 Apr 2003 17:24:11 -0500
+Date: Tue, 1 Apr 2003 23:37:32 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
-cc: Christoph Rohland <cr@sap.com>, Oleg Drokin <green@namesys.com>,
+cc: Christoph Rohland <cr@sap.com>, CaT <cat@zip.com.au>,
        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tmpfs 1/6 use generic_write_checks
-Message-ID: <Pine.LNX.4.44.0304012328390.1730-100000@localhost.localdomain>
+Subject: [PATCH] tmpfs 6/6 percentile size
+In-Reply-To: <Pine.LNX.4.44.0304012328390.1730-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0304012335220.1730-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of a suite of six patches to 2.5.66-mm2 tmpfs (mm/shmem.c):
- Documentation/filesystems/tmpfs.txt |   25 ++---
- mm/shmem.c                          |  162 ++++++++++++------------------------
- 2 files changed, 66 insertions(+), 121 deletions(-)
+>From CaT <cat@zip.com.au>:
+What this patch does is allow you to specify the max amount of memory
+tmpfs can use as a percentage of available real ram. This (in my eyes)
+is useful so that you do not have to remember to change the setting if
+you want something other then 50% and some of your ram goes.
 
-tmpfs 1/6 use generic_write_checks
-Blessings be upon the creator of generic_write_checks in filemap.c:
-shmem_file_write call it instead of duplicating those tedious checks.
+Hugh redid the arithmetic to not overflow at 4GB; the particular order
+of lines helps RH2.96-110 not to get confused in the do_div.  2.5 can
+use totalram_pages.  Update mount options in tmpfs Doc.
 
---- 2.5.66-mm2/mm/shmem.c	Tue Apr  1 11:25:50 2003
-+++ tmpfs1/mm/shmem.c	Tue Apr  1 21:34:48 2003
-@@ -1126,10 +1126,8 @@
- shmem_file_write(struct file *file, const char *buf, size_t count, loff_t *ppos)
- {
- 	struct inode	*inode = file->f_dentry->d_inode;
--	unsigned long	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
- 	loff_t		pos;
- 	unsigned long	written;
--	long		status;
- 	int		err;
- 	loff_t		maxpos;
+There's an argument that the percentage should be of ram+swap, that's
+what Christoph originally intended.  But we set the default at 50% of
+ram only, so I believe it's more consistent to follow that precedent.
+
+--- tmpfs5/Documentation/filesystems/tmpfs.txt	Thu Oct 31 05:39:34 2002
++++ tmpfs6/Documentation/filesystems/tmpfs.txt	Tue Apr  1 21:35:43 2003
+@@ -54,18 +54,21 @@
+ 4) And probably a lot more I do not know about :-)
  
-@@ -1142,88 +1140,25 @@
- 	down(&inode->i_sem);
  
- 	pos = *ppos;
--	err = -EINVAL;
--	if (pos < 0)
--		goto out_nc;
--
--	err = file->f_error;
--	if (err) {
--		file->f_error = 0;
--		goto out_nc;
--	}
--
- 	written = 0;
+-tmpfs has a couple of mount options:
++tmpfs has three mount options for sizing:
  
--	if (file->f_flags & O_APPEND)
--		pos = inode->i_size;
-+	err = generic_write_checks(inode, file, &pos, &count, 0);
-+	if (err || !count)
-+		goto out;
+-size:	   The limit of allocated bytes for this tmpfs instance. The 
++size:      The limit of allocated bytes for this tmpfs instance. The 
+            default is half of your physical RAM without swap. If you
+-	   oversize your tmpfs instances the machine will deadlock
+-	   since the OOM handler will not be able to free that memory.
+-nr_blocks: The same as size, but in blocks of PAGECACHE_SIZE.
++           oversize your tmpfs instances the machine will deadlock
++           since the OOM handler will not be able to free that memory.
++nr_blocks: The same as size, but in blocks of PAGE_CACHE_SIZE.
+ nr_inodes: The maximum number of inodes for this instance. The default
+            is half of the number of your physical RAM pages.
  
- 	maxpos = inode->i_size;
--	if (pos + count > inode->i_size) {
-+	if (maxpos < pos + count) {
- 		maxpos = pos + count;
--		if (maxpos > SHMEM_MAX_BYTES)
--			maxpos = SHMEM_MAX_BYTES;
- 		if (!vm_enough_memory(VM_ACCT(maxpos) - VM_ACCT(inode->i_size))) {
- 			err = -ENOMEM;
--			goto out_nc;
--		}
--	}
--
--	/*
--	 * Check whether we've reached the file size limit.
--	 */
--	err = -EFBIG;
--	if (limit != RLIM_INFINITY) {
--		if (pos >= limit) {
--			send_sig(SIGXFSZ, current, 0);
--			goto out;
--		}
--		if (pos > 0xFFFFFFFFULL || count > limit - (u32)pos) {
--			/* send_sig(SIGXFSZ, current, 0); */
--			count = limit - (u32)pos;
--		}
--	}
--
--	/*
--	 *	LFS rule
--	 */
--	if (pos + count > MAX_NON_LFS && !(file->f_flags&O_LARGEFILE)) {
--		if (pos >= MAX_NON_LFS) {
--			send_sig(SIGXFSZ, current, 0);
- 			goto out;
- 		}
--		if (count > MAX_NON_LFS - (u32)pos) {
--			/* send_sig(SIGXFSZ, current, 0); */
--			count = MAX_NON_LFS - (u32)pos;
--		}
--	}
--
--	/*
--	 *	Are we about to exceed the fs block limit ?
--	 *
--	 *	If we have written data it becomes a short write
--	 *	If we have exceeded without writing data we send
--	 *	a signal and give them an EFBIG.
--	 *
--	 *	Linus frestrict idea will clean these up nicely..
--	 */
--	if (pos >= SHMEM_MAX_BYTES) {
--		if (count || pos > SHMEM_MAX_BYTES) {
--			send_sig(SIGXFSZ, current, 0);
--			err = -EFBIG;
--			goto out;
--		}
--		/* zero-length writes at ->s_maxbytes are OK */
- 	}
--	if (pos + count > SHMEM_MAX_BYTES)
--		count = SHMEM_MAX_BYTES - pos;
- 
--	status	= 0;
--	if (count) {
--		remove_suid(file->f_dentry);
--		inode->i_ctime = inode->i_mtime = CURRENT_TIME;
--	}
-+	remove_suid(file->f_dentry);
-+	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
- 
--	while (count) {
-+	do {
- 		struct page *page = NULL;
- 		unsigned long bytes, index, offset;
- 		char *kaddr;
-@@ -1241,8 +1176,8 @@
- 		 * But it still may be a good idea to prefault below.
- 		 */
- 
--		status = shmem_getpage(inode, index, &page, SGP_WRITE);
--		if (status)
-+		err = shmem_getpage(inode, index, &page, SGP_WRITE);
-+		if (err)
- 			break;
- 
- 		left = bytes;
-@@ -1263,7 +1198,7 @@
- 		flush_dcache_page(page);
- 		if (left) {
- 			page_cache_release(page);
--			status = -EFAULT;
-+			err = -EFAULT;
- 			break;
- 		}
- 
-@@ -1271,7 +1206,8 @@
- 		page_cache_release(page);
- 
- 		/*
--		 * Balance dirty pages??
-+		 * Our dirty pages are not counted in nr_dirty,
-+		 * and we do not attempt to balance dirty pages.
- 		 */
- 
- 		written += bytes;
-@@ -1280,15 +1216,16 @@
- 		buf += bytes;
- 		if (pos > inode->i_size)
- 			inode->i_size = pos;
--	}
-+	} while (count);
- 
- 	*ppos = pos;
--	err = written ? written : status;
--out:
-+	if (written)
-+		err = written;
+ These parameters accept a suffix k, m or g for kilo, mega and giga and
+-can be changed on remount.
++can be changed on remount.  The size parameter also accepts a suffix %
++to limit this tmpfs instance to that percentage of your physical RAM:
++the default, when neither size nor nr_blocks is specified, is size=50%
 +
- 	/* Short writes give back address space */
- 	if (inode->i_size != maxpos)
- 		vm_unacct_memory(VM_ACCT(maxpos) - VM_ACCT(inode->i_size));
--out_nc:
-+out:
- 	up(&inode->i_sem);
- 	return err;
- }
+ 
+ To specify the initial root directory you can use the following mount
+ options:
+@@ -83,15 +86,7 @@
+ RAM/SWAP in 10240 inodes and it is only accessible by root.
+ 
+ 
+-TODOs:
+-
+-1) give the size option a percent semantic: If you give a mount option
+-   size=50% the tmpfs instance should be able to grow to 50 percent of
+-   RAM + swap. So the instance should adapt automatically if you add
+-   or remove swap space.
+-2) Show the number of tmpfs RAM pages. (As shared?)
+-
+ Author:
+    Christoph Rohland <cr@sap.com>, 1.12.01
+ Updated:
+-   Hugh Dickins <hugh@veritas.com>, 17 Oct 2002
++   Hugh Dickins <hugh@veritas.com>, 01 April 2003
+--- tmpfs5/mm/shmem.c	Tue Apr  1 21:35:32 2003
++++ tmpfs6/mm/shmem.c	Tue Apr  1 21:35:43 2003
+@@ -35,6 +35,7 @@
+ #include <linux/vfs.h>
+ #include <linux/blkdev.h>
+ #include <asm/uaccess.h>
++#include <asm/div64.h>
+ 
+ /* This magic number is used in glibc for posix shared memory */
+ #define TMPFS_MAGIC	0x01021994
+@@ -1587,6 +1588,12 @@
+ 		if (!strcmp(this_char,"size")) {
+ 			unsigned long long size;
+ 			size = memparse(value,&rest);
++			if (*rest == '%') {
++				size <<= PAGE_SHIFT;
++				size *= totalram_pages;
++				do_div(size, 100);
++				rest++;
++			}
+ 			if (*rest)
+ 				goto bad_val;
+ 			*blocks = size >> PAGE_CACHE_SHIFT;
+@@ -1652,7 +1659,6 @@
+ 	uid_t uid = current->fsuid;
+ 	gid_t gid = current->fsgid;
+ 	struct shmem_sb_info *sbinfo;
+-	struct sysinfo si;
+ 	int err = -ENOMEM;
+ 
+ 	sbinfo = kmalloc(sizeof(struct shmem_sb_info), GFP_KERNEL);
+@@ -1665,8 +1671,7 @@
+ 	 * Per default we only allow half of the physical ram per
+ 	 * tmpfs instance
+ 	 */
+-	si_meminfo(&si);
+-	blocks = inodes = si.totalram / 2;
++	blocks = inodes = totalram_pages / 2;
+ 
+ #ifdef CONFIG_TMPFS
+ 	if (shmem_parse_options(data, &mode, &uid, &gid, &blocks, &inodes)) {
 

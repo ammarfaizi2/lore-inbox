@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289363AbSAJJvA>; Thu, 10 Jan 2002 04:51:00 -0500
+	id <S289361AbSAJJz6>; Thu, 10 Jan 2002 04:55:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289362AbSAJJus>; Thu, 10 Jan 2002 04:50:48 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:15757 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S289361AbSAJJui>; Thu, 10 Jan 2002 04:50:38 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Bigggg Maxtor drives (fwd)
-Date: Thu, 10 Jan 2002 09:50:37 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a1jo5d$u60$1@forge.intermeta.de>
-In-Reply-To: <3C3D0718.2060602@xmission.com> <Pine.LNX.4.10.10201092011420.5104-100000@master.linux-ide.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1010656237 22454 212.34.181.4 (10 Jan 2002 09:50:37 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 10 Jan 2002 09:50:37 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S289364AbSAJJzt>; Thu, 10 Jan 2002 04:55:49 -0500
+Received: from mustard.heime.net ([194.234.65.222]:15249 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S289361AbSAJJzm>; Thu, 10 Jan 2002 04:55:42 -0500
+Date: Thu, 10 Jan 2002 10:55:39 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Fixing the vm or merging rmap into the official tree?
+Message-ID: <Pine.LNX.4.30.0201101051310.21329-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
+Hi all
 
->All it will take is to have the 2.2/2.4/2.5 kernel maintainers to agree to
->the corrective patches.
+After weeks of testing, knocking my head against all sorts of objects,
+trying out other potential OSes etc. etc. ad. infinitum, I got the hint of
+using the rmap patch to fix my problems with reading multiple large files
+at once (see prevois thread with subject "[BUG] Error reading multiple
+large files").
 
-So you do have 2.2 patches? Where can I get them?
+Will this problem be addressed in 2.4 or perhaps 2.[56] ?
 
-	Regards
-		Henning
+My testing shows that the current vm can't handle high/non-standards load
+efficiently. Isn't this something that clearly should be addressed?
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+roy
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+

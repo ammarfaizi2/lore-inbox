@@ -1,59 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289398AbSAODuK>; Mon, 14 Jan 2002 22:50:10 -0500
+	id <S289388AbSAODq7>; Mon, 14 Jan 2002 22:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289395AbSAODuA>; Mon, 14 Jan 2002 22:50:00 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:40701 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289394AbSAODtq>;
-	Mon, 14 Jan 2002 22:49:46 -0500
-Date: Mon, 14 Jan 2002 20:48:30 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Theodore Tso <tytso@mit.edu>, Juan Quintela <quintela@mandrakesoft.com>,
-        Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-        felix-dietlibc@fefe.de, andersen@codepoet.org
-Subject: Re: [RFC] klibc requirements, round 2
-Message-ID: <20020114204830.E26688@lynx.adilger.int>
-Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
-	Theodore Tso <tytso@mit.edu>,
-	Juan Quintela <quintela@mandrakesoft.com>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
-	andersen@codepoet.org
-In-Reply-To: <20020114165849.B26688@lynx.adilger.int> <Pine.LNX.4.44.0201141921580.2836-100000@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0201141921580.2836-100000@waste.org>; from oxymoron@waste.org on Mon, Jan 14, 2002 at 07:26:54PM -0600
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S289395AbSAODqt>; Mon, 14 Jan 2002 22:46:49 -0500
+Received: from mx.fluke.com ([129.196.128.53]:9 "EHLO evtvir03.tc.fluke.com")
+	by vger.kernel.org with ESMTP id <S289388AbSAODqj>;
+	Mon, 14 Jan 2002 22:46:39 -0500
+Date: Mon, 14 Jan 2002 19:46:47 -0800 (PST)
+From: David Dyck <dcd@tc.fluke.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.5.2 / IDE cdrom_read_intr: data underrun / end_request: I/O error
+In-Reply-To: <Pine.LNX.4.33.0201120834140.672-100000@dd.tc.fluke.com>
+Message-ID: <Pine.LNX.4.33.0201141938480.214-100000@dd.tc.fluke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14, 2002  19:26 -0600, Oliver Xymoron wrote:
-> On Mon, 14 Jan 2002, Andreas Dilger wrote:
-> > Actually, the whole point of Juan's suggestion was that you _don't_ want
-> > to fsck a filesystem that is currently mounted.  There is always a
-> > potential problem that fsck will change the on-disk data of the filesystem
-> > in a way that is not coherent with what the kernel has in-memory, which
-> > should force a system reboot before continuing (which most initscripts
-> > don't do).  For ext2/ext3 this may be relatively safe (data/metadata don't
-> > move around much), but reiserfsck cannot (or will not) fsck a mounted
-> > filesystem at all.
-> 
-> Interesting point. Modulo any existing LVM brokenness, we can do this with
-> a read-only snapshot and pivot_root afterwards. Alternately, a read-only
-> /bootsupport or something of the sort which contains *fsck. What we don't
-> want is initramfs to get big.
 
-Err, you think putting the necessary LVM tools in initramfs (vgscan,
-vgchange, lvcreate, liblvm) will be _smaller_ than e2fsck???  Your
-"modulo" is also a very big one - I'd rather trust e2fsck than LVM
-in my boot environment any day.
+I'm still getting data underrun errors using 2.5.2
+that don't occur using 2.4.18-pre3.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Linux dd 2.5.2 #1 Mon Jan 14 19:02:09 PST 2002 i686
+
+here's a section of dmesg output
+
+VFS: Disk change detected on device ide1(22,0)
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISOFS: changing to secondary root
+hdc: cdrom_read_intr: data underrun (4294967256 blocks)
+end_request: I/O error, dev 16:00, sector 299300
+hdc: cdrom_read_intr: data underrun (4294967260 blocks)
+end_request: I/O error, dev 16:00, sector 299304
+
+
+the blocks number is 'interesting' in that it is either negative or
+really massive, not something that would seem to be appropriate
+for the cdrom driver.
+
+dd:dcd$ dmesg | perl -ne 'printf "%x\n", $1 if /data underrun.*?(\d+) blocks/ ' | sort | uniq -c | head
+      2 ffffff40
+      2 ffffff44
+      2 ffffff48
+      2 ffffff4c
+      2 ffffff50
+      2 ffffff54
+      2 ffffff58
+      2 ffffff5c
+      2 ffffff60
+      2 ffffff64
+dd:dcd$ dmesg | perl -ne 'printf "%x\n", $1 if /data underrun.*?(\d+) blocks/ ' | sort | uniq -c | tail
+      4 ffffffd8
+      4 ffffffdc
+      4 ffffffe0
+      4 ffffffe4
+      4 ffffffe8
+      4 ffffffec
+      4 fffffff0
+      4 fffffff4
+      4 fffffff8
+      4 fffffffc
+
+
+
+On Sat, 12 Jan 2002 at 08:37 -0800, David Dyck <dcd@tc.fluke.com> wrote:
+
+> On Fri, 11 Jan 2002 at 18:55 -0800, David Dyck <dcd@tc.fluke.com> wrote:
+>
+> I had been testing 2.5.2-pre11 and earlier, but hadn't looked at
+> reading from my cdrom for a while.  Yesterday I created examined several
+> large cdrom sets that had been readable earlier and they read partially
+> but get read errors.  These same cdroms can be read reliable on
+> 2.4.18-pre3 using the same hardware, and are readable on other
+> PC's runing older kernels.
+>
+> Has anyone else seen cdrom read errors with 2.5.2-pre* kernels?
+>
+> Using 2.5.2-pre11
+>
+> # mount /cdrom && md5sum /cdrom/*
+> md5sum: /cdrom/dcd-c.tar.gz: I/O error
+> md5sum: /cdrom/dcd-d.tar.gz: I/O error
+>
+>
+> An example of some of the messages were
+>
+>     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+> hdc: NEC CD-ROM DRIVE:28B, ATAPI CD/DVD-ROM drive
+> hdc: ATAPI 32X CD-ROM drive, 256kB Cache
+>
+>
+> VFS: Disk change detected on device ide1(22,0)
+> ISO 9660 Extensions: Microsoft Joliet Level 3
+> ISOFS: changing to secondary root
+> hdc: cdrom_read_intr: data underrun (4294967256 blocks)
+> end_request: I/O error, dev 16:00, sector 299300
+> hdc: cdrom_read_intr: data underrun (4294967260 blocks)
+> end_request: I/O error, dev 16:00, sector 299304
+>
+>   errors repeated with sector and blocks increasing by 4
+>   repeating 118 times
+>
+>
+> using 2.4.18-pre3 I get no errors
 

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261455AbTC0XAS>; Thu, 27 Mar 2003 18:00:18 -0500
+	id <S261480AbTC0XAr>; Thu, 27 Mar 2003 18:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261464AbTC0XAS>; Thu, 27 Mar 2003 18:00:18 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:10249 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261455AbTC0XAR>;
-	Thu, 27 Mar 2003 18:00:17 -0500
-Date: Thu, 27 Mar 2003 15:10:27 -0800
-From: Greg KH <greg@kroah.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lm sensors sysfs file structure
-Message-ID: <20030327231027.GC1687@kroah.com>
-References: <1048806052.10675.4440.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048806052.10675.4440.camel@cube>
-User-Agent: Mutt/1.4i
+	id <S261479AbTC0XAr>; Thu, 27 Mar 2003 18:00:47 -0500
+Received: from [12.242.167.130] ([12.242.167.130]:17280 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id <S261482AbTC0XAp>; Thu, 27 Mar 2003 18:00:45 -0500
+Message-ID: <3E83853A.6030900@comcast.net>
+Date: Thu, 27 Mar 2003 15:11:54 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Walt H <waltabbyh@comcast.net>
+Cc: thunder7@xs4all.nl, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: vesafb problem
+References: <3E8329D2.7040909@comcast.net> <20030327190222.GA4060@middle.of.nowhere> <3E837ADD.9080209@comcast.net>
+In-Reply-To: <3E837ADD.9080209@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 06:00:51PM -0500, Albert Cahalan wrote:
-> Greg KH writes:
+Walt H wrote:
+
+> Well, I've answered my own question regarding highmem. Reserving 256MB 
+> ram causes high-mem mapped IO to fail. I can have penguins, but no 
+> filesystems or no penguins and a useable system. I'm guessing that I 
+> could probably turn off HIGHMEM and HIGHMEM-IO and might be able to get 
+> penguins back, but at the cost of reduced system performance. I'm not a 
+> kernel hacker, but I might just see how bad I can break vesafb to remap 
+> only the necessary memory for the requested video mode. Perhaps that 
+> would fix the whole thing?
 > 
-> > temp_max[1-3]   Temperature max value.
-> >                 Fixed point value in form XXXXX and
-> >                 should be divided by
-> >                 100 to get degrees Celsius.
-> >                 Read/Write value.
+> -Walt
 > 
-> Celsius can go negative, which may be yucky
-> and hard to test. Kelvin generally doesn't
-> suffer this problem. (yeah, yeah, quantum stuff...)
 
-Wow, only 4 hours before someone mentioned Kelvin, I think I lost a bet
-with someone :)
+Well, here's what I've done. I've made a change in video/vesafb.c to 
+change __init vesafb_init to only allocate the amount of memory required 
+  for the requested framebuffer (I think). So far, it appears to work 
+fine. I haven't tried many modes yet, but it's worked with what I've 
+thrown at it. Thanks again,
 
-Seriously, let the value go negative, no problem.  As long as it isn't
-floating point input which has to be parsed by the kernel.  That's all I
-care about.
+The trivial change I made was changing this:
 
-> Getting temperature display into "top" would sure
-> be nice, but not if that means requiring a library
-> that almost nobody has installed. It's good to give
-> apps a simple way to get CPU temperature, including
-> per-CPU data for SMP systems when available.
+video_size	= screen_info.lfb_size * 65536;
 
-libsensors is installed on almost all distros these days.
+to this:
 
-> Info about sensor quality would be good. For example,
-> my CPU measures temperature in 4-degree increments
-> and is not calibrated.
+video_size	= screen_info.lfb_width * screen_info.lfb_height * video_bpp;
 
-I doubt the kernel driver knows this information.
 
-thanks,
+-Walt
 
-greg k-h

@@ -1,139 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269579AbUHZUPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUHZUNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269579AbUHZUPl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbUHZUOv
+	id S269467AbUHZUNt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269495AbUHZUNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:14:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44515 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269561AbUHZUHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:07:45 -0400
-Date: Thu, 26 Aug 2004 22:07:37 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org,
-       Francois Romieu <romieu@cogenit.fr>
-Subject: [2.4 patch][6/6] dscc4.c: fix gcc 3.4 compilation
-Message-ID: <20040826200737.GH12772@fs.tum.de>
-References: <20040826195133.GB12772@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826195133.GB12772@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+	Thu, 26 Aug 2004 16:13:09 -0400
+Received: from broiler.physik3.uni-rostock.de ([139.30.44.17]:53478 "EHLO
+	broiler.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S269467AbUHZUFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:05:44 -0400
+Date: Thu, 26 Aug 2004 22:05:37 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Arthur Corliss <corliss@digitalmages.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
+       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
+       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
+       =?X-UNKNOWN?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
+       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: Re: [PATCH] new CSA patchset for 2.6.8
+In-Reply-To: <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
+Message-ID: <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de>
+References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
+ <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
+ <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got compile errors starting with the following when trying to build  
-2.4.28-pre2 using gcc 3.4:
+On Thu, 26 Aug 2004, Arthur Corliss wrote:
 
-<--  snip  -->
+> I would be very interested in a CSA implementation similar to what I have on
+> IRIX.  I will also plead guilty to not having downloaded the updated patches
+> for either the kernel or the tools.  I'm continuing to use my poor hack until
+> a permanent solution gets accepted into the kernel, at which point I'll
+> adopt that.
 
-...
-gcc-3.4 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-modular/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
--fno-unit-at-a-time -DMODULE -DMODVERSIONS -include 
-/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-modular/include/linux/modversions.h  
--nostdinc -iwithprefix include -DKBUILD_BASENAME=dscc4  -c -o dscc4.o 
-dscc4.c
-dscc4.c: In function `dscc4_found1':
-dscc4.c:369: sorry, unimplemented: inlining failed in call to 
-'dscc4_set_quartz': function body not available
-dscc4.c:921: sorry, unimplemented: called from here
-make[3]: *** [dscc4.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-modular/drivers/net/wan'
+That's ok, we carefully discussed the changes to make sure no new tools
+are required ;-)
 
-<--  snip  -->
+> And if it counters the impression at all, I'm not a kernel developer, I
+> proposed my hack out of need as a user of the tools.  I also try to stay away
+> from modified kernels, so I'm running Marcelos' 2.4 stable branch with only
+> the 32bit u/gid_t hack applied.  That's why I haven't had any feedback on the
+> -mm branch.
 
+I haven't even tried to get a patch into 2.4, since Marcelo is (rightly)
+quite resilent to new features.
+>
+> In short, for my use BSD accounting is sufficient, but I'd love to see CSA in
+> Linux as well.  Linux hasn't moved too far into roles where it's a necessity
+> (for what I'm doing, anyway), but I see CSA as something that would certainly
+> help it assume those roles.
 
-The patch below fixes this issue (similar to how it was done in 2.6).
-
-
-diffstat output:
- drivers/net/wan/dscc4.c |   33 ++++++++++++++++-----------------
- 1 files changed, 16 insertions(+), 17 deletions(-)
+Does this mean you would want to have both in the same kernel, potentially
+turning on both at the same time?
 
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+Ok, let me summarize what I learned until now:
 
---- linux-2.4.28-pre2-modular/drivers/net/wan/dscc4.c.old	2004-08-26 20:14:02.000000000 +0200
-+++ linux-2.4.28-pre2-modular/drivers/net/wan/dscc4.c	2004-08-26 20:18:53.000000000 +0200
-@@ -351,8 +351,8 @@
- #endif
- 
- /* Functions prototypes */
--static inline void dscc4_rx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
--static inline void dscc4_tx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
-+static void dscc4_rx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
-+static void dscc4_tx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
- static int dscc4_found1(struct pci_dev *, unsigned long ioaddr);
- static int dscc4_init_one(struct pci_dev *, const struct pci_device_id *ent);
- static int dscc4_open(struct net_device *);
-@@ -366,7 +366,6 @@
- static void dscc4_irq(int irq, void *dev_id, struct pt_regs *ptregs);
- static int dscc4_hdlc_attach(hdlc_device *, unsigned short, unsigned short);
- static int dscc4_set_iface(struct dscc4_dev_priv *, struct net_device *);
--static inline int dscc4_set_quartz(struct dscc4_dev_priv *, int);
- #ifdef DSCC4_POLLING
- static int dscc4_tx_poll(struct dscc4_dev_priv *, struct net_device *);
- #endif
-@@ -857,6 +856,18 @@
- 	//scc_writel(0x00250008 & ~RxActivate, dpriv, dev, CCR2);
- }
- 
-+static inline int dscc4_set_quartz(struct dscc4_dev_priv *dpriv, int hz)
-+{
-+	int ret = 0;
-+
-+	if ((hz < 0) || (hz > DSCC4_HZ_MAX))
-+		ret = -EOPNOTSUPP;
-+	else
-+		dpriv->pci_priv->xtal_hz = hz;
-+
-+	return ret;
-+}
-+
- static int dscc4_found1(struct pci_dev *pdev, unsigned long ioaddr)
- {
- 	struct dscc4_pci_priv *ppriv;
-@@ -1325,18 +1336,6 @@
- 	return ret;
- }
- 
--static inline int dscc4_set_quartz(struct dscc4_dev_priv *dpriv, int hz)
--{
--	int ret = 0;
--
--	if ((hz < 0) || (hz > DSCC4_HZ_MAX))
--		ret = -EOPNOTSUPP;
--	else
--		dpriv->pci_priv->xtal_hz = hz;
--
--	return ret;
--}
--
- static int dscc4_match(struct thingie *p, int value)
- {
- 	int i;
-@@ -1512,7 +1511,7 @@
- 	spin_unlock_irqrestore(&priv->lock, flags);
- }
- 
--static inline void dscc4_tx_irq(struct dscc4_pci_priv *ppriv,
-+static void dscc4_tx_irq(struct dscc4_pci_priv *ppriv,
- 				struct dscc4_dev_priv *dpriv)
- {
- 	struct net_device *dev = hdlc_to_dev(&dpriv->hdlc);
-@@ -1681,7 +1680,7 @@
- 	goto try;
- }
- 
--static inline void dscc4_rx_irq(struct dscc4_pci_priv *priv,
-+static void dscc4_rx_irq(struct dscc4_pci_priv *priv,
- 				    struct dscc4_dev_priv *dpriv)
- {
- 	struct net_device *dev = hdlc_to_dev(&dpriv->hdlc);
+It should be easy to combine the data collection enhancements from
+CSA and ELSA to provide a common superset of information.
 
+Output file formats vary, but might be unified if projects don't insist
+too much.
+Main difference between CSA and ELSA on the one hand and BSD acct on the
+other is that the latter writes one record per process, while the former
+write one per job.
+With the new BSD acct v3 format, it should be possible to do per job
+accounting entirely from userspace, using pid and ppid information to
+reconstruct the process tree and some userland database for the
+pid -> job mapping. It would, however, be greatly simplified if the
+accounting records provided some kind of job id, and some indicator
+whether or not this process was the last of a job (group).
+
+CSA and ELSA might even be more lightweight since fewer accounting records
+are actually written.
+
+Sounds like it should be possible to fulfill the different needs by
+having loadable modules for the different output formats, or by a /proc
+entry that controls some aspects like whether records are written per
+job or per process.
+
+Comments?

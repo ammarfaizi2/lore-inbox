@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131981AbQKQM2k>; Fri, 17 Nov 2000 07:28:40 -0500
+	id <S129111AbQKQMaK>; Fri, 17 Nov 2000 07:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132004AbQKQM2b>; Fri, 17 Nov 2000 07:28:31 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37381 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131981AbQKQM2P>;
-	Fri, 17 Nov 2000 07:28:15 -0500
-Message-ID: <3A151D47.172D67E@mandrakesoft.com>
-Date: Fri, 17 Nov 2000 06:57:59 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S132176AbQKQMaA>; Fri, 17 Nov 2000 07:30:00 -0500
+Received: from 62-6-231-42.btconnect.com ([62.6.231.42]:49802 "EHLO
+	saturn.homenet") by vger.kernel.org with ESMTP id <S129111AbQKQM3x>;
+	Fri, 17 Nov 2000 07:29:53 -0500
+Date: Fri, 17 Nov 2000 11:58:27 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Jordan <ledzep37@home.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Error in x86 CPU capabilities starting with test5/6
+In-Reply-To: <14869.6415.500026.432150@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.21.0011171154250.8176-100000@saturn.homenet>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test11-pre6
-In-Reply-To: <Pine.LNX.4.10.10011161832460.803-100000@penguin.transmeta.com> <20001117203325.A15841@metastasis.f00f.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> There are 'hotplug' additions -- these now mean the networking code
-> won't build without "CONFIG_HOTPLUG=y".
-> 
-> What is the correct fix here; fix the networking code or just take
-> this option out and ensure hotplug functionality is no longer
-> compile-time dependent (always compiled in) ?
+On Fri, 17 Nov 2000, Mikael Pettersson wrote:
+> You have a user-space program which parses /proc/cpuinfo instead of
+> executing CPUID itself, so it breaks.
 
-Surround the networking code with CONFIG_HOTPLUG.  A patch has already
-been posted to lkml.
+Hi Mikael,
 
-	Jeff
+Arguably, it is always better to parse /proc/cpuinfo instead of executing
+CPUID directly (think PCI -- drivers should _NOT_ get their irq/io/etc
+values from config space directly but only what the kernel puts on a plate
+for them in the struct pci_dev).
 
+So, one could imagine the kernel which emulates in software some of the
+processor features and then CPUID would lie but /proc/cpuinfo would tell
+the truth.
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Also, Linux is very stable wrt to application interfaces (I compare Linux
+with Linux and not Linux with "non-Linux", cf 1Cor 2:13) so one can safely
+rely on the exported data formats to stay always the same (to a reasonable
+extent).
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

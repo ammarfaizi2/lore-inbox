@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbULBMeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbULBMkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbULBMeH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 07:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbULBMeH
+	id S261596AbULBMkk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 07:40:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbULBMkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 07:34:07 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:38834 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S261598AbULBMd4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 07:33:56 -0500
-Message-ID: <41AF0BA5.5080901@blue-labs.org>
-Date: Thu, 02 Dec 2004 07:33:41 -0500
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041012
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] misleading error message
-References: <001101c4d715$25a59470$af00a8c0@BEBEL> <Pine.LNX.4.61.0411302251180.3635@dragon.hygekrogen.localhost> <Pine.LNX.4.53.0411302310080.31695@yvahk01.tjqt.qr> <Pine.LNX.4.61.0411302328450.3635@dragon.hygekrogen.localhost> <Pine.LNX.4.53.0411302329550.13758@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411302329550.13758@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 07:40:40 -0500
+Received: from anor.ics.muni.cz ([147.251.4.35]:51844 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S261596AbULBMke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 07:40:34 -0500
+Date: Thu, 2 Dec 2004 13:40:22 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] cosa.c intialization crash
+Message-ID: <20041202124022.GE11992@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Random side thoughts..
+	The attached patch fixes crash on insmod of the cosa.ko module
+- the sppp_attach() was called too early when dev->priv has not been
+set up yet. Linus, please apply.
 
-a) is there a simple way to search for symbols in a running kernel's 
-memory area that
-b) can differentiate between module and static, and if so
-c) is there an interest in a tiny tool that scripts  could use to 
-determine existing support?
+Signed-off-by: Jan "Yenya" Kasprzak <kas@fi.muni.cz>
 
-I want to be able to request information about a whooplesnoople without 
-it triggering a module load request, to determine if it's compiled in 
-statically.  I want to be able to distinguish static a static 
-whooplesnoople from a modularly loaded whooplesnoople.
-
-i.e.
-Scott ~$ kernfunctionexists "iptables"
-builtin
-
-Other possible values:
-module
-not found
-
-The tool would do the work of doing a lookup on "iptables" to match it 
-with a certain name.  I.e "irda" would be resolved to a known proper 
-irda_function_name() value.
-
-The purpose of this is not to be able to research any given function 
-name in the kernel, but to look for major support functions such as 
-iptables.
-
-David
-
+--- linux-2.6.10-rc2/drivers/net/wan/cosa.c.orig	2004-12-02 13:33:00.650293092 +0100
++++ linux-2.6.10-rc2/drivers/net/wan/cosa.c	2004-11-15 02:26:39.000000000 +0100
+@@ -642,11 +642,11 @@
+ 		return;
+ 	}
+ 	chan->pppdev.dev = d;
+-	sppp_attach(&chan->pppdev);
+ 	d->base_addr = chan->cosa->datareg;
+ 	d->irq = chan->cosa->irq;
+ 	d->dma = chan->cosa->dma;
+ 	d->priv = chan;
++	sppp_attach(&chan->pppdev);
+ 	if (register_netdev(d)) {
+ 		printk(KERN_WARNING "%s: register_netdev failed.\n", d->name);
+ 		sppp_detach(d);
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

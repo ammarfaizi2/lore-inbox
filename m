@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276380AbRI2AR5>; Fri, 28 Sep 2001 20:17:57 -0400
+	id <S276379AbRI2ARR>; Fri, 28 Sep 2001 20:17:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276382AbRI2ARs>; Fri, 28 Sep 2001 20:17:48 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62194
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S276380AbRI2ARo>; Fri, 28 Sep 2001 20:17:44 -0400
-Date: Fri, 28 Sep 2001 17:18:05 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tools better than vmstat [was: 2.4.9-ac16 good perfomer?]
-Message-ID: <20010928171805.B23261@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200109281826.f8SIQLP06585@deathstar.prodigy.com> <Pine.LNX.4.33L.0109281535220.26495-100000@duckman.distro.conectiva> <20010928123455.B8222@mikef-linux.matchmail.com> <20010928210453.B15457@flint.arm.linux.org.uk> <20010928145324.A14801@mikef-linux.matchmail.com> <20010928230034.F15457@flint.arm.linux.org.uk> <20010928153301.A23261@mikef-linux.matchmail.com> <20010929000000.G15457@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010929000000.G15457@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.22i
+	id <S276380AbRI2ARG>; Fri, 28 Sep 2001 20:17:06 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:9744 "EHLO mx7.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S276379AbRI2AQu>;
+	Fri, 28 Sep 2001 20:16:50 -0400
+Date: Sat, 29 Sep 2001 08:18:49 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2 GB file limitation
+In-Reply-To: <Pine.LNX.4.40.0109280920360.19506-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.33.0109290816480.10053-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/29/2001
+ 08:17:10 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/29/2001
+ 08:17:13 AM,
+	Serialize complete at 09/29/2001 08:17:13 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 29, 2001 at 12:00:00AM +0100, Russell King wrote:
-> I'll dig out the patch tomorrow.
-> 
 
-You don't happen to have that patch available (in current form, of course)
-somewhere for download do you? 
+On Fri, 28 Sep 2001, David Lang wrote:
 
-couldn't find a web site with your patches either, except for the ARM site,
-and your personal page there...  Do you have a page with all of your misc
-patches?
+> ?? slackware 8 has large file support (I've been useing it for a while
+> now)
+>
 
-Also noticed there isn't a ftp.kernel.org/pub/linux/kernel/people/rmk...
+I think you can get >2GB support if you've Gcc 3.0. Even with the latest
+kernel 2.4.x, you won't get >2GB with gcc 2.95.3.
+
+
+Jeff.
+

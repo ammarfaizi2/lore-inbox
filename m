@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285593AbSAILvg>; Wed, 9 Jan 2002 06:51:36 -0500
+	id <S286238AbSAIL44>; Wed, 9 Jan 2002 06:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285134AbSAILv0>; Wed, 9 Jan 2002 06:51:26 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:55562 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S285593AbSAILvP>; Wed, 9 Jan 2002 06:51:15 -0500
-Date: Wed, 9 Jan 2002 12:51:13 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S285828AbSAIL4q>; Wed, 9 Jan 2002 06:56:46 -0500
+Received: from pa147.antoniuk.sdi.tpnet.pl ([213.25.59.147]:33664 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S285134AbSAIL4l>; Wed, 9 Jan 2002 06:56:41 -0500
+Date: Wed, 9 Jan 2002 12:55:32 +0100
+From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jpopl@interia.pl>
 To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>, dietlibc@fefe.de
-Subject: Re: [ANNOUNCE] klibc 0.1 release
-Message-ID: <20020109115113.GC5707@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Greg KH <greg@kroah.com>, dietlibc@fefe.de
-In-Reply-To: <20020108014100.GD10145@kroah.com> <20020108020915.GA13168@codeblau.de>
+Subject: new eepro driver seems broken 
+Message-ID: <20020109125532.A1118@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20020108020915.GA13168@codeblau.de>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Jan 2002, Felix von Leitner wrote:
+I assume there is the same version of eepro driver in 2.2.21-pre2 and 2.4.17.
 
-> I understand that's OK for diet hotplug, so it's OK to take just enough
-> code to make your project work.  The important question probably is
-> whether diet hotplug will be part of the kernel distribution or not.
-> If not, I don't think it makes much sense to not just reference the diet
-> libc.  Maybe we can put the diet libc distribution on ftp.kernel.org to
-> show the affinity better (and make it more widely mirrored).
-> 
-> But forking means you will have to watch our CVS and port stuff from
-> here to there every now and then.
+Version included in kernel 2.2.20 is broken, becouse sometime ethernet card
+"dies" - I can't ping it from outside. However, when eepro card is in server,
+and I ping workstation from there - card works again. So my current solution is
+script which pings everything in localnet all the time.
 
-More importantly, the dietlibc compilation units are tiny, so even
-linking against dietlibc itself is probably not much different in
-outcome than a spinoff.
+But new version works much worse for me. In 2.2.21-pre2 and 2.4.17 card never
+dies - it always work, but there are many problems with connections. I thought
+it's problem with MASQ, but it behaves exactly the same on 2.2 and 2.4. When I
+send single file by scp - I have transfer bigger than 100KB/s. But when I watch
+WWW or use p2p - transfer is very small or stops.
+
+Driver from 2.2.20 works bad, newer driver works bad, too, but in another way.
+Where can I find older releases of eepro driver? How can I contact author
+(email from eepro.c doesn't work) ? Is anyone still using EtherExpress ISA 10 ? 
 
 -- 
-Matthias Andree
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+decopter - free SDL/OpenGL simulator under heavy development
+download it from http://decopter.sourceforge.net

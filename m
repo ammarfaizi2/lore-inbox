@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUKSVxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUKSX0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUKSVxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbUKSVvC
+	id S261635AbUKSX0k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 18:26:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUKSX0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:51:02 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13308 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261600AbUKSVtI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:49:08 -0500
-Message-ID: <419E6A50.5060107@mvista.com>
-Date: Fri, 19 Nov 2004 14:49:04 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: akpm <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>, linuxppc-embedded@ozlabs.org
-Subject: [PATCH][PPC32] Support for Marvell EV-64260[ab]-BP eval platform
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 18:26:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:65432 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261635AbUKSWAA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 17:00:00 -0500
+Date: Fri, 19 Nov 2004 13:59:35 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] I2C fixes for 2.6.10-rc2
+Message-ID: <20041119215935.GA15956@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for a line of evaluation platforms from Marvell 
-that use the Marvell GT64260[ab] host bridges.
+Hi,
 
-This patch depends on the Marvell host bridge support patch (mv64x60).
+Here are some i2c driver fixes for 2.6.10-rc2.
 
-This patch is larger than 40KB so a link is provided (as per 
-instructions in SubmittingPatches).
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
 
-Signed-off-by: Mark A. Greer <mgreer@mvista.com>
---
+Individual patches will follow, sent to the sensors and linux-kernel
+lists.
 
-ftp://source.mvista.com/pub/mgreer/ev64260.patch
+thanks,
+
+greg k-h
+
+ Documentation/i2c/writing-clients     |   20 ++++++++++++++++----
+ drivers/i2c/busses/Kconfig            |    1 +
+ drivers/i2c/busses/i2c-amd756-s4882.c |    7 +++++--
+ drivers/i2c/busses/i2c-nforce2.c      |    9 ++++-----
+ drivers/i2c/chips/smsc47m1.c          |   29 +++++++++++++++++++++--------
+ drivers/i2c/i2c-core.c                |   20 --------------------
+ include/linux/pci_ids.h               |    2 ++
+ 7 files changed, 49 insertions(+), 39 deletions(-)
+-----
+
+
+<thomas:plx.com>:
+  o I2C: i2c-nforce2.c add support for nForce3 Pro 150 MCP
+
+Gabriel Paubert:
+  o I2C: minor comment fix
+
+Jean Delvare:
+  o I2C: Cleanups to the recent smbus functions removal
+  o I2C: Fixes to the i2c-amd756-s4882 driver
+  o I2C: Do not register useless smsc47m1
 

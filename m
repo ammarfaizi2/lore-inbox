@@ -1,107 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269911AbUJMXfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269936AbUJMXiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269911AbUJMXfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 19:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUJMXfu
+	id S269936AbUJMXiR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 19:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269934AbUJMXiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 19:35:50 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:40972 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S269911AbUJMXfZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 19:35:25 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
-       "'Ankit Jain'" <ankitjain1580@yahoo.com>,
-       "'linux'" <linux-kernel@vger.kernel.org>
-Subject: RE: VM Vs Swap Space
-Date: Wed, 13 Oct 2004 16:35:08 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEMJOPAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 13 Oct 2004 19:38:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23683 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269923AbUJMXg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 19:36:27 -0400
+Subject: Re: Announcing Binary Compatibility/Testing
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Robert Love <rml@novell.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097709855.5411.20.camel@localhost>
+References: <1097705813.6077.52.camel@wookie-zd7>
+	 <416DAEB7.4050108@pobox.com>  <1097709855.5411.20.camel@localhost>
+Content-Type: text/plain
+Organization: Open Source Development Lab, Inc.
+Date: Wed, 13 Oct 2004 16:36:32 -0700
+Message-Id: <1097710592.6077.79.camel@wookie-zd7>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAdrZR1ip2x0S1aHNr193n7gEAAAAA@casabyte.com>
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 13 Oct 2004 16:12:00 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 13 Oct 2004 16:12:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-10-13 at 19:24 -0400, Robert Love wrote:
+> On Wed, 2004-10-13 at 18:39 -0400, Jeff Garzik wrote:
+> 
+> > Userland ABI compatibility has always been a strongly held value in 
+> > Linux, I don't think we would flame any efforts to support that...
+> 
+> Yah.  With the exception of maybe changing something in /proc (which has
+> been rare, and hopefully will never happen with /sys) the kernel-to-user
+> ABI is really stable.
+> 
+   I would tend to agree with that statement.
 
-> A long but basic explanation of the difference between "Virtual
-> Memory" and "Swap
-> Space" follows:
+> I'd venture, in fact, to say that this effort is very important but does
+> not affect the kernel at all.  Current "fault" lies in things e.g. like
+> the C++ ABI, which is constantly fluctuating (rightly so, to fix bugs,
+> but still).
+> 
+> Any other incompatibility lies in libraries, but we have library
+> versioning.  There is nothing wrong with newer libs breaking
+> compatibility so long as they have a different soname.  Vendors just
+> need to ship compat libs and ISV's need to make sure they request the
+> right lib and don't touch internals.
+> 
 
-	One of the problems with a 'basic' explanation is that you always wind up
-leaving out something that someone else things is important. ;)
+   Part of the problem is knowing which things to request.  I've
+envisioned a database that has the matrix of tests and packages  so that 
+people like ISV's and system integrators will be able to look
+up what has been tested and passed. I think that this database
+is the crucial portion of the new development.
 
-> Imagine a computer with only five pages of memory.  Imagine a
-> moment when pages 1 3
-> and 5 are in use, and the system needs to load a program that is
-> two pages long.  In
-> the absence of virtual memory, that program couldn't be loaded
-> because the two
-> available pages (2 and 4) are not "next to each other" so the
-> program would be broken
-> in half.
+   I also expect that part of this process will be the finding that
+an ISV used the API in a way that could of got them in trouble 
+and that the new version closes that hole.  In this case it would
+be a bug on the ISVs side but it would be known long before
+it got deployed and the ISV could schedule the development and
+testing of the patch to their software as part of their normal 
+deployment schedule.
 
-	Even if it only had one page, it could load half the program in one page.
-When the program tried to access the other page, it would fault. The first
-page could be discarded and the second loaded. So the system could operate
-even if it didn't have enough pages or any swap space.
 
-> Now, in the same way that you, were you playing a game with
-> hundreds of cards, would
-> like to be able to put some cards aside while sorting through
-> things so that you can
-> handle the most important cards in play; the computer sometimes
-> would like to put
-> aside pages of memory that are valid, but that nobody seems to
-> need just now.
+> 	Robert Love
+> 
 
-> A swap file (which is also called a "paging file" in some
-> systems) represents a place
-> where the system (linux/windows/whatever) can set aside (swap
-> out) the data from a
-> page of real RAM memory, so that it can reuse that piece of real
-> memory for another
-> purpose.
+Tim
 
-	Or, if the data is already stored somewhere (if it's a page from a file
-that hasn't been modified), it can just throw the page away.
-
-> If the program that "owns" the original data tries to get to it a
-> "page fault"
-> happens and the system finds a (usually different) page of real
-> memory that isn't in
-> use (or that can be swapped out) and puts the data back (swaps)
-> in this original data
-> page into the new place, and makes that new/other piece of RAM
-> appear (to the
-> program) as if it had always been there and that it didn't move at all.
-
-	This works the same whether the place is a file or a swap page.
-
-> "Virtual Memory" is a short-hand name for either the task of
-> making and maintaining
-> these logical maps/chunks, or the name for any one consistent
-> logical chunk when seen
-> from inside.  If phrase is used without enough context it can get
-> meaningless.  But
-> in no meaningful case is it "interchangeable" with the term "swap space".
-
-	Swap space, basically, allows a virtual memory system to move pages that it
-can't discard out of precious physical memory.
-
-	DS
-
+-- 
+Timothy D. Witham - Chief Technology Officer - wookie@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton OR, 97005
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbULCBrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbULCBu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbULCBrn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 20:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbULCBrn
+	id S261840AbULCBu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 20:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbULCBu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 20:47:43 -0500
-Received: from 212.199.9.99.forward.012.net.il ([212.199.9.99]:41634 "EHLO
-	stoneshaft.ath.cx") by vger.kernel.org with ESMTP id S261838AbULCBre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 20:47:34 -0500
-From: Eldad Zack <eldad@stoneshaft.ath.cx>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: kernel boot hang, SATA_VIA compiled without APIC_IO
-Date: Fri, 3 Dec 2004 03:45:42 +0200
-User-Agent: KMail/1.7.1
+	Thu, 2 Dec 2004 20:50:57 -0500
+Received: from tantale.fifi.org ([216.27.190.146]:13201 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S261840AbULCBuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 20:50:50 -0500
+To: "Brown, Len" <len.brown@intel.com>
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "linux-acpi" <linux-acpi@intel.com>
+Subject: Re: APM suspend/resume ceased to work with 2.4.28
+References: <F7DC2337C7631D4386A2DF6E8FB22B300225E3FC@hdsmsx401.amr.corp.intel.com>
+	<87d5xsjly5.fsf@ceramic.fifi.org> <871xeia26p.fsf@ceramic.fifi.org> <87zn1amuov.fsf@ceramic.fifi.org>
+	<20041122173654.GA31848@logos.cnet> <87mzx94ekm.fsf@ceramic.fifi.org>
+	<20041123070252.GA2712@logos.cnet>
+From: Philippe Troin <phil@fifi.org>
+Date: 02 Dec 2004 17:50:48 -0800
+Message-ID: <87wtw0i1zb.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Message-Id: <200412030345.45282.eldad@stoneshaft.ath.cx>
-Content-Type: multipart/signed;
-  boundary="nextPart1232455.TYaQ19hRxX";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1232455.TYaQ19hRxX
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+--=-=-=
 
-Hello,
+Philippe Troin <phil@fifi.org> writes:
 
-I've recently got a SATA capable machine (Via chipset) and I've exprienced =
-a=20
-nasty hang at boottime, using kernel 2.6.9.
-After some recompiling different parameters it boiled down to APIC_IO being=
-=20
-not selected (this is a UP machine).
+> Where do we go from here?
 
-Without APIC_IO selected the system would hang while loading SATA.
+I just diffed out the boot log between 2.4.27 and 2.4.28.  And I found
+this new message appearing in 2.4.28:
 
-I've only tried 2.6.5 to notice it would not hang but would emit messeges a=
-s=20
-"hde: lost interrupt", and eventually go on with the boot, the sata being=20
-unusable.
+        ACPI: IRQ9 SCI: Edge set to Level Trigger.
 
-Out of curiousity, I'd like to know if APIC_IO is absolutly needed when=20
-dealing with SATA, and also, I'd like to help debug this problem so that a=
-=20
-kernel compiled without APIC_IO would at the very least not hang...
+Weird since IRQ 9 is not in use in this system.  IRQ9 is typically
+used by ACPI.
 
+After some digging in the sources, I found that the newly introduced
+(2.4.28-rc2) function acpi_early_init() runs wether or not acpi=off
+was specified on the command line.
 
-=2D-=20
-Eldad Zack <eldad@stoneshaft.ath.cx>
-Key/Fingerprint at pgp.mit.edu, ID 0x96EA0A93
+This trivial patch makes my laptop suspend-happy.  Len, please confirm
+that this is ok.  Marcelo, please include in 29-pre.
 
---nextPart1232455.TYaQ19hRxX
-Content-Type: application/pgp-signature
+Phil.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=linux-2.4.28-8-acpi.patch
 
-iD8DBQBBr8VJT+MN7JbqCpMRAsOJAJwPoglNolmGXWavlVgLKUFMtYNk3ACeI8j/
-rMR4m0XN7D47ySbsjzK0QoA=
-=Y35M
------END PGP SIGNATURE-----
+diff -ruN linux-2.4.28.orig/drivers/acpi/bus.c linux-2.4.28/drivers/acpi/bus.c
+--- linux-2.4.28.orig/drivers/acpi/bus.c	Wed Nov 17 03:54:21 2004
++++ linux-2.4.28/drivers/acpi/bus.c	Thu Dec  2 16:49:54 2004
+@@ -1850,6 +1850,9 @@
+ 	acpi_status		status = AE_OK;
+ 	struct acpi_buffer	buffer = {sizeof(acpi_fadt), &acpi_fadt};
+ 
++	if (acpi_disabled)
++		return;
++
+ 	ACPI_FUNCTION_TRACE("acpi_bus_init");
+ 
+ 	status = acpi_initialize_subsystem();
 
---nextPart1232455.TYaQ19hRxX--
+--=-=-=--

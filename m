@@ -1,87 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEGh5>; Fri, 5 Jan 2001 01:37:57 -0500
+	id <S129183AbRAEGl7>; Fri, 5 Jan 2001 01:41:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129581AbRAEGhs>; Fri, 5 Jan 2001 01:37:48 -0500
-Received: from riker.dsl.inconnect.com ([209.140.76.229]:30322 "EHLO
-	ns1.rikers.org") by vger.kernel.org with ESMTP id <S129267AbRAEGhj>;
-	Fri, 5 Jan 2001 01:37:39 -0500
-Message-ID: <3A556BF2.AD3860A6@Rikers.org>
-Date: Thu, 04 Jan 2001 23:38:42 -0700
-From: Tim Riker <Tim@Rikers.org>
-Organization: Riker Family (http://rikers.org/)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18pre21 i686)
+	id <S129455AbRAEGlt>; Fri, 5 Jan 2001 01:41:49 -0500
+Received: from patan.Sun.COM ([192.18.98.43]:30878 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S129183AbRAEGll>;
+	Fri, 5 Jan 2001 01:41:41 -0500
+Message-ID: <3A556D9F.934AEAFD@sun.com>
+Date: Thu, 04 Jan 2001 22:45:51 -0800
+From: ludovic fernandez <ludovic.fernandez@sun.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14-15 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Nicholas Knight <tegeran@home.com>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Change of policy for future 2.2 driver submissions
-In-Reply-To: <E14EMpJ-0006ty-00@the-village.bc.nu> <002201c076c7$76cab720$8d19b018@c779218a>
+To: george anzinger <george@mvista.com>
+CC: Roger Larsson <roger.larsson@norran.net>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+In-Reply-To: <3A53D863.53203DF4@sun.com> <3A5427A6.26F25A8A@innominate.de> <3A5437A1.F540D794@sun.com> <01010423104900.01080@dox> <3A555BA3.A0B65A81@mvista.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas,
+george anzinger wrote:
 
-While I can see what you are asking, here are some comments in Alan's
-favor:
-
-He did not say people can not release 2.2 patches without 2.4 patches.
-He only said they will not be integrated into the kernel distribution
-without 2.4 patches.
-
-If people continue to develop for 2.2 and have someone else, who is
-probably less familiar with the hardware, port to 2.4 for them, how soon
-would you trust the drivers over the 2.2 drivers?
-
-In short, I agree with Alan completely. This is the correct move forward
-to cause 2.4 to become the stable release that everyone will be willing
-to adopt.
-
-Nicholas Knight wrote:
-> 
-> ----- Original Message -----
-> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, January 04, 2001 6:41 PM
-> Subject: Change of policy for future 2.2 driver submissions
-> 
+> Roger Larsson wrote:
 > >
-> > Linux 2.4 is now out, it is also what people should be concentrating on
-> first
-> > when issuing production drivers and driver updates. Effective from this
-> point
-> > 2.2 driver submissions or major driver updates will only be accepted if
-> the
-> > same code is also available for 2.4.
+>
+> > This part can probably be put in a proper non inline function.
+> > Cache issues...
+> > +                /*
+> > +                * At that point a scheduling is healthy iff:
+> > +                * - a scheduling request is pending.
+> > +                * - the task is in running state.
+> > +                * - this is not an interrupt context.
+> > +                * - local interrupts are enabled.
+> > +                */
+> > +                if (current->need_resched == 1     &&
+> > +                   current->state == TASK_RUNNING &&
+> > +                   !in_interrupt()                &&
+> > +                   local_irq_are_enabled())
+> > +                {
+> > +                        schedule();
+> > +                }
 > >
-> > Someone has to do the merging otherwise, and it isnt going to be me...
-> 
-> This is the first time I'll have sent anything to this list, and I hadn't
-> planned on sending anything for a long time to come, but I think in this
-> case I must toss in my 2cents.
-> While I understand the reasoning behind this, and might do the same thing if
-> I was in your position, I feel it may be a mistake.
-> I personaly do not trust the 2.4.x kernel entirely yet, and would prefer to
-> wait for 2.4.1 or 2.4.2 before upgrading from 2.2.18 to ensure last-minute
-> wrinkles have been completely ironed out, and I know there are people who
-> share my viewpoint, and would rather use 2.2.XX for a while yet, and I'm
-> afraid that this may partialy criple 2.2 driver development.
-> It can take little or a lot of time to port a driver from 2.2 to 2.4, and in
-> some cases people may just not want to do it untill 2.4 has gone through a
-> little more refining, and that could take a while.
-> 
-> To sum it up, I just don't think this is the right decision to make, at
-> least not yet.
-> My opinion probably won't matter one bit, but I thought I might as well toss
-> it out there.
-> 
-> -NK
--- 
-Tim Riker - http://rikers.org/ - short SIGs! <g>
-All I need to know I could have learned in Kindergarten
-... if I'd just been paying attention.
+> Actually the MontaVista Patch cleverly removes the tests for
+> in_interrupt() and local_irq_are_enabled() AND the state ==
+> TASK_RUNNING.  In actual fact these states can be considered way points
+> on the system status vector.  For example the interrupts off state
+> implies all the rest, the in_interrupt() implies not preemptable and
+> finally, not preemptable is one station away from fully preemptable.
+>
+> TASK_RUNNING is easily solved by makeing schedule() aware that it is
+> being called for preemption.  See the MontaVista patch for details.
+>
+
+Humm, I'm just curious,
+Regarding in_interrupt(). How do you deal with soft interrupts?
+Guys calling cpu_bh_disable() or even incrementing the count on
+their own. I don't know if this acceptable but definitely can be done,
+I prefer to rely on fact than on API.
+Regarding local_irq_enabled(). How do you handle the code that
+call local_irq_disable(), then spin_lock(), spin_unlock() and only
+re-enable the interruptions ? In this case, you preempt code that
+is supposed to run interruptions disabled.
+Finally, regarding the test on the task state, there may be a cache issue
+but calling schedule() has also some overhead.
+
+Ludo.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269243AbUIBWv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269121AbUIBWYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269243AbUIBWv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 18:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269234AbUIBWsF
+	id S269121AbUIBWYb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUIBWYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 18:48:05 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:32149 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269185AbUIBWq4 (ORCPT
+	Thu, 2 Sep 2004 18:24:12 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:7297 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269146AbUIBWXi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 18:46:56 -0400
-Date: Thu, 2 Sep 2004 15:42:15 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-In-Reply-To: <1094164096.14662.345.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com> 
- <1094159379.14662.322.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
- <1094164096.14662.345.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 18:23:38 -0400
+Date: Fri, 3 Sep 2004 00:24:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+Message-ID: <20040902222434.GA28716@elte.hu>
+References: <OFC12F3DB5.BA677210-ON86256F02.00545B49-86256F02.00545B58@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFC12F3DB5.BA677210-ON86256F02.00545B49-86256F02.00545B58@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Sep 2004, john stultz wrote:
 
-> What about my idea from yesterday of inverting the fastcall
-> relationship? Instead of creating a structure that exports values and
-> pointers the fastcall can use to create a time of day, why not use the
-> fast call to read the raw time and return it back to the time of day
-> code (which may be running in user context)? This avoids the duplication
-> of having to re-implement the timeofday/clock_gettime functions in
-> fastcall asm code.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-"Read raw time"? How can you read the raw time in a fast call if the
-fast call needs to do additional function calls (as defined in the
-proposed time structure) in the kernel context in order to retrieve time?
+> TSC mcount
+> ==========
+> 
+> >From your patch, added several mcount() calls to mark_offset_tsc.
+> To summarize the trace results, here is a table that reports the
+> delta times for each location. Each row represents one of the dozen
+> trace outputs per latency trace. Row columns are the file names
+> (lt.xx) in the tar file. Times are in usec.
+> 
+>      01  03  04  13  16  26  27  31  32  35  37  39
+> 01  000 000 000 069 000 000 000 000 000 081 136 000
+> 02  032 000 000 000 000 000 000 000 000 000 000 000
+> 03  000 000 000 000 000 000 000 000 000 000 000 000
+> 04  001 000 000 070 231 139 138 093 252 062 000 067
+> 05  000 000 000 000 000 000 000 000 000 000 000 000
+> 06  042 003 003 004 003 004 004 053 145 076 003 004
+> 07  004 004 004 004 008 004 005 006 010 011 004 005
+> 08  001 001 002 002 008 002 002 002 001 002 001 002
+> 09  000 000 000 000 000 000 000 000 000 000 000 000
+> 10  000 000 000 000 000 000 000 000 000 000 000 000
+> 11  000 000 000 000 000 000 000 000 000 000 000 000
+> 12  000 000 000 061 000 130 129 129 000 000 000 060
 
-A fast call cannot do any function calls in the kernel context or
-otherwise.
+so ... not all codepaths contribute to the high latency.
 
-The overhead of the function calls will reduce the performance of time
-access significantly.
+it seems the following ones generate the highest overhead: #03-#04,
+#05-#06. What code is there between mcount() #03 and #04?
 
-
+	Ingo

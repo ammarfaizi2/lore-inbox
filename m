@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143387AbREKULS>; Fri, 11 May 2001 16:11:18 -0400
+	id <S143391AbREKUN2>; Fri, 11 May 2001 16:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143378AbREKULD>; Fri, 11 May 2001 16:11:03 -0400
-Received: from cs140085.pp.htv.fi ([213.243.140.85]:40620 "EHLO
-	porkkala.cs140085.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S143383AbREKUJt>; Fri, 11 May 2001 16:09:49 -0400
-Message-ID: <3AFC46FA.D60CA20E@pp.htv.fi>
-Date: Fri, 11 May 2001 23:09:30 +0300
-From: Jussi Laako <jlaako@pp.htv.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S143383AbREKUNS>; Fri, 11 May 2001 16:13:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:29851 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S143378AbREKUNE>;
+	Fri, 11 May 2001 16:13:04 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon possible fixes
-In-Reply-To: <200105051626.SAA16651@cave.bitwizard.nl> <3AF4824F.8964E53B@home.com> <3AF57F63.9900089E@pp.htv.fi> <000b01c0d658$a19163a0$3303a8c0@pnetz>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15100.18375.367656.3591@pizda.ninka.net>
+Date: Fri, 11 May 2001 13:12:55 -0700 (PDT)
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mauelshagen@sistina.com,
+        linux-kernel@vger.kernel.org, mge@sistina.com
+Subject: Re: LVM 1.0 release decision
+In-Reply-To: <20010511171124.M30355@athlon.random>
+In-Reply-To: <20010511162745.B18341@sistina.com>
+	<E14yDyI-0000yE-00@the-village.bc.nu>
+	<20010511171124.M30355@athlon.random>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Bornträger wrote:
-> 
-> Can you try and mail me if the Kernel 2.4.3 (without any ac patch) is 
-> stable with your system even if you use autotune? "Downgrade" to this 
-> kernel works fine for me.
 
-Ahmm, 2.4.3 doesn't work. Gives some IDE DMA timeouts on boot. Kernel was
-compiled with Pentium-MMX processor setting, but I don't know if that's
-enough to disable the Athlon code parts (autodetected at runtime?).
+Andrea Arcangeli writes:
+ > I just switched to the >=beta4 lvm IOP for all 64bit archs. The previous
+ > one (the 2.4 mainline one) isn't feasible on the archs with 32bit
+ > userspace and 64bit kernel (it uses long). The IOP didn't changed btw,
+ > only the structures changed silenty.
 
-So only working kernel (without noautotune) on that A7V133 machine is
-RedHat's 2.4.2-2 shipped with RedHat 7.1... But that's not good either
-because the system has large reiserfs volume and 2.4.2-2 has some reiserfs
-bugs.
+They can be converted, there is in fact initial sparc64 code to
+handle the existing LVM ioctls in arch/sparc64/kernel/ioctl32.c
 
-I really start hating IDE/ATA stuff again.
+Without argument, the LVM ioctls are done in such a way that
+conversion is a bit difficult, but not entirely impossible.
 
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,77 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280694AbRKBOC1>; Fri, 2 Nov 2001 09:02:27 -0500
+	id <S280696AbRKBOER>; Fri, 2 Nov 2001 09:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280695AbRKBOCR>; Fri, 2 Nov 2001 09:02:17 -0500
-Received: from p139.n04.ham.access.is-europe.net ([195.179.179.139]:9988 "HELO
-	spot.local") by vger.kernel.org with SMTP id <S280694AbRKBOB5>;
-	Fri, 2 Nov 2001 09:01:57 -0500
-Date: Fri, 2 Nov 2001 15:02:24 +0100
-From: Oliver Feiler <kiza@gmx.net>
-To: Charles Bueche <charles@bueche.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM suspend/standby lockup (Notebook, Aver TM212)
-Message-ID: <20011102150224.A14204@munich.netsurf.de>
-In-Reply-To: <20011102125153.A10624@munich.netsurf.de> <20011102131552.3a328eaa.charles@bueche.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011102131552.3a328eaa.charles@bueche.ch>; from charles@bueche.ch on Fri, Nov 02, 2001 at 01:15:52PM +0100
-X-Operating-System: Linux 2.4.13 i686
-X-Species: Snow Leopard
+	id <S280697AbRKBOEB>; Fri, 2 Nov 2001 09:04:01 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:4620 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S280696AbRKBODs>; Fri, 2 Nov 2001 09:03:48 -0500
+Date: Fri, 2 Nov 2001 15:03:41 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: Justin Mierta <Crazed_Cowboy@stones.com>
+cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: ECS k7s5a motherboard doesnt work
+In-Reply-To: <3BDDC1D5.2040305@stones.com>
+Message-ID: <Pine.LNX.4.33.0111021441550.2070-100000@Megathlon.ESI>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Bueche wrote:
-> Hi,
-> 
-> any syslog output from the resume time ?
+On Mon, 29 Oct 2001, Justin Mierta wrote:
 
-	No. :(  The last message that gets into the syslog is "apmd: User 
-Suspend". Might there be a chance to capture something useful with a serial 
-line console?
+> >>9) *new* - the machine is not overheating, the hottest spot is at a cool
+> >>57 C
+> >>
+> >57C is hardly cool, though it shouldn't cause problems.
+> >
+> last i saw, amd rates these chips at 95C, so 57 is downright chilly :)
 
+yup, but see the cooler man (if it has one). Some of them are rated for
+< 70C - above that they stop and melt (in whatever order).
 
-Oliver
+> i'm not sure how to check, and i have a very difficult time even getting
+> to a shell in linux, because the damn thing keeps dma erroring about
+> reading the cd's.  is there some boot-up settings i can feed it so it
+> wont try using dma at all?
 
+see Documentation/kernel-parameters.txt:
 
-> 
-> Charles
-> 
-> On Fri, 2 Nov 2001 12:51:53 +0100
-> OF = "Oliver Feiler <kiza@gmx.net>" wrote:
-> OF> Hello,
-> OF> 
-> OF> 	I have got this problem on an Acer Travelmate 212TX. Whenever I try
-> to 
-> OF> suspend the computer (via apm -s or closing the display) the system
-> suspends 
-> OF> nicely. When the system is powered up again the screen is restored but
-> 
-> OF> otherwise it's locked up. You cannot ping the computer or use the
-> SysReq keys.
-> OF> 
-> OF> 	The hardware seems quite new. Suspend works perfectly on an older 
-> OF> Travelmate 200 series notebook. Hardware in both notebook is the same
-> except 
-> OF> for the graphics card (the 210 uses a Trident Cyberblade builtin, the
-> 200 a 
-> OF> ATI Rage Mobility M) and the Cardbus controller (210 has O2 Micro,
-> Inc. OZ6812 
-> OF> Cardbus Controller the 200 has O2 Micro, Inc. OZ6933 Cardbus
-> Controller). The 
-> OF> rest of the hardware seems to be the same.
-> OF> 
-> OF> 	I have tried suspend on 2.4.[9-13] kernels and an older 2.2.13 (from
-> a 
-> OF> Slackware 7.0 Live CD). Everytime the system crashes when it leaves
-> suspend 
-> OF> mode. I have also tested with a kernel with only the minimum drivers
-> compiled 
-> OF> into which had the same problem.
+ide0=nodma ide1=nodma
 
+should do.
+
+The following is on my K7S5A (no onboard eth):
+
+# hdparm -tT /dev/hda
+
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  0.53 seconds =241.51 MB/sec
+ Timing buffered disk reads:  64 MB in  1.82 seconds = 35.16 MB/sec
+
+kernel is 2.2.19-xxx from RH, but when I tested it performed the same
+under 2.4.x. Its uptime is only 9 days, but no problems so far. It's
+a NFS, samba, SMTP, IMAP, HTTP server, not heavily loaded.
+
+> >>at this point, i'm tending to think that there's several versions of
+> >>sis735 floating around (similar to the maneuver that ensoniq pulled with
+> >>their sound cards) -- possibly even within the revisions of the k7s5a
+> >>motherboard itself.
+
+Mine doesn't have an eth on board. Have you tried and disabled it?
+
+.TM.
 -- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
+

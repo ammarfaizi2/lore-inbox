@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbTIPRIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 13:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTIPRIU
+	id S261974AbTIPRPs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 13:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTIPROV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 13:08:20 -0400
-Received: from infres.enst.fr ([137.194.192.1]:57592 "EHLO infres.enst.fr")
-	by vger.kernel.org with ESMTP id S262061AbTIPRIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 13:08:19 -0400
-Date: Tue, 16 Sep 2003 19:08:17 +0200 (MEST)
-From: Ramon Casellas <casellas@infres.enst.fr>
-X-X-Sender: casellas@gervaise.enst.fr
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug/Oops Power Management with linux-2.6.0-test5-mm2
-In-Reply-To: <Pine.LNX.4.44.0309160949140.26788-100000@cherise>
-Message-ID: <Pine.SOL.4.40.0309161905530.7293-100000@gervaise.enst.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Sep 2003 13:14:21 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40677 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262003AbTIPROR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 13:14:17 -0400
+Date: Sun, 14 Sep 2003 11:32:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Pat LaVarre <p.lavarre@ieee.org>, mpm@selenic.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: console lost to Ctrl+Alt+F_n in 2.6.0-test5
+Message-ID: <20030914093205.GA7357@openzaurus.ucw.cz>
+References: <1063378664.5059.19.camel@patehci2> <1063460312.2905.13.camel@patehci2> <200309132249.40283.mhf@linuxmail.org> <200309132347.37831.mhf@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309132347.37831.mhf@linuxmail.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003, Patrick Mochel wrote:
+Hi!
 
->
-> Ok, that's almost expected behavior.
-Good to know :)
+> > Don't think this is a keyboard problem and have seen
+> > this several times related to video drivers in particular
+> > when switching back to X.
+> 
+> Used script with 2.6.0-test5 + pm2 patch
+> 
+> Kernel: VGA16FB 
+> 
+> X4.3:	Driver      "vesa"
+> 	VendorName  "Silicon Integrated Systems [SiS]"
+> 	BoardName   "VESA driver (generic)"
+> 
+> 200 cycles wo problems.
 
->
-> I cannot explain why the LCD stays on, besides the fact that something on
-> the ACPI side of things is not working correctly. Though, it appears to be
-> performing the entire suspend/resume cycle.
+VESA is special: its kernel who drives the hw => X can't crash it
+so easily.
 
-:? It's possible. ACPI is *the other missing part* :) There are some
-issues with detecting the Embedded Controller and AE_TIMES in latest IBM
-thinkpads, but things are getting better.
-
-
-> Drivers are still an issue. The current work around is to try removing all
-> modules before suspending. There is also an issue with reinitializing the
-> ACPI IRQ routing links, which will be addressed shortly.
-
-Good to know (part II)
-
-
-> to handle high pages yet. It will be addressed, but probably not for
-> another few weeks.
->
-
-Good things come to those who wait. I'll be trying APM as well... Let me
-know if you want me to test something/patches, etc.
-
-Thanks for your time,
-R.
-
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

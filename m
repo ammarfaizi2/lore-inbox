@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265238AbUGCUWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUGCUXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbUGCUWp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 16:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbUGCUWp
+	id S265241AbUGCUXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 16:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbUGCUXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 16:22:45 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:12223 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S265238AbUGCUWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 16:22:42 -0400
-Date: Sat, 3 Jul 2004 22:22:42 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: procfs permissions on 2.6.x
-Message-ID: <20040703202242.GA31656@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
+	Sat, 3 Jul 2004 16:23:19 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:64953 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265241AbUGCUXO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 16:23:14 -0400
+Date: Sat, 3 Jul 2004 22:15:15 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: jt@hpl.hp.com
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>,
+       David Gibson <hermes@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
+Message-ID: <20040703221515.B3275@electric-eye.fr.zoreil.com>
+References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040703010709.A22334@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, Jul 03, 2004 at 01:07:09AM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[drivers/net/wireless/orinoco_tmd.c:orinoco_tmd_init_one]
+        err = pci_enable_device(pdev);
+-       if (err)
+-               return -EIO;
+-
+-       printk(KERN_DEBUG "TMD setup\n");
+-       pccard_ioaddr = pci_resource_start(pdev, 2);
+-       pccard_iolen = pci_resource_len(pdev, 2);
+-       if (! request_region(pccard_ioaddr, pccard_iolen, dev_info)) {
+-               printk(KERN_ERR PFX "I/O resource at 0x%lx len 0x%lx busy\n",
+-                       pccard_ioaddr, pccard_iolen);
+-               pccard_ioaddr = 0;
+-               err = -EBUSY;
+-               goto fail;
++       if (err) {
++               printk(KERN_ERR PFX "Cannot enable PCI device\n");
++               return -err;
 
-Hi Andrew!
+-> translates into
+   err = pci_enable_device(dev);
+   if (err) {
+           printk(KERN_ERR PFX "Cannot enable PCI device\n");
+           return -err;
 
-stumbled over the following detail ...
+i.e. incorrectly returns > 0 
 
-usually when somebody tries to modify an inode,
-notify_change() calls inode_change_ok() to verify
-the user's permissions ... now it seems that
-somewhere around 2.5.41, a patch similar to this
-one was included into the mainline, and remained
-almost unmodified ...
-
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.1/1002.html
-
-this probably unintentionally circumvents the 
-inode_change_ok() check, so that now any user
-can modify inodes of the procfs. 
-
-example:
-
-  $ chmod a-rwx /proc/cmdline
-
-the following patch hopefully fixes this, so
-please consider for inclusion ...
-
-TIA,
-Herbert
-
-
-diff -NurpP --minimal linux-2.6.7/fs/proc/generic.c linux-2.6.7-fix/fs/proc/generic.c
---- linux-2.6.7/fs/proc/generic.c	2004-06-16 07:20:26.000000000 +0200
-+++ linux-2.6.7-fix/fs/proc/generic.c	2004-07-03 21:50:30.000000000 +0200
-@@ -241,8 +241,20 @@ static int proc_notify_change(struct den
- 	return error;
- }
- 
-+static int proc_setattr(struct dentry *dentry, struct iattr *iattr)
-+{
-+        struct inode *inode = dentry->d_inode;
-+        int error;
-+
-+        error = inode_change_ok(inode, iattr);
-+        if (error)
-+                return error;
-+	error = proc_notify_change(dentry, iattr);
-+	return error;
-+}
-+
- static struct inode_operations proc_file_inode_operations = {
--	.setattr	= proc_notify_change,
-+	.setattr	= proc_setattr,
- };
- 
- /*
-@@ -472,7 +484,7 @@ static struct file_operations proc_dir_o
-  */
- static struct inode_operations proc_dir_inode_operations = {
- 	.lookup		= proc_lookup,
--	.setattr	= proc_notify_change,
-+	.setattr	= proc_setattr,
- };
- 
- static int proc_register(struct proc_dir_entry * dir, struct proc_dir_entry * dp)
+--
+Ueimor

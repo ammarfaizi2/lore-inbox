@@ -1,99 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUHAWkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266197AbUHAXHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbUHAWkc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 18:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUHAWkc
+	id S266197AbUHAXHr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 19:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUHAXHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 18:40:32 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:45572 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266196AbUHAWk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 18:40:29 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mingo@redhat.com
-In-Reply-To: <20040801193043.GA20277@elte.hu>
-References: <20040713143947.GG21066@holomorphy.com>
-	 <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe>
-	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
-	 <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
-	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
-	 <20040729222657.GA10449@elte.hu>  <20040801193043.GA20277@elte.hu>
-Content-Type: text/plain
-Date: Mon, 02 Aug 2004 00:40:24 +0200
-Message-Id: <1091400024.2092.2.camel@glass.felipe-alfaro.com>
+	Sun, 1 Aug 2004 19:07:47 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:23689 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S266197AbUHAXHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 19:07:45 -0400
+Date: Mon, 2 Aug 2004 01:06:47 +0200
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: chris@scary.beasts.org
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: secure computing for 2.6.7
+Message-ID: <20040801230647.GH6295@dualathlon.random>
+References: <20040704173903.GE7281@dualathlon.random> <40EC4E96.9090800@namesys.com> <20040801102231.GB6295@dualathlon.random> <Pine.LNX.4.58.0408011248040.1368@sphinx.mythic-beasts.com> <20040801150119.GE6295@dualathlon.random> <Pine.LNX.4.58.0408011801260.1368@sphinx.mythic-beasts.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408011801260.1368@sphinx.mythic-beasts.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-01 at 21:30 +0200, Ingo Molnar wrote:
-> here's the latest version of the voluntary-preempt patch:
->   
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
-> 
-> this patch is mainly a stabilization effort. I dropped the irq-threads
-> code added in -M5 and rewrote it from scratch based on -L2 - it is
-> simpler and should be more robust.
-> 
-> The same /proc/irq/* configuration switches are still present, but i
-> added the following additional rule: if _any_ handler of a given IRQ is
-> marked as non-threaded then all handlers will be executed non-threaded
-> as well.
-> 
-> E.g. if you have the following handlers on IRQ 10:
-> 
->  10:      11584   IO-APIC-level  eth0, eth1, eth2
-> 
-> and you change /proc/irq/16/eth1/threaded from 1 to 0 then the eth0 and
-> eth2 handlers will be executed non-threaded as well. (This rule only
-> enforces what the hardware enforces anyway, none of the previous patches
-> allowed true separation of these handlers.)
-> 
-> i also changed the IO-APIC level-triggered code to be robust when
-> redirection is done. The noapic workaround should not be necessary
-> anymore.
-> 
-> the keyboard lockups are now hopefully all gone too - i've tested
-> IO-APIC and non-IO-APIC setups as well and NumLock/ScrollLock works fine
-> in all sorts of workloads.
-> 
-> Let me know if you still have any problems.
+On Sun, Aug 01, 2004 at 06:29:05PM +0100, chris@scary.beasts.org wrote:
+> Using the above approach, we (the app writers) would never agree on the
+> syscall lists required for different seccomp modes ;-)
 
-I'll be away on vacations for about two weeks, but before leaving, I
-wanted to test run 2.6.8-rc2-bk11 plus voluntary-preempt-O2 on my P4 box
-with both ACPI and IO/APIC enabled, voluntary-preempt=3 and preempt=1
-and it seems to be working fine (I still haven't seen any hard locks).
+I see the problem ;).
 
-# cat /proc/interrupts
-           CPU0
-  0:     114044    IO-APIC-edge  timer
-  1:        497    IO-APIC-edge  i8042
-  8:          1    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 14:       9289    IO-APIC-edge  ide0
- 15:         54    IO-APIC-edge  ide1
- 17:       1299   IO-APIC-level  Intel 82801BA-ICH2
- 19:      13408   IO-APIC-level  uhci_hcd
- 20:        279   IO-APIC-level  eth0
- 23:          0   IO-APIC-level  uhci_hcd
-NMI:          0
-LOC:     113967
-ERR:          0
-MIS:          0
+> How hard would it be to have a per-task bitmap of syscalls allowed? This
+> way, a task could restrict to the exact subset of syscalls required for
+> maximum security.
+> The bitmap would
+> - Be allocated on demand (for no overhead in the common case)
+> - Deny all syscalls not covered by the supplied bitmap, to cater for
+> syscall table expansion
+> - Be inherited across fork and (probably) shared across clone
 
-# grep . /proc/irq/*/*/threaded
-/proc/irq/14/ide0/threaded:1
-/proc/irq/15/ide1/threaded:1
-/proc/irq/17/Intel 82801BA-ICH2/threaded:1
-/proc/irq/19/uhci_hcd/threaded:1
-/proc/irq/1/i8042/threaded:1
-/proc/irq/20/eth0/threaded:1
-/proc/irq/23/uhci_hcd/threaded:1
-/proc/irq/8/rtc/threaded:1
-/proc/irq/9/acpi/threaded:1
+your app will have then to learn about the syscall details of every
+arch (which is normally a kernel internal thing), the most obvious
+example is the difference between the sigreturn and rt_sigreturn, plus
+the syscall numbers vary across every arch and the bitmap will have to
+differ depending on the architecture (while the seccomp mode number is a
+fixed interface for all archs and it hides all internal details like
+sigreturn/rt_sigreturn). The one thing I don't like is that if somebody
+changes the signal frame to use a new_rt_sigreturn the app will break
+and I'll have to upload an update and I'll have again to check for uname
+-r to know which kernel has to enable what. I mean when the new
+behaviour is introduced it won't be too bad, it'll just get a false
+positive sigkill, it could happen as well if somebody forgets to update
+seccomp.c after changing the signal frame.
 
+While I only get disavantages from the bitmap, if people really want the
+arch dependent bitmap I'm certainly able to put kernel architectural
+internal knowledge into some python code that will build the right
+bitmap depending on the arch and depending on the uname -r.
 
+So it's up to you. Feel free to discuss and choose what you prefer. I'm
+biased and I prefer seccomp, you can still implement the bitmap on top
+of seccomp as seccomp mode == 2. I'm not saying you shouldn't get the
+bitmap, my previous suggestion of syscalltable that would parse as well
+the parameters was a lot more complicated than the bitmap, doing the
+bitmap on top of seccomp will be easy (we could add some more storage
+into the seccomp file too, so if you write number 2 followed by data,
+the kernel will allocate such later data afte the first 32bits, as a
+bitmap). And still the seccomp mode will provide you the infrastructure
+and the entry point. This is actually simple enough (not comparable to
+the syscalltables) that I can implement it myself if you agree on this
+direction (next weekend).

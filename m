@@ -1,197 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbULATDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbULATGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbULATDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 14:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbULATDQ
+	id S261414AbULATGk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 14:06:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbULATGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 14:03:16 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:21127 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261413AbULATCN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 14:02:13 -0500
-From: David Brownell <david-b@pacbell.net>
-Subject: Fwd: [patch 2.6] EHCI race fix
-Date: Wed, 1 Dec 2004 11:00:06 -0800
-User-Agent: KMail/1.7.1
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3ShrBAzjCoIkx8r"
-Message-Id: <200412011100.07072.david-b@pacbell.net>
+	Wed, 1 Dec 2004 14:06:40 -0500
+Received: from [61.48.53.101] ([61.48.53.101]:34799 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261414AbULATFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 14:05:31 -0500
+Date: Wed, 1 Dec 2004 10:56:10 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412011856.iB1IuAc21682@adam.yggdrasil.com>
+To: maneesh@in.ibm.com
+Subject: Re: [Patch] Delete sysfs_dirent.s_count, saving ~100kB on my system
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_3ShrBAzjCoIkx8r
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Maneesh,
+
+	Here is a rewrite of my patch to remove sysfs_dirent.s_count,
+reducing the memory chunk that kmalloc uses for sysfs_dirent from
+64 to 32 bytes, thereby saving about 120kB for the 3700+ nodes in
+/sys on the ordinary PC on which I am typing this message.
+
+	Unlike my original patch, this version retains
+sysfs_dentry_ops, because, as you correctly pointed out, the
+current implementation uses sysfs_dirent for file-descriptor
+based operations that can still be done after a node has
+been unlinked.  I still might seek to eliminate sysfs_dentry_ops
+in a future patch, but there are other steps I would
+like to pursue first.
+
+	This version replaces the check on sysfs_dirent.s_count
+with a check that syfs_dirent.s_dentry is NULL and that the
+sysfs_dirent is not linked into the directory tree.  If both of
+those conditions are satisfied, then sysfs_dirent is freed.
+
+	Note that in sysfs_remove_dir and sysfs_hash_and_remove
+I had to move the call to list_del_init(&sd->s_sibling) to occur
+just before the call to sysfs_put() to avoid confusion that
+can occur in another call to syfs_put() that the previously
+intervening call to sysfs_drop_dentry() could cause.
+
+	By the way, I ran a version of sysfs_put that kept the
+reference counting, calculated this new check and would complain if
+the two checks produced a different result, and I saw no complaints,
+including while I ran the test that you previously proposed
+for a while (loading and unloading the dummy networking modules,
+while running "ls -lR" on the /sys and cat'ing of the networking
+/sys files).
+
+	I have also run this cleaned up patch with the same test for
+a while with no problems (unlike the situation with my original patch).
+
+	So, if you could take a look at it and send it downstream
+for integration if it looks good to you, I would appreciate it.
+I would like to get this patch integrated before I try to implement
+further reductions in pinned memory for sysfs.  After this patch,
+I hope to make a patch to unpin the inode and dentry structures for
+sysfs directories, and then perhaps a patch changing attribute groups
+to have just one sysfs_dirent for the group instead of one for each
+attribute (individual attributes registered directly to a kobject
+would still need one sysfs_dirent each).
+
+	Please let me know what you think.
+
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l
 
 
-
-----------  Forwarded Message  ----------
-
-Subject: [patch 2.6] EHCI race fix
-Date: Wednesday 01 December 2004 10:42 am
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-
-See the description in the attachment ... the patch should
-potentially be of interest if you've been having any issues
-with EHCI under load, after the driver successfully starts,
-using bulk traffic.  (So: using network or mass storage
-adapters, and the like.)  The problem is in 2.4 kernels
-too, the same fix should work; but this patch gets a reject
-against 2.4.28 sources.
-
-I'm sending this version around for feedback before I submit
-it, but I have no reason to think it adds new problems.
-
-- Dave
-
-
-
--------------------------------------------------------
-
---Boundary-00=_3ShrBAzjCoIkx8r
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ehci-1201.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ehci-1201.patch"
-
-This makes the EHCI driver stop trying to update a live QH ... it's
-not like OHCI, that can't be done safely because of a hardware race.
-The fix just unlinks the queue before updating its head; only the tail
-can safely be updated "live".
-
-The race shows readily enough under load with the right hardware.
-The controller silicon might be relatively slow, or maybe it's the
-bus that's slow/busy:
-
-	Host			Controller
-	---			----------
-				reads two TD pointers
-	update two TD pointers
-	wmb()
-	activate QH
-				reads rest of QH
-
-Net result is that the HC treats the old TD pointers as valid, and things
-start misbehaving.  Busy controllers will misbehave worse; some systems
-wouldn't notice more than a slowdown, especially with light USB loads.
-
-This affects behavior in two cases.  The uncommon one is when an endpoint
-gets an error and halts.  The more common one happens when the controller
-runs off the end of its queue and overlays an inactive "dummy" TD into
-the QH ... something the spec says shouldn't happen, but which more
-silicon seems to be doing.  (Presumably to reduce DMA chatter.)
-
-
---- 1.65/drivers/usb/host/ehci-q.c	2004-11-22 13:43:04 -08:00
-+++ edited/drivers/usb/host/ehci-q.c	2004-12-01 08:47:10 -08:00
-@@ -83,11 +83,11 @@
+--- linux-2.6.10-rc2-bk13/include/linux/sysfs.h	2004-11-17 18:59:17.000000000 +0800
++++ linux/include/linux/sysfs.h	2004-12-02 01:18:12.000000000 +0800
+@@ -60,7 +60,6 @@
+ };
  
- /*-------------------------------------------------------------------------*/
+ struct sysfs_dirent {
+-	atomic_t		s_count;
+ 	struct list_head	s_sibling;
+ 	struct list_head	s_children;
+ 	void 			* s_element;
+diff -u linux-2.6.10-rc2-bk13/fs/sysfs/dir.c linux/fs/sysfs/dir.c
+--- linux-2.6.10-rc2-bk13/fs/sysfs/dir.c	2004-12-01 11:02:42.000000000 +0800
++++ linux/fs/sysfs/dir.c	2004-12-02 00:06:12.000000000 +0800
+@@ -41,7 +41,6 @@
+ 		return NULL;
  
--/* update halted (but potentially linked) qh */
--
- static inline void
- qh_update (struct ehci_hcd *ehci, struct ehci_qh *qh, struct ehci_qtd *qtd)
- {
-+	BUG_ON(qh->qh_state != QH_STATE_IDLE);
-+
- 	qh->hw_qtd_next = QTD_NEXT (qtd->qtd_dma);
- 	qh->hw_alt_next = EHCI_LIST_END;
- 
-@@ -96,6 +96,24 @@
- 	qh->hw_token &= __constant_cpu_to_le32 (QTD_TOGGLE | QTD_STS_PING);
- }
- 
-+static void
-+qh_refresh (struct ehci_hcd *ehci, struct ehci_qh *qh)
-+{
-+	struct ehci_qtd *qtd;
-+
-+	if (list_empty (&qh->qtd_list))
-+		qtd = qh->dummy;
-+	else {
-+		qtd = list_entry (qh->qtd_list.next,
-+				struct ehci_qtd, qtd_list);
-+		/* first qtd may already be partially processed */
-+		if (cpu_to_le32 (qtd->qtd_dma) == qh->hw_current)
-+			qtd = NULL;
-+	}
-+	if (qtd)
-+		qh_update (ehci, qh, qtd);
-+}
-+
- /*-------------------------------------------------------------------------*/
- 
- static void qtd_copy_status (
-@@ -226,6 +244,7 @@
- 	spin_lock (&ehci->lock);
- }
- 
-+static void start_unlink_async (struct ehci_hcd *ehci, struct ehci_qh *qh);
- 
- /*
-  * Process and free completed qtds for a qh, returning URBs to drivers.
-@@ -369,21 +388,20 @@
- 	/* restore original state; caller must unlink or relink */
- 	qh->qh_state = state;
- 
--	/* update qh after fault cleanup */
--	if (unlikely (stopped != 0)
--			/* some EHCI 0.95 impls will overlay dummy qtds */ 
--			|| qh->hw_qtd_next == EHCI_LIST_END) {
--		if (list_empty (&qh->qtd_list))
--			end = qh->dummy;
--		else {
--			end = list_entry (qh->qtd_list.next,
--					struct ehci_qtd, qtd_list);
--			/* first qtd may already be partially processed */
--			if (cpu_to_le32 (end->qtd_dma) == qh->hw_current)
--				end = NULL;
-+	/* be sure the hardware's done with the qh before refreshing
-+	 * it after fault cleanup, or recovering from silicon wrongly
-+	 * overlaying the dummy qtd (which reduces DMA chatter).
-+	 */
-+	if (stopped != 0 || qh->hw_qtd_next == EHCI_LIST_END) {
-+		switch (state) {
-+		case QH_STATE_IDLE:
-+			qh_refresh(ehci, qh);
-+			break;
-+		case QH_STATE_LINKED:
-+			start_unlink_async (ehci, qh);
-+			break;
-+		/* otherwise, unlink already started */
- 		}
--		if (end)
--			qh_update (ehci, qh, end);
+ 	memset(sd, 0, sizeof(*sd));
+-	atomic_set(&sd->s_count, 1);
+ 	INIT_LIST_HEAD(&sd->s_children);
+ 	list_add(&sd->s_sibling, &parent_sd->s_children);
+ 	sd->s_element = element;
+@@ -62,7 +61,7 @@
+ 	sd->s_type = type;
+ 	sd->s_dentry = dentry;
+ 	if (dentry) {
+-		dentry->d_fsdata = sysfs_get(sd);
++		dentry->d_fsdata = sd;
+ 		dentry->d_op = &sysfs_dentry_ops;
  	}
  
- 	return count;
-@@ -936,8 +956,6 @@
+@@ -180,7 +179,7 @@
+ 		dentry->d_inode->i_fop = &bin_fops;
+ 	}
+ 	dentry->d_op = &sysfs_dentry_ops;
+-	dentry->d_fsdata = sysfs_get(sd);
++	dentry->d_fsdata = sd;
+ 	sd->s_dentry = dentry;
+ 	d_rehash(dentry);
  
- /* the async qh for the qtds being reclaimed are now unlinked from the HC */
+@@ -194,7 +193,7 @@
+ 	err = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
+ 	if (!err) {
+ 		dentry->d_op = &sysfs_dentry_ops;
+-		dentry->d_fsdata = sysfs_get(sd);
++		dentry->d_fsdata = sd;
+ 		sd->s_dentry = dentry;
+ 		d_rehash(dentry);
+ 	}
+@@ -280,8 +279,8 @@
+ 	list_for_each_entry_safe(sd, tmp, &parent_sd->s_children, s_sibling) {
+ 		if (!sd->s_element || !(sd->s_type & SYSFS_NOT_PINNED))
+ 			continue;
+-		list_del_init(&sd->s_sibling);
+ 		sysfs_drop_dentry(sd, dentry);
++		list_del_init(&sd->s_sibling);
+ 		sysfs_put(sd);
+ 	}
+ 	up(&dentry->d_inode->i_sem);
+diff -u linux-2.6.10-rc2-bk13/fs/sysfs/inode.c linux/fs/sysfs/inode.c
+--- linux-2.6.10-rc2-bk13/fs/sysfs/inode.c	2004-11-17 18:59:13.000000000 +0800
++++ linux/fs/sysfs/inode.c	2004-12-02 00:05:25.000000000 +0800
+@@ -149,8 +149,8 @@
+ 		if (!sd->s_element)
+ 			continue;
+ 		if (!strcmp(sysfs_get_name(sd), name)) {
+-			list_del_init(&sd->s_sibling);
+ 			sysfs_drop_dentry(sd, dir);
++			list_del_init(&sd->s_sibling);
+ 			sysfs_put(sd);
+ 			break;
+ 		}
+diff -u linux-2.6.10-rc2-bk13/fs/sysfs/sysfs.h linux/fs/sysfs/sysfs.h
+--- linux-2.6.10-rc2-bk13/fs/sysfs/sysfs.h	2004-11-17 18:59:13.000000000 +0800
++++ linux/fs/sysfs/sysfs.h	2004-12-02 00:05:35.000000000 +0800
+@@ -77,18 +77,8 @@
+ 	kfree(sd);
+ }
  
--static void start_unlink_async (struct ehci_hcd *ehci, struct ehci_qh *qh);
+-static inline struct sysfs_dirent * sysfs_get(struct sysfs_dirent * sd)
+-{
+-	if (sd) {
+-		WARN_ON(!atomic_read(&sd->s_count));
+-		atomic_inc(&sd->s_count);
+-	}
+-	return sd;
+-}
 -
- static void end_unlink_async (struct ehci_hcd *ehci, struct pt_regs *regs)
+ static inline void sysfs_put(struct sysfs_dirent * sd)
  {
- 	struct ehci_qh		*qh = ehci->reclaim;
-@@ -957,6 +975,10 @@
- 	qh->reclaim = NULL;
- 
- 	qh_completions (ehci, qh, regs);
-+
-+	/* freshen qh after halt, or a common silicon quirk */
-+	if ((HALT_BIT & qh->hw_token) || qh->hw_qtd_next == EHCI_LIST_END)
-+		qh_refresh (ehci, qh);
- 
- 	if (!list_empty (&qh->qtd_list)
- 			&& HCD_IS_RUNNING (ehci->hcd.state))
-
---Boundary-00=_3ShrBAzjCoIkx8r--
+-	if (atomic_dec_and_test(&sd->s_count))
++	if (list_empty(&sd->s_sibling) && sd->s_dentry == NULL)
+ 		release_sysfs_dirent(sd);
+ }
+-

@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUIKAGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268040AbUIKAH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268039AbUIKAGU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 20:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUIKAGU
+	id S268040AbUIKAH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 20:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUIKAH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 20:06:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:24303 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S268039AbUIKAGS
+	Fri, 10 Sep 2004 20:07:56 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:29577 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S268040AbUIKAHt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 20:06:18 -0400
-Message-ID: <41424169.3020302@mvista.com>
-Date: Fri, 10 Sep 2004 17:06:01 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
+	Fri, 10 Sep 2004 20:07:49 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Keyboard and mouse interfere in 2.6
+X-Draft-From: ("lists.kernel" 8)
+References: <opsd3vx7i3u7wa79@smtp.nildram.co.uk>
+	<20040910190924.GB8799@mars.ravnborg.org>
+From: Starling <pubsynxj8jw@pacbell.net>
+Date: Fri, 10 Sep 2004 16:55:18 -0700
+In-Reply-To: <20040910190924.GB8799@mars.ravnborg.org> (Sam Ravnborg's
+ message of "Fri, 10 Sep 2004 21:09:24 +0200")
+Message-ID: <871xh94r2x.fsf_-_@pacbell.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Tim Bird <tim.bird@am.sony.com>
-CC: colin <colin@realtek.com.tw>, David Woodhouse <dwmw2@infradead.org>,
-       Paulo Marques <pmarques@grupopie.com>, linux-kernel@vger.kernel.org
-Subject: Re: What File System supports Application XIP
-References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>	 <4140200B.9060408@grupopie.com> <1094722976.4083.1550.camel@hades.cambridge.redhat.com> <4140865A.5030304@am.sony.com>
-In-Reply-To: <4140865A.5030304@am.sony.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Bird wrote:
-...
-> The patches I've seen require setting the CRAMFS_LINEAR option, to turn on
-> linear addressing for cramfs, and CRAMFS_LINEAR_XIP.  The result of these
-> is to dispense with compression.
+Hi, is there any way the input from the keyboard can interfere with
+the input from the mouse?  Because they are interfering, on my
+computer.  If I hold ctrl, the mouse jumps randomly about if I try to
+move it.  And then the ctrl key gets stuck in the 'on' position until
+I rapidly tap it to somehow get it reset.
 
-Compression is skipped for the XIP files, which are typically marked via 
-the sticky bit.  You'll also need a version of mkcramfs that creates the 
-image without compressing those files.
+The same occurs for the shift key, which is very disturbing as it
+opens every possible right-click menu on my GUI.
 
-...
-> FYI - Here are some rough numbers:
-> Time to run shell script which starts TinyX X server and "xsetroot -solid red",
-> then shuts down:
-> 
-> First invocation: Non-XIP 3.195 seconds, XIP 2.035 seconds
-> Second invocation: Non-XIP 1.744 seconds, XIP 1.765 seconds
-> 
-> I think this was on a 133 MHz PPC, but I'm not positive.  In both cases
-> the filesystem was in flash.  
+It's not the video card: I've used 2 different cards since the problem
+started.  It's not the sound card either, as I have used 2 different
+sound cards as well.  The problem started when I switched from 2.4 to
+2.6, and seems confined entirely to the keyboard and mouse drivers.
 
-It was measured on a 168MHz ARM 925T TI OMAP 1510.
+I have a USB mouse, and a PS/2 keyboard; both worked perfectly before
+2.6.  I run fvwm, and a recent compile of X.org.  Video driver is "S3
+Savage4" or a proprietary Nvidia one, take your pick.  (The Nvidia
+card went and broke on me, S3 is on-board.)
 
-Others' advice that "you probably don't want XIP" is true in most cases. 
-  But in producing a battery-operated product with certain requirements 
-for performance, power savings (due to reduced RAM requirements), 
-startup time (depending on the platform and software stack the 
-difference can be significant), etc. XIP is an option chosen by some CE 
-designers, who are willing to accept the performance penalty on a 
-product that will still run adequately for its intended uses.  It would 
-be interesting to see an in-depth analysis of these topics on an actual 
-Linux-based product such as a cell phone.  There are, of course, a 
-number of ways to address all these issues, not just XIP...
+I don't think quoting the whole .config would be appreciated, but
+here's what seemed like it would be relavent.  Is there any setting I
+might have not properly applied?
 
--- 
-Todd Poynor
-MontaVista Software
+CONFIG_INPUT_MOUSEDEV=y
+# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=m
+# CONFIG_INPUT_EVBUG is not set
 
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=y
+
+# CONFIG_USB_KBD is not set
+# CONFIG_USB_MOUSE is not set

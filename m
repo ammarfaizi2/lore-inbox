@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288191AbSACENm>; Wed, 2 Jan 2002 23:13:42 -0500
+	id <S288190AbSACENL>; Wed, 2 Jan 2002 23:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288192AbSACENd>; Wed, 2 Jan 2002 23:13:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:47108 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288191AbSACENR>;
-	Wed, 2 Jan 2002 23:13:17 -0500
-Date: Thu, 3 Jan 2002 05:13:15 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: Art Hays <art@lsr.nei.nih.gov>, <linux-kernel@vger.kernel.org>
-Subject: RE: kswapd etc hogging machine
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBAECPEFAA.znmeb@aracnet.com>
-Message-ID: <Pine.LNX.4.33.0201030510160.6449-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288191AbSACENC>; Wed, 2 Jan 2002 23:13:02 -0500
+Received: from bexfield.research.canon.com.au ([203.12.172.125]:18475 "HELO
+	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S288190AbSACEMp>;
+	Wed, 2 Jan 2002 23:12:45 -0500
+Date: Thu, 3 Jan 2002 15:08:43 +1100
+From: Cameron Simpson <cs@zip.com.au>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
+Subject: Re: C undefined behavior fix
+Message-ID: <20020103150843.B644@zapff.research.canon.com.au>
+Reply-To: cs@zip.com.au
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 12:09:10PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, M. Edward Borasky wrote:
+On Wed, Jan 02, 2002 at 12:09:10PM -0700, Tom Rini <trini@kernel.crashing.org> wrote:
+| On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
+| > The GCC tries to replace the strcpy from a constant string source with
+| > a memcpy, since the length is know at compile time.
+| 
+| Okay, here's a summary of all of the options we have:
+| 1) Change this particular strcpy to a memcpy
+| 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
+| optimization comes back on with this flag later on, it would be a
+| compiler bug, yes?)
+| 3) Modify the RELOC() marco in such a way that GCC won't attempt to
+| optimize anything which touches it [1]. (Franz, again by Jakub)
+| 4) Introduce a function to do the calculations [2]. (Corey Minyard)
+| 5) 'Properly' set things up so that we don't need the RELOC() macros
+| (-mrelocatable or so?), and forget this mess altogether.
 
-> There were a whole bunch of tuning parameters in the VM in 2.2 that got
-> dropped in 2.4; maybe re-instating some of them and returning them to their
-> rightful owner, the system administrator, would solve this problem once and
-> for all. But for some reason, those who control Linux have decided that this
-> is "a bug in the VM" and pursued fixes in code and the associated logic
-> rather than give us sysadmins what I believe is rightfully ours.
+Dudes, maybe I'm missing something here, but why don't you just mark the
+source data as volatile? Then it _can't_ assume it knows the length of
+the strcpy because it can't assume it knows the content:
 
-Extra magic number twiddling is available in Andrea's -aa tree.
+If PTRRELOC cast the pointer type to
 
+	volatile void *
+
+or something else suitable generic but volatile then this discussion might
+not be happening. It would at least move the optimisation into "definite
+compiler bug" if it still happens.
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
 
+I think... Therefore I ride.  I ride... Therefore I am.
+	- Mark Pope <erectus@yarrow.wt.uwa.edu.au>

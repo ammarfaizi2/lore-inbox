@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265689AbUEZNkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265683AbUEZNjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265689AbUEZNkH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265687AbUEZNkF
+	id S265683AbUEZNjr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265687AbUEZNjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:40:05 -0400
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:65005 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S265689AbUEZNiD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:38:03 -0400
-From: "Matt H." <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproduction.scom
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
+	Wed, 26 May 2004 09:39:46 -0400
+Received: from holomorphy.com ([207.189.100.168]:38272 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265683AbUEZNiz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 09:38:55 -0400
+Date: Wed, 26 May 2004 06:38:44 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Satoshi Oshima <oshima@sdl.hitachi.co.jp>
+Cc: orders@nodivisions.com, linux-kernel@vger.kernel.org
 Subject: Re: why swap at all?
-Date: Wed, 26 May 2004 06:41:17 -0700
-User-Agent: KMail/1.6.51
-Cc: Matthias Schniedermeyer <ms@citd.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <20040526123740.GA14584@citd.de> <1085576794.20025.5.camel@sherbert>
-In-Reply-To: <1085576794.20025.5.camel@sherbert>
-MIME-Version: 1.0
+Message-ID: <20040526133844.GA2764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Satoshi Oshima <oshima@sdl.hitachi.co.jp>, orders@nodivisions.com,
+	linux-kernel@vger.kernel.org
+References: <40B43B5F.8070208@nodivisions.com> <JI20040526220006.47968296@sdl.hitachi.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405260641.17443.lkml@lpbproductions.com>
+In-Reply-To: <JI20040526220006.47968296@sdl.hitachi.co.jp>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe it was a 2.4 patch , its still around somewhere. I can find it and 
-post it , if it's still relevant. 
+On Wed, May 26, 2004 at 10:00:06PM +0900, Satoshi Oshima wrote:
+> I really agree. And I think swappoff is not enough. Some of my
+> customers have over 4GB of memory. RDMS, Java Virtual Machine or Grid
+> system (like Globus tool kit) run on the servers. Those kinds of
+> application make a lot of threads and they have huge amount of shared
+> memory. And those shared memory is sometimes mlocked. I think, in
+> those systems, memory aging itself is useless or obstructive in worst
+> case. Because mlocked pages which can't be swapped off are on the LRU
+> list. In such case, aging-off (relevant to process) is effective, I
+> think. Of course, I agree that swap-off or aging-off is NEVER always
+> useful. On the contrary, these functions may be required by very
+> small number of user. But it is very important that we can choose 
+> how we use the OS.
 
-Matt H.
+Could you try CONFIG_SWAP=n to see if that makes a difference?
+More aggressive non-paging methods could be devised if not, e.g.
+CONFIG_MMU=n support of various kinds for hardware supporting paging
+and virtual memory (this is a suggestion, not an offer to implement).
 
-On Wednesday 26 May 2004 6:06 am, Gianni Tedesco wrote:
-> On Wed, 2004-05-26 at 13:37, Matthias Schniedermeyer wrote:
-> > On Wed, May 26, 2004 at 09:19:40PM +1000, Nick Piggin wrote:
-> > > Matthias Schniedermeyer wrote:
-> > > >On Wed, May 26, 2004 at 08:33:28PM +1000, Nick Piggin wrote:
-> > >
-> > > OK, this is obviously bad. Do you get this behaviour with 2.6.5
-> > > or 2.6.6? If so, can you strace the program while it is writing
-> > > an ISO? (just send 20 lines or so). Or tell me what program you
-> > > use to create them and how to create one?
-> >
-> > To use other words, this is the typical case where a "hint" would be
-> > useful.
-> >
-> > program to kernel: "i read ONCE though this file caching not useful".
->
-> Wasn't their an O_STREAMING patch thrown around towards the beginning of
-> the 2.5 development cycle?
+
+-- wli

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbTFPKdT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 06:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTFPKdT
+	id S263587AbTFPKjd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 06:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTFPKjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 06:33:19 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37644 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263665AbTFPKdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 06:33:18 -0400
-Date: Mon, 16 Jun 2003 12:47:10 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: CaT <cat@zip.com.au>
-Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
-Subject: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
-Message-ID: <20030616104710.GA12173@atrey.karlin.mff.cuni.cz>
-References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz> <20030616001141.GA364@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jun 2003 06:39:33 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:35857 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S263587AbTFPKjc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 06:39:32 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.71 net/built-in.o : undefined reference to `register_cpu_notifier'
+Date: Mon, 16 Jun 2003 18:42:25 +0800
+User-Agent: KMail/1.5.2
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030616001141.GA364@zip.com.au>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200306161840.47388.mflt1@micrologica.com.hk>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahoj!
+  CC      net/ipv4/netfilter/ipt_REDIRECT.o
+  CC      net/ipv4/netfilter/ipt_LOG.o
+  CC      net/ipv4/netfilter/ipt_ULOG.o
+  CC      net/ipv4/netfilter/ipt_TCPMSS.o
+  CC      net/ipv4/netfilter/arp_tables.o
+  CC      net/ipv4/netfilter/arptable_filter.o
+  LD      net/ipv4/netfilter/ip_conntrack.o
+  LD      net/ipv4/netfilter/built-in.o
+  LD      net/ipv4/built-in.o
+  LD      net/built-in.o
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
 
-> > >  stopping tasks failed (2 tasks remaining)
-> > > Suspend failed: Not all processes stopped!
-> > > Restarting tasks...<6> Strange, rpciod not stopped
-> > 
-> > This should fix it... Someone please test it.
-> 
-> I didn't have any actual nfs mounts at the time but I tried it
-> with an otherwise similar system. It went through, got to freeing
-> memory, showed me a bunch of fullstops being drawn and then went
-> into an endless BUG loop. All I could pick out (after many a moment
-> of staring) was 'schedule in atmoic'.
-> 
-> I'll do a proper test with a console cable present in a few days. I
-> can't atm cos I'm not on the same network and don't have a 2nd 
-> computer to hook up the null-modem cable to.
-> 
-> Pre-empt is on btw.
+net/built-in.o(.init.text+0x1b2): In function `flow_cache_init':
+: undefined reference to `register_cpu_notifier'
+make: *** [.tmp_vmlinux1] Error 1
 
-Turn it off. You don't want to debug preempt and nfs at the same time.
+Added to net/core/flow.c
 
-								Pavel
+#include <linux/cpu.h>
+
+Compiled OK, but netfilter not tested.
+
+Regards
+Michael
+
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Powered by linux-2.5.71, compiled with gcc-2.95-3 because it's rock solid
+
+My current linux related activities in rough order of priority:
+- Testing of Swsusp for 2.4
+- Learning 2.5 kernel debugging with kgdb - it's in the -mm tree
+- Studying 2.5 serial and ide drivers, ACPI, S3
+
+The 2.5 kernel could use your usage. More info on setting up 2.5 kernel at 
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
+

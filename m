@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVBGTNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVBGTMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVBGTNG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 14:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBGTNG
+	id S261258AbVBGTMs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 14:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVBGTMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:13:06 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:10297 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261236AbVBGTMl (ORCPT
+	Mon, 7 Feb 2005 14:12:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13975 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261245AbVBGTMj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:12:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IhnHle3z+WB1OCD/Sn1hPBJpHwGemuNi1qKHdr5Fu9tlakvwb73m5p28aYu2pRcOEclAchgZTHlwkS8BT+NErjTif0Q61bndZ6R7bdPWW8uirHEfy6WgJtXTi/gitk7PvIo0c0QZ9paKd9BDjuD0Tmt9DbYIZCw7KmDYfl4T1ac=
-Message-ID: <d120d5000502071112599fa61c@mail.gmail.com>
-Date: Mon, 7 Feb 2005 14:12:40 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: trelane@digitasaru.net, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org, petero2@telia.com
-Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
-In-Reply-To: <20050207190541.GB12024@digitasaru.net>
+	Mon, 7 Feb 2005 14:12:39 -0500
+Date: Mon, 7 Feb 2005 11:12:35 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] Filesystem linking protections
+Message-ID: <20050207111235.Y24171@build.pdx.osdl.net>
+References: <1107802626.3754.224.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050207154326.GA13539@digitasaru.net>
-	 <d120d50005020708512bb09e0@mail.gmail.com>
-	 <20050207180950.GA12024@digitasaru.net>
-	 <d120d50005020710591181fe69@mail.gmail.com>
-	 <20050207190541.GB12024@digitasaru.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1107802626.3754.224.camel@localhost.localdomain>; from lorenzo@gnu.org on Mon, Feb 07, 2005 at 07:57:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Feb 2005 13:05:41 -0600, Joseph Pingenot
-<trelane@digitasaru.net> wrote:
-> From Dmitry Torokhov on Monday, 07 February, 2005:
-> >On Mon, 7 Feb 2005 12:09:50 -0600, Joseph Pingenot
-> ><trelane@digitasaru.net> wrote:
-> >> From Dmitry Torokhov on Monday, 07 February, 2005:
-> >> >Nonetheless it would be nice to see the data stream from the touchpad
-> >> >to see why our ALPS support does not work quite right. Could you
-> >> >please try booting with "log_buf_len=131072 i8042.debug=1", and
-> >> >working the touchpad a bit. then send me the output of "dmesg -s
-> >> >131072" (or just /var/log/messages).
-> >> dmesg output, non-mouse output trimmed (for obvious reasons, if you think
-> >>  about it ;) is attached.
-> >I am sorry, I was not clear enough. I'd like to see -rc2 (the broken
-> >one), complete with bootup process, so we will see why it can't
-> >synchronize at all. (I of course don't need keyboard data of anything
-> >that has been typed after boot).
+* Lorenzo Hernández García-Hierro (lorenzo@gnu.org) wrote:
+> This patch adds two checks to do_follow_link() and sys_link(), for
+> prevent users to follow (untrusted) symlinks owned by other users in
+> world-writable +t directories (i.e. /tmp), unless the owner of the
+> symlink is the owner of the directory, users will also not be able to
+> hardlink to files they do not own.
 > 
-> They're both broken in about the same way, iirc.  Is there something special
->  in -rc2 that's not in -rc3?
+> The direct advantage of this pretty simple patch is that /tmp races will
+> be prevented.
 
-No, -rc3 will do as well. Any version starting with -rc2 should do the trick.
- 
+The disadvantage is that it can break things and places policy in the
+kernel.
+
+thanks,
+-chris
 -- 
-Dmitry
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,116 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVBGQig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVBGQkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVBGQig (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVBGQif
+	id S261189AbVBGQkL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVBGQkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:38:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51590 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261183AbVBGQi0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:38:26 -0500
-Message-ID: <56189.130.226.172.129.1107794295.squirrel@webmail.axboe.dk>
-In-Reply-To: <20050207155202.GY24513@fi.muni.cz>
-References: <20050121161959.GO3922@fi.muni.cz>
-    <20050207110030.GI24513@fi.muni.cz>
-    <Pine.LNX.4.58.0502070728280.2165@ppc970.osdl.org>
-    <20050207155202.GY24513@fi.muni.cz>
-Date: Mon, 7 Feb 2005 17:38:15 +0100 (CET)
-Subject: Re: Memory leak in 2.6.11-rc1?
-From: axboe@home.kernel.dk
-To: "Jan Kasprzak" <kas@fi.muni.cz>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Jens Axboe" <axboe@suse.de>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Mon, 7 Feb 2005 11:40:11 -0500
+Received: from mailwasher.lanl.gov ([192.65.95.54]:34454 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261188AbVBGQkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 11:40:00 -0500
+Subject: Re: [RFC] Reliable video POSTing on resume
+From: Li-Ta Lo <ollie@lanl.gov>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Adam Sulmicki <adam@cfar.umd.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Machek <pavel@ucw.cz>, Jon Smirl <jonsmirl@gmail.com>,
+       ncunningham@linuxmail.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42077AC4.5030103@grupopie.com>
+References: <e796392205020221387d4d8562@mail.gmail.com>
+	 <420217DB.709@gmx.net> <4202A972.1070003@gmx.net>
+	 <20050203225410.GB1110@elf.ucw.cz>
+	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
+	 <1107485504.5727.35.camel@desktop.cunninghams>
+	 <9e4733910502032318460f2c0c@mail.gmail.com>
+	 <20050204074454.GB1086@elf.ucw.cz>
+	 <9e473391050204093837bc50d3@mail.gmail.com>
+	 <20050205093550.GC1158@elf.ucw.cz>
+	 <1107695583.14847.167.camel@localhost.localdomain>
+	 <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu>
+	 <42077AC4.5030103@grupopie.com>
+Content-Type: text/plain
+Organization: Los Alamos National Lab
+Message-Id: <1107794388.2930.38.camel@logarithm.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 07 Feb 2005 09:39:48 -0700
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus Torvalds wrote:
-> : Jan - can you give Jens a bit of an idea of what drivers and/or
-> schedulers
-> : you're using?
->
-> 	I have a Tyan S2882 dual Opteron, network is on-board tg3,
-> there are 8 P-ATA HDDs hooked on 3ware 7506-8 controller (no HW RAID
-> there, but the drives are partitioned and partition grouped to form
-> software RAID-0, 1, 5, and 10 volumes - the main fileserving traffic
-> is on a RAID-5 volume, and /var is on RAID-10 volume.
->
-> 	Filesystems are XFS for that RAID-5 volume, ext3 for the rest
-> of the system. I have compiled-in the following I/O schedulers (according
-> to my /var/log/dmesg :-)
->
-> io scheduler noop registered
-> io scheduler anticipatory registered
-> io scheduler deadline registered
-> io scheduler cfq registered
->
-> I have not changed the scheduler by hand, so I suppose the anticipatory
-> is the default.
->
-> 	No X, just serial console. The server does FTP serving mostly
-> (ProFTPd with sendfile() compiled in), sending mail via qmail (cca
-> 100-200k mails a day), and bits of other work (rsync, Apache, ...).
-> Fedora core 3 with all relevant updates.
->
-> 	My fstab (physical devices only):
-> /dev/md0                /                       ext3    defaults        1
-> 1
-> /dev/md1                /home                   ext3    defaults        1
-> 2
-> /dev/md6                /var                    ext3    defaults        1
-> 2
-> /dev/md4                /fastraid               xfs     noatime         1
-> 3
-> /dev/md5                /export                 xfs     noatime         1
-> 4
-> /dev/sde4               swap                    swap    pri=10          0
-> 0
-> /dev/sdf4               swap                    swap    pri=10          0
-> 0
-> /dev/sdg4               swap                    swap    pri=10          0
-> 0
-> /dev/sdh4               swap                    swap    pri=10          0
-> 0
->
-> 	My mdstat:
->
-> Personalities : [raid0] [raid1] [raid5]
-> md6 : active raid0 md3[0] md2[1]
->       19550720 blocks 64k chunks
->
-> md1 : active raid1 sdd1[1] sdc1[0]
->       14659200 blocks [2/2] [UU]
->
-> md2 : active raid1 sdf1[1] sde1[0]
->       9775424 blocks [2/2] [UU]
->
-> md3 : active raid1 sdh1[1] sdg1[0]
->       9775424 blocks [2/2] [UU]
->
-> md4 : active raid0 sdh2[7] sdg2[6] sdf2[5] sde2[4] sdd2[3] sdc2[2] sdb2[1]
-> sda2[0]
->       39133184 blocks 256k chunks
->
-> md5 : active raid5 sdh3[7] sdg3[6] sdf3[5] sde3[4] sdd3[3] sdc3[2] sdb3[1]
-> sda3[0]
->       1572512256 blocks level 5, 256k chunk, algorithm 2 [8/8] [UUUUUUUU]
->
-> md0 : active raid1 sdb1[1] sda1[0]
->       14659200 blocks [2/2] [UU]
+On Mon, 2005-02-07 at 07:27, Paulo Marques wrote:
+> I still don't have hard numbers from the work Li-Ta Lo is doing (I'm 
+> CC'ing him on this thread to see if he can shed some light here), but I 
+> guess that you could have the complete emulator for about 50kB of code.
 
-My guess would be the clone change, if raid was not leaking before. I
-cannot lookup any patches at the moment, as I'm still at the hospital
-taking care of my new born baby and wife :)
+The difference between the "uncompressed" romimage is 41376 bytes for
+Tyan S2885 mainboard. The difference of compressed romimage is 16943 
+bytes.
 
-But try and reverse the patches to fs/bio.c that mention corruption due to
-bio_clone and bio->bi_io_vec and see if that cures it. If it does, I know
-where to look. When did you notice this started to leak?
+Ollie
 
-Jens
 

@@ -1,38 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263999AbTDOADk (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 20:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264000AbTDOADk (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 20:03:40 -0400
-Received: from home.wiggy.net ([213.84.101.140]:14539 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S263999AbTDOADj (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 20:03:39 -0400
-Date: Tue, 15 Apr 2003 02:15:29 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect' document.
-Message-ID: <20030415001529.GS22272@wiggy.net>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030414193138.GA24870@suse.de> <20030414214807.GB993@mars.ravnborg.org> <200304142159.h3ELxrIO017333@turing-police.cc.vt.edu>
+	id S264002AbTDOAHZ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 20:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbTDOAHZ (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 20:07:25 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:33732 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264002AbTDOAHW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 20:07:22 -0400
+Date: Mon, 14 Apr 2003 17:18:15 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Fw: Re: top stack (l)users for 2.5.67
+Message-Id: <20030414171815.726e1d21.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304142159.h3ELxrIO017333@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/mixed;
+ boundary="Multipart_Mon__14_Apr_2003_17:18:15_-0700_09f11948"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Valdis.Kletnieks@vt.edu wrote:
-> Only if you're REALLY REALLY sure that you're never going to boot a
-> kernel that doesn't have the pdflush daemon functionality in it.  This
-> might be an issue if you still need to boot a 2.2 kernel (I think 2.4
-> has had the pdflush stuff in it since 2.4.mumble).  I'm sure somebody
-> can give a definitive answer when pdflush became mainline kernel....
+This is a multi-part message in MIME format.
 
-Judging by the description of the Debian update package update was
-obsoleted with kernel release 2.2.8.
+--Multipart_Mon__14_Apr_2003_17:18:15_-0700_09f11948
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Wichert.
+Hi,
 
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+I'm reposting these 2 patches in case anyone is interested in them.
+
+~Randy
+
+
+Begin forwarded message:
+
+Date: Mon, 14 Apr 2003 13:26:12 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: J=F6rn Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: top stack (l)users for 2.5.67
+
+
+On Mon, 14 Apr 2003 21:44:42 +0200 J=F6rn Engel <joern@wohnheim.fh-wedel.de=
+> wrote:
+
+| On Mon, 14 April 2003 12:38:10 -0700, Randy.Dunlap wrote:
+| > On Mon, 14 Apr 2003 19:30:47 +0200 J=F6rn Engel <joern@wohnheim.fh-wede=
+l.de> wrote:
+| >=20
+| >=20
+| > | 0xc05e2733 ida_ioctl:                                    sub    $0x54=
+c,%esp
+| >=20
+| > patch posted 2003.APR.03 (on lkml); Steve Cameron saw it...
+| >=20
+| > | 0xc0fb00e3 device_new_if:                                sub    $0x52=
+0,%esp
+| >=20
+| > patch posted 2003.APR.03 (on linux-net);
+| > no reply from Nenad Corbic (ncorbic@sangoma.com)
+|=20
+| Hm, all these stack reduction patches are relevant to -je as well.
+| Could I have a copy of those two?
+
+--Multipart_Mon__14_Apr_2003_17:18:15_-0700_09f11948
+Content-Type: application/octet-stream;
+ name="wan-stack.patch"
+Content-Disposition: attachment;
+ filename="wan-stack.patch"
+Content-Transfer-Encoding: base64
+
+cGF0Y2hfbmFtZToJd2FuLXN0YWNrLnBhdGNoCnBhdGNoX3ZlcnNpb246CTIwMDMtMDQtMDIuMjA6
+NTk6NDkKYXV0aG9yOgkJUmFuZHkuRHVubGFwIDxyZGR1bmxhcEBvc2RsLm9yZz4KZGVzY3JpcHRp
+b246CXJlZHVjZSBzdGFjayBpbiBuZXQvd2Fucm91dGVyL3dhbm1haW4uYzo6ZGV2aWNlX25ld19p
+ZigpCgkJZnJvbSAweDUyMCB0byAweDI0Owpwcm9kdWN0OglMaW51eApwcm9kdWN0X3ZlcnNpb25z
+OiAyLjUuNjYKY2hhbmdlbG9nOglhbGxvY2F0ZSBhbmQgZnJlZSB0aGUgPHdhbmlmX2NvbmZfdD4g
+ZGF0YTsKbWFpbnRhaW5lcjoJR2lkZW9uIEhhY2sgKG5vIGVtYWlsIGFkZHJlc3MgbGlzdGVkKQpk
+aWZmc3RhdDoJPQogbmV0L3dhbnJvdXRlci93YW5tYWluLmMgfCAgIDUyICsrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCAzNCBp
+bnNlcnRpb25zKCspLCAxOCBkZWxldGlvbnMoLSkKCgpkaWZmIC1OYXVyIC4vbmV0L3dhbnJvdXRl
+ci93YW5tYWluLmMlV0FOU1RLIC4vbmV0L3dhbnJvdXRlci93YW5tYWluLmMKLS0tIC4vbmV0L3dh
+bnJvdXRlci93YW5tYWluLmMlV0FOU1RLCTIwMDMtMDMtMjQgMTQ6MDE6MTEuMDAwMDAwMDAwIC0w
+ODAwCisrKyAuL25ldC93YW5yb3V0ZXIvd2FubWFpbi5jCTIwMDMtMDQtMDIgMjA6NDk6NTguMDAw
+MDAwMDAwIC0wODAwCkBAIC02NjAsNyArNjYwLDcgQEAKIAogc3RhdGljIGludCBkZXZpY2VfbmV3
+X2lmICh3YW5fZGV2aWNlX3QgKndhbmRldiwgd2FuaWZfY29uZl90ICp1X2NvbmYpCiB7Ci0Jd2Fu
+aWZfY29uZl90IGNvbmY7CisJd2FuaWZfY29uZl90ICpjbmY7CiAJbmV0ZGV2aWNlX3QgKmRldj1O
+VUxMOwogI2lmZGVmIENPTkZJR19XQU5QSVBFX01VTFRQUFAKIAlzdHJ1Y3QgcHBwX2RldmljZSAq
+cHBwZGV2PU5VTEw7CkBAIC02NzAsMzcgKzY3MCw1MSBAQAogCWlmICgod2FuZGV2LT5zdGF0ZSA9
+PSBXQU5fVU5DT05GSUdVUkVEKSB8fCAod2FuZGV2LT5uZXdfaWYgPT0gTlVMTCkpCiAJCXJldHVy
+biAtRU5PREVWOwogCi0JaWYgKGNvcHlfZnJvbV91c2VyKCZjb25mLCB1X2NvbmYsIHNpemVvZih3
+YW5pZl9jb25mX3QpKSkKLQkJcmV0dXJuIC1FRkFVTFQ7CisJY25mID0ga21hbGxvYyhzaXplb2Yo
+d2FuaWZfY29uZl90KSwgR0ZQX0tFUk5FTCk7CisJaWYgKCFjbmYpCisJCXJldHVybiAtRU5PQlVG
+UzsKKworCWlmIChjb3B5X2Zyb21fdXNlcihjbmYsIHVfY29uZiwgc2l6ZW9mKHdhbmlmX2NvbmZf
+dCkpKSB7CisJCWVyciA9IC1FRkFVTFQ7CisJCWdvdG8gY29uZmZyZWU7CisJfQogCi0JaWYgKGNv
+bmYubWFnaWMgIT0gUk9VVEVSX01BR0lDKQotCQlyZXR1cm4gLUVJTlZBTDsKKwlpZiAoY25mLT5t
+YWdpYyAhPSBST1VURVJfTUFHSUMpIHsKKwkJZXJyID0gLUVJTlZBTDsKKwkJZ290byBjb25mZnJl
+ZTsKKwl9CiAKLQlpZiAoY29uZi5jb25maWdfaWQgPT0gV0FOQ09ORklHX01QUFApIHsKKwlpZiAo
+Y25mLT5jb25maWdfaWQgPT0gV0FOQ09ORklHX01QUFApIHsKICNpZmRlZiBDT05GSUdfV0FOUElQ
+RV9NVUxUUFBQCiAJCXBwcGRldiA9IGttYWxsb2Moc2l6ZW9mKHN0cnVjdCBwcHBfZGV2aWNlKSwg
+R0ZQX0tFUk5FTCk7Ci0JCWlmIChwcHBkZXYgPT0gTlVMTCkKLQkJCXJldHVybiAtRU5PQlVGUzsK
+KwkJaWYgKHBwcGRldiA9PSBOVUxMKSB7CisJCQllcnIgPSAtRU5PQlVGUzsKKwkJCWdvdG8gY29u
+ZmZyZWU7CisJCX0KIAkJbWVtc2V0KHBwcGRldiwgMCwgc2l6ZW9mKHN0cnVjdCBwcHBfZGV2aWNl
+KSk7CiAJCXBwcGRldi0+ZGV2ID0ga21hbGxvYyhzaXplb2YobmV0ZGV2aWNlX3QpLCBHRlBfS0VS
+TkVMKTsKIAkJaWYgKHBwcGRldi0+ZGV2ID09IE5VTEwpIHsKIAkJCWtmcmVlKHBwcGRldik7Ci0J
+CQlyZXR1cm4gLUVOT0JVRlM7CisJCQllcnIgPSAtRU5PQlVGUzsKKwkJCWdvdG8gY29uZmZyZWU7
+CiAJCX0KIAkJbWVtc2V0KHBwcGRldi0+ZGV2LCAwLCBzaXplb2YobmV0ZGV2aWNlX3QpKTsKLQkJ
+ZXJyID0gd2FuZGV2LT5uZXdfaWYod2FuZGV2LCAobmV0ZGV2aWNlX3QgKilwcHBkZXYsICZjb25m
+KTsKKwkJZXJyID0gd2FuZGV2LT5uZXdfaWYod2FuZGV2LCAobmV0ZGV2aWNlX3QgKilwcHBkZXYs
+IGNuZik7CiAJCWRldiA9IHBwcGRldi0+ZGV2OwogI2Vsc2UKIAkJcHJpbnRrKEtFUk5fSU5GTyAi
+JXM6IFdhbnBpcGUgTXVsaXQtUG9ydCBQUFAgc3VwcG9ydCBoYXMgbm90IGJlZW4gY29tcGlsZWQg
+aW4hXG4iLAogCQkJCXdhbmRldi0+bmFtZSk7Ci0JCXJldHVybiAtRVBST1RPTk9TVVBQT1JUOwor
+CQllcnIgPSAtRVBST1RPTk9TVVBQT1JUOworCQlnb3RvIGNvbmZmcmVlOwogI2VuZGlmCiAJfSBl
+bHNlIHsKIAkJZGV2ID0ga21hbGxvYyhzaXplb2YobmV0ZGV2aWNlX3QpLCBHRlBfS0VSTkVMKTsK
+LQkJaWYgKGRldiA9PSBOVUxMKQotCQkJcmV0dXJuIC1FTk9CVUZTOworCQlpZiAoZGV2ID09IE5V
+TEwpIHsKKwkJCWVyciA9IC1FTk9CVUZTOworCQkJZ290byBjb25mZnJlZTsKKwkJfQogCQltZW1z
+ZXQoZGV2LCAwLCBzaXplb2YobmV0ZGV2aWNlX3QpKTsKLQkJZXJyID0gd2FuZGV2LT5uZXdfaWYo
+d2FuZGV2LCBkZXYsICZjb25mKTsKKwkJZXJyID0gd2FuZGV2LT5uZXdfaWYod2FuZGV2LCBkZXYs
+IGNuZik7CiAJfQogCiAJaWYgKCFlcnIpIHsKQEAgLTczOSw3ICs3NTMsOCBAQAogCQkJCSsrd2Fu
+ZGV2LT5uZGV2OwogCiAJCQkJdW5sb2NrX2FkYXB0ZXJfaXJxKCZ3YW5kZXYtPmxvY2ssICZzbXBf
+ZmxhZ3MpOwotCQkJCXJldHVybiAwOwkvKiBkb25lICEhISAqLworCQkJCWVyciA9IDA7CS8qIGRv
+bmUgISEhICovCisJCQkJZ290byBjb25mZnJlZTsKIAkJCX0KIAkJfQogCQlpZiAod2FuZGV2LT5k
+ZWxfaWYpCkBAIC03NTIsMTggKzc2NywxOSBAQAogCQlkZXYtPnByaXYgPSBOVUxMOwogCX0KIAot
+CiAjaWZkZWYgQ09ORklHX1dBTlBJUEVfTVVMVFBQUAotCWlmIChjb25mLmNvbmZpZ19pZCA9PSBX
+QU5DT05GSUdfTVBQUCkKKwlpZiAoY25mLT5jb25maWdfaWQgPT0gV0FOQ09ORklHX01QUFApCiAJ
+CWtmcmVlKHBwcGRldik7CiAJZWxzZQogCQlrZnJlZShkZXYpOwogI2Vsc2UKIAkvKiBTeW5jIFBQ
+UCBpcyBkaXNhYmxlZCAqLwotCWlmIChjb25mLmNvbmZpZ19pZCAhPSBXQU5DT05GSUdfTVBQUCkK
+KwlpZiAoY25mLT5jb25maWdfaWQgIT0gV0FOQ09ORklHX01QUFApCiAJCWtmcmVlKGRldik7CiAj
+ZW5kaWYKIAorIGNvbmZmcmVlOgorCWtmcmVlKGNuZik7CiAJcmV0dXJuIGVycjsKIH0KIAo=
+
+--Multipart_Mon__14_Apr_2003_17:18:15_-0700_09f11948
+Content-Type: application/octet-stream;
+ name="cpqarray-stack.patch"
+Content-Disposition: attachment;
+ filename="cpqarray-stack.patch"
+Content-Transfer-Encoding: base64
+
+cGF0Y2hfbmFtZToJY3BxYXJyYXktc3RhY2sucGF0Y2gKcGF0Y2hfdmVyc2lvbjoJMjAwMy0wNC0w
+Mi4yMToxMDowMQphdXRob3I6CQlSYW5keS5EdW5sYXAgPHJkZHVubGFwQG9zZGwub3JnPgpkZXNj
+cmlwdGlvbjoJcmVkdWNlIHN0YWNrIGluIGJsb2NrL2NxcGFycmF5LmM6OmlkYV9pb2N0bCgpCgkJ
+ZnJvbSAweDU1MCB0byAweDQ4Owpwcm9kdWN0OglMaW51eApwcm9kdWN0X3ZlcnNpb25zOiBsaW51
+eC0yNTY2CmNoYW5nZWxvZzoJYWxsb2NhdGUgYW5kIGZyZWUgPGlkYV9pb2N0bF90PgptYWludGFp
+bmVyOglTdGV2ZSBDYW1lcm9uOiBhcnJheXNAaHAuY29tLCBzdGV2ZS5jYW1lcm9uQGhwLmNvbQpk
+aWZmc3RhdDoJPQogZHJpdmVycy9ibG9jay9jcHFhcnJheS5jIHwgICAyMCArKysrKysrKysrKysr
+Ky0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygt
+KQoKCmRpZmYgLU5hdXIgLi9kcml2ZXJzL2Jsb2NrL2NwcWFycmF5LmMlSURBSU9DIC4vZHJpdmVy
+cy9ibG9jay9jcHFhcnJheS5jCi0tLSAuL2RyaXZlcnMvYmxvY2svY3BxYXJyYXkuYyVJREFJT0MJ
+MjAwMy0wMy0yNCAxNDowMDowMy4wMDAwMDAwMDAgLTA4MDAKKysrIC4vZHJpdmVycy9ibG9jay9j
+cHFhcnJheS5jCTIwMDMtMDQtMDIgMjA6MDU6NTcuMDAwMDAwMDAwIC0wODAwCkBAIC0xMDIxLDcg
+KzEwMjEsNyBAQAogCWludCBkaXNraW5mb1s0XTsKIAlzdHJ1Y3QgaGRfZ2VvbWV0cnkgKmdlbyA9
+IChzdHJ1Y3QgaGRfZ2VvbWV0cnkgKilhcmc7CiAJaWRhX2lvY3RsX3QgKmlvID0gKGlkYV9pb2N0
+bF90Kilhcmc7Ci0JaWRhX2lvY3RsX3QgbXlfaW87CisJaWRhX2lvY3RsX3QgKm15X2lvOwogCiAJ
+c3dpdGNoKGNtZCkgewogCWNhc2UgSERJT19HRVRHRU86CkBAIC0xMDQ2LDExICsxMDQ2LDE5IEBA
+CiAJCXJldHVybiAwOwogCWNhc2UgSURBUEFTU1RIUlU6CiAJCWlmICghY2FwYWJsZShDQVBfU1lT
+X1JBV0lPKSkgcmV0dXJuIC1FUEVSTTsKLQkJaWYgKGNvcHlfZnJvbV91c2VyKCZteV9pbywgaW8s
+IHNpemVvZihteV9pbykpKQotCQkJcmV0dXJuIC1FRkFVTFQ7Ci0JCWVycm9yID0gaWRhX2N0bHJf
+aW9jdGwoY3RsciwgZHNrLCAmbXlfaW8pOwotCQlpZiAoZXJyb3IpIHJldHVybiBlcnJvcjsKLQkJ
+cmV0dXJuIGNvcHlfdG9fdXNlcihpbywgJm15X2lvLCBzaXplb2YobXlfaW8pKSA/IC1FRkFVTFQg
+OiAwOworCQlteV9pbyA9IGttYWxsb2Moc2l6ZW9mKGlkYV9pb2N0bF90KSwgR0ZQX0tFUk5FTCk7
+CisJCWlmICghbXlfaW8pCisJCQlyZXR1cm4gLUVOT01FTTsKKwkJaWYgKGNvcHlfZnJvbV91c2Vy
+KG15X2lvLCBpbywgc2l6ZW9mKCpteV9pbykpKSB7CisJCQllcnJvciA9IC1FRkFVTFQ7CisJCQln
+b3RvIGlvY2ZyZWU7CisJCX0KKwkJZXJyb3IgPSBpZGFfY3Rscl9pb2N0bChjdGxyLCBkc2ssIG15
+X2lvKTsKKwkJaWYgKGVycm9yKSBnb3RvIGlvY2ZyZWU7CisJCWVycm9yID0gY29weV90b191c2Vy
+KGlvLCBteV9pbywgc2l6ZW9mKCpteV9pbykpID8gLUVGQVVMVCA6IDA7CisgIGlvY2ZyZWU6CisJ
+CWtmcmVlKG15X2lvKTsKKwkJcmV0dXJuIGVycm9yOwogCWNhc2UgSURBR0VUQ1RMUlNJRzoKIAkJ
+aWYgKCFhcmcpIHJldHVybiAtRUlOVkFMOwogCQlwdXRfdXNlcihoYmFbY3Rscl0tPmN0bHJfc2ln
+LCAoaW50KilhcmcpOwo=
+
+--Multipart_Mon__14_Apr_2003_17:18:15_-0700_09f11948--

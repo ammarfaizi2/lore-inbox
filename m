@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263174AbTJPUdv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 16:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263175AbTJPUdv
+	id S263161AbTJPU27 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 16:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTJPU27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 16:33:51 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:17055 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S263174AbTJPUdt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 16:33:49 -0400
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org,
-       Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-Subject: Re: LVM Snapshots
-References: <20031015174017.606c6047.Christoph.Pleger@uni-dortmund.de>
-	<200310151751.23103.m.c.p@wolk-project.de>
-	<87n0c2wih5.fsf@ceramic.fifi.org>
-	<200310161128.23235.m.c.p@wolk-project.de>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 16 Oct 2003 13:33:43 -0700
-In-Reply-To: <200310161128.23235.m.c.p@wolk-project.de>
-Message-ID: <87ismo6hy0.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 16 Oct 2003 16:28:59 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:21495 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S263161AbTJPU24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 16:28:56 -0400
+Date: Thu, 16 Oct 2003 14:27:06 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Eli Billauer <eli_billauer@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [RFC] frandom - fast random generator module
+Message-ID: <20031016142706.G7000@schatzie.adilger.int>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Eli Billauer <eli_billauer@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int> <20031016174526.GM5725@waste.org> <20031016123828.F7000@schatzie.adilger.int> <20031016190825.GQ5725@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031016190825.GQ5725@waste.org>; from mpm@selenic.com on Thu, Oct 16, 2003 at 02:08:25PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
+On Oct 16, 2003  14:08 -0500, Matt Mackall wrote:
+> On Thu, Oct 16, 2003 at 12:38:28PM -0600, Andreas Dilger wrote:
+> > It was a 2-way SMP system.  We use the RNG a fair amount (enough to know
+> > that 2 CPUs can race and return the same value from get_random_bytes() ;-)
+> 
+> Sure this is a race and not a birthday paradox? How recent is this?
+> Possibly before locking was added to random.c?
 
-> On Wednesday 15 October 2003 18:53, Philippe Troin wrote:
-> 
-> Hi Philippe,
-> 
-> > Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
-> > > On Wednesday 15 October 2003 17:40, Christoph Pleger wrote:
-> > >
-> > > Hi Christoph,
-> > >
-> > > > I am using a 2.4.22 kernel from www.kernel.org together with an XFS
-> > > > patch from SGI. I want to use LVM for creating snapshots for backups,
-> > > > but I found out that I cannot mount the snapshots of journalling
-> > > > filesystems (EXT3, XFS, Reiser). Only JFS snapshots can be mounted.
-> > > > My research on internet gave the result that a kernel-patch must be
-> > > > used to solve that problem, but I could not find such a patch for Linux
-> > > > 2.4.22, so where can I get it?
-> > >
-> > > Marcelo decided not to apply that needed patch. Here it is for you to
-> > > play with :) ... It'll apply with offsets to 2.4.23-pre7.
-> >
-> > What was the reason? I cannot find this thread in the archives...
-> 
-> it was a private mail. Pasting relevant stuff:
-> 
-> ---------------------------------------------------------------------
-> > - [PATCH 2.4.23-pre1] LVM 1.0.7 ADDON: Allow snapshots on journaling
-> >                                        filesystems
-> 
-> LVM has already been updated on 2.4.23-pre. Lets do more changes later on.
-> 
-> ---------------------------------------------------------------------
+This is with a 2.4 kernel, which AFAIK doesn't have any locking.
 
-Nothing technical then, Marcelo is just being slow for stability's
-sake and easier testing. I guess that will go in somewhere in a later
-23-pre or in 24.
+> > so we had to put a spinlock around our calls to that.  Even so, oprofile
+> > showed extract_entropy() and SHATransform() near the top of CPU users.
+> 
+> Ok, the lock contention would be with add_entropy_words. I've got code
+> that reduces calls to SHATransform for /dev/urandom, but it require
+> addressing the starvation issues between /dev/random and /dev/urandom first.
 
-Thanks for the info.
+But there isn't an in-kernel interface to "/dev/urandom" so that doesn't
+help us.
 
-Phil.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

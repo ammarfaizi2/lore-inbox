@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268893AbTBSFjK>; Wed, 19 Feb 2003 00:39:10 -0500
+	id <S268892AbTBSFgW>; Wed, 19 Feb 2003 00:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268894AbTBSFjK>; Wed, 19 Feb 2003 00:39:10 -0500
-Received: from usen-43x235x12x234.ap-USEN.usen.ad.jp ([43.235.12.234]:35211
-	"EHLO miyazawa.org") by vger.kernel.org with ESMTP
-	id <S268893AbTBSFjJ>; Wed, 19 Feb 2003 00:39:09 -0500
-Date: Wed, 19 Feb 2003 14:58:04 +0900
-From: Kazunori Miyazawa <kazunori@miyazawa.org>
-To: "Mitsuru KANDA / =?ISO-2022-JP?B?GyRCP0BFRBsoQiAbJEI9PBsoQiI=?= <mk@karaba.org>"@miyazawa.org
-Cc: kunihiro@ipinfusion.com, davem@redhat.com, kuznet@ms2.inr.ac.ru,
-       Kazunori.Miyazawa@jp.yokogawa.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi-core@linux-ipv6.org
-Subject: Re: [PATCH] IPv6 IPsec support
-Message-Id: <20030219145804.5669ebee.kazunori@miyazawa.org>
-In-Reply-To: <m3lm0cyhks.wl@karaba.org>
-References: <20030219134850.5f203ea7.Kazunori.Miyazawa@jp.yokogawa.com>
-	<20030218.205037.133906611.davem@redhat.com>
-	<871y244zzq.wl@ipinfusion.com>
-	<m3lm0cyhks.wl@karaba.org>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	id <S268893AbTBSFgW>; Wed, 19 Feb 2003 00:36:22 -0500
+Received: from asclepius.uwa.edu.au ([130.95.128.56]:32948 "EHLO
+	asclepius.uwa.edu.au") by vger.kernel.org with ESMTP
+	id <S268892AbTBSFgV>; Wed, 19 Feb 2003 00:36:21 -0500
+Date: Wed, 19 Feb 2003 13:46:17 +0800 (WST)
+From: Paul Marinceu <elixxir@ucc.gu.uwa.edu.au>
+To: linux-kernel@vger.kernel.org
+Cc: kai@tp1.ruhr-uni-bochum.de
+Subject: Loading 3rd-party module in 2.5.59
+Message-ID: <Pine.LNX.4.21.0302191322500.13555-100000@mussel>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003 14:17:55 +0900
-"Mitsuru KANDA / 神田 充" <mk@karaba.org> wrote:
+Kai,
 
-> At Tue, 18 Feb 2003 21:10:33 -0800,
-> Kunihiro Ishiguro wrote:
-> > 
-> > >Thank you for this work.  Alexey and I will review and work with your
-> > >patch.
-> > >
-> > >I must ask, have you been working together with Kunihiro Ishiguro
-> > ><kunihiro@ipinfusion.com>?  Or are you seperately doing the same work?
-> > 
-> > We are doing the same work separately.
-> Yes, it's a matter for this...
-> 
-We are developing separately.
-Yes, we should work together.
+I'm currently helping port a "half open source, half closed
+source" winmodem driver from 2.4 to 2.5.59 (at www.linmodems.org)
 
-> > >It would be great if these two teams worked together.  There is no
-> > >reason to duplicate effort.
-> > 
-> > I agree.  
-> me too.
-> So we should list up next ToDos.
-> 
-I knew he work on IPv6 IPsec. I had not known his status.
-But I knew his status with linux-2.5.62 first.
+The problem I'm facing is that since the kernel build process and the
+module infrastructure was changed the driver refuses to load.
 
-> > >All people doing work will get full credit.  The only thing
-> > >necessary is to send me patches to add credits to the comments.
-> > >So nobody needs to fear that their contribution will go unnoticed.
-> > 
-> > Yes.
-> I agree.
-> 
-OK.
+I'm currently building the open source part using a makefile with
+something like:
 
-I suggested beause his work was similar to mine, which I sent you on 1/7.
-But I don't appeal anymore. Please forget it.
+obj-m := modem.o
 
-I'm sorry if you felt discomfort.
+This then needs to be linked with the closed source object file, like so:
 
---Kazunori Miyazawa (Yokogawa Electric Corporation)
+ld -m elf_i386 -r -o modem_module.o modem.o closed_src.o
+
+Next, I attempt to load modem_module.o with insmod (having installed
+Rusty's module-init-tools) and I get '-1: invalid module format'
+
+If I try to load modem.o by itself I get 'unresolved symbols' messages but
+that's because it needs the closed source part...(but it seems to at least
+be in the right format)
+
+What am I doing wrong? Also what is the correct way to load a closed
+source object file in 2.5.59?
+
+Do I need to get the closed source manufacturer to compile me a new module
+under 2.5 for it to be the correct format?
+
+Hope you can help (and please cc me a response if you can)
+
+--
+ Paul Marinceu
+ http://elixxir.ucc.asn.au
+
 

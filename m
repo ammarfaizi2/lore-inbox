@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267257AbTABVbB>; Thu, 2 Jan 2003 16:31:01 -0500
+	id <S267128AbTABVbA>; Thu, 2 Jan 2003 16:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267216AbTABVaU>; Thu, 2 Jan 2003 16:30:20 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:62660 "EHLO
+	id <S266584AbTABVa1>; Thu, 2 Jan 2003 16:30:27 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:61636 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267128AbTABV3S>; Thu, 2 Jan 2003 16:29:18 -0500
+	id <S267119AbTABV3D>; Thu, 2 Jan 2003 16:29:03 -0500
 From: Tomas Szepe <kala@pinerecords.com>
-Date: Thu, 02 Jan 2003 22:37:44 +0100
+Date: Thu, 02 Jan 2003 22:37:29 +0100
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [unify netdev config 15/22] arch-v850
-Message-ID: <3E14B128.mailLUI1BVZRY@louise.pinerecords.com>
+Subject: [unify netdev config 14/22] arch-superh
+Message-ID: <3E14B119.mailLU8117BTQ@louise.pinerecords.com>
 User-Agent: nail 10.3 11/29/02
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -19,10 +19,10 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN a/arch/v850/Kconfig b/arch/v850/Kconfig
---- a/arch/v850/Kconfig	2002-12-16 07:01:46.000000000 +0100
-+++ b/arch/v850/Kconfig	2003-01-01 19:49:33.000000000 +0100
-@@ -304,47 +304,6 @@
+diff -urN a/arch/sh/Kconfig b/arch/sh/Kconfig
+--- a/arch/sh/Kconfig	2002-12-16 07:01:46.000000000 +0100
++++ b/arch/sh/Kconfig	2003-01-01 19:45:26.000000000 +0100
+@@ -745,48 +745,6 @@
  
  source "net/Kconfig"
  
@@ -67,6 +67,7 @@ diff -urN a/arch/v850/Kconfig b/arch/v850/Kconfig
 -
 -endmenu
 -
- source "net/ax25/Kconfig"
+-
+ menu "Old CD-ROM drivers (not SCSI, not IDE)"
  
- source "net/irda/Kconfig"
+ config CD_NO_IDESCSI

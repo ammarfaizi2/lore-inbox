@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263039AbTJUIjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 04:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbTJUIjn
+	id S263019AbTJUIjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 04:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbTJUIjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 04:39:43 -0400
-Received: from smtp02.web.de ([217.72.192.151]:8220 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263039AbTJUIjh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 04:39:37 -0400
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu
-Subject: Re: 2.6.0-test8-mm1
-Date: Tue, 21 Oct 2003 10:39:18 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       James Simmons <jsimmons@infradead.org>
-References: <20031020020558.16d2a776.akpm@osdl.org> <200310210046.h9L0kHFg001918@turing-police.cc.vt.edu> <20031020185613.7d670975.akpm@osdl.org>
-In-Reply-To: <20031020185613.7d670975.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_7CPl/oUqXn2R+gk";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310211039.23358.thomas.schlichter@web.de>
+	Tue, 21 Oct 2003 04:39:04 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:16367 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263019AbTJUIjC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 04:39:02 -0400
+Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI
+	P-state driver
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-acpi <linux-acpi@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Dominik Brodowski <linux@brodo.de>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com>
+References: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S/VVdAcv/ouC+l4UsFx7"
+Organization: Red Hat, Inc.
+Message-Id: <1066725533.5237.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
+Date: Tue, 21 Oct 2003 10:38:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_7CPl/oUqXn2R+gk
-Content-Type: text/plain;
-  charset="iso-8859-1"
+--=-S/VVdAcv/ouC+l4UsFx7
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Tuesday 21 October 2003 03:56, Andrew Morton wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> > I've not had a chance to play binary search on those options yet..=20
-> > Graphics card is an NVidia GeForce 440Go, and was previous working just
-> > fine with framebuffer over on vc1-6 and NVidia's driver on an XFree86 on
-> > vc7. (OK, I admit I didn't stress test the framebuffer side much past
-> > "penguins and scroiled text"...)
->
-> Thanks.  You're now the third person (schlicht@uni-mannheim.de,
-> jeremy@goop.org) who reports that the weird oopses (usually in
-> invalidate_list()) go away when the fbdev code is disabled.
->
-> You're using vesafb on nvidia, Jeremy is using vesafb on either radeon or
-> nvidia, not sure about Thomas.
+On Tue, 2003-10-21 at 04:56, Pallipadi, Venkatesh wrote:
+> Patch 3/3: New dynamic cpufreq driver (called=20
+> DemandBasedSwitch driver), which periodically monitors CPU=20
+> usage and changes the CPU frequency based on the demand.
 
-Sorry for not mentioning it!
-I use(d) vesafb on a Nvidia GeForce 2 MX 440.
 
-> Has anyone tried CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC, see if that
-> turns anything up?
+it's all nice code and such, but I still wonder why this can't be done
+by a userland policy daemon. The 2.6 kernel has the infrastructure to
+give very detailed information to userspace (eg top etc) about idle
+percentages...... I didn't see anything in this driver that couldn't be
+done from userspace.
 
-I didn't yet, but I'll try now...
+Note that I'm not totally against doing some of this in the kernel; I
+can well see the point of say, detecting an IRQ overload and based on
+that, go to max speed in the kernel because it's a situation where
+userspace doesn't even run; but the patch as is doesn't do any such
+advanced things...
 
---Boundary-02=_7CPl/oUqXn2R+gk
-Content-Type: application/pgp-signature
-Content-Description: signature
+--=-S/VVdAcv/ouC+l4UsFx7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQA/lPC7YAiN+WRIZzQRAqg8AJ4rh0MlSoTsKndBF2/YDtCzi3JwZwCeNdfB
-ffv+e7SJsjVcJRjeR8N/LRY=
-=+aaQ
+iD8DBQA/lPCdxULwo51rQBIRAv5VAJwMsnktwQ29tXjQfg4ErZ8/A74VyACfWT2O
+QCHHEyS3+KWp8/0icuBvGjk=
+=BS2i
 -----END PGP SIGNATURE-----
 
---Boundary-02=_7CPl/oUqXn2R+gk--
+--=-S/VVdAcv/ouC+l4UsFx7--

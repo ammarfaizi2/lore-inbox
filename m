@@ -1,296 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbULCPi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbULCPmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbULCPi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 10:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbULCPi0
+	id S261499AbULCPmd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 10:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbULCPmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 10:38:26 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:44205 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262273AbULCPh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 10:37:26 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CA70@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Fri, 3 Dec 2004 10:29:29 -0500 
+	Fri, 3 Dec 2004 10:42:33 -0500
+Received: from ns2.planet-work.com ([212.37.221.36]:8411 "EHLO
+	feng.planet-work.com") by vger.kernel.org with ESMTP
+	id S261499AbULCPmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 10:42:25 -0500
+Message-ID: <1102088541.41b0895d0ad09@webmail.planet-work.com>
+Date: Fri,  3 Dec 2004 16:42:21 +0100
+From: Jean SANSLUNE <jean.sanslune@cr0.org>
+To: linux-kernel@vger.kernel.org
+Subject: IPSec: using both AH and ESP authentification in transport mode
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Content-Type: multipart/mixed; boundary="-MOQ11020885419117bbae1b803d64c90badc40b7979f0"
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 193.49.124.107
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree. The sysfs method would have been the most logical way of doing it.
-But then application becomes sysfs dependent. We really cannot do that.
+This message is in MIME format.
 
-Given that we have to do it from within the driver, is whatever I am doing
-right?
+---MOQ11020885419117bbae1b803d64c90badc40b7979f0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Thanks,
-Sreenivas
+Hi,  
+  
+I use linux 2.6.9 native ipsec with racoon as IKE.  
+I need to communicate with a Windows machine in transport mode, which is using both  
+AH (MD5) and  ESP (md5 for authentification, 3DES for encryption).  
+  
+The problem is that I can't manage to communicate with it when it is configured to  
+use both ESP and AH authentification. IKE part seems ok, I get ISAKMP-SA and 
+IPsec-SA.. 
+  
+I use the following setkey:   
+  
+--  
+#!/sbin/setkey -f  
+flush;  
+spdflush;  
+  
+spdadd myip windowsip any -P out ipsec  
+        esp/transport//required  
+        ah/transport//required;  
+  
+spdadd windowsip myip any -P in ipsec  
+        esp/transport//required  
+        ah/transport//required;  
+--  
+  
+If I setup the windows machine and uncheck either the AH or the ESP checkbox (and 
+remove  
+the relevant line in my setkey.conf), everything works fine. But in this 
+configuration, I get ISAKMP-SA ok, and when I try to make traffic I get a lot of 
+IPSec-SA etablished, either for ESP or AH and then purged almost immediately. 
+As a result, I can't even ping one host from the other. 
+ 
+I have tried "complex_bundle on" in racoon (I've not exactly understood what it was 
+for). 
+ 
+Thanks 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+  
+  
+  
+  
 
->-----Original Message-----
->From: Brian King [mailto:brking@us.ibm.com] 
->Sent: Friday, December 03, 2004 10:11 AM
->To: Bagalkote, Sreenivas
->Cc: 'James Bottomley'; 'linux-kernel@vger.kernel.org'; 
->'linux-scsi@vger.kernel.org'; 'bunk@fs.tum.de'; 'Andrew 
->Morton'; 'Matt_Domsch@dell.com'; Ju, Seokmann; Doelfel, Hardy; 
->Mukker, Atul
->Subject: Re: How to add/drop SCSI drives from within the driver?
->
->This looks to be adding an LLD specific interface to userspace 
->to add/delete disks. Why can't the existing sysfs interfaces 
->be used to to this? (scan attribute on host and delete 
->attribute on device).
->
->-Brian
->
->Bagalkote, Sreenivas wrote:
->> Hello All,
->> 
->> I am trying to implement a feature in my SCSI driver, where it can 
->> trigger the SCSI mid-layer to scan or remove a particular drive. I 
->> appreciate any help in nudging me in the right direction.
->> 
->> The exported functions -
->> 
->> scsi_add_device( host, channel, target, lun ) scsi_remove_device( 
->> struct scsi_device* )
->> 
->> seem to work well in my limited testing. Are there any 
->caveats in this 
->> method? Does this method work well without exceptions? I am inlining 
->> the full patch for megaraid SCSI driver taken against 
->2.6.10-rc2. I am 
->> also attaching it to this mail.
->> 
->> Thank you,
->> Sreenivas
->> 
->> 
->> ----
->> diff -Naur old-rc3/drivers/scsi/megaraid/mega_common.h
->> new-rc2/drivers/scsi/megaraid/mega_common.h
->> --- old-rc2/drivers/scsi/megaraid/mega_common.h	2004-10-18
->> 17:54:31.000000000 -0400
->> +++ new-rc2/drivers/scsi/megaraid/mega_common.h	2004-12-02
->> 20:23:35.000000000 -0500
->> @@ -242,6 +242,15 @@
->>  					[SCP2TARGET(scp)] & 
->0xFF);	\
->>  	}
->>  
->> +/**
->> + * MRAID_LD_TARGET
->> + * @param adp		- Adapter's soft state
->> + * @param ld		- Logical drive number
->> + *
->> + * Macro to retrieve the SCSI target id of a logical drive  */ 
->> +#define MRAID_LD_TARGET(adp, ld) (((ld) < (adp)->init_id) ? (ld) : 
->> +(ld)+1)
->> 
->> +
->>  /*
->>   * ### Helper routines ###
->>   */
->> diff -Naur old-rc2/drivers/scsi/megaraid/megaraid_ioctl.h
->> new-rc2/drivers/scsi/megaraid/megaraid_ioctl.h
->> --- old-rc2/drivers/scsi/megaraid/megaraid_ioctl.h	2004-12-02
->> 20:20:16.000000000 -0500
->> +++ new-rc2/drivers/scsi/megaraid/megaraid_ioctl.h	2004-12-02
->> 20:23:25.000000000 -0500
->> @@ -51,8 +51,11 @@
->>  #define MEGAIOC_QNADAP		'm'	/* Query # of 
->adapters		*/
->>  #define MEGAIOC_QDRVRVER	'e'	/* Query driver version	
->	*/
->>  #define MEGAIOC_QADAPINFO   	'g'	/* Query 
->adapter information	*/
->> +#define MEGAIOC_ADD_LD		'a'
->> +#define MEGAIOC_DEL_LD		'r'
->>  
->>  #define USCSICMD		0x80
->> +#define UIOC_NONE		0x00000
->>  #define UIOC_RD			0x00001
->>  #define UIOC_WR			0x00002
->>  
->> @@ -62,6 +65,8 @@
->>  #define GET_ADAP_INFO		0x30000
->>  #define GET_CAP			0x40000
->>  #define GET_STATS		0x50000
->> +#define	ADD_LD			0x60000
->> +#define DEL_LD			0x70000
->>  #define GET_IOCTL_VERSION	0x01
->>  
->>  #define EXT_IOCTL_SIGN_SZ	16
->> diff -Naur old-rc2/drivers/scsi/megaraid/megaraid_mbox.c
->> new-rc2/drivers/scsi/megaraid/megaraid_mbox.c
->> --- old-rc2/drivers/scsi/megaraid/megaraid_mbox.c	2004-12-02
->> 20:20:16.000000000 -0500
->> +++ new-rc2/drivers/scsi/megaraid/megaraid_mbox.c	2004-12-02
->> 20:32:33.408278216 -0500
->> @@ -10,7 +10,7 @@
->>   *	   2 of the License, or (at your option) any later version.
->>   *
->>   * FILE		: megaraid_mbox.c
->> - * Version	: v2.20.4.1 (Nov 04 2004)
->> + * Version	: v2.20.4.1+ TEST VERSION
->>   *
->>   * Authors:
->>   * 	Atul Mukker		<Atul.Mukker@lsil.com>
->> @@ -3642,6 +3642,10 @@
->>  megaraid_mbox_mm_handler(unsigned long drvr_data, uioc_t *kioc, 
->> uint32_t
->> action)
->>  {
->>  	adapter_t *adapter;
->> +	uint32_t ld;
->> +	struct scsi_device* sdev;
->> +	int ch;
->> +	int tg;
->>  
->>  	if (action != IOCTL_ISSUE) {
->>  		con_log(CL_ANN, (KERN_WARNING
->> @@ -3670,6 +3674,31 @@
->>  
->>  		return kioc->status;
->>  
->> +	case ADD_LD:
->> +		ld = *(uint32_t*) kioc->buf_vaddr;
->> +		ch = adapter->max_channel;
->> +		tg = MRAID_LD_TARGET( adapter, ld );
->> +		scsi_add_device(adapter->host, ch, tg, 0);
->> +
->> +		kioc->status = 0;
->> +		kioc->done(kioc);
->> +		return kioc->status;
->> +
->> +	case DEL_LD:
->> +		ld = *(uint32_t*) kioc->buf_vaddr;
->> +		ch = adapter->max_channel;
->> +		tg = MRAID_LD_TARGET( adapter, ld );
->> +		sdev = scsi_device_lookup( adapter->host, ch, tg, 0);
->> +		
->> +		if( sdev ) {
->> +			scsi_remove_device( sdev );
->> +			scsi_device_put( sdev );
->> +		}
->> +
->> +		kioc->status = 0;
->> +		kioc->done(kioc);
->> +		return kioc->status;
->> +
->>  	case MBOX_CMD:
->>  
->>  		return megaraid_mbox_mm_command(adapter, kioc); 
->diff -Naur 
->> old-rc2/drivers/scsi/megaraid/megaraid_mbox.h
->> new-rc2/drivers/scsi/megaraid/megaraid_mbox.h
->> --- old-rc2/drivers/scsi/megaraid/megaraid_mbox.h	2004-12-02
->> 20:20:16.000000000 -0500
->> +++ new-rc2/drivers/scsi/megaraid/megaraid_mbox.h	2004-12-02
->> 20:32:09.737876664 -0500
->> @@ -21,8 +21,8 @@
->>  #include "megaraid_ioctl.h"
->>  
->>  
->> -#define MEGARAID_VERSION	"2.20.4.1"
->> -#define MEGARAID_EXT_VERSION	"(Release Date: Thu Nov 
-> 4 17:44:59 EST
->> 2004)"
->> +#define MEGARAID_VERSION	"2.20.4.1+ TEST VERSION"
->> +#define MEGARAID_EXT_VERSION	"(Release Date: TEST VERSION)"
->>  
->>  
->>  /*
->> diff -Naur old-rc2/drivers/scsi/megaraid/megaraid_mm.c
->> new-rc2/drivers/scsi/megaraid/megaraid_mm.c
->> --- old-rc2/drivers/scsi/megaraid/megaraid_mm.c	2004-12-02
->> 20:20:16.000000000 -0500
->> +++ new-rc2/drivers/scsi/megaraid/megaraid_mm.c	2004-12-02
->> 20:22:57.000000000 -0500
->> @@ -373,6 +373,34 @@
->>  			if (mraid_mm_attach_buf(adp, kioc, 
->kioc->xferlen))
->>  				return (-ENOMEM);
->>  		}
->> +		else if (subopcode == MEGAIOC_ADD_LD) {
->> +
->> +			kioc->opcode	= ADD_LD;
->> +			kioc->data_dir	= UIOC_NONE;
->> +			kioc->xferlen	= sizeof(uint32_t);
->> +
->> +			if (mraid_mm_attach_buf(adp, kioc, 
->kioc->xferlen))
->> +				return -(ENOMEM);
->> +
->> +			if (copy_from_user(kioc->buf_vaddr, mimd.data,
->> +							
->kioc->xferlen)) {
->> +				return (-EFAULT);
->> +			}
->> +		}
->> +		else if (subopcode == MEGAIOC_DEL_LD) {
->> +
->> +			kioc->opcode	= DEL_LD;
->> +			kioc->data_dir	= UIOC_NONE;
->> +			kioc->xferlen	= sizeof(uint32_t);
->> +
->> +			if (mraid_mm_attach_buf(adp, kioc, 
->kioc->xferlen))
->> +				return -(ENOMEM);
->> +
->> +			if (copy_from_user(kioc->buf_vaddr, mimd.data,
->> +							
->kioc->xferlen)) {
->> +				return (-EFAULT);
->> +			}
->> +		}
->>  		else {
->>  			con_log(CL_ANN, (KERN_WARNING
->>  					"megaraid cmm: Invalid 
->subop\n")); @@ -809,6 +837,9 @@
->>  
->>  			return 0;
->>  
->> +		case MEGAIOC_ADD_LD:
->> +		case MEGAIOC_DEL_LD:
->> +			return 0;
->>  		default:
->>  			return (-EINVAL);
->>  		}
->> diff -Naur old-rc2/drivers/scsi/megaraid/megaraid_mm.h
->> new-rc2/drivers/scsi/megaraid/megaraid_mm.h
->> --- old-rc2/drivers/scsi/megaraid/megaraid_mm.h	2004-12-02
->> 20:20:16.000000000 -0500
->> +++ new-rc2/drivers/scsi/megaraid/megaraid_mm.h	2004-12-02
->> 20:33:00.709127856 -0500
->> @@ -29,9 +29,9 @@
->>  #include "megaraid_ioctl.h"
->>  
->>  
->> -#define LSI_COMMON_MOD_VERSION	"2.20.2.2"
->> +#define LSI_COMMON_MOD_VERSION	"2.20.2.2+ TEST VERSION"
->>  #define LSI_COMMON_MOD_EXT_VERSION	\
->> -		"(Release Date: Thu Nov  4 17:46:29 EST 2004)"
->> +		"(Release Date: TEST VERSION)"
->>  
->>  
->>  #define LSI_DBGLVL			dbglevel
->> ----
->> 
->
->--
->Brian King
->eServer Storage I/O
->IBM Linux Technology Center
->
+---MOQ11020885419117bbae1b803d64c90badc40b7979f0
+Content-Type: text/x-log; name="ipsec.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ipsec.log"
+
+RGVjICAzIDE1OjM0OjIwIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBAKCMpaXBzZWMtdG9vbHMg
+MC4zLjMgKGh0dHA6Ly9pcHNlYy10b29scy5zb3VyY2Vmb3JnZS5uZXQpIApEZWMgIDMgMTU6MzQ6
+MjAgbXktbWFjaGluZSByYWNvb246IElORk86IEAoIylUaGlzIHByb2R1Y3QgbGlua2VkIE9wZW5T
+U0wgMC45LjdlIDI1IE9jdCAyMDA0IChodHRwOi8vd3d3Lm9wZW5zc2wub3JnLykgCkRlYyAgMyAx
+NTozNDoyMCBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogMTI3LjAuMC4xWzUwMF0gdXNlZCBhcyBp
+c2FrbXAgcG9ydCAoZmQ9NykgCkRlYyAgMyAxNTozNDoyMCBteS1tYWNoaW5lIHJhY29vbjogSU5G
+TzogMTAuNDYuMzMuNDRbNTAwXSB1c2VkIGFzIGlzYWttcCBwb3J0IChmZD04KSAKRGVjICAzIDE1
+OjM0OjM2IG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNlYy1TQSByZXF1ZXN0IGZvciAxMC40
+Ni4zMC42NCBxdWV1ZWQgZHVlIHRvIG5vIHBoYXNlMSBmb3VuZC4gCkRlYyAgMyAxNTozNDozNiBt
+eS1tYWNoaW5lIHJhY29vbjogSU5GTzogaW5pdGlhdGUgbmV3IHBoYXNlIDEgbmVnb3RpYXRpb246
+IDEwLjQ2LjMzLjQ0WzUwMF08PT4xMC40Ni4zMC42NFs1MDBdIApEZWMgIDMgMTU6MzQ6MzYgbXkt
+bWFjaGluZSByYWNvb246IElORk86IGJlZ2luIElkZW50aXR5IFByb3RlY3Rpb24gbW9kZS4gCkRl
+YyAgMyAxNTozNDozNiBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogcmVjZWl2ZWQgVmVuZG9yIElE
+OiBNUyBOVDUgSVNBS01QT0FLTEVZIApEZWMgIDMgMTU6MzQ6NDEgbXktbWFjaGluZSByYWNvb246
+IFdBUk5JTkc6IHVuYWJsZSB0byBnZXQgY2VydGlmaWNhdGUgQ1JMKDMpIGF0IGRlcHRoOjAgU3Vi
+amVjdE5hbWU6L089Q29tcGFnbnkvT1U9U1BMQy9DTj16b3BvdWV0IApEZWMgIDMgMTU6MzQ6NDEg
+bXktbWFjaGluZSByYWNvb246IFdBUk5JTkc6IHVuYWJsZSB0byBnZXQgY2VydGlmaWNhdGUgQ1JM
+KDMpIGF0IGRlcHRoOjEgU3ViamVjdE5hbWU6L089Q29tcGFnbnkvT1U9U1BMQy9DTj1TUExDIEFD
+IFJhY2luZSAKRGVjICAzIDE1OjM0OjQxIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJU0FLTVAt
+U0EgZXN0YWJsaXNoZWQgMTAuNDYuMzMuNDRbNTAwXS0xMC40Ni4zMC42NFs1MDBdIHNwaTo3MWI3
+ZGM0MTM0YjVmNDhiOjBiNzljZDQxM2M0YzFmZGEgCkRlYyAgMyAxNTozNDo0MiBteS1tYWNoaW5l
+IHJhY29vbjogSU5GTzogaW5pdGlhdGUgbmV3IHBoYXNlIDIgbmVnb3RpYXRpb246IDEwLjQ2LjMz
+LjQ0WzBdPD0+MTAuNDYuMzAuNjRbMF0gCkRlYyAgMyAxNTozNDo0MiBteS1tYWNoaW5lIHJhY29v
+bjogV0FSTklORzogYXR0cmlidXRlIGhhcyBiZWVuIG1vZGlmaWVkLiAKRGVjICAzIDE1OjM0OjQy
+IG15LW1hY2hpbmUgcmFjb29uOiBXQVJOSU5HOiBhdHRyaWJ1dGUgaGFzIGJlZW4gbW9kaWZpZWQu
+IApEZWMgIDMgMTU6MzQ6NDIgbXktbWFjaGluZSByYWNvb246IFdBUk5JTkc6IGlnbm9yZSBDT05O
+RUNURUQgbm90aWZpY2F0aW9uLiAKRGVjICAzIDE1OjM0OjQyIG15LW1hY2hpbmUgcmFjb29uOiBJ
+TkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDogQUgvVHJhbnNwb3J0IDEwLjQ2LjMwLjY0LT4xMC40
+Ni4zMy40NCBzcGk9MTM2MTMzODQzKDB4ODFkM2NkMykgCkRlYyAgMyAxNTozNDo0MiBteS1tYWNo
+aW5lIHJhY29vbjogSU5GTzogSVBzZWMtU0EgZXN0YWJsaXNoZWQ6IEVTUC9UcmFuc3BvcnQgMTAu
+NDYuMzAuNjQtPjEwLjQ2LjMzLjQ0IHNwaT0xNDIwNjk4OTkoMHg4NzdkMDhiKSAKRGVjICAzIDE1
+OjM0OjQyIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDogQUgv
+VHJhbnNwb3J0IDEwLjQ2LjMzLjQ0LT4xMC40Ni4zMC42NCBzcGk9MTkzMDUyNzk3MigweDczMTE4
+NGU0KSAKRGVjICAzIDE1OjM0OjQyIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBpbml0aWF0ZSBu
+ZXcgcGhhc2UgMiBuZWdvdGlhdGlvbjogMTAuNDYuMzMuNDRbMF08PT4xMC40Ni4zMC42NFswXSAK
+RGVjICAzIDE1OjM0OjQyIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxp
+c2hlZDogRVNQL1RyYW5zcG9ydCAxMC40Ni4zMy40NC0+MTAuNDYuMzAuNjQgc3BpPTE2NTU5NjQw
+MjgoMHg2MmI0MDE3YykgCkRlYyAgMyAxNTozNDo0MiBteS1tYWNoaW5lIHJhY29vbjogV0FSTklO
+RzogYXR0cmlidXRlIGhhcyBiZWVuIG1vZGlmaWVkLiAKRGVjICAzIDE1OjM0OjQyIG15LW1hY2hp
+bmUgcmFjb29uOiBXQVJOSU5HOiBhdHRyaWJ1dGUgaGFzIGJlZW4gbW9kaWZpZWQuIApEZWMgIDMg
+MTU6MzQ6NDIgbXktbWFjaGluZSByYWNvb246IFdBUk5JTkc6IGlnbm9yZSBDT05ORUNURUQgbm90
+aWZpY2F0aW9uLiAKRGVjICAzIDE1OjM0OjQyIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNl
+Yy1TQSBlc3RhYmxpc2hlZDogQUgvVHJhbnNwb3J0IDEwLjQ2LjMwLjY0LT4xMC40Ni4zMy40NCBz
+cGk9MTY1NjEwMTkyKDB4OWRmMDJkMCkgCkRlYyAgMyAxNTozNDo0MiBteS1tYWNoaW5lIHJhY29v
+bjogSU5GTzogcHVyZ2VkIElQc2VjLVNBIHByb3RvX2lkPUVTUCBzcGk9MTY1NTk2NDAyOC4gCkRl
+YyAgMyAxNTozNDo0MiBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogSVBzZWMtU0EgZXN0YWJsaXNo
+ZWQ6IEVTUC9UcmFuc3BvcnQgMTAuNDYuMzAuNjQtPjEwLjQ2LjMzLjQ0IHNwaT0yMzEzNjA2NjUo
+MHhkY2E0ODk5KSAKRGVjICAzIDE1OjM0OjQyIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNl
+Yy1TQSBlc3RhYmxpc2hlZDogQUgvVHJhbnNwb3J0IDEwLjQ2LjMzLjQ0LT4xMC40Ni4zMC42NCBz
+cGk9MTE2ODY1MTg5MCgweDQ1YTgzNjcyKSAKRGVjICAzIDE1OjM0OjQyIG15LW1hY2hpbmUgcmFj
+b29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDogRVNQL1RyYW5zcG9ydCAxMC40Ni4zMy40
+NC0+MTAuNDYuMzAuNjQgc3BpPTk5MTUyOTczMigweDNiMTk4YjA0KSAKRGVjICAzIDE1OjM1OjEy
+IG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBpbml0aWF0ZSBuZXcgcGhhc2UgMiBuZWdvdGlhdGlv
+bjogMTAuNDYuMzMuNDRbMF08PT4xMC40Ni4zMC42NFswXSAKRGVjICAzIDE1OjM1OjEyIG15LW1h
+Y2hpbmUgcmFjb29uOiBXQVJOSU5HOiBhdHRyaWJ1dGUgaGFzIGJlZW4gbW9kaWZpZWQuIApEZWMg
+IDMgMTU6MzU6MTIgbXktbWFjaGluZSByYWNvb246IFdBUk5JTkc6IGF0dHJpYnV0ZSBoYXMgYmVl
+biBtb2RpZmllZC4gCkRlYyAgMyAxNTozNToxMiBteS1tYWNoaW5lIHJhY29vbjogV0FSTklORzog
+aWdub3JlIENPTk5FQ1RFRCBub3RpZmljYXRpb24uIApEZWMgIDMgMTU6MzU6MTIgbXktbWFjaGlu
+ZSByYWNvb246IElORk86IElQc2VjLVNBIGVzdGFibGlzaGVkOiBBSC9UcmFuc3BvcnQgMTAuNDYu
+MzAuNjQtPjEwLjQ2LjMzLjQ0IHNwaT0zMjAyMDQ4OCgweDFlODk4MDgpIApEZWMgIDMgMTU6MzU6
+MTIgbXktbWFjaGluZSByYWNvb246IElORk86IHB1cmdlZCBJUHNlYy1TQSBwcm90b19pZD1FU1Ag
+c3BpPTk5MTUyOTczMi4gCkRlYyAgMyAxNTozNToxMiBteS1tYWNoaW5lIHJhY29vbjogSU5GTzog
+SVBzZWMtU0EgZXN0YWJsaXNoZWQ6IEVTUC9UcmFuc3BvcnQgMTAuNDYuMzAuNjQtPjEwLjQ2LjMz
+LjQ0IHNwaT0xNjk3NDQ5NzgoMHhhMWUxYTUyKSAKRGVjICAzIDE1OjM1OjEyIG15LW1hY2hpbmUg
+cmFjb29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDogQUgvVHJhbnNwb3J0IDEwLjQ2LjMz
+LjQ0LT4xMC40Ni4zMC42NCBzcGk9Mjk1NDAyNjY0MigweGIwMTJkZTkyKSAKRGVjICAzIDE1OjM1
+OjEyIG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDogRVNQL1Ry
+YW5zcG9ydCAxMC40Ni4zMy40NC0+MTAuNDYuMzAuNjQgc3BpPTExNzc5ODc1MjYoMHg0NjM2YTlj
+NikgCkRlYyAgMyAxNTozNToxNiBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogaW5pdGlhdGUgbmV3
+IHBoYXNlIDIgbmVnb3RpYXRpb246IDEwLjQ2LjMzLjQ0WzBdPD0+MTAuNDYuMzAuNjRbMF0gCkRl
+YyAgMyAxNTozNToxNiBteS1tYWNoaW5lIHJhY29vbjogV0FSTklORzogYXR0cmlidXRlIGhhcyBi
+ZWVuIG1vZGlmaWVkLiAKRGVjICAzIDE1OjM1OjE2IG15LW1hY2hpbmUgcmFjb29uOiBXQVJOSU5H
+OiBhdHRyaWJ1dGUgaGFzIGJlZW4gbW9kaWZpZWQuIApEZWMgIDMgMTU6MzU6MTYgbXktbWFjaGlu
+ZSByYWNvb246IFdBUk5JTkc6IGlnbm9yZSBDT05ORUNURUQgbm90aWZpY2F0aW9uLiAKRGVjICAz
+IDE1OjM1OjE2IG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDog
+QUgvVHJhbnNwb3J0IDEwLjQ2LjMwLjY0LT4xMC40Ni4zMy40NCBzcGk9ODcwNDE4MTAoMHg1MzAy
+NzEyKSAKRGVjICAzIDE1OjM1OjE2IG15LW1hY2hpbmUgcmFjb29uOiBJTkZPOiBwdXJnZWQgSVBz
+ZWMtU0EgcHJvdG9faWQ9RVNQIHNwaT0xMTc3OTg3NTI2LiAKRGVjICAzIDE1OjM1OjE2IG15LW1h
+Y2hpbmUgcmFjb29uOiBJTkZPOiBJUHNlYy1TQSBlc3RhYmxpc2hlZDogRVNQL1RyYW5zcG9ydCAx
+MC40Ni4zMC42NC0+MTAuNDYuMzMuNDQgc3BpPTkyMDY5ODY1KDB4NTdjZGZlOSkgCkRlYyAgMyAx
+NTozNToxNiBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogSVBzZWMtU0EgZXN0YWJsaXNoZWQ6IEFI
+L1RyYW5zcG9ydCAxMC40Ni4zMy40NC0+MTAuNDYuMzAuNjQgc3BpPTM2OTg2Mjc4NDMoMHhkYzc0
+OTUwMykgCkRlYyAgMyAxNTozNToxNiBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogSVBzZWMtU0Eg
+ZXN0YWJsaXNoZWQ6IEVTUC9UcmFuc3BvcnQgMTAuNDYuMzMuNDQtPjEwLjQ2LjMwLjY0IHNwaT00
+MTU4ODc5Mzk5KDB4ZjdlMzc2YTcpIApEZWMgIDMgMTU6MzU6MTcgbXktbWFjaGluZSByYWNvb246
+IElORk86IGluaXRpYXRlIG5ldyBwaGFzZSAyIG5lZ290aWF0aW9uOiAxMC40Ni4zMy40NFswXTw9
+PjEwLjQ2LjMwLjY0WzBdIApEZWMgIDMgMTU6MzU6MTcgbXktbWFjaGluZSByYWNvb246IFdBUk5J
+Tkc6IGF0dHJpYnV0ZSBoYXMgYmVlbiBtb2RpZmllZC4gCkRlYyAgMyAxNTozNToxNyBteS1tYWNo
+aW5lIHJhY29vbjogV0FSTklORzogYXR0cmlidXRlIGhhcyBiZWVuIG1vZGlmaWVkLiAKRGVjICAz
+IDE1OjM1OjE3IG15LW1hY2hpbmUgcmFjb29uOiBXQVJOSU5HOiBpZ25vcmUgQ09OTkVDVEVEIG5v
+dGlmaWNhdGlvbi4gCkRlYyAgMyAxNTozNToxNyBteS1tYWNoaW5lIHJhY29vbjogSU5GTzogSVBz
+ZWMtU0EgZXN0YWJsaXNoZWQ6IEFIL1RyYW5zcG9ydCAxMC40Ni4zMC42NC0+MTAuNDYuMzMuNDQg
+c3BpPTI1NjE2Njk2MygweGY0NGNjMzMpIApEZWMgIDMgMTU6MzU6MTcgbXktbWFjaGluZSByYWNv
+b246IElORk86IHB1cmdlZCBJUHNlYy1TQSBwcm90b19pZD1FU1Agc3BpPTQxNTg4NzkzOTkuIApE
+ZWMgIDMgMTU6MzU6MTcgbXktbWFjaGluZSByYWNvb246IElORk86IElQc2VjLVNBIGVzdGFibGlz
+aGVkOiBFU1AvVHJhbnNwb3J0IDEwLjQ2LjMwLjY0LT4xMC40Ni4zMy40NCBzcGk9MTQ3ODYxOTMo
+MHhlMTllOTEpIApEZWMgIDMgMTU6MzU6MTcgbXktbWFjaGluZSByYWNvb246IElORk86IElQc2Vj
+LVNBIGVzdGFibGlzaGVkOiBBSC9UcmFuc3BvcnQgMTAuNDYuMzMuNDQtPjEwLjQ2LjMwLjY0IHNw
+aT0xOTYzNTAxNzM5KDB4NzUwOGE4YWIpIAoK
+
+---MOQ11020885419117bbae1b803d64c90badc40b7979f0--

@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262856AbVAKVO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVAKVQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbVAKVO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVAKVNY
+	id S262819AbVAKVQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVAKVP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:13:24 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:23237 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262819AbVAKVMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:12:43 -0500
-Subject: Re: [PATCH] Trusted Path Execution LSM 0.2 (20050108)
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Steve G <linux_4ever@yahoo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050111123320.S469@build.pdx.osdl.net>
-References: <20050111195542.76809.qmail@web50605.mail.yahoo.com>
-	 <20050111123320.S469@build.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gd+kAf4/0Eo6d8fmroDW"
-Date: Tue, 11 Jan 2005 22:11:36 +0100
-Message-Id: <1105477896.24610.14.camel@localhost.localdomain>
+	Tue, 11 Jan 2005 16:15:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29830 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262819AbVAKVOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:14:01 -0500
+Date: Tue, 11 Jan 2005 13:14:00 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Paul Davis <paul@linuxaudiosystems.com>, "Jack O'Quin" <joq@io.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050111131400.L10567@build.pdx.osdl.net>
+References: <20050110212019.GG2995@waste.org> <200501111305.j0BD58U2000483@localhost.localdomain> <20050111191701.GT2940@waste.org> <20050111125008.K10567@build.pdx.osdl.net> <20050111205809.GB21308@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050111205809.GB21308@elte.hu>; from mingo@elte.hu on Tue, Jan 11, 2005 at 09:58:09PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Ingo Molnar (mingo@elte.hu) wrote:
+> * Chris Wright <chrisw@osdl.org> wrote:
+> > I don't think they lie quite so neatly on this boundary.  There's one
+> > fundamental difference which is how the dynamic priority is adjusted
+> > which alters the basic preemptibility rules.
+> 
+> but at nice level -20 this adjustment is at most +5 priority levels -
+> i.e. down to an equivalent of nice -15. Consider that a nice 0 task can
+> at most get a -5 priority boost gives a nice -5 task worst-case - so the
+> nice -20 task still preempts the lower prio task.
 
---=-gd+kAf4/0Eo6d8fmroDW
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Yeah, I realize it provides some safety, I just wanted to point out
+the fundamental difference.  And one point being made is that it's
+the occasional worst case latencies which are the problem.  Dynamic
+adjustments could be one culprit for this.
 
-Hi,
+Hmm, I wonder if this could have anything to do with it.  These are
+within striking range:
 
-El mar, 11-01-2005 a las 12:33 -0800, Chris Wright escribi=F3:
-> * Steve G (linux_4ever@yahoo.com) wrote:
-> > This patch leaks memory in the error paths. For example:=20
-> >=20
-> > +static ssize_t trustedlistadd_read_file(struct tpe_list *list, char *b=
-uf)
-> > +{
-> > <snip>
-> > + char *buffer =3D kmalloc(400, GFP_KERNEL);
-> > +
-> > + user =3D (char *)__get_free_page(GFP_KERNEL);
-> > + if (!user)
-> > + return -ENOMEM;
->=20
-> Helps to inform the author ;-)
+  PID COMMAND          NI PRI
+    9 events/1        -10  34
+  931 kcryptd/1       -10  33
+  930 kcryptd/0       -10  34
+    8 events/0        -10  34
+  892 ata/1           -10  34
+  891 ata/0           -10  34
+ 3747 udevd           -10  33
+   26 kacpid          -10  31
+  238 aio/1           -10  34
+  237 aio/0           -10  31
+  117 kblockd/1       -10  34
+  116 kblockd/0       -10  34
+   10 khelper         -10  34
 
-It's fixed now and i will update the patches ASAP.
-
-Next time it would be better to CC me directly, but anyway, thanks for
-reporting this, as much as you mess it up, it's as much as i will work
-to make it better ;).
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
-[2048g/9AE91A22] Hardened Debian head developer & project manager
-
---=-gd+kAf4/0Eo6d8fmroDW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB5EEHDcEopW8rLewRAs9HAJ4lCStPu8mGcd3P3PwHUCb7ANwHAgCgtzbo
-947XNHPlwOLmO1g9IzK7dLE=
-=runt
------END PGP SIGNATURE-----
-
---=-gd+kAf4/0Eo6d8fmroDW--
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

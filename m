@@ -1,96 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVA0V51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVA0WAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVA0V51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 16:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVA0V50
+	id S261214AbVA0WAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 17:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVA0WAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 16:57:26 -0500
-Received: from web52309.mail.yahoo.com ([206.190.39.104]:14677 "HELO
-	web52309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261207AbVA0V41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 16:56:27 -0500
-Message-ID: <20050127215619.56535.qmail@web52309.mail.yahoo.com>
-Date: Thu, 27 Jan 2005 22:56:18 +0100 (CET)
-From: Albert Herranz <albert_herranz@yahoo.es>
-Subject: 2.6.11-rc2-mm1: kernel bad access while booting diskless client
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Thu, 27 Jan 2005 17:00:38 -0500
+Received: from alog0106.analogic.com ([208.224.220.121]:53120 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261214AbVA0WAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 17:00:31 -0500
+Date: Thu, 27 Jan 2005 16:58:40 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Rik van Riel <riel@redhat.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       James Antill <james.antill@redhat.com>,
+       Bryn Reeves <breeves@redhat.com>
+Subject: Re: don't let mmap allocate down to zero
+In-Reply-To: <20050127211319.GN10843@holomorphy.com>
+Message-ID: <Pine.LNX.4.61.0501271650320.23676@chaos.analogic.com>
+References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
+ <20050126172538.GN10843@holomorphy.com> <20050127050927.GR10843@holomorphy.com>
+ <16888.46184.52179.812873@alkaid.it.uu.se> <20050127125254.GZ10843@holomorphy.com>
+ <20050127142500.A775@flint.arm.linux.org.uk> <20050127151211.GB10843@holomorphy.com>
+ <Pine.LNX.4.61.0501271420070.13927@chimarrao.boston.redhat.com>
+ <20050127204455.GM10843@holomorphy.com> <Pine.LNX.4.61.0501271557300.13927@chimarrao.boston.redhat.com>
+ <20050127211319.GN10843@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1378567878-1106862978=:53309"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1378567878-1106862978=:53309
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Thu, 27 Jan 2005, William Lee Irwin III wrote:
 
-Hi,
+> On Thu, 27 Jan 2005, William Lee Irwin III wrote:
+>>> (b) sys_mremap() isn't covered.
+>
+> On Thu, Jan 27, 2005 at 03:58:12PM -0500, Rik van Riel wrote:
+>> AFAICS it is covered.
+>>> --- mm1-2.6.11-rc2.orig/mm/mremap.c	2005-01-26 00:26:43.000000000 -0800
+>>> +++ mm1-2.6.11-rc2/mm/mremap.c	2005-01-27 12:34:34.000000000 -0800
+>>> @@ -297,6 +297,8 @@
+>>> 	if (flags & MREMAP_FIXED) {
+>>> 		if (new_addr & ~PAGE_MASK)
+>>> 			goto out;
+>>> +		if (!new_addr)
+>>> +			goto out;
+>>
+>> This looks broken, look at the MREMAP_FIXED part...
+>
+> The only way I can make sense of this is if you're trying to say that
+> because the user is trying to pass in a fixed address, that 0 should
+> then be permitted.
+>
+> The intention was to disallow vmas starting at 0 categorically. i.e. it
+> is very intentional to deny the MREMAP_FIXED to 0 case of mremap().
+> It was also the intention to deny the MAP_FIXED to 0 case of mmap(),
+> though I didn't actually sweep that much (if at all).
+>
+>
+> -- wli
 
-I'm getting a kernel Oops while booting 2.6.11-rc2-mm1
-on a diskless (nfsroot based) embedded ppc system.
-Vanilla 2.6.11-rc2 works Ok.
-
-[...]
-VFS: Mounted root (nfs filesystem) readonly.
-Freeing unused kernel memory: 112k init
-INIT: version 2.86 booting
-Oops: kernel access of bad area, sig: 11 [#1]
-[...]
-TASK = c1643ae0[1] 'init' THREAD: c1646000
-Last syscall: 106
-[...]
-NIP [c0060934] vfs_getattr+0x1c/0xa8
-LR [c0060a14] vfs_stat+0x54/0x64
-Call trace:
- [c0060a14] vfs_sysstat+0x54/0x64
- [c0060f24] sys_newstat+0x1c/0x54
- [c0003c40] ret_from_syscall+0x0/0x44
-Kernel panic - not syncing: Attempted to kill init!
-
-
-The cause of the bad access is a null inode->i_op
-field that is passed to vfs_getattr() through the
-corresponding struct dentry.
-It triggers when vfs_getattr() blindly tries to check
-inode->i_op->getattr without first checking that
-inode->i_op is useable.
-
-The attached patch workarounds the problem, by
-checking inode->i_op before using it.
-
-It is still unknown to me which code change is causing
-now the appearance of the null i_op field on -rc2-mm1.
-But probably you guys have better clues than me.
+No! Then you can't make a tool that will be able to look at
+the entire x86 address-space! You end up with an offset that will
+eventually wrap to zero which you are denying. You must leave
+MAP_FIXED alone. Ignore the 'C' pedants, a pointer is properly
+initialized if it points to a mapped address. It would be absurd
+to have to make the CPU calculate the address at run-time just
+because you thew some rocks in the way.
 
 Cheers,
-Albert
-
-
-
-	
-	
-		
-______________________________________________ 
-Renovamos el Correo Yahoo!: ¡250 MB GRATIS! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es
---0-1378567878-1106862978=:53309
-Content-Type: text/plain; name="fix-kernel-bad-access-on-nfsroot.patch"
-Content-Description: fix-kernel-bad-access-on-nfsroot.patch
-Content-Disposition: inline; filename="fix-kernel-bad-access-on-nfsroot.patch"
-
---- a/fs/stat.c	2004-12-24 22:34:02.000000000 +0100
-+++ b/fs/stat.c	2005-01-27 00:52:15.000000000 +0100
-@@ -47,7 +47,7 @@ int vfs_getattr(struct vfsmount *mnt, st
- 	if (retval)
- 		return retval;
- 
--	if (inode->i_op->getattr)
-+	if (inode->i_op && inode->i_op->getattr)
- 		return inode->i_op->getattr(mnt, dentry, stat);
- 
- 	generic_fillattr(inode, stat);
-
---0-1378567878-1106862978=:53309--
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUHSOu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266534AbUHSPVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUHSOu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 10:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHSOuZ
+	id S266534AbUHSPVT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 11:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUHSPUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 10:50:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:43395 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266349AbUHSOqT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 10:46:19 -0400
-Date: Thu, 19 Aug 2004 10:46:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Nigel Rantor <wiggly@wiggly.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CD/DVD record
-In-Reply-To: <4124AD0B.6090908@wiggly.org>
-Message-ID: <Pine.LNX.4.53.0408191041430.19454@chaos>
-References: <Pine.LNX.4.53.0408190917140.19253@chaos> <4124AD0B.6090908@wiggly.org>
+	Thu, 19 Aug 2004 11:20:36 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:60923 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266498AbUHSPF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 11:05:59 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Thu, 19 Aug 2004 17:04:58 +0200
+To: mj@ucw.cz, fsteiner-mail@bio.ifi.lmu.de
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       kernel@wildsau.enemy.org, diablod3@gmail.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <4124C19A.nail83H218WLS@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+ <d577e5690408190004368536e9@mail.gmail.com>
+ <4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz>
+ <4124AD46.nail80H216HKB@burner> <20040819135614.GA12634@ucw.cz>
+ <4124B314.nail8221CVOE9@burner> <20040819141442.GC13003@ucw.cz>
+ <4124BD14.90603@bio.ifi.lmu.de> <20040819150010.GB13501@ucw.cz>
+In-Reply-To: <20040819150010.GB13501@ucw.cz>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Aug 2004, Nigel Rantor wrote:
 
-> Richard B. Johnson wrote:
-> > Hello all...
-> > Recording this stuff is basically sending some commands to
-> > a device and then keeping a FIFO full until done.
->
-> Lots of things that are easy to sum up on one sentence turn out the be
-> hairy as a wookie, but yes, it does seem like a Simple(tm) problem.
->
+>From: Martin Mares <mj@ucw.cz>
 
-Yes. There are hardware bugs (I once though bug was a reserved-
-for-software word), moths are hardware problems ... Anyway...
-some thought to putting all the differences in some writable
-ASCII text and writing a program around that might be more
-useful than complaining about an author's insistance upon
-using some "strange at least for Unix" device naming scheme.
+>> There is already. cdrecord on SuSE 9.1 tells you:
+>> Cdrecord-Clone-dvd 2.01a27 (i686-suse-linux) Copyright (C) 1995-2004 J??rg Schilling
+>> Note: This version is an unofficial (modified) version with DVD support
+>> Note: and therefore may have bugs that are not present in the original.
+>> Note: Please send bug reports or support requests to http://www.suse.de/feedback
+>> Note: The author of cdrecord should not be bothered with problems in this version.
 
-> > If `cdrecord` doesn't do it, one can hack together something
-> > that works in a day or so,... really good stuff in a week.
->
-> Hmm...not sure about that. Not if you do want device specific fixes in
-> there too...
->
+>So, case closed, it seems. Any other arguments, Joerg?
 
-Back to the parse-stuff-in-a-file idea.
-
-> > Maybe it's time to ......  anyway ..... the device characteristics
-> > should be kept in an ASCII text file so the software doesn't have
-> > to be re-written everytime a new CD recorder becomes available.
->
-> Sounds good.
->
-> > Maybe the `cdrecord` author needs some competition. This sounds
-> > like a good beginner's project....
->
-> I'll admit to having some time on my hands but acquiring equipment to
-> test with would be a stumbling block for me.
->
-> It would be nice if everyone could just put their egos aside and provide
-> a united front wrt FOSS cd/dvd recording.
->
-> I was going to make some suggestions about how to do the above but then
-> I have also been following the cdrecord thread and I'm not sure wading
-> in on that makes sense...
->
->    N
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+No, of course not. But it makes no sense to discuss things again that just have 
+been discussed in full detail on other mailing lists.
 
 
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,55 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266100AbSL1Wa3>; Sat, 28 Dec 2002 17:30:29 -0500
+	id <S266310AbSL1Wa7>; Sat, 28 Dec 2002 17:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbSL1Wa3>; Sat, 28 Dec 2002 17:30:29 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:57065 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S266100AbSL1Wa3>;
-	Sat, 28 Dec 2002 17:30:29 -0500
-Date: Sat, 28 Dec 2002 23:37:03 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Randolph Chung <randolph@tausq.org>, parisc-linux@parisc-linux.org,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [parisc-linux] Generic RTC driver in 2.4.x?
-In-Reply-To: <20021226175529.GB6867@opus.bloom.county>
-Message-ID: <Pine.GSO.4.21.0212282336010.17067-100000@vervain.sonytel.be>
+	id <S266316AbSL1Wa7>; Sat, 28 Dec 2002 17:30:59 -0500
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:15093 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266310AbSL1Wa4>; Sat, 28 Dec 2002 17:30:56 -0500
+Date: Sat, 28 Dec 2002 15:30:41 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [fbdev updates] 
+Message-ID: <Pine.LNX.4.33.0212281528330.1994-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Dec 2002, Tom Rini wrote:
-> On Tue, Dec 24, 2002 at 03:51:47PM -0800, Randolph Chung wrote:
-> > > AFAIK the generic RTC driver is used on PA-RISC, PPC, and m68k.
-> > > 
-> > > Are you interested in a backport to 2.4.x?
-> > 
-> > On parisc we already have a version of the generic RTC driver in our
-> > 2.4 tree. If there's something more "official" or common we can adopt
-> > that version. 
-> 
-> Similarly, PPC has had it's own 'generic' RTC driver in the kernel for
-> ages, so there's no pressing need, but if the 2.5 version makes its way
-> back into 2.4 (as the 2.5 version has some minor changes needed for
-> everyone which weren't in the 2.4 m68k version), we can easily switch to
-> that version.
 
-I already merged some of your 2.5.x changes with the driver in the m68k 2.4.x
-tree.
+Here are a bunch of fixes and driver updates for the fbdev layer. The
+patch applies against 2.5.53. You can also do a bk pull at
 
-I'll do some more merges, and get back to you...
+bk://fbdev.bkbits.net:8080/fbdev-2.5
 
-Gr{oetje,eeting}s,
+The diff is at
 
-						Geert
+http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ CREDITS                                |    1
+ Documentation/fb/intel810.txt          |  272 +++
+ MAINTAINERS                            |    2
+ arch/m68k/kernel/head.S                |   34
+ arch/m68k/kernel/m68k_defs.c           |   16
+ drivers/char/vt.c                      |    2
+ drivers/video/Kconfig                  |   68
+ drivers/video/Makefile                 |   20
+ drivers/video/aty/atyfb_base.c         |   33
+ drivers/video/aty128fb.c               |  102 -
+ drivers/video/cfbcopyarea.c            |    2
+ drivers/video/cfbimgblt.c              |   15
+ drivers/video/chipsfb.c                |  572 ++------
+ drivers/video/console/Kconfig          |   36
+ drivers/video/console/Makefile         |   38
+ drivers/video/console/dummycon.c       |    6
+ drivers/video/console/fbcon-sti.c      |  289 ----
+ drivers/video/console/fbcon.c          |  304 ----
+ drivers/video/console/fbcon.h          |   17
+ drivers/video/console/font.h           |   53
+ drivers/video/console/font_6x11.c      |    2
+ drivers/video/console/font_8x16.c      |    2
+ drivers/video/console/font_8x8.c       |    2
+ drivers/video/console/font_acorn_8x8.c |    3
+ drivers/video/console/font_mini_4x6.c  |    2
+ drivers/video/console/font_pearl_8x8.c |    2
+ drivers/video/console/font_sun12x22.c  |    2
+ drivers/video/console/font_sun8x16.c   |    2
+ drivers/video/console/fonts.c          |    2
+ drivers/video/console/mdacon.c         |   24
+ drivers/video/console/newport_con.c    |    2
+ drivers/video/console/sti.h            |  289 ----
+ drivers/video/console/sticon.c         |  390 ++++-
+ drivers/video/console/sticore.c        | 1132 +++++++++++-----
+ drivers/video/controlfb.c              |   37
+ drivers/video/fbmem.c                  |  364 ++++-
+ drivers/video/fbmon.c                  |  334 ++++
+ drivers/video/i810/Makefile            |   22
+ drivers/video/i810/i810.h              |  300 ++++
+ drivers/video/i810/i810_accel.c        |  513 +++++++
+ drivers/video/i810/i810_dvt.c          |  308 ++++
+ drivers/video/i810/i810_gtf.c          |  275 ++++
+ drivers/video/i810/i810_main.c         | 2245 +++++++++++++++++++++++++++++++++
+ drivers/video/i810/i810_main.h         |  205 +++
+ drivers/video/i810/i810_regs.h         |  274 ++++
+ drivers/video/igafb.c                  |  100 +
+ drivers/video/offb.c                   |    5
+ drivers/video/radeonfb.c               |   38
+ drivers/video/riva/fbdev.c             |  310 +++-
+ drivers/video/riva/nv_type.h           |   58
+ drivers/video/riva/riva_hw.c           |  128 +
+ drivers/video/riva/riva_hw.h           |  110 +
+ drivers/video/riva/riva_tbl.h          |   99 +
+ drivers/video/riva/rivafb.h            |    7
+ drivers/video/skeletonfb.c             |  220 ++-
+ drivers/video/sstfb.c                  | 2076 ++++++++++++------------------
+ drivers/video/sstfb.h                  |   68
+ drivers/video/sticore.h                |    5
+ drivers/video/stifb.c                  |  136 -
+ drivers/video/tdfxfb.c                 |   11
+ drivers/video/tgafb.c                  | 1544 +++++++++-------------
+ drivers/video/vga16fb.c                |   70 -
+ drivers/video/vgastate.c               |    7
+ include/linux/fb.h                     |   10
+ include/linux/font.h                   |   53
+ include/linux/pci_ids.h                |   37
+ include/video/radeon.h                 |  144 +-
+ include/video/tgafb.h                  |  210 +++
+ 68 files changed, 9296 insertions(+), 4765 deletions(-)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
+
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 

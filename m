@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269390AbRIBV2h>; Sun, 2 Sep 2001 17:28:37 -0400
+	id <S269413AbRIBVaS>; Sun, 2 Sep 2001 17:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269412AbRIBV22>; Sun, 2 Sep 2001 17:28:28 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:7077 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S269390AbRIBV2U>;
-	Sun, 2 Sep 2001 17:28:20 -0400
-Date: Sun, 02 Sep 2001 22:28:34 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
-Message-ID: <1041110124.999469713@[169.254.198.40]>
-In-Reply-To: <20010902211614Z16265-32383+3048@humbolt.nl.linux.org>
-In-Reply-To: <20010902211614Z16265-32383+3048@humbolt.nl.linux.org>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269437AbRIBVaJ>; Sun, 2 Sep 2001 17:30:09 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:32662 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S269413AbRIBV3u>; Sun, 2 Sep 2001 17:29:50 -0400
+Date: Sun, 2 Sep 2001 23:30:08 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Editing-in-place of a large file
+Message-ID: <20010902233008.Q9870@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>; from mcelrath+linux@draal.physics.wisc.edu on Sun, Sep 02, 2001 at 03:21:37PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Sunday, 02 September, 2001 11:23 PM +0200 Daniel Phillips 
-<phillips@bonn-fries.net> wrote:
+On Sun, Sep 02, 2001 at 03:21:37PM -0500, Bob McElrath wrote:
+> I would like to take an extremely large file (multi-gigabyte) and edit
+> it by removing a chunk out of the middle.  This is easy enough by
+> reading in the entire file and spitting it back out again, but it's
+> hardly efficent to read in an 8GB file just to remove a 100MB segment.
+> 
+> Is there another way to do this?
+ 
+It's basically changing ownership (in terms of "which inode owns
+which blocks") of blocks. 
 
-> Reposted to include Alex's correction.  Alex, could you please check this?
+There is just no POSIX-API to do this, that's why there is no
+simple way to do this.
 
-Thanks, yep, including () optimisation :-)
+Applications handling such large files usally implement a chunk
+management, which can mark chunks as "unused" and skip them while
+processing the file.
 
-Dear volunteer/victim: Last time I looked,
-  ping -f -s5000 victimip &
-  ping -f -s10000 victimip &
-  ping -f -s15000 victimip &
-  ping -f -s20000 victimip &
-  ping -f -s25000 victimip &
-  ping -f -s30000 victimip &
-  ping -f -s35000 victimip &
-while running something buffer intensive (bonnie etc.)
-tended to do a fair job of exercizing the machine's
-powers of memory fragmentation / defragmentation;
-reassembly of IP fragments allocates memory GFP_ATOMIC.
+What's needed is a generalisation of sparse files and truncate().
+They both handle similar problems.
 
---
-Alex Bligh
+For now I would seriously consider editing the ext2-structures
+for this, because that's the only way you can do this right now.
+
+Regards
+
+Ingo Oeser
+-- 
+In der Wunschphantasie vieler Mann-Typen [ist die Frau] unsigned und
+operatorvertraeglich. --- Dietz Proepper in dasr

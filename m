@@ -1,111 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265128AbUETQ1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265179AbUETQmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265128AbUETQ1f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 12:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUETQ1f
+	id S265179AbUETQmT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 12:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265197AbUETQmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 12:27:35 -0400
-Received: from wanderer.mr.itd.umich.edu ([141.211.93.146]:10632 "EHLO
-	wanderer.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S265128AbUETQ1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 12:27:32 -0400
-Date: Thu, 20 May 2004 12:27:18 -0400 (EDT)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@azure.engin.umich.edu
-To: Hugh Dickins <hugh@veritas.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rmap 36 mprotect use vma_merge
-In-Reply-To: <Pine.LNX.4.44.0405201538220.9220-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.58.0405201200450.23320@azure.engin.umich.edu>
-References: <Pine.LNX.4.44.0405201538220.9220-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 May 2004 12:42:19 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:59602 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S265179AbUETQmR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 12:42:17 -0400
+Message-Id: <200405201642.i4KGgDgJ000683@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: john weber <weber@sixbit.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Performance Tuning 
+In-Reply-To: Your message of "Thu, 20 May 2004 12:05:15 -0000."
+             <20040520120514.GA29540@sixbit.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040520120514.GA29540@sixbit.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1163729809P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 20 May 2004 12:42:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1163729809P
+Content-Type: text/plain; charset=us-ascii
+
+On Thu, 20 May 2004 12:05:15 -0000, john weber <weber@sixbit.org>  said:
+
+> Kernel compiles take 6m38s on my P4 2.8GHz (with HT enabled) and 
+> 512 MB RAM as compared to 20-30 seconds reported by folks online. 
+> I am running kernel 2.6.6.
+> 
+> While I understand that this varies with the config, I also don't 
+> see why it should vary so much.  Does anyone have any pointers on 
+> how I could best troubleshoot my performance?
+
+Step 1: Buy a machine that has 16 CPUs and 32G of memory.
+
+Step 2: cd /usr/src/linux-2.6.6 && make -j20
+
+Step 3: Stand back :)
+
+Seriously - the only way to do a kernel build in 20 seconds is to use 'make
+-j20' or so, and have enough processors to handle it, and enough RAM so that
+you can basically do the whole thing in the fin-core cache rather than beating
+on the disk....
 
 
-> > Can adjust_next overflow?  No? I think making adjust_next in
-> > PAGE_SIZE units will avoid overflow concerns.
->
-> I think I misunderstood you at first.  You're suggesting that, say,
-> next->vm_pgoff might be 0 and next->vm_start 0.4GB and end 2.6GB,
-> then next->vm_pgoff would get adjusted to -1.8GB >> PAGE_SHIFT, a
-> negative number, when it should be 2.2GB >> PAGE_SHIFT, positive.
+--==_Exmh_1163729809P
+Content-Type: application/pgp-signature
 
-Yeap. This is case I was concerned about.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> (Other overflows would be vma_merge's responsibility to prohibit
-> merging; though they don't occur because, as my old "16TB" comment
-> observes, do_mmap_pgoff doesn't allow the pgoff -1UL to be mapped.
-> Though I think you were careful to avoid any such restriction in
-> your prio_tree work, so I guess we might change that one day, and
-> then need to be a little more careful in the can_vma_merges.)
+iD8DBQFArN/lcC3lWbTT17ARAqRnAKCYc675ICc/CEZjZkQFyZhju9ztywCfYPJG
+sPpjbkUoI5Pj7bqoeiQoSV4=
+=TmVE
+-----END PGP SIGNATURE-----
 
-Hmm. I have to read the vma_merge code carefully to understand that.
-I am stuck at vma_adjust itself.
-
-> > [snip]
-> > >  	if (root) {
-> > > +		if (adjust_next) {
-> > > +			vma_prio_tree_init(next);
-> > > +			vma_prio_tree_insert(next, root);
-> > > +		}
-> > >  		vma_prio_tree_init(vma);
-> > >  		vma_prio_tree_insert(vma, root);
-> > >  		flush_dcache_mmap_unlock(mapping);
-> > >  	}
-> >
-> > I think this flush_dcache_mmap_unlock should go down - after
-> > __insert_vm_struct call - just before page_table_lock unlock.
->
-> Well, you observed later that the intervening calls take that lock
-> internally, so we have to unlock there.
-
-I was going forward and backward. Yesterday night I managed to
-figure out the split_vma->vma_adjust->__insert_vm_struct vs.
-flush_dcache_page race you describe below. Yes. The race is
-real. But, compared to the races you fixed with
-flush_dcache_mmap_lock, this is a rare race that occurs in
-a tiny window.
-
-I got stuct at vma_merge(case 6)->vma_adjust->"goto again;"
-for long. Atlast I convinced myself that vma_adjust is correct,
-although in vma_merge(case 6)->vma_adjust case we remove/insert
-vma twice from/into the prio_tree. If we rearrange the code and
-move "goto again;" before dropping the locks, then we can
-remove/insert vma only once. I have to read further to convince
-myself of this micro-optimization. If/When I am convinced, I
-will send you patch for review.
-
-Thanks,
-Rajesh
-
-> But you're obviously right that it would seem better to be able to
-> flush_dcache_mmap_unlock lower down when it's all over, to keep
-> changes atomic as much as possible.
->
-> And you're seriously right.  I was preparing a little lecture on
-> how flush_dcache_mmap_lock is only a very low level lock to prevent
-> the tree from getting rearranged while arm and parisc are searching
-> it for the __flush_dcache page, so it only needs to be held across
-> the tree manipulations.
->
-> But now that argument seems wrong to me: if there's an insert vma,
-> that's because split_vma is dividing an existing area into two, we've
-> just lowered vm_end on the first half, so if __flush_dcache_page comes
-> between that unlock and the lock in __insert_vm_struct's __vma_link_file,
-> then pages in the second half will be temporarily invisible to it.
-> Which is presumably not good for the data integrity flush_dcach_page
-> is striving to preserve.
->
-> So I ought to do something about that one too.
->
-> I won't rush through a patch for these, neither is likely to strike
-> (and it's only a month or so since we realized that flush_dcache_page
-> has been operating on the i_mmap list for how long without any locking
-> at all), just add them to my list for now.  But good points, thank you.
->
-> Hugh
->
->
+--==_Exmh_1163729809P--

@@ -1,69 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262925AbTCSFDg>; Wed, 19 Mar 2003 00:03:36 -0500
+	id <S262927AbTCSF37>; Wed, 19 Mar 2003 00:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262926AbTCSFDg>; Wed, 19 Mar 2003 00:03:36 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:38770
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262925AbTCSFDe>; Wed, 19 Mar 2003 00:03:34 -0500
-Date: Wed, 19 Mar 2003 00:11:00 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>
-Subject: [PATCH][2.5] Fail setup_irq for unconfigured IRQs
-Message-ID: <Pine.LNX.4.50.0303182259280.25200-100000@montezuma.mastecende.com>
+	id <S262929AbTCSF37>; Wed, 19 Mar 2003 00:29:59 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:3581 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id <S262927AbTCSF37>;
+	Wed, 19 Mar 2003 00:29:59 -0500
+From: "Edward Killips" <camber@yakko.cs.wmich.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Promise controller not initialized
+Date: Wed, 19 Mar 2003 00:40:54 -0500
+Message-ID: <KBEEKIACHJMAEEGDLMOMIEEJCCAA.camber@yakko.cs.wmich.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes us bail out in case we may have an interrupt which 
-couldn't be associated with an interrupt controller. Without this we allow 
-unconfigured interrupts to be assigned and then later on we get 
-"unexpected IRQ trap at vector xx" during the ack phase.
+Kernels 2.4.21-pre5 and 2.4.21-pre5-ac3 do not configure the promise 20276
+controller on my Gigabyte GA-7VAXP motherboard. Everything works fine if I
+use kernel 2.4.21-pre5 with Andre's ide patch.
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.462 / Virus Database: 261 - Release Date: 3/13/2003
 
-scenario:
-This can occur if we fail irq setup during setup_IO_APIC_irqs for some 
-reason or other and then miss getting assigned a vector. Later on we then 
-get assigned no_irq_type as our handler.
-
-Patch for i386 and x86_64
-
-Index: linux-2.5.65-numaq/arch/i386/kernel/irq.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.65/arch/i386/kernel/irq.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 irq.c
---- linux-2.5.65-numaq/arch/i386/kernel/irq.c	17 Mar 2003 23:08:54 -0000	1.1.1.1
-+++ linux-2.5.65-numaq/arch/i386/kernel/irq.c	19 Mar 2003 04:11:35 -0000
-@@ -744,6 +744,8 @@ int setup_irq(unsigned int irq, struct i
- 	struct irqaction *old, **p;
- 	irq_desc_t *desc = irq_desc + irq;
- 
-+	if (desc->handler == &no_irq_type)
-+		return -ENOSYS;
- 	/*
- 	 * Some drivers like serial.c use request_irq() heavily,
- 	 * so we have to be careful not to interfere with a
-Index: linux-2.5.65-numaq/arch/x86_64/kernel/irq.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.65/arch/x86_64/kernel/irq.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 irq.c
---- linux-2.5.65-numaq/arch/x86_64/kernel/irq.c	17 Mar 2003 23:09:50 -0000	1.1.1.1
-+++ linux-2.5.65-numaq/arch/x86_64/kernel/irq.c	19 Mar 2003 04:46:11 -0000
-@@ -732,6 +732,9 @@ int setup_irq(unsigned int irq, struct i
- 	struct irqaction *old, **p;
- 	irq_desc_t *desc = irq_desc + irq;
- 
-+	if (desc->handler == &no_irq_type)
-+		return -ENOSYS;
-+
- 	/*
- 	 * Some drivers like serial.c use request_irq() heavily,
- 	 * so we have to be careful not to interfere with a
-
--- 
-function.linuxpower.ca

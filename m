@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbTHTBFo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 21:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbTHTBFo
+	id S261674AbTHTBM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 21:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbTHTBM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 21:05:44 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:63105 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261672AbTHTBE7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 21:04:59 -0400
-Date: Wed, 20 Aug 2003 02:04:24 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: [PATCH][2.6][5/5]Support for HPET based timer
-Message-ID: <20030820010424.GA18581@mail.jlokier.co.uk>
-References: <mmGp.wp.3@gated-at.bofh.it> <mnsM.1eL.13@gated-at.bofh.it> <moRP.2r8.11@gated-at.bofh.it> <m3vfstqie7.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 21:12:58 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:48276
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261674AbTHTBM5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 21:12:57 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O17int
+Date: Wed, 20 Aug 2003 11:19:40 +1000
+User-Agent: KMail/1.5.3
+References: <200308200102.04155.kernel@kolivas.org> <yw1xbrulxyn8.fsf@users.sourceforge.net>
+In-Reply-To: <yw1xbrulxyn8.fsf@users.sourceforge.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <m3vfstqie7.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308201119.41093.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Jamie Lokier <jamie@shareable.org> writes:
-> > Even on those machines where APIC interrupts are not usable?
-> > (E.g. due to interactions with the SMM BIOS).
-> 
-> On those you can always use the old style PIT.
+On Wed, 20 Aug 2003 04:58, Måns Rullgård wrote:
+> Another XEmacs strangeness:
+>
+> When compiling from xemacs, everything is fine until the compilation
+> is done.  Then xemacs starts spinning wildly in some loop doing this:
+> This goes on for anything from half a second to several seconds.
+> During that time other processes, except X, are starved.
+>
+> I saw this first with 2.6.0-test1 vanilla, then it went away in -test2
+> and -test3, only to show up again with O16.3int.  My O16.2 kernel
+> seems ok, which seems strange to me since the difference from O16.2 to
+> O16.3 is very small.
 
-Let me put the question better.  Is it worth using the new style HPET,
-on systems which cannot use APIC interrupts because of BIOS problems
-(e.g. IBM laptops)?
+While being a small patch, 16.2-16.3 was a large change. It removed the very 
+aggressive starvation avoidance of spin on wait waker/wakee in 16.2, which 
+clearly helped your issue.
 
--- Jamie
+> Any ideas?
+
+Pretty sure we have another spinner. A reniced -11 batch run of top -d 1 and 
+vmstat during the spinning, and a kernel profile for that time will be 
+helpful.
+
+Con
+

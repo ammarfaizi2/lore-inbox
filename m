@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbTEBPYD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 11:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTEBPYC
+	id S262963AbTEBP5w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 11:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbTEBP5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 11:24:02 -0400
-Received: from relay03.valueweb.net ([216.219.253.237]:12983 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id S262933AbTEBPYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 11:24:01 -0400
-Message-ID: <3EB2905B.50905@coyotegulch.com>
-Date: Fri, 02 May 2003 11:35:55 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Copyrights: An Author's Call to Arms
-References: <170EBA504C3AD511A3FE00508BB89A9202085450@exnanycmbx4.ipc.com>
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9202085450@exnanycmbx4.ipc.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 May 2003 11:57:52 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:21916 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262963AbTEBP5v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 11:57:51 -0400
+Date: Fri, 2 May 2003 09:04:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] kill the last occurances of usb_serial_get_by_minor
+Message-ID: <20030502160455.GA10397@kroah.com>
+References: <20030502153723.GS21168@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030502153723.GS21168@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Downing, Thomas wrote:
-> I could write _much_ more on this topic - but I will wait to see where
-> this conversation goes first before boring/annoying LKML folks more
-> than I already have.
+On Fri, May 02, 2003 at 05:37:23PM +0200, Adrian Bunk wrote:
+> I got an error at the final linking of 2.5.68-bk11. It seems the patch 
+> below is needed.
 
-I've probably written too much on it already -- but the topic is so 
-important, I think it needs to be addressed. Perhaps we need (or is 
-there already?) a mailing list for kernel design/philosophy?
+Heh, you're using USB_SERIAL_CONSOLE?  crazy...
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
+Anyway, yes, you're right.  I'll add this to my tree and send it off to
+Linus in my next round of patches.  Thanks a lot for finding this and
+the patch.
 
+greg k-h

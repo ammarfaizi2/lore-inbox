@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264886AbTBOS66>; Sat, 15 Feb 2003 13:58:58 -0500
+	id <S264878AbTBOTCo>; Sat, 15 Feb 2003 14:02:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264903AbTBOS66>; Sat, 15 Feb 2003 13:58:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44815 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264886AbTBOS64>;
-	Sat, 15 Feb 2003 13:58:56 -0500
-Message-ID: <3E4E9028.3090601@pobox.com>
-Date: Sat, 15 Feb 2003 14:08:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roger Luethi <rl@hellgate.ch>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [0/4][via-rhine] Improvements
-References: <20030215111705.GA11127@k3.hellgate.ch>
-In-Reply-To: <20030215111705.GA11127@k3.hellgate.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264903AbTBOTCo>; Sat, 15 Feb 2003 14:02:44 -0500
+Received: from mx.laposte.net ([213.30.181.7]:19673 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id <S264878AbTBOTCn>;
+	Sat, 15 Feb 2003 14:02:43 -0500
+Subject: Re: openbkweb-0.0
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lXEemwKkmYtGAs5+PMIv"
+Organization: 
+Message-Id: <1045336342.1195.25.camel@rousalka>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 15 Feb 2003 20:12:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Luethi wrote:
-> Here comes a batch of patches for the via-rhine driver. Please apply.
-> 
-> via-rhine is still hardly usable on the most common Rhine hardware; it
-> can't sustain 100Mbps traffic. The changes presented here improve the
-> situation considerably; they fix a number of real problems and have been
-> tested for regression (alas, by few people).
 
+--=-lXEemwKkmYtGAs5+PMIv
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Looks good, all patches applied to 2.5.
+> if you guys can't come to some sort of consensus, then patents are the
+> route we'll choose, even German law respects patents.
 
-Should these apply to 2.4, too?
+Software is not patentable in Europe right now, much as it pisses of the
+patent office of the US of A (because it lowers the value of what they
+offer) and the EU patent offices (for much the same reasons).
 
-Just a general comment, the reset logic seems a bit too much like voodoo 
-magic ;-)  It would be nice long-term to get an official answer from Via 
-about the proper reset sequence and time limits.  [regardless, like I 
-said, patch applied...]
+Note that won't stop EU patent offices granting (and being paid for)
+software patents *now* for people that hope they'll be worth something
+later.
 
-	Jeff
+Please do not go the software patent route. If you think the current bk
+=AB debate =BB stinks, just wait till you put your finger in another hot
+issue (which software patents *are* in Europe, 'cos lots of people don't
+want the EU to follows the same braindamaged path as the USA).
 
+You'll just shoot yourself in the foot. The shortcomings of CVS didn't
+spurn any serious free alternative for years, this won't change any time
+soon unless you start waving a red flag in front of everyone. Just
+provide any sort of CVS gateway, and most people will go back hacking
+elsewhere.
 
+You did know creating bk would be an incentive for others to write
+similar free tools didn't you ? All patents/NDAs/legal threats won't
+change this fact. They'll only wipe out all the genuine goodwill you
+earned in the community by helping Linus. Just look at the latest
+messages, by invoquing all the stupid american legalese you've only
+managed to startle people in other parts of the world.
+
+Right now inertia is your friend. Be smart and stop making a fuss.
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-lXEemwKkmYtGAs5+PMIv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+TpEWI2bVKDsp8g0RAt9uAJ4x2jBHyHYTEbC0aXYI9TUK/AAIaQCgktRk
+IvEKMFY2SzuMB8kc1tP0CcA=
+=skbZ
+-----END PGP SIGNATURE-----
+
+--=-lXEemwKkmYtGAs5+PMIv--
 

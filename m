@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270607AbRHQTbA>; Fri, 17 Aug 2001 15:31:00 -0400
+	id <S270600AbRHQTbS>; Fri, 17 Aug 2001 15:31:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270600AbRHQTas>; Fri, 17 Aug 2001 15:30:48 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:35712 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S270584AbRHQTap>; Fri, 17 Aug 2001 15:30:45 -0400
-Date: Fri, 17 Aug 2001 15:30:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Nicholas Knight <tegeran@home.com>
-cc: Adrian Cox <adrian@humboldt.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <01081711510800.00814@c779218-a>
-Message-ID: <Pine.LNX.3.95.1010817152158.4584B-100000@chaos.analogic.com>
+	id <S270618AbRHQTbJ>; Fri, 17 Aug 2001 15:31:09 -0400
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:33710 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S270584AbRHQTa7>; Fri, 17 Aug 2001 15:30:59 -0400
+Message-ID: <016f01c12752$ee012ae0$103147ab@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "Michael H. Warfield" <mhw@wittsend.com>,
+        "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200108171913.f7HJDKi00416@wildsau.idv-edu.uni-linz.ac.at> <20010817152159.A15459@alcove.wittsend.com>
+Subject: Re: min() and max() in kernel.h ?
+Date: Fri, 17 Aug 2001 12:29:27 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001, Nicholas Knight wrote:
+> On Fri, Aug 17, 2001 at 09:13:20PM +0200, Herbert Rosmanith wrote:
+> Please review the flamefest threads in this forum going under the
+> subjects of "2.4.9 does not compile" and related "[PATCH]".  That will
+> answer who what when and why, as well as giving you a suitable case of
+> characters to throw stones, or whatever else is handy, at.
+>
+> Rather interesting that Linus ducked out of town just in time
+> for this...  :->
 
-> On Friday 17 August 2001 10:36 am, Adrian Cox wrote:
-> > Richard B. Johnson wrote:
-> > > ** At this instant, you just killed everything in RAM with precharge
-> > > **
-> >
-> > I've done a bit more reading. The documentation I have here suggests
-> > the precharge doesn't erase all of memory.  Precharge copies from the
-> > sense amplifiers back into the current row. The erasure is a result of
-> > the sense amplifiers losing their contents faster than the memory
-> > cells, but even so only one of the 2^12 rows gets erased.
-> 
-> Now that we've established that SDRAM doesn't neccisarily get erased from 
-> rebooting, does anyone know how long it takes for SDRAM to clear after 
-> losing power? It seems to me that the fact that the RAM isn't neccisarily 
-> wiped by the BIOS at boot is less important than wether or not shutting 
-> down the system and having it shut down for 10 minutes causes the RAM to 
-> be cleared so that any intruder/thief would be unable to get the 
-> information neccisary to decrypt the swap...
+which is the reason why he is smarter than DaveM? :-)
 
-We've established no such thing. In fact, you can't properly initialize
-SDRAM memory without writing something to it. Further, reading SDRAM
-after a power-on or a reset, will result in all 1s (0xffffffff) because
-the SDRAM controller isn't even connected to the RAM. Further, in the
-process of connecting it up (logically), the lowest 15 bits of all
-SDRAM commands will end up being written to every chip. With SDRAM,
-data are normally clocked in/out, once the precharge command is
-executed, it's not even clocked. It works like this:
-
-(1) Put a memory controller command in a controller register.
-(2) Attempt to write RAM (anywhere), that makes the controller read
-    and acccept the command.
-(3) Continue with all commands. The last enables refresh.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+> > /herp
+>
+> Mike
+> --
+>  Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+>   (The Mad Wizard)      |  (678) 463-0932   |
+http://www.wittsend.com/mhw/
+>   NIC whois:  MHW9      |  An optimist believes we live in the best of all
+>  PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

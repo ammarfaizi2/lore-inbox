@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277071AbRJHSbu>; Mon, 8 Oct 2001 14:31:50 -0400
+	id <S277065AbRJHScA>; Mon, 8 Oct 2001 14:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277068AbRJHSbk>; Mon, 8 Oct 2001 14:31:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25872 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277065AbRJHSbe>; Mon, 8 Oct 2001 14:31:34 -0400
-Subject: Re: low-latency patches
-To: akpm@zip.com.au (Andrew Morton)
-Date: Mon, 8 Oct 2001 19:36:09 +0100 (BST)
-Cc: george@mvista.com (george anzinger), helgehaf@idb.hist.no (Helge Hafting),
-        mfedyk@matchmail.com (Mike Fedyk), linux-kernel@vger.kernel.org
-In-Reply-To: <3BC1EF61.9ECD3273@zip.com.au> from "Andrew Morton" at Oct 08, 2001 11:24:33 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277068AbRJHSbu>; Mon, 8 Oct 2001 14:31:50 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:15378 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S277065AbRJHSbo>; Mon, 8 Oct 2001 14:31:44 -0400
+Message-ID: <3BC1F037.C9715978@osdlab.org>
+Date: Mon, 08 Oct 2001 11:28:07 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: John Gluck <jgluckca@home.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Where to find benchmarks???
+In-Reply-To: <3BC1EB36.DB71874D@home.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15qfG5-0001Sy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right.  It needs to be a conscious, planned decision:  "from now on,
-> holding a lock for more than 500 usecs is a bug".
+John Gluck wrote:
+> 
+> Could someone please point me to a site or sites where I can find some
+> commonly used benchmarks.
+> I have never benchmarked my system and would like to check out
+> performance numbers with various kernels.
+> 
+> I have a dual Pentium III and run SMP kernels. The performance numbers
+> may help those working on optimising the kernel for different
+> architectures.
 
-Firstly you can start with "of course some hardware will stall the bus
-longer than that"
+Here are a few for you to begin with.
+
+http://hpwww.epfl.ch/bench/bench.html
+http://www.netlib.org/benchweb/code.html
+http://www.bitmover.com/lmbench/
+http://www.netperf.org/netperf/NetperfPage.html
+ftp://ftp.arl.mil/pub/ttcp/
+http://lbs.sourceforge.net/
+http://tiobench.sourceforge.net/
+http://www.kernelbench.org/
+http://www.acnc.com/benchmarks.html
+
+HTH.
+~Randy

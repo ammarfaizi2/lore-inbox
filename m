@@ -1,82 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263017AbTIAQr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTIAQr3
+	id S263113AbTIAQiY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTIAQiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:47:29 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:10738
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263017AbTIAQrX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:47:23 -0400
-Date: Mon, 1 Sep 2003 16:16:44 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Robert Love <rml@tech9.net>, Ian Kumlien <pomac@vapor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [SHED] Questions.
-Message-ID: <20030901141644.GA2359@wind.cocodriloo.com>
-References: <1062324435.9959.56.camel@big.pomac.com> <1062369684.9959.166.camel@big.pomac.com> <1062373274.1313.28.camel@boobies.awol.org> <200309011707.20135.phillips@arcor.de>
+	Mon, 1 Sep 2003 12:38:24 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6050
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263113AbTIAQiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:38:11 -0400
+Date: Mon, 1 Sep 2003 18:38:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030901163847.GI11503@dualathlon.random>
+References: <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <1062370358.12058.8.camel@dhcp23.swansea.linux.org.uk> <20030831230219.GD24409@dualathlon.random> <20030831230728.GA4918@work.bitmover.com> <20030831232224.GF24409@dualathlon.random> <1062416635.13372.17.camel@dhcp23.swansea.linux.org.uk> <20030901161316.GH11503@dualathlon.random> <1062433710.14254.7.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309011707.20135.phillips@arcor.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1062433710.14254.7.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 05:07:19PM +0200, Daniel Phillips wrote:
-> On Monday 01 September 2003 01:41, Robert Love wrote:
-> > Once a task "expires" (exhausts its timeslice), it will not run again
-> > until all other tasks, even those of a lower priority, exhaust their
-> > timeslice.
-> >
-> > ...
-> >
-> > Priority inversion is bad, but the priority inversion in this case is
-> > intended.  Higher priority tasks cannot starve lower ones.  It is a
-> > classic Unix philosophy that 'all tasks make some forward progress'
+On Mon, Sep 01, 2003 at 05:28:31PM +0100, Alan Cox wrote:
+> On Llu, 2003-09-01 at 17:13, Andrea Arcangeli wrote:
+> > > Each ACK that has caused previous delays generally opens up a 64K window
+> > > so you get bursts of data incoming. A sequence of acks can cause the
+> > 
+> > the congestion avoidance shouldn't allow what you say. It sends a few
+> > packets immediatly (cwnd starts > 1 recently), and that's why
+> > non-keepalive connections are bad, but after that the congestion window
+> > will remain low if we drop the packets.
 > 
-> So if I have 1000 low priority tasks and one high priority task, all CPU 
-> bound, the high priority task gets 0.1% CPU.  This is not the desirable or 
-> expected behaviour.
-> 
-> My conclusion is, the strategy of expiring the whole active array before any 
-> expired tasks are allowed to run again is incorrect.  Instead, each active 
-> list should be refreshed from the expired list individually.  This does not 
+> You may trigger fast retransmit patterns. Thats why you have to bend the
+> window.
 
-AFAIK, this could be implemented with a "list swap" operation, taking
-the list head for one priority and exchanging them between expired and
-active, or perhaps more properly, taking the expired list and adding it
-to the end of the active one. This would be O(1) since the task list for
-each priority is double-linked and thus has a "last element" pointer on
-the list header.
+fast restransmit are good to trigger, they don't arrive in a flood like
+if we had a huge cwnd, if we can send packets out of the network,
+they're right to be sent. During congestions the outgoing acks will be
+rejected too (it's limiting both ways).
 
-> affect the desirable O(1) scheduling property.  To prevent low priority 
-> starvation, the high-to-low scan should be elaborated to skip some runnable, 
-> high priority tasks occasionally in a *controlled* way.
+there is no difference between artificial congestion generated by a
+shaper and a true congestion. If tcp is correct it has to slowdown
+immediatly when it notices congestion.
 
-Perhaps this could be done with a random but skewed proportion, similar
-to the way you select the level to insert into on the "skip list"
-datastructure.
- 
-> IMHO, this minor change will provide a more solid, predictable base for Con 
-> and Nick's dynamic priority and dynamic timeslice experiments.
-> 
-> Regards,
-> 
-> Daniel
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I also don't see anything specific to a busy http server non support
+keepalive in this ack-fast-retransmit matter.
 
--- 
-winden/network
-
-1. Dado un programa, siempre tiene al menos un fallo.
-2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
-3. Por induccion, todos los programas se pueden
-   reducir a una linea que no funciona.
+Andrea

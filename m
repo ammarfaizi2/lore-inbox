@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131460AbRDSRI5>; Thu, 19 Apr 2001 13:08:57 -0400
+	id <S131480AbRDSRLz>; Thu, 19 Apr 2001 13:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbRDSRIq>; Thu, 19 Apr 2001 13:08:46 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:2231 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S131460AbRDSRIa>; Thu, 19 Apr 2001 13:08:30 -0400
-Message-ID: <3ADF1B51.87609B3A@nortelnetworks.com>
-Date: Thu, 19 Apr 2001 13:07:29 -0400
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
-X-Accept-Language: en
+	id <S131498AbRDSRLq>; Thu, 19 Apr 2001 13:11:46 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25614 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131480AbRDSRLc>; Thu, 19 Apr 2001 13:11:32 -0400
+Subject: Re: light weight user level semaphores
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Thu, 19 Apr 2001 18:12:42 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), alonz@nolaviz.org (Alon Ziv),
+        linux-kernel@vger.kernel.org (Kernel Mailing List),
+        mkravetz@sequent.com (Mike Kravetz),
+        drepper@cygnus.com (Ulrich Drepper)
+In-Reply-To: <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 19, 2001 09:46:17 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: NIIBE Yutaka <gniibe@m17n.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ARP handling in case of having multiple interfaces on same segment
-In-Reply-To: <200104190042.JAA23614@mule.m17n.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
+Message-Id: <E14qHz3-0007cZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NIIBE Yutaka wrote:
+> > libc is entitled to, and most definitely does exactly that. Take a look at
+> > things like gethostent, getpwent etc etc.
 > 
-> Sometime, we have setting like following (say, in the migration
-> process of changing IP networks, or perhaps wrong way of load
-> balancing):
+> Ehh.. I will bet you $10 USD that if libc allocates the next file
+> descriptor on the first "malloc()" in user space (in order to use the
+> semaphores for mm protection), programs _will_ break.
 > 
->         +----------+
->         |eth0 eth1 |
->         +----------+
->            |   |
->     -------+---+------------
-> 
-> Current implementation of Linux doesn't handle this case.  The problem
-> is ARP handling.  When ARP broadcast packet comes to the host, both
-> interfaces receive the packet, and regardless of the device, we reply
-> to that packet.  I think that we should not reply if the packet is not
-> related to that interface.  If the ARP request is for eth1's address,
-> we should not send reply from eth0.
+> You want to take the bet?
+
+Its not normally a good idea to take a Linus bet, but this time Im obviously
+missing something. fd0-2 will be passed in (and if not then shit already
+happens - see old bugtraq on the matter for setuid apps, glibc bugs)
+
+So the C library gets fd 3
+My first fopen gets fd 4.
+
+That can already happen and isnt new. Several profiling libraries on Unix have
+precisely this effect already. They dynamic link/loader will also open file
+handles to do mmaps although generally you wont see those as they are closed
+again after mapping. 
+
+Internationalisation code in glibc will also open and map tables during startup
 
 
-Under later 2.2 kernels there is something called arp_filter that can be enabled
-to give the exact behaviour you want. Apparently it is not yet in 2.4, but I
-think that it should definately be added.
-
-See the "ARP responses broken!" thread for more on this.
-
-Chris
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

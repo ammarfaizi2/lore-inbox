@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUIORzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUIORzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266708AbUIORzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 13:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267223AbUIORxn
+	id S267205AbUIORzX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 13:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUIORxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 13:53:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37314 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266708AbUIORwP
+	Wed, 15 Sep 2004 13:53:30 -0400
+Received: from pop.gmx.net ([213.165.64.20]:64474 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267223AbUIORxF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 13:52:15 -0400
-Message-ID: <41488140.4050109@pobox.com>
-Date: Wed, 15 Sep 2004 13:52:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ricky Beam <jfbeam@bluetronic.net>,
-       Zilvinas Valinskas <zilvinas@gemtek.lt>,
-       Erik Tews <erik@debian.franken.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 rc2 freezing
-References: <Pine.GSO.4.33.0409151255240.10693-100000@sweetums.bluetronic.net> <1095270555.2406.154.camel@krustophenia.net>
-In-Reply-To: <1095270555.2406.154.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 13:53:05 -0400
+X-Authenticated: #1725425
+Date: Wed, 15 Sep 2004 20:03:11 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: taeuber@informatik.hu-berlin.de
+Cc: lars.taeuber@gmx.net, axboe@suse.de, linux-kernel@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: cdrom recognition on kernel 2.6.8.1
+Message-Id: <20040915200311.5c8b2c83.Ballarin.Marc@gmx.de>
+In-Reply-To: <20040915191532.246dc6ca.lars.taeuber@gmx.net>
+References: <20040915093635.1a8f08ff.taeuber@bbaw.de>
+	<20040915085939.GU2304@suse.de>
+	<20040915191532.246dc6ca.lars.taeuber@gmx.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> Interesting.  Still, this looks like a specific bug that needs fixing,
-> it doesn't imply that preemption is a hack.  For many workloads
-> preemption is a necessity.
+On Wed, 15 Sep 2004 19:15:32 +0200
+Lars Täuber <lars.taeuber@gmx.net> wrote:
 
+> ...
+> 
+> As written bevore the drive is not recognised only with an audio cd in
+> it.
+> 
 
-For any workload that you feel preemption is a necessity, that indicates 
-a latency problem in the kernel that should be solved.
+I've seen Teac drives blocking the Windows XP boot process when
+certain discs are inserted. There were even freezes when copying files to
+hard disk that did not occur when a different drive was used.
+(Wasn't my machine, can't test anything.)
 
-Preemption is a hack that hides broken drivers, IMHO.
+Obviously Teac's firmware has some issues.
 
-I would rather directly address any latency problems that appear.
-
-	Jeff
-
-
+Regards

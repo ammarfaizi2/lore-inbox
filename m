@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUAKQbF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 11:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265271AbUAKQbE
+	id S265346AbUAKQcp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 11:32:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUAKQcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 11:31:04 -0500
-Received: from mail.uni-kl.de ([131.246.137.52]:44958 "EHLO uni-kl.de")
-	by vger.kernel.org with ESMTP id S265233AbUAKQbC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 11:31:02 -0500
-Date: Sun, 11 Jan 2004 17:30:50 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: bad scancode for USB keyboard
-Message-ID: <20040111163050.GA28671@zombie.inka.de>
-References: <3FF6EFE0.9030109@develer.com> <3FFB6A5D.9030606@olaussons.net> <3FFB6E9E.6040500@develer.com> <20040107085104.GA14771@ucw.cz>
+	Sun, 11 Jan 2004 11:32:45 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:27922 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S265346AbUAKQcn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 11:32:43 -0500
+Date: Sun, 11 Jan 2004 17:32:39 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: sven kissner <sven.kissner@consistencies.net>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: logitech cordless desktop deluxe optical keyboard issues
+Message-ID: <20040111163239.GA1955@win.tue.nl>
+References: <UTC200401111358.i0BDwIM08113.aeb@smtp.cwi.nl> <200401111705.30788.sven.kissner@consistencies.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040107085104.GA14771@ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by mailgate1.uni-kl.de id i0BGV0f4007207
+In-Reply-To: <200401111705.30788.sven.kissner@consistencies.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
-* Vojtech Pavlik [Wed, Jan 07 2004, 09:51:04AM]:
+On Sun, Jan 11, 2004 at 05:05:06PM +0100, sven kissner wrote:
 
-> The reason is that this key is not the ordinary backslash-bar key, it's
-> the so-called 103rd key on some european keyboards. It generates a
-> different scancode.
+> sure but it's not working:
 
-Fine, but there are a lot of USB keyboard that _work_ that way, where
-the "103rd" key is really positioned as the one and the only one '# key.
-And the current stable X release does NOT know about the new scancode.
-You realize that you intentionaly broke compatibility within a stable
-kernel release?
+> # setkeycodes 91 120
+> setkeycode: code outside bounds
 
-> 2.4 used the same keycode for both the scancodes, 2.6 does not, so that
-> it's possible to differentiate between the keys on keyboards that have
-> both this one and also the standard backslash-bar.
+Hm, yes. What about this version?
 
-*May* be a nice feature, but such things require better planning.
+-------- sk.c -------
+/*
+ * call: sk scancode keycode
+ *  (where scancode is given in hexadecimal, and keycode in decimal)
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <linux/kd.h>
 
-Regards,
-Eduard (going to revert that change before compiling 2.6.1 now).
--- 
-Am Abend manche Hülle fällt, die sonst des Leibes Fülle hält.
+int
+main(int argc, char **argv) {
+        struct kbkeycode a;
+        char *ep;
+
+        if (argc != 3) {
+                fprintf(stderr, "Call: sk scancode keycode\n");
+                exit(1);
+        }
+
+        a.scancode = strtol(argv[1], &ep, 16);
+        a.keycode = atoi(argv[2]);
+
+        if (ioctl(0, KDSETKEYCODE, &a)) {
+                perror("KDSETKEYCODE");
+                fprintf(stderr, "failed to set scancode 0x%x to keycode %d\n",
+                        a.scancode, a.keycode);
+                exit(1);
+        }
+
+        return 0;
+}
+

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263952AbTG1L1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 07:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTG1LYQ
+	id S263398AbTG1LYf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 07:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTG1LYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 07:24:16 -0400
-Received: from ns2.cerb.de ([195.234.128.26]:35803 "HELO mail.cerb.de")
-	by vger.kernel.org with SMTP id S263737AbTG1LYB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 07:24:01 -0400
-Subject: memory usage of a TCP/IP socket
-From: Gerd Feiner <gerd-kernel-list@cerb.de>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tST7PJTI1Cy/lewFC/cP"
-Organization: cerb.de
-Message-Id: <1059392258.4056.1.camel@localhost>
+	Mon, 28 Jul 2003 07:24:21 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12425
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263398AbTG1LX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 07:23:27 -0400
+Subject: Re: PATCH: keyboard controller by default if not embedded
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <20030728081545.C1707@infradead.org>
+References: <200307272004.h6RK49Ae029610@hraefn.swansea.linux.org.uk>
+	 <20030728081545.C1707@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059392089.15438.20.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 28 Jul 2003 13:37:38 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 Jul 2003 12:34:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2003-07-28 at 08:15, Christoph Hellwig wrote:
+> Again this is crap and make no sense for most x86 subarches except
+> X86_PC.  And means useless bloat for all my modwern PeeCees with USB
+> keyboard and mouse.
 
---=-tST7PJTI1Cy/lewFC/cP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+USB isnt the default yet and it stops a zillion people reporting 2.6.0-test
+doesn't work or hangs on boot as they are now. 
 
-Hi,
-
-as in the topic:
-
-How much memory (RAM) does a TCP/IP socket consume on kernel-2.4?
-
--G
-
---=20
-There are only 10 types of people in the world:=20
-Those who understand binary and those who don't ...
-
-GPG-Key at:=20
-http://www.cerb.de/gerd/gpg-keys/pub.key
-
---=-tST7PJTI1Cy/lewFC/cP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/JQsC6h+dk2V+2EoRAq8ZAJ9UBLlNH6vteBVpYVWBYOwfOahD8gCbB3h5
-DKAJCuc1XPuGP1SZA+Dg8C4=
-=FHNy
------END PGP SIGNATURE-----
-
---=-tST7PJTI1Cy/lewFC/cP--
 

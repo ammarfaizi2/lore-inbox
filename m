@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290843AbSCLWfm>; Tue, 12 Mar 2002 17:35:42 -0500
+	id <S292631AbSCLWjX>; Tue, 12 Mar 2002 17:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293556AbSCLWfc>; Tue, 12 Mar 2002 17:35:32 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:14976 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S310170AbSCLWfR>;
-	Tue, 12 Mar 2002 17:35:17 -0500
-Date: Wed, 13 Mar 2002 09:34:23 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: jhf@rivenstone.net (Joseph Fannin)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DMI patch for broken Dell laptop
-Message-Id: <20020313093423.5e0daba1.sfr@canb.auug.org.au>
-In-Reply-To: <20020312200948.GA32040@rivenstone.net>
-In-Reply-To: <20020312100225.2415c8c6.sfr@canb.auug.org.au>
-	<20020312200948.GA32040@rivenstone.net>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S292780AbSCLWjG>; Tue, 12 Mar 2002 17:39:06 -0500
+Received: from p508879CE.dip.t-dialin.net ([80.136.121.206]:56194 "EHLO
+	darkside.22.kls.lan") by vger.kernel.org with ESMTP
+	id <S292631AbSCLWio>; Tue, 12 Mar 2002 17:38:44 -0500
+Date: Tue, 12 Mar 2002 23:38:30 +0100
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] ACPI: kbd-pw-on/WOL don't work anymore since 2.4.14
+Message-ID: <20020312223830.GC1108@darkside.ddts.net>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7CDB@orsmsx111.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7CDB@orsmsx111.jf.intel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Joseph,
-
-On Tue, 12 Mar 2002 15:09:48 -0500 jhf@rivenstone.net (Joseph Fannin) wrote:
->
-> On Tue, Mar 12, 2002 at 10:02:25AM +1100, Stephen Rothwell wrote:
-> > Hi Marcelo, Linus,
-> > 
-> > This adds DMI recognition for anohter broken Dell laptop BIOS (BIOS
-> > version A12 on the Insiron 2500).
+On Tue, Mar 12, 2002 at 11:57:48AM -0800, Grover, Andrew wrote:
+> Pavel that this should not be a config option. The real problem is that the
+> keyboard GPE should be flagged as a wake GPE, but it isn't yet.
 > 
->   I think this problem exists for all i2500 BIOS versions > A06. (I
-> have such a machine, and access to the BIOS versions back to A08 if
-> there is something specific I can test for -- that APM power status
-> worked with revision A06 is just heresay.)
+> What needs to happen is, when we are entering a sleep state, we need to
+> evaluate _PRW and _PSW objects for devices, and take the appropriate action
 
-Thanks for the offer.  The way to test this is to install each BIOS version,
-boot into Linux (preferably in single user mode :-)) and then cat /proc/apm.
-If you get an OOPS with then it probably has this problem.  The send
-the BIOS versions to us and we will add them to the black list.
+Well, as I said a few postings ago, I'm not really proof with
+ACPI.
 
+But ... from a users point of view (which I seem to be proof for -
+especially in *this* case :)):
+
+I enable in the BIOS, what devices should be considered wake
+up devices.
+This works very well with Windows (not that I'm going to use that,
+I just tested it to validate, if it works there), it did work
+very well with 2.4.13 too (yes, I know, there was the TODO: disable
+GPEs).
+
+Where is the problem to read those wake up events from the BIOS?
+
+Why should I configure this twice - once in BIOS, once in some
+ominous ospmd?
+
+I grepped the ACPI code...
+
+If I understand it right, a call to acpi_hw_enable_gpe_for_wakeup(event)
+would mark one specific event as wakeup event.
+The only call to this function is in acpi_enable_event(...).
+And the only call to acpi_enable_event() is in
+acpi_install_fixed_event_handler(...) and is flagged as
+ACPI_EVENT_FIXED, so that acpi_hw_enable_gpe_for_wakeup() is
+*never* called in the whole ACPI code at the moment, so how
+can there be GPEs marked as wakeup events however?
+
+And if there can't be any, why should I'm not be able to work
+around this bug?
+And yes - I consider this as bug :) There is code, which is never
+called, afaics.
+
+
+regards,
+   Mario, trying to understand :)
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Programmieren in C++ haelt die grauen Zellen am Leben. Es schaerft
+alle fuenf Sinne: den Schwachsinn, den Bloedsinn, den Wahnsinn, den
+Unsinn und den Stumpfsinn.
+                                 [Holger Veit in doc]

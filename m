@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129698AbRBTRqQ>; Tue, 20 Feb 2001 12:46:16 -0500
+	id <S129656AbRBTRqG>; Tue, 20 Feb 2001 12:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130184AbRBTRqG>; Tue, 20 Feb 2001 12:46:06 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:1751 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S129578AbRBTRpu>;
-	Tue, 20 Feb 2001 12:45:50 -0500
-Date: Tue, 20 Feb 2001 17:45:52 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Pozsar Balazs <pozsy@sch.bme.hu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [IDE] meaningless #ifndef?
-In-Reply-To: <Pine.LNX.4.21.0102201705280.11260-100000@alloc>
-Message-ID: <Pine.LNX.4.21.0102201730260.1046-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129986AbRBTRp5>; Tue, 20 Feb 2001 12:45:57 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:18926
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S129656AbRBTRpn>; Tue, 20 Feb 2001 12:45:43 -0500
+Date: Tue, 20 Feb 2001 10:44:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: [PATCH] make nfsroot accept server addresses from BOOTP root
+Message-ID: <20010220104415.D3150@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.30.0102191809350.27085-100000@today.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.30.0102191809350.27085-100000@today.toronto.redhat.com>; from bcrl@redhat.com on Mon, Feb 19, 2001 at 06:12:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Feb 2001, Andre Hedrick wrote:
-> On Mon, 19 Feb 2001, Pozsar Balazs wrote:
-> 
-> > from drivers/ide/ide-features.c:
-> > 
-> > /*
-> >  *  All hosts that use the 80c ribbon mus use!
-> >  */
-> > byte eighty_ninty_three (ide_drive_t *drive)
-> > {
-> >         return ((byte) ((HWIF(drive)->udma_four) &&
-> > #ifndef CONFIG_IDEDMA_IVB
-> >                         (drive->id->hw_config & 0x4000) &&
-> > #endif /* CONFIG_IDEDMA_IVB */
-> >                         (drive->id->hw_config & 0x6000)) ? 1 : 0);
-> > }
-> > 
-> > If i see well, then this is always same whether CONFIG_IDEDMA_IVB is
-> > defined or not.
-> > What's the clue?
-> 
-> (drive->id->hw_config & 0x4000)
-> 	mask off 0x4000 for presence.
-> (drive->id->hw_config & 0x6000) 
-> 	mask off 0x2000 ot 0x4000 for presence.
-> 
-> The first is true only if bit 14 is set.
-> The second is true if either bit 13 or 14 is set.
-> 
-> Togather they test for two bits.
-> The first test is exclusive to bit 14
-> The second test is inclusive of bits 13 and 14.
-> 
-> Because some older drives set only bit 13 for the device side cable-detect,
-> then newer drives than these did a supported mode bit 14 and no bits 13,
-> then others do both.
-> 
-> So in order to have a test that supports ATA-4/5/6 you have to allow
-> users the option to disable the newer sense code that is only valid for
-> ATA-5/6.  It will get messier still.
+On Mon, Feb 19, 2001 at 06:12:12PM -0500, Ben LaHaise wrote:
 
-Andre, please read through that code again, and through your reply.
-It seems to me that Poszar is absolutely right, and your reply is
-(once again) just saying "there's lots of confusion out there, so
-my code has to be confused too".  Or do your &s and &&s behave
-differently from ours?
+> Here's a handy little patch that makes the kernel parse out the ip
+> address of the nfs server from the bootp root path.  Otherwise it's
+> impossible to boot the kernel without command line options on diskless
+> workstations (I hate RPL).
 
-Hugh
+Er, say that again?  Right now, for bootp if you specify "sa=xxx.xxx.xxx.xxx"
+Linux uses that as the host for the NFS server (which does have the side
+effect of if TFTP server != NFS server, you don't boot).  Are you saying
+your patch takes "rp=xxx.xxx.xxx.xxx:/foo/root" ?  Just curious, since I
+don't know, whats the RFC say about this?
 
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

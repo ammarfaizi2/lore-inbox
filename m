@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314272AbSD0Pxu>; Sat, 27 Apr 2002 11:53:50 -0400
+	id <S314273AbSD0QDN>; Sat, 27 Apr 2002 12:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314273AbSD0Pxt>; Sat, 27 Apr 2002 11:53:49 -0400
-Received: from ASYNC2-9.NET.CS.CMU.EDU ([128.2.188.66]:5892 "EHLO
-	mentor.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S314272AbSD0Pxs>; Sat, 27 Apr 2002 11:53:48 -0400
-Date: Sat, 27 Apr 2002 11:53:24 -0400
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-Message-ID: <20020427155323.GA1275@mentor.odyssey.cs.cmu.edu>
-Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <20020410221211.GA6076@ravel.coda.cs.cmu.edu> <5.1.0.14.2.20020410235415.03d41d00@pop.cus.cam.ac.uk> <5.1.0.14.2.20020412015633.01f1f3c0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020412080524.00ac6220@pop.cus.cam.ac.uk>
+	id <S314274AbSD0QDM>; Sat, 27 Apr 2002 12:03:12 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:18907 "EHLO
+	pimout2-int.prodigy.net") by vger.kernel.org with ESMTP
+	id <S314273AbSD0QDM>; Sat, 27 Apr 2002 12:03:12 -0400
+Subject: Re: The tainted message
+From: Richard Thrapp <rthrapp@sbcglobal.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E171TzX-0008PF-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 27 Apr 2002 11:03:05 -0500
+Message-Id: <1019923391.8818.69.camel@wizard>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12, 2002 at 08:57:17AM +0100, Anton Altaparmakov wrote:
-> Yet, this really begs the question of defining the concept of a file. I am 
-> quite happy with files being the io entity in ntfs. It is just that each 
-> file in ntfs can contain loads of different data holding attributes which 
-> are all worth placing in address spaces. Granted, a dummy inode could be 
-> setup for each of those which just means a lot of wasted ram but ntfs is 
-> not that important so I have to take the penalty there. But if I also need 
-> unique inode numbers in those dummy inodes then the overhead is becoming 
-> very, very high...
+On Sat, 2002-04-27 at 10:20, Alan Cox wrote:
+> More informative but I think too soft. It still implies we might want to
+> hear about it but not reply. That isnt the case.
+> 
+> How about
+> 
+> Warning: The module you have loaded (%s) does not seem to have an open
+> 	 source license. Please send any kernel problem reports to the
+> 	 author of this module, or duplicate them from a boot without
+> 	 ever loading this module before reporting them to the community
+> 	 or your Linux vendor
+> 
+> ??
 
-You could have all additional IO streams use the same inode number and
-use iget4. Several inodes can have the same i_ino and the additional
-argument would be a stream identifier that selects the correct 'IO
-identity'.
+I like the wording of that.  I suggest that we change the words "an open
+source license" to "a GPL-compatible license" since that's what we're
+checking for (if I remember incorrectly, please correct me).  It might
+also be important to put the license string in there somewhere.
 
-Jan
+-- Richard Thrapp
 

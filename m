@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129268AbRCHRmz>; Thu, 8 Mar 2001 12:42:55 -0500
+	id <S129440AbRCHRwz>; Thu, 8 Mar 2001 12:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129272AbRCHRmq>; Thu, 8 Mar 2001 12:42:46 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:5400 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129344AbRCHRmf>; Thu, 8 Mar 2001 12:42:35 -0500
-Message-ID: <3AA7C616.3922B744@sgi.com>
-Date: Thu, 08 Mar 2001 09:49:10 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Elevator algorithm parameters
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129417AbRCHRwp>; Thu, 8 Mar 2001 12:52:45 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:30689 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129399AbRCHRwm>; Thu, 8 Mar 2001 12:52:42 -0500
+Message-Id: <5.0.2.1.2.20010308174629.00a89ec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 08 Mar 2001 17:53:08 +0000
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: RE: Microsoft begining to open source Windows 2000?
+Cc: Venkatesh Ramamurthy <Venkateshr@ami.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0103081733420.13093-100000@dax.joh.cam.ac.uk
+ >
+In-Reply-To: <5.0.2.1.2.20010308162515.00a63a80@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a few comments/questions on the elv. alg. as it is now.  Some
-of them may be based on a flawed understanding, but please be patient
-anyway :-).
+At 17:36 08/03/2001, James A. Sutherland wrote:
+>On Thu, 8 Mar 2001, Anton Altaparmakov wrote:
+> > At 16:04 08/03/01, Venkatesh Ramamurthy wrote:
+> > It is a "look but don't touch" license which is as far away from the ideas
+> > of the GPL as you can possibly get.
+>
+>Is it? Going from "totally closed" to "we might let you see the code if
+>you grovel" is a step in the right direction, at least.
 
-1) read-ahead is given the same 'latency' [max-wait priority] as 'read'
-   I can see r-a as being less important than 'read' -- 'read' means
-   some app is blocked waiting for input *now*.  'ra' -- means the
-   kernel is being clever in hopes it is predicting a usage pattern where
-   reading ahead will be useful.  I'd be tempted to give read-ahead
-   a higher acceptable latency than reads and possibly higher than
-   writes.  By definition, 'ra' i/o is i/o that no one currently has
-   requested be done.
-   a) the code may be there, but if a read request comes in for a
-      sector marked for ra, then the latency should be set to 
-      min(r-latency,remaining ra latency)
+It would be except there is no big change. Microsoft was already doing 
+that, as you say below yourself, except that it is now broadening the 
+number of people that are allowed to see the code.
 
-2) I seem to notice a performance boost for my laptop setting the
-   read latency down to 1/8th of the write (2048/16384) instead of
-   the current 1:2 ratio.  
+> > Even submitting them a patch is technically violating their license as a
+> > patch implies that you have modified their code already, which is 
+> forbidden!
+>
+>Hmm... Perhaps. I doubt they'd object, particularly if the patch worked :P
 
-   I am running my machine as a nfs server as well as doing local tasks
-   and compiles.  I got better overall performance because nfs requests
-   got serviced more quickly to feed a data-hungry dual-processor
-   "compiler-server".  Also, my interactive processes which need
-   lots of random reads perform better because they got 'fed' faster
-   while some background data transfers (read and writes) of large
-   streams of data were going on.
+Well, there is that of course. But if they wanted to, they could shoot you 
+down for it in accordance with the license.
 
-3) It seems that the balance of optimal latency figures would vary
-   based on how many cpu-processes are blocked on data-reads, how many
-   cpu's are reading from the same disk, the disk speed, the cpu speed
-   and available memory for buffering.  Maybe there is a neat wiz-bang
-   self-adjusting algorithm that can adapt dynamically to different
-   loads (like say detects -- hmmm, we have 100 non mergable read 
-   requests plugged, should I wait for more?...well only 1 active write
-   request is running....maybe I should lower the read latency...etc).
-   However, in the interim, it seems having the values at least be
-   tunable via /proc (rather than the current ioctl) would be useful --
-   just able to echo some values into there @ runtime.  I couldn't
-   seem to find such a beast in /proc.
+> > The only change from before that I can see is that Microsoft is going to
+> > make even more money now, because they will collect the money from ~1000
+> > instead of ~10 people. No other news there.
+>
+>They do already license the source to a few trusted companies (Executive
+>Software used to ship modified NTFS drivers for NT 3.51 as part of
+>Diskeeper, IIRC). They are inching ever so slowly towards letting human
+>beings (cf MS drones) read their code...
 
-Comments/cares?
+Exactly my point. Only a slight change in numbers, nothing more, nothing less.
 
-If you ask for code from me, it'll be a while -- My read and write 
+Anton
+
+
 -- 
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

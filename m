@@ -1,81 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSFOEif>; Sat, 15 Jun 2002 00:38:35 -0400
+	id <S314101AbSFOFZE>; Sat, 15 Jun 2002 01:25:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314101AbSFOEie>; Sat, 15 Jun 2002 00:38:34 -0400
-Received: from h-64-105-136-45.SNVACAID.covad.net ([64.105.136.45]:23701 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S313638AbSFOEid>; Sat, 15 Jun 2002 00:38:33 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 14 Jun 2002 21:38:29 -0700
-Message-Id: <200206150438.VAA27728@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: bio_chain: proposed solution for bio_alloc failure and large IO simplification
-Cc: akpm@zip.com.au, axboe@suse.de
+	id <S314529AbSFOFZD>; Sat, 15 Jun 2002 01:25:03 -0400
+Received: from merlin.webone.com.au ([210.8.44.18]:54537 "EHLO
+	merlin.webone.com.au") by vger.kernel.org with ESMTP
+	id <S314101AbSFOFZD>; Sat, 15 Jun 2002 01:25:03 -0400
+Date: Sat, 15 Jun 2002 15:24:43 +1000
+To: hugh@veritas.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+Message-ID: <20020615152443.A22396@beernut.flames.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Kevin Easton <s3159795@student.anu.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
->        Anyhow, I can write bio_chain in a separate file without
->touching changing any existing code in the kernel, if I am not going
->to implement the merge hint.  I think I will do just that so that
->we have something that we can discuss more concretely.
 
-	In case anyone is intersted, here is a sample implementation
-that compiles.  I do not know if it works.  I have renamed it
-recycle_bio.  This version allocates a bio on the stack (56 bytes
-on x86).  I also wrote a version that avoided the stack allocation,
-but added a field "void *bi_destructor_private;" to struct bio.
+> On Wed, 12 Jun 2002, Andrew Morton wrote: 
+> > 
+> > A more serious form of data loss occurs when an application has a shared 
+> > mapping over a sparse file. If the filesystem is out of space when 
+> > the VM decides to write back some pages, your data simply gets dropped 
+> > on the floor. Even a subsequent msync() won't tell you that you have 
+> > a shiny new bunch of zeroes in your file. 
+> > 
+> > It's not simple to fix. Approaches might be: 
+> > 
+> > 1: Map the page to disk at fault time, generate SIGBUS on 
+> > ENOSPC (the standards don't seem to address this issue, and 
+> > this is a non-standard overload of SIGBUS). 
+> 
+> 
+> I've looked at this issue in the past: it's a familiar problem 
+> for various filesystems on various flavours of UNIX. Some of the 
+> strangeness in tmpfs (shmem_recalc_inode, or ac's shmem_removepage) 
+> can be traced to this issue, I believe. The filesystem does not 
+> know when a clean page is dirtied, and somehow has to cope afterwards. 
+> 
+> 
+> I believe your option 1 is closest to the right direction; and SIGBUS 
+> is entirely appropriate, I don't see it as a non-standard overload. 
+> 
+> 
+> But you didn't spell out the worst news on that option: read faults 
+> into a read-only shared mapping of a file which the application had 
+> open for read-write when it mmapped: the page must be mapped to disk 
+> at read fault time (because the mapping just might be mprotected for 
+> read-write later on, and the page then dirtied). 
+> 
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Can't the page be mapped to disk at the page-dirtying-fault time? I 
+was under the impression that even after the mapping has been mprotected
+for read-write, the first write to each page will still cause a page
+fault that results in the page being marked dirty.
 
-/* In bio.h: */
-
-extern struct bio *__recycle_bio(struct bio *oldbio);
-static inline struct bio *recycle_bio(struct bio *oldbio,
-                                      int gfp_mask, int nvecs) {
-        struct bio *newbio;
-
-        if (nvecs > oldbio->bi_max)
-                BUG();
-
-        if ((newbio = bio_alloc(gfp_mask, nvecs)) != NULL) {
-                submit_bio(oldbio->bi_rw, oldbio);
-                return newbio;
-        } else
-                return __recycle_bio(oldbio);
-}
-
-
-/* In bio.c: */
-struct bio_completion {
-        struct bio bio;
-        struct completion done;
-};
-
-static void fake_destruct(struct bio *bio)
-{
-        struct bio_completion *stackbio;
-
-        stackbio = list_entry(bio, struct bio_completion, bio);
-        complete(&stackbio->done);
-}
-
-struct bio *__recycle_bio(struct bio *bio)
-{
-        struct bio_completion stackbio;
-
-        stackbio.bio = *bio;
-        stackbio.bio.bi_destructor = fake_destruct;
-
-        init_completion(&stackbio.done);
-        submit_bio(stackbio.bio.bi_rw, &stackbio.bio);
-        wait_for_completion(&stackbio.done);
-
-        return bio;
-}
-EXPORT_SYMBOL(__recycle_bio);
+	- Kevin.
 

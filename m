@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbTELDCl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 23:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTELDCl
+	id S261861AbTELDKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 23:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTELDKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 23:02:41 -0400
-Received: from havoc.daloft.com ([64.213.145.173]:17069 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261852AbTELDCj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 23:02:39 -0400
-Date: Sun, 11 May 2003 23:15:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK+PATCH] net driver irqreturn_t
-Message-ID: <20030512031522.GA27077@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Sun, 11 May 2003 23:10:41 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:40669 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261861AbTELDKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 23:10:39 -0400
+Message-ID: <3EBF1398.9090704@nortelnetworks.com>
+Date: Sun, 11 May 2003 23:23:04 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anyone ever implemented a reparent(pid) syscall?
+References: <3EBBF965.4060001@nortelnetworks.com> <20030510063936.D13069@almesberger.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Werner Almesberger wrote:
+ > Chris Friesen wrote:
+ >
+ >> I would like some way for the main one to restart, read the list of pids
+ >> out of a file that it conveniently stashed away,
 
-Linus, please do a
+ > And until it has done this, any child death will still only be seen by init.
+ > So you either didn't have a problem with this in the first place, or you
+ > can make sure your children don't die while their parents are changing, or
+ > you've just designed yourself a race condition.
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+Sure. So the monitorer starts up, attempts to watch a pid, gets an error saying
+that it doesn't exist, and handles it.
 
-Others may download
+In the particular case that I'm planning for, the processes in question are 
+long-running ones which should never die except for upgrades (which could be 
+designed for).
 
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.69-bk6-netdrvr2.bz2
+The general case would be trickier.
 
-This will update the following files:
+Chris
 
- drivers/net/apne.c                  |    9 +++++----
- drivers/net/arcnet/arcnet.c         |    5 +++--
- drivers/net/fc/iph5526.c            |   18 ++++++++++--------
- drivers/net/fec.c                   |   18 +++++++++++++-----
- drivers/net/fmv18x.c                |    6 +++---
- drivers/net/hamradio/scc.c          |    7 ++++---
- drivers/net/irda/sa1100_ir.c        |    3 ++-
- drivers/net/macmace.c               |    5 +++--
- drivers/net/myri_sbus.c             |    4 +++-
- drivers/net/seeq8005.c              |    9 +++++++--
- drivers/net/sun3lance.c             |    8 ++++----
- drivers/net/sunqe.c                 |    1 +
- drivers/net/tokenring/lanstreamer.c |    5 +++--
- drivers/net/tulip/de4x5.c           |    2 +-
- drivers/net/wan/lmc/lmc_main.c      |    8 ++++++--
- include/linux/arcdevice.h           |    2 +-
- 16 files changed, 69 insertions(+), 41 deletions(-)
 
-through these ChangeSets:
-
-<akpm@digeo.com> (03/05/11 1.1088)
-   [netdrvr] remaining irqreturn_t changes
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

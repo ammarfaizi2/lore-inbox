@@ -1,2835 +1,995 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264957AbSJPIK0>; Wed, 16 Oct 2002 04:10:26 -0400
+	id <S264965AbSJPIXl>; Wed, 16 Oct 2002 04:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264959AbSJPIK0>; Wed, 16 Oct 2002 04:10:26 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:49674 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264957AbSJPIJu>;
-	Wed, 16 Oct 2002 04:09:50 -0400
-Date: Wed, 16 Oct 2002 01:15:40 -0700
-From: Greg KH <greg@kroah.com>
-To: netdev@oss.sgi.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] change format of LSM hooks
-Message-ID: <20021016081539.GF20421@kroah.com>
-References: <20021015194545.GC15864@kroah.com> <20021015.124502.130514745.davem@redhat.com> <20021015201209.GE15864@kroah.com> <20021015.131037.96602290.davem@redhat.com> <20021015202828.GG15864@kroah.com> <20021016000706.GI16966@kroah.com>
+	id <S264970AbSJPIXl>; Wed, 16 Oct 2002 04:23:41 -0400
+Received: from atm42.mobile.de ([212.12.52.53]:57612 "EHLO ATM42.mobile.de")
+	by vger.kernel.org with ESMTP id <S264965AbSJPIXY>;
+	Wed, 16 Oct 2002 04:23:24 -0400
+Date: Wed, 16 Oct 2002 10:22:11 +0200
+From: Falk Stern <f.stern@team.mobile.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: GDT Driver won't compile with 2.5.43
+Message-Id: <20021016102211.4e722936.f.stern@team.mobile.de>
+X-Mailer: Sylpheed version 0.8.5claws20 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021016000706.GI16966@kroah.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 05:07:06PM -0700, Greg KH wrote:
-> 
-> I'll work on fixing up the rest of the hooks, and removing the external
-> reference to security_ops, and actually test this thing, later this
-> evening.
+Hi, I get the following errors when compiling 2.5.43 with ICP/GDT Vortex
+support:
 
-Here's all the hooks converted over to function calls.  Chris Wright
-pointed out I need to do some extra work with the existing capabilities
-hooks, but I'll do that in the morning.
+ gcc -Wp,-MD,drivers/scsi/.gdth.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=gdth   -c -o drivers/scsi/gdth.o drivers/scsi/gdth.c
+drivers/scsi/gdth.c:298: #error Please convert me to Documentation/DMA-mapping.txt
+In file included from drivers/scsi/gdth.c:704:
+drivers/scsi/gdth_proc.c:1393: macro `GDTH_LOCK_SCSI_DONE' used with just one arg
+drivers/scsi/gdth.c:3346: macro `GDTH_UNLOCK_SCSI_DONE' used with too many (2) args
+In file included from drivers/scsi/gdth.c:704:
+drivers/scsi/gdth_proc.c: In function `gdth_do_cmd':
+drivers/scsi/gdth_proc.c:1269: request for member `rq_status' in something not a structure or union
+drivers/scsi/gdth_proc.c:1271: request for member `waiting' in something not a structure or union
+drivers/scsi/gdth_proc.c: In function `gdth_scsi_done':
+drivers/scsi/gdth_proc.c:1291: request for member `rq_status' in something not a structure or union
+drivers/scsi/gdth_proc.c:1294: request for member `waiting' in something not a structure or union
+drivers/scsi/gdth_proc.c:1295: request for member `waiting' in something not a structure or union
+drivers/scsi/gdth_proc.c: In function `gdth_wait_completion':
+drivers/scsi/gdth_proc.c:1393: parse error before `)'
+drivers/scsi/gdth_proc.c:1393: invalid type argument of `->'
+drivers/scsi/gdth_proc.c:1395: `dev' undeclared (first use in this function)
+drivers/scsi/gdth_proc.c:1395: (Each undeclared identifier is reported only once
+drivers/scsi/gdth_proc.c:1395: for each function it appears in.)
+drivers/scsi/gdth.c: In function `gdth_copy_internal_data':
+drivers/scsi/gdth.c:2633: structure has no member named `address'
+drivers/scsi/gdth.c:2633: structure has no member named `address'
+drivers/scsi/gdth.c: In function `gdth_fill_cache_cmd':
+drivers/scsi/gdth.c:2808: structure has no member named `address'
+drivers/scsi/gdth.c: In function `gdth_fill_raw_cmd':
+drivers/scsi/gdth.c:2925: structure has no member named `address'
+drivers/scsi/gdth.c: In function `gdth_interrupt':
+drivers/scsi/gdth.c:3346: `dev' undeclared (first use in this function)
+make[3]: *** [drivers/scsi/gdth.o] Error 1
+make[2]: *** [drivers/scsi] Error 2
+make[1]: *** [drivers] Error 2
+make[1]: Leaving directory `/home/falk/linux-2.5.43'
+make: *** [stamp-build] Error 2
 
-Thanks to John Levon for pointing out cond_syscall() to me, very cool
-function.  That removes the need to have a sys_security.c file.
+my .config: 
 
-Patch is against 2.5.43, and builds for me, both with and without
-CONFIG_SECURITY set.  Haven't booted it yet though...
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
 
-thanks,
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
-greg k-h
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_NR_CPUS=32
+# CONFIG_X86_NUMA is not set
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_NONFATAL is not set
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_CPU_FREQ is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=y
+# CONFIG_HIGHMEM64G is not set
+CONFIG_HIGHMEM=y
+# CONFIG_HIGHPTE is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+
+#
+# Power management options (ACPI, APM)
+#
+
+#
+# ACPI Support
+#
+# CONFIG_ACPI is not set
+# CONFIG_PM is not set
+# CONFIG_APM is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_SCx200 is not set
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+# CONFIG_HOTPLUG_PCI is not set
+
+#
+# Executable file formats
+#
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+# CONFIG_BINFMT_AOUT is not set
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_MISC is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play configuration
+#
+# CONFIG_PNP is not set
+# CONFIG_ISAPNP is not set
+# CONFIG_PNPBIOS is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+# CONFIG_LBD is not set
+
+#
+# ATA/ATAPI/MFM/RLL device support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDE_TCQ is not set
+# CONFIG_BLK_DEV_IDE_TCQ_DEFAULT is not set
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_NFORCE is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_SVWKS=y
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+
+#
+# SCSI device support
+#
+CONFIG_SCSI=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=y
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=y
+# CONFIG_BLK_DEV_SR_VENDOR is not set
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=y
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+CONFIG_SCSI_AACRAID=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=16
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+CONFIG_SCSI_GDTH=y
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+# CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+# CONFIG_SCSI_NCR53C8XX_IOMAPPED is not set
+# CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+# CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# CONFIG_SCSI_PCI2220I is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_SEAGATE is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_NSP32 is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+# CONFIG_NETLINK_DEV is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+# CONFIG_IP_PNP_BOOTP is not set
+# CONFIG_IP_PNP_RARP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+CONFIG_SYN_COOKIES=y
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+# CONFIG_IP_NF_IRC is not set
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=y
+# CONFIG_IP_NF_MATCH_LIMIT is not set
+# CONFIG_IP_NF_MATCH_MAC is not set
+# CONFIG_IP_NF_MATCH_PKTTYPE is not set
+# CONFIG_IP_NF_MATCH_MARK is not set
+# CONFIG_IP_NF_MATCH_MULTIPORT is not set
+# CONFIG_IP_NF_MATCH_TOS is not set
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+# CONFIG_IP_NF_MATCH_AH_ESP is not set
+# CONFIG_IP_NF_MATCH_LENGTH is not set
+# CONFIG_IP_NF_MATCH_TTL is not set
+# CONFIG_IP_NF_MATCH_TCPMSS is not set
+# CONFIG_IP_NF_MATCH_HELPER is not set
+# CONFIG_IP_NF_MATCH_STATE is not set
+# CONFIG_IP_NF_MATCH_CONNTRACK is not set
+# CONFIG_IP_NF_MATCH_UNCLEAN is not set
+# CONFIG_IP_NF_MATCH_OWNER is not set
+CONFIG_IP_NF_FILTER=y
+# CONFIG_IP_NF_TARGET_REJECT is not set
+# CONFIG_IP_NF_TARGET_MIRROR is not set
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+# CONFIG_IP_NF_TARGET_MASQUERADE is not set
+CONFIG_IP_NF_TARGET_REDIRECT=y
+# CONFIG_IP_NF_NAT_LOCAL is not set
+# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
+CONFIG_IP_NF_NAT_FTP=y
+# CONFIG_IP_NF_MANGLE is not set
+# CONFIG_IP_NF_TARGET_LOG is not set
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+# CONFIG_IPV6 is not set
+
+#
+#    SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IPV6_SCTP__=y
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_LLC is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DEV_APPLETALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_SUNLANCE is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_PCI=y
+# CONFIG_PCNET32 is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DGRS is not set
+# CONFIG_EEPRO100 is not set
+CONFIG_E100=y
+# CONFIG_LNE390 is not set
+# CONFIG_FEALNX is not set
+# CONFIG_NATSEMI is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_NE3210 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_8139CP is not set
+# CONFIG_8139TOO is not set
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+# CONFIG_8139_OLD_RX_RESET is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_SUNDANCE_MMIO is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_VIA_RHINE_MMIO is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+CONFIG_E1000=y
+# CONFIG_E1000_NAPI is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN_BOOL is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input I/O drivers
+#
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=y
+# CONFIG_GAMEPORT_NS558 is not set
+# CONFIG_GAMEPORT_L4 is not set
+# CONFIG_GAMEPORT_EMU10K1 is not set
+# CONFIG_GAMEPORT_VORTEX is not set
+# CONFIG_GAMEPORT_FM801 is not set
+# CONFIG_GAMEPORT_CS461x is not set
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+# CONFIG_INPUT_MOUSE is not set
+# CONFIG_MOUSE_PS2 is not set
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_INPORT is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_JOYSTICK_ANALOG is not set
+# CONFIG_JOYSTICK_A3D is not set
+# CONFIG_JOYSTICK_ADI is not set
+# CONFIG_JOYSTICK_COBRA is not set
+# CONFIG_JOYSTICK_GF2K is not set
+# CONFIG_JOYSTICK_GRIP is not set
+# CONFIG_JOYSTICK_GRIP_MP is not set
+# CONFIG_JOYSTICK_GUILLEMOT is not set
+# CONFIG_JOYSTICK_INTERACT is not set
+# CONFIG_JOYSTICK_SIDEWINDER is not set
+# CONFIG_JOYSTICK_TMDC is not set
+# CONFIG_JOYSTICK_IFORCE is not set
+# CONFIG_JOYSTICK_WARRIOR is not set
+# CONFIG_JOYSTICK_MAGELLAN is not set
+# CONFIG_JOYSTICK_SPACEORB is not set
+# CONFIG_JOYSTICK_SPACEBALL is not set
+# CONFIG_JOYSTICK_STINGER is not set
+# CONFIG_JOYSTICK_TWIDDLER is not set
+# CONFIG_JOYSTICK_DB9 is not set
+# CONFIG_JOYSTICK_GAMECON is not set
+# CONFIG_JOYSTICK_TURBOGRAFX is not set
+# CONFIG_INPUT_JOYDUMP is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_TOUCHSCREEN_GUNZE is not set
+# CONFIG_INPUT_MISC is not set
+# CONFIG_INPUT_PCSPKR is not set
+# CONFIG_INPUT_UINPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+# CONFIG_SERIAL_8250_CS is not set
+# CONFIG_SERIAL_8250_EXTENDED is not set
+# CONFIG_SERIAL_8250_MANY_PORTS is not set
+# CONFIG_SERIAL_8250_SHARE_IRQ is not set
+# CONFIG_SERIAL_8250_DETECT_IRQ is not set
+# CONFIG_SERIAL_8250_MULTIPORT is not set
+# CONFIG_SERIAL_8250_RSA is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+#
+# I2C support
+#
+CONFIG_I2C=y
+CONFIG_I2C_ALGOBIT=y
+# CONFIG_I2C_PHILIPSPAR is not set
+# CONFIG_I2C_ELV is not set
+# CONFIG_I2C_VELLEMAN is not set
+# CONFIG_SCx200_I2C is not set
+# CONFIG_SCx200_ACB is not set
+CONFIG_I2C_ALGOPCF=y
+# CONFIG_I2C_ELEKTOR is not set
+CONFIG_I2C_CHARDEV=y
+# CONFIG_I2C_PROC is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_AMD_RNG is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+# CONFIG_SCx200_GPIO is not set
+# CONFIG_RAW_DRIVER is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_QFMT_V1 is not set
+# CONFIG_QFMT_V2 is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+CONFIG_REISERFS_FS=y
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=m
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_TMPFS is not set
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+# CONFIG_JOLIET is not set
+# CONFIG_ZISOFS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_MINIX_FS=m
+# CONFIG_VXFS_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_DEBUG is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_XFS_RT is not set
+# CONFIG_XFS_QUOTA is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V4 is not set
+CONFIG_ROOT_NFS=y
+# CONFIG_NFSD is not set
+# CONFIG_NFSD_V3 is not set
+# CONFIG_NFSD_V4 is not set
+# CONFIG_NFSD_TCP is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+# CONFIG_EXPORTFS is not set
+# CONFIG_CIFS is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+# CONFIG_AFS_FS is not set
+# CONFIG_ZISOFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_SMB_NLS is not set
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="cp437"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VIDEO_SELECT is not set
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Profiling support
+#
+# CONFIG_PROFILING is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_SOFTWARE_SUSPEND is not set
+# CONFIG_DEBUG_KERNEL is not set
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+#
+# Security options
+#
+CONFIG_SECURITY_CAPABILITIES=y
+
+#
+# Library routines
+#
+# CONFIG_CRC32 is not set
+# CONFIG_ZLIB_INFLATE is not set
+# CONFIG_ZLIB_DEFLATE is not set
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
 
 
-===== arch/arm/kernel/ptrace.c 1.14 vs edited =====
---- 1.14/arch/arm/kernel/ptrace.c	Sun Oct 13 07:32:28 2002
-+++ edited/arch/arm/kernel/ptrace.c	Wed Oct 16 00:46:07 2002
-@@ -719,8 +719,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/i386/kernel/ptrace.c 1.13 vs edited =====
---- 1.13/arch/i386/kernel/ptrace.c	Fri Jul 19 16:00:55 2002
-+++ edited/arch/i386/kernel/ptrace.c	Tue Oct 15 22:24:45 2002
-@@ -160,8 +160,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/ia64/kernel/ptrace.c 1.12 vs edited =====
---- 1.12/arch/ia64/kernel/ptrace.c	Tue Sep 17 23:22:09 2002
-+++ edited/arch/ia64/kernel/ptrace.c	Wed Oct 16 00:45:53 2002
-@@ -1101,8 +1101,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		current->ptrace |= PT_PTRACED;
- 		ret = 0;
-===== arch/ppc/kernel/ptrace.c 1.10 vs edited =====
---- 1.10/arch/ppc/kernel/ptrace.c	Sun Sep 15 21:51:59 2002
-+++ edited/arch/ppc/kernel/ptrace.c	Wed Oct 16 00:45:41 2002
-@@ -166,8 +166,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/ppc64/kernel/ptrace.c 1.3 vs edited =====
---- 1.3/arch/ppc64/kernel/ptrace.c	Wed Aug 28 23:42:43 2002
-+++ edited/arch/ppc64/kernel/ptrace.c	Wed Oct 16 00:45:16 2002
-@@ -59,8 +59,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/ppc64/kernel/ptrace32.c 1.5 vs edited =====
---- 1.5/arch/ppc64/kernel/ptrace32.c	Wed Aug 28 23:42:43 2002
-+++ edited/arch/ppc64/kernel/ptrace32.c	Wed Oct 16 00:45:29 2002
-@@ -48,8 +48,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/ppc64/kernel/sys_ppc32.c 1.24 vs edited =====
---- 1.24/arch/ppc64/kernel/sys_ppc32.c	Fri Oct 11 19:04:17 2002
-+++ edited/arch/ppc64/kernel/sys_ppc32.c	Wed Oct 16 00:15:31 2002
-@@ -53,6 +53,7 @@
- #include <linux/mman.h>
- #include <linux/sysctl.h>
- #include <linux/binfmts.h>
-+#include <linux/security.h>
- 
- #include <asm/types.h>
- #include <asm/ipc.h>
-@@ -3519,8 +3520,7 @@
- 	if ((retval = bprm.envc) < 0)
- 		goto out_mm;
- 
--	retval = security_ops->bprm_alloc_security(&bprm);
--	if (retval) 
-+	if ((retval = security_bprm_alloc(&bprm)))
- 		goto out;
- 
- 	retval = prepare_binprm(&bprm);
-@@ -3543,7 +3543,7 @@
- 	retval = search_binary_handler(&bprm,regs);
- 	if (retval >= 0) {
- 		/* execve success */
--		security_ops->bprm_free_security(&bprm);
-+		security_bprm_free(&bprm);
- 		return retval;
- 	}
- 
-@@ -3556,7 +3556,7 @@
- 	}
- 
- 	if (bprm.security)
--		security_ops->bprm_free_security(&bprm);
-+		security_bprm_free(&bprm);
- 
- out_mm:
- 	mmdrop(bprm.mm);
-===== arch/s390/kernel/ptrace.c 1.9 vs edited =====
---- 1.9/arch/s390/kernel/ptrace.c	Fri Oct  4 09:16:18 2002
-+++ edited/arch/s390/kernel/ptrace.c	Wed Oct 16 00:44:51 2002
-@@ -330,8 +330,7 @@
- 		ret = -EPERM;
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/s390x/kernel/ptrace.c 1.8 vs edited =====
---- 1.8/arch/s390x/kernel/ptrace.c	Fri Oct  4 09:16:18 2002
-+++ edited/arch/s390x/kernel/ptrace.c	Wed Oct 16 00:44:40 2002
-@@ -32,6 +32,7 @@
- #include <linux/errno.h>
- #include <linux/ptrace.h>
- #include <linux/user.h>
-+#include <linux/security.h>
- 
- #include <asm/segment.h>
- #include <asm/page.h>
-@@ -568,8 +569,7 @@
- 		ret = -EPERM;
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== arch/sparc/kernel/ptrace.c 1.11 vs edited =====
---- 1.11/arch/sparc/kernel/ptrace.c	Sat Aug 24 04:08:41 2002
-+++ edited/arch/sparc/kernel/ptrace.c	Wed Oct 16 00:44:06 2002
-@@ -291,8 +291,7 @@
- 			pt_error_return(regs, EPERM);
- 			goto out;
- 		}
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret) {
-+		if ((ret = security_ptrace(current->parent, current))) {
- 			pt_error_return(regs, -ret);
- 			goto out;
- 		}
-===== arch/sparc64/kernel/ptrace.c 1.16 vs edited =====
---- 1.16/arch/sparc64/kernel/ptrace.c	Sat Aug 24 03:59:14 2002
-+++ edited/arch/sparc64/kernel/ptrace.c	Wed Oct 16 00:43:53 2002
-@@ -140,8 +140,7 @@
- 			pt_error_return(regs, EPERM);
- 			goto out;
- 		}
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret) {
-+		if ((ret = security_ptrace(current->parent, current))) {
- 			pt_error_return(regs, -ret);
- 			goto out;
- 		}
-===== arch/sparc64/kernel/sys_sparc32.c 1.39 vs edited =====
---- 1.39/arch/sparc64/kernel/sys_sparc32.c	Mon Oct 14 05:17:46 2002
-+++ edited/arch/sparc64/kernel/sys_sparc32.c	Wed Oct 16 00:14:27 2002
-@@ -2972,8 +2972,7 @@
- 	if ((retval = bprm.envc) < 0)
- 		goto out_mm;
- 
--	retval = security_ops->bprm_alloc_security(&bprm);
--	if (retval) 
-+	if ((retval = security_bprm_alloc(&bprm)))
- 		goto out;
- 
- 	retval = prepare_binprm(&bprm);
-@@ -2996,7 +2995,7 @@
- 	retval = search_binary_handler(&bprm, regs);
- 	if (retval >= 0) {
- 		/* execve success */
--		security_ops->bprm_free_security(&bprm);
-+		security_bprm_free(&bprm);
- 		return retval;
- 	}
- 
-@@ -3009,7 +3008,7 @@
- 	}
- 
- 	if (bprm.security)
--		security_ops->bprm_free_security(&bprm);
-+		security_bprm_free(&bprm);
- 
- out_mm:
- 	mmdrop(bprm.mm);
-===== arch/um/kernel/ptrace.c 1.1 vs edited =====
---- 1.1/arch/um/kernel/ptrace.c	Fri Sep  6 10:50:31 2002
-+++ edited/arch/um/kernel/ptrace.c	Wed Oct 16 00:43:41 2002
-@@ -33,8 +33,7 @@
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
- 
--		ret = security_ops->ptrace(current->parent, current);
--		if(ret)
-+		if ((ret = security_ptrace(current->parent, current)))
-  			goto out;
- 
- 		/* set the ptrace bit in the process flags. */
-===== arch/x86_64/kernel/ptrace.c 1.4 vs edited =====
---- 1.4/arch/x86_64/kernel/ptrace.c	Fri Oct 11 16:52:38 2002
-+++ edited/arch/x86_64/kernel/ptrace.c	Wed Oct 16 00:43:30 2002
-@@ -178,8 +178,7 @@
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
- 			goto out;
--		ret = security_ops->ptrace(current->parent, current);
--		if (ret)
-+		if ((ret = security_ptrace(current->parent, current)))
- 			goto out;
- 		/* set the ptrace bit in the process flags. */
- 		current->ptrace |= PT_PTRACED;
-===== drivers/base/fs/class.c 1.2 vs edited =====
---- 1.2/drivers/base/fs/class.c	Mon Aug 26 08:39:22 2002
-+++ edited/drivers/base/fs/class.c	Tue Oct 15 22:24:45 2002
-@@ -7,6 +7,8 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/err.h>
-+#include <linux/limits.h>
-+#include <linux/stat.h>
- #include "fs.h"
- 
- static struct driver_dir_entry class_dir;
-===== drivers/base/fs/intf.c 1.2 vs edited =====
---- 1.2/drivers/base/fs/intf.c	Mon Aug 26 09:24:18 2002
-+++ edited/drivers/base/fs/intf.c	Tue Oct 15 22:24:45 2002
-@@ -4,6 +4,8 @@
- 
- #include <linux/device.h>
- #include <linux/slab.h>
-+#include <linux/limits.h>
-+#include <linux/errno.h>
- #include "fs.h"
- 
- /**
-===== fs/attr.c 1.10 vs edited =====
---- 1.10/fs/attr.c	Mon Jul 22 03:12:48 2002
-+++ edited/fs/attr.c	Tue Oct 15 23:50:23 2002
-@@ -153,13 +153,12 @@
- 	}
- 
- 	if (inode->i_op && inode->i_op->setattr) {
--		error = security_ops->inode_setattr(dentry, attr);
--		if (!error)
-+		if (!(error = security_inode_setattr(dentry, attr)))
- 			error = inode->i_op->setattr(dentry, attr);
- 	} else {
- 		error = inode_change_ok(inode, attr);
- 		if (!error)
--			error = security_ops->inode_setattr(dentry, attr);
-+			error = security_inode_setattr(dentry, attr);
- 		if (!error) {
- 			if ((ia_valid & ATTR_UID && attr->ia_uid != inode->i_uid) ||
- 			    (ia_valid & ATTR_GID && attr->ia_gid != inode->i_gid))
-===== fs/dquot.c 1.48 vs edited =====
---- 1.48/fs/dquot.c	Sun Oct 13 08:39:23 2002
-+++ edited/fs/dquot.c	Tue Oct 15 22:55:27 2002
-@@ -69,6 +69,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/proc_fs.h>
-+#include <linux/security.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -1305,8 +1306,7 @@
- 	error = -EIO;
- 	if (!f->f_op || !f->f_op->read || !f->f_op->write)
- 		goto out_f;
--	error = security_ops->quota_on(f);
--	if (error)
-+	if ((error = security_quota_on(f)))
- 		goto out_f;
- 	inode = f->f_dentry->d_inode;
- 	error = -EACCES;
-===== fs/exec.c 1.51 vs edited =====
---- 1.51/fs/exec.c	Sun Oct 13 09:32:22 2002
-+++ edited/fs/exec.c	Tue Oct 15 23:03:20 2002
-@@ -43,6 +43,7 @@
- #include <linux/namei.h>
- #include <linux/proc_fs.h>
- #include <linux/ptrace.h>
-+#include <linux/security.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-@@ -818,8 +819,7 @@
- 	}
- 
- 	/* fill in binprm security blob */
--	retval = security_ops->bprm_set_security(bprm);
--	if (retval)
-+	if ((retval = security_bprm_set(bprm)))
- 		return retval;
- 
- 	memset(bprm->buf,0,BINPRM_BUF_SIZE);
-@@ -867,7 +867,7 @@
- 	if(do_unlock)
- 		unlock_kernel();
- 
--	security_ops->bprm_compute_creds(bprm);
-+	security_bprm_compute_creds(bprm);
- }
- 
- void remove_arg_zero(struct linux_binprm *bprm)
-@@ -936,8 +936,7 @@
- 	    }
- 	}
- #endif
--	retval = security_ops->bprm_check_security(bprm);
--	if (retval) 
-+	if ((retval = security_bprm_check(bprm)))
- 		return retval;
- 
- 	/* kernel module loader fixup */
-@@ -1033,8 +1032,7 @@
- 	if ((retval = bprm.envc) < 0)
- 		goto out_mm;
- 
--	retval = security_ops->bprm_alloc_security(&bprm);
--	if (retval) 
-+	if ((retval = security_bprm_alloc(&bprm)))
- 		goto out;
- 
- 	retval = prepare_binprm(&bprm);
-@@ -1057,7 +1055,7 @@
- 	retval = search_binary_handler(&bprm,regs);
- 	if (retval >= 0) {
- 		/* execve success */
--		security_ops->bprm_free_security(&bprm);
-+		security_bprm_free(&bprm);
- 		return retval;
- 	}
- 
-@@ -1070,7 +1068,7 @@
- 	}
- 
- 	if (bprm.security)
--		security_ops->bprm_free_security(&bprm);
-+		security_bprm_free(&bprm);
- 
- out_mm:
- 	mmdrop(bprm.mm);
-===== fs/fcntl.c 1.20 vs edited =====
---- 1.20/fs/fcntl.c	Sun Oct 13 08:39:40 2002
-+++ edited/fs/fcntl.c	Wed Oct 16 00:04:50 2002
-@@ -274,8 +274,7 @@
- {
- 	int err;
- 	
--	err = security_ops->file_set_fowner(filp);
--	if (err)
-+	if ((err = security_file_set_fowner(filp)))
- 		return err;
- 
- 	f_modown(filp, arg, current->uid, current->euid, force);
-@@ -368,8 +367,7 @@
- 	if (!filp)
- 		goto out;
- 
--	err = security_ops->file_fcntl(filp, cmd, arg);
--	if (err) {
-+	if ((err = security_file_fcntl(filp, cmd, arg))) {
- 		fput(filp);
- 		return err;
- 	}
-@@ -392,8 +390,7 @@
- 	if (!filp)
- 		goto out;
- 
--	err = security_ops->file_fcntl(filp, cmd, arg);
--	if (err) {
-+	if ((err = security_file_fcntl(filp, cmd, arg))) {
- 		fput(filp);
- 		return err;
- 	}
-@@ -444,7 +441,7 @@
- 	if (!sigio_perm(p, fown))
- 		return;
- 
--	if (security_ops->file_send_sigiotask(p, fown, fd, reason))
-+	if (security_file_send_sigiotask(p, fown, fd, reason))
- 		return;
- 
- 	switch (fown->signum) {
-===== fs/file_table.c 1.13 vs edited =====
---- 1.13/fs/file_table.c	Sun Oct 13 08:39:40 2002
-+++ edited/fs/file_table.c	Wed Oct 16 00:04:27 2002
-@@ -46,7 +46,7 @@
- 		files_stat.nr_free_files--;
- 	new_one:
- 		memset(f, 0, sizeof(*f));
--		if (security_ops->file_alloc_security(f)) {
-+		if (security_file_alloc(f)) {
- 			list_add(&f->f_list, &free_list);
- 			files_stat.nr_free_files++;
- 			file_list_unlock();
-@@ -127,7 +127,7 @@
- 
- 	if (file->f_op && file->f_op->release)
- 		file->f_op->release(inode, file);
--	security_ops->file_free_security(file);
-+	security_file_free(file);
- 	fops_put(file->f_op);
- 	if (file->f_mode & FMODE_WRITE)
- 		put_write_access(inode);
-@@ -160,7 +160,7 @@
- void put_filp(struct file *file)
- {
- 	if(atomic_dec_and_test(&file->f_count)) {
--		security_ops->file_free_security(file);
-+		security_file_free(file);
- 		file_list_lock();
- 		list_del(&file->f_list);
- 		list_add(&file->f_list, &free_list);
-===== fs/inode.c 1.74 vs edited =====
---- 1.74/fs/inode.c	Sun Oct 13 08:39:23 2002
-+++ edited/fs/inode.c	Tue Oct 15 23:49:49 2002
-@@ -120,7 +120,7 @@
- 		inode->i_bdev = NULL;
- 		inode->i_cdev = NULL;
- 		inode->i_security = NULL;
--		if (security_ops->inode_alloc_security(inode)) {
-+		if (security_inode_alloc(inode)) {
- 			if (inode->i_sb->s_op->destroy_inode)
- 				inode->i_sb->s_op->destroy_inode(inode);
- 			else
-@@ -146,7 +146,7 @@
- {
- 	if (inode_has_buffers(inode))
- 		BUG();
--	security_ops->inode_free_security(inode);
-+	security_inode_free(inode);
- 	if (inode->i_sb->s_op->destroy_inode) {
- 		inode->i_sb->s_op->destroy_inode(inode);
- 	} else {
-@@ -922,7 +922,7 @@
- 	if (inode->i_data.nrpages)
- 		truncate_inode_pages(&inode->i_data, 0);
- 
--	security_ops->inode_delete(inode);
-+	security_inode_delete(inode);
- 
- 	if (op && op->delete_inode) {
- 		void (*delete)(struct inode *) = op->delete_inode;
-===== fs/ioctl.c 1.5 vs edited =====
---- 1.5/fs/ioctl.c	Mon Jul 22 03:12:48 2002
-+++ edited/fs/ioctl.c	Wed Oct 16 00:06:16 2002
-@@ -59,8 +59,7 @@
- 		goto out;
- 	error = 0;
- 
--	error = security_ops->file_ioctl(filp, cmd, arg);
--        if (error) {
-+	if ((error = security_file_ioctl(filp, cmd, arg))) {
-                 fput(filp);
-                 goto out;
-         }
-===== fs/locks.c 1.30 vs edited =====
---- 1.30/fs/locks.c	Thu Sep 26 10:36:16 2002
-+++ edited/fs/locks.c	Wed Oct 16 00:06:00 2002
-@@ -122,6 +122,7 @@
- #include <linux/timer.h>
- #include <linux/time.h>
- #include <linux/fs.h>
-+#include <linux/security.h>
- 
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
-@@ -1170,8 +1171,7 @@
- 		return -EACCES;
- 	if (!S_ISREG(inode->i_mode))
- 		return -EINVAL;
--	error = security_ops->file_lock(filp, arg);
--	if (error)
-+	if ((error = security_file_lock(filp, arg)))
- 		return error;
- 
- 	lock_kernel();
-@@ -1284,8 +1284,7 @@
- 	if (error)
- 		goto out_putf;
- 
--	error = security_ops->file_lock(filp, cmd);
--	if (error)
-+	if ((error = security_file_lock(filp, cmd)))
- 		goto out_free;
- 
- 	for (;;) {
-@@ -1434,8 +1433,7 @@
- 		goto out;
- 	}
- 
--	error = security_ops->file_lock(filp, file_lock->fl_type);
--	if (error)
-+	if ((error = security_file_lock(filp, file_lock->fl_type)))
- 		goto out;
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
-@@ -1574,8 +1572,7 @@
- 		goto out;
- 	}
- 
--	error = security_ops->file_lock(filp, file_lock->fl_type);
--	if (error)
-+	if ((error = security_file_lock(filp, file_lock->fl_type)))
- 		goto out;
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
-===== fs/namei.c 1.56 vs edited =====
---- 1.56/fs/namei.c	Tue Sep 17 12:52:27 2002
-+++ edited/fs/namei.c	Tue Oct 15 23:47:28 2002
-@@ -218,7 +218,7 @@
- 	if (retval)
- 		return retval;
- 
--	return security_ops->inode_permission(inode, mask);
-+	return security_inode_permission(inode, mask);
- }
- 
- /*
-@@ -340,7 +340,7 @@
- 
- 	return -EACCES;
- ok:
--	return security_ops->inode_permission_lite(inode, MAY_EXEC);
-+	return security_inode_permission_lite(inode, MAY_EXEC);
- }
- 
- /*
-@@ -374,7 +374,7 @@
- 				dput(dentry);
- 			else {
- 				result = dentry;
--				security_ops->inode_post_lookup(dir, result);
-+				security_inode_post_lookup(dir, result);
- 			}
- 		}
- 		up(&dir->i_sem);
-@@ -413,8 +413,7 @@
- 		current->state = TASK_RUNNING;
- 		schedule();
- 	}
--	err = security_ops->inode_follow_link(dentry, nd);
--	if (err)
-+	if ((err = security_inode_follow_link(dentry, nd)))
- 		goto loop;
- 	current->link_count++;
- 	current->total_link_count++;
-@@ -918,7 +917,7 @@
- 		dentry = inode->i_op->lookup(inode, new);
- 		if (!dentry) {
- 			dentry = new;
--			security_ops->inode_post_lookup(inode, dentry);
-+			security_inode_post_lookup(inode, dentry);
- 		} else
- 			dput(new);
- 	}
-@@ -1125,14 +1124,13 @@
- 		return -EACCES;	/* shouldn't it be ENOSYS? */
- 	mode &= S_IALLUGO;
- 	mode |= S_IFREG;
--	error = security_ops->inode_create(dir, dentry, mode);
--	if (error)
-+	if ((error = security_inode_create(dir, dentry, mode)))
- 		return error;
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->create(dir, dentry, mode);
- 	if (!error) {
- 		inode_dir_notify(dir, DN_CREATE);
--		security_ops->inode_post_create(dir, dentry, mode);
-+		security_inode_post_create(dir, dentry, mode);
- 	}
- 	return error;
- }
-@@ -1344,8 +1342,7 @@
- 	 * stored in nd->last.name and we will have to putname() it when we
- 	 * are done. Procfs-like symlinks just set LAST_BIND.
- 	 */
--	error = security_ops->inode_follow_link(dentry, nd);
--	if (error)
-+	if ((error = security_inode_follow_link(dentry, nd)))
- 		goto exit_dput;
- 	UPDATE_ATIME(dentry->d_inode);
- 	error = dentry->d_inode->i_op->follow_link(dentry, nd);
-@@ -1410,15 +1407,14 @@
- 	if (!dir->i_op || !dir->i_op->mknod)
- 		return -EPERM;
- 
--	error = security_ops->inode_mknod(dir, dentry, mode, dev);
--	if (error)
-+	if ((error = security_inode_mknod(dir, dentry, mode, dev)))
- 		return error;
- 
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->mknod(dir, dentry, mode, dev);
- 	if (!error) {
- 		inode_dir_notify(dir, DN_CREATE);
--		security_ops->inode_post_mknod(dir, dentry, mode, dev);
-+		security_inode_post_mknod(dir, dentry, mode, dev);
- 	}
- 	return error;
- }
-@@ -1478,15 +1474,14 @@
- 		return -EPERM;
- 
- 	mode &= (S_IRWXUGO|S_ISVTX);
--	error = security_ops->inode_mkdir(dir, dentry, mode);
--	if (error)
-+	if ((error = security_inode_mkdir(dir, dentry, mode)))
- 		return error;
- 
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->mkdir(dir, dentry, mode);
- 	if (!error) {
- 		inode_dir_notify(dir, DN_CREATE);
--		security_ops->inode_post_mkdir(dir,dentry, mode);
-+		security_inode_post_mkdir(dir,dentry, mode);
- 	}
- 	return error;
- }
-@@ -1570,8 +1565,7 @@
- 	if (d_mountpoint(dentry))
- 		error = -EBUSY;
- 	else {
--		error = security_ops->inode_rmdir(dir, dentry);
--		if (!error) {
-+		if (!(error = security_inode_rmdir(dir, dentry))) {
- 			error = dir->i_op->rmdir(dir, dentry);
- 			if (!error)
- 				dentry->d_inode->i_flags |= S_DEAD;
-@@ -1644,10 +1638,8 @@
- 	if (d_mountpoint(dentry))
- 		error = -EBUSY;
- 	else {
--		error = security_ops->inode_unlink(dir, dentry);
--		if (!error) {
-+		if (!(error = security_inode_unlink(dir, dentry)))
- 			error = dir->i_op->unlink(dir, dentry);
--		}
- 	}
- 	up(&dentry->d_inode->i_sem);
- 	if (!error) {
-@@ -1709,15 +1701,14 @@
- 	if (!dir->i_op || !dir->i_op->symlink)
- 		return -EPERM;
- 
--	error = security_ops->inode_symlink(dir, dentry, oldname);
--	if (error)
-+	if ((error = security_inode_symlink(dir, dentry, oldname)))
- 		return error;
- 
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->symlink(dir, dentry, oldname);
- 	if (!error) {
- 		inode_dir_notify(dir, DN_CREATE);
--		security_ops->inode_post_symlink(dir, dentry, oldname);
-+		security_inode_post_symlink(dir, dentry, oldname);
- 	}
- 	return error;
- }
-@@ -1780,8 +1771,7 @@
- 	if (S_ISDIR(old_dentry->d_inode->i_mode))
- 		return -EPERM;
- 
--	error = security_ops->inode_link(old_dentry, dir, new_dentry);
--	if (error)
-+	if ((error = security_inode_link(old_dentry, dir, new_dentry)))
- 		return error;
- 
- 	down(&old_dentry->d_inode->i_sem);
-@@ -1790,7 +1780,7 @@
- 	up(&old_dentry->d_inode->i_sem);
- 	if (!error) {
- 		inode_dir_notify(dir, DN_CREATE);
--		security_ops->inode_post_link(old_dentry, dir, new_dentry);
-+		security_inode_post_link(old_dentry, dir, new_dentry);
- 	}
- 	return error;
- }
-@@ -1889,8 +1879,7 @@
- 			return error;
- 	}
- 
--	error = security_ops->inode_rename(old_dir, old_dentry, new_dir, new_dentry);
--	if (error)
-+	if ((error = security_inode_rename(old_dir, old_dentry, new_dir, new_dentry)))
- 		return error;
- 
- 	target = new_dentry->d_inode;
-@@ -1912,8 +1901,8 @@
- 	}
- 	if (!error) {
- 		d_move(old_dentry,new_dentry);
--		security_ops->inode_post_rename(old_dir, old_dentry,
--							new_dir, new_dentry);
-+		security_inode_post_rename(old_dir, old_dentry,
-+					   new_dir, new_dentry);
- 	}
- 	return error;
- }
-@@ -1924,8 +1913,7 @@
- 	struct inode *target;
- 	int error;
- 
--	error = security_ops->inode_rename(old_dir, old_dentry, new_dir, new_dentry);
--	if (error)
-+	if ((error = security_inode_rename(old_dir, old_dentry, new_dir, new_dentry)))
- 		return error;
- 
- 	dget(new_dentry);
-@@ -1940,7 +1928,7 @@
- 		/* The following d_move() should become unconditional */
- 		if (!(old_dir->i_sb->s_type->fs_flags & FS_ODD_RENAME))
- 			d_move(old_dentry, new_dentry);
--		security_ops->inode_post_rename(old_dir, old_dentry, new_dir, new_dentry);
-+		security_inode_post_rename(old_dir, old_dentry, new_dir, new_dentry);
- 	}
- 	if (target)
- 		up(&target->i_sem);
-===== fs/namespace.c 1.29 vs edited =====
---- 1.29/fs/namespace.c	Tue Sep 17 12:52:27 2002
-+++ edited/fs/namespace.c	Tue Oct 15 23:17:32 2002
-@@ -19,6 +19,7 @@
- #include <linux/seq_file.h>
- #include <linux/namespace.h>
- #include <linux/namei.h>
-+#include <linux/security.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -288,8 +289,7 @@
- 	struct super_block * sb = mnt->mnt_sb;
- 	int retval = 0;
- 
--	retval = security_ops->sb_umount(mnt, flags);
--	if (retval)
-+	if ((retval = security_sb_umount(mnt, flags)))
- 		return retval;
- 
- 	/*
-@@ -341,7 +341,7 @@
- 		DQUOT_OFF(sb);
- 		acct_auto_close(sb);
- 		unlock_kernel();
--		security_ops->sb_umount_close(mnt);
-+		security_sb_umount_close(mnt);
- 		spin_lock(&dcache_lock);
- 	}
- 	retval = -EBUSY;
-@@ -352,7 +352,7 @@
- 	}
- 	spin_unlock(&dcache_lock);
- 	if (retval)
--		security_ops->sb_umount_busy(mnt);
-+		security_sb_umount_busy(mnt);
- 	up_write(&current->namespace->sem);
- 	return retval;
- }
-@@ -470,8 +470,7 @@
- 	if (IS_DEADDIR(nd->dentry->d_inode))
- 		goto out_unlock;
- 
--	err = security_ops->sb_check_sb(mnt, nd);
--	if (err)
-+	if ((err = security_sb_check_sb(mnt, nd)))
- 		goto out_unlock;
- 
- 	spin_lock(&dcache_lock);
-@@ -487,7 +486,7 @@
- out_unlock:
- 	up(&nd->dentry->d_inode->i_sem);
- 	if (!err)
--		security_ops->sb_post_addmount(mnt, nd);
-+		security_sb_post_addmount(mnt, nd);
- 	return err;
- }
- 
-@@ -558,7 +557,7 @@
- 		nd->mnt->mnt_flags=mnt_flags;
- 	up_write(&sb->s_umount);
- 	if (!err)
--		security_ops->sb_post_remount(nd->mnt, flags, data);
-+		security_sb_post_remount(nd->mnt, flags, data);
- 	return err;
- }
- 
-@@ -741,8 +740,7 @@
- 	if (retval)
- 		return retval;
- 
--	retval = security_ops->sb_mount(dev_name, &nd, type_page, flags, data_page);
--	if (retval)
-+	if ((retval = security_sb_mount(dev_name, &nd, type_page, flags, data_page)))
- 		goto dput_out;
- 
- 	if (flags & MS_REMOUNT)
-@@ -939,8 +937,7 @@
- 	if (error)
- 		goto out1;
- 
--	error = security_ops->sb_pivotroot(&old_nd, &new_nd);
--	if (error) {
-+	if ((error = security_sb_pivotroot(&old_nd, &new_nd))) {
- 		path_release(&old_nd);
- 		goto out1;
- 	}
-@@ -989,7 +986,7 @@
- 	attach_mnt(new_nd.mnt, &root_parent);
- 	spin_unlock(&dcache_lock);
- 	chroot_fs_refs(&user_nd, &new_nd);
--	security_ops->sb_post_pivotroot(&user_nd, &new_nd);
-+	security_sb_post_pivotroot(&user_nd, &new_nd);
- 	error = 0;
- 	path_release(&root_parent);
- 	path_release(&parent_nd);
-===== fs/open.c 1.28 vs edited =====
---- 1.28/fs/open.c	Sun Oct 13 08:39:40 2002
-+++ edited/fs/open.c	Tue Oct 15 23:19:46 2002
-@@ -30,8 +30,7 @@
- 		retval = -ENOSYS;
- 		if (sb->s_op && sb->s_op->statfs) {
- 			memset(buf, 0, sizeof(struct statfs));
--			retval = security_ops->sb_statfs(sb);
--			if (retval)
-+			if ((retval = security_sb_statfs(sb)))
- 				return retval;
- 			retval = sb->s_op->statfs(sb, buf);
- 		}
-===== fs/quota.c 1.8 vs edited =====
---- 1.8/fs/quota.c	Mon Jul 22 03:12:48 2002
-+++ edited/fs/quota.c	Tue Oct 15 22:54:46 2002
-@@ -98,7 +98,7 @@
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
- 
--	return security_ops->quotactl (cmd, type, id, sb);
-+	return security_quotactl (cmd, type, id, sb);
- }
- 
- /* Resolve device pathname to superblock */
-===== fs/read_write.c 1.19 vs edited =====
---- 1.19/fs/read_write.c	Thu Oct 10 14:36:26 2002
-+++ edited/fs/read_write.c	Wed Oct 16 00:08:14 2002
-@@ -121,8 +121,7 @@
- 	if (!file)
- 		goto bad;
- 
--	retval = security_ops->file_llseek(file);
--	if (retval) {
-+	if ((retval = security_file_llseek(file))) {
- 		fput(file);
- 		goto bad;
- 	}
-@@ -153,8 +152,7 @@
- 	if (!file)
- 		goto bad;
- 
--	retval = security_ops->file_llseek(file);
--	if (retval)
-+	if ((retval = security_file_llseek(file)))
- 		goto out_putf;
- 
- 	retval = -EINVAL;
-@@ -203,8 +201,7 @@
- 
- 	ret = locks_verify_area(FLOCK_VERIFY_READ, inode, file, *pos, count);
- 	if (!ret) {
--		ret = security_ops->file_permission (file, MAY_READ);
--		if (!ret) {
-+		if (!(ret = security_file_permission (file, MAY_READ))) {
- 			if (file->f_op->read)
- 				ret = file->f_op->read(file, buf, count, pos);
- 			else
-@@ -243,8 +240,7 @@
- 
- 	ret = locks_verify_area(FLOCK_VERIFY_WRITE, inode, file, *pos, count);
- 	if (!ret) {
--		ret = security_ops->file_permission (file, MAY_WRITE);
--		if (!ret) {
-+		if (!(ret = security_file_permission (file, MAY_WRITE))) {
- 			if (file->f_op->write)
- 				ret = file->f_op->write(file, buf, count, pos);
- 			else
-@@ -475,8 +471,7 @@
- 		goto bad_file;
- 	if (file->f_op && (file->f_mode & FMODE_READ) &&
- 	    (file->f_op->readv || file->f_op->read)) {
--		ret = security_ops->file_permission (file, MAY_READ);
--		if (!ret)
-+		if (!(ret = security_file_permission (file, MAY_READ)))
- 			ret = do_readv_writev(READ, file, vector, nr_segs);
- 	}
- 	fput(file);
-@@ -498,8 +493,7 @@
- 		goto bad_file;
- 	if (file->f_op && (file->f_mode & FMODE_WRITE) &&
- 	    (file->f_op->writev || file->f_op->write)) {
--		ret = security_ops->file_permission (file, MAY_WRITE);
--		if (!ret)
-+		if (!(ret = security_file_permission (file, MAY_WRITE)))
- 			ret = do_readv_writev(WRITE, file, vector, nr_segs);
- 	}
- 	fput(file);
-===== fs/readdir.c 1.9 vs edited =====
---- 1.9/fs/readdir.c	Mon Jul 22 03:12:48 2002
-+++ edited/fs/readdir.c	Wed Oct 16 00:06:40 2002
-@@ -11,6 +11,7 @@
- #include <linux/file.h>
- #include <linux/smp_lock.h>
- #include <linux/fs.h>
-+#include <linux/security.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -21,8 +22,7 @@
- 	if (!file->f_op || !file->f_op->readdir)
- 		goto out;
- 
--	res = security_ops->file_permission(file, MAY_READ);
--	if (res)
-+	if ((res = security_file_permission(file, MAY_READ)))
- 		goto out;
- 
- 	down(&inode->i_sem);
-===== fs/stat.c 1.13 vs edited =====
---- 1.13/fs/stat.c	Mon Jul 22 03:12:48 2002
-+++ edited/fs/stat.c	Tue Oct 15 23:49:19 2002
-@@ -39,8 +39,7 @@
- 	struct inode *inode = dentry->d_inode;
- 	int retval;
- 
--	retval = security_ops->inode_getattr(mnt, dentry);
--	if (retval)
-+	if ((retval = security_inode_getattr(mnt, dentry)))
- 		return retval;
- 
- 	if (inode->i_op->getattr)
-@@ -238,8 +237,7 @@
- 
- 		error = -EINVAL;
- 		if (inode->i_op && inode->i_op->readlink) {
--			error = security_ops->inode_readlink(nd.dentry);
--			if (!error) {
-+			if (!(error = security_inode_readlink(nd.dentry))) {
- 				UPDATE_ATIME(inode);
- 				error = inode->i_op->readlink(nd.dentry, buf, bufsiz);
- 			}
-===== fs/super.c 1.83 vs edited =====
---- 1.83/fs/super.c	Mon Sep  9 14:00:57 2002
-+++ edited/fs/super.c	Tue Oct 15 23:18:44 2002
-@@ -29,9 +29,9 @@
- #include <linux/quotaops.h>
- #include <linux/namei.h>
- #include <linux/buffer_head.h>		/* for fsync_super() */
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- 
--#include <linux/security.h>
- 
- void get_filesystem(struct file_system_type *fs);
- void put_filesystem(struct file_system_type *fs);
-@@ -51,7 +51,7 @@
- 	struct super_block *s = kmalloc(sizeof(struct super_block),  GFP_USER);
- 	if (s) {
- 		memset(s, 0, sizeof(struct super_block));
--		if (security_ops->sb_alloc_security(s)) {
-+		if (security_sb_alloc(s)) {
- 			kfree(s);
- 			s = NULL;
- 			goto out;
-@@ -85,7 +85,7 @@
-  */
- static inline void destroy_super(struct super_block *s)
- {
--	security_ops->sb_free_security(s);
-+	security_sb_free(s);
- 	kfree(s);
- }
- 
-===== fs/xattr.c 1.7 vs edited =====
---- 1.7/fs/xattr.c	Mon Jul 22 03:12:48 2002
-+++ edited/fs/xattr.c	Tue Oct 15 23:51:34 2002
-@@ -13,6 +13,7 @@
- #include <linux/file.h>
- #include <linux/xattr.h>
- #include <linux/namei.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- 
- /*
-@@ -85,9 +86,7 @@
- 
- 	error = -EOPNOTSUPP;
- 	if (d->d_inode->i_op && d->d_inode->i_op->setxattr) {
--		error = security_ops->inode_setxattr(d, kname, kvalue,
--				size, flags);
--		if (error)
-+		if ((error = security_inode_setxattr(d, kname, kvalue, size, flags)))
- 			goto out;
- 		down(&d->d_inode->i_sem);
- 		error = d->d_inode->i_op->setxattr(d, kname, kvalue, size, flags);
-@@ -163,8 +162,7 @@
- 
- 	error = -EOPNOTSUPP;
- 	if (d->d_inode->i_op && d->d_inode->i_op->getxattr) {
--		error = security_ops->inode_getxattr(d, kname);
--		if (error)
-+		if ((error = security_inode_getxattr(d, kname)))
- 			goto out;
- 		down(&d->d_inode->i_sem);
- 		error = d->d_inode->i_op->getxattr(d, kname, kvalue, size);
-@@ -236,8 +234,7 @@
- 
- 	error = -EOPNOTSUPP;
- 	if (d->d_inode->i_op && d->d_inode->i_op->listxattr) {
--		error = security_ops->inode_listxattr(d);
--		if (error)
-+		if ((error = security_inode_listxattr(d)))
- 			goto out;
- 		down(&d->d_inode->i_sem);
- 		error = d->d_inode->i_op->listxattr(d, klist, size);
-@@ -311,8 +308,7 @@
- 
- 	error = -EOPNOTSUPP;
- 	if (d->d_inode->i_op && d->d_inode->i_op->removexattr) {
--		error = security_ops->inode_removexattr(d, kname);
--		if (error)
-+		if ((error = security_inode_removexattr(d, kname)))
- 			goto out;
- 		down(&d->d_inode->i_sem);
- 		error = d->d_inode->i_op->removexattr(d, kname);
-===== fs/proc/base.c 1.31 vs edited =====
---- 1.31/fs/proc/base.c	Sat Sep 28 08:36:29 2002
-+++ edited/fs/proc/base.c	Tue Oct 15 23:22:02 2002
-@@ -28,6 +28,7 @@
- #include <linux/namespace.h>
- #include <linux/mm.h>
- #include <linux/smp_lock.h>
-+#include <linux/security.h>
- 
- /*
-  * For hysterical raisins we keep the same inumbers as in the old procfs.
-@@ -394,7 +395,7 @@
- };
- 
- #define MAY_PTRACE(p) \
--(p==current||(p->parent==current&&(p->ptrace & PT_PTRACED)&&p->state==TASK_STOPPED&&security_ops->ptrace(current,p)==0))
-+(p==current||(p->parent==current&&(p->ptrace & PT_PTRACED)&&p->state==TASK_STOPPED&&security_ptrace(current,p)==0))
- 
- 
- static int mem_open(struct inode* inode, struct file* file)
-===== include/linux/sched.h 1.107 vs edited =====
---- 1.107/include/linux/sched.h	Tue Oct 15 15:32:40 2002
-+++ edited/include/linux/sched.h	Tue Oct 15 22:24:46 2002
-@@ -596,9 +596,11 @@
- 		       unsigned long, const char *, void *);
- extern void free_irq(unsigned int, void *);
- 
-+
-+#ifdef CONFIG_SECURITY
- /* capable prototype and code moved to security.[hc] */
- #include <linux/security.h>
--#if 0
-+#else
- static inline int capable(int cap)
- {
- 	if (cap_raised(current->cap_effective, cap)) {
-@@ -607,7 +609,7 @@
- 	}
- 	return 0;
- }
--#endif	/* if 0 */
-+#endif
- 
- /*
-  * Routines for handling mm_structs
-===== include/linux/security.h 1.4 vs edited =====
---- 1.4/include/linux/security.h	Tue Oct  8 02:20:18 2002
-+++ edited/include/linux/security.h	Wed Oct 16 01:03:50 2002
-@@ -22,8 +22,6 @@
- #ifndef __LINUX_SECURITY_H
- #define __LINUX_SECURITY_H
- 
--#ifdef __KERNEL__
--
- #include <linux/fs.h>
- #include <linux/binfmts.h>
- #include <linux/signal.h>
-@@ -33,6 +31,7 @@
- #include <linux/shm.h>
- #include <linux/msg.h>
- 
-+
- /*
-  * Values used in the task_security_ops calls
-  */
-@@ -848,6 +847,533 @@
- 	                            struct security_operations *ops);
- };
- 
-+#ifdef CONFIG_SECURITY
-+
-+/* global variables */
-+extern struct security_operations *security_ops;
-+
-+/* inline stuff */
-+static inline int security_ptrace (struct task_struct * parent, struct task_struct * child)
-+{
-+	return security_ops->ptrace (parent, child);
-+}
-+
-+static inline int security_capget (struct task_struct *target,
-+				   kernel_cap_t *effective,
-+				   kernel_cap_t *inheritable,
-+				   kernel_cap_t *permitted)
-+{
-+	return security_ops->capget (target, effective, inheritable, permitted);
-+}
-+
-+static inline int security_capset_check (struct task_struct *target,
-+					 kernel_cap_t *effective,
-+					 kernel_cap_t *inheritable,
-+					 kernel_cap_t *permitted)
-+{
-+	return security_ops->capset_check (target, effective, inheritable, permitted);
-+}
-+
-+static inline void security_capset_set (struct task_struct *target,
-+					kernel_cap_t *effective,
-+					kernel_cap_t *inheritable,
-+					kernel_cap_t *permitted)
-+{
-+	security_ops->capset_set (target, effective, inheritable, permitted);
-+}
-+
-+static inline int security_acct (struct file *file)
-+{
-+	return security_ops->acct (file);
-+}
-+
-+static inline int security_quotactl (int cmds, int type, int id,
-+				     struct super_block *sb)
-+{
-+	return security_ops->quotactl (cmds, type, id, sb);
-+}
-+
-+static inline int security_quota_on (struct file * file)
-+{
-+	return security_ops->quota_on (file);
-+}
-+
-+static inline int security_bprm_alloc (struct linux_binprm *bprm)
-+{
-+	return security_ops->bprm_alloc_security (bprm);
-+}
-+static inline void security_bprm_free (struct linux_binprm *bprm)
-+{
-+	security_ops->bprm_free_security (bprm);
-+}
-+static inline void security_bprm_compute_creds (struct linux_binprm *bprm)
-+{
-+	security_ops->bprm_compute_creds (bprm);
-+}
-+static inline int security_bprm_set (struct linux_binprm *bprm)
-+{
-+	return security_ops->bprm_set_security (bprm);
-+}
-+static inline int security_bprm_check (struct linux_binprm *bprm)
-+{
-+	return security_ops->bprm_check_security (bprm);
-+}
-+
-+static inline int security_sb_alloc (struct super_block *sb)
-+{
-+	return security_ops->sb_alloc_security (sb);
-+}
-+
-+static inline void security_sb_free (struct super_block *sb)
-+{
-+	security_ops->sb_free_security (sb);
-+}
-+
-+static inline int security_sb_statfs (struct super_block *sb)
-+{
-+	return security_ops->sb_statfs (sb);
-+}
-+
-+static inline int security_sb_mount (char *dev_name, struct nameidata *nd,
-+				    char *type, unsigned long flags,
-+				    void *data)
-+{
-+	return security_ops->sb_mount (dev_name, nd, type, flags, data);
-+}
-+
-+static inline int security_sb_check_sb (struct vfsmount *mnt,
-+					struct nameidata *nd)
-+{
-+	return security_ops->sb_check_sb (mnt, nd);
-+}
-+
-+static inline int security_sb_umount (struct vfsmount *mnt, int flags)
-+{
-+	return security_ops->sb_umount (mnt, flags);
-+}
-+
-+static inline void security_sb_umount_close (struct vfsmount *mnt)
-+{
-+	security_ops->sb_umount_close (mnt);
-+}
-+
-+static inline void security_sb_umount_busy (struct vfsmount *mnt)
-+{
-+	security_ops->sb_umount_busy (mnt);
-+}
-+
-+static inline void security_sb_post_remount (struct vfsmount *mnt,
-+					     unsigned long flags, void *data)
-+{
-+	security_ops->sb_post_remount (mnt, flags, data);
-+}
-+
-+static inline void security_sb_post_mountroot (void)
-+{
-+	security_ops->sb_post_mountroot ();
-+}
-+
-+static inline void security_sb_post_addmount (struct vfsmount *mnt,
-+					      struct nameidata *mountpoint_nd)
-+{
-+	security_ops->sb_post_addmount (mnt, mountpoint_nd);
-+}
-+
-+static inline int security_sb_pivotroot (struct nameidata *old_nd,
-+					 struct nameidata *new_nd)
-+{
-+	return security_ops->sb_pivotroot (old_nd, new_nd);
-+}
-+
-+static inline void security_sb_post_pivotroot (struct nameidata *old_nd,
-+					       struct nameidata *new_nd)
-+{
-+	security_ops->sb_post_pivotroot (old_nd, new_nd);
-+}
-+
-+static inline int security_inode_alloc (struct inode *inode)
-+{
-+	return security_ops->inode_alloc_security (inode);
-+}
-+
-+static inline void security_inode_free (struct inode *inode)
-+{
-+	security_ops->inode_free_security (inode);
-+}
-+	
-+static inline int security_inode_create (struct inode *dir,
-+					 struct dentry *dentry,
-+					 int mode)
-+{
-+	return security_ops->inode_create (dir, dentry, mode);
-+}
-+
-+static inline void security_inode_post_create (struct inode *dir,
-+					       struct dentry *dentry,
-+					       int mode)
-+{
-+	security_ops->inode_post_create (dir, dentry, mode);
-+}
-+
-+static inline int security_inode_link (struct dentry *old_dentry,
-+				       struct inode *dir,
-+				       struct dentry *new_dentry)
-+{
-+	return security_ops->inode_link (old_dentry, dir, new_dentry);
-+}
-+
-+static inline void security_inode_post_link (struct dentry *old_dentry,
-+					     struct inode *dir,
-+					     struct dentry *new_dentry)
-+{
-+	security_ops->inode_post_link (old_dentry, dir, new_dentry);
-+}
-+
-+static inline int security_inode_unlink (struct inode *dir,
-+					 struct dentry *dentry)
-+{
-+	return security_ops->inode_unlink (dir, dentry);
-+}
-+
-+static inline int security_inode_symlink (struct inode *dir,
-+					  struct dentry *dentry,
-+					  const char *old_name)
-+{
-+	return security_ops->inode_symlink (dir, dentry, old_name);
-+}
-+
-+static inline void security_inode_post_symlink (struct inode *dir,
-+						struct dentry *dentry,
-+						const char *old_name)
-+{
-+	security_ops->inode_post_symlink (dir, dentry, old_name);
-+}
-+
-+static inline int security_inode_mkdir (struct inode *dir,
-+					struct dentry *dentry,
-+					int mode)
-+{
-+	return security_ops->inode_mkdir (dir, dentry, mode);
-+}
-+
-+static inline void security_inode_post_mkdir (struct inode *dir,
-+					      struct dentry *dentry,
-+					      int mode)
-+{
-+	security_ops->inode_post_mkdir (dir, dentry, mode);
-+}
-+
-+static inline int security_inode_rmdir (struct inode *dir,
-+					struct dentry *dentry)
-+{
-+	return security_ops->inode_rmdir (dir, dentry);
-+}
-+
-+static inline int security_inode_mknod (struct inode *dir,
-+					struct dentry *dentry,
-+					int mode, dev_t dev)
-+{
-+	return security_ops->inode_mknod (dir, dentry, mode, dev);
-+}
-+
-+static inline void security_inode_post_mknod (struct inode *dir,
-+					      struct dentry *dentry,
-+					      int mode, dev_t dev)
-+{
-+	security_ops->inode_post_mknod (dir, dentry, mode, dev);
-+}
-+
-+static inline int security_inode_rename (struct inode *old_dir,
-+					 struct dentry *old_dentry,
-+					 struct inode *new_dir,
-+					 struct dentry *new_dentry)
-+{
-+	return security_ops->inode_rename (old_dir, old_dentry,
-+					   new_dir, new_dentry);
-+}
-+
-+static inline void security_inode_post_rename (struct inode *old_dir,
-+					       struct dentry *old_dentry,
-+					       struct inode *new_dir,
-+					       struct dentry *new_dentry)
-+{
-+	security_ops->inode_post_rename (old_dir, old_dentry,
-+						new_dir, new_dentry);
-+}
-+
-+static inline int security_inode_readlink (struct dentry *dentry)
-+{
-+	return security_ops->inode_readlink (dentry);
-+}
-+
-+static inline int security_inode_follow_link (struct dentry *dentry,
-+					      struct nameidata *nd)
-+{
-+	return security_ops->inode_follow_link (dentry, nd);
-+}
-+
-+static inline int security_inode_permission (struct inode *inode, int mask)
-+{
-+	return security_ops->inode_permission (inode, mask);
-+}
-+
-+static inline int security_inode_permission_lite (struct inode *inode,
-+						  int mask)
-+{
-+	return security_ops->inode_permission_lite (inode, mask);
-+}
-+
-+static inline int security_inode_setattr (struct dentry *dentry,
-+					  struct iattr *attr)
-+{
-+	return security_ops->inode_setattr (dentry, attr);
-+}
-+
-+static inline int security_inode_getattr (struct vfsmount *mnt,
-+					  struct dentry *dentry)
-+{
-+	return security_ops->inode_getattr (mnt, dentry);
-+}
-+
-+static inline void security_inode_post_lookup (struct inode *inode,
-+					       struct dentry *dentry)
-+{
-+	security_ops->inode_post_lookup (inode, dentry);
-+}
-+
-+static inline void security_inode_delete (struct inode *inode)
-+{
-+	security_ops->inode_delete (inode);
-+}
-+
-+static inline int security_inode_setxattr (struct dentry *dentry, char *name,
-+					   void *value, size_t size, int flags)
-+{
-+	return security_ops->inode_setxattr (dentry, name, value, size, flags);
-+}
-+
-+static inline int security_inode_getxattr (struct dentry *dentry, char *name)
-+{
-+	return security_ops->inode_getxattr (dentry, name);
-+}
-+
-+static inline int security_inode_listxattr (struct dentry *dentry)
-+{
-+	return security_ops->inode_listxattr (dentry);
-+}
-+
-+static inline int security_inode_removexattr (struct dentry *dentry, char *name)
-+{
-+	return security_ops->inode_removexattr (dentry, name);
-+}
-+
-+static inline int security_file_permission (struct file *file, int mask)
-+{
-+	return security_ops->file_permission (file, mask);
-+}
-+
-+static inline int security_file_alloc (struct file *file)
-+{
-+	return security_ops->file_alloc_security (file);
-+}
-+
-+static inline void security_file_free (struct file *file)
-+{
-+	security_ops->file_free_security (file);
-+}
-+
-+static inline int security_file_llseek (struct file *file)
-+{
-+	return security_ops->file_llseek (file);
-+}
-+
-+static inline int security_file_ioctl (struct file *file, unsigned int cmd,
-+				       unsigned long arg)
-+{
-+	return security_ops->file_ioctl (file, cmd, arg);
-+}
-+
-+static inline int security_file_mmap (struct file *file, unsigned long prot,
-+				      unsigned long flags)
-+{
-+	return security_ops->file_mmap (file, prot, flags);
-+}
-+
-+static inline int security_file_mprotect (struct vm_area_struct *vma,
-+					  unsigned long prot)
-+{
-+	return security_ops->file_mprotect (vma, prot);
-+}
-+
-+static inline int security_file_lock (struct file *file, unsigned int cmd)
-+{
-+	return security_ops->file_lock (file, cmd);
-+}
-+
-+static inline int security_file_fcntl (struct file *file, unsigned int cmd,
-+				       unsigned long arg)
-+{
-+	return security_ops->file_fcntl (file, cmd, arg);
-+}
-+
-+static inline int security_file_set_fowner (struct file *file)
-+{
-+	return security_ops->file_set_fowner (file);
-+}
-+
-+static inline int security_file_send_sigiotask (struct task_struct *tsk,
-+						struct fown_struct *fown,
-+						int fd, int reason)
-+{
-+	return security_ops->file_send_sigiotask (tsk, fown, fd, reason);
-+}
-+
-+static inline int security_file_receive (struct file *file)
-+{
-+	return security_ops->file_receive (file);
-+}
-+
-+static inline int security_task_create (unsigned long clone_flags)
-+{
-+	return security_ops->task_create (clone_flags);
-+}
-+
-+static inline int security_task_alloc (struct task_struct *p)
-+{
-+	return security_ops->task_alloc_security (p);
-+}
-+
-+static inline void security_task_free (struct task_struct *p)
-+{
-+	security_ops->task_free_security (p);
-+}
-+
-+static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
-+					int flags)
-+{
-+	return security_ops->task_setuid (id0, id1, id2, flags);
-+}
-+
-+static inline int security_task_post_setuid (uid_t old_ruid, uid_t old_euid,
-+					     uid_t old_suid, int flags)
-+{
-+	return security_ops->task_post_setuid (old_ruid, old_euid, old_suid, flags);
-+}
-+
-+static inline int security_task_setgid (gid_t id0, gid_t id1, gid_t id2,
-+					int flags)
-+{
-+	return security_ops->task_setgid (id0, id1, id2, flags);
-+}
-+
-+static inline int security_task_setpgid (struct task_struct *p, pid_t pgid)
-+{
-+	return security_ops->task_setpgid (p, pgid);
-+}
-+
-+static inline int security_task_getpgid (struct task_struct *p)
-+{
-+	return security_ops->task_getpgid (p);
-+}
-+
-+static inline int security_task_getsid (struct task_struct *p)
-+{
-+	return security_ops->task_getsid (p);
-+}
-+
-+static inline int security_task_setgroups (int gidsetsize, gid_t *grouplist)
-+{
-+	return security_ops->task_setgroups (gidsetsize, grouplist);
-+}
-+
-+static inline int security_task_setnice (struct task_struct *p, int nice)
-+{
-+	return security_ops->task_setnice (p, nice);
-+}
-+
-+static inline int security_task_setrlimit (unsigned int resource,
-+					   struct rlimit *new_rlim)
-+{
-+	return security_ops->task_setrlimit (resource, new_rlim);
-+}
-+
-+static inline int security_task_setscheduler (struct task_struct *p,
-+					      int policy,
-+					      struct sched_param *lp)
-+{
-+	return security_ops->task_setscheduler (p, policy, lp);
-+}
-+
-+static inline int security_task_getscheduler (struct task_struct *p)
-+{
-+	return security_ops->task_getscheduler (p);
-+}
-+
-+static inline int security_task_kill (struct task_struct *p,
-+				      struct siginfo *info, int sig)
-+{
-+	return security_ops->task_kill (p, info, sig);
-+}
-+
-+static inline int security_task_wait (struct task_struct *p)
-+{
-+	return security_ops->task_wait (p);
-+}
-+
-+static inline int security_task_prctl (int option, unsigned long arg2,
-+				       unsigned long arg3,
-+				       unsigned long arg4,
-+				       unsigned long arg5)
-+{
-+	return security_ops->task_prctl (option, arg2, arg3, arg4, arg5);
-+}
-+
-+static inline void security_task_kmod_set_label (void)
-+{
-+	security_ops->task_kmod_set_label ();
-+}
-+
-+static inline void security_task_reparent_to_init (struct task_struct *p)
-+{
-+	security_ops->task_reparent_to_init (p);
-+}
-+
-+static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
-+					   short flag)
-+{
-+	return security_ops->ipc_permission (ipcp, flag);
-+}
-+
-+static inline int security_msg_queue_alloc (struct msg_queue *msq)
-+{
-+	return security_ops->msg_queue_alloc_security (msq);
-+}
-+
-+static inline void security_msg_queue_free (struct msg_queue *msq)
-+{
-+	security_ops->msg_queue_free_security (msq);
-+}
-+
-+static inline int security_shm_alloc (struct shmid_kernel *shp)
-+{
-+	return security_ops->shm_alloc_security (shp);
-+}
-+
-+static inline void security_shm_free (struct shmid_kernel *shp)
-+{
-+	security_ops->shm_free_security (shp);
-+}
-+
-+static inline int security_sem_alloc (struct sem_array *sma)
-+{
-+	return security_ops->sem_alloc_security (sma);
-+}
-+
-+static inline void security_sem_free (struct sem_array *sma)
-+{
-+	security_ops->sem_free_security (sma);
-+}
-+
- 
- /* prototypes */
- extern int security_scaffolding_startup	(void);
-@@ -857,11 +1383,481 @@
- extern int mod_unreg_security	(const char *name, struct security_operations *ops);
- extern int capable		(int cap);
- 
--/* global variables */
--extern struct security_operations *security_ops;
- 
-+#else /* CONFIG_SECURITY */
-+
-+static inline int security_scaffolding_startup (void) { return 0; }
-+
-+static inline int security_ptrace (struct task_struct *parent, struct task_struct * child)
-+{
-+	return 0;
-+}
-+
-+static inline int security_capget (struct task_struct *target,
-+				   kernel_cap_t *effective,
-+				   kernel_cap_t *inheritable,
-+				   kernel_cap_t *permitted)
-+{
-+	return 0;
-+}
-+
-+static inline int security_capset_check (struct task_struct *target,
-+					 kernel_cap_t *effective,
-+					 kernel_cap_t *inheritable,
-+					 kernel_cap_t *permitted)
-+{
-+	return 0;
-+}
-+
-+static inline void security_capset_set (struct task_struct *target,
-+					kernel_cap_t *effective,
-+					kernel_cap_t *inheritable,
-+					kernel_cap_t *permitted)
-+{ }
-+
-+static inline int security_acct (struct file *file)
-+{
-+	return 0;
-+}
-+
-+static inline int security_quotactl (int cmds, int type, int id,
-+				     struct super_block * sb)
-+{
-+	return 0;
-+}
-+
-+static inline int security_quota_on (struct file * file)
-+{
-+	return 0;
-+}
-+
-+static inline int security_bprm_alloc (struct linux_binprm *bprm)
-+{
-+	return 0;
-+}
-+static inline void security_bprm_free (struct linux_binprm *bprm)
-+{ }
-+static inline void security_bprm_compute_creds (struct linux_binprm *bprm)
-+{ }
-+static inline int security_bprm_set (struct linux_binprm *bprm)
-+{
-+	return 0;
-+}
-+static inline int security_bprm_check (struct linux_binprm *bprm)
-+{
-+	return 0;
-+}
-+
-+static inline int security_sb_alloc (struct super_block *sb)
-+{
-+	return 0;
-+}
-+
-+static inline void security_sb_free (struct super_block *sb)
-+{ }
-+
-+static inline int security_sb_statfs (struct super_block *sb)
-+{
-+	return 0;
-+}
-+
-+static inline int security_sb_mount (char *dev_name, struct nameidata *nd,
-+				    char *type, unsigned long flags,
-+				    void *data)
-+{
-+	return 0;
-+}
-+
-+static inline int security_sb_check_sb (struct vfsmount *mnt,
-+					struct nameidata *nd)
-+{
-+	return 0;
-+}
-+
-+static inline int security_sb_umount (struct vfsmount *mnt, int flags)
-+{
-+	return 0;
-+}
-+
-+static inline void security_sb_umount_close (struct vfsmount *mnt)
-+{ }
-+
-+static inline void security_sb_umount_busy (struct vfsmount *mnt)
-+{ }
-+
-+static inline void security_sb_post_remount (struct vfsmount *mnt,
-+					     unsigned long flags, void *data)
-+{ }
-+
-+static inline void security_sb_post_mountroot (void)
-+{ }
-+
-+static inline void security_sb_post_addmount (struct vfsmount *mnt,
-+					      struct nameidata *mountpoint_nd)
-+{ }
-+
-+static inline int security_sb_pivotroot (struct nameidata *old_nd,
-+					 struct nameidata *new_nd)
-+{
-+	return 0;
-+}
-+
-+static inline void security_sb_post_pivotroot (struct nameidata *old_nd,
-+					       struct nameidata *new_nd)
-+{ }
-+
-+static inline int security_inode_alloc (struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_free (struct inode *inode)
-+{ }
-+	
-+static inline int security_inode_create (struct inode *dir,
-+					 struct dentry *dentry,
-+					 int mode)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_create (struct inode *dir,
-+					       struct dentry *dentry,
-+					       int mode)
-+{ }
-+
-+static inline int security_inode_link (struct dentry *old_dentry,
-+				       struct inode *dir,
-+				       struct dentry *new_dentry)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_link (struct dentry *old_dentry,
-+					     struct inode *dir,
-+					     struct dentry *new_dentry)
-+{ }
-+
-+static inline int security_inode_unlink (struct inode *dir,
-+					 struct dentry *dentry)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_symlink (struct inode *dir,
-+					  struct dentry *dentry,
-+					  const char *old_name)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_symlink (struct inode *dir,
-+						struct dentry *dentry,
-+						const char *old_name)
-+{ }
-+
-+static inline int security_inode_mkdir (struct inode *dir,
-+					struct dentry *dentry,
-+					int mode)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_mkdir (struct inode *dir,
-+					      struct dentry *dentry,
-+					      int mode)
-+{ }
-+
-+static inline int security_inode_rmdir (struct inode *dir,
-+					struct dentry *dentry)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_mknod (struct inode *dir,
-+					struct dentry *dentry,
-+					int mode, dev_t dev)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_mknod (struct inode *dir,
-+					      struct dentry *dentry,
-+					      int mode, dev_t dev)
-+{ }
-+
-+static inline int security_inode_rename (struct inode *old_dir,
-+					 struct dentry *old_dentry,
-+					 struct inode *new_dir,
-+					 struct dentry *new_dentry)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_rename (struct inode *old_dir,
-+					       struct dentry *old_dentry,
-+					       struct inode *new_dir,
-+					       struct dentry *new_dentry)
-+{ }
-+
-+static inline int security_inode_readlink (struct dentry *dentry)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_follow_link (struct dentry *dentry,
-+					      struct nameidata *nd)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_permission (struct inode *inode, int mask)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_permission_lite (struct inode *inode,
-+						  int mask)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_setattr (struct dentry *dentry,
-+					  struct iattr *attr)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_getattr (struct vfsmount *mnt,
-+					  struct dentry *dentry)
-+{
-+	return 0;
-+}
-+
-+static inline void security_inode_post_lookup (struct inode *inode,
-+					       struct dentry *dentry)
-+{ }
-+
-+static inline void security_inode_delete (struct inode *inode)
-+{ }
-+
-+static inline int security_inode_setxattr (struct dentry *dentry, char *name,
-+					   void *value, size_t size, int flags)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_getxattr (struct dentry *dentry, char *name)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_listxattr (struct dentry *dentry)
-+{
-+	return 0;
-+}
-+
-+static inline int security_inode_removexattr (struct dentry *dentry, char *name)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_permission (struct file *file, int mask)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_alloc (struct file *file)
-+{
-+	return 0;
-+}
-+
-+static inline void security_file_free (struct file *file)
-+{ }
-+
-+static inline int security_file_llseek (struct file *file)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_ioctl (struct file *file, unsigned int cmd,
-+				       unsigned long arg)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_mmap (struct file *file, unsigned long prot,
-+				      unsigned long flags)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_mprotect (struct vm_area_struct *vma,
-+					  unsigned long prot)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_lock (struct file *file, unsigned int cmd)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_fcntl (struct file *file, unsigned int cmd,
-+				       unsigned long arg)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_set_fowner (struct file *file)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_send_sigiotask (struct task_struct *tsk,
-+						struct fown_struct *fown,
-+						int fd, int reason)
-+{
-+	return 0;
-+}
-+
-+static inline int security_file_receive (struct file *file)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_create (unsigned long clone_flags)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_alloc (struct task_struct *p)
-+{
-+	return 0;
-+}
-+
-+static inline void security_task_free (struct task_struct *p)
-+{ }
-+
-+static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
-+					int flags)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_post_setuid (uid_t old_ruid, uid_t old_euid,
-+					     uid_t old_suid, int flags)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_setgid (gid_t id0, gid_t id1, gid_t id2,
-+					int flags)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_setpgid (struct task_struct *p, pid_t pgid)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_getpgid (struct task_struct *p)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_getsid (struct task_struct *p)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_setgroups (int gidsetsize, gid_t *grouplist)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_setnice (struct task_struct *p, int nice)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_setrlimit (unsigned int resource,
-+					   struct rlimit *new_rlim)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_setscheduler (struct task_struct *p,
-+					      int policy,
-+					      struct sched_param *lp)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_getscheduler (struct task_struct *p)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_kill (struct task_struct *p,
-+				      struct siginfo *info, int sig)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_wait (struct task_struct *p)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_prctl (int option, unsigned long arg2,
-+				       unsigned long arg3,
-+				       unsigned long arg4,
-+				       unsigned long arg5)
-+{
-+	return 0;
-+}
-+
-+static inline void security_task_kmod_set_label (void)
-+{ }
-+
-+static inline void security_task_reparent_to_init (struct task_struct *p)
-+{ }
-+
-+static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
-+					   short flag)
-+{
-+	return 0;
-+}
-+
-+static inline int security_msg_queue_alloc (struct msg_queue *msq)
-+{
-+	return 0;
-+}
-+
-+static inline void security_msg_queue_free (struct msg_queue *msq)
-+{ }
-+
-+static inline int security_shm_alloc (struct shmid_kernel *shp)
-+{
-+	return 0;
-+}
-+
-+static inline void security_shm_free (struct shmid_kernel *shp)
-+{ }
-+
-+static inline int security_sem_alloc (struct sem_array *sma)
-+{
-+	return 0;
-+}
-+
-+static inline void security_sem_free (struct sem_array *sma)
-+{ }
-+
-+
-+#endif	/* CONFIG_SECURITY */
- 
--#endif /* __KERNEL__ */
- 
- #endif /* ! __LINUX_SECURITY_H */
- 
-===== init/do_mounts.c 1.25 vs edited =====
---- 1.25/init/do_mounts.c	Fri Oct  4 13:51:37 2002
-+++ edited/init/do_mounts.c	Wed Oct 16 00:36:15 2002
-@@ -12,6 +12,7 @@
- #include <linux/init.h>
- #include <linux/suspend.h>
- #include <linux/root_dev.h>
-+#include <linux/security.h>
- 
- #include <linux/nfs_fs.h>
- #include <linux/nfs_fs_sb.h>
-@@ -799,7 +800,7 @@
- 	sys_umount("/dev", 0);
- 	sys_mount(".", "/", NULL, MS_MOVE, NULL);
- 	sys_chroot(".");
--	security_ops->sb_post_mountroot();
-+	security_sb_post_mountroot();
- 	mount_devfs_fs ();
- }
- 
-===== ipc/msg.c 1.7 vs edited =====
---- 1.7/ipc/msg.c	Tue Oct  8 02:20:42 2002
-+++ edited/ipc/msg.c	Wed Oct 16 00:37:48 2002
-@@ -101,15 +101,14 @@
- 	msq->q_perm.key = key;
- 
- 	msq->q_perm.security = NULL;
--	retval = security_ops->msg_queue_alloc_security(msq);
--	if (retval) {
-+	if ((retval = security_msg_queue_alloc(msq))) {
- 		kfree(msq);
- 		return retval;
- 	}
- 
- 	id = ipc_addid(&msg_ids, &msq->q_perm, msg_ctlmni);
- 	if(id == -1) {
--		security_ops->msg_queue_free_security(msq);
-+		security_msg_queue_free(msq);
- 		kfree(msq);
- 		return -ENOSPC;
- 	}
-@@ -281,7 +280,7 @@
- 		free_msg(msg);
- 	}
- 	atomic_sub(msq->q_cbytes, &msg_bytes);
--	security_ops->msg_queue_free_security(msq);
-+	security_msg_queue_free(msq);
- 	kfree(msq);
- }
- 
-===== ipc/sem.c 1.12 vs edited =====
---- 1.12/ipc/sem.c	Tue Oct  8 02:20:46 2002
-+++ edited/ipc/sem.c	Wed Oct 16 00:38:28 2002
-@@ -136,15 +136,14 @@
- 	sma->sem_perm.key = key;
- 
- 	sma->sem_perm.security = NULL;
--	retval = security_ops->sem_alloc_security(sma);
--	if (retval) {
-+	if ((retval = security_sem_alloc(sma))) {
- 		ipc_free(sma, size);
- 		return retval;
- 	}
- 
- 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
- 	if(id == -1) {
--		security_ops->sem_free_security(sma);
-+		security_sem_free(sma);
- 		ipc_free(sma, size);
- 		return -ENOSPC;
- 	}
-@@ -427,7 +426,7 @@
- 
- 	used_sems -= sma->sem_nsems;
- 	size = sizeof (*sma) + sma->sem_nsems * sizeof (struct sem);
--	security_ops->sem_free_security(sma);
-+	security_sem_free(sma);
- 	ipc_free(sma, size);
- }
- 
-===== ipc/shm.c 1.18 vs edited =====
---- 1.18/ipc/shm.c	Tue Oct  8 02:29:20 2002
-+++ edited/ipc/shm.c	Wed Oct 16 00:39:00 2002
-@@ -116,7 +116,7 @@
- 	shm_unlock(shp->id);
- 	shmem_lock(shp->shm_file, 0);
- 	fput (shp->shm_file);
--	security_ops->shm_free_security(shp);
-+	security_shm_free(shp);
- 	kfree (shp);
- }
- 
-@@ -188,8 +188,7 @@
- 	shp->shm_flags = (shmflg & S_IRWXUGO);
- 
- 	shp->shm_perm.security = NULL;
--	error = security_ops->shm_alloc_security(shp);
--	if (error) {
-+	if ((error = security_shm_alloc(shp))) {
- 		kfree(shp);
- 		return error;
- 	}
-@@ -222,7 +221,7 @@
- no_id:
- 	fput(file);
- no_file:
--	security_ops->shm_free_security(shp);
-+	security_shm_free(shp);
- 	kfree(shp);
- 	return error;
- }
-===== ipc/util.c 1.6 vs edited =====
---- 1.6/ipc/util.c	Tue Oct  8 02:01:30 2002
-+++ edited/ipc/util.c	Wed Oct 16 00:39:12 2002
-@@ -264,7 +264,7 @@
- 	    !capable(CAP_IPC_OWNER))
- 		return -1;
- 
--	return security_ops->ipc_permission(ipcp, flag);
-+	return security_ipc_permission(ipcp, flag);
- }
- 
- /*
-===== kernel/acct.c 1.12 vs edited =====
---- 1.12/kernel/acct.c	Mon Jul 22 03:12:48 2002
-+++ edited/kernel/acct.c	Tue Oct 15 22:53:28 2002
-@@ -49,6 +49,7 @@
- #include <linux/acct.h>
- #include <linux/file.h>
- #include <linux/tty.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- 
- /*
-@@ -222,8 +223,7 @@
- 		}
- 	}
- 
--	error = security_ops->acct(file);
--	if (error)
-+	if ((error = security_acct(file)))
- 		return error;
- 
- 	spin_lock(&acct_globals.lock);
-===== kernel/capability.c 1.6 vs edited =====
---- 1.6/kernel/capability.c	Sat Sep 14 06:18:49 2002
-+++ edited/kernel/capability.c	Tue Oct 15 22:34:12 2002
-@@ -8,6 +8,7 @@
-  */ 
- 
- #include <linux/mm.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- 
- unsigned securebits = SECUREBITS_DEFAULT; /* systemwide security settings */
-@@ -63,7 +64,7 @@
-      data.permitted = cap_t(target->cap_permitted);
-      data.inheritable = cap_t(target->cap_inheritable); 
-      data.effective = cap_t(target->cap_effective);
--     ret = security_ops->capget(target, &data.effective, &data.inheritable, &data.permitted);
-+     ret = security_capget(target, &data.effective, &data.inheritable, &data.permitted);
- 
- out:
-      read_unlock(&tasklist_lock); 
-@@ -88,7 +89,7 @@
-      do_each_thread(g, target) {
-              if (target->pgrp != pgrp)
-                      continue;
--	     security_ops->capset_set(target, effective, inheritable, permitted);
-+	     security_capset_set(target, effective, inheritable, permitted);
-      } while_each_thread(g, target);
- }
- 
-@@ -105,7 +106,7 @@
-      do_each_thread(g, target) {
-              if (target == current || target->pid == 1)
-                      continue;
--	     security_ops->capset_set(target, effective, inheritable, permitted);
-+	     security_capset_set(target, effective, inheritable, permitted);
-      } while_each_thread(g, target);
- }
- 
-@@ -163,7 +164,7 @@
- 
-      ret = -EPERM;
- 
--     if (security_ops->capset_check(target, &effective, &inheritable, &permitted))
-+     if (security_capset_check(target, &effective, &inheritable, &permitted))
- 	     goto out;
- 
-      if (!cap_issubset(inheritable, cap_combine(target->cap_inheritable,
-@@ -190,7 +191,7 @@
-              else            /* all procs in process group */
-                      cap_set_pg(-pid, &effective, &inheritable, &permitted);
-      } else {
--	     security_ops->capset_set(target, &effective, &inheritable, &permitted);
-+	     security_capset_set(target, &effective, &inheritable, &permitted);
-      }
- 
- out:
-===== kernel/exit.c 1.72 vs edited =====
---- 1.72/kernel/exit.c	Tue Oct 15 15:08:06 2002
-+++ edited/kernel/exit.c	Wed Oct 16 00:35:10 2002
-@@ -67,7 +67,7 @@
- 		wait_task_inactive(p);
- 
- 	atomic_dec(&p->user->processes);
--	security_ops->task_free_security(p);
-+	security_task_free(p);
- 	free_uid(p->user);
- 	write_lock_irq(&tasklist_lock);
- 	if (unlikely(p->ptrace))
-@@ -248,7 +248,7 @@
- 	/* cpus_allowed? */
- 	/* rt_priority? */
- 	/* signals? */
--	security_ops->task_reparent_to_init(current);
-+	security_task_reparent_to_init(current);
- 	memcpy(current->rlim, init_task.rlim, sizeof(*(current->rlim)));
- 	current->user = INIT_USER;
- 
-@@ -774,7 +774,7 @@
- 	if (current->tgid != p->tgid && delay_group_leader(p))
- 		return 2;
- 
--	if (security_ops->task_wait(p))
-+	if (security_task_wait(p))
- 		return 0;
- 
- 	return 1;
-===== kernel/fork.c 1.87 vs edited =====
---- 1.87/kernel/fork.c	Mon Oct  7 15:17:19 2002
-+++ edited/kernel/fork.c	Wed Oct 16 00:28:30 2002
-@@ -682,8 +682,7 @@
- 	if ((clone_flags & CLONE_DETACHED) && !(clone_flags & CLONE_THREAD))
- 		return ERR_PTR(-EINVAL);
- 
--	retval = security_ops->task_create(clone_flags);
--	if (retval)
-+	if ((retval = security_task_create(clone_flags)))
- 		goto fork_out;
- 
- 	retval = -ENOMEM;
-@@ -772,7 +771,7 @@
- 	INIT_LIST_HEAD(&p->local_pages);
- 
- 	retval = -ENOMEM;
--	if (security_ops->task_alloc_security(p))
-+	if (security_task_alloc(p))
- 		goto bad_fork_cleanup;
- 	/* copy all the process information */
- 	if (copy_semundo(clone_flags, p))
-@@ -922,7 +921,7 @@
- bad_fork_cleanup_semundo:
- 	exit_semundo(p);
- bad_fork_cleanup_security:
--	security_ops->task_free_security(p);
-+	security_task_free(p);
- bad_fork_cleanup:
- 	if (p->pid > 0)
- 		free_pidmap(p->pid);
-===== kernel/kmod.c 1.15 vs edited =====
---- 1.15/kernel/kmod.c	Tue Oct  1 01:54:49 2002
-+++ edited/kernel/kmod.c	Wed Oct 16 00:28:59 2002
-@@ -29,6 +29,7 @@
- #include <linux/completion.h>
- #include <linux/file.h>
- #include <linux/workqueue.h>
-+#include <linux/security.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -134,7 +135,7 @@
- 	/* Give kmod all effective privileges.. */
- 	curtask->euid = curtask->fsuid = 0;
- 	curtask->egid = curtask->fsgid = 0;
--	security_ops->task_kmod_set_label();
-+	security_task_kmod_set_label();
- 
- 	/* Allow execve args to be in kernel space. */
- 	set_fs(KERNEL_DS);
-===== kernel/ptrace.c 1.18 vs edited =====
---- 1.18/kernel/ptrace.c	Sun Sep 15 19:57:15 2002
-+++ edited/kernel/ptrace.c	Wed Oct 16 00:11:10 2002
-@@ -14,6 +14,7 @@
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
- #include <linux/ptrace.h>
-+#include <linux/security.h>
- 
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
-@@ -100,8 +101,7 @@
- 	/* the same process cannot be attached many times */
- 	if (task->ptrace & PT_PTRACED)
- 		goto bad;
--	retval = security_ops->ptrace(current, task);
--	if (retval)
-+	if ((retval = security_ptrace(current, task)))
- 		goto bad;
- 
- 	/* Go */
-===== kernel/sched.c 1.140 vs edited =====
---- 1.140/kernel/sched.c	Mon Oct 14 05:30:06 2002
-+++ edited/kernel/sched.c	Wed Oct 16 00:29:50 2002
-@@ -1329,8 +1329,7 @@
- 	if (nice > 19)
- 		nice = 19;
- 
--	retval = security_ops->task_setnice(current, nice);
--	if (retval)
-+	if ((retval = security_task_setnice(current, nice)))
- 		return retval;
- 
- 	set_user_nice(current, nice);
-@@ -1451,8 +1450,7 @@
- 	    !capable(CAP_SYS_NICE))
- 		goto out_unlock;
- 
--	retval = security_ops->task_setscheduler(p, policy, &lp);
--	if (retval)
-+	if ((retval = security_task_setscheduler(p, policy, &lp)))
- 		goto out_unlock;
- 
- 	array = p->array;
-@@ -1515,8 +1513,7 @@
- 	read_lock(&tasklist_lock);
- 	p = find_process_by_pid(pid);
- 	if (p) {
--		retval = security_ops->task_getscheduler(p);
--		if (!retval)
-+		if (!(retval = security_task_getscheduler(p)))
- 			retval = p->policy;
- 	}
- 	read_unlock(&tasklist_lock);
-@@ -1545,8 +1542,7 @@
- 	if (!p)
- 		goto out_unlock;
- 
--	retval = security_ops->task_getscheduler(p);
--	if (retval)
-+	if ((retval = security_task_getscheduler(p)))
- 		goto out_unlock;
- 
- 	lp.sched_priority = p->rt_priority;
-@@ -1778,8 +1774,7 @@
- 	if (!p)
- 		goto out_unlock;
- 
--	retval = security_ops->task_getscheduler(p);
--	if (retval)
-+	if ((retval = security_task_getscheduler(p)))
- 		goto out_unlock;
- 
- 	jiffies_to_timespec(p->policy & SCHED_FIFO ?
-===== kernel/signal.c 1.48 vs edited =====
---- 1.48/kernel/signal.c	Thu Oct  3 02:26:00 2002
-+++ edited/kernel/signal.c	Wed Oct 16 00:30:19 2002
-@@ -18,6 +18,7 @@
- #include <linux/fs.h>
- #include <linux/tty.h>
- #include <linux/binfmts.h>
-+#include <linux/security.h>
- #include <asm/param.h>
- #include <asm/uaccess.h>
- #include <asm/siginfo.h>
-@@ -706,8 +707,7 @@
- 	ret = -EPERM;
- 	if (bad_signal(sig, info, t))
- 		goto out;
--	ret = security_ops->task_kill(t, info, sig);
--	if (ret)
-+	if ((ret = security_task_kill(t, info, sig)))
- 		goto out;
- 
- 	/* The null signal is a permissions and process existence probe.
-===== kernel/sys.c 1.30 vs edited =====
---- 1.30/kernel/sys.c	Tue Oct 15 14:45:52 2002
-+++ edited/kernel/sys.c	Wed Oct 16 00:33:50 2002
-@@ -204,6 +204,7 @@
- cond_syscall(sys_quotactl)
- cond_syscall(sys_acct)
- cond_syscall(sys_lookup_dcookie)
-+cond_syscall(sys_security)
- 
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
-@@ -479,8 +480,7 @@
- 	int new_egid = old_egid;
- 	int retval;
- 
--	retval = security_ops->task_setgid(rgid, egid, (gid_t)-1, LSM_SETID_RE);
--	if (retval)
-+	if ((retval = security_task_setgid(rgid, egid, (gid_t)-1, LSM_SETID_RE)))
- 		return retval;
- 
- 	if (rgid != (gid_t) -1) {
-@@ -525,8 +525,7 @@
- 	int old_egid = current->egid;
- 	int retval;
- 
--	retval = security_ops->task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_ID);
--	if (retval)
-+	if ((retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_ID)))
- 		return retval;
- 
- 	if (capable(CAP_SETGID))
-@@ -599,8 +598,7 @@
- 	int old_ruid, old_euid, old_suid, new_ruid, new_euid;
- 	int retval;
- 
--	retval = security_ops->task_setuid(ruid, euid, (uid_t)-1, LSM_SETID_RE);
--	if (retval)
-+	if ((retval = security_task_setuid(ruid, euid, (uid_t)-1, LSM_SETID_RE)))
- 		return retval;
- 
- 	new_ruid = old_ruid = current->uid;
-@@ -638,7 +636,7 @@
- 		current->suid = current->euid;
- 	current->fsuid = current->euid;
- 
--	return security_ops->task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_RE);
-+	return security_task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_RE);
- }
- 
- 
-@@ -660,8 +658,7 @@
- 	int old_ruid, old_suid, new_ruid, new_suid;
- 	int retval;
- 
--	retval = security_ops->task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_ID);
--	if (retval)
-+	if ((retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_ID)))
- 		return retval;
- 
- 	old_ruid = new_ruid = current->uid;
-@@ -683,7 +680,7 @@
- 	current->fsuid = current->euid = uid;
- 	current->suid = new_suid;
- 
--	return security_ops->task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_ID);
-+	return security_task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_ID);
- }
- 
- 
-@@ -698,8 +695,7 @@
- 	int old_suid = current->suid;
- 	int retval;
- 
--	retval = security_ops->task_setuid(ruid, euid, suid, LSM_SETID_RES);
--	if (retval)
-+	if ((retval = security_task_setuid(ruid, euid, suid, LSM_SETID_RES)))
- 		return retval;
- 
- 	if (!capable(CAP_SETUID)) {
-@@ -729,7 +725,7 @@
- 	if (suid != (uid_t) -1)
- 		current->suid = suid;
- 
--	return security_ops->task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_RES);
-+	return security_task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_RES);
- }
- 
- asmlinkage long sys_getresuid(uid_t *ruid, uid_t *euid, uid_t *suid)
-@@ -750,8 +746,7 @@
- {
- 	int retval;
- 
--	retval = security_ops->task_setgid(rgid, egid, sgid, LSM_SETID_RES);
--	if (retval)
-+	if ((retval = security_task_setgid(rgid, egid, sgid, LSM_SETID_RES)))
- 		return retval;
- 
- 	if (!capable(CAP_SETGID)) {
-@@ -804,8 +799,7 @@
- 	int old_fsuid;
- 	int retval;
- 
--	retval = security_ops->task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
--	if (retval)
-+	if ((retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS)))
- 		return retval;
- 
- 	old_fsuid = current->fsuid;
-@@ -821,8 +815,7 @@
- 		current->fsuid = uid;
- 	}
- 
--	retval = security_ops->task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
--	if (retval)
-+	if ((retval = security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS)))
- 		return retval;
- 
- 	return old_fsuid;
-@@ -836,8 +829,7 @@
- 	int old_fsgid;
- 	int retval;
- 
--	retval = security_ops->task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS);
--	if (retval)
-+	if ((retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS)))
- 		return retval;
- 
- 	old_fsgid = current->fsgid;
-@@ -962,8 +954,7 @@
- 
- 		retval = -ESRCH;
- 		if (p) {
--			retval = security_ops->task_getpgid(p);
--			if (!retval)
-+			if (!(retval = security_task_getpgid(p)))
- 				retval = p->pgrp;
- 		}
- 		read_unlock(&tasklist_lock);
-@@ -990,8 +981,7 @@
- 
- 		retval = -ESRCH;
- 		if(p) {
--			retval = security_ops->task_getsid(p);
--			if (!retval)
-+			if (!(retval = security_task_getsid(p)))
- 				retval = p->session;
- 		}
- 		read_unlock(&tasklist_lock);
-@@ -1072,8 +1062,7 @@
- 		return -EINVAL;
- 	if(copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t)))
- 		return -EFAULT;
--	retval = security_ops->task_setgroups(gidsetsize, groups);
--	if (retval)
-+	if ((retval = security_task_setgroups(gidsetsize, groups)))
- 		return retval;
- 	memcpy(current->groups, groups, gidsetsize * sizeof(gid_t));
- 	current->ngroups = gidsetsize;
-@@ -1236,8 +1225,7 @@
- 			return -EPERM;
- 	}
- 
--	retval = security_ops->task_setrlimit(resource, &new_rlim);
--	if (retval)
-+	if ((retval = security_task_setrlimit(resource, &new_rlim)))
- 		return retval;
- 
- 	*old_rlim = new_rlim;
-@@ -1311,8 +1299,7 @@
- 	int error = 0;
- 	int sig;
- 
--	error = security_ops->task_prctl(option, arg2, arg3, arg4, arg5);
--	if (error)
-+	if ((error = security_task_prctl(option, arg2, arg3, arg4, arg5)))
- 		return error;
- 
- 	switch (option) {
-===== kernel/uid16.c 1.2 vs edited =====
---- 1.2/kernel/uid16.c	Fri Jul 19 16:00:55 2002
-+++ edited/kernel/uid16.c	Wed Oct 16 00:30:43 2002
-@@ -140,8 +140,7 @@
- 		return -EFAULT;
- 	for (i = 0 ; i < gidsetsize ; i++)
- 		new_groups[i] = (gid_t)groups[i];
--	i = security_ops->task_setgroups(gidsetsize, new_groups);
--	if (i)
-+	if ((i = security_task_setgroups(gidsetsize, new_groups)))
- 		return i;
- 	memcpy(current->groups, new_groups, gidsetsize * sizeof(gid_t));
- 	current->ngroups = gidsetsize;
-===== mm/mmap.c 1.53 vs edited =====
---- 1.53/mm/mmap.c	Tue Oct 15 15:08:06 2002
-+++ edited/mm/mmap.c	Wed Oct 16 00:36:48 2002
-@@ -498,8 +498,7 @@
- 		}
- 	}
- 
--	error = security_ops->file_mmap(file, prot, flags);
--	if (error)
-+	if ((error = security_file_mmap(file, prot, flags)))
- 		return error;
- 		
- 	/* Clear old maps */
-===== mm/mprotect.c 1.19 vs edited =====
---- 1.19/mm/mprotect.c	Tue Oct  1 16:43:14 2002
-+++ edited/mm/mprotect.c	Wed Oct 16 00:36:58 2002
-@@ -262,8 +262,7 @@
- 			goto out;
- 		}
- 
--		error = security_ops->file_mprotect(vma, prot);
--		if (error)
-+		if ((error = security_file_mprotect(vma, prot)))
- 			goto out;
- 
- 		if (vma->vm_end > end) {
-===== net/core/scm.c 1.3 vs edited =====
---- 1.3/net/core/scm.c	Mon Jul 22 03:12:48 2002
-+++ edited/net/core/scm.c	Wed Oct 16 00:41:37 2002
-@@ -217,8 +217,7 @@
- 	for (i=0, cmfptr=(int*)CMSG_DATA(cm); i<fdmax; i++, cmfptr++)
- 	{
- 		int new_fd;
--		err = security_ops->file_receive(fp[i]);
--		if (err)
-+		if ((err = security_file_receive(fp[i])))
- 			break;
- 		err = get_unused_fd();
- 		if (err < 0)
-===== net/decnet/af_decnet.c 1.18 vs edited =====
---- 1.18/net/decnet/af_decnet.c	Tue Oct  8 07:02:41 2002
-+++ edited/net/decnet/af_decnet.c	Wed Oct 16 00:42:30 2002
-@@ -113,6 +113,7 @@
- #include <linux/inet.h>
- #include <linux/route.h>
- #include <linux/netfilter.h>
-+#include <linux/security.h>
- #include <net/sock.h>
- #include <net/tcp.h>
- #include <asm/system.h>
-@@ -794,7 +795,7 @@
- 	 * dn_prot_sock ? Would be nice if the capable call would go there
- 	 * too.
- 	 */
--	if (security_ops->dn_prot_sock(saddr) &&
-+	if (security_dn_prot_sock(saddr) &&
- 	    !capable(CAP_NET_BIND_SERVICE) || 
- 	    saddr->sdn_objnum || (saddr->sdn_flags & SDF_WILD))
- 		return -EACCES;
-===== security/Config.in 1.3 vs edited =====
---- 1.3/security/Config.in	Sat Jul 20 12:05:09 2002
-+++ edited/security/Config.in	Tue Oct 15 22:24:46 2002
-@@ -3,5 +3,8 @@
- #
- mainmenu_option next_comment
- comment 'Security options'
--define_bool CONFIG_SECURITY_CAPABILITIES y
-+bool 'Enable different security models' CONFIG_SECURITY
-+if [ "$CONFIG_SECURITY" = "y" ]; then
-+   dep_tristate '  Default Linux Capabilities' CONFIG_SECURITY_CAPABILITIES $CONFIG_SECURITY
-+fi
- endmenu
-===== security/Makefile 1.1 vs edited =====
---- 1.1/security/Makefile	Fri Jul 19 15:55:56 2002
-+++ edited/security/Makefile	Tue Oct 15 22:26:19 2002
-@@ -6,8 +6,7 @@
- export-objs	:= security.o
- 
- # Object file lists
--obj-y		:= security.o dummy.o
--
-+obj-$(CONFIG_SECURITY)			+= security.o dummy.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= capability.o
- 
- include $(TOPDIR)/Rules.make
+HTH,
+
+Falk
+
+-- 
+Falk Stern, mobile.de AG
+Goldbekplatz 3 - D-22303 Hamburg 
+Tel.: +49 (0) 40/808191-0 ; Fax: +49 (0) 40/808191-55 
+Web: http://www.mobile.de

@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318274AbSGRQcV>; Thu, 18 Jul 2002 12:32:21 -0400
+	id <S318227AbSGRQYa>; Thu, 18 Jul 2002 12:24:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318275AbSGRQcK>; Thu, 18 Jul 2002 12:32:10 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:8441 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S318274AbSGRQcJ>; Thu, 18 Jul 2002 12:32:09 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1027009764.3d36ece430d75@www.mailshell.com> 
-References: <1027009764.3d36ece430d75@www.mailshell.com> 
-To: linux@davidtrott.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PPP_DEFLATE and CONFIG_ZLIB_FS_INFLATE cannot both be compiled directly into the kernel. 
-Mime-Version: 1.0
+	id <S318251AbSGRQY3>; Thu, 18 Jul 2002 12:24:29 -0400
+Received: from mail.storm.ca ([209.87.239.66]:25744 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S318227AbSGRQY2>;
+	Thu, 18 Jul 2002 12:24:28 -0400
+Message-ID: <3D36DF91.593F6F65@storm.ca>
+Date: Thu, 18 Jul 2002 11:32:33 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: close return value
+References: <Pine.LNX.3.95.1020718104807.19207A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 18 Jul 2002 17:35:08 +0100
-Message-ID: <14518.1027010108@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" wrote:
+> 
+> On 18 Jul 2002, Patrick J. LoPresti wrote:
+> 
+> > Pete Zaitcev <zaitcev@redhat.com> writes:
+> >
+> > > The problem with errors from close() is that NOTHING SMART can be
+> > > done by the application when it receives it.
+> >
+> > This is like saying "nothing smart" can be done when write() returns
+> > ENOSPC.  Such statements are either trivially true or blatantly false,
+> > depending on what you mean by "smart".
+> >
+> > Failures happen.  They can happen on write(), they can happen on
+> > close(), and they can happen on any system call for which the API
+> > allows it.  There is no difference!  Your application either deals
+> > with them and is correct or fails to deal with them and is broken.
+> >
+> > If the API allows an error return, you *must* check for it, period.
+> [SNIPPED..]
+> 
+> Well no. Many procedures are called for effect. When is the last
+> time you checked the return-value of printf() or puts()? If your
+> code does this it's wasting CPU cycles.
 
-linux@davidtrott.com said:
-> [1.] One line summary of the problem:
-> CONFIG_PPP_DEFLATE and CONFIG_ZLIB_FS_INFLATE cannot both be compiled
-> directly into the kernel. 
-
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/dwmw2/shared-zlib/
-
-It'll be submitted to Marcelo for 2.4.20-pre1.
-
---
-dwmw2
-
-
+There's a classic paper on this:
+http://www.apocalypse.org/pub/u/paul/docs/canthappen.html

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131061AbQLQAKF>; Sat, 16 Dec 2000 19:10:05 -0500
+	id <S131080AbQLQAO4>; Sat, 16 Dec 2000 19:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131080AbQLQAJz>; Sat, 16 Dec 2000 19:09:55 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:47869 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S131061AbQLQAJk>; Sat, 16 Dec 2000 19:09:40 -0500
-Date: Sat, 16 Dec 2000 19:47:23 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: John Covici <covici@ccs.covici.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too problem in 2.2.18
-Message-ID: <20001216194723.E2049@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	John Covici <covici@ccs.covici.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012161828180.628-100000@ccs.covici.com>
+	id <S131129AbQLQAOf>; Sat, 16 Dec 2000 19:14:35 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:17422 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131080AbQLQAOc>; Sat, 16 Dec 2000 19:14:32 -0500
+Date: Sat, 16 Dec 2000 17:43:51 -0600
+To: ferret@phonewave.net
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Linus's include file strategy redux
+Message-ID: <20001216174351.N3199@cadcamlab.org>
+In-Reply-To: <20001215195611.L829@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.3.96.1001215193529.19208C-100000@tarot.mentasm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0012161828180.628-100000@ccs.covici.com>; from covici@ccs.covici.com on Sat, Dec 16, 2000 at 06:31:28PM -0500
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <Pine.LNX.3.96.1001215193529.19208C-100000@tarot.mentasm.org>; from ferret@phonewave.net on Fri, Dec 15, 2000 at 07:37:49PM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Dec 16, 2000 at 06:31:28PM -0500, John Covici escreveu:
-> Hi.  I have a RealTech 8139 Ethernet card and I am using kernel
-> 2.2.18.  I tried to use the new driver 8139too as a module, but when
-> doing an insmod or modprobe on the module I got "symbol forparameter
-> debug not found".  There was nothing obvious in the module source, so
-> any assistance would be appreciated.
 
-known bug, try this patch (adjust it to 2.2.18 if needed):
+[ferret@phonewave.net]
+> Do you have an alternative reccomendation? I've shown where the
+> symlink method WILL fail. You disagree that having the configured
+> headers copied is a workable idea. What else is there?
 
-diff -dur linux-2.4.0-test12-clean/drivers/net/8139too.c linux-2.4.0-test12-fixed/drivers/net/8139too.c
---- linux-2.4.0-test12-clean/drivers/net/8139too.c      Sun Dec 10 12:55:42 2000
-+++ linux-2.4.0-test12-fixed/drivers/net/8139too.c      Sun Dec 10 14:45:20 2000
-@@ -74,6 +74,8 @@
+4.5 more megabytes, per kernel, on my root filesystem.  (That's *after*
+pruning the extra include/asm-*/'s.)  Thanks but no thanks.
 
-                Tobias Ringström - Rx interrupt status checking suggestion
+Symlinks fail only if you move or delete your tree.  By doing that, you
+have proven that you actually know what and where your kernel sources
+are, which in turn is strong evidence that you are not in need of those
+"External Module Compiling for Dummies" scripts.
 
-+               Gerard Sharp - bug fix for MODULE_PARM
-+
-        Submitting bug reports:
+Conversely, by actually trusting a random script to compile an external
+module unaided, the user is all but declaring himself incapable of
+messing around with the /usr/src/linux that came pre-installed.
 
-                "rtl8139-diag -mmmaaavvveefN" output
-@@ -536,7 +538,9 @@
- MODULE_DESCRIPTION ("RealTek RTL-8139 Fast Ethernet driver");
- MODULE_PARM (multicast_filter_limit, "i");
- MODULE_PARM (max_interrupt_work, "i");
-+#ifdef RTL8139_DEBUG
- MODULE_PARM (debug, "i");
-+#endif /*RTL8139_DEBUG*/
- MODULE_PARM (media, "1-" __MODULE_STRING(8) "i");
-
- static int read_eeprom (void *ioaddr, int location, int addr_len);
-diff -dur linux-2.4.0-test12-clean/fs/ntfs/fs.c linux-2.4.0-test12-fixed/fs/ntfs/fs.c
-
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

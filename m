@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293482AbSCCGr4>; Sun, 3 Mar 2002 01:47:56 -0500
+	id <S293521AbSCCHWj>; Sun, 3 Mar 2002 02:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293521AbSCCGrr>; Sun, 3 Mar 2002 01:47:47 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:40920 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S293482AbSCCGrh>; Sun, 3 Mar 2002 01:47:37 -0500
-Message-ID: <3C81C6C7.8030902@linuxhq.com>
-Date: Sun, 03 Mar 2002 01:46:31 -0500
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020206
-X-Accept-Language: en-us
+	id <S293522AbSCCHWa>; Sun, 3 Mar 2002 02:22:30 -0500
+Received: from lysimachus.hosting.pacbell.net ([216.100.98.17]:34793 "EHLO
+	lysimachus.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S293521AbSCCHWO>; Sun, 3 Mar 2002 02:22:14 -0500
+From: "Adam Khan" <adam.khan@cavium.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: newbie - netif_rx() issue
+Date: Sat, 2 Mar 2002 23:17:06 -0800
+Message-ID: <000301c1c283$6f406500$4310a8c0@Adamspc>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Stelian Pop <stelian.pop@fr.alcove.com>
-Subject: Re: Linux 2.5.6-pre2 and ALSA Sound
-In-Reply-To: <fa.cgp5alv.114qq93@ifi.uio.no> <fa.hjuh5ov.l223o4@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> On Fri, Mar 01, 2002 at 02:47:39AM -0500, John Weber wrote:
+> Running Linux 7.1 with FreeS/WAN 1.91
 > 
-> 
->>Anyone else having trouble with ALSA YMFPCI?  Everything compiles, but I 
->>can't hear a thing (even with OSS compatibility enabled).
->>
-> 
-> It does work for me at least, on a VAIO C1VE, kernel 2.5.6-pre2.
-> 
-> lspci:
-> 	00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
-> 
-> .config:
-> 	CONFIG_SND=m
-> 	CONFIG_SND_SEQUENCER=m
-> 	CONFIG_SND_OSSEMUL=y
-> 	CONFIG_SND_MIXER_OSS=m
-> 	CONFIG_SND_PCM_OSS=m
-> 	CONFIG_SND_SEQUENCER_OSS=m
-> 
-> Stelian.
-> 
+> I am working on some HW acceleration stuff - Ive got the transmit
+> side working (pings to another machine and receive the response).
+> Ive been working on the receive side - it looks as if the packet
+> received is decrypted correctly and then the netif_rx() routine gets
+> called. I see the message "ipsec_rcv: netif_rx() called" in the logs. 
+> Don't get a response. After the first packet, packet processing seems
+to 
+> get into the receive routine not to the same point.
 
-It does not work for me.  It appears to be working (the apps look like 
-they are playing an MP3, but no sound).
+> I could really use some insight to get this resolved!
+> 
+> Thanks in advance,
+> Adam
+>
 
-.config
-CONFIG_SND=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_YMFPCI=y
-
-lspci:
-Multimedia audio controller: Yamaha Corporation YMF-744B [DS-1S Audio 
-Controller] (rev 02)
-
-(And I know that the default mixer settings are mute... blah,blah).
-
-Any suggestions?
+Adam 
 
 
--- 
-(o- j o h n   e   w e b e r
-//\  http://www.linuxhq.com/people/weber/
-v_/_ john.weber@linuxhq.com
 

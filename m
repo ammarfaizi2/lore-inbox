@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272449AbRI3E3T>; Sun, 30 Sep 2001 00:29:19 -0400
+	id <S272559AbRI3Fn3>; Sun, 30 Sep 2001 01:43:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272473AbRI3E3K>; Sun, 30 Sep 2001 00:29:10 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:60656
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S272449AbRI3E24>; Sun, 30 Sep 2001 00:28:56 -0400
-Date: Sat, 29 Sep 2001 21:29:19 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac17
-Message-ID: <20010929212919.D29756@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010928180102.C23261@mikef-linux.matchmail.com> <E15nL1R-00024V-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272576AbRI3FnT>; Sun, 30 Sep 2001 01:43:19 -0400
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:37595 "EHLO
+	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S272559AbRI3FnI>; Sun, 30 Sep 2001 01:43:08 -0400
+Date: Sat, 29 Sep 2001 22:49:57 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adding a printk in start_secondary breaks 2.4.10, not 2.4.9 ??
+Message-ID: <1076417648.1001803797@[10.10.1.2]>
+In-Reply-To: <E15n24b-0007tz-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.0.5 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E15nL1R-00024V-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 29, 2001 at 03:23:17PM +0100, Alan Cox wrote:
-> > > *	I want to get these in before I import the Linus changes
-> > > 	beyond 2.4.10pre9 which is where the merge currently sits
-> > > 
-> > > 2.4.9-ac17
-> > > o	Fix vfree error on swap off			(Hugh Dickins)
-> > 
-> > Can you give a approx. version no. when ext3 0.9.9 will be merged?
-> 
-> When the ext3 folk ask me to merge it
-> 
+>> FWIW, I still think that means that the console locking changes are
+>> broken  - adding a printk shouldn't panic the kernel. I'll go look at
+>> the console locking changes (*and* fix my disgusting hack ;-) )
+>
+> I suspect the panic has nothing to do with adding the printk, but merely
+> that the timing patterns of your disgusting hack have changed
+>
+> Happy logical analysers 8)
 
-I seem to remember someone mentioning that they send 0.9.9 to you.  Or maybe
-that was their intent...
+OK, you're right ;-) It turned out to be a race between init_idle and
+reschedule_idle, that is a generic bug, but is revealed by the timing
+changes that my printk introduces (both in standard SMP and NUMA
+kernels, if you turn on serial consoles).
+
+See imminent post for a patch. Having fixed the real problem, I can
+now axe that disgusting hack ;-)
+
+Thanks for your help,
+
+Martin.
 
 

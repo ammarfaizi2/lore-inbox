@@ -1,64 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130138AbRAWHUf>; Tue, 23 Jan 2001 02:20:35 -0500
+	id <S130884AbRAWHY5>; Tue, 23 Jan 2001 02:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135522AbRAWHU0>; Tue, 23 Jan 2001 02:20:26 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:4113 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S130138AbRAWHUO>; Tue, 23 Jan 2001 02:20:14 -0500
-Date: Mon, 22 Jan 2001 23:20:08 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <7uDh9dHmw-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.4.30.0101222314360.18469-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136254AbRAWHYr>; Tue, 23 Jan 2001 02:24:47 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:24193 "EHLO kabuki.eyep.net")
+	by vger.kernel.org with ESMTP id <S130320AbRAWHYe>;
+	Tue, 23 Jan 2001 02:24:34 -0500
+Subject: Re: 2.4 and ipmasq modules
+From: Daniel Stone <daniel@kabuki.eyep.net>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Rusty Russell <rusty@linuxcare.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010122180158.B24670@vitelus.com>
+In-Reply-To: <20010120144616.A16843@vitelus.com> <E14KsZI-0006IU-00@halfway> 
+	 <20010122180158.B24670@vitelus.com>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 23 Jan 2001 18:29:34 +1100
+Mime-Version: 1.0
+Message-Id: <E14Kxtc-0000KT-00@kabuki.eyep.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Jan 2001, Kai Henningsen wrote:
+On 22 Jan 2001 18:01:58 -0800, Aaron Lehmann wrote:
+> On Tue, Jan 23, 2001 at 12:48:20PM +1100, Rusty Russell wrote:
+> > Those who berated Aaron for not wanting to upgrade: he is the Debian
+> > maintainer for crashme, gtk-theme-switch, koules, pngcrush, and
+> > xdaliclock.  By wasting his time making him convert a perfectly
+> > working system, you are taking away time from those projects.  I'd
+> > rather see him spend time on Cool Stuff(TM) which benefits all of us.
 
-> dean-list-linux-kernel@arctic.org (dean gaudet)  wrote on 18.01.01 in <Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>:
->
-> > i'm pretty sure the actual use of pipelining is pretty disappointing.
-> > the work i did in apache preceded the widespread use of HTTP/1.1 and we
->
-> What widespread use of HTTP/1.1?
->
-> I justtried the following excercise:
->
-> Request a nonexistant page with HTTP/1.1 syntax.
->
-> a. Directly from Apache: I get a nice chunked HTTP/1.1 answer.
-> b. Via Squid: I get a plain HTTP/1.0 answer.
->
-> As long as not even Squid talks 1.1, how can we expect browsers to do it?
->
-> WebMUX? In a thousand years perhaps.
+I don't use any of that :P
 
-what's the widespread use of ECN?  or SACK when that was first put in?
-what about ipchains before 2.2 was released?
+> Thank you for your support, but it seems clear that they were right.
+> I changed the kernel settings to have pure netfilter configuration,
+> read the NAT-HOWTO, and followed its instructions. I reccomend that any
+> others still trying to use the 2.[02].x style interfaces do the same.
 
-why bother being the first to implement anything new, might as well wait
-for the commercial folks to put it into a product and spread it wide and
-far eh?
+Hallelujiah, brother!
 
-i'm pretty sure i said that it was our (the apache group's) position that
-we wanted as perfect as possible of a pipelining implementation so that
-should someone finally do a client-side version then there wouldn't be
-apache bottlenecks in the way.  i still think that's the right attitude.
-if we'd left the packet boundaries in there then there wouldn't even be
-motivation to bother doing a client-side pipelining implementation,
-there'd be little or no benefit.
+> netfilter seems not only much cleaner than ipchains or ipfwadm, but also
+> much more powerful. I read into the HOWTO a bit and was very impressed
+> by the capabilities. In particular, it's nice to have port forwarding
+> integrated with NAT rather than as a seperate chunk of kernel code using
+> different userspace tools.
 
-btw, HTTP/1.1 proxying is more challenging than HTTP/1.0 proxying which is
-probably why squid doesn't support it yet (nor does the apache proxy
-module).
+Among other things. It originally started out having NAT and filtering
+controlled by two different userspace tools - iptables and ipnatctl, but
+they were eventually merged. 
 
--dean
+> I hope that netfilter will last longer than the last two packet
+> filtering/mangling/masquerading mechanisms. :)
+
+
+Looking at something ages ago that I now cannot find, Rusty apparently
+realised that ipchains was wrong when he was writing it; no such
+admission (at least, that I know about) yet.
+
+> P.S.: The only thing I did not get working successfully was IRC DCC. I
+
+> sent a bug report to the maintainer of the patch from the
+> patch-o-matic, but did not recieve an immediate response, so I'll
+> include it below in case anyone else has any ideas.
+> _______________________________________________________________________________
+> 
+> >From aaronl@vitelus.com Sun Jan 21 00:44:17 2001
+> Date: Sun, 21 Jan 2001 00:44:17 -0800
+> From: Aaron Lehmann <aaronl@vitelus.com>
+> To: laforge@gnumonks.org
+> Subject: irc-conntrack-nat doesn't work for me
+> 
+> I applied irc-conntrack-nat from iptables-1.2's patch-o-matic onto a
+> Linux 2.4.0 kernel with XFS support. I tried several different IRC
+> clients on the sending end (which was of course behind this NAT box)
+> and different IRC servers (all on port 6667). On the recieving end, I
+> would always get:
+> 
+> -:- DCC GET request from aaronl_[aaronl@vitelus.com
+>           [64.81.36.147:33989]] 150 bytes /* That's the NAT box's IP */
+> -:- DCC Unable to create connection: Connection refused
+> 
+> Any idea what's wrong? I have irc-conntrack-nat compiled into the
+> kernel.
+
+
+Well, it's NAT'ing it OK. Are you sure you have a rule like the
+following:
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+?
+
+d
+
+PS: If you're trying to NAT a DCC RESUME, don't even bother.
+
+-- 
+Daniel Stone
+Linux Kernel Developer
+daniel@kabuki.eyep.net
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
+K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
+D+ G e->++ h!(+) r+(%) y? UF++
+------END GEEK CODE BLOCK------
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

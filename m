@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271828AbTGXXdc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 19:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271829AbTGXXdc
+	id S271840AbTGXXlU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 19:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271841AbTGXXlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 19:33:32 -0400
-Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:20998 "EHLO
-	zork.ruvolo.net") by vger.kernel.org with ESMTP id S271828AbTGXXda
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 19:33:30 -0400
-Date: Thu, 24 Jul 2003 16:48:37 -0700
-From: Chris Ruvolo <chris+lkml@ruvolo.net>
-To: Ben Collins <bcollins@debian.org>
-Cc: gaxt <gaxt@rogers.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: Firewire
-Message-ID: <20030724234837.GC23196@ruvolo.net>
-Mail-Followup-To: Ben Collins <bcollins@debian.org>, gaxt <gaxt@rogers.com>,
-	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <20030724231421.GQ1512@phunnypharm.org>
+	Thu, 24 Jul 2003 19:41:20 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:40598 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S271840AbTGXXlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 19:41:14 -0400
+Subject: Re: [2.6.0-test1] ACPI slowdown
+From: "Bryan D. Stine" <admin@kentonet.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030724234114.GB434@elf.ucw.cz>
+References: <878yqpptez.fsf@deneb.enyo.de> <bfn3rj$lql$1@gatekeeper.tmr.com>
+	 <1059002183.1484.18.camel@gaia>  <20030724234114.GB434@elf.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3MUG2gI+AN5/uNwO2MZy"
+Organization: KentoNET Communications
+Message-Id: <1059090871.12101.0.camel@gaia>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
-Content-Disposition: inline
-In-Reply-To: <20030724231421.GQ1512@phunnypharm.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 24 Jul 2003 19:54:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---i7F3eY7HS/tUJxUd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-3MUG2gI+AN5/uNwO2MZy
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 24, 2003 at 07:14:21PM -0400, Ben Collins wrote:
-> I've seen this before, but I can never reproduce it. Not with i386, nor
-> with sparc64, and not running 2.4 or 2.6. I know what is happening
-> though. The response packet is getting processed before the status
-> packet (IOW, the ack for your request is getting back after the actual
-> response to your request).
+Thanks for that. Good to know I can control the termal limits now.
+
+On Thu, 2003-07-24 at 19:41, Pavel Machek wrote:
+> Hi!
 >=20
-> Not sure how that is possible, but I suspect it's just a bit of logic
-> that needs to be applied, or queue the replies waiting for the ack.
+> > I had that problem with my old Athlon TBird. Changing config to make
+> > thermal a module and not loading it solved my problem. I don't know how
+> > to change the thermal limits from within the system using ACPI.
+>=20
+> echo "83:83:55:70:0" > /proc/acpi/thermal_zone/THRM/trip_points
+>=20
+> 								Pavel
 
-That is very odd, considering it works under 2.4.  Is it possible the
-pending_packets list isn't being updated?  Would the verbose debug option
-help?
-
-Thanks for looking into this.
--Chris
-
---i7F3eY7HS/tUJxUd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-3MUG2gI+AN5/uNwO2MZy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/IHBVKO6EG1hc77ERAnojAKDD2swqDRleTa6GH0Wk8xYSQ6YNiACgubWa
-EViVQzFru7TbcytnRLlXeqo=
-=EvQq
+iD8DBQA/IHG24Cdq/Vbot6MRAkQUAJ0e+wzC01tTHDkgIl9WVQtAylguhgCgoRYF
+yf9OuGlvvmpzZb4iPRGSEoc=
+=HGHc
 -----END PGP SIGNATURE-----
 
---i7F3eY7HS/tUJxUd--
+--=-3MUG2gI+AN5/uNwO2MZy--
+

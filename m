@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbUK2XNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUK2XSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUK2XNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 18:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbUK2XMA
+	id S261857AbUK2XSM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 18:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUK2XRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 18:12:00 -0500
-Received: from smtp.e7even.com ([83.151.192.5]:21966 "HELO smtp.e7even.com")
-	by vger.kernel.org with SMTP id S261856AbUK2XLo (ORCPT
+	Mon, 29 Nov 2004 18:17:02 -0500
+Received: from mail.dif.dk ([193.138.115.101]:3265 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261856AbUK2XOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 18:11:44 -0500
-Message-ID: <41ABACA6.2090900@st-andrews.ac.uk>
-Date: Mon, 29 Nov 2004 23:11:34 +0000
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Mon, 29 Nov 2004 18:14:09 -0500
+Date: Tue, 30 Nov 2004 00:23:51 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Gadi Oxman <gadio@netvision.net.il>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2/2] ide-tape: small cleanups - handle   copy_to|from_user()
+ failures
+In-Reply-To: <41ABA6EE.6080502@tmr.com>
+Message-ID: <Pine.LNX.4.61.0411300018240.3389@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost><Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost>
+ <1101663266.16761.43.camel@localhost.localdomain> <41ABA6EE.6080502@tmr.com>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-       reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
-In-Reply-To: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+On Mon, 29 Nov 2004, Bill Davidsen wrote:
 
->... or just people groping in /etc/passwd wanting to find the whole
->entry (not just one field),
->
-the whole entry for joe would be
-/etc/passwd/joe
+> Alan Cox wrote:
+> > On Sul, 2004-11-28 at 16:32, Jesper Juhl wrote:
+> > 
+> > > #endif /* IDETAPE_DEBUG_BUGS */
+> > > 		count = min((unsigned int)(bh->b_size -
+> > > atomic_read(&bh->b_count)), (unsigned int)n);
+> > > -		copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf,
+> > > count);
+> > > +		if (copy_from_user(bh->b_data + atomic_read(&bh->b_count),
+> > > buf, count))
+> > > +			return -EFAULT;
+> > > 		n -= count;
+> > > 		atomic_add(count, &bh->b_count);
+> > > 		buf += count;
+> > 
+> > 
+> > If you do this then you don't fix up tape->bh for further operations.
+> > Have you tested these changes including the I/O errors ?
+> 
+> But (a) do you have enough information to backout or fixup correctly? And (b)
+> won't this result in the whole i/o being treated as invalid?
+> 
+That was my original thought "if copy_from_user fails then something 
+really bad is happening and we should just fail the entire IO operation".
+Then when Alan pointed out that I'd probably be messing up tape->bh I got 
+nervous becourse it seemed to me that he probably had a point, but when I 
+went back and looked at the code again I ended up with the conclusion that 
+even if we did mess it up it wouldn't actually matter since we'll be 
+failing the entire IO since I also added code in the caller to test for 
+the <0 return from this function and abort the entire operation in that 
+case.
+Alan: Would you mind explaining why this is not safe? If there's something 
+I'm missing I'd really like to know.
 
-> or perhaps look at the 15th character of the
->entry for John Doe.
->  
->
-something like
-/etc/passwd[fullname = "John Doe"]/character[15]
-? what is so mad about that?  Peter
+-- 
+Jesper Juhl
+
+

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUHWPeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265224AbUHWPeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUHWPeF (ORCPT <rfc822;willy@w.ods.org>);
+	id S265224AbUHWPeF (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Aug 2004 11:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUHWPbl
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264791AbUHWPbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 11:31:41 -0400
-Received: from imap.gmx.net ([213.165.64.20]:34502 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265098AbUHWP3U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 11:29:20 -0400
-Date: Mon, 23 Aug 2004 17:29:19 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: arjanv@redhat.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [PATCH] e1000 - Use vmalloc for data structures not shared
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <15654.1093274959@www31.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 11:31:10 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:11527 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265053AbUHWPZW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 11:25:22 -0400
+Date: Mon, 23 Aug 2004 17:25:40 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Lei Yang <leiyang@nec-labs.com>
+Cc: root@chaos.analogic.com, Lee Revell <rlrevell@joe-job.com>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problems compiling kernel modules
+Message-ID: <20040823152540.GA8791@mars.ravnborg.org>
+Mail-Followup-To: Lei Yang <leiyang@nec-labs.com>,
+	root@chaos.analogic.com, Lee Revell <rlrevell@joe-job.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040821214402.GA7266@mars.ravnborg.org> <4127A662.2090708@nec-labs.com> <20040821215055.GB7266@mars.ravnborg.org> <4127B49A.6080305@nec-labs.com> <1093121824.854.167.camel@krustophenia.net> <4129FAC8.3040502@nec-labs.com> <Pine.LNX.4.53.0408231018001.7732@chaos> <412A01AC.5020108@nec-labs.com> <Pine.LNX.4.53.0408231046190.7816@chaos> <412A077C.1080501@nec-labs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412A077C.1080501@nec-labs.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When you bring an e1000 interface up with a large MTU value (eg 3000 or
-9000), we were seeing allocation failures [1].
-
-Perhaps this is relevant here?
-
---- [1]
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109006245518382&w=2
-
----
-
-On Thu, 2004-07-29 at 18:01, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1807.39.3, 2004/07/29 12:01:46-04:00, ganesh.venkatesan@intel
-.com
+On Mon, Aug 23, 2004 at 11:04:28AM -0400, Lei Yang wrote:
 > 
->  [PATCH] e1000 - Use vmalloc for data structures not shared
+> Sort of, I am trying to make a usr mode library work with kernel. 
+> However, floating point operation is necessary in the algorithm. You 
+> mean that this can never be done? Is changing floating-point the only 
+> thing I can do now?
 
-eh why? You are aware that vmalloc'd datastructures are slower during
-use (due to TLB overhead) right ?
-These structures also don't look THAT big on first sight....
+Before helping out more with your compile issue please explain in propser
+detail what you try to achive.
+Reading the above I get the impression you thing a library will run
+faster when running in kernel context - and thats what you try to do.
 
--- 
-Daniel J Blueman
+If this is your plan then the answer is: Drop it.
 
-Supergünstige DSL-Tarife + WLAN-Router für 0,- EUR*
-Jetzt zu GMX wechseln und sparen http://www.gmx.net/de/go/dsl
-
+	Sam

@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263944AbTFDT0H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 15:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTFDT0H
+	id S263971AbTFDT3e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 15:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbTFDT3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 15:26:07 -0400
-Received: from mail1.dmailman.com ([64.211.202.75]:28946 "EHLO dmailman.com")
-	by vger.kernel.org with ESMTP id S263928AbTFDT0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 15:26:05 -0400
-From: "mazi oke" <kaloukk2002@dmailman.com>
-Subject: private
-To: kaloukk2002@dmailman.com
-X-Mailer: CommuniGate Pro Web Mailer v.3.5.7
-Date: Wed, 04 Jun 2003 15:54:04 -0400
-Message-ID: <web-8102589@dmailman.com>
+	Wed, 4 Jun 2003 15:29:33 -0400
+Received: from fyserv1.fy.chalmers.se ([129.16.110.66]:8143 "EHLO
+	fyserv1.fy.chalmers.se") by vger.kernel.org with ESMTP
+	id S263971AbTFDT33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 15:29:29 -0400
+Message-ID: <3EDE4B96.21DBA04B@fy.chalmers.se>
+Date: Wed, 04 Jun 2003 21:42:14 +0200
+From: Andy Polyakov <appro@fy.chalmers.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20-xfs i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+CC: axboe@suse.de
+Subject: Re: 2.5.69-70 ide-cd to guarantee fault-free CD/DVD burning experience?
+References: <3ED4681A.738DA3C6@fy.chalmers.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KALOU M OKE 
-Tel 00229-981193 
-fax 00229-323442 
-E-mail:mazioke@caramail.com 
+> ... accept ... patch which makes it possible to access the
+> sense data returned by IDE CD/DVD units from user-land with SG_IO ioctl.
 
-                   (PRIVATE) 
+The originally proposed modifications were indeed sufficient to get
+DVD+RW units working, but apparently not DVD-RW ones:-( Note though
+that [another] problem discussed here is not specific to DVD-RW
+recordings. It's generic bug/deficiency. Once a packet commands is
+terminated with an error condition the whole bio should be purged at
+once and not only the first chunk as it's currently implemented.
 
-Hello Dear, 
+Attached patch should be considered as a "denoting" patch, not
+"final." Well, because it was verified with single application,
+growisofs of dvd+rw-tools, which uses mmap-ed, in other words 
+page-aligned, buffer(s). I mean I'm not 100% sure if hard_nr_sectors
+is appropriate even for general case of 4-byte aligned buffers...
+Then if-statement should probably be extended even to REQ_PC case...
 
-I hereby humbly write to solicit for your cooperation and assistance in a mutual beneficial Business transaction that required absolute confidentiality This may come to you as asurprise as we have never meet Before, I got your contact from international Journal which I saw in the office of an International consultant. 
-
-I am the former minister of commerce and industry in Sierra Leone during the regime of the former head of state major Jonny Koromah. The rebel leader who was later forced by the ECOMOG forces and restore the legitimate government of Ahmed Tijan kahba who then ordered for the retirement of all the ministers, top Government officials and some army Generals for alleged corruption and mismanagement of public fund. 
-
-After my retirement, there was civil war in my Country 
-Sierra Leone as a result of that I decided to leave my 
-Country with the help of a friend who is a diplomat in 
-Republic of Benin Embassy in Sierra Leone. 
-
-Now I am in Cotonuo, Republic of Benin, there is available cash of (US18.5 Million Dollars) Eighteen Million Five Hundred Thousand Dollars which has been tactfully secured in a reputable security company, here in Cotonou. This money was then deposited during my tenure as a minister. 
-
-I need your assistant to secure and invest this money in your Country.I don't want to invest this money in this sub region due to poor economic policy, and also for security reasons. 
-
-It is my desire to invest this money in Agriculture 
-Industry or any other business you may suggest. 
-
-Please I need your help, is true we have not meet before but I believe I can trust a person with your kind of reputation with whom I can build a solid bus! iness foundation 
-
-I will compensate you with 15% of the total sum; while the remaining will be for investment according to your valuable advise. If you are interested and ready to assist, contact me immediately on this number: Tel 00229-981193 fax 00229- 
-323442 
-E-mail:mazioke@caramail.com 
-
-Thanks and God bless 
-
-Kalou M. Oke. 
-__________________________________________________________
-Get your Private, Free Email from HTTP://www.DmailMan.Com
+Cheers. A.
+8<--------8<--------8<--------8<--------8<--------8<--------8<--------
+--- ./drivers/ide/ide-cd.c.orig Tue Jun  3 12:21:56 2003
++++ ./drivers/ide/ide-cd.c      Wed Jun  4 16:14:41 2003
+@@ -657,6 +657,9 @@
+        struct request *rq = HWGROUP(drive)->rq;
+        int nsectors = rq->hard_cur_sectors;
+ 
++       if (rq->flags&REQ_BLOCK_PC)
++               nsectors = rq->hard_nr_sectors;	/* purge it all ... */
++       else
+        if ((rq->flags & REQ_SENSE) && uptodate) {
+                /*
+                 * For REQ_SENSE, "rq->buffer" points to the original failed

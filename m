@@ -1,58 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132208AbQKWAHI>; Wed, 22 Nov 2000 19:07:08 -0500
+        id <S132032AbQKWAKI>; Wed, 22 Nov 2000 19:10:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132230AbQKWAG6>; Wed, 22 Nov 2000 19:06:58 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:23827 "EHLO smtp1.cern.ch")
-        by vger.kernel.org with ESMTP id <S132208AbQKWAGt>;
-        Wed, 22 Nov 2000 19:06:49 -0500
-To: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-Cc: Mitchell Blank Jr <mitch@sfgoth.com>,
-        Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>
-Subject: Re: [NEW DRIVER] firestream
-In-Reply-To: <200011222305.AAA30264@cave.bitwizard.nl>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 23 Nov 2000 00:35:42 +0100
-In-Reply-To: R.E.Wolff@bitwizard.nl's message of "Thu, 23 Nov 2000 00:05:18 +0100 (MET)"
-Message-ID: <d366lflgvl.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+        id <S132095AbQKWAJ5>; Wed, 22 Nov 2000 19:09:57 -0500
+Received: from Mail.Mankato.MSUS.EDU ([134.29.1.12]:57867 "EHLO mail.mnsu.edu")
+        by vger.kernel.org with ESMTP id <S132032AbQKWAJl>;
+        Wed, 22 Nov 2000 19:09:41 -0500
+Message-ID: <3A1C593A.253A2707@mnsu.edu>
+Date: Wed, 22 Nov 2000 17:39:38 -0600
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Organization: Minnesota State University, Mankato
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        debian-devel@lists.debian.org, submit@bugs.debian.org, dhd@debian.org
+Subject: netatalk refuses to start with ethernet aliasing
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Rogier" == Rogier Wolff <R.E.Wolff@bitwizard.nl> writes:
+Hello,
 
-Rogier> Mitchell Blank Jr wrote:
->> First, I'd like to make a couple points about driver style that I'm
->> trying to move towards with the ATM drivers.  You're free to take
->> them or leave them, but I want to eventually move the tree in this
->> direction.  * I don't like header files that define the registers
->> of the chip - since the header file is only included in the
->> driver's .c file you might as well just put the definitions there
->> (unless, of course, there is good reason to think that the
->> registers will be used in multiple drivers - unlikely in this case)
->> Having a seperate header file just serves to hamper searching
->> around the driver and cluttering the directory.
+I'm using Debian Potato with linux-2.2.18pre22.  This version of Potato
+uses netatalk (1.4b2+asun2.1.3).
 
-Rogier> I disagree vehemently.
+Everything works just fine if I have the two interfaces:
 
-Rogier> The header file should have 'static things' that for example a
-Rogier> competing driver for the same chip could also use. The "driver
-Rogier> defines" should theoretically be in a separate file. This
-Rogier> rarely happens.
+lo
+eth0
 
-I guess this boils down to personal preference, I like to stick
-register definitions in a seperate file as well.
+As soon as I alias eth0 and have the interfaces:
 
-I think the most important issue is when doing header files to make
-sure they go with the driver code and not in include/linux unless
-there really is a reason to expose them to user space. No reason to
-export register definitions for Ethernet cards down there.
+lo
+eth0
+eth0:0
+eth0:1
+eth0:2
 
-Jes
+netatalk refuses to start and I receive this in syslog:
+
+Nov 22 17:01:23 files atalkd[177]: restart (1.4b2+asun2.1.3)
+Nov 22 17:01:24 files atalkd[177]: zip_getnetinfo for eth0
+Nov 22 17:01:25 files atalkd[177]: zip gnireply from 275.241 (eth0 12)
+Nov 22 17:01:26 files atalkd[177]: zip_packet configured eth0 from
+275.241
+Nov 22 17:01:26 files atalkd[177]: setifaddr: eth0:0: No such device
+Nov 22 17:01:26 files atalkd[177]: difaddr(65280.0): No such device
+Nov 22 17:01:26 files atalkd[177]: difaddr(0.0): No such device
+Nov 22 17:01:26 files atalkd[177]: difaddr(0.0): No such device
+Nov 22 17:01:26 files atalkd: difaddr(0.0): No such device
+Nov 22 17:01:26 files last message repeated 2 times
+Nov 22 17:01:27 files afpd[180]: main: atp_open: Cannot assign requested
+address
+
+
+My current work around is:
+
+1. start the interfaces:
+lo
+eth0
+
+2. start netatalk
+
+3. create my eth0 aliases.
+
+This works fine... but is a little strange.
+
+Thanks for your help,
+
+Jeffrey Hundstad
+jeffrey.hundstad@mnsu.edu
+Minnesota State University, Mankato
+http://www.mnsu.edu/jeffrey/
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTGTGYu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 02:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTGTGYu
+	id S263103AbTGTHb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 03:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTGTHbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 02:24:50 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45583
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262290AbTGTGYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 02:24:49 -0400
-Date: Sat, 19 Jul 2003 23:32:18 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linux Kernel Mailing List <lkml@lrsehosting.com>
-cc: john@grabjohn.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       lm@bitmover.com, rms@gnu.org, Valdis.Kletnieks@vt.edu
-Subject: Re: [OT] HURD vs Linux/HURD
-In-Reply-To: <16904.68.170.240.58.1058627770.squirrel@www.lrsehosting.com>
-Message-ID: <Pine.LNX.4.10.10307192331550.21266-100000@master.linux-ide.org>
+	Sun, 20 Jul 2003 03:31:25 -0400
+Received: from mailf.telia.com ([194.22.194.25]:47078 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id S263187AbTGTHbV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 03:31:21 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: Software suspend testing in 2.6.0-test1
+References: <m2wueh2axz.fsf@telia.com> <20030717200039.GA227@elf.ucw.cz>
+	<20030717130906.0717b30d.akpm@osdl.org> <m2d6g8cg06.fsf@telia.com>
+	<20030718032433.4b6b9281.akpm@osdl.org>
+	<20030718152205.GA407@elf.ucw.cz> <m2el0nvnhm.fsf@telia.com>
+	<20030718094542.07b2685a.akpm@osdl.org> <m2oezrppxo.fsf@telia.com>
+	<20030718131527.7cf4ca5e.akpm@osdl.org> <m2wuee9hdo.fsf@telia.com>
+	<20030719180105.53b1226c.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 20 Jul 2003 09:45:52 +0200
+In-Reply-To: <20030719180105.53b1226c.akpm@osdl.org>
+Message-ID: <m2wuedvdxr.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
-Did somebody mention IDE ?
-
-Where?
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sat, 19 Jul 2003, Linux Kernel Mailing List wrote:
-
-> >> >> If everyone spent the time replacing bitkeeper instead of beating
-> >> up Larry they'd get a lot further.
-> >> > Linux isn't the only free operating system in existance, and
-> >> although BK seems to suit the requirements of a lot of Linux
-> >> developers, that doesn't mean that it meets the requirements of
-> >> other free OS
-> >> > development teams.
-> >> > I strongly suspect that we'll see a free SCM developed after a few
-> >> more years of HURD development, for example.
-> >> > Doesn't mean we'll switch to it, though, we haven't switched to my
-> >> bug database, have we?  :-).
-> >> > John.
-> >>
-> >> Given that large chunks of HURD come from Linux, please refer to it as
-> >> Linux/HURD.
+> Peter Osterlund <petero2@telia.com> wrote:
 > >
-> > What HURD code comes from Linux?  GNU/Mach uses code from Linux, but not
-> > HURD as far as I know.
-> >
+> > I have tried the change, but the writeout is still very slow. (Maybe
+> > somewhat faster than the original code, but far from being limited by
+> > disk bandwidth.)
 > 
-> Hi John!
->   Go take a look at their networking, and IDE code.
-> 
-> 
-> -----------------------------------------
-> This email was sent using SquirrelMail.
->    "Webmail for nuts!"
-> http://squirrelmail.org/
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Did you fix swsusp to leave kswapd unrefrigerated during the shrink?  If
+> not, the change wouldn't make any difference.
 
+Yes, handled by this part of the patch:
+
+@@ -976,10 +983,11 @@
+ 	 * us from recursively trying to free more memory as we're
+ 	 * trying to free the first piece of memory in the first place).
+ 	 */
+-	tsk->flags |= PF_MEMALLOC|PF_KSWAPD;
++	tsk->flags |= PF_MEMALLOC|PF_KSWAPD|PF_IOTHREAD;
+
+Without that change, nothing got swapped to disk. It looks like
+__alloc_pages(GFP_ATOMIC,...) only wakes up the kswapd threads. Is the
+pdflush threads needed during memory freeing? My patch leaves them
+unrefrigerated too, but Pavel said that wasn't safe for some reason.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

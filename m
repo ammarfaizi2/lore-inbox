@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131275AbRCWRRT>; Fri, 23 Mar 2001 12:17:19 -0500
+	id <S131254AbRCWRST>; Fri, 23 Mar 2001 12:18:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131293AbRCWRRK>; Fri, 23 Mar 2001 12:17:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19206 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131269AbRCWRQ4>;
-	Fri, 23 Mar 2001 12:16:56 -0500
-Date: Fri, 23 Mar 2001 17:16:13 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Bryan Henderson <hbryan@us.ibm.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt)
-Message-ID: <20010323171613.H5491@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <OF791BBBC5.E3FCBEEE-ON87256A18.005BA3B7@LocalDomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF791BBBC5.E3FCBEEE-ON87256A18.005BA3B7@LocalDomain>; from hbryan@us.ibm.com on Fri, Mar 23, 2001 at 09:56:47AM -0700
+	id <S131260AbRCWRR7>; Fri, 23 Mar 2001 12:17:59 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57096 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131254AbRCWRRv>; Fri, 23 Mar 2001 12:17:51 -0500
+Date: Fri, 23 Mar 2001 12:29:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org
+Subject: Re: regression testing 
+In-Reply-To: <200103231500.f2NF07xY001127@pincoya.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.21.0103231228420.29682-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 09:56:47AM -0700, Bryan Henderson wrote:
-> There's a lot of cool simplicity in this, both in implementation and 
-> application, but it leaves something to be desired in functionality.  This 
-> is partly because the price you pay for being able to use existing, 
-> well-worn Unix interfaces is the ancient limitations of those interfaces 
-> -- like the inability to return adequate error information.
+On Fri, 23 Mar 2001, Horst von Brand wrote:
+> Jonathan Morton <chromi@cyberspace.org> said:
+> > >- automated heavy stress testing
+> 
+> > This would be an interesting one to me, from a benchmarking POV.  I'd like
+> > to know what my hardware can really do, for one thing - it's all very well
+> > saying this box can do X Whetstones and has a 100Mbit NIC, but it's a much
+> > more solid thing to be able to say "my box handled the official Foobar
+> > stress-test in Y hours, handling Z widgets per second".
+> 
+> Which would tell you exactly that, nothing more and nothing less.
 
-hmm... open("defrag-error") first, then read from it if it fails?
+But if we get 500 people to test _different_ things on a regular
+basis, we might be able to get more meaningful results.
 
-> effective the defrag was?  And bear in mind that multiple processes may be 
-> issuing commands to /mnt/control simultaneously.
+regards,
 
-you should probably serialise them.  you probably have to do this anyway.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-> With ioctl, I can easily match a response of any kind to a request.  I can 
-> even return an English text message if I want to be friendly.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-yes, one of the nice plan9 changes was the change to returning strings
-instead of numerics.
-
--- 
-Revolutions do not require corporate support.

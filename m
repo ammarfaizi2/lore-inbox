@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264885AbSLLRZz>; Thu, 12 Dec 2002 12:25:55 -0500
+	id <S264844AbSLLRWM>; Thu, 12 Dec 2002 12:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbSLLRZz>; Thu, 12 Dec 2002 12:25:55 -0500
-Received: from [203.199.93.15] ([203.199.93.15]:21253 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S264885AbSLLRZw>; Thu, 12 Dec 2002 12:25:52 -0500
-From: "arun4linux" <arun4linux@indiatimes.com>
-Message-Id: <200212121725.WAA28045@WS0005.indiatimes.com>
-To: "Harlan Jillson" <Harlan.Jillson@pathfinderlwd.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "arun4linux" <arun4linux@indiatimes.com>
-Subject: Re: RH 8.0 vs. RH7.3 driver issues
-Date: Thu, 12 Dec 2002 22:50:32 +0530
-X-URL: http://indiatimes.com
-Content-Type: text/plain; charset=us-ascii
+	id <S264853AbSLLRWM>; Thu, 12 Dec 2002 12:22:12 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:56484 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264844AbSLLRWL> convert rfc822-to-8bit; Thu, 12 Dec 2002 12:22:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Schaufler <andreas.schaufler@gmx.de>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: NFS mounted rootfs possible via PCMCIA NIC ?
+Date: Thu, 12 Dec 2002 18:29:41 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200212112253.57325.andreas.schaufler@gmx.de> <3DF7BD7F.85C6FEA0@digeo.com>
+In-Reply-To: <3DF7BD7F.85C6FEA0@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212121829.42237.andreas.schaufler@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HZ value for i686 has been modified from 100 to 512 in RH 8.0.
-If you use this HZ value directly in your driver and , it could be a problem.
-
-Warm Regards
-Arun
-
-"Harlan Jillson" wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-
-hi all,
-I just subscribed to the list, and am looking for some suggestions.
-I have a device driver for a RS485 card that does microlan
-communications between several devices. The driver was written a couple
-of years ago using the 2.2 kernel in RH 6.1. It's was updated for 2.4
-kernel when RH7.3 was released and has been working fine. RH8.0 is
-apparently a different story, as there appears to be problems with
-scheduled timeouts (polling intervals) and maybe some interrupt issues.
-My question is are there any known problems ( RH kernel 2.4.18-3)? I
-know I'm dealing the revamps in the scheduler and timer areas and then
-there's the shift from gcc 2.96 to 3.2. 
-Thanks for any suggestions,
-Harlan
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at http://www.tux.org/lkml/
+> > Hello list,
+> >
+> > I am trying to configure a notebook with a PCMCIA NIC to boot over
+> > network. (kernel 2.4.20)
+>
+> Nope.  The kernel does the NFS thing before bringing up cardbus.
+>
+> This patch worked, back in the 2.4.17 days.  It also fixes some
+> cardbus bugs.  I don't immediately recall what they were.
 
 
+I got the 2.4.17 sources and applied the patch. yenta.c and main.c could not 
+be patched automatically, so I tried to apply it by hand line by line.
+Unfortunately when I boot a kernel compiled witch this modified sources I get 
+an "Unable to handle kernel pagin request at virtual address 0000413d"
 
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+Maybe this patch is to be used on some Pre Version of 2.4.17 ?!?!
 
- Buy the best in Movies at http://www.videos.indiatimes.com
+regards
+- -Andreas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
+iD8DBQE9+MeFhFLSFNIrGmsRAg0HAJ0RBZ/WKDxvv8YXXTLbT7REnqoVowCcC8tL
+sGgZre0DIZOAdFVW6kn56rg=
+=23D5
+-----END PGP SIGNATURE-----
 

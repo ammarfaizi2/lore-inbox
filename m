@@ -1,80 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270749AbUJUOxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270729AbUJUOxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270749AbUJUOxB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269198AbUJUOse
+	id S270729AbUJUOxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270756AbUJUOxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:48:34 -0400
-Received: from speedy.tutby.com ([195.209.41.194]:20617 "EHLO tut.by")
-	by vger.kernel.org with ESMTP id S270728AbUJUOor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:44:47 -0400
-Message-ID: <4177CB5E.7000503@tut.by>
-Date: Thu, 21 Oct 2004 17:44:46 +0300
-From: Yura Pakhuchiy <Cha0sMaster@tut.by>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: be, ru, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: ntfs.ko needs unknown symbol end_iomem (under uml)
-References: <4177BF68.7080707@tut.by> <1098367622.10371.13.camel@imp.csi.cam.ac.uk>
-In-Reply-To: <1098367622.10371.13.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Oct 2004 10:53:45 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44195
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S270729AbUJUOwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:52:02 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <1098368557.27089.3.camel@thomas>
+References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+	 <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
+	 <20041021132717.GA29153@elte.hu>  <1098368557.27089.3.camel@thomas>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098369839.27089.5.camel@thomas>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 16:43:59 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2004-10-21 at 16:22, Thomas Gleixner wrote:
+> On Thu, 2004-10-21 at 15:27, Ingo Molnar wrote:
+> > i have released the -U9 Real-Time Preemption patch, which can be
+> > downloaded from:
+> > 
+> >   http://redhat.com/~mingo/realtime-preempt/
+> > 
+> 
+> impi watchdog conversion to completion api.
 
-Anton Altaparmakov wrote:
-> On Thu, 2004-10-21 at 14:53, Yura Pakhuchiy wrote:
-> 
->>Hi Anton,
->>
->>When I compile ntfs as module for UML I receive during build:
->>*** Warning: "end_iomem" [fs/ntfs/ntfs.ko] undefined!
->>
->>It's ntfs bug or uml bug? Or am I doing something wrong?
-> 
-> 
-> UML is broken.  It defines VMALLOC_START to ((end_iomem +
-> VMALLOC_OFFSET) & ~(VMALLOC_OFFSET-1)) but it clearly does not export
-> end_iomem to modules which means modules cannot use VMALLOC_START.
-> 
-> But ntfs uses VMALLOC_START to determine if a pointer is in kmalloc()-ed
-> memory or vmalloc()-ed memory so if you want to build it as a module you
-> need to fix uml to export end_iomem, i.e. by for example adding:
-> 
-> EXPORT_SYMBOL(end_iomem);
-> 
-> after the end_iomem definition in arch/um/kernel/um_arch.c and the
-> reconfiguring, recbuilding the kernel.
-> 
-> You may wish to report this to LKML / the UML maintainer (after you have
-> made sure that this does actually fix it).
-> 
-> Best regards,
-> 
-> 	Anton
+Sorry, I copied the wrong file to the correct place.
 
-I didn't find UML maintainer in MAINTAINERS, so I send this to
-linux-kernel@vger.kernel.org.
+tglx
 
-I added line that Anton suggested and it's fixed above bug. Patch below.
-
-Best regards,
-	Yura
-
-
---- ntfs-2.6-devel/arch/um/kernel/um_arch.c     2004-10-19 20:50:05.000000000 +0300
-+++ ntfs-2.6-yura/arch/um/kernel/um_arch.c      2004-10-21 17:14:18.000000000 +0300
-@@ -300,6 +300,7 @@ static void __init uml_postsetup(void)
-  /* Set during early boot */
-  unsigned long brk_start;
-  unsigned long end_iomem;
-+EXPORT_SYMBOL(end_iomem);
-
-  #define MIN_VMALLOC (32 * 1024 * 1024)
+diff --exclude='*~' -urN
+2.6.9-rc4-mm1-RT-U9/drivers/char/ipmi/ipmi_watchdog.c
+2.6.9-rc4-mm1-U9-E0/drivers/char/ipmi/ipmi_watchdog.c
+--- 2.6.9-rc4-mm1-RT-U9/drivers/char/ipmi/ipmi_watchdog.c	2004-10-21
+15:47:23.000000000 +0200
++++ 2.6.9-rc4-mm1-U9-E0/drivers/char/ipmi/ipmi_watchdog.c	2004-10-21
+16:25:14.000000000 +0200
+@@ -47,6 +47,7 @@
+ #include <linux/reboot.h>
+ #include <linux/wait.h>
+ #include <linux/poll.h>
++#include <linux/completion.h>
+ #ifdef CONFIG_X86_LOCAL_APIC
+ #include <asm/apic.h>
+ #endif
+@@ -386,16 +387,16 @@
+    when both messages are free. */
+ static atomic_t heartbeat_tofree = ATOMIC_INIT(0);
+ static DECLARE_MUTEX(heartbeat_lock);
+-static DECLARE_MUTEX(heartbeat_wait_lock);
++static DECLARE_COMPLETION(heartbeat_received);
+ static void heartbeat_free_smi(struct ipmi_smi_msg *msg)
+ {
+     if (atomic_dec_and_test(&heartbeat_tofree))
+-	    up(&heartbeat_wait_lock);
++	    complete(&heartbeat_received);
+ }
+ static void heartbeat_free_recv(struct ipmi_recv_msg *msg)
+ {
+     if (atomic_dec_and_test(&heartbeat_tofree))
+-	    up(&heartbeat_wait_lock);
++	    complete(&heartbeat_received);
+ }
+ static struct ipmi_smi_msg heartbeat_smi_msg =
+ {
+@@ -473,7 +474,7 @@
+ 	}
+ 
+ 	/* Wait for the heartbeat to be sent. */
+-	down(&heartbeat_wait_lock);
++	wait_for_completion(&heartbeat_received);
+ 
+ 	if (heartbeat_recv_msg.msg.data[0] != 0) {
+ 	    /* Got an error in the heartbeat response.  It was already
+@@ -944,7 +945,6 @@
+ {
+ 	int rv;
+ 
+-	init_MUTEX_LOCKED(&heartbeat_wait_lock);
+ 	printk(KERN_INFO PFX "driver version "
+ 	       IPMI_WATCHDOG_VERSION "\n");
+ 
 
 

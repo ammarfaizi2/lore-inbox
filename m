@@ -1,95 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSHDWgz>; Sun, 4 Aug 2002 18:36:55 -0400
+	id <S318256AbSHDWkR>; Sun, 4 Aug 2002 18:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318254AbSHDWgz>; Sun, 4 Aug 2002 18:36:55 -0400
-Received: from dsl-213-023-061-042.arcor-ip.net ([213.23.61.42]:18441 "EHLO
-	spot.local") by vger.kernel.org with ESMTP id <S318253AbSHDWgy>;
-	Sun, 4 Aug 2002 18:36:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Feiler <kiza@gmx.net>
-To: Brad Hards <bhards@bigpond.net.au>
-Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
-Date: Mon, 5 Aug 2002 00:41:32 +0200
-User-Agent: KMail/1.4.1
-References: <fa.egf7e0v.kk5a2@ifi.uio.no> <200208041746.56274.kiza@gmxpro.net> <200208050751.40894.bhards@bigpond.net.au>
-In-Reply-To: <200208050751.40894.bhards@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org
-X-PGP-KeyID: 0x561D4FD2
-X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208050041.33742.kiza@gmx.net>
+	id <S318259AbSHDWkR>; Sun, 4 Aug 2002 18:40:17 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:8954 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318256AbSHDWkQ>; Sun, 4 Aug 2002 18:40:16 -0400
+Subject: Re: [PATCH] [RFC] [2.5 i386] GCC 3.1 -march support, PPRO_FENCE
+	reduction, prefetch fixes and other CPU-related changes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028493814.26332.9.camel@ldb>
+References: <1028471237.1294.515.camel@ldb>  <20020804185952.GC1670@junk> 
+	<1028492596.1293.535.camel@ldb> 
+	<1028498075.15200.29.camel@irongate.swansea.linux.org.uk> 
+	<1028493814.26332.9.camel@ldb>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 01:02:12 +0100
+Message-Id: <1028505732.15495.38.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 August 2002 23:51, you wrote:
->
-> What other USB options do you have turned on?
+On Sun, 2002-08-04 at 21:43, Luca Barbieri wrote:
+> > When we use MMX/SSE we need the view to be consistent anyway so the
+> > various copying routines already handle this internally. 
+> That's why sfence is not used unless CONFIG_X86_OOSTORE (and
+> CONFIG_X86_MMXEXT) is defined.
+> mfence and lfence instead replace the "lock; addl $0,0(%%esp)". Is this
+> wrong?
 
-Here's everything either modules or compiled in. Currently with the hid/mouse 
-stuff compiled in:
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI=y
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_VISOR=m
+I'm trying to understand why you think they are needed at all. Except
+for code that specifically does non-temporal we don't need fences on an
+X86, and the code that uses non temporal stores has its own fences built
+in.
 
-This patch is applied:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101735261202744
+So as far as I can see the only cases we ever have to care about are
 
->
-> What modules do you have loaded?
+PPro - processor bug
+IDT Winchip - because we run it in oostore module not strict x86 mode
 
-Mainly alsa, bttv and lm_sensors. I know, I know NVdriver. But it doesn't make 
-any difference without loading it.
-
-tvmixer                 3712   0
-tuner                   8356   1 (autoclean)
-tvaudio                11200   0 (autoclean) (unused)
-msp3400                14480   1 (autoclean)
-bttv                   67488   0
-videodev                5664   3 [bttv]
-i2c-algo-bit            7180   1 [bttv]
-snd-mixer-oss           9152   0
-snd-pcm-oss            36004   1
-snd-emu10k1            56228   3
-snd-pcm                49472   0 [snd-pcm-oss snd-emu10k1]
-snd-timer              10432   0 [snd-pcm]
-snd-hwdep               3712   0 [snd-emu10k1]
-snd-rawmidi            12864   1 [snd-emu10k1]
-snd-seq-device          3920   0 [snd-emu10k1 snd-rawmidi]
-snd-util-mem            1232   0 [snd-emu10k1]
-snd-ac97-codec         23236   0 [snd-emu10k1]
-snd                    25704   1 [snd-mixer-oss snd-pcm-oss snd-emu10k1 
-snd-pcm snd-timer snd-hwdep snd-rawmidi snd-seq-device snd-util-mem 
-snd-ac97-codec]
-soundcore               3684   7 [tvmixer snd]
-NVdriver              989184  10
-usb-storage            20988   0 (unused)
-analog                  7488   0 (unused)
-emu10k1-gp              1248   0 (unused)
-gameport                1548   0 [analog emu10k1-gp]
-via686a                 7812   0 (unused)
-i2c-proc                6368   0 [via686a]
-i2c-isa                 1220   0 (unused)
-i2c-viapro              3848   0 (unused)
-i2c-core               12960   0 [tvmixer tuner tvaudio msp3400 bttv 
-i2c-algo-bit via686a i2c-proc i2c-isa i2c-viapro]
-nls_iso8859-1           2848   2 (autoclean)
-nls_cp437               4384   2 (autoclean)
-vfat                    9532   2 (autoclean)
-fat                    29816   0 (autoclean) [vfat]
-
-
--- 
-Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
-http://www.lionking.org/~kiza/  <--   homepage
-PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
-http://www.lionking.org/~kiza/journal/
+I don't see why you are generating extra fence instructions for other
+cases
 

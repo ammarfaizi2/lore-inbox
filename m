@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbUKNJXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUKNJ0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbUKNJXX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 04:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbUKNJXX
+	id S261272AbUKNJ0P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 04:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbUKNJ0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 04:23:23 -0500
-Received: from mail.shareable.org ([81.29.64.88]:36994 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261269AbUKNJXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 04:23:19 -0500
-Date: Sun, 14 Nov 2004 09:23:08 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, mingo@elte.hu,
-       seto.hidetoshi@jp.fujitsu.com, ahu@ds9a.nl
-Subject: Re: Futex queue_me/get_user ordering (was: 2.6.10-rc1-mm5 [u])
-Message-ID: <20041114092308.GA4389@mail.shareable.org>
-References: <20041113164048.2f31a8dd.akpm@osdl.org> <20041114090023.GA478@mail.shareable.org> <20041114010943.3d56985a.akpm@osdl.org>
+	Sun, 14 Nov 2004 04:26:15 -0500
+Received: from mproxy.gmail.com ([216.239.56.242]:37185 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261272AbUKNJYx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 04:24:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aNAq5OKssLTrtJkYtR39kQ1sC9v5TwHAawvgAbmt1NeuWtIGvjeHJE7qQI9gjFitXRG8SklgN8DyCiu2dn2kgtEKhD/dsExP7QeEV7eXDS78COJh42FkT1yR+t8WFiTFjEg4ounIz6aM9xXNv/w1r5ybzMzSzCoVZ+j6lAUUlcM=
+Message-ID: <21d7e99704111401242e713fb4@mail.gmail.com>
+Date: Sun, 14 Nov 2004 20:24:49 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Subject: Re: 2.6.10-rc1-mm5
+Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41967669.3070707@aknet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041114010943.3d56985a.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41967669.3070707@aknet.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> The patch wasn't supposed to optimise anything.  It fixed a bug which was
-> causing hangs.  See
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/broken-out/futex_wait-fix.patch
 > 
-> Or are you saying that userspace is buggy??
+> 2. Radeon DRM driver stopped working.
+> dmesg says:
+> ---
+> Linux agpgart interface v0.100 (c) Dave Jones
+> agpgart: Detected AMD Irongate chipset
+> agpgart: Maximum main memory to use for agp memory: 439M
+> agpgart: AGP aperture is 64M @ 0xe8000000
+> [drm] Initialized radeon 1.11.0 20020828 on minor 0: ATI Technologies Inc Radeon RV200 QW [Radeon 7500]
+> [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> [drm:drm_unlock] *ERROR* Process 3124 using kernel context 0
+> ---
+>
 
-I haven't looked at the NPTL code, but that URL's pseudo-code is buggy.
-The call to FUTEX_WAKE should be doing wake++ conditionally on the
-return value, not unconditionally.
+You are building AGP as a module with DRM as a built-in ,the DRM
+cannot use the AGP if it is not built in also, I think the latest DRM
+bk tree should enforce this I'm not sure if -mm5 has  the patches in
+it or not...
 
-Also, the patch doesn't actually fix the described problem.
+I'm going to add something in the DRM debug to state whether AGP is in
+use or not ..
 
-It may hide it in tests, but the race or a similar one is present in a
-different execution order.
-
-The real NPTL code is more complicated than described at that URL,
-because real pthread_cond_wait takes a mutex argument as well.  The
-bug report does not say how that is handled, and it is critically
-important that the mutex and convar are updated concurrently in the
-right way.
-
-So I don't know if NPTL is buggy, but the pseudo-code given in the bug
-report is (because of unconditional wake++), and so is the failure
-example (because it doesn't use a mutex).
-
--- Jamie
+Dave.

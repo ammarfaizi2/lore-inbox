@@ -1,88 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266065AbTIKEtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 00:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266067AbTIKEtQ
+	id S266067AbTIKEte (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 00:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266068AbTIKEte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 00:49:16 -0400
-Received: from ns1.open.org ([199.2.104.1]:18835 "EHLO open.org")
-	by vger.kernel.org with ESMTP id S266065AbTIKEtL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 00:49:11 -0400
-Message-ID: <3F5A014E.2040000@open.org>
-Date: Sat, 06 Sep 2003 08:46:22 -0700
-From: Hal <pshbro@open.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3) Gecko/20030723
-X-Accept-Language: en-us, en
+	Thu, 11 Sep 2003 00:49:34 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:7940 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S266067AbTIKEtb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 00:49:31 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Power Management Update
+Date: Thu, 11 Sep 2003 12:45:47 +0800
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.44.0309091726050.695-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0309091726050.695-100000@cherise>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG: platforms/willow.h included but not found in arch/ppc/platforms/mpc82xx.h
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309111245.49449.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1] arch/ppc/platforms/mpc82xx.h: platforms/willow.h not found.
+Applied test5-pm1.diff to 2.6.0-test5
 
-[2]
+patch creates drivers/cpufreq/cpufreq_powersave.c, which _is_ already in -test5 
 
-In arch/ppc/platforms/mpc82xx.h line 33 platforms/willow.h is included. 
-This file does not exist.
+S3/mem PCI LNK's do not resume.
 
-[3] arch/ppc/kernel/asm-offsets.s include/asm/io.h include/asm/mpc8260.h 
-platforms/willow.h
+/proc/acpi/alarm hang on wakeup
 
-[4] 2.6.0-test5-bk1
+echo multiple times > /proc/acpi/alarm
 
-[5]
+Sep 11 12:41:29 mhfl2 kernel: irq 9: nobody cared!
+Sep 11 12:41:29 mhfl2 kernel: Call Trace:
+Sep 11 12:41:29 mhfl2 kernel:  [<c010c35b>] __report_bad_irq+0x2b/0x90
+Sep 11 12:41:29 mhfl2 kernel:  [<c010c363>] __report_bad_irq+0x33/0x90
+Sep 11 12:41:29 mhfl2 kernel:  [<c010c438>] note_interrupt+0x50/0x78
+Sep 11 12:41:29 mhfl2 kernel:  [<c010c5b2>] do_IRQ+0x96/0xf4
+Sep 11 12:41:29 mhfl2 kernel:  [<c010afe8>] common_interrupt+0x18/0x20
+Sep 11 12:41:29 mhfl2 kernel:  [<c011de78>] do_softirq+0x48/0xb0
+Sep 11 12:41:29 mhfl2 kernel:  [<c010c600>] do_IRQ+0xe4/0xf4
+Sep 11 12:41:29 mhfl2 kernel:  [<c010afe8>] common_interrupt+0x18/0x20
+Sep 11 12:41:29 mhfl2 kernel:  [<c01e305d>] acpi_os_write_port+0x35/0x50
+Sep 11 12:41:29 mhfl2 kernel:  [<c01f852e>] acpi_hw_low_level_write+0x7e/0x11e
+Sep 11 12:41:29 mhfl2 kernel:  [<c01f827d>] acpi_hw_register_write+0xb9/0x1c0
+Sep 11 12:41:29 mhfl2 kernel:  [<c01f7f96>] acpi_set_register+0x262/0x2d0
+Sep 11 12:41:29 mhfl2 kernel:  [<c020cbac>] acpi_system_write_alarm+0x4f0/0x53c
+Sep 11 12:41:30 mhfl2 kernel:  [<c0150000>] put_dirty_page+0x68/0xec
+Sep 11 12:41:30 mhfl2 kernel:  [<c0147dae>] vfs_write+0x9e/0xd0
+Sep 11 12:41:30 mhfl2 kernel:  [<c0147e60>] sys_write+0x30/0x50
+Sep 11 12:41:30 mhfl2 kernel:  [<c010adc7>] syscall_call+0x7/0xb
+Sep 11 12:41:30 mhfl2 kernel: 
+Sep 11 12:41:30 mhfl2 kernel: handlers:
+Sep 11 12:41:30 mhfl2 kernel: [<c01e2ebc>] (acpi_irq+0x0/0x1c)
+Sep 11 12:41:30 mhfl2 kernel: Disabling IRQ #9
 
-  CC      arch/ppc/kernel/asm-offsets.s
-  In file included from include/asm/mpc8260.h:12,
-      from include/asm/io.h:32,
-      from arch/ppc/kernel/asm-offsets.c:21:
-  arch/ppc/platforms/mpc82xx.h:33:30: platforms/willow.h: No such file 
-or directory
-  make[1]: *** [arch/ppc/kernel/asm-offsets.s] Error 1
-  make: *** [arch/ppc/kernel/asm-offsets.s] Error 2
-
-[6] make allyesconfig; make
-
-[7] Gentoo Linux
-
-[7.1]
-
-Linux darkstar.example.net 2.4.20-ben10 #11 Fri Sep 5 09:24:51 PDT 2003 
-ppc  750FX GNU/Linux
-
-Gnu C                  3.2.3
-Gnu make               3.80
-util-linux             2.11z
-mount                  2.11z
-module-init-tools      2.4.25
-e2fsprogs              1.32
-PPP                    2.4.1
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.9
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0.15
-Modules Loaded         ipt_LOG ipt_state ipt_ttl iptable_filter 
-iptable_nat ip_conntrack ip_tables
-
-[7.2]
-
-cpu             : 750FX
-temperature     : 12 C (uncalibrated)
-clock           : 700MHz
-revision        : 1.18 (pvr 7000 0112)
-bogomips        : 1389.36
-machine         : PowerBook4,3
-motherboard     : PowerBook4,3 MacRISC2 MacRISC Power Macintosh
-detected as     : 257 (iBook 2 rev. 2)
-pmac flags      : 0000000b
-L2 cache        : 512K unified
-memory          : 384MB
-pmac-generation : NewWorld
+Regards
+Michael
 
 

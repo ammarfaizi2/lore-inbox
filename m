@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbSKVTry>; Fri, 22 Nov 2002 14:47:54 -0500
+	id <S265266AbSKVTsh>; Fri, 22 Nov 2002 14:48:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265243AbSKVTry>; Fri, 22 Nov 2002 14:47:54 -0500
-Received: from bitmover.com ([192.132.92.2]:48306 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262380AbSKVTrx>;
-	Fri, 22 Nov 2002 14:47:53 -0500
-Date: Fri, 22 Nov 2002 11:54:54 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de
-Subject: Re: [PATCH] Beginnings of conpat 32 code cleanups
-Message-ID: <20021122115454.A481@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-	"David S. Miller" <davem@redhat.com>, ak@muc.de
-References: <20021122162312.32ff4bd3.sfr@canb.auug.org.au> <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Nov 22, 2002 at 11:47:27AM -0800
-X-MailScanner: Found to be clean
+	id <S265255AbSKVTsg>; Fri, 22 Nov 2002 14:48:36 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:1759 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S265243AbSKVTse>;
+	Fri, 22 Nov 2002 14:48:34 -0500
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0CCC1F80@orsmsx108.jf.intel.com>
+From: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
+To: "'george anzinger'" <george@mvista.com>,
+       "Fleischer, Julie N" <julie.n.fleischer@intel.com>,
+       high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: RE: Running POSIX Timers tests against HRT implementation
+Date: Fri, 22 Nov 2002 11:55:41 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Make your compat stuff use u32/s32/u64 directly, instead of making up ugly 
-> new types that make no sense.
+> george anzinger wrote:
+> Now, as to this particular issue, the 1003.1b-1993 standard
+> in paragraph 14.2.1.2 says "The effect of setting a clock
+> via clock_settime() on armed per process timers associated
+> with that clock is implementation defined."
 
-IMHO, the thing that the early Unix systems did wrong was to not have 
-u8, u16, u32, etc as basic ctypes in sys/types.h.  And C should have 
-had a way to fake it if they weren't native.
+I see.  Since I'm writing tests towards the 1003.1-2001 standards, I'll need
+to be careful where there's a difference between that one and 1003.1b-1993,
+as is the case with this issue.  (If you'd still appreciate knowing the
+deltas, I can still let you know when there is a difference in the
+1003.1-2001 standard and the current implementation.)
 
-Anyone who has ported a networking stack or worked on driver knows exactly
-what I'm talking about.
+In the 1003.1-2001 standards, it actually adds the qualifier that the line
+you quoted applies to non-CLOCK_REALTIME clocks.  If I'm interpreting that
+standard correctly, CLOCK_REALTIME clocks should require that absolute
+timers use the latest value of the clock and not behave relatively.
 
-And while I'm whining, 
+I'll make sure that I check the 1003.1b-1993 standards as well, though, when
+reporting future issues.
 
-	assert(strlen(any typedef) < 8));
+- Julie
 
-I like my stack variable declarations to line up.  I despise some_long_name_t
-typedefs with a passion.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+**These views are not necessarily those of my employer.**

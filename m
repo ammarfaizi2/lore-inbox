@@ -1,79 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262861AbSJGERb>; Mon, 7 Oct 2002 00:17:31 -0400
+	id <S262862AbSJGE03>; Mon, 7 Oct 2002 00:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262862AbSJGERb>; Mon, 7 Oct 2002 00:17:31 -0400
-Received: from ns1.system-techniques.com ([199.33.245.254]:64188 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S262861AbSJGERa>; Mon, 7 Oct 2002 00:17:30 -0400
-Date: Mon, 7 Oct 2002 00:22:34 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19: sym53c8xx problems
-In-Reply-To: <3D9F7779.579746C6@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.44.0210070001560.25396-100000@filesrv1.baby-dragons.com>
+	id <S262863AbSJGE03>; Mon, 7 Oct 2002 00:26:29 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:41508 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S262862AbSJGE02>; Mon, 7 Oct 2002 00:26:28 -0400
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "Linux Kernel Development List" <linux-kernel@vger.kernel.org>
+Subject: Idea: (Category: Memory Management) Increase the Number of Lists of Blocks that Contain Groups of Contiguous Page Frames
+Date: Sun, 6 Oct 2002 23:31:52 -0500
+Message-ID: <000901c26dba$7d4f7860$5f71d73f@joe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+IDEA: (Category: Memory Management) Increase the Number of Lists of
+Blocks that Contain Groups of Contiguous Page Frames
 
-	Hello Eyal ,
+STATUS QUO: Currently, the Buddy System Algorithm, the kernel's strategy
+for allocating groups of contiguous page frames, uses ten (10) groups of
+lists of blocks that contain groups of 1, 2, 4, 8, 16, 32, 64, 128, 256,
+and 512 contiguous page frames, respectively.  Since page frames are 4KB
+in size, in terms of real memory usage these groups are 4KB, 8KB, 16KB,
+32KB, 64KB, 128KB, 256KB, 512KB, 1MB, and 2MB in size, respectively.
 
-On Sun, 6 Oct 2002, Eyal Lebedinsky wrote:
-> "Mr. James W. Laferriere" wrote:
-> >         Is your scsi setup easy enough to make an ascii art description
-> >         of ?  If so would you post it please ?  From the messages below
-> >         it appears (to me) that their is some difficulty in the chain that
-> >         attaches to the python .  I have never seen those messages when I
-> >         have attached (albeit differant) tape drives , ie: DLT,dat2,dat3 .
-> As I mentioned the ONLY scsi device is the externally connected DDS-1
-> tape drive. It is a SCSI-2 narrow (50-pin) device. It uses a
-> HD-centronics->50pin-centronics cable.
-	I have been reviewing your previous message to the list .  In it
-	you mentioned putting a Asus sc200(53c810) card into this system .
-	Was that card in the system when the dmesg output was taken ?
-	IF it was then that dmesg output shows a bug in the controller
-	card recognition routines .  A 53c810 isn't a 53c875 .
-	Also iirc the 6000 has either a 53c876 or two 53c875's on board
-	not three .  At least mine only reports 2 53c875's .
+PROBLEM: Applications that demand significant amounts of memory are
+becoming increasingly popular and prevalent, such as digital video
+editing, CAD, scientific and mathematical computations, games, and other
+GUI applications.  Many of these applications may initially need more
+than 2MB of contiguous memory.
 
-	Another source of information for the sym driver is
-	/usr/src/linux/drivers/scsi/sym53c8xx_2/Documentation.txt
+While the memory manager currently handles this problem by assigning
+multiple blocks of 2MB, these applications could benefit from the memory
+manager maintaining larger contiguous blocks, especially on systems with
+high memory (>= 896MB).
 
-> I believe the BIOS on this machine really does not like and IDE disks
-> connected. It does have an IDE controller but will only allow the CD
-> drive on it, so we have a PCI/IDE controller installed to handle the
-> single IDE disk. The machine refuses to boot off the IDE but LILO is
-> happy to do so off a floppy.
-	Iirc the bios is stunted to only allow boot to cdrom on the ide
-	port .  So the limitation probably continues onto other ide
-	controllers as well .
+EXAMPLE: The X Windowing System uses an average of 10MB-16MB would
+benefit from one honkin' 16MB contiguous memory chunk.
 
-> BTW, I only have this machine in order to test out software on a 4-way
-> SMP machine, which is why we passed on installing more expensive scsi
-> disks.
->
-> Now, when I connect the cable to my tape, lilo fails to boot off the
-> floppy. It seems that the first BIOS disk (80h) which is detected
-> properly by the IDE controller is trashed by the scsi controller
-> (which initialises later than the IDE). So we now boot off the floppy
-> directly (i.e. the kernel boots off the floppy, not just lilo).
->
-> Finally, now that we are booting just fine, and the scsi tape drive
-> is clearly detected at bootup by the kernel, I see that the scsi
-> driver does not stay loaded (maybe the boot process loads it, and
-> if there are no disks it unloads it?). So I try to load it myself
-> 	modprobe sym53c8xx
-> and this kills the machine.
->
-> By "kills" I mean the machine stutters for a few seconds, and then
-> locks up, not even vt switching. No message is ever displayed.
+PROPOSED CHANGE: Change the number of groups of lists of blocks from ten
+(10) to twenty-four (24).  This will allow the memory manager to group
+free contiguous memory in chunks as large as 32GB.
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Line 18 of the file "includes/linux/mmzone.h" should be changed from:
+
+	#define MAX_ORDER 10
+
+	to
+
+	#define MAX_ORDER 24
+
+I have tested this change on my own system with no adverse affects.
+
+NOTE: This seems way too easy, IMHO.  I'm not an experienced kernel
+developer so someone please check me on this.
+
+STATISTICS: Unfortunately, I don't use my Linux system enough to get a
+wide enough statistical sample.  In theory, a computer should experience
+performance gains -- whether nominal or significant, I don't know --
+when assigning larger chunks of memory to those applications that demand
+more memory, but I'm going to have to rely on other Linux users and
+developers to see if the theory is proven true.
+
+Q&A: Why 32GB?
+Linux supports a maximum of 64GB of memory, but there will never be a
+case when all 64GB are free simply because the kernel itself will use
+some memory.  Hence, the largest chunk that could ever be allocated is
+32GB.
+
+Doesn't having that many lists create a problem for computers without
+that much memory?
+Not at all.  On systems that don't have that much memory, those extra
+lists will simply remain empty.  Again, I've tested this change on my
+own system (256MB memory) with no adverse affects, but also see my note.
+
+Why bother increasing the number of lists at all?
+I'd like to respond with a question: why not cut the number of lists
+down to three (3)?  Because the overhead involved in allocating 128 16KB
+chunks is horrendous, especially when you could just allocate one 2MB
+chunk.  Likewise, more demanding applications will benefit from the
+reduced overhead of having more lists, but see my point in statistics.
+
+Joseph Wagner
 

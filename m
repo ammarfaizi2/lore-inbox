@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKOQrK>; Wed, 15 Nov 2000 11:47:10 -0500
+	id <S129818AbQKOQwA>; Wed, 15 Nov 2000 11:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKOQrA>; Wed, 15 Nov 2000 11:47:00 -0500
-Received: from et-gw.etinc.com ([207.252.1.2]:19462 "EHLO etinc.com")
-	by vger.kernel.org with ESMTP id <S129045AbQKOQq5>;
-	Wed, 15 Nov 2000 11:46:57 -0500
-Message-Id: <5.0.0.25.0.20001115111100.03572eb0@mail.etinc.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Wed, 15 Nov 2000 11:15:21 -0500
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
-From: Dennis <dennis@etinc.com>
-Subject: Re: 2.4. continues after Aieee...
-In-Reply-To: <200011150753.IAA05451@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129860AbQKOQvu>; Wed, 15 Nov 2000 11:51:50 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:18700 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S129818AbQKOQvn>;
+	Wed, 15 Nov 2000 11:51:43 -0500
+Date: Wed, 15 Nov 2000 17:21:08 +0100 (MET)
+From: Martin Hoeller <martin@xss.co.at>
+To: Andreas Osterburg <alanos@first.gmd.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Swapping over NFS in Linux 2.4?
+In-Reply-To: <00111517064807.29351@bar>
+Message-ID: <Pine.LNX.4.02.10011151716580.11820-100000@rimbaud.xss.co.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:53 AM 11/15/2000, Rogier Wolff wrote:
+Hi!
 
->Shouldn't the system be "halted" after an "Aiee, killing interrupt
->handler"?
->
+> Because I set up a diskless Linux-workstation, I want to swap over NFS.
+> For this purpose I found only patches for "older" Linux-versions (2.0, 2.1,
+> 2.2?).
+> Does anyone know wheter there are patches for 2.4 or does anyone know
+> another solution for this problem?
 
-This brings another question. Has there been any work done to force linux 
-to reboot on all panics? Linux's propensity to crash drivers (say the 
-network card driver) and leave the system running make linux unusable in 
-unattended environments as the machine is functionally dead.
+maybe you want to use the network block device.
 
-a simple switch that forces reboot on panic would do much to alleviate the 
-problem.
+have a look at
+http://www.xss.co.at/linux/NBD
+and ftp://ftp.xss.co.at/pub/Linux/NBD
 
-DB
+hth,
+- martin
+
+--------------------------------------------------------------------
+\       Martin Hoeller          | mailto:martin.hoeller@xss.co.at /    
+ \      xS+S Andreas Haumer     | web:   http://www.xss.co.at    /
+  \     Karmarschgasse 51/2/20  | phone: +43-1-6060114-30       /
+   \    A-1100 Vienna/Austria   | fax:   +43-1-6060114-71      /
+    -----------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

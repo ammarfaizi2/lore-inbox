@@ -1,129 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265309AbUAABrB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 20:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUAABrB
+	id S265317AbUAAB6T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 20:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUAAB6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 20:47:01 -0500
-Received: from waste.org ([209.173.204.2]:37577 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265309AbUAABq6 (ORCPT
+	Wed, 31 Dec 2003 20:58:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47048 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265317AbUAAB6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 20:46:58 -0500
-Date: Wed, 31 Dec 2003 19:46:55 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] 2.6.0-tiny1 tree for small systems
-Message-ID: <20040101014655.GD18208@waste.org>
-References: <20031227215606.GO18208@waste.org> <20031228103500.GA29298@alpha.home.local>
+	Wed, 31 Dec 2003 20:58:18 -0500
+Date: Thu, 1 Jan 2004 01:58:09 +0000
+From: Dave Jones <davej@redhat.com>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: rudi@lambda-computing.de, ivern@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: File change notification
+Message-ID: <20040101015809.GA14930@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Michael Clark <michael@metaparadigm.com>, rudi@lambda-computing.de,
+	ivern@acm.org, linux-kernel@vger.kernel.org
+References: <3FF2FC85.5070906@lambda-computing.de> <3FF31366.30206@acm.org> <3FF31A15.4070307@lambda-computing.de> <3FF377A8.6040302@metaparadigm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031228103500.GA29298@alpha.home.local>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3FF377A8.6040302@metaparadigm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 11:35:00AM +0100, Willy Tarreau wrote:
-> On Sat, Dec 27, 2003 at 03:56:06PM -0600, Matt Mackall wrote:
-> > This is the second release of the -tiny kernel tree. The aim of this
-> > tree is to collect patches that reduce kernel disk and memory
-> > footprint as well as tools for working on small systems. Target users
-> > are things like embedded systems, small or legacy desktop folks, and
-> > handhelds.
-> 
-> Hi Matt,
-> 
-> This looks very interesting. I could produce a small "bloated" kernel
-> which I use for kexec and remote recovery on a VIA C3-based system :
-> 
->    text    data     bss     dec     hex filename
-> 1328734  118955   52016 1499705  16e239 vmlinux
-> 
-> This was with gcc-3.3.1 which is more efficient than its predecessors
-> on -Os.
-> 
-> I changed -march=c3 to -march=i386, which generally gives me better
-> numbers :
-> 
->    text    data     bss     dec     hex filename
-> 1287578  118955   52016 1458549  164175 vmlinux
-> 
-> => this is 40 kB saved. I simply changed this :
-> 
-> +++ ./arch/i386/Makefile	Sun Dec 28 11:16:10 2003
-> @@ -44,7 +44,7 @@
->  cflags-$(CONFIG_MWINCHIPC6)	+= $(call check_gcc,-march=winchip-c6,-march=i586)
->  cflags-$(CONFIG_MWINCHIP2)	+= $(call check_gcc,-march=winchip2,-march=i586)
->  cflags-$(CONFIG_MWINCHIP3D)	+= $(call check_gcc,-march=winchip2,-march=i586)
-> -cflags-$(CONFIG_MCYRIXIII)	+= $(call check_gcc,-march=c3,-march=i486) $(align)-functions=0 $(align)-jumps=0 $(align)-loops=0
-> +cflags-$(CONFIG_MCYRIXIII)	+= -march=i386 $(align)-functions=0 $(align)-jumps=0 $(align)-loops=0
->  cflags-$(CONFIG_MVIAC3_2)	+= $(call check_gcc,-march=c3-2,-march=i686)
->  
->  CFLAGS += $(cflags-y)
-> 
-> 
-> So it might be interesting to have an option to drop back to the smallest
-> common arch during compilation. Note that this is not the same as choosing
-> i386 as the target system, since this kernel still has C3 features. Perhaps
-> the simplest and most portable way would be to create a new config entry
-> which would override default cflags ?
+On Thu, Jan 01, 2004 at 09:28:08AM +0800, Michael Clark wrote:
+ > Have you had a look at dazuko. It provides a consistent file access
+ > notification mechanism (and also intervention for denying access) across
+ > linux and freebsd. It is currently being used by various on-access
+ > virus scanners. It is under active development and supports 2.6 (and 2.4)
 
-Ok, I added the ability to override the arch-default CFLAGS, but sadly
-I'm unable to reproduce your space savings here with gcc 3.3.2. The
-default -march=i586 seems to produce the smallest code for me.
+Candidate for "Wackiest sys_call_table patching 2004".
+In a word "ick". Code not to be read on a full stomach.
 
- tiny-mpm/arch/i386/Makefile |    4 ++++
- tiny-mpm/init/Kconfig       |   14 ++++++++++++++
- 2 files changed, 18 insertions(+)
-
-diff -puN arch/i386/Makefile~tiny-cflags arch/i386/Makefile
---- tiny/arch/i386/Makefile~tiny-cflags	2003-12-31 19:02:54.000000000 -0600
-+++ tiny-mpm/arch/i386/Makefile	2003-12-31 19:41:14.000000000 -0600
-@@ -26,6 +26,9 @@ CFLAGS += $(call check_gcc,-mpreferred-s
- 
- align := $(subst -functions=0,,$(call check_gcc,-falign-functions=0,-malign-functions=0))
- 
-+ifdef CONFIG_TINY_CFLAGS
-+cflags-y += $(CONFIG_TINY_CFLAGS_VAL)
-+else
- cflags-$(CONFIG_M386)		+= -march=i386
- cflags-$(CONFIG_M486)		+= -march=i486
- cflags-$(CONFIG_M586)		+= -march=i586
-@@ -46,6 +49,7 @@ cflags-$(CONFIG_MWINCHIP2)	+= $(call che
- cflags-$(CONFIG_MWINCHIP3D)	+= $(call check_gcc,-march=winchip2,-march=i586)
- cflags-$(CONFIG_MCYRIXIII)	+= $(call check_gcc,-march=c3,-march=i486) $(align)-functions=0 $(align)-jumps=0 $(align)-loops=0
- cflags-$(CONFIG_MVIAC3_2)	+= $(call check_gcc,-march=c3-2,-march=i686)
-+endif
- 
- CFLAGS += $(cflags-y)
- 
-diff -puN init/Kconfig~tiny-cflags init/Kconfig
---- tiny/init/Kconfig~tiny-cflags	2003-12-31 19:02:54.000000000 -0600
-+++ tiny-mpm/init/Kconfig	2003-12-31 19:44:42.000000000 -0600
-@@ -446,6 +446,20 @@ config OOL_THREADINFO
- 	  This simplifies the code for finding information about the current
-           thread. Saves about 4k on small kernels.
- 
-+config TINY_CFLAGS
-+	default n
-+	bool "Set compiler arch flags for small 386 code" if EMBEDDED
-+	help
-+	  This allows user to replace the architecture CFLAGS despite the arch
-+	  setting in an attempt to build smaller code.
-+
-+config TINY_CFLAGS_VAL
-+	depends TINY_CFLAGS
-+	default "-march=i386"
-+	string "Arch CFLAGS"
-+	help
-+	  Enter CFLAGS to override ARCH defaults.
-+
- endmenu		# General setup
- 
- config SLAB
-
-_
+		Dave
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+ Dave Jones     http://www.codemonkey.org.uk

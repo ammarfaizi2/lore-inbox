@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbRERTWP>; Fri, 18 May 2001 15:22:15 -0400
+	id <S261473AbRERT0P>; Fri, 18 May 2001 15:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261462AbRERTWG>; Fri, 18 May 2001 15:22:06 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:56204 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S261459AbRERTVy>; Fri, 18 May 2001 15:21:54 -0400
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC, AMD-K6/2 -mcpu=586...
-In-Reply-To: <m2u22ibww6.fsf@sympatico.ca> <m2d796twqe.fsf@sympatico.ca> <20010518203446.A1066@werewolf.able.es> <m2eltm335t.fsf@sympatico.ca>
-From: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: 18 May 2001 15:20:26 -0400
-In-Reply-To: Bill Pringlemeir's message of "18 May 2001 14:47:26 -0400"
-Message-ID: <m23da2mpl1.fsf@sympatico.ca>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
-MIME-Version: 1.0
+	id <S261495AbRERT0F>; Fri, 18 May 2001 15:26:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:27404 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261473AbRERTZv>;
+	Fri, 18 May 2001 15:25:51 -0400
+Date: Fri, 18 May 2001 21:25:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Eduard Hasenleithner <eduardh@aon.at>, linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+Message-ID: <20010518212531.A6763@suse.de>
+In-Reply-To: <20010518210226.A7147@moserv.hasi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010518210226.A7147@moserv.hasi>; from eduardh@aon.at on Fri, May 18, 2001 at 09:02:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 18 2001, Eduard Hasenleithner wrote:
+> I have a problem with the buffering mechanism of my blockdevice,
+> namely a ide_scsi DVD-ROM drive. After inserting a DVD and reading
+> data linearly from the DVD, an excessive amount of buffer memory gets
+> allocated.
+> 
+> This can easily be reproduced with
+> 	cat /dev/sr0 > /dev/null
+> 
+> Remember, nearly the same task is carried out when playing a DVD.
+> 
+> As a result the system performance goes down. I'm still able to use
+> my applications, but es every single piece of unused memory is swapped
+> out, and swapping in costs a certain amount of time.
 
->>>>> "JAM" == J A Magallon <jamagallon@able.es> writes:
+That's why streaming media applications like a dvd player should use raw
+I/O -- to bypass system cache. See /dev/raw*
 
- JAM> That is not the problem. The problem is that the registers have
- JAM> to lay in a defined way, transcribed to a C struct, and that
- JAM> pgcc lays badly that struct.
-
- WJP> Yes, I understand that.  I was showing a way to find the value
- WJP> of padding needed to align the register store in the structure.
- WJP> Perhaps I should have shown a mod to asm/processor.h,
-[snip]
- WJP> I was describing a way to make things independent of the
- WJP> compiler layout of the structs.  However, this complicates the
- WJP> build process, and people might not like the padding due to
- WJP> cache alignment details.
-
-Sorry,  they would obviously declare it as such if the kernel developers
-wanted to.
-
-        /* floating point info */
-        unsigned char fpAlign[0] __attribute__ ((aligned (16)));
-	union i387_union	i387;
-
-This is a much simpler way of achieving what I was trying to explain
-previously.  I think that this syntax has been in the GCC extensions
-for some time.
-
-regards,
-Bill Pringlemeir.
-
+-- 
+Jens Axboe
 

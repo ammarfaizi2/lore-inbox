@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135420AbRAGDry>; Sat, 6 Jan 2001 22:47:54 -0500
+	id <S135588AbRAGEBZ>; Sat, 6 Jan 2001 23:01:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135684AbRAGDro>; Sat, 6 Jan 2001 22:47:44 -0500
-Received: from linuxjedi.org ([192.234.5.42]:58641 "EHLO linuxjedi.org")
-	by vger.kernel.org with ESMTP id <S135420AbRAGDr2>;
-	Sat, 6 Jan 2001 22:47:28 -0500
-Message-ID: <3A57E6F6.EED83CD@roanoke.edu>
-Date: Sat, 06 Jan 2001 22:48:06 -0500
-From: "David L. Parsley" <parsley@roanoke.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S135599AbRAGEBP>; Sat, 6 Jan 2001 23:01:15 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:27812 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S135588AbRAGEBK>;
+	Sat, 6 Jan 2001 23:01:10 -0500
+Date: Sat, 6 Jan 2001 23:00:10 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Andi Kleen <ak@suse.de>
+cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+ policy!)
+In-Reply-To: <20010107042959.A14330@gruyere.muc.suse.de>
+Message-ID: <Pine.GSO.4.30.0101062253440.18916-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: cramfs & ramfs problems in 2.4.0 up to ac3
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Using root=/dev/ram0 and a cramfs initrd gives me 'wrong magic' when it
-tries to boot.  Even more bizarre, if cramfs is compiled in the kernel
-when I use a romfs root, it says 'wrong magic' then mounts the romfs but
-can't find init.  If I take cramfs out of the kernel, the romfs mounts &
-init runs fine.  I just saw this with ac3.
 
-ramfs croaks with 'kernel BUG in filemap.c line 2559' anytime I make a
-file in ac2 and ac3.  Works fine in 2.4.0 vanilla.  Should be quite
-repeatable...
+On Sun, 7 Jan 2001, Andi Kleen wrote:
 
-BTW, nice work on 2.4 everyone.
+> Does it make any significant different with the ifconfig from newest nettools? I
+> removed a quadratic algorithm from ifconfig's device parsing, and with that I was
+> able to display a few thousand alias devices on a unpatched kernel in reasonable time.
 
-regards,
-	David
---
-David L. Parsley
-Network Administrator
-Roanoke College
+I think someone should just flush ifconfig down some toilet. a wrapper
+around "ip" to to give the same look and feel as ifconfig would be a good
+thing so that some stupid program that depends on ifconfig look and feel
+would be a good start.
+
+Not to stray from the subject, Ben's effort is still needed. I think real
+numbers are useful instead of claims like it "displayed faster"
+
+cheers,
+jamal
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

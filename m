@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263715AbTKKTnV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 14:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTKKTnV
+	id S263666AbTKKTlg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 14:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTKKTlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 14:43:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10760 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263715AbTKKTnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 14:43:20 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: kernel.bkbits.net off the air
-Date: 11 Nov 2003 11:43:04 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bore48$ubl$1@cesium.transmeta.com>
-References: <fa.eto0cvm.1v20528@ifi.uio.no> <fa.onl48uv.1tmeb21@ifi.uio.no> <3FB0EEB5.5010804@myrealbox.com> <200311111438.47868.andrew@walrond.org>
+	Tue, 11 Nov 2003 14:41:36 -0500
+Received: from mail4-141.ewetel.de ([212.6.122.141]:8699 "EHLO mail4.ewetel.de")
+	by vger.kernel.org with ESMTP id S263666AbTKKTlf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 14:41:35 -0500
+Date: Tue, 11 Nov 2003 20:41:24 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <Pine.LNX.4.44.0311110950250.30657-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0311112039110.1448-100000@neptune.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200311111438.47868.andrew@walrond.org>
-By author:    Andrew Walrond <andrew@walrond.org>
-In newsgroup: linux.dev.kernel
-> 
-> My preferred solution is a single sequence file as described by Adreas:
-> 
-> Assuming sequence starts at 0,
-> 
-> To modify the repository, +1 to sequence file contents, modify repo, +1 to 
-> sequence
-> 
-> To get a coherent copy,
-> do
-> 	seq1 = read(sequence file)
-> 	rsync repo
-> 	seq2 = read(sequence file)
-> until seq1==seq2 and !(seq1&1)
-> 
+On Tue, 11 Nov 2003, Linus Torvalds wrote:
 
-OK... this still doesn't deal with how to get mirrors to pick stuff up
-with a minimum of fuss.  The "minimum of fuss" bit is *extremely*
-important... I still haven't managed to get all mirrors to use rsync.
+> Can you try just writing to the thing as a raw device, ie simply doing 
+> something like
+[...]
 
-	-hpa
+Will do and report on what I find.
+
+>> I didn't see problems with using ide-scsi/sd for that drive in 2.5.7x,
+>> by the way, so I'm not so sure ide-scsi is really broken for that
+>> purpose.
+> It would be interesting to hear if ide-scsi works. 
+
+I'll check on that, too.
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Ciao,
+Pascal
+

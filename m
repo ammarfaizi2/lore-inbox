@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261791AbSJJRkU>; Thu, 10 Oct 2002 13:40:20 -0400
+	id <S261826AbSJJRnE>; Thu, 10 Oct 2002 13:43:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261819AbSJJRkU>; Thu, 10 Oct 2002 13:40:20 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:62855 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261791AbSJJRkT> convert rfc822-to-8bit; Thu, 10 Oct 2002 13:40:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
-Date: Thu, 10 Oct 2002 12:34:34 -0500
-X-Mailer: KMail [version 1.4]
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200210091826.20759.efocht@ess.nec.de> <200210091258.08379.habanero@us.ibm.com> <200210100102.13980.efocht@ess.nec.de>
-In-Reply-To: <200210100102.13980.efocht@ess.nec.de>
+	id <S261852AbSJJRnE>; Thu, 10 Oct 2002 13:43:04 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20239 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261826AbSJJRnB>; Thu, 10 Oct 2002 13:43:01 -0400
+Date: Thu, 10 Oct 2002 13:40:49 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Con Kolivas <conman@kolivas.net>
+cc: Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
+In-Reply-To: <1034041272.3da237b8b7908@kolivas.net>
+Message-ID: <Pine.LNX.3.96.1021010133332.17862B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210101234.34345.habanero@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 October 2002 6:02 pm, Erich Focht wrote:
-> > > Starting migration thread for cpu 3
-> > > Bringing up 4
-> > > CPU>dividNOWrro!
-> >
-> > I got the same thing on 2.5.40-mm1.  It looks like it may be a a divide
-> > by zero in calc_pool_load.  I am attempting to boot a band-aid version
-> > right now.  OK, got a little further:
->
-> This opened my eyes, thanks for all your help and patience!!!
->
-> The problem is that the load balancer is called before the CPU pools
-> were set up. That's fine, I thought, because I define in sched_init
-> the default pool 0 to include all CPUs. But: in find_busiest_queue()
-> the cpu_to_node(this_cpu) delivers a non-zero pool which is not set up
-> yet, therefore pool_nr_cpus[pool]=0 and we get a zero divide.
->
-> I'm still wondering why this doesn't happen on our architecture. Maybe
-> the interrupts are disabled longer, I'll check. Anyway, a fix is to
-> force this_pool to be 0 as long as numpools=1. The attached patch is a
-> quick untested hack, maybe one can do it better. Has to be applied on top
-> of the other 2.
+On Tue, 8 Oct 2002, Con Kolivas wrote:
 
-Thanks very much Erich.  I did come across another problem here on numa-q.  In 
-task_to_steal() there is a divide by cache_decay_ticks, which apparantly is 0 
-on my system.  This may have to do with notsc, but I am not sure.  I set 
-cache_decay_ticks to 8, (I cannot boot without using notsc) which is probably 
-not correct, but I can now boot 16 processor numa-q on 2.5.40-mm1 with your 
-patches!  I'll get some benchmark results soon.  
+> > Problem is, users have said they don't want that.  They say that they
+> > want to copy ISO images about all day and not swap.  I think.
+> 
+> But do they really want that or do they think they want that without knowing the
+> consequences of such a setting?
 
-Andrew Theurer
+I have been able to tune bdflush in 2.4-aa kernels to be much more
+aggressive about moving data to disk under write pressure, and that has
+been a big plus in terms of both getting the write completed in less real
+time and fewer big pauses doing trivial things like uncovering a window. I
+see less swap used.
+
+> 
+> > It worries me.  It means that we'll be really slow to react to sudden
+> > load swings, and it increases the complexity of the analysis and
+> > testing.  And I really do want to give the user a single knob,
+> > which has understandable semantics and for which I can feasibly test
+> > all operating regions.
+> > 
+> > I really, really, really, really don't want to get too fancy in there.
+> 
+> Well I made it as simple as I possibly could. It seems to do what they want (not
+> swappy) but not at the expense of making the machine never swapping when it
+> really needs to - and the performance seems to be better all round in real
+> usage. I guess the only thing is it isn't a fixed number... unless we set a
+> maximum swappiness level or... but then it starts getting unnecessarily
+> complicated with questionable benefits.
+
+I'm going to try this patch, but building a kernel on my standard test
+machine is painfully slow, so it will come after 41-ac2. It appears to
+address the balance issue dynamically.
+ 
+> > I have changed this code a bit, and have added other things.  Mainly
+> > over on the writer throttling side, which tends to be the place where
+> > the stress comes from in the first place.
+> 
+> /me waits but is a little disappointed
+
+I actually like the idea of writer throttling, I just wonder how it will
+work at the corner cases like only one big writer (mkisofs) or the
+alternative, lots of little writers. 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

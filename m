@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319187AbSHMXip>; Tue, 13 Aug 2002 19:38:45 -0400
+	id <S319161AbSHMW7w>; Tue, 13 Aug 2002 18:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319184AbSHMXhf>; Tue, 13 Aug 2002 19:37:35 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41469 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319181AbSHMXgb>; Tue, 13 Aug 2002 19:36:31 -0400
-Subject: Re: Cache coherency and snooping
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: imran.badr@cavium.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0a9a01c24320$4c936de0$9e10a8c0@IMRANPC>
-References: <0a9a01c24320$4c936de0$9e10a8c0@IMRANPC>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 14 Aug 2002 00:38:08 +0100
-Message-Id: <1029281888.21007.157.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319160AbSHMW7U>; Tue, 13 Aug 2002 18:59:20 -0400
+Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:13051 "EHLO
+	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319106AbSHMW5e>; Tue, 13 Aug 2002 18:57:34 -0400
+Date: Tue, 13 Aug 2002 19:01:22 -0400 (EDT)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
+To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
+Subject: patch 13/38: CLIENT: space_used in nfs_fattr
+Message-ID: <Pine.SOL.4.44.0208131901030.25942-100000@rastan.gpcc.itd.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-14 at 00:22, Imran Badr wrote:
-> How can I define a certain region of memory so that it is never cached? I
-> want to use non-cached region of memory to communicate to my PCI device to
-> avoid system overhead in cache snooping.
 
-Architecture specific and for RAM quite often not supported at all. You
-can use ioremap_nocache on ram in theory but that doesn't actually work
-on most processors, will MCE on the PPro and needs some work on Athlon
-XP/MP
+If the NFS_ATTR_FATTR_V4 flag is set, use the NFSv3 convention for
+the 'space_used' part of the fattr.
 
-K6/K5 don't support it at all from memory.
+--- old/fs/nfs/inode.c	Tue Jul 30 10:28:00 2002
++++ new/fs/nfs/inode.c	Tue Jul 30 10:32:49 2002
+@@ -714,7 +714,7 @@ __nfs_fhget(struct super_block *sb, stru
+ 		inode->i_nlink = fattr->nlink;
+ 		inode->i_uid = fattr->uid;
+ 		inode->i_gid = fattr->gid;
+-		if (fattr->valid & NFS_ATTR_FATTR_V3) {
++		if (fattr->valid & (NFS_ATTR_FATTR_V3 | NFS_ATTR_FATTR_V4)) {
+ 			/*
+ 			 * report the blocks in 512byte units
+ 			 */
+@@ -1103,7 +1103,7 @@ __nfs_refresh_inode(struct inode *inode,
+ 	inode->i_uid = fattr->uid;
+ 	inode->i_gid = fattr->gid;
 
-If your hardware is sane it will already be doing cache line size bursts
-and MWI.
+-	if (fattr->valid & NFS_ATTR_FATTR_V3) {
++	if (fattr->valid & (NFS_ATTR_FATTR_V3 | NFS_ATTR_FATTR_V4)) {
+ 		/*
+ 		 * report the blocks in 512byte units
+ 		 */
 

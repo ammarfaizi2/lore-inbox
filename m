@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVC1RgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVC1RhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVC1RgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 12:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVC1RgM
+	id S261962AbVC1RhA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 12:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVC1RhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 12:36:12 -0500
-Received: from scl-ims.phoenix.com ([216.148.212.222]:23138 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S261959AbVC1RgH convert rfc822-to-8bit
+	Mon, 28 Mar 2005 12:37:00 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:42257
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S261962AbVC1Rgx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 12:36:07 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: mmap/munmap on linux-2.6.11
-Date: Mon, 28 Mar 2005 09:35:49 -0800
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301CD4D3A@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: mmap/munmap on linux-2.6.11
-Thread-Index: AcUxgKd2vzo1kzJiSoG3ZJBst1M3CACO7B/A
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <linux-os@analogic.com>, "Linux kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 Mar 2005 17:36:07.0029 (UTC) FILETIME=[9F5A4A50:01C533BC]
+	Mon, 28 Mar 2005 12:36:53 -0500
+Date: Mon, 28 Mar 2005 09:36:52 -0800
+From: Phil Oester <kernel@linuxace.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Garbage on serial console after serial driver loads
+Message-ID: <20050328173652.GA31354@linuxace.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of linux-os
->Sent: Friday, March 25, 2005 1:19 PM
->To: Linux kernel
->Subject: mmap/munmap on linux-2.6.11
->
->Memory gurus,
->
->We have an application where a driver allocates DMA-able memory.
->This DMA-able memory is mmap()ed to user-space. To conserve
->DMA memory only single pages are obtained using
->  __get_dma_pages(GFP_KERNEL, 1) (one page at a time). These
->pages, that may be scattered all about, are mmap()ed into contiguous
->user data-space. The DMA engine uses a scatter-list so we can
->write DMA pages anywhere. They don't have to be contiguous.
->
->Here's a catch. It would be nice to release those DMA pages
->when we don't need them. However, there doesn't appear to
->be any way for driver code to know when munmap() has been
->called and those DMA pages are available to be released.
->
->How do I know that munmap() has been called? It turns out
->that if I release those pages before unmapping the user-mode,
->the system will crash. Therefore this could be a DOS attack
->if my driver ever allowed the DMA pages to be released.
 
-munmap() should do the job for you and release those automatically.
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Aleks.
+On Sat, Mar 26, 2005 at 03:10:05PM +0000, Russell King wrote:
+> Doesn't matter. The problem is that dwmw2's NS16550A patch (from ages
+> ago) changes the prescaler setting for this device so we can use the
+> higher speed baud rates. This means any programmed divisor (programmed
+> at early serial console initialisation time) suddenly becomes wrong as
+> soon as we fiddle with the prescaler during normal UART initialisation
+> time.
+
+Seems like you are correct, given the below patch fixes the garbage
+output for me.
+
+Phil
+
+
+
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-serial
+
+--- linux-standard/drivers/serial/8250.c	2005-03-02 02:37:47.000000000 -0500
++++ linux-dellfw/drivers/serial/8250.c	2005-03-28 12:28:34.560032856 -0500
+@@ -698,7 +698,7 @@
+ 		serial_outp(up, UART_MCR, status1);
+ 
+ 		if ((status2 ^ status1) & UART_MCR_LOOP) {
+-#ifndef CONFIG_PPC
++#if 0
+ 			serial_outp(up, UART_LCR, 0xE0);
+ 			status1 = serial_in(up, 0x04); /* EXCR1 */
+ 			status1 &= ~0xB0; /* Disable LOCK, mask out PRESL[01] */
+
+--VbJkn9YxBvnuCH5J--

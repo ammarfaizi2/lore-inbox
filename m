@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbTLLRNo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 12:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTLLRNo
+	id S261613AbTLLRVU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 12:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTLLRVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 12:13:44 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:42209 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261276AbTLLRNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 12:13:43 -0500
-Message-ID: <3FD9F72C.6040401@nortelnetworks.com>
-Date: Fri, 12 Dec 2003 12:13:16 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 12 Dec 2003 12:21:20 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:5052 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261613AbTLLRVS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 12:21:18 -0500
+Date: Fri, 12 Dec 2003 18:21:16 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <Pine.LNX.4.53.0312121152240.730@chaos>
+Message-ID: <Pine.LNX.4.55.0312121805160.21008@jurand.ds.pg.gda.pl>
+References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
+ <brcoob$a02$1@gatekeeper.tmr.com> <Pine.LNX.4.55.0312121717510.21008@jurand.ds.pg.gda.pl>
+ <Pine.LNX.4.53.0312121152240.730@chaos>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: campbell@accelinc.com
-Cc: Jamie Lokier <jamie@shareable.org>, Helge Hafting <helgehaf@aitel.hist.no>,
-       =?ISO-8859-1?Q?M=E5ns=20Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-References: <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com> <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org> <20031209075619.GA1698@kroah.com> <1070960433.869.77.camel@nomade> <20031209090815.GA2681@kroah.com> <buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp> <yw1xd6ayib3f.fsf@kth.se> <3FD5AB6C.3040008@aitel.hist.no> <20031212112636.GA12727@mail.shareable.org> <20031212163422.GA4051@helium.inexs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Campbell wrote:
-> On Fri, Dec 12, 2003 at 11:26:36AM +0000, Jamie Lokier wrote:
+On Fri, 12 Dec 2003, Richard B. Johnson wrote:
+
+> >  Sometimes the NMI watchdog works in principle, but its activation leads
+> > to system instability -- almost always this is a symptom of buggy SMM code
+>                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > executed by the BIOS behind our back (NMIs are disabled by default in the
+>   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > SMM, but careless code may enable them by accident).
 > 
->>If anyone wants to do this _properly_, this is what to do:
->>
->>
-> 
-> I might have missed something, but this is only for modular devices right?
+> The NMI vector goes to Linux code. In fact all interrupt vectors
+> go to Linux code. There is no way that some BIOS code could possibly
+> be accidentally executed here. Some Linux code would have to
+> call some 16-bit BIOS code somewhere, and it doesn't even know
+> where..........
 
-Depends on what you mean by "this".
+ The problem happens when the SMM is active (i.e. the BIOS code is being
+executed) after an SMI has been received during Linux operation (SMIs may
+get triggered due to various reasons -- a parity/ECC error caught by the
+chipset, an access to an emulated 8042 controller, a power failure in a
+notebook, etc.) and an NMI arrives.  When in the SMM, no interrupt
+(including the NMI) causes a switch back into the protected mode (and the
+processor expects real-mode style interrupt vectors), so the Linux's NMI
+handler is never reached and the SMM's NMI handler (if at all initialized)  
+isn't appropriate for handling the NMI watchdog.  Since the SMM cannot
+know what NMIs are used for in a particular OS, the code should best keep
+NMIs disabled -- then an arriving NMI event is latched and postponed until
+after the RSM instruction is executed.
 
-> No application to devices compiled in monolithically?
-
-As devices are detected, hotplug is called (which then calls udev), and 
-udev finds the new entries in /sys and adds the appropriate nodes in 
-/dev.  Completely separate from udev, the hotplug framework also loads 
-the module if the driver is not compiled-in.
-
-Chris
+ The SMM was invented to be transparent to a running OS, but care has to
+be taken for this to be true and firmware bugs sometimes make the SMM
+activity visible.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

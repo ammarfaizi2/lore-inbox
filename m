@@ -1,89 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275988AbRJKLD5>; Thu, 11 Oct 2001 07:03:57 -0400
+	id <S276018AbRJKLFI>; Thu, 11 Oct 2001 07:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276032AbRJKLDq>; Thu, 11 Oct 2001 07:03:46 -0400
-Received: from [212.169.100.200] ([212.169.100.200]:32240 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S275988AbRJKLDi>; Thu, 11 Oct 2001 07:03:38 -0400
-Date: Thu, 11 Oct 2001 13:03:07 +0200
-From: Morten Helgesen <admin@nextframe.net>
-To: Daniel Kollar <dkollar@fmph.uniba.sk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: parport compile error
-Message-ID: <20011011130307.A126@sexything>
-Reply-To: admin@nextframe.net
-In-Reply-To: <Pine.LNX.4.21.0110111233520.2633-100000@javier.dnp.fmph.uniba.sk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0110111233520.2633-100000@javier.dnp.fmph.uniba.sk>
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+	id <S276052AbRJKLEv>; Thu, 11 Oct 2001 07:04:51 -0400
+Received: from [64.40.52.10] ([64.40.52.10]:45185 "HELO fortytwo.homeip.net")
+	by vger.kernel.org with SMTP id <S276018AbRJKLEa>;
+	Thu, 11 Oct 2001 07:04:30 -0400
+Message-ID: <3BC57C9D.8070601@users.sourceforge.net>
+Date: Thu, 11 Oct 2001 04:03:57 -0700
+From: Colin Bayer <vogon_jeltz@users.sourceforge.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.12 compile fails in ieee1284_ops.c
+Content-Type: multipart/mixed;
+ boundary="------------040706030000010208010602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040706030000010208010602
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Tim Waugh posted the following patch to "unbrake" the parport stuff : 
+I just d/l'ed the late-night bug-fix release, and was expecting a normal 
+compile, when this wrench was thrown into the works:
 
-.. snip ..
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in 
+this function)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in 
+this function)
+make[3]: *** [ieee1284_ops.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/parport'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/parport'
+make[1]: *** [_subdir_parport] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
---- linux/drivers/parport/ieee1284_ops.c.orig   Thu Oct 11 09:40:39 2001
-+++ linux/drivers/parport/ieee1284_ops.c        Thu Oct 11 09:40:42 2001
+Yes, I'm using RedHat (7.1), and yes, their compilers suck, but this one 
+hasn't given me problems with kernel compiles in the past.  I propose 
+somewhat of a one-liner patch to fix this (it's attached).
+
+--------------040706030000010208010602
+Content-Type: text/plain;
+ name="1284_patch.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="1284_patch.diff"
+
+--- linux/drivers/parport/ieee1284_ops.c	Thu Oct 11 03:42:35 2001
++++ linux-patched/drivers/parport/ieee1284_ops.c	Thu Oct 11 04:01:10 2001
 @@ -362,7 +362,7 @@
-        } else {
-                DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
-                         port->name);
--               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
-        }
-
-        return retval;
+ 	} else {
+ 		DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
+ 			 port->name);
+-		port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+ 	}
+ 
+ 	return retval;
 @@ -394,7 +394,7 @@
-                DPRINTK (KERN_DEBUG
-                         "%s: ECP direction: failed to switch forward\n",
-                         port->name);
--               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
-        }
+ 		DPRINTK (KERN_DEBUG
+ 			 "%s: ECP direction: failed to switch forward\n",
+ 			 port->name);
+-		port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+ 	}
+ 
+ 
 
+--------------040706030000010208010602--
 
-.. snip ..
-
-== Morten
-
-On Thu, Oct 11, 2001 at 12:43:29PM +0200, Daniel Kollar wrote:
-> 
-> I get following error message when compiling parport as a module in
-> 2.4.12:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE   -c -o
-> ieee1284_ops.o ieee1284_ops.c
-> ieee1284_ops.c: In function `ecp_forward_to_reverse':
-> ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
-> this function)
-> ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-> ieee1284_ops.c:365: for each function it appears in.)
-> ieee1284_ops.c: In function `ecp_reverse_to_forward':
-> ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
-> this function)
-> 
-> D.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net

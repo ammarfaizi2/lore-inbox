@@ -1,53 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129292AbRA3CuD>; Mon, 29 Jan 2001 21:50:03 -0500
+	id <S129306AbRA3CxN>; Mon, 29 Jan 2001 21:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129101AbRA3Ctn>; Mon, 29 Jan 2001 21:49:43 -0500
-Received: from shell.cyberus.ca ([209.195.95.7]:61110 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S129306AbRA3Ctc>;
-	Mon, 29 Jan 2001 21:49:32 -0500
-Date: Mon, 29 Jan 2001 21:48:40 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <Pine.LNX.4.30.0101291621120.31713-100000@age.cs.columbia.edu>
-Message-ID: <Pine.GSO.4.30.0101292139170.29307-100000@shell.cyberus.ca>
+	id <S129101AbRA3CxD>; Mon, 29 Jan 2001 21:53:03 -0500
+Received: from dns2.chaven.com ([207.238.162.18]:61342 "EHLO shell.chaven.com")
+	by vger.kernel.org with ESMTP id <S129306AbRA3Cwu>;
+	Mon, 29 Jan 2001 21:52:50 -0500
+Message-ID: <007201c08a67$42a925e0$160912ac@stcostlnds2zxj>
+From: "List User" <lists@chaven.com>
+To: "James Sutherland" <jas88@cam.ac.uk>
+Cc: "Chris Evans" <chris@scary.beasts.org>, <Tony.Young@ir.com>,
+        <slug@slug.org.au>, <csa@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.21.0101300215050.21740-100000@green.csi.cam.ac.uk>
+Subject: Re: Linux Disk Performance/File IO per process
+Date: Mon, 29 Jan 2001 20:49:21 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It depends on what the performance hit is 'after coding'.  If the code is
+say less than 5%
+overhead I honestly don't see there being a problem then just to compile it
+in the kernel
+and keep it active all the time.  Only people who would need it would
+compile it in, and
+from experience 5% or less for the systems that would be keeping this data
+is negligible
+considering functionality/statistics gained.
 
 
-On Mon, 29 Jan 2001, Ion Badulescu wrote:
+Steve
+----- Original Message -----
+From: "James Sutherland" <jas88@cam.ac.uk>
+To: "List User" <lists@chaven.com>
+Cc: "Chris Evans" <chris@scary.beasts.org>; <Tony.Young@ir.com>;
+<slug@slug.org.au>; <csa@oss.sgi.com>; <linux-kernel@vger.kernel.org>
+Sent: Monday, January 29, 2001 20:18
+Subject: Re: Linux Disk Performance/File IO per process
 
-> 11.5kBps, quite consistently.
 
-This gige card is really sick. Are you sure? Please double check.
-
+> On Mon, 29 Jan 2001, List User wrote:
 >
-> I've tried it, but I'm not really sure what I can report. ttcp's
-> measurements are clearly misleading, so I used Andrew's cyclesoak instead.
-
-The ttcp CPU (times()) measurements are misleading. In particular when
-doing sendfile. All they say is how much time ttcp spent in kernel space
-vs user space. So all CPU measurement i have posted in the past
-should be considered bogus. It is interesting to note, however, that
-the trend reported by ttcp's CPU measurements as well as Andrew (and
-yourself) are similar;->
-But the point is: CPU is not the only measure that is of interest.
-Throughput is definetly one of those that is of extreme importance.
-100Mbps is not exciting. You seem to have gigE. I think your 11KB looks
-suspiciously wrong. Can you double check please?
-
-cheers,
-jamal
-
-PS:- another important parameter is latency, but that might not be as
-important in file serving (maybe in short file tranfers ala http).
-
+> > Just wanted to 'chime' in here.  Yes this would be noisy and will have
+> > an affect on system performance however these statistics are what are
+> > used in conjunction with several others to size systems as well as to
+> > plan on growth.  If Linux is to be put into an enterprise environment
+> > these types of statistics will be needed.
+> >
+> > When you start hooking up 100's of 'physical volumes' (be it real
+> > disks or raided logical drives) this data helps you pin-point
+> > problems.  I think the idea of having the ability to turn such
+> > accounting on/off via /proc entry a very nice method of doing things.
+>
+> Question: how will the extra overhead of checking this configuration
+> compare with just doing it anyway?
+>
+> If the code ends up as:
+>
+> if (stats_enabled)
+>   counter++;
+>
+> then you'd be better off keeping stats enabled all the time...
+>
+> Obviously it'll be a bit more complex, but will the stats code be able to
+> remove itself completely when disabled, even at runtime??
+>
+> Might be possible with IBM's dprobes, perhaps...?
+>
+> > That way you can leave it off for normal run-time but when users
+> > complain or DBA's et al you can turn it on get some stats for a couple
+> > hours/days whatever, then turn it back off and plan an upgrade or
+> > re-create a logical volume or stripping set.
+>
+> NT allows boot-time (en|dis)abling of stats; they quote a percentage for
+> the performance hit caused - 4%, or something like that?? Of course, they
+> don't say whether that's a 486 on a RAID array or a quad Xeon on IDE, so
+> the accuracy of that figure is a bit questionable...
+>
+>
+> James.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

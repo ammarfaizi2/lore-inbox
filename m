@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264816AbRF1WtC>; Thu, 28 Jun 2001 18:49:02 -0400
+	id <S264812AbRF1Wum>; Thu, 28 Jun 2001 18:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264812AbRF1Wsx>; Thu, 28 Jun 2001 18:48:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20382 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264803AbRF1Wsl>;
-	Thu, 28 Jun 2001 18:48:41 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S264830AbRF1Wuc>; Thu, 28 Jun 2001 18:50:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61713 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264825AbRF1Wtg>; Thu, 28 Jun 2001 18:49:36 -0400
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 28 Jun 2001 23:48:53 +0100 (BST)
+Cc: bcrl@redhat.com (Ben LaHaise), jes@sunsite.dk (Jes Sorensen),
+        hiren_mehta@agilent.com ("MEHTA,HIREN (A-SanJose,ex1)"),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <15163.45534.977835.569473@pizda.ninka.net> from "David S. Miller" at Jun 28, 2001 03:38:22 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15163.46150.164836.342792@pizda.ninka.net>
-Date: Thu, 28 Jun 2001 15:48:38 -0700 (PDT)
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: Jes Sorensen <jes@sunsite.dk>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
- achi ne
-In-Reply-To: <Pine.LNX.4.33.0106281840330.32276-100000@toomuch.toronto.redhat.com>
-In-Reply-To: <15163.45534.977835.569473@pizda.ninka.net>
-	<Pine.LNX.4.33.0106281840330.32276-100000@toomuch.toronto.redhat.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <E15Fkaj-0007nI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> There are so many issues with 64-bit DAC support, that many of
+> the people whining in this thread have not even considered, and
 
-Ben LaHaise writes:
- > > How do you represent this with the undocumented API ia64 has decided
- > > to use?  You can't convey this information to the driver, because the
- > > driver may say "I don't care if it's slower, I want the large
- > > addressing because otherwise I'd consume or overflow the IOMMU
- > > resources".  How do you say "SAC is preferred for performance" with
- > > ia64's API?  You can't.
- > 
- > How is SAC useful on ia64?  All the machines are going to be shipped with
- > more than 4GB of RAM, and they need an IOMMU.
+Such as ? - I can see the obvious ones
 
-That is all that some devices are able to do, especially sound
-cards, some of which even have < 32-bit addressing limitations.
-ia64 supports such devices just fine, I know it does, else you
-couldn't stick an eepro100 into an ia64 box running Linux :-)
+-	Its slower
+-	Not all host bridges can hit all of RAM
+-	You want to use SAC and IOMMU when possible
 
-There is a software IOMMU implemented in the ia64 port, and it
-handles such SAC situations today.
+> resources".  How do you say "SAC is preferred for performance" with
+> ia64's API?  You can't.
 
- > Like it or not, 64 bit DMA is here, NOW.  Not during the 2.6, but during
- > 2.4.  We can either start fixing the ia64 APIs and replacing them with
- > something that's "Right" or we can continue with ad hoc solutions.
+I doubt they worried about it, SAC isnt terribly useful on IA64 right now.
 
-It will be fixed in 2.5.x and backported perhaps to 2.4.x, 2.4.x is
-not a place for API experimentation.
+> This, almost with several other issues, need to be considered and
+> handled by whatever API you come up with.  If it does not address
+> all of these issues somehow, it is unacceptable.
 
-Later,
-David S. Miller
-davem@redhat.com
+Nod
+

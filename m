@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUIGQUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUIGQHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268132AbUIGQUy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUIGQSH
+	id S268249AbUIGQHc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUIGPCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:18:07 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64462 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268111AbUIGQRV (ORCPT
+	Tue, 7 Sep 2004 11:02:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49091 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268223AbUIGO7S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 12:17:21 -0400
-Date: Tue, 7 Sep 2004 09:14:39 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
-cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Len Brown <len.brown@intel.com>, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
-In-Reply-To: <413C1F21.32130.254827@rkdvmks1.ngate.uni-regensburg.de>
-Message-ID: <Pine.LNX.4.58.0409070912460.8484@schroedinger.engr.sgi.com>
-References: <1094240482.14662.525.camel@cog.beaverton.ibm.com>
- <413C1F21.32130.254827@rkdvmks1.ngate.uni-regensburg.de>
+	Tue, 7 Sep 2004 10:59:18 -0400
+Date: Tue, 7 Sep 2004 07:59:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Steve French <smfltc@us.ibm.com>
+Subject: Re: [PATCH 4/4] copyfile: copyfile
+In-Reply-To: <20040907145118.GA29993@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.58.0409070756410.2299@ppc970.osdl.org>
+References: <20040907120908.GB26630@wohnheim.fh-wedel.de>
+ <20040907121118.GA27297@wohnheim.fh-wedel.de> <20040907121235.GB27297@wohnheim.fh-wedel.de>
+ <20040907121520.GC27297@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
+ <20040907145118.GA29993@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Sep 2004, Ulrich Windl wrote:
 
-> On 3 Sep 2004 at 22:26, Dominik Brodowski wrote:
->
-> ...
-> > What about removing cpu_freq_khz you have in your patch, adding a per-CPU
-> > value, and just use the value of the boot CPU for the other CPUs if
-> > !CONFIG_DIFFERENT_CPU_SPEEDS or something like that?
-> ...
->
-> I would not mention SMP at that stage, but most of the existing code on IA32
-> suumes that all CPUs run with the same frequency. I only heared that at least on
-> Alphas this is not true. Probably you'll need a per-CPU state regarding time. Most
-> likely resulting in the "local CPU's time" and a global concept of time that
-> should not be in contradiction with any CPU's time. That might mean that any
-> process always has to query the global time, involving extra overhead.
 
-CPUs in SGI Altix systems may also run at different frequencies.
-Typically 2 CPUs have a common clock source. For example in a system of
-16 CPUs, there may exist 8 clock sources that slightly diverge from one
-another.
+On Tue, 7 Sep 2004, Jörn Engel wrote:
+
+> On Tue, 7 September 2004 07:06:00 -0700, Linus Torvalds wrote:
+> > 
+> > Then you could (and should) make a "generic_file_copy()" function that
+> > takes that pathname format, and then uses sendfile() to do the copy for
+> > regular disk-based filesystems.
+> 
+> Does that mean that you're ok with the first three patches?
+
+No, it means that they weren't fundamentally flawed..
+
+Actually, the 4kB batching one was - if you only max out to using 4kB at a 
+time, sendfile() is kind of pointless, because then it will never do 
+multi-page copies in the first place, and all the complexity at a lower 
+level is worthless..
+
+		Linus

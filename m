@@ -1,62 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVBJRXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVBJRYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVBJRXi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 12:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVBJRXi
+	id S262166AbVBJRYu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 12:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVBJRYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 12:23:38 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:27247 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262165AbVBJRXg
+	Thu, 10 Feb 2005 12:24:50 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:65475 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262166AbVBJRYV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 12:23:36 -0500
-Date: Thu, 10 Feb 2005 11:23:23 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: EDD failures since edd=off patch
-Message-ID: <20050210172323.GA29225@lists.us.dell.com>
-References: <420B6BA8.1040808@gmx.net>
+	Thu, 10 Feb 2005 12:24:21 -0500
+Subject: Re: [RFC][PATCH] add driver matching priorities
+From: Adam Belay <abelay@novell.com>
+To: Greg KH <greg@kroah.com>
+Cc: rml@novell.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050210084113.GZ32727@kroah.com>
+References: <1106951404.29709.20.camel@localhost.localdomain>
+	 <20050210084113.GZ32727@kroah.com>
+Content-Type: text/plain
+Date: Thu, 10 Feb 2005 12:18:37 -0500
+Message-Id: <1108055918.3423.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420B6BA8.1040808@gmx.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 03:11:52PM +0100, Carl-Daniel Hailfinger wrote:
-> Hi Matt,
+On Thu, 2005-02-10 at 00:41 -0800, Greg KH wrote:
+> On Fri, Jan 28, 2005 at 05:30:04PM -0500, Adam Belay wrote:
+> > Hi,
+> > 
+> > This patch adds initial support for driver matching priorities to the
+> > driver model.  It is needed for my work on converting the pci bridge
+> > driver to use "struct device_driver".  It may also be helpful for driver
+> > with more complex (or long id lists as I've seen in many cases) matching
+> > criteria. 
+> > 
+> > "match" has been added to "struct device_driver".  There are now two
+> > steps in the matching process.  The first step is a bus specific filter
+> > that determines possible driver candidates.  The second step is a driver
+> > specific match function that verifies if the driver will work with the
+> > hardware, and returns a priority code (how well it is able to handle the
+> > device).  The bus layer could override the driver's match function if
+> > necessary (similar to how it passes *probe through it's layer and then
+> > on to the actual driver).
+> > 
+> > The current priorities are as follows:
+> > 
+> > enum {
+> > 	MATCH_PRIORITY_FAILURE = 0,
+> > 	MATCH_PRIORITY_GENERIC,
+> > 	MATCH_PRIORITY_NORMAL,
+> > 	MATCH_PRIORITY_VENDOR,
+> > };
+> > 
+> > let me know if any of this would need to be changed.  For example, the
+> > "struct bus_type" match function could return a priority code.
+> > 
+> > Of course this patch is not going to be effective alone.  We also need
+> > to change the init order.  If a driver is registered early but isn't the
+> > best available, it will be bound to the device prematurely.  This would
+> > be a problem for carbus (yenta) bridges.
+> > 
+> > I think we may have to load all in kernel drivers first, and then begin
+> > matching them to hardware.  Do you agree?  If so, I'd be happy to make a
+> > patch for that too.
 > 
-> it seems the edd=off patch has caused some problems with
-> some machines I have access to. They simply don't boot
-> anymore unless I specify edd=foo. foo can be {off,skip,bar}
-> so it seems the hang on boot is related to the parser
-> not finding the parameter it is looking for.
-> I looked through the code some days ago and it seemed to
-> me that the register used to iterate through the command
-> line buffer only got its lower 16 bit reset before calling
-> into the BIOS. I don't have the code handy right now,
-> but I can look later if the hints I gave are insufficient.
+> I think the issue that Al raises about drivers grabbing devices, and
+> then trying to unbind them might be a real problem.
 
-Yes, please.  I'm reading the code, and %ecx gets set to
-(COMMAND_LINE_SIZE-7) which is 256-7=249.  So the upper 24 bits of
-%ecx are going to always be zero, and if "edd=" isn't seen, then %ecx
-will be zero when dropping into edd_mbr_sig_start.  The only other
-register touched is %esi, but it's pushed at the beginning, and pop'd
-on all exit cases, so that should be unchanged.
+I agree.  Do you think registering every in-kernel driver before probing
+hardware would solve this problem?
 
-ZF is the only other bit I can picture.  On the "no edd= option" path,
-ZF=0 on exit.  With "edd=of" or "edd=sk", ZF=1.  But with "edd=bar",
-ZF=0, which you say works too.  So that's not it...
+> 
+> Also, why can't this just be done in the bus specific code, in the match
+> function?  I don't see how putting this into the driver core helps out
+> any.
 
-CF is taken care of around the int13 calls already, so that's not
-it...
+The match priority is a chararistic of the driver and how it's
+implemented rather than the bus's matching mechanism.  The type of match
+doesn't necessarily reflect the driver's ability to control the hardware
+(ex. a driver could match on a specific PCI id but only provide generic
+support for the device).
+
+Also, I think this is a feature that would be useful for all of the
+buses.  Therefore, it would seem implementing it in the driver core
+might result in the least code duplication.
+
+The second "*match" function in "struct device_driver" gives the driver
+a chance to evaluate it's ability of controlling the device and solves a
+few problems with the current implementation.  (ex. it's not possible to
+detect ISA Modems with only a list of PnP IDs, and some PCI devices
+support a pool of IDs that is too large to put in an ID table).
 
 Thanks,
-Matt
+Adam
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+

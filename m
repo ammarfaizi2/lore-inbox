@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbTAJHZt>; Fri, 10 Jan 2003 02:25:49 -0500
+	id <S263313AbTAJHYp>; Fri, 10 Jan 2003 02:24:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263837AbTAJHYs>; Fri, 10 Jan 2003 02:24:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:3820 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263342AbTAJHYo>;
+	id <S263837AbTAJHYp>; Fri, 10 Jan 2003 02:24:45 -0500
+Received: from dp.samba.org ([66.70.73.150]:748 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263313AbTAJHYo>;
 	Fri, 10 Jan 2003 02:24:44 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty 
-In-reply-to: Your message of "Tue, 07 Jan 2003 15:32:39 +0900."
-             <20030107063239.F1ED73745@mcspd15.ucom.lsi.nec.co.jp> 
-Date: Wed, 08 Jan 2003 22:56:51 +1100
-Message-Id: <20030110073328.D41A52C310@lists.samba.org>
+To: davidm@hpl.hp.com
+Cc: Mike Stephens <mike.stephens@intel.com>, linux-kernel@vger.kernel.org,
+       bjornw@axis.com, geert@linux-m68k.org, ralf@gnu.org, mkp@mkp.net,
+       willy@debian.org, anton@samba.org, gniibe@m17n.org,
+       kkojima@rr.iij4u.or.jp, Jeff Dike <jdike@karaya.com>
+Subject: Re: Userspace Test Framework for module loader porting 
+In-reply-to: Your message of "Mon, 06 Jan 2003 16:37:06 -0800."
+             <15898.8498.519625.200668@napali.hpl.hp.com> 
+Date: Wed, 08 Jan 2003 22:44:15 +1100
+Message-Id: <20030110073328.C96122C2A8@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030107063239.F1ED73745@mcspd15.ucom.lsi.nec.co.jp> you write:
-> Since these are just symbols in the module object, they need symbol name
-> munging to find the symbol from the parameter name.
+In message <15898.8498.519625.200668@napali.hpl.hp.com> you write:
+> >>>>> On Mon, 6 Jan 2003 14:41:04 -0800, Richard Henderson <rth@twiddle.net> 
+said:
+> 
+>   Rich> On Mon, Jan 06, 2003 at 11:38:20AM -0800, David Mosberger
+>   Rich> wrote:
+> 
+>   >> What about all the problems that Richard Henderson pointed out
+>   >> with the original in-kernel module loader?  Were those solved?
+> 
+>   Rich> Yes.
+> 
+> OK, that's good.
+> 
+> Rusty, have you maintained the ia64 support of your in-kernel loader?
 
-Good point.  Linus, please apply.
+No, but I can update it next week when I'm back in the office.  Should
+be trivial to do; I'll pass it by Mike Stephens if he's willing,
+though, since he wrote the original code I cribbed off.
 
-> [I guess using the stack is bad in general, but parameter names should be
-> very short, and hey if they're obsolete, it seems pointless to spend
-> much effort.]
+> I'd rather prefer the old (user-level loader) 
 
-Should be fine here.  I removed the spaces between the funcname and
-the brackets tho.
+Really?  Because it already exists (and is maintained by someone else)
+or for some other reason?
 
-Thanks!
+> or the new shared-object loader.
+
+I thought about letting archs choose which one they wanted to use, but
+it would really mess up the core code.  Of course, the transition
+won't break userspace (kind of the whole point of the in-kernel module
+loader).
+
+Cheers!
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-Name: Make obsolete module parameters work with MODULE_SYMBOL_PREFIX
-Author: Miles Bader
-Status: Trivial
-
-D: Since these are just symbols in the module object, they need symbol name
-D: munging to find the symbol from the parameter name.
-
-diff -ruN -X../cludes linux-2.5.54-moo.orig/kernel/module.c linux-2.5.54-moo/kernel/module.c
---- linux-2.5.54-moo.orig/kernel/module.c	2003-01-06 10:51:20.000000000 +0900
-+++ linux-2.5.54-moo/kernel/module.c	2003-01-07 14:31:53.000000000 +0900
-@@ -666,13 +666,18 @@
- 		       num, obsparm[i].name, obsparm[i].type);
- 
- 	for (i = 0; i < num; i++) {
-+		char sym_name[strlen(obsparm[i].name) + 2];
-+
-+		strcpy(sym_name, MODULE_SYMBOL_PREFIX);
-+		strcat(sym_name, obsparm[i].name);
-+
- 		kp[i].name = obsparm[i].name;
- 		kp[i].perm = 000;
- 		kp[i].set = set_obsolete;
- 		kp[i].get = NULL;
- 		obsparm[i].addr
- 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
--						    obsparm[i].name);
-+						    sym_name);
- 		if (!obsparm[i].addr) {
- 			printk("%s: falsely claims to have parameter %s\n",
- 			       name, obsparm[i].name);

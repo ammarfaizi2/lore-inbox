@@ -1,35 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUJSLqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUJSLkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268235AbUJSLqL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 07:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUJSLkx
+	id S268148AbUJSLkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 07:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268367AbUJSLkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 07:40:53 -0400
-Received: from web50608.mail.yahoo.com ([206.190.38.95]:50361 "HELO
-	web50608.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268306AbUJSLXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 07:23:54 -0400
-Message-ID: <20041019112347.93552.qmail@web50608.mail.yahoo.com>
-Date: Tue, 19 Oct 2004 04:23:46 -0700 (PDT)
-From: Jeba Anandhan A <jeba_career@yahoo.com>
-Subject: USB Device Access 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Oct 2004 07:40:36 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64161
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S268207AbUJSLW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 07:22:56 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041019110755.GA25246@elte.hu>
+References: <20041014143131.GA20258@elte.hu>
+	 <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+	 <1098173546.12223.737.camel@thomas> <20041019090428.GA17204@elte.hu>
+	 <1098176615.12223.753.camel@thomas> <20041019093414.GA18086@elte.hu>
+	 <1098180746.12223.811.camel@thomas>  <20041019110755.GA25246@elte.hu>
+Content-Type: multipart/mixed; boundary="=-LVfC9MGmw9c0/W9hSkKz"
+Organization: linutronix
+Message-Id: <1098184497.12223.825.camel@thomas>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 13:14:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i have one USB Flash Disk.when i attached to it,linux
-2.4.20-8 detected it as /dev/sda1.my question,i wish
-to write some raw data and read raw data.it consist
-fat filesystem.how to do it.[shall i need to mount the
-device in some directory].
-expecting reply
-urgent please
+
+--=-LVfC9MGmw9c0/W9hSkKz
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2004-10-19 at 13:07, Ingo Molnar wrote:
+> * Thomas Gleixner <tglx@linutronix.de> wrote:
+> 
+> > +        * Wait for the lockd process to start, but since we're holding
+> > +        * the lockd semaphore, we can't wait around forever ...
+> > +        */
+> > +       if (wait_event_interruptible_timeout(lockd_start,
+> > +                                            nlmsvc_pid != 0, HZ)) {
+> > +               printk(KERN_WARNING
+> > +                       "lockd_down: lockd failed to start\n");
+> 
+> yeah, this is much cleaner. 
+
+Cleaner, but not perfect. The return value is > 0, if the timeout is not
+reached. Grmbl.
+
+> I'd suggest to remove the init_sem() hack
+> from lib/rwsem-generic.c, it seems it is a nice facility to find
+> semaphore abuses.
+
+True. Will do so.
+
+tglx
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+
+--=-LVfC9MGmw9c0/W9hSkKz
+Content-Disposition: attachment; filename=svc.c.diff
+Content-Type: text/x-patch; name=svc.c.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+
+--- 2.6.9-rc4-mm1-RT-U5/fs/lockd/svc.c.orig	2004-10-19 10:02:17.000000000 +0200
++++ 2.6.9-rc4-mm1-VP-U5/fs/lockd/svc.c	2004-10-19 12:59:41.000000000 +0200
+@@ -46,7 +46,7 @@
+ int				nlmsvc_grace_period;
+ unsigned long			nlmsvc_timeout;
+ 
+-static DECLARE_MUTEX(lockd_start);
++static DECLARE_WAIT_QUEUE_HEAD(lockd_start);
+ static DECLARE_WAIT_QUEUE_HEAD(lockd_exit);
+ 
+ /*
+@@ -109,7 +109,7 @@
+ 	 * Let our maker know we're running.
+ 	 */
+ 	nlmsvc_pid = current->pid;
+-	up(&lockd_start);
++	wake_up(&lockd_start);
+ 
+ 	daemonize("lockd");
+ 
+@@ -230,6 +230,7 @@
+ 		printk(KERN_WARNING
+ 			"lockd_up: no pid, %d users??\n", nlmsvc_users);
+ 
++
+ 	error = -ENOMEM;
+ 	serv = svc_create(&nlmsvc_program, LOCKD_BUFSIZE);
+ 	if (!serv) {
+@@ -258,8 +259,15 @@
+ 			"lockd_up: create thread failed, error=%d\n", error);
+ 		goto destroy_and_out;
+ 	}
+-	down(&lockd_start);
+-
++	/*
++	 * Wait for the lockd process to start, but since we're holding
++	 * the lockd semaphore, we can't wait around forever ...
++	 */
++	if (wait_event_interruptible_timeout(lockd_start, 
++					     nlmsvc_pid != 0, HZ) <= 0) {
++		printk(KERN_WARNING 
++			"lockd_down: lockd failed to start\n");
++	}
+ 	/*
+ 	 * Note: svc_serv structures have an initial use count of 1,
+ 	 * so we exit through here on both success and failure.
+@@ -298,16 +306,12 @@
+ 	 * Wait for the lockd process to exit, but since we're holding
+ 	 * the lockd semaphore, we can't wait around forever ...
+ 	 */
+-	clear_thread_flag(TIF_SIGPENDING);
+-	interruptible_sleep_on_timeout(&lockd_exit, HZ);
+-	if (nlmsvc_pid) {
++	if (!wait_event_interruptible_timeout(lockd_exit, 
++					     nlmsvc_pid == 0, HZ) <= 0) {
+ 		printk(KERN_WARNING 
+ 			"lockd_down: lockd failed to exit, clearing pid\n");
+ 		nlmsvc_pid = 0;
+ 	}
+-	spin_lock_irq(&current->sighand->siglock);
+-	recalc_sigpending();
+-	spin_unlock_irq(&current->sighand->siglock);
+ out:
+ 	up(&nlmsvc_sema);
+ }
+@@ -423,7 +427,6 @@
+ 
+ static int __init init_nlm(void)
+ {
+-	init_MUTEX_LOCKED(&lockd_start);
+ 	nlm_sysctl_table = register_sysctl_table(nlm_sysctl_root, 0);
+ 	return nlm_sysctl_table ? 0 : -ENOMEM;
+ }
+
+--=-LVfC9MGmw9c0/W9hSkKz--
+

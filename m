@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSKCDhS>; Sat, 2 Nov 2002 22:37:18 -0500
+	id <S261597AbSKCDrH>; Sat, 2 Nov 2002 22:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbSKCDhS>; Sat, 2 Nov 2002 22:37:18 -0500
-Received: from pop015pub.verizon.net ([206.46.170.172]:41617 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP
-	id <S261582AbSKCDhR>; Sat, 2 Nov 2002 22:37:17 -0500
-Date: Sat, 02 Nov 2002 21:43:12 -0500
-From: Akira Tsukamoto <at541@columbia.edu>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
-Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <3DC415DA.29D22E92@digeo.com>
-References: <20021102060423.032A.AT541@columbia.edu> <3DC415DA.29D22E92@digeo.com>
-Message-Id: <20021102210737.3794.AT541@columbia.edu>
+	id <S261599AbSKCDrH>; Sat, 2 Nov 2002 22:47:07 -0500
+Received: from 0wned.org ([207.164.207.21]:53770 "EHLO nitro.0wned.org")
+	by vger.kernel.org with ESMTP id <S261597AbSKCDrG>;
+	Sat, 2 Nov 2002 22:47:06 -0500
+From: George Staikos <staikos@kde.org>
+To: Nero <neroz@iinet.net.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+Date: Sat, 2 Nov 2002 22:53:07 -0500
+User-Agent: KMail/1.5
+References: <1036274342.16803.27.camel@irongate.swansea.linux.org.uk> <20021102232836.GD731@gallifrey> <200211030943.13730.neroz@iinet.net.au>
+In-Reply-To: <200211030943.13730.neroz@iinet.net.au>
+Cc: Roman Zippel <zippel@linux-m68k.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop015.verizon.net from [138.89.32.225] at Sat, 2 Nov 2002 21:43:40 -0600
+Content-Disposition: inline
+Message-Id: <200211022253.07606.staikos@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Nov 2002 10:13:46 -0800
-Andrew Morton <akpm@digeo.com> mentioned:
-> Akira Tsukamoto wrote:
-> > > size by 17 kbytes, which is larger than my entire Layer 1 instruction
-> > > cache!
-> > 
-> > It is because I was working on this patch based on 2.5.44 :)
+On November 2, 2002 17:43, Nero wrote:
 
-Oh, Oh,
-I meant the above that I *do* agree you. I just wanted to say,
-two function was kept inline because from before 2.4 until though 2.5.44,
-it was inlined, and when I received the faster-intel-copy from
-Takahashi, I was working my patch against 2.5.44.
+> thing. If you absolutely hate GTK+, there is menuconfig, and IIRC KDE have
+> their own [external] kernel configurator utility.
 
-Just move __copy_to/from_user to usercopy.c will decrease the 
-kernel size and should be almost the same as before. 
-Am I missing something?
+   Please contact myself and/or Malte Starostik (kcmlinuz author) regarding 
+the KDE kernel configurator.  We have full intentions to support the new 
+system once it is in widespread use.  Support for the new system will not be 
+in KDE 3.1 but it should be in KDE 3.2 if all goes as planned.
 
-> - cache misses are slow
-> - kernel has no right to be evicting user code from the CPU cache
-
-Is this relevant to this patch?
-I did not change any in my patch about it.
-
-> - subroutine calls are fast
-
-You mean almost no overhead.
-
-> - smaller is faster
-
-It could be said more efficient but faster?
-The code or binary size directly connected to this issue?
-
-> - inlining to the point of increasing code size is probably wrong
-
-I agree, as my first comment.
+   If anyone has some feedback regarding the design we would also be 
+interested in that.
 
 
+   Additionally, to those who complain about Qt's size and dependencies:
+   1) The 16MB Qt .gz (13MB .bz2) contains much more than just the library.  
+it contains Qt Designer, example code, full and complete documentation for 
+the entire library, etc.  That's not obscene in comparison with gtk+ and all 
+accompanying RAD tools etc.  If for some reason 16MB vs 8.5MB really hurts, 
+contact Trolltech and ask them if they will split the package up for you.
+
+    2) Exactly what dependencies other than g++, yacc, and X11 devel libraries 
+are you concerned about?  I'm not sure there are any others.  If you're 
+really afraid of C++, I can assure you that it's not so scary, and you don't 
+even have to look at the C++ code.  However if you must, there are tutorials 
+available online.
+
+   Anyhow, I think it's great to see a kernel config system that can have a 
+GUI implemented with stdio, curses, Xlib, GTK and Qt.  That's clearly the 
+best plan and they should all be available to choose from.
+
+Thanks
+
+-- 
+
+George Staikos
 

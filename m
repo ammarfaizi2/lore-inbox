@@ -1,92 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267167AbSLDXxq>; Wed, 4 Dec 2002 18:53:46 -0500
+	id <S267277AbSLEACO>; Wed, 4 Dec 2002 19:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267169AbSLDXxq>; Wed, 4 Dec 2002 18:53:46 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:62226 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267167AbSLDXxn>; Wed, 4 Dec 2002 18:53:43 -0500
-Subject: Re: [PATCH 1/3: FBDEV: VGA State Save/Restore module
-From: Antonino Daplas <adaplas@pol.net>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <96665BC46B2@vcnet.vc.cvut.cz>
-References: <96665BC46B2@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1039056748.1032.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Dec 2002 07:53:16 +0500
+	id <S267280AbSLEACN>; Wed, 4 Dec 2002 19:02:13 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:59797 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267277AbSLEACI>;
+	Wed, 4 Dec 2002 19:02:08 -0500
+Message-ID: <3DEE97BC.2000703@us.ibm.com>
+Date: Wed, 04 Dec 2002 16:03:08 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, Martin Bligh <mjbligh@us.ibm.com>,
+       Peter Rival <frival@zk3.dec.com>, Anton Blanchard <anton@samba.org>
+CC: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: [patch][trivial] include <asm-generic/topology.h>
+Content-Type: multipart/mixed;
+ boundary="------------020103020806080304090505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-05 at 03:33, Petr Vandrovec wrote:
-> On  5 Dec 02 at 6:05, Antonino Daplas wrote:
-> > On Wed, 2002-12-04 at 23:41, Petr Vandrovec wrote:
-> > > On  4 Dec 02 at 22:26, Antonino Daplas wrote:
-> > [...]
-> > > And if my VGA documentation is correct, you are saving random
-> > > data into vga_text: first 8192 chars interleaved with
-> > > 8192 bytes of garbage, plus attributes from chars 8192-16383 interleaved
-> > > with 8192 bytes of garbage. 
-> > >
-> > Right, I'm not sure about this part too.  The docs say that this is true
-> > for EGA compatible hardware.  How about non-compliant hardware?  
-> 
-> Like non-VGA? Like CGA/MDA? I thought that non-VGA/non-EGA adapters are 
-> out of scope of this document ;-)
->   
-Okay :-), as I've said this is the part I'm not sure of.  I'll do it
-your way then, save 8K at offset 0 and save 8K at offset 16K.  That
-should be 16K used instead of 32K, right?
+This is a multi-part message in MIME format.
+--------------020103020806080304090505
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > > And if you are using standard hardware, then font data live only in
-> > > plane 2, plane 3 is unused on VGA hardware in text mode. I think that
-> > > you should either save whole 256KB of memory, without deeper understanding,
-> > > or you should just save FONT 0 (first 32*256 bytes from plane 2) if you
-> 
-> > Only if saving the first character map in plane 2.  Hardware can have as
-> > much as 8 character maps per plane, each 8K in size for 64K.  The same
-> > setup is true for plane 3 fonts.
-> 
-> How you select them? Mine doc says that font block 0 begins in plane 2
-> at offset 0, block 1 at offset 16KB, 2 at 32K, 3 at 48K, 4 at 8K, 5 at 24K,
-> 6 at 40K, and last, 7th, at 56KB, and sequencer has two threebit fields...
-> 
-Selection was not the problem, the code just saves the entire 64K for
-character maps 0-7.
+Linus,
+	For a small bit of sanity and a savings of 9 lines of code, we should 
+be including the generic topology macros in the alpha & ppc64 topology 
+files, rather than just redefining them.  It is much easier to keep all 
+the generic topology macros in sync this way, too.
 
-> > > want to save memory and you know that console was driven by vgacon in
-> > > text mode.
-> > To save memory, apps can explicitly choose what to save, but I don't
-> > want to go finer than that, ie. save character maps 2,3,5  of plane 2
-> > and 1,2,3 of plane 3.  The current way of saving the text mode map may
-> > be a bit wasteful, but better than being bitten by hardware that's
-> > non-EGA compliant.  
-> 
-> Look at vgacon. Uses font block 0,2,3 from plane 2 when built
-> without BROKEN_GRAPHICS_PROGRAMS, or 0,1 when built with 
-> BROKEN_GRAPHICS_PROGRAMS. So if you want just restore vgacon environment,
-> save only these 4 blocks (4*8K = 32K). Or you want to save whole
-> VGA memory, and then save whole 256KB, without tricks while saving
-> planes 0 & 1.
+Cheers!
 
-Okay, then.  My approach was to be non-vgacon specific.  I'll do it to
-specifically target vgacon then.
+-Matt
 
-To summarize:
-plane 0/1 save 8K at offset 0 and 8K at offset 16K;
-plane 2   save 32K at offset 0 (covers blocks 0-3),
-plane 3   same for plane 2
+[mcd@arrakis patches]$ diffstat use_generic_topo-2.5.50.patch
+  asm-alpha/topology.h |   19 +++++++------------
+  asm-ppc64/topology.h |    8 ++------
+  2 files changed, 9 insertions(+), 18 deletions(-)
 
-Drivers can set VGA_SAVE_TEXT | VGA_SAVE_FONT0 to save planes 0-2.  If
-there are no complaints, I'll  proceed doing it this way.
 
-Thanks for the input Petr.
+--------------020103020806080304090505
+Content-Type: text/plain;
+ name="use_generic_topo-2.5.50.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="use_generic_topo-2.5.50.patch"
 
-Tony
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.50-vanilla/include/asm-alpha/topology.h linux-2.5.50-use_generic/include/asm-alpha/topology.h
+--- linux-2.5.50-vanilla/include/asm-alpha/topology.h	Wed Nov 27 14:35:53 2002
++++ linux-2.5.50-use_generic/include/asm-alpha/topology.h	Wed Dec  4 15:57:38 2002
+@@ -1,20 +1,15 @@
+ #ifndef _ASM_ALPHA_TOPOLOGY_H
+ #define _ASM_ALPHA_TOPOLOGY_H
+ 
+-#ifdef CONFIG_NUMA
+-#ifdef CONFIG_ALPHA_WILDFIRE
++#if defined(CONFIG_NUMA) && defined(CONFIG_ALPHA_WILDFIRE)
++
+ /* With wildfire assume 4 CPUs per node */
+ #define __cpu_to_node(cpu)		((cpu) >> 2)
+-#endif /* CONFIG_ALPHA_WILDFIRE */
+-#endif /* CONFIG_NUMA */
+ 
+-#if !defined(CONFIG_NUMA) || !defined(CONFIG_ALPHA_WILDFIRE)
+-#define __cpu_to_node(cpu)		(0)
+-#define __memblk_to_node(memblk)	(0)
+-#define __parent_node(nid)		(0)
+-#define __node_to_first_cpu(node)	(0)
+-#define __node_to_cpu_mask(node)	(cpu_online_map)
+-#define __node_to_memblk(node)		(0)
+-#endif /* !CONFIG_NUMA || !CONFIG_ALPHA_WILDFIRE */
++#else /* !CONFIG_NUMA || !CONFIG_ALPHA_WILDFIRE */
++
++#include <asm-generic/topology.h>
++
++#endif /* CONFIG_NUMA && CONFIG_ALPHA_WILDFIRE */
+ 
+ #endif /* _ASM_ALPHA_TOPOLOGY_H */
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.50-vanilla/include/asm-ppc64/topology.h linux-2.5.50-use_generic/include/asm-ppc64/topology.h
+--- linux-2.5.50-vanilla/include/asm-ppc64/topology.h	Wed Nov 27 14:36:22 2002
++++ linux-2.5.50-use_generic/include/asm-ppc64/topology.h	Wed Dec  4 15:57:38 2002
+@@ -48,12 +48,8 @@
+ 
+ #else /* !CONFIG_NUMA */
+ 
+-#define __cpu_to_node(cpu)		(0)
+-#define __memblk_to_node(memblk)	(0)
+-#define __parent_node(nid)		(0)
+-#define __node_to_first_cpu(node)	(0)
+-#define __node_to_cpu_mask(node)	(cpu_online_map)
+-#define __node_to_memblk(node)		(0)
++/* If non-NUMA, grab the generic macros */
++#include <asm-generic/topology.h>
+ 
+ #endif /* CONFIG_NUMA */
+ 
 
+--------------020103020806080304090505--
 

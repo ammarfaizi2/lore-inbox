@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318416AbSGaRh7>; Wed, 31 Jul 2002 13:37:59 -0400
+	id <S318415AbSGaRgf>; Wed, 31 Jul 2002 13:36:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318417AbSGaRh7>; Wed, 31 Jul 2002 13:37:59 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:43277 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318416AbSGaRh6>; Wed, 31 Jul 2002 13:37:58 -0400
-Date: Wed, 31 Jul 2002 10:41:16 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Nico Schottelius <nico-mutt@schottelius.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUGS] 2.5.29: scsi/pcmcia|sound/trident|devfs
-In-Reply-To: <20020731171517.GA818@schottelius.org>
-Message-ID: <Pine.LNX.4.44.0207311037570.13905-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318416AbSGaRgf>; Wed, 31 Jul 2002 13:36:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58383 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318415AbSGaRge>; Wed, 31 Jul 2002 13:36:34 -0400
+Date: Wed, 31 Jul 2002 18:39:57 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: devfs and tty layer.
+Message-ID: <20020731183957.B18153@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207311026580.13905-100000@www.transvirtual.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207311026580.13905-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jul 31, 2002 at 10:37:15AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 31, 2002 at 10:37:15AM -0700, James Simmons wrote:
+>    As you already seen there has been a issue with devfs and the VT code.
+> I have moved the tty registeration later for VTs so the TTY_DRIVER_NO_DEVFS
+> flag was no longer needed.
 
-> ################################################################################
-> ### Hangup/Kernel Panics:
-> ################################################################################
->
->    - devfs: drivers/char/console.c:2527: con_init_devfs(); is missing.
->      Hey guys, this bug exists in at least 3 kernel versions!
+It's needed for serial.  Please don't remove it just yet.
 
-I'm working on a proper fix. BTW how do you get a kernel panic? I'm
-running devfs plus con_init_devfs is not called. tty_register_devfs is
-called by tty_register_driver. It is a issue of different flags being
-passed to devfs by either tty functions. As soon a linus gives me a answer
-to the problem I will post a patch for people to try and then push it to
-BK.
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

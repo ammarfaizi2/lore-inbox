@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266541AbUBDUYp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266503AbUBDUWS
+	id S264879AbUBDU21 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUBDUZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:22:18 -0500
-Received: from mail.gmx.de ([213.165.64.20]:2254 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266476AbUBDUUg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:20:36 -0500
-X-Authenticated: #532004
-Subject: question about kenel configuration
-From: Roman Jordan <RomanJordan@gmx.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1075926160.2952.36.camel@darkstar>
+	Wed, 4 Feb 2004 15:25:46 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:25607 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S266552AbUBDUZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:25:36 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Date: Wed, 4 Feb 2004 23:06:10 +0300
+To: linux-kernel@vger.kernel.org
+Subject: IPV4 as module?
+Message-ID: <20040204200610.GB3802@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Feb 2004 21:22:41 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i have a little question about the kernel configuration. After 'make
-menuconfig' some lines tell me to run 'make'.
-Have i to do a 'make clean' or better 'make mrproper' before
-configuration?
-What is with the command 'make dep'? Is this not necessary?
+Any technical reaon IPV4 cannot be built as module? Current kernel
+barely fits on floopy (even with IDE as module); factoring out IPV4
+would allow to reduce size even more.
 
-Thanks in advance,
-Roman Jordan
+TIA
 
+-andrey

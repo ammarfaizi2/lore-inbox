@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbUCLIDy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 03:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbUCLIDy
+	id S262012AbUCLIEz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 03:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbUCLIEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 03:03:54 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1523 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262019AbUCLIDv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 03:03:51 -0500
-Message-ID: <40516EDA.5060006@mvista.com>
-Date: Fri, 12 Mar 2004 00:03:38 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
-References: <20040225213626.GF1052@smtp.west.cox.net> <200403041028.33638.amitkale@emsyssoft.com> <4050D9EE.2070800@mvista.com> <200403121014.08221.amitkale@emsyssoft.com>
-In-Reply-To: <200403121014.08221.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 03:04:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:58085 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262012AbUCLIEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 03:04:48 -0500
+Date: Fri, 12 Mar 2004 09:04:46 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-backing dev unplugging #2
+Message-ID: <20040312080446.GB15598@suse.de>
+References: <20040311083619.GH6955@suse.de> <200403120741.18455.ioe-lkml@rameria.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403120741.18455.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Friday 12 Mar 2004 2:58 am, George Anzinger wrote:
+On Fri, Mar 12 2004, Ingo Oeser wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->>Amit S. Kale wrote:
->>~
->>
->>
->>>>context any
->>>>
->>>>p fun()
->>>
->>>p fun() will push arguments on stack over the place where irq occured,
->>>which is exactly how it'll run.
->>
->>Is this capability in kgdb lite?  It was one of the last things I added to
->>-mm version.
+> Hi Jens,
 > 
+> On Thursday 11 March 2004 09:36, Jens Axboe wrote:
+> > diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c linux-2.6.4-mm1/kernel/power/pmdisk.c
+> > --- /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 03:55:28.000000000 +0100
+> > +++ linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 09:07:12.000000000 +0100
+> > @@ -859,7 +859,6 @@
+> >  
+> >  static void wait_io(void)
+> >  {
+> > -	blk_run_queues();
+> >  	while(atomic_read(&io_done))
+> >  		io_schedule();
+> >  }
+> > @@ -895,6 +894,7 @@
+> >  		goto Done;
+> >  	}
+> >  
+> > +	rw |= BIO_RW_SYNC;
+> >  	if (rw == WRITE)
+> >  		bio_set_pages_dirty(bio);
+> >  	start_io();
 > 
-> No! It's not present in kgdb heavy also. All you can do is set $pc, continue.
+> These last 3 lines look bogus. The condition will never trigger. 
+> Maybe you meant to move the assignment either down or change bio->bi_rw
+> instead of rw.
 
-Possibly I can help here.  I did it for the mm version.  It does require a 
-couple of asm bits and it sort of messes up the set/fetch memory, but it does do 
-the job.
-> 
-> -Amit
-> 
+Oops yes, that is bogus. Thanks for cathing that.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Jens Axboe
 

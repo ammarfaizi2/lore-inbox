@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272192AbSISWYe>; Thu, 19 Sep 2002 18:24:34 -0400
+	id <S272191AbSISWXX>; Thu, 19 Sep 2002 18:23:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272780AbSISWYd>; Thu, 19 Sep 2002 18:24:33 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:42248 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S272192AbSISWYc>; Thu, 19 Sep 2002 18:24:32 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-Date: Thu, 19 Sep 2002 22:29:10 +0000 (UTC)
-Organization: Cistron
-Message-ID: <amdj3m$b69$1@ncc1701.cistron.net>
-References: <8XBysGvmw-B@khms.westfalen.de> <Pine.LNX.4.44.0209191324310.1277-100000@home.transmeta.com>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1032474550 11465 62.216.29.67 (19 Sep 2002 22:29:10 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S272192AbSISWXX>; Thu, 19 Sep 2002 18:23:23 -0400
+Received: from dsl093-058-082.blt1.dsl.speakeasy.net ([66.93.58.82]:31222 "EHLO
+	beohost.scyld.com") by vger.kernel.org with ESMTP
+	id <S272191AbSISWXW>; Thu, 19 Sep 2002 18:23:22 -0400
+Date: Thu, 19 Sep 2002 18:28:09 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Jason Lunz <lunz@falooley.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <netdev@oss.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Gooch <rgooch@ras.ucalgary.ca>,
+       "Patrick R. McManus" <mcmanus@ducksong.com>, <edward_peng@dlink.com.tw>
+Subject: Re: PATCH: sundance #5 (variable per-interface MTU support)
+In-Reply-To: <20020919210348.GC17492@orr.falooley.org>
+Message-ID: <Pine.LNX.4.44.0209191821050.29420-100000@beohost.scyld.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0209191324310.1277-100000@home.transmeta.com>,
-Linus Torvalds  <torvalds@transmeta.com> wrote:
->
->On 19 Sep 2002, Kai Henningsen wrote:
->> 
->> On the contrary: it says that this can never happen - the new session has  
->> no controlling terminal, and can't get the old one unless the old session  
->> loses it first.
->
->Hmm.. I read it as "the tty stays with the stale group", which is
->problematic. But if all the places that set a new controlling terminal
->check that it's not already used by some other non-session then I guess 
->we're still ok..
+On Thu, 19 Sep 2002, Jason Lunz wrote:
 
-No, it said that if a new session is created the tty stays with
-the old session group which is by no means stale.
+> This is a straightforward merge of variable mtu from donald's driver.
 
-A session leader cannot create a new session, since the session-id
-is the pid of the leader. Only children can create a new session,
-and at that point the tty is not the controlling tty of the
-_newly created_ session. Ofcourse the original session still
-exists, and the tty is still the controlling tty of that session.
+-	np->rx_buf_sz = (dev->mtu <= 1500 ? PKT_BUF_SZ : dev->mtu + 32);
++	np->rx_buf_sz = (dev->mtu <= 1500 ? PKT_BUF_SZ : dev->mtu + 36);
 
-Only if the new session leader opens a tty that hasn't been
-associated with a session yet will it become the controlling
-tty of that session.
+Errrmm, not quite right.
 
-So to assocciate a tty with another session, you'll have to
-disassociate it with the existing session by a) killing all
-processes in the session or b) calling TIOCNOTTY. Then another
-session can open it and it will become the controlling tty
-of the other session (if it didn't have a controlling tty
-yet, that is!)
+Try
+	np->rx_buf_sz = (dev->mtu <= 1520 ? PKT_BUF_SZ : dev->mtu + 16);
 
-A session can also steal away a controlling tty from another
-session by using TIOCSCTTY (if its root) but the tty will
-first be disassociated from the old session and only then
-will it become the controlling tty of the stealing session.
+The idea is that all ethernet-like drivers always allocate skbuffs of
+the same size, PKT_BUF_SZ (1536=3*512), unless a jumbo MTU forces a
+larger size. 
 
-See drivers/char/tty_io.c::tiocsctty() for how it loops
-over all tasks to do this ..
+Specificially, using VLANs (+4 bytes on the frame size) on some interfaces
+should not result in a mix of allocation sizes.  Most VLAN-like
+encapsulation should add fewer than (1536-1518 = 18) 18 extra bytes.
 
-Mike.
+BTW, always leave a few extra bytes at the end of the data buffer.
+You never know when some chip might decide to dribble an extra word or
+two, or include the CRC because someone frobbed the driver.
+
+-- 
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 

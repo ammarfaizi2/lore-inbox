@@ -1,104 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263801AbUDRSvM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 14:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbUDRSvM
+	id S263711AbUDRUEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 16:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUDRUEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 14:51:12 -0400
-Received: from tag.witbe.net ([81.88.96.48]:38410 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S263801AbUDRSvG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 14:51:06 -0400
-Message-Id: <200404181851.i3IIp1107295@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Stephen Hemminger'" <shemminger@osdl.org>,
-       "'David S. Miller'" <davem@redhat.com>
-Cc: "'Paul Rolland'" <rol@witbe.net>, <linux-kernel@vger.kernel.org>,
-       <netdev@oss.sgi.com>
-Subject: RE: [2.6.5] Bad scheduling while atomic
-Date: Sun, 18 Apr 2004 20:50:55 +0200
-Organization: AS2917
+	Sun, 18 Apr 2004 16:04:16 -0400
+Received: from pD9FFA1BA.dip.t-dialin.net ([217.255.161.186]:54691 "EHLO
+	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
+	id S263711AbUDRUEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 16:04:14 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: screen garbage with radeonfb on 2.6.5-mm6
+Date: Sun, 18 Apr 2004 22:03:53 +0200
+User-Agent: KMail/1.6.2
+X-Ignorant-User: yes
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQj8N4vTSnSCAKNT3W50Gg+qBW/wgAAdfUg
-In-Reply-To: <20040416131633.1bfbfa4c@dell_ss3.pdx.osdl.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-03=_w8tgAS65KVMc4H4";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404182204.12037@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Stephen for being so fast !
 
-Regards,
-Paul
+--Boundary-03=_w8tgAS65KVMc4H4
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
+Hi,
 
---
+I'm using radeonfb on an IBM Thinkpad, Ati Radeon M9
+After booting it looks like the radeonfb doesn't clear or reset the screen=
+=20
+correctly
+(see http://zodiac.dnsalias.org/images/garbage.jpg )
+The area below the tux is cleared when text scrolls along.
+relevant dmesg output:
+radeonfb: Invalid ROM signature 0 should be 0xaa55
+radeonfb: Retreived PLL infos from BIOS
+radeonfb: Reference=3D27.00 MHz (RefDiv=3D12) Memory=3D252.00 Mhz, System=
+=3D200.00 MHz
+Non-DDC laptop panel detected
+radeonfb: Monitor 1 type LCD found
+radeonfb: Monitor 2 type no found
+radeonfb: panel ID string: SXGA+ Single (85MHz)
+radeonfb: detected LVDS panel size from BIOS: 1400x1050
+radeondb: BIOS provided dividers will be used
+radeonfb: Power Management enabled for Mobility chipsets
+radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
 
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+I'm using 2.6.5-mm6.
 
-"Some people dream of success... while others wake up and work hard at it" 
+regards
+Alex
 
-  
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-> -----Message d'origine-----
-> De : linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] De la part de 
-> Stephen Hemminger
-> Envoyé : vendredi 16 avril 2004 22:17
-> À : David S. Miller
-> Cc : Paul Rolland; linux-kernel@vger.kernel.org; netdev@oss.sgi.com
-> Objet : Re: [2.6.5] Bad scheduling while atomic
-> 
-> Bring up/down network devices with lapbether causes scheduling while
-> atomic (if preempt enabled).
-> 
-> The calls to rcu_read_lock are unnecessary since lapb_device_event 
-> is called from notifier with the rtnetlink semaphore held, it is
-> already protected from the labp_devices list changing.
-> 
-> Patch against 2.6.6-rc1
-> 
-> diff -Nru a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-> --- a/drivers/net/wan/lapbether.c	Fri Apr 16 11:00:35 2004
-> +++ b/drivers/net/wan/lapbether.c	Fri Apr 16 11:00:35 2004
-> @@ -392,6 +392,8 @@
->  
->  /*
->   *	Handle device status changes.
-> + *
-> + * Called from notifier with RTNL held.
->   */
->  static int lapbeth_device_event(struct notifier_block *this,
->  				unsigned long event, void *ptr)
-> @@ -402,7 +404,6 @@
->  	if (!dev_is_ethdev(dev))
->  		return NOTIFY_DONE;
->  
-> -	rcu_read_lock();
->  	switch (event) {
->  	case NETDEV_UP:
->  		/* New ethernet device -> new LAPB interface	 */
-> @@ -422,7 +423,6 @@
->  			lapbeth_free_device(lapbeth);
->  		break;
->  	}
-> -	rcu_read_unlock();
->  
->  	return NOTIFY_DONE;
->  }
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+--Boundary-03=_w8tgAS65KVMc4H4
+Content-Type: application/pgp-signature
+Content-Description: signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBAgt8w/aHb+2190pERAhLzAKCZEjVXndLeMCk/qT26tki4bhG47gCgsXb3
+u6uNPPIePSblxZSwQvM3FuE=
+=1wQ9
+-----END PGP SIGNATURE-----
+
+--Boundary-03=_w8tgAS65KVMc4H4--

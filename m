@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270663AbRHJWlV>; Fri, 10 Aug 2001 18:41:21 -0400
+	id <S270664AbRHJWna>; Fri, 10 Aug 2001 18:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270664AbRHJWlK>; Fri, 10 Aug 2001 18:41:10 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1285 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270663AbRHJWlA>; Fri, 10 Aug 2001 18:41:00 -0400
-Subject: Re: free_task_struct() called too early?
-To: kenneth.w.chen@intel.com (Chen, Kenneth W)
-Date: Fri, 10 Aug 2001 23:43:23 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <no.id> from "Chen, Kenneth W" at Aug 10, 2001 11:13:53 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270666AbRHJWnU>; Fri, 10 Aug 2001 18:43:20 -0400
+Received: from four.malevolentminds.com ([216.177.76.238]:11024 "EHLO
+	four.malevolentminds.com") by vger.kernel.org with ESMTP
+	id <S270664AbRHJWnK>; Fri, 10 Aug 2001 18:43:10 -0400
+Date: Fri, 10 Aug 2001 15:43:15 -0700 (PDT)
+From: Khyron <khyron@khyron.com>
+X-X-Sender: <khyron@four.malevolentminds.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PROBLEM] 2.4.5: Sending TCP doesn't send
+Message-ID: <Pine.BSF.4.33.0108100143060.92008-100000@four.malevolentminds.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15VKzz-0001md-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When a process terminates, it appears that the task structure is freed too
-> early.  There are memory references to the kernel task area (task_struct and
-> stack space) after free_task_struct(p) is called.
-> 
-> If I modify the following line in include/asm-i386/processor.h
-> 
-> #define free_task_struct(p)   free_pages((unsigned long) (p), 1) to
-> #define free_task_struct(p)   memset((void*) (p), 0xf, PAGE_SIZE*2);
-> free_pages((unsigned long) (p), 1)
-> then kernel will boot to init and lockup on when first task terminates.
-> 
-> Has anyone looked into or aware of this issue?
+I don't know if anyone has seen this (or if its even really
+a problem), but I have 2 servers running patched 2.4.5 kernels.
+For completeness, the patches are XFS 06042001 and JFS 0.3.4.
+ReiserFS and IPChains are compiled in.
 
-2.4.8pre fixed a case with semaphores on the stack. It might not be the only
-one. Your #define is wrong though, if a single free_task_struct path is an
-if you will not do what you expect
+Anyway, the problem is that the sending TCP continues to
+accumulate data in the send buffer (which has been increased
+to 2 MB) w/o sending it. This is causing our custom application
+to hang, and we expect to see (but haven't yet seen) the buffer
+overflow.
 
-	do { memset(), free_pages } while(0);
+The scenario is that the sending TCP has stops sending, plain
+and simple. This only seems to occur with packets of about 4K
+and larger.
 
-would be safer. 
+I am not the developer who recognized this issue, but I am
+trying to find out if anyone else has noticed this type of
+behavior and how we might deal with it.
 
-I'd like to know if 2.4.8pre8 does it except on module unload (where it is
-still buggy)
+If more information is required, let me know and I"ll see what I
+can do. I am planning on integrating a kernel debugger and maybe
+even SGI's kernel profiling, but I don't know how effective either
+of these approaches could be in solving this problem.
 
-Alan
+Thoughts, suggestions and questions welcome, as I have no idea
+how to attack this problem correctly.
+
+TIA!
+
+////////////////////////////////////////////////////////////////////
+Khyron					    mailto:khyron@khyron.com
+Key fingerprint = 53BB 08CA 6A4B 8AF8 DF9B  7E71 2D20 AD30 6684 E82D
+			"Drama free in 2001!"
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+

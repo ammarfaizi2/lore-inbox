@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129279AbRBHCpQ>; Wed, 7 Feb 2001 21:45:16 -0500
+	id <S129232AbRBHCvh>; Wed, 7 Feb 2001 21:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129578AbRBHCo4>; Wed, 7 Feb 2001 21:44:56 -0500
-Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:8576 "EHLO
-	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
-	id <S129279AbRBHCos>; Wed, 7 Feb 2001 21:44:48 -0500
-Date: Wed, 7 Feb 2001 21:44:35 -0500 (EST)
-From: Arthur Pedyczak <arthur-p@home.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Oopses in 2.4.1  (lots of them)
-In-Reply-To: <E14QZRU-0000xJ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0102072138170.1255-100000@cs865114-a.amp.dhs.org>
+	id <S129270AbRBHCv1>; Wed, 7 Feb 2001 21:51:27 -0500
+Received: from [216.29.39.226] ([216.29.39.226]:59141 "HELO
+	mail.acetechnologies.net") by vger.kernel.org with SMTP
+	id <S129232AbRBHCvN>; Wed, 7 Feb 2001 21:51:13 -0500
+To: Andre Hedrick <andre@linux-ide.org>
+Subject: Re: reiserfs - problems mounting after power outage
+Message-ID: <981600793.3a820a1906040@ns1.acetechnologies.net>
+Date: Wed, 07 Feb 2001 21:53:13 -0500 (EST)
+From: Jeff McWilliams <Jeff.McWilliams@acetechnologies.net>
+Cc: Jeff McWilliams <Jeff.McWilliams@acetechnologies.net>,
+        Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10102071838230.6344-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10102071838230.6344-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 24.22.75.92
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, Alan Cox wrote:
+Quoting Andre Hedrick <andre@linux-ide.org>:
 
-> > am not sure how to eliminate or confirm this. Recently I added some RAM
-> > (256->384) and decided to get rid of swap. This seemed to have destabilized
-> > the system, although nothing is obvious. I can try to stress the system by
 >
-> Get a copy of memtest86, its a standalone memory tester.
+> Dream on if you think "Writeback cacheing is disabled" on all systems
+> bye
+> default.  If you did not wack it.  It is not off.
 >
-Alan, Linus,
+Yeah, I know, Andre.  I turned it off in the 3ware card's BIOS setup.
+I'm not completely idiotic, just dumb enough to not have ordered a UPS for this
+box sooner.  One is on the way now though.  :-)
 
-Thanks for your help. I ran memtest86 for 6 hrs. RAM looks
-O.K.. I added swap back (just in case). Now I will be eliminating
-suspicious kernel modules one by one.
-Will post results in few days.
-Cheers!
-
-Arthur
+Jeff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

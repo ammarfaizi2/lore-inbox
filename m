@@ -1,43 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136520AbREAS7Z>; Tue, 1 May 2001 14:59:25 -0400
+	id <S136697AbREATJz>; Tue, 1 May 2001 15:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136693AbREAS7P>; Tue, 1 May 2001 14:59:15 -0400
-Received: from [207.0.237.38] ([207.0.237.38]:13064 "HELO sin.sloth.org")
-	by vger.kernel.org with SMTP id <S136520AbREAS7G>;
-	Tue, 1 May 2001 14:59:06 -0400
-Date: Tue, 1 May 2001 14:58:59 -0400
-From: Geoffrey Gallaway <geoffeg@sin.sloth.org>
-To: linux-kernel@vger.kernel.org
-Subject: OnStream USB
-Message-ID: <20010501145859.A28980@sin.sloth.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S136698AbREATJq>; Tue, 1 May 2001 15:09:46 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:1541 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S136697AbREATJi>; Tue, 1 May 2001 15:09:38 -0400
+Date: Tue, 1 May 2001 15:09:34 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: Linux 2.4.4-ac2
+In-Reply-To: <20010501205510.A1059@werewolf.able.es>
+Message-ID: <Pine.LNX.4.10.10105011508440.17091-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> +	 * Make sure the child gets the SCHED_YIELD flag cleared, even if
+> +	 * it inherited it, to avoid deadlocks.
 
-I am considering getting an OnStream USB tape backup drive. I want the
-USB version because I have about 4 machines all on different networks
-that need to be backed up. Using USB would allow me to move the unit
-from one machine to another without rebooting the machine.
+can anyone think of a reason that SCHED_YIELD *should* be inherited?
+I think it's just oversight that fork doesn't clear it.
 
-I see that the SCSI version of the drive seems to be supported in linux
-but I can only find tidbits of information that don't confirm or deny
-this. Listed below are two sites that have some information which seem 
-to confirm that the drive does indeed work, but I simply want to be 
-sure.
-
-http://www2.one-eyed-alien.net/~mdharm/linux-usb/
-http://linux1.onstream.nl/test/
-
-Thank you,
-Geoff
-
--- 
-Geoffrey Gallaway || 
-geoffeg@sloth.org || Clones are people two.
-D e v o r z h u n ||

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUEVVEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUEVVYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUEVVEC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 17:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUEVVEC
+	id S261914AbUEVVYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 17:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUEVVYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 17:04:02 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261913AbUEVVEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 17:04:00 -0400
-Date: Sat, 22 May 2004 22:10:42 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200405222110.i4MLAg97000214@81-2-122-30.bradfords.org.uk>
-To: JG <jg@cms.ac>
-Cc: Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>,
-       system <system@eluminoustechnologies.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040522165404.5BF5A1A9B70@23.cms.ac> 
-References: <200405221257.28570.system@eluminoustechnologies.com>
- <Pine.LNX.4.55L.0405221515410.32669@pa103.nowa-wies.sdi.tpnet.pl>
- <200405221622.i4MGMuhD000211@81-2-122-30.bradfords.org.uk>
- <20040522165404.5BF5A1A9B70@23.cms.ac>
-Subject: Re: hda Kernel error!!!
+	Sat, 22 May 2004 17:24:15 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:50818 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261914AbUEVVYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 17:24:14 -0400
+Date: Sat, 22 May 2004 23:24:10 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting PCI ROMs via syfs
+Message-ID: <20040522212410.GA2641@ucw.cz>
+References: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from JG <jg@cms.ac>:
-> --Signature=_Sat__22_May_2004_18_53_54_+0200_tMfzaYq4HdZNA_y9
-> Content-Type: text/plain; charset=US-ASCII
-> Content-Disposition: inline
-> Content-Transfer-Encoding: 7bit
-> 
->  
-> > It does not necessarily indicate a serious problem.  Are you sure your
-> > error messages were exactly the same?
-> 
-> while we are at it. some days ago i got this:
-> hdi: task_in_intr: status=0x7f { DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index Error }
-> hdi: task_in_intr: error=0x7f { DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound AddrMarkNotFound }, LBAsect=280923064991615, high=16744319, low=8355711, sector=1130361
-> ide4: reset: success
+Hello!
 
-Look at the LBAsect requested - this is far beyond the end of the disk, which
-explains why it returned address mark not found - the sector doesn't exist.
+> Some problems:
+> Radeon cards need a work around sometimes to enable their ROM. But this can be
+> run once when the driver loads.
+> There is one card that can't access the ROM and function at the same time, I
+> believe Alan Cox know which one it is.
 
-John.
+The PCI specs explicitly allow the cards to use a single address decoder for
+both the ROM address and one of the BARs and there really are cards which make
+use of this silliness.
+
+Probably the only reasonable way how to do that reliably is to make a copy of
+the ROM before the device is enabled.
+
+OTOH, it might be sensible to add a sysfs-based interface for reading the ROMs
+which would be available only to root and which would work only on cards
+without the shared decoders :-)
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+To avoid bugs in your room, just keep Windows closed.

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132261AbRAGNxt>; Sun, 7 Jan 2001 08:53:49 -0500
+	id <S132272AbRAGNyt>; Sun, 7 Jan 2001 08:54:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132272AbRAGNxj>; Sun, 7 Jan 2001 08:53:39 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47118 "EHLO
+	id <S132496AbRAGNyj>; Sun, 7 Jan 2001 08:54:39 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47886 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132261AbRAGNxZ>; Sun, 7 Jan 2001 08:53:25 -0500
-Subject: Re: ftruncate returning EPERM on vfat filesystem
-To: djdave@bigpond.net.au (Dave)
-Date: Sun, 7 Jan 2001 13:55:15 +0000 (GMT)
+	id <S132272AbRAGNyT>; Sun, 7 Jan 2001 08:54:19 -0500
+Subject: Re: 2.2.18:  your CPUs had inconsistent variable MTRR setting
+To: hklygre@online.no (Haavard Lygre)
+Date: Sun, 7 Jan 2001 13:56:20 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101071613130.1132-100000@athlon.internal> from "Dave" at Jan 07, 2001 04:47:01 PM
+In-Reply-To: <m3lmsnvojx.fsf@frode.valhall.no> from "Haavard Lygre" at Jan 07, 2001 07:55:46 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FGI2-0002fo-00@the-village.bc.nu>
+Message-Id: <E14FGJ5-0002gH-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +
-> +       /* FAT cannot truncate to a longer file */
-> +       if (attr->ia_valid & ATTR_SIZE) {
-> +               if (attr->ia_size > inode->i_size)
-> +                       return -EPERM;
-> +       }
+> During boot of 2.2.18 I get the following messages:
 > 
->         error = inode_change_ok(inode, attr);
->         if (error)
+> mtrr: your CPUs had inconsistent variable MTRR settings
+> mtrr: probably your BIOS does not setup all CPUs
 > 
-> Can someone tell me if this is the cause of my samba problems, and if
-> so, why this was added and if this is safe to revert?
+> Is this something I should worry about?
 
-To stop a case where the fs gets corrupted otherwise. You can change that to
-return 0 which is more correct but most not remove it.
+It means your bios vendor cannot read specifications. Linux fixed up the problem.
+I wouldnt worry too much BIOS vendors don't believe in specifications 8)
 
-(ftruncate is specified to make the file at most length bytes long, extending
-the file is not a guaranteed side effect according to the docs I have)
-
-
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

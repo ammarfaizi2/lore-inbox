@@ -1,110 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUEVAQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265499AbUEVATy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265508AbUEVAQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 20:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265497AbUEVANo
+	id S265499AbUEVATy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 20:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264596AbUEVAQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 20:13:44 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:12745 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S264596AbUEVAKT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 20:10:19 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Fri, 21 May 2004 20:16:41 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:26523 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265503AbUEVANv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 20:13:51 -0400
+Message-ID: <40ADB671.8060904@yahoo.com.au>
+Date: Fri, 21 May 2004 17:57:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] 2.4.27-pre3: SCSI ips compile error
-Date: Thu, 20 May 2004 09:50:42 -0400
-Message-ID: <A121ABA5B472B74EB59076B8E3C8F0192AA469@rtpe2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] 2.4.27-pre3: SCSI ips compile error
-Thread-Index: AcQ+cNL4BxeQJuUZQS6J/T9Znubk0wAAFJDQ
-From: "IpsLinux" <ipslinux@adaptec.com>
-To: "Adrian Bunk" <bunk@fs.tum.de>,
-       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: <linux-kernel@vger.kernel.org>
+To: FabF <Fabian.Frederick@skynet.be>
+CC: axboe@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.6-mm4-ff1] I/O context isolation
+References: <1085124268.8064.15.camel@bluerhyme.real3>	 <40ADB20C.8090204@yahoo.com.au> <1085125564.8071.23.camel@bluerhyme.real3>
+In-Reply-To: <1085125564.8071.23.camel@bluerhyme.real3>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FabF wrote:
+> On Fri, 2004-05-21 at 09:38, Nick Piggin wrote:
+> 
+>>FabF wrote:
+>>
+>>>Jens,
+>>>
+>>>	Here's ff1 patchset to have generic I/O context.
+>>>ff1 : Export io context operations from blkdev/ll_rw_blk (ok)
+>>>ff2 : Make io_context generic plateform by importing IO stuff from
+>>>as_io.
+>>>
+>>
+>>Can I just ask why you want as_io_context in generic code?
+>>It is currently nicely hidden away in as-iosched.c where
+>>nobody else needs to ever see it.
+> 
+> I do want I/O context to be generic not the whole as_io.
+> That export should bring:
+> 	-All elevators to use io_context
+> 	-source tree to be more self-explanatory
+> 	-have a stronger elevator interface
+> 
 
-Adaptec had already discovered this error also and were in the process
-of testing an update.
-I concur with this change.
+Sorry, my mistake. as_io_context is not nicely hidden away at
+the moment. I can't remember why, I think it is only needed
+for the declaration... I'll look into moving it into as-iosched.c
 
-Jack 
+*But*, io_context is already exported to all elevators and generic
+code.
 
+> 
+>>>	AFAICS, cfq_queue for instance could disappear when using io_context
+>>>but I think elv_data should remain elevator side....
+>>>I don't want to go in the wild here so if you've got suggestions, don't
+>>>hesitate ;)
+>>>
+>>
+>>cfq_queue is per-queue-per-process. io_context is just
+>>per-process, so it isn't a trivial replacement.
+> 
+> But I guess we can merge that stuff to have "a one way, one place" code
+> rather than repeat code in all elv.
+> 
 
------Original Message-----
-From: Adrian Bunk [mailto:bunk@fs.tum.de] 
-Sent: Thursday, May 20, 2004 9:46 AM
-To: Marcelo Tosatti; IpsLinux
-Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-Subject: [patch] 2.4.27-pre3: SCSI ips compile error
-
-On Tue, May 18, 2004 at 05:30:40PM -0300, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.27-pre2 to v2.4.27-pre3  
->============================================
->...
-> Jack Hammer:
->   o ServeRAID driver update to 7.00.15: sync with v2.6 ...
-
-It was nice if people would actually test at least the compilation of
-their changes instead of blindly submitting the latest version of a
-driver...
-
-<--  snip  -->
-
-...
-gcc -D__KERNEL__
--I/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon   
--nostdinc -iwithprefix include -DKBUILD_BASENAME=ips  -c -o ips.o ips.c
-In file included from ips.c:180:
-ips.h:99: error: redefinition of `irqreturn_t'
-/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/include/linux/interru
-pt.h:16: 
-error: `irqreturn_t' previously declared here
-make[3]: *** [ips.o] Error 1
-make[3]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/drivers/scsi'
-
-<--  snip  -->
-
-
-irqreturn_t was added to interrupt.h in 2.4.23, released nearly
-6 months (!) ago.
-
-Trivial fix below.
-
-cu
-Adrian
-
-
-
---- linux-2.4.27-pre3-full/drivers/scsi/ips.h.old	2004-05-19
-21:40:58.000000000 +0200
-+++ linux-2.4.27-pre3-full/drivers/scsi/ips.h	2004-05-19
-21:42:01.000000000 +0200
-@@ -95,11 +95,14 @@
-       #define scsi_set_pci_device(sh,dev) (0)
-    #endif
- 
--   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-+   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
-       typedef void irqreturn_t;
-       #define IRQ_NONE
-       #define IRQ_HANDLED
-       #define IRQ_RETVAL(x)
-+   #endif
-+
-+   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-       #define IPS_REGISTER_HOSTS(SHT)
-scsi_register_module(MODULE_SCSI_HA,SHT)
-       #define IPS_UNREGISTER_HOSTS(SHT)
-scsi_unregister_module(MODULE_SCSI_HA,SHT)
-       #define IPS_ADD_HOST(shost,device)
+I quite like things how they sit right now. The io_context thing
+is quite generic so that is fine... CFQ's cfq_queue is fairly
+specialised and trying to make it generic is not a very good idea,
+especially as no other elevators would make use of it.

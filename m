@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312348AbSCYTbU>; Mon, 25 Mar 2002 14:31:20 -0500
+	id <S312427AbSCYTcv>; Mon, 25 Mar 2002 14:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312353AbSCYTbK>; Mon, 25 Mar 2002 14:31:10 -0500
-Received: from lakemtao02.cox.net ([68.1.17.243]:8367 "EHLO lakemtao02.cox.net")
-	by vger.kernel.org with ESMTP id <S312348AbSCYTbB>;
-	Mon, 25 Mar 2002 14:31:01 -0500
-Message-ID: <3C9F7993.7050205@sandia.gov>
-Date: Mon, 25 Mar 2002 11:25:07 -0800
-From: Kevin Pedretti <ktpedre@sandia.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020306
-X-Accept-Language: en-us, en
+	id <S312353AbSCYTcm>; Mon, 25 Mar 2002 14:32:42 -0500
+Received: from mail8.cadvision.com ([207.228.64.93]:59916 "EHLO
+	mail8.cadvision.com") by vger.kernel.org with ESMTP
+	id <S312427AbSCYTcX>; Mon, 25 Mar 2002 14:32:23 -0500
+Message-ID: <000701c1d434$92828620$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
+From: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+To: "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16pZ2V-00016E-00@the-village.bc.nu>
+Subject: Re: SSSCA Hits the Senate
+Date: Mon, 25 Mar 2002 12:37:59 -0700
 MIME-Version: 1.0
-To: kernelnewbies@nl.linux.org
-CC: ktpedre@sandia.gov, linux-kernel@vger.kernel.org
-Subject: do_exit() and lock_kernel() semantics
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    do_exit() does a lock_kernel() before it destroys the dying 
-processes mm context (sets task_struct->mm to NULL in 2.4 and &init_mm 
-in 2.2).  Does lock_kernel() somehow disable interrupts?  It doesn't 
-look like it does.  
+The bill says that the protection scheme must be open source, so no M$ tax.
+
+I guess lots of Americans are going to tune in to European content if this
+bill passes.  It should be a boon to Canada and Mexico too.  Maybe we should
+support this bill...
+--
+Herman Oosthuysen
+Herman@WirelessNetworksInc.com
+Suite 300, #3016, 5th Ave NE,
+Calgary, Alberta, T2A 6K4, Canada
+Phone: (403) 569-5687, Fax: (403) 235-3965
+----- Original Message -----
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: <nahshon@actcom.co.il>
+Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>;
+<pgallen@randomlogic.com>; KPLUG List <kplug-list@kernel-panic.org>; KPLUG
+Newbie <kplug-newbie@kernel-panic.org>; KPLUG LPSG
+<kplug-lpsg@kernel-panic.org>; LKML <linux-kernel@vger.kernel.org>
+Sent: Monday, March 25, 2002 11:17 AM
+Subject: Re: SSSCA Hits the Senate
 
 
-Is there anyway from an interrupt context to check if a process is still 
-alive (not exiting) and prevent it from exiting until the ISR is over? 
- I guess if lock_kernel disables interrupts globally and waits for 
-inprogress interrupts to complete, then this isn't a problem.
-
-
-More detail:
-The reason I ask is that I'm working on/modifying a set of modules that 
-accesses user space from interrupt context.  I know this is not a good 
-thing to do generally, but for performance reasons the original author 
-wanted to copy directly into a mlocked user space buffer from a network 
-receive interrupt.  Since the buffer is mlocked, it is always guaranteed 
-to be there and no page faults will happen (right??? I'm new at this). 
- Thus, for each receive we have to convert the virt address of the 
-user-land receive buffer to a physical address (in the kernel region) 
-before doing the memcpy (copy_to_user doesn't work from interrupt 
-context).   This all seems to work fine in practice.  However, it seems 
-to me that there is a race that can happen if a process is in the middle 
-of dying and a receive interrupt happens.  task->mm can be set to 
-NULL/init_mm out from under me while doing a receive (e.g. on another cpu).
-
-
-Thanks for any help.
-
-Kevin  
+> > On Monday 25 March 2002 17:22, Jesse Pollard wrote:
+> > > Has there been anything that says the copy protection code can't be
+source?
+> > > If it were included in the source, along with all the other code,
+would
+> > > that be recognized as "protected"?
+> >
+> > Worst thing happens if somebody gets a patent for the copy protection
+schemes...
+>
+> Microsoft already do
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

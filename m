@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130127AbQKMG7G>; Mon, 13 Nov 2000 01:59:06 -0500
+	id <S129040AbQKMHA5>; Mon, 13 Nov 2000 02:00:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130131AbQKMG6z>; Mon, 13 Nov 2000 01:58:55 -0500
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:47544 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S130127AbQKMG6n>; Mon, 13 Nov 2000 01:58:43 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: Alexander Viro <viro@math.psu.edu>
-cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+	id <S129178AbQKMHAh>; Mon, 13 Nov 2000 02:00:37 -0500
+Received: from web1104.mail.yahoo.com ([128.11.23.124]:29457 "HELO
+	web1104.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129040AbQKMHAc>; Mon, 13 Nov 2000 02:00:32 -0500
+Message-ID: <20001113070031.14765.qmail@web1104.mail.yahoo.com>
+Date: Mon, 13 Nov 2000 08:00:31 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.2.18pre21
+To: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Constantine Gavrilov <const-g@xpert.com>
+Cc: willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
         linux-kernel@vger.kernel.org
-Message-ID: <80256996.00264BE9.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Mon, 13 Nov 2000 05:52:07 +0000
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, Matti,
+here's a final patch against the bonding patch I
+posted
+on Friday. Could you tell me if it fits your needs ?
+If so, I would repost (offline) the complete one
+against 2.2.18pre21. Anyway, for those curious here,
+it's available at the following URL:
+
+http://www-miaif.lip6.fr/willy/pub/linux-patches/bonding/patch-2.2.18p21-bonding-20001113.gz
+
+Regards,
+Willy
 
 
-Alexander Viro wrote:
-> It's not a good idea, it's an obvious fact. Oh, you mean forking the
-tree?
-
-Again I find your terminology at odds with mine; what do you mean by
-forking the tree? I get the impression that it's a very restrictive notion
-where any functional ehancement applied as a patch on top of a standard
-distribution kernel is considered by you as forking? Is that so? (And BTW
-by patch I mean input to the patch command.)
-
-
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbUDBPK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 10:10:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbUDBPK1
+	id S264073AbUDBPNO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 10:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbUDBPNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 10:10:27 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43783 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261850AbUDBPKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 10:10:25 -0500
-Date: Fri, 2 Apr 2004 16:10:19 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Zoltan.Menyhart@bull.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: To kunmap_atomic or not to kunmap_atomic ?
-In-Reply-To: <406D7573.FF5F0B5F@nospam.org>
-Message-ID: <Pine.LNX.4.44.0404021559480.6018-100000@localhost.localdomain>
+	Fri, 2 Apr 2004 10:13:14 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:52896 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264073AbUDBPNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 10:13:12 -0500
+Date: Fri, 02 Apr 2004 07:13:08 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Yasunori Goto <ygoto@us.fujitsu.com>
+cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: Re: [Patch] physnode_map definition should be signed
+Message-ID: <1276190000.1080918788@[10.10.2.4]>
+In-Reply-To: <20040401095436.DFDD.YGOTO@us.fujitsu.com>
+References: <20040401095436.DFDD.YGOTO@us.fujitsu.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Apr 2004, Zoltan Menyhart wrote:
-> > 
-> > Amusing misunderstanding.  Take a look at kmap_atomic_to_page
-> > in arch/i386/mm/highmem.c: it doesn't _do_ a kmap_atomic, it
-> > translates the virtual address already supplied by kmap_atomic
-> > to the address of the struct page of the physical page backing
-> > that virtual address.  So, in the case of try_to_unmap_one, it
-> > operates on the virtual address supplied by rmap_ptep_map
-> > (which does do a kmap_atomic), and at the end there's an
-> > rmap_ptep_unmap (which does the rmap_ptep_unmap).
->...
+> In your modification of pfn_valid() for IA32 at 2.6.4 stock kernel,
+> it doesn't return 0 even if the node is offline.
 > 
-> I think we cannot guarantee that we will never ever need to
-> unmap things. As it is required to use kmap - kunmap in pair,
-> it is quite logic to use kmap_atomic* in pair with kunmap_atomic.
+> True problem is physnode_map's definition.
+> Physnode_map[]'s default (offline) value is -1,
+> but it is defined as UNSIGNED 8. 
+> So, pfn_to_nid() return 255. 
+> 
+> I think this should be defined as signed like this patch.
+> Maximum node number of IA32 is 16, so this is enough yet.
+> 
+> I found this problem on multi-node emulation for memory-hotplug test.
+> When I started X on this emulation, system panicked at remap_pte_range()
+> by this problem.
+> I think that system will be down when a program will call mmap()
+> for hardware area.
 
-Agreed.
+There are several breakages in this area, particularly on Summit with
+4/4 split right now - in my tree I'm init'ing the array to 0 temporarily
+to get around some problems, but we have better fixes lined up.
 
-> I think it is a bad programming style to abuse the fact that
-> some macros are no-ops for the most popular architectures.
+Anyway, your patch looks correct - 128 nodes should be plenty. I shall
+apply it. Thanks,
 
-Agreed.
-
-> I think we should have some global counters in DEBUG mode which
-> are incremented on each call to *map* and decremented on each
-> *unpap* call, and we can detect, ooops, it leaks...
-
-If you choose CONFIG_DEBUG_HIGHMEM, kmap_atomic does check that
-kunmap_atomic was done last time, no need for additional counter.
-
-Sorry, I've not made it clear.
-
-kmap_atomic_to_page does not map anything, and doesn't need a
-corresponding unmap operation.  It expects that you already did
-a kmap_atomic (and that you will later do a kunmap_atomic), and
-translates from the address returned by kmap_atomic to the address
-of the relevant struct page.  You can certainly argue that it's
-misleadingly named, but no better name springs to my mind.
-
-Hugh
+M.
 

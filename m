@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318958AbSHFBWa>; Mon, 5 Aug 2002 21:22:30 -0400
+	id <S318943AbSHEXVH>; Mon, 5 Aug 2002 19:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318963AbSHFBW3>; Mon, 5 Aug 2002 21:22:29 -0400
-Received: from h-64-105-137-168.SNVACAID.covad.net ([64.105.137.168]:18835
-	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S318958AbSHFBW2>; Mon, 5 Aug 2002 21:22:28 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 5 Aug 2002 18:25:50 -0700
-Message-Id: <200208060125.SAA03296@baldur.yggdrasil.com>
-To: rmk@arm.linux.org.uk
-Subject: Re: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
-Cc: linux-kernel@vger.kernel.org, mporter@mvista.com
+	id <S318944AbSHEXVH>; Mon, 5 Aug 2002 19:21:07 -0400
+Received: from sabre.velocet.net ([216.138.209.205]:23558 "HELO
+	sabre.velocet.net") by vger.kernel.org with SMTP id <S318943AbSHEXVG>;
+	Mon, 5 Aug 2002 19:21:06 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Gregory Stark <gsstark@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Oopses
+References: <87sn1sgbcp.fsf@stark.dyndns.tv>
+	<1028593411.18130.131.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1028593411.18130.131.camel@irongate.swansea.linux.org.uk>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 05 Aug 2002 19:24:36 -0400
+Message-ID: <87k7n4ga8b.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->On Mon, Aug 05, 2002 at 01:17:40PM -0700, Adam J. Richter wrote:
->> 	I want to replace all statements in the kernel of the form
->> BUG_ON(condition1 || condition2) with:
->> 
->> 			BUG_ON(condition1);
->> 			BUG_ON(condition2);
+> On Tue, 2002-08-06 at 00:00, Gregory Stark wrote:
+> > 
+> > I received these two oopses recently running 2.4.17. Is this a known bug? 
+> > Is it fixed in 2.4.18?
+> > 
+> > Aug  5 17:43:07 stark kernel: Unable to handle kernel paging request at virtual address e0f390e8
+> > Aug  5 17:43:07 stark kernel:  printing eip:
+> > Aug  5 17:43:07 stark kernel: c0140cfc
+> > Aug  5 17:43:07 stark kernel: *pde = 00000000
+> > Aug  5 17:43:07 stark kernel: Oops: 0002
+> > Aug  5 17:43:07 stark kernel: CPU:    0
+> > Aug  5 17:43:08 stark kernel: EIP:    0010:[get_empty_inode+44/160]    Tainted: PF
+> 
+> What binary modules are you running, and what did you use insmod -f on ?
+> 
 
->Why?  In the case below, its one logical error (value out of range).
->The register dump tells you more information.  In fact, I don't care
->which side of less than 1 or greater than 4 pin actually is.  It's
->indicating a bug in the PCI subsystem either way, and the analysis
->is the same in either case.
+These modules are loaded. I wasn't running vmware at the time though.
 
-	Because knowing which way the failure occurred may give you
-a clue about what *caused* it.
+Module                  Size  Used by    Tainted: PF 
+sr_mod                 12312   0 (autoclean)
+vmnet                  20544   4
+vmmon                  19860   0 (unused)
+openafs               403840   2
+parport_pc             25608   1 (autoclean)
+lp                      5984   0 (autoclean)
+parport                24992   1 (autoclean) [parport_pc lp]
+serial                 49696   0 (autoclean)
+ide-scsi                7648   0
+scsi_mod               50348   2 [sr_mod ide-scsi]
+pppoe                   6880   8
+pppox                   1160   1 [pppoe]
+ppp_generic            15208   3 [pppoe pppox]
+slhc                    4512   0 [ppp_generic]
+3c59x                  24872   1
+ne2k-pci                4832   1
+8390                    5984   0 [ne2k-pci]
+rtc                     5624   0 (autoclean)
 
->> 	I was recently bitten by a very sporadic BUG_ON(cond1 || cond2)
->> statement and was quite annoyed at the greatly reduced opportunity to
->> debug the problem.  Make these changes and someone who experiences
->> the problem may be able to provide slightly more useful information.
 
->This would make sense of the two conditions were unrelated to each
->other.
+-- 
+greg
 
-	Even when two conditions are related, knowing which one failed
-gives you more information, and can make it easier to track down the bug,
-even when the two parts of the condition seem very simple, especially
-considering that some bugs can be sporadic and tracking down bugs
-often involves pearing down an exponential tree of possibilities.
-
-	That was pretty much the case with the BUG_ON for two
-related conditions that I tripped.  The lack of information about
-the problem was basically enough to tip the scales so that other
-things were a better use of my time than trying to track it down
-further, although I may come back to it later.
-
-	That will probably never happen with "pin < 1 || pin > 4", 
-because, like most BUG_ON statements, it will probably never be
-tripped.  Nevertheless, if one of those BUG_ON statements is tripped,
-it will probably save someone some valuable developer time, and
-reduce the interactions necessary with some user who might not be
-that interested in becoming an ARM kernel developer.
-
-	All of the other patches that I have submitted to
-eliminate BUG_ON(x || y) statements have been accepted by
-their maintainers.  If you accept the patch for your two BUG_ON
-statements, the practice should be completely eliminated from
-the kernel once the other maintainers propagate their next
-releases to Linus.
-
-	Even if you think this case is trivial, you will at least be
-leading by example about accomodating quality requests, at least when
-somone submits a patch.
-
-	Anyhow, please let me know what you want to do or what you
-want me to do.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

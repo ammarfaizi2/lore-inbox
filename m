@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263127AbRE1TS4>; Mon, 28 May 2001 15:18:56 -0400
+	id <S263123AbRE1TSG>; Mon, 28 May 2001 15:18:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263124AbRE1TSq>; Mon, 28 May 2001 15:18:46 -0400
-Received: from femail9.sdc1.sfba.home.com ([24.0.95.89]:11956 "EHLO
-	femail9.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S263126AbRE1TSf>; Mon, 28 May 2001 15:18:35 -0400
-From: "Arthur Naseef" <artn@home.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.2: tq_scheduler functions scheduling and waiting
-Date: Mon, 28 May 2001 15:19:17 -0400
-Message-ID: <BGEHKJAIFDCFCMFALMGPIEHACAAA.artn@home.com>
+	id <S263124AbRE1TR4>; Mon, 28 May 2001 15:17:56 -0400
+Received: from beaker.bluetopia.net ([63.219.235.110]:25867 "EHLO
+	beaker.bluetopia.net") by vger.kernel.org with ESMTP
+	id <S263123AbRE1TRo>; Mon, 28 May 2001 15:17:44 -0400
+Date: Mon, 28 May 2001 15:15:04 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetopia.net>
+To: Jan Sembera <sembera@centrum.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.5] buz.c won't compile
+In-Reply-To: <3B0FEB1B.5030308@centrum.cz>
+Message-ID: <Pine.LNX.4.04.10105281512050.1601-100000@beaker.bluetopia.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All:
+On Sat, 26 May 2001, Jan Sembera wrote:
+>i've got a problem compiling drivers/media/video/buz.c as module. When 
+>i'm trying to compile, i get couple of errors:
+...
 
-I have been diagnosing kernel panics for over a week and I have
-concerns with the use of tq_scheduler for which I was hoping I
-could get some assistance.
+Actually, it broke at 2.4.3.  Go look at the first change to buz.c from
+that patch.
 
-Is it considered acceptable for functions in the tq_scheduler
-task list to call schedule?  Is it acceptable for such functions
-to wait on wait queues?  What limitations exist?
+--Ricky
 
-As near as I can determine, the TTY driver code makes use of
-the tq_scheduler list for such purposes.
+PS: I really hate it when people break "functional" things in the "stable"
+    tree. (functional and stable are both open to debate.)
 
-In my testing, I am running with 96 TTY devices (talking to a
-high-density modem card) and I consistently achieve kernel panics
-when the system is under heavy swapping.  I am continuing to
-diagnose the problem.  The kernel panics are triggered mostly in
-goodness() and del_from_runqueue(), as indicated by ksym_oops and
-gdb, and I suspect the run queue is getting corrupted.
+PPS: Yes, I know Linus doesn't bother compling most of the stuff :-)
 
-In spite of this testing, I believe that I have an argument against
-tq_scheduler functions waiting on wait queues, but I have not
-thoroughly convinced myself that (a) this was not already known,
-and (b) this is already happening in existing kernel code.
-
-Any help is greatly appreciated.
-
--art
-
-Arthur Naseef
-
-P.S. If this information is availed through existing documentation,
-     searches, or other widely available resources, I would greatly
-     appreciate references to this material.  All of my searches to
-     date have yielded few results and nothing definitive.
 

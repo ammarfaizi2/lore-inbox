@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288414AbSA3EOk>; Tue, 29 Jan 2002 23:14:40 -0500
+	id <S288420AbSA3EUk>; Tue, 29 Jan 2002 23:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288402AbSA3EOU>; Tue, 29 Jan 2002 23:14:20 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:33482 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S288395AbSA3EOI>;
-	Tue, 29 Jan 2002 23:14:08 -0500
-Date: Tue, 29 Jan 2002 23:14:03 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Chris Ricker <kaboom@gatech.edu>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020129231403.A22449@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net> <Pine.LNX.4.33.0201291851270.1766-100000@penguin.transmeta.com>
+	id <S288452AbSA3EUa>; Tue, 29 Jan 2002 23:20:30 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:56078 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S288420AbSA3EUM>; Tue, 29 Jan 2002 23:20:12 -0500
+Date: Wed, 30 Jan 2002 15:20:45 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org, tcpdump-workers@tcpdump.org
+Subject: Re: Linux 2.4 and iptables: output includes NAT
+Message-Id: <20020130152045.345e3288.rusty@rustcorp.com.au>
+In-Reply-To: <87elk9rkv4.fsf@deneb.enyo.de>
+In-Reply-To: <87elk9rkv4.fsf@deneb.enyo.de>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201291851270.1766-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 06:54:04PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 06:54:04PM -0800, Linus Torvalds wrote:
-> Basically, I'd really like documentation to go with the thing it
-> documents. This is something where the docbook stuff helped noticeably.
+On Tue, 29 Jan 2002 20:57:19 +0100
+Florian Weimer <fw@deneb.enyo.de> wrote:
 
-Well...  kinda sorta.
+> On Linux 2.4.14 with the following iptables rule,
+> 
+>   iptables -t nat -A POSTROUTING -o eth1 -p tcp -d $TARGET -j SNAT --to $NEW
+> 
+> tcpdump version 3.6.2 with libpcap 0.6.2 (Debian GNU/Linux versions)
+> shows the address on the wire for source addresses of IP packets, but
+> the destination address is displayed with NAT applied, which is
+> quit confusing.
 
-We -used- to really have documentation with the thing it documents, like
-drivers/foo/README.  In-lined source comments are one piece of the
-puzzle yes, but the -bulk- of the docs are not anywhere near the thing
-it documents.
+Yes, this was fixed in later kernels.
 
-I actually don't like stuffing documents in Documentation/DocBook
-proper...  I've put docs for two drivers in there, but if the trend
-continues a new dir structure will need to evolve.
-
-Either we'll want Documentation/DocBook/<category>, or move the docbook
-docs into the standard Documentation/* hierarchy......... or we'll start
-moving docs back outside Documentation/*
-
-	Jeff, on a semi-tangent
-
-
-
+Thanks!
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

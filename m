@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284860AbRLRULN>; Tue, 18 Dec 2001 15:11:13 -0500
+	id <S284967AbRLRURX>; Tue, 18 Dec 2001 15:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285006AbRLRULE>; Tue, 18 Dec 2001 15:11:04 -0500
-Received: from vitelus.com ([64.81.243.207]:5135 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S284967AbRLRUKz>;
-	Tue, 18 Dec 2001 15:10:55 -0500
-Date: Tue, 18 Dec 2001 12:10:34 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DRM OS
-Message-ID: <20011218121034.B23308@vitelus.com>
-In-Reply-To: <20011218115342.A23308@vitelus.com> <Pine.LNX.4.33.0112182103370.29077-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112182103370.29077-100000@Appserv.suse.de>
-User-Agent: Mutt/1.3.20i
+	id <S285006AbRLRURO>; Tue, 18 Dec 2001 15:17:14 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:31879 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S284958AbRLRUQz>;
+	Tue, 18 Dec 2001 15:16:55 -0500
+Message-ID: <3C1FA3E4.6000903@athlon.maya.org>
+Date: Tue, 18 Dec 2001 21:15:32 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17rc1] fatal problem: system time suddenly changes
+In-Reply-To: <3C1F8825.2080802@athlon.maya.org> <20011218124132.B32316@asooo.flowerfire.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 09:05:55PM +0100, Dave Jones wrote:
-> Remember DMCA ? Remember SSSCA ?
+Hello Ken,
 
-I watch DVD's with DeCSS. Come and get me.
+Ken Brownfield wrote:
 
-The reality is that even things such as napster are absurdly termed
-illegal, and that doesn't stop a huge segment of the population from
-"bypassing" such laws. The same would happen if tools were available
-for circumvention of DRM in computer hardware.
+ > Are you seeing this in earlier kernels?  What about with "noapic"?
+
+
+Yes, in all 2.4.x - vanilla kernels. But not in the ac-patches!
+
+I tested it wit or without apic - the behaviour didn't change.
+
+
+Regards,
+Andreas
+
+

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUKAOtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUKAOsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267648AbUKAOtc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 09:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267645AbUKAOta
+	id S265025AbUKAOsn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 09:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbUKAOsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:49:30 -0500
-Received: from smtp.terra.es ([213.4.129.129]:62805 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S267613AbUKAOtQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:49:16 -0500
-Date: Mon, 1 Nov 2004 15:48:53 +0100
-From: Diego Calleja <diegocg@teleline.es>
-To: Z Smith <plinius@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-Message-Id: <20041101154853.6b393f8a.diegocg@teleline.es>
-In-Reply-To: <418550C1.1060203@comcast.net>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	<200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>
-	<1099170891.1424.1.camel@krustophenia.net>
-	<200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
-	<1099175138.1424.18.camel@krustophenia.net>
-	<20041031150637.6311a2ec.diegocg@teleline.es>
-	<418550C1.1060203@comcast.net>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 1 Nov 2004 09:48:16 -0500
+Received: from [193.112.238.6] ([193.112.238.6]:17287 "EHLO caveman.xisl.com")
+	by vger.kernel.org with ESMTP id S267194AbUKAOmT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:42:19 -0500
+From: John M Collins <jmc@xisl.com>
+Organization: Xi Software Ltd
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fchown on unix domain sockets?
+Date: Mon, 1 Nov 2004 14:41:56 +0000
+User-Agent: KMail/1.6.1
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>
+References: <200410312255.00621.jmc@xisl.com> <Pine.LNX.4.53.0411011517570.29275@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411011517570.29275@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411011441.56524.jmc@xisl.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 31 Oct 2004 12:53:21 -0800 Z Smith <plinius@comcast.net> escribió:
+On Monday 01 Nov 2004 14:20, Jan Engelhardt wrote:
 
-> But not everyone can tolerate today's level of bloat.
+> As some manpage might say, the socket thing you see in "ls -l" is just a
+> reference thing. When you connect to it, ls -l /proc/pidofprogram/fd/ does
+> not show the path, but [socket:xxxx] which shows that the filesystem object
+> is not used anymore.
 
-Sadly it's true, but in the other hand I haven't seen something like gnome/kde
-which don't eats lots of resources (mac os x and XP are not better, beos was
-better they say), which makes me think that building a  desktop environment
-without eating lots of resources is not easy. Well, and your projct is also
-bloat in some ways...it's small and all that but putting a graphics system
-inside the kernel is one of the best definitions of "bloat" you can find...
+When I connect to it is the point. I want to set the permissions etc so that 
+only the progams that are supposed to be talking to it talk to it.
+
+> >I don't mind it not working but I think it should report an error. This is
+> > on 2.6.3 kernel.
+>
+> What would you like it to do? EINVAL like the others or change the actual
+> inode's permission?
+
+I don't mind. I think it's a meaninful thing to want to do, but if you can't 
+do it that way, fine, just let me know with some error code.
+
+-- 
+John Collins Xi Software Ltd www.xisl.com

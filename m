@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130911AbRBJJma>; Sat, 10 Feb 2001 04:42:30 -0500
+	id <S130954AbRBJJuc>; Sat, 10 Feb 2001 04:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130954AbRBJJmU>; Sat, 10 Feb 2001 04:42:20 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:2308 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130911AbRBJJl7>;
-	Sat, 10 Feb 2001 04:41:59 -0500
-Message-ID: <20010209201243.D16776@bug.ucw.cz>
-Date: Fri, 9 Feb 2001 20:12:43 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alex Belits <abelits@phobos.illtel.denver.co.us>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Serial device with very large buffer
-In-Reply-To: <Pine.LNX.4.10.10101312301110.1478-100000@mercury> <E14OTPp-0005MY-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <E14OTPp-0005MY-00@the-village.bc.nu>; from Alan Cox on Thu, Feb 01, 2001 at 11:45:23PM +0000
+	id <S131326AbRBJJuW>; Sat, 10 Feb 2001 04:50:22 -0500
+Received: from front7.grolier.fr ([194.158.96.57]:44712 "EHLO
+	front7.grolier.fr") by vger.kernel.org with ESMTP
+	id <S130954AbRBJJuJ> convert rfc822-to-8bit; Sat, 10 Feb 2001 04:50:09 -0500
+Date: Sat, 10 Feb 2001 09:48:41 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ion Badulescu <ionut@cs.columbia.edu>, Alan Cox <alan@redhat.com>,
+        Donald Becker <becker@scyld.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        jes@linuxcare.com
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <E14RN4r-0008IY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10102100932360.1117-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >   I also propose to increase the size of flip buffer to 640 bytes (so the
-> > flipping won't occur every time in the middle of the full buffer), however
-> > I understand that it's a rather drastic change for such a simple goal, and
-> > not everyone will agree that it's worth the trouble:
+
+On Fri, 9 Feb 2001, Alan Cox wrote:
+
+> > > For non routing paths its virtually free because the DMA forced the lines
+> > > from cache anyway. 
+> > 
+> > Are you actually sure about this? I thought DMA from PCI devices reached 
+> > the main memory without polluting the L2 cache. Otherwise any large DMA 
+> > transfer would kill the cache (think frame grabbers...)
 > 
-> Going to a 1K flip buffer would make sense IMHO for high speed devices too
+> DMA to main memory normally invalidates those lines in the CPU cache rather
+> than the cache snooping and updating its view of them.
 
-Actually bigger flipbufs are needed for highspeed serials and
-irda. Tytso received patch to make flipbuf size settable by the
-driver. (Setting it to 1K is not easy, you need to change allocation
-mechanism of buffers.)
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+In PCI, it is the Memory Write and Invalidate PCI transaction that is
+intended to allow core-logics to optimize DMA this way. For normal Memory
+Write PCI transactions or when the core-logic is aliasing MWI to MW, the
+snooping may well happen. All that stuff, very probably, varies a lot
+depending on the core-logic.
+
+As we know, in normal PCI, the target is not told about the transaction
+length prior to the bursting of the data. This makes difficult for a core
+logic to use cache invalidation rather than dma snooping when a normal MW
+is used, thus the invention of MWI.
+
+  Gérard.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

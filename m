@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318562AbSIFMvw>; Fri, 6 Sep 2002 08:51:52 -0400
+	id <S316845AbSIFNOu>; Fri, 6 Sep 2002 09:14:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318572AbSIFMvw>; Fri, 6 Sep 2002 08:51:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2251 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318562AbSIFMvv>; Fri, 6 Sep 2002 08:51:51 -0400
-Date: Fri, 6 Sep 2002 14:56:25 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Andreas Steinmetz <ast@domdv.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20pre5 trivial compiler warning fix for irtty.c
-In-Reply-To: <3D77C532.3050806@domdv.de>
-Message-ID: <Pine.NEB.4.44.0209061452550.7218-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318572AbSIFNOu>; Fri, 6 Sep 2002 09:14:50 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:13062 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S316845AbSIFNOt>; Fri, 6 Sep 2002 09:14:49 -0400
+Message-ID: <3D78AB8B.A8C6328A@aitel.hist.no>
+Date: Fri, 06 Sep 2002 15:20:11 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ptb@it.uc3m.es
+CC: linux-kernel@vger.kernel.org
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+References: <200209060917.g869H5c08220@oboe.it.uc3m.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Sep 2002, Andreas Steinmetz wrote:
+"Peter T. Breuer" wrote:
 
-> the attached patch fixes deprecated usage warnings for __FUNCTION__ in
-> irtty.c.
+> > Oh, you saw the light. (-: I can assure you that most file systems make
+> 
+> The question is if they do it in a way I can read. If I can read it, I
+> can fix it. There was too much noise inside e2fs to see a point or points
+> of intercept. So the intercept has to be higher, and ..
+> 
+> > direct_IO, I plan to keep all metadata caching in place, just stop caching
+> > the actual file data. That should give maximum performance I think.
+> 
+> But not correct behaviour wrt metadata in a shared disk fs. And your
+> calculation of "maximum performance" is off. Look, you seem to forget
+> this:
+> 
+>    suppose that I make the FS twice as slow as before by meddling with
+>    it to make it sharable
+The big question is, of course: Can you do that?  Can you make a fs
+shareable
+the way you want it with only a 2-times slowdown?  That'd be interesting
+to see.
 
-Hi Andreas,
+> 
+>    then I simply share it among 4 nodes to get a two times _speed up_
+>    overall.
+Cool if it works, but then the next question is if you can make it
+scaleable like that.  Will it really be 4x as fast with 4 nodes?
+Maybe.  But it won't scale like that with more and more nodes,
+that you can be sure of.  Sometime you max out the disk,
+or the network connections, or the processing capacity of the
+node controlling the shared device.  After that it don't
+get any faster with more nodes.
 
-a similar patch is already in -ac. It's perhaps the best if you make such
-patches against -ac because -ac contains several smaller cleanups and
-fixes that aren't yet in 2.4.20pre.
+> 
+> That's the basic idea. Details left to reader.
+No thanks.  It is the details that is the hard part here.
 
-cu
-Adrian
+> I.e. I don't care if it gets slower. We are talking thousands of nodes
+> here. Only the detail of the topology is affected by the real numbers.
 
--- 
+Try, but thousands of nodes sharing one or more devices isn't
+easy to get right.  People struggle with clusters much smaller than
+that.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+Helge Hafting

@@ -1,60 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268352AbUHKXw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUHLAwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268352AbUHKXw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUHKXpo
+	id S268497AbUHLAwO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUHLAub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 19:45:44 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:32941 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S268326AbUHKXGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:06:50 -0400
-Subject: Re: ipw2100 wireless driver
-From: David Woodhouse <postmaster@infradead.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040811225612.GB14073@louise.pinerecords.com>
-References: <411A478E.1080101@linux.intel.com>
-	 <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net>
-	 <20040811163333.GE10100@louise.pinerecords.com>
-	 <20040811175105.A30188@infradead.org>
-	 <20040811170208.GG10100@louise.pinerecords.com>
-	 <20040811181142.A30309@infradead.org>
-	 <20040811172222.GI10100@louise.pinerecords.com>
-	 <20040811184148.A30660@infradead.org>
-	 <20040811175109.GJ10100@louise.pinerecords.com>
-	 <1092264200.1438.4347.camel@imladris.demon.co.uk>
-	 <20040811225612.GB14073@louise.pinerecords.com>
-Content-Type: text/plain
-Message-Id: <1092265608.1438.4364.camel@imladris.demon.co.uk>
+	Wed, 11 Aug 2004 20:50:31 -0400
+Received: from [203.178.140.15] ([203.178.140.15]:11787 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S268516AbUHLAlc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 20:41:32 -0400
+Date: Thu, 12 Aug 2004 09:42:06 +0900 (JST)
+Message-Id: <20040812.094206.42261287.yoshfuji@linux-ipv6.org>
+To: bunk@fs.tum.de, davem@redhat.com
+Cc: SteveW@ACM.org, emserrat@geocities.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org
+Subject: Re: 2.6: DECNET compile errors with SYSCTL=n
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040811224015.GP26174@fs.tum.de>
+References: <20040811224015.GP26174@fs.tum.de>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 12 Aug 2004 00:06:48 +0100
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 00:56 +0200, Tomas Szepe wrote:
-> Ok, thanks for the warning.  Is there any reason why you should
-> be trying to look up postmaster@ from the sender domain upon
-> RCPT TO?
+Hello.
 
-Part of standard verification of sender addresses. You're being offered
-an email.... if you can't send a bounce to the address it claims to come
-from, or if you can't send a mail to postmaster at the same domain, then
-the chances that the mail you're being offered is a fake are high enough
-to warrant rejecting it.
+In article <20040811224015.GP26174@fs.tum.de> (at Thu, 12 Aug 2004 00:40:15 +0200), Adrian Bunk <bunk@fs.tum.de> says:
 
-Results are cached for a period of time -- the _first_ rejection should
-have been more explicit than 'result of earlier verification reused' --
-it should have actually given you the results of trying to send that
-mail to postmaster@pinerecords.com:
+> I'm getting the following compile errors in 2.6.8-rc4-mm1 (but it 
+> doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
+> 
+> <--  snip  -->
+> 
+> ...
+>   LD      .tmp_vmlinux1
+> net/built-in.o(.text+0x1685e9): In function `dn_route_output_slow':
+> : undefined reference to `dn_dev_get_default'
+:
 
-	rcpt to:<postmaster@pinerecords.com>
-	553 5.3.0 <postmaster@pinerecords.com>... No such user
+Please try this patch. Thanks.
+Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+
+===== net/decnet/dn_dev.c 1.23 vs edited =====
+--- 1.23/net/decnet/dn_dev.c	2004-08-08 15:43:41 +09:00
++++ edited/net/decnet/dn_dev.c	2004-08-12 09:34:56 +09:00
+@@ -247,21 +247,6 @@
+ 	}, {0}}
+ };
+ 
+-static inline __u16 mtu2blksize(struct net_device *dev)
+-{
+-	u32 blksize = dev->mtu;
+-	if (blksize > 0xffff)
+-		blksize = 0xffff;
+-
+-	if (dev->type == ARPHRD_ETHER ||
+-	    dev->type == ARPHRD_PPP ||
+-	    dev->type == ARPHRD_IPGRE ||
+-	    dev->type == ARPHRD_LOOPBACK)
+-		blksize -= 2;
+-
+-	return (__u16)blksize;
+-}
+-
+ static void dn_dev_sysctl_register(struct net_device *dev, struct dn_dev_parms *parms)
+ {
+ 	struct dn_dev_sysctl_table *t;
+@@ -314,52 +299,6 @@
+ 	}
+ }
+ 
+-struct net_device *dn_dev_get_default(void)
+-{
+-	struct net_device *dev;
+-	read_lock(&dndev_lock);
+-	dev = decnet_default_device;
+-	if (dev) {
+-		if (dev->dn_ptr)
+-			dev_hold(dev);
+-		else
+-			dev = NULL;
+-	}
+-	read_unlock(&dndev_lock);
+-	return dev;
+-}
+-
+-int dn_dev_set_default(struct net_device *dev, int force)
+-{
+-	struct net_device *old = NULL;
+-	int rv = -EBUSY;
+-	if (!dev->dn_ptr)
+-		return -ENODEV;
+-	write_lock(&dndev_lock);
+-	if (force || decnet_default_device == NULL) {
+-		old = decnet_default_device;
+-		decnet_default_device = dev;
+-		rv = 0;
+-	}
+-	write_unlock(&dndev_lock);
+-	if (old)
+-		dev_put(dev);
+-	return rv;
+-}
+-
+-static void dn_dev_check_default(struct net_device *dev)
+-{
+-	write_lock(&dndev_lock);
+-	if (dev == decnet_default_device) {
+-		decnet_default_device = NULL;
+-	} else {
+-		dev = NULL;
+-	}
+-	write_unlock(&dndev_lock);
+-	if (dev)
+-		dev_put(dev);
+-}
+-
+ static int dn_forwarding_proc(ctl_table *table, int write, 
+ 				struct file *filep,
+ 				void __user *buffer,
+@@ -454,6 +393,21 @@
+ 
+ #endif /* CONFIG_SYSCTL */
+ 
++static inline __u16 mtu2blksize(struct net_device *dev)
++{
++	u32 blksize = dev->mtu;
++	if (blksize > 0xffff)
++		blksize = 0xffff;
++
++	if (dev->type == ARPHRD_ETHER ||
++	    dev->type == ARPHRD_PPP ||
++	    dev->type == ARPHRD_IPGRE ||
++	    dev->type == ARPHRD_LOOPBACK)
++		blksize -= 2;
++
++	return (__u16)blksize;
++}
++
+ static struct dn_ifaddr *dn_dev_alloc_ifa(void)
+ {
+ 	struct dn_ifaddr *ifa;
+@@ -633,6 +587,52 @@
+ 	if (copy_to_user(arg, ifr, DN_IFREQ_SIZE))
+ 		ret = -EFAULT;
+ 	goto done;
++}
++
++struct net_device *dn_dev_get_default(void)
++{
++	struct net_device *dev;
++	read_lock(&dndev_lock);
++	dev = decnet_default_device;
++	if (dev) {
++		if (dev->dn_ptr)
++			dev_hold(dev);
++		else
++			dev = NULL;
++	}
++	read_unlock(&dndev_lock);
++	return dev;
++}
++
++int dn_dev_set_default(struct net_device *dev, int force)
++{
++	struct net_device *old = NULL;
++	int rv = -EBUSY;
++	if (!dev->dn_ptr)
++		return -ENODEV;
++	write_lock(&dndev_lock);
++	if (force || decnet_default_device == NULL) {
++		old = decnet_default_device;
++		decnet_default_device = dev;
++		rv = 0;
++	}
++	write_unlock(&dndev_lock);
++	if (old)
++		dev_put(dev);
++	return rv;
++}
++
++static void dn_dev_check_default(struct net_device *dev)
++{
++	write_lock(&dndev_lock);
++	if (dev == decnet_default_device) {
++		decnet_default_device = NULL;
++	} else {
++		dev = NULL;
++	}
++	write_unlock(&dndev_lock);
++	if (dev)
++		dev_put(dev);
+ }
+ 
+ static struct dn_dev *dn_dev_by_index(int ifindex)
 
 -- 
-dwmw2
-
-
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

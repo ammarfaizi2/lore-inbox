@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265366AbUEZI7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265368AbUEZI63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265366AbUEZI7R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 04:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUEZI7Q
+	id S265368AbUEZI63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 04:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUEZI63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 04:59:16 -0400
-Received: from plus.ds14.agh.edu.pl ([149.156.124.14]:63725 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S265366AbUEZI7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 04:59:12 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Don't return void types from void functions.
-Date: Wed, 26 May 2004 10:59:10 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200405260606.i4Q66dXB023475@hera.kernel.org> <40B43913.7010207@pobox.com> <200405261138.41008.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200405261138.41008.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 26 May 2004 04:58:29 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:47118 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265368AbUEZI61
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 04:58:27 -0400
+Message-ID: <40B45CB7.6010407@aitel.hist.no>
+Date: Wed, 26 May 2004 11:00:39 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: orders@nodivisions.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+References: <40B43B5F.8070208@nodivisions.com>
+In-Reply-To: <40B43B5F.8070208@nodivisions.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405261059.10930.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 of May 2004 10:38, Denis Vlasenko wrote:
-> On Wednesday 26 May 2004 09:28, Jeff Garzik wrote:
-> > Linux Kernel Mailing List wrote:
-> > > diff -Nru a/drivers/net/tokenring/olympic.c
-> > > b/drivers/net/tokenring/olympic.c ---
-> > > a/drivers/net/tokenring/olympic.c	2004-05-25 23:06:49 -07:00 +++
-> > > b/drivers/net/tokenring/olympic.c	2004-05-25 23:06:49 -07:00 @@ -1806,7
-> > > +1806,7 @@
-> > >
-> > >  static void __exit olympic_pci_cleanup(void)
-> > >  {
-> > > -	return pci_unregister_driver(&olympic_driver) ;
-> > > +	pci_unregister_driver(&olympic_driver) ;
-> > >  }
-> >
-> > Can we make gcc error out when it finds this?
+Anthony DiSante wrote:
+
+> As a general question about ram/swap and relating to some of the 
+> issues in this thread:
 >
-> AFAIK new C++ standard allows this syntax.
+>     ~500 megs cached yet 2.6.5 goes into swap hell
 >
-> typedef int opaque;
+> Consider this: I have a desktop system with 256MB ram, so I make a 
+> 256MB swap partition.  So I have 512MB "memory" and if some process 
+> wants more, too bad, there is no more.
 >
-> opaque f();
-> opaque g() { return f(); }
->
-> Now imagine we need to change
-> -typedef int opaque;
-> +typedef void opaque;
+> Now I buy another 256MB of ram, so I have 512MB of real memory.  Why 
+> not just disable my swap completely now?  I won't have increased my 
+> memory's size at all, but won't I have increased its performance lots? 
 
-strict ISO C++ - yes,
-strict ISO C - no.
+This is correct. You now have 512M of fast memory instead of
+256M fast memory and 256M "slow" memory. You don't _need_ to have additional
+swap, but it is usually a good idea.  If you keep your 256M of swap, 
+then you now
+have 512M fast memory + 256M slow memory for a total of 768M.  This is 
+even better.
 
-# g++ -Wall -s -c void_ret.cpp -pedantic-errors
+Please note that  your machine _will_ do one kind of swapping even if you
+don't configure any swap: Executable files are a kind of swap-files,
+if memory pressure happens then (part of) your programs will be evicted
+from memory _because_ they can be reloaded from their executables.
 
-# gcc -Wall -s -c void_ret.c -pedantic-errors
-void_ret.c: In function `g':
-void_ret.c:4: error: `return' with a value, in function returning void
+This cause the same sort of performance degradations as swapping to
+a swap partition.  Actually, it is worse because swapping to a swap 
+partition
+allows swapping out little-used writeable memory before discarding
+program code that might see more use.  So if swapping happens, then
+you're better off with a swap partition because then it is the least used
+stuff that goes first. Without a swap partition, the least used program code
+goes, but it may or may not be the least used memory overall.
 
-# gcc --version
-gcc (GCC) 3.4.0 SSP (PLD Linux)
-(...)
+Helge Hafting
 
--- 
-If you think of MS-DOS as mono, and Windows as stereo,
-  then Linux is Dolby Digital and all the music is free...
+
+

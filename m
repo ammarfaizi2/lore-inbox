@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264761AbSJOTV2>; Tue, 15 Oct 2002 15:21:28 -0400
+	id <S263203AbSJOTYk>; Tue, 15 Oct 2002 15:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264762AbSJOTV2>; Tue, 15 Oct 2002 15:21:28 -0400
-Received: from relay1.pair.com ([209.68.1.20]:35858 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S264761AbSJOTVV>;
-	Tue, 15 Oct 2002 15:21:21 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <3DAC6ED0.E4379BEF@kegel.com>
-Date: Tue, 15 Oct 2002 12:38:56 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Benjamin LaHaise <bcrl@redhat.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] async poll for 2.5
-References: <Pine.LNX.4.44.0210151229010.1554-100000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261745AbSJOTYj>; Tue, 15 Oct 2002 15:24:39 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:45550 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261645AbSJOTYi>; Tue, 15 Oct 2002 15:24:38 -0400
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Simon Roscic <simon.roscic@chello.at>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200210152120.13666.simon.roscic@chello.at>
+References: <200210152120.13666.simon.roscic@chello.at>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-jvLf+qM2Y4sBmsErZDhC"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Oct 2002 21:31:38 +0200
+Message-Id: <1034710299.1654.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> 
-> On Tue, 15 Oct 2002, Benjamin LaHaise wrote:
-> 
-> > On Tue, Oct 15, 2002 at 12:16:39PM -0700, Davide Libenzi wrote:
-> > > Ben, one of the reasons of the /dev/epoll speed is how it returns events
-> > > and how it collapses them. A memory mapped array is divided by two and
-> > > while the user consumes events in one set, the kernel fill the other one.
-> > > The next wait() will switch the pointers. There is no copy from kernel to
-> > > user space. Doing :
-> > >
-> > > int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
-> > >
-> > > the only data the kernel has to copy to userspace is the 4(8) bytes for
-> > > the "pevts" pointer.
-> >
-> > Erm, the aio interface has support for the event ringbuffer being accessed
-> > by userspace (it lives in user memory and the kernel acts as a writer, with
-> > userspace as a reader), that's one of its advantages -- completion events
-> > are directly accessible from userspace after being written to by an
-> > interrupt.  Ideally this is to be wrapped in a vsyscall, but we don't have
-> > support for that yet on x86, although much of the code written for x86-64
-> > should be reusable.
-> 
-> In general I would like to have a "common" interface to retrieve IO
-> events, but IMHO the two solutions should be benchmarked before adopting
-> the one or the other.
 
-Seems like /dev/epoll uses a double-buffering scheme rather than
-a ring buffer, and this is not just a trivial difference; it's
-related to how redundant events are collapsed, right?
-- Dan
+--=-jvLf+qM2Y4sBmsErZDhC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2002-10-15 at 21:20, Simon Roscic wrote:
+> hi,
+>=20
+> as the feature freeze of 2.5 comes close, i want to ask if the driver for
+> the qlogic sanblade 2200/2300 series of hba's will be included in 2.5 ...
+> are there any plan's to do so ?   has it been discussed before ?
+>=20
+> i ask because i use those hba's together with ibm's fastt500 storage syst=
+em,
+> and it will be nice to have this driver in the default kernel ...
+>=20
+> i use version 5.36.3 of the qlogic 2x00 driver in production
+> (vanilla kernel 2.4.17 + qlogic 2x00 driver v5.36.3) since may 2002
+> and i never had any problems with this driver ...
+
+Oh so you haven't notices how it buffer-overflows the kernel stack, how
+it has major stack hog issues, how it keeps the io request lock (and
+interrupts disabled) for a WEEK ?
+
+
+
+
+
+--=-jvLf+qM2Y4sBmsErZDhC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9rG0ZxULwo51rQBIRAmsgAJ9ofYLN5m4oCrUzTyM0kWu+EZngLgCfV5Fp
+e9cOTAatzK69SC1dAbiFhYw=
+=jJgf
+-----END PGP SIGNATURE-----
+
+--=-jvLf+qM2Y4sBmsErZDhC--
+

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284366AbRLCIvu>; Mon, 3 Dec 2001 03:51:50 -0500
+	id <S284347AbRLCIve>; Mon, 3 Dec 2001 03:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284367AbRLCIth>; Mon, 3 Dec 2001 03:49:37 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:59564 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S284857AbRLCHo2>;
-	Mon, 3 Dec 2001 02:44:28 -0500
-Date: Sun, 2 Dec 2001 23:27:59 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matt Schulkind <mschulkind@mailandnews.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: AMD Viper IDE chipset
-In-Reply-To: <022601c17b57$548ef230$0500a8c0@myroom>
-Message-ID: <Pine.LNX.4.10.10112022326410.30807-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S284475AbRLCIug>; Mon, 3 Dec 2001 03:50:36 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58303 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284825AbRLCGt7>; Mon, 3 Dec 2001 01:49:59 -0500
+Date: Sun, 2 Dec 2001 23:49:46 -0700
+Message-Id: <200112030649.fB36nkd18320@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v201 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001, Matt Schulkind wrote:
+  Hi, all. Version 201 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-> I'm currently using the Tyan Tiger mobo with the AMD Viper chipset. On past
-> kernels 2.4.14 and before definatly, hdparm -t gave me 3.8MB/s on my ATA100
-> drive. Using some IDE patch taht I'd found on the web, I was able to get to
-> 28MB/s and 38MB/s with some tweaking. Now with the 2.4.16 kernel, I get
-> 28MB/s which is a good improvement, but my drive is only being detected as
-> UDMA33, I have not tried forcing it to UDMA66 or UDMA100 like I had with the
-> IDE patch I found which had the same detecting problem. It seems that the
-> mode detection is broken, but the actual interface code is functioning.
-> Anyone else having similar problems? I'm using the IBM 60GB 75GXP drive.
-> 
-> -Matt Schulkind
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
 
-NAH, You just need the rest of my code but nobody is adopting it.
-My code base on top on any kernel tested to date will give you that 25%
-boost.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
 
-Cheers,
+This is against 2.5.1-pre5. Highlights of this release:
 
-Andre Hedrick
-Linux ATA Development
+- Fixed bug in <devfsd_read>: was dereferencing freed pointer
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

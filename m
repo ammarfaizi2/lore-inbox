@@ -1,132 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312485AbSCYSUS>; Mon, 25 Mar 2002 13:20:18 -0500
+	id <S312494AbSCYSXi>; Mon, 25 Mar 2002 13:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312487AbSCYSUJ>; Mon, 25 Mar 2002 13:20:09 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:49596 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S312485AbSCYSUD>; Mon, 25 Mar 2002 13:20:03 -0500
-Date: Mon, 25 Mar 2002 13:19:56 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x and resume
-Message-ID: <20020325181956.GE1853@ufies.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au> <1016914030.949.20.camel@phantasy> <20020323224433.GB11471@ufies.org> <20020324080729.GD16785@kroah.com> <20020324142545.GC20703@ufies.org> <20020325180133.GB28629@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ey/N+yb7u/X9mFhi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: debian SID Gnu/Linux 2.4.19-pre4 on i586
+	id <S312487AbSCYSX3>; Mon, 25 Mar 2002 13:23:29 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:25736 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S312486AbSCYSXU> convert rfc822-to-8bit; Mon, 25 Mar 2002 13:23:20 -0500
+Message-Id: <200203251821.g2PIL7oA005522@codeman.linux-systeme.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+Reply-To: mcp@linux-systeme.de
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
+Date: Mon, 25 Mar 2002 19:21:07 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+X-PRIORITY: 2 (High)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kernel - patched - WOLK3.1 - Base: Linux kernel 2.4.18
 
---ey/N+yb7u/X9mFhi
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+by Marc-Christian Petersen <mcp@linux-systeme.de>
 
-On Mon, Mar 25, 2002 at 10:01:33AM -0800, Greg KH wrote:
-> On Sun, Mar 24, 2002 at 09:25:45AM -0500, christophe barb=E9 wrote:
-> > On Sun, Mar 24, 2002 at 12:07:29AM -0800, Greg KH wrote:
-> > > On Sat, Mar 23, 2002 at 05:44:33PM -0500, christophe barb=E9 wrote:
-> > > > With the 'everything is module' and 'everything is hotplug' approac=
-h in
-> > > > mind (which is a appealing way and IMHO this is the way we are goin=
-g),
-> > > > I see two part for this problem:
-> > > >=20
-> > > > . Persistence after plug out/plug in=20
-> > > >=20
-> > > > . Persistence after suspend/resume
-> > > >=20
-> > > > The first one is a userland problem. The card identification could =
-be
-> > > > based on the MAC address (for NICs at least, in the case of cardbus=
- the
-> > > > bus position has no real signification). This should then be the
-> > > > responsibility of the userspace tool (hotplug) to indicate the corr=
-ect
-> > > > option for this card. The problem is when the module is already loa=
-ded,
-> > > > the userspace tool has no way to indicate this option.
-> > >=20
-> > > Untrue.  See
-> > > 	http://www.kroah.com/linux/hotplug/ols_2001_hotplug_talk/html/mgp000=
-14.html
-> > > for a 6 line version of /sbin/hotplug that always assigns the same
-> > > "ethX" value to the same MAC address.  I think the patch to nameif has
-> > > gone in to support this, but I'm not sure.
-> >=20
-> > Untrue what ? The persistence after plug out/in ?
->=20
-> No, the sentence, "The problem is when the module is already loaded..."
-> /sbin/hotplug gets called when the network device is started up, it
-> doesn't only get called before the module is loaded.
 
-Ok I understand that but hotplug has no way to influence the way the
-device is treated by the driver. The only way I can see is via the /proc
-interface, but at least it is not possible with this driver.
+This is my second public release. WOLK 3.1 is now available as full kernel
+AND as a patchset. There were some requests to do it, so here it is :)
+WOLK 3.1 contains several bugfixes found in WOLK 3.0 (formerly known as
+mcp3-WOLK), reported by users of wolk and found by myself.
+Project name change cause WOLK looks nicer than of mcp-WOLK.
 
-> > The problem here is not to give the same interface to a given NIC. The
-> > problem is to give the same options to a given NIC. But a solution can
-> > simply be to set the option from hotplug using the proc interface. The
-> > 3c59x doesn't support that for wol but that can be changed.
->=20
-> Understood.
+Thanks to darix <darix@irssi.de> for the project name WOLK :-)
 
-So do you agree that something is missing here ?
 
->=20
-> > > And why is there a limitation of only 8 devices?  Why not do what all
-> > > USB drivers do, and just create the structure that you need to use at
-> > > probe() time, and destroy it at remove() time?
-> >=20
-> > This is an implementation issue which is not really important. It comes
-> > from Donald Becker. Your dynamic structure doesn't solve the problem
-> > 'which options for which cards', does it ?=20
->=20
-> No, but it solves the problem, "only 8 devices max", and "what to do
-> when a card is removed and then plugged back in."  Both seems like good
-> things to fix in the driver :)
+What is this? Why another patchset/patched kernel?
 
-I have not checked the module loading code but is it possible to define
-for an option a vector with an undefined size ? Or do you consider that
-all devices use the same option ? (the vortex driver is only limited to
-8 cards for the options passed by modutils)
+Using Linux since years, very tired of there are not really good
+patchsets available. Saw FOLK Patch/Kernel which is still very very buggy.
+Inspired by the jp-Patchsets from Joerg Prante <joerg@infolinux.de>.
 
-Could you point me to a specific usb driver ?
+The WOLK's are development kernels/patchsets for testing purpose only.
+!! If you want to use it in production, use it at your own risk !!
+Their purpose is to provide a service for developers and end-users who
+can't be up to date with the latest official stable kernels/patches but
+want to test many features out there linux can use. Maybe, (hopefully)
+some of them will be included into the mainstream kernel 2.4 soon.
 
-How is solved the "what to do when a card is removed and then plugged
-back in." problem ? By keeping the entry for further use ?=20
+There will always be a new WOLK major release if there is a new final
+kernel released. Minor releases only if someone/me found critical bugs.
 
-Christophe
+You are missing a patch? Patches will be added by request.
+You think one or more of the patches are fully useless? Tell me why.
+You have minor, major or heavy mega problems, let me know. I will try to fix.
+You think this is great? Let me know too :-)
 
-> thanks,
->=20
-> greg k-h
+You want YOUR patch to be included in WOLK? Let me know :)
 
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+There is also a mailinglist available you can join at:
+https://sourceforge.net/mail/?group_id=49048
 
-There's no sense in being precise when you don't even know what you're
-talking about. -- John von Neumann
 
---ey/N+yb7u/X9mFhi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Overview:
+---------
+For an overview go to http://sf.net/projects/wolk
+The WOLK 3.1 kernel/patchset contains over 90 Patches
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
+Credits go to all the people who created the patches, working hard on
+improving the quality.
 
-iD8DBQE8n2pMj0UvHtcstB4RAiuxAKCN15h7EzE7o7fKh1xe3SnSl1WUEACfZNv+
-E0jk5sEMhe4pbG1vJ92lDz4=
-=yK5J
------END PGP SIGNATURE-----
 
---ey/N+yb7u/X9mFhi--
+
+Changes in WOLK 3.1
+-------------------
+o   removed:    load-kill patch (causes panics)
+o   update:     Tekram DC395 v1.38
+o   update:     Event Logging v1.30
+o   update:     Compressed Cache 0.22 final
+o   update:     Win4Lin  mki-adapter Patch update to 1.07
+o   add:        FTP fs
+o   add:        ISDN LZS Compression
+o   add:        TUX
+o   add:        UML
+o   add:        Linux Trace Toolkit
+o   add:        Broadcom Tigon3 support
+o   small other patches (IDE, RAID ...)
+o   Minor fixes found in WOLK 3.0
+o   moved the tools to an extra package
+
+
+
+Todo for the next releases:
+---------------------------
+o  Mosix/OpenMosix (why the hell they are so slow to
+   release new patches. Hurry up !!
+o  maybe OpenAFS
+o  maybe OpenGFS
+o  ALSA
+o  grsecurity/preempt + Win4Lin coexistence
+   (Brad/Michael, can you help me with it?)
+o  If 2.4.19 is final: Reverse Mapping VM
+
+
+
+--------------------------------------------------------------------------
+Feel free to send me feedback. Please CC, I am not subscribed to the lkml.
+--------------------------------------------------------------------------
+
+The next major WOLK (WOLK 4) will be available some days after the 2.4.19
+final kernel release.
+
+
+Enjoy!
+
+Marc-Christian Petersen <mcp@linux-systeme.de>
+Unix/Linux Administrator
+Essen, Germany
+

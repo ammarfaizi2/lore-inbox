@@ -1,42 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUCPCSp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 21:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbUCPCPb
+	id S262926AbUCPCWg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 21:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbUCPBYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 21:15:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28371 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263415AbUCPCOD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 21:14:03 -0500
-Date: Mon, 15 Mar 2004 18:14:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Kenneth Chen" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch - make config_max_raw_devices work
-Message-Id: <20040315181406.2f2d8f38.akpm@osdl.org>
-In-Reply-To: <200403160053.i2G0rNm31241@unix-os.sc.intel.com>
-References: <200403160053.i2G0rNm31241@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 15 Mar 2004 20:24:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:43439 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262926AbUCPAC5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:02:57 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.4
+In-Reply-To: <10793913931516@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 15 Mar 2004 14:56:33 -0800
+Message-Id: <10793913931477@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kenneth Chen" <kenneth.w.chen@intel.com> wrote:
->
-> Even though there is a CONFIG_MAX_RAW_DEVS option, it doesn't actually
->  increase the number of raw devices beyond 256 because during the char
->  registration, it uses the standard register_chrdev() interface which
->  has hard coded 256 minor in it.  Here is a patch that fix this problem
->  by using register_chrdev_region() and cdev_(init/add/del) functions.
+ChangeSet 1.1608.74.2, 2004/03/09 14:57:49-08:00, khali@linux-fr.org
 
-Badari wrote basically the same patch a couple of months back.  I dropped
-it then, too ;)
+[PATCH] I2C: Prevent i2c-dev oops with debug
 
-raw is a deprecated interface and if we keep on adding new features to it,
-we will never be rid of the thing.  If your application requires more than
-256 raw devices, please convert it to open the block device directly,
-passing in the O_DIRECT flag.
+Looks like i2c-dev suffers the same problem with dev_dbg as i2c-core did
+twice. Here is a patch that fixed a oops I and another user were
+experiencing when running sensors-detect.
+
+
+ drivers/i2c/i2c-dev.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+--- a/drivers/i2c/i2c-dev.c	Mon Mar 15 14:35:13 2004
++++ b/drivers/i2c/i2c-dev.c	Mon Mar 15 14:35:13 2004
+@@ -189,7 +189,7 @@
+ 	int i,datasize,res;
+ 	unsigned long funcs;
+ 
+-	dev_dbg(&client->dev, "i2c-%d ioctl, cmd: 0x%x, arg: %lx.\n",
++	dev_dbg(&client->adapter->dev, "i2c-%d ioctl, cmd: 0x%x, arg: %lx.\n",
+ 		iminor(inode),cmd, arg);
+ 
+ 	switch ( cmd ) {
+@@ -310,7 +310,7 @@
+ 		    (data_arg.size != I2C_SMBUS_BLOCK_DATA) &&
+ 		    (data_arg.size != I2C_SMBUS_I2C_BLOCK_DATA) &&
+ 		    (data_arg.size != I2C_SMBUS_BLOCK_PROC_CALL)) {
+-			dev_dbg(&client->dev,
++			dev_dbg(&client->adapter->dev,
+ 				"size out of range (%x) in ioctl I2C_SMBUS.\n",
+ 				data_arg.size);
+ 			return -EINVAL;
+@@ -319,7 +319,7 @@
+ 		   so the check is valid if size==I2C_SMBUS_QUICK too. */
+ 		if ((data_arg.read_write != I2C_SMBUS_READ) && 
+ 		    (data_arg.read_write != I2C_SMBUS_WRITE)) {
+-			dev_dbg(&client->dev, 
++			dev_dbg(&client->adapter->dev, 
+ 				"read_write out of range (%x) in ioctl I2C_SMBUS.\n",
+ 				data_arg.read_write);
+ 			return -EINVAL;
+@@ -338,7 +338,7 @@
+ 					      data_arg.size, NULL);
+ 
+ 		if (data_arg.data == NULL) {
+-			dev_dbg(&client->dev,
++			dev_dbg(&client->adapter->dev,
+ 				"data is NULL pointer in ioctl I2C_SMBUS.\n");
+ 			return -EINVAL;
+ 		}
 

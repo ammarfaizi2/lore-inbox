@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbQKFK7X>; Mon, 6 Nov 2000 05:59:23 -0500
+	id <S129053AbQKFLCx>; Mon, 6 Nov 2000 06:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129098AbQKFK7N>; Mon, 6 Nov 2000 05:59:13 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:17658 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129044AbQKFK7G>;
-	Mon, 6 Nov 2000 05:59:06 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <2214.973473372@kao2.melbourne.sgi.com> 
-In-Reply-To: <2214.973473372@kao2.melbourne.sgi.com> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.0-test10-pre6 remove get_module_symbol MTD/DRM/AGP 
-Mime-Version: 1.0
+	id <S129098AbQKFLCo>; Mon, 6 Nov 2000 06:02:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12876 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129053AbQKFLCa>; Mon, 6 Nov 2000 06:02:30 -0500
+Subject: Re: [PATCH] document ECN in 2.4 Configure.help
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Mon, 6 Nov 2000 11:02:47 +0000 (GMT)
+Cc: oxymoron@waste.org (Oliver Xymoron), barryn@pobox.com,
+        linux-kernel@vger.kernel.org, hadi@cyberus.ca (jamal)
+In-Reply-To: <3A068C00.272BD5D2@uow.edu.au> from "Andrew Morton" at Nov 06, 2000 09:46:24 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 10:58:31 +0000
-Message-ID: <22235.973508311@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13sk36-00066o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>        with the TCP ECN_ECHO and CWR flags set, to indicate
+>        ECN-capability, then the sender should send its second
+>        SYN packet without these flags set. This is because
 
-kaos@ocs.com.au said:
->  Any comments before it goes to Linus? 
+Now that is nice. The end user perceived effect is that folks with faulty 
+firewalls have horrible slow web sites with a 3 or 4 second wait for each
+page. The perfect incentive. If only someone could do the same to path mtu
+discovery incompetents.
 
-I'd prefer to update MTD separately if and when the inter_module_xxx 
-support gets into both 2.2 and 2.4. 
-
-Could you first provide a patch which adds this support - when it's merged 
-into both 2.2 and 2.4 I'll update the MTD code without needing to keep 
-backwards-compatibility, and then we can remove get_module_symbol() altogether.
-
---
-dwmw2
-
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

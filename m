@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVBGOVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVBGOWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVBGOVp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVBGOVp
+	id S261425AbVBGOWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVBGOWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:21:45 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:24238 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S261422AbVBGOVm (ORCPT
+	Mon, 7 Feb 2005 09:22:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:17333 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261425AbVBGOWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:21:42 -0500
-Date: Mon, 7 Feb 2005 16:21:41 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] support of motherboards with ICH6]
-Message-ID: <20050207142141.GF1561@edu.joroinen.fi>
+	Mon, 7 Feb 2005 09:22:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MTRvKeLwJdVtDZrdvWtwTH/0Bu+nkDeDX65f65fQJJEoCg8/+bNyoPdhJ7M9/FCkgYtIJ+s1QdyUEn3mXvrr3KLYnf/a6EnY50TCk7wVO8x3FFHeJ4Q5Me7p/ddYA3pgXRSS0rFPCEXyEVQeSXwrlhBiLtP6EkVUlXb6wUHCTng=
+Message-ID: <d120d500050207062257490ae2@mail.gmail.com>
+Date: Mon, 7 Feb 2005 09:22:19 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
+Cc: Vojtech Pavlik <vojtech@suse.de>, David Fries <dfries@mail.win.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050207122033.GA16959@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041123212813.GA3196@spacedout.fries.net>
+	 <d120d500050201072413193c62@mail.gmail.com>
+	 <20050206131241.GA19564@ucw.cz>
+	 <200502062021.13726.dtor_core@ameritech.net>
+	 <20050207122033.GA16959@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 10:00:03AM +0100, P.O. Gaillard wrote:
-> Hi,
+On Mon, 7 Feb 2005 13:20:33 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
+> > > > Opening braces should go on the same line as the statement (if (...) {).
+> > >  
+> > > How about this patch?
+> >
+> > Looks fine now. Hmm, wait a sec... Don't we also need kill_fasync calls in
+> > disconnect routines as well?
 > 
-> I am replying to myself so that people googling for similar problems can 
-> find the answer.
-> 
-> Supermicro says that the internal driver of the southbridge (and also the 
-> W83627HF chip) are not useable because the necessary support hardware is 
-> missing. They say that the P8SCi board has a working watchdog.
-> 
-> 	hope this can help somebody someday,
-> 
-> 	P.O. Gaillard
+> This should do it:
 > 
 
-Hi!
+Not quite...
 
-I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
+> +               list_for_each_entry(list, &evdev->list, node)
+> +                       kill_fasync(&list->fasync, SIGIO, POLLHUP | POLLERR);
 
-I loaded w83627hf_wdt driver, and the watchdog was detected:
+Wrong band constants - for SIGIO POLL_HUP and POLL_ERR should be used.
 
-WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
-w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
+/*
+ * SIGPOLL si_codes
+ */
+#define POLL_IN         (__SI_POLL|1)   /* data input available */
+#define POLL_OUT        (__SI_POLL|2)   /* output buffers available */
+#define POLL_MSG        (__SI_POLL|3)   /* input message available */
+#define POLL_ERR        (__SI_POLL|4)   /* i/o error */
+#define POLL_PRI        (__SI_POLL|5)   /* high priority input available */
+#define POLL_HUP        (__SI_POLL|6)   /* device disconnected */
 
-But it is not working. I tried setting the timeout to 1 minute, and to
-8 minute in the BIOS, but the machine reboots after the delay no matter what
-the delay is.. the watchdog driver is loaded before the timeout of course.
-
-For some reason, the driver is not working.
-
-I mailed supermicro support about this, and they told me one of their
-customers is using watchdog with Debian 2.6.10 kernel. 
-So it should work, but..
-
-Is there some patches I could try? 
-
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
-
+-- 
+Dmitry

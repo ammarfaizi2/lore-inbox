@@ -1,121 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbQKOPql>; Wed, 15 Nov 2000 10:46:41 -0500
+	id <S129091AbQKOPsL>; Wed, 15 Nov 2000 10:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbQKOPqb>; Wed, 15 Nov 2000 10:46:31 -0500
-Received: from 213-1-124-214.btconnect.com ([213.1.124.214]:24450 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S129061AbQKOPqU>;
-	Wed, 15 Nov 2000 10:46:20 -0500
-Date: Wed, 15 Nov 2000 15:18:00 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Keith Owens <kaos@melbourne.sgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] fixes for kdb on 2.4.0-test11-pre5
-In-Reply-To: <Pine.LNX.4.21.0011151455190.1567-100000@saturn.homenet>
-Message-ID: <Pine.LNX.4.21.0011151516410.1567-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129187AbQKOPsB>; Wed, 15 Nov 2000 10:48:01 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:22134 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129091AbQKOPrw>; Wed, 15 Nov 2000 10:47:52 -0500
+Date: Wed, 15 Nov 2000 15:17:50 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11-pre3
+Message-ID: <20001115151750.B18112@redhat.com>
+In-Reply-To: <Pine.LNX.4.10.10011111914170.7609-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10011111914170.7609-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 11, 2000 at 07:22:06PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000, Tigran Aivazian wrote:
+I didn't see this in the ChangeLog.  Does this need backporting to
+2.2.x as well?
 
-> On Wed, 15 Nov 2000, Tigran Aivazian wrote:
-> 
-> > Hi Keith,
-> > 
-> > Here is some fixes related to x86 capabilities changes in test11-pre5.
-> > Against your latest patch (test11-pre5) from oss.sgi. Tested under
-> > test11-pre5 on SMP.
-> > 
-> 
-> small (but important!) typo fixed, thanks to George
-> <greerga@entropy.muc.muohio.edu>. Here is updated patch:
+Tim.
+*/
 
-I am sorry again -- third time lucky (hopefully): (so _that_ is why kdb
-misbehaved earlier.... :)
-
---- arch/i386/kernel/traps.c.0	Wed Nov 15 11:20:34 2000
-+++ arch/i386/kernel/traps.c	Wed Nov 15 11:28:20 2000
-@@ -1213,8 +1213,8 @@
- 	set_trap_gate(12,&stack_segment);
- 	set_trap_gate(13,&general_protection);
- #if defined(CONFIG_KDB)
--	if ((boot_cpu_data.x86_capability & X86_FEATURE_MCE) &&
--	    (boot_cpu_data.x86_capability & X86_FEATURE_MCA)) {
-+	if (test_bit(X86_FEATURE_MCE, &boot_cpu_data.x86_capability) &&
-+	    test_bit(X86_FEATURE_MCA, &boot_cpu_data.x86_capability)) {
- 		set_trap_gate(14,&page_fault_mca);
- 	}
- 	else {
---- arch/i386/kernel/apic.c.0	Wed Nov 15 11:26:27 2000
-+++ arch/i386/kernel/apic.c	Wed Nov 15 11:28:12 2000
-@@ -210,7 +210,8 @@
- int set_nmi_counter_local(void)
- {
- 	extern unsigned long cpu_khz;
--	if (!(boot_cpu_data.x86_capability & X86_FEATURE_APIC))
-+
-+	if (!test_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability))
- 		return(-EIO);
- 	if (nmi_watchdog_source && nmi_watchdog_source != 1)
- 		return(0);	/* Not using local APIC */
-@@ -224,7 +225,8 @@
- int setup_apic_nmi_watchdog(int value)
- {
- 	int ret, eax;
--	if (!(boot_cpu_data.x86_capability & X86_FEATURE_APIC))
-+
-+	if (!test_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability))
- 		return(-EIO);
- 	if (nmi_watchdog_source && nmi_watchdog_source != 1)
- 		return(0);	/* Not using local APIC */
---- arch/i386/kdb/kdbasupport.c.0	Wed Nov 15 11:29:16 2000
-+++ arch/i386/kdb/kdbasupport.c	Wed Nov 15 11:33:37 2000
-@@ -1081,11 +1081,8 @@
- 	/*
- 	 * Enable Machine Check Exceptions
- 	 */
--	u32 x86_capability;
--
--	x86_capability = boot_cpu_data.x86_capability;
--	if ((x86_capability & X86_FEATURE_MCE) &&
--	    (x86_capability & X86_FEATURE_MCA)) {
-+	if (test_bit(X86_FEATURE_MCE, &boot_cpu_data.x86_capability) &&
-+	    test_bit(X86_FEATURE_MCA, &boot_cpu_data.x86_capability)) {
- 		u32 i, lv, hv, count;
- 		rdmsr(MCG_CAP, lv, hv);
- 		count = lv&0xff;
-@@ -1141,7 +1138,7 @@
- {
- 	u32  lv, hv;
- 
--	if (!(boot_cpu_data.x86_capability & X86_FEATURE_MCA)) {
-+	if (!test_bit(X86_FEATURE_MCA, &boot_cpu_data.x86_capability)) {
- 		if (lbr_warned) {
- 			kdb_printf("kdb: machine does not support last branch recording\n");
- 			lbr_warned = 1;
-@@ -1173,7 +1170,7 @@
- {
- 	u32  lv, hv;
- 
--	if (!(boot_cpu_data.x86_capability & X86_FEATURE_MCA)) {
-+	if (!test_bit(X86_FEATURE_MCA, &boot_cpu_data.x86_capability)) {
- 		if (lbr_warned) {
- 			kdb_printf("kdb: machine does not support last branch recording\n");
- 			lbr_warned = 1;
-@@ -1205,9 +1202,8 @@
- {
- 	u32  from, to, dummy;
- 
--	if (!(boot_cpu_data.x86_capability & X86_FEATURE_MCA)) {
-+	if (!test_bit(X86_FEATURE_MCA, &boot_cpu_data.x86_capability))
- 		return;
--	}
- 
- 	rdmsr(LASTBRANCHFROMIP, from, dummy);
- 	rdmsr(LASTBRANCHTOIP, to, dummy);
-
+Index: drivers/scsi/ppa.c
+===================================================================
+RCS file: /usr/local/src/cvsroot/linux/drivers/scsi/ppa.c,v
+retrieving revision 1.5
+diff -d -u -r1.5 ppa.c
+--- drivers/scsi/ppa.c	2000/09/25 16:46:52	1.5
++++ drivers/scsi/ppa.c	2000/11/15 15:17:33
+@@ -194,6 +194,8 @@
+ 	host->can_queue = PPA_CAN_QUEUE;
+ 	host->sg_tablesize = ppa_sg;
+ 	hreg = scsi_register(host, 0);
++	if(hreg == NULL)
++		continue;
+ 	hreg->io_port = pb->base;
+ 	hreg->n_io_port = ports;
+ 	hreg->dma_channel = -1;
+Index: drivers/scsi/imm.c
+===================================================================
+RCS file: /usr/local/src/cvsroot/linux/drivers/scsi/imm.c,v
+retrieving revision 1.7
+diff -d -u -r1.7 imm.c
+--- drivers/scsi/imm.c	2000/10/31 16:55:22	1.7
++++ drivers/scsi/imm.c	2000/11/15 15:17:33
+@@ -198,6 +198,8 @@
+ 	host->can_queue = IMM_CAN_QUEUE;
+ 	host->sg_tablesize = imm_sg;
+ 	hreg = scsi_register(host, 0);
++	if(hreg == NULL)
++		continue;
+ 	hreg->io_port = pb->base;
+ 	hreg->n_io_port = ports;
+ 	hreg->dma_channel = -1;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,89 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270720AbTGUVEd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270722AbTGUVEd
+	id S270723AbTGUVKS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270717AbTGUVKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:04:33 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:43280 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S270720AbTGUVEb
+	Mon, 21 Jul 2003 17:10:18 -0400
+Received: from tudela.mad.ttd.net ([194.179.1.233]:31416 "EHLO
+	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S270715AbTGUVKH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:04:31 -0400
-Date: Mon, 21 Jul 2003 17:19:30 -0400 (EDT)
-From: root <root@oddball.prodigy.com>
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test1-wli-1 compile fail
-Message-ID: <Pine.LNX.4.44.0307211717270.23650-101000@oddball.prodigy.com>
+	Mon, 21 Jul 2003 17:10:07 -0400
+Date: Mon, 21 Jul 2003 23:24:41 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Mike Kershaw <dragorn@melchior.nerv-un.net>
+Subject: Re: [PATCH 2.5] fixes for airo.c
+In-Reply-To: <200307212301.39264.daniel.ritz@gmx.ch>
+Message-ID: <Pine.SOL.4.30.0307212322440.336-100000@tudela.mad.ttd.net>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1653083592-1058822370=:23650"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-1653083592-1058822370=:23650
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Error:
+On Mon, 21 Jul 2003, Daniel Ritz wrote:
 
-fs/namei.c: In function `path_lookup':
-fs/namei.c:868: parse error before `*'
-fs/namei.c:873: `dirs' undeclared (first use in this function)
-fs/namei.c:873: (Each undeclared identifier is reported only once
-fs/namei.c:873: for each function it appears in.)
-fs/namei.c:873: `fs' undeclared (first use in this function)
-fs/namei.c:890: `task' undeclared (first use in this function)
-make[1]: *** [fs/namei.o] Error 1
-make: *** [fs] Error 2
+> On Mon July 21 2003 21:44, Javier Achirica wrote:
+> >
+> > On Mon, 21 Jul 2003, Daniel Ritz wrote:
+> >
+> > > On Mon July 21 2003 13:00, Javier Achirica wrote:
+> > > >
+> > > > Daniel,
+> > > >
+> > > > Thank you for your patch. Some comments about it:
+> > > >
+> > > > - I'd rather fix whatever is broken in the current code than going back to
+> > > > spinlocks, as they increase latency and reduce concurrency. In any case,
+> > > > please check your code. I've seen a spinlock in the interrupt handler that
+> > > > may lock the system.
+> > >
+> > > but we need to protect from interrupts while accessing the card and waiting for
+> > > completion. semaphores don't protect you from that. spin_lock_irqsave does. the
+> > > spin_lock in the interrupt handler is there to protect from interrupts from
+> > > other processors in a SMP system (see Documentation/spinlocks.txt) and is btw.
+> > > a no-op on UP. and semaphores are quite heavy....
+> >
+> > Not really. You can still read the received packets from the card (as
+> > you're not issuing any command and are using the other BAP) while a
+> > command is in progress. There are some specific cases in which you need
+> > to have protection, and that cases are avoided with the down_trylock.
+> >
+>
+> ok, i think i have to look closer...if the card can handle that then we don't need
+> to irq-protect all the areas i did protect...but i do think that those down_trylock and
+> then the schedule_work should be replaced by a simple spinlock_irq_save...
+>
+> i look closer at it tomorrow.
+> you happen to have the tech spec lying aroung?
 
-gzipped and comment-stripped config attached. And I had such hopes...
+I have an old one, but I don't think that I'm allowed (by Cisco) to pass
+it around.
 
---8323328-1653083592-1058822370=:23650
-Content-Type: APPLICATION/x-gzip; name="config.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0307211719300.23650@oddball.prodigy.com>
-Content-Description: 
-Content-Disposition: attachment; filename="config.gz"
+> > AFAIK, interrupt serialization is assured by the interrupt handler, so you
+> > don't need to do that.
+> >
+> > > > - The fix for the transmit code you mention, is about fixing the returned
+> > > > value in case of error? If not, please explain it to me as I don't see any
+> > > > other changes.
+> > >
+> > > fixes:
+> > > - return values
+> > > - when to free the skb, when not
+> > > - disabling the queues
+> > > - netif_wake_queue called from the interrupt handler only (and on the right
+> > >   net_device)
+> > > - i think the priv->xmit stuff and then the schedule_work is evil:
+> > >   if you return 0 from the dev->hard_start_xmit then the network layer assumes
+> > >   that the packet was kfree_skb()'ed (which does only frees the packet when the
+> > >   refcount drops to zero.) this is the cause for the keventd killing, for sure!
+> > >
+> > >   if you return 0 you already kfree_skb()'ed the packet. and that's it.
+> >
+> > This is where I have the biggest problems. As I've read in
+> > Documentation/networking/driver.txt, looks like the packet needs to be
+> > freed "soon", but doesn't require to be before returning 0 in
+> > hard_start_xmit. Did I get it wrong?
+> >
+>
+> no, i got it wrong. but still...it's the xmit where the oops comes from....
+>
+> wait. isn't there a race in airo_do_xmit? at high xfer rates (when it oopses) the
+> queue can wake right after it is stopped in the down_trylock section. so you can
+> happen to loose an skb 'cos the write to priv->xmit is not protected at all and
+> there should be a check so that only one skb can be queue there. no?
+> (and then the irq-handler can wake the queue too)
+>
+> ok, i think i got it now. i'll do a new patch tomorrow or so that tries:
+> - to fix the transmit not to oops
+> - to avoid disabling the irq's whenever possible
+> - using spinlocks instead of the heavier semaphores ('cos i think if it's done cleaner
+>   than i did it now, it's faster than the semas, and to make hch happy :)
 
-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
---8323328-1653083592-1058822370=:23650--
+Yes! This is the race that may be causing problems. I'll try to fix it and
+we may compare semaphore vs. spinlock implementation.
+
+Javier Achirica
+

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbTAJQGU>; Fri, 10 Jan 2003 11:06:20 -0500
+	id <S265339AbTAJQEu>; Fri, 10 Jan 2003 11:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265285AbTAJQGT>; Fri, 10 Jan 2003 11:06:19 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:49614 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265270AbTAJQGP>;
-	Fri, 10 Jan 2003 11:06:15 -0500
-Date: Fri, 10 Jan 2003 09:22:21 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: <louis.zhuang@linux.co.intel.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug fix] delete kobject from list when kobject_add() fail
-In-Reply-To: <32860.172.16.219.159.1042191045.squirrel@linux.intel.com>
-Message-ID: <Pine.LNX.4.33.0301100921070.1015-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265351AbTAJQEu>; Fri, 10 Jan 2003 11:04:50 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:26217 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S265339AbTAJQEs>;
+	Fri, 10 Jan 2003 11:04:48 -0500
+Date: Fri, 10 Jan 2003 17:13:31 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ludovic Drolez <ludovic.drolez@freealter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BLKBSZSET still not working on 2.4.18 ?
+Message-ID: <20030110161331.GA19942@win.tue.nl>
+References: <3E1EE7A3.1050401@freealter.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E1EE7A3.1050401@freealter.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 10, 2003 at 04:32:51PM +0100, Ludovic Drolez wrote:
 
-On Fri, 10 Jan 2003 louis.zhuang@linux.co.intel.com wrote:
+> I'm trying to backup a partition on an IDE drive which has an odd number 
+> of sectors (204939). With a stock open/read you cannot access the last 
+> sector
+> 
+> What can I do ? Wait for a patch in 2.5.xxx ?
 
-> Dear Mochel,
-> 	I found there were still issues in failed kobject_add(). For example,
-> if you try to register two kobjects with the same name into
-> subsystem, the second registration will fail but the second will keep in
-> the list of subsystem. Below patch might fix the bug. Please  apply.
+Hmm - I recall fixing this both for 2.4 and 2.5.
 
-Thanks. I applied it, though slightly modified (I detest function names
-with the '__' prefix). :)
+If that patch is not part of current 2.4, then probably this should be
+regarded as a known deficiency of 2.4. If I were to maintain a stable
+2.4 I would not accept such changes.
 
-	-pat
+You can test 2.5. If it is wrong there I must submit a patch.
 
+Andries

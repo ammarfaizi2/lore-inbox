@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbUADBsn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 20:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbUADBsn
+	id S264480AbUADByA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 20:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUADByA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 20:48:43 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:57566 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S264459AbUADBsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 20:48:42 -0500
-Date: Sat, 03 Jan 2004 17:48:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: 2.6.1-rc1-mjb1
-Message-ID: <48590000.1073180912@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0401040130450.2752@student.dei.uc.pt>
-References: <4690000.1073090546@[10.10.2.4]> <Pine.LNX.4.58.0401040130450.2752@student.dei.uc.pt>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 3 Jan 2004 20:54:00 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27316 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264451AbUADBx4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 20:53:56 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Davin McCall <davmac@ozonline.com.au>
+Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules (linux 2.6.0)
+Date: Sun, 4 Jan 2004 02:56:57 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
+In-Reply-To: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200401040256.57419.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The patchset contains ... oh hell, anything I feel like putting in it.
->> It's meant to be pretty stable - performance should be better than mainline,
->> particularly on larger machines.
->> 
->> I'd be very interested in feedback from anyone willing to test on any
->> platform, however large or small.
->> 
->> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.1-rc1/patch-2.6.1-rc1-mjb1.bz2
-> 
-> Hi there...
-> 
-> Have you thought in doing a patch-2.6.1-rc1-mm1-mjb1 and continuing to make a
-> patchset to the -mm sources?
+On Saturday 03 of January 2004 05:28, Davin McCall wrote:
+> Hi,
 
-I considered it once, for about 30s - the answer was no. For one, Andrew 
-moves way too fast for me to keep up with. For another, he has different 
-objectives - he basically runs a testing tree, whereas I want to go for
-something more stable, with cherry picked enhancements (mostly performance
-and serviceability stuff).
+Hi,
 
-There's a fair amount of common code between the two trees, which I try
-to keep pretty much in sync between the two - I pick up changes he makes
-from his latest trees, and send him changes I make.
+> When loading the piix.ko module (generic IDE support is compiled in) I get
+> error messages- the ports are already in use, the block devices are already
+> registered.
+>
+> The problems seem to be:
+>
+> 1) the hwif structures aren't getting marked as being used if the generic
+> IDE layer is controlling them (->chipset is left as "ide_unknown" instead
+> of "ide_generic")
 
-M.
+Are you aware that your change brakes "idex=base", "idex=base,ctl"
+and "idex=base,ctl,irq" kernel parameters?  If these parameters are used
+hwif->chipset is also set to ide_generic.  Now if controller is a PCI one
+and PCI IDE support is compiled in hwif->chipset will be set to
+ide_pci_takeover and drives won't be probed.
+
+> 2) if the pci module is granted control of an already initialized hwif, the
+> drive probing etc. (including I/O port allocation) is re-run. When it
+> fails, the drives are marked as not-present which doesn't appear to cause
+> any problems but seems dangerous.
+
+When it fails controller+drives are not being programmed correctly
+(because probe_hwif() returns early).  "takeover" is not supported because
+you need to reprogram controller/drive to do DMA, but probing code
+(which does also reprogramming) can race with actual data transfer.
+
+> Patch below fixes this and allows a chipset-specific module to take over
+> the primary IDE interface correctly. Comments welcome.
+
+I think proper fix is to add IDE generic host driver and make it modular.
+
+--bart
 

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314077AbSHGWte>; Wed, 7 Aug 2002 18:49:34 -0400
+	id <S314546AbSHGW4A>; Wed, 7 Aug 2002 18:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSHGWte>; Wed, 7 Aug 2002 18:49:34 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44816 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314077AbSHGWtd>; Wed, 7 Aug 2002 18:49:33 -0400
-Date: Wed, 7 Aug 2002 18:46:55 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Nick Orlov <nick.orlov@mail.ru>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <20020807035623.GA3411@nikolas.hn.org>
-Message-ID: <Pine.LNX.3.96.1020807183410.14463B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314080AbSHGW4A>; Wed, 7 Aug 2002 18:56:00 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:733 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S314553AbSHGW4A>;
+	Wed, 7 Aug 2002 18:56:00 -0400
+Date: Thu, 8 Aug 2002 00:59:39 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Christoph Hellwig <hch@lst.de>, Kurt Garloff <kurt@garloff.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] conditionally re-enable per-disk stats, convert to seq_file
+Message-ID: <20020807225939.GA509@win.tue.nl>
+References: <20020806160848.A2413@lst.de> <20020807210225.GD31622@nbkurt.etpnet.phys.tue.nl> <20020807211856.GB322@win.tue.nl> <20020808003325.A14578@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020808003325.A14578@lst.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002, Nick Orlov wrote:
-
-> On Tue, Aug 06, 2002 at 11:09:14PM -0400, Bill Davidsen wrote:
-
-> > > 3. if we put pdc20265 in "onboard" list on some hardware (mine for example)
-> > > pdc20265 is assigned to ide0/1 (even if it's really ide2/3)
-> > 
-> > Does this matter as long as we can force it to be where we want? 
+On Thu, Aug 08, 2002 at 12:33:25AM +0200, Christoph Hellwig wrote:
+> On Wed, Aug 07, 2002 at 11:18:56PM +0200, Andries Brouwer wrote:
+> > But why in /proc/partitions ?
+> > Maybe /proc/partitions can go away eventually with all info available
+> > under driverfs or so. But for the time being, /proc/partitions is used,
+> > and some changes are planned to make identification of the devices
+> > involved easier.
+> > It is really ugly to stuff a lot of garbage into a file just because
+> > it happens to exist already. If you want disk statistics, why not
+> > put it in /proc/diskstatistics?
 > 
-> But wouldn't it be a cleaner solution if we will have _compile_ time
-> option that by default is turned on in order to handle rare cases,
-> and _can_ be turned off in order to handle _most_ cases without any
-> boot-time options?
+> Because it's where existing tools expect it.  I agree with you that we
+> want a nicer interface for 2.6, but give the userbase some time to
+> prepare for a new interface.
 
-Nick, I think that's a matter of taste. I am perfectly happy to default to
-using the ideN based on the io address, or any other determanent method,
-as long as it's reasonable to have the user specify the order if s/he has
-a reason to do so. Of course some BIOS will mess up io addresses at some
-time, crappy {hard,firm}ware is a problem in any case.
-
-I would just as soon use a boot option as to try and make it a compile
-option, and I think that many people just use a compiled kernel and never
-change, which argues for a reasonable default (most pdc20265) ARE
-currently offboard, and an easy way to change it.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+You create a mess in the official kernel because your user space tools
+are broken? And it is easier to patch the kernel than to fix them,
+even though you'll have to fix them eventually?
+And fixing these tools consists of replacing one filename?

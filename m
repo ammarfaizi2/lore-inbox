@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131705AbQKRWok>; Sat, 18 Nov 2000 17:44:40 -0500
+	id <S131861AbQKRWqk>; Sat, 18 Nov 2000 17:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131900AbQKRWob>; Sat, 18 Nov 2000 17:44:31 -0500
-Received: from olsinka.site.cas.cz ([147.231.11.16]:37771 "EHLO
-	twilight.suse.cz") by vger.kernel.org with ESMTP id <S131705AbQKRWoX>;
-	Sat, 18 Nov 2000 17:44:23 -0500
-Date: Sat, 18 Nov 2000 23:13:54 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, "H. Peter Anvin" <hpa@zytor.com>,
+	id <S131927AbQKRWqa>; Sat, 18 Nov 2000 17:46:30 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:4108 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S131883AbQKRWqR>;
+	Sat, 18 Nov 2000 17:46:17 -0500
+Date: Sat, 18 Nov 2000 14:16:09 -0800
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: David Ford <david@linux.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: rdtsc to mili secs?
-Message-ID: <20001118231354.A2796@suse.cz>
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <E13t7ht-0007Kv-00@the-village.bc.nu> <20001110154254.A33@bug.ucw.cz> <8uhps8$1tm$1@cesium.transmeta.com> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz> <20001118211231.A382@bug.ucw.cz>
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+Message-ID: <20001118141609.A21152@valinux.com>
+In-Reply-To: <3A16521A.44B2B628@linux.com> <Pine.LNX.4.10.10011180750230.8465-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001118211231.A382@bug.ucw.cz>; from pavel@suse.cz on Sat, Nov 18, 2000 at 09:12:31PM +0100
+In-Reply-To: <Pine.LNX.4.10.10011180750230.8465-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 18, 2000 at 08:03:51AM -0800
+From: David Hinds <dhinds@valinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2000 at 09:12:31PM +0100, Pavel Machek wrote:
-
-> > Anyway, this should be solvable by checking for clock change in the
-> > timer interrupt. This way we should be able to detect when the clock
-> > went weird with a 10 ms accuracy. And compensate for that. It should be
-> > possible to keep a 'reasonable' clock running even through the clock
-> > changes, where reasonable means constantly growing and as close to real
-> > time as 10 ms difference max.
-> > 
-> > Yes, this is not perfect, but still keep every program quite happy and
-> > running.
+On Sat, Nov 18, 2000 at 08:03:51AM -0800, Linus Torvalds wrote:
 > 
-> No. Udelay has just gone wrong and your old ISA xxx card just crashed
-> whole system. Oops.
+> Strange. Your interrupt router is a bog-standard PIIX4, we know how to
+> route the thing, AND your device shows up:
+> 
+> > # dump_pirq
+> > Interrupt routing table found at address 0xf5a80:
+> >   Version 1.0, size 0x0080
+> >   Interrupt router is device 00:07.0
+> >   PCI exclusive interrupt mask: 0x0000
+> >   Compatible router: vendor 0x8086 device 0x1234
 
-Yes. But can you do any better than that? Anyway, I wouldn't expect to
-be able to put my old ISA cards into a recent notebook which fiddles
-with the CPU speed (or STPCLK ratio).
+Oh... the kernel pci-irq code looks for the "compatible router" if it
+is set; if unset, then it looks up the ID's of the router device.
 
-> BTW I mailed patch to do exactly that kind of autodetection to the
-> list some time ago. (I just can't find it now :-( -- search archives
-> for 'TSC is slower than it should be'.
+0x8086, 0x1234 is not a known router type, so the kernel decides it
+can't interpret the routing table.
 
-If I recall correctly, that patch didn't create a 'reasonable clock' -
-it wasn't growing all the time and could skip back sometimes.
+0x8086, 0x1234 is listed in pci_ids.h as an 82371MX.  I'm suspicious 
+of that: the MX chipset has an 82443MX, not an 82371.  In any case, I
+think pci-irq.c should check both sets of ID's for a match.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+-- Dave
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

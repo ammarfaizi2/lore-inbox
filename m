@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269152AbUJTXKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270587AbUJUBdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269152AbUJTXKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJTXFZ
+	id S270587AbUJUBdB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270619AbUJUBax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:05:25 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:49887 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S269152AbUJTXB2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:01:28 -0400
-Date: Thu, 21 Oct 2004 01:01:28 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       sailer@ife.ee.ethz.ch, perex@suse.cz, greg@kroah.com
-Subject: Re: [Kernel-janitors] [PATCH 2.6.9-rc2-mm4 cmipci.c] [8/8] Replace pci_find_device with pci_dev_present
-Message-ID: <20041020230128.GB1953@stro.at>
-References: <28440000.1096502897@w-hlinder.beaverton.ibm.com>
+	Wed, 20 Oct 2004 21:30:53 -0400
+Received: from zlynx.org ([199.45.143.209]:30213 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S270587AbUJUBZa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:25:30 -0400
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+From: Zan Lynx <zlynx@acm.org>
+To: Timothy Miller <theosib@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041020234819.23232.qmail@web40706.mail.yahoo.com>
+References: <20041020234819.23232.qmail@web40706.mail.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cppaWZeVP1Bd3okGg9aa"
+Date: Wed, 20 Oct 2004 19:25:21 -0600
+Message-Id: <1098321921.4215.30.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <28440000.1096502897@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004, Hanna Linder wrote:
 
-> 
-> The pci_find_device function is going away so I have replace it with pci_dev_present.
-> I also just used the macros it should have been using in the first place. I have compile tested it.
-> 
-> Hanna Linder
-> IBM Linux Technology Center
-> 
-> Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-> 
-> ---
-> diff -Nrup linux-2.6.9-rc2-mm4cln/sound/pci/cmipci.c linux-2.6.9-rc2-mm4patch2/sound/pci/cmipci.c
-> --- linux-2.6.9-rc2-mm4cln/sound/pci/cmipci.c	2004-09-12 22:32:55.000000000 -0700
-> +++ linux-2.6.9-rc2-mm4patch2/sound/pci/cmipci.c	2004-09-29 16:32:30.000000000 -0700
-> @@ -2573,6 +2573,10 @@ static int __devinit snd_cmipci_create(s
->  	long iomidi = mpu_port[dev];
->  	long iosynth = fm_port[dev];
->  	int pcm_index, pcm_spdif_index;
-> +	static struct pci_device_id intel_82437vx[] = {
-> +		{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82437VX) },
-> +		{ },
-> +	};
->  
->  	*rcmipci = NULL;
->  
-> @@ -2648,8 +2652,7 @@ static int __devinit snd_cmipci_create(s
->  	switch (pci->device) {
->  	case PCI_DEVICE_ID_CMEDIA_CM8738:
->  	case PCI_DEVICE_ID_CMEDIA_CM8738B:
-> -		/* PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82437VX */
-> -		if (! pci_find_device(0x8086, 0x7030, NULL))
-> +		if (!pci_dev_present(intel_82437vx)) 
-                                                    ^
->  			snd_cmipci_set_bit(cm, CM_REG_MISC_CTRL, CM_TXVX);
->  		break;
->  	default:
-> 
-> 
+--=-cppaWZeVP1Bd3okGg9aa
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-a second one with small whitespace damage.
-fixed for next kjt.
+On Wed, 2004-10-20 at 16:48 -0700, Timothy Miller wrote:
+> I'm posting from home, so this won't look right.  Sorry.
+>=20
+> Anyhow, Andre Eisenbach said this:
+>=20
+> >>>
+> If the graphics card mostly supports 2D initially, it's really not
+> much better then just about any off the shelf graphics card with VESA
+> drivers. As in, the hardware doesn't need to be open for just that.
+> Most (all?) the frustration in Linux graphics card land comes from
+> unsupported/closed 3D drivers.
+> <<<
+>=20
+> I have tried using cards with VESA drivers before, and I found it to be
+> very painful.  Certainly, you can turn off certain features and get a
+> reasonably useful UI experience, but dragging windows around with "show
+> window contents while moving" enabled is painfully slow, even with AGP
+> 4x.  Just imagine doing it over PCI.
+>=20
+> When it comes to desktop applications, the FIRST thing you need is good
+> 2D acceleration.  In fact, that's really the ONLY thing.  OpenOffice
+> does not need to use OpenGL.  GNOME doesn't need to use OpenGL.  In
+> fact, for the most part, they don't bother.  There are some instances
+> where they use OpenGL, but most of what a workstation user does fits
+> squarely within all the functionality supplied by Xlib, which is
+> entirely 2D.
+[snip]
 
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
+My opinion, for what its worth:
+
+Do 3D first and only.  2D is a subset of 3D.  Implement as much of
+OpenGL as you can in hardware and software can emulate any 2D interface
+desired.
+
+I agree that existing graphics cards do 2D just fine.  I can get a ATI
+card for $20 that does all the 2D I need.  But 2D isn't enough for me.
+I spend $400 on one Nvidia card.  Maybe I'm not the average, common
+user, but users like me have the highest profit margin. :-)
+
+I'm a pragmatic user.  I'd like full-featured Open Source drivers for my
+Nvidia card but I use the binary because they work really well and for
+me, (excellent_performance - closed_drivers) > (crappy_performance +
+open_drivers).
+
+If it can be done well enough to run Doom 3 in 640x480 at 20 fps for
+less than $500, I'll buy one.  That's the performance level where I'd
+consider sacrificing 60 fps for the open drivers.
+
+Of course, in 5 years I'll expect 120 fps so its definitely a moving
+target.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-cppaWZeVP1Bd3okGg9aa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBdxABG8fHaOLTWwgRAgoeAJ4zEHZQWI1CahmCYC5grpLaPVnfsgCgqXQJ
+FXC8dOlfNdSkgxVvTiu4KAY=
+=rUxQ
+-----END PGP SIGNATURE-----
+
+--=-cppaWZeVP1Bd3okGg9aa--
 

@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312944AbSDMLdh>; Sat, 13 Apr 2002 07:33:37 -0400
+	id <S313304AbSDMLuE>; Sat, 13 Apr 2002 07:50:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313093AbSDMLdg>; Sat, 13 Apr 2002 07:33:36 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:14088 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S312944AbSDMLdg>; Sat, 13 Apr 2002 07:33:36 -0400
-Date: Sat, 13 Apr 2002 12:32:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] don't allocate ratnodes under PF_MEMALLOC
-Message-ID: <20020413123244.A4470@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CB7D75F.FEE95D28@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313157AbSDMLuD>; Sat, 13 Apr 2002 07:50:03 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:49168 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S313304AbSDMLuC>; Sat, 13 Apr 2002 07:50:02 -0400
+Date: Sat, 13 Apr 2002 13:49:55 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Shing Chuang <ShingChuang@via.com.tw>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.19-pre6] via-rhine.c to support new VIA's nic chip
+ VT6105, V6105M (correct).
+In-Reply-To: <369B0912E1F5D511ACA5003048222B75A3C040@exchtp02.via.com.tw>
+Message-ID: <Pine.LNX.4.33.0204131246420.5127-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  
->  /*
-> + * On the swap_out path, the radix-tree node allocations are performing
-> + * GFP_ATOMIC allocations under PF_MEMALLOC.  They can completely
-> + * exhaust the page allocator.  This is bad; some pages should be left
-> + * available for the I/O system to start sending the swapcache contents
-> + * to disk.
-> + *
-> + * So PF_MEMALLOC is dropped here.  This causes the slab allocations to fail
-> + * earlier, so radix-tree nodes will then be allocated from the mempool
-> + * reserves.
-> + */
-> +static inline int
-> +swap_out_add_to_swap_cache(struct page *page, swp_entry_t entry)
-> +{
-> +	int flags = current->flags;
-> +	int ret;
-> +
-> +	current->flags &= ~PF_MEMALLOC;
-> +	ret = add_to_swap_cache(page, entry);
-> +	current->flags = flags;
-> +	return ret;
-> +}
+On Fri, 12 Apr 2002, Shing Chuang wrote:
 
-I don't like this soloution very - I think porting th add_to_swap() logic
-from -rmap and implementing the flags fiddling in that function makes
-more sense.  I will do so once a -pre4 is out to resync.
+>       This patch applied to linux kernel 2.4.19-per6 to support VIA's new
+> NIC chip.
+>       However, VIA don't have any nic chip with pci device id 0x6100 so far,
+> so this patch also remove the device ID 0x6100.
 
-	Christoph
+You are removing the entry for 0x3043, not 0x6100 ... Did you mean to also
+change "0x1106, 0x6100" to "0x1106, 0x3043" ?
+
+Older revision D-Link DFE530-TX NICs use a chip that identifies itself as
+0x3043. This patch will break those.
+
+0x3043 is listed in the VT86C100A03.pdf doc from ftp.via.com.tw. An older
+vt86c100a.pdf from 1997 lists the id as 0x6100. Are you sure there are no
+cards using 0x6100?
+
+
+As you perhaps are aware VIA maintain their own linuxfet.c driver, which
+is a modified version of the Donald Becker via-rhine.c driver in the
+kernel.
+
+http://www.viaarena.com/?PageID=71#lan
+6105v10cVIA.zip seems to be the most recent.
+
+If you look at that driver they use 0x30431106. And also that ReqTxAlign
+is only on for the VT86C100A.
+
+The driver itself has become quite ugly from all #ifdef'ing that goes on.
+It even has two tables for detecting PCI cards, and the tables are not in
+sync ... But whoever wrote it knows more than what you can find in the
+public datasheets.
+
+/Urban
 

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbTIVQHq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 12:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbTIVQHq
+	id S261842AbTIVQI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 12:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTIVQI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 12:07:46 -0400
-Received: from speech.linux-speakup.org ([129.100.109.30]:45710 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id S261376AbTIVQHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 12:07:45 -0400
-From: Kirk Reiser <kirk@braille.uwo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: unknown symbols loading modules under 2.6.x
-Message-Id: <E1A1TE1-00075s-00@speech.braille.uwo.ca>
-Date: Mon, 22 Sep 2003 12:07:45 -0400
+	Mon, 22 Sep 2003 12:08:57 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:39631 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261842AbTIVQIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 12:08:21 -0400
+Date: Tue, 23 Sep 2003 02:07:01 +1000
+From: CaT <cat@zip.com.au>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix Athlon MCA
+Message-ID: <20030922160701.GE514@zip.com.au>
+References: <20030921143934.GA1867@dreamland.darkstar.lan> <Pine.LNX.4.44.0309211034080.11614-100000@home.osdl.org> <20030921174731.GA891@redhat.com> <20030922142023.GC514@zip.com.au> <20030922144345.GC15344@redhat.com> <20030922150601.GD514@zip.com.au> <20030922160222.GF15344@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030922160222.GF15344@redhat.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Everyone:  I have been trying to hunt down the answer to
-aproblem I am having attempting to load my modules under the 2.6.x
-kernels.  They load just fine under the 2.4.x kernels.  Have there
-been changes which need to be made to get symbols found with modprobe
-other than the EXPORT_SYMBOL() macro?  The symbols show up in the
-modules.symbols file created by depmod.  They appear to reference the
-correct loadable module.  The loadable module these symbols are
-exported in however is comprised of two separate .o files during
-compile.  I am not sure whether that has anything to do with it or
-not.
+On Mon, Sep 22, 2003 at 05:02:22PM +0100, Dave Jones wrote:
+> On Tue, Sep 23, 2003 at 01:06:01AM +1000, CaT wrote:
+>  > On Mon, Sep 22, 2003 at 03:43:45PM +0100, Dave Jones wrote:
+>  > Status: (940040000000017a) Error IP valid
+>  > Restart IP invalid.
+>  > 
+>  > What the snot does that mean? 8)
+> 
+> If this was from a kernel that didn't clear that bank on boot,
+> it's bogus, and you can ignore it.
 
-If someone could give me an idea what to read to solve this I'd
-appreciate it.
+Ahhh. Phew. Thanks. I've been wondering. I take it this can show up on
+a long-running system too? (hopefully someone will find this bit of
+the thread useful because I saw 1 or 2 msgs in the past but I didn't
+quite understand the answers)
 
-  Kirk
+-- 
+	And so the stripper looks down and asks 'Can you breathe?'
+		- from a friend's bucks night

@@ -1,110 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292588AbSBUACd>; Wed, 20 Feb 2002 19:02:33 -0500
+	id <S292595AbSBUAFd>; Wed, 20 Feb 2002 19:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291970AbSBUACY>; Wed, 20 Feb 2002 19:02:24 -0500
-Received: from acolyte.thorsen.se ([193.14.93.247]:23302 "HELO
-	acolyte.hack.org") by vger.kernel.org with SMTP id <S292588AbSBUACG>;
-	Wed, 20 Feb 2002 19:02:06 -0500
-From: Christer Weinigel <wingel@nano-system.com>
-To: roy@karlsbakk.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SC1200 support?
-Newsgroups: linux.kernel
-In-Reply-To: <Pine.LNX.4.30.0202201423001.22702-100000@mustard.heime.net>
-Message-Id: <20020221000202.363E6F5B@acolyte.hack.org>
-Date: Thu, 21 Feb 2002 01:02:02 +0100 (CET)
+	id <S291970AbSBUAFO>; Wed, 20 Feb 2002 19:05:14 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:6416 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S292593AbSBUAFB>; Wed, 20 Feb 2002 19:05:01 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A76A8@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'fabrizio.gennari@philips.com'" <fabrizio.gennari@philips.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: RE: Oxford Semiconductor's OXCB950 UART not recognized by serial.
+	c
+Date: Wed, 20 Feb 2002 16:05:13 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
->I have this set-top box with a National Semiconductor Geode SC1200 chip
->with a built-in watch-dog plus a lot more.
->
->Does anyone know if there is any support for the sc1200-specific features
->in the current kernels, or if there are patches available?
+fabrizio.gennari@philips.com wrote:
+> 
+> We have 32-bit CardBus cards with OXCB950 CardBus (PCI ID 1415:950b) UART 
+> chips on them (OXCB950 is the CardBus version of 16C950) . The module 
+> serial_cb in the pcmcia-cs package recognizes them correctly. But, when 
+> not using serial_cb, the function serial_pci_guess_board in serial.c 
+> doesn't (kernel 2.4.17 tested). The problem is that the card advertises 3 
+> i/o memory regions and 2 ports. If one replaces the line
+> 
+> if (num_iomem <= 1 && num_port == 1) {
+> 
+> with
+> 
+> if (num_port >= 1) {
+> 
+> in the function serial_pci_guess_board(), the card is detected and works 
+> perfectly. Only, when inserting it, the kernel displays the message:
+> 
+> Redundant entry in serial pci_table.  Please send the output of
+> lspci -vv, this message (1415,950b,1415,0001)
+> and the manufacturer and name of serial board or modem board
+> to serial-pci-info@lists.sourceforge.net.  
 
-Darn, I've been meaning to clean these patches up for a month or so,
-but I haven't had the time yet.  I've made a snapshot of my CVS tree
-that you can find at:
+The "Redundant entry" message comes out of serial.c when a card is found in
+the PCI ID board list, but which function serial_pci_guess_board() also
+detects as a generic single UART card (and overwrites the card's
+board->flags field in the pci_boards[] array). 
 
-    http://www.nano-system.com/scx200/
+Does anybody think this is a feature? Did I misunderstand?
 
-These patches are for a box called the Nano Computer, a SC2200 based
-system that I've been involved in the design of.  I've written drivers
-for the Watchdog, an I2C bus, a MTD map driver and a few small fixes
-and workarounds.  These drivers ought to work across the whole SCx200
-line of processors.
+I suspect that the thought was to detect and eventually remove pci_boards[]
+entries for generic single-port cards that could also be detected by the
+serial_pci_guess_board() function. Can anybody confirm or deny? 
 
-First of all, the current snapshot is based upon Linux-2.4.17 + Keith
-Owens kbuild-2.5 system.  To get something that you can use, download,
-unpack and patch all the neccesary stuff:
+Shouldn't the detection process be considered done when the PCI IDs match?
+Why should the "guess" function even be called when the card has already
+been found in the PCI board table?
 
-    tar xvfz scx200-20020219.tar.gz
-    cd nano/kernel
-    tar xvfz linux-2.4.17.tar.gz
-    cd linux
-    bzcat kbuild-2.5-2.4.16-3.bz2 | patch -p1
-    bzcat kbuild-2.5-2.4.17-1.bz2 | patch -p1
-
-Then, to build a kernel use nano/kernel/build.sh which is just a shell
-script that wraps the kbuild stuff:
-
-    cd nano/kernel
-    ./build.sh config
-    ./build.sh
-
-And, now for the drivers.
-
-    nano/kernel/arch/i386/kernel/scx200.c -- probes for a SCx200 CPU
-    and allocates some resources, and code to control the GPIO pins
-
-    nano/kernel/arch/i386/kernel/scx200_nano.c -- board specific setup
-    for the Nano Computer, it mostly sets up a few things that the
-    BIOS hasn't set up the way I want them to be
-
-    nano/kernel/nano/init/main.c -- has been modified to call
-    scx200_init and scx200_nano_init
-
-    nano/kernel/nano/drivers/char/scx200_watchdog.c -- a driver for
-    the built in watchdog of a SCx200 CPU
-
-    nano/kernel/nano/drivers/i2c/scx200_i2c.c -- a driver for an I2C
-    bus using two GPIO pins
-
-    nano/kernel/nano/drivers/mtd/maps/scx200_docflash.c -- a driver
-    for using Intel Strataflash mapped via the DOCCS pin
-
-    nano/kernel/nano/drivers/ide/* -- I've modified the CS5530 IDE
-    driver to recognize the SCx200 IDE controller.  WARNING!  I'm not
-    sure if this is a safe thing to do, the specifications for the
-    CS5530 and the SCx200 look quite similar, but I might have missed
-    something.  Remove this directory to be on the safe side.
-
-    nano/kernel/nano/drivers/net/natsemi.c -- contains some debugging
-    code and a fix to turn off wake-on-lan since it caused an
-    interrupt storm if I did ifconfig eth0 down.  I belive this has
-    been fixed in newer versions of the natsemi driver.
-
-    nano/kernel/nano/include/linux/pci_ids.h -- updated with PCI IDs
-    for the SCx200 CPUs.
-
-    nano/kernel/nano/include/linux/scx200.h -- header file for the
-    scx200.c functions.
-
-    nano/kernel/sensors/* -- is just a copy of the lm75 and eeprom
-    drivers from lm_sensors (the board I'm using have a serial eeprom
-    and two temperature sensors)
-
-It should be trivial to move these drivers to a newer Linux kernel and
-to work without the kbuild stuff.
-
-Any questions, suggestions or flames regarding the drivers are
-welcome.  I'd be especially happy if someone can take a look at the
-GPIO functions in scx200.h and tell me if they look ok.  I think I've
-managed to build an interrupt safe way of touching the I/O ports, but
-I might have missed something.
-
-Hm, I'd better put this mail up as a README.txt at the same place.
-
-  /Christer
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

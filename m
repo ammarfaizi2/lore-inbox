@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131459AbREEHNq>; Sat, 5 May 2001 03:13:46 -0400
+	id <S131457AbREEHKQ>; Sat, 5 May 2001 03:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131986AbREEHNg>; Sat, 5 May 2001 03:13:36 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31505 "EHLO
+	id <S131459AbREEHKH>; Sat, 5 May 2001 03:10:07 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30737 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131459AbREEHNV>; Sat, 5 May 2001 03:13:21 -0400
-Subject: Re: Athlon and fast_page_copy: What's it worth ? :)
-To: bergsoft@home.com (Seth Goldberg)
-Date: Sat, 5 May 2001 08:17:09 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AF389BD.81F9B398@home.com> from "Seth Goldberg" at May 04, 2001 10:03:57 PM
+	id <S131457AbREEHJx>; Sat, 5 May 2001 03:09:53 -0400
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
+Date: Sat, 5 May 2001 08:13:47 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <01050504280300.03550@SunWave1> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at May 05, 2001 04:28:03 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14vwJU-0000Ik-00@the-village.bc.nu>
+Message-Id: <E14vwGE-0000IQ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Before I go any further with this investigation, I'd like to get an
-> idea
-> of how much of a performance improvement the K7 fast_page_copy will give
-> me.
-> Can someone suggest the best benchmark to test the speed of this
-> routine?
+> My (very) old Athlon 550 (model 1, stepping 2) show it on my MSI MS-6167 (AMD 
+> Irongate C4) with your 2.4.4-ac5, now :-(
 
-About 30% on page copies. Its impact in real world is very dependant on the
-job mix
+Manfred has a good explanation for that. Im hoping it also explains the 
+VIA problem too
+
+> I am open for any test fixes...
+
+Watch this space -> <- ;)
+
+Alan
 

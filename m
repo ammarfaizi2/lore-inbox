@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbUBDNPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 08:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUBDNPZ
+	id S261262AbUBDNKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 08:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUBDNKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 08:15:25 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:3035 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S261872AbUBDNPX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 08:15:23 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Dan McGrath <troubled@emaildesktop.com>
-Subject: Re: iptables stopped logging to files, but shows in ring buffer
-Date: Wed, 4 Feb 2004 14:14:58 +0100
-User-Agent: KMail/1.6
-References: <001801c3ead5$9d0d6420$0201a8c0@wksdan> <20040204122550.GE25175@obroa-skai.de.gnumonks.org>
-In-Reply-To: <20040204122550.GE25175@obroa-skai.de.gnumonks.org>
-Cc: Harald Welte <laforge@netfilter.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Wed, 4 Feb 2004 08:10:31 -0500
+Received: from www.trustcorps.com ([213.165.226.2]:52745 "EHLO raq1.nitrex.net")
+	by vger.kernel.org with ESMTP id S261262AbUBDNKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 08:10:30 -0500
+Message-ID: <4020EEB0.50002@hcunix.net>
+Date: Wed, 04 Feb 2004 13:08:00 +0000
+From: the grugq <grugq@hcunix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200402041415.14059.mbuesch@freenet.de>
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
+References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <20040204004318.GA253@elf.ucw.cz> <20040204062936.GA2663@thunk.org>
+In-Reply-To: <20040204062936.GA2663@thunk.org>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Wednesday 04 February 2004 13:25, you wrote:
-> On Tue, Feb 03, 2004 at 11:16:07PM -0500, Dan McGrath wrote:
-> > I remembered that iptables logs seem to show in dmesg command in the
-> > past, and sure enough, they are all showing up there no problems, but not in
-> > any files, including dmesg.log.
 > 
-> If they are in dmesg, but in no files, than this cannot be a kernel
-> problem.  It has to be a userspace (klogd/syslogd) issue.
+> The obvious thing to do would be to make it a mount option, so that
+> (a) recompilation is not necessary in order to use the feature, and
+> (b) the feature can be turned on or off on a per-filesystem feature.
+> In 2.6, it's possible to specify certain mount option to be specifed
+> by default on a per-filesystem basis (via a new field in the
+> superblock).  
 > 
-> Thus, it is off-topic to lkml, and is not a problem of
-> netfilter/iptables.
+> So if you do things that way, then secure deletion would take place
+> either if the secure deletion flag is set (so it can be enabled on a
+> per-file basis), or if the filesystem is mounted with the
+> secure-deletion mount option.  
 
-I had the same problem a while ago.
-The cause was: I've a cron-job that cleans logfiles
-via bash script. This bash script shuts down syslogd and restarts
-it. After cleaning the logs, kernel-messages didn't reach userspace
-anymore. The solution was to not only shut down syslogd but also
-klogd.
-So, try to restart klogd _and_ syslogd.
+Makes sense to me. If either the file system, or the file, are in 
+'secure delete' mode, then erase everything about the file. Allowing the 
+paranoid to have the option as default, and the concerned to target 
+specific files. I like it.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+peace,
 
-iD8DBQFAIPBgFGK1OIvVOP4RAolGAJ96DUqZh4daeKiDQc4YzV87FhlZ+wCfdnHY
-WceebWbSfmTVfcdoEqXxF2g=
-=0Y6M
------END PGP SIGNATURE-----
+--gq

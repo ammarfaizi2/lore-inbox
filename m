@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272552AbRIIQoX>; Sun, 9 Sep 2001 12:44:23 -0400
+	id <S272720AbRIIQy4>; Sun, 9 Sep 2001 12:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272544AbRIIQoM>; Sun, 9 Sep 2001 12:44:12 -0400
-Received: from rdu26-230-138.nc.rr.com ([66.26.230.138]:38026 "EHLO
-	gateway.house") by vger.kernel.org with ESMTP id <S272552AbRIIQn6>;
-	Sun, 9 Sep 2001 12:43:58 -0400
-Subject: Re: nfs is stupid ("getfh failed")
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9nfesc$ctr$1@forge.intermeta.de>
-In-Reply-To: <m2ae06a6t7.fsf@euler.axel.nom>
-	<E15fiJ6-0003sK-00@the-village.bc.nu>  <9nfesc$ctr$1@forge.intermeta.de>
-Content-Type: text/plain
+	id <S272727AbRIIQys>; Sun, 9 Sep 2001 12:54:48 -0400
+Received: from colorfullife.com ([216.156.138.34]:268 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S272720AbRIIQyk>;
+	Sun, 9 Sep 2001 12:54:40 -0400
+Message-ID: <3B9B9EE4.4D40AAB6@colorfullife.com>
+Date: Sun, 09 Sep 2001 18:55:00 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-ac1 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Purpose of the mm/slab.c changes
+In-Reply-To: <E15g7jk-0007Rb-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 09 Sep 2001 12:44:00 -0400
-Message-Id: <1000053842.27177.34.camel@gromit.house>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09 Sep 2001 10:05:00 +0000, Henning P. Schmiedehausen wrote:
+Alan Cox wrote:
+> 
+> > > doesn't matter which free page is used first/last.
+> >
+> > You're full of crap.
+> > LIFO is obviously superior due to cache re-use.
+> 
+> Interersting question however. On SMP without sufficient per CPU slab caches
+> is tht still the case ?
 
-> And it currently looks "Linux only", which kind of defeats IMHO the
-> purpose.
+Correct. SMP was perfect LIFO even without Andrea's changes.
 
-Considering I use only Linux at home, that's fine with me. :) For
-Windows interaction, I use samba. I have not even booted my Sparc into
-Solaris in ... oh, about a year.
+I thought Andrea tried to reduce the fragmentation, therefore I wrote
+"free is free".
 
-Is intermezzo usable? Reliable? Any horror stories? Success stories? 
+But even for cache re-use his changes are not a big change: The main
+fifo/lifo ordering on UP is mandated by the defragmentation property of
+the slab allocator. 
 
--M
+Afaics there is exactly one case where my code is not lifo and Andrea's
+is: kmem_cache_free frees the last object in slab, each slab contains
+more than one object, and there are no further partial slabs.
+In all other cases Andrea just adds list_del();list_add() instead of 
+changes to the firstnotfull pointer.
 
+full->partial is/was lifo,
+partial->partial doesn't change the lists at all
+partial->empty was fifo, is now lifo_if_no_partial_slab_exists
+
+--
+	Manfred

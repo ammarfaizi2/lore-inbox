@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbUDARMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUDARMU
+	id S262977AbUDARKb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUDARKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:12:20 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:40118 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262984AbUDARMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:12:14 -0500
-Message-ID: <406C4D3F.4070600@colorfullife.com>
-Date: Thu, 01 Apr 2004 19:11:27 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Olof Johansson <olof@austin.ibm.com>
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       anton@samba.org
-Subject: Re: Oops in get_boot_pages at reboot
-References: <Pine.A41.4.44.0403312015050.29064-100000@forte.austin.ibm.com>
-In-Reply-To: <Pine.A41.4.44.0403312015050.29064-100000@forte.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Apr 2004 12:10:31 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:27617 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262986AbUDARKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 12:10:23 -0500
+Date: Thu, 1 Apr 2004 18:10:12 +0100
+From: Dave Jones <davej@redhat.com>
+To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
+Message-ID: <20040401171012.GB24255@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>,
+	linux-kernel@vger.kernel.org
+References: <200404011900.47412.volker.hemmann@heim10.tu-clausthal.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404011900.47412.volker.hemmann@heim10.tu-clausthal.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olof Johansson wrote:
+On Thu, Apr 01, 2004 at 07:00:47PM +0200, Hemmann, Volker Armin wrote:
+ > Hi,
+ > 
+ > in 2.6.5-rc3 was incorporated a fix for SiS648 chipsets that need a little 
+ > time to get into a sane state again, after switching to AGP 8x.
+ > The 746FX has the same timing problem and needs this 'pause', too.
+ > Unfortunatly in sis-apg.c this fix is only checked against the 648, not the 
+ > 746, so the fix never gets invoked:
 
->So __pollwait() calls __get_free_page(), system_running is 0 so
->get_boot_pages is called. Since get_boot_pages is labeled __init, badness
->happens.
->  
->
-I didn't notice that the reboot code resets system_running to 0, sorry.
+Ah, yes. I actually had that in mind when I merged this code, but it
+must've got paged out 8-)
 
->How about checking against mem_init_done instead of system_running? It
->helps against the oops, but there might be some good reason not to do
->it.
->
-mem_init_done is ppc specific. Is there an equivalent to system_running 
-that is not set to 0 during reboot?
+Can you send lspci -n output please?
 
---
-    Manfred
+		Dave
+
 

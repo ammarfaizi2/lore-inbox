@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSFJUg0>; Mon, 10 Jun 2002 16:36:26 -0400
+	id <S315424AbSFJVBU>; Mon, 10 Jun 2002 17:01:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316194AbSFJUgZ>; Mon, 10 Jun 2002 16:36:25 -0400
-Received: from psmtp2.dnsg.net ([193.168.128.42]:41883 "HELO psmtp2.dnsg.net")
-	by vger.kernel.org with SMTP id <S316161AbSFJUgX>;
-	Mon, 10 Jun 2002 16:36:23 -0400
-Subject: 2.5.21 - end_request warning.
-To: linux-kernel@vger.kernel.org
-Date: Tue, 11 Jun 2002 00:33:24 +0200 (CEST)
-CC: torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S316163AbSFJVBT>; Mon, 10 Jun 2002 17:01:19 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:28582 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S315424AbSFJVBR>; Mon, 10 Jun 2002 17:01:17 -0400
+Date: 10 Jun 2002 22:53:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8QbwdDPmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.44.0206091130490.13751-100000@home.transmeta.com>
+Subject: Re: of ethernet names (was [PATCH] Futex Asynchronous
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17HXj2-0000a2-00@skybase>
-From: Martin Schwidefsky <martin.schwidefsky@debitel.net>
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+torvalds@transmeta.com (Linus Torvalds)  wrote on 09.06.02 in <Pine.LNX.4.44.0206091130490.13751-100000@home.transmeta.com>:
 
-Hi,
-another small thing. The end_request error message should be marked with
-KERN_ERR.
+> Is the "magic ioctl" approach ugly? Sure. But it's fairly well contained
+> to just one program (ifconfig), and everybody else just uses that. I think
+> it's less horrible than the alternatives right now.
 
-blue skies,
-  Martin.
+If it *were* all contained in ifconfig, you'd be right, but that isn't  
+even remotely true.
 
-diff -urN linux-2.5.21/drivers/block/ll_rw_blk.c linux-2.5.21-s390/drivers/block/ll_rw_blk.c
---- linux-2.5.21/drivers/block/ll_rw_blk.c	Sun Jun  9 07:27:22 2002
-+++ linux-2.5.21-s390/drivers/block/ll_rw_blk.c	Mon Jun 10 11:30:26 2002
-@@ -1879,7 +1879,7 @@
- 
- 	req->errors = 0;
- 	if (!uptodate)
--		printk("end_request: I/O error, dev %s, sector %lu\n",
-+		printk(KERN_ERR "end_request: I/O error, dev %s, sector %lu\n",
- 			kdevname(req->rq_dev), req->sector);
- 
- 	total_nsect = 0;
+There are a *huge* number of programs that know about network interfaces.  
+Apart from ifconfig, we have route, routed, iptables, ip, bootloads of  
+admin scripts for device configuration, for firewalling, pppd anmd  
+scripts, arp, dhcpd, portsentry, and I haven't even really scratched the  
+surface here.
+
+Sure, in the old times, when you could get Unix(tm) with or without the  
+"networking option" for extra money, there wasn't much. But that has  
+dramatically changed in these Internet times.
+
+
+MfG Kai

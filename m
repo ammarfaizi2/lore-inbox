@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSLOWTD>; Sun, 15 Dec 2002 17:19:03 -0500
+	id <S263105AbSLOWWB>; Sun, 15 Dec 2002 17:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSLOWTD>; Sun, 15 Dec 2002 17:19:03 -0500
-Received: from conductor.synapse.net ([199.84.54.18]:24083 "HELO
-	conductor.synapse.net") by vger.kernel.org with SMTP
-	id <S262871AbSLOWTC> convert rfc822-to-8bit; Sun, 15 Dec 2002 17:19:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "D.A.M. Revok" <marvin@synapse.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133 Promise ctrlr, or...
-Date: Sun, 15 Dec 2002 17:25:57 -0500
-User-Agent: KMail/1.4.1
-References: <200212152139.gBFLdI1p002059@darkstar.example.net>
-In-Reply-To: <200212152139.gBFLdI1p002059@darkstar.example.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212151725.57046.marvin@synapse.net>
+	id <S263137AbSLOWWB>; Sun, 15 Dec 2002 17:22:01 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:12804 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263105AbSLOWWA>;
+	Sun, 15 Dec 2002 17:22:00 -0500
+Date: Sun, 15 Dec 2002 23:01:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, terje.eggestad@scali.com
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021215220132.GB6347@elf.ucw.cz>
+References: <200212150406.gBF469M482759@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212150406.gBF469M482759@saturn.cs.uml.edu>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, the Magic SysReq key didn't work ( at all ):
-it were DEAD
-The drive-light stayed on for 10+ hours, nothing happening ( that I could 
-figure out ) the whole time.  It /stayed/ dead.
+Hi!
 
-/dev/hde is part of a RAID-5 in my system ( because I no longer trust 
-anything else ), and this only happens on drives connected onto the 
-Promise controller.
+> > As far as I know, though, the SYSENTER patch didn't deal with several of
+> > the corner cases introduced by the generally weird SYSENTER instruction
+> > (such as the fact that V86 tasks can execute it despite the fact there
+> > is in general no way to resume execution of the V86 task afterwards.)
+> >
+> > In practice this means that vsyscalls is pretty much the only sensible
+> > way to do this.  Also note that INT 80h will need to be supported
+> > indefinitely.
+> >
+> > Personally, I wonder if it's worth the trouble, when x86-64 takes care
+> > of the issue anyway :)
+> 
+> There is another way:
+> 
+> Have apps enter kernel mode via Intel's purposely undefined
+> instruction, plus a few bytes of padding and identification.
+> Require that this not cross a page boundry. When it faults,
+> write the SYSENTER, INT 0x80, or SYSCALL as needed. Leave
+> the page marked clean so it doesn't need to hit swap; if it
+> gets paged in again it gets patched again.
 
-Oh, yeah, I forgot to include this:
-trying to touch/activate/read the S.M.A.R.T. in any drive on the Promise 
-kills it, too.  Can't activate the reliability-system without killing 
-the kernel? /that's/ ironic, eh?
-
-
-As for having another terminal connected to my home machine...
-1. if the kernel's dead, then how's that gonna work, and
-2. why have 2 terminals on one machine when I'm a hermit?
-
-I /do/ thank you for the interface-reset tip, though, I hope I never need 
-that info  : )
-
-On Sun 15 December, 2002 16:39, you wrote:
->> have to use the power-switch to get the machine back
->
->If you have another terminal accessible, you could try:
->
->hdparm -w /dev/hda
->
->to reset the interface.  I can't guarantee that it wouldn't loose
->data, though.
->
->John.
-
+Thats *very* dirty hack. vsyscalls seem cleaner than that.
+								Pavel
 -- 
-http://www.drawright.com/
- - "The New Drawing on the Right Side of the Brain" ( Betty Edwards, 
-check "Theory", "Gallery", and "Exercises" )
-http://www.ldonline.org/ld_indepth/iep/seven_habits.html
- - "The 7 Habits of Highly Effective People" ( this site is same 
-principles as Covey's book )
-http://www.eiconsortium.org/research/ei_theory_performance.htm
- - "Working With Emotional Intelligence" ( Goleman: this link is 
-/revised/ theory, "Working. . . " is practical )
-http://www.leadershipnow.com/leadershop/1978-5.html
- - Corps Business: The 30 /Management Principles/ of the U.S. Marines ( 
-David Freedman )
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

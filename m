@@ -1,82 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVATEGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVATEQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVATEGl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 23:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVATEGl
+	id S262040AbVATEQS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 23:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVATEQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 23:06:41 -0500
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:27299 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262033AbVATEGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 23:06:38 -0500
-Message-ID: <41EF2E7E.8070604@kolivas.org>
-Date: Thu, 20 Jan 2005 15:07:26 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 19 Jan 2005 23:16:18 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:3492 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262040AbVATEQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 23:16:14 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Daniel Gryniewicz <daniel@gryniewicz.com>
+Subject: Re: Linux 2.6.11-rc1
+Date: Wed, 19 Jan 2005 23:16:03 -0500
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Peter Osterlund <petero2@telia.com>
+References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <1106168848.22163.10.camel@athena.fprintf.net>
+In-Reply-To: <1106168848.22163.10.camel@athena.fprintf.net>
 MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org> <87ekgges2o.fsf@sulphur.joq.us>
-In-Reply-To: <87ekgges2o.fsf@sulphur.joq.us>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501192316.04173.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack O'Quin wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
-
+On Wednesday 19 January 2005 16:07, Daniel Gryniewicz wrote:
+> On Tue, 2005-01-11 at 21:09 -0800, Linus Torvalds wrote:
+> > Ok, the big merges after 2.6.10 are hopefully over, and 2.6.11-rc1 is out 
+> > there.
+> > 
+> <snip>
 > 
-> Does it degrade significantly with a compile running in the background?
-
-Check results below.
-
->>Full results and pretty pictures available here:
->>http://ck.kolivas.org/patches/SCHED_ISO/iso2-benchmarks/
-
-More pretty pictures with compile load on SCHED_ISO put up there now.
-
-> Outstanding.  
+> > Peter Osterlund:
+> >   o input: Add ALPS touchpad driver, driver by Neil Brown, Peter
+> >     Osterlund and Dmitry Torokhov, some fixes by Vojtech Pavlik.
 > 
-> How do you get rid of that checkerboard grey background in the graphs?
+> 2.6.11-rc1 broke my ALPS touchpad.  I have a Dell Inspiron 8600, and
+> previously, I was patching my kernels with the patch from 
+> 
+> Message-Id: <200407110045.08208.dtor_core@ameritech.net>
+> Subject: [RFT/PATCH 2.6] ALPS touchpad driver
+> 
+> and this worked fine.  I had the scroll zones and tapping, and so on,
+> working fine, and dmesg included indications that the Alps was detected:
+> 
+> Jan 19 10:09:40 athena alps.c: E6 report: 00 00 64
+> Jan 19 10:09:40 athena alps.c: E7 report: 73 02 0a
+> Jan 19 10:09:40 athena alps.c: E6 report: 00 00 64
+> Jan 19 10:09:40 athena alps.c: E7 report: 73 02 0a
+> Jan 19 10:09:40 athena alps.c: Status: 15 01 0a
+> Jan 19 10:09:40 athena ALPS Touchpad (Glidepoint) detected
+> Jan 19 10:09:40 athena alps.c: Status: 15 01 0a
+> Jan 19 10:09:40 athena input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+> 
+> 
 
-Funny; that's the script you sent me so... beats me?
+Hi,
 
-> Looking at the graphs, your system has a substantial 4 to 6 msec delay
-> on approximately 40 second intervals, regardless of which scheduling
-> class or how many clients you run.  I'm guessing this is a recurring
-> long code path in the kernel and not a scheduling artifact at all.
+Could you please try this patch by Peter Osterlund:
 
-Probably. No matter what I do the hard drive seems to keep trying to 
-spin down. Might be related.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110513688110246&q=raw
 
-in the background:
-while true ; do make clean && make ; done
+It looks like Kensington and ALPS hate each other.
 
-SCHED_ISO with 40 clients:
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :     3
-Delay Count (>spare time) . . :    20
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . :  5841   usecs
-Cycle Maximum . . . . . . . . :   891   usecs
-Average DSP Load. . . . . . . :    34.1 %
-Average CPU System Load . . . :    10.7 %
-Average CPU User Load . . . . :    87.8 %
-Average CPU Nice Load . . . . :     0.0 %
-Average CPU I/O Wait Load . . :     0.7 %
-Average CPU IRQ Load  . . . . :     0.8 %
-Average CPU Soft-IRQ Load . . :     0.0 %
-Average Interrupt Rate  . . . :  1711.4 /sec
-Average Context-Switch Rate . : 20751.6 /sec
-*********************************************
-
-Cheers,
-Con
+-- 
+Dmitry

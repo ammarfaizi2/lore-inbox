@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316756AbSFDUGO>; Tue, 4 Jun 2002 16:06:14 -0400
+	id <S316777AbSFDUKr>; Tue, 4 Jun 2002 16:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSFDUF2>; Tue, 4 Jun 2002 16:05:28 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:38369 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316751AbSFDUEj>;
-	Tue, 4 Jun 2002 16:04:39 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316759AbSFDUKq>; Tue, 4 Jun 2002 16:10:46 -0400
+Received: from naur.csee.wvu.edu ([157.182.194.28]:54739 "EHLO
+	naur.csee.wvu.edu") by vger.kernel.org with ESMTP
+	id <S316755AbSFDUKo>; Tue, 4 Jun 2002 16:10:44 -0400
+Subject: Reg. sparc64 linker error
+From: Shanti Katta <katta@csee.wvu.edu>
+To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15613.7493.765450.205401@napali.hpl.hp.com>
-Date: Tue, 4 Jun 2002 13:04:21 -0700
-To: <o.pitzeier@uptime.at>
-Cc: "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>,
-        "'Richard Henderson'" <rth@twiddle.net>,
-        <linux-kernel@vger.kernel.org>, <axp-kernel-list@redhat.com>
-Subject: Re: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-In-Reply-To: <000101c20bb0$27e93620$010b10ac@sbp.uptime.at>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Mailer: Evolution/1.0.2 
+Date: 04 Jun 2002 16:14:26 -0400
+Message-Id: <1023221667.12878.68.camel@indus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 4 Jun 2002 12:11:05 +0200, "Oliver Pitzeier" <o.pitzeier@uptime.at> said:
+Hi,
+I am trying to port user-mode-linux(uml) to Sparc64 arch. I am running a
+custom built 2.4.18 kernel on debian (sid), Ultra 1 system. I have also
+created static links sparc64-linux-ld and sparc64-linux-as. When I build
+the uml sources, I am getting the following linker error:
 
-  >> `copy_user_page' undeclared (first use in this function) make[1]:
-  >> *** [main.o] Error 1 make[1]: Leaving directory
-  >> `/usr/src/linux-2.5.20/init' make: *** [init] Error 2
+gcc-3.0  -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -U__sparc64__
+-Usparc64 -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow
+-ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
+-Wa,--undeclared-regs -D__arch_um__ -DSUBARCH=\"sparc64\" -DNESTING=0
+-D_LARGEFILE64_SOURCE  -I/home/shanti/UML/UMLSparc64/arch/um/include
+-D_GNU_SOURCE -c -o unmap.o unmap.c
+ld -r -o unmap_fin.o unmap.o -lc -L/usr/lib
+ld: warning: sparc:v9 architecture of input file `unmap.o' is
+incompatible with sparc output
+ld: BFD 2.12.90.0.1 20020307 Debian/GNU Linux assertion fail
+../../bfd/elflink.h:2817
+ld: final link failed: Bad value
 
-  Oliver> I guess I found where the error comes from:
+I am using gcc-3.0 with binuitls 2.12.90.0.0.1-5. When I tried using gcc
+with egcs64, it gave me a bunch of parse errors. Hence, I switched to
+gcc-3.0. But now, I have this linker error. Any pointers in this
+direction would be appreciated.
 
-  Oliver> (from the 2.5.20 Changelog):
-  >> <davidm@napali.hpl.hp.com> [PATCH] pass "page" pointer to
-  >> clear_user_page()/copy_user_page()
-  >> 
-  >> Hi Linus,
-  >> 
-  >> Are you willing to change the interfaces of clear_user_page() and
-  >> copy_user_page() so that they can receive the relevant page
-  >> pointer as a separate argument?  I need this on ia64 to implement
-  >> the lazy-cache flushing scheme.
-  >> 
-  >> I believe PPC would also benefit from this.
-  >> 
-  >> --david
 
-  Oliver> Now I believe, that Alpha also benefits from this. :o) The
-  Oliver> only thing I have to do - I guess - is to change the defines
-  Oliver> for copy_user_page() and clear_user_page. Adding the not
-  Oliver> used parameter >pg< should not make any problems.
 
-Yes, you can simply ignore the page pointer argument.  It's there for
-those arches that want to take advantage of it.  Sorry about causing
-breakage...
 
-	--david

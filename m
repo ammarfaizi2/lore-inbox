@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264264AbTCXQQX>; Mon, 24 Mar 2003 11:16:23 -0500
+	id <S264260AbTCXQO3>; Mon, 24 Mar 2003 11:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264267AbTCXQQX>; Mon, 24 Mar 2003 11:16:23 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22442
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264264AbTCXQQW>; Mon, 24 Mar 2003 11:16:22 -0500
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
-	looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Atanasov <alex@ssi.bg>
-Cc: linux@brodo.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-In-Reply-To: <20030324180125.2606b046.alex@ssi.bg>
-References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
-	 <1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
-	 <20030324180125.2606b046.alex@ssi.bg>
-Content-Type: text/plain
+	id <S264262AbTCXQO3>; Mon, 24 Mar 2003 11:14:29 -0500
+Received: from mail.idilis.net ([217.156.85.2]:32541 "EHLO mail.idilis.net")
+	by vger.kernel.org with ESMTP id <S264260AbTCXQO2>;
+	Mon, 24 Mar 2003 11:14:28 -0500
+Message-ID: <3E7F321A.1000809@easynet.ro>
+Date: Mon, 24 Mar 2003 18:28:10 +0200
+From: Alex Damian <ddalex_krn@easynet.ro>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ro-RO; rv:1.0.1) Gecko/20020830
+X-Accept-Language: ro, en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PixelView video4linux driver
+References: <Pine.LNX.4.53.0303211420170.13876@chaos>	 <1048324118.3306.3.camel@LNX.iNES.RO>  <3E7F1B6A.2000103@easynet.ro> <1048525157.25655.1.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048527607.25655.18.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Mar 2003 17:40:08 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 16:01, Alexander Atanasov wrote:
-> 	I don't understand, what's the difference and how the list is lost?
-> ata_unused used to hold all drives that were not claimed by any driver,
-> now idedefault_driver claims all that drives, all drives go in the .list
+Alan Cox a scris:
 
-ata_unused -> unattached device slots, new hotplug discoveries
-idedefault_driver -> attached/known devices with no driver
-other list -> driven by that driver
+>Gerd I guess. How are you handling the interlocking between the X server
+>
+I wrote the Gerd several times , but I got no replay... still trying
 
-> The bug is there,  and waiting to explode, keeping both lists would mean to 
-> add one more  list head  in ide_drive_t,  is that the fix you want?
+>and the tuner for registers ?
+>
+I'm not... currently (planning to work on , but i'll get to that next 
+weekend. maybe)
+For now, you have to load the module after the X starts. Otherwise it 
+stucks up (deadlock
+I think ). To make things even worse, I run all on dual-headed 
+dual-videocard +xinerama machine.
 
-I don't see where stuff is ending up on both lists yet. I've not had time to look
-hard at it though
+Alex
 

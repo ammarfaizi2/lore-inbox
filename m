@@ -1,182 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbTF0BSA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 21:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTF0BSA
+	id S263250AbTF0BW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 21:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTF0BW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 21:18:00 -0400
-Received: from static-ctb-203-29-86-142.webone.com.au ([203.29.86.142]:37636
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S263239AbTF0BR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 21:17:57 -0400
-Message-ID: <3EFB9C0C.9000600@cyberone.com.au>
-Date: Fri, 27 Jun 2003 11:21:16 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
+	Thu, 26 Jun 2003 21:22:58 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:5573 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S263250AbTF0BWz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 21:22:55 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Andrea Arcangeli <andrea@suse.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-Subject: Re: [PATCH] io stalls
-References: <1055296630.23697.195.camel@tiny.suse.com>	 <20030611021030.GQ26270@dualathlon.random>	 <1055353360.23697.235.camel@tiny.suse.com>	 <20030611181217.GX26270@dualathlon.random>	 <1055356032.24111.240.camel@tiny.suse.com>	 <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au>	 <20030612012951.GG1500@dualathlon.random>	 <1055384547.24111.322.camel@tiny.suse.com> <3EE7E876.80808@cyberone.com.au>	 <20030612024608.GE1415@dualathlon.random>	 <1056567822.10097.133.camel@tiny.suse.com>	 <3EFA8920.8050509@cyberone.com.au>	 <1056628116.20899.28.camel@tiny.suse.com>	 <3EFAEF71.1080109@cyberone.com.au> <1056642911.20899.88.camel@tiny.suse.com>
-In-Reply-To: <1056642911.20899.88.camel@tiny.suse.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: [PATCH] Robust/priority-inheriting futexes for 2.5.67, take 6
+Date: Thu, 26 Jun 2003 18:37:08 -0700
+Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE03E82D@orsmsx409.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Robust/priority-inheriting futexes for 2.5.67, take 6
+Thread-Index: AcM8TJ6XXogAXf1pSsuRkbiqS1PZbQ==
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Jun 2003 01:37:08.0105 (UTC) FILETIME=[9F1B3F90:01C33C4C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi all
 
-Chris Mason wrote:
+This a new release of the prototype implementation that intends to
+provide real-time futexes. Now we have a patch to NPTL to try
+it. Bear in mind this is just a proof-of-concept, and is not
+optimal, definitive or production ready. See below for some pretty
+graphs on the priority inheritance process.
 
->On Thu, 2003-06-26 at 09:04, Nick Piggin wrote:
->
->
->>>One of the things I tried in this area was basically queue ownership. 
->>>When each process woke up, he was given strict ownership of the queue
->>>and could submit up to N number of requests.  One process waited for
->>>ownership in a yield loop for a max limit of a certain number of
->>>jiffies, all the others waited on the request queue.
->>>
->>>
->>Not sure exactly what you mean by one process waiting for ownership
->>in a yield loop, but why don't you simply allow the queue "owner" to
->>submit up to a maximum of N requests within a time limit. Once either
->>limit expires (or, rarely, another might become owner -) the process
->>would just be put to sleep by the normal queue_full mechanism.
->>
->>
->
->You need some way to wakeup the queue after that time limit has expired,
->in case the owner never submits another request.  This can either be a
->timer or a process in a yield loop.  Given that very short expire time I
->set (10 jiffies), I went for the yield loop.
->
->
->>>It generally increased the latency in __get_request wait by a multiple
->>>of N.  I didn't keep it because the current patch is already full of
->>>subtle interactions, I didn't want to make things more confusing than
->>>they already were ;-)
->>>
->>>
->>Yeah, something like that. I think that in a queue full situation,
->>the processes are wanting to submit more than 1 request though. So
->>the better thoughput you can achieve by batching translates to
->>better effective throughput. Read my recent debate with Andrea
->>about this though - I couldn't convince him!
->>
->>
->
->Well, it depends ;-) I think we've got 3 basic kinds of procs during a
->q->full condition:
->
->1) wants to submit lots of somewhat contiguous io
->2) wants to submit a single io
->3) wants to submit lots of random io
->
->>From a throughput point of view, we only care about giving batch
->ownership to #1.  giving batch ownership to #3 will help reduce context
->switches, but if it helps throughput than the io wasn't really random
->(you've got a good point about locality below, drive write caches make a
->huge difference there).
->
->The problem I see in 2.4 is the elevator can't tell any of these cases
->apart, so any attempt at batch ownership is certain to be wrong at least
->part of the time.
->
+The patch below encloses a proposal on a way to do real-time
+futexes that support priority-inheritance, priority-protection,
+dead-owner recovery (more flexible than Sun's Robust Mutex
+Extension) and dead lock detection, a sample implementation (sans
+priority-protection) and a set of test programs along with a very
+simple thread library to test it.
 
-I think though, for fairness, if we allow one to submit a batch
-of requests, we have to give that opportunity to the others.
-And yeah, it does reduce context switches, and it does improve
-throughput for "random" localised IO.
+Note this is NOT a replacement for futexes, it is intended as a
+complementary interface. rtfutexes cannot do things that normal
+futexes can do because of the constraints that "real-time-ness"
+(actually the current design) impose. 
 
->
->
->>I have seen much better maximum latencies, 2-3 times the
->>throughput, and an order of magnitude less context switching on
->>many threaded tiobench write loads when using batching.
->>
->>In short, measuring get_request latency won't give you the full
->>story.
->>
->>
->
->Very true.  But get_request latency is the minimum amount of time a
->single read is going to wait (in 2.4.x anyway), and that is what we need
->to focus on when we're trying to fix interactive performance.
->
+I have been working on this for a while, and got input from many
+different people in different companies who are interested in
+these features (eg: Intel, Cisco, Montavista, OSDL ...).
 
-The read situation is different to write. To fill the read queue,
-you need queue_nr_requests / 2-3 (for readahead) reading processes
-to fill the queue, more if the reads are random.
-If this kernel is being used interactively, its not our fault we
-might not give quite as good interactive performance. I'm sure
-the fileserver admin would rather take the tripled bandwidth ;)
+Note: when you configure your kernel, make sure you have
+preemption enabled as most of the "real-time"ness features that
+this patch provide will work better (and as expected) with it.
 
-That said, I think a lot of interactive programs will want to do
-more than 1 request at a time anyway.
+Version 6 changelog
 
->
->>>The real problem with this approach is that we're guessing about the
->>>number of requests a given process wants to submit, and we're assuming
->>>those requests are going to be highly mergable.  If the higher levels
->>>pass these hints down to the elevator, we should be able to do a better
->>>job of giving both low latency and high throughput.
->>>
->>>
->>No, the numbers (batch # requests, batch time) are not highly scientific.
->>Simply when a process wakes up, we'll let them submit a small burst of
->>requests before they go back to sleep. Now in 2.5 (mm) we can cheat and
->>make this more effective, fair, and without possible missed wakes because
->>io contexts means that multiple processes can be batching at the same
->>time, and dynamically allocated requests means it doesn't matter if we
->>go a bit over the queue limit.
->>
->>
->
->I agree 2.5 has a lot more room for the contexts to be effective, and I
->think they are a really good idea.
->
->
->>I think a decent solution for 2.4 would be to simply have the one queue
->>owner, but he allowed the queue to fall below the batch limit, wake
->>someone else and make them the owner. It can be a bit less fair, and
->>it doesn't work across queues, but they're less important cases.
->>
->>
->>>Between bios and the pdflush daemons, I think 2.5 is in pretty good
->>>shape to do what we need.  I'm not 100% sure we need batching when the
->>>requests being submitted are not highly mergable, but I haven't put lots
->>>of thought into that part yet.
->>>
->>>
->>No, there are a couple of problems here.
->>First, good locality != sequential. I saw tiobench 256 random write
->>throughput _doubled_ because each process is writing within its own
->>file.
->>
->>Second, mergeable doesn't mean anything if your request size only
->>grows to say 128KB (IDE). I saw tiobench 256 sequential writes on IDE
->>go from ~ 25% peak throughput to ~70% (4.85->14.11 from 20MB/s disk)
->>
->
->Well, play around with raw io, my box writes at roughly disk speed with
->128k synchronous requests (contiguous writes).
->
+- Added the ability to disable robustness.
+- Added the ability to unlock an rtfutex if you are not the
+  owner.
+- Work correctly when a waiting thread is woken up by a signal (in
+  priority inheritance mode).
+- Clean up docs here and there.
+- ia64 support
 
-Yeah, I'm not talking about request overhead - I think a 128K sized
-request is just fine. But when there are 256 threads writing, with
-FIFO method, 128 threads will each have 1 request in the queue. If
-they are sequential writers, each request will probably be 128K.
-That isn't enough to get good disk bandwidth. The elevator _has_ to
-make a suboptimal decision.
+Caveats:
 
-With batching, say 8 processes have 16 sequential requests on the
-queue each. The elevator can make good choices.
+- Priority protection not yet implemented.
 
+- Many fixmes here and there that require answers
+
+- Hook for properly acting when the priority of a waiting task is
+  changed not implemented yet. 
+
+- The tweak in wake_up_process() creates too much overhead, need
+  to look for a better way to do it.
+
+- The current design is starting to show its shortcomings, so
+  there are many things that will probably change in the next
+  release. One is going to be to properly separate futexes (wait
+  queues for user space) from locks, as they are different
+  entitities that require different things.
+
+- Still based on 2.5.67 (need to change a bunch of things for
+  that). You might want to apply Robert Love's patch 
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0306.2/1106.html
+  to fix some scheduler problems that will cause deadlocks.
+
+- requeue not implemented yet.
+
+- PI still not works with SCHED_NORMAL ... not sure how to tackle
+  this. I guess it can be done storing original priorities _and_
+  policies in the task_struct and propagating the new ones ...
+
+- Memory corruption in some stress cases that causes a kernel
+  panic. Still unable to trace it down.
+
+Check out kernel/rtfutex.c for a quick roadmap;
+Documentation/rtfutex.txt for a longer series of rants and a
+something more like a design reference (kind of out of
+date). Documentation/rtfutex-api.txt describes how to call the
+functions (in the test library, test/src/include/rtfutex.h is more
+up-to-date).
+
+You can get everything from (plus the NPTL patch) at
+
+http://developer.osdl.org/dev/robustmutexes/
+
+Scheduler fix patch at:
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0306.2/1106.html
+
+Build the test package with:
+
+./bin/aaaa  # if you wiped ./configure
+./configure --with-headers=RTFUTEX-PATCHED-LINUX-TREE/include
+make
+make run-tests > result
+grep AUTO-RUN result
+
+The priority inheritance tests (simple) are test-{11,12,22}, you
+can run them like this:
+
+cd src/
+for pid in $$ $PPID; do chrt -p -f 20 $pid; done
+./test-11 > 11-out
+./do-plot 11-out
+
+'do-plot' uses gnuplot to plot the output of the program, which is
+basically a trace of the progress each thread does to reflect how
+the priority inheritance is working (or how not). For example,
+test-11:
+
+http://developer.osdl.org/dev/robustmutexes/rtfutex-test-11-6.png
+
+The TF thread runs in CPU1 (or other CPUs if more than dual
+SMP). They serve as reference, the rest of the threads are bound
+to CPU0. Priorities are TF > TB > TP > TL. TP starts at ~10s and
+progresses more slowly than TF because it sleeps from time to
+time. TL starts at ~20s, and progresses only when TP sleeps. Now
+when TB is started at ~30s, it claims the lock that TL has, and
+thus, boosts it up, so TP gets starved until ~50s, when TB times
+out waiting and the situation goes back to normal.
+
+Test 12 is similar, but now there are two TPs and the priorities
+are TF > TB2 > TP2 > TB1 > TP1 > TL:
+
+http://developer.osdl.org/dev/robustmutexes/rtfutex-test-12-6.png
+
+When TB1 kicks in, TP1 is starved, then when TB2 does, TP2 lags
+too and TL has the full CPU (from ~40 to ~50). 
+
+Test 22 shows almost the same thing as test-11, but with signals
+instead of timeouts cancelling the wait for the lock:
+
+http://developer.osdl.org/dev/robustmutexes/rtfutex-test-22-6.png
+
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
 

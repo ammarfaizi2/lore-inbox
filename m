@@ -1,542 +1,463 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270676AbTHATet (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 15:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270871AbTHATeD
+	id S270655AbTHATcw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 15:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270862AbTHATcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 15:34:03 -0400
-Received: from mail.kroah.org ([65.200.24.183]:7103 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270676AbTHATcX convert rfc822-to-8bit
+	Fri, 1 Aug 2003 15:32:51 -0400
+Received: from mail.kroah.org ([65.200.24.183]:6335 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270655AbTHATcV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 15:32:23 -0400
+	Fri, 1 Aug 2003 15:32:21 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10597663213636@kroah.com>
+Message-Id: <10597663232556@kroah.com>
 Subject: Re: [PATCH] PCI fixes for 2.6.0-test2
-In-Reply-To: <10597663191966@kroah.com>
+In-Reply-To: <10597663213636@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Aug 2003 12:32:01 -0700
+Date: Fri, 1 Aug 2003 12:32:03 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1547.10.5, 2003/07/31 16:09:44-07:00, greg@kroah.com
+ChangeSet 1.1547.10.6, 2003/07/31 16:11:47-07:00, greg@kroah.com
 
 [PATCH] PCI: pci_device_id can not be marked __devinitdata.
 
-fixes up drivers/i2c/* drivers/ide/* and drivers/ieee1394/*
+Fixes up drivers/input/* drivers/isdn/* drivers/media/*
+drivers/mtd/* drivers/parisc/* drivers/pci/* drivers/parport/*
+drivers/scsi/* and drivers/serial/*
 
 
- drivers/i2c/busses/i2c-ali1535.c |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c |    2 +-
- drivers/i2c/busses/i2c-amd756.c  |    2 +-
- drivers/i2c/busses/i2c-amd8111.c |    2 +-
- drivers/i2c/busses/i2c-i801.c    |    2 +-
- drivers/i2c/busses/i2c-piix4.c   |    2 +-
- drivers/i2c/busses/i2c-sis96x.c  |    2 +-
- drivers/i2c/busses/i2c-viapro.c  |    2 +-
- drivers/i2c/chips/via686a.c      |    2 +-
- drivers/i2c/i2c-prosavage.c      |    2 +-
- drivers/ide/pci/aec62xx.c        |    2 +-
- drivers/ide/pci/alim15x3.c       |    2 +-
- drivers/ide/pci/amd74xx.c        |    2 +-
- drivers/ide/pci/cmd64x.c         |    2 +-
- drivers/ide/pci/cs5520.c         |    2 +-
- drivers/ide/pci/cs5530.c         |    2 +-
- drivers/ide/pci/cy82c693.c       |    2 +-
- drivers/ide/pci/generic.c        |    2 +-
- drivers/ide/pci/hpt34x.c         |    2 +-
- drivers/ide/pci/hpt366.c         |    2 +-
- drivers/ide/pci/it8172.c         |    2 +-
- drivers/ide/pci/ns87415.c        |    2 +-
- drivers/ide/pci/opti621.c        |    2 +-
- drivers/ide/pci/pdc202xx_new.c   |    2 +-
- drivers/ide/pci/pdc202xx_old.c   |    2 +-
- drivers/ide/pci/pdcadma.c        |    2 +-
- drivers/ide/pci/piix.c           |    2 +-
- drivers/ide/pci/rz1000.c         |    2 +-
- drivers/ide/pci/sc1200.c         |    2 +-
- drivers/ide/pci/serverworks.c    |    2 +-
- drivers/ide/pci/siimage.c        |    2 +-
- drivers/ide/pci/sis5513.c        |    2 +-
- drivers/ide/pci/sl82c105.c       |    2 +-
- drivers/ide/pci/slc90e66.c       |    2 +-
- drivers/ide/pci/triflex.h        |    2 +-
- drivers/ide/pci/trm290.c         |    2 +-
- drivers/ide/pci/via82cxxx.c      |    2 +-
- drivers/ieee1394/ohci1394.c      |    2 +-
- drivers/ieee1394/pcilynx.c       |    2 +-
- 39 files changed, 39 insertions(+), 39 deletions(-)
+ drivers/input/gameport/cs461x.c         |    2 +-
+ drivers/input/gameport/emu10k1-gp.c     |    2 +-
+ drivers/input/gameport/fm801-gp.c       |    2 +-
+ drivers/input/gameport/vortex.c         |    2 +-
+ drivers/isdn/hardware/avm/b1pci.c       |    2 +-
+ drivers/isdn/hardware/avm/c4.c          |    2 +-
+ drivers/isdn/hardware/avm/t1pci.c       |    2 +-
+ drivers/isdn/hardware/eicon/divasmain.c |    2 +-
+ drivers/isdn/hisax/hisax_fcpcipnp.c     |    2 +-
+ drivers/isdn/hisax/hisax_hfcpci.c       |    2 +-
+ drivers/isdn/tpam/tpam_main.c           |    2 +-
+ drivers/media/radio/radio-maxiradio.c   |    2 +-
+ drivers/media/video/bttv-driver.c       |    2 +-
+ drivers/media/video/meye.c              |    2 +-
+ drivers/mtd/maps/amd76xrom.c            |    2 +-
+ drivers/mtd/maps/ich2rom.c              |    2 +-
+ drivers/mtd/maps/pci.c                  |    2 +-
+ drivers/mtd/maps/scb2_flash.c           |    2 +-
+ drivers/parisc/eisa.c                   |    2 +-
+ drivers/parisc/superio.c                |    2 +-
+ drivers/parport/parport_pc.c            |    2 +-
+ drivers/parport/parport_serial.c        |    2 +-
+ drivers/pci/hotplug/cpcihp_zt5550.c     |    5 ++---
+ drivers/pci/hotplug/cpqphp_core.c       |    2 +-
+ drivers/pci/hotplug/ibmphp_ebda.c       |    2 +-
+ drivers/pcmcia/yenta_socket.c           |    2 +-
+ drivers/scsi/dc395x.c                   |    2 +-
+ drivers/scsi/gdth.c                     |    2 +-
+ drivers/scsi/ips.c                      |    2 +-
+ drivers/scsi/nsp32.c                    |    2 +-
+ drivers/scsi/tmscsim.c                  |    2 +-
+ drivers/serial/8250_pci.c               |    2 +-
+ 32 files changed, 33 insertions(+), 34 deletions(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
---- a/drivers/i2c/busses/i2c-ali1535.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-ali1535.c	Fri Aug  1 12:18:18 2003
-@@ -494,7 +494,7 @@
+diff -Nru a/drivers/input/gameport/cs461x.c b/drivers/input/gameport/cs461x.c
+--- a/drivers/input/gameport/cs461x.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/input/gameport/cs461x.c	Fri Aug  1 12:18:06 2003
+@@ -216,7 +216,7 @@
+ 	return 0;
+ }
+ 
+-static struct pci_device_id cs461x_pci_tbl[] __devinitdata = {
++static struct pci_device_id cs461x_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_CIRRUS, 0x6001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Cirrus CS4610 */
+ 	{ PCI_VENDOR_ID_CIRRUS, 0x6003, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Cirrus CS4612 */
+ 	{ PCI_VENDOR_ID_CIRRUS, 0x6005, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Cirrus CS4615 */
+diff -Nru a/drivers/input/gameport/emu10k1-gp.c b/drivers/input/gameport/emu10k1-gp.c
+--- a/drivers/input/gameport/emu10k1-gp.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/input/gameport/emu10k1-gp.c	Fri Aug  1 12:18:06 2003
+@@ -49,7 +49,7 @@
+ 	char phys[32];
+ };
+ 	
+-static struct pci_device_id emu_tbl[] __devinitdata = {
++static struct pci_device_id emu_tbl[] = {
+ 	{ 0x1102, 0x7002, PCI_ANY_ID, PCI_ANY_ID }, /* SB Live gameport */
+ 	{ 0x1102, 0x7003, PCI_ANY_ID, PCI_ANY_ID }, /* Audigy gameport */
+ 	{ 0, }
+diff -Nru a/drivers/input/gameport/fm801-gp.c b/drivers/input/gameport/fm801-gp.c
+--- a/drivers/input/gameport/fm801-gp.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/input/gameport/fm801-gp.c	Fri Aug  1 12:18:06 2003
+@@ -131,7 +131,7 @@
  	}
- };
+ }
  
--static struct pci_device_id ali1535_ids[] __devinitdata = {
-+static struct pci_device_id ali1535_ids[] = {
+-static struct pci_device_id fm801_gp_id_table[] __devinitdata = {
++static struct pci_device_id fm801_gp_id_table[] = {
+ 	{ PCI_VENDOR_ID_FORTEMEDIA, PCI_DEVICE_ID_FM801_GP, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0  },
+ 	{ 0 }
+ };
+diff -Nru a/drivers/input/gameport/vortex.c b/drivers/input/gameport/vortex.c
+--- a/drivers/input/gameport/vortex.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/input/gameport/vortex.c	Fri Aug  1 12:18:06 2003
+@@ -159,7 +159,7 @@
+ 	kfree(vortex);
+ }
+ 
+-static struct pci_device_id vortex_id_table[] __devinitdata =
++static struct pci_device_id vortex_id_table[] =
+ {{ 0x12eb, 0x0001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x11000 },
+  { 0x12eb, 0x0002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x28800 },
+  { 0 }};
+diff -Nru a/drivers/isdn/hardware/avm/b1pci.c b/drivers/isdn/hardware/avm/b1pci.c
+--- a/drivers/isdn/hardware/avm/b1pci.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/hardware/avm/b1pci.c	Fri Aug  1 12:18:06 2003
+@@ -28,7 +28,7 @@
+ 
+ /* ------------------------------------------------------------- */
+ 
+-static struct pci_device_id b1pci_pci_tbl[] __devinitdata = {
++static struct pci_device_id b1pci_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_AVM, PCI_DEVICE_ID_AVM_B1, PCI_ANY_ID, PCI_ANY_ID },
+ 	{ }				/* Terminating entry */
+ };
+diff -Nru a/drivers/isdn/hardware/avm/c4.c b/drivers/isdn/hardware/avm/c4.c
+--- a/drivers/isdn/hardware/avm/c4.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/hardware/avm/c4.c	Fri Aug  1 12:18:06 2003
+@@ -36,7 +36,7 @@
+ 
+ static int suppress_pollack;
+ 
+-static struct pci_device_id c4_pci_tbl[] __devinitdata = {
++static struct pci_device_id c4_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21285, PCI_VENDOR_ID_AVM, PCI_DEVICE_ID_AVM_C4, 4 },
+ 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21285, PCI_VENDOR_ID_AVM, PCI_DEVICE_ID_AVM_C2, 2 },
+ 	{ }			/* Terminating entry */
+diff -Nru a/drivers/isdn/hardware/avm/t1pci.c b/drivers/isdn/hardware/avm/t1pci.c
+--- a/drivers/isdn/hardware/avm/t1pci.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/hardware/avm/t1pci.c	Fri Aug  1 12:18:06 2003
+@@ -31,7 +31,7 @@
+ 
+ /* ------------------------------------------------------------- */
+ 
+-static struct pci_device_id t1pci_pci_tbl[] __devinitdata = {
++static struct pci_device_id t1pci_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_AVM, PCI_DEVICE_ID_AVM_T1, PCI_ANY_ID, PCI_ANY_ID },
+ 	{ }				/* Terminating entry */
+ };
+diff -Nru a/drivers/isdn/hardware/eicon/divasmain.c b/drivers/isdn/hardware/eicon/divasmain.c
+--- a/drivers/isdn/hardware/eicon/divasmain.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/hardware/eicon/divasmain.c	Fri Aug  1 12:18:06 2003
+@@ -119,7 +119,7 @@
+ /*
+   This table should be sorted by PCI device ID
+   */
+-static struct pci_device_id divas_pci_tbl[] __devinitdata = {
++static struct pci_device_id divas_pci_tbl[] = {
+ /* Diva Server BRI-2M PCI 0xE010 */
+ 	{PCI_VENDOR_ID_EICON, PCI_DEVICE_ID_EICON_MAESTRA,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, CARDTYPE_MAESTRA_PCI},
+diff -Nru a/drivers/isdn/hisax/hisax_fcpcipnp.c b/drivers/isdn/hisax/hisax_fcpcipnp.c
+--- a/drivers/isdn/hisax/hisax_fcpcipnp.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/hisax/hisax_fcpcipnp.c	Fri Aug  1 12:18:06 2003
+@@ -46,7 +46,7 @@
+ MODULE_AUTHOR("Kai Germaschewski <kai.germaschewski@gmx.de>/Karsten Keil <kkeil@suse.de>");
+ MODULE_DESCRIPTION("AVM Fritz!PCI/PnP ISDN driver");
+ 
+-static struct pci_device_id fcpci_ids[] __devinitdata = {
++static struct pci_device_id fcpci_ids[] = {
+ 	{ .vendor      = PCI_VENDOR_ID_AVM,
+ 	  .device      = PCI_DEVICE_ID_AVM_A1,
+ 	  .subvendor   = PCI_ANY_ID,
+diff -Nru a/drivers/isdn/hisax/hisax_hfcpci.c b/drivers/isdn/hisax/hisax_hfcpci.c
+--- a/drivers/isdn/hisax/hisax_hfcpci.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/hisax/hisax_hfcpci.c	Fri Aug  1 12:18:06 2003
+@@ -47,7 +47,7 @@
+           .class_mask  = 0,                      \
+ 	  .driver_data = (unsigned long) name }
+ 
+-static struct pci_device_id hfcpci_ids[] __devinitdata = {
++static struct pci_device_id hfcpci_ids[] = {
+ 	ID(CCD,     CCD_2BD0,         "CCD/Billion/Asuscom 2BD0"),
+ 	ID(CCD,     CCD_B000,         "Billion B000"),
+ 	ID(CCD,     CCD_B006,         "Billion B006"),
+diff -Nru a/drivers/isdn/tpam/tpam_main.c b/drivers/isdn/tpam/tpam_main.c
+--- a/drivers/isdn/tpam/tpam_main.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/isdn/tpam/tpam_main.c	Fri Aug  1 12:18:06 2003
+@@ -241,7 +241,7 @@
+ 	kfree(card);
+ }
+ 
+-static struct pci_device_id tpam_pci_tbl[] __devinitdata = {
++static struct pci_device_id tpam_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_XILINX, PCI_DEVICE_ID_TURBOPAM,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+ 	{ }
+diff -Nru a/drivers/media/radio/radio-maxiradio.c b/drivers/media/radio/radio-maxiradio.c
+--- a/drivers/media/radio/radio-maxiradio.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/media/radio/radio-maxiradio.c	Fri Aug  1 12:18:06 2003
+@@ -327,7 +327,7 @@
+ 	release_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
+ }
+ 
+-static struct pci_device_id maxiradio_pci_tbl[] __devinitdata = {
++static struct pci_device_id maxiradio_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_GUILLEMOT, PCI_DEVICE_ID_GUILLEMOT_MAXIRADIO,
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ 0,}
+diff -Nru a/drivers/media/video/bttv-driver.c b/drivers/media/video/bttv-driver.c
+--- a/drivers/media/video/bttv-driver.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/media/video/bttv-driver.c	Fri Aug  1 12:18:06 2003
+@@ -3496,7 +3496,7 @@
+         return;
+ }
+ 
+-static struct pci_device_id bttv_pci_tbl[] __devinitdata = {
++static struct pci_device_id bttv_pci_tbl[] = {
+         {PCI_VENDOR_ID_BROOKTREE, PCI_DEVICE_ID_BT848,
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+ 	{PCI_VENDOR_ID_BROOKTREE, PCI_DEVICE_ID_BT849,
+diff -Nru a/drivers/media/video/meye.c b/drivers/media/video/meye.c
+--- a/drivers/media/video/meye.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/media/video/meye.c	Fri Aug  1 12:18:06 2003
+@@ -1416,7 +1416,7 @@
+ 	printk(KERN_INFO "meye: removed\n");
+ }
+ 
+-static struct pci_device_id meye_pci_tbl[] __devinitdata = {
++static struct pci_device_id meye_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_KAWASAKI, PCI_DEVICE_ID_MCHIP_KL5A72002, 
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+ 	{ }
+diff -Nru a/drivers/mtd/maps/amd76xrom.c b/drivers/mtd/maps/amd76xrom.c
+--- a/drivers/mtd/maps/amd76xrom.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/mtd/maps/amd76xrom.c	Fri Aug  1 12:18:06 2003
+@@ -160,7 +160,7 @@
+ #endif /* REQUEST_MEM_REGION */
+ }
+ 
+-static struct pci_device_id amd76xrom_pci_tbl[] __devinitdata = {
++static struct pci_device_id amd76xrom_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_7410,  
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_7440,  
+diff -Nru a/drivers/mtd/maps/ich2rom.c b/drivers/mtd/maps/ich2rom.c
+--- a/drivers/mtd/maps/ich2rom.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/mtd/maps/ich2rom.c	Fri Aug  1 12:18:06 2003
+@@ -260,7 +260,7 @@
+ #endif
+ }
+ 
+-static struct pci_device_id ich2rom_pci_tbl[] __devinitdata = {
++static struct pci_device_id ich2rom_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0, 
+ 	  PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_0, 
+diff -Nru a/drivers/mtd/maps/pci.c b/drivers/mtd/maps/pci.c
+--- a/drivers/mtd/maps/pci.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/mtd/maps/pci.c	Fri Aug  1 12:18:06 2003
+@@ -191,7 +191,7 @@
+  * PCI device ID table
+  */
+ 
+-static struct pci_device_id mtd_pci_ids[] __devinitdata = {
++static struct pci_device_id mtd_pci_ids[] = {
  	{
- 		.vendor =	PCI_VENDOR_ID_AL,
- 		.device =	PCI_DEVICE_ID_AL_M7101,
-diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
---- a/drivers/i2c/busses/i2c-ali15x3.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-ali15x3.c	Fri Aug  1 12:18:18 2003
-@@ -486,7 +486,7 @@
- 	},
- };
+ 		.vendor =	PCI_VENDOR_ID_INTEL,
+ 		.device =	0x530d,
+diff -Nru a/drivers/mtd/maps/scb2_flash.c b/drivers/mtd/maps/scb2_flash.c
+--- a/drivers/mtd/maps/scb2_flash.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/mtd/maps/scb2_flash.c	Fri Aug  1 12:18:06 2003
+@@ -218,7 +218,7 @@
+ 	pci_set_drvdata(dev, NULL);
+ }
  
--static struct pci_device_id ali15x3_ids[] __devinitdata = {
-+static struct pci_device_id ali15x3_ids[] = {
+-static struct pci_device_id scb2_flash_pci_ids[] __devinitdata = {
++static struct pci_device_id scb2_flash_pci_ids[] = {
  	{
- 	.vendor =	PCI_VENDOR_ID_AL,
- 	.device =	PCI_DEVICE_ID_AL_M7101,
-diff -Nru a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
---- a/drivers/i2c/busses/i2c-amd756.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-amd756.c	Fri Aug  1 12:18:18 2003
-@@ -322,7 +322,7 @@
+ 	  .vendor = PCI_VENDOR_ID_SERVERWORKS,
+ 	  .device = PCI_DEVICE_ID_SERVERWORKS_CSB5,
+diff -Nru a/drivers/parisc/eisa.c b/drivers/parisc/eisa.c
+--- a/drivers/parisc/eisa.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/parisc/eisa.c	Fri Aug  1 12:18:06 2003
+@@ -398,7 +398,7 @@
+ 	return 0;
+ }
  
- enum chiptype { AMD756, AMD766, AMD768, NFORCE };
+-static struct parisc_device_id __devinitdata eisa_tbl[] = {
++static struct parisc_device_id eisa_tbl[] = {
+ 	{ HPHW_BA, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00076 }, /* Mongoose */
+ 	{ HPHW_BA, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00090 }, /* Wax EISA */
+ 	{ 0, }
+diff -Nru a/drivers/parisc/superio.c b/drivers/parisc/superio.c
+--- a/drivers/parisc/superio.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/parisc/superio.c	Fri Aug  1 12:18:06 2003
+@@ -517,7 +517,7 @@
+ 	}
+ }
  
--static struct pci_device_id amd756_ids[] __devinitdata = {
-+static struct pci_device_id amd756_ids[] = {
- 	{PCI_VENDOR_ID_AMD, 0x740B, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AMD756 },
- 	{PCI_VENDOR_ID_AMD, 0x7413, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AMD766 },
- 	{PCI_VENDOR_ID_AMD, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AMD768 },
-diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
---- a/drivers/i2c/busses/i2c-amd8111.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-amd8111.c	Fri Aug  1 12:18:18 2003
-@@ -331,7 +331,7 @@
- };
- 
- 
--static struct pci_device_id amd8111_ids[] __devinitdata = {
-+static struct pci_device_id amd8111_ids[] = {
- 	{ 0x1022, 0x746a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+-static struct pci_device_id superio_tbl[] __devinitdata = {
++static struct pci_device_id superio_tbl[] = {
+ 	{ PCI_VENDOR_ID_NS, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
  	{ 0, }
  };
-diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
---- a/drivers/i2c/busses/i2c-i801.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-i801.c	Fri Aug  1 12:18:18 2003
-@@ -556,7 +556,7 @@
- 	},
+diff -Nru a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
+--- a/drivers/parport/parport_pc.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/parport/parport_pc.c	Fri Aug  1 12:18:06 2003
+@@ -2825,7 +2825,7 @@
+ 	/* mobility_pp */		{ 1, { { 0, 1 }, } },
  };
  
--static struct pci_device_id i801_ids[] __devinitdata = {
-+static struct pci_device_id i801_ids[] = {
- 	{
- 		.vendor =	PCI_VENDOR_ID_INTEL,
- 		.device =	PCI_DEVICE_ID_INTEL_82801AA_3,
-diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-piix4.c	Fri Aug  1 12:18:18 2003
-@@ -402,7 +402,7 @@
- 	},
+-static struct pci_device_id parport_pc_pci_tbl[] __devinitdata = {
++static struct pci_device_id parport_pc_pci_tbl[] = {
+ 	/* Super-IO onboard chips */
+ 	{ 0x1106, 0x0686, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sio_via_686a },
+ 	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8872,
+diff -Nru a/drivers/parport/parport_serial.c b/drivers/parport/parport_serial.c
+--- a/drivers/parport/parport_serial.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/parport/parport_serial.c	Fri Aug  1 12:18:06 2003
+@@ -87,7 +87,7 @@
+ 	/* siig_2s1p_20x */		{ 1, { { 2, 3 }, } },
  };
  
--static struct pci_device_id piix4_ids[] __devinitdata = {
-+static struct pci_device_id piix4_ids[] = {
- 	{
- 		.vendor =	PCI_VENDOR_ID_INTEL,
- 		.device =	PCI_DEVICE_ID_INTEL_82371AB_3,
-diff -Nru a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
---- a/drivers/i2c/busses/i2c-sis96x.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-sis96x.c	Fri Aug  1 12:18:18 2003
-@@ -276,7 +276,7 @@
- 	},
- };
- 
--static struct pci_device_id sis96x_ids[] __devinitdata = {
-+static struct pci_device_id sis96x_ids[] = {
- 
- 	{
- 		.vendor	=	PCI_VENDOR_ID_SI,
-diff -Nru a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
---- a/drivers/i2c/busses/i2c-viapro.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/busses/i2c-viapro.c	Fri Aug  1 12:18:18 2003
-@@ -401,7 +401,7 @@
- 	release_region(vt596_smba, 8);
+-static struct pci_device_id parport_serial_pci_tbl[] __devinitdata = {
++static struct pci_device_id parport_serial_pci_tbl[] = {
+ 	/* PCI cards */
+ 	{ PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_110L,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, titan_110l },
+diff -Nru a/drivers/pci/hotplug/cpcihp_zt5550.c b/drivers/pci/hotplug/cpcihp_zt5550.c
+--- a/drivers/pci/hotplug/cpcihp_zt5550.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/pci/hotplug/cpcihp_zt5550.c	Fri Aug  1 12:18:06 2003
+@@ -187,8 +187,7 @@
+ 	return 0;
  }
  
--static struct pci_device_id vt596_ids[] __devinitdata = {
-+static struct pci_device_id vt596_ids[] = {
- 	{
- 		.vendor		= PCI_VENDOR_ID_VIA,
- 		.device 	= PCI_DEVICE_ID_VIA_82C596_3,
-diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/chips/via686a.c	Fri Aug  1 12:18:18 2003
-@@ -914,7 +914,7 @@
- 	up(&data->update_lock);
+-static int __devinit zt5550_hc_init_one (struct pci_dev *pdev,
+-					 const struct pci_device_id *ent)
++static int zt5550_hc_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+ 	int status;
+ 
+@@ -262,7 +261,7 @@
  }
  
--static struct pci_device_id via686a_pci_ids[] __devinitdata = {
-+static struct pci_device_id via686a_pci_ids[] = {
-        {
- 	       .vendor 		= PCI_VENDOR_ID_VIA, 
- 	       .device 		= PCI_DEVICE_ID_VIA_82C686_4, 
-diff -Nru a/drivers/i2c/i2c-prosavage.c b/drivers/i2c/i2c-prosavage.c
---- a/drivers/i2c/i2c-prosavage.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/i2c/i2c-prosavage.c	Fri Aug  1 12:18:18 2003
-@@ -321,7 +321,7 @@
- /*
-  * Data for PCI driver interface
+ 
+-static struct pci_device_id zt5550_hc_pci_tbl[] __devinitdata = {
++static struct pci_device_id zt5550_hc_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_ZIATECH, PCI_DEVICE_ID_ZIATECH_5550_HC, PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ 0, }
+ };
+diff -Nru a/drivers/pci/hotplug/cpqphp_core.c b/drivers/pci/hotplug/cpqphp_core.c
+--- a/drivers/pci/hotplug/cpqphp_core.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/pci/hotplug/cpqphp_core.c	Fri Aug  1 12:18:06 2003
+@@ -1488,7 +1488,7 @@
+ 
+ 
+ 
+-static struct pci_device_id hpcd_pci_tbl[] __devinitdata = {
++static struct pci_device_id hpcd_pci_tbl[] = {
+ 	{
+ 	/* handle any PCI Hotplug controller */
+ 	.class =        ((PCI_CLASS_SYSTEM_PCI_HOTPLUG << 8) | 0x00),
+diff -Nru a/drivers/pci/hotplug/ibmphp_ebda.c b/drivers/pci/hotplug/ibmphp_ebda.c
+--- a/drivers/pci/hotplug/ibmphp_ebda.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/pci/hotplug/ibmphp_ebda.c	Fri Aug  1 12:18:06 2003
+@@ -1230,7 +1230,7 @@
+ 	}
+ }
+ 
+-static struct pci_device_id id_table[] __devinitdata = {
++static struct pci_device_id id_table[] = {
+ 	{
+ 		.vendor		= PCI_VENDOR_ID_IBM,
+ 		.device		= HPC_DEVICE_ID,
+diff -Nru a/drivers/pcmcia/yenta_socket.c b/drivers/pcmcia/yenta_socket.c
+--- a/drivers/pcmcia/yenta_socket.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/pcmcia/yenta_socket.c	Fri Aug  1 12:18:06 2003
+@@ -911,7 +911,7 @@
+ }
+ 
+ 
+-static struct pci_device_id yenta_table [] __devinitdata = { {
++static struct pci_device_id yenta_table [] = { {
+ 	.class		= PCI_CLASS_BRIDGE_CARDBUS << 8,
+ 	.class_mask	= ~0,
+ 
+diff -Nru a/drivers/scsi/dc395x.c b/drivers/scsi/dc395x.c
+--- a/drivers/scsi/dc395x.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/scsi/dc395x.c	Fri Aug  1 12:18:06 2003
+@@ -6237,7 +6237,7 @@
+  * Table which identifies the PCI devices which
+  * are handled by this device driver.
   */
--static struct pci_device_id prosavage_pci_tbl[] __devinitdata = {
-+static struct pci_device_id prosavage_pci_tbl[] = {
-    {
- 	.vendor		=	PCI_VENDOR_ID_S3,
- 	.device		=	PCI_DEVICE_ID_S3_SAVAGE4,
-diff -Nru a/drivers/ide/pci/aec62xx.c b/drivers/ide/pci/aec62xx.c
---- a/drivers/ide/pci/aec62xx.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/aec62xx.c	Fri Aug  1 12:18:18 2003
-@@ -533,7 +533,7 @@
- 	return 0;
+-static struct pci_device_id dc395x_pci_table[] __devinitdata = {
++static struct pci_device_id dc395x_pci_table[] = {
+ 	{
+ 		.vendor		= PCI_VENDOR_ID_TEKRAM,
+ 		.device		= PCI_DEVICE_ID_TEKRAM_TRMS1040,
+diff -Nru a/drivers/scsi/gdth.c b/drivers/scsi/gdth.c
+--- a/drivers/scsi/gdth.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/scsi/gdth.c	Fri Aug  1 12:18:06 2003
+@@ -862,7 +862,7 @@
+ /* Vortex only makes RAID controllers.
+  * We do not really want to specify all 550 ids here, so wildcard match.
+  */
+-static struct pci_device_id gdthtable[] __devinitdata = {
++static struct pci_device_id gdthtable[] = {
+     {PCI_VENDOR_ID_VORTEX,PCI_ANY_ID,PCI_ANY_ID, PCI_ANY_ID},
+     {PCI_VENDOR_ID_INTEL,PCI_DEVICE_ID_INTEL_SRC,PCI_ANY_ID,PCI_ANY_ID}, 
+     {PCI_VENDOR_ID_INTEL,PCI_DEVICE_ID_INTEL_SRC_XSCALE,PCI_ANY_ID,PCI_ANY_ID}, 
+diff -Nru a/drivers/scsi/ips.c b/drivers/scsi/ips.c
+--- a/drivers/scsi/ips.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/scsi/ips.c	Fri Aug  1 12:18:06 2003
+@@ -280,7 +280,7 @@
+ 
+ 
+    /* This table describes all ServeRAID Adapters */
+-   static struct  pci_device_id  ips_pci_table[]  __devinitdata = {
++   static struct  pci_device_id  ips_pci_table[] = {
+            { 0x1014, 0x002E, PCI_ANY_ID, PCI_ANY_ID, 0, 0 },
+            { 0x1014, 0x01BD, PCI_ANY_ID, PCI_ANY_ID, 0, 0 },
+            { 0x9005, 0x0250, PCI_ANY_ID, PCI_ANY_ID, 0, 0 },
+diff -Nru a/drivers/scsi/nsp32.c b/drivers/scsi/nsp32.c
+--- a/drivers/scsi/nsp32.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/scsi/nsp32.c	Fri Aug  1 12:18:06 2003
+@@ -2001,7 +2001,7 @@
+ 	iounmap((void *)(data->MmioAddress));
  }
  
--static struct pci_device_id aec62xx_pci_tbl[] __devinitdata = {
-+static struct pci_device_id aec62xx_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_ARTOP, PCI_DEVICE_ID_ARTOP_ATP850UF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ PCI_VENDOR_ID_ARTOP, PCI_DEVICE_ID_ARTOP_ATP860,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1 },
- 	{ PCI_VENDOR_ID_ARTOP, PCI_DEVICE_ID_ARTOP_ATP860R,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2 },
-diff -Nru a/drivers/ide/pci/alim15x3.c b/drivers/ide/pci/alim15x3.c
---- a/drivers/ide/pci/alim15x3.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/alim15x3.c	Fri Aug  1 12:18:18 2003
-@@ -872,7 +872,7 @@
- }
- 
- 
--static struct pci_device_id alim15x3_pci_tbl[] __devinitdata = {
-+static struct pci_device_id alim15x3_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M5229, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/amd74xx.c b/drivers/ide/pci/amd74xx.c
---- a/drivers/ide/pci/amd74xx.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/amd74xx.c	Fri Aug  1 12:18:18 2003
-@@ -440,7 +440,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id amd74xx_pci_tbl[] __devinitdata = {
-+static struct pci_device_id amd74xx_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_COBRA_7401,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_7409,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_7411,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/cmd64x.c b/drivers/ide/pci/cmd64x.c
---- a/drivers/ide/pci/cmd64x.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/cmd64x.c	Fri Aug  1 12:18:18 2003
-@@ -763,7 +763,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id cmd64x_pci_tbl[] __devinitdata = {
-+static struct pci_device_id cmd64x_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_CMD_643, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_CMD_646, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_CMD_648, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/cs5520.c b/drivers/ide/pci/cs5520.c
---- a/drivers/ide/pci/cs5520.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/cs5520.c	Fri Aug  1 12:18:18 2003
-@@ -296,7 +296,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id cs5520_pci_tbl[] __devinitdata = {
-+static struct pci_device_id cs5520_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ 0, },
-diff -Nru a/drivers/ide/pci/cs5530.c b/drivers/ide/pci/cs5530.c
---- a/drivers/ide/pci/cs5530.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/cs5530.c	Fri Aug  1 12:18:18 2003
-@@ -431,7 +431,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id cs5530_pci_tbl[] __devinitdata = {
-+static struct pci_device_id cs5530_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/cy82c693.c b/drivers/ide/pci/cy82c693.c
---- a/drivers/ide/pci/cy82c693.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/cy82c693.c	Fri Aug  1 12:18:18 2003
-@@ -439,7 +439,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id cy82c693_pci_tbl[] __devinitdata = {
-+static struct pci_device_id cy82c693_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_CONTAQ, PCI_DEVICE_ID_CONTAQ_82C693, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/generic.c b/drivers/ide/pci/generic.c
---- a/drivers/ide/pci/generic.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/generic.c	Fri Aug  1 12:18:18 2003
-@@ -130,7 +130,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id generic_pci_tbl[] __devinitdata = {
-+static struct pci_device_id generic_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_NS,     PCI_DEVICE_ID_NS_87410,            PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_PCTECH, PCI_DEVICE_ID_PCTECH_SAMURAI_IDE,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_HOLTEK, PCI_DEVICE_ID_HOLTEK_6565,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/hpt34x.c b/drivers/ide/pci/hpt34x.c
---- a/drivers/ide/pci/hpt34x.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/hpt34x.c	Fri Aug  1 12:18:18 2003
-@@ -339,7 +339,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id hpt34x_pci_tbl[] __devinitdata = {
-+static struct pci_device_id hpt34x_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT343, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/hpt366.c b/drivers/ide/pci/hpt366.c
---- a/drivers/ide/pci/hpt366.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/hpt366.c	Fri Aug  1 12:18:18 2003
-@@ -1190,7 +1190,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id hpt366_pci_tbl[] __devinitdata = {
-+static struct pci_device_id hpt366_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT372, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT302, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/it8172.c b/drivers/ide/pci/it8172.c
---- a/drivers/ide/pci/it8172.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/it8172.c	Fri Aug  1 12:18:18 2003
-@@ -303,7 +303,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id it8172_pci_tbl[] __devinitdata = {
-+static struct pci_device_id it8172_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_IT8172G, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/ns87415.c b/drivers/ide/pci/ns87415.c
---- a/drivers/ide/pci/ns87415.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/ns87415.c	Fri Aug  1 12:18:18 2003
-@@ -236,7 +236,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id ns87415_pci_tbl[] __devinitdata = {
-+static struct pci_device_id ns87415_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_87415, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/opti621.c b/drivers/ide/pci/opti621.c
---- a/drivers/ide/pci/opti621.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/opti621.c	Fri Aug  1 12:18:18 2003
-@@ -371,7 +371,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id opti621_pci_tbl[] __devinitdata = {
-+static struct pci_device_id opti621_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_OPTI, PCI_DEVICE_ID_OPTI_82C621, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_OPTI, PCI_DEVICE_ID_OPTI_82C825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ 0, },
-diff -Nru a/drivers/ide/pci/pdc202xx_new.c b/drivers/ide/pci/pdc202xx_new.c
---- a/drivers/ide/pci/pdc202xx_new.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/pdc202xx_new.c	Fri Aug  1 12:18:18 2003
-@@ -636,7 +636,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id pdc202new_pci_tbl[] __devinitdata = {
-+static struct pci_device_id pdc202new_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20268, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20269, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20270, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/pdc202xx_old.c b/drivers/ide/pci/pdc202xx_old.c
---- a/drivers/ide/pci/pdc202xx_old.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/pdc202xx_old.c	Fri Aug  1 12:18:18 2003
-@@ -928,7 +928,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id pdc202xx_pci_tbl[] __devinitdata = {
-+static struct pci_device_id pdc202xx_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20246, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20262, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20263, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/pdcadma.c b/drivers/ide/pci/pdcadma.c
---- a/drivers/ide/pci/pdcadma.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/pdcadma.c	Fri Aug  1 12:18:18 2003
-@@ -134,7 +134,7 @@
- 	return 1;
- }
- 
--static struct pci_device_id pdcadma_pci_tbl[] __devinitdata = {
-+static struct pci_device_id pdcadma_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_PDC, PCI_DEVICE_ID_PDC_1841, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/piix.c b/drivers/ide/pci/piix.c
---- a/drivers/ide/pci/piix.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/piix.c	Fri Aug  1 12:18:18 2003
-@@ -792,7 +792,7 @@
- 		printk(KERN_WARNING "piix: A BIOS update may resolve this.\n");
- }		
- 
--static struct pci_device_id piix_pci_tbl[] __devinitdata = {
-+static struct pci_device_id piix_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371FB_0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371FB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371MX,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/rz1000.c b/drivers/ide/pci/rz1000.c
---- a/drivers/ide/pci/rz1000.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/rz1000.c	Fri Aug  1 12:18:18 2003
-@@ -66,7 +66,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id rz1000_pci_tbl[] __devinitdata = {
-+static struct pci_device_id rz1000_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_PCTECH, PCI_DEVICE_ID_PCTECH_RZ1000, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_PCTECH, PCI_DEVICE_ID_PCTECH_RZ1001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ 0, },
-diff -Nru a/drivers/ide/pci/sc1200.c b/drivers/ide/pci/sc1200.c
---- a/drivers/ide/pci/sc1200.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/sc1200.c	Fri Aug  1 12:18:18 2003
-@@ -564,7 +564,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id sc1200_pci_tbl[] __devinitdata = {
-+static struct pci_device_id sc1200_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/serverworks.c b/drivers/ide/pci/serverworks.c
---- a/drivers/ide/pci/serverworks.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/serverworks.c	Fri Aug  1 12:18:18 2003
-@@ -799,7 +799,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id svwks_pci_tbl[] __devinitdata = {
-+static struct pci_device_id svwks_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_OSB4IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB5IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB6IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-diff -Nru a/drivers/ide/pci/siimage.c b/drivers/ide/pci/siimage.c
---- a/drivers/ide/pci/siimage.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/siimage.c	Fri Aug  1 12:18:18 2003
-@@ -826,7 +826,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id siimage_pci_tbl[] __devinitdata = {
-+static struct pci_device_id siimage_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_680,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ 0, },
-diff -Nru a/drivers/ide/pci/sis5513.c b/drivers/ide/pci/sis5513.c
---- a/drivers/ide/pci/sis5513.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/sis5513.c	Fri Aug  1 12:18:18 2003
-@@ -961,7 +961,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id sis5513_pci_tbl[] __devinitdata = {
-+static struct pci_device_id sis5513_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5513, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/sl82c105.c b/drivers/ide/pci/sl82c105.c
---- a/drivers/ide/pci/sl82c105.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/sl82c105.c	Fri Aug  1 12:18:18 2003
-@@ -511,7 +511,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id sl82c105_pci_tbl[] __devinitdata = {
-+static struct pci_device_id sl82c105_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_82C105, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/slc90e66.c b/drivers/ide/pci/slc90e66.c
---- a/drivers/ide/pci/slc90e66.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/slc90e66.c	Fri Aug  1 12:18:18 2003
-@@ -381,7 +381,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id slc90e66_pci_tbl[] __devinitdata = {
-+static struct pci_device_id slc90e66_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_EFAR, PCI_DEVICE_ID_EFAR_SLC90E66_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/triflex.h b/drivers/ide/pci/triflex.h
---- a/drivers/ide/pci/triflex.h	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/triflex.h	Fri Aug  1 12:18:18 2003
-@@ -41,7 +41,7 @@
- };
+-static struct pci_device_id nsp32_pci_table[] __devinitdata = {
++static struct pci_device_id nsp32_pci_table[] = {
+ 	{
+ 		.vendor      = PCI_VENDOR_ID_IODATA,
+ 		.device      = PCI_DEVICE_ID_NINJASCSI_32BI_CBSC_II,
+diff -Nru a/drivers/scsi/tmscsim.c b/drivers/scsi/tmscsim.c
+--- a/drivers/scsi/tmscsim.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/scsi/tmscsim.c	Fri Aug  1 12:18:06 2003
+@@ -274,7 +274,7 @@
  #endif
  
--static struct pci_device_id triflex_pci_tbl[] __devinitdata = {
-+static struct pci_device_id triflex_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_TRIFLEX_IDE, PCI_ANY_ID, 
- 		PCI_ANY_ID, 0, 0, 0 },
- 	{ 0, },
-diff -Nru a/drivers/ide/pci/trm290.c b/drivers/ide/pci/trm290.c
---- a/drivers/ide/pci/trm290.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/trm290.c	Fri Aug  1 12:18:18 2003
-@@ -407,7 +407,7 @@
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,99)
+-static struct pci_device_id tmscsim_pci_tbl[] __initdata = {
++static struct pci_device_id tmscsim_pci_tbl[] = {
+ 	{
+ 		.vendor		= PCI_VENDOR_ID_AMD,
+ 		.device		= PCI_DEVICE_ID_AMD53C974,
+diff -Nru a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
+--- a/drivers/serial/8250_pci.c	Fri Aug  1 12:18:06 2003
++++ b/drivers/serial/8250_pci.c	Fri Aug  1 12:18:06 2003
+@@ -1647,7 +1647,7 @@
  	return 0;
  }
  
--static struct pci_device_id trm290_pci_tbl[] __devinitdata = {
-+static struct pci_device_id trm290_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_TEKRAM, PCI_DEVICE_ID_TEKRAM_DC290, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ 0, },
- };
-diff -Nru a/drivers/ide/pci/via82cxxx.c b/drivers/ide/pci/via82cxxx.c
---- a/drivers/ide/pci/via82cxxx.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ide/pci/via82cxxx.c	Fri Aug  1 12:18:18 2003
-@@ -638,7 +638,7 @@
- 	return 0;
- }
- 
--static struct pci_device_id via_pci_tbl[] __devinitdata = {
-+static struct pci_device_id via_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C576_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ 0, },
-diff -Nru a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
---- a/drivers/ieee1394/ohci1394.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ieee1394/ohci1394.c	Fri Aug  1 12:18:18 2003
-@@ -3571,7 +3571,7 @@
- 
- #define PCI_CLASS_FIREWIRE_OHCI     ((PCI_CLASS_SERIAL_FIREWIRE << 8) | 0x10)
- 
--static struct pci_device_id ohci1394_pci_tbl[] __devinitdata = {
-+static struct pci_device_id ohci1394_pci_tbl[] = {
- 	{
- 		.class = 	PCI_CLASS_FIREWIRE_OHCI,
- 		.class_mask = 	PCI_ANY_ID,
-diff -Nru a/drivers/ieee1394/pcilynx.c b/drivers/ieee1394/pcilynx.c
---- a/drivers/ieee1394/pcilynx.c	Fri Aug  1 12:18:18 2003
-+++ b/drivers/ieee1394/pcilynx.c	Fri Aug  1 12:18:18 2003
-@@ -1897,7 +1897,7 @@
-         return sizeof(lynx_csr_rom);
- }
- 
--static struct pci_device_id pci_table[] __devinitdata = {
-+static struct pci_device_id pci_table[] = {
- 	{
-                 .vendor =    PCI_VENDOR_ID_TI,
-                 .device =    PCI_DEVICE_ID_TI_PCILYNX,
+-static struct pci_device_id serial_pci_tbl[] __devinitdata = {
++static struct pci_device_id serial_pci_tbl[] = {
+ 	{	PCI_VENDOR_ID_V3, PCI_DEVICE_ID_V3_V960,
+ 		PCI_SUBVENDOR_ID_CONNECT_TECH,
+ 		PCI_SUBDEVICE_ID_CONNECT_TECH_BH8_232, 0, 0,
 

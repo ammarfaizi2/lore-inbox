@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTHUCf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 22:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTHUCf0
+	id S262365AbTHUCh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 22:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbTHUCh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 22:35:26 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:45959 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S262363AbTHUCfT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 22:35:19 -0400
-Date: Wed, 20 Aug 2003 22:33:44 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Wes Janzen <superchkn@sbcglobal.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test3-mm3 reserve IRQ for isapnp
-Message-ID: <20030820223344.GA10163@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Wes Janzen <superchkn@sbcglobal.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <3F440387.5090902@sbcglobal.net>
-Mime-Version: 1.0
+	Wed, 20 Aug 2003 22:37:58 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38123
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262365AbTHUCh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 22:37:56 -0400
+Message-ID: <3F443048.6000902@redhat.com>
+Date: Wed, 20 Aug 2003 19:36:56 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: posix_fallocate question again
+References: <41F331DBE1178346A6F30D7CF124B24B0183C1A4@fmsmsx409.fm.intel.com> <20030820214643.A5572@infradead.org>
+In-Reply-To: <20030820214643.A5572@infradead.org>
+X-Enigmail-Version: 0.81.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F440387.5090902@sbcglobal.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 06:25:59PM -0500, Wes Janzen wrote:
-> So sad...  Ever since I started with kernel 2.5.69, the kernel has been
-> properly reserving IRQ 5 for ISA, as set in my BIOS.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The reserve IRQ feature in your BIOS should not effect the linux kernel.
-It is strictly internal to your BIOS.  Therefore if linux assigns
-resources it probably won't reserve irq 5.  This problem may be the
-result of a change in the way linux assigns resources.
+Christoph Hellwig wrote:
 
->
-> Unfortunately for me, it looks like 2.6.0-test3-mm3 is like 2.4.18 and
+> Note that the design for posix_fallocate is stupid.  We really want
+> a 64bit len argument even on 32bit machines.
 
-In what kernel version did you first see this problem?
+I've submitted already a bug report for that.  *Iff* somebody implements
+posix_fallocate in the kernel, use
 
-> ignores my BIOS settings, so it locks up trying to ativate my SB16 on
-> boot (since IRQ 5 is used for IDE).  Oddly it doesn't spit out any
-> warnings, just locks up after "pnp: Device 00:01.03 activated".
+  int posix_fallocate (int, off64_t, off64_t)
 
-I'd imagine this is the result of the resource conflict, presumably with
-your ide controller.  More information would be needed.  I'd like to see
-/proc/interrupts, dmesg, and lspci -vv (when the sb driver is not loaded).
+as the interface (or whatever the kernel equivalent is).
 
-Also, are you using acpi?  If so, try the kernel parameter pci=noacpi and
-also try disabling acpi completely.
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Thanks,
-Adam
+iD8DBQE/RDBI2ijCOnn/RHQRAkmmAKCeiC4KYsvBDV65wj/GNmPMIw9t6gCgxFSC
+EkqBO4PyRhTxqhvz9dlHU08=
+=BASe
+-----END PGP SIGNATURE-----
+

@@ -1,67 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292550AbSBUVzB>; Thu, 21 Feb 2002 16:55:01 -0500
+	id <S292773AbSBUV7m>; Thu, 21 Feb 2002 16:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292544AbSBUVyx>; Thu, 21 Feb 2002 16:54:53 -0500
-Received: from imo-m04.mx.aol.com ([64.12.136.7]:51956 "EHLO
-	imo-m04.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S292550AbSBUVyr>; Thu, 21 Feb 2002 16:54:47 -0500
-Message-ID: <3C756D06.7090901@netscape.net>
-Date: Thu, 21 Feb 2002 16:56:22 -0500
-From: Adam <ambx1@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
+	id <S292774AbSBUV7c>; Thu, 21 Feb 2002 16:59:32 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:23822 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292773AbSBUV7W>;
+	Thu, 21 Feb 2002 16:59:22 -0500
+Date: Thu, 21 Feb 2002 13:53:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Adam <ambx1@netscape.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: driverfs question
-In-Reply-To: <Pine.LNX.3.95.1020221161906.254A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: Unknown (No Version)
+Message-ID: <20020221215355.GH4984@kroah.com>
+In-Reply-To: <3C755A8A.90000@netscape.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C755A8A.90000@netscape.net>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 24 Jan 2002 18:54:56 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 21, 2002 at 03:37:30PM -0500, Adam wrote:
+> 
+> How will the devices in the driverfs be arranged?
+> It seems to me that it could only be one of the following three methods.
 
+Have you looked at the current code and seen how stuff is already layed
+out?  It seems to match your "Method 3" already.  Are you proposing the
+current implementation should be changed?
 
-root@chaos.analogic.com wrote:
+thanks,
 
-> On Thu, 21 Feb 2002, Adam wrote:
-> 
->>All devices will be arranged according to type.  There will be a folder 
->>
->                                                                    ^^^^^
-> 
->>Method 2:
->>Folders are created for each bus then devices are placed within them.
->>
->   ^^^^^^^
-> 
-> 
->>member of a pci bus, it's folder will be within the pci folder.  The 
->>
->                             ^^^^^^                        ^^^^^^
-> 
-> What is this? Do you mean "directory" or "file", or even "inode"?
-> 
-> Or is this a troll from Microsoft?  We don't have such things in
-> real operating systems. Next thing you know, we'll need a "cabinet"
-> to keep the "folders" in.
-> 
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-> 
->         111,111,111 * 111,111,111 = 12,345,678,987,654,321
-> 
-> 
-
-
-You're absolutely right.  What I meant to say is a directory.  It's 
-simply a bad habit.  In fact, one, of several, reason I became 
-interested in the Linux kernel project is that I was unhappy with the 
-Micro$oft licensing policy.  The term folder is used by micro$oft simply 
-to make it's OS sound more user friendly.
-
+greg k-h

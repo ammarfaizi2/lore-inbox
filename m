@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262228AbTCRNph>; Tue, 18 Mar 2003 08:45:37 -0500
+	id <S262382AbTCRNvi>; Tue, 18 Mar 2003 08:51:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262382AbTCRNph>; Tue, 18 Mar 2003 08:45:37 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:48137 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S262228AbTCRNpg>;
-	Tue, 18 Mar 2003 08:45:36 -0500
-Message-ID: <3E772581.8080501@xss.co.at>
-Date: Tue, 18 Mar 2003 14:56:17 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
+	id <S262399AbTCRNvh>; Tue, 18 Mar 2003 08:51:37 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3206 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262382AbTCRNvg>; Tue, 18 Mar 2003 08:51:36 -0500
+Date: Tue, 18 Mar 2003 09:03:33 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Mehmet Ersan TOPALOGLU <mersan@ceng.metu.edu.tr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: process resident in memory
+In-Reply-To: <3E772604.5050604@ceng.metu.edu.tr>
+Message-ID: <Pine.LNX.4.53.0303180901001.26924@chaos>
+References: <3E76BCA9.3060902@ceng.metu.edu.tr> <20030318134238.GA22953@riesen-pc.gr05.synopsys.com>
+ <3E772604.5050604@ceng.metu.edu.tr>
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.65-mm1 small nfs umount problem, also in 64-mm8
-References: <20030318031104.13fb34cc.akpm@digeo.com> <3E771F24.40508@aitel.hist.no>
-In-Reply-To: <3E771F24.40508@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 18 Mar 2003, Mehmet Ersan TOPALOGLU wrote:
 
-Helge Hafting wrote:
-> 
-> I have some nfs mounts that users are allowed to mount.
-> That works, but the user can't umount. "Only root can umount..."
-> I believe the user doing the mount were allowed to umount before.
-> 
-Did you upgrade your util-linux package recently and do
-you have /etc/mtab symlinked to /proc/mounts?
+> Alex Riesen wrote:
+> > Mehmet Ersan TOPALOGLU, Tue, Mar 18, 2003 07:28:57 +0100:
+> >
+> >>I am a newbie in kernel programming.
+> >>And am sorry if something related previously asked.
+> >>I wonder if it is possible to following situation is possible or not.
+> >>
+> >>let say i have a user process p1.
+> >
+> >
+> > That (user process) has nothing to do with kernel programming.
+> >
+> >
+> >>p1 does some malloc, and file i/o etc
+> >>i initiate it during boot time.
+> >>it stays resident in memory as if kernel it self (??)
+> >
+> >
+> > no. It is as long resident as it wish. Or until it is killed.
+> >
+> >
+> >>and its priority is very very high
+> >
+> >
+> > it is irrelevant.
+> >
 
-I noticed a similar problem (with user-mountable CD-ROM
-devices and linux-kernel v2.2) and found a change in
-util-linux/mount/umount.c which might be responsible for
-it. If so, it is IMHO not a kernel issue, anyway
+Yes, but he didn't know what was available in user-mode.
 
-I didn't have the time to further examine the problem yet,
-though...
 
-HTH
+>
+> Well i guess i couldn't explain what i really meant.
+> Thing is that i am trying to change kernel memory management
+> specifically for one user process only.
+> i.e if kernel sees this process it will treat it in a different manner.
+> It won't let it to be swapped and give a very high priority to it.
+> I just wondered the possiblity of this.
+> Sorry for my poor english
+>
 
-- andreas
+You want to execute:
 
--- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+man mlockall
+man nice
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVB1OZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVB1Nrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVB1OZI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVB1OWq
+	id S261590AbVB1Nrk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 08:47:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVB1Nrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:22:46 -0500
-Received: from gprs215-69.eurotel.cz ([160.218.215.69]:62943 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261630AbVB1OWX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:22:23 -0500
-Date: Mon, 28 Feb 2005 15:17:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp logic error?
-Message-ID: <20050228141705.GA1423@elf.ucw.cz>
-References: <20050208203950.GA21623@cirrus.madduck.net> <20050226153905.GA8108@localhost.localdomain> <20050227170428.GI1441@elf.ucw.cz> <20050227174309.GA27265@piper.madduck.net> <20050228135604.GA6364@piper.madduck.net>
+	Mon, 28 Feb 2005 08:47:36 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:58244 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261604AbVB1NpM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 08:45:12 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 28 Feb 2005 14:44:10 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Potentially dead bttv cards from 2.6.10
+Message-ID: <20050228134410.GA7499@bytesex>
+References: <422001CD.7020806@andrew.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050228135604.GA6364@piper.madduck.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <422001CD.7020806@andrew.cmu.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Feb 25, 2005 at 11:57:49PM -0500, James Bruce wrote:
+> Hi I've read elsewhere that the following message:
+>   "tveeprom(bttv internal): Huh, no eeprom present (err=-121)?"
+> Means that a bttv card is dead.
 
-On Po 28-02-05 14:56:04, martin f krafft wrote:
-> also sprach martin f krafft <madduck@madduck.net> [2005.02.27.1843 +0100]:
-> > Please check my first post, if you have the time:
-> > 
-> >   http://marc.theaimsgroup.com/?l=linux-kernel&m=110789536921510&w=2
-> 
-> There is also
-> 
->   http://thread.gmane.org/gmane.linux.acpi.devel/12540
-> 
-> with the same conclusion.
-> 
-> Maybe 2.6.11-rcX fixes this.
+Or i2c communication to the eeprom failed.  There used to be some -mm
+kernels with experimental i2c stuff causing this ...
 
-It was resolved -- modular IDE was the problem. Indeed see the thread above.
-
-
+  Gerd
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+#define printk(args...) fprintf(stderr, ## args)

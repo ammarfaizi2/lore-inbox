@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUHDBIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUHDBSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUHDBIK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 21:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUHDBIK
+	id S267170AbUHDBSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 21:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUHDBSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 21:08:10 -0400
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:12223 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267171AbUHDBIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 21:08:07 -0400
-Subject: HCI USB on USB 2.0: hci_usb_intr_rx_submit (works with USB 1.1)
-From: "Raf D'Halleweyn (list)" <list@noduck.net>
-To: marcel@holtmann.org, maxk@qualcomm.com,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 03 Aug 2004 20:59:53 -0400
-Message-Id: <1091581193.15561.3.camel@alto.dhalleweyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
+	Tue, 3 Aug 2004 21:18:14 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56042 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267170AbUHDBSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 21:18:13 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: legacy VGA device requirements (was: Exposing ROM's though sysfs)
+Date: Tue, 3 Aug 2004 18:18:02 -0700
+User-Agent: KMail/1.6.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       Jon Smirl <jonsmirl@yahoo.com>, Torrey Hoffman <thoffman@arnor.net>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <1091207136.2762.181.camel@rohan.arnor.net> <200408031755.56833.jbarnes@engr.sgi.com> <1091581190.1862.48.camel@gaston>
+In-Reply-To: <1091581190.1862.48.camel@gaston>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408031818.02836.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday, August 3, 2004 5:59 pm, Benjamin Herrenschmidt wrote:
+> All this could be very nicely dealt with by the kernel driver.
 
-Hi,
+So what requirements have we collected so far?
 
-It seems that hci_usb does not like USB 2.0: when I connect a D-Link USB
-bluetooth dongle (DBT-120) to a USB 2.0 port, I get the following error
-message when I try to 'hciconfig hci0 up':
+  o device selection (presumably domain, bus, slot, function)
+    i.e. select the device you'd like to manipulate
+    ioctl?
+  o per-domain & device VGA enable/disable
+    need to disable VGA ports on cards in the same domain and/or bus
+    ioctl?
+  o legacy port I/O
+    for properly routing I/O in multi-domain machines and machines where the
+    kernel or firmware may need to trap master aborts
+    read/write?
+  o legacy memory mapping
+    for mapping the legacy VGA framebuffer, may fail
+    mmap?
 
-hci_usb_intr_rx_submit: hci0 intr rx submit failed urb f768ae94 err -28
+Is that a complete list?  Of course, the interface mechanisms are up for 
+debate too.  We might be able to do it with per-bus or per-domain files in 
+sysfs for the legacy I/O and memory stuff, but that might not represent the 
+fact that legacy devices have interdependencies very well (e.g. VGA ports 
+must be disabled on device A before we poke device B, etc.).
 
-If I connect the same dongle through a USB 1.1 hub on the same USB 2.0
-port, the device comes up and I don't get this error.
-
-Regards,
-
-Raf.
-
+Thanks,
+Jesse

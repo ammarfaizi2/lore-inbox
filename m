@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292553AbSBZA2j>; Mon, 25 Feb 2002 19:28:39 -0500
+	id <S292560AbSBZAgA>; Mon, 25 Feb 2002 19:36:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292549AbSBZA23>; Mon, 25 Feb 2002 19:28:29 -0500
-Received: from marge.bucknell.edu ([134.82.9.1]:44554 "EHLO mail.bucknell.edu")
-	by vger.kernel.org with ESMTP id <S292553AbSBZA2S>;
-	Mon, 25 Feb 2002 19:28:18 -0500
-Subject: Re: Linux 2.4.18
-From: Eric Krout <ekrout@bucknell.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <87it8lum5i.fsf@basilikum.skogtun.org>
-In-Reply-To: <E16fU2W-0002CO-00@sites.inka.de> 
-	<87it8lum5i.fsf@basilikum.skogtun.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 25 Feb 2002 19:28:28 -0500
-Message-Id: <1014683308.2238.36.camel@ekrout.resnet.bucknell.edu>
-Mime-Version: 1.0
+	id <S292567AbSBZAfu>; Mon, 25 Feb 2002 19:35:50 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:16283 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S292560AbSBZAfe>; Mon, 25 Feb 2002 19:35:34 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-preX: What we really need: -AA patches finally in the tree
+Date: Tue, 26 Feb 2002 01:35:18 +0100
+X-Mailer: KMail [version 1.3.9]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200202260135.18913.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Bernd Eckenfels <ecki-news2002-02@lina.inka.de> writes:
-> > I dont understand why it is a problem to release 2.4.19 instead.
-> 
-> Neither do I.
-> -- 
-> Hilsen Harald.
+Without them we do _NOT_ calm the flamewar against Linux's 2.4 VM.
+Second, it is time for the outstanding ReiserFS patches.
+If we are somewhat risky we put Ingo's GREAT O(1)-scheduler in, too.
+Preemption is than another story.
 
-If, hypothetically speaking of course, one were to start downloading a
-file that was a couple dozen megabytes in size and leave it going
-overnight on their dial-up connection only to awake and find that they
-had an outdated file, I could imagine them being quite pissed  ;-)
+Thank you for any feedback in advance.
+This not intended as a flamewar start.
 
+-Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de
 

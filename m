@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275920AbSIUPHx>; Sat, 21 Sep 2002 11:07:53 -0400
+	id <S275919AbSIUPDS>; Sat, 21 Sep 2002 11:03:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275921AbSIUPHx>; Sat, 21 Sep 2002 11:07:53 -0400
-Received: from mail.rpi.edu ([128.113.22.40]:44282 "EHLO mail.rpi.edu")
-	by vger.kernel.org with ESMTP id <S275920AbSIUPHw>;
-	Sat, 21 Sep 2002 11:07:52 -0400
-Date: Sat, 21 Sep 2002 11:12:51 -0400 (EDT)
-From: Hua Qin <qinhua@poisson.ecse.rpi.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Appache server hung after run out of memory
-Message-ID: <Pine.GSO.4.10.10209211103430.3973-100000@poisson.ecse.rpi.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275920AbSIUPDR>; Sat, 21 Sep 2002 11:03:17 -0400
+Received: from are.twiddle.net ([64.81.246.98]:13465 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S275919AbSIUPDR>;
+	Sat, 21 Sep 2002 11:03:17 -0400
+Date: Sat, 21 Sep 2002 08:08:01 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: george anzinger <george@mvista.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, Daniel Jacobowitz <dan@debian.org>,
+       Brian Gerst <bgerst@didntduck.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+Message-ID: <20020921080801.A28155@twiddle.net>
+Mail-Followup-To: george anzinger <george@mvista.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>,
+	Daniel Jacobowitz <dan@debian.org>,
+	Brian Gerst <bgerst@didntduck.org>,
+	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919192434.GA3286@nevyn.them.org> <15754.12963.763811.307755@kim.it.uu.se> <3D8ADD05.999E4A5C@mvista.com> <20020920231946.B27148@twiddle.net> <3D8C2928.EC37FEC7@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D8C2928.EC37FEC7@mvista.com>; from george@mvista.com on Sat, Sep 21, 2002 at 01:09:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 21, 2002 at 01:09:12AM -0700, george anzinger wrote:
+> > Except the syscall will restart with the corrupted registers.
+> > 
+> > Hilarity ensues.
+> > 
+> I submit that BOTH of these are problems.  And only  the
+> kernel can fix the latter.
 
-I got a Appache server hung, and the error_log showed on  Appache server: 
-(12)Cannot allocate memory 	
-(105)No buffer space available: write to cgi daemon process
-
-Then I dropped this server to kdb and did backtrace:
-
-PID: 23406  TASK: e0e70000  CPU: 1   COMMAND: "httpd"
-   START: swap_out_pmd+234
-e0e71d40: swap_out_vma+181
-e0e71d78: smp_call_function_interrupt+50
-e0e71d98: swap_out_mm+83
-e0e71dc0: swap_out+184
-e0e71de0: refill_inactive_zone+44
-e0e71e04: refill_inactive+73
-e0e71e24: do_try_to_free_pages+66
-e0e71e40: try_to_free_pages+42
-e0e71e54: _wrapped_alloc_pages+450
-e0e71e74: __alloc_pages+18
-e0e71e94: __get_free_pages+19
-e0e71e9c: pte_alloc+151
-e0e71ed8: copy_page_range+338
-e0e71f04: __alloc_pages_limit+134
-e0e71f1c: copy_mm+498
-e0e71f64: do_fork+1269
-e0e71f84: filp_close+158
-e0e71fa8: sys_fork+22
-e0e71fc0: system_call+51
+If the later is fixed, so is the former.
 
 
-I am wondering what will cause this swap_out_pmd hung? I did turn on the
-swapon, and the swap patition size is 514072. I did not check how many
-swap had been used when the hung happened.
-
-The Appache version is 2.0 and Linux kernelis 2.4.7 (I know it's a little
-bit old).
-
-Thanks!
-Hua
-
+r~

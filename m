@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266118AbTGDTGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 15:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266123AbTGDTGP
+	id S266123AbTGDTHM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 15:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbTGDTHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 15:06:15 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:26791 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S266118AbTGDTGO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 15:06:14 -0400
-Date: Fri, 04 Jul 2003 12:20:02 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
-Message-ID: <14820000.1057346400@[10.10.2.4]>
-In-Reply-To: <20030704183106.GC955@holomorphy.com>
-References: <20030703023714.55d13934.akpm@osdl.org> <Pine.LNX.4.53.0307041139150.24383@montezuma.mastecende.com> <13170000.1057335490@[10.10.2.4]> <20030704183106.GC955@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 4 Jul 2003 15:07:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:9877 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266123AbTGDTHF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 15:07:05 -0400
+Date: Fri, 4 Jul 2003 12:21:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: benh@kernel.crashing.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@lists.linuxppc.org>, <linuxppc64-dev@lists.linuxppc.org>
+Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
+In-Reply-To: <20030704174558.GC22152@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.44.0307041217180.1748-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Yeah, things taking logical apicids, and turning them into cpu numbers
->> presumably shouldn't have to touch that.
+
+On Fri, 4 Jul 2003, Jörn Engel wrote:
 > 
-> The bitmap is wider than the function wants. The change is fine, despite
-> your abuse of phys_cpu_present_map.
+> This is the generic part of the signal stack fixes, it simply
+> introduces a new PF-flag that indicates whether we are using the
+> signal stack right now or not.
 
-I'm happy to remove the abuse of phys_cpu_present_map, seeing as we now
-have a reason to do so. That would actually seem a much cleaner solution
-to these problems than creating a whole new data type, which still doesn't
-represent what it claims to
+My reason for disliking this patch is that it adds user-space information 
+to the kernel - in a place where user space cannot get at it.
 
+In particular, any traditional cooperative user-space threading package
+wants to switch its own stack around, and they all do it by just changing
+%esp directly. The whole point of such threading is that it's _fast_,
+since it doesn't need any kernel support (and since it's cooperative, you
+can avoid locking).
 
-M.
+The old "optimization" that you didn't like was not an optimization at 
+all: it got the case of user space changing stacks _right_, while still 
+allowing yet another stack for signal handling and exiting the signal by 
+hand.
+
+Does anybody do that? I don't know. But it was done the way it was done on 
+purpose.
+
+		Linus
 

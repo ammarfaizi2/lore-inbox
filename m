@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130503AbRCINaz>; Fri, 9 Mar 2001 08:30:55 -0500
+	id <S130507AbRCINpf>; Fri, 9 Mar 2001 08:45:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRCINap>; Fri, 9 Mar 2001 08:30:45 -0500
-Received: from relay1.orga.com ([194.122.136.34]:49156 "EHLO relay1.orga.com")
-	by vger.kernel.org with ESMTP id <S130503AbRCINaa>;
-	Fri, 9 Mar 2001 08:30:30 -0500
-Message-ID: <3AA8DA1E.557C946C@orga.com>
-Date: Fri, 09 Mar 2001 14:26:55 +0100
-From: "John O'Connor" <joconnor@orga.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: SMP and non-SMP modules
-In-Reply-To: <Pine.LNX.4.30.0103091339120.16723-100000@sensei.ape>
-X-MIMETrack: Itemize by SMTP Server on PBCOM1/Paderborn/ORGA(Release 5.0.2c (Intl)|2
- February 2000) at 03/09/2001 02:29:03 PM,
-	Serialize by Router on PBCOM1/Paderborn/ORGA(Release 5.0.2c (Intl)|2
- February 2000) at 03/09/2001 02:29:04 PM,
-	Serialize complete at 03/09/2001 02:29:04 PM
-Content-Transfer-Encoding: 7bit
+	id <S130512AbRCINpZ>; Fri, 9 Mar 2001 08:45:25 -0500
+Received: from smtp.primusdsl.net ([209.225.164.93]:9740 "EHLO
+	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
+	id <S130507AbRCINpO>; Fri, 9 Mar 2001 08:45:14 -0500
+Date: Fri, 9 Mar 2001 08:46:17 -0500
+From: James Lewis Nance <jlnance@intrex.net>
+To: Manoj Sontakke <manojs@sasken.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: quicksort for linked list
+Message-ID: <20010309084617.B1079@bessie.dyndns.org>
+In-Reply-To: <3AA88891.294C17A0@sasken.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3AA88891.294C17A0@sasken.com>; from manojs@sasken.com on Fri, Mar 09, 2001 at 01:08:57PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the difference between an SMP and a non-SMP module?
+On Fri, Mar 09, 2001 at 01:08:57PM +0530, Manoj Sontakke wrote:
+> Hi
+> 	Sorry, these questions do not belog here but i could not find any
+> better place.
+> 
+> 1. Is quicksort on doubly linked list is implemented anywhere? I need it
+> for sk_buff queues.
 
-I have a module that works fine on 2.2.14 and I want to make it run on another distribution that uses a 2.2.16-SMP kernel.
+I would suggest that you use merge sort.  It is ideally suited for sorting
+linked lists, and it always has N log N running time.  I dont know of an
+existing implementation in the kernel sources, but it should be easy to
+write one.  I did a google search on "merge sort" "linked list" and it
+comes up with lots of links.  Here is a good one:
 
-What changes will be needed?
+    http://www.ddj.com/articles/1998/9805/9805p/9805p.htm?topic=java
 
-Thanks
+Hope this helps,
 
-John O'Connor
+Jim

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbTAJB73>; Thu, 9 Jan 2003 20:59:29 -0500
+	id <S268099AbTAJCHB>; Thu, 9 Jan 2003 21:07:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268099AbTAJB73>; Thu, 9 Jan 2003 20:59:29 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:62417 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S266718AbTAJB73>;
-	Thu, 9 Jan 2003 20:59:29 -0500
-Date: Thu, 9 Jan 2003 21:08:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Yan-Fa Li <yan@intruvert.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: FYI: Etherleak
-Message-ID: <20030110020808.GA18605@gtf.org>
-References: <D71BEAC27500D51199DF0002B328BA8D4FBF2B@ivexs1.intruvert.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D71BEAC27500D51199DF0002B328BA8D4FBF2B@ivexs1.intruvert.com>
-User-Agent: Mutt/1.3.28i
+	id <S268102AbTAJCHB>; Thu, 9 Jan 2003 21:07:01 -0500
+Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:3826 "EHLO
+	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S268099AbTAJCHB>; Thu, 9 Jan 2003 21:07:01 -0500
+Message-ID: <04a701c2b84e$2bd7ad70$1125a8c0@wizardess.wiz>
+From: "jdow" <jdow@earthlink.net>
+To: "Chris Adams" <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
+References: <fa.eembe5o.i4osri@ifi.uio.no> <20030109192432.A485131@hiwaay.net>
+Subject: Re: "Mother" == "computer-illiterate"
+Date: Thu, 9 Jan 2003 18:15:39 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 05:49:47PM -0800, Yan-Fa Li wrote:
-> An interesting report into frame-padding information leakage violations in
-> ethernet drivers.  The authors use linux drivers in their examples.
+From: "Chris Adams" <cmadams@hiwaay.net>
+
+> Once upon a time, Alan Cox  <alan@lxorguk.ukuu.org.uk> said:
+> >and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
+> >who know what her networking related patent is on)
 > 
-> http://www.atstake.com/research/advisories/2003/atstake_etherleak_report.pdf
+> That's HEDLEY!  Oh, but he doesn't have any patents.
 
-Yes.  All of those drivers are for ancient and/or obscure hardware
-except three:  rtl8139, epic100, and via-rhine.
+No, it's Hedy Lamarr and she invented frequency hopping spread spectrum
+with George Anthiel. I worked on one of the first practical implementations
+of the concept back in the early 70s. Somehow it seems appropriate.
 
-There are fixes for those (and others) in testing right now, in fact :)
+{^_^}  Joanne, jdow@earthlink.net
+

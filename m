@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUE1NIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUE1NJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUE1NIg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 09:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUE1NIg
+	id S263093AbUE1NJh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 09:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUE1NJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 09:08:36 -0400
-Received: from furon.ujf-grenoble.fr ([152.77.2.202]:31962 "EHLO
-	furon.ujf-grenoble.fr") by vger.kernel.org with ESMTP
-	id S262902AbUE1NIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 09:08:32 -0400
-From: Mickael Marchand <mikmak@freenux.org>
-To: linux-kernel@vger.kernel.org
-Subject: 3ware 32 bits tools on x86-64 kernel
-Date: Fri, 28 May 2004 15:00:59 +0200
-User-Agent: KMail/1.6.2
+	Fri, 28 May 2004 09:09:36 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:1789 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263093AbUE1NJa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 09:09:30 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Auzanneau Gregory <mls@reolight.net>
+Subject: Re: idebus setup problem (2.6.7-rc1)
+Date: Fri, 28 May 2004 15:10:25 +0200
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0405281244220.22881-100000@mazda.sh.intel.com> <200405281450.22879.bzolnier@elka.pw.edu.pl> <40B7362B.8050905@reolight.net>
+In-Reply-To: <40B7362B.8050905@reolight.net>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405281500.59619.mikmak@freenux.org>
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200405281510.25256.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 28 of May 2004 14:52, Auzanneau Gregory wrote:
+> Bartlomiej Zolnierkiewicz a écrit :
+> > OK, now please explain why do you use 'idebus=66'. :-)
+>
+> Because my SIS 5513 southbridge seems to run by default to 33Mhz.
 
-is there any chance to get a fix for this :
-ioctl32(tw_cli:5923): Unknown cmd fd(5) cmd(0000001f){00} arg(08189318) on /dev/twe0
-(that's just the 'info' command in tw_cli)
+and you run PCI bus at 66MHz?
 
-looks like there is some missing ioctl32/64 conversions there... (I know tw_cli is proprietary 
-but the ioctls are GPL ;)
+SiS IDE driver completely ignores 'idebus' parameter.
 
-or maybe 3ware people may provide a 64 bits compiled version of their tools ?
-
-otherwise there is no way to use their admin tools at runtime 
-(and so one needs to reboot the machine to go into their BIOS to tweak things)
-
-Cheers,
-Mik

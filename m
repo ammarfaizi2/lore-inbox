@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUIJIKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267199AbUIJINc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUIJIKB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 04:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUIJIKB
+	id S267199AbUIJINc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 04:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUIJINc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 04:10:01 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:5059 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266884AbUIJIJ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 04:09:56 -0400
-Date: Fri, 10 Sep 2004 10:07:09 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Antonino Daplas <adaplas@pol.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-In-Reply-To: <1094796002.14398.118.camel@gaston>
-Message-ID: <Pine.GSO.4.58.0409101004320.93@waterleaf.sonytel.be>
-References: <1094783022.2667.106.camel@gaston> <200409101328.57431.adaplas@hotpop.com>
- <1094796002.14398.118.camel@gaston>
+	Fri, 10 Sep 2004 04:13:32 -0400
+Received: from gizmo02ps.bigpond.com ([144.140.71.12]:21479 "HELO
+	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
+	id S267199AbUIJINU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 04:13:20 -0400
+Message-ID: <4141621D.7020301@bigpond.net.au>
+Date: Fri, 10 Sep 2004 18:13:17 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
+References: <413FA9AE.90304@bigpond.net.au> <20040909010610.28ca50e1.akpm@osdl.org> <4140EE3E.5040602@bigpond.net.au> <20040909171450.6546ee7a.akpm@osdl.org> <4141092B.2090608@bigpond.net.au> <20040909200650.787001fc.akpm@osdl.org> <41413F64.40504@bigpond.net.au> <20040909231858.770ab381.akpm@osdl.org> <414149A0.1050006@bigpond.net.au> <20040909235217.5a170840.akpm@osdl.org> <41415B15.1050402@bigpond.net.au> <20040910005454.23bbf9fb.akpm@osdl.org>
+In-Reply-To: <20040910005454.23bbf9fb.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Benjamin Herrenschmidt wrote:
-> I submited a patch moving offb to the bottom of the Makefile to at
-> least restore normal drivers. For ofonly, a bit more hackish, but
+Andrew Morton wrote:
+> 
+> Could you see if this patch fixes the above crash?
+> 
+> --- 25/fs/isofs/rock.c~rock-kludge	2004-09-10 00:52:30.394468656 -0700
+> +++ 25-akpm/fs/isofs/rock.c	2004-09-10 00:53:14.544756792 -0700
+> @@ -62,7 +62,7 @@
+>  }                                     
+>  
+>  #define MAYBE_CONTINUE(LABEL,DEV) \
+> -  {if (buffer) kfree(buffer); \
+> +  {if (buffer) { kfree(buffer); buffer = NULL; } \
+>    if (cont_extent){ \
+>      int block, offset, offset1; \
+>      struct buffer_head * pbh; \
+> _
+> 
+> 
+> I sure hope it does, so I don't have to look at rock.c again.
 
-Just in case they aren't, vesafb and vga16fb should also be at the bottom, cfr.
-the old order in fbmem.c.
+It does and no sign of the oops or scheduling while atomic messages.  I 
+still have the original four patches applied.  I'll try again with an 
+unpatched bk16 and let you know the results shortly.
 
-> what about failing register_framebuffer for anything but offb ?
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Humm, indeed hackerish...
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 
-But the advantage of this is that we can finally exercise the failure path of
-many frame buffer device drivers in the wild ;-)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

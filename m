@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262442AbSKYFpu>; Mon, 25 Nov 2002 00:45:50 -0500
+	id <S262449AbSKYGDf>; Mon, 25 Nov 2002 01:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbSKYFpu>; Mon, 25 Nov 2002 00:45:50 -0500
-Received: from dp.samba.org ([66.70.73.150]:19111 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262442AbSKYFps>;
-	Mon, 25 Nov 2002 00:45:48 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Patch?: module-init-tools/modprobe.c - use modules.dep 
-In-reply-to: Your message of "Thu, 21 Nov 2002 07:39:12 -0800."
-             <20021121073912.A15349@adam.yggdrasil.com> 
-Date: Mon, 25 Nov 2002 16:47:08 +1100
-Message-Id: <20021125055303.4E0A72C056@lists.samba.org>
+	id <S262450AbSKYGDe>; Mon, 25 Nov 2002 01:03:34 -0500
+Received: from smtp01.uc3m.es ([163.117.136.121]:21511 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S262449AbSKYGDe>;
+	Mon, 25 Nov 2002 01:03:34 -0500
+Date: Mon, 25 Nov 2002 07:10:38 +0100
+Message-Id: <200211250610.gAP6AcA19907@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unable to mount root device under .49 (possibly earlier than .47)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021121073912.A15349@adam.yggdrasil.com> you write:
+> X-X-Sender: zwane@montezuma.mastecende.com
 > 
-> --xHFwDpU9dbj6ez1V
-> Content-Type: text/plain; charset=us-ascii
-> Content-Disposition: inline
+> Linux version 2.5.49 (zwane@montezuma.mastecende.com) (gcc version 3.2
+> 20020903 (Red Hat Linux 8.0 3.2-7)) #17 SMP Sat Nov 23 15:39:24 EST 2002
 > 
-> 	The following patch changes modprobe in module-init-tools-0.8
-> to use modules.dep.
+> What i get at boot is;
 > 
-> 	Benefits:
+> kernel /vmlinuz ro root=/dev/hda1
+> ...
+> VFS: Cannot open root device "hda1" or 00:00
+> Please append a correct "root=" boot option
+> Kernel panic: VFS: Unable to mount root fs on 00:00
 > 
-> 	- deletes a net of 594 lines of source code
-> 
-> 	- shrinks modprobe from 14kB to 10kB (stripped, dynamically linked),
-> 	  which is useful for boot images
-> 
-> 	- should make modprobe as fast on systems with a lot of modules as
-> 	  it was with the user level module loader,
-> 
-> 	- Restores the "include" command to the aliases file, which makes
-> 	  it simpler to have separate files for automatically generated
-> 	  aliases and user customizations.
-> 
-> 	- minor: eliminates ELF dependence from modprobe user level code
 
-Hmm, I like it.  But I prefer to pull the depmod code into the source
-too, to keep it all under one roof.
+I found that on 2.5.47. It turned out that I had to give the devfs
+name for the root device. root=/dev/ide/la/la/la.
 
-The ELF dependence will go back in eventually, but that's trivial.
+I had devfs compiled in but not active on boot. 
 
-Hmm, Adam, do you want to reverse positions and become
-module-init-tools maintainer?  I'll send patches to you, instead of
-vice versa.  I'll release a 0.8 with the patches I have so far, then
-hand it over if you want.
+ CONFIG_PROC_FS=y
+ CONFIG_DEVFS_FS=y
+ # CONFIG_DEVFS_MOUNT is not set
+ # CONFIG_DEVFS_DEBUG is not set
+ CONFIG_DEVPTS_FS=y
 
-Thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+
+Peter

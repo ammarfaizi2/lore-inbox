@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263515AbTHZIdy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 04:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbTHZIdx
+	id S263463AbTHZIcT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 04:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263515AbTHZIcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 04:33:53 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:16781 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263515AbTHZIcW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 04:32:22 -0400
-Date: Tue, 26 Aug 2003 10:31:32 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix the -test3 input config damages
-In-Reply-To: <20030825180501.GD1075@ip68-0-152-218.tc.ph.cox.net>
-Message-ID: <Pine.GSO.4.21.0308261030510.615-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Aug 2003 04:32:19 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:9735 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S263463AbTHZIcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 04:32:16 -0400
+Date: Tue, 26 Aug 2003 17:32:26 +0900 (JST)
+Message-Id: <20030826.173226.114994096.yoshfuji@linux-ipv6.org>
+To: oford@arghblech.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [OOPS] less /proc/net/igmp
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1061878985.3463.2.camel@spider.hotmonkeyporn.com>
+References: <20030825163206.GA1340@penguin.penguin>
+	<20030826.150331.102449369.yoshfuji@linux-ipv6.org>
+	<1061878985.3463.2.camel@spider.hotmonkeyporn.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Aug 2003, Tom Rini wrote:
-> On Mon, Aug 25, 2003 at 06:13:32PM +0200, Geert Uytterhoeven wrote:
-> > On Fri, 22 Aug 2003, Tom Rini wrote:
-> > > --- 1.18/drivers/video/console/Kconfig	Wed Jul 16 10:39:32 2003
-> > > +++ edited/drivers/video/console/Kconfig	Fri Aug 22 13:27:21 2003
-> > > @@ -5,7 +5,7 @@
-> > >  menu "Console display driver support"
-> > >  
-> > >  config VGA_CONSOLE
-> > > -	bool "VGA text console" if EMBEDDED || !X86
-> > > +	bool "VGA text console" if STANDARD && X86
-> > >  	depends on !ARCH_ACORN && !ARCH_EBSA110 || !4xx && !8xx
-> > >  	default y
-> > >  	help
-> > 
-> > Ugh, this makes VGA_CONSOLE default to yes if X86 is not set, right? Don't you
-> > want
-> > 
-> >     bool "VGA text console" if !STANDARD || X86
+Please CC: netdev.
 
-Oops, and I meant !X86, of course.
+In article <1061878985.3463.2.camel@spider.hotmonkeyporn.com> (at 26 Aug 2003 01:23:06 -0500), Owen Ford <oford@arghblech.com> says:
 
-> > ?
-> > 
-> > Or do I need an update course on Kconfig syntax?
+> > I could not reproduce this issue.  anyone?
 > 
-> No, I think that's a logic error on my part.  What I intended was
-> default to Y on (STANDARD && X86), otherwise ask.  So it should have
-> been:
-> bool "VGA text console" if !(STANDARD && X86)
+> I can confirm. I have it with 2.6.0-test4.
+> 
+> Let me know what useful info I can provide.  The oops is the same.
 
-OK, that's equivalent to what I had in mind :-)
+Okay, everyone. I'll try to fix this.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

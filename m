@@ -1,29 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129423AbQLFM7J>; Wed, 6 Dec 2000 07:59:09 -0500
+	id <S129183AbQLFNN7>; Wed, 6 Dec 2000 08:13:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130469AbQLFM67>; Wed, 6 Dec 2000 07:58:59 -0500
-Received: from diuna.pingwin.waw.pl ([195.117.106.132]:9993 "EHLO
-	diuna.pingwin.waw.pl") by vger.kernel.org with ESMTP
-	id <S129423AbQLFM6n>; Wed, 6 Dec 2000 07:58:43 -0500
-Date: Wed, 6 Dec 2000 13:33:20 +0100
-From: Wojtek Piecek <woju@pingwin.waw.pl>
-To: linux-kernel@vger.kernel.org
-Subject: hang while reading from loopback
-Message-ID: <20001206133320.A9335@diuna.pingwin.waw.pl>
-Mime-Version: 1.0
+	id <S129423AbQLFNNt>; Wed, 6 Dec 2000 08:13:49 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:58065 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S129183AbQLFNNh>;
+	Wed, 6 Dec 2000 08:13:37 -0500
+Message-ID: <3A2E345C.EE6F5640@student.ethz.ch>
+Date: Wed, 06 Dec 2000 13:43:08 +0100
+From: Giacomo Catenazzi <cate@student.ethz.ch>
+X-Mailer: Mozilla 4.73 [en] (X11; U; SunOS 5.6 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@transmeta.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@redhat.com>
+Subject: Re: That horrible hack from hell called A20
+In-Reply-To: <fa.mnh2nkv.1kkusq6@ifi.uio.no> <fa.enh20bv.1pkea3o@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Dec 2000 12:43:08.0952 (UTC) FILETIME=[1637D980:01C05F82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I try to cp-ing file from loopback-mounted CD using kernel 2.4.0-test12-pre5
-and -pre6 kernel hard hang. SysRq can't help.
+"H. Peter Anvin" wrote:
+> 
+> 
+> Good question.  The whole thing makes me nervous... in fact, perhaps we
+> should really consider using the BIOS INT 15h interrupt to enter
+> protected mode?
+> 
 
-With 2.4.0-test11-ac4 is OK.
+Maybe it is better to try with INT15 AX=2400 (Enable A20 gate). 
 
---w
+INT 15-2400 enable A20
+INT 15-2401 disable A20
+INT 15-2402 query status A20
+INT 15-2403 query A20 support (kdb or port 92)
+
+IBM classifies these functions as optional, but it is enabled on a lot
+of
+new BIOS, no know conflicts, thus we can call this function to enable
+A20,
+check the result and only after failure we can try the old methods.
+
+
+	giacomo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

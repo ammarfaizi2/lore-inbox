@@ -1,98 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUJGAAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269570AbUJGAI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUJGAAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 20:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269561AbUJFXYI
+	id S269570AbUJGAI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 20:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269540AbUJGAFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:24:08 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:13723 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269633AbUJFXXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:23:19 -0400
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, pwil3058@bigpond.net.au,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
-       Andi Kleen <ak@suse.de>, sivanich@sgi.com
-In-Reply-To: <20041005193953.6edc83b2.pj@sgi.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	 <20040805190500.3c8fb361.pj@sgi.com> <247790000.1091762644@[10.10.2.4]>
-	 <200408061730.06175.efocht@hpce.nec.com>
-	 <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com>
-	 <20041001164118.45b75e17.akpm@osdl.org>
-	 <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com>
-	 <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au>
-	 <821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com>
-	 <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis>
-	 <20041005193953.6edc83b2.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097104915.4907.99.camel@arrakis>
+	Wed, 6 Oct 2004 20:05:16 -0400
+Received: from waste.org ([209.173.204.2]:18307 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S269603AbUJGAC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 20:02:29 -0400
+Date: Wed, 6 Oct 2004 19:02:07 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@redhat.com, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org, judith@osdl.org
+Subject: Re: new dev model (was Re: Default cache_hot_time value back to 10ms)
+Message-ID: <20041007000207.GV5414@waste.org>
+References: <416374D5.50200@yahoo.com.au> <20041005215116.3b0bd028.akpm@osdl.org> <41637BD5.7090001@yahoo.com.au> <20041005220954.0602fba8.akpm@osdl.org> <416380D7.9020306@yahoo.com.au> <20041005223307.375597ee.akpm@osdl.org> <41638E61.9000004@pobox.com> <20041005233958.522972a9.akpm@osdl.org> <41644A3D.4050100@pobox.com> <41644BF1.7030904@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 06 Oct 2004 16:21:56 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41644BF1.7030904@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 19:39, Paul Jackson wrote:
-> Matthew  wrote:
-> > 
-> > I feel that the actual implementation, however, is taking
-> > a wrong approach, because it attempts to use the cpus_allowed mask to
-> > override the scheduler in the general case.  cpus_allowed, in my
-> > estimation, is meant to be used as the exception, not the rule.
+On Wed, Oct 06, 2004 at 03:48:01PM -0400, Jeff Garzik wrote:
 > 
-> I agree that big chunks of a large system that are marching to the beat
-> of two distinctly different drummers would better have their schedulers
-> organized along the domains that you describe, than by brute force abuse
-> of the cpus_allowed mask.
-
-Wonderful news! :)
-
-
-> I look forward to your RFC, Matthew.  Though not being a scheduler guru,
-> I will mostly have to rely on the textual commentary in order to
-> understand what it means.
-
-Wow, building a fan base already.  I'll need all the cheerleaders I can
-get! ;)
-
-
-> Existing finer grain placement of CPUs (sched_setaffinity) and Memory
-> (mbind, set_mempolicy) already exists, and is required by parallel
-> threaded applications such as OpenMP and MPI are commonly used to
-> develop.
-
-Absolutely.  I have no intention of removing or modifying those
-mechanisms.  My only goal is to see that using them remains the
-exceptional case, and not the default behavior of most tasks.
-
-
-> The finer grain use of non-exclusive cpusets, in order to support
-> such workload managers as PBS and LSF in managing this finer grained
-> placement on a system (domain) wide basis should not be placing any
-> significantly further load on the schedulers or resource managers.
+> So my own suggestions for increasing 2.6.x stability are:
 > 
-> The top level cpusets must provide additional isolation properties so
-> that separate scheduler and resource manager domains can work in
-> relative isolation.  I've tried hard to speculate what these additional
-> isolation properties might be.  I look forward to hearing from the CKRM
-> and scheduler folks on this.  I agree that simple unconstrained (ab)use
-> of the cpus_allowed and mems_allowed masks, at that scale, places an
-> undo burden on the schedulers, allocators and resource managers.
+> 1) Create a release numbering system that is __clear to users__, not 
+> just developers.  This is a human, not technical problem.  Telling users 
+> "oh, -rc1 doesn't really mean Release Candidate, we start getting 
+> serious around -rc2 or so but some stuff slips in and..." is hardly clear.
 
-I'm really glad to hear that, Paul.  That unconstrained (ab)use was my
-only real concern with the cpusets patches.  I look forward to massaging
-our two approaches into something that will satisfy all interested
-parties.
+The 2.4 system Marcelo used did this nicely.. A couple -preX to shove
+in new stuff, and a couple -rcX to iron out the bugs. 2.6.x-rc[12]
+seem to be similar in content to 2.4.x-pre - little expectaction that
+they're actually candidates for release.
+ 
+> 2) Really (underscore underscore) only accept bugfixes after the chosen 
+> line of demarcation.  No API changes.  No new stuff (new stuff may not 
+> break anything, but it's a distraction).  Chill out on all the sparse 
+> notations.  _Just_ _bug_ _fixes_.  The fluff (comments/sparse/new 
+> features) just serves to make reviewing the changes more difficult, as 
+> it vastly increases the noise-to-signal ratio.
 
--Matt
+Also, please simply rename the last -rcX for the release as Marcelo
+does with 2.4. Slipping in new stuff between the candidate and the
+release invalidates the testing done on the candidate so someone can't
+look at 2.6.9 and say "this looks solid from 2 weeks as a release
+candidate, I can run with it today".
 
+-- 
+Mathematics is the supreme nostalgia of our time.

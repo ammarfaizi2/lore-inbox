@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266652AbSK1SXR>; Thu, 28 Nov 2002 13:23:17 -0500
+	id <S266645AbSK1SSM>; Thu, 28 Nov 2002 13:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266665AbSK1SXR>; Thu, 28 Nov 2002 13:23:17 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:23255
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S266652AbSK1SXQ>; Thu, 28 Nov 2002 13:23:16 -0500
-Date: Thu, 28 Nov 2002 13:34:22 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Adam Belay <ambx1@neo.rr.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: Possible Linux Theme Song :)
-Message-ID: <20021128133422.A17920@animx.eu.org>
-References: <20021128132259.GA364@neo.rr.com>
+	id <S266652AbSK1SSL>; Thu, 28 Nov 2002 13:18:11 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:49158 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266645AbSK1SSK>; Thu, 28 Nov 2002 13:18:10 -0500
+Date: Thu, 28 Nov 2002 19:22:15 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Gerd Knorr <kraxel@bytesex.org>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RELEASE] module-init-tools 0.8
+Message-ID: <20021128182215.GC11221@louise.pinerecords.com>
+References: <200211281616.gASGGOE6012229@bytesex.org> <Pine.LNX.3.96.1021128115833.12997A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20021128132259.GA364@neo.rr.com>; from Adam Belay on Thu, Nov 28, 2002 at 01:22:59PM +0000
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1021128115833.12997A-100000@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just ran across this song, recorded by Lyle Lovett.  As you can see, he really
-> likes penguins.  If you'd like to hear the song, I'd be glad to send you a tape.
+> > lsmod doesn't work at this point (hangs too, likely the same lock).
+> > The deadlock prevents any further module loading (autofs, nfs and
+> > others) and makes the system unusable.
+> > 
+> > Module debugging is next to impossible right now.  The apm.o module
+> > oopses for me in 2.5.50.  ksymoops isn't able to translate any symbol
+> > located in modules.  The in-kernel symbol decoder (CONFIG_KALLSYMS)
+> > doesn't work too.
+> 
+> The new module stuff has been in for about three weeks now, many people
+> are having problems with it, and I have yet to see a single post praising
+> the *actual* benefits. Will there be a time when this is reverted and
+> rescheduled for a future release (2.7?) or is this a do-or-die feature?
+> 
+> It doesn't have the feel of something solid having a few corner cases
+> fixed, it feels like a bunch of band-aids which will unstick in future
+> releases and continue to be high maintenence.
 
-I think I'm loosing my Herring...
+Also I can't see how the new module infrastructure could have made it
+in w/o having been complete, *functional*, proven and thoroughly reviewed
+off-tree in the first place (which I thought was pretty much a standard
+around here).  Mature, drop-in replacement projects like Keith Owen's
+kbuild 2.5 are getting ignored while something as wild as Rusty's "welcome
+in module hell exhibit" is merged right when the tree is supposed to start
+stabilizing.
 
-> Album: I Love Everybody
-> Title: Penguins
-> 
-> I go for Penguins
-> I don't go for fancy cars
-> For diamond rings
-> Or movie stars
-> I go for penguins
-> Oh Lord I go for penguins
-> 
-> Throw your money out the door
-> We'll just sit around
-> And watch it snow
-> I go for penguins
-> Oh Lord I go for penguins
-> 
-> Penguins are so sensitive
-> Penguins are so sensitive
-> Penguins are so sensitive
-> To my needs
-> To my needs
-> To my needs
-> To my needs
-> --Lyle Lovett
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+And heck, I haven't even seen Viro and Hellwig complaining!
+What's going on?  :)
+
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Tomas Szepe <szepe@pinerecords.com>

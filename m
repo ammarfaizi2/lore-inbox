@@ -1,145 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314451AbSGYNeI>; Thu, 25 Jul 2002 09:34:08 -0400
+	id <S314080AbSGYNlx>; Thu, 25 Jul 2002 09:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314395AbSGYNdP>; Thu, 25 Jul 2002 09:33:15 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:4605 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314138AbSGYNbk>; Thu, 25 Jul 2002 09:31:40 -0400
-From: Alan Cox <alan@irongate.swansea.linux.org.uk>
-Message-Id: <200207251448.g6PEmp45010468@irongate.swansea.linux.org.uk>
-Subject: PATCH: 2.5.28 fix ALSA PCI compile problems
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Thu, 25 Jul 2002 15:48:51 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314096AbSGYNk5>; Thu, 25 Jul 2002 09:40:57 -0400
+Received: from purple.csi.cam.ac.uk ([131.111.8.4]:13738 "EHLO
+	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314080AbSGYNia>; Thu, 25 Jul 2002 09:38:30 -0400
+Message-Id: <5.1.0.14.2.20020725144011.00ab3ec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 25 Jul 2002 14:45:13 +0100
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: RE: 2.5.28 and partitions
+Cc: Linus Torvalds <torvalds@transmeta.com>, Matt_Domsch@Dell.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <1D94527606@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/ali5451/ali5451.c linux-2.5.28-ac1/sound/pci/ali5451/ali5451.c
---- linux-2.5.28/sound/pci/ali5451/ali5451.c	Thu Jul 25 10:51:00 2002
-+++ linux-2.5.28-ac1/sound/pci/ali5451/ali5451.c	Thu Jul 25 12:57:15 2002
-@@ -1968,7 +1968,7 @@
- static int snd_ali_free(ali_t * codec)
- {
- 	snd_ali_disable_address_interrupt(codec);
--	synchronize_irq();
-+	synchronize_irq(codec->irq);
- 	if (codec->irq >=0)
- 		free_irq(codec->irq, (void *)codec);
- 	if (codec->res_port) {
-@@ -2116,7 +2116,7 @@
- 		return -EBUSY;
- 	}
- 
--	synchronize_irq();
-+	synchronize_irq(pci->irq);
- 
- 	codec->synth.chmap = 0;
- 	codec->synth.chcnt = 0;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/cmipci.c linux-2.5.28-ac1/sound/pci/cmipci.c
---- linux-2.5.28/sound/pci/cmipci.c	Thu Jul 25 10:51:00 2002
-+++ linux-2.5.28-ac1/sound/pci/cmipci.c	Thu Jul 25 12:25:20 2002
-@@ -2479,7 +2479,7 @@
- 		/* reset mixer */
- 		snd_cmipci_mixer_write(cm, 0, 0);
- 
--		synchronize_irq();
-+		synchronize_irq(cm->irq);
- 
- 		free_irq(cm->irq, (void *)cm);
- 	}
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/cs4281.c linux-2.5.28-ac1/sound/pci/cs4281.c
---- linux-2.5.28/sound/pci/cs4281.c	Thu Jul 25 10:51:04 2002
-+++ linux-2.5.28-ac1/sound/pci/cs4281.c	Thu Jul 25 13:08:52 2002
-@@ -1300,7 +1300,8 @@
- 	}
- #endif
- 	snd_cs4281_proc_done(chip);
--	synchronize_irq();
-+	if(chip->irq >= 0)
-+		synchronize_irq(chip->irq);
- 
- 	/* Mask interrupts */
- 	snd_cs4281_pokeBA0(chip, BA0_HIMR, 0x7fffffff);
-@@ -1603,7 +1604,7 @@
- 					BA0_HISR_DMA(1) |
- 					BA0_HISR_DMA(2) |
- 					BA0_HISR_DMA(3)));
--	synchronize_irq();
-+	synchronize_irq(chip->irq);
- 
- 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
- 		snd_cs4281_free(chip);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/maestro3.c linux-2.5.28-ac1/sound/pci/maestro3.c
---- linux-2.5.28/sound/pci/maestro3.c	Thu Jul 25 10:51:01 2002
-+++ linux-2.5.28-ac1/sound/pci/maestro3.c	Thu Jul 25 13:10:03 2002
-@@ -2310,7 +2310,8 @@
- 		vfree(chip->suspend_mem);
- #endif
- 
--	synchronize_irq();
-+	if(chip->irq >= 0)
-+		synchronize_irq(chip->irq);
- 
- 	if (chip->iobase_res) {
- 		release_resource(chip->iobase_res);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/nm256/nm256.c linux-2.5.28-ac1/sound/pci/nm256/nm256.c
---- linux-2.5.28/sound/pci/nm256/nm256.c	Thu Jul 25 10:51:01 2002
-+++ linux-2.5.28-ac1/sound/pci/nm256/nm256.c	Thu Jul 25 12:59:22 2002
-@@ -1346,7 +1346,8 @@
- 	if (chip->streams[SNDRV_PCM_STREAM_CAPTURE].running)
- 		snd_nm256_capture_stop(chip);
- 
--	synchronize_irq();
-+	if(chip->irq >= 0)
-+		synchronize_irq(chip->irq);
- 
- 	if (chip->cport)
- 		iounmap((void *) chip->cport);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/via686.c linux-2.5.28-ac1/sound/pci/via686.c
---- linux-2.5.28/sound/pci/via686.c	Thu Jul 25 10:51:00 2002
-+++ linux-2.5.28-ac1/sound/pci/via686.c	Thu Jul 25 13:10:15 2002
-@@ -993,7 +993,8 @@
- 	snd_via686a_channel_reset(chip, &chip->playback_fm);
- 	/* --- */
-       __end_hw:
--	synchronize_irq();
-+	if(chip->irq >= 0)
-+		synchronize_irq(chip->irq);
- 	if (chip->tables)
- 		snd_free_pci_pages(chip->pci, 3 * sizeof(unsigned int) * VIA_MAX_FRAGS * 2, chip->tables, chip->tables_addr);
- 	if (chip->res_port) {
-@@ -1055,7 +1056,7 @@
- 	if (ac97_clock >= 8000 && ac97_clock <= 48000)
- 		chip->ac97_clock = ac97_clock;
- 	pci_read_config_byte(pci, PCI_REVISION_ID, &chip->revision);
--	synchronize_irq();
-+	synchronize_irq(pci->irq);
- 
- 	/* initialize offsets */
- 	chip->playback.reg_offset = VIA_REG_PLAYBACK_STATUS;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/via8233.c linux-2.5.28-ac1/sound/pci/via8233.c
---- linux-2.5.28/sound/pci/via8233.c	Thu Jul 25 10:51:00 2002
-+++ linux-2.5.28-ac1/sound/pci/via8233.c	Thu Jul 25 13:10:26 2002
-@@ -759,7 +759,8 @@
- 	snd_via8233_channel_reset(chip, &chip->capture);
- 	/* --- */
-       __end_hw:
--	synchronize_irq();
-+	if (chip->irq)
-+		synchronize_irq(chip->irq);
- 	if (chip->tables)
- 		snd_free_pci_pages(chip->pci,
- 				   VIA_NUM_OF_DMA_CHANNELS * sizeof(unsigned int) * VIA_MAX_FRAGS * 2,
-@@ -817,7 +818,7 @@
- 	if (ac97_clock >= 8000 && ac97_clock <= 48000)
- 		chip->ac97_clock = ac97_clock;
- 	pci_read_config_byte(pci, PCI_REVISION_ID, &chip->revision);
--	synchronize_irq();
-+	synchronize_irq(chip->irq);
- 
- 	/* initialize offsets */
- #if 0
+At 14:24 25/07/02, Petr Vandrovec wrote:
+>On 25 Jul 02 at 14:03, Anton Altaparmakov wrote:
+> > At 12:44 25/07/02, Alexander Viro wrote:
+> > >Al, still thinking that anybody who does mkfs.<whatever> on a multi-Tb
+> > >device should seek professional help of the kind they don't give on l-k...
+> >
+> > Why? What is wrong with large devices/file systems? Why do we have to 
+> break
+> > up everything into multiple devices? Just because the kernel is "too lazy"
+> > to implement support for large devices? Nobody cares if 64bit code is
+> > 10-20% slower than 32bit code on a storage server. The storage devices are
+>
+>But I care whether gcc barfs on code or not, and whether generated code
+>is correct or not.
+
+Everyone cares about that! That has nothing to do with performance. It's 
+simply a broken compiler which needs fixing.
+
+>I do very trivial 64bit computations in TV-Out portion of matroxfb,
+>but I spent two days shifting code up/down, adding temporary variables
+>and splitting expressions to simple ones to make code compilable at all
+>with gcc-2.95.4 compiling module for PIII kernel (Debian bug #151196).
+>So I personally cannot recommend doing any 64bit math without setting
+>gcc-3.0 as minimal version for ia32 architecture.
+
+Thanks for the warning. I will keep an eye out for eventual "NTFS is broken 
+with gcc-2.95 reports"... Although I would make that gcc-2.96 and not 3.0 
+as minimum requirement. At least I haven't found anything wrong with the 
+current gcc-2.96...
+
+(Please let's not start another flamewar about whether gcc-2.96 exists or not.)
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

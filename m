@@ -1,64 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVBXGvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVBXGzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVBXGvN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 01:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVBXGvN
+	id S261826AbVBXGzb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 01:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVBXGzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 01:51:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:38878 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261875AbVBXGvI (ORCPT
+	Thu, 24 Feb 2005 01:55:31 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:22744 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261826AbVBXGz2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 01:51:08 -0500
-Date: Wed, 23 Feb 2005 22:50:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-Id: <20050223225050.22d747b6.akpm@osdl.org>
-In-Reply-To: <20050224052330.GA99006@calma.pair.com>
-References: <20050223230639.GA33795@calma.pair.com>
-	<20050223183634.31869fa6.akpm@osdl.org>
-	<20050224052330.GA99006@calma.pair.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 24 Feb 2005 01:55:28 -0500
+Date: Thu, 24 Feb 2005 07:55:27 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Jeff Garzik <jgarzik@pobox.com>, Pavel Roskin <proski@gnu.org>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [8/14] Orinoco driver updates - PCMCIA initialization cleanups
+Message-ID: <20050224065527.GA8931@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Jeff Garzik <jgarzik@pobox.com>, Pavel Roskin <proski@gnu.org>,
+	Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20050224035355.GA32001@localhost.localdomain> <20050224035445.GB32001@localhost.localdomain> <20050224035524.GC32001@localhost.localdomain> <20050224035650.GD32001@localhost.localdomain> <20050224035718.GE32001@localhost.localdomain> <20050224035804.GF32001@localhost.localdomain> <20050224035957.GH32001@localhost.localdomain> <20050224040024.GI32001@localhost.localdomain> <20050224040052.GJ32001@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050224040052.GJ32001@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chad N. Tindel" <chad@tindel.net> wrote:
->
-> > `xterm' is waiting for the other CPU to schedule a kernel thread (which is
-> > bound to that CPU).  Once that kernel thread has done a little bit of work,
-> > `xterm' can terminate.
-> > 
-> > But kernel threads don't run with realtime policy, so your userspace app
-> > has permanently starved that kernel thread.
-> > 
-> > It's potentially quite a problem, really.  For example it could prevent
-> > various tty operations from completing, it will prevent kjournald from ever
-> > writing back anything (on uniprocessor, etc).  I've been waiting for
-> > someone to complain ;)
-> > 
-> > But the other side of the coin is that a SCHED_FIFO userspace task
-> > presumably has extreme latency requirements, so it doesn't *want* to be
-> > preempted by some routine kernel operation.  People would get irritated if
-> > we were to do that.
-> > 
-> > So what to do?
-> 
-> It shouldn't need to preempt the kernel operation.  Why is the design such that
-> the necessary kernel thread can't run on the other CPU?
-> 
+> @@ -184,6 +186,7 @@
+>  	dev_list = link;
+>  
+>  	client_reg.dev_info = &dev_info;
+> +	client_reg.Attributes = INFO_IO_CLIENT | INFO_CARD_SHARE;
 
-This particular kernel function is implemented via a kernel thread per CPU,
-with each thread bound to each CPU.  The xterm-does-exit cleanup code is
-waiting for the thread which is bound to the busy CPU to do something.
+That's not needed any longer for 2.6.
 
-No other CPU can, or is allowed, to do that thread's work.  If it were to
-do so, the implicit locking which we get from the per-cpuness would be
-violated.
-
-I don't know if any clients of the workqueue code rely upon the
-pinned-to-cpu feature.
-
+	Dominik

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbTBAIEc>; Sat, 1 Feb 2003 03:04:32 -0500
+	id <S264748AbTBAItH>; Sat, 1 Feb 2003 03:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264748AbTBAIEc>; Sat, 1 Feb 2003 03:04:32 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:6550 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S264745AbTBAIEc>; Sat, 1 Feb 2003 03:04:32 -0500
-Date: Sat, 1 Feb 2003 09:13:52 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Chris Bradford <lkml-read@khat-fox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Current Status of Module Utilities for 2.5 Kernels?
-Message-ID: <20030201081352.GQ12286@louise.pinerecords.com>
-References: <Pine.LNX.4.52.0301312304210.22442@furcntrl.khat-fox.com>
-Mime-Version: 1.0
+	id <S264749AbTBAItH>; Sat, 1 Feb 2003 03:49:07 -0500
+Received: from pat.uio.no ([129.240.130.16]:41166 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S264748AbTBAItG>;
+	Sat, 1 Feb 2003 03:49:06 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.52.0301312304210.22442@furcntrl.khat-fox.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15931.35891.22926.408963@charged.uio.no>
+Date: Sat, 1 Feb 2003 09:58:27 +0100
+To: David Ford <david+powerix@blue-labs.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: NFS problems, 2.5.5x
+In-Reply-To: <3E3B2D2E.8000604@blue-labs.org>
+References: <3E3B2D2E.8000604@blue-labs.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [lkml-read@khat-fox.com]
-> 
-> I'm using Slackware 9.0 beta as my distribution, which uses gcc 3.2.1 as
-> its C compiler.  My problems started when I noted that kernel 2.4 is not
-> compilable by gcc v3.x.
+>>>>> " " == David Ford <david+powerix@blue-labs.org> writes:
 
-gcc-3.2.1 compiles 2.4.20 (at least) just fine.
-I can confirm that standard sw90 development packages are ok.
+     > Synopsis: nfsserver:/home/david mount, get dir. entries loops
+     > forever,
+     > 2.5.59 for client and server.
 
-> gcc 3.x.  My upgrade produced another hitch, I was unable to use modules.
-> My video card, which uses an nVidia TNT2, is of limited usefulness without
-> the ability to load modules.
-> 
-> Is there a work-around for my problems?
+     > Example: ls -l /home/david
 
-Yes, you need to read the archives prior to posting a question
-to see if another 50 people haven't posted the same one before.
+     > An strace will show the same directory entries flying by over
+     > and over until memory is exhausted or ^c comes along.  It
+     > worked at first for about 30 minutes while I finished the new
+     > gentoo install on my desktop, but then things got weird.  the
+     > nfs server spat out a big long callback trace (oops) and died
+     > hard.  Had to reset the power.  The looping started just
+     > minutes before that.  I've rebooted, tried 2.5.53 on the client
+     > but no go.
 
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+AFAICR, there have been no changes to the NFS client readdir code since
+2.5.30.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Cheers,
+  Trond

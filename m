@@ -1,210 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTESKWR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 06:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTESKWR
+	id S262348AbTESKZk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 06:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTESKZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 06:22:17 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:51903 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id S261801AbTESKWN (ORCPT
+	Mon, 19 May 2003 06:25:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:8677 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262348AbTESKZh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 06:22:13 -0400
-Date: Mon, 19 May 2003 12:30:11 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D4
-In-Reply-To: <20030519032325.4ed2dea3.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0305191228090.6746-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 May 2003 06:25:37 -0400
+Date: Mon, 19 May 2003 03:38:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.69-mm7
+Message-ID: <20030519103826.GC8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rudmer van Dijk <rudmer@legolas.dynup.net>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030519012336.44d0083a.akpm@digeo.com> <200305191230.06092.rudmer@legolas.dynup.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305191230.06092.rudmer@legolas.dynup.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 19 May 2003 10:23, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69
+>>-mm7/
+>> . Included most of the new AIO code which has been floating about.  This
+>>   all still needs considerable thought and review, but we may as well get
+>> it under test immediately.
+>> . Lots of little fixes, as usual.
 
-On Mon, 19 May 2003, Andrew Morton wrote:
+On Mon, May 19, 2003 at 12:30:05PM +0200, Rudmer van Dijk wrote:
+> and this became broken:
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.69-mm7; fi
+> WARNING: /lib/modules/2.5.69-mm7/kernel/fs/ext2/ext2.ko needs unknown symbol 
+> __bread_wq
+> __bread_wq is introduced in -mm7, someone forgot to export it?
 
-> page1 is leaked.
+Try this patch please.
 
-doh, indeed. -D4 patch attached. It also fixes the line-wrap noticed by
-Christoph Hellwig. Patch applies, compiles and boots fine.
+-- wli
 
-	Ingo
 
---- linux/include/linux/futex.h.orig	
-+++ linux/include/linux/futex.h	
-@@ -5,7 +5,8 @@
- #define FUTEX_WAIT (0)
- #define FUTEX_WAKE (1)
- #define FUTEX_FD (2)
-+#define FUTEX_REQUEUE (3)
- 
--extern asmlinkage long sys_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime);
-+extern asmlinkage long sys_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime, u32 __user *uaddr2);
- 
- #endif
---- linux/kernel/fork.c.orig	
-+++ linux/kernel/fork.c	
-@@ -457,7 +457,7 @@ void mm_release(struct task_struct *tsk,
- 		 * not set up a proper pointer then tough luck.
- 		 */
- 		put_user(0, tidptr);
--		sys_futex(tidptr, FUTEX_WAKE, 1, NULL);
-+		sys_futex(tidptr, FUTEX_WAKE, 1, NULL, NULL);
- 	}
+diff -prauN mm7-2.5.69-1/fs/buffer.c mm7-2.5.69-2A/fs/buffer.c
+--- mm7-2.5.69-1/fs/buffer.c	2003-05-19 01:18:03.000000000 -0700
++++ mm7-2.5.69-2A/fs/buffer.c	2003-05-19 03:14:27.000000000 -0700
+@@ -1490,6 +1490,7 @@ __bread(struct block_device *bdev, secto
+ 		bh = __bread_slow(bh);
+ 	return bh;
  }
++EXPORT_SYMBOL(__bread);
  
---- linux/kernel/compat.c.orig	
-+++ linux/kernel/compat.c	
-@@ -214,7 +214,7 @@ asmlinkage long compat_sys_sigprocmask(i
- extern long do_futex(unsigned long, int, int, unsigned long);
  
- asmlinkage long compat_sys_futex(u32 *uaddr, int op, int val,
--		struct compat_timespec *utime)
-+		struct compat_timespec *utime, u32 *uaddr2)
- {
- 	struct timespec t;
- 	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-@@ -224,7 +224,7 @@ asmlinkage long compat_sys_futex(u32 *ua
- 			return -EFAULT;
- 		timeout = timespec_to_jiffies(&t) + 1;
- 	}
--	return do_futex((unsigned long)uaddr, op, val, timeout);
-+	return do_futex((unsigned long)uaddr, op, val, timeout, (unsigned long)uaddr2);
+ struct buffer_head *
+@@ -1502,7 +1503,7 @@ __bread_wq(struct block_device *bdev, se
+ 		bh = __bread_slow_wq(bh, wait);
+ 	return bh;
  }
+-EXPORT_SYMBOL(__bread);
++EXPORT_SYMBOL(__bread_wq);
  
- asmlinkage long sys_setrlimit(unsigned int resource, struct rlimit *rlim);
---- linux/kernel/futex.c.orig	
-+++ linux/kernel/futex.c	
-@@ -2,6 +2,9 @@
-  *  Fast Userspace Mutexes (which I call "Futexes!").
-  *  (C) Rusty Russell, IBM 2002
-  *
-+ *  Generalized futexes, futex requeueing, misc fixes by Ingo Molnar
-+ *  (C) Copyright 2003 Red Hat Inc, All Rights Reserved
-+ *
-  *  Thanks to Ben LaHaise for yelling "hashed waitqueues" loudly
-  *  enough at me, Linus for the original (flawed) idea, Matthew
-  *  Kirkwood for proof-of-concept implementation.
-@@ -9,9 +12,6 @@
-  *  "The futexes are also cursed."
-  *  "But they come in a choice of three flavours!"
-  *
-- *  Generalized futexes for every mapping type, Ingo Molnar, 2002
-- *
-- *
-  *  This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-  *  the Free Software Foundation; either version 2 of the License, or
-@@ -216,6 +216,62 @@ static void futex_vcache_callback(vcache
- 	spin_unlock(&futex_lock);
- }
- 
-+/*
-+ * Requeue all waiters hashed on one physical page to another
-+ * physical page.
-+ */
-+static int futex_requeue(unsigned long uaddr1, int offset1, unsigned long uaddr2, int offset2, int num)
-+{
-+	struct list_head *i, *next, *head1, *head2;
-+	struct page *page1 = NULL, *page2 = NULL;
-+	int ret = 0;
-+
-+	lock_futex_mm();
-+
-+	page1 = __pin_page(uaddr1 - offset1);
-+	if (!page1)
-+		goto out;
-+	page2 = __pin_page(uaddr2 - offset2);
-+	if (!page2)
-+		goto out;
-+
-+	head1 = hash_futex(page1, offset1);
-+	head2 = hash_futex(page2, offset2);
-+
-+	list_for_each_safe(i, next, head1) {
-+		struct futex_q *this = list_entry(i, struct futex_q, list);
-+
-+		if (this->page == page1 && this->offset == offset1) {
-+			list_del_init(i);
-+			__detach_vcache(&this->vcache);
-+			if (++ret <= num) {
-+				wake_up_all(&this->waiters);
-+				if (this->filp)
-+					send_sigio(&this->filp->f_owner,
-+							this->fd, POLL_IN);
-+			} else {
-+				unpin_page(this->page);
-+				__pin_page_atomic (page2);
-+				list_add_tail(i, head2);
-+				__attach_vcache(&this->vcache, uaddr2,
-+					current->mm, futex_vcache_callback);
-+				this->offset = offset2;
-+				this->page = page2;
-+			}
-+		}
-+	}
-+
-+out:
-+	unlock_futex_mm();
-+
-+	if (page1)
-+		unpin_page(page1);
-+	if (page2)
-+		unpin_page(page2);
-+
-+	return ret;
-+}
-+
- static inline void __queue_me(struct futex_q *q, struct page *page,
- 				unsigned long uaddr, int offset,
- 				int fd, struct file *filp)
-@@ -425,9 +481,9 @@ out:
- 	return ret;
- }
- 
--long do_futex(unsigned long uaddr, int op, int val, unsigned long timeout)
-+long do_futex(unsigned long uaddr, int op, int val, unsigned long timeout, unsigned long uaddr2)
- {
--	unsigned long pos_in_page;
-+	unsigned long pos_in_page, pos_in_page2;
- 	int ret;
- 
- 	pos_in_page = uaddr % PAGE_SIZE;
-@@ -443,6 +499,14 @@ long do_futex(unsigned long uaddr, int o
- 	case FUTEX_WAKE:
- 		ret = futex_wake(uaddr, pos_in_page, val);
- 		break;
-+	case FUTEX_REQUEUE:
-+		pos_in_page2 = uaddr2 % PAGE_SIZE;
-+
-+		/* Must be "naturally" aligned */
-+		if (pos_in_page2 % sizeof(u32))
-+			return -EINVAL;
-+		ret = futex_requeue(uaddr, pos_in_page, uaddr2, pos_in_page2, val);
-+		break;
- 	case FUTEX_FD:
- 		/* non-zero val means F_SETOWN(getpid()) & F_SETSIG(val) */
- 		ret = futex_fd(uaddr, pos_in_page, val);
-@@ -453,7 +517,7 @@ long do_futex(unsigned long uaddr, int o
- 	return ret;
- }
- 
--asmlinkage long sys_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime)
-+asmlinkage long sys_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime, u32 __user *uaddr2)
- {
- 	struct timespec t;
- 	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-@@ -463,7 +527,7 @@ asmlinkage long sys_futex(u32 __user *ua
- 			return -EFAULT;
- 		timeout = timespec_to_jiffies(&t) + 1;
- 	}
--	return do_futex((unsigned long)uaddr, op, val, timeout);
-+	return do_futex((unsigned long)uaddr, op, val, timeout, (unsigned long)uaddr2);
- }
- 
- static struct super_block *
-
+ /*
+  * invalidate_bh_lrus() is called rarely - at unmount.  Because it is only for
+diff -prauN mm7-2.5.69-1/kernel/ksyms.c mm7-2.5.69-2A/kernel/ksyms.c
+--- mm7-2.5.69-1/kernel/ksyms.c	2003-05-19 01:18:08.000000000 -0700
++++ mm7-2.5.69-2A/kernel/ksyms.c	2003-05-19 03:17:20.000000000 -0700
+@@ -123,6 +123,7 @@ EXPORT_SYMBOL(get_unmapped_area);
+ EXPORT_SYMBOL(init_mm);
+ EXPORT_SYMBOL(blk_queue_bounce);
+ EXPORT_SYMBOL(blk_congestion_wait);
++EXPORT_SYMBOL(blk_congestion_wait_wq);
+ #ifdef CONFIG_HIGHMEM
+ EXPORT_SYMBOL(kmap_high);
+ EXPORT_SYMBOL(kunmap_high);
+@@ -216,6 +217,7 @@ EXPORT_SYMBOL(sync_dirty_buffer);
+ EXPORT_SYMBOL(submit_bh);
+ EXPORT_SYMBOL(unlock_buffer);
+ EXPORT_SYMBOL(__wait_on_buffer);
++EXPORT_SYMBOL(__wait_on_buffer_wq);
+ EXPORT_SYMBOL(blockdev_direct_IO);
+ EXPORT_SYMBOL(block_write_full_page);
+ EXPORT_SYMBOL(block_read_full_page);

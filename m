@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313025AbSDCDCL>; Tue, 2 Apr 2002 22:02:11 -0500
+	id <S313026AbSDCDDV>; Tue, 2 Apr 2002 22:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313026AbSDCDCB>; Tue, 2 Apr 2002 22:02:01 -0500
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:57349 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S313025AbSDCDBr>;
-	Tue, 2 Apr 2002 22:01:47 -0500
-Date: Tue, 2 Apr 2002 19:00:38 -0800
-From: Greg KH <greg@kroah.com>
-To: jt@hpl.hp.com
-Cc: irda-users@lists.sourceforge.net,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] : ir257_usb_disconnect_atomic-2.diff
-Message-ID: <20020403030038.GA6366@kroah.com>
-In-Reply-To: <20020402182413.G24912@bougret.hpl.hp.com>
+	id <S313032AbSDCDDM>; Tue, 2 Apr 2002 22:03:12 -0500
+Received: from zero.tech9.net ([209.61.188.187]:52491 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313026AbSDCDCx>;
+	Tue, 2 Apr 2002 22:02:53 -0500
+Subject: [PATCH] 2.4: BUG_ON (1/2)
+From: Robert Love <rml@tech9.net>
+To: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 02 Apr 2002 21:59:34 -0500
+Message-Id: <1017802779.2941.594.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 06 Mar 2002 00:55:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 02, 2002 at 06:24:13PM -0800, Jean Tourrilhes wrote:
-> @@ -1519,33 +1544,47 @@ static void *irda_usb_probe(struct usb_d
->  /*
->   * The current irda-usb device is removed, the USB layer tell us
->   * to shut it down...
-> + * One of the constraints is that when we exit this function,
-> + * we cannot use the usb_device no more. Gone. Destroyed. kfree().
-> + * Most other subsystem allow you to destroy the instance at a time
-> + * when it's convenient to you, to postpone it to a later date, but
-> + * not the USB subsystem.
-> + * So, we must make bloody sure that everything gets deactivated.
-> + * Jean II
+Marcelo and Alan,
 
-That's one of the next things I'm going to be working on fixing :)
+The attached patch adds 2.5's BUG_ON construct to the 2.4 kernel.  This
+is done to facilitate portability and back-porting 2.4 <=> 2.5, because
+BUG_ON is a very readable construct, and because it is a small
+optimization over standard BUG.
 
-The patch looks good.  Thanks for setting the proper GFP_* flag.
+For the unaware,  BUG_ON(condition) is basically
 
-greg k-h
+        if (unlikely(condition) != 0) BUG();
+
+This is not really about sprinkling BUG_ONs everywhere but helping
+backporting.  And I like BUG_ON :)
+
+This patch is against 2.4.19-pre5, but also applies to 2.4.19-pre4-ac3. 
+Alan and Marcelo - please apply.
+
+        Robert Love
+
+diff -urN linux-2.4.19-pre5/include/linux/kernel.h linux/include/linux/kernel.h
+--- linux-2.4.19-pre5/include/linux/kernel.h	Sat Mar 30 18:26:41 2002
++++ linux/include/linux/kernel.h	Sat Mar 30 18:30:18 2002
+@@ -184,4 +184,6 @@
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
+ 
+-#endif
++#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
++
++#endif /* _LINUX_KERNEL_H */
+

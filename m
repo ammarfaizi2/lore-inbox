@@ -1,152 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbUFQTpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUFQTsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUFQTpk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 15:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUFQTpk
+	id S262256AbUFQTsG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 15:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUFQTsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 15:45:40 -0400
-Received: from imap.gmx.net ([213.165.64.20]:61416 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261943AbUFQTpf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 15:45:35 -0400
-X-Authenticated: #20450766
-Date: Thu, 17 Jun 2004 21:27:59 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] check_/request_region fixes & request for enlightenment
-In-Reply-To: <Pine.LNX.4.56.0406162245320.11954@jjulnx.backbone.dif.dk>
-Message-ID: <Pine.LNX.4.60.0406172036001.3926@poirot.grange>
-References: <Pine.LNX.4.56.0406162245320.11954@jjulnx.backbone.dif.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 17 Jun 2004 15:48:05 -0400
+Received: from dialin-212-144-167-148.arcor-ip.net ([212.144.167.148]:64201
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S262256AbUFQTsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 15:48:00 -0400
+In-Reply-To: <1087460983.2765.34.camel@pla.lokal.lan>
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan> <1087322976.1874.36.camel@pla.lokal.lan>  <40D06C0B.7020005@techsource.com> <1087460983.2765.34.camel@pla.lokal.lan>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-60--328260274"
+Message-Id: <BC76693E-C094-11D8-AAF6-000A958E35DC@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: Timothy Miller <miller@techsource.com>, ext3 <ext3-users@redhat.com>,
+       linux-kernel@vger.kernel.org
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+Date: Thu, 17 Jun 2004 21:30:05 +0200
+To: Petter Larsen <pla@morecom.no>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jun 2004, Jesper Juhl wrote:
 
-> in the isp16.c case the region is free'ed in isp16_exit(), but one thing I
+--Apple-Mail-60--328260274
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-That looks like a bug - release_region() without request_region().
+On 17.06.2004, at 10:29, Petter Larsen wrote:
 
-> don't understand is is I'm supposed to preserve the pointer returned by
-> request_region and later pass that to release_region as well to make sure
-> the right resource is free'ed? I see __release_region() taking 3
-> parameters, but the release_region #define only takes two??? Could someone
-> explain to me how that works?
+> We are using ext3 on a compact flash disk in an embedded device. So we
+> are not using RAID systems.
 
-No. You pass the same address and size you used to request the region.
+An excellent way to kill such media. Hopefully YMMV.
 
-> For now I assumed the current release_region in isp16_exit() is OK, and
-> the code compiles fine with my changes, but I can't test it since I don't
-> have the hardware.
-> Here's the patch against 2.6.7 for that file - comments are very welcome :
+Servus,
+       Daniel
 
-You also have to release_region() in all failure-cases in the 
-isp16_init(). Also, I think, if the region is busy you should return 
--EBUSY, but there I am not too sure.
+--Apple-Mail-60--328260274
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
-> --- linux-2.6.7-orig/drivers/cdrom/isp16.c	2004-06-16 07:20:04.000000000 +0200
-> +++ linux-2.6.7/drivers/cdrom/isp16.c	2004-06-16 22:36:52.000000000 +0200
-> @@ -121,7 +121,7 @@ int __init isp16_init(void)
-> 		return (0);
-> 	}
->
-> -	if (check_region(ISP16_IO_BASE, ISP16_IO_SIZE)) {
-> +	if (!request_region(ISP16_IO_BASE, ISP16_IO_SIZE, "isp16")) {
-> 		printk("ISP16: i/o ports already in use.\n");
-> 		return (-EIO);
-> 	}
->
->
-> Now, in trm290.c it seems that the region it tries to access is already
-> requested in probe_hwif() in ide-probe.c, so the check_region is only used
-> as an extra check to print an error message.  I see no code in trm290.c
-> that ever tries to release the region, is that wrong, or does it simply
-> rely on the code in ide-probe.c to release the region for it?
-> How can it be that the check_region doesn't always fail if it has already
-> been locked in ide-probe.c ?  And if it doesn't always fail, shouldn't the
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
 
-It is requested later:
+iQEVAwUBQNHxPTBkNMiD99JrAQKnDwgAvzhupaK/9kwuMzZEUkbfcM0BXCM6TLC7
+jIww9zr5motK/VFOYFniWuADRUIe9AvQGW/GQyuJcExjapne/vVUznkYI9txKKc7
+SIRRDrwRNwPdGNnISPPP7AJ8h8b5G5IV30hvt/kRtlr1CFtCmcTiRQ+0AJ3hBUHm
+ZgrITxIkaXdLn0o4DDx9Y03lBauhk+neB9R8/CXveEagU9FKXhmIeNmPqe7GNW5l
+QmojICyBUoOvFQU1iQKHkFTMs+6XLZIifPZK1gW+3Utd6bgbg6N7CDbDQBxehBC+
+IX4AQ6qVgaS6ZWOxFxF464Gy9HGhtF0o2JK/bFZmO1omwqJO/9eLUQ==
+=2Qbz
+-----END PGP SIGNATURE-----
 
-trm290_init_one
-   ide_setup_pci_device
-
-first calls
-
-     do_ide_setup_pci_device
-       ide_pci_setup_ports
-         d->init_hwif(hwif) = init_hwif_trm290
-           ***check_region***
-
-then it calls
-
-     probe_hwif_init
-       probe_hwif
-         ide_hwif_request_regions
-
-where regions are requested. So, I would just completely through "check 
-region" away. A bit uncomfortable is that the driver seems to need to 
-configure the chip with the address:
-
- 			hwif->OUTW(compat|1, hwif->config_data);
- 			new = hwif->INW(hwif->config_data);
-
-and that doesn't look very nice before request_region(). And there's no 
-other hook between request_region() in probe_hwif and the first use of the 
-chip, so, I am not quite sure if it is safe here to just blindly configure 
-the chip with the port address...
-
-Please, corect me anybody if I am wrong.
-
-Guennadi
-
-> driver release it itself right after doing it's check (now) with
-> request_region?
->
-> Here's what I came up with initially - just replacing check_region with
-> request_region - but I have a feeling it's not that simple.
-> Would anyone care to clarify?
->
-> --- linux-2.6.7-orig/drivers/ide/pci/trm290.c	2004-06-16 07:19:01.000000000 +0200
-> +++ linux-2.6.7/drivers/ide/pci/trm290.c	2004-06-16 22:57:24.000000000 +0200
-> @@ -373,12 +373,12 @@ void __devinit init_hwif_trm290(ide_hwif
-> 			/* leave lower 10 bits untouched */
-> 			compat += (next_offset += 0x400);
-> #  if 1
-> -			if (check_region(compat + 2, 1))
-> -				printk(KERN_ERR "%s: check_region failure at 0x%04x\n",
-> +			if (!request_region(compat + 2, 1, "trm290"))
-> +				printk(KERN_ERR "%s: request_region failure at 0x%04x\n",
-> 					hwif->name, (compat + 2));
-> 			/*
-> 			 * The region check is not needed; however.........
-> -			 * Since this is the checked in ide-probe.c,
-> +			 * Since this is checked in ide-probe.c,
-> 			 * this is only an assignment.
-> 			 */
-> #  endif
->
->
-> I've been digging for a while looking for some documentation on this, but
-> found nothing more than brief mentions about it in Documentation/
-> Searching lkml archives and reading the
-> check_region/request_region code provided enough info to give me the
-> understanding I described above, but if someone has knowledge of some
-> documentation/explanation on this I'd love a pointer so I can read up.
->
->
-> --
-> Jesper Juhl <juhl-lkml@dif.dk>
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
----
-Guennadi Liakhovetski
+--Apple-Mail-60--328260274--
 

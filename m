@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312248AbSDEDKb>; Thu, 4 Apr 2002 22:10:31 -0500
+	id <S312194AbSDEDNb>; Thu, 4 Apr 2002 22:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312219AbSDEDKY>; Thu, 4 Apr 2002 22:10:24 -0500
-Received: from pcp01384392pcs.walngs01.pa.comcast.net ([68.80.48.29]:25745
-	"EHLO dysonwi") by vger.kernel.org with ESMTP id <S312181AbSDEDKF>;
-	Thu, 4 Apr 2002 22:10:05 -0500
-Message-ID: <3CAD158C.3040301@pobox.com>
-Date: Thu, 04 Apr 2002 22:10:04 -0500
-From: Will Dyson <will_dyson@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020402 Debian/2:0.9.9-4
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: vcd, .dat files and isofs problem
-In-Reply-To: <E16tDuI-0006jc-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312181AbSDEDNV>; Thu, 4 Apr 2002 22:13:21 -0500
+Received: from pc2-midd4-0-cust131.mid.cable.ntl.com ([213.107.124.131]:29583
+	"EHLO harry.vipersoft.co.uk") by vger.kernel.org with ESMTP
+	id <S312194AbSDEDNK>; Thu, 4 Apr 2002 22:13:10 -0500
+Date: Fri, 5 Apr 2002 04:13:09 +0100
+From: dean@vipersoft.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: faster boots?
+Message-ID: <20020405031309.GC32647@vipersoft.co.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Springmail.0994.1017972604.0.67144600@webmail.atl.earthlink.net> <E16tJhD-0007MA-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WplhKdTI2c8ulnbP"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>I have problems reading the .dat files from VCD, here is the kernel 
->>logs. I think it is an fs issue, since I am not the only one having the 
->>same problem. In user space, read returns I/O error but I think it is an 
->>fs issue or a cd-rom
 
-Have a look at cdfs: http://www.elis.rug.ac.be/~ronsse/cdfs/
+--WplhKdTI2c8ulnbP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It will allow you to read those files. Of course, there are also userland 
-  utilities for that. Just search freshmeat for vcd.
+> > If the video card is old and slow, could all this extra stuff that
+> > scrolls up the screen be causing the issue?  If so is there a way of
+> > turning this off?
+>
+> Boot with the "quiet" option to quieten messages. (I think its quiet
+> anyway)
 
-> VCD .dat files are not normal "files". They are encoded in a different mode
-> to get more bytes/sector at the cost of lower error resistance (mpeg is
-> error resistant in itself...)
+Yes, just add the line:
+append="quiet" to the correct section in your lilo.conf to have the
+initial bootup messages turned off.  You can still access these messages
+via dmesg of course.
 
-I knew they were different, but not why. Learn something new every day.
+HTH and HAND.
 
--- 
-Will Dyson
+- Dean
 
+ps Alan (sorry for the cc to you - I slipped;)
+
+--WplhKdTI2c8ulnbP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjytFkQACgkQvSGdOzz96ZUeqQCdH8s7LzvFS0jXhZKWH0NBELWX
+E0oAoKVhHV7bTUiDte2wbwyLpugoPKkp
+=w/9w
+-----END PGP SIGNATURE-----
+
+--WplhKdTI2c8ulnbP--

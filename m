@@ -1,154 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263304AbUESK3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbUESK3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbUESK3o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 06:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUESK3o
+	id S263295AbUESK3P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 06:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUESK3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 06:29:44 -0400
-Received: from holomorphy.com ([207.189.100.168]:41614 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263304AbUESK33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 06:29:29 -0400
-Date: Wed, 19 May 2004 03:28:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       arjanv@redhat.com, benh@kernel.crashing.org, kronos@kronoz.cjb.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040519102846.GG1223@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-	J?rn Engel <joern@wohnheim.fh-wedel.de>, arjanv@redhat.com,
-	benh@kernel.crashing.org, kronos@kronoz.cjb.net,
-	linux-kernel@vger.kernel.org
-References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org> <20040514094923.GB29106@devserv.devel.redhat.com> <20040514114746.GB23863@wohnheim.fh-wedel.de> <20040514151520.65b31f62.akpm@osdl.org> <20040517233515.GR5414@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040517233515.GR5414@waste.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 19 May 2004 06:29:15 -0400
+Received: from qfep04.superonline.com ([212.252.122.161]:25772 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S263295AbUESK2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 06:28:51 -0400
+Message-ID: <40AB36D6.3080808@superonline.com>
+Date: Wed, 19 May 2004 13:28:38 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: len.brown@intel.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] [RESEND] 2.4.27-pre3  backout acpi_fixed_pwr_button
+Content-Type: multipart/mixed;
+ boundary="------------090804020702010408020502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 06:35:15PM -0500, Matt Mackall wrote:
-> I have a cleaned up version of this script in -tiny which is a bit
-> nicer for adding new arches to and produces simpler output:
->  1428 huft_build
->  1292 inflate_dynamic
->  1168 inflate_fixed
->   528 ip_setsockopt
->   496 tcp_check_req
->   496 tcp_v4_conn_request
->   484 tcp_timewait_state_process
->   440 ip_getsockopt
->   408 extract_entropy
->   364 shrink_zone
->   324 do_execve
+This is a multi-part message in MIME format.
+--------------090804020702010408020502
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 
-By eyeballing things, I see >= 384B on-stack in ep_send_events(). Hence:
+Marcelo:
 
-kmalloc() the event buffer, since 384B on-stack is a bit large for i386.
-Also minor cleanups so the thing can actually be read.
-Untested, but simple.
+2.4.27-pre3 still seems to have the acpi_fixed_pwr_button and
+acpi_fixed_sleep_button changes in it, which oopses for me
+upon module unload. Sergey Vlasov's response to my report is
+attached. The original oops report is here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108405180820535&w=2
 
-Index: mm3-2.6.6/fs/eventpoll.c
-===================================================================
---- mm3-2.6.6.orig/fs/eventpoll.c	2004-05-16 19:54:38.000000000 -0700
-+++ mm3-2.6.6/fs/eventpoll.c	2004-05-19 03:09:24.000000000 -0700
-@@ -148,14 +148,6 @@
- #define EP_ITEM_FROM_EPQUEUE(p) (container_of(p, struct ep_pqueue, pt)->epi)
+If you don't have another fix for it, please apply the included
+patch in order to back that out.
+
+Regards,
+Özkan Sezer
+
+--------------090804020702010408020502
+Content-Type: text/plain;
+ name="button-rmmod-oops.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="button-rmmod-oops.patch"
+
+X-UIDL: 1084210475.26274.qsol01,S=4197
+X-Mozilla-Status: 0011
+X-Mozilla-Status2: 00000000
+Return-Path: <vsu@altlinux.ru>
+Delivered-To: sezero@superonline.com
+Received: (qmail 26269 invoked from network); 10 May 2004 17:34:35 -0000
+Received: from unknown ([212.252.122.201])
+          (envelope-sender <>)
+          by qsol01.superonline.com (qmail-ldap-1.03) with QMQP
+          for <>; 10 May 2004 17:34:35 -0000
+Delivered-To: CLUSTERHOST vfep01.superonline.com sezero@superonline.com
+Received: (qmail 32592 invoked from network); 10 May 2004 17:34:15 -0000
+Received: from unknown (HELO ns1.murom.ru) ([213.177.124.6])
+          (envelope-sender <vsu@altlinux.ru>)
+          by vfep01.superonline.com (qmail-ldap-1.03) with SMTP
+          for <sezero@superonline.com>; 10 May 2004 17:34:14 -0000
+Received: from [172.16.7.8] (helo=sirius.home)
+	by ns1.murom.ru with smtp (Exim 4.30)
+	id 1BNEfC-0002tR-7Z
+	for sezero@superonline.com; Mon, 10 May 2004 21:34:02 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: OOPS :  2.4.27-pre2 + latest ACPI
+Date: Mon, 10 May 2004 21:34:02 +0400
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Message-Id: <pan.2004.05.10.17.34.01.383608@altlinux.ru>
+References: <409D50AE.2020908@superonline.com> <409D52D3.5080500@superonline.com> <409DE596.8000808@superonline.com>
+To: "O.Sezer" <sezero@superonline.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 8bit
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-From: vsu@altlinux.ru
+X-Spam-Checker-Version: SpamAssassin 2.60-superonline (1.212-2003-09-23-exp) 
+	on vfep03
+X-Spam-Version: SpamAssassin Superonline
+X-Spam-Status: No, hits=0.0 required=40.0 tests=BAYES_50 autolearn=no 
+	version=2.60-superonline
+X-Spam-Level: 
+
+On Sun, 09 May 2004 11:02:30 +0300, O.Sezer wrote:
+
+> I backed-out the new module hunks and the
+> oops went-away. Seems like there are still
+> problems with the module unloading code.
+
+Looks like a free memory access - at acpi_button_remove() button->handle
+was trashed by 0x5a5a5a5a.
+
+Does the patch below (on top of the new ACPI changes) fix this?  Seems
+that the special handling for fixed-feature buttons is unneeded at least
+for 2.4.x - acpi_bus_unregister_driver() works for them.
+
+
+--- linux/drivers/acpi/button.c.button-rmmod-oops	2004-05-09 19:45:09 +0400
++++ linux/drivers/acpi/button.c	2004-05-10 21:18:56 +0400
+@@ -69,8 +69,6 @@
+    -------------------------------------------------------------------------- */
  
- /*
-- * This is used to optimize the event transfer to userspace. Since this
-- * is kept on stack, it should be pretty small.
-- */
--#define EP_MAX_BUF_EVENTS 32
--
--
--
--/*
-  * Node that is linked into the "wake_task_list" member of the "struct poll_safewake".
-  * It is used to keep track on all tasks that are currently inside the wake_up() code
-  * to 1) short-circuit the one coming from the same task and same wait queue head
-@@ -1426,16 +1418,20 @@
-  * This function is called without holding the "ep->lock" since the call to
-  * __copy_to_user() might sleep, and also f_op->poll() might reenable the IRQ
-  * because of the way poll() is traditionally implemented in Linux.
-+ * Buffering events is used to optimize the event transfer to userspace.
-  */
- static int ep_send_events(struct eventpoll *ep, struct list_head *txlist,
- 			  struct epoll_event __user *events)
+ static struct proc_dir_entry	*acpi_button_dir;
+-extern struct acpi_device 	*acpi_fixed_pwr_button;
+-extern struct acpi_device	*acpi_fixed_sleep_button;
+ 
+ static int
+ acpi_button_read_info (
+@@ -514,12 +512,6 @@
  {
--	int eventcnt = 0, eventbuf = 0;
-+	int eventcnt = 0, eventbuf = 0, bytes;
- 	unsigned int revents;
- 	struct list_head *lnk;
- 	struct epitem *epi;
--	struct epoll_event event[EP_MAX_BUF_EVENTS];
-+	struct epoll_event *event;
+ 	ACPI_FUNCTION_TRACE("acpi_button_exit");
  
-+	event = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!event)
-+		return -ENOMEM;
- 	/*
- 	 * We can loop without lock because this is a task private list.
- 	 * The test done during the collection loop will guarantee us that
-@@ -1458,30 +1454,36 @@
- 		 * the item to its "txlist" will write this field.
- 		 */
- 		epi->revents = revents & epi->event.events;
-+		if (!epi->revents)
-+			continue;
+-	if(acpi_fixed_pwr_button) 
+-		acpi_button_remove(acpi_fixed_pwr_button, ACPI_BUS_TYPE_POWER_BUTTON);
+-
+-	if(acpi_fixed_sleep_button)
+-		acpi_button_remove(acpi_fixed_sleep_button, ACPI_BUS_TYPE_SLEEP_BUTTON);
+-
+ 	acpi_bus_unregister_driver(&acpi_button_driver);
  
--		if (epi->revents) {
--			event[eventbuf] = epi->event;
--			event[eventbuf].events &= revents;
--			eventbuf++;
--			if (eventbuf == EP_MAX_BUF_EVENTS) {
--				if (__copy_to_user(&events[eventcnt], event,
--						   eventbuf * sizeof(struct epoll_event)))
--					return -EFAULT;
--				eventcnt += eventbuf;
--				eventbuf = 0;
--			}
--			if (epi->event.events & EPOLLONESHOT)
--				epi->event.events &= EP_PRIVATE_BITS;
-+		event[eventbuf] = epi->event;
-+		event[eventbuf].events &= revents;
-+		eventbuf++;
-+		if (eventbuf < PAGE_SIZE/sizeof(struct epoll_event))
-+			goto mask_private_bits;
-+		bytes = eventbuf * sizeof(struct epoll_event);
-+		if (__copy_to_user(&events[eventcnt], event, bytes)) {
-+			eventcnt = -EFAULT;
-+			goto out;
- 		}
--	}
--
--	if (eventbuf) {
--		if (__copy_to_user(&events[eventcnt], event,
--				   eventbuf * sizeof(struct epoll_event)))
--			return -EFAULT;
- 		eventcnt += eventbuf;
--	}
--
-+		eventbuf = 0;
-+mask_private_bits:
-+		if (epi->event.events & EPOLLONESHOT)
-+			epi->event.events &= EP_PRIVATE_BITS;
-+	}
-+
-+	if (!eventbuf)
-+		goto out;
-+	bytes = eventbuf * sizeof(struct epoll_event);
-+	if (__copy_to_user(&events[eventcnt], event, bytes)) {
-+		eventcnt = -EFAULT;
-+		goto out;
-+	}
-+	eventcnt += eventbuf;
-+out:
-+	kfree(event);
- 	return eventcnt;
+ 	remove_proc_entry(ACPI_BUTTON_CLASS, acpi_root_dir);
+--- linux/drivers/acpi/bus.c.button-rmmod-oops	2004-05-09 19:45:09 +0400
++++ linux/drivers/acpi/bus.c	2004-05-10 21:21:06 +0400
+@@ -1769,23 +1769,15 @@
  }
  
+ 
+-struct acpi_device *acpi_fixed_pwr_button;
+-struct acpi_device *acpi_fixed_sleep_button;
+-
+-EXPORT_SYMBOL(acpi_fixed_pwr_button);
+-EXPORT_SYMBOL(acpi_fixed_sleep_button);
+-
+ static int
+ acpi_bus_scan_fixed (
+ 	struct acpi_device	*root)
+ {
+ 	int			result = 0;
++	struct acpi_device	*device = NULL;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_bus_scan_fixed");
+ 
+-	acpi_fixed_pwr_button = NULL;
+-	acpi_fixed_sleep_button = NULL;
+-
+ 	if (!root)
+ 		return_VALUE(-ENODEV);
+ 
+@@ -1793,11 +1785,11 @@
+ 	 * Enumerate all fixed-feature devices.
+ 	 */
+ 	if (acpi_fadt.pwr_button == 0)
+-		result = acpi_bus_add(&acpi_fixed_pwr_button, acpi_root, 
++		result = acpi_bus_add(&device, acpi_root, 
+ 			NULL, ACPI_BUS_TYPE_POWER_BUTTON);
+ 
+ 	if (acpi_fadt.sleep_button == 0)
+-		result = acpi_bus_add(&acpi_fixed_sleep_button, acpi_root, 
++		result = acpi_bus_add(&device, acpi_root, 
+ 			NULL, ACPI_BUS_TYPE_SLEEP_BUTTON);
+ 
+ 	return_VALUE(result);
+
+--- ./drivers/acpi/Makefile.orig
++++ ./drivers/acpi/Makefile
+@@ -14,7 +14,7 @@
+ 
+ EXTRA_CFLAGS	+= $(ACPI_CFLAGS)
+ 
+-export-objs 	:= acpi_ksyms.o processor.o bus.o
++export-objs 	:= acpi_ksyms.o processor.o
+ 
+ obj-$(CONFIG_ACPI)	:= acpi_ksyms.o 
+ 
+
+
+--------------090804020702010408020502--
+

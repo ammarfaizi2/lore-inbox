@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263187AbREaTiU>; Thu, 31 May 2001 15:38:20 -0400
+	id <S263188AbREaTpU>; Thu, 31 May 2001 15:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263188AbREaTiA>; Thu, 31 May 2001 15:38:00 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263187AbREaThx>;
-	Thu, 31 May 2001 15:37:53 -0400
-Message-ID: <20010531002437.A21681@bug.ucw.cz>
-Date: Thu, 31 May 2001 00:24:37 +0200
+	id <S263189AbREaTpA>; Thu, 31 May 2001 15:45:00 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:3844 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263188AbREaTot>;
+	Thu, 31 May 2001 15:44:49 -0400
+Message-ID: <20010531002837.B21681@bug.ucw.cz>
+Date: Thu, 31 May 2001 00:28:37 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Philip.Blundell@pobox.com,
+To: jt@hpl.hp.com, Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tori@unhappy.mine.nu,
         kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net #6
-In-Reply-To: <200105300044.CAA04542@green.mif.pg.gda.pl> <E1550vA-0005Xe-00@the-village.bc.nu>
+Subject: Re: [PATCH] net #9
+In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com> <20010529182506.A14727@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <E1550vA-0005Xe-00@the-village.bc.nu>; from Alan Cox on Wed, May 30, 2001 at 09:01:36AM +0100
+In-Reply-To: <20010529182506.A14727@bougret.hpl.hp.com>; from Jean Tourrilhes on Tue, May 29, 2001 at 06:25:06PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> They are neccessary
+> > This is standard kernel cleanup that makes the resulting image smaller. 
+> > These patches have been going into all areas of the kernel for quite
+> > some time.
 > 
-> > @@ -643,9 +631,7 @@
-> >  	        eexp_hw_tx_pio(dev,data,length);
-> >  	}
-> >  	dev_kfree_skb(buf);
-> > -#ifdef CONFIG_SMP
-> >  	spin_unlock_irqrestore(&lp->lock, flags);
-> > -#endif
-> >  	enable_irq(dev->irq);
-> >  	return 0;
-> 
-> They are done this way to get good non SMP performance. Your changes would
-> ruin that.
+> 	This doesn't make it right.
 
-Maybe macro "spin_lock_irqsave_on_smp()" would be good idea? These
-ifdefs look ugly. Maybe local to driver, maybe even global.
+Well... It does. Code should be uniform. You may like
+
+if (
+  x == y
+) {
+  printf(
+	"ahoj"
+	);
+}
+
+style of indentation, but it is not okay in kernel.
+
+> 	Ok, while we are on the topic : could somebody explain me why
+> we can't get gcc to do that for us ? What is preventing adding a gcc
+
+int xyzzy;
+
+goes to BSS, while
+
+int xyzzy = 0 
+
+goes to DATA. That is important for some folks.
+
+> command line flag to do exactly that ? It's not like rocket science
+> (simple test) and would avoid to have tediously to go through all
+
+It is actually not *so* easy to do it in gcc; there's patch, however.
+
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVBHLFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVBHLNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVBHLFH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 06:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVBHLFH
+	id S261514AbVBHLNk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 06:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVBHLNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 06:05:07 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:41450 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261512AbVBHLFC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 06:05:02 -0500
-Date: Tue, 8 Feb 2005 12:04:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.11-rc3-mm1: softlockup and suspend/resume
-Message-ID: <20050208110418.GA878@elte.hu>
-References: <20050204103350.241a907a.akpm@osdl.org> <200502062015.56458.rjw@sisk.pl> <20050207085728.GA17197@elte.hu> <200502071353.57660.rjw@sisk.pl>
+	Tue, 8 Feb 2005 06:13:40 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:24705 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261514AbVBHLNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 06:13:38 -0500
+Date: Tue, 8 Feb 2005 14:13:22 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Jean Delvare <khali@linux-fr.org>, Enrico Bartky <DOSProfi@web.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Maarten Deprez <maartendeprez@scarlet.be>, Greg KH <gregkh@suse.de>
+Subject: Re: M7101
+Message-ID: <20050208141322.A2831@jurassic.park.msu.ru>
+References: <41DC59A4.1070006@web.de> <20050206152615.1ab7498c.khali@linux-fr.org> <20050206150611.GR20386@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502071353.57660.rjw@sisk.pl>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050206150611.GR20386@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Sun, Feb 06, 2005 at 03:06:11PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rafael J. Wysocki <rjw@sisk.pl> wrote:
-
-> The warning is printed right after the image is restored (ie somewhere
-> around the local_irq_enable() above, but it goes before the "PM: Image
-> restored successfully." message that is printed as soon as the return
-> is executed).  Definitely, less than 1 s passes between the resoring
-> of the image and the warining.
+On Sun, Feb 06, 2005 at 03:06:11PM +0000, Matthew Wilcox wrote:
+> Looks pretty good to me.  For clarity, I'd change:
 > 
-> BTW, I've also tried to put touch_softlockup_watchdog() before
-> device_power_up(), but it didn't change much.
+> -	m7101 = pci_scan_single_device(dev->bus, 0x18);
+> +	m7101 = pci_scan_single_device(dev->bus, PCI_DEVFN(3, 0));
 
-this is a single-CPU box, right?
+No, it's pretty broken regardless of the change. The integrated devices
+on ALi southbridges (IDE, PMU, USB etc.) have programmable IDSELs,
+so using hardcoded devfn is just dangerous. We must figure out what
+the device number PMU will have before we turn it on.
+Something like this:
 
-could you put a printk into touch_softlockup_watchdog() and re-try your
-modified tree - in which order do the messages get printed? (perhaps
-also add a jiffies printout to both the lockup message and to
-touch_softlockup_watchdog())
+	// NOTE: These values are for m1543. Someone must verify whether
+	// they are the same for m1533 or not.
+	static char pmu_idsels[4] __devinitdata = { 28, 29, 14, 15 };
 
-	Ingo
+	...
+
+	/* Get IDSEL mapping for PMU (bits 2-3 of 0x72). */
+	pci_read_config_byte(dev, 0x72, &val);
+	devnum = pmu_idsel[(val >> 2) & 3] - 11;
+	m7101 = pci_get_slot(dev->bus, PCI_DEVFN(devnum, 0));
+	if (m7101) {
+		/* Failure - there is another device with the same number. */
+		pci_dev_put(m7101);
+		return;
+	}
+
+	/* Enable PMU. */
+	...
+
+	m7101 = pci_scan_single_device(dev->bus, PCI_DEVFN(devnum, 0));
+	...
+
+Ivan.

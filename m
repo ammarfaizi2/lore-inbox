@@ -1,64 +1,172 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280118AbRJaJXB>; Wed, 31 Oct 2001 04:23:01 -0500
+	id <S280116AbRJaJXV>; Wed, 31 Oct 2001 04:23:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280117AbRJaJWl>; Wed, 31 Oct 2001 04:22:41 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:65380 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S280116AbRJaJWf>; Wed, 31 Oct 2001 04:22:35 -0500
-Date: Wed, 31 Oct 2001 11:23:03 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need blocking /dev/null
-Message-ID: <20011031112303.A26218@niksula.cs.hut.fi>
-In-Reply-To: <20011030035221.6E5611FE7D@varmo.pacujo.nu> <Pine.LNX.4.21.0110310046000.19579-100000@Consulate.UFP.CX>
-Mime-Version: 1.0
+	id <S280117AbRJaJXM>; Wed, 31 Oct 2001 04:23:12 -0500
+Received: from chiark.greenend.org.uk ([195.224.76.132]:33295 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S280116AbRJaJW5>; Wed, 31 Oct 2001 04:22:57 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0110310046000.19579-100000@Consulate.UFP.CX>; from rhw@MemAlpha.cx on Wed, Oct 31, 2001 at 12:51:29AM +0000
+Content-Transfer-Encoding: 7bit
+Message-ID: <wwvg080macs.fsf@rjk.greenend.org.uk>
+Date: Wed, 31 Oct 2001 09:23:31 +0000
+X-Face: h[Hh-7npe<<b4/eW[]sat,I3O`t8A`(ej.H!F4\8|;ih)`7{@:A~/j1}gTt4e7-n*F?.Rl^
+     F<\{jehn7.KrO{!7=:(@J~]<.[{>v9!1<qZY,{EJxg6?Er4Y7Ng2\Ft>Z&W?r\c.!4DXH5PWpga"ha
+     +r0NzP?vnz:e/knOY)PI-
+X-Boydie: NO
+From: Richard Kettlewell <rjk@greenend.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: problem with ide-scsi and IDE tape drive
+In-Reply-To: <3BDF45B6.5B7FA397@fc.hp.com>
+In-Reply-To: <mailman.1004484541.12716.linux-kernel2news@redhat.com>
+	<200110302359.f9UNxht09639@devserv.devel.redhat.com>
+	<3BDF45B6.5B7FA397@fc.hp.com>
+X-Mailer: VM 6.92 under 21.4 (patch 1) "Copyleft" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 12:51:29AM +0000, you [Riley Williams] claimed:
-> Hi Marko.
-> 
-> > PS Are /dev/null and /dev/zero also redundant?
-> 
-> I regularly use both...
-> 
->  1. Find a download that doesn't appear where one expected it...
-> 
-> 	find / -name "wanted-but-lost-download" 2> /dev/null
-> 
->  2. Create a loop-mounted partition to populate as a CD image before
->     burning the CD in question.
-> 
-> 	dd if=/dev/zero bs=1048576 count=750 of=/tmp/cd.img
-> 	mke2fs /tmp/cd.img
-> 	mount -o loop /tmp/cd.img /img/cd
-> 
->  3. Create a loop-mounted partition to populate as a floppy image.
-> 
-> 	dd if=/dev/zero bs=1024 count=1440 of=/tmp/floppy.img
-> 	mke2fs /tmp/floppy.img
-> 	mount -o loop /tmp/floppy.img /img/floppy
-> 
-> Neither has alternatives that make sense as far as I can see.
+Khalid Aziz writes:
+> Pete Zaitcev wrote:
 
-Certainly have in the sense that you could theoretically do that in user
-space.
+>> Try "mt fsf" instead dd, see if that helps.
+> 
+> dd is not guaranteed toposition you beyond the filemark after the
+> first record. You have to be positioned beyond the filemark to start
+> writing.  Pete's suggestion is a good one. "mt fsf" will position
+> the tape beyond the filemark and writing to the tape should work at
+> that point.
 
-find / -name "wanted-but-lost-download" | eat
-zerofill | head -c 1440k > /tmp/floppy.img
-ssh foo@bar | block
+Thankyou for the suggestions.  However, mt reports that the tape is
+positioned beyond the filemark before the failed write.  Using "mt
+fsf" doesn't make any difference - the problem still occurs.
 
-etc.
- 
-(Implementation of eat, block and zerofill is left as an exercise...)
+    sfere# cat t
+    #! /bin/sh
+    set -e
+    TAPE=/dev/nst0
+    hsize=512
 
+    set -x
 
--- v --
+    mt -f $TAPE rewind
+    echo "tape 1" | dd conv=sync of=$TAPE bs=$hsize count=1
 
-v@iki.fi
+    for x in 1 2 3; do
+      mt -f $TAPE rewind
+      dd if=$TAPE of=/dev/null bs=$hsize
+      date
+      mt -f $TAPE status
+      tar -c -b 20 -f $TAPE /boot
+    done
+    sfere# ./t
+    + mt -f /dev/nst0 rewind
+    + echo 'tape 1'
+    + dd conv=sync of=/dev/nst0 bs=512 count=1
+    0+1 records in
+    1+0 records out
+    + mt -f /dev/nst0 rewind
+    + dd if=/dev/nst0 of=/dev/null bs=512
+    1+0 records in
+    1+0 records out
+    + date
+    Wed Oct 31 09:06:24 GMT 2001
+    + mt -f /dev/nst0 status
+    drive type = Generic SCSI-2 tape
+    drive status = 1191182848
+    sense key error = 0
+    residue count = 0
+    file number = 1
+    block number = 0
+    Tape block size 512 bytes. Density code 0x47 (unknown).
+    Soft error count since last status=0
+    General status bits on (81010000):
+     EOF ONLINE IM_REP_EN
+    + tar -c -b 20 -f /dev/nst0 /boot
+    tar: Removing leading `/' from absolute path names in the archive
+    + mt -f /dev/nst0 rewind
+    + dd if=/dev/nst0 of=/dev/null bs=512
+    1+0 records in
+    1+0 records out
+    + date
+    Wed Oct 31 09:06:59 GMT 2001
+    + mt -f /dev/nst0 status
+    drive type = Generic SCSI-2 tape
+    drive status = 1191182848
+    sense key error = 0
+    residue count = 0
+    file number = 1
+    block number = 0
+    Tape block size 512 bytes. Density code 0x47 (unknown).
+    Soft error count since last status=0
+    General status bits on (81010000):
+     EOF ONLINE IM_REP_EN
+    + tar -c -b 20 -f /dev/nst0 /boot
+    tar: Removing leading `/' from absolute path names in the archive
+    tar: Cannot write to /dev/nst0: I/O error
+    tar: Error is not recoverable: exiting now
+
+    sfere# cat ./t
+    #! /bin/sh
+    set -e
+    TAPE=/dev/nst0
+    hsize=512
+
+    set -x
+
+    mt -f $TAPE rewind
+    echo "tape 1" | dd conv=sync of=$TAPE bs=$hsize count=1
+
+    for x in 1 2 3; do
+      mt -f $TAPE rewind
+    #  dd if=$TAPE of=/dev/null bs=$hsize
+      mt -f $TAPE fsf
+      date
+      mt -f $TAPE status
+      tar -c -b 20 -f $TAPE /boot
+    done
+    sfere# ./t
+    + mt -f /dev/nst0 rewind
+    + echo 'tape 1'
+    + dd conv=sync of=/dev/nst0 bs=512 count=1
+    0+1 records in
+    1+0 records out
+    + mt -f /dev/nst0 rewind
+    + mt -f /dev/nst0 fsf
+    + date
+    Wed Oct 31 09:14:16 GMT 2001
+    + mt -f /dev/nst0 status
+    drive type = Generic SCSI-2 tape
+    drive status = 1191182848
+    sense key error = 0
+    residue count = 0
+    file number = 1
+    block number = 0
+    Tape block size 512 bytes. Density code 0x47 (unknown).
+    Soft error count since last status=0
+    General status bits on (81010000):
+     EOF ONLINE IM_REP_EN
+    + tar -c -b 20 -f /dev/nst0 /boot
+    tar: Removing leading `/' from absolute path names in the archive
+    + mt -f /dev/nst0 rewind
+    + mt -f /dev/nst0 fsf
+    + date
+    Wed Oct 31 09:14:52 GMT 2001
+    + mt -f /dev/nst0 status
+    drive type = Generic SCSI-2 tape
+    drive status = 1191182848
+    sense key error = 0
+    residue count = 0
+    file number = 1
+    block number = 0
+    Tape block size 512 bytes. Density code 0x47 (unknown).
+    Soft error count since last status=0
+    General status bits on (81010000):
+     EOF ONLINE IM_REP_EN
+    + tar -c -b 20 -f /dev/nst0 /boot
+    tar: Removing leading `/' from absolute path names in the archive
+    tar: Cannot write to /dev/nst0: I/O error
+    tar: Error is not recoverable: exiting now
+    sfere# 
+
+ttfn/rjk

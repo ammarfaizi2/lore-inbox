@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264869AbRFTJyy>; Wed, 20 Jun 2001 05:54:54 -0400
+	id <S264871AbRFTKEx>; Wed, 20 Jun 2001 06:04:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264870AbRFTJyn>; Wed, 20 Jun 2001 05:54:43 -0400
-Received: from firewall.sch.bme.hu ([152.66.215.213]:1664 "EHLO
-	singular.sch.bme.hu") by vger.kernel.org with ESMTP
-	id <S264869AbRFTJyk>; Wed, 20 Jun 2001 05:54:40 -0400
-Date: Wed, 20 Jun 2001 11:56:36 +0200 (CEST)
-From: =?ISO-8859-2?Q?Kajt=E1r_Zsolt?= <soci@firewall.sch.bme.hu>
-To: linux-kernel@vger.kernel.org
-cc: rusty@rustcorp.com.au
-Subject: Re: Iptables ipt_unclean bug?
-Message-ID: <Pine.LNX.4.21.0106201130470.274-100000@firewall.sch.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264872AbRFTKEn>; Wed, 20 Jun 2001 06:04:43 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:50353 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S264871AbRFTKEd>; Wed, 20 Jun 2001 06:04:33 -0400
+Date: Wed, 20 Jun 2001 20:21:30 +1000
+From: john slee <indigoid@higherplane.net>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Message-ID: <20010620202130.H30872@higherplane.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010619200442.E30785@work.bitmover.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In message <Pine.LNX.4.21.0106190104020.414-100000@firewall.sch.bme.hu>
-> you write:
-> >
-> > Hi all!
-> >
-> > I think it's possible to hang the kernel useing isic 0.05
-> > (www.packetfactory.net/Projects/ISIC/), when there's a unclean match
-> > in iptables rules.
+On Tue, Jun 19, 2001 at 08:04:42PM -0700, Larry McVoy wrote:
 
-> Thanks for the bug report. I've just done an audit of the unclean
-> code: patch against 2.4.5 is below. There were some bad thinkos there,
-> two fatal.
+[ ... ]
 
-2 infinite loops ;)
+> I asked Linus for this a long time ago and he pointed out that you couldn't
+> make it work over NFS, at least not nicely.  It does seem like that could
+> be worked around by having a "poll daemon" which knew about all the things
+> being waited on and checked them.  Or something.
 
-After patching now everything seems to be ok.
+could sgi's imon+fam work help a little here (with the "poll daemon" part)?
+am i on the wrong train ? :-]
 
-But there must be some other bug somewhere in TCP/IP stack or af_packet
-(or my machine is just crap ;) ), because after ~5 mins I can still hang
-my kernel on loopback WITHOUT iptables... Will check which one is on fault
-on my home network...
+not sure how maintained it is these days...
 
-							-soci-
+[ ... ]
 
+j.
 
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265650AbSLPNn0>; Mon, 16 Dec 2002 08:43:26 -0500
+	id <S262420AbSLPNup>; Mon, 16 Dec 2002 08:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbSLPNn0>; Mon, 16 Dec 2002 08:43:26 -0500
-Received: from opengfs.tovarcom.com ([65.67.58.21]:8382 "HELO
-	escalade.vistahp.com") by vger.kernel.org with SMTP
-	id <S265650AbSLPNnY>; Mon, 16 Dec 2002 08:43:24 -0500
-Message-ID: <20021216135453.3823.qmail@escalade.vistahp.com>
-References: <FKEAJLBKJCGBDJJIPJLJEEKMDLAA.scott@coyotegulch.com>
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJEEKMDLAA.scott@coyotegulch.com>
-From: "Brian Jackson" <brian-kernel-list@mdrx.com>
-To: "Scott Robert Ladd" <scott@coyotegulch.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/cpuinfo and hyperthreading
-Date: Mon, 16 Dec 2002 07:54:53 -0600
+	id <S265612AbSLPNup>; Mon, 16 Dec 2002 08:50:45 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:58514 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262420AbSLPNuo>;
+	Mon, 16 Dec 2002 08:50:44 -0500
+Date: Mon, 16 Dec 2002 13:58:13 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Paul <set@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Oops 2.5.51] PnPBIOS: cat /proc/bus/pnp/escd
+Message-ID: <20021216135813.GD11616@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Paul <set@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021215230344.GE1432@squish.home.loc>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021215230344.GE1432@squish.home.loc>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You could always boot once with nosmp and run some benchmarks and then 
-reboot (with smp) and run some more benchmarks, and see if there is a 
-difference. 
+ > 	'cat /proc/bus/pnp/escd' consistantly produces this:
 
- --Brian Jackson 
+ > EIP:    0088:[<00007b74>]    Not tainted
 
+You blew up in BIOS code. Your BIOS has a crap PNPBIOS implementation.
+Send the output of dmidecode[1] and it can get added to the blacklist.
 
-Scott Robert Ladd writes: 
+[1] http://people.redhat.com/arjanv/dmidecode.c
 
-> Zwane Mwaikambo wrote:
->> It's ok.
-> 
-> I'm not so sure. 
-> 
-> To get the most benefit from two logical CPUs, don't I need the kernel to
-> operate as a 2-CPU SMP system? 
-> 
-> Windows XP initializes the system as SMP with two CPUs; when I run an OpenMP
-> application under Windows, it reports two CPUs and a maximum of two threads.
-> Under Linux, 
-> 
-> Linux SMP should initialize based on the number of logical CPUS, not the
-> physical number of ships; thus, I should be seeing two CPUs in
-> /proc/cpuinfo, not one. 
-> 
-> ..Scott 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
- 
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

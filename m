@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKSWpL>; Sun, 19 Nov 2000 17:45:11 -0500
+	id <S129183AbQKSWxf>; Sun, 19 Nov 2000 17:53:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbQKSWpC>; Sun, 19 Nov 2000 17:45:02 -0500
-Received: from [210.149.136.62] ([210.149.136.62]:51073 "EHLO
-	research.imasy.or.jp") by vger.kernel.org with ESMTP
-	id <S129145AbQKSWoo>; Sun, 19 Nov 2000 17:44:44 -0500
-Date: Mon, 20 Nov 2000 07:13:25 +0900
-Message-Id: <200011192213.eAJMDPO02395@research.imasy.or.jp>
-From: Taisuke Yamada <tai@imasy.or.jp>
-To: karrde@callisto.yi.org
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org, tai@imasy.or.jp
-Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using oldBIOS
-In-Reply-To: Your message of "Sun, 19 Nov 2000 18:41:29 +0200 (IST)".
-    <Pine.LNX.4.21.0011191816570.857-100000@callisto.yi.org>
-X-Mailer: mnews [version 1.22PL4] 2000-05/28(Sun)
+	id <S129875AbQKSWx0>; Sun, 19 Nov 2000 17:53:26 -0500
+Received: from 3dyn88.com21.casema.net ([212.64.94.88]:63762 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129183AbQKSWxM>;
+	Sun, 19 Nov 2000 17:53:12 -0500
+Date: Mon, 20 Nov 2000 00:16:52 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Cc: aeb@veritas.com
+Subject: Re: 2.4 sendfile() not doing as manpage promises?
+Message-ID: <20001120001652.A12969@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org, aeb@veritas.com
+In-Reply-To: <20001119001558.B10579@home.ds9a.nl> <Pine.LNX.4.30.0011181513290.5897-100000@anime.net> <20001119015259.A10773@home.ds9a.nl> <20001119173623.A1185@veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <20001119173623.A1185@veritas.com>; from aeb@veritas.com on Sun, Nov 19, 2000 at 05:36:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 19, 2000 at 05:36:23PM +0100, Andries Brouwer wrote:
+> DESCRIPTION
+>        This call copies data  between  one  file  descriptor  and
+>        another.   Either  or  both  of these file descriptors may
+>        refer to a socket.  in_fd  should  be  a  file  descriptor
+>        opened  for  reading  and  out_fd  should  be a descriptor
+>        opened for writing.
+> 
+> If that is incorrect, then editing a private copy of the manpage,
+> as Dan Hollis, or the distributor from whom he got his page,
+> seems to have done, does not suffice to change the manpage distribution.
 
-> > Earlier this month, I had sent in a patch to 2.2.18pre17 (with
-> > IDE-patch from http://www.linux-ide.org/ applied) to add support
-> > for IDE disk larger than 32GB, even if the disk required "clipping"
-> > to reduce apparent disk size due to BIOS limitation.
->  
-> This patch is not good. It compiles, but when I boot the kernel, it
-> decides to ignore the hdc=5606,255,63 parameter that I pass to the kernel,
-> and limits the number of sectors to fill 8.4GB.
+Improved attempt:
 
-Please retest with hdc=... parameter removed. If hd[a-z]=...
-parameter is specified, my patch will be disabled, trusting
-whatever user has specified.
+DESCRIPTION 
+	This call copies data between one file descriptor and another.  The
+	descriptor from which data is read cannot be a socket but must
+	correspond to a file which supports mmap()-like operations. in_fd
+	should be a filedescriptor opened for reading and out_fd should be a
+	descriptor opened for writing. Because this copying is done within
+	the kernel, sendfile() does not need to spend time transfering data
+	to and from userspace.
 
-Here's a example output of what you should expect if the patched
-part is being executed:
+Regards,
 
-  hda: host protected area => 1
-  hda: checking for max native LBA...
-  hda: max native LBA is 90045647
-  hda: (un)clipping max LBA...
-  hda: max LBA (un)clipped to 90045647
-  hda: lba = 1, cap = 90045647
-  hda: 90045647 sectors (46103 MB) w/2048KiB Cache, CHS=89330/16/63, UDMA(33)
-  hdc: host protected area => 1
-  hdc: checking for max native LBA...
-  hdc: max native LBA is 90045647
-  hdc: (un)clipping max LBA...
-  hdc: max LBA (un)clipped to 90045647
-  hdc: lba = 1, cap = 90045647
-  hdc: 90045647 sectors (46103 MB) w/2048KiB Cache, CHS=89330/16/63, UDMA(33)
+bert hubert
 
->  /*
->   * Compute drive->capacity, the full capacity of the drive
->   * Called with drive->id != NULL.
-> + *
-> + * To compute capacity, this uses either of
-> + *
-> + *    1. CHS value set by user       (whatever user sets will be trusted)
-> + *    2. LBA value from target drive (require new ATA feature)
-> + *    3. LBA value from system BIOS  (new one is OK, old one may break)
-> + *    4. CHS value from system BIOS  (traditional style)
-> + *
-> + * in above order (i.e., if value of higher priority is available,
-> + * rest of the values are ignored).
->   */
-
---
-Taisuke Yamada <tai@imasy.or.jp>
-PGP fingerprint = 6B 57 1B ED 65 4C 7D AE  57 1B 49 A7 F7 C8 23 46
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

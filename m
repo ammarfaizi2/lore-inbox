@@ -1,87 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263401AbTDMIq6 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 04:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTDMIq6 (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 04:46:58 -0400
-Received: from phobos.aros.net ([66.219.192.20]:526 "EHLO phobos.aros.net")
-	by vger.kernel.org with ESMTP id S263401AbTDMIq5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 04:46:57 -0400
-Message-ID: <3E992EAD.6050102@aros.net>
-Date: Sun, 13 Apr 2003 03:32:29 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id S263402AbTDMIyl (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 04:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263403AbTDMIyl (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 04:54:41 -0400
+Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:27036 "EHLO
+	ubb.apia.dhs.org") by vger.kernel.org with ESMTP id S263402AbTDMIyk (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 04:54:40 -0400
+From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
 To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com, marcelo@conectiva.com.br
-Subject: [PATCH] network block device driver, kernel 2.4
-Content-Type: multipart/mixed;
- boundary="------------090901090703070208090509"
+Subject: Re: Quick question about hyper-threading
+References: <20030413031007$5a6f@gated-at.bofh.it> <20030413041007$6d72@gated-at.bofh.it>
+Organization: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
+X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
+X-Disclaimer-2: There is no Eric Conspiracy.
+User-Agent: MT-NewsWatcher/3.1 (PPC)
+Date: Sun, 13 Apr 2003 04:06:09 -0500
+Message-ID: <nicoya-87F6BA.04060913042003@news.sc.shawcable.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090901090703070208090509
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In article <20030413041007$6d72@gated-at.bofh.it>, Robert Love <rml@tech9.net> 
+wrote:
 
-Here's a simple patch to nbd.c to fix some of the potential for oopses 
-(and possible corruption) should the nbd-client that handed off a socket 
-exit (implicitly closing the socket), while the driver is still sending 
-requests onto that socket. The oops can easily be seen when root runs 
-"nbd-client -d /dev/nbX" after /dev/nbX has been setup and still has a 
-bunch of I/O buffered up (and is sending requests to the socket to 
-handle the queue). This patch doesn't change functionality.
+: On Sat, 2003-04-12 at 23:13, Timothy Miller wrote:
+[...]
+: > Does the HT-aware scheduler attempt to take this into account by scheduling
+: > two related threads to run simultaneously on the same CPU as often as
+: > possible (unless you're in a multi-processor system and another CPU would
+: > otherwise be idle)?
+: 
+: 
+: No, the current scheduler (HT or stock 2.5) does not do this.
+: 
+: Your theories are correct.  It would be interesting to try this and see.
+: 
+: It is nontrivial to do the ->mm checks in the scheduler though -
+: certainly they cannot be done easily (if at all) in constant-time (i.e.,
+: it won't be O(1)).
+[...]
 
-Louis D. Langholtz
+Perhaps the same effect could be obtained by preferentially scheduling processes 
+to execute on the "node" (a node being a single cpu in an SMP system, or an HT 
+virtual CPU pair, or a NUMA node) that they were last running on.
 
---------------090901090703070208090509
-Content-Type: text/plain;
- name="nbd.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nbd.diff"
+I think the ideal semantics would probably be something along the lines of:
 
---- linux-2.4.20/drivers/block/nbd.c	2002-08-02 18:39:43.000000000 -0600
-+++ linux/drivers/block/nbd.c	2003-04-13 02:24:26.000000000 -0600
-@@ -26,6 +26,8 @@
-  *   reduce number of partial TCP segments sent. <steve@chygwyn.com>
-  * 01-12-6 Fix deadlock condition by making queue locks independant of
-  *   the transmit lock. <steve@chygwyn.com>
-+ * 03-04-12 Fix some possible ways to oops from the nbd-client closing the
-+ *   socket it gave us while we're still using that socket. <ldl@aros.net>
-  *
-  * possible FIXME: make set_sock / set_blksize / set_size / do_it one syscall
-  * why not: would need verify_area and friends, would share yet another 
-@@ -153,7 +155,7 @@
- 	int result;
- 	struct nbd_request request;
- 	unsigned long size = req->nr_sectors << 9;
--	struct socket *sock = lo->sock;
-+	struct socket *sock;
- 
- 	DEBUG("NBD: sending control, ");
- 	request.magic = htonl(NBD_REQUEST_MAGIC);
-@@ -163,6 +165,8 @@
- 	memcpy(request.handle, &req, sizeof(req));
- 
- 	down(&lo->tx_lock);
-+	sock = lo->sock;
-+	if (!sock) goto error_out; /* we got cleared */
- 
- 	result = nbd_xmit(1, sock, (char *) &request, sizeof(request), req->cmd == WRITE ? MSG_MORE : 0);
- 	if (result <= 0)
-@@ -402,7 +406,10 @@
- 		if (!file)
- 			return -EINVAL;
- 		lo->file = NULL;
-+		/* ensure we're not in critical section of nbd_send_req() */
-+		down(&lo->tx_lock);
- 		lo->sock = NULL;
-+		up(&lo->tx_lock);
- 		fput(file);
- 		return 0;
- 	case NBD_SET_SOCK:
+ - a newly fork()ed thread executes on the same node as the creating thread
+ - calling exec() sets a "feel free to shuffle me elsewhere" flag
+ - threads are otherwise only shuffled to other nodes when a certain load ratio 
+is exceeded (current-node:idle-node)
 
---------------090901090703070208090509--
+Unfortunatley the whole idea would seem to fall apart in the case of a 
+fast-spawning thread pool type load. Perhaps there's a way to handle that 
+automatically, or perhaps it would best be left as a scheduler tunable, I don't 
+know.
 
+I seem to recall SGI found great benefit in writing the scheduler in IRIX to 
+work somewhat like this, though the loads on most SGI machines tend to be slow 
+spawning, long running and big memory - the textbook case for reduced node 
+shuffling. Linux would tend to have a much greater variety of load profiles, 
+some of which would be less pleasantly affected.
+
+
+Cheers - Tony 'Nicoya' Mantler :)
+
+-- 
+Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
+Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/

@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316403AbSEWIuF>; Thu, 23 May 2002 04:50:05 -0400
+	id <S316414AbSEWIxI>; Thu, 23 May 2002 04:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316420AbSEWIuE>; Thu, 23 May 2002 04:50:04 -0400
-Received: from pc-62-31-74-121-ed.blueyonder.co.uk ([62.31.74.121]:50048 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S316403AbSEWIuD>; Thu, 23 May 2002 04:50:03 -0400
-Date: Thu, 23 May 2002 09:49:48 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jon Hedlund <JH_ML@invtools.com>, sct@redhat.com, akpm@zip.com.au,
+	id <S316420AbSEWIxH>; Thu, 23 May 2002 04:53:07 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46348 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316414AbSEWIxG>; Thu, 23 May 2002 04:53:06 -0400
+Date: Thu, 23 May 2002 10:53:06 +0200
+From: Jan Kara <jack@ucw.cz>
+To: torvalds@transmeta.com
+Cc: Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
         linux-kernel@vger.kernel.org
-Subject: Re: 2.2 kernel - Ext3 & Raid patches
-Message-ID: <20020523094948.A2462@redhat.com>
-In-Reply-To: <3CEA7866.23557.390B7FFC@localhost> <20020523011144.GA4006@matchmail.com>
+Subject: Re: Quota patches
+Message-ID: <20020523085306.GA1677@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020523154249.X180298@wobbly.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, May 22, 2002 at 06:11:44PM -0700, Mike Fedyk wrote:
-> On Tue, May 21, 2002 at 04:40:06PM -0500, Jon Hedlund wrote:
-> > 2. What is the "proper" fix for the patch collision between the raid
-> > patch and the ext3 patch in /include/linux/fs.h? 
+> On Thu, May 23, 2002 at 09:30:10AM +1000, Nathan Scott wrote:
+> > ... but that should just about do the trick I think.
 > 
-> Use 2.4.
+> How does the patch below look Jan?
+> 
+  The patch is OK with me. Can you apply it Linus?
 
-Actually, you just need to renumber one of the conflicting #defines to
-something unused, and it will work fine.  Soft raid0 or linear mode
-will work quite happily with ext3 on 2.2 after you do that, it's only
-the resync after a crash that you get with raid1 or raid5 that is
-dangerous.
+								Thanks
+  									Honza
 
-Cheers,
- Stephen
+diff -Naur pristine-linux-2.5.17/fs/Config.in quota-linux-2.5.17/fs/Config.in
+--- pristine-linux-2.5.17/fs/Config.in	Tue May 21 15:07:31 2002
++++ quota-linux-2.5.17/fs/Config.in	Thu May 23 10:33:32 2002
+@@ -8,10 +8,13 @@
+ dep_tristate '  Old quota format support' CONFIG_QFMT_V1 $CONFIG_QUOTA
+ dep_tristate '  VFS v0 quota format support' CONFIG_QFMT_V2 $CONFIG_QUOTA
+ dep_mbool '  Compatible quota interfaces' CONFIG_QIFACE_COMPAT $CONFIG_QUOTA
+-if [ "$CONFIG_QUOTA" = "y" -a "$CONFIG_QIFACE_COMPAT" = "y" ]; then
+-   choice '    Compatible quota interfaces' \
+-	"Original	CONFIG_QIFACE_V1 \
+-	 VFSv0		CONFIG_QIFACE_V2" Original
++if [ "$CONFIG_QUOTA" = "y" ]; then
++   define_bool CONFIG_QUOTACTL y
++   if [ "$CONFIG_QIFACE_COMPAT" = "y" ]; then
++       choice '    Compatible quota interfaces' \
++		"Original	CONFIG_QIFACE_V1 \
++		 VFSv0		CONFIG_QIFACE_V2" Original
++   fi
+ fi
+ tristate 'Kernel automounter support' CONFIG_AUTOFS_FS
+ tristate 'Kernel automounter version 4 support (also supports v3)' CONFIG_AUTOFS4_FS
+diff -Naur pristine-linux-2.5.17/fs/Makefile quota-linux-2.5.17/fs/Makefile
+--- pristine-linux-2.5.17/fs/Makefile	Tue May 21 15:07:30 2002
++++ quota-linux-2.5.17/fs/Makefile	Thu May 23 10:43:00 2002
+@@ -15,7 +15,7 @@
+ 		namei.o fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
+ 		dcache.o inode.o attr.o bad_inode.o file.o iobuf.o dnotify.o \
+ 		filesystems.o namespace.o seq_file.o xattr.o libfs.o \
+-		fs-writeback.o quota.o
++		fs-writeback.o
+ 
+ ifneq ($(CONFIG_NFSD),n)
+ ifneq ($(CONFIG_NFSD),)
+@@ -81,9 +81,10 @@
+ 
+ obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
+ 
+-obj-$(CONFIG_QUOTA) += dquot.o
+-obj-$(CONFIG_QFMT_V1) += quota_v1.o
+-obj-$(CONFIG_QFMT_V2) += quota_v2.o
++obj-$(CONFIG_QUOTA)		+= dquot.o
++obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
++obj-$(CONFIG_QFMT_V2)		+= quota_v2.o
++obj-$(CONFIG_QUOTACTL)		+= quota.o
+ 
+ # persistent filesystems
+ obj-y += $(join $(subdir-y),$(subdir-y:%=/%.o))

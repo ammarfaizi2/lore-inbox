@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbTBXTPJ>; Mon, 24 Feb 2003 14:15:09 -0500
+	id <S267277AbTBXTYB>; Mon, 24 Feb 2003 14:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbTBXTPJ>; Mon, 24 Feb 2003 14:15:09 -0500
-Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:33721 "EHLO
-	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S266810AbTBXTPI>; Mon, 24 Feb 2003 14:15:08 -0500
-Date: Mon, 24 Feb 2003 20:25:20 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: James Bourne <jbourne@mtroyal.ab.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tg3 patches needed for 2.4.19/2.4.20
-Message-ID: <20030224202520.C8760@pc9391.uni-regensburg.de>
-References: <20030224131434.I24600@pc9391.uni-regensburg.de> <Pine.LNX.4.51.0302240729200.21620@skuld.mtroyal.ab.ca>
+	id <S267289AbTBXTYB>; Mon, 24 Feb 2003 14:24:01 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:6417 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id <S267277AbTBXTYA>;
+	Mon, 24 Feb 2003 14:24:00 -0500
+Date: Mon, 24 Feb 2003 19:34:13 +0000
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] typo in slab.c debug ?
+Message-ID: <20030224193413.GA9397@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.51.0302240729200.21620@skuld.mtroyal.ab.ca>; from jbourne@mtroyal.ab.ca on Mon, Feb 24, 2003 at 15:37:54 +0100
-X-Mailer: Balsa 1.2.4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18nOMf-0002aK-00*rucNGigc2hU*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24.02.2003   15:37 James Bourne wrote:
-> On Mon, 24 Feb 2003, Christian Guggenberger wrote:
-> 
-> > Hi,
-> >
-> > In former days there always had been some problems with broadcom GBit Nics.
-> So
-> > I'd like to ask what patches for the tg3 are recommended for production use
-> 
-> > with 2.4.19/2.4.20.
-> 
-> Hi,
-> I have created a patch for 2.4.20 for the tg3 driver from Jeff
-> Garziks and David Millers tg3 1.4c driver which I'm hoping will be
-> in the next kernel.
-> 
-> The patch is at http://www.hardrock.org/kernel/2.4.20/
-> 
-> Note that because of NAPI the 2.4.20 driver will not work with 2.4.19...
-> 
-Hallo,
 
-thanks, I'll try 'em out. 
-cheers.
-Christian
+Looked like this condition was previously always false ...
 
-P.S. 2.4.19 is not so important, as the other machine (needs xfs, and I'll 
-stay with 2.4.19) has no onboard tg3, but gets a e1000 instead.
+Not tested or anything ... 2.5.62
 
+john
+
+--- linux-linus/mm/slab.c	2003-02-18 00:38:40.000000000 +0000
++++ linux/mm/slab.c	2003-02-24 19:36:47.000000000 +0000
+@@ -1643,7 +1643,7 @@
+ 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
+ 		unsigned long	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
+ 
+-		if (!flags & __GFP_WAIT)
++		if (!(flags & __GFP_WAIT))
+ 			ctor_flags |= SLAB_CTOR_ATOMIC;
+ 
+ 		cachep->ctor(objp, cachep, ctor_flags);

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279704AbRJ3A76>; Mon, 29 Oct 2001 19:59:58 -0500
+	id <S279705AbRJ3BES>; Mon, 29 Oct 2001 20:04:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279705AbRJ3A7h>; Mon, 29 Oct 2001 19:59:37 -0500
-Received: from t05-17.ra.uc.edu ([129.137.228.113]:54912 "EHLO cartman")
-	by vger.kernel.org with ESMTP id <S279704AbRJ3A7g>;
-	Mon, 29 Oct 2001 19:59:36 -0500
-Date: Mon, 29 Oct 2001 19:58:58 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too termination
-Message-ID: <20011029195858.A649@cartman>
-In-Reply-To: <20011029181029.A320@cartman> <3BDDE5DF.71917D8F@zip.com.au>, <3BDDE5DF.71917D8F@zip.com.au> <20011029190817.B320@cartman> <3BDDF4B0.194E132F@zip.com.au>
+	id <S279706AbRJ3BEJ>; Mon, 29 Oct 2001 20:04:09 -0500
+Received: from zero.tech9.net ([209.61.188.187]:61195 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279705AbRJ3BD7>;
+	Mon, 29 Oct 2001 20:03:59 -0500
+Subject: [PATCH] tty race on con_close and con_flush_chars
+From: Robert Love <rml@tech9.net>
+To: linus@transmeta.com, laughing@shared-source.org
+Cc: linux-kernel@vger.kernel.org, tytso@thunk.org, andrewm@uow.edu.au
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
+Date: 29 Oct 2001 20:04:27 -0500
+Message-Id: <1004403868.809.147.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BDDF4B0.194E132F@zip.com.au>
-User-Agent: Mutt/1.3.23i
-From: Robert Kuebel <kuebelr@email.uc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 04:30:40PM -0800, Andrew Morton wrote:
-> Robert Kuebel wrote:
-> > 
-> > what about changing doing
-> >         spin_lock_irq(&current->sigmask_lock);
-> >         sigfillset(&current->blocked);  /* block all sig's */
-> >         recalc_sigpending(current);
-> >         spin_unlock_irq(&current->sigmask_lock);
-> > 
-> > instead of
-> > 
-> >         spin_lock_irq(&current->sigmask_lock);
-> >         sigemptyset(&current->blocked);
-> >         recalc_sigpending(current);
-> >         spin_unlock_irq(&current->sigmask_lock);
-> > 
-> > and replacing the signal_pending() stuff in the loops of
-> > rtl8139_thread() with checks for tp->diediedie?
-> 
-> If you block all the signals then the kill_proc() won't
-> bring the thread out of interruptible sleep?
+There is a race in the console code between con_close and
+con_flush_chars.  n_tty_receive_buf writes to the tty queue and then
+writes it out via con_flush_chars.  The race arises in between the above
+two operations; the console can close and thus zero tty->drive_data. 
+When con_flush_chars runs, it will dereference a null pointer.
 
-right, you would have to take out the kill_proc().
-can't you just let the thread return and not use kill_proc()?  i have
-been checking out the reiserfsd thread.
+The following fix, by Andrew Morton, merely checks if the tty still
+exists because continuing.  I am submitting the patch because the race
+is uncovered often with a preemptive kernel.  The fix is in the preempt
+tree, but it should be pushed to mainline since it should affect SMP
+too.
 
-i could be missing something.
+Linus and Alan, please apply.
+
+diff -urN linux-2.4.13-ac5/drivers/char/console.c linux/drivers/char/console.c
+--- linux-2.4.13-ac5/drivers/char/console.c	Mon Oct 29 17:27:19 2001
++++ linux/drivers/char/console.c	Mon Oct 29 17:28:24 2001
+@@ -2387,9 +2387,15 @@
+ 		return;
+ 
+ 	pm_access(pm_con);
+-	acquire_console_sem();
+-	set_cursor(vt->vc_num);
+-	release_console_sem();
++	if (vt) {
++		/*
++		 * If we raced with con_close(), `vt' may be null.
++		 * Hence this bandaid.   - akpm
++		 */
++		acquire_console_sem();
++		set_cursor(vt->vc_num);
++		release_console_sem();
++	}
+ }
+ 
+ /*
+
+	Robert Love
 

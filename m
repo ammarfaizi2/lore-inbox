@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136174AbRD0TM7>; Fri, 27 Apr 2001 15:12:59 -0400
+	id <S136175AbRD0TOT>; Fri, 27 Apr 2001 15:14:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136178AbRD0TMk>; Fri, 27 Apr 2001 15:12:40 -0400
-Received: from ns2.cypress.com ([157.95.67.5]:13773 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S136175AbRD0TM3>;
-	Fri, 27 Apr 2001 15:12:29 -0400
-Message-ID: <3AE9C48E.2F617997@cypress.com>
-Date: Fri, 27 Apr 2001 14:12:14 -0500
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: binfmt_misc on 2.4.3-ac14
-In-Reply-To: <86256A3A.007A6C40.00@smtpnotes.altec.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136194AbRD0TOQ>; Fri, 27 Apr 2001 15:14:16 -0400
+Received: from ns.caldera.de ([212.34.180.1]:32675 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S136175AbRD0TNx>;
+	Fri, 27 Apr 2001 15:13:53 -0400
+Date: Fri, 27 Apr 2001 21:13:37 +0200
+Message-Id: <200104271913.f3RJDbc19786@ns.caldera.de>
+From: hch@caldera.de (Christoph Hellwig)
+To: zaitcev@redhat.com (Pete Zaitcev)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Atrocious icache/dcache in 2.4.2
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010427150114.A23960@devserv.devel.redhat.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne.Brown@altec.com wrote:
-> 
-> <marpet@buy.pl> wrote:
-> >is it going to become the default in future kernel releases?
-> It's been that way in the -ac kernels for a while now, but Linus hasn't put it
-> into his kernels yet.  Perhaps he's waiting until work begins on 2.5, rather
-> than break an existing interface in 2.4.  Anyway, it's entirely up to Linus, so
-> I'm just guessing here. :-)
+Hi Pete,
 
-It's in the 2.4 kernels from RedHat (like the one shipped with SeaWolf)
-So if you update you distro you'll see it for a while.
+In article <20010427150114.A23960@devserv.devel.redhat.com> you wrote:
+> After a little thinking it seems apparent to me that it
+> may be a good thing to have VM taking pages from dentry and
+> inode pools directly. This sounds almost what slab does,
+> so let me speculate about it (it is a bad idea, but it is
+> interesting _why_).
+>
+> Suppose that we do this: when inode gets clean (e.g. unlocked,
+> written to disk if was changed), drop it into kmem_cache_free(),
+> but retain on hash (forget about poisoning for a momemt).
+> Then, if memory is needed, VM may ask slab, slab calls our
+> destructors, and destructors take inode off hash. The idea
+> solves the problem, but has two marks agains it. First, when
+> we look up an inode, we either hit dirty or "clean", which
+> is free. Then we have to do kmem_cache_alloc() and that will
+> return wrong inode, which we have to drop from hash, then do
+> memcpy from old "really free one", etc. It still saves disk
+> I/O, but messy. Another thing is a fragmentation: suppose we
+> have bunch of slabs, every one has a single dirty inode in it
+> (tar xf -). Memory pressure will be powerless to do anything
+> about them.
 
-I thought the plan was to move this out of /proc and
-to say /etc where config info like this "belongs".
-Did this change?
+It looks like you want the SLAB cache ->reclaim method we seem
+to have forgotten when cloning the Solaris SLAB interface nearly
+1:1...
 
-	-Thomas
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

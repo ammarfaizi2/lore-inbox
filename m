@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSCSSIE>; Tue, 19 Mar 2002 13:08:04 -0500
+	id <S286825AbSCSSHE>; Tue, 19 Mar 2002 13:07:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287858AbSCSSHz>; Tue, 19 Mar 2002 13:07:55 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:35858 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S287817AbSCSSHs>; Tue, 19 Mar 2002 13:07:48 -0500
-Path: Home.Lunix!not-for-mail
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and
-    2.2.21-pre3 (client)
-Date: Tue, 19 Mar 2002 15:42:33 +0000 (UTC)
-Organization: lunix confusion services
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
-    <200203110018.BAA11921@webserver.ithnet.com>
-    <15499.64058.442959.241470@charged.uio.no>
-    <200203180707.g2I771Z00657@mule.m17n.org> <shs8z8qb8c5.fsf@charged.uio.no>
-    <200203180933.g2I9XTg07727@mule.m17n.org>
-    <15509.47571.248407.537415@charged.uio.no>
-NNTP-Posting-Host: kali.eth
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 1016552553 21107 10.253.0.3 (19 Mar 2002
-    15:42:33 GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Tue, 19 Mar 2002 15:42:33 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:142687
-X-Mailer: Perl5 Mail::Internet v1.33
-Message-Id: <a77m99$kjj$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
+	id <S286311AbSCSSGy>; Tue, 19 Mar 2002 13:06:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22279 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287817AbSCSSGf>; Tue, 19 Mar 2002 13:06:35 -0500
 To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] zlib double-free bug
+Date: 19 Mar 2002 10:06:03 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a77umb$t3s$1@cesium.transmeta.com>
+In-Reply-To: <15510.25987.233438.112897@argo.ozlabs.ibm.com> <Pine.LNX.4.44.0203191044150.26226-100000@passion.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <15509.47571.248407.537415@charged.uio.no>,
-	Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> The solution is not to keep flogging the dead horse that is unfsd. It
-> is to put the effort into fixing knfsd so that it can cope with all
-> those cases where people are using unfsd today.
+Followup to:  <Pine.LNX.4.44.0203191044150.26226-100000@passion.cambridge.redhat.com>
+By author:    David Woodhouse <dwmw2@redhat.com>
+In newsgroup: linux.dev.kernel
+>
+> On Tue, 19 Mar 2002, Paul Mackerras wrote:
 > 
-> Cheers,
->    Trond
+> > David Woodhouse writes:
+> > 
+> > > After it's been in -ac for a while without mishap I'll ask Marcelo to
+> > > consider it - possibly for 2.4.20-pre1.
+> > 
+> > Yep, that sounds good to me.  For now, I think my patch should go in
+> > for 2.4.19.
+> 
+> Absolutely - sorry, I didn't mean to imply otherwise.
+> 
+> For the record - it's not worth bothering with fs/jffs2/zlib.c; if they 
+> can corrupt your file system on the medium, why bother with cracking zlib? 
+> :)
+> 
 
-<HINT_HINT>
-well, the only reasons I still use unfsd is link_relative and re-export
-</HINT_HINT>
+Removable media?
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

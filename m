@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269823AbUIDGtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269824AbUIDGws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269823AbUIDGtd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 02:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269818AbUIDGtd
+	id S269824AbUIDGws (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 02:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269818AbUIDGwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 02:49:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:3044 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269823AbUIDGta (ORCPT
+	Sat, 4 Sep 2004 02:52:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47261 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269824AbUIDGv6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 02:49:30 -0400
-Date: Sat, 4 Sep 2004 08:41:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R3
-Message-ID: <20040904064121.GA31348@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <4138A56B.4050006@cybsft.com> <20040903181710.GA10217@elte.hu> <20040903193052.GA16617@elte.hu> <413939F8.1030806@cybsft.com>
+	Sat, 4 Sep 2004 02:51:58 -0400
+Subject: Re: [IA64] allow OEM written modules to make calls to ia64 OEM SAL
+	functions.
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: dcn@sgi.com
+In-Reply-To: <200409032207.i83M7CKj015068@hera.kernel.org>
+References: <200409032207.i83M7CKj015068@hera.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oVpllR8NkDjT82+yN3Xd"
+Organization: Red Hat UK
+Message-Id: <1094280707.2801.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <413939F8.1030806@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 04 Sep 2004 08:51:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* K.R. Foley <kr@cybsft.com> wrote:
+--=-oVpllR8NkDjT82+yN3Xd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> http://www.cybsft.com/testresults/crashes/2.6.9-rc1-vo-R3.txt
+On Wed, 2004-08-25 at 20:27, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1803.128.1, 2004/08/25 18:27:33+00:00, dcn@sgi.com
+>=20
+> 	[IA64] allow OEM written modules to make calls to ia64 OEM SAL functions=
+.
+> =09
+> 	Add wrapper functions for SAL_CALL(), SAL_CALL_NOLOCK(), and
+> 	SAL_CALL_REENTRANT() that allow OEM written modules to make
+> 	calls to ia64 OEM SAL functions.
+> =09
 
-the first line seems partial - isnt the full oops in the log?
+are there any such modules? Are they GPL licensed or all proprietary ?
 
-> Sorry I forgot to mention that this was triggered running the
-> stress-kernel package, minus the NFS-Compile, but it does include the
-> CRASHME test. In addition, amlat was running as well. The system was
-> pretty much 100% loaded.
+--=-oVpllR8NkDjT82+yN3Xd
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Have you run crashme as root? That would be unsafe.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-	Ingo
+iD8DBQBBOWYDxULwo51rQBIRAv+QAJ9H9kFo8Ral8RdJ8oLaRFkxkDOw+ACgmLXd
+Vi1laELlGerW2ebZG7uPR3M=
+=4nEr
+-----END PGP SIGNATURE-----
+
+--=-oVpllR8NkDjT82+yN3Xd--
+

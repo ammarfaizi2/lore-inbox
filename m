@@ -1,100 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUBGEhE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 23:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUBGEhE
+	id S266461AbUBGEmI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 23:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266773AbUBGEmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 23:37:04 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50332
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265852AbUBGEg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 23:36:58 -0500
-Date: Sat, 7 Feb 2004 05:36:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ulrich Drepper <drepper@redhat.com>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
-       johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040207043655.GE31926@dualathlon.random>
-References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random> <40235D0B.5090008@redhat.com> <20040206154906.GS31926@dualathlon.random> <4024333B.6020805@redhat.com> <20040207021954.GD31926@dualathlon.random> <20040207033759.GA8384@nevyn.them.org>
+	Fri, 6 Feb 2004 23:42:08 -0500
+Received: from nevyn.them.org ([66.93.172.17]:55715 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S266461AbUBGEmD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 23:42:03 -0500
+Date: Fri, 6 Feb 2004 23:42:03 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
+Message-ID: <20040207044203.GA10944@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040207033759.GA8384@nevyn.them.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 10:37:59PM -0500, Daniel Jacobowitz wrote:
-> On Sat, Feb 07, 2004 at 03:19:55AM +0100, Andrea Arcangeli wrote:
-> > > The official kernel might have the vdso at a fixed address part no part
-> > > of the ABI requires this address and so anybody with some security
-> > > conscience can change the kernel to randomize the vdso address.  It's
-> > > not my or Ingo's fault that Linus doesn't like the exec-shield code
-> > > which would introduce the randomization.  The important aspect is that
-> > > we can add vdso randomization and nothing else needs changing.  The same
-> > > libc will run6 on a stock kernel and the one with the randomized vdso.
-> > > This is not the case on x86-64 where the absolute address for the
-> > > gettimeofday is used.
-> > 
-> > I don't know exactly what your "randomization exec-shield" code is doing
-> > either. the way I understand what you wrote is that you want to relocate
-> > the vsyscall trasparently without glibc knowledge, so in short you're
-> > saying that you don't care to randomize everything in the userspace
-> > executable address space, you only care to relocate the vgettimeofday
-> > bytecode, not the rest of the vsyscall pieces. So with your solution
-> > you'll still have "fixed" addresses in the address space that will allow
-> > an attacker to execute vgettimeofday, just like glibc can execute it
-> > without noticing the actual function was relocated. As far as glibc
-> > won't notice that vgettimeofday has been relocated by your
-> > "exec-shield", it means the attacker as well can execute it just fine.
-> 
-> You might want to stop and take a look at the way this works on i386
-> before you argue with Ulrich any more about it.
-> 
-> Specifically, the vsyscall DSO is constructed as a normal ELF image,
-> and its base address is passed to glibc as an AT_SYSINFO tag in the
-> application's auxv vector.  Glibc source code has absolutely no
-> knowledge of the base address, which in fact has changed at least three
-> times since it was created.
+I've started getting this, every 24 hours or so:
 
-(changing three times is worthless in terms of security, all computers
-runs the same bzImage so it's not changing, anyways as Ulrich said this
-can be fixed transparently in "their" kernel)
+irq 19: nobody cared!
+Call Trace:
+ [<c010d38a>] __report_bad_irq+0x2a/0x90
+ [<c010d480>] note_interrupt+0x70/0xb0
+ [<c010d7c0>] do_IRQ+0x160/0x1a0
+ [<c0105000>] _stext+0x0/0x60
+ [<c010b8d8>] common_interrupt+0x18/0x20
+ [<c0108990>] default_idle+0x0/0x40
+ [<c0105000>] _stext+0x0/0x60
+ [<c01089bc>] default_idle+0x2c/0x40
+ [<c0108a4b>] cpu_idle+0x3b/0x50
+ [<c04b64a0>] unknown_bootoption+0x0/0x120
+ [<c04b6926>] start_kernel+0x1a6/0x1f0
+ [<c04b64a0>] unknown_bootoption+0x0/0x120
 
-The idea of randomizing the base address in kernel is not different from
-generating it in glibc and asking the kernel to relocate. this mean it
-probably won't be an environment variable but a root system wide sysctl
-to control the randomization (so I find it less flexible, though it's
-probably simpler to implement). But regardless my point is that the last
-patch posted by john is not the way to go. glibc should call into a
-fixed _offset_, the base address after all doesn't matter much if it's
-generated by kernel or glibc, so I don't care if it's the kernel
-randomizing, my whole point is that glibc must keep calling
-vgettimeofday _direct_ without passing through the vsyscall wrapper
-where all the other syscalls are passing through. there is not point to
-pass through a wrapper when you can speed it up using a _fixed_ offset.
+handlers:
+[<f886b290>] (au_isr+0x0/0xb0 [au8830])
+Disabling IRQ #19
 
-Glibc needs an hardcoded _fixed_ like in a stone table of offsets (yeah
-they're not "addresses" like in x86-64, but still they're fixed and
-glibc knows about each vsyscall). If we want to implement it the same
-way in x86-64 too (randomizing in kernel and passing down the random
-base address from kernel instead of generating it in glibc), it maybe
-troublesome for compatibility, however I don't care that much about it,
-as far as there is a table of hardcoded like in a stone offsets for each
-vsyscall, to call it directly, without a table or wrapper. I preferred
-the generation of the address in glibc (where the randomizing code must
-already exist to randomize everything else including the .text of the
-normally non relocatable binary) that was also backwards compatible, but
-this is not the bit I care about. The bit I care about is that glibc
-should know about the vsyscall to be efficient, and that the offsets
-should be fixed.
+and then sound doesn't work for a while.
 
-And as said the randomization in x86 will be a joke to bruce force so
-this randomization issue mostly matters for x86-64.
+There's a good chance this is my fault.  IRQ 19 is:
 
-I'd like to know if people dislikes the mremap for the vsyscalls, and if
-they prefer the randomization code duplicated in kernel breaking
-backwards compatibility with current production x86-64 glibc.
+ 19:   18500001          0   IO-APIC-level  au88xx
+
+and the au88xx driver is an out-of-tree driver that was developed on
+2.4/early-2.5, and I ported it to 2.6 myself.  It worked flawlessly on
+2.6.0-test7; has something changed in how interrupt handlers are required to
+behave?
+
+[Just ask if you actually want the source to this driver... I don't know
+enough about the card to actually submit it to Linus's tree and the driver's
+original authors aparently didn't care to.]
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

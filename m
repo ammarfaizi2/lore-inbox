@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129950AbQLNIkC>; Thu, 14 Dec 2000 03:40:02 -0500
+	id <S131142AbQLNIpf>; Thu, 14 Dec 2000 03:45:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131142AbQLNIjw>; Thu, 14 Dec 2000 03:39:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27556 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129950AbQLNIjl> convert rfc822-to-8bit;
-	Thu, 14 Dec 2000 03:39:41 -0500
-Date: Thu, 14 Dec 2000 03:09:10 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: josef höök <josef.hook@arrowhead.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <3A387F06.3F82F188@arrowhead.se>
-Message-ID: <Pine.GSO.4.21.0012140307590.6300-100000@weyl.math.psu.edu>
+	id <S131502AbQLNIpQ>; Thu, 14 Dec 2000 03:45:16 -0500
+Received: from [213.8.185.216] ([213.8.185.216]:6404 "EHLO callisto.yi.org")
+	by vger.kernel.org with ESMTP id <S131142AbQLNIpG>;
+	Thu, 14 Dec 2000 03:45:06 -0500
+Date: Thu, 14 Dec 2000 10:09:40 +0200 (IST)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: More on the test12 lockups [Or: test12's arch/i386 changes)
+Message-ID: <Pine.LNX.4.21.0012140955500.2808-100000@callisto.yi.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I've also been experiencing lockups and oopses since upgrading to
+test12 from test11. 
 
-On Thu, 14 Dec 2000, josef [iso-8859-1] höök wrote:
+These were very lengthy oops messages during the init script, following
+immediate lockups (or shortly after running X), which printed "Aiee,
+killing interrupt handler" at the end.
 
-> Chip Salzenberg wrote:
-> 
-> > According to Alexander Viro:
-> > > 9P is quite simple and unlike CORBA it had been designed for taking
-> > > kernel stuff to userland.  Besides, authors definitely understand
-> > > UNIX...
-> >
-> > As nice as 9P is, it'll need some tweaks to work with Linux.
-> > For example, it limits filenames to 30 characters; that's not OK.
-> > --
-> > Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
-> >    "Give me immortality, or give me death!"  // Firesign Theatre
-> >
-> 
-> Another thing in mind that if we would want to use 9P we would also need to
-> port IL .
+test11 doesn't show these symptoms here.
 
-It can live atop of TCP, it can live atop of AF_UNIX. IL would be nice for
-more than one reason, though...
+I've tried to isolate the changes that were made between test11 and
+test12 and I've discovered that if I drop all the arch/i386/* changes, the
+test12 kernel turns stable again! I'm using it right now, so if it
+doesn't lockup in the next 24 hours, then it's probably right.
+
+-- 
+Dan Aloni 
+dax@karrde.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

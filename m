@@ -1,74 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265132AbUABKkM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUABKkM
+	id S265510AbUABKw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 05:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbUABKwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:40:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53947 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265132AbUABKkH (ORCPT
+	Fri, 2 Jan 2004 05:52:25 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:7864 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265510AbUABKwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:40:07 -0500
-Date: Fri, 2 Jan 2004 11:39:49 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GetASF failed on DVD authentication
-Message-ID: <20040102103949.GL5523@suse.de>
-References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com>
+	Fri, 2 Jan 2004 05:52:15 -0500
+Date: Fri, 2 Jan 2004 16:26:57 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, rusty@au1.ibm.com,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: [lhcs-devel] Re: in_atomic doesn't count local_irq_disable?
+Message-ID: <20040102162657.A15350@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <3FF044A2.3050503@colorfullife.com> <20031230185615.A9292@in.ibm.com> <20031231190553.B9041@in.ibm.com> <3FF4C0B7.30308@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FF4C0B7.30308@colorfullife.com>; from manfred@colorfullife.com on Fri, Jan 02, 2004 at 01:52:07AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Jeff Chua wrote:
-> 
-> Got the following error while authenticating DVD ...
-> 
-> GetASF failed
-> N/A, invalidating: Function not implemented
-> N/A, invalidating: Function not implemented
-> N/A, invalidating: Function not implemented
-> Request AGID [1]...     Request AGID [2]...     Request AGID [3]...
-> Cannot get AGID
-> 
-> 
-> This error happens only on USB DVD drive using /dev/scd0 ...
-> 
-> Linux version is 2.4.24-pre3.
-> 
-> 
-> Module                  Size  Used by    Tainted: P
-> ehci-hcd               15368   0  (unused)
-> usb-storage            23800   0
-> usbcore                56672   1  [ehci-hcd usb-storage]
-> ds                      6504   2
-> yenta_socket            9568   2
-> isofs                  17580   0  (autoclean)
-> loop                    8408   0  (autoclean)
-> sr_mod                 12560   0  (autoclean)
-> cdrom                  27296   0  (autoclean) [sr_mod]
-> scsi_mod               86472   2  (autoclean) [usb-storage sr_mod]
-> 
-> 
-> 
-> Problem does not happen on _real_ IDE DVD drive (/dev/hdc). Could it be
-> something to do with usb-storage or the sg module? Looks like the code
-> does not implement the DVD_LU_SEND_ASF DVD_AUTH ioctl?
+On Fri, Jan 02, 2004 at 01:52:07AM +0100, Manfred Spraul wrote:
+> Could you write a test module that reads cr2, executes a few prefetch 
+> instructions and then checks if cr2 changed? I won't have access to my 
+> P3 SMP system in the next few days.
+ 
+Hi Manfred,
+	I wrote a test module and found that CR2 remains same across the 
+prefetch. The module source I used is as below. Note that I had
+to used "my_prefetch" because the original prefetch (in asm/processor.h) 
+has been disabled in my tree to do nothing.
 
-sr passes those ioctls through, or rather the uniform layer handles
-them.
 
-I can't say what goes wrong from the info above. Do you get any kernel
-messages?
 
-> Is there a patch for this?
+inline void my_prefetch(const void *x)
+{
+        alternative_input(ASM_NOP4,
+                          "prefetchnta (%1)",
+                          X86_FEATURE_XMM,
+                          "r" (x));
+}
 
-Good one ;) Please make a proper bug report, you don't even include
-drive info.
+int array[10];
+
+static int __init dummy_init_module(void)
+{
+        unsigned long address;
+        int i=0;
+        int x;
+
+        /* get the address */
+        __asm__("movl %%cr2,%0":"=r" (address));
+
+        printk ("CR2 before prefetch is %x \n", address);
+
+        for (i=0; i<10; ++i)
+                my_prefetch(array+i);
+
+        for (i=0; i<10; ++i)
+                x = *(array+i);
+
+        /* get the address */
+        __asm__("movl %%cr2,%0":"=r" (address));
+
+
+        printk ("CR2 after prefetch is %x \n", address);
+
+
+        return 0;
+
+}
+
+
+static void __exit dummy_cleanup_module(void)
+{
+}
+
+module_init(dummy_init_module);
+module_exit(dummy_cleanup_module);
+MODULE_LICENSE("GPL");
+
+
+Output of the above printk is :
+
+
+CR2 before prefetch is 40017000
+CR2 after prefetch is 40017000
+
+
+
+
+
+
+
 
 -- 
-Jens Axboe
 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,140 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317603AbSGOTGC>; Mon, 15 Jul 2002 15:06:02 -0400
+	id <S317605AbSGOTKb>; Mon, 15 Jul 2002 15:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317604AbSGOTGB>; Mon, 15 Jul 2002 15:06:01 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:43278 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317603AbSGOTGA>;
-	Mon, 15 Jul 2002 15:06:00 -0400
-Date: Mon, 15 Jul 2002 12:08:06 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] agpgart changes for 2.5.25
-Message-ID: <20020715190806.GA31167@kroah.com>
-Mime-Version: 1.0
+	id <S317606AbSGOTKa>; Mon, 15 Jul 2002 15:10:30 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:760 "EHLO egghead.curl.com")
+	by vger.kernel.org with ESMTP id <S317605AbSGOTK3>;
+	Mon, 15 Jul 2002 15:10:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+References: <20020712162306$aa7d@traf.lcs.mit.edu> <s5gsn2lt3ro.fsf@egghead.curl.com> <20020715173337$acad@traf.lcs.mit.edu>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Jul 2002 15:13:24 -0400
+In-Reply-To: <mit.lcs.mail.linux-kernel/20020715173337$acad@traf.lcs.mit.edu>
+Message-ID: <s5gsn2kst2j.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Chris Mason <mason@suse.com> writes:
 
-These changesets have the latest agpgart code from the -dj tree, and
-I've tried to rename the files to something that makes more sense.
+> > One other thing.  I think this statement is misleading:
+> > 
+> >     IF your server is stable and not prone to crashing, and/or you
+> >     have the write cache on your hard drives battery backed, you
+> >     should strongly consider using the writeback journaling mode of
+> >     Ext3 versus ordered.
+> > 
+> > This makes it sound like data=writeback is somehow unsafe when
+> > machines crash.  I do not think this is true.  If your application
+> > (e.g., Postfix) is written correctly (which it is), so it calls
+> > fsync() when it is supposed to, then data=writeback is *exactly* as
+> > safe as any other journalling mode.  
+> 
+> Almost.  data=writeback makes it possible for the old contents of a
+> block to end up in a newly grown file.
 
+Only if the application is already broken.
 
-Pull from:  http://linuxusb.bkbits.net/agpgart-2.5
+> There are a few ways this can screw you up:
+> 
+> 1) that newly grown file is someone's inbox, and the old contents of the
+> new block include someone else's private message.
+>
+> 2) That newly grown file is a control file for the application, and the
+> application expects it to contain valid data within (think sendmail).  
 
- drivers/char/agp/agp.c               | 1664 +++++++++++++
- drivers/char/agp/agpgart_be-ali.c    |  265 --
- drivers/char/agp/agpgart_be-ali.c    |  265 ++
- drivers/char/agp/agpgart_be-amd.c    |  408 ---
- drivers/char/agp/agpgart_be-amd.c    |  408 +++
- drivers/char/agp/agpgart_be.c        | 1662 -------------
- drivers/char/agp/agpgart_be.c        | 4470 +++--------------------------------
- drivers/char/agp/agpgart_be-hp.c     |  394 ---
- drivers/char/agp/agpgart_be-hp.c     |  394 +++
- drivers/char/agp/agpgart_be-i460.c   |  595 ----
- drivers/char/agp/agpgart_be-i460.c   |  595 ++++
- drivers/char/agp/agpgart_be-i810.c   |  594 ----
- drivers/char/agp/agpgart_be-i810.c   |  594 ++++
- drivers/char/agp/agpgart_be-i8x0.c   |  726 -----
- drivers/char/agp/agpgart_be-i8x0.c   |  728 +++++
- drivers/char/agp/agpgart_be-sis.c    |  142 -
- drivers/char/agp/agpgart_be-sis.c    |  142 +
- drivers/char/agp/agpgart_be-sworks.c |  626 ----
- drivers/char/agp/agpgart_be-sworks.c |  626 ++++
- drivers/char/agp/agpgart_be-via.c    |  151 -
- drivers/char/agp/agpgart_be-via.c    |  151 +
- drivers/char/agp/agpgart_fe.c        | 1086 --------
- drivers/char/agp/agpgart_fe.c        |   15 
- drivers/char/agp/agp.h               |  348 +-
- drivers/char/agp/ali.c               |  265 ++
- drivers/char/agp/amd.c               |  408 +++
- drivers/char/agp/Config.help         |   88 
- drivers/char/agp/Config.in           |   14 
- drivers/char/agp/frontend.c          | 1086 ++++++++
- drivers/char/agp/hp.c                |  394 +++
- drivers/char/agp/i460.c              |  595 ++++
- drivers/char/agp/i810.c              |  594 ++++
- drivers/char/agp/i8x0.c              |  726 +++++
- drivers/char/agp/Makefile            |   35 
- drivers/char/agp/sis.c               |  142 +
- drivers/char/agp/sworks.c            |  626 ++++
- drivers/char/agp/via.c               |  151 +
- include/linux/agp_backend.h          |    6 
- include/linux/agpgart.h              |   10 
- 39 files changed, 11400 insertions(+), 10789 deletions(-)
-------
+In a correctly-written application, neither of these things can
+happen.  (See my earlier message today on fsync() and MTAs.)  To get a
+file onto disk reliably, the application must 1) flush the data, and
+then 2) flush a "validity" indicator.  This could be a sequence like:
 
-ChangeSet@1.643, 2002-07-15 11:54:20-07:00, greg@kroah.com
-  agpgart: added agp prefix to the debug printk
+  create temp file
+  flush data to temp file
+  rename temp file
+  flush rename operation
 
- drivers/char/agp/agp.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
+In this sequence, the file's existence under a particular name is the
+indicator of its validity.
 
-ChangeSet@1.642, 2002-07-15 11:46:17-07:00, greg@kroah.com
-  agpgart: renamed the agp files to make more sense
+If you skip either of these flush operations, you are not behaving
+reliably.  Skipping the first flush means the validity indicator might
+hit the disk before the data; so after a crash, you might see invalid
+data in an allegedly valid file.  Skipping the second flush means you
+do not know that the validity indicator has been set, so you cannot
+report success to whoever is waiting for this "reliable write" to
+happen.
 
- drivers/char/agp/agpgart_be-ali.c    |  265 -----
- drivers/char/agp/agpgart_be-amd.c    |  408 --------
- drivers/char/agp/agpgart_be-hp.c     |  394 --------
- drivers/char/agp/agpgart_be-i460.c   |  595 ------------
- drivers/char/agp/agpgart_be-i810.c   |  594 ------------
- drivers/char/agp/agpgart_be-i8x0.c   |  726 ---------------
- drivers/char/agp/agpgart_be-sis.c    |  142 --
- drivers/char/agp/agpgart_be-sworks.c |  626 -------------
- drivers/char/agp/agpgart_be-via.c    |  151 ---
- drivers/char/agp/agpgart_be.c        | 1662 -----------------------------------
- drivers/char/agp/agpgart_fe.c        | 1086 ----------------------
- drivers/char/agp/Makefile            |   22 
- drivers/char/agp/agp.c               | 1662 +++++++++++++++++++++++++++++++++++
- drivers/char/agp/ali.c               |  265 +++++
- drivers/char/agp/amd.c               |  408 ++++++++
- drivers/char/agp/frontend.c          | 1086 ++++++++++++++++++++++
- drivers/char/agp/hp.c                |  394 ++++++++
- drivers/char/agp/i460.c              |  595 ++++++++++++
- drivers/char/agp/i810.c              |  594 ++++++++++++
- drivers/char/agp/i8x0.c              |  726 +++++++++++++++
- drivers/char/agp/sis.c               |  142 ++
- drivers/char/agp/sworks.c            |  626 +++++++++++++
- drivers/char/agp/via.c               |  151 +++
- 23 files changed, 6660 insertions(+), 6660 deletions(-)
-------
+It is possible to make an application which relies on data=ordered
+semantics; for example, skipping the "flush data to temp file" step
+above.  But such an application would be broken for every version of
+Unix *except* Linux in data=ordered mode.  I would call that an
+incorrect application.
 
-ChangeSet@1.641, 2002-07-15 10:33:27-07:00, greg@kroah.com
-  agpgart: fix syntax error in the i8x0 file.
+> Nope, battery backed caches don't make data=writeback more or less safe
+> (with respect to the data anyway).  They do make data=ordered and
+> data=journal more safe.
 
- drivers/char/agp/agpgart_be-i8x0.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
+A theorist would say that "more safe" is a sloppy concept.  Either an
+operation is safe or it is not.  As I said in my last message,
+data=ordered (and data=journal) can reduce the risk for poorly written
+apps.  But they cannot eliminate that risk, and for a correctly
+written app, data=writeback is 100% as safe.
 
-ChangeSet@1.640, 2002-07-15 10:26:18-07:00, greg@kroah.com
-  agpgart: Split agpgart code into separate files.
-  
-  The majority of this work was done by Dave Jones, I merely converted the
-  driver to the "new" pci api.
-
- drivers/char/agp/Config.help         |   88 
- drivers/char/agp/Config.in           |   14 
- drivers/char/agp/Makefile            |   13 
- drivers/char/agp/agp.h               |  348 +-
- drivers/char/agp/agpgart_be-ali.c    |  265 ++
- drivers/char/agp/agpgart_be-amd.c    |  408 +++
- drivers/char/agp/agpgart_be-hp.c     |  394 +++
- drivers/char/agp/agpgart_be-i460.c   |  595 ++++
- drivers/char/agp/agpgart_be-i810.c   |  594 ++++
- drivers/char/agp/agpgart_be-i8x0.c   |  726 +++++
- drivers/char/agp/agpgart_be-sis.c    |  142 +
- drivers/char/agp/agpgart_be-sworks.c |  626 ++++
- drivers/char/agp/agpgart_be-via.c    |  151 +
- drivers/char/agp/agpgart_be.c        | 4470 +++--------------------------------
- drivers/char/agp/agpgart_fe.c        |   15 
- include/linux/agp_backend.h          |    6 
- include/linux/agpgart.h              |   10 
- 17 files changed, 4738 insertions(+), 4127 deletions(-)
-------
-
+ - Pat

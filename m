@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVCaSbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCaSjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbVCaSbW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVCaSbV
+	id S261619AbVCaSjO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVCaSjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:31:21 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:728
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262050AbVCaSbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:31:10 -0500
-Date: Thu, 31 Mar 2005 10:30:04 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: randy.dunlap@verizon.net, ioe-lkml@axxeo.de, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC/PATCH] network configs: disconnect network options from
- drivers
-Message-Id: <20050331103004.162070e6.davem@davemloft.net>
-In-Reply-To: <424C2975.2090009@nortel.com>
-References: <20050330234709.1868eee5.randy.dunlap@verizon.net>
-	<424C2975.2090009@nortel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 31 Mar 2005 13:39:14 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:58861 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261619AbVCaSjJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:39:09 -0500
+Message-ID: <424C43FF.3050107@didntduck.org>
+Date: Thu, 31 Mar 2005 13:39:59 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Emmanuel Papirakis <papiraki@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: off topic: GPL and binary modules
+References: <11ad0fa80503311026536d9db2@mail.gmail.com>
+In-Reply-To: <11ad0fa80503311026536d9db2@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005 10:46:45 -0600
-Chris Friesen <cfriesen@nortel.com> wrote:
-
-> > Any comments?
+Emmanuel Papirakis wrote:
+> Hello,
 > 
-> Makes sense to me...
+> before I go on, let me say that I did check the FAQ. I also checked
+> the available archives, but curiously did not find an answer to my
+> question (so I did Read The Fantastic Manual).
+> 
+> As you know, most available drivers do come with the source code. But,
+> still, some come in binary form (often providing just enough code to
+> make them compliant with new kernel releases).
+> 
+> Is this a GPL violation ? In any case, what is the official position
+> on the subject (is this legal or just tolerated) ?
+> 
+> Thank you
+> 
+> Emmanuel
 
-Me too.
+Search the list archives, this has been flamed to death already.
+
+--
+				Brian Gerst

@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268883AbUIMTjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268911AbUIMTvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268883AbUIMTjN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 15:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUIMTjM
+	id S268911AbUIMTvX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 15:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUIMTvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 15:39:12 -0400
-Received: from hera.kernel.org ([63.209.29.2]:57261 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S268883AbUIMTjL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 15:39:11 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
- machines
-Date: Mon, 13 Sep 2004 19:39:04 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ci4t0o$244$1@terminus.zytor.com>
-References: <4145A8E1.8010409@qlusters.com> <200409131644.54441.arnd@arndb.de> <4145BA28.5020702@qlusters.com>
+	Mon, 13 Sep 2004 15:51:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33452 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268911AbUIMTvG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 15:51:06 -0400
+Date: Mon, 13 Sep 2004 15:18:13 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPMI driver updates for 2.4
+Message-ID: <20040913181813.GA22536@logos.cnet>
+References: <411EB8F1.5040209@acm.org> <20040823132820.GB2157@logos.cnet> <4132A17A.8060607@acm.org> <20040831111621.GE4615@logos.cnet> <413519F7.3000004@acm.org> <20040911174402.GC2659@logos.cnet> <4145A15C.5040202@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1095104344 2181 127.0.0.1 (13 Sep 2004 19:39:04 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 13 Sep 2004 19:39:04 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4145A15C.5040202@acm.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <4145BA28.5020702@qlusters.com>
-By author:    Constantine Gavrilov <constg@qlusters.com>
-In newsgroup: linux.dev.kernel
+On Mon, Sep 13, 2004 at 08:32:12AM -0500, Corey Minyard wrote:
+> Ok, that's fine.
 > 
-> I can implement differently what I want, though it will be somewhat 
-> kludgy and kernel depenedent (depends on a version and distribution). I 
-> wanted to avoid that. Since what I write is really an application and 
-> not interface, it was very "native" to use application syscall approach.
-> 
-> My real problem is not how to implement it. I want to understand this 
-> specific x86_64 problem.
-> 
+> By "at this point" do you mean for the future of the 2.4 kernel or just 
+> this point in time and maybe in the next 2.4 kernel?  A lot of the 
+> driver users want this in the 2.4 kernel, so I need to tell them what 
+> the state will be.
 
-Put it in userspace.  Really.
-
-	-hpa
+I mean in v2.4, not only v2.4.28.

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269542AbTHFPd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 11:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269555AbTHFPd5
+	id S269555AbTHFPiN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 11:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269557AbTHFPiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 11:33:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14477 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269542AbTHFPd4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 11:33:56 -0400
-Date: Wed, 6 Aug 2003 08:33:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5/2.6 PCMCIA Issues
-In-Reply-To: <20030806122340.B2094@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308060831490.4916-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Aug 2003 11:38:13 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:2033 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269555AbTHFPiK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 11:38:10 -0400
+Subject: Re: any DRM update scheduled for 2.4.23-pre?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, faith@valinux.com,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Mitch@0Bits.COM
+In-Reply-To: <200308061714.36595.m.c.p@wolk-project.de>
+References: <16177.5641.6571.273023@gargle.gargle.HOWL>
+	 <200308061714.36595.m.c.p@wolk-project.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0bipxH+B+ghfmguzbPuq"
+Organization: Red Hat, Inc.
+Message-Id: <1060184267.5848.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 06 Aug 2003 17:37:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 6 Aug 2003, Russell King wrote:
-> 
-> Could the problem be PNP related?  I don't see much material change in
-> the PNP layer between 2.5.70 and 2.5.71 though.
+--=-0bipxH+B+ghfmguzbPuq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It definitely could be PnP-related, and it may well show up only on 
-machines that have the yenta controller listed as an old-style pcmcia 
-controller in the bios etc.
 
-> Can other people try the CONFIG_YENTA=y, CONFIG_I82365=y, CONFIG_PNP=y
-> and report their results (in particular the dmesg from boot, and whether
-> the machine locks when they insert a card _after_ boot.)
+> It's a complete DRM-4.3 tree. He has to decide between an update of exist=
+ing=20
+> 4.2 code or an addition of a new subdirectory drm-4.3 + proper config.in=20
+> entry.
 
-Yes, getting more data-points would be good. Together with what kind of 
-machine they have (not just what kind of yenta controller, but the bios 
-and manufacturer..)
+did you clean the tree up like in -ac's tree or did you take it as is
+from some cvs repo ?
 
-		Linus
 
+--=-0bipxH+B+ghfmguzbPuq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/MSDKxULwo51rQBIRAnPUAJ4/a5FOaKc0jqn4/Y/q7EIgSsQKzwCfZBO6
+V9NBH7hTP4annRguWcxHY4o=
+=v30i
+-----END PGP SIGNATURE-----
+
+--=-0bipxH+B+ghfmguzbPuq--

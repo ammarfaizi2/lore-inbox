@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTF2VHn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 17:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTF2VHn
+	id S263782AbTF2VHt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 17:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTF2VHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 17:07:43 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:29832 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262872AbTF2VHm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 17:07:42 -0400
-Date: Sun, 29 Jun 2003 22:21:30 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
-Subject: Re: Dell vs. GPL
-Message-ID: <20030629212130.GC26758@mail.jlokier.co.uk>
-References: <200306291624.47221.gallir@uib.es> <20030629195003.GF26258@mail.jlokier.co.uk> <200306292158.52878.gallir@uib.es> <20030629204210.GA26758@mail.jlokier.co.uk> <20030629215745.C5653@flint.arm.linux.org.uk>
+	Sun, 29 Jun 2003 17:07:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52167 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263633AbTF2VHq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 17:07:46 -0400
+Date: Sun, 29 Jun 2003 14:15:28 -0700 (PDT)
+Message-Id: <20030629.141528.74734144.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: greearb@candelatech.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk>
+References: <3EFC9203.3090508@candelatech.com>
+	<20030627.144426.71096593.davem@redhat.com>
+	<1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030629215745.C5653@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> > So, in the UK, you lose some (non-transferable) moral rights by virtue
-> > of it being a computer program, but not all moral rights.  In
-> > particular you don't have the moral right to be identified as author
-> > or director of the work, or the right to object to derogatory
-> > treatment of the work.
-> 
-> Now go back and read the URL Richard posted:
-> 
-> 	http://europa.eu.int/scadplus/leg/en/lvb/l26027.htm
->
-> particularly (7).
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 28 Jun 2003 00:04:30 +0100
+   
+   You are assuming there is a relationship in bug severity/commonness
+   and number of *developers* who hit it.
 
-This says nothing about moral rights.
+Not true, the assumption I make is that a bug report that
+a bug reporter cares about, and a patch that a patch submitter
+cares about, will all get resent if they get dropped.
 
-> Next, you need to find out what happened when this later piece of
-> law got passed through parliament:
->
-> 	http://www.hmso.gov.uk/si/si1992/Uksi_19923233_en_5.htm
-> 
-> Note that the Copyright, Designs and Patents Act 1988 seems to have
-> been ammended.
+If the reporter/submitter doesn't care, neither do I.
 
-The sections I quoted about moral rights are from the amended Act:
+You keep saying that lost information is bad and serves no
+positive purpose, and I totally disagree.  Drops are litmus tests
+for the patch/report, they also serve to educate the submitters.
 
-	http://www.jenkins-ip.com/patlaw/index1.htm
+And to repeat, this process is a two way street Alan.  If you try to
+make it anything else, you will wear yourself thin.
 
--- Jamie
+Once you enforce the work to be distributed to the people who report
+to you as much as to the people taking the reports, thing will go much
+more smoothly. :-)

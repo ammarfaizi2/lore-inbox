@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUHZQyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269184AbUHZQ7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269210AbUHZQyE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 12:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269201AbUHZQs5
+	id S269184AbUHZQ7G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 12:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269207AbUHZQzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 12:48:57 -0400
-Received: from [63.167.178.115] ([63.167.178.115]:22284 "HELO tietokone.fi")
-	by vger.kernel.org with SMTP id S269217AbUHZQsL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 12:48:11 -0400
-Message-ID: <ae6901c48b8d$12ef16ac$f09e9226@tietokone.fi>
-From: "Angelina F. Ramey" <angelinarameyum@sportgym-ostrava.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Try CortiZyte, a revolutionary weightloss product.
-Date: Thu, 26 Aug 2004 14:53:10 -0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 26 Aug 2004 12:55:15 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:55966 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S269180AbUHZQob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 12:44:31 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Christophe Saout <christophe@saout.de>
+To: Will Dyson <will_dyson@pobox.com>
+Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+In-Reply-To: <412E10A2.1020801@pobox.com>
+References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com>
+	 <412E10A2.1020801@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-B1vbGDegrw7jAq82gPAY"
+Date: Thu, 26 Aug 2004 18:44:13 +0200
+Message-Id: <1093538653.5482.21.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try CortiZyte!
 
-With our pharmaceutical grade all-natural weight-loss
-formula, you will:
+--=-B1vbGDegrw7jAq82gPAY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- Lose pounds and inches like crazy
-- Jump start your metabolism
-- Boost your energy level
-- Lose your appetite and feel satisfied
-- Reduce cholesterol levels
-- Eliminate cellulite and excess fat pockets
-- Stimulate your body's natural fat-burning ability
+Am Donnerstag, den 26.08.2004, 12:32 -0400 schrieb Will Dyson:
 
-Most Important: You Will Keep The Weight Off!
+> > Andrew, we need to compete with WinFS and Dominic Giampaolo's filesyste=
+m=20
+> > for Apple, and that means we need to put search engine and database=20
+> > functionality into the filesystem.  It takes 11 years of serious=20
+>=20
+> I'm very curious about your ideas on how to put search engine and=20
+> database functionality into the filesystem.
 
-Get the facts about all-natural CortiZyte: http://www.diet34.com/
+I could imagine something like this.
 
+There are some special folders or files or whatever under every file
+where some userspace can put some metadata. A keyword perhaps.
+
+echo linux > file.bla/keywords/topic
+
+The filesystem might then automatically put these keywords into an index
+and then provide a search mechanism elsewhere where it could ask "find
+me all dentries with the keyword 'linux'." and it would return a list
+like locate does. Only that it's in realtime and also works when moving
+the file around (but not when copying with an unaware program for
+obvious reasons).
+
+
+--=-B1vbGDegrw7jAq82gPAY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBLhNdZCYBcts5dM0RAq9CAJ9pgJXRmbhmrrTyK+SNWcDM3sGZ5gCgkdEK
+IhcgQtuxG1fRNF5OPZZau5w=
+=zyan
+-----END PGP SIGNATURE-----
+
+--=-B1vbGDegrw7jAq82gPAY--
 

@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTINTA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 15:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTINTA2
+	id S261255AbTINTJY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 15:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbTINTJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 15:00:28 -0400
-Received: from web21106.mail.yahoo.com ([216.136.227.108]:839 "HELO
-	web21106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261270AbTINTAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 15:00:17 -0400
-Message-ID: <20030914190015.49006.qmail@web21106.mail.yahoo.com>
-Date: Sun, 14 Sep 2003 12:00:15 -0700 (PDT)
-From: Pat LaVarre <p_lavarre@yahoo.com>
-Reply-To: p.lavarre@ieee.org
-Subject: RE: 2.6.0-test5: intermittent crash on chvt to X; was console lost to Ctrl+Alt+F$n in 2.6.0-test5
-To: mhf@linuxmail.org
-Cc: mpm@selenic.com, p.lavarre@ieee.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Sep 2003 15:09:24 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:48288 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261255AbTINTJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 15:09:23 -0400
+Subject: Re: 1:1 M:N threading
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Breno <brenosp@brasilsec.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <000b01c37af0$402349a0$f8e4a7c8@bsb.virtua.com.br>
+References: <000b01c37af0$402349a0$f8e4a7c8@bsb.virtua.com.br>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063566480.2131.16.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Sun, 14 Sep 2003 20:08:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sul, 2003-09-14 at 19:44, Breno wrote:
+> Hi.
+> 
+> What kind of threading kernel 2.4 and 2.6 do ? 1:1 or M:N ?
 
-> If it is specific to -test5, post (as tar.bz2)
+The kernel doesn't impose a specific model although its certainly
+strongly oriented to 1:1 threading models by simply making the kernel
+threading/locking so efficient the M:N stuff isnt worth the overhead
 
-Definitely not specific to 2.6.0-test5: I have
-repeatedly seen 2.6.0-test4 crash this way too.
-
-Whether I have had this vulnerability for days or
-weeks or months or years I am not yet sure, I do not
-customarily make a point of trying chvt much with each
-new kernel.  
-
-Unless I hear otherwise, hopefully within hours, when
-next I manage to visit my console in person:
-
-1) I will test to see if the script can crash:
-
-2.6.0-test4 with my near default .config
-2.4.22 with my near default .config
-2.4.21-xfs Knoppix booted via cd
-
-2) After the reboot following a crash of 2.6.0-test5 I
-will sample:
-
-lspci -v
-/var/log/dmesg
-X version and driver info from /var/log/XFree86.log 
-.config
-
-3) I will report back here, attaching (2) as .tar.bz2.
-
-Pat LaVarre
-
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com

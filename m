@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271834AbRIVRML>; Sat, 22 Sep 2001 13:12:11 -0400
+	id <S271857AbRIVRUW>; Sat, 22 Sep 2001 13:20:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271857AbRIVRMC>; Sat, 22 Sep 2001 13:12:02 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:35782 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S271834AbRIVRLm>;
-	Sat, 22 Sep 2001 13:11:42 -0400
+	id <S271861AbRIVRUM>; Sat, 22 Sep 2001 13:20:12 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:59521 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S271857AbRIVRUI>;
+	Sat, 22 Sep 2001 13:20:08 -0400
 From: "John L. Males" <jlmales@softhome.net>
 Organization: Toronto, Ontario, Canada
-To: jlmales@softhome.net, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat, 22 Sep 2001 13:11:56 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sat, 22 Sep 2001 13:20:27 -0500
 MIME-Version: 1.0
 Content-type: text/plain; charset=US-ASCII
 Content-transfer-encoding: 7BIT
 Subject: Re[03]: Linux Kernel 2.2.20-pre10 Initial Impressions
 Reply-to: jlmales@softhome.net
 CC: linux-kernel@vger.kernel.org
-Message-ID: <3BAC8E1C.2201.524EE2@localhost>
+Message-ID: <3BAC901B.4963.5A1874@localhost>
 In-Reply-To: <3BA7D82D.21744.63CF95@localhost> from "John L. Males" at Sep 18, 2001 11:26:37 PM
 In-Reply-To: <E15kpkm-0003dx-00@the-village.bc.nu>
 X-mailer: Pegasus Mail for Win32 (v3.12c)
@@ -80,15 +80,16 @@ Regards,
 John L. Males
 Willowdale, Ontario
 Canada
-22 September 2001 13:11
+22 September 2001 13:20
 mailto:jlmales@softhome.net
 
 -----BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
+Version: PGPfreeware 6.5.8 for non-commercial use 
+<http://www.pgp.com>
 
-iQA/AwUBO6zUS+AqzTDdanI2EQKL9gCfaspQNb4/BgiiIrOt/39VzraHG3sAoI8K
-y9yuS0+0ZLXMhC7M2Ui9zxHc
-=QGC7
+iQA/AwUBO6zWZOAqzTDdanI2EQLOpgCfZblo3fb0aiCHWdPJFGAo7AtocHcAoNb0
+bxJs+70lRt/chENPA3UAq2RO
+=ZlsF
 -----END PGP SIGNATURE-----
 
 

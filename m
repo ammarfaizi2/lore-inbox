@@ -1,101 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUC0WxS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 17:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUC0WxS
+	id S261914AbUC0XEs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 18:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbUC0XEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 17:53:18 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:45207 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S261913AbUC0WxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 17:53:06 -0500
-Date: Sat, 27 Mar 2004 14:52:58 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org, Linux SCSI list <linux-scsi@vger.kernel.org>,
-       USB Storage List <usb-storage@lists.one-eyed-alien.net>
-Subject: Re: Can't eject jaz disk on 2.6
-Message-ID: <20040327225258.GB5203@one-eyed-alien.net>
-Mail-Followup-To: Wakko Warner <wakko@animx.eu.org>,
-	linux-kernel@vger.kernel.org,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	USB Storage List <usb-storage@lists.one-eyed-alien.net>
-References: <20040327075918.A2232@animx.eu.org> <20040327224222.GA5203@one-eyed-alien.net> <20040327180018.A4269@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Yylu36WmvOXNoKYn"
-Content-Disposition: inline
-In-Reply-To: <20040327180018.A4269@animx.eu.org>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Sat, 27 Mar 2004 18:04:47 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:42929 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S261907AbUC0XEn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 18:04:43 -0500
+Message-ID: <40660877.3090302@stesmi.com>
+Date: Sun, 28 Mar 2004 00:04:23 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com>
+In-Reply-To: <4066021A.20308@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jeff.
 
---Yylu36WmvOXNoKYn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The "lba48" feature in ATA allows for addressing of sectors > 137GB, and 
+> also allows for transfers of up to 64K sector, instead of the 
+> traditional 256 sectors in older ATA.
+> 
+> libata simply limited all transfers to a 200 sectors (just under the 256 
+> sector limit).  This was mainly being careful, and making sure I had a 
+> solution that worked everywhere.  I also wanted to see how the iommu S/G 
+> stuff would shake out.
+> 
+> Things seem to be looking pretty good, so it's now time to turn on 
+> lba48-sized transfers.  Most SATA disks will be lba48 anyway, even the 
+> ones smaller than 137GB, for this and other reasons.
+> 
+> With this simple patch, the max request size goes from 128K to 32MB... 
+> so you can imagine this will definitely help performance.  Throughput 
+> goes up.  Interrupts go down.  Fun for the whole family.
 
-On Sat, Mar 27, 2004 at 06:00:18PM -0500, Wakko Warner wrote:
-> > > I've used 2.6.0 to 2.6.4 on a computer with a jaz drive.
-> > > Using eject 2.0.13, I'm unable to eject the disk.  I have tested on 2=
-.4.24
-> > > and it does eject.
-> >=20
-> > Over on the usb-storage list, we've just become aware of a similar prob=
-lem.
->=20
-> What was it with?
+What will happen when a PATA disk lies behind a Marvel(ous) bridge, as
+in most SATA disks today?
 
-The device in question there was an Iomega USB Zip 100 drive.
+Is large transfers mandatory in the LBA48 spec and is LBA48 really
+mandatory in SATA?
 
-> > Are you using SCSI or IDE?
->=20
-> SCSI.  I thought all JAZ disks were scsi?
+And yes, I saw that the dmesg showed a Maxtor drive, but I'm uncertain
+if that disk of yours has a Marvel chip on or not, since newer Maxtors
+might (have) come out (already) without a Marvel chip, I just don't
+know.
 
-I wasn't sure.  USB is emulated through the SCSI layer, tho.  I would
-recommend we take this discussion to the linux-scsi mailing list.
-
-> > We've actually recorded the SCSI layer sending us a PREVENT_MEDIUM_REMO=
-VAL,
-> > then a START_STOP (to actually eject), and then an ALLOW_MEDIUM_REMOVAL.
-> > So, nothing gets ejected.  This is under 2.6.
->=20
-> I have noticed that when I attempt to eject, it spins the disk backup,
-> spins down and that's it.
-
-The user of the Zip 100 actually sent us logs showing this behavior.  We
-assume it's coming from the SCSI system, as usb-storage doesn't contain
-anything remotely resembling this....
-
-Repeated uses of the 'eject' command generated the same sequence in his
-test scenario, but his Zip 100 actually ejected the media on the second
-try.  I think that's a device-dependent behavior, tho.
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-I say, what are all those naked people doing?
-					-- Big client to Stef
-User Friendly, 12/14/1997
-
---Yylu36WmvOXNoKYn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAZgXKIjReC7bSPZARAvxOAJ9SQmLIiWeiwlYFT10hTBXs4kovyACeNZM8
-19Y4H8CW7EbJE/DqE2JELbI=
-=yCb+
------END PGP SIGNATURE-----
-
---Yylu36WmvOXNoKYn--
+// Stefan

@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUIRBhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUIRBxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269096AbUIRBhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 21:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUIRBhZ
+	id S269102AbUIRBxh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 21:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUIRBxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 21:37:25 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:20587 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269096AbUIRBhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 21:37:22 -0400
-Message-ID: <9e473391040917183726113e91@mail.gmail.com>
-Date: Fri, 17 Sep 2004 21:37:15 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [TRIVIAL] Fix recent bug in fib_semantics.c
-Cc: davem@davemloft.net, david@gibson.dropbear.id.au, akpm@osdl.org,
-       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <E1C8T4t-0006ug-00@gondolin.me.apana.org.au>
+	Fri, 17 Sep 2004 21:53:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5034 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269102AbUIRBxc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 21:53:32 -0400
+Date: Fri, 17 Sep 2004 21:29:31 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: tuxrocks@cox.net
+Cc: linux-kernel@vger.kernel.org, dhollis@davehollis.com
+Subject: Re: open source realtek driver for 8180
+Message-ID: <20040918002931.GA5327@logos.cnet>
+References: <20040915161113.BVQI25194.lakermmtao01.cox.net@smtp.east.cox.net> <1095268473.6499.4.camel@dhollis-lnx.kpmg.com> <200409151954.18035.tuxrocks@cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104091717215e9be08b@mail.gmail.com>
-	 <E1C8T4t-0006ug-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409151954.18035.tuxrocks@cox.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Call stack at failure:
-e1000_exit_module
-...pci calls...
-e1000_remove
-unregister_netdev
-unregister_netdevice
-notifier_call_chain
-fib_netdev_event
-fib_disable_ip
-error_code
 
-Rest of the info has scrolled off the screen.
+In my experience the realtek binary driver is crap - it brings up the card 
+and transfers data correctly - but stops communication after some period of time, 
+sometimes 10 minutes, sometimes 1 hour.
 
-The problem is when RH/Fedora is doing it's modprobe/rmmod to detect
-what hardware is in the system since that's the only thing that would
-be rmmod'ing e1000.
+It oopses on card removal, doenst handle anything other than normal 
+operation for more than 1 hour.
 
-On the same system if I disable networking and boot, I can
-modprobe/rmmod the drivers without problem. So I'd conclude that RH is
-doing something special during it's probing phase, but I don't know
-enough about the RH init scripts to know what it is.
+On RH's 2.4.20-8, all of that.
 
-
-On Sat, 18 Sep 2004 10:27:47 +1000, Herbert Xu
-<herbert@gondor.apana.org.au> wrote:
-> Jon Smirl <jonsmirl@gmail.com> wrote:
-> > I'm still OOPsing at boot in fib_disable_ip+21 from
-> > fib_netdev_event+63. Both e1000 and tg3 are effected. I have current
-> > linus bk as of time of this message.
-> 
-> Please post the complete error message.
-> --
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-> 
-
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+On Wed, Sep 15, 2004 at 07:54:18PM -0500, tuxrocks@cox.net wrote:
+> The realtek drivers have worked for me, but only (as you said) for 2.4.  They 
+> also don't support monitor mode, which I would like to use.
+> I had similar experiences with the sourceforge projects mentioned.  The 
+> rtl8180+sa2400 bailed with numerous warnings.  The project you mention might 
+> be the other one on sourceforge, rtl-ddp.  Things seemed to be moving, but 
+> then stalled.  It compiles and insmods but doesn't have the wireless 
+> extensions supported yet.  I'm sure everyone involved in the projects is 
+> busy, but I'm just trying to see if going out and buying a 20 or 30 dollar 
+> card that is supported would be my best bet.

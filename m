@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265507AbTIDTI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 15:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbTIDTI7
+	id S265358AbTIDTGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 15:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbTIDTGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 15:08:59 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1031
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S265507AbTIDTI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 15:08:57 -0400
-Date: Thu, 4 Sep 2003 12:08:56 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Diego Calleja Garc?a <diegocg@teleline.es>
-Cc: Nick Piggin <piggin@cyberone.com.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm5
-Message-ID: <20030904190856.GD13676@matchmail.com>
-Mail-Followup-To: Diego Calleja Garc?a <diegocg@teleline.es>,
-	Nick Piggin <piggin@cyberone.com.au>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030902231812.03fae13f.akpm@osdl.org> <20030904010852.095e7545.diegocg@teleline.es> <3F569641.9090905@cyberone.com.au> <20030904202319.7f9947c9.diegocg@teleline.es>
+	Thu, 4 Sep 2003 15:06:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:57520 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265358AbTIDTGO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 15:06:14 -0400
+Date: Thu, 4 Sep 2003 11:56:32 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] convert /proc/net/unix to seq_file
+Message-Id: <20030904115632.47923526.davem@redhat.com>
+In-Reply-To: <20030904114922.555841cd.shemminger@osdl.org>
+References: <20030904114922.555841cd.shemminger@osdl.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030904202319.7f9947c9.diegocg@teleline.es>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 08:23:19PM +0200, Diego Calleja Garc?a wrote:
-> El Thu, 04 Sep 2003 11:32:49 +1000 Nick Piggin <piggin@cyberone.com.au> escribi?:
-> 
-> > Hmm... what's heavy gcc load?
-> 
-> make -j25 with 256 MB RAM.
-> 
-> My X server is reniced at -1; but reniced X to -10 and it didn't helped;
-> -j15 was better (less swapping) but still I saw various mp3 & mouse skips.
+On Thu, 4 Sep 2003 11:49:22 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-And this worked good with Con's scheduler?
+> Applies against 2.6.0-test4.
 
-Try both schedulers on the same base (test4), and see if you see similair
-differences.
-
-I doubt it's the scheduler that's causing this problem.  Once you get into
-swap like that, the scheduler shouldn't affect it too much...
+Applied, thanks Stephen.

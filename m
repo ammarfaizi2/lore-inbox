@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310491AbSCPRko>; Sat, 16 Mar 2002 12:40:44 -0500
+	id <S310482AbSCPRkX>; Sat, 16 Mar 2002 12:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310488AbSCPRke>; Sat, 16 Mar 2002 12:40:34 -0500
-Received: from [203.162.56.202] ([203.162.56.202]:41428 "HELO
-	mail.vnsecurity.net") by vger.kernel.org with SMTP
-	id <S310491AbSCPRkZ>; Sat, 16 Mar 2002 12:40:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: MrChuoi <MrChuoi@yahoo.com>
-Reply-To: MrChuoi@yahoo.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, joe@tmsusa.com (J Sloan)
-Subject: Re: Linux 2.4.19-pre3-ac1
-Date: Sun, 17 Mar 2002 00:50:09 +0700
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16mI0I-0006kp-00@the-village.bc.nu>
-In-Reply-To: <E16mI0I-0006kp-00@the-village.bc.nu>
+	id <S310488AbSCPRkO>; Sat, 16 Mar 2002 12:40:14 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28557 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S310482AbSCPRkB>;
+	Sat, 16 Mar 2002 12:40:01 -0500
+Date: Sat, 16 Mar 2002 12:39:56 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.5.7-pre2 -- kernel.o(.data+0x300): undefined
+ reference
+In-Reply-To: <E16mI91-0006mI-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0203161236200.5891-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020316174015.CB2314E534@mail.vnsecurity.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 March 2002 12:30 am, Alan Cox wrote:
-> > >2.4.19-pre2-ac4: cannot allocate memory
-> > >2.4.19-pre3-ac1: cannot allocate memory
-> > >2.4.19-pre2aa*: OK
-> >
-> > I'd bet they are all on the borderline -
-> > It may be that you are simply exhausting vm.
->
-> It may well be borderline but its certainly interesting the rmap vm thinks
-> it is out of memory first. Whats the overcommitted_AS value just before it
-> reports that it cannot allocate memory.
->
-> I'm also interested to know if it occurs with a lot more swap. It might be
-> a false report coming from a bug in the vm accounting changes too
-I'm not using my home desktop right now. IIRC after loading JBuilder:
 
-Free Mem: ~3MB
-Free Swap: ~64MB
-Cache: ~32Mb
 
-HTH,
+On Sat, 16 Mar 2002, Alan Cox wrote:
 
-MrChuoi
+> > +/* "Conditional" syscalls */
+> > +
+> > +asmlinkage long sys_nfsservctl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
+> > +asmlinkage long sys_quotactl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
+> > +
+> 
+> This is what Linus threw out before - when David wanted to use it to remove
+> all the intermodule crap.
+> 
+> It doesn't work with some architecture binutils
+
+Erm...  In this case we are within statatically linked image.  In which
+situations it doesn't work?  AFAICS it's as straightforward use of weak
+aliases as it gets...
+

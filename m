@@ -1,144 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSKHLHY>; Fri, 8 Nov 2002 06:07:24 -0500
+	id <S261849AbSKHLIt>; Fri, 8 Nov 2002 06:08:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261844AbSKHLHY>; Fri, 8 Nov 2002 06:07:24 -0500
-Received: from mail006.mail.bellsouth.net ([205.152.58.26]:57433 "EHLO
-	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S261842AbSKHLHV>; Fri, 8 Nov 2002 06:07:21 -0500
-Date: Fri, 8 Nov 2002 06:10:20 -0500
-From: David Meybohm <dmeybohm@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Cc: Santiago Garcia Mantinan <manty@manty.net>,
-       Ted Kaminski <mouschi@wi.rr.com>,
-       David Meybohm <dmeybohm@bellsouth.net>
-Subject: [PATCH] Fix SB16 PnP IDE controller in 2.4
-Message-ID: <20021108061020.A14168@localhost>
+	id <S261850AbSKHLIt>; Fri, 8 Nov 2002 06:08:49 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:45754 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261849AbSKHLIs>;
+	Fri, 8 Nov 2002 06:08:48 -0500
+Date: Fri, 8 Nov 2002 12:15:29 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mdiehl@dominion.dyndns.org, linux-kernel@vger.kernel.org,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: [documentation] Re: [LARTC] IPSEC FIRST LIGHT! (by non-kernel developer :-))
+Message-ID: <20021108111529.GA19850@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>, mdiehl@dominion.dyndns.org,
+	linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+References: <20021107130244.GA25032@outpost.ds9a.nl> <20021108023926.51B985606@dominion.dyndns.org> <20021108094122.GB16512@outpost.ds9a.nl> <20021108.015230.94737520.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021108.015230.94737520.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the SB16 PnP IDE controller in 2.4 and is
-against 2.4.20-rc1.  It changes the IDE code to use "active"
-status probing on the SB16 instead of passive.  An
-alternative workaround is disabling CONFIG_IDEPCI_SHARE_IRQ.  
+On Fri, Nov 08, 2002 at 01:52:30AM -0800, David S. Miller wrote:
+>    From: bert hubert <ahu@ds9a.nl>
+>    Date: Fri, 8 Nov 2002 10:41:22 +0100
+>    
+>    Perhaps dave can re-diff?
+> 
+> This is against current BK-2.5
 
-I restart the search for controllers in pnpide_init() (the
-"dev = NULL" part) in order to avoid possibly skipping a
-second or third controller due to mismatch between device
-list order and IDE PnP devices order. Is this correct? 
+Dave,
 
-Two additional people, Santiago Mantinan and Ted Kaminski,
-have tested versions of this patch.  They both said it
-worked for them.  Santiago tested it on a box with an
-additional, different ISAPnP controller and he said it
-worked.  This version of the patch is identical to the patch
-that Santiago tested except that I removed some
-non-essential changes to the pnp_dev_t struct.
+This code locks up solid on any ipsec TCP traffic outgoing with this
+configuration:
 
-Since this is the first kernel patch I've made for general
-consumption, I was wondering if there were any problems with
-it.  So here goes..
+add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
+add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
 
-Thanks,
-David
+# ESP
+add 10.0.0.11 10.0.0.216 esp 15701 -E 3des-cbc "123456789012123456789012";
+add 10.0.0.216 10.0.0.11 esp 24501 -E 3des-cbc "123456789012123456789012";
 
- drivers/ide/ide-pnp.c |   28 +++++++++++++++++++++++++++-
- drivers/ide/ide.c     |    3 ++-
- include/linux/ide.h   |    1 +
- 3 files changed, 30 insertions, 2 deletions
+spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
+           esp/transport//require
+           ah/transport//require;
 
---- v2.4.20-rc1/drivers/ide/ide.c~sb16pnpide	Fri Nov  8 04:39:26 2002
-+++ v2.4.20-rc1-hipnod/drivers/ide/ide.c	Fri Nov  8 04:39:26 2002
-@@ -543,7 +543,7 @@ int drive_is_ready (ide_drive_t *drive)
- 	 * an interrupt with another pci card/device.  We make no assumptions
- 	 * about possible isa-pnp and pci-pnp issues yet.
- 	 */
--	if (IDE_CONTROL_REG)
-+	if (IDE_CONTROL_REG && !HWIF(drive)->hw.no_passive)
- 		stat = GET_ALTSTAT();
- 	else
- #endif /* CONFIG_IDEPCI_SHARE_IRQ */
-@@ -2419,6 +2419,7 @@ void ide_setup_ports (	hw_regs_t *hw,
- 	}
- 	hw->irq = irq;
- 	hw->dma = NO_DMA;
-+	hw->no_passive = 0;
- 	hw->ack_intr = ack_intr;
- }
- 
---- v2.4.20-rc1/drivers/ide/ide-pnp.c~sb16pnpide	Fri Nov  8 04:39:26 2002
-+++ v2.4.20-rc1-hipnod/drivers/ide/ide-pnp.c	Fri Nov  8 04:39:26 2002
-@@ -54,7 +54,8 @@ struct pnp_dev_t {
- };
- 
- /* Generic initialisation function for ISA PnP IDE interface */
--static int __init pnpide_generic_init(struct pci_dev *dev, int enable)
-+static int __init pnpide_do_generic_init(struct pci_dev *dev, int enable,
-+					 int no_passive)
- {
- 	hw_regs_t hw;
- 	int index;
-@@ -69,6 +70,8 @@ static int __init pnpide_generic_init(st
- 			generic_ide_offsets, (ide_ioreg_t) DEV_IO(dev, 1),
- 			0, NULL, DEV_IRQ(dev, 0));
- 
-+	hw.no_passive = no_passive;
-+
- 	index = ide_register_hw(&hw, NULL);
- 
- 	if (index != -1) {
-@@ -79,8 +82,30 @@ static int __init pnpide_generic_init(st
- 	return 1;
- }
- 
-+static int __init pnpide_generic_init(struct pci_dev *dev, int enable) 
-+{
-+	return pnpide_do_generic_init(dev, enable, 0);
-+}
-+
-+/* Initialisation function for SB16 ISA PnP IDE interface */
-+static int __init pnpide_sb16_init(struct pci_dev *dev, int enable)
-+{
-+	int no_passive;
-+	
-+	/*
-+	 * Disable passive status testing on the SB16 PnP controller.
-+	 */
-+	no_passive = 1;
-+
-+	return pnpide_do_generic_init(dev, enable, no_passive);
-+}
-+
- /* Add your devices here :)) */
- struct pnp_dev_t idepnp_devices[] __initdata = {
-+	/* SB16 PnP IDE controller */
-+	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
-+		ISAPNP_VENDOR('C', 'T', 'L'), ISAPNP_DEVICE(0x2011), 
-+		pnpide_sb16_init },
-   	/* Generic ESDI/IDE/ATA compatible hard disk controller */
- 	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
- 		ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_DEVICE(0x0600),
-@@ -123,6 +148,7 @@ void __init pnpide_init(int enable)
- 	}
- #endif
- 	for (dev_type = idepnp_devices; dev_type->vendor; dev_type++) {
-+		dev = NULL;
- 		while ((dev = isapnp_find_dev(NULL, dev_type->vendor,
- 			dev_type->device, dev))) {
- 
---- v2.4.20-rc1/include/linux/ide.h~sb16pnpide	Fri Nov  8 04:39:26 2002
-+++ v2.4.20-rc1-hipnod/include/linux/ide.h	Fri Nov  8 04:39:26 2002
-@@ -277,6 +277,7 @@ typedef struct hw_regs_s {
- 	ide_ioreg_t	io_ports[IDE_NR_PORTS];	/* task file registers */
- 	int		irq;			/* our irq number */
- 	int		dma;			/* our dma entry */
-+	int		no_passive;		/* no passive status tests */
- 	ide_ack_intr_t	*ack_intr;		/* acknowledge interrupt */
- 	void		*priv;			/* interface specific data */
- 	hwif_chipset_t  chipset;
+spdadd 10.0.0.11 10.0.0.216 any -P in ipsec
+           esp/transport//require
+           ah/transport//require;
 
-[patch ends]
+ICMP traffic is fine however. I'm now investigating how far it gets before
+locking up. 
+
+Regards,
+
+bert
+
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267415AbTCEQPn>; Wed, 5 Mar 2003 11:15:43 -0500
+	id <S267268AbTCEQNd>; Wed, 5 Mar 2003 11:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267425AbTCEQPn>; Wed, 5 Mar 2003 11:15:43 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:29589 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S267385AbTCEQPn>; Wed, 5 Mar 2003 11:15:43 -0500
-Message-Id: <200303051624.h25GOqGi006862@locutus.cmf.nrl.navy.mil>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
-In-reply-to: Your message of "Wed, 05 Mar 2003 10:11:49 CST."
-             <Pine.LNX.4.44.0303051010200.31461-100000@chaos.physics.uiowa.edu> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Wed, 05 Mar 2003 11:24:52 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S267274AbTCEQNd>; Wed, 5 Mar 2003 11:13:33 -0500
+Received: from holomorphy.com ([66.224.33.161]:12190 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267268AbTCEQNc>;
+	Wed, 5 Mar 2003 11:13:32 -0500
+Date: Wed, 5 Mar 2003 08:23:49 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: pgcl-2.5.64-[12]
+Message-ID: <20030305162349.GF1399@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0303051010200.31461-100000@chaos.physics.uiowa.edu>,K
-ai Germaschewski writes:
->...quite a bit of effort to remove those duplicate entries...
+pgcl-2.5.64-1 includes the mprotect() fix from 2.5.63-based patches,
+as well as an initial attempt at restoring swap functionality.
 
-shocking!  so how about this then:
+pgcl-2.5.64-2 fixes up the initial attempt at swapping so it actually
+passes touch testing. Whether shmem.c handles this properly is
+uncertain, but nothing obvious stands out as being in need of repair.
 
-atm-y   := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
-mpoa-y  := mpc.o mpoa_caches.o mpoa_proc.o
+I bumped down PAGE_SIZE to 32K, 64K appeared to trigger issues with
+qlogicisp.c on NUMA-Q. That may or may not eventually get fixed. It'd
+certainly be interesting to go beyond the limits of the 2.4 patch.
+Dealing with q->max_sectors*512 < PAGE_SIZE in a generic fashion looks
+painful, and the driver is crusty, so swapping hardware sound good.
 
-obj-$(CONFIG_ATM) += atm.o
-atm-$(CONFIG_PROC_FS) += proc.o
-atm-$(subst m,y,$(CONFIG_ATM_CLIP)) += ipcommon.o
-atm-$(subst m,y,$(CONFIG_NET_SCH_ATM)) += ipcommon.o
-obj-$(CONFIG_ATM_CLIP) += clip.o
-obj-$(CONFIG_ATM_LANE) += lec.o
-obj-$(CONFIG_ATM_MPOA) += mpoa.o
-obj-$(CONFIG_PPPOATM) += pppoatm.o
+If this really holds up and there aren't enough fs or driver issues
+to keep me occupied I might actually start dealing with performance
+issues wrt. fragmentation of anonymous memory and L3 pagetables.
+(Well, they're L2 pagetables in the nomenclature starting at L0.)
 
+As usual, available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
+
+
+-- wli

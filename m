@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270531AbUJTUYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270546AbUJTUYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270531AbUJTUYy (ORCPT <rfc822;willy@w.ods.org>);
+	id S270546AbUJTUYy (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 20 Oct 2004 16:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270558AbUJTUUz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270550AbUJTUUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:20:55 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:48805 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S270525AbUJTUQH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:16:07 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Tomas Carnecky <tom@dbservice.com>
-Subject: Re: my opinion about VGA devices
-Date: Wed, 20 Oct 2004 22:16:35 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <417590F3.1070807@dbservice.com> <200410201318.26430.oliver@neukum.org> <41765A8C.2020309@dbservice.com>
-In-Reply-To: <41765A8C.2020309@dbservice.com>
-MIME-Version: 1.0
+	Wed, 20 Oct 2004 16:20:11 -0400
+Received: from goose.movealong.org ([66.93.3.77]:2689 "EHLO
+	goose.movealong.org") by vger.kernel.org with ESMTP id S270543AbUJTURy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 16:17:54 -0400
+Date: Wed, 20 Oct 2004 16:17:52 -0400
+From: Nate Riffe <inkblot@movealong.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: M$ Mail-servers
+Message-ID: <20041020201752.GA520@movealong.org>
+References: <Pine.LNX.4.61.0410201518230.4679@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410202216.35464.oliver@neukum.org>
+In-Reply-To: <Pine.LNX.4.61.0410201518230.4679@chaos.analogic.com>
+X-pw: reindeer flotilla
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I cannot believe Richard B. Johnson said this on the ENTARNET:
+> Anybody got some ammunition I can throw in the way
+> of the local Net Nazi who is going to make all email
+> go to a centralized mail-server where one has to
+> access it through a web-crawler like it was yahoo.
+> 
+> Thanks in advance.
 
-> I guess that you are talking about the fact that displaying text 
-> messages would be possible only after the first device driver has 
-> initialized and registered with the kernel.
+UUCP over SSH.  Need a hub to link to?
 
-No, the kernel cannot print at all.
- 
-> You could do the printing in two stages: at the begining the same way as 
-> in the current kernel, but as soon as the first driver is registered, 
-> the kernel switches to the function provided by the driver.
-
-The current kernel can print only if the video chipset is initialised
-to a certain degree, which usually the firmware or the boot loader
-provide for.
-
-	Regards
-		Oliver
+-- 
+--< ((\))< >----< inkblot@movealong.org >----< http://www.movealong.org/ >--
+pub  1024D/05A058E0 2002-03-07 Nate Riffe (06-Mar-2002) <inkblot@movealong.org>
+     Key fingerprint = 0DAC F5CB D182 3165 D757  C466 CD42 12A8 05A0 58E0

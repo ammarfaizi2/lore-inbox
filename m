@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312414AbSDAQmP>; Mon, 1 Apr 2002 11:42:15 -0500
+	id <S312416AbSDAQwl>; Mon, 1 Apr 2002 11:52:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312361AbSDAQmF>; Mon, 1 Apr 2002 11:42:05 -0500
-Received: from smtp02.vsnl.net ([203.197.12.8]:32141 "EHLO smtp02.vsnl.net")
-	by vger.kernel.org with ESMTP id <S312416AbSDAQl5>;
-	Mon, 1 Apr 2002 11:41:57 -0500
-Message-ID: <3CA88EBE.2BC75305@vsnl.net>
-Date: Mon, 01 Apr 2002 22:15:50 +0530
-From: "Amit S. Kale" <kgdb@vsnl.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>
-Subject: [announce] kgdb for kernel 2.4.18
+	id <S312449AbSDAQwb>; Mon, 1 Apr 2002 11:52:31 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:25254 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S312416AbSDAQwR>;
+	Mon, 1 Apr 2002 11:52:17 -0500
+Date: Mon, 1 Apr 2002 18:51:31 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Henrique Gobbi <henrique@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, khc@pm.waw.pl
+Subject: Re: Generic HDLC Layer
+Message-ID: <20020401185131.A4331@fafner.intra.cogenit.fr>
+In-Reply-To: <02040111305301.00893@henrique.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greetings,
 
-kgdb is available for kernel 2.4.18
-You can get it from http://kgdb.sourceforge.net/downloads.html
+Henrique Gobbi <henrique@cyclades.com> :
+[...]
+> Will Halasa make the new sethdlc utility, or I will have to do it by myself ?
+
+You can try:
+<URL:http://www.cogenit.fr/dscc4/sethdlc.tar.gz>
+
+I've sent the url to Krzysztof a few days ago.
+
 -- 
-Amit S. Kale
-Linux kernel source level debugger    http://kgdb.sourceforge.net/
-	[1st April - kgdb-1.5 for kernel 2.4.18]
-Translation filesystem                http://trfs.sourceforge.net/
+Ueimor

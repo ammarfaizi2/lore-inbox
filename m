@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUHCIoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265250AbUHCIrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUHCIoo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 04:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHCIoo
+	id S265250AbUHCIrD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 04:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHCIrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 04:44:44 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26324 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265161AbUHCIom (ORCPT
+	Tue, 3 Aug 2004 04:47:03 -0400
+Received: from dwdmx2.dwd.de ([141.38.3.197]:15892 "HELO dwdmx2.dwd.de")
+	by vger.kernel.org with SMTP id S265250AbUHCIq7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 04:44:42 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OLS and console rearchitecture
-References: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
-	<410E55AA.8030709@ums.usu.ru> <celori$joe$1@news.cistron.nl>
-	<je3c35qznz.fsf@sykes.suse.de>
-	<1091468401.806.0.camel@localhost.localdomain>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: ..I just walked into th' HOUSE OF REPRESENTATIVES with fourteen WET
- DOLPHINS and an out-of-date MARRIAGE MANUAL...
-Date: Tue, 03 Aug 2004 10:44:40 +0200
-In-Reply-To: <1091468401.806.0.camel@localhost.localdomain> (Alan Cox's
- message of "Mon, 02 Aug 2004 18:40:02 +0100")
-Message-ID: <jevfg0fw5j.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Tue, 3 Aug 2004 04:46:59 -0400
+Date: Tue, 3 Aug 2004 08:46:55 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@praktifix.dwd.de
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+cc: Corey Minyard <minyard@acm.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IPMI watchdog question
+In-Reply-To: <200408021905.28112.arekm@pld-linux.org>
+Message-Id: <Pine.LNX.4.58.0408030843280.7078@praktifix.dwd.de>
+References: <Pine.LNX.4.58.0407280901330.31636@praktifix.dwd.de>
+ <200408021829.18228.arekm@pld-linux.org> <410E710E.20004@acm.org>
+ <200408021905.28112.arekm@pld-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Mon, 2 Aug 2004, Arkadiusz Miskiewicz wrote:
 
-> On Llu, 2004-08-02 at 17:21, Andreas Schwab wrote:
->> > A configuration file for killall5 in which services/daemons get
->> > defined that should not be signalled ?
->> 
->> IMHO a better solution would be some kind of process flag that can be
->> interrogated by killall5.
->
-> Policy belongs in user space. This is entirely policy and personal
-> preference.
+> On Monday 02 of August 2004 18:51, Corey Minyard wrote:
+> 
+> > Your patch looks very good.  Could you add the test and set change,
+> > too?  Then I think it is ready to go in.
+> Added.
+> 
+> - support disabling watchdog by writting ,,V'' to device.
+> - unify printk()
+> - use atomic bit operations on ipmi_wdog_open
+> 
+> Signed-off-by: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+> 
+Many thanks for the quick patch! I have tested it and everything works as
+expected.
 
-The kernel would only function as a repository and makes sure the flag is
-inherited across execve().  Any policy will only be set by user space.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Holger

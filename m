@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbUJYVVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbUJYVUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUJYVVY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUJYVVX
+	id S262016AbUJYVUw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUJYVI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:21:23 -0400
-Received: from av4-1-sn3.vrr.skanova.net ([81.228.9.111]:50582 "EHLO
-	av4-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S261295AbUJYVSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:18:13 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: [PATCH] Fix incorrect Mt Rainier detection
-From: Peter Osterlund <petero2@telia.com>
-Date: 25 Oct 2004 23:18:07 +0200
-Message-ID: <m3wtxeijjk.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Mon, 25 Oct 2004 17:08:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52701 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262024AbUJYVBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 17:01:13 -0400
+Date: Mon, 25 Oct 2004 23:01:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Alexander Batyrshin <abatyrshin@ru.mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041025210135.GA28699@elte.hu>
+References: <OF1ADC83B8.7696CB2F-ON86256F38.0066D6EA@raytheon.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF1ADC83B8.7696CB2F-ON86256F38.0066D6EA@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cdrom_is_mrw() can incorrectly think that a drive is Mt Rainier
-capable, because if forgets to check if the "GET CONFIGURATION"
-command returns the MRW feature number.  According to the MMC spec,
-the drive shall return all feature numbers >= the starting feature
-number, so even if the drive doesn't support Mt Rainier, it can return
-some data that makes cdrom_is_mrw() incorrectly think the drive is MRW
-capable.
 
-This problem stops me from mounting DVD+RW discs in R/W mode on my
-laptop, because it makes cdrom_open_write() call
-cdrom_mrw_open_write() which fails because the drive isn't really MRW
-capable.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-The fix is to make sure the returned feature number is the correct one
-for Mt Rainier.
+> BUG: sleeping function called from invalid context hdparm(3606) at
+> kernel/mutex.c
+> in_atomic():0 [00000000], irqs_disabled():1
+> ... will send stack traceback separately ...
+> when setting udma2 mode in hdparm.
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+i suspect the patch below will fix the hdparm message - but i dont think
+it's related to the other problems you have reported. 
 
- linux-petero/drivers/cdrom/cdrom.c |    2 ++
- 1 files changed, 2 insertions(+)
+	Ingo
 
-diff -puN drivers/cdrom/cdrom.c~mrw-fix drivers/cdrom/cdrom.c
---- linux/drivers/cdrom/cdrom.c~mrw-fix	2004-10-25 22:43:15.711347640 +0200
-+++ linux-petero/drivers/cdrom/cdrom.c	2004-10-25 22:43:15.716346880 +0200
-@@ -546,6 +546,8 @@ int cdrom_is_mrw(struct cdrom_device_inf
- 		return ret;
- 
- 	mfd = (struct mrw_feature_desc *)&buffer[sizeof(struct feature_header)];
-+	if (be16_to_cpu(mfd->feature_code) != CDF_MRW)
-+		return 1;
- 	*write = mfd->write;
- 
- 	if ((ret = cdrom_mrw_probe_pc(cdi))) {
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+--- linux/drivers/ide/ide-iops.c.orig
++++ linux/drivers/ide/ide-iops.c
+@@ -783,13 +783,11 @@ int ide_driveid_update (ide_drive_t *dri
+ 		printk("%s: CHECK for good STATUS\n", drive->name);
+ 		return 0;
+ 	}
+-	local_irq_save(flags);
+-	SELECT_MASK(drive, 0);
+ 	id = kmalloc(SECTOR_WORDS*4, GFP_ATOMIC);
+-	if (!id) {
+-		local_irq_restore(flags);
++	if (!id)
+ 		return 0;
+-	}
++	local_irq_save(flags);
++	SELECT_MASK(drive, 0);
+ 	ata_input_data(drive, id, SECTOR_WORDS);
+ 	(void) hwif->INB(IDE_STATUS_REG);	/* clear drive IRQ */
+ 	local_irq_enable();

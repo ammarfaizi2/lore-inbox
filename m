@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270581AbTGNMLK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270574AbTGNMK7
+	id S270569AbTGNM1E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270607AbTGNM0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:10:59 -0400
-Received: from raq465.uk2net.com ([213.239.56.46]:58374 "EHLO
-	mail.truemesh.com") by vger.kernel.org with ESMTP id S270573AbTGNMKh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:10:37 -0400
-Date: Mon, 14 Jul 2003 13:19:13 +0100
-From: Paul Nasrat <pauln@truemesh.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030714121912.GS28359@raq465.uk2net.com>
-Mail-Followup-To: Paul Nasrat <pauln@truemesh.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Romano Giannetti <romano@dea.icai.upco.es>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030711140219.GB16433@suse.de> <20030714083058.GC3706@pern.dea.icai.upco.es> <20030714114144.GB5187@suse.de> <1058184785.5981.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058184785.5981.0.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.3.25i
+	Mon, 14 Jul 2003 08:26:55 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41348
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270569AbTGNMJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:09:30 -0400
+Date: Mon, 14 Jul 2003 13:23:29 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307141223.h6ECNTw2030887@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com
+Subject: PATCH: config stuff for qdio/qeth
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 02:13:05PM +0200, Arjan van de Ven wrote:
-> On Mon, 2003-07-14 at 13:41, Dave Jones wrote:
-> 
-> > I've no objection to taking "heres links to packages for xxx distro"
-> > texts if people want to write them, but I don't have the time, nor
-> > knowledge to add these for every distro out there.
-> 
-> RHL9 rpms are at
-> 
-> http://people.redhat.com/arjanv/2.5/
-
-Won't people need rawhide modutils for these?  ( plus optional ipsec
-utils, etc which are there)
-
-Paul
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/drivers/s390/Config.in linux.22-pre5-ac1/drivers/s390/Config.in
+--- linux.22-pre5/drivers/s390/Config.in	2003-07-14 12:27:38.000000000 +0100
++++ linux.22-pre5-ac1/drivers/s390/Config.in	2003-07-07 16:03:56.000000000 +0100
+@@ -88,6 +89,23 @@
+ 	define_bool CONFIG_HOTPLUG y
+     fi
+ 
++    if [ "$CONFIG_QDIO" != "n" -a "$CONFIG_CHANDEV" = "y" -a "$CONFIG_IP_MULTICAST" = "y" ]; then
++      dep_tristate 'Support for Gigabit Ethernet' CONFIG_QETH $CONFIG_QDIO
++      if [ "$CONFIG_QETH" != "n" ]; then
++        comment 'Gigabit Ethernet default settings'
++	if [ "$CONFIG_IPV6" = "y" -o "$CONFIG_IPV6" = "$CONFIG_QETH" ]; then
++		bool '   IPv6 support for qeth' CONFIG_QETH_IPV6
++	else    
++		define_bool CONFIG_QETH_IPV6 n
++	fi
++	if [ "$CONFIG_VLAN_8021Q" = "y" -o "$CONFIG_VLAN_8021Q" = "$CONFIG_QETH" ]; then
++		bool '   VLAN support for qeth' CONFIG_QETH_VLAN
++	else    
++		define_bool CONFIG_QETH_VLAN n
++	fi
++        bool '   Performance statistics in /proc' CONFIG_QETH_PERF_STATS
++      fi
++    fi
+     tristate 'CTC device support' CONFIG_CTC
+     tristate 'IUCV device support (VM only)' CONFIG_IUCV
+   fi
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/drivers/s390/Makefile linux.22-pre5-ac1/drivers/s390/Makefile
+--- linux.22-pre5/drivers/s390/Makefile	2003-07-14 12:26:57.000000000 +0100
++++ linux.22-pre5-ac1/drivers/s390/Makefile	2003-07-07 16:05:42.000000000 +0100
+@@ -9,6 +9,8 @@
+ 
+ obj-y := s390io.o s390mach.o s390dyn.o ccwcache.o sysinfo.o
+ export-objs += ccwcache.o s390dyn.o s390io.o
++obj-$(CONFIG_QDIO) += qdio.o
++export-objs += qdio.o
+ 
+ obj-y += $(foreach dir,$(subdir-y),$(dir)/s390-$(dir).o)
+ 

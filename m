@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVAONh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVAONmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbVAONh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 08:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVAONgz
+	id S262280AbVAONmD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 08:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVAONgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 08:36:55 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:30888 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262281AbVAONb3
+	Sat, 15 Jan 2005 08:36:21 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:21928 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262280AbVAONaT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 08:31:29 -0500
-Subject: [PATCH 6/6] cifs: convert schedule_timeout to msleep and ssleep
+	Sat, 15 Jan 2005 08:30:19 -0500
+Subject: [PATCH 5/6] cifs: reduce deep nesting
 From: Pekka Enberg <penberg@cs.helsinki.fi>
 To: sfrench@samba.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1105795818.9555.9.camel@localhost>
+In-Reply-To: <1105795751.9555.7.camel@localhost>
 References: <1105795546.9555.2.camel@localhost>
 	 <1105795614.9555.3.camel@localhost>  <1105795682.9555.5.camel@localhost>
-	 <1105795751.9555.7.camel@localhost>  <1105795818.9555.9.camel@localhost>
-Date: Sat, 15 Jan 2005 15:31:28 +0200
-Message-Id: <1105795888.9555.11.camel@localhost>
+	 <1105795751.9555.7.camel@localhost>
+Date: Sat, 15 Jan 2005 15:30:18 +0200
+Message-Id: <1105795818.9555.9.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
@@ -26,137 +26,146 @@ X-Mailer: Evolution 2.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts cifs code to use msleep() and ssleep() instead of
-schedule_timeout().
+This patch converts deep if statement nesting to use gotos in few places.
 
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- cifsfs.c  |    9 ++++-----
- connect.c |   25 +++++++++----------------
- 2 files changed, 13 insertions(+), 21 deletions(-)
+ cifsfs.c  |   51 +++++++++++++++++++++++++++++++--------------------
+ connect.c |   44 ++++++++++++++++++++------------------------
+ 2 files changed, 51 insertions(+), 44 deletions(-)
 
-Index: 2.6/fs/cifs/cifsfs.c
+Index: linux/fs/cifs/cifsfs.c
 ===================================================================
---- 2.6.orig/fs/cifs/cifsfs.c	2005-01-12 23:33:14.476445944 +0200
-+++ 2.6/fs/cifs/cifsfs.c	2005-01-12 23:37:09.402731720 +0200
-@@ -32,6 +32,7 @@
- #include <linux/seq_file.h>
- #include <linux/vfs.h>
- #include <linux/mempool.h>
-+#include <linux/delay.h>
- #include "cifsfs.h"
- #include "cifspdu.h"
- #define DECLARE_GLOBALS_HERE
-@@ -748,14 +749,12 @@
+--- linux.orig/fs/cifs/cifsfs.c	2005-01-11 08:04:55.007622032 +0200
++++ linux/fs/cifs/cifsfs.c	2005-01-11 08:04:57.454250088 +0200
+@@ -839,26 +839,37 @@
+ 	}
  
- 	oplockThread = current;
- 	do {
--		set_current_state(TASK_INTERRUPTIBLE);
--		
--		schedule_timeout(1*HZ);  
-+		ssleep(1);
+ 	rc = cifs_init_inodecache();
+-	if (!rc) {
+-		rc = cifs_init_mids();
+-		if (!rc) {
+-			rc = cifs_init_request_bufs();
+-			if (!rc) {
+-				rc = register_filesystem(&cifs_fs_type);
+-				if (!rc) {                
+-					rc = (int)kernel_thread(cifs_oplock_thread, NULL, 
+-						CLONE_FS | CLONE_FILES | CLONE_VM);
+-					if(rc > 0)
+-						return 0;
+-					else 
+-						cERROR(1,("error %d create oplock thread",rc));
+-				}
+-				cifs_destroy_request_bufs();
+-			}
+-			cifs_destroy_mids();
+-		}
+-		cifs_destroy_inodecache();
+-	}
++	if (rc)
++		goto failed_init_inodecache;
 +
- 		spin_lock(&GlobalMid_Lock);
- 		if(list_empty(&GlobalOplock_Q)) {
- 			spin_unlock(&GlobalMid_Lock);
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(39*HZ);
-+			ssleep(39);
- 		} else {
- 			oplock_item = list_entry(GlobalOplock_Q.next, 
- 				struct oplock_q_entry, qhead);
-Index: 2.6/fs/cifs/connect.c
++	rc = cifs_init_mids();
++	if (rc)
++		goto failed_init_mids;
++
++	rc = cifs_init_request_bufs();
++	if (rc)
++		goto failed_init_request_bufs;
++
++	rc = register_filesystem(&cifs_fs_type);
++	if (rc)
++		goto failed_register_filesystem;
++
++	rc = kernel_thread(cifs_oplock_thread, NULL,
++			   CLONE_FS | CLONE_FILES | CLONE_VM);
++	if (rc <= 0)
++		goto failed_kernel_thread;
++
++	return 0;
++
++ failed_kernel_thread:
++	cERROR(1,("error %d create oplock thread",rc));
++ failed_register_filesystem:
++	cifs_destroy_request_bufs();
++ failed_init_request_bufs:
++	cifs_destroy_mids();
++ failed_init_mids:
++	cifs_destroy_inodecache();
++ failed_init_inodecache:
+ #ifdef CONFIG_PROC_FS
+ 	cifs_proc_clean();
+ #endif
+Index: linux/fs/cifs/connect.c
 ===================================================================
---- 2.6.orig/fs/cifs/connect.c	2005-01-12 23:33:14.479445488 +0200
-+++ 2.6/fs/cifs/connect.c	2005-01-12 23:37:47.396955720 +0200
-@@ -29,6 +29,7 @@
- #include <linux/ctype.h>
- #include <linux/utsname.h>
- #include <linux/mempool.h>
-+#include <linux/delay.h>
- #include <asm/uaccess.h>
- #include <asm/processor.h>
- #include "cifspdu.h"
-@@ -174,8 +175,7 @@
- 					server->workstation_RFC1001_name);
+--- linux.orig/fs/cifs/connect.c	2005-01-11 08:04:50.326333696 +0200
++++ linux/fs/cifs/connect.c	2005-01-11 08:04:57.457249632 +0200
+@@ -122,11 +122,9 @@
+ 	read_lock(&GlobalSMBSeslock);
+ 	list_for_each(tmp, &GlobalSMBSessionList) {
+ 		ses = list_entry(tmp, struct cifsSesInfo, cifsSessionList);
+-		if (ses->server) {
+-			if (ses->server == server) {
+-				ses->status = CifsNeedReconnect;
+-				ses->ipc_tid = 0;
+-			}
++		if (ses->server && ses->server == server) {
++			ses->status = CifsNeedReconnect;
++			ses->ipc_tid = 0;
  		}
- 		if(rc) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(3 * HZ);
-+			ssleep(3);
- 		} else {
- 			atomic_inc(&tcpSesReconnectCount);
- 			spin_lock(&GlobalMid_Lock);
-@@ -226,8 +226,7 @@
+ 		/* else tcp and smb sessions need reconnection */
+ 	}
+@@ -857,33 +855,31 @@
+ 		 char *userName, struct TCP_Server_Info **psrvTcp)
+ {
+ 	struct list_head *tmp;
+-	struct cifsSesInfo *ses;
++	struct cifsSesInfo *ret = NULL;
+ 	*psrvTcp = NULL;
+ 	read_lock(&GlobalSMBSeslock);
  
- 		if (smb_buffer == NULL) {
- 			cERROR(1,("Can not get memory for SMB response"));
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(HZ * 3); /* give system time to free memory */
-+			ssleep(3);
- 			continue;
+ 	list_for_each(tmp, &GlobalSMBSessionList) {
+-		ses = list_entry(tmp, struct cifsSesInfo, cifsSessionList);
+-		if (ses->server) {
+-			if((target_ip_addr && 
+-				(ses->server->addr.sockAddr.sin_addr.s_addr
+-				  == target_ip_addr->s_addr)) || (target_ip6_addr
+-				&& memcmp(&ses->server->addr.sockAddr6.sin6_addr,
+-					target_ip6_addr,sizeof(*target_ip6_addr)))){
+-				/* BB lock server and tcp session and increment use count here?? */
+-				*psrvTcp = ses->server;	/* found a match on the TCP session */
+-				/* BB check if reconnection needed */
+-				if (strncmp
+-				    (ses->userName, userName,
+-				     MAX_USERNAME_SIZE) == 0){
+-					read_unlock(&GlobalSMBSeslock);
+-					return ses;	/* found exact match on both tcp and SMB sessions */
+-				}
++		struct cifsSesInfo * ses = list_entry(tmp, struct cifsSesInfo, cifsSessionList);
++		if (!ses->server)
++			continue;
++		if((target_ip_addr && 
++			(ses->server->addr.sockAddr.sin_addr.s_addr
++			  == target_ip_addr->s_addr)) || (target_ip6_addr
++			&& memcmp(&ses->server->addr.sockAddr6.sin6_addr,
++				target_ip6_addr,sizeof(*target_ip6_addr)))){
++			/* BB lock server and tcp session and increment use count here?? */
++			*psrvTcp = ses->server;	/* found a match on the TCP session */
++			/* BB check if reconnection needed */
++			if (strncmp(ses->userName, userName, MAX_USERNAME_SIZE) == 0) {
++				ret = ses;
++				goto out;
+ 			}
  		}
- 		iov.iov_base = smb_buffer;
-@@ -308,8 +307,7 @@
- 				} else {
- 					/* give server a second to
- 					clean up before reconnect attempt */
--					set_current_state(TASK_INTERRUPTIBLE);
--					schedule_timeout(HZ);
-+					ssleep(1);
- 					/* always try 445 first on reconnect
- 					since we get NACK on some if we ever
- 					connected to port 139 (the NACK is 
-@@ -433,8 +431,7 @@
- 	and get out of SendReceive.  */
- 	wake_up_all(&server->request_q);
- 	/* give those requests time to exit */
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout(HZ/8);
-+	msleep(125);
- 
- 	if(server->ssocket) {
- 		sock_release(csocket);
-@@ -471,17 +468,15 @@
- 		}
- 		spin_unlock(&GlobalMid_Lock);
- 		read_unlock(&GlobalSMBSeslock);
--		set_current_state(TASK_INTERRUPTIBLE);
- 		/* 1/8th of sec is more than enough time for them to exit */
--		schedule_timeout(HZ/8); 
-+		msleep(125);
+-		/* else tcp and smb sessions need reconnection */
  	}
- 
- 	if (list_empty(&server->pending_mid_q)) {
- 		/* mpx threads have not exited yet give them 
- 		at least the smb send timeout time for long ops */
- 		cFYI(1, ("Wait for exit from demultiplex thread"));
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(46 * HZ);	
-+		ssleep(46);
- 		/* if threads still have not exited they are probably never
- 		coming home not much else we can do but free the memory */
- 	}
-@@ -497,8 +492,7 @@
- 			GFP_KERNEL);
- 	}
- 
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout(HZ/4);
-+	msleep(250);
- 	return 0;
++ out:
+ 	read_unlock(&GlobalSMBSeslock);
+-	return NULL;
++	return ret;
  }
  
-@@ -2924,8 +2918,7 @@
- 	
- 	cifs_sb->tcon = NULL;
- 	if (ses) {
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(HZ / 2);
-+		msleep(500);
- 	}
- 	if (ses)
- 		sesInfoFree(ses);
+ static struct cifsTconInfo *
 
 

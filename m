@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbRGCS0M>; Tue, 3 Jul 2001 14:26:12 -0400
+	id <S265766AbRGCSdM>; Tue, 3 Jul 2001 14:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265757AbRGCS0C>; Tue, 3 Jul 2001 14:26:02 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:21011 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265754AbRGCSZ5>; Tue, 3 Jul 2001 14:25:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, Marco Colombo <marco@esi.it>
-Subject: Re: VM Requirement Document - v0.0
-Date: Tue, 3 Jul 2001 20:29:27 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <mike_phillips@urscorp.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0107021538030.14332-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0107021538030.14332-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Message-Id: <01070320292709.00338@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S265744AbRGCSdC>; Tue, 3 Jul 2001 14:33:02 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:18188 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265757AbRGCScs>; Tue, 3 Jul 2001 14:32:48 -0400
+Date: Tue, 3 Jul 2001 13:32:36 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <oupelryykh5.fsf@pigdrop.muc.suse.de>
+In-Reply-To: <9LUWoC.A.W3G.sIQQ7@dinero.interactivesi.com.suse.lists.linux.kernel> 
+	Timur Tabi's message of "3 Jul 2001 01:29:40 +0200"
+Subject: Re: pte_val(*pte) as lvalue
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <LScPx.A.XAF.H_gQ7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 July 2001 20:42, Rik van Riel wrote:
-> On Thu, 28 Jun 2001, Marco Colombo wrote:
-> > I'm not sure that, in general, recent pages with only one access are
-> > still better eviction candidates compared to 8 hours old pages. Here
-> > we need either another way to detect one-shot activity (like the one
-> > performed by updatedb),
->
-> Fully agreed, but there is one problem with this idea.
-> Suppose you have a maximum of 20% of your RAM for these
-> "one-shot" things, now how are you going to be able to
-> page in an application with a working set of, say, 25%
-> the size of RAM ?
+** Reply to message from Andi Kleen <ak@suse.de> on 03 Jul 2001 01:33:42 +0200
 
-Easy.  What's the definition of working set?  Those pages that are frequently 
-referenced.  So as the application starts up some of its pages will get 
-promoted from used-once to used-often.  (On the other hand, the target 
-behavior here conflicts with the goal of grouping together several 
-temporally-related accesses to the same page together as one access, so 
-there's a subtle distinction to be made here, see below.)
+> Timur Tabi <ttabi@interactivesi.com> writes:
+> 
+> > 
+> > What is the accepted way to assign an integer to a pte that works in 2.2 and
+> > 2.4?
+> 
+> set_pte(pte, mk_pte( ... )) 
 
-The point here is that there are such things as run-once program pages, just 
-as there are use-once file pages.  Both should get low priority and be 
-evicted early, regardless of the fact they were just loaded.
+I'm not sure how to use mk_pte.  The first parameter is a struct page *, which
+I don't have.  All I'm doing is modifying the PTE value.  I don't want to "make"
+another one.
 
-> If you don't have any special measures, the pages from
-> this "new" application will always be treated as one-shot
-> pages and the process will never be able to be cached in
-> memory completely...
 
-The self-balancing way of doing this is to promote pages from the old end of 
-the used-once list to the used-often (active) list at a rate corresponding to 
-the fault-in rate so we get more aggressive promotion of referenced-often 
-pages during program loading, and conversely, aggressive demotion of 
-referenced-once pages.
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
---
-Daniel
-
---
-Daniel

@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267371AbRGKRco>; Wed, 11 Jul 2001 13:32:44 -0400
+	id <S261198AbRGKSBR>; Wed, 11 Jul 2001 14:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267374AbRGKRce>; Wed, 11 Jul 2001 13:32:34 -0400
-Received: from www.wen-online.de ([212.223.88.39]:30222 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267371AbRGKRc0>;
-	Wed, 11 Jul 2001 13:32:26 -0400
-Date: Wed, 11 Jul 2001 19:31:38 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Ho Chak Hung <hunghochak@netscape.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages 4 order allocation failed
-In-Reply-To: <448CBB1C.4314B00D.0F76C228@netscape.net>
-Message-ID: <Pine.LNX.4.33.0107111925250.371-100000@mikeg.weiden.de>
+	id <S262436AbRGKSA5>; Wed, 11 Jul 2001 14:00:57 -0400
+Received: from dsl-209-162-208-225.easystreet.com ([209.162.208.225]:38166
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261198AbRGKSAx>; Wed, 11 Jul 2001 14:00:53 -0400
+Message-ID: <3B4C9492.7070201@PolyServe.com>
+Date: Wed, 11 Jul 2001 11:01:54 -0700
+From: David Chamness <chamness@PolyServe.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.6 i686; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: alan@redhat.com, torvalds@transmeta.com
+Subject: [PATCH] minor change to netsyms.c
+Content-Type: multipart/mixed;
+ boundary="------------050800000100060308050309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jul 2001, Ho Chak Hung wrote:
+This is a multi-part message in MIME format.
+--------------050800000100060308050309
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hi,
-> but there isn't any call in the module to allocate 4 order pages. There are only calls to allocate 0 order pages. alloc_pages(GFP_KERNEL, 0)is the only call to allocate page in the whole module.
+Currently, inet_stream_ops only gets exported if experimental code (IPV6 
+module or KHTTPD) is configured.  This patch makes the exporting of 
+inet_stream_ops the same as inet_dgram_ops, whenever CONFIG_INET is 
+defined.  I have written a module that needs both these symbols 
+exported, and it would be much cleaner if they both were exported in a 
+consistent manner.
 
-Then it's not your module :)
+Thanks,
+David Chamness
+PolyServe, Inc.
 
-Some driver may be asking for order 4, but settling for less when
-that fails.
 
-	-Mike
+
+--------------050800000100060308050309
+Content-Type: text/plain;
+ name="patch-netsyms.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-netsyms.c"
+
+--- v2.4.6/linux/net/netsyms.c	Mon Jul  9 11:18:56 2001
++++ linux/net/netsyms.c	Mon Jul  9 11:17:05 2001
+@@ -251,6 +251,7 @@
+ EXPORT_SYMBOL(ip_mc_inc_group);
+ EXPORT_SYMBOL(ip_mc_dec_group);
+ EXPORT_SYMBOL(ip_finish_output);
++EXPORT_SYMBOL(inet_stream_ops);
+ EXPORT_SYMBOL(inet_dgram_ops);
+ EXPORT_SYMBOL(ip_cmsg_recv);
+ EXPORT_SYMBOL(inet_addr_type); 
+@@ -281,7 +282,6 @@
+ #endif
+ #if defined (CONFIG_IPV6_MODULE) || defined (CONFIG_KHTTPD) || defined (CONFIG_KHTTPD_MODULE)
+ /* inet functions common to v4 and v6 */
+-EXPORT_SYMBOL(inet_stream_ops);
+ EXPORT_SYMBOL(inet_release);
+ EXPORT_SYMBOL(inet_stream_connect);
+ EXPORT_SYMBOL(inet_dgram_connect);
+
+--------------050800000100060308050309--
 

@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273293AbSISVXX>; Thu, 19 Sep 2002 17:23:23 -0400
+	id <S273299AbSISVPV>; Thu, 19 Sep 2002 17:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273214AbSISVWC>; Thu, 19 Sep 2002 17:22:02 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63753
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S273293AbSISVVb>; Thu, 19 Sep 2002 17:21:31 -0400
-Subject: [patch] 2.4-ac: real-time / scheduling information out of /proc
-From: Robert Love <rml@tech9.net>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-6IWWwx0BaG8UMptZ90PX"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 19 Sep 2002 17:26:27 -0400
-Message-Id: <1032470788.16889.169.camel@phantasy>
-Mime-Version: 1.0
+	id <S273305AbSISVPV>; Thu, 19 Sep 2002 17:15:21 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:48026 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S273299AbSISVPU>; Thu, 19 Sep 2002 17:15:20 -0400
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200209192119.g8JLJwl17424@eng2.beaverton.ibm.com>
+Subject: Re: [RFC] [PATCH] 2.5.35 patch for making DIO async--performance numbers
+To: akpm@digeo.com (Andrew Morton)
+Date: Thu, 19 Sep 2002 14:19:58 -0700 (PDT)
+Cc: mcao@us.ibm.com (Mingming Cao), bcrl@redhat.com (Benjamin LaHaise),
+       suparna@linux.ibm.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <3D8A3D8E.4A93AD12@digeo.com> from "Andrew Morton" at Sep 19, 2002 01:11:42 PM PST
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
 
---=-6IWWwx0BaG8UMptZ90PX
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> 
+> Thanks.  Note that the old code (which seems to be a tiny bit faster,
+> and used less CPU as well) has a significantly higher context switch
+> rate.  At a guess I'd say that it is more efficient at getting userspace
+> up and running in response to IO completion.
+> 
 
-Alan,
-
-The attached patch exports scheduling policy and real-time priority from
-/proc/<pid>/stats.
-
-Support for reading this information is in procps CVS.
-
-This information has been in 2.5 since 2.5.18.
-
-It does not break old versions of procps as it just adds the new entries
-to the end.  I do not know what the practice is wrt adding proc fields
-in stable kernels, however since this does not break procps, is
-supported by current procps, and is in 2.5 -- it is perfectly safe to
-me.
-
-Patch is against 2.4.20-pre7-ac3, please apply.
-
-	Robert Love
+I my patch, I removed bio_list. So, I do all the processing of "bio"
+in end_io() function, instead of postpone it to waiter. Do you think
+this matters ? 
 
 
---=-6IWWwx0BaG8UMptZ90PX
-Content-Disposition: attachment; filename=proc-add-rt-info-rml-2.4.20-pre7-ac3-1.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=proc-add-rt-info-rml-2.4.20-pre7-ac3-1.patch;
-	charset=ISO-8859-1
+> I'd say it's only likely to affect these huge linear IOs.  Once you get
+> into real workloads which are seeking and merging then a bit of latency
+> here or there would just be soaked up by other system activity.
+> 
+> Ah.  The current direct-io.c uses wake_up_process(), not waitqueues.
+> So the aio version has to wear the waitqueue cost.  If you're using the
+> -mm patch I'd suggest that you convert aio.c to prepare_to_wait/finish_wait.
+> The waitqueue/wakeup costs on your 8-ways seem to be very high.
 
-diff -urN linux-2.4.20-pre7-ac3/fs/proc/array.c linux/fs/proc/array.c
---- linux-2.4.20-pre7-ac3/fs/proc/array.c	Thu Sep 19 16:10:34 2002
-+++ linux/fs/proc/array.c	Thu Sep 19 17:18:36 2002
-@@ -346,7 +346,7 @@
- 	read_unlock(&tasklist_lock);
- 	res =3D sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
- %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %lu %lu %ld %lu %lu %lu %lu %l=
-u \
--%lu %lu %lu %lu %lu %lu %lu %lu %d %d\n",
-+%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
- 		task->pid,
- 		task->comm,
- 		state,
-@@ -389,7 +389,9 @@
- 		task->nswap,
- 		task->cnswap,
- 		task->exit_signal,
--		task_cpu(task));
-+		task_cpu(task)
-+		task->rt_priority,
-+		task->policy);
- 	if(mm)
- 		mmput(mm);
- 	return res;
+Ok !! I still use wake_up_process() for the sync case.
+I will try to use waitqueues and see.
 
---=-6IWWwx0BaG8UMptZ90PX--
-
+Thanks,
+Badari

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSHINpV>; Fri, 9 Aug 2002 09:45:21 -0400
+	id <S312560AbSHINzc>; Fri, 9 Aug 2002 09:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312560AbSHINpU>; Fri, 9 Aug 2002 09:45:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25797 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S311885AbSHINpU>;
-	Fri, 9 Aug 2002 09:45:20 -0400
-Date: Fri, 9 Aug 2002 15:48:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.30 IDE 115
-Message-ID: <20020809134839.GO2243@suse.de>
-References: <3D53AE13.7060907@evision.ag>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D53AE13.7060907@evision.ag>
+	id <S312590AbSHINzc>; Fri, 9 Aug 2002 09:55:32 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42765 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S312560AbSHINzc>; Fri, 9 Aug 2002 09:55:32 -0400
+Date: Fri, 9 Aug 2002 10:59:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Chris Adams <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+In-Reply-To: <200208090704.g7974Td55043@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.44L.0208091058140.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09 2002, Marcin Dalecki wrote:
-> - Fix small typo introduced in 113, which prevented CD-ROMs from
->   working altogether.
+On Fri, 9 Aug 2002, Albert D. Cahalan wrote:
 
-Have you fixed the sense reporting issue I told you about months ago?
+> I almost put 99999, but then I realized that that's silly.
+> For years Linux had a hard limit of about 4000 processes,
 
-> - Eliminate block_ioctl(). This code can't be shared in the way
->   proposed by this file. We will port it to the proper
->   blk_insert_request() soon. This will eliminate the _elv_add_request()
->   "layering violation".
+That limit was removed some 2 years ago.
 
-What are you talking about?
-
+Rik
 -- 
-Jens Axboe
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

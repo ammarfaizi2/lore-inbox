@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbUKIWxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbUKIW4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbUKIWxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUKIWxb
+	id S261756AbUKIW4p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbUKIW4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:53:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49049 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261758AbUKIWxS (ORCPT
+	Tue, 9 Nov 2004 17:56:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60571 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261756AbUKIW4l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:53:18 -0500
-Date: Tue, 9 Nov 2004 14:52:45 -0800
+	Tue, 9 Nov 2004 17:56:41 -0500
+Date: Tue, 9 Nov 2004 14:55:02 -0800
 From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>, dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /sys/devices/system/timer registered twice
-Message-ID: <20041109225245.GB7618@kroah.com>
-References: <20041109193043.GA8767@vrfy.org>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, tokunaga.keiich@jp.fujitsu.com,
+       motoyuki@soft.fujitsu.com, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, rml@novell.com,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
+Message-ID: <20041109225502.GC7618@kroah.com>
+References: <20041105001328.3ba97e08.akpm@osdl.org> <20041105164523.GC1295@stusta.de> <20041105180513.GA32007@kroah.com> <20041105201012.GA24063@vrfy.org> <20041105204209.GA1204@kroah.com> <20041105211848.A21098@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041109193043.GA8767@vrfy.org>
+In-Reply-To: <20041105211848.A21098@unix-os.sc.intel.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
-> Hi,
-> I got this on a Centrino box with the latest bk:
-> 
->   [kay@pim linux.kay]$ ls -l /sys/devices/system/
->   total 0
->   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
->   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
->   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
->   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
->   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
->   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
->   ?---------  ? ?    ?    ?            ? timer
-> 
-> 
-> It is caused by registering two devices with the name "timer" from:
-> 
->   arch/i386/kernel/time.c
->   arch/i386/kernel/timers/timer_pit.c
-> 
-> If I change one of the names, I get two correct looking sysfs entries.
-> 
-> Greg, shouldn't the driver core prevent the corruption of the first
-> device if another one tries to register with the same name?
+On Fri, Nov 05, 2004 at 09:18:48PM -0800, Keshavamurthy Anil S wrote:
+> Also, since you have brought this, I have one another question to you.
+> Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
+> an "ADD" notification is sent. why is this? I would like to call
+> kobject_hotplug(kobj, ADD) later.
 
-Hm, this looks like an issue for Dmitry, as there shouldn't be too
-sysdev_class structures with the same name, right?
+This happens when kobject_add() is called.  You shouldn't ever need to
+call kobject_hotplug() for an add event yourself.
 
 thanks,
 

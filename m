@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316741AbSERBxH>; Fri, 17 May 2002 21:53:07 -0400
+	id <S316743AbSERB5h>; Fri, 17 May 2002 21:57:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316743AbSERBxG>; Fri, 17 May 2002 21:53:06 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:35481 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316741AbSERBxF>; Fri, 17 May 2002 21:53:05 -0400
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S316745AbSERB5g>; Fri, 17 May 2002 21:57:36 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:39128 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316743AbSERB5f>;
+	Fri, 17 May 2002 21:57:35 -0400
+Date: Fri, 17 May 2002 18:57:35 -0700
+To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: Question : Broadcast Inter Process Communication ?
-In-Reply-To: <20020517143052.A30047@bougret.hpl.hp.com>
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: Sat, 18 May 2002 03:52:33 +0200
-Message-ID: <873cwqrzmm.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
- i386-debian-linux)
-MIME-Version: 1.0
+Message-ID: <20020517185735.A30559@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020517143052.A30047@bougret.hpl.hp.com> <873cwqrzmm.fsf@goat.bogus.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean,
+On Sat, May 18, 2002 at 03:52:33AM +0200, Olaf Dietsche wrote:
+> Hi Jean,
+> 
+> > 	This "one sender - multiple reader" model seems common and
+> > usefull enough that there must be a way to do that under Linux. I know
+> > that it exist under Windows. Can somebody help me to find out how to
+> > do it under Linux ?
+> 
+> 
+> Maybe, you're looking for multicast. But you need a TCP/IP stack for
+> this and I don't know, wether this is implemented in Linux.
 
-Jean Tourrilhes <jt@bougret.hpl.hp.com> writes:
+	I've used multicast with great success in the past and I know
+that it's possible to bind a multicast socket on an interface. So,
+basically I would bind a multicast socket on the loopback. That what I
+was refering to in my e-mail by "UDP broadcast".
+	But, it just seems to me inefficient to have to go through all
+the way down in the network stack to the loopback interface (through
+IP and TCP) just for simple IPC. A multicast unix socket would be much
+more efficient (because it would no mess with any headers and support
+higher MTU).
 
-> 	I was looking under Linux for a mechanism to distribute an
-> event from one process (a daemon) to a set of other processes (deamons
-> or applications). The number and indentity of those other processes
-> would not be known by the process generating the event, those
-> processes would register themselves dynamically to the stream of
-> event. And the event need to be delivered to all of them (not only the
-> first one).
-> 	In other words, it would look like a *broadcast* message
-> queue, where the sender process would create the queue and write
-> events to it, and the other bunch of processes would dynamically open
-> the queue and listen for events.
+> Regards, Olaf.
 
-[snip]
+	Thanks...
 
-> 	This "one sender - multiple reader" model seems common and
-> usefull enough that there must be a way to do that under Linux. I know
-> that it exist under Windows. Can somebody help me to find out how to
-> do it under Linux ?
-
-
-Maybe, you're looking for multicast. But you need a TCP/IP stack for
-this and I don't know, wether this is implemented in Linux.
-
-Regards, Olaf.
+	Jean

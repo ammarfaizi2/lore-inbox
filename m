@@ -1,109 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132862AbRAJAoG>; Tue, 9 Jan 2001 19:44:06 -0500
+	id <S131785AbRAJAvt>; Tue, 9 Jan 2001 19:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132865AbRAJAn4>; Tue, 9 Jan 2001 19:43:56 -0500
-Received: from vmlinux.demon.co.uk ([193.237.10.217]:17412 "EHLO vmlinux.net")
-	by vger.kernel.org with ESMTP id <S132862AbRAJAnl>;
-	Tue, 9 Jan 2001 19:43:41 -0500
-Date: Wed, 10 Jan 2001 00:43:40 +0000 (GMT)
-From: John Morrison <john@vmlinux.net>
-To: Marc Lehmann <pcg@goof.com>
-cc: <BUGTRAQ@SECURITYFOCUS.COM>, <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>
+	id <S131511AbRAJAvi>; Tue, 9 Jan 2001 19:51:38 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:19719 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S130191AbRAJAv3>; Tue, 9 Jan 2001 19:51:29 -0500
+Date: Tue, 09 Jan 2001 19:51:23 -0500
+From: Chris Mason <mason@suse.com>
+To: Marc Lehmann <pcg@goof.com>, BUGTRAQ@SECURITYFOCUS.COM,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
 Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
  Linux)
+Message-ID: <14260000.979087883@tiny>
 In-Reply-To: <20010110004201.A308@cerebro.laendle>
-Message-ID: <Pine.LNX.4.30.0101100038540.1383-100000@vaio.vmlinux.net>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I can't reproduce this.
 
-[root@vaio /root]# mkdir "$(perl -e 'print "x" x 768')"
-[root@vaio /root]# ls
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxx
-[root@vaio /root]#
-
-
-
-John
-
+On Wednesday, January 10, 2001 12:42:01 AM +0100 Marc Lehmann
+<pcg@goof.com> wrote:
 
 > We are still investigating, but there seems to be a major security problem
 > in at least some versions of reiserfs. Since reiserfs is shipped with
 > newer versions of SuSE Linux and the problem is too easy to reproduce and
 > VERY dangerous I think alerting people to this problem is in order.
->
-> We have tested and verified this problem on a number of different systems
-> and kernels 2.2.17/2.2.8 with reiserfs-3.5.28 and probably other versions.
->
-> Basically, you do:
->
-> mkdir "$(perl -e 'print "x" x 768')"
->
-> I.e. create a very long directory. The name doesn't seem to be of
-> relevance (we found this out by doing mkdir "$(cat /etc/hosts)" for other
-> tests). This works.  The next ls (or echo *) command will segfault and the
-> kernel oopses. all following accesses to the volume in question will oops
-> and hang the process, even afetr a reboot.
->
-> reiserfsck (the filesystem check program) does _NOT_ detect or solve this
-> problem:
->
-> Replaying journal..ok
-> Checking S+tree..ok
-> Comparing bitmaps..ok
->
-> But fortunately, rmdir <filename> works and seems to leave the filesystem
-> undamaged.
->
-> Since a kernel oops results (see below), this indicates a buffer overrun
-> (the kernel jumps to address 78787878, which is "xxxx") inside the kernel,
-> which is of course very nasty (think ftp-upload!) and certainly gives you
-> root access from anywhere, even from inside a chrooted environment. We
-> didn't pursue this further.
->
-> The best workaround at this time seems to be to uninstall reiserfs
-> completely or not allow any user access (even indirect) to these volumes.
-> While this individual bug might be easy to fix, we believe that other,
-> similar bugs should be easy to find so reiserfs should not be trusted (it
-> shouldn't be trusted to full user access for other reasons anyway, but it
-> is still widely used).
->
-> Unable to handle kernel paging request at virtual address 78787878
-> current->tss.cr3 = 0d074000, %cr3 = 0d074000
-> *pde = 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[<c013f875>]
-> EFLAGS: 00010282
-> eax: 00000000   ebx: bfffe78c   ecx: 00000000   edx: bfffe78c
-> esi: ccbddd62   edi: 78787878   ebp: 00000300   esp: ccbddd3c
-> ds: 0018   es: 0018   ss: 0018
-> Process bash (pid: 292, process nr: 54, stackpage=ccbdd000)
-> Stack: c013f66a ccbddf6c cd100000 ccbddd62 0000030c c0136d49 00000700 00002013
->        00001000 7878030c 78787878 78787878 78787878 78787878 78787878 78787878
->        78787878 78787878 78787878 78787878 78787878 78787878 78787878 78787878
-> Call Trace: [<c013f66a>] [<c0136d49>]
-> Code: 89 1f 8b 44 24 18 29 47 08 31 c0 5b 5e 5f 5d 81 c4 2c 01 00
->
->
->
+> 
 
+Sorry, a quick attempt at reproducing on 2.2.17 and 2.2.19 kernels did not
+cause an oops.  Could you please send me a decoded version of the oops to
+help track things down?
+
+thanks,
+Chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265454AbRGJEVw>; Tue, 10 Jul 2001 00:21:52 -0400
+	id <S265488AbRGJEg4>; Tue, 10 Jul 2001 00:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265465AbRGJEVb>; Tue, 10 Jul 2001 00:21:31 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6921 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265454AbRGJEVZ>; Tue, 10 Jul 2001 00:21:25 -0400
-Date: Mon, 9 Jul 2001 21:20:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@conectiva.com.br>, Mike Galbraith <mikeg@wen-online.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@redhat.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.33.0107092053130.10187-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0107092112180.10220-100000@penguin.transmeta.com>
+	id <S265478AbRGJEgr>; Tue, 10 Jul 2001 00:36:47 -0400
+Received: from gear.torque.net ([204.138.244.1]:12553 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S265472AbRGJEgi>;
+	Tue, 10 Jul 2001 00:36:38 -0400
+Message-ID: <3B4A85BD.FE0E2D61@torque.net>
+Date: Tue, 10 Jul 2001 00:34:05 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Cress, Andrew R" <andrew.r.cress@intel.com>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.4.3] scsi logging
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew wrote:
+> I'd like to propose the following patch to 3 SCSI mid-layer 
+> files from kernel 2.4.3.  I have tested this with 2.4.3, 
+> but it should be relevant to other 2.4.x kernels also.
+> 
+> It has the following changes/enhancements:
+> 1) Log the disk serial number during scsi_scan() 
+>    - scsi_scan.c.
+>    Why: This is a requirement in some environments to 
+>    ensure unambiguous identification of a particular 
+>    problem disk.
+> 2) Interpret additional values in print_sense_internal()
+>    - constants.c.  Why: The detail wrt Illegal Requests 
+>    is very useful, since it can indicate either an 
+>    application bug or an incompatible feature of the device.
+> 3) Don't skip logging sense errors for sg functions - sg.c.
+>    Why: All sense errors should be logged so that a 
+>    potential scsi device hardware problem doesn't go
+>    unrecognized.
 
-On Mon, 9 Jul 2001, Linus Torvalds wrote:
->
-> Look:
->
-> 	CPU #1					CPU #2
->
->    try_to_free_buffers()
->
-> 	if (atomic_read(&bh->b_count)
->
-> 					    end_buffer_io_sync()
->
-> 						atomic_inc(&bh->b_count);
-> 						bit_clear(BH_Locked,  &bh->b_flags);
->
-> 	|| bh->b_flags & BUSY_BITS)
-> 		free bh
+Andrew,
+I would object to point 3). SANE, and to a lesser extent
+cdrecord, execute lots of commands that give SCSI check
+conditions and would bloat the log and the console with
+many serious looking messages. Those error 
+indications are conveyed back to the app via the sg 
+interface so the information is not lost. There is an 
+ioctl in the sg driver [SG_SET_DEBUG] to turn on that 
+output to the log/console [the default is off (to
+stop the curious querying the maintainer about the
+strange messages in their logs)].
 
-I forgot to note that it doesn't help to re-order the tests here - but we
-_could_ do
-
-	if (bh->b_flags & BUSY_BITS)
-		goto buffer_busy;
-	rmb();
-	if (atomic_read(&bh->b_count))
-		goto buffer_busy;
-
-together with having the proper write memory barriers in
-"end_buffer_io_sync()" to make sure that the BH_Locked thing shows up in
-the right order with bh->b_count updates.
-
-In contrast, the version in pre4 doesn't depend on any memory ordering
-between BH_Locked at all - it really only depends on a memory barrier
-before the final atomic_dec() that releases the buffer, as it ends up
-being sufficient for try_to_free_buffers() to just worry about the buffer
-count when it comes to IO completion. The b_flags BUSY bits don't matter
-wrt the IO completion at all - they end up being used only for "idle"
-buffers (which in turn are totally synchronized by the LRU and hash
-spinlocks, so that is the "obviously correct" case)
-
-I personally think it's a hard thing to depend on memory ordering,
-especially if there are two independent fields. Which is why I really
-don't think that the pre4 fix is "overkill".
-
-Oh, it does really need a
-
-	smp_mb_before_atomic_dec();
-
-as part of the "put_bh()". On x86, this obviously is a no-op. And we
-actually need that one in general - not just for IO completion - as long
-as we consider the "atomic_dec(&bh->b_flags)" to "release" the buffer.
-
-Andrea?
-
-		Linus
-
+Doug Gilbert

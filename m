@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbTDUVly (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 17:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTDUVlx
+	id S262426AbTDUVyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 17:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262478AbTDUVyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 17:41:53 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:16842 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262673AbTDUVlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 17:41:45 -0400
-Date: Mon, 21 Apr 2003 17:41:13 -0400
-From: Ben Collins <bcollins@debian.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030421214113.GA2528@phunnypharm.org>
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <20030420014930.GA13699@work.bitmover.com> <b81f0a$57i$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b81f0a$57i$1@cesium.transmeta.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 21 Apr 2003 17:54:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16644 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262426AbTDUVyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 17:54:15 -0400
+Date: Mon, 21 Apr 2003 15:05:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Andi Kleen <ak@muc.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Runtime memory barrier patching
+In-Reply-To: <3EA4660A.6000506@redhat.com>
+Message-ID: <Pine.LNX.4.44.0304211502300.17938-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 11:58:18AM -0700, H. Peter Anvin wrote:
-> Followup to:  <20030420014930.GA13699@work.bitmover.com>
-> By author:    Larry McVoy <lm@bitmover.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > > I hate asking this on top of the work you already provide, but would it
-> > > be possible to allow rsync access to the repo itself? 
-> > 
-> > If HPA wants to provide that, that's cool.  I think he might already.
-> > If not, ping me again, no problem, we'll set something up.
-> > 
+
+On Mon, 21 Apr 2003, Ulrich Drepper wrote:
+
+> Linus Torvalds wrote:
 > 
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+> > They may _work_ for intel, but quite frankly they suck for most Intel (and 
+> > probably non-intel too) CPU's. Using prefixes tends to almost always mess 
+> > up the instruction decoders on most CPU's out there.
+> 
+> Indeed, using prefixes is terrible.
 
-Thanks, in a big way.
+I would not be surprised if both AMD and Intel are playing some 
+"benchmarking games" by trying to select nop's that work badly for the 
+other side, and then showing how _their_ new CPU's are so much better by 
+having the compilers emit the "preferred" no-ops.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+But maybe I'm just too cynical. And I do suspect the Hammer optimization
+guide was meant for the 64-bit mode only, because I'm pretty certain even
+AMD does badly on prefixes at least in older CPU generations.
+
+		Linus
+

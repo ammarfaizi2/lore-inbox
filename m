@@ -1,48 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310264AbSCLBJE>; Mon, 11 Mar 2002 20:09:04 -0500
+	id <S310285AbSCLBGv>; Mon, 11 Mar 2002 20:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310279AbSCLBIl>; Mon, 11 Mar 2002 20:08:41 -0500
-Received: from zero.tech9.net ([209.61.188.187]:20754 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S310280AbSCLBHZ>;
-	Mon, 11 Mar 2002 20:07:25 -0500
-Subject: Re: Upgrading Headers?
-From: Robert Love <rml@tech9.net>
-To: Brian S Queen <bqueen@nas.nasa.gov>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200203120100.RAA00468@marcy.nas.nasa.gov>
-In-Reply-To: <200203120100.RAA00468@marcy.nas.nasa.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 11 Mar 2002 20:07:05 -0500
-Message-Id: <1015895241.928.107.camel@phantasy>
+	id <S310280AbSCLBGn>; Mon, 11 Mar 2002 20:06:43 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:27801 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S310279AbSCLBG2>;
+	Mon, 11 Mar 2002 20:06:28 -0500
+Date: Tue, 12 Mar 2002 12:04:52 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: oskar@osk.mine.nu, linux-kernel@vger.kernel.org
+Subject: Re: directory notifications lost after fork?
+Message-Id: <20020312120452.3038c4bc.sfr@canb.auug.org.au>
+In-Reply-To: <20020311112652.E10413@dualathlon.random>
+In-Reply-To: <20020310210802.GA1695@oskar>
+	<20020311112652.E10413@dualathlon.random>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-03-11 at 20:00, Brian S Queen wrote:
+Hi Andrea,
 
-> When a person switches to, or upgrades a kernel, how do they upgrade the
-> associated header files?  The headers in /usr/include won't match the kernel.
-> I don't see anything about that in the documentation.
+On Mon, 11 Mar 2002 11:26:52 +0100 Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Sun, Mar 10, 2002 at 10:08:02PM +0100, Oskar Liljeblad wrote:
+> > The code snipper demonstrates what I consider a bug in the
+> > dnotify facilities in the kernel. After a fork, all registered
+> > notifications are lost in the process where they originally
+> > where registered (the parent process). "lost" here means that
+> > the signal specified with F_SETSIG fcntl no longer is delivered
+> > when notified.
 > 
-> When I want to program with my new kernel I need to use the new headers, so I 
-> have to use #include <linux/fcntl.h> instead of #include <fcntl.h>.  This 
-> seems odd.
+> this should fix your problem:
+> 
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre2aa2/00_dnotify-fl_owner-1
+> 
+> Andrea
 
-You don't.  The headers in /usr/include/linux and /usr/include/asm
-(which may be a symlink to /usr/src/linux/include/linux and
-/usr/src/linux/include/asm, respectively) should point to the kernel
-headers that were present when _glibc_ was compiled.
+Can you see any reason we should not use hte patch below instead?
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Thus the kernel headers should match your current glibc, not your
-current kernel.  This is fine because the kernel will maintain backward
-compatibility with the previous interfaces.
-
-If there is something in the new kernel you want/need, recompile your
-glibc against those new kernel headers and install accordingly.
-
-	Robert Love
-
-
+diff -ruN 2.4.19-pre3/fs/dnotify.c 2.4.19-pre3-notify/fs/dnotify.c
+--- 2.4.19-pre3/fs/dnotify.c	Wed Nov  8 18:27:57 2000
++++ 2.4.19-pre3-notify/fs/dnotify.c	Tue Mar 12 12:02:15 2002
+@@ -1,7 +1,7 @@
+ /*
+  * Directory notifications for Linux.
+  *
+- * Copyright (C) 2000 Stephen Rothwell
++ * Copyright (C) 2000,2001,2002 Stephen Rothwell
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License as published by the
+@@ -59,7 +59,7 @@
+ 	write_lock(&dn_lock);
+ 	prev = &inode->i_dnotify;
+ 	for (odn = *prev; odn != NULL; prev = &odn->dn_next, odn = *prev)
+-		if (odn->dn_filp == filp)
++		if ((odn->dn_owner == current->files) && (odn->dn_filp == filp))
+ 			break;
+ 	if (odn != NULL) {
+ 		if (turning_off) {
+@@ -82,6 +82,7 @@
+ 	dn->dn_mask = arg;
+ 	dn->dn_fd = fd;
+ 	dn->dn_filp = filp;
++	dn->dn_owner = current->files;
+ 	inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
+ 	dn->dn_next = inode->i_dnotify;
+ 	inode->i_dnotify = dn;
+diff -ruN 2.4.19-pre3/include/linux/dnotify.h 2.4.19-pre3-notify/include/linux/dnotify.h
+--- 2.4.19-pre3/include/linux/dnotify.h	Wed Mar  6 16:08:12 2002
++++ 2.4.19-pre3-notify/include/linux/dnotify.h	Tue Mar 12 11:23:07 2002
+@@ -11,6 +11,7 @@
+ 						   see linux/fcntl.h */
+ 	int			dn_fd;
+ 	struct file *		dn_filp;
++	fl_owner_t		dn_owner;
+ };
+ 
+ #define DNOTIFY_MAGIC	0x444E4F54

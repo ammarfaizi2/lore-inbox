@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265815AbRFYTp1>; Mon, 25 Jun 2001 15:45:27 -0400
+	id <S265841AbRFYTnh>; Mon, 25 Jun 2001 15:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265837AbRFYTpR>; Mon, 25 Jun 2001 15:45:17 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:14974 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S265815AbRFYTpL>; Mon, 25 Jun 2001 15:45:11 -0400
-Message-ID: <3B37943B.AC711DB0@sgi.com>
-Date: Mon, 25 Jun 2001 12:42:51 -0700
-From: LA Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S265815AbRFYTn1>; Mon, 25 Jun 2001 15:43:27 -0400
+Received: from energy.pdb.sbs.de ([192.109.2.19]:22799 "EHLO energy.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S265837AbRFYTnX>;
+	Mon, 25 Jun 2001 15:43:23 -0400
+Date: Mon, 25 Jun 2001 21:46:27 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+cc: <Paul.Russell@rustcorp.com.au>
+Subject: proc_file_read() question
+Message-ID: <Pine.LNX.4.30.0106252141181.13052-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: user limits for 'security'?
-In-Reply-To: <3B379058.FF66AF14@sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suppose another question related to the first, is 'limit' checking
-part of the 'standard linux security' that embedded Linux users might
-find to be a waste of precious code-space?
 
--l
+Hi,
 
---
-The above thoughts and            | I know I don't know the opinions
-writings are my own.              | of every part of my company. :-)
-L A Walsh, law at sgi.com         | Sr Eng, Trust Technology
-01-650-933-5338                   | Core Linux, SGI
+the "hack" below in proc_file_read() fs/proc/generic.c (2.4.5)
+irritates me:
+
+If I do use "start" for a pointer into a memory area
+allocated in read_proc, will it be always guaranteed
+that (start > page)?
+
+If no, this will IMO lead to spuriously wrong output.
+If yes, I'd like to understand why.
+
+Regards & thanks,
+Martin
+
+		/* This is a hack to allow mangling of file pos independent
+ 		 * of actual bytes read.  Simply place the data at page,
+ 		 * return the bytes, and set `start' to the desired offset
+ 		 * as an unsigned int. - Paul.Russell@rustcorp.com.au
+		 */
+ 		n -= copy_to_user(buf, start < page ? page : start, n);
+		if (n == 0) {
+			if (retval == 0)
+				retval = -EFAULT;
+			break;
+		}
+
+		*ppos += start < page ? (long)start : n; /* Move down the file */
+
+-- 
+Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
+FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
 
 
 

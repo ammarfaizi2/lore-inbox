@@ -1,87 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267928AbUIPK7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUIPLD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267928AbUIPK7D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 06:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267916AbUIPK5q
+	id S267904AbUIPLD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 07:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267918AbUIPLD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 06:57:46 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:38615 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S267904AbUIPK5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 06:57:21 -0400
-Subject: [PATCH] Suspend2 Merge: Driver model patches 2/2
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1095332331.3855.161.camel@laptop.cunninghams>
+	Thu, 16 Sep 2004 07:03:58 -0400
+Received: from colin2.muc.de ([193.149.48.15]:1810 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S267904AbUIPLD4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:03:56 -0400
+Date: 16 Sep 2004 13:03:55 +0200
+Date: Thu, 16 Sep 2004 13:03:55 +0200
+From: Andi Kleen <ak@muc.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sf.net>, Jakub Jelinek <jakub@redhat.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: get_current is __pure__, maybe __const__ even
+Message-ID: <20040916110355.GA20448@muc.de>
+References: <1095288600.1174.5968.camel@cube> <20040915231518.GB31909@devserv.devel.redhat.com> <20040915232956.GE9106@holomorphy.com> <1095300619.2191.6392.camel@cube> <20040916023604.GH9106@holomorphy.com> <20040916100419.A31029@flint.arm.linux.org.uk> <20040916091128.GA55409@muc.de> <20040916103045.B31029@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 16 Sep 2004 20:58:51 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916103045.B31029@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> The scheduler quite rightly expects, for any thread, that any variable
+> which may be stored in a CPU register before the context switch has the
+> same value as after the context switch.
 
-This simple helper adds support for finding a class given its name. I
-use this to locate the frame buffer drivers and move them to the
-keep-alive tree while suspending other drivers.
+Just current isn't a varible, it's some inline assembly in a inline
+function.  The question was if that function could be marked const/pure. 
 
-Regards,
-
-Nigel
-
-diff -ruN linux-2.6.9-rc1/drivers/base/class.c software-suspend-linux-2.6.9-rc1-rev3/drivers/base/class.c
---- linux-2.6.9-rc1/drivers/base/class.c	2004-09-07 21:58:30.000000000 +1000
-+++ software-suspend-linux-2.6.9-rc1-rev3/drivers/base/class.c	2004-09-09 19:36:24.000000000 +1000
-@@ -460,6 +460,20 @@
- 	kobject_put(&class_dev->kobj);
- }
- 
-+struct class * class_find(char * name)
-+{
-+	struct class * this_class;
-+
-+	if (!name)
-+		return NULL;
-+
-+	list_for_each_entry(this_class, &class_subsys.kset.list, subsys.kset.kobj.entry) {
-+		if (!(strcmp(this_class->name, name)))
-+			return this_class;
-+	}
-+
-+	return NULL;
-+}
- 
- int class_interface_register(struct class_interface *class_intf)
- {
-@@ -542,3 +556,5 @@
- 
- EXPORT_SYMBOL(class_interface_register);
- EXPORT_SYMBOL(class_interface_unregister);
-+
-+EXPORT_SYMBOL(class_find);
-diff -ruN linux-2.6.9-rc1/include/linux/device.h software-suspend-linux-2.6.9-rc1-rev3/include/linux/device.h
---- linux-2.6.9-rc1/include/linux/device.h	2004-09-07 21:58:59.000000000 +1000
-+++ software-suspend-linux-2.6.9-rc1-rev3/include/linux/device.h	2004-09-09 19:36:24.000000000 +1000
-@@ -163,6 +163,7 @@
- 
- extern struct class * class_get(struct class *);
- extern void class_put(struct class *);
-+extern struct class * class_find(char * name);
- 
- 
- struct class_attribute {
-
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
-
+-Andi

@@ -1,42 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbTIEMqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 08:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbTIEMqZ
+	id S262511AbTIENTP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 09:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbTIENTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 08:46:25 -0400
-Received: from mail.netbeat.de ([62.208.140.19]:21006 "HELO mail.netbeat.de")
-	by vger.kernel.org with SMTP id S262544AbTIEMqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 08:46:24 -0400
-Subject: Re: 2.6.0-test4-mm6
-From: Jan Ischebeck <mail@jan-ischebeck.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org
-Content-Type: text/plain
-Message-Id: <1062766000.2081.11.camel@JHome.uni-bonn.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 05 Sep 2003 14:46:40 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Sep 2003 09:19:15 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:60289 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262512AbTIENTN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 09:19:13 -0400
+Date: Fri, 5 Sep 2003 09:20:09 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: clemens-dated-1063627487.e072@endorphin.org, joern@wohnheim.fh-wedel.de,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nasm over gas?
+In-Reply-To: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0309050830430.11980@chaos>
+References: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems like I got the reason for X not starting:
+On Fri, 5 Sep 2003, John Bradford wrote:
 
-pseudo terminals can't be acquired and only two consoles are running.
+> > > Are there any buffer overflows or other security holes?
+> > > How can you be sure about it?
+> >
+> > How can you be sure? Mathematical program verification applies quite badly
+> > to assembler.
+>
+> The point is, if somebody does find a bug they will want to
+> re-assemble with Gas after they've fixed it.
+>
+> > > If your code fails on any one of these questions, forget about it.  If
+> > > it survives them, post your results and have someone else verify them.
+> >
+> > I'm sorry, your critique is too generel to be useful.
+>
+> It's not, all the time the argument is not against the assembler code,
+> but rather against $assembler!=Gas.
+>
+> John.
 
--> X11 can't get console Vt7
--> pppd doesn't work either
+All assemblers suck. However, they are exceeding useful. The
+code ends up being exactly what you write. Usually one only
+needs to learn one assembler per platform. It was a real shock
+for me to have to learn GAS, it was "backwards", seemed to
+think everything was a '68000, and basically sucked. However,
+once I learned how to use it, it became a useful tool. In
+a mini-'C' library I wrote for a project, the total sharable
+runtime-library size is:
 
-This definitely worked with -mm5.
+crt.so: ELF 32-bit LSB shared object, Intel 80386, version 1, stripped
+-rwxr-xr-x   1 root     root        77896 Aug 20 2000 assembly/crt.so
+-rw-r--r--   1 root     root         1448 Aug 20 2000 assembly/start.o
 
-I tried on both Thinkpad R40 2722 and a Elitegroup MB+ Athlon XP1800
-System with Debian SID. I didn't use devfs.
+This includes most of the string stuff and the 'C' interface to
+Linux.
 
+The test of code that works in the 'real' world is called
+regression-testing. Basically, you run the stuff. You execute
+all "known" possible execution paths. If it works, it works.
+If it doesn't, you fix it until it does. Seeding with faults
+to see if your regression test picks it up, as is proposed
+by a bunch of different testing methods, is absurd whether it's
+written in assembly or C#. It doesn't matter what the
+language is. You need to test procedures as "black-boxes" with
+specified inputs and outputs. You also have to violate the
+input specifications and show that an error, so created, doesn't
+propagate. Such an error need not crash or kill the system, but
+it must be detected so that invalid output doesn't occur.
 
-Jan
+Error-checkers like Lint, that use a specific langage such as 'C',
+can provide the programmer with a false sense of security. You
+end up with 'perfect' code with all the unwanted return-values
+cast to "void", but the logic remains wrong and will fail once
+the high-bit in an integer is set. So, in some sense, writing
+procedures in assembly is "safer". You know what the code will
+do before you run it. If you don't, stay away from assembly.
 
--- 
-Jan Ischebeck <mail@jan-ischebeck.de>
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267515AbRGRSYC>; Wed, 18 Jul 2001 14:24:02 -0400
+	id <S267513AbRGRSTM>; Wed, 18 Jul 2001 14:19:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbRGRSXw>; Wed, 18 Jul 2001 14:23:52 -0400
-Received: from www.wen-online.de ([212.223.88.39]:44804 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267515AbRGRSXd>;
-	Wed, 18 Jul 2001 14:23:33 -0400
-Date: Wed, 18 Jul 2001 20:22:14 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Inclusion of zoned inactive/free shortage patch
-In-Reply-To: <Pine.LNX.4.33L.0107181016500.27454-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0107182018360.380-100000@mikeg.weiden.de>
+	id <S267867AbRGRSTE>; Wed, 18 Jul 2001 14:19:04 -0400
+Received: from cs159246.pp.htv.fi ([213.243.159.246]:3711 "EHLO
+	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S267513AbRGRSS5>; Wed, 18 Jul 2001 14:18:57 -0400
+Message-ID: <3B55D2F2.71BF34D5@pp.htv.fi>
+Date: Wed, 18 Jul 2001 21:18:26 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        andre@linux-ide.org
+Subject: 2.4.6-ac5 and VIA Athlon chipsets
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jul 2001, Rik van Riel wrote:
+Hello,
 
-> On Tue, 17 Jul 2001, Marcelo Tosatti wrote:
->
-> > The following patch (against 2.4.6-ac2, already merged in 2.4.6-ac3) adds
-> > specific perzone inactive/free shortage handling code.
->
-> Marcelo, now that you have the nice VM statistics
-> patch, do you have some numbers on how this patch
-> affects the system, or is this patch based on
-> guesswork ?  ;)
+It looks like the 2.4.6-ac5 fixed the deadlock feature with ASUS A7V133
+mobo. It's been running stable for over 24 hours now. VIA and Promise IDE
+controllers are in use.
 
-Have you read Dirk's logs or read the pertinent threads at all?
+Few remaining features:
 
-	-Mike
+VIA IDE still misdetects 40w cable as 80w (I have also changed the cable
+without effect).
 
+HDD led stays lit regardless of disk activity (this one is new feature since
+2.4.5-ac9).
+
+Best regards,
+
+ - Jussi Laako
+
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

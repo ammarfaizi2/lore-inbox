@@ -1,85 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbTE0Fyg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 01:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTE0Fyg
+	id S262656AbTE0GAD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 02:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTE0GAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 01:54:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23500 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262645AbTE0Fye
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 01:54:34 -0400
-Message-ID: <3ED300A8.4000405@pobox.com>
-Date: Tue, 27 May 2003 02:07:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] add ata scsi driver
-References: <Pine.LNX.4.44.0305261306500.12186-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0305261306500.12186-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 May 2003 02:00:03 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19601 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262656AbTE0GAC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 02:00:02 -0400
+Date: Mon, 26 May 2003 23:11:20 -0700 (PDT)
+Message-Id: <20030526.231120.26504389.davem@redhat.com>
+To: andrea@suse.de
+Cc: akpm@digeo.com, davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
+       mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: userspace irq balancer
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030527012617.GH3767@dualathlon.random>
+References: <20030527010903.GF3767@dualathlon.random>
+	<20030526.181309.02272953.davem@redhat.com>
+	<20030527012617.GH3767@dualathlon.random>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Mon, 26 May 2003, Jeff Garzik wrote:
-> 
->>Correct, but precisely by saying that, you're missing something.
-> 
-> 
-> You're missing _my_ point.
-> 
-> 
->>The SCSI midlayer provides infrastructure I need -- which is not 
->>specific to SCSI at all.
-> 
-> 
-> If it isn't specific to SCSI, then it sure as hell shouldn't BE THERE!
-> 
-> My point is that it's _wrong_ to make non-SCSI drivers use the SCSI layer, 
-> because that shows that something is misdesigned.
-> 
-> And I bet there isn't all that much left that really helps.
-> 
-> You adding more "pseudo-SCSI" crap just _makes_things_worse. It does not 
-> advance anything, it regresses. 
+   From: Andrea Arcangeli <andrea@suse.de>
+   Date: Tue, 27 May 2003 03:26:17 +0200
+   
+   I argue with that, NAPI needs to poll somehow, either you hook into the
+   kernel slowing down every single schedule, or you need to offload this
+   work to a kernel thread.
 
+You've never shown what this "offloading work to a kernel thread"
+actually accomplishes.
 
-As you see from Alan's message and others, it isn't pseudo-SCSI.
-
-Besides what he mentioned, there is Serial Attached SCSI (SAS), where a 
-host controller can simultaneously support SAS disks and SATA disks.  So 
-it's either an IDE driver that does SCSI, or a SCSI driver that does 
-IDE, or a driver that's in both IDE and SCSI subsystems, or... ?  Having 
-fun yet?  :)
-
-
-> On 27 May 2003, Alan Cox wrote:
->>> I actually think thats a positive thing. It means 2.5 drivers/scsi is
->>> now very close to being the "native queueing driver" with some
->>> additional default plugins for doing scsi scanning, scsi error recovery 
->>> and a few other scsi bits.
-> 
-> Hey, that may well be the way to go, in which case the core stuff should
-> be renamed and moved off somewhere else. Leaving drivers/scsi with just 
-> the actual low-level SCSI drivers. 
-
-For all these reasons, I continue to maintain that starting out as a 
-SCSI driver, and then evolving, is the best route.  The non-SCSI parts 
-leave drivers/scsi, as they should.  The SCSI parts stay.  The SCSI 
-mid-layer gets smaller.  All the while, the driver continues to work. 
-Everybody wins.
-
-Starting out as a native block driver and _then_ adding SCSI support and 
-native queueing and jazz does not sound even remotely like a good path 
-to follow.
-
-	Jeff
-
-
-
+What I've seen it do is decrease the amount of total softirq work that
+cpu can get done.  And avoiding ksoftirqd actually running makes
+performance get better.

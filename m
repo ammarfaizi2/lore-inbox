@@ -1,104 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129706AbRB1DNC>; Tue, 27 Feb 2001 22:13:02 -0500
+	id <S130053AbRB1DqN>; Tue, 27 Feb 2001 22:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130053AbRB1DMx>; Tue, 27 Feb 2001 22:12:53 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31217 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S129706AbRB1DMf>; Tue, 27 Feb 2001 22:12:35 -0500
-Date: Tue, 27 Feb 2001 19:12:33 -0800
-From: Brian Moyle <bmoyle@mvista.com>
-Message-Id: <200102280312.TAA13404@bia.mvista.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.2-ac6 hangs on boot w/AMD Elan SC520 dev board
-Cc: bmoyle@mvista.com
+	id <S130054AbRB1DqE>; Tue, 27 Feb 2001 22:46:04 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:50119 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S130053AbRB1Dpq>; Tue, 27 Feb 2001 22:45:46 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE0C9@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'jt@hpl.hp.com'" <jt@hpl.hp.com>, Greg KH <greg@wirex.com>,
+        Dag Brattli <dag@brattli.net>, linux-kernel@vger.kernel.org
+Subject: RE: [patch] patch-2.4.2-irda1 (irda-usb)
+Date: Tue, 27 Feb 2001 19:43:05 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.2-ac6 hangs while booting an AMD Elan SC520 development board.
+> From: Jean Tourrilhes [mailto:jt@bougret.hpl.hp.com]
+> 
+> 	First thanks for Dag for bringing me into the conversation. I
+> may add my little bit of spice, especially that I was the one pushing
+> for having the driver in .../drivers/net/irda.
+> 	By the way, Greg, sorry if I hurt your feeling, I don't want
+> to put down any of the great work that has been done on the USB stack.
+> 
+> 	My feeling is that devices are mostly defined by their higher
+> level interface, because this is what is closer to the user.
+> 	If I look at a Pcmcia Ethernet card, I will tend to associate
+> more with a PCI Ethernet card rather than a Pcmcia SCSI card. Both
+> card have the same high level interface (TCP/IP) even if their low
+> level interface is different (Pcmcia, PCI).
+> 	People tend to agree with that, and that's why you have
+> directories called drivers/net, drivers/scsi and driver/sound, rather
+> that drivers/pci, drivers/isa, drivers/mca and drivers/pcmcia.
+> 
+> 	If I get an IrDA-USB dongle, the feature that matter the most
+> is that it does IrDA, the fact that it connect to my PC via USB is
+> rather secondary.
+> 	That's it. I hope it explain some of the rationale and why we
+> departed from the usual drivers/usb arrangement. Actually, I think
+> that stuffing all USB drivers in drivers/usb is not that great, but
+> that's not my call...
 
-Long-story-short
-================
-If I define "STANDARD_MEMORY_BIOS_CALL" in setup.S and misc.c, it boots 
-fine.  Here are the results:
+That has been discussed & Linus like[ds] it that way.
 
-memory map that hangs (added debugging to setup.S to determine E820 map):
-   hand-copied physical RAM map:
-    bios-e820: 000000000009f400 @ 0000000000000000 (usable)
-    bios-e820: 0000000000000c00 @ 000000000009f400 (reserved)
-    bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
-    bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
-    bios-e820: 0000000000100000 @ 00000000fff00000 (reserved)
-
-memory map that works (#define STANDARD_MEMORY_BIOS_CALL in setup.S & misc.c):
-   BIOS-provided physical RAM map:
-    BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
-    BIOS-88: 0000000003f00000 @ 0000000000100000 (usable)
-
-
-Is this the result of a BIOS problem?
-
-
-Long-story-long
-===============
-(when STANDARD_MEMORY_BIOS_CALL is not defined)
-
-Booting from a floppy, I see the following message:
-
-   "Uncompressing Linux... Ok, booting the kernel."
-
-That's the last print statement I see.
-
-Adding debug, it appears to go through the following:
-
-   init/main.c:
-      start_kernel {
-         ...
-         setup_arch(&command_line);
-         ...
-      }
-
-   arch/i386/kernel/setup.c:
-      setup_arch {
-         ...
-         for (i = 0; i < e820.nr_map; i++) {
-            ...
-            free_bootmem(PFN_PHYS(curr_pfn), PFN_PHYS(size)); ...
-            ...
-         }
-         ...
-      }
-
-   mm/bootmem.c:
-      free_bootmem{
-         return(free_bootmem_core(contig_page_data.bdata, addr, size));
-      }
-
-   mm/bootmem.c:
-      free_bootmem_core {
-         ...
-         for (i = sidx; i < eidx; i++) {
-            ...
-            if (!test_and_clear_bit(i, bdata->node_bootmem_map)) {
-               BUG();
-            }
-         }
-      }
-
-   include/asm-i386/page.h:
-      BUG {
-         printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__);
-         ...
-      }
-
-   (at this point, it appears to be in an infinite printk loop <?>)
-
-I didn't spend much time looking into the printk loop, but it seems to 
-end up there, even if CONFIG_DEBUG_BUGVERBOSE is not defined, as if the 
-".byte 0x0f,0x0b" is causing the loop to begin.
-
-Any ideas/suggestions/comments?
-
-Brian
-bmoyle@mvista.com
-
+~Randy

@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTKQO7b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 09:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbTKQO7b
+	id S261916AbTKQO5c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 09:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbTKQO5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 09:59:31 -0500
-Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:5283 "EHLO
-	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id S263299AbTKQO7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 09:59:19 -0500
-Date: Mon, 17 Nov 2003 15:58:53 +0100 (CET)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@anna
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-       Urlich Drepper <drepper@redhat.com>,
-       Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: [PATCH] POSIX message queues - syscalls & SIGEV_THREAD
-In-Reply-To: <20031117064832.GA16597@mail.shareable.org>
-Message-ID: <Pine.GSO.4.58.0311171236420.29330@Juliusz>
-References: <Pine.GSO.4.58.0311161546260.25475@Juliusz>
- <20031117064832.GA16597@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Nov 2003 09:57:32 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:46721 "EHLO
+	catnet.kabel.utwente.nl") by vger.kernel.org with ESMTP
+	id S261916AbTKQO5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 09:57:30 -0500
+Date: Mon, 17 Nov 2003 15:57:23 +0100
+From: Wilmer van der Gaast <lintux@lintux.cx>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Configuration help texts for IPsec
+Message-ID: <20031117145723.GB1268@gaast.net>
+References: <20031115150841.GA4854@gaast.net> <Xine.LNX.4.44.0311170948100.1445-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0311170948100.1445-100000@thoron.boston.redhat.com>
+X-Operating-System: Linux 2.4.22-ac4 on a i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Nov 2003, Jamie Lokier wrote:
 
-> Krzysztof Benedyczak wrote:
-> > Intuitive
-> > solution is with FUTEX_FD & poll but this will have synchronization
-> > problems. The solution with one futex and multiple values would be very
-> > [cut]
->
-> Please can you describe your "intuitive solution" using FUTEX_FD more clearly?
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sure. To make things more clear I will omit issue with adding a new
-notification. So let assume that we have some message queues and we want
-to wait on notification on them. In userspace we can assign one futex to
-every such a queue and pass it to kernel in mq_notify syscall. Then we can
-use FUTEX_FD to get file descriptors of all futexes and wait on them with
-poll(). On the kernel side it notification have to be triggered we change
-futex value and do FUTEX_WAKE.
+James Morris (jmorris@redhat.com) wrote:
+> > IPsec-related options say "Say Y unless you know what you are doing.".
+> > Looks fine for people who applied the IPsec patch to a kernel which
+> > comes without it, but now that it's in stock, it's probably not very
+> > useful to force all users to use IPsec.
+> Nobody is being forced to use it: the advice is provided to help people=
+=20
+> get IPsec working properly.
+>=20
+Yes, very true. But now that the patch is in 2.6 by default, I think the
+situation changes.
 
-The whole idea was to have one "manager" thread which will spawn
-SIGEV_THREAD notification thread just when notification will _occur_ (the
-simple current solution spawns this thread ahead during setting
-notification).
+Just imagine a person who doesn't even know what IPsec is, trying to
+configure a 2.6 kernel. "IP: AH tranformation.. What's that? Let's check
+the help page. Oh, it says I should just say Yes. Okay, let's do that."
 
->
-> I don't quite understand what you wrote, but there are flaws(*) in the
-> current FUTEX_FD implementation which I would like to fix anyway.
+Shouldn't the text "If unsure, say Y." be more like "If you want to use
+IPsec, you need this."? Possibly with an addition like "If you don't
+know what IPsec is, you don't need it."?
 
-Now I'm not sure if we are talking about the same flaw. In our case: the
-problem is that after returning from poll we do some work (create thread
-etc.) and after a while we return to poll(). If some notification will
-occur then - ups we will miss it.
 
-> Perhaps we can improve async futexes in a way which is useful for you?
+Greetings,
 
-Maybe something like poll which would have just one difference. It would
-have to check if all of futexes given as parameter have the same value as
-given parameters. If not - it should return immediately with EWOULDBLOCK.
-In another words some hybrid of poll and FUTEX_WAIT. Or even simplier:
-MULTIPLE_FUTEX_WAIT.
+Wilmer v/d Gaast.
 
-One final note - This whole discussion was started by Urlich Drepper's
-idea which was given briefly and, possibly he meant something little bit
-else.
+--=20
++-------- .''`.     - -- ---+  +        - -- --- ---- ----- ------+
+| lintux : :'  :  lintux.cx |  | OSS Programmer   www.bitlbee.org |
+|   at   `. `~'  debian.org |  | www.algoritme.nl   www.lintux.cx |
++--- -- -  ` ---------------+  +------ ----- ---- --- -- -        +
 
-Regards,
-Krzysiek
+--y0ulUmNC+osPPQO6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE/uOHTeYWXmuMwQFERAouAAKCk4FRwZ/pnQ8q8zWiPVDTdLWlOjgCfS2En
+GbOk3JYfmqiughrKanavlbc=
+=LLtq
+-----END PGP SIGNATURE-----
+
+--y0ulUmNC+osPPQO6--

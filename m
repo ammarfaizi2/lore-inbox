@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVAVWNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVAVWVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbVAVWNM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 17:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVAVWNL
+	id S262759AbVAVWVw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 17:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVAVWVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 17:13:11 -0500
-Received: from mail.dif.dk ([193.138.115.101]:27071 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262758AbVAVWMc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 17:12:32 -0500
-Date: Sat, 22 Jan 2005 23:15:32 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ian Molton <spyro@f2s.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>, Matthew Wilcox <matthew@wil.cx>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       "William L. Irwin" <wli@holomorphy.com>,
-       Richard Henderson <rth@twiddle.net>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Paul Mackerras <paulus@au.ibm.com>, Tony Luck <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 00/11] Get rid of verify_area() - convert to access_ok()
- and deprecate.
-In-Reply-To: <Pine.LNX.4.61.0501172342240.2730@dragon.hygekrogen.localhost>
-Message-ID: <Pine.LNX.4.61.0501222312040.2813@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0501172342240.2730@dragon.hygekrogen.localhost>
+	Sat, 22 Jan 2005 17:21:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18922 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262759AbVAVWVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 17:21:51 -0500
+Message-ID: <41F2D1E7.30609@pobox.com>
+Date: Sat, 22 Jan 2005 17:21:27 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: stone_wang@sohu.com
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch to 2.6.10-rc2] ext3_find_goal
+References: <31531613.1106425001426.JavaMail.postfix@mx20.mail.sohu.com>
+In-Reply-To: <31531613.1106425001426.JavaMail.postfix@mx20.mail.sohu.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005, Jesper Juhl wrote:
-
+stone_wang@sohu.com wrote:
 > 
-> Here's a series of patches to convert all (or rather almost all) in-kernel 
-> users of verify_area() to access_ok(), and then deprecate verify_area().
+> We found strange blocks layout in our mail server, after careful study,
+> we got the reason and tried to fix it.
 > 
-[...]
+> When loading an inode from buffer/disk(ext2/3_read_inode),then allocating the second block(block==1) of the corresponding file: i_next_alloc_block and i_next_alloc_goal are both zero,and in fact are not valid,
+> but they(i_next_alloc_block/goal) take effect in the former codes. This causes non-contiguous file.
+> 
+> Below patch add a check,and fixes this.
 
-Just a small followup to say that this series of patches still applies to 
-2.6.11-rc2 (the first one with a little fuzzyness though). If wanted I can 
-re-diff these against 2.6.11-rc2.
-If I get no feedback (have had none so far) I'll wait until 2.6.11 is out 
-the door, then re-diff and re-submit against that.
+Good catch!
 
--- 
-Jesper Juhl
 

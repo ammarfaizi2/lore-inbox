@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317520AbSFDLr5>; Tue, 4 Jun 2002 07:47:57 -0400
+	id <S317479AbSFDLvk>; Tue, 4 Jun 2002 07:51:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317446AbSFDLpK>; Tue, 4 Jun 2002 07:45:10 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:6787 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S317479AbSFDLox>; Tue, 4 Jun 2002 07:44:53 -0400
-Date: Tue, 4 Jun 2002 13:44:44 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: bonganilinux@mweb.co.za
-cc: Hossein Mobahi <hmobahi@yahoo.com>, linux-kernel@vger.kernel.org,
-        linux-c-programming@vger.kernel.org
-Subject: Re: problem with <asm/semaphore.h>
-In-Reply-To: <E17FCaW-0002V9-00@rammstein.mweb.co.za>
-Message-ID: <Pine.GSO.4.05.10206041343470.7705-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317481AbSFDLvj>; Tue, 4 Jun 2002 07:51:39 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60097 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317479AbSFDLvi>;
+	Tue, 4 Jun 2002 07:51:38 -0400
+Date: Tue, 4 Jun 2002 13:51:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mike Black <mblack@csihq.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 RAID5 compile error
+Message-ID: <20020604115132.GZ1105@suse.de>
+In-Reply-To: <04cf01c20b2d$96097030$f6de11cc@black>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jun 2002 bonganilinux@mweb.co.za wrote:
+On Mon, Jun 03 2002, Mike Black wrote:
+> RAID5 still doesn't compile....sigh....
 
-> I think you a trying to include a file from the linux source
-> which will not work for use-space apps. Try using 
-> #include <semaphore.h> instead 
+[snip]
 
-yes, sounds right, since struct semaphore in asm/semaphore will be
-defined only if __KERNEL__ is defined.
-
-	tm
+Some people do nothing but complain instead of trying to fix things.
+Sigh...
 
 -- 
-in some way i do, and in some way i don't.
+Jens Axboe
 

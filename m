@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVCISl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVCISlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbVCISl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVCISln
+	id S262208AbVCISlP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:41:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVCIShn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:41:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42945 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262228AbVCISi3 (ORCPT
+	Wed, 9 Mar 2005 13:37:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4288 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262162AbVCISeZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:38:29 -0500
-Date: Wed, 9 Mar 2005 10:38:16 -0800
+	Wed, 9 Mar 2005 13:34:25 -0500
+Date: Wed, 9 Mar 2005 10:34:08 -0800
 From: Greg KH <greg@kroah.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309183816.GC26902@kroah.com>
-References: <20050309083923.GA20461@kroah.com> <20050309140359.GB15110@logos.cnet>
+To: Andi Kleen <ak@muc.de>
+Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050309183408.GB26902@kroah.com>
+References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050309140359.GB15110@logos.cnet>
+In-Reply-To: <m1sm35w3am.fsf@muc.de>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 11:03:59AM -0300, Marcelo Tosatti wrote:
+On Wed, Mar 09, 2005 at 10:56:33AM +0100, Andi Kleen wrote:
+> Greg KH <greg@kroah.com> writes:
+> >
+> > Rules on what kind of patches are accepted, and what ones are not, into
+> > the "-stable" tree:
+> >  - It must be obviously correct and tested.
+> >  - It can not bigger than 100 lines, with context.
 > 
-> Hi Greg,
-> 
-> The st/ide-tape/osst llseek changes havent been applied for what reason? 
-> 
-> And what about the rest of fixups which Andrew sent you? 
-> 
-> I suppose they didnt pass the -stable criteria. Can you share your thoughts 
-> with the rest of us?
+> This rule seems silly. What happens when a security fix needs 150 lines? 
 
-They are in the -stable queue, and should go our for review later today,
-and will attempt to follow the proposed proceedure.
+Then we bend the rules and accept it :)
 
-I didn't add them to .2 as that was released just due to the security
-update.
+We'll take these as a case-by-case basis...
+
+> >  - Security patches will be accepted into the -stable tree directly from
+> >    the security kernel team, and not go through the normal review cycle.
+> >    Contact the kernel security team for more details on this procedure.
+> 
+> This also sounds like a bad rule. How come the security team has more
+> competence to review patches than the subsystem maintainers?  I can
+> see the point of overruling maintainers on security issues when they
+> are not responsive, but if they are I think the should be still the
+> main point of contact.
+
+Security fixes go from the security team to Linus's tree directly, and
+usually the subsystem maintainer has already been notified and has
+reviewedit.  At that point in time, they are public and accepted into
+mainline, and need to be made availble to the -stable users as soon as
+possible.
+
+That is why the "fast track" is going to happen, the patch really was
+reviewed properly, just not in public :)
 
 thanks,
 

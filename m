@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263885AbTLORZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 12:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTLORZu
+	id S263922AbTLORbp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 12:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTLORbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 12:25:50 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:39593 "EHLO
-	ns.kalifornia.com") by vger.kernel.org with ESMTP id S263885AbTLORZf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 12:25:35 -0500
-Message-ID: <3FDDEE8B.3080000@blue-labs.org>
-Date: Mon, 15 Dec 2003 12:25:31 -0500
-From: David Ford <david+hb@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: as@sci.fi
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vs 2.6
-References: <fa.iaibikf.1l5injd@ifi.uio.no> <fa.m5245vp.h0ukb5@ifi.uio.no> <20031215105602.8E693B802@hylsy.jippii.fi>
-In-Reply-To: <20031215105602.8E693B802@hylsy.jippii.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 Dec 2003 12:31:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44683 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263922AbTLORbn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 12:31:43 -0500
+Date: Mon, 15 Dec 2003 09:22:06 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: root@chaos.analogic.com, kpfleming@backtobasicsmgmt.com,
+       hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org, mj@ucw.cz
+Subject: Re: PCI Express support for 2.4 kernel
+Message-Id: <20031215092206.01db1429.rddunlap@osdl.org>
+In-Reply-To: <3FDDEE32.7050900@intel.com>
+References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
+	<3FDDD8C6.3080804@intel.com>
+	<3FDDDC68.80209@backtobasicsmgmt.com>
+	<3FDDE39E.1050300@intel.com>
+	<Pine.LNX.4.53.0312151150090.10342@chaos>
+	<3FDDEE32.7050900@intel.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Partial comments below
+On Mon, 15 Dec 2003 19:24:02 +0200 Vladimir Kondratiev <vladimir.kondratiev@intel.com> wrote:
 
-Anssi Saari wrote:
+| Richard B. Johnson wrote:
+| <discussion regarding initializers for static vars>
+| 
+| Let's stop this discussion, it leads to nowhere. Probable, yes, 
+| initializer do add bytes to the data segment. But it does not make 
+| difference for memory image after loading, do it?
+| 
+| Does this difference in executable size worth potential risk of error?
+| 
+| Anyway, common style in kernel seems to be to do initialize static vars, 
+| even to 0. There are plenty of examples, including the same file, (for 
+| 2.4.23)
+| 
+| arch/i386/kernel/pci-pc.c:32
+| static int pci_using_acpi_prt = 0;
+| 
+| or
+| 
+| arch/i386/kernel/setup.c:1241
+| static int tsc_disable __initdata = 0;
+| 
+| Finally, let's stop this thread. Let it be up to person who will be (if 
+| it will happen) checking this code into kernel, to decide on coding 
+| style. I, personally, value code clarity more then 4 bytes in executable 
+| size. But I will not object if more experienced kernel maintainers have 
+| another priority.
 
->>  -- modules don't autoload for some reason (though I'm sure that could
->>     be solved),
->>    
->>
->
->I've had this too, with autofs4 and 3c59x. After patching lirc into the
->kernel, the only real issue is with the console. I found a patch for radeonfb,
->but didn't get anywhere with it.
->
->The rest of my problems is userland stuff:
->
->- Murasaki (a hotplug agent) doesn't react when USB things are plugged in
->  
->
+You seem to be missing that you shouldn't be looking in 2.4.x but in
+2.6.x instead.  2.6.x has had hundreds++ of 0 initializers removed from it.
 
-You need to update your hotplug installation.  Turn on debugging in your 
-hotplug scripts and copy the appropriate object ID numbers into the 
-usb.usermap file.
-
->- swapon -a takes two minutes to complete for some reason
->  
->
-
-Try recreating your swapon partition/file?  Turning on a gig of swap 
-here happens pretty quick.
-
->- rpc.lockd doesn't start, it says lockdsvc: Function not implemented. I don't
->  
->
-
-Update/rebuild your rpc/nfs tools.
-
->  know if I really need this anyway, nfs seems to work fine
->- zsh doesn't complete make targets like menuconfig
->- I'd also like to point out that cdrecord isn't sufficient for my 
->  CD writing needs, I need cdrdao too and it doesn't seem to support
->  direct access to ATAPI drives. 
->  
->
-
-I haven't used zsh or cdrdao so I can't comment on them.   I don't use 
-the above modules, but all the other modules on my system (numerous) do 
-autoload just fine.  NFS is a big PITA for me for other reasons but the 
-services do start.
-
-My systems are of the Gentoo flavor.
-
-David
-
+--
+~Randy
+MOTD:  Always include version info.

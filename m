@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271989AbRIDQ2E>; Tue, 4 Sep 2001 12:28:04 -0400
+	id <S271993AbRIDQhg>; Tue, 4 Sep 2001 12:37:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271988AbRIDQ1y>; Tue, 4 Sep 2001 12:27:54 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:43538 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271989AbRIDQ1r>;
-	Tue, 4 Sep 2001 12:27:47 -0400
-Date: Tue, 4 Sep 2001 13:27:50 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() on 2.4.9/10 issue
-In-Reply-To: <20010904112629.A27988@cs.cmu.edu>
-Message-ID: <Pine.LNX.4.33L.0109041320271.7626-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271994AbRIDQh3>; Tue, 4 Sep 2001 12:37:29 -0400
+Received: from are.twiddle.net ([64.81.246.98]:25477 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S271993AbRIDQhS>;
+	Tue, 4 Sep 2001 12:37:18 -0400
+Date: Tue, 4 Sep 2001 09:37:25 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: David Mosberger <davidm@hpl.hp.com>
+Cc: Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [PATCH] avoid unnecessary cache flushes
+Message-ID: <20010904093725.A18163@twiddle.net>
+Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
+	Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com> <20010903131436.A16069@twiddle.net> <15251.59286.154267.431231@napali.hpl.hp.com> <20010903134125.B16069@twiddle.net> <15251.61303.411698.310497@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15251.61303.411698.310497@napali.hpl.hp.com>; from davidm@hpl.hp.com on Mon, Sep 03, 2001 at 02:00:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Sep 2001, Jan Harkes wrote:
+On Mon, Sep 03, 2001 at 02:00:39PM -0700, David Mosberger wrote:
+> I didn't think there was any path where the kernel would on its own
+> update code after the fact, but I could be missing something.
 
-> NO, please don't add another list to fix the symptoms of bad page aging.
->
-> One of the graduate students here at CMU has been looking at the 2.4 VM,
-> trying to predict the size of the app that can possibly be loaded
-> without causing the system to start trashing.
+ptrace?
 
-	[snip results]
 
-> Aging is broken. Horribly. As a result, the inactive list is filled with
-> pages that are not necessarily inactive.
-
-I've been working on a CPU and memory efficient reverse
-mapping patch for Linux, one which will allow us to do
-a bunch of optimisations for later on (infrastructure)
-and has as its short-term benefit the potential for
-better page aging.
-
-It seems the balancing FreeBSD does (up aging +3, down
-aging -1, inactive list in LRU order as extra stage) is
-working nicely on my laptop now, but I don't think I'll
-be releasing that as part of the patch ...
-
-	http://www.surriel.com/patches/2.4/2.4.8-ac12-pmap3
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+r~

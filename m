@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbTAaXJ2>; Fri, 31 Jan 2003 18:09:28 -0500
+	id <S263256AbTAaXPu>; Fri, 31 Jan 2003 18:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTAaXJ2>; Fri, 31 Jan 2003 18:09:28 -0500
-Received: from mail015.syd.optusnet.com.au ([210.49.20.173]:39811 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S263246AbTAaXJ1> convert rfc822-to-8bit; Fri, 31 Jan 2003 18:09:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
-Date: Sat, 1 Feb 2003 10:18:37 +1100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, Alexander Zarochentcev <zam@namesys.com>,
-       Dave Jones <davej@codemonkey.org.uk>
-References: <200302010020.34119.conman@kolivas.net> <3E3ACEA8.8070504@namesys.com> <200302010921.59861.conman@kolivas.net>
-In-Reply-To: <200302010921.59861.conman@kolivas.net>
+	id <S263276AbTAaXPt>; Fri, 31 Jan 2003 18:15:49 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13582 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263256AbTAaXPs>;
+	Fri, 31 Jan 2003 18:15:48 -0500
+Message-ID: <3E3B0557.3070400@pobox.com>
+Date: Fri, 31 Jan 2003 18:23:03 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302011018.37151.conman@kolivas.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: Perl in the toolchain
+References: <20030131133929.A8992@devserv.devel.redhat.com> <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu> <20030131194837.GC8298@gtf.org> <20030131213827.GA1541@werewolf.able.es> <20030131222257.GA11011@mars.ravnborg.org>
+In-Reply-To: <20030131222257.GA11011@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 Feb 2003 9:21 am, Con Kolivas wrote:
-> Actually the most "felt" of these loads is io_load and based on these
-> results: io_load:
-> Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> 2559ext3        3       109     68.8    4       10.1    1.40
-> 2559jfs         3       138     54.3    11      13.8    1.77
-> 2559reiser      3       98      76.5    2       9.2     1.24
-> 2559xfs         3       124     60.5    6       8.0     1.57
->
+(sigh, I did not wish to spark a religious debate, though I suppose I 
+should have expected it... :))
 
-Here is a set of dbench_load results:
-dbench_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2559ext3        3       115     65.2    3       24.3    1.47
-2559jfs         3       123     61.8    3       19.5    1.58
-2559reiser      3       108     69.4    3       13.9    1.37
-2559xfs         3       118     63.6    3       22.0    1.49
+Sam Ravnborg wrote:
+> On Fri, Jan 31, 2003 at 10:38:27PM +0100, J.A. Magallon wrote:
+> 
+>>So in short, kernel people:
+>>- do not want perl in the kernel build
+> 
+> Correct, at least for mainstream architectures.
+> The rationale here is that we already put a lot of constraints on what
+> tools people need to build a kernel. If we can avoid an extra
+> _mandatory_ tool then this will make life easier for a lot of people.
 
-Note the order correlates with the order of the io_load results.
+This is a logically correct argument, but also one that ignores basic 
+numbers.
 
-Once again reiserfs held up kernel compilation the least. Note they all 
-accomplished the same work in that time though.
+The fact of the matter is, the area of build tools matters most to 
+people who cross-compile their kernels, because every tool is generally 
+hand-built rather than automatically installed on their Linux system. 
+For this audience, as well as the typical non-cross-compiling kernel 
+developer, Perl is on their system.
 
-Con
+However, that fact is less significant than the more basic and core 
+argument:
+
+klibc uses perl for text munging.  i.e. one of Perl's acknowledged 
+strengths.  This is not a case of choosing a favorite script language, 
+but instead a case of choosing "the right tool for the job."  Regardless 
+of whether you think Perl is line noise :) or not, from a technical 
+basis Perl is clearly superior to sed+awk in this case.
+
+Therefore, any rewrite of _this_ _particular_ script in C or shell 
+script would be willfully choosing a sub-optimal implementation language 
+for this task.  If you take into account the fact that the overwhelming 
+majority of the target audience does indeed have Perl on their system, 
+then that only serves to make it more clear that any such perl-to-C 
+rewrite would not be on any technical nor practical basis at all.
+
+Adding some final thoughts, perl is already used in nooks and crannies 
+in the build system.  Instead of being motivated to stomp those out, 
+please [respectfully!] consider that the Perl scripts might be there 
+because an evaluation of the best tool for the job took place. 
+script_asm.pl in drivers/scsi is a favorite example here.
+
+Thanks for raising this subject!  I wanted to give your answer some 
+consideration, because it is worth mentioning, and discussing.
+
+	Jeff
+
+
+

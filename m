@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317326AbSHTU7u>; Tue, 20 Aug 2002 16:59:50 -0400
+	id <S317354AbSHTVF6>; Tue, 20 Aug 2002 17:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317334AbSHTU7u>; Tue, 20 Aug 2002 16:59:50 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55301
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317326AbSHTU7t>; Tue, 20 Aug 2002 16:59:49 -0400
-Date: Tue, 20 Aug 2002 14:03:27 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: jools <j1@gramstad.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hpt374 / BUG();
-In-Reply-To: <IOELJIHGBNLBJNBMHABBIEPOCCAA.j1@gramstad.org>
-Message-ID: <Pine.LNX.4.10.10208201354260.3867-100000@master.linux-ide.org>
+	id <S317355AbSHTVFy>; Tue, 20 Aug 2002 17:05:54 -0400
+Received: from web13804.mail.yahoo.com ([216.136.175.14]:54532 "HELO
+	web13804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317351AbSHTVFw>; Tue, 20 Aug 2002 17:05:52 -0400
+Message-ID: <20020820210957.90917.qmail@web13804.mail.yahoo.com>
+Date: Tue, 20 Aug 2002 14:09:57 -0700 (PDT)
+From: "M.L.PrasannaK.R." <mlpkr@yahoo.com>
+Subject: Odd size mke2fs
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+   On my disk, I have an odd(not multiple of 4K)
+   number of sectors. There are
+   3104561 4K blocks or  12418245 1K blocks and
+   24836490 sectors.
+ 
+    mke2fs /dev/x 
+    mount
+    umount
+    mke2fs /dev/x -b 1024
+    fails with message
+    "...resulted in short write at block 12418240.."
 
-You have a system where it actually have the PLL already set and in
-66-clock base?  You are the first person to ever hit this BUG().
-I will need to work with HighPoint to finish the timing table.
+    When it tried to write 5120 bytes, only 4096 bytes
+    are written.
 
-If you would have several device of various max transfer rate limits you
-could attach without the driver being built it, it would give me a few
-data point to verify if the table I have started is even close.
+    That is due to blksize_size[][] array.
+    mount sets the field with 4096 and the last
+    sector became inaccessible in mke2fs.
+    When I tried after ioctl(.., BLKBSGSET, 1024),
+    mke2fs did work properly.
 
-Cheers,
+    So should mke2fs use ioctl to set the block
+    or use get last sector ioctl? 
+    Or is setting that back in umount a proper fix?
+ 
+    If anyone has faced this or is it well known,
+    please let me know.
+    
 
-On Tue, 20 Aug 2002, jools wrote:
+Thanks,
+Prasanna.
 
-> Hi
-> 
-> I'm using a RocketRAID 404 (hpt374) and a Asus A7v266.
-> When trying to boot from a 'htp374-enabled' kernel like 2.4.19-ac4 or
-> 2.4.20-pre2-ac4, i keep getting kernel panic at hpt366.c:1393.
-> Does anyone know why this happens, or what I might do to correct this
-> problem? I have tried every patch I can find for the 2.4 kernel.
-> 
-> hpt366.c line 1392:
-> 
-> if (hpt_minimum_revision(dev,8))
->         BUG();
-> else if (hpt_minimum_revision(dev,5))
->         dev->driver_data = (void *) fifty_base_hpt372;
-> else if (hpt_minimum_revision(dev,4))
->         dev->driver_data = (void *) fifty_base_hpt370a;
-> else
->         dev->driver_data = (void *) fifty_base_hpt370a;
-> printk("HPT37X: using 50MHz internal PLL\n");
-> goto init_hpt37X_done;
-> 
-> 
-> Jools
-> j1@gramstad.org
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264632AbRFPOOs>; Sat, 16 Jun 2001 10:14:48 -0400
+	id <S264631AbRFPOOs>; Sat, 16 Jun 2001 10:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbRFPOOj>; Sat, 16 Jun 2001 10:14:39 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:36105 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S264631AbRFPOOY>; Sat, 16 Jun 2001 10:14:24 -0400
-Subject: Re: ps2 keyboard filter hook
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: ddstreet@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10106151345510.25518-200000@ddstreet.raleigh.ibm.com>
-In-Reply-To: <Pine.LNX.4.10.10106151345510.25518-200000@ddstreet.raleigh.ibm.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 16 Jun 2001 10:13:48 -0400
-Message-Id: <992700829.9378.3.camel@gromit>
-Mime-Version: 1.0
+	id <S264632AbRFPOOj>; Sat, 16 Jun 2001 10:14:39 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:41008 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S264630AbRFPOOY>; Sat, 16 Jun 2001 10:14:24 -0400
+Message-ID: <002201c0f66e$90675360$3303a8c0@einstein>
+From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: "Thomas Molina" <tmolina@home.com>,
+        "Rachel Greenham" <rachel@linuxgrrls.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106160827100.13727-100000@localhost.localdomain>
+Subject: Re: VIA KT133A crash *post* 2.4.3-ac6
+Date: Sat, 16 Jun 2001 16:13:45 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jun 2001 16:03:32 -0400, ddstreet@us.ibm.com wrote:
-> 
-> IBM Retail Store Solutions dept has certain PS/2 keyboards which extend the
-> standard PS/2 specification in order to support addition hardware built into the
-> keyboard (such as a Magnetic Strip Reader, Keylock, Tone generator, extra keys,
-> -Dan
+> I'm certainly willing to provide any data it's decided is necessary to
+> collect to make the correlations.  I'll even volunteer to be the
+.
+> bit different - I have the hard drive on the promise interface (ide2) and
 
-I'm facing a similar problem with the "Qoder" barcode scanner. I have to
-have a keyboard hook. The "right" way seem to be to use the input api.
-Unfortunately, this means that current kernels can't use the driver w/o
-a patch (the input api patch). The ugly way is to patch the keyboard
-driver. I'm doing both.
-
-However, I wrote a REALLY SIMPLE hook tht supported exactly my needs,
-since it's in the category of "ugly hack waiting for input api." Maybe
-I'll write a version for your hook.
-
-I wonder when the input api stuff for ps/2 devices will be a part of the
-mainstream kernel...
+If possible, can you remove the hard disc from the promise and attach it on
+the VIA-Controller and test if the problem still occurs? (prepare a bootdisc
+if you cannot boot. Propably, you have to pass a new root-partition to the
+kernel)
+I hardly believe that the promise controller has some problems with the new
+VIA setup introduced in 2.4.3-ac7. Using the promise ports of the A7V133 is
+the only correlation I see again and again...
 
 --
-Michael Rothwell
-rothwell@holly-springs.nc.us
-
+PS: Sorry for using outlook, but sometimes you use an computer you doesn´t
+own. :-)
 

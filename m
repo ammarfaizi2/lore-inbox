@@ -1,42 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267097AbRGJTF0>; Tue, 10 Jul 2001 15:05:26 -0400
+	id <S267093AbRGJTB0>; Tue, 10 Jul 2001 15:01:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267098AbRGJTFQ>; Tue, 10 Jul 2001 15:05:16 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:16401 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S267097AbRGJTFI>; Tue, 10 Jul 2001 15:05:08 -0400
-Message-ID: <3B4B6F96.5070504@eisenstein.dk>
-Date: Tue, 10 Jul 2001 23:11:50 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac8 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en, da
+	id <S267094AbRGJTBR>; Tue, 10 Jul 2001 15:01:17 -0400
+Received: from bremen.shuttle.de ([194.95.249.251]:57611 "HELO
+	bremen.shuttle.de") by vger.kernel.org with SMTP id <S267093AbRGJTBB>;
+	Tue, 10 Jul 2001 15:01:01 -0400
+X-Checkuser-Host: 172.23.10.100
+Date: Tue, 10 Jul 2001 20:58:42 +0200 (CEST)
+From: Wolfram Pienkoss <wp@bszh.de>
+X-X-Sender: <wp@daucus.wp.bszh.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: Gordon Chaffee <chaffee@bmrc.berkeley.edu>
+Subject: [PATCH] Linux 2.4.7-pre5 & vfat short file names & Windows 2000
+Message-ID: <Pine.LNX.4.33.0107102057130.1488-100000@daucus.wp.bszh.de>
 MIME-Version: 1.0
-To: "C. Slater" <cslater@wcnet.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <000b01c10970$096cd8c0$fe00000a@cslater>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-C. Slater wrote:
+Hello,
 
-> Hi, i was just thinking about if it would be possible to switch kernels
-> without haveing to restart the entire system. Sort of a "Live kernel
-> replacement". It sort of goes along with the hot-swap-everything ideas. I
+the patch below solves two problems.
 
-I actually suggested the exact same thing back in 1998 ( Link to post in 
-archives: http://uwsg.iu.edu/hypermail/linux/kernel/9808.1/1282.html ), 
-but I never recieved much response. As I remember it, the emails I 
-recieved where along the line of; "too much effort for too little gain, 
-use clustering instead". I would still be very interrested in such a 
-feature, but like back in 1998 this is still *way* out of my league to 
-try to implement (but I'd be happy to help in testing :).
+1. Vfat upper case short names created under Linux, now are shown
+   also in upper case under Windows 2000.
 
+2. Short names created under Windows 2000 like ABC.ABC ABC.abc and so on,
+   now are shown in correctly case under Linux.
+
+The patch is also available at http://www.bszh.de/download/linux/
 
 Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
+Wolfram
+
+-- 
+ Wolfram Pienkoss                          Berufsschulzentrum Hermsdorf
+ Rodaer Strasse 45, D-07629 Hermsdorf      Phone: +49-36601-47407
+ eMail: wp@bszh.de   www: www.bszh.de      Fax:   +49-36601-47400
+
+diff -urdN linux-2.4.7-pre5.orig/fs/fat/dir.c linux/fs/fat/dir.c
+--- linux-2.4.7-pre5.orig/fs/fat/dir.c	Wed Apr 18 11:49:12 2001
++++ linux/fs/fat/dir.c	Tue Jul 10 15:51:43 2001
+@@ -10,7 +10,7 @@
+  *  VFAT extensions by Gordon Chaffee <chaffee@plateau.cs.berkeley.edu>
+  *  Merged with msdos fs by Henrik Storner <storner@osiris.ping.dk>
+  *  Rewritten for constant inumbers. Plugged buffer overrun in readdir(). AV
+- *  Short name translation 1999 by Wolfram Pienkoss <wp@bszh.de>
++ *  Short name translation 1999-2001 by Wolfram Pienkoss <wp@bszh.de>
+  */
+
+ #define ASC_LINUX_VERSION(V, P, S)	(((V) * 65536) + ((P) * 256) + (S))
+@@ -271,7 +271,7 @@
+ 		}
+ 		for (i = 0, j = 0, last_u = 0; i < 8;) {
+ 			if (!work[i]) break;
+-			if (nocase)
++			if (nocase && !(de->lcase & CASE_LOWER_BASE))
+ 				chl = fat_short2uni(nls_disk, &work[i], 8 - i, &bufuname[j++]);
+ 			else
+ 				chl = fat_short2lower_uni(nls_disk, &work[i], 8 - i, &bufuname[j++]);
+@@ -287,7 +287,7 @@
+ 		fat_short2uni(nls_disk, ".", 1, &bufuname[j++]);
+ 		for (i = 0; i < 3;) {
+ 			if (!de->ext[i]) break;
+-			if (nocase)
++			if (nocase && !(de->lcase & CASE_LOWER_EXT))
+ 				chl = fat_short2uni(nls_disk, &de->ext[i], 3 - i, &bufuname[j++]);
+ 			else
+ 				chl = fat_short2lower_uni(nls_disk, &de->ext[i], 3 - i, &bufuname[j++]);
+@@ -474,7 +474,7 @@
+ 	}
+ 	for (i = 0, j = 0, last = 0, last_u = 0; i < 8;) {
+ 		if (!(c = work[i])) break;
+-		if (nocase)
++		if (nocase && !(de->lcase & CASE_LOWER_BASE))
+ 			chl = fat_short2uni(nls_disk, &work[i], 8 - i, &bufuname[j++]);
+ 		else
+ 			chl = fat_short2lower_uni(nls_disk, &work[i], 8 - i, &bufuname[j++]);
+@@ -498,7 +498,7 @@
+ 	ptname[i++] = '.';
+ 	for (i2 = 0; i2 < 3;) {
+ 		if (!(c = de->ext[i2])) break;
+-		if (nocase)
++		if (nocase && !(de->lcase & CASE_LOWER_EXT))
+ 			chl = fat_short2uni(nls_disk, &de->ext[i2], 3 - i2, &bufuname[j++]);
+ 		else
+ 			chl = fat_short2lower_uni(nls_disk, &de->ext[i2], 3 - i2, &bufuname[j++]);
+diff -urdN linux-2.4.7-pre5.orig/fs/vfat/namei.c linux/fs/vfat/namei.c
+--- linux-2.4.7-pre5.orig/fs/vfat/namei.c	Fri Apr  6 10:51:19 2001
++++ linux/fs/vfat/namei.c	Tue Jul 10 15:51:43 2001
+@@ -9,7 +9,7 @@
+  *    what file operation caused you trouble and if you can duplicate
+  *    the problem, send a script that demonstrates it.
+  *
+- *  Short name translation 1999 by Wolfram Pienkoss <wp@bszh.de>
++ *  Short name translation 1999-2001 by Wolfram Pienkoss <wp@bszh.de>
+  *
+  *  Support Multibyte character and cleanup by
+  *  				OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+@@ -1056,7 +1056,7 @@
+ 	(*de)->starthi = 0;
+ 	(*de)->size = 0;
+ 	(*de)->attr = is_dir ? ATTR_DIR : ATTR_ARCH;
+-	(*de)->lcase = CASE_LOWER_BASE | CASE_LOWER_EXT;
++	(*de)->lcase = 0;
+
+
+ 	fat_mark_buffer_dirty(sb, *bh);
 

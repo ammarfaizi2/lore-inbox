@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319653AbSIMOTJ>; Fri, 13 Sep 2002 10:19:09 -0400
+	id <S319657AbSIMO2N>; Fri, 13 Sep 2002 10:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319655AbSIMOTJ>; Fri, 13 Sep 2002 10:19:09 -0400
-Received: from f116.pav2.hotmail.com ([64.4.37.116]:24851 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S319653AbSIMOTI>;
-	Fri, 13 Sep 2002 10:19:08 -0400
-X-Originating-IP: [202.140.142.131]
-From: "Parthiban M" <parthi_m@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: skotra@npd.hcltech.com, pamanick@npd.hcltech.com, nramamur@npd.hcltech.com
-Subject: Query on code space and data space !
-Date: Fri, 13 Sep 2002 19:53:55 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F116NqfYwAYmY3pYNIT00019d42@hotmail.com>
-X-OriginalArrivalTime: 13 Sep 2002 14:23:55.0721 (UTC) FILETIME=[313A1390:01C25B31]
+	id <S319658AbSIMO2N>; Fri, 13 Sep 2002 10:28:13 -0400
+Received: from pD952AD04.dip.t-dialin.net ([217.82.173.4]:12781 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319657AbSIMO2M>; Fri, 13 Sep 2002 10:28:12 -0400
+Date: Fri, 13 Sep 2002 08:33:15 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Daniel Phillips <phillips@arcor.de>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Raceless module interface
+In-Reply-To: <E17pr8P-00089M-00@starship>
+Message-ID: <Pine.LNX.4.44.0209130820410.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi all :
+On Fri, 13 Sep 2002, Daniel Phillips wrote:
+> > Because in your example, my_module_start() would not be able to run 
+> > separately
+> 
+> That's obvious.  What hasn't been shown is why that's necessary.
 
-I'm using a linux box running RH7.3 (kernel 2.4.18-3).
-I've inserted one kernel module and I need information
-on how much code space and data space my module
-has consumed.
+Yeah, but it was also obvious that my_module_init() can fail this way. 
+Look, first we watch the module initialization, that is, we run the 
+critical stuff like resource allocation, data structure allocation, etc. 
+If we fail here, we can't load the module, because it would be unoperative 
+if we proceed. (Because the data simply isn't there.)
 
-Is there any way to know these statistics ? Doing a
-cat  /proc/<process ID>/status (or stat or statm)
-showed some information. But I'm not very clear.
+And possibly Rusty wanted to avoid a certain race, which is unrelated to
+school and kids. Once we've initialized, the module can be used, earlier
+is balderdash.
 
-Any pointers in this regard are highly appreciated.
-
-Thanks,
-Parthi.
-
-
---
-http://san.hcltech.com
-www.hcltechnologies.com
-
-
-
-
-Thx,
-Parthi.
-
-
-_________________________________________________________________
-Chat with friends online, try MSN Messenger: http://messenger.msn.com
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269952AbRHENCb>; Sun, 5 Aug 2001 09:02:31 -0400
+	id <S269957AbRHENFB>; Sun, 5 Aug 2001 09:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269953AbRHENCV>; Sun, 5 Aug 2001 09:02:21 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:55056 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S269952AbRHENCP>;
-	Sun, 5 Aug 2001 09:02:15 -0400
-Date: Sun, 5 Aug 2001 16:02:04 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
-Message-ID: <20010805160204.J11046@mea-ext.zmailer.org>
-In-Reply-To: <9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org> <3B6B4B21.B68F4F87@zip.com.au>, <3B6B4B21.B68F4F87@zip.com.au> <20010804131904.E18108@weta.f00f.org> <3B6B53A9.A9923E21@zip.com.au> <20010804060423.I16516@emma1.emma.line.org> <20010805063003.B20111@weta.f00f.org> <20010805141546.B13438@emma1.emma.line.org> <20010806003242.F21650@weta.f00f.org>
-Mime-Version: 1.0
+	id <S269955AbRHENEl>; Sun, 5 Aug 2001 09:04:41 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28427 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269953AbRHENEe>; Sun, 5 Aug 2001 09:04:34 -0400
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+To: cw@f00f.org (Chris Wedgwood)
+Date: Sun, 5 Aug 2001 14:06:16 +0100 (BST)
+Cc: riel@conectiva.com.br (Rik van Riel),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <20010805171202.A20716@weta.f00f.org> from "Chris Wedgwood" at Aug 05, 2001 05:12:02 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010806003242.F21650@weta.f00f.org>; from cw@f00f.org on Mon, Aug 06, 2001 at 12:32:42AM +1200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15TNbk-0007pu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 12:32:42AM +1200, Chris Wedgwood wrote:
-> On Sun, Aug 05, 2001 at 02:15:46PM +0200, Matthias Andree wrote:
+>     Ouch, what kind of application is this happening with ?
 > 
->     Why does it? Each file-system is self-contained with respect to hard
->     links. You cannot have link cross file system boundaries.
+> Mozilla.  Presumably some of the Gnome applications might be the same
+> as they use lots and lots of shared libraries (anyone out there Gnome
+> inflicted and can check?).
 > 
->     Common code can be placed into a library. (Probably 2.5 stuff though.)
-> 
-> As pointed out by Jan Harkes, logic that works for ext2 (eg. walking
-> the dentry chain and sync'ing all the components) sucks for things
-> like Coda, where the performance impact may be noticable (actually,
-> I'm not conviced it will be, but what do I know).
-> 
-> Not only that, it doesn't help qmail, cyrus imapd or Postfix
-> completely.
+> Why do we no longer merge? Is it too expensive?  If so, perhaps we
 
-	And for that matter, it (full access-tree fsync()ing) isn't
-	necessary for systems which don't go around creating directories,
-	instead place things into existing ones, and move things around
-	in between the directories.
-
-
->   --cw
-
-/Matti Aarnio
+Linus took itout because it was quite complex and nobody seemed to have
+cases that triggered it or made it useful

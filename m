@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269766AbRHEQPy>; Sun, 5 Aug 2001 12:15:54 -0400
+	id <S269972AbRHEQWe>; Sun, 5 Aug 2001 12:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269972AbRHEQPo>; Sun, 5 Aug 2001 12:15:44 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:61037 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S269766AbRHEQPa>; Sun, 5 Aug 2001 12:15:30 -0400
-Date: Sun, 5 Aug 2001 18:16:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: alloc_skb cannot be called with GFP_DMA
-Message-ID: <20010805181606.F21840@athlon.random>
-In-Reply-To: <20010805175334.E21840@athlon.random> <E15TQMy-00081S-00@the-village.bc.nu>
+	id <S269974AbRHEQWZ>; Sun, 5 Aug 2001 12:22:25 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:8672
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S269972AbRHEQWF>; Sun, 5 Aug 2001 12:22:05 -0400
+Date: Sun, 5 Aug 2001 18:22:08 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: pgmdsg@ibi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make riscom8.c build (248p4)
+Message-ID: <20010805182208.S821@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15TQMy-00081S-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Aug 05, 2001 at 05:03:12PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001 at 05:03:12PM +0100, Alan Cox wrote:
-> > A fast grep revealed a few buggy network drivers already (of course the
-> > bug is going to affect only ISA drivers so it's not a showstopper).
-> 
-> "It doesnt affect my computer so its not a problem" - humm 
+Hi.
 
-I never said anything like that, with "it's not a showstopper" I only
-meant "it doesn't affect 99% of the hardware configurations out there".
+The following patch is needed for me to be able to compile
+drivers/char/riscom8.c. I am not exactly sure where it is
+that the init.data section has been asked to hold rw data
+before but I trust gcc to know this better than me...
 
-> If somoe can add the needed isa dma handling to alloc_skb (or alloc_isa_skb)
+--- linux-248-pre4-clean/drivers/char/riscom8.c Sun Aug  5 14:34:54 2001
++++ linux-248p4-kbuild/drivers/char/riscom8.c   Sun Aug  5 18:14:29 2001
+@@ -1866,10 +1866,10 @@
+ __setup("riscom8=", riscom8_setup);
+ #endif
+ 
+-static const char banner[] __initdata =
++static char banner[] __initdata =
+        KERN_INFO "rc: SDL RISCom/8 card driver v1.1, (c) D.Gorodchanin "
+                  "1994-1996.\n";
+-static const char no_boards_msg[] __initdata =
++static char no_boards_msg[] __initdata =
+        KERN_INFO "rc: No RISCom/8 boards detected.\n";
+ 
+ /* 
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-alloc_isa_skb will avoid to slowdown alloc_skb so I prefer it compared
-to hiding the logic inside alloc_skb.
-
-> I'll go and fix all the drivers up. 
-
-Thanks. With the bugcheck patch I wanted to make _sure_ that somebody
-will do that (which is very far from "... so it's not a problem" :).
-
-Andrea
+Duct tape is like the force; it has a light side and a dark side, and
+it holds the universe together.
+  -- Anonymous

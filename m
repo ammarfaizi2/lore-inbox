@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318270AbSHUNQW>; Wed, 21 Aug 2002 09:16:22 -0400
+	id <S318275AbSHUNWM>; Wed, 21 Aug 2002 09:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318272AbSHUNQW>; Wed, 21 Aug 2002 09:16:22 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3838 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318270AbSHUNQW>; Wed, 21 Aug 2002 09:16:22 -0400
-Subject: Re: IDE?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Anton Altaparmakov <aia21@cantab.net>, alan@lxorguk.ukuu.org,
-       Andre Hedrick <andre@linux-ide.org>, axboe@suse.de, bkz@linux-ide.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20020821121747.A3801@ucw.cz>
-References: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk>
-	<Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>
-	<20020818131515.A15547@ucw.cz>
-	<1029672964.15858.17.camel@irongate.swansea.linux.org.uk> 
-	<20020821121747.A3801@ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Aug 2002 14:20:07 +0100
-Message-Id: <1029936007.26411.3.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318283AbSHUNWL>; Wed, 21 Aug 2002 09:22:11 -0400
+Received: from ns1.ionium.org ([62.27.22.2]:782 "HELO mail.ionium.org")
+	by vger.kernel.org with SMTP id <S318275AbSHUNWL> convert rfc822-to-8bit;
+	Wed, 21 Aug 2002 09:22:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Justin Heesemann <jh@ionium.org>
+Organization: ionium Technologies
+To: linux-kernel@vger.kernel.org
+Subject: Re: shared graphic ram hangs kernel since 2.4.3-ac1
+Date: Wed, 21 Aug 2002 15:29:56 +0200
+User-Agent: KMail/1.4.2
+References: <200208201527.51649.jh@ionium.org> <200208211352.29994.jh@ionium.org> <1029935812.26425.0.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1029935812.26425.0.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208211529.56917.jh@ionium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-21 at 11:17, Vojtech Pavlik wrote:
-> I have completely rewritten (and very well tested) versions of the amd
-> and piix pci ide drivers.
+On Wednesday 21 August 2002 15:16, Alan Cox wrote:
+> On Wed, 2002-08-21 at 12:52, Justin Heesemann wrote:
+> > 2.4.19-pre7 with pre6  arch/i386/kernel/setup.c   works !
+> > as i dont have any highmem support configured and as i always have to
+> > provide the option   mem=511M   (due to 1MB shared video ram) i suspect
+> > that part of setup.c. but as i'm not a kernel hacker, any help would be
+> > appreciated. note: any kernel prior to 2.4.3 was able to boot without the
+> > mem=511M option.
+>
+> Are you running a very old version of grub ?
 
-I have completely non-rewritten piix drivers that work extremely well
-are now easy to read, commented and have done for a very long time. Why
-do I want rewritten ones ?
- 
-> I'm now looking through 2.4.20-pre2-ac5 and your version of via82cxxx.c,
-> and all looks quite good to me, except for some of the indentation
-> changes which seem to make the code fit into 78 columns at the loss of
-> readability. Was the file run through indent?
+actually i am running lilo..
+the one that comes with debian 3.0.
+the problem also occurs with every bootable linux cd, that i tried.. as long 
+as it's running kernel 2.4.19.
+debian bf24 kernel image (i think its 2.4.16?) is booting when i append 
+mem=511M, knoppix/gentoo with 2.4.19 doesnt.
 
-Andre may have indented it a bit. I've probably caused a bit of noise in
-checking all the static's etc
+would you suggest that i try grub ?
 

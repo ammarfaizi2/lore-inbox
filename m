@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272533AbRI0MS0>; Thu, 27 Sep 2001 08:18:26 -0400
+	id <S272546AbRI0MVG>; Thu, 27 Sep 2001 08:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272677AbRI0MSQ>; Thu, 27 Sep 2001 08:18:16 -0400
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:4454 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S272546AbRI0MSI>; Thu, 27 Sep 2001 08:18:08 -0400
-Date: Thu, 27 Sep 2001 12:17:44 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Disconnect <lkml@sigkill.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-Message-ID: <20010927121744.A1050@grobbebol.xs4all.nl>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <20010924032518.A8680@emma1.emma.line.org> <20010923225756.A2823@sigkill.net>
+	id <S272552AbRI0MU4>; Thu, 27 Sep 2001 08:20:56 -0400
+Received: from atbode61.informatik.tu-muenchen.de ([131.159.32.54]:49536 "EHLO
+	atbode61.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S272546AbRI0MUq>; Thu, 27 Sep 2001 08:20:46 -0400
+Date: Thu, 27 Sep 2001 14:20:06 +0200
+From: Georg Acher <acher@in.tum.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Nemosoft Unv." <nemosoft@smcc.demon.nl>, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        webcam@smcc.demon.nl, "Eloy A.Paris" <eloy.paris@usa.net>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] RE: [PATCH -R] Re: 2.4.10 is toxic to my system when I use my US
+Message-ID: <20010927142006.B1491@atbode61.informatik.tu-muenchen.de>
+Mail-Followup-To: Georg Acher <acher@in.tum.de>,
+	Ingo Molnar <mingo@elte.hu>,
+	"Nemosoft Unv." <nemosoft@smcc.demon.nl>,
+	Jan Harkes <jaharkes@cs.cmu.edu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, webcam@smcc.demon.nl,
+	"Eloy A.Paris" <eloy.paris@usa.net>,
+	linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <XFMail.010927083327.nemosoft@smcc.demon.nl> <Pine.LNX.4.33.0109271057030.3716-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.16i
-In-Reply-To: <20010923225756.A2823@sigkill.net>; from lkml@sigkill.net on Sun, Sep 23, 2001 at 10:57:57PM -0400
-X-OS: Linux grobbebol 2.4.10 
+In-Reply-To: <Pine.LNX.4.33.0109271057030.3716-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Sep 27, 2001 at 11:00:24AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 23, 2001 at 10:57:57PM -0400, Disconnect wrote:
-> > several partitions. 2.4.9 is fine, 2.4.9-ac7, -ac10 and 2.4.10 are
-> > broken.
-> 
-> Ditto here, at least as far back as 2.4.8-ac2 (nvidia driver blew up on
-> ac7 so I haven't tried anything more recent).
-> 
-> Tried to log out to reboot to 2.4.10+k7fix and logging out (X restarted)
-> triggered it.  (I have -got- to get to journalled root fs one of these
-> days.)
+On Thu, Sep 27, 2001 at 11:00:24AM +0200, Ingo Molnar wrote:
+ 
+> yep. this is one reason why the 2.4.10 kernel clears the ->next and ->prev
+> pointers in list_del() - the above code will break immediately.
 
-I have reported this many months ago. sometimes, it keeps working for
-days, weeks. sometimes, the hell just reaks loose after a short time.
-
-when this happens, I can access via TCP but the timers seem to be slow,
-like one secoint time tick happening in several minutes. this makes the
-system _slow_ and looks like a crash.
-
+Good intention, very bad timing. All of these bug-provoking fixes for a
+production kernel should only occur in the first kernels of a -pre-series,
+not in the last one.
 
 -- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+         Georg Acher, acher@in.tum.de         
+         http://www.in.tum.de/~acher/
+          "Oh no, not again !" The bowl of petunias          

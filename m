@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317563AbSFMJZ4>; Thu, 13 Jun 2002 05:25:56 -0400
+	id <S317564AbSFMJfs>; Thu, 13 Jun 2002 05:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317564AbSFMJZz>; Thu, 13 Jun 2002 05:25:55 -0400
-Received: from gusi.leathercollection.ph ([202.163.192.10]:3279 "EHLO
-	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
-	id <S317563AbSFMJZx>; Thu, 13 Jun 2002 05:25:53 -0400
-Date: Thu, 13 Jun 2002 17:25:44 +0800 (PHT)
-From: Federico Sevilla III <jijo@free.net.ph>
-X-X-Sender: jijo@kalabaw
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rlimits and non overcommit
-In-Reply-To: <2660.1023948685@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.44.0206131723060.3677-100000@kalabaw>
+	id <S317565AbSFMJfr>; Thu, 13 Jun 2002 05:35:47 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:46855 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S317564AbSFMJfr>; Thu, 13 Jun 2002 05:35:47 -0400
+Message-ID: <3D0867EA.8090809@loewe-komp.de>
+Date: Thu, 13 Jun 2002 11:37:46 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <E17IKo3-000341-00@wagner.rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jun 2002 at 16:11, Keith Owens wrote:
-> On Thu, 13 Jun 2002 13:57:33 +0800 (PHT),
-> Federico Sevilla III <jijo@free.net.ph> wrote:
-> >On Thu, 13 Jun 2002 at 06:39, Alan Cox wrote:
-> >> > check to prevent such large sizes from crashing X and/or the X Font
-> >> > Server, I'm alarmed by (1) the way the X font server allows itself to
-> >> > be crashed like this, and (2) the way the entire Linux kernel seems to
-> >> > have been unable to handle the situation. While having a central
-> >> > company or
-> >>
-> >> So turn on the features to conrol it. Set rlimits on the xfs server and
-> >> enable non overcommit (-ac kernel)
-> >
-> >I am using SGI's XFS, and I think they follow Marcelo's kernels for the
->
-> SGI's XFS != xfs server.  SGI XFS == journalling filesystem.
-> xfs server == font server for the X windowing system.
+Rusty Russell wrote:
+> In message <Pine.LNX.4.44.0206120946100.22189-100000@home.transmeta.com> you wr
+> ite:
+> 
+>>
+>>
+>>On Wed, 12 Jun 2002, Peter W=E4chtler wrote:
+>>
+>>>For the uncontended case: their is no blocked process...
+>>>
+>>Wrong.
+>>
+>>The process that holds the lock can die _before_ it gets contended.
+>>
+>>When another thread comes in, it now is contended, but the kernel doesn't
+>>know about anything.
+>>
+> 
+> Note also: this is a feature.
+> 
+> I have a little helper program which can grab or release a futex in a
+> (mmapped) file.  It's great for shell scripts to grab locks.  In this
+> case the helper exits with the lock held, and a later invocation
+> releases a lock it never held.
+> 
+> *AND* the lock is persistent across reboots, since it's in a file.
+> How cool is that!
+> 
 
-Argh. And we get hit by similarly-named projects. :(
+Don't want to bugg you: but you would have to clean them up in any case
+when you restart your system of cooperating programs.
 
-To clarify: I wanted to know if there were plans of getting non overcommit
-from the AC tree into Marcelo's mainline 2.4 tree, because I use SGI's XFS
-(journalling filesystem), and thus use the -xfs kernel tree, which follows
--marcelo and not -ac.
+Posix shmem would be a nice place to store your mmaped file so that it's
+gone after reboot - but gives "kernel life time".
 
-Apologies.
+And not that I want to put the futexes down: but now I understand why
+the PROCESS_SHARED locks on Irix live in the kernel. Yes, perhaps we
+should provide both and the app can choose what suits best.
 
- --> Jijo
-
--- 
-Federico Sevilla III   :  <http://jijo.free.net.ph/>
-Network Administrator  :  The Leather Collection, Inc.
-GnuPG Key ID           :  0x93B746BE
 

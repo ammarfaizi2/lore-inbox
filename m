@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUGJQEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUGJQFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbUGJQEF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 12:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUGJQEE
+	id S265782AbUGJQFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 12:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUGJQFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 12:04:04 -0400
-Received: from cm217.omega59.maxonline.com.sg ([218.186.59.217]:16259 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265154AbUGJQEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 12:04:00 -0400
-Date: Sun, 11 Jul 2004 00:04:09 +0800
-From: David Teigland <teigland@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040710160409.GA19471@redhat.com>
-References: <1089471483.1750.31.camel@mulgrave>
+	Sat, 10 Jul 2004 12:05:08 -0400
+Received: from c-67-171-146-69.client.comcast.net ([67.171.146.69]:24986 "EHLO
+	tp-timw.internal.splhi.com") by vger.kernel.org with ESMTP
+	id S265782AbUGJQEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 12:04:52 -0400
+Subject: Re: rmmod st "hangs" - bad interaction with sg
+From: Tim Wright <timw@splhi.com>
+Reply-To: timw@splhi.com
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040710154145.GA17691@infradead.org>
+References: <1089473460.1473.17.camel@tp-timw.internal.splhi.com>
+	 <20040710154145.GA17691@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Splhi
+Message-Id: <1089475422.1473.25.camel@tp-timw.internal.splhi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1089471483.1750.31.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 10 Jul 2004 09:03:42 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 09:58:02AM -0500, James Bottomley wrote:
->     gfs needs to run in the kernel.  dlm should run in the kernel since gfs
->     uses it so heavily.  cman is the clustering subsystem on top of which
->     both of those are built and on which both depend quite critically.  It
->     simply makes most sense to put cman in the kernel for what we're doing
->     with it.  That's not a dogmatic position, just a practical one based on
->     our experience.
->     
-> This isn't really acceptable.  We've spent a long time throwing things out of
-> the kernel so you really need a good justification for putting things in
-> again.  "it makes sense" and "its just practical" aren't sufficient.
-
-The "it" refers to gfs.  This means gfs doesn't make a lot of sense and isn't
-very practical without it.  I'm not the one to speculate on what gfs would
-become otherwise, others would do that better.
-
-
-> You also face two other additional hurdles:
+Hi Christoph!
+On Sat, 2004-07-10 at 08:41, Christoph Hellwig wrote:
+> On Sat, Jul 10, 2004 at 08:31:00AM -0700, Tim Wright wrote:
+> > Hi,
+> > I was working on the qlogicisp/isp1020 driver in 2.6, as I still have
+> > one of these antiques and the driver is a bit out of date (a patch is
+> > forthcoming). In the process of testing my changes, I came across the
+> > following:
 > 
-> 1) GFS today uses a user space DLM.  What critical problems does this have
-> that you suddenly need to move it all into the kernel?
+> qlogicisp is slowly going away.  If you look at the qla1280 driver in current
+> mainline you'll see it has most of the support for the 1020/1040 already,
+> I just need to fix a final bug and add firmware/pci ids.  This has come up
+> on linux-scsi a few times..
+> 
 
-GFS does not use a user space dlm today.  GFS uses the client-server gulm lock
-manager for which the client (gfs) side runs in the kernel and the gulm server
-runs in userspace on some other node.  People have naturally been averse to
-using servers like this with gfs for a long time and we've finally created the
-serverless dlm (a la VMS clusters).  For many people this is the only option
-that makes gfs interesting; it's also what the opengfs group was doing.
+Ah thanks. Of course, as soon as I posted, I realized I should probably
+have copied linux-scsi and/or gone and checked the archives there sigh.
+Just getting back into the swing of things. If you need a tester, I'm
+happy to do so on my setup.
 
-This is a revealing discussion.  We've worked hard to make gfs's lock manager
-independent from gfs itself so it could be useful to others and make gfs less
-monolithic.  We could have left it embedded within the file system itself --
-that's what most other cluster file systems do.  If we'd done that we would
-have avoided this objection altogether but with an inferior design.  The fact
-that there's an independent lock manager to point at and question illustrates
-our success.  The same goes for the cluster manager.  (We could, of course, do
-some simple glueing together and make a monlithic system again :-)
+> > This seems bad to me - either the original rmmod should fail with EBUSY,
+> > or it should complete. However, for it to do so, it seems that st needs
+> > to know that sg has its hooks into the device it controls, and it needs
+> > to be able to make it let go. My workaround is impractical if sg is in
+> > use on other devices too.
+> 
+> I don't think we can fix much about this, it's how the driver model code
+> works.  Best workarond is to not use sg.
 
+Hmmm... the problem was that it was autoloaded - I haven't gone and
+checked the code yet, but it seems that unless you don't actually build
+sg at all, it gets pulled in whether you want it or not. Now that the
+ATA passthrough stuff works for CDRW etc., I actually have no good
+reason to load it. It just seemed a little "sucky" - if I had tried to
+e.g. rmmod qlogicisp, it would correctly fail because st depends on it.
+It seems weak that an attempt to unload st didn't catch the hidden
+dependency. Actually, it seems that a workaround with no side effects is
+to 'echo 1 > /sys/class/scsi_device/.../delete' for the tape drive. That
+frees things up and unhooks sg without unloading it.
 
-> 2) We have numerous other clustering products for Linux, none of which (well
-> except the Veritas one) has any requirement at all on having pieces in the
-> kernel.  If all the others operate in user space, why does yours need to be
-> in the kernel?
+Thanks,
 
-If you want gfs in user space you don't want gfs; you want something different.
+Tim
 
--- 
-Dave Teigland  <teigland@redhat.com>

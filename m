@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265087AbSJWQIA>; Wed, 23 Oct 2002 12:08:00 -0400
+	id <S265074AbSJWQKq>; Wed, 23 Oct 2002 12:10:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265086AbSJWQIA>; Wed, 23 Oct 2002 12:08:00 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:45495 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S265087AbSJWQHy>; Wed, 23 Oct 2002 12:07:54 -0400
-Date: Wed, 23 Oct 2002 11:13:58 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Armin Schindler <mac@melware.de>
-cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: module_init in interrupt context ?
-In-Reply-To: <Pine.LNX.4.31.0210230640250.6294-100000@phoenix.one.melware.de>
-Message-ID: <Pine.LNX.4.44.0210231111480.2739-100000@chaos.physics.uiowa.edu>
+	id <S265075AbSJWQKq>; Wed, 23 Oct 2002 12:10:46 -0400
+Received: from nameservices.net ([208.234.25.16]:15564 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S265074AbSJWQKp>;
+	Wed, 23 Oct 2002 12:10:45 -0400
+Message-ID: <3DB6CC71.9DA9A543@opersys.com>
+Date: Wed, 23 Oct 2002 12:21:05 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Werner Almesberger <wa@almesberger.net>
+CC: Richard J Moore <richardj_moore@uk.ibm.com>,
+       Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>
+Subject: Re: 2.4 Ready list - Kernel Hooks
+References: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com> <20021023122841.G1421@almesberger.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Armin Schindler wrote:
 
-> With kernel 2.4.19 I noticed that calls from module_init()
-> may be done in interrupt context. I didn't have a problem here
-> before 2.4.17.
+Werner Almesberger wrote:
+> Richard J Moore wrote:
+> > This is nothing more than a call-back mechanism such as could be used by
+> > LSM or LTT.
+> 
+> Hmm, Greg has already voiced some violent disagreement regarding
+> LSM :-) That leaves LTT. Given the more exploratory nature of LTT,
+> I wonder if [dk]probes wouldn't be quite sufficient there, too.
 
-Well, I am positive that this is not so.
+The whole point of tracing is that the system's behavior should not
+be modified but only recorded. Generating int3 won't do.
 
-> E.g. in module_init() I use pci_module_init() for my driver
-> (I don't have HOTPLUG enabled), the when the .probe function is called
-> and the card is detected I create a proc entry for this new
-> found device, but most of the time create_proc_entry causes
-> BUG(), because it is called from interrupt context.
+> Oh, you could probably have some "fast" probes by just checking
+> for a certain "anchor" pattern (e.g. a sequence of 5 nops on
+> i386), which could then be replaced with a direct call. This
+> optimization would have to be optional, in case some code yields
+> the anchor pattern such that it isn't also a basic block.
 
-I think you should provide the backtrace and the code in questions. 
-Obviously, something is wrong, but it's virtually impossible that 
-module_init() runs from irq context, so it has to be something else.
+If I remember correctly, the optimized arch-dependent code in kernel
+hooks uses "compare immediate" and the value of the immediate is
+edited to enable/disable hooking. Given modern branch-prediction the
+cost should be quite close to an unconditional jump.
 
---Kai
+Karim
 
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

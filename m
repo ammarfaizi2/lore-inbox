@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269774AbUJWBGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269610AbUJWBHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269774AbUJWBGs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269610AbUJWBCq
+	id S269610AbUJWBHO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUJWBGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:02:46 -0400
-Received: from gate.crashing.org ([63.228.1.57]:19644 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269748AbUJWBAM (ORCPT
+	Fri, 22 Oct 2004 21:06:54 -0400
+Received: from cantor.suse.de ([195.135.220.2]:28602 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269760AbUJWBGj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:00:12 -0400
-Subject: Re: [PATCH] ppc64: Add mecanism to check existence of legacy ISA
-	devices
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410221730560.2101@ppc970.osdl.org>
-References: <1098490981.11740.109.camel@gaston>
-	 <Pine.LNX.4.58.0410221730560.2101@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1098493130.6008.122.camel@gaston>
+	Fri, 22 Oct 2004 21:06:39 -0400
+Date: Sat, 23 Oct 2004 03:06:35 +0200
+From: Andi Kleen <ak@suse.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de, pavel@ucw.cz
+Subject: Re: [PATCH] HPET reenabling after suspend-resume
+Message-ID: <20041023010635.GD16136@wotan.suse.de>
+References: <20041022172659.A1632@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 23 Oct 2004 10:58:50 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041022172659.A1632@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 10:32, Linus Torvalds wrote:
-> On Sat, 23 Oct 2004, Benjamin Herrenschmidt wrote:
-> > 
-> > This patch adds an arch function that can be overriden by the various
-> > platforms at runtime, to query if a given legacy IO device actually
-> > exist on the platform (based on the standard base port).
+On Fri, Oct 22, 2004 at 05:26:59PM -0700, Venkatesh Pallipadi wrote:
 > 
-> Ehh..
-> 
-> Why don't you use the "isapnp" or "acpi" interfaces?
-> 
-> Yeah yeah, you don't actually have isapnp on your system. But like it or 
-> not, when we talk ISA enumeration, there is an existing standard for doing 
-> it. And since the drivers involved don't actually do BIOS calls or 
-> anything like that, they don't need to know that your "acpi" or "isapnp" 
-> enumeration comes from ppc64 firmware..
+> hpet hardware seems to need a little prodding during resume for it to start 
+> sending the timer interupts again. Attached patch does it for both i386 
+> and x86_64.
 
-Hrm... currently, those drivers just blindly go tap IO ports and ...
-
- - the isapnp stuff is _huge_, it's quite difficult to figure out what
-to bring in and what not, and how to adapt it, especially since my
-knowledge of the ISA stuff isn't that big
-
- - It's only about 2 or 3 drivers and none of theem uses isapnp at this
-point anyway
-
-It's really only about keyboard, floppy, and _maybe_ parport, I'm not
-sure bringing in the whole isapnp stuff is worth it, but I'll have a
-look. I'd appreciate if the workaround I posted could get in for now
-though.
-
-Ben.
+Hmm, what HPET hardware? It must have worked on some machines already,
+otherwise suspend/resume would have never worked on many AMD x86-64 
+machines. 
 
 
+Anyways, looks good.
+
+-Andi

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317140AbSGSXpk>; Fri, 19 Jul 2002 19:45:40 -0400
+	id <S317230AbSGSXsG>; Fri, 19 Jul 2002 19:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317221AbSGSXpk>; Fri, 19 Jul 2002 19:45:40 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:32720 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S317140AbSGSXpj>; Fri, 19 Jul 2002 19:45:39 -0400
-Message-ID: <3D38A29C.9040901@namesys.com>
-Date: Sat, 20 Jul 2002 03:37:00 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S317232AbSGSXsG>; Fri, 19 Jul 2002 19:48:06 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:17334 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S317230AbSGSXsF>;
+	Fri, 19 Jul 2002 19:48:05 -0400
+Date: Fri, 19 Jul 2002 18:45:37 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+cc: "'Robert Sinko'" <RSinko@island.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Wrong CPU count
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7CA8@nocmail101.ma.tmpw.net>
+Message-ID: <Pine.LNX.4.44.0207191842340.2279-100000@dad.molina>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-References: <3D3875D4.3090102@us.ibm.com> <1027111243.1269.94.camel@dyn9-47-17-90.beaverton.ibm.com> <3D388479.1060908@namesys.com> <20020719232855.GH10315@clusterfs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Thu, 18 Jul 2002, Holzrichter, Bruce wrote:
 
->  
->
->Hans,
->my understanding is that core changes that aren't in by Halloween are
->not going to be accepted until 2.7.  By pre-announcing the deadline,
->it is hoped that people will have lots of time to submit things that are
->ready for inclusion, as opposed to rushing to submit when the "freeze"
->is announced all of a sudden.
->
->
->
->  
->
-I, in my egocentrism, think it would make more sense to have a deadline 
-for submission rather than a deadline for acceptance, as that would make 
-things predictable for patch submitters, and avoid unintentional 
-overlooking of good patches from obscure persons due to the crush of 
-patches in October.
+> > 
+> > I'm not familiar with the HyperThreading concept.
+> > 
+> 
+> Looks like this could be a good place for you to start:
+> http://cedar.intel.com/cgi-bin/ids.dll/topic.jsp?catCode=CDN
 
-Pre-announcing the deadline is good, but having it be a deadline on 
-something the patch submitters control (submission time not acceptance 
-time) would be even better.
+I did a research paper for my computer architecture class.  The main two 
+references for hyperthreading (aka simultaneous multithreading) are:
 
--- 
-Hans
+http://www.cs.washington.edu/research/smt/index.html
 
+http://developer.intel.com/technology/hyperthread/
 
+Both sites have numerous links to other resources on the subject.
 

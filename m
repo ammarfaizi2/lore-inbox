@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130315AbRADQSF>; Thu, 4 Jan 2001 11:18:05 -0500
+	id <S130423AbRADQSp>; Thu, 4 Jan 2001 11:18:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130423AbRADQRz>; Thu, 4 Jan 2001 11:17:55 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:38383 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130315AbRADQRn>; Thu, 4 Jan 2001 11:17:43 -0500
-Date: Thu, 4 Jan 2001 14:17:17 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: ludovic fernandez <ludovic.fernandez@sun.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
-In-Reply-To: <3A53D863.53203DF4@sun.com>
-Message-ID: <Pine.LNX.4.21.0101041416510.1188-100000@duckman.distro.conectiva>
+	id <S131125AbRADQSf>; Thu, 4 Jan 2001 11:18:35 -0500
+Received: from [202.52.231.194] ([202.52.231.194]:5418 "EHLO healthnet.org.np")
+	by vger.kernel.org with ESMTP id <S130423AbRADQSa>;
+	Thu, 4 Jan 2001 11:18:30 -0500
+From: mpradhan@healthnet.org.np
+To: linux-kernel@vger.kernel.org
+Date: Thu, 4 Jan 2001 22:27:09 +0530
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.21.0101041416512.1188@duckman.distro.conectiva>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Compilation error in Red Hat 6.2
+Message-ID: <3A54F8BD.14576.3D66AD@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, ludovic fernandez wrote:
+Dear users,
 
-> The following patch makes the kernel preemptable.
-> It is against 2.4.0-prerelease on for i386 only.
 
-> Comments are welcome.
+I am getting one error while compiling kernal in Red Hat 6.2:  
+VFS: cannot open root device 08:01 > Kernel panic: VFS: 
+unable to mount root fs on 08:01 >
+ I have used make bzImage to make the 
+new image after make dep; > make clean.
 
-I think this would be a nice thing to start testing
-once 2.5 is forked off.
+With regards,
 
-regards,
+Sincerely yours,
 
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Mohan Raj Pradhan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

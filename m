@@ -1,53 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280707AbRKYE1d>; Sat, 24 Nov 2001 23:27:33 -0500
+	id <S280717AbRKYEad>; Sat, 24 Nov 2001 23:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280717AbRKYE1X>; Sat, 24 Nov 2001 23:27:23 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:13062 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S280707AbRKYE1R>; Sat, 24 Nov 2001 23:27:17 -0500
-Message-Id: <4.3.2.7.2.20011124231412.00b40c50@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 24 Nov 2001 23:27:14 -0500
-To: linux-kernel@vger.kernel.org
-From: David Relson <relson@osagesoftware.com>
-Subject: Kernel Releases
+	id <S280718AbRKYEaX>; Sat, 24 Nov 2001 23:30:23 -0500
+Received: from hq2.fsmlabs.com ([209.155.42.199]:9732 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S280717AbRKYEaK>;
+	Sat, 24 Nov 2001 23:30:10 -0500
+Date: Sat, 24 Nov 2001 21:23:53 -0700
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: war <war@starband.net>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011124212353.A18255@hq2>
+In-Reply-To: <Pine.LNX.4.21.0111241744250.12119-100000@freak.distro.conectiva> <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net> <20011124214114.E241@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011124214114.E241@localhost>
+User-Agent: Mutt/1.3.23i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings to All,
+On Sat, Nov 24, 2001 at 09:41:15PM -0500, Patrick McFarland wrote:
+> Okay, so it was 14 that had the file loopback bug, and 12 that had the ieee bug.Those bugs shouldnt have been in there in the first place! Those are very major potentially show stopping bugs. What If I get up one day, and I cant print? Or build isos? That sounds minor to you, but thats a big thing if say, the linux box is a network print server, or, its the workstation for the guy in the company who builds the iso. And, no, "use the previous kernel" isnt a good excuse. Because what if you get hit with bugs back to back? You'll have to go back to some kernel way way back. Like 2.4.2. The Kernel needs Quality Assurance.
+\
 
-Over the past few months, I've been listening in on LKML, with occasional, 
-minor comments - mostly to help newbies.  Now, I think it's time for a 
-suggestion ...
-
-As we all know, several of the recent releases have had defects that have 
-__required__ patches before they could be built (or used safely).  Problems 
-with symlinks, loopbacks, and unmount come to mind as being like 
-this.  They are all show stoppers that required immediate fixes and the 
-creation of a new release or of the next -pre1 version.
-
-I have a tendency to tink that it's better to be running a released kernel, 
-than a pre-release kernel.  I'd much rather be running a kernel named 2.4.x 
-than a kernel named 2.4.y-pre?.  With the recent problems, the working 
-versions tend to be the -pre1 or -pre2 releases, not the released 
-one.  With a bit of QA, I think we can have 2.4.x releases be the stable 
-releases.  Here's how...
-
-When the kernel maintainer, now Marcelo for 2.4, is ready to release the 
-next kernel, for example 2.4.16, I suggest he switch from "pre?" to "-rc1" 
-(as in release candidate).  A day or two with -rc1 will quickly show if it 
-has a show stopper.  If so, then the minor fixes (and nothing else) go into 
--rc2.  A day or two ..., and either -rc3 appears or we have a stable 
-release and 2.4.16 is ready to be released.
-
-Let's go the extra distance and have the releases be usable, stable 
-kernels!  It's what users want and it's within the abilities of the 
-developers to produce.  Let's do it :-)
-
-David
-
-
+Thanks for volunteering. Please publish those results.
 

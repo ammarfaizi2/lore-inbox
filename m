@@ -1,95 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262910AbUCKASI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 19:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbUCKASI
+	id S262897AbUCKAUt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 19:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbUCKAUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 19:18:08 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:25023 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S262910AbUCKART (ORCPT
+	Wed, 10 Mar 2004 19:20:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40645 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262897AbUCKASx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 19:17:19 -0500
-Message-ID: <404FAFFE.9010403@matchmail.com>
-Date: Wed, 10 Mar 2004 16:17:02 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: VM patches in 2.6.4-rc1-mm2
-References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org> <404ECFE5.7040005@matchmail.com> <404ED388.5050905@cyberone.com.au> <404F651B.1030202@matchmail.com> <404FAA04.1020300@cyberone.com.au>
-In-Reply-To: <404FAA04.1020300@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Mar 2004 19:18:53 -0500
+Date: Wed, 10 Mar 2004 16:16:46 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Peter Williams <peterw@aurema.com>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org,
+       Amarendra.Godbole@ge.com
+Subject: Re: (0 == foo), rather than (foo == 0)
+Message-Id: <20040310161646.2062f009.rddunlap@osdl.org>
+In-Reply-To: <404F9E28.4040706@aurema.com>
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
+	<20040310100215.1b707504.rddunlap@osdl.org>
+	<Pine.LNX.4.53.0403101324120.18709@chaos>
+	<404F9E28.4040706@aurema.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> 
-> 
-> Mike Fedyk wrote:
-> 
->> Nick Piggin wrote:
->>> Mainline doesn't put enough pressure on slab with highmem systems. This
->>> creates a lot more ZONE_NORMAL pressure and that causes swapping.
->>>
->>
->> Yep, saw that.  Especially with 128MB Highmem (eg, 1G RAM)
->>
->>> Now with the 2.6 VM, you don't do any mapped memory scaning at all
->>
->>
->>
->> You mean 2.6-mm?
->>
-> 
-> Yes, either mm or linus.
-> 
+On Thu, 11 Mar 2004 10:00:56 +1100 Peter Williams wrote:
 
-Have there been any VM patches merged into mainline?  Or are you saying 
-that the imbalance in mainline would be enough to overcome to lack of 
-scanning of mapped pages?
+| Richard B. Johnson wrote:
+| > On Wed, 10 Mar 2004, Randy.Dunlap wrote:
+| > 
+| > 
+| >>On Wed, 10 Mar 2004 11:46:40 +0530 Godbole, Amarendra \(GE Consumer &
+| >>Industrial\) wrote:
+| >>
+| >>Hi,
+| >>
+| >>While writing code, the assignment operator (=) is many-a-times
+| >>confused with the comparison operator (==) resulting in very subtle
+| >>bugs difficult to track. To keep a check on this -- the constant
+| >>can be written on the LHS rather than the RHS which will result
+| >>in a compile time error if wrong operator is used.
+| >>
+| > 
+| > 
+| > People who develop kernel code know the difference between
+| > '==' and '=' and are never confused my them.
+| 
+| And you never make typing mistakes?  That's admirable or should I say 
+| incredible.
 
->>> while you only have a small amount of memory pressure. This means that
->>> truely inactive mapped pages never get reclaimed.
->>>
->>
->> If I have enough pressure, they will be eventually?  But my caches 
->> will still be smaller than optimal, right?
->>
-> 
-> If you get a lot of pressure at one time it should push out your
-> inactive mapped pages. Will get most of the really inactive ones,
-> but it won't help pages becoming inactive in future.
-> 
+Whoa.  stop the presses.  an on-$subejct posting.
 
-Ok, I see.  This might be happening, since it is steadily getting more 
-into swap.
+Please, let's kill all the other fuss about email crapola...
 
->>> The patches you are using do not address this. My split active list
->>> patches should do so. Alternatively you can increase
->>> /proc/sys/vm/swappiness, but that isn't a complete solution, and might
->>> make things too swappy. It is a difficult beast to control.
->>
->>
->>
->> Has akpm said that he would be including the active split patch in -mm?
->>
-> 
-> Hasn't looked at it much. Probably not until some of the more basic
-> VM patches can get merged into -linus.
-
-Yes, I wonder if the VM patches helped -mm in the reaim tests...
-
-Let's get the fsfaz (free slab for all zones) into mainline asap! :-D
-
->> Do you have a patch against -mm (you wrote to ask for your latest...)?
->>
-> 
-> Yep...
-
-Let me get back to you sometime next week.  So far, the VM is reacting 
-ok with this combined workload.
-
-Mike
+--
+~Randy

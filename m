@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290225AbSAOSH1>; Tue, 15 Jan 2002 13:07:27 -0500
+	id <S290224AbSAOSG5>; Tue, 15 Jan 2002 13:06:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290229AbSAOSHT>; Tue, 15 Jan 2002 13:07:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25615 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290225AbSAOSHF>; Tue, 15 Jan 2002 13:07:05 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Why not "attach" patches?
-Date: Tue, 15 Jan 2002 18:04:40 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a21qvo$375$1@penguin.transmeta.com>
-In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER> <3C446C77.3000806@evision-ventures.com>
-X-Trace: palladium.transmeta.com 1011117996 4726 127.0.0.1 (15 Jan 2002 18:06:36 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 15 Jan 2002 18:06:36 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S290225AbSAOSGs>; Tue, 15 Jan 2002 13:06:48 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:34442 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S290224AbSAOSGe>; Tue, 15 Jan 2002 13:06:34 -0500
+Date: Tue, 15 Jan 2002 10:06:20 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Doug McNaught <doug@wireboard.com>
+cc: Felix von Leitner <felix-dietlibc@fefe.de>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Greg KH <greg@kroah.com>,
+        <linux-kernel@vger.kernel.org>, <andersen@codepoet.org>
+Subject: Re: [RFC] klibc requirements
+In-Reply-To: <m3k7ujzj3d.fsf@varsoon.denali.to>
+Message-ID: <Pine.LNX.4.40.0201151005430.24005-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C446C77.3000806@evision-ventures.com>,
-Martin Dalecki  <dalecki@evision-ventures.com> wrote:
+On 15 Jan 2002, Doug McNaught wrote:
+
 >
->Don't worry - nothign prevents proper attached patches from beeing 
->applied - the FAQ is only a bit zealous on this ;-)
+> > as an example (not for the boot process, but an example of a replacement
+> > libc use) I use the firewall toolkit, it has been around for a _loooong_
+> > time (in software terms anyway) and has a firly odd licence (free for you
+> > to use, source available, cannot sell it) which is not compatable with the
+> > GPL. with glibc staticly linked this makes huge binaries, with libc5 they
+> > were a lot smaller. I would like to try to use this small libc for these
+> > proxies, but if the library is GPL, not LGPL I'm not allowed to.
+>
+> Hmm, I think you can; you just can't redistribute it.  Can you even
+> redistribute fwtk on non-commercial terms?
+>
+nope, only allowed to get it from nai (and they sure don't make it easy to
+find on their website)
 
-Wrong.
+David Lang
 
-If I get a patch in an attachment (other than a "Text/PLAIN" type
-attachment with no mangling and that pretty much all mail readers and
-all tools will see as a normal body), I simply WILL NOT apply it unless
-I have strong reason to. I usually wont even bother looking at it,
-unless I expected something special from the sender.
-
-Really. Don't send patches as attachments. 
-
-		Linus

@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272310AbTGYUnx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 16:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272339AbTGYUnC
+	id S272329AbTGYUnw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 16:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272310AbTGYUnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:43:02 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:40594 "EHLO
+	Fri, 25 Jul 2003 16:43:16 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:54930 "EHLO
 	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S272310AbTGYUiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:38:19 -0400
-Date: Fri, 25 Jul 2003 22:50:48 +0200
+	id S272329AbTGYUkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 16:40:01 -0400
+Date: Fri, 25 Jul 2003 22:52:33 +0200
 From: Harald Welte <laforge@netfilter.org>
 To: David Miller <davem@redhat.com>
 Cc: Netfilter Development Mailinglist 
 	<netfilter-devel@lists.netfilter.org>,
        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] iptables MIRROR target fixes
-Message-ID: <20030725205048.GH3244@sunbeam.de.gnumonks.org>
+Subject: [PATCH 2.6] netfilter ipt_REJECT: Add RFC1812 ICMP_PKT_FILTERED
+Message-ID: <20030725205233.GE3244@sunbeam.de.gnumonks.org>
 Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
 	David Miller <davem@redhat.com>,
 	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
 	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U/OZNOFFJieNpJU4"
+	protocol="application/pgp-signature"; boundary="C2AE+UNCNp5RBAjn"
 Content-Disposition: inline
 X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
 X-Date: Today is Prickle-Prickle, the 53rd day of Confusion in the YOLD 3169
@@ -32,149 +32,72 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---U/OZNOFFJieNpJU4
+--C2AE+UNCNp5RBAjn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi Dave!
 
-This is the first of a set of bugfixes (all tested against 2.4.22-pre7).
-You might need to apply them incrementally (didn't test it in a
-different order).  You will receive 2.6 merges of those patches soon.
+The six patch set of 2.6 merges of recent bugfixes is now complete.
 
-Author: Patrick McHardy <kaber@trash.net>
+Author: Maciej Soltysiak <solt@dns.toxicfilms.tv>
 
-This patch fixes various problems with the experimental=20
-iptables MIRROR target:
+This patch adds support for the iptables '--reject-with admin-prohib'
+option of the REJECT target, making it compliant with RFC 1812.
 
-- check TTL before rewriting so icmp_send gets clean packet
-- skb_copy_expand(skb) for tcpdump and asymmetric routing
-- inline some function
-- remove unneccessary 'struct in_device' declaration
-- remove RTO_CONN
+[... now off my email until arrival at ksummit + OLS]
 
 Please apply,
 
-diff -Nru a/net/ipv4/netfilter/ipt_MIRROR.c b/net/ipv4/netfilter/ipt_MIRROR=
-=2Ec
---- a/net/ipv4/netfilter/ipt_MIRROR.c	Mon Apr 21 21:26:42 2003
-+++ b/net/ipv4/netfilter/ipt_MIRROR.c	Mon Apr 21 21:26:42 2003
-@@ -32,7 +32,6 @@
- #include <linux/netfilter_ipv4/ip_tables.h>
- #include <linux/netdevice.h>
- #include <linux/route.h>
--struct in_device;
- #include <net/route.h>
+
+diff -Nru --exclude .depend --exclude '*.o' --exclude '*.ko' --exclude '*.v=
+er' --exclude '.*.flags' --exclude '*.orig' --exclude '*.rej' --exclude '*.=
+cmd' --exclude '*.mod.c' --exclude '*~' linux-2.6.0-test1-nftest5/include/l=
+inux/netfilter_ipv4/ipt_REJECT.h linux-2.6.0-test1-nftest6/include/linux/ne=
+tfilter_ipv4/ipt_REJECT.h
+--- linux-2.6.0-test1-nftest5/include/linux/netfilter_ipv4/ipt_REJECT.h	200=
+3-07-14 05:37:19.000000000 +0200
++++ linux-2.6.0-test1-nftest6/include/linux/netfilter_ipv4/ipt_REJECT.h	200=
+3-07-19 16:40:11.000000000 +0200
+@@ -9,7 +9,8 @@
+ 	IPT_ICMP_ECHOREPLY,
+ 	IPT_ICMP_NET_PROHIBITED,
+ 	IPT_ICMP_HOST_PROHIBITED,
+-	IPT_TCP_RESET
++	IPT_TCP_RESET,
++	IPT_ICMP_ADMIN_PROHIBITED
+ };
 =20
- #if 0
-@@ -41,31 +40,20 @@
- #define DEBUGP(format, args...)
- #endif
-=20
--static int route_mirror(struct sk_buff *skb)
-+static inline struct rtable *route_mirror(struct sk_buff *skb)
- {
-         struct iphdr *iph =3D skb->nh.iph;
- 	struct rtable *rt;
-=20
- 	/* Backwards */
- 	if (ip_route_output(&rt, iph->saddr, iph->daddr,
--			    RT_TOS(iph->tos) | RTO_CONN,
--			    0)) {
--		return 0;
--	}
-+			    RT_TOS(iph->tos), 0))
-+		return NULL;
-=20
--	/* check if the interface we are leaving by is the same as the
--           one we arrived on */
--	if (skb->dev =3D=3D rt->u.dst.dev) {
--		/* Drop old route. */
--		dst_release(skb->dst);
--		skb->dst =3D &rt->u.dst;
--		return 1;
--	}
--	return 0;
-+	return rt;
- }
-=20
--static void
--ip_rewrite(struct sk_buff *skb)
-+static inline void ip_rewrite(struct sk_buff *skb)
- {
- 	struct iphdr *iph =3D skb->nh.iph;
- 	u32 odaddr =3D iph->saddr;
-@@ -105,32 +93,48 @@
- 				      const void *targinfo,
- 				      void *userinfo)
- {
--	if (((*pskb)->dst !=3D NULL) &&
--	    route_mirror(*pskb)) {
--
--		ip_rewrite(*pskb);
-+	struct rtable *rt;
-+	struct sk_buff *nskb;
-+	unsigned int hh_len;
-=20
--		/* If we are not at FORWARD hook (INPUT/PREROUTING),
--		 * the TTL isn't decreased by the IP stack */
--		if (hooknum !=3D NF_IP_FORWARD) {
--			struct iphdr *iph =3D (*pskb)->nh.iph;
--			if (iph->ttl <=3D 1) {
--				/* this will traverse normal stack, and=20
--				 * thus call conntrack on the icmp packet */
--				icmp_send(*pskb, ICMP_TIME_EXCEEDED,=20
--					  ICMP_EXC_TTL, 0);
--				return NF_DROP;
--			}
--			ip_decrease_ttl(iph);
-+	/* If we are not at FORWARD hook (INPUT/PREROUTING),
-+	 * the TTL isn't decreased by the IP stack */
-+	if (hooknum !=3D NF_IP_FORWARD) {
-+		struct iphdr *iph =3D (*pskb)->nh.iph;
-+		if (iph->ttl <=3D 1) {
-+			/* this will traverse normal stack, and=20
-+			 * thus call conntrack on the icmp packet */
-+			icmp_send(*pskb, ICMP_TIME_EXCEEDED,=20
-+				  ICMP_EXC_TTL, 0);
-+			return NF_DROP;
- 		}
-+		ip_decrease_ttl(iph);
-+	}
-=20
--		/* Don't let conntrack code see this packet:
--                   it will think we are starting a new
--                   connection! --RR */
--		ip_direct_send(*pskb);
-+	if ((rt =3D route_mirror(*pskb)) =3D=3D NULL)
-+		return NF_DROP;
-=20
--		return NF_STOLEN;
-+	hh_len =3D (rt->u.dst.dev->hard_header_len + 15) & ~15;
-+
-+	/* Copy skb (even if skb is about to be dropped, we can't just
-+	 * clone it because there may be other things, such as tcpdump,
-+	 * interested in it). We also need to expand headroom in case
-+	 * hh_len of incoming interface < hh_len of outgoing interface */
-+	nskb =3D skb_copy_expand(*pskb, hh_len, skb_tailroom(*pskb), GFP_ATOMIC);
-+	if (nskb =3D=3D NULL) {
-+		dst_release(&rt->u.dst);
-+		return NF_DROP;
- 	}
-+
-+	dst_release(nskb->dst);
-+	nskb->dst =3D &rt->u.dst;
-+
-+	ip_rewrite(nskb);
-+	/* Don't let conntrack code see this packet:
-+           it will think we are starting a new
-+           connection! --RR */
-+	ip_direct_send(nskb);
-+
- 	return NF_DROP;
- }
-=20
+ struct ipt_reject_info {
+diff -Nru --exclude .depend --exclude '*.o' --exclude '*.ko' --exclude '*.v=
+er' --exclude '.*.flags' --exclude '*.orig' --exclude '*.rej' --exclude '*.=
+cmd' --exclude '*.mod.c' --exclude '*~' linux-2.6.0-test1-nftest5/net/ipv4/=
+netfilter/ipt_REJECT.c linux-2.6.0-test1-nftest6/net/ipv4/netfilter/ipt_REJ=
+ECT.c
+--- linux-2.6.0-test1-nftest5/net/ipv4/netfilter/ipt_REJECT.c	2003-07-19 16=
+:13:32.000000000 +0200
++++ linux-2.6.0-test1-nftest6/net/ipv4/netfilter/ipt_REJECT.c	2003-07-19 16=
+:40:11.000000000 +0200
+@@ -1,6 +1,7 @@
+ /*
+  * This is a module which is used for rejecting packets.
+  * Added support for customized reject packets (Jozsef Kadlecsik).
++ * Added support for ICMP type-3-code-13 (Maciej Soltysiak). [RFC 1812]
+  */
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -387,6 +388,9 @@
+ 	case IPT_ICMP_HOST_PROHIBITED:
+     		send_unreach(*pskb, ICMP_HOST_ANO);
+     		break;
++    	case IPT_ICMP_ADMIN_PROHIBITED:
++		send_unreach(*pskb, ICMP_PKT_FILTERED);
++		break;
+ 	case IPT_TCP_RESET:
+ 		send_reset(*pskb, hooknum =3D=3D NF_IP_LOCAL_IN);
+ 	case IPT_ICMP_ECHOREPLY:
+
 --=20
 - Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -185,16 +108,16 @@ diff -Nru a/net/ipv4/netfilter/ipt_MIRROR.c b/net/ipv4/netfilter/ipt_MIRROR=
    architectural error that shows how much experimentation was going
    on while IP was being designed."                    -- Paul Vixie
 
---U/OZNOFFJieNpJU4
+--C2AE+UNCNp5RBAjn
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/IZgoXaXGVTD0i/8RAr7GAKCwENd6SRw+n3cqMrzm9462njYd6wCgs/OV
-fFjYOZPQZmtM05/FF2G/mA8=
-=F3l5
+iD8DBQE/IZiRXaXGVTD0i/8RAmbJAJ9V2V7tQR5rIaoUtpimCAn78mXP6wCeP0Rb
+KCNMGEW/cfMCZoGcUUYVWJ0=
+=cb/p
 -----END PGP SIGNATURE-----
 
---U/OZNOFFJieNpJU4--
+--C2AE+UNCNp5RBAjn--

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275682AbRJFUNY>; Sat, 6 Oct 2001 16:13:24 -0400
+	id <S275687AbRJFUSe>; Sat, 6 Oct 2001 16:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275687AbRJFUNO>; Sat, 6 Oct 2001 16:13:14 -0400
-Received: from smtp-rt-12.wanadoo.fr ([193.252.19.60]:30915 "EHLO
-	tamaris.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S275685AbRJFUNG>; Sat, 6 Oct 2001 16:13:06 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
-Subject: Re: %u-order allocation failed
-Date: Sat, 6 Oct 2001 22:13:03 +0200
-Message-Id: <20011006201303.20370@smtp.wanadoo.fr>
-In-Reply-To: <Pine.LNX.3.96.1011006203014.7808A-100000@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.3.96.1011006203014.7808A-100000@artax.karlin.mff.cuni.cz>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S275690AbRJFUSZ>; Sat, 6 Oct 2001 16:18:25 -0400
+Received: from [194.213.32.141] ([194.213.32.141]:15744 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S275687AbRJFUSP>;
+	Sat, 6 Oct 2001 16:18:15 -0400
+Date: Sat, 6 Oct 2001 00:05:27 +0200
+From: Pavel Machek <pavel@Elf.ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [POT] Which journalised filesystem ?
+Message-ID: <20011006000527.A1306@elf.ucw.cz>
+In-Reply-To: <E15pWQA-0006bs-00@the-village.bc.nu> <m1669uyuqy.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1669uyuqy.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.3.22i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->OK, but my patch uses vmalloc only as a fallback when buddy fails. The
->probability that buddy fails is small. It is slower but with very small
->probability.
->
->It is perfectly OK to have a bit slower access to task_struct with
->probability 1/1000000.
->
->But it is ***BAD*BUG*** if allocation of task_struct fails with
->probability 1/1000000.
+Hi!
 
-I missed the beginning of the thread, sorry if that question was
-already answered,
+> > > > We (as in Linux) should make sure that we explicitly tell the disk when
+> > > > we need it to flush its disk buffers. We don't do that right, and
+> > > > because of _our_ problems some people claim that writeback caching is
+> > > > evil and bad.
+> > > 
+> > > Does this even work right for IDE ?
+> > 
+> > Current IDE drives it may be a NOP. Worse than that it would totally ruin
+> > high end raid performance. We need to pass write barriers. A good i2o card
+> > might have 256Mb of writeback cache that we want to avoid flushing - because
+> > it is battery backed and can be ordered.
+> 
+> If the cache is small and is primarily a track cache (IDE) one trick that
+> we can do is to flood the cache with data so everything is forced out.
+> 
+> We can do this at mkfs time, (so even destructive tests are allowed)
+> and we can probe how to make this work for a particular drive.  And
+> then the kernel can just use the results of that probe. 
 
-What about all the code that still consider kmalloc'ed memory is
-safe for use with virt_to_bus and friends and is contiguous
-physically for DMA ? In some cases (non-PCI devices, embedded
-platforms, etc...), the pci_consistent API is not an option.
-That means that __GFP_VMALLOC can't be part of GFP_KERNEL or
-many driver will break in horrible ways (random memory corruption).
-
-Ben.
-
-
+How do you probe this without actually powering system down?

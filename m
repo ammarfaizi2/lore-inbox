@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137199AbREKSV4>; Fri, 11 May 2001 14:21:56 -0400
+	id <S137205AbREKS1Q>; Fri, 11 May 2001 14:27:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137201AbREKSVq>; Fri, 11 May 2001 14:21:46 -0400
-Received: from h55t105.delphi.afb.lu.se ([130.235.188.122]:16900 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S137199AbREKSVg>;
-	Fri, 11 May 2001 14:21:36 -0400
-Date: Fri, 11 May 2001 20:21:32 +0200 (CEST)
-From: Peter Svensson <petersv@psv.nu>
-To: "Brian J. Murrell" <brian@mountainviewdata.com>
-cc: <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] ip autoconfig with modules, kernel 2.4
-In-Reply-To: <20010511111300.A27378@brian-laptop.us.mvd>
-Message-ID: <Pine.LNX.4.33.0105112020530.1655-100000@cheetah.psv.nu>
+	id <S137203AbREKS1H>; Fri, 11 May 2001 14:27:07 -0400
+Received: from goat.cs.wisc.edu ([128.105.166.42]:35078 "EHLO goat.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id <S137204AbREKS0w>;
+	Fri, 11 May 2001 14:26:52 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Backport of 2.4 ptrace flag to 2.2
+From: Victor Zandy <zandy@cs.wisc.edu>
+Date: 11 May 2001 13:26:50 -0500
+Message-ID: <cpxeltvoi6t.fsf@goat.cs.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 May 2001, Brian J. Murrell wrote:
 
-> If there were a way to tell the kernel, from userspace, for
-> change_root()/mount_root() where the nfsroot path was, yes.  I have
-> been hunting through all of the (nfs) root mount code and I don't see
-> it.  It looks like it can be set either on the command line, or by the
-> kernel implementation of bootp.  Am I missing it somewhere?
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes: 
+> > The preferable one for performance is certainly to backport the
+> > 2.4 changes 
 
-Doesn't the pivot_root do just that in 2.4? Not that I have used it or
-anything.
+This patch against stock 2.2.19 is a backport of the task structure
+ptrace flag of Linux 2.4.
 
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-<petersv@df.lth.se> !
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
+It is available at
+http://www.cs.wisc.edu/~zandy/ptrace
 
+As we reported a couple weeks ago, under Linux 2.2 ptrace can globally
+corrupt the FPU on SMPs.  Linus identified the problem as a race
+between ptrace and the FPU trap handler over the process flags.  The
+ptrace flag introduced in 2.4 eliminates the race.
 
+This port is faithful to the 2.4 design.  Essentially it:
+
+ - Adds a new variable `ptrace' to the task structure;
+ - Adds new constants for this variable (PT_PTRACED etc.) and removes
+   the corresponding old ones (PF_PTRACED etc.);
+ - Replaces every ptrace-context reference to `flags' with a reference
+   to `ptrace', and updates the constants used accordingly;
+ - Updates ptrace offset constants, loads, and comparisons in assembly
+   files.
+
+The patch is complete for all platforms except ARM.  On ARM, I didn't
+understand the meaning of the offset constants used in the assembly,
+so I didn't try to fix them.  The patch does include the necessary
+changes to C files on ARM.
+
+We have applied (cleanly), compiled (cleanly) and tested the patch on
+an x86 SMP, one of the same ones on which we saw FPU corruption.  We
+have verified that FPU corruption cannot be produced, and that gdb and
+strace still function.  We have not tested any other platform.
+
+Please direct any questions or problems with the patch to
+Victor Zandy <zandy@cs.wisc.edu>.

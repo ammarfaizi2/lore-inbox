@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264592AbUEJKAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264588AbUEJKVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264592AbUEJKAa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 06:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUEJKA3
+	id S264588AbUEJKVL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 06:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbUEJKVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 06:00:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24966 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264592AbUEJKAW (ORCPT
+	Mon, 10 May 2004 06:21:11 -0400
+Received: from mail.genesys.ro ([193.230.224.5]:40112 "EHLO mail.genesys.ro")
+	by vger.kernel.org with ESMTP id S264588AbUEJKVJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 06:00:22 -0400
-Date: Mon, 10 May 2004 02:59:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: ak@muc.de, luto@myrealbox.com, rjwysocki@sisk.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-Id: <20040510025943.3a67ff83.akpm@osdl.org>
-In-Reply-To: <1084141013.28220.8.camel@bach>
-References: <fa.gcf87gs.1sjkoj6@ifi.uio.no>
-	<fa.freqmjk.11j6bhe@ifi.uio.no>
-	<409D3507.2030203@myrealbox.com>
-	<20040509133231.GA25195@colin2.muc.de>
-	<1084141013.28220.8.camel@bach>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 10 May 2004 06:21:09 -0400
+Message-ID: <409F57F1.2060803@genesys.ro>
+Date: Mon, 10 May 2004 13:22:41 +0300
+From: Silviu Marin-Caea <silviu@genesys.ro>
+Organization: Genesys Software Romania [ http://www.genesys.ro ]
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040509
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dynamic allocation of swap disk space
+References: <33073.192.168.1.88.1084179033.squirrel@mail.genesys.ro> <200405101003.i4AA3uJt000135@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200405101003.i4AA3uJt000135@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
->  I don't have an x86_64 box, and I ask *again* if someone who does can
->  take a look at the problem...
+John Bradford wrote:
 
-I have an ia32e box.  And when I boot 2.6.6-mm1 on it with
+>>The way I see the solution is: allocate swap space dynamically, until
+>>there is no need for more or the disk becomes nearly full.  If that
+>>happens, then start thrashing it, all right.  Then when the condition is
+>>gone and things are back to normal deallocate the additional swap.
+> 
+> 
+> Very bad idea in my opinion.
 
-	console=ttyS0 console=tty0
+Most likely quite so, I'm not a guru yet :-)
 
-on the boot command line, stuff comes out on both the serial port and the
-vacuum tube, as intended.
+> Over allocating swap space is a BAD practice, but the effects are usually not
 
-So either it accidentally got fixed or it's a heisenbug.
+How about dynamically allocating up to a certain limit.
 
-Could other people please retest?
+Say, you have 256 MB or even less (to save space), and you allocate when 
+needed up to 1 GB, then stop allocating, thrash disk, let the kernel 
+detect and kill the runaway process.

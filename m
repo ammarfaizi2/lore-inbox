@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270223AbUJTCBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270234AbUJTBz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270223AbUJTCBP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 22:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270245AbUJTB4R
+	id S270234AbUJTBz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUJTAvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:56:17 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:27542
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S270237AbUJTAuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:50:00 -0400
-Date: Tue, 19 Oct 2004 17:44:32 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: herbert@gondor.apana.org.au, vda@port.imtp.ilyichevsk.odessa.ua,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-Message-Id: <20041019174432.41fcdc17.davem@davemloft.net>
-In-Reply-To: <1098226288.23628.6.camel@krustophenia.net>
-References: <E1CK1e6-0004F3-00@gondolin.me.apana.org.au>
-	<1098222676.23367.18.camel@krustophenia.net>
-	<20041019215401.GA16427@gondor.apana.org.au>
-	<1098223857.23367.35.camel@krustophenia.net>
-	<20041019153308.488d34c1.davem@davemloft.net>
-	<1098225729.23628.2.camel@krustophenia.net>
-	<20041019154249.6afcaaad.davem@davemloft.net>
-	<1098226288.23628.6.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 19 Oct 2004 20:51:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3508 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266768AbUJTAT3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:19:29 -0400
+Subject: Re: [PATCH] I2C update for 2.6.9
+In-Reply-To: <10982315052474@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 19 Oct 2004 17:18:25 -0700
+Message-Id: <1098231505320@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004 18:51:28 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
+ChangeSet 1.1939.9.4, 2004/09/29 11:03:48-07:00, greg@kroah.com
 
-> OK, thanks for clarifying.  The correct patch is therefore:
- ...
->  static inline int netif_rx_ni(struct sk_buff *skb)
->  {
-> +       preempt_disable();
->         int err = netif_rx(skb);
+I2C: convert scx200_acb driver to not use pci_find_device
 
-You need to put statements after local function variable
-declarations.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/i2c/busses/scx200_acb.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
+
+
+diff -Nru a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
+--- a/drivers/i2c/busses/scx200_acb.c	2004-10-19 16:54:40 -07:00
++++ b/drivers/i2c/busses/scx200_acb.c	2004-10-19 16:54:40 -07:00
+@@ -503,6 +503,12 @@
+ 	return rc;
+ }
+ 
++static struct pci_device_id scx200[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE) },
++	{ },
++};
++
+ static int __init scx200_acb_init(void)
+ {
+ 	int i;
+@@ -511,12 +517,7 @@
+ 	pr_debug(NAME ": NatSemi SCx200 ACCESS.bus Driver\n");
+ 
+ 	/* Verify that this really is a SCx200 processor */
+-	if (pci_find_device(PCI_VENDOR_ID_NS,
+-			    PCI_DEVICE_ID_NS_SCx200_BRIDGE,
+-			    NULL) == NULL
+-	    && pci_find_device(PCI_VENDOR_ID_NS,
+-			       PCI_DEVICE_ID_NS_SC1100_BRIDGE,
+-			       NULL) == NULL)
++	if (pci_dev_present(scx200) == 0)
+ 		return -ENODEV;
+ 
+ 	rc = -ENXIO;
+

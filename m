@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278181AbRJRWg2>; Thu, 18 Oct 2001 18:36:28 -0400
+	id <S278185AbRJRW4c>; Thu, 18 Oct 2001 18:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278187AbRJRWgS>; Thu, 18 Oct 2001 18:36:18 -0400
-Received: from caracal.noc.ucla.edu ([169.232.10.11]:55509 "EHLO
-	caracal.noc.ucla.edu") by vger.kernel.org with ESMTP
-	id <S278181AbRJRWgD>; Thu, 18 Oct 2001 18:36:03 -0400
-Message-ID: <3BCF5973.8020705@ucla.edu>
-Date: Thu, 18 Oct 2001 15:36:35 -0700
-From: Benjamin Redelings I <bredelin@ucla.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011015
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.3.13-pre4 rather unstable?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278189AbRJRW4W>; Thu, 18 Oct 2001 18:56:22 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4601
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278185AbRJRW4I>; Thu, 18 Oct 2001 18:56:08 -0400
+Date: Thu, 18 Oct 2001 15:56:36 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: James Sutherland <jas88@cam.ac.uk>, Ben Greear <greearb@candelatech.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+Message-ID: <20011018155636.B2467@mikef-linux.matchmail.com>
+Mail-Followup-To: James Sutherland <jas88@cam.ac.uk>,
+	Ben Greear <greearb@candelatech.com>,
+	Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BCE6E6E.3DD3C2D6@candelatech.com> <Pine.SOL.4.33.0110180937420.13081-100000@yellow.csi.cam.ac.uk> <20011018132035.A444@mikef-linux.matchmail.com> <20011018151718.O1144@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011018151718.O1144@turbolinux.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi, I was using 2.3.14-pre4 here, but I had to reboot twice although I 
-didn't get an OOPS, so I reverted to 2.4.11-pre6.
-	1) first, my login to kde got stuck.  I had a lot of unkillable "kdeinit: 
-" processes, which were waiting in (I think) lockp and pipe_write, or 
-maybe pipe_way or something.
-	2) I rebooted and it seems to be OK.  However, when installing stuff 
-using dpkg one of the scripts hung.  My open konsole windows turned 
-unresponsive.  I tried to log in text mode, but it hung after printing 
-the motd.  Then I tried to log in as root - same thing!  Then the whole 
-system hung.  I couldn't get back into X on vt7...
+On Thu, Oct 18, 2001 at 03:17:18PM -0600, Andreas Dilger wrote:
+> On Oct 18, 2001  13:20 -0700, Mike Fedyk wrote:
+> > Actually, it looks like Niel is creating a two level Quota system.  In ther
+> > normal quota system, if you own a file anywhere, it is attributed to you.
+> > But, in the tree quota system, it is attributed to the owner of the tree...
+> 
+> Hmm, we already have group quotas, and (excluding ACLs) you would need to
+> have group write permission into the tree to be able to write there.  How
+> does the tree quota help us in the end?  Either users are "nice" and you
+> don't need quotas, or users are "not nice" and you don't want them to be
+> able to dump their files into an area that doesn't keep them "in check" as
+> quotas are designed to do.
+> 
 
-	The only modifications that I made were to
-	a) called mark_page_accessed if pte_young is true in do_try_to_free_pages 
-in vmscan.c
-	b) add 'if (PageActive(page)) return 0;' to the same function.
-	These modifications haven't caused any problem in previous kernels, and 
-seem to work fine.
+Hmm, I think I just thought of a use for the tree quota concept.
 
-	One thing which may be relevant is that home dirs are on nfs.  Any ideas? 
-  Anyone else have similar problems?
+Lets say that you have about 50GB of space, but you only want to allow 20GB
+for a certain tree (possibly mp3s), and you want to keep user ownerships of
+the files they contribute.
 
--BenRI
+Now try to use the group quota idea.
 
-128MB RAM, IDE, Intel PIII, ethernet rltk8139
--- 
-"At this time Frodo was still in his 'tweens', as the hobbits called
-the irresponsible twenties between childhood and coming-of-age at
-thirty three" - The Fellowship of the Ring, J.R.R. Tolkein
-Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
+User makes mp3
+user can chgrp to any user that they are a member of...
+copy to /mp3s.
 
+Now the group (and quota) that was setup for mp3s has been circumvented.
+
+With the tree quota, an entire tree could be assigned to a certain group,
+and then use the group quota tools...
+
+The only other way I can see to fix this would be a cron job to walk the
+tree and set the group to whatever has been setup, but that looks like a
+hack to me.
+
+Is there another way to fix this besides putting all mp3s on a separate
+partition?
+
+Mike

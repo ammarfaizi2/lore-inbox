@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbUKRSvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbUKRSxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbUKRSvO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbUKRStN
+	id S261154AbUKRSxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUKRSwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:49:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56515 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262862AbUKRSsC (ORCPT
+	Thu, 18 Nov 2004 13:52:04 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:736 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262883AbUKRSuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:48:02 -0500
-Date: Thu, 18 Nov 2004 10:47:44 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Miklos Szeredi <miklos@szeredi.hu>, hbryan@us.ibm.com, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <20041118182814.GB29736@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0411181035140.2222@ppc970.osdl.org>
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
- <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
- <20041118182814.GB29736@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 13:50:21 -0500
+Date: Thu, 18 Nov 2004 10:50:11 -0800
+From: Greg KH <greg@kroah.com>
+To: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+Message-ID: <20041118185011.GA24538@kroah.com>
+References: <200411181859.27722.gjwucherpfennig@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411181859.27722.gjwucherpfennig@gmx.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 18 Nov 2004, Jamie Lokier wrote:
->
-> Linus Torvalds wrote:
-> > Why do you think it would kill the FUSE process? And why do you think 
-> > killing _any_ process would make the system come back to life? After all, 
-> > memory wasn't filled by process usage, it was filled by dirty FS pages.
-> > 
-> > I really do believe that user-space filesystems have problems. There's a 
-> > reason we tend to do them in kernel space. 
+On Thu, Nov 18, 2004 at 06:59:27PM +0100, Gerold J. Wucherpfennig wrote:
 > 
-> Are kernel space filesystems immune from this problem?  What happens
-> when they need to kmalloc() in order to write some data?
+> - Make sysfs optional and enable to publish kernel <-> userspace data
+> especially the kernel's KObject data across the kernel's netlink interface as
+> it has been summarized on www.kerneltrap.org. This will avoid the
+> deadlocks sysfs does introduce when some userspace app holds an open file
+> handle of an sysfs object (KObject) which is to be removed. An importrant side 
+> effect for embedded systems will be that the RAM overhead introduced by sysfs
+> will vaporize.
 
-That's why we have GFP_NOFS and other flags (PF_MEMALLOC etc). So yes,
-they are "immune" in the sense that they have been inocculated, but not in
-the sense that they can't have the bug conceptually.
+What RAM overhead?  With 2.6.10-rc2 the memory footprint of sysfs has
+been drasticly shrunk.
 
-So the kernel not only keeps a set of reserved pages for atomic 
-allocations, but also the VM knows not to recurse into a filesystem 
-operation when the reason for the memory allocation was a low-memory 
-circumstance. When a filesystem asks for memory in the page-out path, the 
-VM may still throw out cached pages for that FS, but it won't try to write 
-them back.
+What deadlocks are you referring to?
 
-Guys, there is a _reason_ why microkernels suck. This is an example of how 
-things are _not_ "independent". The filesystems depend on the VM, and the 
-VM depends on the filesystem. You can't just split them up as if they were 
-two separate things (or rather: you _can_ split them up, but they still 
-very much need to know about each other in very intimate ways).
+And the netlink interface for hotplug events is already present in the
+latest kernel.
 
-So what do you do? You limit shared dirty pages (inefficient memory use),
-or you disallow certain behaviours, or you add tons of new interfaces to
-expose essentially the same "every thing that can allocate and is on the
-write-out path takes a GFP flag".
+thanks,
 
-User-space filesystems are hard to get right. I'd claim that they are 
-almost impossible, unless you limit them somehow (shared writable mappings 
-are the nastiest part - if you don't have those, you can reasonably limit 
-your problems by limiting the number of dirty pages you accept through 
-normal "write()" calls). 
-
-			Linus
+greg k-h

@@ -1,100 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUGXPIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUGXPMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbUGXPIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 11:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUGXPIx
+	id S268667AbUGXPMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 11:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268668AbUGXPMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 11:08:53 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:18311 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264260AbUGXPIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 11:08:50 -0400
-Date: Sat, 24 Jul 2004 08:08:38 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Robert Love <rml@ximian.com>
-Cc: Michael Clark <michael@metaparadigm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel events layer
-Message-ID: <20040724150838.GA24765@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <1090604517.13415.0.camel@lucy> <4101D14D.6090007@metaparadigm.com> <1090638881.2296.14.camel@localhost>
+	Sat, 24 Jul 2004 11:12:20 -0400
+Received: from mail.gmx.net ([213.165.64.20]:22999 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268667AbUGXPMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 11:12:15 -0400
+X-Authenticated: #12437197
+Date: Sat, 24 Jul 2004 18:12:29 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] d_unhash consolidation
+Message-ID: <20040724151229.GA13367@callisto.yi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1090638881.2296.14.camel@localhost>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 23 2004, at 23:14, Robert Love was caught saying:
-> On Sat, 2004-07-24 at 11:02 +0800, Michael Clark wrote:
-> 
-> > Should there be some sharing with the device naming of sysfs or are
-> > will we introduce a new one? ie sysfs uses:
-> >
-> > devices/system/cpu/cpu0/<blah>
-> >
-> > Would it be a better way to have a version that takes struct kobject
-> > to enforce consistency in the device naming scheme. This also means
-> > userspace would automatically know where to look in /sys if futher
-> > info was needed.
-> 
-> No, we want to give an interface that matches the sort of provider URI
-> used by object systems such as CORBA, D-BUS, and DCOP.  We also do _not_
-> want to put policy in the kernel.
+Hello,
 
-What if I don't want something as heavyweight as D-BUS to handle this
-for me and just want a simple parser that can tell me "this device
-has x event". The kernel simply is telling user space that there
-is an event and should not know/care how and by what it is handled.
-Saying CORBA, D-BUS, DCOP use this naming scheme so we whould too
-seems like policy to me. If I am a driver writer and I want to just 
-send some state change notification, I do not want to care about such 
-things. I want to be able to use a name that makes sense in the
-context of the kernel and using a kobject sounds good b/c then I really
-don't have to care about naming and will be less prone to errors
-from typos and such. Remember, the user space deamons are not the ones 
-that will actually call these functions. It is kernel code and the API
-needs to be easilly useable by kernel programers.
+This removes a copy of d_unhash() from drivers/usb/core/inode.c and
+and exports d_unhash() from fs/namei.c as dentry_unhash(). 
+Tested - compiled and running.
 
-> The easiest way to avoid that is simply to use a name similar to the
-> path name.
+Signed-off-by: Dan Aloni <da-x@gmx.net>
 
-What is the path name of a device from the kernels point of view?
-Since device naming in /dev is left up to userland now, it has to
-be something else that the kernel is aware of.
+diff -urN -X /home/dax/colinux/bin/dontdiff linux-2.6.8-rc2-clean/drivers/usb/core/inode.c linux-2.6.8-rc2-work/drivers/usb/core/inode.c
+--- linux-2.6.8-rc2-clean/drivers/usb/core/inode.c	2004-07-22 09:31:59.000000000 -0230
++++ linux-2.6.8-rc2-work/drivers/usb/core/inode.c	2004-07-24 10:43:27.000000000 -0230
+@@ -345,30 +345,13 @@
+ 	return 0;
+ }
+ 
+-static void d_unhash(struct dentry *dentry)
+-{
+-	dget(dentry);
+-	spin_lock(&dcache_lock);
+-	switch (atomic_read(&dentry->d_count)) {
+-	default:
+-		spin_unlock(&dcache_lock);
+-		shrink_dcache_parent(dentry);
+-		spin_lock(&dcache_lock);
+-		if (atomic_read(&dentry->d_count) != 2)
+-			break;
+-	case 2:
+-		__d_drop(dentry);
+-	}
+-	spin_unlock(&dcache_lock);
+-}
+-
+ static int usbfs_rmdir(struct inode *dir, struct dentry *dentry)
+ {
+ 	int error = -ENOTEMPTY;
+ 	struct inode * inode = dentry->d_inode;
+ 
+ 	down(&inode->i_sem);
+-	d_unhash(dentry);
++	dentry_unhash(dentry);
+ 	if (usbfs_empty(dentry)) {
+ 		dentry->d_inode->i_nlink -= 2;
+ 		dput(dentry);
+diff -urN -X /home/dax/colinux/bin/dontdiff linux-2.6.8-rc2-clean/fs/namei.c linux-2.6.8-rc2-work/fs/namei.c
+--- linux-2.6.8-rc2-clean/fs/namei.c	2004-07-22 09:32:04.000000000 -0230
++++ linux-2.6.8-rc2-work/fs/namei.c	2004-07-24 10:44:13.000000000 -0230
+@@ -1659,7 +1659,7 @@
+  * if it cannot handle the case of removing a directory
+  * that is still in use by something else..
+  */
+-static void d_unhash(struct dentry *dentry)
++void dentry_unhash(struct dentry *dentry)
+ {
+ 	dget(dentry);
+ 	spin_lock(&dcache_lock);
+@@ -1689,7 +1689,7 @@
+ 	DQUOT_INIT(dir);
+ 
+ 	down(&dentry->d_inode->i_sem);
+-	d_unhash(dentry);
++	dentry_unhash(dentry);
+ 	if (d_mountpoint(dentry))
+ 		error = -EBUSY;
+ 	else {
+@@ -2032,7 +2032,7 @@
+ 	target = new_dentry->d_inode;
+ 	if (target) {
+ 		down(&target->i_sem);
+-		d_unhash(new_dentry);
++		dentry_unhash(new_dentry);
+ 	}
+ 	if (d_mountpoint(old_dentry)||d_mountpoint(new_dentry))
+ 		error = -EBUSY;
+@@ -2410,4 +2410,5 @@
+ EXPORT_SYMBOL(vfs_rmdir);
+ EXPORT_SYMBOL(vfs_symlink);
+ EXPORT_SYMBOL(vfs_unlink);
++EXPORT_SYMBOL(dentry_unhash);
+ EXPORT_SYMBOL(generic_readlink);
+diff -urN -X /home/dax/colinux/bin/dontdiff linux-2.6.8-rc2-clean/include/linux/fs.h linux-2.6.8-rc2-work/include/linux/fs.h
+--- linux-2.6.8-rc2-clean/include/linux/fs.h	2004-07-22 09:32:10.000000000 -0230
++++ linux-2.6.8-rc2-work/include/linux/fs.h	2004-07-24 10:22:42.000000000 -0230
+@@ -808,6 +808,11 @@
+ extern int vfs_rename(struct inode *, struct dentry *, struct inode *, struct dentry *);
+ 
+ /*
++ * VFS dentry helper functions.
++ */
++extern void dentry_unhash(struct dentry *dentry);
++
++/*
+  * File types
+  *
+  * NOTE! These match bits 12..15 of stat.st_mode
 
-> Passing the sysfs name would probably be a good potential argument to
-> the signal, though.  The temperature signal in the patch is just an
-> example.
-
-That sounds good, but what about a radically different approach?
-
-What we are fundamentally trying to do is notify user space that a 
-specific attribute of a specific object has had a state change. In your
-example, the object is the cpu, and the attribute is "temperature". Instead 
-of telling the user space daemon that the temperature is "high" (which is 
-an incredibly arbitrary string), we pass the object name and attribute name 
-to user space.  User space can then go read the appropriate sysfs file or take 
-whatever other action is required to determine what the state change actually 
-is.  In the case of a file close, the object name is the file path and the 
-attribute could be the ctime, but it needs more thinking.  
-
-> > Question is does it make sense to use this infrastructure without sysfs
-> > as hald, etc require it. ie depends CONFIG_SYSFS
-> 
-> That sounds like policy to me.
-
-How is this policy? We are simply saying this subsystem in the kernel
-depends on having this other subystem in the kernel. JFFS2 requires
-MTD to be configured since it is layered atop that subsystem.  I think
-this would be no different. 
-
-~Deepak
 
 -- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment and
- will die here like rotten cabbages." - Number 6
+Dan Aloni
+da-x@colinux.org

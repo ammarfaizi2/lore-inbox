@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262779AbTJJM5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 08:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbTJJM5i
+	id S262776AbTJJM5H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 08:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbTJJM5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 08:57:38 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.36.230]:30459 "EHLO
-	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262779AbTJJM5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 08:57:30 -0400
-Date: Fri, 10 Oct 2003 07:57:20 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@dell.com>
-X-X-Sender: mdomsch@iguana.domsch.com
-To: Meelis Roos <mroos@linux.ee>
-cc: linux-kernel@vger.kernel.org, <linux-megaraid-devel@dell.com>
-Subject: Re: megaraid2 compilation failure in 2.4
-In-Reply-To: <Pine.GSO.4.44.0310101351420.1585-100000@math.ut.ee>
-Message-ID: <Pine.LNX.4.44.0310100746330.2846-100000@iguana.domsch.com>
+	Fri, 10 Oct 2003 08:57:06 -0400
+Received: from smtprelay01.ispgateway.de ([62.67.200.156]:17539 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262776AbTJJM5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 08:57:02 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] kfree_skb() bug in 2.4.22
+Date: Fri, 10 Oct 2003 14:53:44 +0200
+User-Agent: KMail/1.5.4
+Cc: toby@cbcg.net, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, coreteam@netfilter.org,
+       netfilter@lists.netfilter.org, akpm@zip.com.au, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, jmorris@intercode.com.au, yoshfuji@linux-ipv6.org,
+       Jeff Garzik <jgarzik@pobox.com>
+References: <1065617075.1514.29.camel@localhost> <3F840C9C.9050704@pobox.com> <20031008064735.7373227b.davem@redhat.com>
+In-Reply-To: <20031008064735.7373227b.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310101453.44353.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> cc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
-> -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
-> -DMODVERSIONS -include /home/mroos/compile/linux-2.4/include/linux/modversions.h  -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=megaraid2  -c -o megaraid2.o megaraid2.c
-> 
-> megaraid2.c: In function `mega_find_card':
-> megaraid2.c:403: error: structure has no member named `lock'
+On Wednesday 08 October 2003 15:47, David S. Miller wrote:
+> On Wed, 08 Oct 2003 09:09:48 -0400
+>
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> > I would prefer that you fix your code instead, to not pass NULL to
+> > kfree_skb()...
+>
+> Absolutely, there is no valid reason to pass NULL into these
+> routines.
 
-Looks like the "no host lock" patch didn't get submitted/applied.  2.4.x stock 
-still uses io_request_lock.  Thanks for catching this.
-ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.9/megaraid-2009-wo-hostlock.patch.gz
-ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.9/megaraid-2009-wo-hostlock.patch.gz.sig
-has the patch to switch it back to using io_request_lock:
-
-diff -Naur linux/drivers/scsi/megaraid2.c linux/drivers/scsi/megaraid2.c
---- linux/drivers/scsi/megaraid2.c	2003-09-09 15:31:43.000000000 -0400
-+++ linux/drivers/scsi/megaraid2.c	2003-09-09 15:32:03.000000000 -0400
-@@ -398,9 +398,7 @@
- 		// replace adapter->lock with io_request_lock for kernels w/o
- 		// per host lock and delete the line which tries to initialize
- 		// the lock in host structure.
--		adapter->host_lock = &adapter->lock;
--
--		host->lock = adapter->host_lock;
-+		adapter->host_lock = &io_request_lock;
- 
- 		host->cmd_per_lun = max_cmd_per_lun;
- 		host->max_sectors = max_sectors_per_io;
+Would you mind __attribute_nonnull__ for these functions, if we
+enable GCC 3.3 support for this[1]?
 
 
+[1] Which includes editing the compiler.h and gcc3-compiler.h and so on.
 
-> megaraid2.c:618: warning: integer constant is too large for "long" type
+Regards
 
-		   /* Set the Mode of addressing to 64 bit if we can */
-		      if((adapter->flag & BOARD_64BIT)&&(sizeof(dma_addr_t) == 8)) {
-					  pci_set_dma_mask(pdev, 0xffffffffffffffff);
-								    adapter->has_64bit_addr = 1;
-
-Aside from missing the ULL piece on the end, this is expected when dma_addr_t is 32 bits, so it's harmless.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+Ingo Oeser
 
 

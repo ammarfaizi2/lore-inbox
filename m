@@ -1,79 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269117AbUHaWcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269240AbUHaWcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269117AbUHaWcP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 18:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269122AbUHaWZ1
+	id S269240AbUHaWcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 18:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUHaWYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:25:27 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:15063 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S269096AbUHaWQT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:16:19 -0400
-Date: Wed, 1 Sep 2004 00:15:57 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <881572472.20040901001557@tnonline.net>
-To: Hubert Chan <hubert@uhoreg.ca>
-CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
-In-Reply-To: <87vfezkm06.fsf@uhoreg.ca>
-References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com>
- <36793180.20040831201736@tnonline.net> <200408312235.35733.v13@priest.com>
- <874qmjm51g.fsf@uhoreg.ca> <1125457632.20040831223154@tnonline.net>
- <87vfezkm06.fsf@uhoreg.ca>
+	Tue, 31 Aug 2004 18:24:53 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:9359 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S269099AbUHaWQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 18:16:56 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: What policy for BUG_ON()?
+Date: Wed, 1 Sep 2004 00:16:30 +0200
+User-Agent: KMail/1.7
+References: <1093964782.434.7054.camel@cube> <1093973977.434.7097.camel@cube> <F8184F90-FB94-11D8-9B58-000393ACC76E@mac.com>
+In-Reply-To: <F8184F90-FB94-11D8-9B58-000393ACC76E@mac.com>
+Cc: Albert Cahalan <albert@users.sf.net>,
+       Albert Cahalan <albert@users.sourceforge.net>, axboe@suse.de,
+       bunk@fs.tum.de, Linus Torvalds <torvalds@osdl.org>, arjanv@redhat.com,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1795912.L1NiqqKKrm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409010016.36570.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1795912.L1NiqqKKrm
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-  
+Quoting Kyle Moffett <mrmacman_g4@mac.com>:
+> Then in most cases new statements would use BUG_CHECK, especially if
+> they contain expensive unnecessary function calls or critical sections.
+>=20
+> This would break the least amount of existing code, and provide both
+> methods to kernel developers.
 
->>>>>> "Spam" == Spam  <spam@tnonline.net> writes:
+So, back to the real world. ;)
+=2D Where do we insert BUG_ON()s?
+Only in places, where we are going to crash or corrupt data soon.
 
-V13>> The only thing that changes (from the userland POV) is the way
-V13>> someone can enter the 'metadata directory'. This way you don't have
-V13>> to have a special name, just a special function and no existing
-V13>> application (like tar) can possibly break because it will not know
-V13>> how to enter this 'metadata directory'.
+=2D Do we insert "expensive unnecessary function calls" in a BUG_ON()?
+No we don't. Could you give a good example, which
+needs an expensive call inside a BUG_ON()?
 
->>> tar won't be able to backup the metadata.  That's the major breakage
->>> of tar that we're worried about.
+In a shiny good world we expect BUG()s to never trigger. So I think
+it's a bit crazy to check for things that theoretically can't happen
+and waste tons of CPU cycles for this, with expensive calls.
+If we really want to check this while debugging, I think we
+should explicitely honor the DEBUG define in the code and have
+our own debug printk() that shows the mess.
 
-Spam>>   However, if we do a "cp fileA fileB" then the metadata and
-Spam>> streams ought to be copied too, even if "cp" does not support
-Spam>> them.
+I think here's a general confusion about what BUG_ON() is intended
+for. I think (I'm not the author of it, so I can't say 100%. :) )
+it is _not_ for debugging while development. It is for checking unpossible
+things, that blow up the whole machine if they trigger nevertheless.
+So I think it's wrong to let BUG_ON() depend on a DEBUG define, because
+DEBUG is, by definition, not enabled in the kernels people use.
+But I think we _want_ that people evaluate the BUG_ON()s.
 
-> Huh?  How do you plan on pulling that off?  Unless cp uses the
-> not-yet-existing copy syscall, if cp can't see the metadata or streams,
-> how is it going to copy it?
+I'm not talking of embedded systems, etc... .
 
-  My first thought would change the API that cp uses to copy the file.
-  But  in  an earlier response on this message thread I have found out
-  that  there is no such API (well there is, but it is linked into the
-  program)  and  cp  in fact itself is doing the copying. this is also
-  what  I  objected  against  before. It is a bad design and should be
-  attended  much  higher  interest to change than just adding adding a
-  new type of file-as-dir.
-
-Spam>> This is the real challenge. Backup tools like tar can be patched
-Spam>> just like it has so many times before.
-
-> Yes.  And if we can get file-as-dir, then we only need to patch tar
-> once, since everything can be exported through that interface.
-
-  Yes. This seem to be an acceptable way to do things. But next time
-  someone comes and want to do changes like this we need to start
-  patching things again. If there was an API that was separate from
-  the programs then new features could be included much more easily as
-  things could be done behind the scenes. ie the "cp fileA fileB"
-  would succeed and all the extended attributes, metas, streams etc
-  would be copied too. Nothing would ever be lost unless copying to a
-  filesystem that doesn't support the special stuff. (as with NTFS
-  file streams).
-
-  ~S
+=2D-=20
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
 
+--nextPart1795912.L1NiqqKKrm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBNPjEFGK1OIvVOP4RAn1rAKCXWVmCdwzDLtcgbofA3xdGITsiLwCdHzTe
+jnpuvh0Z55SvU1JkWACHqmY=
+=UD8e
+-----END PGP SIGNATURE-----
+
+--nextPart1795912.L1NiqqKKrm--

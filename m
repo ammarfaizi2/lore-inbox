@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283726AbRK3RpV>; Fri, 30 Nov 2001 12:45:21 -0500
+	id <S283734AbRK3RwV>; Fri, 30 Nov 2001 12:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283724AbRK3RpL>; Fri, 30 Nov 2001 12:45:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21266 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283726AbRK3Ro6>; Fri, 30 Nov 2001 12:44:58 -0500
-Subject: Re: Coding style - a non-issue
+	id <S283735AbRK3RwM>; Fri, 30 Nov 2001 12:52:12 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:23045 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S283734AbRK3Rv5>; Fri, 30 Nov 2001 12:51:57 -0500
+Date: Fri, 30 Nov 2001 17:50:58 +0000
+From: Russell King <rmk@arm.linux.org.uk>
 To: dalecki@evision.ag
-Date: Fri, 30 Nov 2001 17:53:13 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        hps@intermeta.de (Henning Schmiedehausen),
-        lm@bitmover.com (Larry McVoy), linux-kernel@vger.kernel.org
-In-Reply-To: <3C07BFE8.5B32C49C@evision-ventures.com> from "Martin Dalecki" at Nov 30, 2001 06:20:40 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011130175058.B19193@flint.arm.linux.org.uk>
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu> <20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de> <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com> <3C07BFE8.5B32C49C@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169rqb-0004G7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C07BFE8.5B32C49C@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Nov 30, 2001 at 06:20:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> irritate the oftes so called "maintainer". Two expierences:
-> ftape and mcd I'm through.... 
-
-I timed the mcd maintainer out and tidied it anyway. I figured since it
-wasnt being maintained nobody would scream too loudly - nobody has
-
-> BTW.> ftape (for the pascal emulation) and DAC960 
-
-ftape is an awkward one. Really the newer ftape4 wants merging into the
-kernel but that should have happened a long time ago
-
+On Fri, Nov 30, 2001 at 06:20:40PM +0100, Martin Dalecki wrote:
 > serial.c is another one for the whole multiport support which
 > may be used by maybe 0.1% of the Linux users thrown on them all
 > and some "magic" number silliness as well...
 
-serial.c is a good example of the "ugly" that actually matters more, as is
-floppy.c. Clean well formatted code that is stil opaque. 
+Magic number silliness is something that's gone with my replacement
+serial drivers.  If multiport is such a problem, it can easily be
+cleaned up.  I'll add that to my to do list for serial stuff.
+
+Thanks.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316895AbSGHPTh>; Mon, 8 Jul 2002 11:19:37 -0400
+	id <S316965AbSGHPWU>; Mon, 8 Jul 2002 11:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316964AbSGHPTg>; Mon, 8 Jul 2002 11:19:36 -0400
-Received: from wedge.SCL.CWRU.Edu ([129.22.134.36]:44000 "HELO
-	wedge.scl.cwru.edu") by vger.kernel.org with SMTP
-	id <S316957AbSGHPTe>; Mon, 8 Jul 2002 11:19:34 -0400
-Message-ID: <20020708152215.11552.qmail@wedge.scl.cwru.edu>
-To: Tom Rini <trini@kernel.crashing.org>
-From: "Justin R Hibbits" <jrh29@po.cwru.edu>
-Date: Mon,  8 Jul 2002 11:22:15 -0400
-Subject: Re: Patch for Menuconfig script
-Cc: linux-kernel@vger.kernel.org
-Reply-To: jrh29@po.cwru.edu
-In-Reply-To-Local-Message: <0000000000000000000000000000000000000000000000
-    0000002PWU>
-In-Reply-To: <20020708151412.GB695@opus.bloom.county>
-X-Mailer: SIS WebMail Compose v1.0
+	id <S316971AbSGHPWU>; Mon, 8 Jul 2002 11:22:20 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:56325 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S316965AbSGHPWS>;
+	Mon, 8 Jul 2002 11:22:18 -0400
+Date: Mon, 8 Jul 2002 08:16:25 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Bruno Pujol <pujol@isty-info.uvsq.fr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: system call
+In-Reply-To: <20020708121535.A6642@romuald.isty-info.uvsq.fr>
+Message-ID: <Pine.LNX.4.33L2.0207080808310.7622-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes the test, and also fixes the function declarations ( changes them
-from 'function blah ()' to just 'blah ()' ) to make it more of a POSIX sh
-script.  As I put in my other reply (started another thread...problems
-explained there :P ), I've only tested it on my system with 2.4.18 and ksh (but
-should work out of the box on any 2.4.xx, and with little modification on
-2.5.xx).
+On Mon, 8 Jul 2002, Bruno Pujol wrote:
 
-Justin Hibbits
+| Do someone know how to add a system call for the kernel 2.4.8 ?
 
+There are _many_ examples of adding syscalls on the web.
+Try searching with www.google.com if you haven't already.
 
-On 07/08/02 11:14:12, Tom Rini <trini@kernel.crashing.org> wrote:
-> On Sun, Jul 07, 2002 at 11:22:10PM +0100, Riley Williams wrote:
-> > Hi Justin.
-> > 
-> > > This is just a patch to the Menuconfig script (can be easily adapted
-> > > to the other ones) that allows you to configure the kernel without
-> > > the requirement of bash (I tested it with ksh, in POSIX-only mode).  
-> > > Feel free to flame me :P
-> > 
-> > Does it also work in the case where the current shell is csh or tcsh
-> > (for example)?
-> 
-> Er.. why wouldn't it?
-> $ head -1 scripts/Menuconfig 
-> #! /bin/sh
-> 
-> So this removes the /bin/sh is not bash test, yes?
-> 
-> -- 
-> Tom Rini (TR1265)
-> http://gate.crashing.org/~trini/
+I expect that the real problem is that a patch that works for
+2.4.8 won't work for 2.4.18 and vice versa, e.g., due to the
+method used for defining the end/size of the syscall table.
+
+| I did know how to do it for an older version (2.0.35) :
+| - add a line in the file : /usr/src/linux/include/asm/unistd.h
+| 	#define __NR_my_systemcall	XXXX (where XXXX is the number
+| for my new system call)
+|
+| - modify the file /usr/src/linux/arch/i386/kernel/entry.S
+| 	- add my system call
+| 		.long SYMBOL_NAME (my_systemcall) at the end of the system callslist
+| 	- modify le last line of the file :
+| 		.space (NR_syscalls-166)*4   <= replace the 166 by 167
+
+That's very close to working.
+Here's how I did it for 2.4.18, but like I said above, it won't
+apply cleanly to 2.4.8.  You'll have to use just a small amount of
+gray matter to fix it:
+  http://www.xenotime.net/linux/syscall_ex/
+contains a howto, kernel patch, and test program.
+
+| After this changes, I only needed to recompile the kernel and reboot
+| with it... and a user's program could use the new system call...
+| But with my new kernel, this manupilation doesn't still work.
+
+You should modify the new syscall number to a value to is not used,
+and modify your userspace program to use that new syscall number.
+
+-- 
+~Randy
+

@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292400AbSBYRO1>; Mon, 25 Feb 2002 12:14:27 -0500
+	id <S285692AbSBYRSr>; Mon, 25 Feb 2002 12:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291989AbSBYROR>; Mon, 25 Feb 2002 12:14:17 -0500
-Received: from dsl081-242-114.sfo1.dsl.speakeasy.net ([64.81.242.114]:14220
-	"EHLO drscience.sciencething.org") by vger.kernel.org with ESMTP
-	id <S291809AbSBYROH>; Mon, 25 Feb 2002 12:14:07 -0500
-User-Agent: Microsoft-Entourage/10.0.0.1309
-Date: Mon, 25 Feb 2002 09:09:10 -0800
-Subject: UVFS 0.5
-From: Britt Park <britt@drscience.sciencething.org>
-To: <linux-kernel@vger.kernel.org>
-Message-ID: <B89FAFB6.812C%britt@sciencething.org>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	id <S292387AbSBYRSh>; Mon, 25 Feb 2002 12:18:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38416 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285692AbSBYRSb>; Mon, 25 Feb 2002 12:18:31 -0500
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 25 Feb 2002 17:31:26 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
+        mingo@elte.hu, matthew@hairy.beasts.org (Matthew Kirkwood),
+        bcrl@redhat.com (Benjamin LaHaise), david@mysql.com (David Axmark),
+        wli@holomorphy.com (William Lee Irwin III),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202250905090.3392-100000@home.transmeta.com> from "Linus Torvalds" at Feb 25, 2002 09:06:15 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fOyE-0005Xl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UVFS 0.5 has been released.  It can be found at
-http://www.sciencething.org/geekthings/index.html.  UVFS is a user space
-filesystem kit.
+> > unlink()
+> 
+> Sure, but that, together with making up a unique temporary name etc just
+> adds extra overhead for no actual gain.
 
-Enjoy,
+As opposed to adding special cases to the kernel which are unswappable and
+stand to tangle up bits of the generic vfs - eg we would have a vma with
+a vm_file but that file would not be in the dcache ?
 
-Britt
-
+Is it really worth it. For temporary files unix has never adopted a tmpfile()
+syscall because nobody has ever found mkstemp() a paticularly critical path
+that justified it

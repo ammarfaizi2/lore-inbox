@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272153AbTHDTKs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272159AbTHDTKs
+	id S272068AbTHDTTG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTHDTTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:10:48 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:26335
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S272153AbTHDTKr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:10:47 -0400
-Date: Mon, 4 Aug 2003 21:12:47 +0200
-From: Voluspa <lista1@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O13int for interactivity
-Message-Id: <20030804211247.55a0fce9.lista1@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 15:19:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:6406 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272068AbTHDTTC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:19:02 -0400
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: davidm@hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
+	<20030804175308.GB16804@lucon.org> <20030804180015.GA543@sgi.com>
+	<20030804181033.GA17265@lucon.org> <20030804185231.GA532@sgi.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!  I like my new DENTIST...
+Date: Mon, 04 Aug 2003 21:18:57 +0200
+In-Reply-To: <20030804185231.GA532@sgi.com> (Jesse Barnes's message of "Mon,
+ 4 Aug 2003 11:52:31 -0700")
+Message-ID: <jesmohfcym.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jbarnes@sgi.com (Jesse Barnes) writes:
 
-On 2003-08-04 18:24:15 Felipe Alfaro Solana wrote:
+|> diff -Nru a/fs/xfs/linux/xfs_vfs.h b/fs/xfs/linux/xfs_vfs.h
+|> --- a/fs/xfs/linux/xfs_vfs.h	Wed Jul 16 12:10:39 2003
+|> +++ b/fs/xfs/linux/xfs_vfs.h	Wed Jul 16 12:10:39 2003
+|> @@ -44,8 +44,8 @@
+|>  
+|>  typedef struct vfs {
+|>  	u_int			vfs_flag;	/* flags */
+|> -	fsid_t			vfs_fsid;	/* file system ID */
+|> -	fsid_t			*vfs_altfsid;	/* An ID fixed for life of FS */
+|> +	__kernel_fsid_t			vfs_fsid;	/* file system ID */
+|> +	__kernel_fsid_t			*vfs_altfsid;	/* An ID fixed for life of FS */
+|>  	bhv_head_t		vfs_bh;		/* head of vfs behavior chain */
+|>  	struct super_block	*vfs_super;	/* Linux superblock structure */
+|>  	struct task_struct	*vfs_sync_task;
 
-> Oh, yeah! This is damn good! I've had only a little bit time to try
-> it, but I think it rocks. Good work :-)
+Alternatively you could use this patch (following the other
+architectures):
 
-Can only agree. Wine/wineserver now has the same PRI as in pure A3 on my
-game-test, which can be felt and seen. Playability = 8.75 due to there
-being slightly more bumps and audio glitches than in A3.
+--- linux-2.5.73/include/asm-ia64/statfs.h.~1~	2003-06-22 20:32:55.000000000 +0200
++++ linux-2.5.73/include/asm-ia64/statfs.h	2003-07-01 16:14:44.000000000 +0200
+@@ -6,6 +6,11 @@
+  * Copyright (C) 1998, 1999 David Mosberger-Tang <davidm@hpl.hp.com>
+  */
+ 
++#ifndef __KERNEL_STRICT_NAMES
++# include <linux/types.h>
++typedef __kernel_fsid_t	fsid_t;
++#endif
++
+ /*
+  * This is ugly --- we're already 64-bit, so just duplicate the definitions
+  */
 
-But that (A3) scheduler had other issues. Came home from work and began
-typing in an xterm that had been sitting on the screen for more than 8
-hours. It woke up... slowly. Took about 3 or 4 seconds before it
-accepted my keystrokes without delays. It was not swapped out, but more
-like it slowly accelerated from standstill.
+Andreas.
 
-Will report faults if I find them. Otherwise will stay silent. No news
-is good news, you know.
-
-Mvh
-Mats Johannesson
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

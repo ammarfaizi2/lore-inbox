@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273870AbRJ3NGt>; Tue, 30 Oct 2001 08:06:49 -0500
+	id <S275082AbRJ3NTJ>; Tue, 30 Oct 2001 08:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275082AbRJ3NGk>; Tue, 30 Oct 2001 08:06:40 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:15700 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S273870AbRJ3NGg>; Tue, 30 Oct 2001 08:06:36 -0500
-Date: Tue, 30 Oct 2001 12:40:37 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: IO APIC (smp) / crashes ?
-Message-ID: <20011030124037.A26140@grobbebol.xs4all.nl>
+	id <S275983AbRJ3NS7>; Tue, 30 Oct 2001 08:18:59 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:6162 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S275082AbRJ3NSp>;
+	Tue, 30 Oct 2001 08:18:45 -0500
+Date: Wed, 31 Oct 2001 00:14:09 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Juergen Doelle <jdoelle@de.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Pls apply this spinlock patch to the kernel
+Message-ID: <20011031001409.A22589@krispykreme>
+In-Reply-To: <3BDD8241.8002B946@de.ibm.com> <E15yG7P-0003Kb-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-X-OS: Linux grobbebol 2.4.13 
+In-Reply-To: <E15yG7P-0003Kb-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-using 2.4.13 I still experience crashes when a very specific set of
-programs are used.
 
-as I have a Abit BP6 and it's known to be not the best SMP board, I was
-wondering if it could be possible that a high rate of interrupts
-(specific IRQ's) could cause the 'crashes' I experience.
+Hi,
 
-The setup is really weird. I use freeamp to play streams; I have an
-ethernet card connected to a 512kbits adsl router; I use an SB16 under
-opensound.com and use X with an AGP card.
+> spinlock_t pagecache_lock ____cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
+> cache_line_pad;
+> 
+> where cache_line_pad is an asm(".align") - I would assume that is
+> sufficient - Linus ?
 
-if the stuff 'crashes, it in fact doesn't crash but starts to become
-_very_ slow. if you look at /proc/interrupts you would see timer ticks
-increase one by one but it woud take ages. like one tich in hald an hour
-or so. this basically means -- system unuseable. it does respond to
-pings though.
+In include/asm-ppc64/cache.h I ended up redefining ____cacheline_aligned_in_smp
+to avoid the problem of things sharing a cacheline: 
 
-my wild guess is that the combination and rate of interrupts cause the
-well known 
+#ifdef CONFIG_SMP
+#define ____cacheline_aligned_in_smp __cacheline_aligned
+#else
+#define ____cacheline_aligned_in_smp
+#endif /* CONFIG_SMP */
 
-Oct 30 07:29:37 grobbebol kernel: APIC error on CPU1: 02(08)
-Oct 30 07:29:37 grobbebol kernel: APIC error on CPU0: 02(04)
-Oct 30 08:30:43 grobbebol kernel: APIC error on CPU0: 04(04)
-Oct 30 08:30:43 grobbebol kernel: APIC error on CPU1: 08(08)
-[....]
+so that these things end up in the cacheline_aligned section and no variables
+share a cacheline. Maybe there are some places where we want to group
+variables in the same cacheline, but for consistency I think we should
+have:
 
-entries that finally after some time hit a combination that causes the
-system to become very slow. would that be a possibility or am I just (as
-usual :-) wrong ?
+__cacheline_aligned{,_in_smp}
+	variable goes into cacheline_aligned section
 
+____cacheline_aligned{,_in_smp}
+	just align to a cacheline
 
-           CPU0       CPU1
-  0:   13213246   13178957    IO-APIC-edge  timer
-  1:      60279      59829    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:      44383      44113    IO-APIC-edge  serial
-  4:          3          5    IO-APIC-edge  serial
-  5:      75105      73827    IO-APIC-edge  soundblaster
-  8:          0          1    IO-APIC-edge  rtc
- 14:     218635     212466    IO-APIC-edge  ide0
- 15:       6903       6858    IO-APIC-edge  ide1
- 18:      30878      30618   IO-APIC-level  BusLogic BT-930
- 19:    5695922    5718641   IO-APIC-level  eth0
-NMI:          0          0
-LOC:   26392880   26392845
-ERR:         82
-MIS:         70
-
-
-anyways, it basically only happens when I use X, when I use sound, when
-I use xmms _and_ it comes from eth0. it happens not directly but
-sometimes, after, say an hour, sometimes after 4 hours.
-
-(fwiw -- it also happens under the opensound drivers in the kernel but
-less frequent)
-
--- 
-Grobbebol's Home                      |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel          | Use your real e-mail address   /\
-Linux 2.4.13 (apic) SMP 466MHz/768 MB |        on Usenet.             _\_v  
+Anton

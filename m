@@ -1,57 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278244AbRJMC0D>; Fri, 12 Oct 2001 22:26:03 -0400
+	id <S278243AbRJMCVm>; Fri, 12 Oct 2001 22:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278245AbRJMCZx>; Fri, 12 Oct 2001 22:25:53 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:35345 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S278244AbRJMCZg>;
-	Fri, 12 Oct 2001 22:25:36 -0400
-Date: Fri, 12 Oct 2001 19:31:42 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
- with insertion
-In-Reply-To: <Pine.LNX.4.33.0110121903031.8148-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0110121921240.1505-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278245AbRJMCVW>; Fri, 12 Oct 2001 22:21:22 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:779 "EHLO
+	ani.animx.eu.org") by vger.kernel.org with ESMTP id <S278243AbRJMCVO>;
+	Fri, 12 Oct 2001 22:21:14 -0400
+Date: Fri, 12 Oct 2001 22:28:38 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Cc: Mike Panetta <mpanetta@applianceware.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>, andre@linux-ide.org
+Subject: Re: IDE Hot-Swap, does it work?, Conspiracy is afoot! (more questions)
+Message-ID: <20011012222838.A13338@animx.eu.org>
+In-Reply-To: <20011012172955.B12857@animx.eu.org> <Pine.GSO.4.30.0110130008070.18155-100000@balu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=LQksG6bCIzRHxTLp
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <Pine.GSO.4.30.0110130008070.18155-100000@balu>; from Pozsar Balazs on Sat, Oct 13, 2001 at 12:14:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001, Linus Torvalds wrote:
 
->
-> On Fri, 12 Oct 2001, Davide Libenzi wrote:
-> >
-> > The problem is that even if cpu1 schedule the load of  p  before the
-> > load of  *p  and cpu2 does  a = 1; wmb(); p = &a; , it could happen that
-> > even if from cpu2 the invalidation stream exit in order, cpu1 could see
-> > the value of  p  before the value of  *p  due a reordering done by the
-> > cache controller delivering the stream to cpu1.
->
-> Umm - if that happens, your cache controller isn't honouring the wmb(),
-> and you have problems quite regardless of any load ordering on _any_ CPU.
->
-> Ehh?
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
 
-I'm searching the hp-parisc doc about it but it seems that even Paul
-McKenney pointed out this.
-Suppose that  p  and  *p  are on two different cache partitions and the
-invalidation order that comes from the wmb() cpu is 1) *p  2) p
-Suppose that the partition when  *p  lies is damn busy and the one where
-p  lies is free.
-The reader cpu could pickup the value of  p  before the value of  *p  by
-reading the old value of  a
-The barrier on the reader side should establish a checkpoint that enforce
-the commit of  *p  before  p
+Pozsar Balazs wrote:
+> Wakko, could you tell me in detail how to use hdparm -R and -U, because i
+> couldn't get it work. Does it (or shoudl it) work for harddisks too?
+
+I'm not sure if it supports hdds or not, As far as I can see, it basically
+rescans for the device you're doing.  I attach the contrib script (comes in
+hdparm's source tree but not generally included
+
+> What chipset/hardware supports ide-hot-swap, and which of these are
+> supported in linux?
+> Under The Other Operating System 2000 i have seen this working on a few
+> machines for example on an asus cusl2 mobo, so that chipset (i think
+> intel 815e) at least can got to do this job.
+
+I think it would work on all ide chipsets, but i'm not sure.  I have hot
+plugged IDE into standard systems and hdds not designed for it.  You do run
+a risk of hardware damage which I has never happened for me (but could
+happen to me next time I try or it could happen to you.  Be warned).  For
+this, I've had a system who's / is not an ide disk (I have a machine
+mounting / over nfs) and I load/unload ide modules.
+
+I'd like to see support for this similar to /proc/scsi/scsi to rescan
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=idectl
+
+#!/bin/sh
+
+HDPARM=/sbin/hdparm
+MAX_IDE_NR=1
+
+IDE_IO_0=0x1f0
+IDE_IO_1=0x170
+
+USE_IDE_DEV_0=/dev/hdc
+USE_IDE_DEV_1=/dev/hda
+
+usage () {
+	if [ $# -gt 0 ]; then
+		echo $* >&2
+		echo
+	fi
+
+	echo "usage: $0 ide-channel-nr [off|on|rescan]" 2>&1
+	exit 1
+}
+
+IDE_NR=$1
+MODE=$2
+
+do_register=0
+do_unregister=0
 
 
+if [ ! "$IDE_NR" ] || [ $IDE_NR -lt 0 ] || [ $IDE_NR -gt $MAX_IDE_NR ]; then
+	usage "Unrecognized IDE-channel number"
+fi
+
+case "$MODE" in
+on )		do_register=1 ;;
+off )		do_unregister=1 ;;
+rescan )	do_unregister=1; do_register=1 ;;
+* )			usage "Unrecognized command" ;;
+esac
+
+eval "IDE_IO=\$IDE_IO_$IDE_NR"
+eval "USE_IDE_DEV=\$USE_IDE_DEV_$IDE_NR"
+
+[ $do_unregister -eq 1 ] && eval "$HDPARM -U $IDE_NR $USE_IDE_DEV > /dev/null"
+[ $do_register -eq 1 ] && eval "$HDPARM -R $IDE_IO 0 0 $USE_IDE_DEV > /dev/null"
 
 
-
-- Davide
-
-
+--LQksG6bCIzRHxTLp--

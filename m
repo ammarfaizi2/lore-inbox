@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbTLYJPX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 04:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTLYJPX
+	id S264132AbTLYJ3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 04:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbTLYJ3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 04:15:23 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:50335 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264147AbTLYJPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 04:15:22 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andrew Morton <akpm@osdl.org>, GCS <gcs@lsc.hu>
-Subject: Re: 2.6.0-mm1
-Date: Thu, 25 Dec 2003 04:11:54 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
-References: <20031224095921.GA8147@lsc.hu> <20031224033200.0763f2a2.akpm@osdl.org>
-In-Reply-To: <20031224033200.0763f2a2.akpm@osdl.org>
+	Thu, 25 Dec 2003 04:29:19 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:60636 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264132AbTLYJ3R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 04:29:17 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312250411.55881.dtor_core@ameritech.net>
+Message-ID: <16362.44523.653063.676562@laputa.namesys.com>
+Date: Thu, 25 Dec 2003 12:29:15 +0300
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiser4 breaks vmware
+In-Reply-To: <p73pted2772.fsf@verdi.suse.de>
+References: <1072202167.8127.15.camel@localhost.suse.lists.linux.kernel>
+	<3FE8B765.6000907@vgertech.com.suse.lists.linux.kernel>
+	<16361.18888.602000.438746@laputa.namesys.com.suse.lists.linux.kernel>
+	<p73pted2772.fsf@verdi.suse.de>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 December 2003 06:32 am, Andrew Morton wrote:
-> GCS <gcs@lsc.hu> wrote:
-[..SKIP..]
->
-> > - I have a synaptics touchpad, which is detected correctly, but only
-> >   works if I set psmouse_noext=1. Under vanilla 2.6.0 it still works
-> > this way, but with 2.6.0-mm1 it works only on the console, but not
-> > under XFree86. Strange, as gpm interprets the input and pipes thru
-> > gpmdata to XFree86 4.3.0. Any idea what broke this configuration?
->
-> Peter or Dmitry may be able to tell us.
+Andi Kleen writes:
+ > Nikita Danilov <Nikita@Namesys.COM> writes:
+ > 
+ > > Exactly. I included it into core.diff by mistake.
+ > > Revert it: http://www.namesys.com/snapshots/2003.12.23/broken-out/do_mmap2-fix.diff.patch
+ > 
+ > There seem to be some other unnecessary patches in there, like
+ > init_fixmap_vma.diff.patch. I cannot imagine why a file system should
 
-Whew.. that wasn't easy to spot... When doing PS/2 emulation for touchpads
-that use absolute events, when processing BTN_TOUCH event mousedev would
-stop on the very first client. So in your normal case only GPM would see
-the Synaptics but once you killed GPM XFree would be the first in line and
-magically start working.
+Yes, UML left-over also, thank you for noting.
 
-My guess you didn't see that in stock 2.6.0 because you were compiling
-without Synaptics support.
+ > need to change that. Same with spinlock-owner.diff.patch. Is that
+ > really needed? If yes porting it to all architectures will be a lot of
 
-I am sending 2 patches - one to remove mouse jitter with Synaptics when
-it is used through mousedev (PS/2 emulation) - mousedev will use 3 point
-history and average when calculating deltas, the other one is the fix for
-the problem you are experiencing. They should apply to 2.6.0-mm1 and to
-stock 2.6.0 with minimal jitter.
+No, it is debugging code, and I think it is reasonably to ship it
+together with reiser4 while it is in the debugging stage. Debugging
+patches are going to be removed eventually.
 
-Dmitry
+ > work.
+ > 
+ > I would suggest separating your debug patches, like page-owner.diff.patch
+ > 
+ > And your webserver is misconfigured: I thinks READ.ME is a troff
+ > document.
+
+Hmm. This was fixed long time ago.
+
+$ telnet namesys.com 80
+Trying 212.16.7.65...
+Connected to thebsh.namesys.com (212.16.7.65).
+Escape character is '^]'.
+GET /snapshots/2003.12.23/READ.ME HTTP/1.0
+
+HTTP/1.1 200 OK
+Date: Thu, 25 Dec 2003 09:20:45 GMT
+Server: Apache/1.3.23 (Unix)  (Red-Hat/Linux)
+Last-Modified: Tue, 23 Dec 2003 11:31:22 GMT
+ETag: "e3b05-fab-3fe8278a"
+Accept-Ranges: bytes
+Content-Length: 4011
+Connection: close
+Content-Type: text/plain
+
+ > 
+ > The other changes look reasonable, although a lot of the EXPORT_SYMBOLs
+ > should be probably EXPORT_SYMBOL_GPL and carry some more comments about
+
+What are the guidelines for using EXPORT_SYMBOL vs. EXPORT_SYMBOL_GPL?
+
+ > their purpose.
+ > 
+ > -Andi
+
+Nikita.

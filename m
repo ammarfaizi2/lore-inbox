@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265354AbRFVTFo>; Fri, 22 Jun 2001 15:05:44 -0400
+	id <S265494AbRFVTZT>; Fri, 22 Jun 2001 15:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265493AbRFVTFe>; Fri, 22 Jun 2001 15:05:34 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53770 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265354AbRFVTFV>; Fri, 22 Jun 2001 15:05:21 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
+	id <S265496AbRFVTZJ>; Fri, 22 Jun 2001 15:25:09 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:24847 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265494AbRFVTY6>;
+	Fri, 22 Jun 2001 15:24:58 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106221924.f5MJOcQ493255@saturn.cs.uml.edu>
 Subject: Re: For comment: draft BIOS use document for the kernel
-Date: 22 Jun 2001 12:05:08 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9h04t4$ap9$1@cesium.transmeta.com>
-In-Reply-To: <E15DV4q-0003qv-00@the-village.bc.nu> <Pine.LNX.3.95.1010622135228.3929C-100000@chaos.analogic.com>
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Fri, 22 Jun 2001 15:24:38 -0400 (EDT)
+Cc: root@chaos.analogic.com,
+        RSchilling@affiliatedhealth.org (Schilling Richard),
+        alan@lxorguk.ukuu.org.uk ('Alan Cox'),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <E15DV4q-0003qv-00@the-village.bc.nu> from "Alan Cox" at Jun 22, 2001 06:50:40 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.3.95.1010622135228.3929C-100000@chaos.analogic.com>
-By author:    "Richard B. Johnson" <root@chaos.analogic.com>
-In newsgroup: linux.dev.kernel
+Alan Cox writes:
+> [somebody]
+
+>> I could not find any reference to BIOS int 0x15, function 0x87,
+>> block-move, used to copy the kernel to above the 1 megabyte
+>> real-mode boundary. I think this is still used.
 >
-> On Fri, 22 Jun 2001, Alan Cox wrote:
-> 
-> > > I could not find any reference to BIOS int 0x15, function 0x87, block-
-> > > move, used to copy the kernel to above the 1 megabyte real-mode
-> > > boundary. I think this is still used.
-> > 
-> > I dont think the kernel has ever used it. The path has always been to enter
-> > 32bit mode then relocate/uncompress the kernel, then run it
-> > 
-> 
-> Then how does 1.44 megabytes of data from a floppy disk (that won't
-> fit below 1 megabyte), that is accessed in real-mode, ever get to
-> above 1 megabyte where it can be decompressed?
-> 
-> I think LILO copies each buffer read from a below 1 Megabyte buffer
-> (which is the only place the floppy can put its data via the BIOS),
-> to above 1 megabyte using the BIOS block-move function.
-> 
+> I dont think the kernel has ever used it. The path has always been to
+> enter 32bit mode then relocate/uncompress the kernel, then run it
 
-This is done by LILO, which isn't part of the kernel.  SYSLINUX, for
-example, enters protected mode directly (like the kernel itself does).
+There are several non-kernel BIOS users:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+lilo
+grub
+syslinux
+XFree86 (using virtual-8088 to run a video BIOS for a second card?)
+dosemu?
+loadlin?
+the boot block that reads ext2 (in 1 kB -- damn what a hack)
+

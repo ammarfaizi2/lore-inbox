@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264198AbUFKRw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264274AbUFKRyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbUFKRw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 13:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFKRw7
+	id S264274AbUFKRyt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 13:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFKRyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 13:52:59 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56488 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264279AbUFKRvp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 13:51:45 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [7/12]
-Date: Fri, 11 Jun 2004 19:55:33 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200406111759.54209.bzolnier@elka.pw.edu.pl> <20040611164501.GA4309@suse.de>
-In-Reply-To: <20040611164501.GA4309@suse.de>
+	Fri, 11 Jun 2004 13:54:49 -0400
+Received: from luhmann.netc.dk ([81.7.140.66]:60650 "HELO luhmann.netc.dk")
+	by vger.kernel.org with SMTP id S264274AbUFKRxo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 13:53:44 -0400
+Date: 11 Jun 2004 17:53:42 -0000
+Subject: [netc.dk #4291] AutoReply: Neue Voelkerwanderung droht! 
+From: "Netpasser via RT" <netpasser@netc.dk>
+Reply-To: netpasser@netc.dk
+In-Reply-To: <rt-4291@netc.dk>
+Message-ID: <rt-3.1.HEAD-4291-18899-2.18.9849667872768@netc.dk>
+X-RT-Loop-Prevention: netc.dk
+RT-Ticket: netc.dk #4291
+Managed-by: RT 3.1.HEAD (http://www.bestpractical.com/rt/)
+RT-Originator: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406111955.33298.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset="utf-8"
+X-RT-Original-Encoding: utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 of June 2004 18:45, Jens Axboe wrote:
-> On Fri, Jun 11 2004, Bartlomiej Zolnierkiewicz wrote:
-> > [PATCH] ide: fix ide-cd to not retry REQ_DRIVE_TASKFILE requests
-> >
-> > 'cat /proc/ide/hdx/identify' generates REQ_DRIVE_TASKFILE request
-> > (for WIN_PIDENTIFY command) even for devices controlled by ide-cd.
-> >
-> > All other drivers don't retry such requests.
-> >
-> > Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-> >
-> >  linux-2.6.7-rc3-bzolnier/drivers/ide/ide-cd.c |    2 +-
-> >  1 files changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff -puN drivers/ide/ide-cd.c~ide_cdrom_taskfile drivers/ide/ide-cd.c
-> > --- linux-2.6.7-rc3/drivers/ide/ide-cd.c~ide_cdrom_taskfile	2004-06-10
-> > 23:01:31.725338592 +0200 +++
-> > linux-2.6.7-rc3-bzolnier/drivers/ide/ide-cd.c	2004-06-10
-> > 23:01:31.731337680 +0200 @@ -574,7 +574,7 @@ ide_startstop_t
-> > ide_cdrom_error (ide_dri
-> >  	if (drive == NULL || (rq = HWGROUP(drive)->rq) == NULL)
-> >  		return ide_stopped;
-> >  	/* retry only "normal" I/O: */
-> > -	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK)) {
-> > +	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK | REQ_DRIVE_TASKFILE))
-> > { rq->errors = 1;
-> >  		ide_end_drive_cmd(drive, stat, err);
-> >  		return ide_stopped;
->
-> Was wondering whether it was clearer to use !blk_fs_request() instead,
-> but that would need looking at REQ_PC and REQ_BLOCK_PC. So for now the
-> above is fine with me, if you include ide_cdrom_abort() as well.
 
-OK, thanks.
+Greetings,
+
+This message has been automatically generated in response to the
+creation of a trouble ticket regarding:
+	"Neue Voelkerwanderung droht!", 
+a summary of which appears below.
+
+There is no need to reply to this message right now.  Your ticket has been
+assigned an ID of [netc.dk #4291].
+
+Please include the string:
+
+         [netc.dk #4291]
+
+in the subject line of all future correspondence about this issue. To do so, 
+you may reply to this message.
+
+                        Thank you,
+                        netpasser@netc.dk
+
+-------------------------------------------------------------------------
+Lese selbst:
+http://www.volksgemeinschaft.org/neuevoelkerwanderungdroht.htm
 

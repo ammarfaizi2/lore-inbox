@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263268AbTCNH6D>; Fri, 14 Mar 2003 02:58:03 -0500
+	id <S263270AbTCNH61>; Fri, 14 Mar 2003 02:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263270AbTCNH6D>; Fri, 14 Mar 2003 02:58:03 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:13369
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S263268AbTCNH6C>; Fri, 14 Mar 2003 02:58:02 -0500
-Date: Fri, 14 Mar 2003 03:05:31 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andrey Panin <pazke@orbita1.ru>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] irq handling code consolidation (i386 part)
-In-Reply-To: <Pine.LNX.4.50.0303140157480.17112-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0303140304330.17112-100000@montezuma.mastecende.com>
-References: <20030313132449.GH1393@pazke>
- <Pine.LNX.4.50.0303140057580.17112-100000@montezuma.mastecende.com>
- <Pine.LNX.4.50.0303140157480.17112-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263271AbTCNH61>; Fri, 14 Mar 2003 02:58:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53482 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263270AbTCNH6Z>;
+	Fri, 14 Mar 2003 02:58:25 -0500
+Date: Fri, 14 Mar 2003 09:09:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: [2.4] init/do_mounts.c::rd_load_image() memleak
+Message-ID: <20030314080911.GY836@suse.de>
+References: <20030313210144.GA3542@linuxhacker.ru> <20030313220308.A28040@flint.arm.linux.org.uk> <20030314105032.A17568@namesys.com> <20030314075957.GX836@suse.de> <20030314110421.A28273@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030314110421.A28273@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one is for UP w/ IOAPIC
+On Fri, Mar 14 2003, Oleg Drokin wrote:
+> Hello!
+> 
+> On Fri, Mar 14, 2003 at 08:59:57AM +0100, Jens Axboe wrote:
+> 
+> > > > > +	if (buf)
+> > > > > +		kfree(buf);
+> > > > kfree(NULL); is valid - you don't need this check.
+> > > Almost every place I can think of does just this, so I do not see why this
+> > > particular piece of code should be different.
+> > Since when has that been a valid argument? :)
+> 
+> Well, my argument is code uniformness which was always valid as long
+> as it does not introduce any bugs, I think.
 
-arch/i386/kernel/built-in.o: In function `end_level_ioapic_irq':
-/build/source/linux-2.5.64-unwashed/include/asm/atomic.h:107: undefined reference to `irq_mis_count'
-nm: vmlinux: No such file or directory
-make -f scripts/Makefile.build obj=arch/i386/boot arch/i386/boot/bzImage
-  ccache gcc -Wp,-MD,arch/i386/boot/.setup.o.d -D__ASSEMBLY__ -D__KERNEL__ 
--Iinclude -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  
--traditional -DSVGA_MODE=NORMAL_VGA  -D__BIG_KERNEL__  -c -o 
-arch/i386/boot/setup.o arch/i386/boot/setup.S
+I agree with that.
 
-Index: linux-2.5.64-unwashed/arch/i386/kernel/irq.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.64/arch/i386/kernel/irq.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 irq.c
---- linux-2.5.64-unwashed/arch/i386/kernel/irq.c	14 Mar 2003 05:56:30 -0000	1.1.1.2
-+++ linux-2.5.64-unwashed/arch/i386/kernel/irq.c	14 Mar 2003 08:02:24 -0000
-@@ -10,6 +10,7 @@
- #include <linux/seq_file.h>
- 
- #include <asm/atomic.h>
-+#include <asm/io_apic.h>	/* for APIC_MISMATCH_DEBUG */
- 
- /*
-  * Various interrupt controllers we handle: 8259 PIC, SMP IO-APIC,
+> Do you propose somebody should go and fix all
+> if ( something )
+> 	kfree(something);
+> pieces of code to read just
+> kfree(something); ?
+
+No that would just be another pointless exercise in causing more
+annoyance for someone who has to look through patches finding that one
+hunk that breaks stuff. The recent spelling changes come to mind.
+
+But just because you don't seem to have seen any kfree(NULL) in the
+kernel does not mean they are not there. And should a good trend not
+allow to grow?
+
+-- 
+Jens Axboe
+

@@ -1,88 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264932AbRHJHq5>; Fri, 10 Aug 2001 03:46:57 -0400
+	id <S264942AbRHJH5G>; Fri, 10 Aug 2001 03:57:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264942AbRHJHqr>; Fri, 10 Aug 2001 03:46:47 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:10249 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S264932AbRHJHqe>;
-	Fri, 10 Aug 2001 03:46:34 -0400
-Date: Fri, 10 Aug 2001 11:46:39 +0400
+	id <S265277AbRHJH46>; Fri, 10 Aug 2001 03:56:58 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:64522 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S264942AbRHJH4o>; Fri, 10 Aug 2001 03:56:44 -0400
+Date: Fri, 10 Aug 2001 03:56:56 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ac97_codec.c: add ident string for Winbond W83971D codec
-Message-ID: <20010810114639.A22339@orbita1.ru>
+Subject: Re: struct page to 36 (or 64) bit bus address?
+Message-ID: <20010810035654.W3126@sventech.com>
+In-Reply-To: <20010809151022.C1575@sventech.com> <E15UvLO-0007tH-00@the-village.bc.nu> <15218.61869.424038.30544@pizda.ninka.net> <20010809163531.D1575@sventech.com> <slrn9n71kn.28q.kraxel@bytesex.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xgyAXRrhYN0wYx8y"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 11:37am  up 13 days, 18:43,  2 users,  load average: 0.03, 0.05, 0.01
-X-Uname: Linux orbita1.ru 2.2.20pre2-acl 
-From: Andrey Panin <pazke@orbita1.ru>
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <slrn9n71kn.28q.kraxel@bytesex.org>; from kraxel@bytesex.org on Fri, Aug 10, 2001 at 07:00:39AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 10, 2001, Gerd Knorr <kraxel@bytesex.org> wrote:
+> > > Note, if you use the "bttv method" (ie. virt_to_bus) your driver will
+> > > then fail to compile on several platforms.
+> >  
+> >  So noted. I already have a PCI DMA API version, but I wanted to code up
+> >  a "i have an i386 and gigs of memory" version as well.
+> 
+> Forgot about virt_to_bus() then, it doesn't work for highmem.
 
---xgyAXRrhYN0wYx8y
-Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
-Content-Disposition: inline
+I knew that already :)
 
+The thing about 64 bit PCI cards is that there is no such thing as
+highmem, so we don't need to worry about mapping it and using bounce
+buffers. The device just DMA's. That's why I originally asked.
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I took a look at the code in the 2.4.7 version of bttv.c and it wasn't
+readily obvious what Alan was referring to. I'll spend some more time
+tomorrow looking into it.
 
-Hi all,
+JE
 
-patch adds ident string for the Winbond W83971D (stupid fixedrate 48kHz AC9=
-7 codec).
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-w83971d
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN /linux.vanilla/drivers/sound/ac97_codec.c /linux/drivers/sound/ac=
-97_codec.c
---- /linux.vanilla/drivers/sound/ac97_codec.c	Fri Aug 10 11:06:17 2001
-+++ /linux/drivers/sound/ac97_codec.c	Fri Aug 10 11:08:28 2001
-@@ -141,6 +141,7 @@
- 	{0x83847644, "SigmaTel STAC9744/45",	&sigmatel_9744_ops},
- 	{0x83847656, "SigmaTel STAC9756/57",	&sigmatel_9744_ops},
- 	{0x83847684, "SigmaTel STAC9783/84?",	&null_ops},
-+	{0x57454301, "Winbond 83971D",		&null_ops},
- 	{0,}
- };
-=20
-@@ -173,7 +174,7 @@
- 	/*  24 */ "Wolfson Microelectronics 3D Enhancement",
- 	/*  25 */ "Delta Integration 3D Enhancement",
- 	/*  26 */ "SigmaTel 3D Enhancement",
--	/*  27 */ "Reserved 27",
-+	/*  27 */ "Winbond 3D Stereo Enhancement",
- 	/*  28 */ "Rockwell 3D Stereo Enhancement",
- 	/*  29 */ "Reserved 29",
- 	/*  30 */ "Reserved 30",
-
---7AUc2qLy4jB3hD7Z--
-
---xgyAXRrhYN0wYx8y
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7c5FeBm4rlNOo3YgRApGgAJ0e9gnUwGKiPjfO7/mrk1cyk2O1VwCgjgT8
-M/NZ23Tx1YGUZ1xllC7lBnQ=
-=QlDF
------END PGP SIGNATURE-----
-
---xgyAXRrhYN0wYx8y--

@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279640AbRKATs4>; Thu, 1 Nov 2001 14:48:56 -0500
+	id <S279631AbRKATvQ>; Thu, 1 Nov 2001 14:51:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279631AbRKATsr>; Thu, 1 Nov 2001 14:48:47 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:6665 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S279640AbRKATsk>;
-	Thu, 1 Nov 2001 14:48:40 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200111011948.WAA27345@ms2.inr.ac.ru>
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-To: ak@suse.de (Andi Kleen)
-Date: Thu, 1 Nov 2001 22:48:13 +0300 (MSK)
-Cc: ak@suse.de, joris@deadlock.et.tudelft.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20011101202845.A10648@wotan.suse.de> from "Andi Kleen" at Nov 1, 1 08:28:45 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S279638AbRKATvG>; Thu, 1 Nov 2001 14:51:06 -0500
+Received: from hoju-ext.nks.net ([216.139.204.180]:24448 "EHLO
+	hoju-ext.nks.net") by vger.kernel.org with ESMTP id <S279631AbRKATuq>;
+	Thu, 1 Nov 2001 14:50:46 -0500
+Message-ID: <3BE1A790.25B7E6F5@illusionary.com>
+Date: Thu, 01 Nov 2001 14:50:40 -0500
+From: Derek Glidden <dglidden@illusionary.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-xfs i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.2 and 2.4 VM systems analysed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> Just to have an symmetric API. Everything else is too ugly to explain 
-> in manpages ;)
+I've been following the 2.4 VM issues since the early 2.4-pre days.  As
+a "power user" and someone who uses Linux at work, the kernel's
+stability is of great interest to me.  Finally, I got sick of trying to
+interpret the data from various sources on how well the 2.4 VM systems
+perform overall and in comparison with each other and other systems.  So
+I ran my own tests against 2.4.12-ac6, 2.4.13, and 2.2.19 and wrote up
+the results:
 
-Explaining is easy. Blah-blah-blah... Sockets bound to ETH_P_ALL
-are able to get copy of output packets which is useful f.e.
-for packet sniffers (ref to [libpacp],[tcpdump]). In later kernels
-this can be disabled with option PACKET_NOOUTPUT. When this option
-is not supported user of packet socket bound to ETH_P_ALL has to filter
-output packets at user level checking for pkt_type == PACKET_OUTPUT
-or using an equivalent BPF applet.
+"An analysis of three Linux kernel VM systems"
 
+http://www.nks.net/linux-vm.html
 
-> That would require changing/breaking PF_PACKET, no? 
+The conclusion in a nutshell is that yes, the 2.4 kernel VM systems
+still have a few quirks to work out, but overall they are so
+significantly better than the 2.2 VM that there really is no
+comparison.  
 
-No. Ideally the option could be PACKET_GRAB_OUTPUT and be disabled
-by default (for symmetry :-)). But as soon as it was forgotten,
-it has to be enabled by default.
+However, this "significantly better" conclusion is for certain
+high-stress situations where the 2.2 VM apparently fails entirely, while
+2.4 chugs along with barely a notice.  
 
-Alexey
+For overall end-user experience, 2.2 still "feels" better overall with
+better interactive responsiveness under a varying set of loads even
+though 2.4 really is faster at doing the actual work.
+
+Comments, responses, suggestions welcome.  Flames will be cheerfully
+redirected to /dev/null.
+
+-- 
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#!/usr/bin/perl -w
+$_='while(read+STDIN,$_,2048){$a=29;$b=73;$c=142;$t=255;@t=map
+{$_%16or$t^=$c^=($m=(11,10,116,100,11,122,20,100)[$_/16%8])&110;
+$t^=(72,@z=(64,72,$a^=12*($_%16-2?0:$m&17)),$b^=$_%64?12:0,@z)
+[$_%8]}(16..271);if((@a=unx"C*",$_)[20]&48){$h=5;$_=unxb24,join
+"",@b=map{xB8,unxb8,chr($_^$a[--$h+84])}@ARGV;s/...$/1$&/;$d=
+unxV,xb25,$_;$e=256|(ord$b[4])<<9|ord$b[3];$d=$d>>8^($f=$t&($d
+>>12^$d>>4^$d^$d/8))<<17,$e=$e>>8^($t&($g=($q=$e>>14&7^$e)^$q*
+8^$q<<6))<<9,$_=$t[$_]^(($h>>=8)+=$f+(~$g&$t))for@a[128..$#a]}
+print+x"C*",@a}';s/x/pack+/g;eval 
+
+usage: qrpff 153 2 8 105 225 < /mnt/dvd/VOB_FILENAME \
+    | extract_mpeg2 | mpeg2dec - 
+
+         http://www.cs.cmu.edu/~dst/DeCSS/Gallery/
+http://www.eff.org/                   http://www.anti-dmca.org/
+   http://www.sciencemag.org/cgi/content/full/293/5537/2028

@@ -1,53 +1,64 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154889-662>; Thu, 8 Oct 1998 21:55:55 -0400
-Received: from caffeine.ix.net.nz ([203.97.100.28]:2005 "EHLO caffeine.ix.net.nz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154999-662>; Thu, 8 Oct 1998 19:11:08 -0400
-Date: Fri, 9 Oct 1998 14:59:08 +1300
-From: Chris Wedgwood <chris@cybernet.co.nz>
-To: Feuer <feuer@mail.his.com>
-Cc: David Feuer <david@feuer.his.com>, linux-kernel@vger.rutgers.edu
-Subject: Re: network nicety
-Message-ID: <19981009145908.A7171@caffeine.ix.net.nz>
-References: <19981008144015.B1053@caffeine.ix.net.nz> <Pine.BSI.4.05L.9810081225270.5574-100000@mail.his.com>
+Received: by vger.rutgers.edu id <154342-662>; Fri, 9 Oct 1998 01:08:37 -0400
+Received: from hp735.cvut.cz ([147.32.238.2]:3454 "HELO hp735.cvut.cz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <156146-662>; Fri, 9 Oct 1998 00:37:46 -0400
+Date: Fri, 9 Oct 1998 10:55:49 +0100 (MET)
+From: Jan Pechanec <pechy@hp735.cvut.cz>
+To: "Mike A. Harris" <mharris@ican.net>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: stackable layers in filesytem
+In-Reply-To: <Pine.LNX.3.96.981008214633.923J-100000@red.prv>
+Message-Id: <Pine.HPP.3.94.981009105255.26535D-100000@hp735.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.94.5i
-In-Reply-To: <Pine.BSI.4.05L.9810081225270.5574-100000@mail.his.com>; from Feuer on Thu, Oct 08, 1998 at 12:27:52PM -0400
-X-No-Archive: Yes
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Thu, Oct 08, 1998 at 12:27:52PM -0400, Feuer wrote:
+On Thu, 8 Oct 1998, Mike A. Harris wrote:
 
-> How about telling me how, where, etc.
+*>On Wed, 7 Oct 1998, Jan Pechanec wrote:
+*>
+*>>	please, don't you know whether the newest kernels do have
+*>>"stackable layer support" for filesystem as e.g FreeBSD has?
+*>
+*>What exactly is stackable layer support?  Have you investigated
+*>loopback filesystems?  This might be what you are looking for,
+*>and has been supported in Linux for quite some time.
+*>
 
-It depends on exactly what you want to do... and what you want to
-achieve.
+	Generaly, see:
 
-If your on a dial-up to an ISP somewhere, and you want better telnet
-throughput at the cost of ftp throughput, chances are - you can't do
-much at all, because the changes need to be done at the ISP end.
+http://www.isi.edu/~johnh/PAPERS/Heidemann91a.html
+http://www.isi.edu/~johnh/PAPERS/index.html
 
-For QoS stuff, CONFIG_NET_SCHED=Y, get Alexy's ip-route and other
-stuff from ftp://ftp.inr.ac.ru/ip-routing/ (as mentioned in the docs
-for CONFIG_NET_SCHED) and read up on the relevant papers...
-http://www-nrg.ee.lbl.gov/floyd/ is probably one place to start,
-especially for CBQ which is currently occupying much of my time.
+	in FreeBSD, see 'man mount_null'
 
-Note, this is all very much more complicated than it first appears,
-there is much science and math involved to truly understand much of
-what goes on.
+	Loopback fs is similar to nullfs in FreeBSD, but nullfs is just an
+,,application'', you can develop layer that does things like compressing,
+ciphering etc.
 
-> You are calling spam blockers rude while you are sending spam? By
-> the way, I don't want to see anything from you or anything related
-> to you in my mailbox.  Any such action will be considered a
-> denial-of-service attack on my system.
+	Jan.
 
-Don't be an obnoxious little prick. Where or when did I say I was
-sending out spam?
+*>
+*>
+*>
+*>
+*>--
+*>Mike A. Harris  -  Computer Consultant  -  Linux advocate
+*>
+*>Linux software galore:  http://freshmeat.net
+*>
+*>
+
+_________________________________________________________________________
+                                                                        -
+   Jan  P E C H A N E C - Computing Center, Czech Technical University  - 
+                                                          ______________-
+-> Zikova 4, Praha 6, 166 35, Czech Republic             /
+-> http://www.civ.cvut.cz                               /
+-> tel: +420 2 2435 2969  email: pechy@hp735.cvut.cz   /
+-> personal www - http://akat.civ.cvut.cz/pechy       /
+_____________________________________________________/
 
 
-
-
--cw
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

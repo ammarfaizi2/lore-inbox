@@ -1,97 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVAXRLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVAXRRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVAXRLu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVAXRLu
+	id S261283AbVAXRRH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVAXRRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:11:50 -0500
-Received: from hera.kernel.org ([209.128.68.125]:64158 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261461AbVAXRLg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:11:36 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [patch 1/13] Qsort
-Date: Mon, 24 Jan 2005 17:10:16 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <ct3a5o$n0e$1@terminus.zytor.com>
-References: <20050122203326.402087000@blunzn.suse.de> <Pine.LNX.4.61.0501230357580.2748@dragon.hygekrogen.localhost> <20050123044637.GA54433@muc.de> <Pine.LNX.4.61.0501230600070.2748@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1106586616 23567 127.0.0.1 (24 Jan 2005 17:10:16 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 24 Jan 2005 17:10:16 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Mon, 24 Jan 2005 12:17:07 -0500
+Received: from bos-gate1.raytheon.com ([199.46.198.230]:18624 "EHLO
+	bos-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S261283AbVAXRRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 12:17:05 -0500
+Subject: Query on remap_pfn_range compatibility
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF3F115AC8.F271AB73-ON86256F93.005BCD86@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Mon, 24 Jan 2005 10:54:22 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 01/24/2005 10:59:04 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.61.0501230600070.2748@dragon.hygekrogen.localhost>
-By author:    Jesper Juhl <juhl-lkml@dif.dk>
-In newsgroup: linux.dev.kernel
->
-> On Sun, 23 Jan 2005, Andi Kleen wrote:
-> 
-> > > How about a shell sort?  if the data is mostly sorted shell sort beats 
-> > > qsort lots of times, and since the data sets are often small in-kernel, 
-> > > shell sorts O(n^2) behaviour won't harm it too much, shell sort is also 
-> > > faster if the data is already completely sorted. Shell sort is certainly 
-> > > not the simplest algorithm around, but I think (without having done any 
-> > > tests) that it would probably do pretty well for in-kernel use... Then 
-> > > again, I've known to be wrong :)
-> > 
-> > I like shell sort for small data sets too. And I agree it would be 
-> > appropiate for the kernel.
-> > 
-> Even with large data sets that are mostly unsorted shell sorts performance 
-> is close to qsort, and there's an optimization that gives it O(n^(3/2)) 
-> runtime (IIRC), and another nice property is that it's iterative so it 
-> doesn't eat up stack space (as oposed to qsort which is recursive and eats 
-> stack like ****)...
-> Yeah, I think shell sort would be good for the kernel.
-> 
+I read the messages on lkml from September 2004 about the introduction of
+remap_pfn_range and have a question related to coding for it. What do you
+recommend for driver coding to be compatible with these functions
+(remap_page_range, remap_pfn_range)?
 
-In klibc, I use combsort:
+For example, I see at least two (or three) combination I need to address:
+ - 2.4 (with remap_page_range) OR 2.6.x (with remap_page_range)
+ - 2.6.x-mm (with remap_pfn_range)
+Is there some symbol or #ifdef value I can depend on to determine which
+function I should be calling (and the value to pass in)?
 
-/*
- * qsort.c
- *
- * This is actually combsort.  It's an O(n log n) algorithm with
- * simplicity/small code size being its main virtue.
- */
+Thanks.
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 
-#include <stddef.h>
-#include <string.h>
-
-static inline size_t newgap(size_t gap)
-{
-  gap = (gap*10)/13;
-  if ( gap == 9 || gap == 10 )
-    gap = 11;
-
-  if ( gap < 1 )
-    gap = 1;
-  return gap;
-}
-
-void qsort(void *base, size_t nmemb, size_t size,
-           int (*compar)(const void *, const void *))
-{
-  size_t gap = nmemb;
-  size_t i, j;
-  char *p1, *p2;
-  int swapped;
-
-  do {
-    gap = newgap(gap);
-    swapped = 0;
-
-    for ( i = 0, p1 = base ; i < nmemb-gap ; i++, p1 += size ) {
-      j = i+gap;
-      if ( compar(p1, p2 = (char *)base+j*size) > 0 ) {
-        memswap(p1, p2, size);
-        swapped = 1;
-      }
-    }
-  } while ( gap > 1 || swapped );
-}

@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTJAVkL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 17:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbTJAVkL
+	id S262576AbTJAWAf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbTJAWAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 17:40:11 -0400
-Received: from bay99-f19.bay99.hotmail.com ([65.54.175.19]:1028 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262610AbTJAVkJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 17:40:09 -0400
-X-Originating-IP: [62.2.88.2]
-X-Originating-Email: [syn_uw@hotmail.com]
-From: "syn uw" <syn_uw@hotmail.com>
-To: marcelo.tosatti@cyclades.com, xose@wanadoo.es
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br,
-       atulm@lsil.com, linux-megaraid-devel@dell.com
-Subject: Re: Megaraid does not work with 2.4.22
-Date: Wed, 01 Oct 2003 21:40:03 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY99-F19m3pHToG3AS0000128b@hotmail.com>
-X-OriginalArrivalTime: 01 Oct 2003 21:40:04.0498 (UTC) FILETIME=[933ECF20:01C38864]
+	Wed, 1 Oct 2003 18:00:35 -0400
+Received: from ns1.tuiasi.ro ([193.231.15.152]:1006 "EHLO relay.tuiasi.ro")
+	by vger.kernel.org with ESMTP id S262576AbTJAWAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 18:00:33 -0400
+Date: Thu, 2 Oct 2003 00:55:41 +0300 (EEST)
+From: Radu Filip <socrate@infoiasi.ro>
+X-X-Sender: radu@shrek.tuiasi.ro
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Makan Pourzandi <Makan.Pourzandi@ericsson.ca>,
+       Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>,
+       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
+       Vincent Roy <vincent.roy@ericsson.ca>,
+       David Gordon <davidgordonca@yahoo.ca>, <socrate@infoiasi.ro>
+Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature
+ verification for binaries
+In-Reply-To: <20031001182440.GV7665@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.21.0.1; VDF 6.21.0.57
+X-Spam-Score: -2.6 () BAYES_30,EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REPLY_WITH_QUOTES,USER_AGENT_PINE,X_AUTH_WARNING
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Fine. I agree on adding in to mainline 2.4.x.
 
-Great, this is really good news for all of us here owning a LSI MegaRAID 
-card ! Thank you very much!!
+On Wed, 1 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-Now will this already go in kernel 2.4.23 ?
+> <shrug> so in a month rootkits get updated and we are back to square 1,
+> with additional mess from patch...
 
-Regards
+Viro, I think you have an attitude problem here. "Don't be ridiculous",
+"Rubbish", "<shrug>" don't sound very constructive or at least
+encouraging.
 
-_________________________________________________________________
-The new MSN 8: advanced junk mail protection and 2 months FREE* 
-http://join.msn.com/?page=features/junkmail
+Over the years it was proved that Linux kernel can be tailored for a very
+large number of unexpected and very strange needs. IBM put it into
+watches, NASA sent it to space, it is exists in oil wells and so on. I
+think that the possibilities offered by Linux kernel are limited only by
+the knowledge, imagination and will of every of us. Linux itself was once
+a very insignificant and unreliable kernel and many other serious Unix and
+Unix-like alternative were available. Still, it is prevailing today because
+some peoples believed in what they did.
+
+Especially to your point, should I mention that there are patches that
+avoid buffer-overflows? Or that there are patches for gcc that add bound
+check to arrays in C?
+
+These peoples are trying to solve a problem. If you have some expertise in
+the area of the problem, it might be much useful to come with positive
+ideas about how the encountered problems can be solved, instead of
+dismissing with so much ease the effort done to solve a real problem.
+
+Come on, I'm sure you can Think Positive (TM).
+
+Regards,
 

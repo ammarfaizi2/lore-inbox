@@ -1,50 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264007AbRFEPEQ>; Tue, 5 Jun 2001 11:04:16 -0400
+	id <S264009AbRFEPKQ>; Tue, 5 Jun 2001 11:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264008AbRFEPEG>; Tue, 5 Jun 2001 11:04:06 -0400
-Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:39684 "HELO
-	gateway.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S264007AbRFEPD4>; Tue, 5 Jun 2001 11:03:56 -0400
-Date: Tue, 5 Jun 2001 17:03:27 +0200
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, green@linuxhacker.ru,
-        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac7
-Message-ID: <20010605170327.A13375@intern.kubla.de>
-In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com> <200106032051.f53Kpgg10681@devserv.devel.redhat.com> <20010604122708.B33@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010604122708.B33@toy.ucw.cz>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S264010AbRFEPKH>; Tue, 5 Jun 2001 11:10:07 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:26051 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S264009AbRFEPJp>; Tue, 5 Jun 2001 11:09:45 -0400
+Date: Tue, 5 Jun 2001 17:11:01 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+In-Reply-To: <20010604210835.A2907@jurassic.park.msu.ru>
+Message-ID: <Pine.GSO.3.96.1010605170310.12987F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 04, 2001 at 12:27:11PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > How about ISA USB host controllers?
-> > 
-> > Those, unfortunately, do not exist. I was shopping for one
-> > in vain for a long time. One formiddable difficulty is that
-> > USB bandwidth is larger than ISA, so the only feasible way
-> > to make a HC is to have all TD's in its onboard memory,
-> > as in VGA.
-> 
-> USB is 1.2MB/sec while 8-bit ISA is 4MB/sec (memory-mapped).
-> 
-> ...and OHCI does use board memory, anyway.
+On Mon, 4 Jun 2001, Ivan Kokshaysky wrote:
 
-And strangely enough a couple of vendors offer USB-to-ISA bridges:
-passive ISA backplanes that you can connect to your system using
-USB.  Just search for "USB ISA" with google.com ...
+> Indeed. Netscape is essentially 32 bit application, so probably
+> it treats TASK_UNMAPPED_BASE (0x20000000000) as failure.
+> A tad more respect of specified address fixes that.
 
-Dominik
+ Iterating over memory areas twice is ugly.  Tom, could you please try the
+following patch?  It should make things better with less ugliness.
+
 -- 
-          A lovely thing to see:                   Kobayashi Issa
-     through the paper window's holes               (1763-1828)
-                the galaxy.               [taken from: David Brin - Sundiver]
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+patch-2.4.5-ac8-mmap-7
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/arch/ia64/kernel/sys_ia64.c linux-2.4.5-ac8/arch/ia64/kernel/sys_ia64.c
+--- linux-2.4.5-ac8.macro/arch/ia64/kernel/sys_ia64.c	Tue Jun  5 14:22:10 2001
++++ linux-2.4.5-ac8/arch/ia64/kernel/sys_ia64.c	Tue Jun  5 14:46:14 2001
+@@ -39,11 +39,15 @@ arch_get_unmapped_area (struct file *fil
+ 		    rgn_offset(addr) + len <= RGN_MAP_LIMIT) &&
+ 		    (!vmm || addr + len <= vmm->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
++	}
++	if (!addr) {
++		if (flags & MAP_SHARED)
++			addr = COLOR_ALIGN(TASK_UNMAPPED_BASE);
++		else
++			addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 	}
+-	if (flags & MAP_SHARED)
+-		addr = COLOR_ALIGN(TASK_UNMAPPED_BASE);
+-	else
+-		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vmm = find_vma(current->mm, addr); ; vmm = vmm->vm_next) {
+ 		/* At this point:  (!vmm || addr < vmm->vm_end). */
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/arch/sparc/kernel/sys_sparc.c linux-2.4.5-ac8/arch/sparc/kernel/sys_sparc.c
+--- linux-2.4.5-ac8.macro/arch/sparc/kernel/sys_sparc.c	Tue Jun  5 14:22:10 2001
++++ linux-2.4.5-ac8/arch/sparc/kernel/sys_sparc.c	Tue Jun  5 14:39:49 2001
+@@ -69,11 +69,15 @@ unsigned long arch_get_unmapped_area(str
+ 		if (TASK_SIZE - PAGE_SIZE - len >= addr &&
+ 		    (!vmm || addr + len <= vmm->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
++	}
++	if (!addr) {
++		if (flags & MAP_SHARED)
++			addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
++		else
++			addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 	}
+-	if (flags & MAP_SHARED)
+-		addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
+-	else
+-		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vmm = find_vma(current->mm, addr); ; vmm = vmm->vm_next) {
+ 		/* At this point:  (!vmm || addr < vmm->vm_end). */
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/arch/sparc64/kernel/sys_sparc.c linux-2.4.5-ac8/arch/sparc64/kernel/sys_sparc.c
+--- linux-2.4.5-ac8.macro/arch/sparc64/kernel/sys_sparc.c	Tue Jun  5 14:22:10 2001
++++ linux-2.4.5-ac8/arch/sparc64/kernel/sys_sparc.c	Tue Jun  5 14:44:19 2001
+@@ -76,11 +76,15 @@ unsigned long arch_get_unmapped_area(str
+ 		if (task_size >= addr &&
+ 		    (!vmm || addr + len <= vmm->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
++	}
++	if (!addr) {
++		if (flags & MAP_SHARED)
++			addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
++		else
++			addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 	}
+-	if (flags & MAP_SHARED)
+-		addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
+-	else
+-		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vmm = find_vma(current->mm, addr); ; vmm = vmm->vm_next) {
+ 		/* At this point:  (!vmm || addr < vmm->vm_end). */
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/mm/mmap.c linux-2.4.5-ac8/mm/mmap.c
+--- linux-2.4.5-ac8.macro/mm/mmap.c	Tue Jun  5 14:22:29 2001
++++ linux-2.4.5-ac8/mm/mmap.c	Tue Jun  5 14:45:57 2001
+@@ -408,8 +408,11 @@ static inline unsigned long arch_get_unm
+ 		if (TASK_SIZE - len >= addr &&
+ 		    (!vma || addr + len <= vma->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
+ 	}
+-	addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
++	if (!addr)
++		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
+ 		/* At this point:  (!vma || addr < vma->vm_end). */
+

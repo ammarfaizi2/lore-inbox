@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317187AbSFWW7L>; Sun, 23 Jun 2002 18:59:11 -0400
+	id <S317188AbSFWXFp>; Sun, 23 Jun 2002 19:05:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317188AbSFWW7K>; Sun, 23 Jun 2002 18:59:10 -0400
-Received: from pallas.or.intel.com ([134.134.214.21]:8959 "EHLO
-	pallas.or.intel.com") by vger.kernel.org with ESMTP
-	id <S317187AbSFWW7K>; Sun, 23 Jun 2002 18:59:10 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7F52@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Nick Bellinger'" <nickb@attheoffice.org>,
-       David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: driverfs is not for everything! (was:  [PATCH] /proc/scsi/map)
-Date: Sun, 23 Jun 2002 15:59:04 -0700
+	id <S317189AbSFWXFo>; Sun, 23 Jun 2002 19:05:44 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:29633 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S317188AbSFWXFo>; Sun, 23 Jun 2002 19:05:44 -0400
+Date: 24 Jun 2002 00:56:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+cc: lm@bitmover.com
+Message-ID: <8RVhG6aHw-B@khms.westfalen.de>
+In-Reply-To: <20020622122656.W23670@work.bitmover.com>
+Subject: Re: latest linus-2.5 BK broken
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <m1lm97rx16.fsf@frodo.biederman.org> <m1r8j1rwbp.fsf@frodo.biederman.org> <20020621105055.D13973@work.bitmover.com> <m1lm97rx16.fsf@frodo.biederman.org> <20020622122656.W23670@work.bitmover.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Nick Bellinger [mailto:nickb@attheoffice.org] 
-> Giving the IP stack its own directory (leaf?) under driverfs 
-> root sounds
-> interesting enough and could have some potential uses, but in the case
-> of iSCSI there are a few problems:
+lm@bitmover.com (Larry McVoy)  wrote on 22.06.02 in <20020622122656.W23670@work.bitmover.com>:
 
-I know this is one of those things that has more and more cool possibilities
-the more you think about it but...
+> Just out of curiousity, have you actually ever worked on a fine grain
+> threaded OS?  One that scales to at least 32 processors?  Solaris?  IRIX?
+> Others?  It makes a difference, if you've been there, your perspective is
 
-Is the device PHYSICALLY hooked up to the computer? If not, it shouldn't be
-in devicefs.
+IIRC, you said that your proposed system should have one oslet per about 4  
+CPUs. And I see many people claiming that current Linux locking is aimed  
+at being good with about 4 CPUs.
 
-The device tree (for which devicefs is the fs representation) was originally
-meant to enable good device power management and configuration. driverfs
-wasn't meant to handle iscsi or tcpip (that is, network) connections, nor
-should it have to.
+Maybe I'm dense, but it seems to me that means current Linux locking is  
+aimed at exactly the spot where you argue it should be aimed *anyway*.
 
-Regards -- Andy
+What am I not seeing?
+
+MfG Kai

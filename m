@@ -1,97 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317498AbSGEQMT>; Fri, 5 Jul 2002 12:12:19 -0400
+	id <S317499AbSGEQP3>; Fri, 5 Jul 2002 12:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317499AbSGEQMS>; Fri, 5 Jul 2002 12:12:18 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:5177 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S317498AbSGEQMQ>; Fri, 5 Jul 2002 12:12:16 -0400
-Date: Fri, 5 Jul 2002 11:14:51 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200207051614.LAA68184@tomcat.admin.navo.hpc.mil>
-To: spotter@cs.columbia.edu, linux-kernel@vger.kernel.org
+	id <S317500AbSGEQP2>; Fri, 5 Jul 2002 12:15:28 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:2684 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S317499AbSGEQP0>; Fri, 5 Jul 2002 12:15:26 -0400
+Date: Fri, 5 Jul 2002 19:17:51 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Hank Leininger <hlein@progressive-comp.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: prevent breaking a chroot() jail?
-In-Reply-To: <1025879850.11004.75.camel@zaphod>
-X-Mailer: [XMailTool v3.1.2b]
+Message-ID: <20020705161750.GO1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Hank Leininger <hlein@progressive-comp.com>,
+	linux-kernel@vger.kernel.org
+References: <200207051516.g65FGYY20854@marc2.theaimsgroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207051516.g65FGYY20854@marc2.theaimsgroup.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaya Potter <spotter@cs.columbia.edu>:
-> 
-> On Fri, 2002-07-05 at 10:02, Miquel van Smoorenburg wrote:
-> > In article <1025877004.11004.59.camel@zaphod>,
-> > Shaya Potter  <spotter@cs.columbia.edu> wrote:
-> > >I'm trying to develop a way to ensure that one can't break out of a
-> > >chroot() jail, even as root.  I'm willing to change the way the syscalls
-> > >work (most likely only for a subset of processes, i.e. processes that
-> > >are run in the jail end up getting a marker which is passed down to all
-> > >their children that causes the syscalls to behave differently).
-> > >What should I be aware of?  I figure devices (no need to run mknod in
-> > >this jail) and chroot (as per man page), is there any other way of
-> > >breaking the chroot jail (at a syscall level or otherwise)?
-> > 
-> > int main()
-> > {
-> > 	chdir("/");
-> > 	mkdir("foo");
-> > 	chroot("foo");
-> > 	chdir("../../../../../../..");
-> > 	chroot(".");
-> > 	execl("/bin/sh", "sh", NULL);
-> > }
-> > 
-> > Run as root and you're out of the chroot jail. This is because
-> > chroot() doesn't chdir() to the new root, so after a chroot() in
-> > the chroot jail you're suddenly out of it.
+On Fri, Jul 05, 2002 at 11:16:34AM -0400, you [Hank Leininger] wrote:
+>
+> No, there are many ways that root can break out of chroot(2).  I maintain
+> some patches[1] against 2.2 (and grsecurity[2] has ported most of them to
+> 2.4) which aim to try to make it harder for root to break out of chroot(2),
+> but I won't say I've got them all--in fact I'll say I'm sure I *don't* have
+> them all, and I'd like to hear suggestions for more.  Here are some things
+> to worry about:
 
-Usually, I see the above sequence more like:
-	...
-	chdir("/");
-	mkdir("foo");
-	chdir("/foo");
-	chroot("/foo");
-	...
-Though this doesn't necessarily change the situation.
+I was skimming through FreeBSD jail(2) documents
+(http://docs.freebsd.org/44doc/papers/jail/jail.html). 
 
-> yes, that's what the man page says.  Is that the only hole? i.e. if one
-> changed the semantics of chroot() to also do a chdir() to the new root,
-> would that be fixed? (not arguing on changing this for everything, just
-> for something specific)
+Compared to jail
+(http://docs.freebsd.org/44doc/papers/jail/jail-5.html#section5):
+ 
+> -chroot(2)'ing with an open directory fd
+> -prevent chroot(2) by a process already chrooted ("double-chroot")
 
-sure, but it depends on what you are trying to prevent... all of these assume
-root, and are only possiblilities, not necessarily realities.
+Jail thwarts these.
 
-signal is one way to bring the system down (as is reboot).
+> -block mount(2) attempts inside chroot ("chroot(../..)" ...)
+> -block mknod of char or block devices inside chroot ("mknod /dev/hda",
+>    "mknod /dev/kmem")
 
-swapon is a way to get to other processes memory (create a swap file, then
-start swapping to it). This one is difficult to implement effectively.
+Also prohibited in jail.
 
-ptrace may allow access to other processes (not sure - see PTRACE_ATTACH)
+> -block chmod +s by a chrooted process
 
-Modify the shared libraries (in memory) and you modify all processes that
-are using it (yes it is read only, but root may be able to change the memory
-tables). I havent tried this one, and it may not be possible
+Jail appears to allow this, and you can't get out of jail as (jailed) root
+anyway.
 
-Use open/read/write/close to get the inode of the real parent directory,
-then the program creates a new file entry (bypassing mkdir... use read/write)
-to create a subdirectory link to then cd into. Yes it is an invalid entry.
+> -block ptrace(2) by a chrooted process of processes outside the jail
 
-mmap may allow access to devices or the IO memory mapped area.
+I believe jail prohibits this as well (through its p_trespass() mechanism).
 
-use iopl/ioperm to gain access to the I/O ports for devices.
+> -block most signals by a chrooted process to processes outside the jail
 
-mount may allow a loopback nfs mount (not tested either). This would only
-grant access to NFS filesystems exported globally, and would fail for those
-with explicit exports (host specified in the exports). It may also allow
-the mounting of /proc /devfs (or /devices) which would give access to
-everything.
+Likewise - it blocks all signals in and out from jail.
 
-There is no good way to trap root. You really need to move to something
-more secure.. such as a non priviledged root user (capability based, or
-LSM/SELinux based) and simply remove the privileges from the process before/as
-it is handed over to the chroot "jail".
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+> -block setting capabilities (capset) by a chrooted process of processes 
+>    outside the jail
 
-Any opinions expressed are solely my own.
+(No idea)
+
+> -drop "dangerous" capabilities when chroot(2)'ing.  (See the patch, but
+>    basically, various *_ADMIN, *RAW*, etc to block ioctl, sysctl for
+>    dangerous things.)
+
+Jail takes care of this by only allowing 35 operations for jailed root (out
+of the 260 allowed for normal root). Capabilies are propably better in linux
+context.
+
+> One area I have not looked at sufficiently is sysv IPC (shared memory,
+> semaphores...).  It's quite possible that a chrooted process can tamper
+> with shared memory segments that other, outside-chroot processes are using
+> (especially if some app is designed to use them to communicate across the
+> chroot boundary; I don't know of any but they could exist) and use that
+> vector to attack and try to subvert the other, non-chrooted process(es).
+
+I would imagine the p_trespass() check is used in FreeBSD to disallow any
+memory sharing between processes that are not in the same jail.
+
+In addition to what has been mentioned above, jail(2) notably limits jailed
+processes to one ip number (that of jail's). That way the jailed processes
+can't connect to hosts services (even through localhost interface) unless
+they listen to jail's ip, nor bind to any ip but the one that has been
+granted to the jail. They also do not allow any ipconfig, routing or kernel
+parameter changes etc from within a jail.
+ 
+In general, I wonder if it would make sense to aim for something like
+jail(2). Chroot has its shortcomings, and I take it that many of them have
+to be preserved to maintain standard compliance. Jail isolates processes
+more completely than chroot is ever ment to.
+
+FreeBSD implements jail by adding a jail pointer to struct proc - I'm not
+sure how much of that should/could be done with mere capabilities in linux,
+and how much of the "fortificated chroot" implementation jail has overlaps
+with Al Viro's namespaces.
+
+All in all, I've seen suprisingly little conversation about jail on
+lkml. What do people think of it?
+
+
+-- v --
+
+v@iki.fi

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279951AbRKSQLu>; Mon, 19 Nov 2001 11:11:50 -0500
+	id <S279934AbRKSQUV>; Mon, 19 Nov 2001 11:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279927AbRKSQLa>; Mon, 19 Nov 2001 11:11:30 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35338 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S277012AbRKSQL2>; Mon, 19 Nov 2001 11:11:28 -0500
-Date: Mon, 19 Nov 2001 11:11:20 -0500
-Message-Id: <200111191611.fAJGBKQ30686@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14 Oops during boot (KT133A Problem?)
-X-Newsgroups: linux.kernel
-In-Reply-To: <3BF32B36.8B1375D0@neo.shinko.co.jp>
-In-Reply-To: <20011115021142.A12923@moog.heim1.tu-clausthal.de>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-Reply-To: davidsen@tmr.com (bill davidsen)
+	id <S279963AbRKSQUM>; Mon, 19 Nov 2001 11:20:12 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:27909 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S279934AbRKSQT7>; Mon, 19 Nov 2001 11:19:59 -0500
+Message-Id: <200111191619.fAJGJBu8018551@pincoya.inf.utfsm.cl>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature? 
+In-Reply-To: Message from vda <vda@port.imtp.ilyichevsk.odessa.ua> 
+   of "Mon, 19 Nov 2001 17:03:40 -0000." <01111917034005.00817@nemo> 
+Date: Mon, 19 Nov 2001 13:19:10 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BF32B36.8B1375D0@neo.shinko.co.jp> nakai@neo.shinko.co.jp wrote:
->I think you'd be better compile kernel for K6, not for K7.  There is
->something wrong with KT133 chip set and Athlon/Duron.
+vda <vda@port.imtp.ilyichevsk.odessa.ua> said:
 
-There is a patch for this chipset around, which AFAIK was never put in
-the kernel because the exact function of the patch was not known WRT the
-chipset internals. None the less, without it my Athlon systems won't run
-an Athlon compiled kernel, and while a P6 kernel will boot,
-Athlon-optimized user software will hang the system. Since that's not
-acceptable I run the patch. You should be able to find it on this list
-in the archives.
+[...]
 
+> Do you have even a single dir on your boxes with r!=x?
+
+Directories /dev, /lib, /bin, /etc under FTP home are --x. I'd do the same
+with cgi-bin et al for WWW...
+
+Some FTP sites (f.ex. ftp.sendmail.org) have limited distribution
+prereleases under an unreadable directory (--x).
+
+-wx is used for anonymous uploading under FTP
+
+It certainly has its uses. If you wanted to _really_ lock down a box, you'd
+start by doing the same --x game for some critical directories.
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

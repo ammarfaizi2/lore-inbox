@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbRFZNZV>; Tue, 26 Jun 2001 09:25:21 -0400
+	id <S264939AbRFZNbm>; Tue, 26 Jun 2001 09:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264939AbRFZNZL>; Tue, 26 Jun 2001 09:25:11 -0400
-Received: from mail.n-online.net ([195.30.220.100]:35090 "HELO
-	mohawk.n-online.net") by vger.kernel.org with SMTP
-	id <S264920AbRFZNY7>; Tue, 26 Jun 2001 09:24:59 -0400
-Date: Tue, 26 Jun 2001 15:22:09 +0200
-From: Thomas Foerster <puckwork@madz.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: AMD thunderbird oops
-X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010626132506Z264920-17720+7784@vger.kernel.org>
+	id <S264940AbRFZNbc>; Tue, 26 Jun 2001 09:31:32 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:48587 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264939AbRFZNba>;
+	Tue, 26 Jun 2001 09:31:30 -0400
+Date: Tue, 26 Jun 2001 15:31:25 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106261331.PAA454623.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, R.E.Wolff@BitWizard.nl
+Subject: Re: loop device broken in 2.4.6-pre5
+Cc: axboe@suse.de, jari.ruusu@pp.inet.fi, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rogier Wolff writes:
 
-> I went trought 8 Athlon, (latest 1300 Mhz 200Mhz FSB).
+>> But why 1024?
+>> (Or make the set blocksize ioctl also work on loop devices.)
 
-> Usually those stability problems are related to power supply (it should
-> be at less 300 Watt).
-> If the power supply does not give enought Ampere, and the energy
-> is fluttuant, the Athlon cpu really suffers.
+> I thought the change was a "quick hack" that would make stuff work
+> (page cache?) near the end of the file. That would mean that this kind
+> of "quick hack" won't work. 
 
-I have a 400 Watt power supply.
-With 2.2.x Kernel my System runs stable, but when i'm using whatever 2.4.x kernel i like,
-i get the oopses and processcrashes (but only when i'm NOT root!)
+I am not sure I can parse your sentence.
+But:
 
-Thomas
+# blockdev --getbsz /dev/loop1
+0
+# dd if=/dev/zero of=tenbl bs=1024 count=10
+10+0 records in
+10+0 records out
+# losetup /dev/loop1 tenbl
+# blockdev --getbsz /dev/loop1
+4096
+# dd if=/dev/zero of=/dev/loop1 bs=1024 count=10
+dd: writing `/dev/loop1': No space left on device
+9+0 records in
+8+0 records out
+# blockdev --setbsz 2048 /dev/loop1
+# blockdev --getbsz /dev/loop1
+2048
+# dd if=/dev/zero of=/dev/loop1 bs=1024 count=10
+10+0 records in
+10+0 records out
+#
 
+Andries

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263132AbUCZTUp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 14:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbUCZTUp
+	id S263793AbUCZTYc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 14:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264120AbUCZTYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 14:20:45 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:33709 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263132AbUCZTUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 14:20:41 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-Date: Fri, 26 Mar 2004 13:19:28 -0600
-User-Agent: KMail/1.6
-Cc: Lars Marowsky-Bree <lmb@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org
-References: <760890000.1079727553@aslan.btc.adaptec.com> <40632804.1020101@pobox.com> <20040325220434.GW15264@marowsky-bree.de>
-In-Reply-To: <20040325220434.GW15264@marowsky-bree.de>
+	Fri, 26 Mar 2004 14:24:32 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:30452 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263793AbUCZTYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 14:24:30 -0500
+Message-ID: <4064835E.50403@nortelnetworks.com>
+Date: Fri, 26 Mar 2004 14:24:14 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux.nics@intel.com, Linux kernel <linux-kernel@vger.kernel.org>,
+       cramerj@intel.com, scott.feldman@intel.com
+Subject: e1000 performance issues and broken mtu setting
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403261319.28858.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 March 2004 4:04 pm, Lars Marowsky-Bree wrote:
-> On 2004-03-25T13:42:12,
->
->    Jeff Garzik <jgarzik@pobox.com> said:
-> > >and -5). And we've talked for a long time about wanting to port RAID-1
-> > > and RAID-5 (and now RAID-6) to Device-Mapper targets, but we haven't
-> > > started on any such work, or even had any significant discussions about
-> > > *how* to do it. I can't
-> >
-> > let's have that discussion :)
->
-> Nice 2.7 material, and parts I've always wanted to work on. (Including
-> making the entire partition scanning user-space on top of DM too.)
 
-Couldn't agree more. Whether using EVMS or kpartx or some other tool, I think 
-we've already proved this is possible. We really only need to work on making 
-early-userspace a little easier to use.
+I've got a pair of dual G5s.  For a second gigE link we added in some 
+Intel 82540EM cards, using the e1000 driver in the 2.6.4 tree with NAPI 
+enabled.  lspci reports the bus as 66MHz.  The cards were connected 
+together with a crossover cable.
 
-> KS material?
+A basic UDP packet-blasting program in userspace using 64KB datagrams 
+could only manage 47MB/s of data throughput, using 20% of a cpu.
 
-Sounds good to me.
+For comparison, the same program managed 108.9 MB/s with 30% cpu when 
+using the onboard gigE ports.
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+Also, I tried setting a larger mtu using "ip set link dev ethx mtu 
+xxxxx".  No matter what value I chose (even setting it to its default 
+value, which should have had zero effect) it resulted in the link not 
+being able to transfer data.  Downing/upping the link didn't clear the 
+issue, neither did unloading/reloading the driver module.  It took a 
+reboot to actually get it working again.
+
+Any ideas what's going on?
+
+Thanks,
+
+Chris Friesen
+

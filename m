@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUHQHUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUHQH2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268128AbUHQHUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268132AbUHQHUU
+	id S268132AbUHQH2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268133AbUHQH2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:20:20 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:12690 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S268128AbUHQHUL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:20:11 -0400
-Subject: Re: 2.6.8.1-mm1
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1092722342.3081.68.camel@booger>
-References: <20040816143710.1cd0bd2c.akpm@osdl.org>
-	 <1092722342.3081.68.camel@booger>
-Content-Type: text/plain
-Message-Id: <1092727147.27274.109.camel@bach>
+	Tue, 17 Aug 2004 03:28:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:662 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268132AbUHQH2W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 03:28:22 -0400
+Subject: Re: [PATCH] Use x86 SSE instructions for clear_page, copy_page
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jens Maurer <Jens.Maurer@gmx.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4121A211.8080902@gmx.net>
+References: <4121A211.8080902@gmx.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dxOrFj0RXcoKEdIGcQec"
+Organization: Red Hat UK
+Message-Id: <1092727670.2792.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 17:19:08 +1000
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 17 Aug 2004 09:27:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 15:59, Nathan Lynch wrote:
-> I can consistently hit this BUG_ON in migration_call's CPU_DEAD handling
-> by doing:
-> 
-> while true ; do
-> echo 0 > /sys/devices/system/cpu/cpu1/online
-> echo 1 > /sys/devices/system/cpu/cpu1/online
-> done
-> 
-> and then starting a kernel build.  It seems to take less than 20
-> minutes.  I can also recreate it on ppc64, but only with
-> CONFIG_PREEMPT=y (I haven't tried without preempt on i386 yet).
 
-Hmm, can you figure out what patch in -mm breaks it?
+--=-dxOrFj0RXcoKEdIGcQec
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Looking through 2.6.8.1-mm1, I see this code which doesn't make sense:
+On Tue, 2004-08-17 at 08:13, Jens Maurer wrote:
+> The attached patch (against kernel 2.6.8.1) enables using SSE
+> instructions for copy_page and clear_page.
+>=20
+> A user-space test on my Pentium III 850 MHz shows a 3x speedup for
+> clear_page (compared to the default "rep stosl"), and a 50% speedup
+> for copy_page (compared to the default "rep movsl").  For a Pentium-4,
+> the speedup is about 50% in both the clear_page and copy_page cases.
 
 
-	if (likely(cpu == this_cpu)) {
-...
-	} else {
-		runqueue_t *this_rq = cpu_rq(this_cpu);
+we used to have code like this in 2.4 but it got removed: the non
+temperal store code is faster in a microbenchmark but has the
+fundamental problem that it evics the data from the cpu cache; the
+actual USE of the data thus is a LOT more expensive, result is that the
+overall system performance goes down ;(
 
-		/*
-		 * Not the local CPU - must adjust timestamp. This should
-		 * get optimised away in the !CONFIG_SMP case.
-		 */
-		p->timestamp = (p->timestamp - this_rq->timestamp_last_tick)
-					+ rq->timestamp_last_tick;
-		__activate_task(p, rq);
-		if (TASK_PREEMPTS_CURR(p, rq))
-			resched_task(rq->curr);
+--=-dxOrFj0RXcoKEdIGcQec
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-		current->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(current) *
-			PARENT_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
-		schedstat_inc(rq, wunt_moved);
-	}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-	if (unlikely(cpu != this_cpu)) {
-		task_rq_unlock(rq, &flags);
-		rq = task_rq_lock(current, &flags);
-	}
-	current->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(current) *
-		PARENT_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
-	task_rq_unlock(rq, &flags);
-}
+iD8DBQBBIbN2xULwo51rQBIRAqahAJ923/F/630U7c+c/RSfiJma2A8YBwCdG8d5
+oOcgTcgaRhP2zqtX/SCYxN0=
+=hSl7
+-----END PGP SIGNATURE-----
 
-So, first off, the statements under "if (unlikely(cpu != this_cpu))" can
-be folded into the previous block, since that's under the same test. 
-Secondly, why is sleep_avg being set twice to the same thing, and why
-are we happy to adjust it the first time without holding the rq lock for
-current, but the second time we make sure we are holding the rq lock? 
-recalc_task_prio seems happy to adjust a tasks ->sleep_avg without
-holding any lock at all...
-
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+--=-dxOrFj0RXcoKEdIGcQec--
 

@@ -1,336 +1,339 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270517AbTGNDo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 23:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270518AbTGNDo2
+	id S270520AbTGNDtM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 23:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270522AbTGNDtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 23:44:28 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:12500 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270517AbTGNDoV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 23:44:21 -0400
-Date: Sun, 13 Jul 2003 20:59:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux v2.6.0-test1
-Message-ID: <Pine.LNX.4.44.0307132055080.2096-100000@home.osdl.org>
+	Sun, 13 Jul 2003 23:49:12 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:33997 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S270520AbTGNDsy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 23:48:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Guillaume Chazarain <gfc@altern.org>
+Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
+Date: Mon, 14 Jul 2003 14:05:35 +1000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, phillips@arcor.de, smiler@lanil.mine.nu
+References: <ZTEANKTPFA5YUR93JFQE096KF85YA8.3f1172b0@monpc>
+In-Reply-To: <ZTEANKTPFA5YUR93JFQE096KF85YA8.3f1172b0@monpc>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307141405.35573.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Jul 2003 00:54, Guillaume Chazarain wrote:
+> 13/07/03 14:53:12, Con Kolivas <kernel@kolivas.org> wrote:
+> >On Sun, 13 Jul 2003 20:41, Guillaume Chazarain wrote:
+> Good, with ISO_PENALTY == 2, I can smoothly move big windows (with
+> ISO_PENALTY == 5 it was smooth only with very small windows), but it lets
+> me move them smoothly during less time than stock :(
 
-Ok,
- the naming should be familiar - it's the same deal as with 2.4.0.
+I think I know what you mean now. Expiring X hurts. With a penalty of only 2
+it should be unecessary to expire iso tasks. Addressed below.
 
-One difference is that while 2.4.0 took about 7 months from the pre1 to 
-the final release, I hope (and believe) that we have fewer issues facing 
-us in the current 2.6.0. But very obviously there are going to be a
-few test-releases before the real thing.
+> >The logical conclusion of this idea where there is a dynamic policy
+> > assigned to interactive tasks is a dynamic policy assigned to non
+> > interactive tasks that get treated in the opposite way. I'll code
+> > something for that soon, now that I've had more feedback on the first
+> > part.
+>
+> Interesting, let's see :)
+> But as the interactive bonus can already be negative I wonder what use
+> will have another variable.
 
-The point of the test versions is to make more people realize that they
-need testing and get some straggling developers realizing that it's too
-late to worry about the next big feature. I'm hoping that Linux vendors
-will start offering the test kernels as installation alternatives, and
-do things like make upgrade internal machines, so that when the real
-2.6.0 does happen, we're all set.
+The added feature of expiring them every time they use up their timeslice
+should help.
 
-		Linus
+An updated patch-SI-0307141335 against 2.5.75-mm1 incorporating these
+changes and more tweaks is here:
+http://kernel.kolivas.org/2.5/
 
----
+and here:
+patch-SI-0307141335
+--------------------------------
+diff -Naurp linux-2.5.75-mm1/include/linux/sched.h linux-2.5.75-test/include/linux/sched.h
+--- linux-2.5.75-mm1/include/linux/sched.h	2003-07-13 00:21:30.000000000 +1000
++++ linux-2.5.75-test/include/linux/sched.h	2003-07-14 13:50:01.000000000 +1000
+@@ -125,6 +125,8 @@ extern unsigned long nr_iowait(void);
+ #define SCHED_NORMAL		0
+ #define SCHED_FIFO		1
+ #define SCHED_RR		2
++#define SCHED_BATCH		3
++#define SCHED_ISO		4
+ 
+ struct sched_param {
+ 	int sched_priority;
+diff -Naurp linux-2.5.75-mm1/kernel/exit.c linux-2.5.75-test/kernel/exit.c
+--- linux-2.5.75-mm1/kernel/exit.c	2003-07-13 00:21:30.000000000 +1000
++++ linux-2.5.75-test/kernel/exit.c	2003-07-14 13:33:42.000000000 +1000
+@@ -223,7 +223,7 @@ void reparent_to_init(void)
+ 	/* Set the exit signal to SIGCHLD so we signal init on exit */
+ 	current->exit_signal = SIGCHLD;
+ 
+-	if ((current->policy == SCHED_NORMAL) && (task_nice(current) < 0))
++	if ((current->policy == SCHED_NORMAL || current->policy == SCHED_ISO || current->policy == SCHED_BATCH) && (task_nice(current) < 0))
+ 		set_user_nice(current, 0);
+ 	/* cpus_allowed? */
+ 	/* rt_priority? */
+diff -Naurp linux-2.5.75-mm1/kernel/sched.c linux-2.5.75-test/kernel/sched.c
+--- linux-2.5.75-mm1/kernel/sched.c	2003-07-13 00:21:30.000000000 +1000
++++ linux-2.5.75-test/kernel/sched.c	2003-07-14 13:41:55.000000000 +1000
+@@ -74,12 +74,12 @@
+ #define PRIO_BONUS_RATIO	25
+ #define INTERACTIVE_DELTA	2
+ #define MIN_SLEEP_AVG		(HZ)
+-#define MAX_SLEEP_AVG		(10*HZ)
+-#define STARVATION_LIMIT	(10*HZ)
+-#define SLEEP_BUFFER		(HZ/20)
++#define MAX_SLEEP_AVG		(5*HZ)
++#define STARVATION_LIMIT	(5*HZ)
++#define ISO_PENALTY		(2)
+ #define NODE_THRESHOLD		125
+ #define MAX_BONUS		((MAX_USER_PRIO - MAX_RT_PRIO) * PRIO_BONUS_RATIO / 100)
+-
++#define JUST_INTERACTIVE	(MAX_BONUS - INTERACTIVE_DELTA) / MAX_BONUS
+ /*
+  * If a task is 'interactive' then we reinsert it in the active
+  * array after it has expired its current timeslice. (it will not
+@@ -118,6 +118,10 @@
+ #define TASK_INTERACTIVE(p) \
+ 	((p)->prio <= (p)->static_prio - DELTA(p))
+ 
++#define normal_task(p)		((p)->policy == SCHED_NORMAL)
++#define iso_task(p)		((p)->policy == SCHED_ISO)
++#define batch_task(p)		((p)->policy == SCHED_BATCH)
++
+ /*
+  * BASE_TIMESLICE scales user-nice values [ -20 ... 19 ]
+  * to time slice values.
+@@ -134,7 +138,16 @@
+ 
+ static inline unsigned int task_timeslice(task_t *p)
+ {
+-	return BASE_TIMESLICE(p);
++	if (!iso_task(p))
++		return (BASE_TIMESLICE(p));
++	else {
++		int timeslice = BASE_TIMESLICE(p) / ISO_PENALTY;
++
++		if (timeslice < MIN_TIMESLICE)
++			timeslice = MIN_TIMESLICE;
++
++		return timeslice;
++	}
+ }
+ 
+ /*
+@@ -319,6 +332,14 @@ static inline void normalise_sleep(task_
+ 
+ 	p->sleep_avg = p->sleep_avg * MIN_SLEEP_AVG / old_avg_time;
+ 	p->avg_start = jiffies - MIN_SLEEP_AVG;
++
++	/*
++	 * New children and their parents are not allowed to
++	 * be SCHED_ISO or SCHED_BATCH.
++	 */
++	if (iso_task(p) || batch_task(p))
++		p->policy = SCHED_NORMAL;
++
+ }
+ 
+ /*
+@@ -343,26 +364,38 @@ static int effective_prio(task_t *p)
+ 	if (rt_task(p))
+ 		return p->prio;
+ 
+-	sleep_period = jiffies - p->avg_start;
++	/*
++	 * SCHED_BATCH tasks end up getting the maximum penalty
++	 */
++	bonus = - MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+ 
+-	if (unlikely(!sleep_period))
+-		return p->static_prio;
++	if (normal_task(p)){
++		sleep_period = jiffies - p->avg_start;
+ 
+-	if (sleep_period > MAX_SLEEP_AVG)
+-		sleep_period = MAX_SLEEP_AVG;
++		if (unlikely(!sleep_period))
++			return p->static_prio;
+ 
+-	if (p->sleep_avg > sleep_period)
+-		sleep_period = p->sleep_avg;
++		if (sleep_period > MAX_SLEEP_AVG)
++			sleep_period = MAX_SLEEP_AVG;
+ 
+-	/*
+-	 * The bonus is determined according to the accumulated
+-	 * sleep avg over the duration the task has been running
+-	 * until it reaches MAX_SLEEP_AVG. -ck
+-	 */
+-	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/sleep_period/100 -
+-			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
++		if (p->sleep_avg > sleep_period)
++			sleep_period = p->sleep_avg;
++
++		/*
++		 * The bonus is determined according to the accumulated
++		 * sleep avg over the duration the task has been running
++		 * until it reaches MAX_SLEEP_AVG. -ck
++		 */
++		bonus += MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/sleep_period/100;
++
++	} else if (iso_task(p))
++		/*
++		 * SCHED_ISO tasks get the maximum possible bonus
++		 */
++		bonus += MAX_USER_PRIO*PRIO_BONUS_RATIO/100;
+ 
+ 	prio = p->static_prio - bonus;
++
+ 	if (prio < MAX_RT_PRIO)
+ 		prio = MAX_RT_PRIO;
+ 	if (prio > MAX_PRIO-1)
+@@ -398,6 +431,11 @@ static inline void activate_task(task_t 
+ 		 * to allow them to become interactive or non-interactive rapidly
+ 		 */
+ 		if (sleep_time > MIN_SLEEP_AVG){
++			/*
++			 * Idle tasks can not be SCHED_ISO or SCHED_BATCH
++			 */
++			if (iso_task(p) || batch_task(p))
++				p->policy = SCHED_NORMAL;
+ 			p->avg_start = jiffies - MIN_SLEEP_AVG;
+ 			p->sleep_avg = MIN_SLEEP_AVG * (MAX_BONUS - INTERACTIVE_DELTA - 1) /
+ 				MAX_BONUS;
+@@ -417,25 +455,45 @@ static inline void activate_task(task_t 
+ 			 * the problem of the denominator in the bonus equation
+ 			 * from continually getting larger.
+ 			 */
+-			if ((runtime - MIN_SLEEP_AVG) < MAX_SLEEP_AVG)
+-				p->sleep_avg += (runtime - p->sleep_avg) *
+-					(MAX_SLEEP_AVG + MIN_SLEEP_AVG - runtime) *
+-					(MAX_BONUS - INTERACTIVE_DELTA) / MAX_BONUS / MAX_SLEEP_AVG;
++
++			if ((runtime - MIN_SLEEP_AVG < MAX_SLEEP_AVG) && (runtime * JUST_INTERACTIVE > p->sleep_avg))
++				p->sleep_avg += (runtime * JUST_INTERACTIVE - p->sleep_avg) *
++					(MAX_SLEEP_AVG + MIN_SLEEP_AVG - runtime) / MAX_SLEEP_AVG;
++
++			if (p->sleep_avg > MAX_SLEEP_AVG){
++				/*
++				 * Tasks that have slept more than MAX_SLEEP_AVG
++				 * become SCHED_ISO tasks.
++				 */
++				if (normal_task(p))
++					p->policy = SCHED_ISO;
++				else if (unlikely(batch_task(p)))
++					p->policy = SCHED_NORMAL;
++
++				p->sleep_avg = MAX_SLEEP_AVG;
++			}
+ 
+ 			/*
+-			 * Keep a small buffer of SLEEP_BUFFER sleep_avg to
+-			 * prevent fully interactive tasks from becoming
+-			 * lower priority with small bursts of cpu usage.
++			 * Just in case a SCHED_ISO task has become a complete
++			 * cpu hog revert it to SCHED_NORMAL
+ 			 */
+-			if (p->sleep_avg > (MAX_SLEEP_AVG + SLEEP_BUFFER))
+-				p->sleep_avg = MAX_SLEEP_AVG + SLEEP_BUFFER;
++			if (unlikely(!p->sleep_avg && iso_task(p))){
++				p->policy = SCHED_NORMAL;
++				p->avg_start = jiffies;
++			}
+ 		}
+ 
+ 		if (unlikely(p->avg_start > jiffies)){
+ 			p->avg_start = jiffies;
+ 			p->sleep_avg = 0;
+ 		}
+-	}
++	/*
++	 * SCHED_NORMAL tasks that have used up all their sleep avg
++	 * get demoted to SCHED_BATCH
++	 */
++	} else if (!p->sleep_avg && normal_task(p))
++			p->policy = SCHED_BATCH;
++
+ 	p->prio = effective_prio(p);
+ 	__activate_task(p, rq);
+ }
+@@ -1309,13 +1367,20 @@ void scheduler_tick(int user_ticks, int 
+ 		p->time_slice = task_timeslice(p);
+ 		p->first_time_slice = 0;
+ 
+-		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
++		/*
++		 * SCHED_BATCH tasks always get expired if they use up their
++		 * timeslice.
++		 * If SCHED_ISO tasks are using too much cpu time they
++		 * enter the expired array.
++		 */
++		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq) || batch_task(p)) {
+ 			if (!rq->expired_timestamp)
+ 				rq->expired_timestamp = jiffies;
+ 			enqueue_task(p, rq->expired);
+ 		} else
+ 			enqueue_task(p, rq->active);
+ 	}
++
+ out_unlock:
+ 	spin_unlock(&rq->lock);
+ out:
+@@ -1818,8 +1883,8 @@ static int setscheduler(pid_t pid, int p
+ 		policy = p->policy;
+ 	else {
+ 		retval = -EINVAL;
+-		if (policy != SCHED_FIFO && policy != SCHED_RR &&
+-				policy != SCHED_NORMAL)
++		if (policy != SCHED_FIFO && policy != SCHED_RR && policy != SCHED_BATCH &&
++				policy != SCHED_NORMAL && policy != SCHED_ISO)
+ 			goto out_unlock;
+ 	}
+ 
+@@ -1830,7 +1895,7 @@ static int setscheduler(pid_t pid, int p
+ 	retval = -EINVAL;
+ 	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
+ 		goto out_unlock;
+-	if ((policy == SCHED_NORMAL) != (lp.sched_priority == 0))
++	if ((policy == SCHED_NORMAL || policy == SCHED_ISO || policy == SCHED_BATCH) != (lp.sched_priority == 0))
+ 		goto out_unlock;
+ 
+ 	retval = -EPERM;
+@@ -1852,7 +1917,7 @@ static int setscheduler(pid_t pid, int p
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
+ 	oldprio = p->prio;
+-	if (policy != SCHED_NORMAL)
++	if (policy == SCHED_FIFO || policy == SCHED_RR)
+ 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+ 	else
+ 		p->prio = p->static_prio;
+@@ -2151,6 +2216,8 @@ asmlinkage long sys_sched_get_priority_m
+ 		ret = MAX_USER_RT_PRIO-1;
+ 		break;
+ 	case SCHED_NORMAL:
++	case SCHED_ISO:
++	case SCHED_BATCH:
+ 		ret = 0;
+ 		break;
+ 	}
+@@ -2174,6 +2241,8 @@ asmlinkage long sys_sched_get_priority_m
+ 		ret = 1;
+ 		break;
+ 	case SCHED_NORMAL:
++	case SCHED_ISO:
++	case SCHED_BATCH:
+ 		ret = 0;
+ 	}
+ 	return ret;
 
-Summary of changes from v2.5.75 to v2.6.0-test1
-============================================
-
-<jcchen:icplus.com.tw>:
-  o [netdrvr sundance] increase eeprom read timeout
-
-<taowenhwa:intel.com>:
-  o [e100] cu_start: timeout waiting for cu
-  o [e100] misc
-
-Alan Cox:
-  o genrtc sets owner fields so
-  o Remove bogus printk in microcode.c
-  o clean up floppy98 a bit
-  o dtlk comment fix
-  o isurf compile fix
-  o axnet can unload with timers live
-  o ibmtr can unload with timers live
-  o fix up nmclan locking and hang on eject at wrong moment
-  o fix further timer in pcmcia stuff
-  o Fix remaining g_NCR5380 use of check_region
-  o not sure what the author was on
-  o AC97 updates from 2.4
-  o Add the au1000 driver
-  o demo plugin for switching ad1980 ports Dell style
-  o Fix security leaks in btaudio
-  o Add the ALI5455 driver from 2.4
-  o fix security leaks in cmpci
-  o Update cs46xx in 2.5 to the newer 2.4 release
-  o fix the security leak in dmasound
-  o Switch the SB Live! to the new ac97 api
-  o fix security leaks and a crash in es1370
-  o bring es1371 in line with 2.4
-  o fix security leak and crash in esssolo
-  o Add Forte Media OSS driver
-  o update ITE audio
-  o update the i810 audio driver
-  o switch maestro3 to new ac97
-  o fix security leak in maestro.c
-  o fix security leak in msnd_pinnacle.c
-  o Add swarm driver for broadcom boards
-  o update nec driver to new ac97
-  o update trident driver for new ac97 etc
-  o fix wrong printk in nm256 audio
-  o update via audio driver, make it work on esd add new chips
-  o more wrong strlcpy's
-  o update ymfpci for new ac97
-  o Merge AD1889 driver from 2.4
-
-Alan Stern:
-  o USB: Small correction to usb-skeleton.c
-  o USB: Updates for unusual_devs.h
-
-Andi Kleen:
-  o Deprecate numerical sysctl
-  o x86-64 fixes for 2.5.75
-
-Andrew Morton:
-  o fix return of compat_sys_sched_getaffinity
-  o remove proc_mknod()
-  o reiserfs dirty memory accounting fix
-  o fix reiserfs for 64bit arches
-  o wall_to_monotonic initialization fixes for
-  o i_size atomic access: infrastructure
-  o i_size atomic access
-  o kmap() -> kmap_atomic() in fs/exec.c
-  o make CONFIG_KALLSYMS default to "on"
-  o misc fixes
-  o Set umask correctly for nfsd kernel threads
-  o Bug fix in AIO initialization
-  o Fix race condition between aio_complete and
-  o separate locking for vfsmounts
-  o fix for CPU scheduler load distribution
-  o NBD: cosmetic cleanups
-  o nbd: enhanced diagnostics support
-  o nbd: remove unneeded blksize_bits field
-  o nbd: initialise the embedded kobject
-  o nbd: cleanup PARANOIA usage & code
-  o NBD documentation update
-  o nbd: remove unneeded nbd_open/nbd_release and refcnt
-  o nbd: make nbd and block layer agree about device and
-  o JBD: checkpointing optimisations
-  o JBD: transaction buffer accounting fix
-  o ext3: sync_fs() fix
-  o oom killer fixes
-  o yenta-socket initialisation fix
-  o Fix yenta-socket oops
-  o devfs oops fix
-  o devfs deadlock fix
-  o epoll-per-fd fix
-
-Andries E. Brouwer:
-  o cryptoloop
-
-Bernardo Innocenti:
-  o asm-generic/div64.h breakage
-
-Brian Gerst:
-  o c99 initializers for init/version.c
-
-Daniel Ritz:
-  o more net driver timer fixes
-  o net/pcmcia fix fast_poll timers (HZ > 100)
-
-Dave Jones:
-  o [AGPGART] Remove unneeded assignment
-  o [AGPGART] Use defines for register bits in AMD K8 GART driver
-  o [AGPGART] K8 GART driver doesn't need masks
-  o [AGPGART] Ignore multiple K8 GARTS on UP
-  o [AGPGART] Optimise PCI searching in K8 GART driver
-  o [AGPGART] K8 Device 0x1103 is always at PCI_FUNC 3
-  o [AGPGART] K8 North bridge bus position is no longer relevant
-  o [AGPGART] HP AGP update
-  o [AGPGART] Sort SiS device IDs
-  o [AGPGART] SiS 746 support This (and a few other SiS chipsets) are
-    AGP 3 compliant. AFAIK, none of these have been tested in AGP3
-    mode, but they should work just fine in AGP2.x mode at least.
-  o [AGPGART] SiS 648 support
-  o [AGPGART] Make frontend sparse clean
-
-David Brownell:
-  o USB: usb_get_string(), don't use bogus ids
-  o USB: usbnet, don't NET_XMIT_DROP
-
-David S. Miller:
-  o [SPARC]: SEMTIMEDOP for both Sparc ports
-  o [SPARC64]: Port over IPC msg{snd,rcv} compat32 fixes from ia64
-  o [TCP]: When in SYN-SENT, initialize metrics after move to
-    established state
-  o [NET]: Ok, sunhme is VLAN challenged after all
-  o [IPV6]: Build and send redirect packet using "buff" not "skb",
-    fixes OOPS
-  o [IPV6]: Fix dst reference counting in ndisc_send_redirect()
-  o [NET,COMPAT]: Delete bogus icmpv6 filter translation code
-  o [IPV6]: Fix leaks of ndisc DST entries
-  o [SPARC64]: Ditch local KALLSYMS from Kconfig, update defconfig
-  o [SPARC64]: Implement force_successful_syscall()
-  o [SPARC64]: Use mm->free_area_cache
-  o [IPV4]: Do not redefine config macros in net/ip_vs.h
-  o [IPV4]: Always use Jenkins hash in ipvs conn table, use
-    get_random_bytes() to init key
-  o [IPV4]: Kill slow timers from IPVS, they are superfluous and
-    inefficient these days
-
-David Stevens:
-  o [IPV4]: Do not sent IGMP leave messages unless IFF_UP
-
-Dominik Brodowski:
-  o [PCMCIA] don't hide calls to socket drivers
-  o [PCMCIA] rename ss_entry to ops
-
-François Romieu:
-  o Fix AD1889 driver 2.4 merge
-  o Fix error path in AD1889 driver
-
-Greg Kroah-Hartman:
-  o USB: fix up my USB Bluetooth entry to help prevent confusion in the
-    future
-  o USB: remove pointless warning about using usbdevfs
-
-Herbert Xu:
-  o [IPSEC]: Missing reqid check in xfrm_state_ok
-
-Hideaki Yoshifuji:
-  o [IPV6]: Fix offset of payload with extension header
-
-Ian Abbott:
-  o USB: ftdi_sio update
-
-James Morris:
-  o [NETLINK]: Just drop packets for kernel netlink socket with no
-    data_ready handler
-
-Jean Tourrilhes:
-  o [IrDA] include cleanup
-  o [IrDA] struct check
-  o [IrDA] irtty leaks
-  o [IrDA] irnet cast
-  o [IrDA] IrCOMM devfs
-  o [IrDA] setup dma fix
-  o [IrDA] irda-usb endian
-  o [IrDA] nsc 39x support
-
-Jeff Garzik:
-  o [netdrvr tg3] more ULL suffixes to make gcc 3.3 happy
-  o [netdrvr] fix compiler warnings in 3c359, proteon, skisa tokenring
-    drivers.
-  o [netdrvr wavelan] remove check_region usage
-  o [netdrvr atmel_cs] kill compiler warning (jumping to "empty" label)
-
-Jens Axboe:
-  o disk stats accounting fix
-  o Fix IDE-CD command failure re-play
-  o fs accounting, part 2
-
-Kay Sievers:
-  o usblp: usb_buffer_free() not called Here is the blind flight :-)
-    === drivers/usb/class/usblp.c usblp->dev was set to NULL to
-    indicate a device disconnect but we need this value for
-    usb_buffer_free() when device is still opened and cleanup is
-    delayed until usblp_release().
-
-Linus Torvalds:
-  o Avoid mmap() overflow case if TASK_SIZE is the full range of an
-    "unsigned long" (sparc64).
-  o Merge comment updates from DRI CVS tree
-  o Update i810 DRI driver from CVS to add page flipping
-  o Update r128 driver from DRI CVS: add support for ycbcr textures
-  o Update radeon driver from DRI CVS: add more commands
-  o Merge from DRI CVS tree: avoid zero DRI "handles"
-  o Merge with DRI CVS tree - which added a reminder to the DRI people
-    not to remove the HAVE_KERNEL_CTX_SWITCH support that the sparc
-    drivers require.
-  o Fix signedness tests in vsnprintf by making it explicit
-  o Mark Bartlomiej as the IDE maintainer, about 3 months late ;)
-  o Disable TI cardbus PCI IRQ routing code that was forward-ported
-    from 2.4-ac - it seems to cause hangs for people.
-
-Matthew Dharm:
-  o USB: fix usb-storage initializers
-  o USB: fix datafab and freecom to use I/O buffer
-
-Matthew Wilcox:
-  o parisc updates
-  o Makefile update for parisc
-  o eisa Kconfig update for parisc
-  o Add two sysctls for PA-RISC
-  o Remove warning from binfmt_elf.c for upwards growing stack
-  o gsc-ps2 update
-
-Miles Bader:
-  o Use <asm-generic/statsfs.h> on v850
-  o More irqreturn_t changes for v850
-  o show_stack changes for v850
-
-Nivedita Singhvi:
-  o [NET]: Fix typo in net-sysfs.c copyright
-
-Pete Zaitcev:
-  o [SPARC]: Clean secondary System.map
-  o [SPARC]: defconfig for willy's scsi
-  o [SPARC]: hch's cond_syscall() for PCI syscalls, Alpha/PPC/etc. can
-    use this too
-  o [SPARC]: Redo show_stack()
-  o [SPARC]: Trap table alignment for Hyperspace (Keith Weselowsky)
-
-Petr Sebor:
-  o via-agp.c - agp_try_unsupported typo
-
-Petr Vandrovec:
-  o new sysctl checking accesses userspace directly
-
-Ralf Bächle:
-  o mkiss
-
-Richard Henderson:
-  o [ALPHA] Add tgkill syscall
-  o [ALPHA] Set correct CLOCK_TICK_RATE for the RTC
-  o [ALPHA] Remove SBUS & MCA from alpha Kconfig
-
-Robert Zwerus:
-  o Documentation/CodingStyle spelling fixes
-
-Russell King:
-  o [PCMCIA] Prevent PCMCIA oops during socket driver initialisation
-  o [PCMCIA] Fix hangs when PCMCIA modules loaded
-
-Samuel Thibault:
-  o [2.5] maestro volume tuning
-
-Stephen Hemminger:
-  o convert plip to alloc_netdev
-  o [netdrvr dgrs] convert to using alloc_etherdev
-
-Steve French:
-  o NTLMv2 password support and NTLMSSP signing part 1
-  o ntlmssp signing
-  o More NTLMv2
-  o Open / Create lookup intents part one
-  o Add mknod support
-  o fix cifs distributed caching - send oplock release immediately
-    after flush of writebehind data on oplock break from server
-
-Thomas Graf:
-  o [NET]: Return EDESTADDRREQ as appropriate in sendmsg
-    implementations
-
-Ulrich Drepper:
-  o Re: utimes/futimes/lutimes syscalls
-
-Wensong Zhang:
-  o [NET]: Merge in IPVS layer
 
 

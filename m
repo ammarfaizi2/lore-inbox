@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263217AbRFOCwQ>; Thu, 14 Jun 2001 22:52:16 -0400
+	id <S264167AbRFODTX>; Thu, 14 Jun 2001 23:19:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263344AbRFOCwG>; Thu, 14 Jun 2001 22:52:06 -0400
-Received: from ns.snowman.net ([63.80.4.34]:58385 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S263217AbRFOCvz>;
-	Thu, 14 Jun 2001 22:51:55 -0400
-Date: Thu, 14 Jun 2001 22:51:22 -0400 (EDT)
-From: <nick@snowman.net>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-cc: Kip Macy <kmacy@netapp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-In-Reply-To: <Pine.LNX.4.33.0106141946560.10952-100000@sol.compendium-tech.com>
-Message-ID: <Pine.LNX.4.21.0106142250530.22553-100000@ns>
+	id <S264172AbRFODTN>; Thu, 14 Jun 2001 23:19:13 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:47548 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S264167AbRFODS4>; Thu, 14 Jun 2001 23:18:56 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: John Cavan <johnc@damncats.org>
+Subject: Re: Linux 2.4.5-ac14
+Date: Fri, 15 Jun 2001 05:32:23 +0200
+X-Mailer: KMail [version 1.2.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010615022033Z261561-17720+4111@vger.kernel.org> <3B29734A.738A95D5@damncats.org>
+In-Reply-To: <3B29734A.738A95D5@damncats.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010615031906Z264167-17720+4114@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've installed several thousand 3com cards of various ages and
-types.  I've had less than 20 bad cards.
-	Nick
+Am Freitag, 15. Juni 2001 04:30 schrieb John Cavan:
+> Dieter Nützel wrote:
+> > Hello Alan,
+> >
+> > I see 4.29 GB under shm with your latest try.
+> > something wrong?
+>
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  1053483008 431419392 622063616   122880 24387584 260923392
+> Swap: 394764288        0 394764288
+> MemTotal:      1028792 kB
+> MemFree:        607484 kB
+> MemShared:         120 kB
+> Buffers:         23816 kB
+> Cached:         254808 kB
+> Active:         225536 kB
+> Inact_dirty:     53208 kB
+> Inact_clean:         0 kB
+> Inact_target:       44 kB
+> HighTotal:      131056 kB
+> HighFree:         1048 kB
+> LowTotal:       897736 kB
+> LowFree:        606436 kB
+> SwapTotal:      385512 kB
+> SwapFree:       385512 kB
+>
+> I don't seem to have the problem...
 
-On Thu, 14 Jun 2001, Dr. Kelsey Hudson wrote:
+You are using HIGHMEM?!
 
-> On Thu, 14 Jun 2001 nick@snowman.net wrote:
-> 
-> > Erm, that is going to be a problem.  Crypto benifits more from open source
-> > than any other market segment, and binary only drivers for linux are not
-> > the way to go.  I guess I need to get rid of my 5-10 3cr990s and replace
-> > them with someone else's product?
-> 
-> I would... 3Com hardware (as far as i'm concerned) is garbage
-> 
->  Kelsey Hudson                                           khudson@ctica.com
->  Software Engineer
->  Compendium Technologies, Inc                               (619) 725-0771
-> ---------------------------------------------------------------------------
-> 
-
+-Dieter

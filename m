@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbULTUsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbULTUz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbULTUsR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 15:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbULTUsQ
+	id S261637AbULTUz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 15:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbULTUz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 15:48:16 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:54163 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261634AbULTUqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 15:46:40 -0500
-Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend
-	on EMBEDDED
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Ed Tomlinson <edt@aei.ca>, Pete Zaitcev <zaitcev@redhat.com>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
-References: <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
-Content-Type: text/plain
-Date: Mon, 20 Dec 2004 15:46:37 -0500
-Message-Id: <1103575597.1252.80.camel@krustophenia.net>
+	Mon, 20 Dec 2004 15:55:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52401 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261637AbULTUzV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 15:55:21 -0500
+Date: Mon, 20 Dec 2004 12:54:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com
+Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+Message-Id: <20041220125443.091a911b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 10:28 -0500, Alan Stern wrote:
-> On Mon, 20 Dec 2004, Ed Tomlinson wrote:
-> 
-> > Its not that they just enable it.  Its that it has side effects.  I enable it to support
-> > one device - it then 'devnaps' other devices that usbstorage supports _much_
-> > better.  Is there some way it could work in reverse.  eg. let ub bind only if 
-> > usbstorage does not, possibly making usbstorage a _little_ more conservative
-> > if ub is present?
-> 
-> Unfortunately there isn't any way to define which driver should bind to a 
-> device, if they are both capable of controlling it.  Maybe there should 
-> be.  It might not be too hard to add a sysfs interface for that sort of 
-> thing.
+Rik van Riel <riel@redhat.com> wrote:
+>
+> Simply running "dd if=/dev/zero of=/dev/hd<one you can miss>" will
+>  result in OOM kills, with the dirty pagecache completely filling up
+>  lowmem.
 
-This is a neverending battle with ALSA and OSS modules claiming the same
-device, resulting in bizarre behavior.  You could argue that it's user
-or vendor error but that doesn't change the flood of bug reports on
-alsa-user.
+That surely used to work - I have a feeling that it got broken somehow. 
+The below might fix it, but probably not.
 
-I am sure the ALSA developers would welcome a generic solution for this
-problem.
+The intended behaviour is that the page-allocating process will throttle
+and will then pick up those pages from the tail of the LRU which
+rotate_reclaimable_page() put there.
 
-Lee
+
+
+We haven't been incrementing local variable total_scanned since the
+scan_control stuff went in.  That broke kswapd throttling.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/mm/vmscan.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN mm/vmscan.c~vmscan-total_scanned-fix mm/vmscan.c
+--- 25/mm/vmscan.c~vmscan-total_scanned-fix	2004-12-20 12:47:25.855643408 -0800
++++ 25-akpm/mm/vmscan.c	2004-12-20 12:47:25.860642648 -0800
+@@ -1063,6 +1063,7 @@ scan:
+ 			shrink_slab(sc.nr_scanned, GFP_KERNEL, lru_pages);
+ 			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
+ 			total_reclaimed += sc.nr_reclaimed;
++			total_scanned += sc.nr_scanned;
+ 			if (zone->all_unreclaimable)
+ 				continue;
+ 			if (zone->pages_scanned >= (zone->nr_active +
+_
 

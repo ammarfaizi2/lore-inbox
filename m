@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280029AbRKDQz0>; Sun, 4 Nov 2001 11:55:26 -0500
+	id <S280026AbRKDRAG>; Sun, 4 Nov 2001 12:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280031AbRKDQzR>; Sun, 4 Nov 2001 11:55:17 -0500
-Received: from mail309.mail.bellsouth.net ([205.152.58.169]:39232 "EHLO
-	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280029AbRKDQzK>; Sun, 4 Nov 2001 11:55:10 -0500
-Message-ID: <3BE572DC.4BD4958E@mandrakesoft.com>
-Date: Sun, 04 Nov 2001 11:54:52 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-CC: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>, kwijibo@zianet.com,
-        bcrl@redhat.com, linux-kernel@vger.kernel.org
+	id <S280031AbRKDQ77>; Sun, 4 Nov 2001 11:59:59 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6663 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280026AbRKDQ7t>; Sun, 4 Nov 2001 11:59:49 -0500
 Subject: Re: emu10k emits buzzing and crackling
-In-Reply-To: <Pine.LNX.4.33.0111041743030.3150-100000@sophia-sousar2.nice.mindspeed.com>
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sun, 4 Nov 2001 17:06:20 +0000 (GMT)
+Cc: rui.p.m.sousa@clix.pt (Rui Sousa),
+        sirmorcant@morcant.org (Morgan Collins [Ax0n]), kwijibo@zianet.com,
+        bcrl@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BE572DC.4BD4958E@mandrakesoft.com> from "Jeff Garzik" at Nov 04, 2001 11:54:52 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E160Qiy-0002Np-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rui Sousa wrote:
-> With the emu10k1 there is no need to use esd...
+> emu10k1 provides in-kernel support for multiple userspace apps sharing a
+> single /dev/dsp0 connection?  :)
 
-emu10k1 provides in-kernel support for multiple userspace apps sharing a
-single /dev/dsp0 connection?  :)
+The hardware has something like 512 channels. esd sadly wont make sensible
+use of this. I'm not sure if Arts will
 
-GNOME pretty much requires esd, like KDE requires arts.
+> GNOME pretty much requires esd, like KDE requires arts.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+Expect gnome to be using arts soon

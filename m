@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310806AbSDQRYW>; Wed, 17 Apr 2002 13:24:22 -0400
+	id <S310917AbSDQRbt>; Wed, 17 Apr 2002 13:31:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310917AbSDQRYV>; Wed, 17 Apr 2002 13:24:21 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34567
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S310806AbSDQRYQ>; Wed, 17 Apr 2002 13:24:16 -0400
-Date: Wed, 17 Apr 2002 10:23:32 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-In-Reply-To: <20020417134004.GA2025@werewolf.able.es>
-Message-ID: <Pine.LNX.4.10.10204171022360.12780-100000@master.linux-ide.org>
+	id <S311025AbSDQRbs>; Wed, 17 Apr 2002 13:31:48 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:32526 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S310917AbSDQRbr> convert rfc822-to-8bit;
+	Wed, 17 Apr 2002 13:31:47 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Marc-Christian Petersen <m.c.p@gmx.net>
+Reply-To: m.c.p@gmx.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Possible EXT2 File System Corruption in Kernel 2.4
+Date: Wed, 17 Apr 2002 19:31:30 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andreas Dilger <adilger@clusterfs.com>
+X-PRIORITY: 2 (High)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20020417173147Z310917-22651+8390@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andreas,
 
-Yep
+your patch does not work:
 
-That is the bug on the ide_driveid_update call.
-Find it and change the #if 1 to #if 0
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=balloc  -c -o 
+balloc.o balloc.c
+balloc.c: In function `ext2_new_block':
+balloc.c:524: warning: long unsigned int format, unsigned int arg (arg 4)
+balloc.c:397: label `io_error' used but not defined
+balloc.c:383: label `out' used but not defined
+gcc: Internal compiler error: program cc1 got fatal signal 11
+make[3]: *** [balloc.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.18/fs/ext2'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.18/fs/ext2'
+make[1]: *** [_subdir_ext2] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.18/fs'
+make: *** [_dir_fs] Error 2
+-- 
 
-Cheers,
+Kind regards
+	Marc-Christian Petersen
 
-On Wed, 17 Apr 2002, J.A. Magallon wrote:
+http://sourceforge.net/projects/wolk
 
-> 
-> On 2002.04.17 Andre Hedrick wrote:
-> >There is a micro bug in 3a, look for 4 to arrive.
-> >
-> >regards
-> >
-> [...]
-> >> 
-> >> - ide update -3a (very shrinked wrt original, the big ppc part has gone
-> >>   in mainline)
-> 
-> Can it be related to my system getting hung on boot trying to do
-> an hdparm ?
-> I had not the time to dig more, just disabled it and booted fine (I had
-> some work to get done...)
-> 
-> TIA
-> 
-> -- 
-> J.A. Magallon                           #  Let the source be with you...        
-> mailto:jamagallon@able.es
-> Mandrake Linux release 8.3 (Cooker) for i586
-> Linux werewolf 2.4.19-pre7-jam1 #1 SMP Wed Apr 17 00:42:27 CEST 2002 i686
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824  080A 569D E2E3 DB44 1A16
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.

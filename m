@@ -1,70 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbVA2LOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVA2LX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262895AbVA2LOm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 06:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVA2LOm
+	id S262896AbVA2LX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 06:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVA2LX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 06:14:42 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:41230 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262895AbVA2LOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 06:14:39 -0500
-Date: Sat, 29 Jan 2005 12:14:55 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: Ian Campbell <icampbell@arcom.com>
-Subject: [PATCH 2.4] I2C updates for 2.4.29 (1/3)
-Message-Id: <20050129121455.1ee24c88.khali@linux-fr.org>
-In-Reply-To: <20050129120235.5c7160e6.khali@linux-fr.org>
-References: <20050129120235.5c7160e6.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 29 Jan 2005 06:23:56 -0500
+Received: from ozlabs.org ([203.10.76.45]:30933 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262896AbVA2LXy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 06:23:54 -0500
+Date: Sat, 29 Jan 2005 22:20:03 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix large allocation in nfsd init
+Message-ID: <20050129112003.GA8654@krispykreme.ozlabs.ibm.com>
+References: <20050127033104.GA26367@krispykreme.ozlabs.ibm.com> <16888.26607.936790.611539@cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16888.26607.936790.611539@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Original reports and discussion:
-http://archives.andrew.net.au/lm-sensors/msg28512.html
-http://archives.andrew.net.au/lm-sensors/msg28581.html
 
-Bottom line:
-The "bit" and "pcf" i2c algorithms should declare themselves fully I2C
-capable, but do not.
+Hi Neil,
 
-Credits go to Ian Campbell for noticing and proposing patches.
+> Given that the purpose of this order-5 allocation is to provide
+> storage for 1024 "struct svc_cacherep" structs, it would seem that a
+> better approach would be to just do 1024 kmallocs.
+> 
+> I'll try to knock a patch together in next week sometime.
 
-This is a backport from Linux 2.6.11-rc1.
+That works for me.
 
---- linux-2.4.29/drivers/i2c/i2c-algo-bit.c.orig	2004-02-18 14:36:31.000000000 +0100
-+++ linux-2.4.29/drivers/i2c/i2c-algo-bit.c	2005-01-29 11:33:33.000000000 +0100
-@@ -522,8 +522,8 @@
- 
- static u32 bit_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR | 
--	       I2C_FUNC_PROTOCOL_MANGLING;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-+	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
- 
---- linux-2.4.29/drivers/i2c/i2c-algo-pcf.c.orig	2005-01-29 11:40:01.000000000 +0100
-+++ linux-2.4.29/drivers/i2c/i2c-algo-pcf.c	2005-01-29 11:33:40.000000000 +0100
-@@ -435,8 +435,8 @@
- 
- static u32 pcf_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR | 
--	       I2C_FUNC_PROTOCOL_MANGLING; 
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-+	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
- /* -----exported algorithm data: -------------------------------------	*/
-
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+Anton

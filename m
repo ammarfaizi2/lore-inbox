@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267432AbVBEVYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270913AbVBEVYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267432AbVBEVYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 16:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270233AbVBEVYS
+	id S270913AbVBEVYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 16:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270119AbVBEVYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 16:24:18 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31188 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S270694AbVBEVYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 16:24:08 -0500
-Subject: [PATCH] Missing Select in NFS server support causes comile error
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: SoftwareSuspend Development 
-	<softwaresuspend-devel@lists.berlios.de>
-In-Reply-To: <1107637875.6348.22.camel@desktop.cunninghams>
-References: <1107637875.6348.22.camel@desktop.cunninghams>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1107638788.6348.31.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sun, 06 Feb 2005 08:26:28 +1100
-Content-Transfer-Encoding: 8bit
+	Sat, 5 Feb 2005 16:24:34 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:3089 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270913AbVBEVYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 16:24:23 -0500
+To: Marco Rogantini <marco.rogantini@supsi.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rtl8139 (8139too) net problem in linux 2.6.10
+References: <Pine.LNX.4.62.0502051818370.4821@rost.dti.supsi.ch>
+	<87wttmg77p.fsf@devron.myhome.or.jp>
+	<Pine.LNX.4.62.0502052052560.6832@rost.dti.supsi.ch>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 06 Feb 2005 06:24:13 +0900
+In-Reply-To: <Pine.LNX.4.62.0502052052560.6832@rost.dti.supsi.ch> (Marco
+ Rogantini's message of "Sat, 5 Feb 2005 21:03:56 +0100 (CET)")
+Message-ID: <87y8e266pu.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Marco Rogantini <marco.rogantini@supsi.ch> writes:
 
-(Resent in a format that can be more easily applied).
+> I'm using a TI-PCI4510 on a Dell Inspiron 8500.
+> Kernel is linux-2.6.11-rc3 and your patch is already included there.
+>
+> I tried to load the module with 'disable_clkrun' option but nothing has
+> changed... :-(
 
-This issues was picked up by Peter Frühberger.
+Umm... Bit strange...
 
-If NFS server support is selected, but ExportFS is not, the following
-compile time errors occur:
+I couldn't find the PCI4510 in yenta_table. Did you add the PCI4510 to
+yenta_table? Could you send "lspci -n" (what vendor-id and device-id)?
 
-> > >   LD      init/built-in.o
-> > >   LD      .tmp_vmlinux1
-> > > fs/built-in.o(.text+0x7329f): In function `fh_verify':
-> > > : undefined reference to `export_op_default'
-> > > fs/built-in.o(.text+0x738b7): In function `fh_compose':
-> > > : undefined reference to `export_op_default'
-> > > fs/built-in.o(.text+0x73bb7): In function `fh_update':
-> > > : undefined reference to `export_op_default'
-> > > fs/built-in.o(.text+0x73e80): In function `_fh_update':
-> > > : undefined reference to `export_op_default'
-> > > fs/built-in.o(.text+0x78150): In function `check_export':
-> > > : undefined reference to `find_exported_dentry'
-> > > make[1]: *** [.tmp_vmlinux1] Error 1
-> > > 
+> dmesg extract:
+>
+> Linux Kernel Card Services
+>    options:  [pci] [cardbus] [pm]
+> PCI: Enabling device 0000:02:01.0 (0000 -> 0002)
+> ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 11 (level, low) -> IRQ 11
+> Yenta: CardBus bridge found at 0000:02:01.0 [1028:013e]
+> Yenta: ISA IRQ mask 0x04d8, PCI irq 11
+> Socket status: 30000020
 
-Signed-off by: Nigel Cunningham <ncunningham@linuxmail.org>
+The disable_clkrun code didn't run. If it was running, you should see
+the following message.
 
-diff -ruNp 990-select-exportfs-on-nfs-server-old/fs/Kconfig 990-select-exportfs-on-nfs-server-new/fs/Kconfig
---- 990-select-exportfs-on-nfs-server-old/fs/Kconfig	2005-02-03 22:33:40.000000000 +1100
-+++ 990-select-exportfs-on-nfs-server-new/fs/Kconfig	2005-02-06 08:22:25.000000000 +1100
-@@ -1400,6 +1400,7 @@ config NFSD
- 	tristate "NFS server support"
- 	depends on INET
- 	select LOCKD
-+	select EXPORTFS
- 	select SUNRPC
- 	help
- 	  If you want your Linux box to act as an NFS *server*, so that other
-
+"Yenta: Disabling CLKRUN feature"
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

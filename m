@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267188AbUBMU1v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 15:27:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267192AbUBMU1v
+	id S267160AbUBMUU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 15:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUBMUUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 15:27:51 -0500
-Received: from mail.shareable.org ([81.29.64.88]:54402 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S267188AbUBMU1u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 15:27:50 -0500
-Date: Fri, 13 Feb 2004 20:27:47 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Valdis.Kletnieks@vt.edu, Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040213202747.GB29824@mail.shareable.org>
-References: <1076604650.31270.20.camel@ulysse.olympe.o2t> <20040213030346.GF25499@mail.shareable.org> <1076695606.23795.23.camel@m222.net81-64-248.noos.fr> <20040213181542.GD8858@parcelfarce.linux.theplanet.co.uk> <200402131824.i1DIOX6o023463@turing-police.cc.vt.edu> <20040213183148.GF8858@parcelfarce.linux.theplanet.co.uk>
+	Fri, 13 Feb 2004 15:20:55 -0500
+Received: from dsl-082-083-130-200.arcor-ip.net ([82.83.130.200]:26502 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id S267160AbUBMUUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 15:20:54 -0500
+Date: Fri, 13 Feb 2004 21:20:52 +0100
+From: Dominik Kubla <dominik@kubla.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Dominik Kubla <dominik@kubla.de>,
+       Emmeran Seehuber <rototor@rototor.de>
+Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
+Message-ID: <20040213202052.GA1283@intern.kubla.de>
+References: <200402112344.23378.rototor@rototor.de> <20040213070333.GA1555@intern.kubla.de> <200402130223.00339.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040213183148.GF8858@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200402130223.00339.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> You try and pass something _without_ \0 in it to the kernel ;-)
+On Fri, Feb 13, 2004 at 02:23:00AM -0500, Dmitry Torokhov wrote:
+> 
+> Do you have an active multiplexing controller and does passing i8042.nomux 
+> option help?
 
-:)
+The Debian maintainer released a new package today with the following change
+log entry:
 
-But seriously, even that is a security issue when someone requests a
-URL containing "%00", or some text contains a filename to operate on
-and the name contains \0.
+* Reenabled INPUT_MOUSEDEV_PSAUX_ENABLE (closes: #232267, #232269).
 
-For example, if I write a Perl regular expression to reject paths from
-the outside world containing "..": m{(?:/|^)\.\.(?:/|\z)}, it will
-fail to notice when given the path "..\0" that the kernel will treat
-it identically to "..".  Potential security hole, depending on the context.
+Now everything works again.
 
--- Jamie
+So it looks like this might have been a SNAFU... Unless the other guy
+experiencing problems is not using the Debian kernel packages.
+
+Sorry for not passing along that i was using a pre-compiled binary.
+
+Regards,
+  Dominik
+-- 
+BOFH excuse #203:
+
+Write-only-memory subsystem too slow for this machine. Contact your local dealer.

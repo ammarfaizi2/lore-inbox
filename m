@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUJKQTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUJKPuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269073AbUJKQTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUJKQTS
+	id S269032AbUJKPuI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268775AbUJKPZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 12:19:18 -0400
-Received: from gprs212-33.eurotel.cz ([160.218.212.33]:22912 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S269073AbUJKQSA (ORCPT
+	Mon, 11 Oct 2004 11:25:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42909 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268957AbUJKPWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:18:00 -0400
-Date: Mon, 11 Oct 2004 18:17:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Brice.Goglin@ens-lyon.org
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
-Message-ID: <20041011161718.GA1045@elf.ucw.cz>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org> <20041011145628.GA2672@elf.ucw.cz> <416AAC5F.7020109@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <416AAC5F.7020109@ens-lyon.fr>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 11 Oct 2004 11:22:49 -0400
+Date: Mon, 11 Oct 2004 08:17:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+In-Reply-To: <416A5857.1090307@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0410110802590.3897@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+ <416A5857.1090307@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >Which machine is that, btw? Evo N620c has probably BIOS/firmware bug
-> >that kills machine on attempt to enter S3 or S4. It takes pressing
-> >power button 3 times (!) to get machine back.
-> >								Pavel
+
+On Mon, 11 Oct 2004, Nick Piggin wrote:
 > 
-> On my N600c, suspend-to-RAM seems to complete... but when I try to wake 
-> up the laptop (by pressing the power button), it blinks strangely and 
-> then immediately shutdowns instead of resuming...
+> ACPI still explodes on my old PII and stops it booting. (I've reported it
+> to Len a few times but he seems to be ignoring me).
 
-Your machine is probabl different from N620c i this regard...
+I suspect the "CONFIG_ACPI_BLACKLIST_YEAR" might be the solution they came 
+up with. Old ACPI stuff tends to be broken.
 
-Can you test if it reaches start of wakeup.S? Just insert infinite
-loop there...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+That said, your patch is small and simple, so..
+
+		Linus

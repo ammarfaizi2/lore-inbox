@@ -1,144 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUJSLkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268406AbUJSLkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268148AbUJSLkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 07:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268367AbUJSLkg
+	id S268406AbUJSLkm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 07:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUJSLiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 07:40:36 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64161
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S268207AbUJSLW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 07:22:56 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041019110755.GA25246@elte.hu>
-References: <20041014143131.GA20258@elte.hu>
-	 <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
-	 <1098173546.12223.737.camel@thomas> <20041019090428.GA17204@elte.hu>
-	 <1098176615.12223.753.camel@thomas> <20041019093414.GA18086@elte.hu>
-	 <1098180746.12223.811.camel@thomas>  <20041019110755.GA25246@elte.hu>
-Content-Type: multipart/mixed; boundary="=-LVfC9MGmw9c0/W9hSkKz"
-Organization: linutronix
-Message-Id: <1098184497.12223.825.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 19 Oct 2004 13:14:57 +0200
+	Tue, 19 Oct 2004 07:38:15 -0400
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:47266 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S268316AbUJSLNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 07:13:39 -0400
+Message-ID: <4174F6DB.3000304@kolivas.org>
+Date: Tue, 19 Oct 2004 21:13:31 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: 2.6.9-ck1
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+These are patches designed to improve system responsiveness with 
+specific emphasis on the desktop, but configurable to any workload.
 
---=-LVfC9MGmw9c0/W9hSkKz
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck1/patch-2.6.9-ck1.bz2
 
-On Tue, 2004-10-19 at 13:07, Ingo Molnar wrote:
-> * Thomas Gleixner <tglx@linutronix.de> wrote:
-> 
-> > +        * Wait for the lockd process to start, but since we're holding
-> > +        * the lockd semaphore, we can't wait around forever ...
-> > +        */
-> > +       if (wait_event_interruptible_timeout(lockd_start,
-> > +                                            nlmsvc_pid != 0, HZ)) {
-> > +               printk(KERN_WARNING
-> > +                       "lockd_down: lockd failed to start\n");
-> 
-> yeah, this is much cleaner. 
-
-Cleaner, but not perfect. The return value is > 0, if the timeout is not
-reached. Grmbl.
-
-> I'd suggest to remove the init_sem() hack
-> from lib/rwsem-generic.c, it seems it is a nice facility to find
-> semaphore abuses.
-
-True. Will do so.
-
-tglx
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches and a server specific patch available.
 
 
+Added:
+  +block_fix.diff
+A small fix for congestion which was causing stalls under heavy i/o load.
 
---=-LVfC9MGmw9c0/W9hSkKz
-Content-Disposition: attachment; filename=svc.c.diff
-Content-Type: text/x-patch; name=svc.c.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+  +269rc4-mingo_ll.diff
+  +269rc4-mingo-bkl.diff
+The low latency hacks in current -mm releases by Ingo Molnar, including 
+the preemptible big kernel lock
 
---- 2.6.9-rc4-mm1-RT-U5/fs/lockd/svc.c.orig	2004-10-19 10:02:17.000000000 +0200
-+++ 2.6.9-rc4-mm1-VP-U5/fs/lockd/svc.c	2004-10-19 12:59:41.000000000 +0200
-@@ -46,7 +46,7 @@
- int				nlmsvc_grace_period;
- unsigned long			nlmsvc_timeout;
- 
--static DECLARE_MUTEX(lockd_start);
-+static DECLARE_WAIT_QUEUE_HEAD(lockd_start);
- static DECLARE_WAIT_QUEUE_HEAD(lockd_exit);
- 
- /*
-@@ -109,7 +109,7 @@
- 	 * Let our maker know we're running.
- 	 */
- 	nlmsvc_pid = current->pid;
--	up(&lockd_start);
-+	wake_up(&lockd_start);
- 
- 	daemonize("lockd");
- 
-@@ -230,6 +230,7 @@
- 		printk(KERN_WARNING
- 			"lockd_up: no pid, %d users??\n", nlmsvc_users);
- 
-+
- 	error = -ENOMEM;
- 	serv = svc_create(&nlmsvc_program, LOCKD_BUFSIZE);
- 	if (!serv) {
-@@ -258,8 +259,15 @@
- 			"lockd_up: create thread failed, error=%d\n", error);
- 		goto destroy_and_out;
- 	}
--	down(&lockd_start);
--
-+	/*
-+	 * Wait for the lockd process to start, but since we're holding
-+	 * the lockd semaphore, we can't wait around forever ...
-+	 */
-+	if (wait_event_interruptible_timeout(lockd_start, 
-+					     nlmsvc_pid != 0, HZ) <= 0) {
-+		printk(KERN_WARNING 
-+			"lockd_down: lockd failed to start\n");
-+	}
- 	/*
- 	 * Note: svc_serv structures have an initial use count of 1,
- 	 * so we exit through here on both success and failure.
-@@ -298,16 +306,12 @@
- 	 * Wait for the lockd process to exit, but since we're holding
- 	 * the lockd semaphore, we can't wait around forever ...
- 	 */
--	clear_thread_flag(TIF_SIGPENDING);
--	interruptible_sleep_on_timeout(&lockd_exit, HZ);
--	if (nlmsvc_pid) {
-+	if (!wait_event_interruptible_timeout(lockd_exit, 
-+					     nlmsvc_pid == 0, HZ) <= 0) {
- 		printk(KERN_WARNING 
- 			"lockd_down: lockd failed to exit, clearing pid\n");
- 		nlmsvc_pid = 0;
- 	}
--	spin_lock_irq(&current->sighand->siglock);
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
- out:
- 	up(&nlmsvc_sema);
- }
-@@ -423,7 +427,6 @@
- 
- static int __init init_nlm(void)
- {
--	init_MUTEX_LOCKED(&lockd_start);
- 	nlm_sysctl_table = register_sysctl_table(nlm_sysctl_root, 0);
- 	return nlm_sysctl_table ? 0 : -ENOMEM;
- }
+  +ll-config.diff
+Default the preemptible kernel lock off
 
---=-LVfC9MGmw9c0/W9hSkKz--
+  +nvidia_compat.diff
+This allows the current version of the evil binary nvidia drivers to 
+compile.
+
+  +buildfix.diff
+This is a last minute fix for 2.6.9 that causes internal compiler errors
+
+  +269ck1-version.diff
+Version
+
+
+Changed:
+  ~2.6.9_to_staircase9.0.diff
+Latest version of staircase cpu scheduler. This is version8.K renamed in 
+line with kernel release. There are no known bugs with this release. The 
+main changes since last -ck released staircase are significantly better 
+handling of subjiffy timeslices, and much larger timeslices for -niced 
+processes as per mainline.
+
+  ~schedbatch2.5.diff
+  ~schediso2.8.diff
+Resync with latest staircase.
+
+  ~mwII.diff
+The mapped watermark code was incompatible with newer vm changes so it 
+was rewritten and is much less likely to cause oom. The same sysctls 
+still exist (vm.mapped and vm.hardmaplimit), but the hardmaplimit is off 
+by default. If you still have large amounts of swapping under heavy disk 
+i/o I recommend turning this on.
+
+  ~cfq2-20041019.patch
+One small bugfix.
+
+
+Full patchlist:
+2.6.9_to_staircase9.0.diff
+schedrange.diff
+schedbatch2.5.diff
+schediso2.8.diff
+mwII.diff
+1g_lowmem1_i386.diff
+cfq2-20041019.patch
+block_fix.diff
+defaultcfq.diff
+269rc4-mingo_ll.diff
+269rc4-mingo-bkl.diff
+ll-config.diff
+cddvd-cmdfilter-drop.patch
+nvidia_compat.diff
+buildfix.diff
+269ck1-version.diff
+
+
+Cheers,
+Con Kolivas
 

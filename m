@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267365AbUBSQrR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUBSQrR
+	id S267371AbUBSQuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUBSQuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:47:17 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:47595 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S267365AbUBSQrK (ORCPT
+	Thu, 19 Feb 2004 11:50:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34189 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267371AbUBSQuE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:47:10 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 19 Feb 2004 16:47:08 -0000
+	Thu, 19 Feb 2004 11:50:04 -0500
+Date: Thu, 19 Feb 2004 08:54:51 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: tridge@samba.org, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <20040219163838.GC2308@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402171919240.2686@home.osdl.org>
+ <16435.55700.600584.756009@samba.org> <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
+ <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org>
+ <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org>
+ <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org>
+ <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org>
 MIME-Version: 1.0
-Subject: 2.6.3 RT8139too NIC problems
-Message-ID: <4034E88C.24740.4C5D4B6@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-Due to traffic restraints, I am not on the lkml - please CC replies.
 
-Yesterday I built 2.6.3.  Clean build, and system runs nice.
+On Thu, 19 Feb 2004, Jamie Lokier wrote:
+> Linus Torvalds wrote:
+> > For example, the rule can be that _any_ regular dentry create will 
+> > invalidate all the "case-insensitive" dentries. Just to be simple about 
+> > it.
+> 
+> If that's the rule, then with exactly the same algorithmic efficiency,
+> readdir+dnotify can be used to maintain the cache in userspace
+> instead.  There is nothing gained by using the helper module in that case.
 
-I have two NIC's in the box, both rt8139.
+Wrong.
 
-But I noticed I am getting this in syslogs:
+Because the dnotify would trigger EVEN FOR SAMBA OPERATIONS.
 
-Linux233 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Linux233 kernel: eth1: link up, 10Mbps, half-duplex, lpa 0x0000
-Linux233 kernel: nfs: server 486Linux not responding, still trying
-Linux233 kernel: nfs: server 486Linux not responding, still trying
-Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Linux233 kernel: nfs: server 486Linux OK
-Linux233 kernel: nfs: server 486Linux OK
-Linux233 kernel: nfs: server 486Linux not responding, still trying
-Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Linux233 kernel: nfs: server 486Linux OK
+Think about it. Think about samba doing a "rename()" within the directory.
 
-This happens about once every 3 hours.
-
->From my config file:
-
-# CONFIG_8139CP is not set
-CONFIG_8139TOO=y
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-# CONFIG_8139TOO_8129 is not set
-# CONFIG_8139_OLD_RX_RESET is not set
-# CONFIG_8139_RXBUF_IDX= is not set
-
-No other NIC drivers are used.
-
-I am also stuck as to what the new RXBUF_IDX is for.  It appears the 
-new build needs it, as I cannot remove.
-
-These cards have worked fine under all 2.4.x and 2.6.1/2.6.2 kernels.
-
-Ideas?
-
-TIA,
-
-Nick
-
--- 
-"I am not Spock", said Leonard Nimoy.
-"And it is highly illogical of humans to assume so."
-
+		Linus

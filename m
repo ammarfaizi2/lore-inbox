@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310435AbSEMAhZ>; Sun, 12 May 2002 20:37:25 -0400
+	id <S315358AbSEMBCz>; Sun, 12 May 2002 21:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314454AbSEMAhY>; Sun, 12 May 2002 20:37:24 -0400
-Received: from loisexc2.loislaw.com ([12.5.234.240]:26121 "EHLO
-	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
-	id <S310435AbSEMAhX>; Sun, 12 May 2002 20:37:23 -0400
-Message-ID: <4188788C3E1BD411AA60009027E92DFD0962E24F@loisexc2.loislaw.com>
-From: "Rose, Billy" <wrose@loislaw.com>
-To: "'Linus Torvalds'" <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Segfault hidden in list.h
-Date: Sun, 12 May 2002 19:37:25 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315411AbSEMBCz>; Sun, 12 May 2002 21:02:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48852 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315358AbSEMBCx>;
+	Sun, 12 May 2002 21:02:53 -0400
+Date: Sun, 12 May 2002 17:50:21 -0700 (PDT)
+Message-Id: <20020512.175021.50367158.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: wrose@loislaw.com, linux-kernel@vger.kernel.org
+Subject: Re: Segfault hidden in list.h
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0205121750530.15392-100000@home.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code inside of __list_add:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sun, 12 May 2002 17:59:27 -0700 (PDT)
+   
+   If the coder doesn't lock his data structures, it doesn't matter _what_
+   order we execute the list modifications in - different architectures will
+   do different thing with inter-CPU memory ordering, and trying to order
+   memory accesses on a source level is futile.
 
-next->prev = new;
-new->next = next;
-new->prev = prev;
-pre-next = new;
+However, if the list manipulation had some memory barriers
+added to it...
 
-needs to be altered to:
-
-new->prev = prev;
-new->next = next;
-next->prev = new;
-prev->next = new;
-
-If something is accessing the list in reverse at the time of insertion and
-"next->prev = new;" has been executed, there exists a moment when new->prev
-may contain garbage if the element had been used in another list and is
-being transposed into a new one. Even if garbage is not present, and the
-element had just been initialized (i.e. new->prev = new), a false list head
-will appear briefly (from the executing thread's point of view).
-
-Billy Rose 
-wrose@loislaw.com
+The people doing the lockless reader RCU stuff could benefit from such
+an interface.

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbTHTVRI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 17:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTHTVRI
+	id S262217AbTHTV0z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 17:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbTHTV0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 17:17:08 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:20402
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262035AbTHTVRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 17:17:04 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Wiktor Wodecki <wodecki@gmx.de>
-Subject: Re: [PATCH] O17int
-Date: Thu, 21 Aug 2003 07:23:42 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200308200102.04155.kernel@kolivas.org> <20030820162736.GA711@gmx.de>
-In-Reply-To: <20030820162736.GA711@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 17:26:55 -0400
+Received: from mail.kroah.org ([65.200.24.183]:37789 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262217AbTHTV0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 17:26:52 -0400
+Date: Wed, 20 Aug 2003 14:26:26 -0700
+From: Greg KH <greg@kroah.com>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [RFC] add class/video to fb drivers - Take 2
+Message-ID: <20030820212626.GA4854@kroah.com>
+References: <20030820191001.GA4185@kroah.com> <Pine.LNX.4.44.0308202044280.9662-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308210723.42789.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.44.0308202044280.9662-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003 02:27, Wiktor Wodecki wrote:
-> On Wed, Aug 20, 2003 at 01:01:28AM +1000, Con Kolivas wrote:
-> > Food for the starving masses.
->
-> snip
->
-> Sorry, but I still have the starving problem. the more I use O16/O17 the
-> more problems I encounter. xterms sometimes wake up after half a second
-> for another half a second and falls asleep for a whole second then.
-> after that, it's fully interactive. io-load seems to produce the
-> problem. a simple tar xf linux-2.6.0-test3.tar seems to halt the system.
+On Wed, Aug 20, 2003 at 10:16:13PM +0100, James Simmons wrote:
+> 
+> > Ok, here's a smaller version of the patch, that doesn't break any fb
+> > drivers.  Only those that have a struct device associated with them
+> > should be changed (and that's just a 1 line addition).  I think it's
+> > much better because of this.
+> 
+> Nice :-) Will apply tonight. Do you have any issues still with this 
+> approach. You talked about the issue of dynamically creating the data. Is 
+> this probnlem still present in this patch.
 
-I can't reproduce your problem here until I hit swap hard. You sure that's not 
-happening? Kernel threads do get slight extra priority over regular threads 
-by now which should help throughput under load. Perhaps this has tipped the 
-balance on your machine when you hit swap pressure hard. Do a vmstat run 
-while you can reproduce the problem.
+Well, it's not "ideal" but it will do for 2.6 to use this patch.  If you
+look at the tty core, it's the same way that currently works.
 
-> new processes take ages to start. This also happend to me on O16.2.
+Ideally in 2.7 I'd like to convert to have all fb drivers create the
+fb_info structure dynamically, but that's much to big of a change to do
+this late in the 2.6 development cycle.
 
-But not in 16.3?
+thanks,
 
-> Maybe it's because some AS patches are missing in vanilla but are in
-> 2.6.0-test3-mm?
-
-As Nick said, no this isn't the case.
-
-Con
-
+greg k-h

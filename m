@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268100AbRHFMVF>; Mon, 6 Aug 2001 08:21:05 -0400
+	id <S268145AbRHFMWz>; Mon, 6 Aug 2001 08:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268137AbRHFMUz>; Mon, 6 Aug 2001 08:20:55 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65040 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268100AbRHFMUk>; Mon, 6 Aug 2001 08:20:40 -0400
-Subject: Re: rio_init, tty_io call confusion.  2.4.8-pre4
-To: kaos@ocs.com.au (Keith Owens)
-Date: Mon, 6 Aug 2001 13:21:41 +0100 (BST)
-Cc: R.E.Wolff@BitWizard.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <32756.997071720@ocs3.ocs-net> from "Keith Owens" at Aug 06, 2001 02:22:00 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268149AbRHFMWp>; Mon, 6 Aug 2001 08:22:45 -0400
+Received: from weta.f00f.org ([203.167.249.89]:56720 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S268145AbRHFMWZ>;
+	Mon, 6 Aug 2001 08:22:25 -0400
+Date: Tue, 7 Aug 2001 00:23:20 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+Message-ID: <20010807002320.A23937@weta.f00f.org>
+In-Reply-To: <9kkr7r$mov$1@cesium.transmeta.com> <E15Tiw1-0000oU-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15TjO9-0000rK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E15Tiw1-0000oU-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> drivers/char/tty_io calls rio_init and gets a link error when rio is
-> linked into the kenrel because rio_init is declared as static.  However
-> rio_init is also declared as module_init() so it gets called twice, one
-> from tty_io and once from the kernel initcall code.  One of those calls
-> has to go.  If you keep the tty_io call then rio_init cannot be static.
+On Mon, Aug 06, 2001 at 12:52:37PM +0100, Alan Cox wrote:
 
-The tty_io call appears to be stale
+    That would explain a lot since mprotect currently doesn't seem to do
+    merging, and worse it also seems to not be doing rlimit checking right
 
+Err stupid question, but why does it need to do rlimit checking?
+
+
+  --cw

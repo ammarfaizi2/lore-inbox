@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266453AbSLVNdu>; Sun, 22 Dec 2002 08:33:50 -0500
+	id <S261642AbSLVNjz>; Sun, 22 Dec 2002 08:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266456AbSLVNdu>; Sun, 22 Dec 2002 08:33:50 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:16865 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S266453AbSLVNdu>;
-	Sun, 22 Dec 2002 08:33:50 -0500
-Date: Sun, 22 Dec 2002 14:40:11 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>,
-       James Simmons <jsimmons@infradead.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: atyfb in 2.5.51
-In-Reply-To: <1039775215.25097.5.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0212221438110.11726-100000@vervain.sonytel.be>
+	id <S261724AbSLVNjy>; Sun, 22 Dec 2002 08:39:54 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:35993 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261642AbSLVNjx> convert rfc822-to-8bit; Sun, 22 Dec 2002 08:39:53 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
+Date: Sun, 22 Dec 2002 14:47:11 +0100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212221439.28075.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Dec 2002, Alan Cox wrote:
-> On Fri, 2002-12-13 at 08:53, Geert Uytterhoeven wrote:
-> > (At first I thought you meant an instruction where the opcode crosses those
-> >  two memory types, but we don't put code in video RAM...)
-> 
-> I did. The frame buffer drivers support mmap(). x86 has no "non-exec"
-> bit. So any user able to open /dev/fb can bring down such a box. Similar
-> things apply with early athlon and prefetching /dev/fb
+Hi all,
 
-Weird... So it really crashes the box, not just throwing an exception?
-On PPC you cannot use prefetching on non-cached memory, but if you try it won't
-take down the whole box.
+not much to say about, just read. All are vanilla kernels w/o any patch.
 
-Then make sure /dev/fb is accessible by `trusted' users on such machines.
+/dev/hda5 on /home type ext3 (rw,data=ordered)
+/dev/hda5             10080488    731488   8836932   8% /home
 
-Gr{oetje,eeting}s,
+UDMA100 IDE Drive, DMA is on. All these runs were done right after bootup.
+Mashine is a Celeron 1,3GHz, 512MB RAM, 512MB SWAP.
 
-						Geert
+root@codeman:[/] # uname -r
+2.4.18
+root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+131072+0 records in
+131072+0 records out
+2147483648 bytes transferred in 119.140681 seconds (18024772 bytes/sec)
+root@codeman:[/] # 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+root@codeman:[/] # uname -r
+2.4.19
+root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072 
+131072+0 records in
+131072+0 records out
+2147483648 bytes transferred in 140.305836 seconds (15305733 bytes/sec)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+root@codeman:[/] # uname -r
+2.4.20
+root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+131072+0 records in
+131072+0 records out
+2147483648 bytes transferred in 172.327570 seconds (12461637 bytes/sec)
+
+root@codeman:[/] # uname -r
+2.4.21-pre2
+root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072          
+131072+0 records in
+131072+0 records out
+2147483648 bytes transferred in 177.743959 seconds (12081894 bytes/sec)
 
 
+ciao, Marc

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276249AbRKVKSs>; Thu, 22 Nov 2001 05:18:48 -0500
+	id <S276877AbRKVKmB>; Thu, 22 Nov 2001 05:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276369AbRKVKS2>; Thu, 22 Nov 2001 05:18:28 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:51139 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S276249AbRKVKSX>; Thu, 22 Nov 2001 05:18:23 -0500
-Date: Thu, 22 Nov 2001 11:21:46 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: File size limit exceeded with mkfs
-Message-ID: <20011122112146.A1155@zodiak.ecademix.com>
+	id <S276982AbRKVKlr>; Thu, 22 Nov 2001 05:41:47 -0500
+Received: from [194.213.32.133] ([194.213.32.133]:33665 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S276877AbRKVKlJ>;
+	Thu, 22 Nov 2001 05:41:09 -0500
+Date: Wed, 21 Nov 2001 00:42:59 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] AMD SMP capability sanity checking.
+Message-ID: <20011121004258.B37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>; from davej@suse.de on Fri, Nov 16, 2001 at 10:30:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> This kind of differences (direct root login vs su) usualy are due to 
-> different environment variable settings. 
+Hi!
 
-Not in this case, it is because after 'su -' userland tries to
-set the RLIMIT_FSIZE to unlimited with with the constant
-0x7fffffff which is different from the one kernel uses internal
-0xffffffff (see http://www.uwsg.indiana.edu/hypermail/linux/kernel/0111.1/0036.html and all next messages).
+> In the wake of the recent fallout of "are Athlon XP's SMP capable or not",
+> the following patch adds some sanity checking to the SMP boot up code.
+> This code is based upon information from the folks at AMD. There are
+> no exceptions to these rules.
 
-If this is more a gnulib or kernel mistake ? I don't know, but
-the kernel uses sys_old_getrlimit and gives 0x7fffffff back to userland.
-
-I think in this case the kernel should do the same in the other direction
-(leafing a hole form 0x7fffffff to 0xffffffff where you could not set
-the FSIZE).
-
-Cheers,
- Peter
+Are there public errata documents which say what's wrong with older
+athlons? Without that info I think this patch is bad idea.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

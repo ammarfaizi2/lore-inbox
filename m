@@ -1,574 +1,403 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262723AbSI1Fqb>; Sat, 28 Sep 2002 01:46:31 -0400
+	id <S262728AbSI1Fsw>; Sat, 28 Sep 2002 01:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262731AbSI1Fqb>; Sat, 28 Sep 2002 01:46:31 -0400
-Received: from waste.org ([209.173.204.2]:20625 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262723AbSI1FqD>;
-	Sat, 28 Sep 2002 01:46:03 -0400
+	id <S262725AbSI1FsQ>; Sat, 28 Sep 2002 01:48:16 -0400
+Received: from waste.org ([209.173.204.2]:23185 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262728AbSI1FqL>;
+	Sat, 28 Sep 2002 01:46:11 -0400
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 4/7] /dev/random cleanup: 04-pool-cleanup
-Message-Id: <E17vAVd-0002Js-00@ash>
+Subject: [PATCH 7/7] /dev/random cleanup: 07-remove-legacy
+Message-Id: <E17vAVj-0002KB-00@ash>
 From: Oliver Xymoron <oxymoron@waste.org>
-Date: Sat, 28 Sep 2002 00:51:21 -0500
+Date: Sat, 28 Sep 2002 00:51:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- more meaningful names for pools (predicting next patch)
-- cleanup of pool structure
-  - store name
-  - point to poolinfo table rather than copying entry
-  - alloc pool together with structure
-- refactor pool creation and initialization
-- kill pointless (double!) pool zeroing
+Remove long-unused MD5 code, unrolled SHA implementations, Linux 2.2
+compatibility, and an unused structure.
 
 diff -urN -x '.patch*' -x '*.orig' orig/drivers/char/random.c work/drivers/char/random.c
---- orig/drivers/char/random.c	2002-09-28 00:16:14.000000000 -0500
-+++ work/drivers/char/random.c	2002-09-28 00:16:15.000000000 -0500
-@@ -257,12 +257,6 @@
+--- orig/drivers/char/random.c	2002-09-28 00:16:16.000000000 -0500
++++ work/drivers/char/random.c	2002-09-28 00:16:16.000000000 -0500
+@@ -226,10 +226,6 @@
+  * 
+  * The code for SHA transform was taken from Peter Gutmann's
+  * implementation, which has been placed in the public domain.
+- * The code for MD5 transform was taken from Colin Plumb's
+- * implementation, which has been placed in the public domain.
+- * The MD5 cryptographic checksum was devised by Ronald Rivest, and is
+- * documented in RFC 1321, "The MD5 Message Digest Algorithm".
+  * 
+  * Further background information on this topic may be obtained from
+  * RFC 1750, "Randomness Recommendations for Security", by Donald
+@@ -257,8 +253,6 @@
  #include <asm/irq.h>
  #include <asm/io.h>
  
--/*
-- * Configuration information
-- */
--#define DEFAULT_POOL_SIZE 512
--#define SECONDARY_POOL_SIZE 128
--#define BATCH_ENTROPY_SIZE 256
- #define USE_SHA
+-#define USE_SHA
+-
+ /*
+  * The minimum number of bits of entropy before we wake up a read on
+  * /dev/random.  Should be enough to do a significant reseed.
+@@ -369,16 +363,6 @@
+  */
  
  /*
-@@ -287,8 +281,8 @@
-  * get the twisting happening as fast as possible.
-  */
- static struct poolinfo {
--	int	poolwords;
--	int	tap1, tap2, tap3, tap4, tap5;
-+	int poolwords;
-+	int tap1, tap2, tap3, tap4, tap5;
- } poolinfo_table[] = {
- 	/* x^2048 + x^1638 + x^1231 + x^819 + x^411 + x + 1  -- 115 */
- 	{ 2048,	1638,	1231,	819,	411,	1 },
-@@ -387,8 +381,7 @@
- /*
+- * Linux 2.2 compatibility
+- */
+-#ifndef DECLARE_WAITQUEUE
+-#define DECLARE_WAITQUEUE(WAIT, PTR)	struct wait_queue WAIT = { PTR, NULL }
+-#endif
+-#ifndef DECLARE_WAIT_QUEUE_HEAD
+-#define DECLARE_WAIT_QUEUE_HEAD(WAIT) struct wait_queue *WAIT
+-#endif
+-
+-/*
   * Static global variables
   */
--static struct entropy_store *random_state; /* The default global store */
--static struct entropy_store *sec_random_state; /* secondary store */
-+static struct entropy_store *input_pool, *blocking_pool;
- static DECLARE_WAIT_QUEUE_HEAD(random_read_wait);
- static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
- 
-@@ -396,7 +389,7 @@
-  * Forward procedure declarations
+ static struct entropy_store *input_pool, *blocking_pool, *nonblocking_pool;
+@@ -761,28 +745,15 @@
+  * and tacking it onto the end of the digest[] array is the quick and
+  * dirty way of doing it.)
+  *
+- * It so happens that MD5 and SHA share most of the initial vector
+- * used to initialize the digest[] array before the first call:
+- * 1) 0x67452301
+- * 2) 0xefcdab89
+- * 3) 0x98badcfe
+- * 4) 0x10325476
+- * 5) 0xc3d2e1f0 (SHA only)
+- * 
+  * For /dev/random purposes, the length of the data being hashed is
+  * fixed in length, so appending a bit count in the usual way is not
+  * cryptographically necessary.
   */
- #ifdef CONFIG_SYSCTL
--static void sysctl_init_random(struct entropy_store *random_state);
-+static void sysctl_init_random(struct entropy_store *input_pool);
- #endif
  
- /*****************************************************************
-@@ -441,24 +434,19 @@
-  **********************************************************************/
- 
- struct entropy_store {
--	unsigned	add_ptr;
--	int		entropy_count;
--	int		input_rotate;
--	struct poolinfo poolinfo;
--	__u32		*pool;
-+	const char *name;
-+	unsigned add_ptr;
-+	int entropy_count;
-+	int input_rotate;
-+	struct poolinfo *poolinfo;
-+	__u32 pool[0];
- };
- 
--/*
-- * Initialize the entropy store.  The input argument is the size of
-- * the random pool.
-- *
-- * Returns an negative error if there is a problem.
-- */
--static int create_entropy_store(int size, struct entropy_store **ret_bucket)
-+struct entropy_store *create_entropy_store(int size, const char *name)
- {
--	struct	entropy_store	*r;
--	struct	poolinfo	*p;
--	int	poolwords;
-+	struct entropy_store	*r;
-+	struct poolinfo	*p;
-+	int poolwords;
- 
- 	poolwords = (size + 3) / 4; /* Convert bytes->words */
- 	/* The pool size must be a multiple of 16 32-bit words */
-@@ -469,43 +457,34 @@
- 			break;
- 	}
- 	if (p->poolwords == 0)
--		return -EINVAL;
-+		return 0;
- 
--	r = kmalloc(sizeof(struct entropy_store), GFP_KERNEL);
-+	r = kmalloc(sizeof(struct entropy_store)+POOLBYTES, GFP_KERNEL);
- 	if (!r)
--		return -ENOMEM;
-+		return 0;
- 
--	memset (r, 0, sizeof(struct entropy_store));
--	r->poolinfo = *p;
-+	memset(r, 0, sizeof(struct entropy_store));
-+	r->name = name;
-+	r->poolinfo = p;
- 
--	r->pool = kmalloc(POOLBYTES, GFP_KERNEL);
--	if (!r->pool) {
--		kfree(r);
--		return -ENOMEM;
--	}
--	memset(r->pool, 0, POOLBYTES);
--	*ret_bucket = r;
--	return 0;
-+	return r;
- }
- 
--/* Clear the entropy pool and associated counters. */
-+/* Clear the entropy pool counters. */
- static void clear_entropy_store(struct entropy_store *r)
- {
- 	r->add_ptr = 0;
- 	r->entropy_count = 0;
- 	r->input_rotate = 0;
--	memset(r->pool, 0, r->poolinfo.POOLBYTES);
- }
- 
- static void free_entropy_store(struct entropy_store *r)
- {
--	if (r->pool)
--		kfree(r->pool);
- 	kfree(r);
- }
- 
- /*
-- * This function adds a word into the entropy "pool".  It does not
-+ * This function adds words into the entropy "pool".  It does not
-  * update the entropy estimate.  The caller should call
-  * credit_entropy_store if this is appropriate.
-  * 
-@@ -522,7 +501,7 @@
- 		0xedb88320, 0xd6d6a3e8, 0x9b64c2b0, 0xa00ae278 };
- 	unsigned i;
- 	int new_rotate;
--	int wordmask = r->poolinfo.poolwords - 1;
-+	int wordmask = r->poolinfo->poolwords - 1;
- 	__u32 w;
- 
- 	while (nwords--) {
-@@ -540,11 +519,11 @@
- 		r->input_rotate = new_rotate & 31;
- 
- 		/* XOR in the various taps */
--		w ^= r->pool[(i + r->poolinfo.tap1) & wordmask];
--		w ^= r->pool[(i + r->poolinfo.tap2) & wordmask];
--		w ^= r->pool[(i + r->poolinfo.tap3) & wordmask];
--		w ^= r->pool[(i + r->poolinfo.tap4) & wordmask];
--		w ^= r->pool[(i + r->poolinfo.tap5) & wordmask];
-+		w ^= r->pool[(i + r->poolinfo->tap1) & wordmask];
-+		w ^= r->pool[(i + r->poolinfo->tap2) & wordmask];
-+		w ^= r->pool[(i + r->poolinfo->tap3) & wordmask];
-+		w ^= r->pool[(i + r->poolinfo->tap4) & wordmask];
-+		w ^= r->pool[(i + r->poolinfo->tap5) & wordmask];
- 		w ^= r->pool[i];
- 		r->pool[i] = (w >> 3) ^ twist_table[w & 7];
- 	}
-@@ -559,15 +538,13 @@
- 		DEBUG_ENT("negative entropy/overflow (%d+%d)\n",
- 			  r->entropy_count, nbits);
- 		r->entropy_count = 0;
--	} else if (r->entropy_count + nbits > r->poolinfo.POOLBITS) {
--		r->entropy_count = r->poolinfo.POOLBITS;
-+	} else if (r->entropy_count + nbits > r->poolinfo->POOLBITS) {
-+		r->entropy_count = r->poolinfo->POOLBITS;
- 	} else {
- 		r->entropy_count += nbits;
- 		if (nbits)
- 			DEBUG_ENT("%s added %d bits, now %d\n",
--				  r == sec_random_state ? "secondary" :
--				  r == random_state ? "primary" : "unknown",
--				  nbits, r->entropy_count);
-+				  r->name, nbits, r->entropy_count);
- 	}
- }
- 
-@@ -582,10 +559,10 @@
- static __u32 *batch_entropy_pool=0;
- static int batch_max, batch_pos, batch_credit, batch_samples;
- static struct tq_struct	batch_tqueue;
--static void batch_entropy_process(void *private_);
-+static void batch_entropy_process(void *v);
- 
- /* note: the size must be a power of 2 */
--static int __init batch_entropy_init(int size, struct entropy_store *r)
-+static int __init batch_entropy_init(int size)
- {
- 	batch_entropy_pool = kmalloc(size*sizeof(__u32), GFP_KERNEL);
- 	if (!batch_entropy_pool)
-@@ -594,7 +571,6 @@
- 	batch_pos = batch_credit = batch_samples = 0;
- 	batch_max = size;
- 	batch_tqueue.routine = batch_entropy_process;
--	batch_tqueue.data = r;
- 	return 0;
- }
- 
-@@ -624,27 +600,24 @@
- 
- /*
-  * Flush out the accumulated entropy operations, adding entropy to the
-- * passed store (normally random_state). Alternate between randomizing
-+ * passed store (normally input_pool). Alternate between randomizing
-  * the data of the primary and secondary stores.
-  */
- static void batch_entropy_process(void *private_)
- {
--	struct entropy_store *r	= (struct entropy_store *) private_;
-+	struct entropy_store *r	= input_pool;
- 	int samples, credit;
- 	
- 	if (!batch_max)
- 		return;
- 
--	/* switch pools if current full */
--	if (r->entropy_count >= r->poolinfo.POOLBITS) {
--		r = (r == sec_random_state) ? 
--			random_state : sec_random_state;
--	}
+-#ifdef USE_SHA
 -
- 	credit=batch_credit;
- 	samples=batch_samples;
- 	batch_pos = batch_credit = batch_samples = 0;
+ #define HASH_BUFFER_SIZE 5
+ #define HASH_EXTRA_SIZE 80
+ #define HASH_TRANSFORM SHATransform
  
-+	/* switch pools if current full */
-+	if (r->entropy_count >= r->poolinfo->POOLBITS) r = blocking_pool;
-+
- 	/* Don't allow more credit BITS than pool WORDS */
- 	if(credit > batch_max) credit=batch_max;
- 	/* Check for pool wrap-around */
-@@ -653,7 +626,7 @@
- 	add_entropy_words(r, batch_entropy_pool, samples);
- 	credit_entropy_store(r, credit);
- 
--	if (r->entropy_count >= random_read_wakeup_thresh)
-+	if (input_pool->entropy_count >= random_read_wakeup_thresh)
- 		wake_up_interruptible(&random_read_wait);
- }
- 
-@@ -1200,21 +1173,18 @@
-  * in the secondary pool.  The other is after we have extracted 1024 bytes,
-  * at which point we do a "catastrophic reseeding".
-  */
--static inline void xfer_secondary_pool(struct entropy_store *r,
--				       size_t nbytes)
-+static void xfer_entropy(struct entropy_store *r, size_t nbytes)
- {
- 	__u32 tmp[TMP_BUF_SIZE];
- 
- 	if (r->entropy_count < nbytes * 8 &&
--	    r->entropy_count < r->poolinfo.POOLBITS) {
-+	    r->entropy_count < r->poolinfo->POOLBITS) {
- 		int bytes = min_t(int, nbytes, sizeof(tmp));
- 
- 		DEBUG_ENT("xfer %d to %s (have %d, need %d)\n", 
--			  bytes * 8,
--			  r == sec_random_state ? "secondary" : "unknown",
--			  r->entropy_count, nbytes * 8);
-+			  bytes * 8, r->name, r->entropy_count, nbytes * 8);
- 
--		extract_entropy(random_state, tmp, bytes, 0);
-+		extract_entropy(input_pool, tmp, bytes, 0);
- 		add_entropy_words(r, tmp, bytes);
- 		credit_entropy_store(r, bytes*8);
- 	}
-@@ -1241,16 +1211,14 @@
- 	__u32 x;
- 
- 	/* Redundant, but just in case... */
--	if (r->entropy_count > r->poolinfo.POOLBITS)
--		r->entropy_count = r->poolinfo.POOLBITS;
-+	if (r->entropy_count > r->poolinfo->POOLBITS)
-+		r->entropy_count = r->poolinfo->POOLBITS;
- 
- 	if (flags & EXTRACT_ENTROPY_SECONDARY)
- 		xfer_secondary_pool(r, nbytes);
- 
- 	DEBUG_ENT("%s has %d bits, want %d bits\n",
--		  r == sec_random_state ? "secondary" :
--		  r == random_state ? "primary" : "unknown",
--		  r->entropy_count, nbytes * 8);
-+		  r->name, r->entropy_count, nbytes * 8);
- 
- 	if (r->entropy_count / 8 >= nbytes)
- 		r->entropy_count -= nbytes*8;
-@@ -1290,7 +1258,7 @@
- 		 * attempts to find previous ouputs), unless the hash
- 		 * function can be inverted.
- 		 */
--		for (i = 0, x = 0; i < r->poolinfo.poolwords; i += 16, x+=2) {
-+		for (i = 0, x = 0; i < r->poolinfo->poolwords; i += 16, x+=2) {
- 			HASH_TRANSFORM(tmp, r->pool+i);
- 			add_entropy_words(r, &tmp[x%HASH_BUFFER_SIZE], 1);
- 		}
-@@ -1335,11 +1303,11 @@
-  */
- void get_random_bytes(void *buf, int nbytes)
- {
--	if (sec_random_state)  
--		extract_entropy(sec_random_state, (char *) buf, nbytes, 
-+	if (blocking_pool)  
-+		extract_entropy(blocking_pool, (char *) buf, nbytes, 
- 				EXTRACT_ENTROPY_SECONDARY);
--	else if (random_state)
--		extract_entropy(random_state, (char *) buf, nbytes, 0);
-+	else if (input_pool)
-+		extract_entropy(input_pool, (char *) buf, nbytes, 0);
- 	else
- 		printk(KERN_NOTICE "get_random_bytes called before "
- 				   "random driver initialization\n");
-@@ -1382,17 +1350,15 @@
- 
- void __init rand_initialize(void)
- {
--	if (create_entropy_store(DEFAULT_POOL_SIZE, &random_state))
--		return;		/* Error, return */
--	if (batch_entropy_init(BATCH_ENTROPY_SIZE, random_state))
--		return;		/* Error, return */
--	if (create_entropy_store(SECONDARY_POOL_SIZE, &sec_random_state))
--		return;		/* Error, return */
--	clear_entropy_store(random_state);
--	clear_entropy_store(sec_random_state);
--	init_std_data(random_state);
-+	input_pool = create_entropy_store(512, "input");
-+	blocking_pool = create_entropy_store(128, "blocking");
-+
-+	if(!(input_pool && blocking_pool)) return;
-+	if(batch_entropy_init(256)) return;
-+
-+	init_std_data(input_pool);
- #ifdef CONFIG_SYSCTL
--	sysctl_init_random(random_state);
-+	sysctl_init_random(input_pool);
- #endif
- 	generic_kbd = create_entropy_source(1);
- 	generic_mouse = create_entropy_source(1);
-@@ -1422,8 +1388,8 @@
- 		n = nbytes;
- 		if (n > SEC_XFER_SIZE)
- 			n = SEC_XFER_SIZE;
--		if (n > random_state->entropy_count / 8)
--			n = random_state->entropy_count / 8;
-+		if (n > blocking_pool->entropy_count / 8)
-+			n = blocking_pool->entropy_count / 8;
- 		if (n == 0) {
- 			if (file->f_flags & O_NONBLOCK) {
- 				retval = -EAGAIN;
-@@ -1438,12 +1404,13 @@
- 		}
- 
- 		DEBUG_ENT("extracting %d bits, p: %d s: %d\n",
--			  n*8, random_state->entropy_count,
--			  sec_random_state->entropy_count);
-+			  n*8, input_pool->entropy_count,
-+			  blocking_pool->entropy_count);
- 
--		n = extract_entropy(sec_random_state, buf, n,
-+		n = extract_entropy(blocking_pool, buf, n,
- 				    EXTRACT_ENTROPY_USER |
- 				    EXTRACT_ENTROPY_SECONDARY);
-+
- 		if (n < 0) {
- 			retval = n;
- 			break;
-@@ -1471,7 +1438,7 @@
- urandom_read(struct file * file, char * buf,
- 		      size_t nbytes, loff_t *ppos)
- {
--	return extract_entropy(sec_random_state, buf, nbytes,
-+	return extract_entropy(blocking_pool, buf, nbytes,
- 			       EXTRACT_ENTROPY_USER |
- 			       EXTRACT_ENTROPY_SECONDARY);
- }
-@@ -1484,9 +1451,9 @@
- 	poll_wait(file, &random_read_wait, wait);
- 	poll_wait(file, &random_write_wait, wait);
- 	mask = 0;
--	if (random_state->entropy_count >= random_read_wakeup_thresh)
-+	if (input_pool->entropy_count >= random_read_wakeup_thresh)
- 		mask |= POLLIN | POLLRDNORM;
--	if (random_state->entropy_count < random_write_wakeup_thresh)
-+	if (input_pool->entropy_count < random_write_wakeup_thresh)
- 		mask |= POLLOUT | POLLWRNORM;
- 	return mask;
- }
-@@ -1512,7 +1479,7 @@
- 		c -= bytes;
- 		p += bytes;
- 
--		add_entropy_words(random_state, buf, (bytes + 3) / 4);
-+		add_entropy_words(input_pool, buf, (bytes + 3) / 4);
- 	}
- 	if (p == buffer) {
- 		return (ssize_t)ret;
-@@ -1532,7 +1499,7 @@
- 	
- 	switch (cmd) {
- 	case RNDGETENTCNT:
--		ent_count = random_state->entropy_count;
-+		ent_count = input_pool->entropy_count;
- 		if (put_user(ent_count, (int *) arg))
- 			return -EFAULT;
- 		return 0;
-@@ -1541,28 +1508,28 @@
- 			return -EPERM;
- 		if (get_user(ent_count, (int *) arg))
- 			return -EFAULT;
--		credit_entropy_store(random_state, ent_count);
-+		credit_entropy_store(input_pool, ent_count);
- 		/*
- 		 * Wake up waiting processes if we have enough
- 		 * entropy.
- 		 */
--		if (random_state->entropy_count >= random_read_wakeup_thresh)
-+		if (input_pool->entropy_count >= random_read_wakeup_thresh)
- 			wake_up_interruptible(&random_read_wait);
- 		return 0;
- 	case RNDGETPOOL:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
- 		p = (int *) arg;
--		ent_count = random_state->entropy_count;
-+		ent_count = input_pool->entropy_count;
- 		if (put_user(ent_count, p++) ||
- 		    get_user(size, p) ||
--		    put_user(random_state->poolinfo.poolwords, p++))
-+		    put_user(input_pool->poolinfo->poolwords, p++))
- 			return -EFAULT;
- 		if (size < 0)
- 			return -EINVAL;
--		if (size > random_state->poolinfo.poolwords)
--			size = random_state->poolinfo.poolwords;
--		if (copy_to_user(p, random_state->pool, size * 4))
-+		if (size > input_pool->poolinfo->poolwords)
-+			size = input_pool->poolinfo->poolwords;
-+		if (copy_to_user(p, input_pool->pool, size * 4))
- 			return -EFAULT;
- 		return 0;
- 	case RNDADDENTROPY:
-@@ -1579,25 +1546,25 @@
- 				      size, &file->f_pos);
- 		if (retval < 0)
- 			return retval;
--		credit_entropy_store(random_state, ent_count);
-+		credit_entropy_store(input_pool, ent_count);
- 		/*
- 		 * Wake up waiting processes if we have enough
- 		 * entropy.
- 		 */
--		if (random_state->entropy_count >= random_read_wakeup_thresh)
-+		if (input_pool->entropy_count >= random_read_wakeup_thresh)
- 			wake_up_interruptible(&random_read_wait);
- 		return 0;
- 	case RNDZAPENTCNT:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
--		random_state->entropy_count = 0;
-+		input_pool->entropy_count = 0;
- 		return 0;
- 	case RNDCLEARPOOL:
- 		/* Clear the entropy pool and associated counters. */
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
--		clear_entropy_store(random_state);
--		init_std_data(random_state);
-+		clear_entropy_store(input_pool);
-+		init_std_data(input_pool);
- 		return 0;
- 	default:
- 		return -EINVAL;
-@@ -1653,7 +1620,7 @@
- 
+-/* Various size/speed tradeoffs are available.  Choose 0..3. */
+-#define SHA_CODE_SIZE 0
+-
  /*
-  * This function handles a request from the user to change the pool size 
-- * of the primary entropy store.
-+ * of the input entropy store.
-  */
- static int change_poolsize(int poolsize)
- {
-@@ -1663,13 +1630,13 @@
- 	if ((ret = create_entropy_store(poolsize, &new_store)))
- 		return ret;
+  * SHA transform algorithm, taken from code written by Peter Gutmann,
+  * and placed in the public domain.
+@@ -817,7 +788,7 @@
  
--	add_entropy_words(new_store, random_state->pool,
--			  random_state->poolinfo.poolwords);
--	credit_entropy_store(new_store, random_state->entropy_count);
-+	add_entropy_words(new_store, input_pool->pool,
-+			  input_pool->poolinfo->poolwords);
-+	credit_entropy_store(new_store, input_pool->entropy_count);
+     /*
+      * Do the preliminary expansion of 16 to 80 words.  Doing it
+-     * out-of-line line this is faster than doing it in-line on
++     * out-of-line line like this is faster than doing it in-line on
+      * register-starved machines like the x86, and not really any
+      * slower on real processors.
+      */
+@@ -835,11 +806,6 @@
+     E = digest[ 4 ];
  
- 	sysctl_init_random(new_store);
--	old_store = random_state;
--	random_state = batch_tqueue.data = new_store;
-+	old_store = input_pool;
-+	input_pool = new_store;
- 	free_entropy_store(old_store);
- 	return 0;
- }
-@@ -1679,11 +1646,11 @@
- {
- 	int	ret;
+     /* Heavy mangling, in 4 sub-rounds of 20 iterations each. */
+-#if SHA_CODE_SIZE == 0
+-    /*
+-     * Approximately 50% of the speed of the largest version, but
+-     * takes up 1/16 the space.  Saves about 6k on an i386 kernel.
+-     */
+     for (i = 0; i < 80; i++) {
+ 	if (i < 40) {
+ 	    if (i < 20)
+@@ -855,139 +821,6 @@
+ 	TEMP += ROTL(5, A) + E + W[i];
+ 	E = D; D = C; C = ROTL(30, B); B = A; A = TEMP;
+     }
+-#elif SHA_CODE_SIZE == 1
+-    for (i = 0; i < 20; i++) {
+-	TEMP = f1(B, C, D) + K1 + ROTL(5, A) + E + W[i];
+-	E = D; D = C; C = ROTL(30, B); B = A; A = TEMP;
+-    }
+-    for (; i < 40; i++) {
+-	TEMP = f2(B, C, D) + K2 + ROTL(5, A) + E + W[i];
+-	E = D; D = C; C = ROTL(30, B); B = A; A = TEMP;
+-    }
+-    for (; i < 60; i++) {
+-	TEMP = f3(B, C, D) + K3 + ROTL(5, A) + E + W[i];
+-	E = D; D = C; C = ROTL(30, B); B = A; A = TEMP;
+-    }
+-    for (; i < 80; i++) {
+-	TEMP = f4(B, C, D) + K4 + ROTL(5, A) + E + W[i];
+-	E = D; D = C; C = ROTL(30, B); B = A; A = TEMP;
+-    }
+-#elif SHA_CODE_SIZE == 2
+-    for (i = 0; i < 20; i += 5) {
+-	subRound( A, B, C, D, E, f1, K1, W[ i   ] );
+-	subRound( E, A, B, C, D, f1, K1, W[ i+1 ] );
+-	subRound( D, E, A, B, C, f1, K1, W[ i+2 ] );
+-	subRound( C, D, E, A, B, f1, K1, W[ i+3 ] );
+-	subRound( B, C, D, E, A, f1, K1, W[ i+4 ] );
+-    }
+-    for (; i < 40; i += 5) {
+-	subRound( A, B, C, D, E, f2, K2, W[ i   ] );
+-	subRound( E, A, B, C, D, f2, K2, W[ i+1 ] );
+-	subRound( D, E, A, B, C, f2, K2, W[ i+2 ] );
+-	subRound( C, D, E, A, B, f2, K2, W[ i+3 ] );
+-	subRound( B, C, D, E, A, f2, K2, W[ i+4 ] );
+-    }
+-    for (; i < 60; i += 5) {
+-	subRound( A, B, C, D, E, f3, K3, W[ i   ] );
+-	subRound( E, A, B, C, D, f3, K3, W[ i+1 ] );
+-	subRound( D, E, A, B, C, f3, K3, W[ i+2 ] );
+-	subRound( C, D, E, A, B, f3, K3, W[ i+3 ] );
+-	subRound( B, C, D, E, A, f3, K3, W[ i+4 ] );
+-    }
+-    for (; i < 80; i += 5) {
+-	subRound( A, B, C, D, E, f4, K4, W[ i   ] );
+-	subRound( E, A, B, C, D, f4, K4, W[ i+1 ] );
+-	subRound( D, E, A, B, C, f4, K4, W[ i+2 ] );
+-	subRound( C, D, E, A, B, f4, K4, W[ i+3 ] );
+-	subRound( B, C, D, E, A, f4, K4, W[ i+4 ] );
+-    }
+-#elif SHA_CODE_SIZE == 3 /* Really large version */
+-    subRound( A, B, C, D, E, f1, K1, W[  0 ] );
+-    subRound( E, A, B, C, D, f1, K1, W[  1 ] );
+-    subRound( D, E, A, B, C, f1, K1, W[  2 ] );
+-    subRound( C, D, E, A, B, f1, K1, W[  3 ] );
+-    subRound( B, C, D, E, A, f1, K1, W[  4 ] );
+-    subRound( A, B, C, D, E, f1, K1, W[  5 ] );
+-    subRound( E, A, B, C, D, f1, K1, W[  6 ] );
+-    subRound( D, E, A, B, C, f1, K1, W[  7 ] );
+-    subRound( C, D, E, A, B, f1, K1, W[  8 ] );
+-    subRound( B, C, D, E, A, f1, K1, W[  9 ] );
+-    subRound( A, B, C, D, E, f1, K1, W[ 10 ] );
+-    subRound( E, A, B, C, D, f1, K1, W[ 11 ] );
+-    subRound( D, E, A, B, C, f1, K1, W[ 12 ] );
+-    subRound( C, D, E, A, B, f1, K1, W[ 13 ] );
+-    subRound( B, C, D, E, A, f1, K1, W[ 14 ] );
+-    subRound( A, B, C, D, E, f1, K1, W[ 15 ] );
+-    subRound( E, A, B, C, D, f1, K1, W[ 16 ] );
+-    subRound( D, E, A, B, C, f1, K1, W[ 17 ] );
+-    subRound( C, D, E, A, B, f1, K1, W[ 18 ] );
+-    subRound( B, C, D, E, A, f1, K1, W[ 19 ] );
+-
+-    subRound( A, B, C, D, E, f2, K2, W[ 20 ] );
+-    subRound( E, A, B, C, D, f2, K2, W[ 21 ] );
+-    subRound( D, E, A, B, C, f2, K2, W[ 22 ] );
+-    subRound( C, D, E, A, B, f2, K2, W[ 23 ] );
+-    subRound( B, C, D, E, A, f2, K2, W[ 24 ] );
+-    subRound( A, B, C, D, E, f2, K2, W[ 25 ] );
+-    subRound( E, A, B, C, D, f2, K2, W[ 26 ] );
+-    subRound( D, E, A, B, C, f2, K2, W[ 27 ] );
+-    subRound( C, D, E, A, B, f2, K2, W[ 28 ] );
+-    subRound( B, C, D, E, A, f2, K2, W[ 29 ] );
+-    subRound( A, B, C, D, E, f2, K2, W[ 30 ] );
+-    subRound( E, A, B, C, D, f2, K2, W[ 31 ] );
+-    subRound( D, E, A, B, C, f2, K2, W[ 32 ] );
+-    subRound( C, D, E, A, B, f2, K2, W[ 33 ] );
+-    subRound( B, C, D, E, A, f2, K2, W[ 34 ] );
+-    subRound( A, B, C, D, E, f2, K2, W[ 35 ] );
+-    subRound( E, A, B, C, D, f2, K2, W[ 36 ] );
+-    subRound( D, E, A, B, C, f2, K2, W[ 37 ] );
+-    subRound( C, D, E, A, B, f2, K2, W[ 38 ] );
+-    subRound( B, C, D, E, A, f2, K2, W[ 39 ] );
+-    
+-    subRound( A, B, C, D, E, f3, K3, W[ 40 ] );
+-    subRound( E, A, B, C, D, f3, K3, W[ 41 ] );
+-    subRound( D, E, A, B, C, f3, K3, W[ 42 ] );
+-    subRound( C, D, E, A, B, f3, K3, W[ 43 ] );
+-    subRound( B, C, D, E, A, f3, K3, W[ 44 ] );
+-    subRound( A, B, C, D, E, f3, K3, W[ 45 ] );
+-    subRound( E, A, B, C, D, f3, K3, W[ 46 ] );
+-    subRound( D, E, A, B, C, f3, K3, W[ 47 ] );
+-    subRound( C, D, E, A, B, f3, K3, W[ 48 ] );
+-    subRound( B, C, D, E, A, f3, K3, W[ 49 ] );
+-    subRound( A, B, C, D, E, f3, K3, W[ 50 ] );
+-    subRound( E, A, B, C, D, f3, K3, W[ 51 ] );
+-    subRound( D, E, A, B, C, f3, K3, W[ 52 ] );
+-    subRound( C, D, E, A, B, f3, K3, W[ 53 ] );
+-    subRound( B, C, D, E, A, f3, K3, W[ 54 ] );
+-    subRound( A, B, C, D, E, f3, K3, W[ 55 ] );
+-    subRound( E, A, B, C, D, f3, K3, W[ 56 ] );
+-    subRound( D, E, A, B, C, f3, K3, W[ 57 ] );
+-    subRound( C, D, E, A, B, f3, K3, W[ 58 ] );
+-    subRound( B, C, D, E, A, f3, K3, W[ 59 ] );
+-
+-    subRound( A, B, C, D, E, f4, K4, W[ 60 ] );
+-    subRound( E, A, B, C, D, f4, K4, W[ 61 ] );
+-    subRound( D, E, A, B, C, f4, K4, W[ 62 ] );
+-    subRound( C, D, E, A, B, f4, K4, W[ 63 ] );
+-    subRound( B, C, D, E, A, f4, K4, W[ 64 ] );
+-    subRound( A, B, C, D, E, f4, K4, W[ 65 ] );
+-    subRound( E, A, B, C, D, f4, K4, W[ 66 ] );
+-    subRound( D, E, A, B, C, f4, K4, W[ 67 ] );
+-    subRound( C, D, E, A, B, f4, K4, W[ 68 ] );
+-    subRound( B, C, D, E, A, f4, K4, W[ 69 ] );
+-    subRound( A, B, C, D, E, f4, K4, W[ 70 ] );
+-    subRound( E, A, B, C, D, f4, K4, W[ 71 ] );
+-    subRound( D, E, A, B, C, f4, K4, W[ 72 ] );
+-    subRound( C, D, E, A, B, f4, K4, W[ 73 ] );
+-    subRound( B, C, D, E, A, f4, K4, W[ 74 ] );
+-    subRound( A, B, C, D, E, f4, K4, W[ 75 ] );
+-    subRound( E, A, B, C, D, f4, K4, W[ 76 ] );
+-    subRound( D, E, A, B, C, f4, K4, W[ 77 ] );
+-    subRound( C, D, E, A, B, f4, K4, W[ 78 ] );
+-    subRound( B, C, D, E, A, f4, K4, W[ 79 ] );
+-#else
+-#error Illegal SHA_CODE_SIZE
+-#endif
  
--	sysctl_poolsize = random_state->poolinfo.POOLBYTES;
-+	sysctl_poolsize = input_pool->poolinfo->POOLBYTES;
+     /* Build message digest */
+     digest[ 0 ] += A;
+@@ -1010,125 +843,6 @@
+ #undef K3	
+ #undef K4	
+ #undef subRound
+-	
+-#else /* !USE_SHA - Use MD5 */
+-
+-#define HASH_BUFFER_SIZE 4
+-#define HASH_EXTRA_SIZE 0
+-#define HASH_TRANSFORM MD5Transform
+-	
+-/*
+- * MD5 transform algorithm, taken from code written by Colin Plumb,
+- * and put into the public domain
+- */
+-
+-/* The four core functions - F1 is optimized somewhat */
+-
+-/* #define F1(x, y, z) (x & y | ~x & z) */
+-#define F1(x, y, z) (z ^ (x & (y ^ z)))
+-#define F2(x, y, z) F1(z, x, y)
+-#define F3(x, y, z) (x ^ y ^ z)
+-#define F4(x, y, z) (y ^ (x | ~z))
+-
+-/* This is the central step in the MD5 algorithm. */
+-#define MD5STEP(f, w, x, y, z, data, s) \
+-	( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
+-
+-/*
+- * The core of the MD5 algorithm, this alters an existing MD5 hash to
+- * reflect the addition of 16 longwords of new data.  MD5Update blocks
+- * the data and converts bytes into longwords for this routine.
+- */
+-static void MD5Transform(__u32 buf[HASH_BUFFER_SIZE], __u32 const in[16])
+-{
+-	__u32 a, b, c, d;
+-
+-	a = buf[0];
+-	b = buf[1];
+-	c = buf[2];
+-	d = buf[3];
+-
+-	MD5STEP(F1, a, b, c, d, in[ 0]+0xd76aa478,  7);
+-	MD5STEP(F1, d, a, b, c, in[ 1]+0xe8c7b756, 12);
+-	MD5STEP(F1, c, d, a, b, in[ 2]+0x242070db, 17);
+-	MD5STEP(F1, b, c, d, a, in[ 3]+0xc1bdceee, 22);
+-	MD5STEP(F1, a, b, c, d, in[ 4]+0xf57c0faf,  7);
+-	MD5STEP(F1, d, a, b, c, in[ 5]+0x4787c62a, 12);
+-	MD5STEP(F1, c, d, a, b, in[ 6]+0xa8304613, 17);
+-	MD5STEP(F1, b, c, d, a, in[ 7]+0xfd469501, 22);
+-	MD5STEP(F1, a, b, c, d, in[ 8]+0x698098d8,  7);
+-	MD5STEP(F1, d, a, b, c, in[ 9]+0x8b44f7af, 12);
+-	MD5STEP(F1, c, d, a, b, in[10]+0xffff5bb1, 17);
+-	MD5STEP(F1, b, c, d, a, in[11]+0x895cd7be, 22);
+-	MD5STEP(F1, a, b, c, d, in[12]+0x6b901122,  7);
+-	MD5STEP(F1, d, a, b, c, in[13]+0xfd987193, 12);
+-	MD5STEP(F1, c, d, a, b, in[14]+0xa679438e, 17);
+-	MD5STEP(F1, b, c, d, a, in[15]+0x49b40821, 22);
+-
+-	MD5STEP(F2, a, b, c, d, in[ 1]+0xf61e2562,  5);
+-	MD5STEP(F2, d, a, b, c, in[ 6]+0xc040b340,  9);
+-	MD5STEP(F2, c, d, a, b, in[11]+0x265e5a51, 14);
+-	MD5STEP(F2, b, c, d, a, in[ 0]+0xe9b6c7aa, 20);
+-	MD5STEP(F2, a, b, c, d, in[ 5]+0xd62f105d,  5);
+-	MD5STEP(F2, d, a, b, c, in[10]+0x02441453,  9);
+-	MD5STEP(F2, c, d, a, b, in[15]+0xd8a1e681, 14);
+-	MD5STEP(F2, b, c, d, a, in[ 4]+0xe7d3fbc8, 20);
+-	MD5STEP(F2, a, b, c, d, in[ 9]+0x21e1cde6,  5);
+-	MD5STEP(F2, d, a, b, c, in[14]+0xc33707d6,  9);
+-	MD5STEP(F2, c, d, a, b, in[ 3]+0xf4d50d87, 14);
+-	MD5STEP(F2, b, c, d, a, in[ 8]+0x455a14ed, 20);
+-	MD5STEP(F2, a, b, c, d, in[13]+0xa9e3e905,  5);
+-	MD5STEP(F2, d, a, b, c, in[ 2]+0xfcefa3f8,  9);
+-	MD5STEP(F2, c, d, a, b, in[ 7]+0x676f02d9, 14);
+-	MD5STEP(F2, b, c, d, a, in[12]+0x8d2a4c8a, 20);
+-
+-	MD5STEP(F3, a, b, c, d, in[ 5]+0xfffa3942,  4);
+-	MD5STEP(F3, d, a, b, c, in[ 8]+0x8771f681, 11);
+-	MD5STEP(F3, c, d, a, b, in[11]+0x6d9d6122, 16);
+-	MD5STEP(F3, b, c, d, a, in[14]+0xfde5380c, 23);
+-	MD5STEP(F3, a, b, c, d, in[ 1]+0xa4beea44,  4);
+-	MD5STEP(F3, d, a, b, c, in[ 4]+0x4bdecfa9, 11);
+-	MD5STEP(F3, c, d, a, b, in[ 7]+0xf6bb4b60, 16);
+-	MD5STEP(F3, b, c, d, a, in[10]+0xbebfbc70, 23);
+-	MD5STEP(F3, a, b, c, d, in[13]+0x289b7ec6,  4);
+-	MD5STEP(F3, d, a, b, c, in[ 0]+0xeaa127fa, 11);
+-	MD5STEP(F3, c, d, a, b, in[ 3]+0xd4ef3085, 16);
+-	MD5STEP(F3, b, c, d, a, in[ 6]+0x04881d05, 23);
+-	MD5STEP(F3, a, b, c, d, in[ 9]+0xd9d4d039,  4);
+-	MD5STEP(F3, d, a, b, c, in[12]+0xe6db99e5, 11);
+-	MD5STEP(F3, c, d, a, b, in[15]+0x1fa27cf8, 16);
+-	MD5STEP(F3, b, c, d, a, in[ 2]+0xc4ac5665, 23);
+-
+-	MD5STEP(F4, a, b, c, d, in[ 0]+0xf4292244,  6);
+-	MD5STEP(F4, d, a, b, c, in[ 7]+0x432aff97, 10);
+-	MD5STEP(F4, c, d, a, b, in[14]+0xab9423a7, 15);
+-	MD5STEP(F4, b, c, d, a, in[ 5]+0xfc93a039, 21);
+-	MD5STEP(F4, a, b, c, d, in[12]+0x655b59c3,  6);
+-	MD5STEP(F4, d, a, b, c, in[ 3]+0x8f0ccc92, 10);
+-	MD5STEP(F4, c, d, a, b, in[10]+0xffeff47d, 15);
+-	MD5STEP(F4, b, c, d, a, in[ 1]+0x85845dd1, 21);
+-	MD5STEP(F4, a, b, c, d, in[ 8]+0x6fa87e4f,  6);
+-	MD5STEP(F4, d, a, b, c, in[15]+0xfe2ce6e0, 10);
+-	MD5STEP(F4, c, d, a, b, in[ 6]+0xa3014314, 15);
+-	MD5STEP(F4, b, c, d, a, in[13]+0x4e0811a1, 21);
+-	MD5STEP(F4, a, b, c, d, in[ 4]+0xf7537e82,  6);
+-	MD5STEP(F4, d, a, b, c, in[11]+0xbd3af235, 10);
+-	MD5STEP(F4, c, d, a, b, in[ 2]+0x2ad7d2bb, 15);
+-	MD5STEP(F4, b, c, d, a, in[ 9]+0xeb86d391, 21);
+-
+-	buf[0] += a;
+-	buf[1] += b;
+-	buf[2] += c;
+-	buf[3] += d;
+-}
+-
+-#undef F1
+-#undef F2
+-#undef F3
+-#undef F4
+-#undef MD5STEP
+-
+-#endif /* !USE_SHA */
  
- 	ret = proc_dointvec(table, write, filp, buffer, lenp);
- 	if (ret || !write ||
--	    (sysctl_poolsize == random_state->poolinfo.POOLBYTES))
-+	    (sysctl_poolsize == input_pool->poolinfo->POOLBYTES))
- 		return ret;
+ /*********************************************************************
+  *
+@@ -1190,9 +904,8 @@
+ 		tmp[1] = 0xefcdab89;
+ 		tmp[2] = 0x98badcfe;
+ 		tmp[3] = 0x10325476;
+-#ifdef USE_SHA
+ 		tmp[4] = 0xc3d2e1f0;
+-#endif
++
+ 		/*
+ 		 * As we hash the pool, we mix intermediate values of
+ 		 * the hash back into the pool.  This eliminates
+diff -urN -x '.patch*' -x '*.orig' orig/include/linux/random.h work/include/linux/random.h
+--- orig/include/linux/random.h	2002-09-28 00:16:16.000000000 -0500
++++ work/include/linux/random.h	2002-09-28 00:16:16.000000000 -0500
+@@ -32,12 +32,6 @@
+ /* Clear the entropy pool and associated counters.  (Superuser only.) */
+ #define RNDCLEARPOOL	_IO( 'R', 0x06 )
  
- 	return change_poolsize(sysctl_poolsize);
-@@ -1695,7 +1662,7 @@
- {
- 	int	len;
- 	
--	sysctl_poolsize = random_state->poolinfo.POOLBYTES;
-+	sysctl_poolsize = input_pool->poolinfo->POOLBYTES;
+-struct rand_pool_info {
+-	int	entropy_count;
+-	int	buf_size;
+-	__u32	buf[0];
+-};
+-
+ /* Exported functions */
  
- 	/*
- 	 * We only handle the write case, since the read case gets
-@@ -1710,7 +1677,7 @@
- 			return -EFAULT;
- 	}
- 
--	if (sysctl_poolsize != random_state->poolinfo.POOLBYTES)
-+	if (sysctl_poolsize != input_pool->poolinfo->POOLBYTES)
- 		return change_poolsize(sysctl_poolsize);
- 
- 	return 0;
-@@ -1809,12 +1776,12 @@
- 	{0}
- };
- 
--static void sysctl_init_random(struct entropy_store *random_state)
-+static void sysctl_init_random(struct entropy_store *pool)
- {
- 	min_read_thresh = 8;
- 	min_write_thresh = 0;
--	max_read_thresh = max_write_thresh = random_state->poolinfo.POOLBITS;
--	random_table[1].data = &random_state->entropy_count;
-+	max_read_thresh = max_write_thresh = pool->poolinfo->POOLBITS;
-+	random_table[1].data = &pool->entropy_count;
- }
- #endif 	/* CONFIG_SYSCTL */
- 
+ #ifdef __KERNEL__

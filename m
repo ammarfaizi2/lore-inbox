@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280554AbRKSSbr>; Mon, 19 Nov 2001 13:31:47 -0500
+	id <S280563AbRKSScH>; Mon, 19 Nov 2001 13:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280547AbRKSSbh>; Mon, 19 Nov 2001 13:31:37 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:25618 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S280538AbRKSSb0>; Mon, 19 Nov 2001 13:31:26 -0500
-Date: Mon, 19 Nov 2001 12:31:25 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
-Message-ID: <20011119123125.B1439@asooo.flowerfire.com>
-In-Reply-To: <200111191801.fAJI1l922388@neosilicon.transmeta.com> <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Nov 19, 2001 at 10:07:58AM -0800
+	id <S280547AbRKSSbr>; Mon, 19 Nov 2001 13:31:47 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61542 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S280538AbRKSSbj>; Mon, 19 Nov 2001 13:31:39 -0500
+To: Erik Gustavsson <cyrano@algonet.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Swap
+In-Reply-To: <3BF82443.5D3E2E11@starband.net>
+	<E165ZRi-000718-00@mauve.csi.cam.ac.uk>
+	<3BF827E1.5A2C7427@starband.net> <3BF82B3C.8070303@wanadoo.fr>
+	<1006124602.3890.0.camel@bettan>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Nov 2001 11:12:27 -0700
+In-Reply-To: <1006124602.3890.0.camel@bettan>
+Message-ID: <m1snba7hpw.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, so far 2.4.15-pre4 with your patch does not reproduce the kswapd
-issue with Oracle, but I do need to perform more deterministic tests
-before I can fully sign off on that.
+Erik Gustavsson <cyrano@algonet.se> writes:
 
-BTW, didn't your patch go into -pre5?  Or is there an additional mod in
--pre6 that we should try?
--- 
-Ken.
-brownfld@irridia.com
+> I agree...   After a while it always seems that 80% or more of my RAM is
+> used for cache and buffers while my open, but not currently used apps
+> get pushed onto disk. Then when I decide to switch to that mozilla
+> window of emacs session I have to wait for it to be loaded from disk
+> again. Also considering the kind of disk activity this box has, the data
+> in the cache is mostly the last few hour's MP3's, in other words utterly
+> useless as that data will not be used again. I'd rather my apps stayed
+> in RAM...
 
-On Mon, Nov 19, 2001 at 10:07:58AM -0800, Linus Torvalds wrote:
-| 
-| On Mon, 19 Nov 2001, Sebastian Dröge wrote:
-| > Hi,
-| > I couldn't answer ealier because I had some problems with my ISP
-| > the heavy swapping problem while burning a cd is solved in pre6aa1
-| > but if you want i can do some statistics tommorow
-| 
-| Well, pre6aa1 performs really badly exactly because it by default doesn't
-| swap enough even on _normal_ loads because Andrea is playing with some
-| tuning (and see the bad results of that tuning in the VM testing by
-| rwhron@earthlink.net).
-| 
-| So the pre6aa1 numbers are kind of suspect - lack of swapping may not be
-| due to fixing the problem, but due to bad tuning.
-| 
-| Does plain pre6 solve it? Plain pre6 has a fix where a locked shared
-| memory area would previously cause unnecessary swapping, and maybe the CD
-| burning buffer is using shmlock..
-| 
-| 		Linus
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> Is there a way to limit the size of the cache?
+
+Reasonable.  It looks like the use once heuristics are failing for your
+mp3 files.   Find out why that is happening and they should push the
+rest of your system into swap.
+
+Eric

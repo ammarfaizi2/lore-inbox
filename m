@@ -1,1676 +1,874 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263938AbSJHAE2>; Mon, 7 Oct 2002 20:04:28 -0400
+	id <S263180AbSJHAHJ>; Mon, 7 Oct 2002 20:07:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263945AbSJHAE2>; Mon, 7 Oct 2002 20:04:28 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:33192 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S263938AbSJHADU>;
-	Mon, 7 Oct 2002 20:03:20 -0400
-Date: Mon, 7 Oct 2002 17:11:19 -0700 (PDT)
+	id <S262630AbSJHAGl>; Mon, 7 Oct 2002 20:06:41 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:35240 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S263160AbSJHAEI>;
+	Mon, 7 Oct 2002 20:04:08 -0400
+Date: Mon, 7 Oct 2002 17:12:10 -0700 (PDT)
 From: Patrick Mochel <mochel@osdl.org>
 X-X-Sender: mochel@cherise.pdx.osdl.net
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
 Subject: Re: [bk/patch] Rename driverfs to kfs
 In-Reply-To: <Pine.LNX.4.44.0210071701460.16276-100000@cherise.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0210071711090.16276-100000@cherise.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0210071711550.16276-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ChangeSet@1.573.1.136, 2002-10-07 14:46:14-07:00, mochel@osdl.org
-  Rename driverfs to kfs: directories and header files.
+ChangeSet@1.573.1.140, 2002-10-07 15:24:31-07:00, mochel@osdl.org
+  kfs documentation: s/driverfs/kfs/g in driver model and kfs docs.
   
-  This doesn't change the API at all; it only moves fs/driverfs to fs/kfs and 
-  changes the name of hte header file. 
-  
-  All the users of the header have been updated.
-  
-  Also, the name in the fs_type is changed, so it shows up as kfs in /proc/filesystems
-  and must be mounted as such.
+  Also, move Documentation/filesystems/driverfs.txt to 
+  Documentation/filesystems/kfs.txt.
 
-diff -Nru a/drivers/acpi/acpi_bus.h b/drivers/acpi/acpi_bus.h
---- a/drivers/acpi/acpi_bus.h	Mon Oct  7 15:40:26 2002
-+++ b/drivers/acpi/acpi_bus.h	Mon Oct  7 15:40:26 2002
-@@ -27,7 +27,7 @@
- #define __ACPI_BUS_H__
+diff -Nru a/Documentation/driver-model/binding.txt b/Documentation/driver-model/binding.txt
+--- a/Documentation/driver-model/binding.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/binding.txt	Mon Oct  7 15:40:18 2002
+@@ -60,7 +60,7 @@
+ driver's list of devices. 
  
- #include <linux/version.h>
--#include <linux/driverfs_fs.h>
-+#include <linux/kfs.h>
  
- #include "include/acpi.h"
+-driverfs
++kfs
+ ~~~~~~~~
  
-diff -Nru a/drivers/acpi/driverfs.c b/drivers/acpi/driverfs.c
---- a/drivers/acpi/driverfs.c	Mon Oct  7 15:40:26 2002
-+++ b/drivers/acpi/driverfs.c	Mon Oct  7 15:40:26 2002
-@@ -8,7 +8,7 @@
+ A symlink is created in the bus's 'devices' directory that points to
+@@ -71,7 +71,7 @@
  
- #include <linux/stat.h>
- #include <linux/init.h>
--#include <linux/driverfs_fs.h>
-+#include <linux/kfs.h>
+ A directory for the device is created in the class's directory. A
+ symlink is created in that directory that points to the device's
+-physical location in the driverfs tree. 
++physical location in the kfs tree. 
  
- #include "acpi_bus.h"
+ A symlink can be created (though this isn't done yet) in the device's
+ physical directory to either its class directory, or the class's
+diff -Nru a/Documentation/driver-model/bus.txt b/Documentation/driver-model/bus.txt
+--- a/Documentation/driver-model/bus.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/bus.txt	Mon Oct  7 15:40:18 2002
+@@ -131,7 +131,7 @@
+ lock is not held when calling the callback. 
  
-diff -Nru a/fs/Makefile b/fs/Makefile
---- a/fs/Makefile	Mon Oct  7 15:40:26 2002
-+++ b/fs/Makefile	Mon Oct  7 15:40:26 2002
-@@ -37,7 +37,7 @@
  
- obj-$(CONFIG_PROC_FS)		+= proc/
- obj-y				+= partitions/
--obj-y				+= driverfs/
-+obj-y				+= kfs/
- obj-y				+= devpts/
+-driverfs
++kfs
+ ~~~~~~~~
+ There is a top-level directory named 'bus'.
  
- # Do not add any filesystems before this line
-diff -Nru a/fs/driverfs/Makefile b/fs/driverfs/Makefile
---- a/fs/driverfs/Makefile	Mon Oct  7 15:40:26 2002
+@@ -184,7 +184,7 @@
+ static bus_attribute bus_attr_debug;
+ 
+ This can then be used to add and remove the attribute from the bus's
+-driverfs directory using:
++kfs directory using:
+ 
+ int bus_create_file(struct bus_type *, struct bus_attribute *);
+ void bus_remove_file(struct bus_type *, struct bus_attribute *);
+diff -Nru a/Documentation/driver-model/class.txt b/Documentation/driver-model/class.txt
+--- a/Documentation/driver-model/class.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/class.txt	Mon Oct  7 15:40:18 2002
+@@ -91,9 +91,9 @@
+ the struct device_driver::devclass field. 
+ 
+ 
+-driverfs directory structure
++kfs directory structure
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-There is a top-level driverfs directory named 'class'. 
++There is a top-level kfs directory named 'class'. 
+ 
+ Each class gets a directory in the class directory, along with two
+ default subdirectories:
+@@ -143,13 +143,13 @@
+ static devclass_attribute devclass_attr_debug;
+ 
+ The bus driver can add and remove the attribute from the class's
+-driverfs directory using:
++kfs directory using:
+ 
+ int devclass_create_file(struct device_class *, struct devclass_attribute *);
+ void devclass_remove_file(struct device_class *, struct devclass_attribute *);
+ 
+ In the example above, the file will be named 'debug' in placed in the
+-class's directory in driverfs. 
++class's directory in kfs. 
+ 
+ 
+ Interfaces
+diff -Nru a/Documentation/driver-model/device.txt b/Documentation/driver-model/device.txt
+--- a/Documentation/driver-model/device.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/device.txt	Mon Oct  7 15:40:18 2002
+@@ -64,7 +64,7 @@
+ 
+ bus:	       Pointer to struct bus_type that device belongs to.
+ 
+-dir:	       Device's driverfs directory.
++dir:	       Device's kfs directory.
+ 
+ driver:	       Pointer to struct device_driver that controls the device.
+ 
+@@ -125,8 +125,8 @@
+ Attributes of devices can be exported via drivers using a simple
+ procfs-like interface. 
+ 
+-Please see Documentation/filesystems/driverfs.txt for more information
+-on how driverfs works.
++Please see Documentation/filesystems/kfs.txt for more information
++on how kfs works.
+ 
+ Attributes are declared using a macro called DEVICE_ATTR:
+ 
+diff -Nru a/Documentation/driver-model/driver.txt b/Documentation/driver-model/driver.txt
+--- a/Documentation/driver-model/driver.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/driver.txt	Mon Oct  7 15:40:18 2002
+@@ -147,10 +147,10 @@
+ accesses it. 
+ 
+ 
+-driverfs
++kfs
+ ~~~~~~~~
+ 
+-When a driver is registered, a driverfs directory is created in its
++When a driver is registered, a kfs directory is created in its
+ bus's directory. In this directory, the driver can export an interface
+ to userspace to control operation of the driver on a global basis;
+ e.g. toggling debugging output in the driver.
+@@ -268,7 +268,7 @@
+         ssize_t (*store)(struct device_driver *, const char * buf, size_t count, loff_t off);
+ };
+ 
+-Device drivers can export attributes via their driverfs directories. 
++Device drivers can export attributes via their kfs directories. 
+ Drivers can declare attributes using a DRIVER_ATTR macro that works
+ identically to the DEVICE_ATTR macro. 
+ 
+diff -Nru a/Documentation/driver-model/interface.txt b/Documentation/driver-model/interface.txt
+--- a/Documentation/driver-model/interface.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/interface.txt	Mon Oct  7 15:40:18 2002
+@@ -81,7 +81,7 @@
+ Devices are enumerated within the interface. This happens in interface_add_data()
+ and the enumerated value is stored in the struct intf_data for that device. 
+ 
+-driverfs
++kfs
+ ~~~~~~~~
+ Each interface is given a directory in the directory of the device
+ class it belongs to:
+diff -Nru a/Documentation/driver-model/overview.txt b/Documentation/driver-model/overview.txt
+--- a/Documentation/driver-model/overview.txt	Mon Oct  7 15:40:18 2002
++++ b/Documentation/driver-model/overview.txt	Mon Oct  7 15:40:18 2002
+@@ -80,17 +80,17 @@
+ By virtue of having a complete hierarchical view of all the devices in the
+ system, exporting a complete hierarchical view to userspace becomes relatively
+ easy. This has been accomplished by implementing a special purpose virtual
+-file system named driverfs. It is hence possible for the user to mount the
+-whole driverfs filesystem anywhere in userspace.
++file system named kfs. It is hence possible for the user to mount the
++whole kfs filesystem anywhere in userspace.
+ 
+ This can be done permanently by providing the following entry into the
+ /etc/fstab (under the provision that the mount point does exist, of course):
+ 
+-none     	/devices	driverfs    defaults		0	0
++none     	/devices	kfs    defaults		0	0
+ 
+ Or by hand on the command line:
+ 
+-~: mount -t driverfs none /devices
++~: mount -t kfs none /devices
+ 
+ Whenever a device is inserted into the tree, a directory is created for it.
+ This directory may be populated at each layer of discovery - the global layer,
+@@ -108,7 +108,7 @@
+ A device-specific driver may also export files in its directory to expose
+ device-specific data or tunable interfaces.
+ 
+-More information about the driverfs directory layout can be found in
++More information about the kfs directory layout can be found in
+ the other documents in this directory and in the file 
+-Documentation/filesystems/driverfs.txt.
++Documentation/filesystems/kfs.txt.
+ 
+diff -Nru a/Documentation/filesystems/driverfs.txt b/Documentation/filesystems/driverfs.txt
+--- a/Documentation/filesystems/driverfs.txt	Mon Oct  7 15:40:18 2002
 +++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,9 +0,0 @@
--#
--# Makefile for the driverfs virtual filesystem.
--#
--
--export-objs := inode.o
--
--obj-y := inode.o
--
--include $(TOPDIR)/Rules.make
-diff -Nru a/fs/driverfs/inode.c b/fs/driverfs/inode.c
---- a/fs/driverfs/inode.c	Mon Oct  7 15:40:26 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,706 +0,0 @@
--/*
-- * driverfs.c - The device driver file system
-- *
-- * Copyright (c) 2001 Patrick Mochel <mochel@osdl.org>
-- *
-- *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-- *
-- *  This program is distributed in the hope that it will be useful,
-- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *  GNU General Public License for more details.
-- *
-- *  You should have received a copy of the GNU General Public License
-- *  along with this program; if not, write to the Free Software
-- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-- *
-- * This is a simple, ram-based filesystem, which allows kernel
-- * callbacks for read/write of files.
-- *
-- * Please see Documentation/filesystems/driverfs.txt for more information.
-- */
--
--#include <linux/list.h>
--#include <linux/init.h>
--#include <linux/pagemap.h>
--#include <linux/stat.h>
--#include <linux/fs.h>
--#include <linux/dcache.h>
--#include <linux/namei.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/backing-dev.h>
--#include <linux/driverfs_fs.h>
--
--#include <asm/uaccess.h>
--
--#undef DEBUG
--
--#ifdef DEBUG
--# define DBG(x...) printk(x)
--#else
--# define DBG(x...)
--#endif
--
--/* Random magic number */
--#define DRIVERFS_MAGIC 0x42454552
--
--static struct super_operations driverfs_ops;
--static struct file_operations driverfs_file_operations;
--static struct inode_operations driverfs_dir_inode_operations;
--static struct address_space_operations driverfs_aops;
--
--static struct vfsmount *driverfs_mount;
--static spinlock_t mount_lock = SPIN_LOCK_UNLOCKED;
--static int mount_count = 0;
--
--static struct backing_dev_info driverfs_backing_dev_info = {
--	.ra_pages	= 0,	/* No readahead */
--	.memory_backed	= 1,	/* Does not contribute to dirty memory */
--};
--
--static int driverfs_readpage(struct file *file, struct page * page)
--{
--	if (!PageUptodate(page)) {
--		void *kaddr = kmap_atomic(page, KM_USER0);
--
--		memset(kaddr, 0, PAGE_CACHE_SIZE);
--		flush_dcache_page(page);
--		kunmap_atomic(kaddr, KM_USER0);
--		SetPageUptodate(page);
--	}
--	unlock_page(page);
--	return 0;
--}
--
--static int driverfs_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
--{
--	if (!PageUptodate(page)) {
--		void *kaddr = kmap_atomic(page, KM_USER0);
--
--		memset(kaddr, 0, PAGE_CACHE_SIZE);
--		flush_dcache_page(page);
--		kunmap_atomic(kaddr, KM_USER0);
--		SetPageUptodate(page);
--	}
--	return 0;
--}
--
--static int driverfs_commit_write(struct file *file, struct page *page, unsigned offset, unsigned to)
--{
--	struct inode *inode = page->mapping->host;
--	loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
--
--	set_page_dirty(page);
--	if (pos > inode->i_size)
--		inode->i_size = pos;
--	return 0;
--}
--
--
--struct inode *driverfs_get_inode(struct super_block *sb, int mode, int dev)
--{
--	struct inode *inode = new_inode(sb);
--
--	if (inode) {
--		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
--		inode->i_blksize = PAGE_CACHE_SIZE;
--		inode->i_blocks = 0;
--		inode->i_rdev = NODEV;
--		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
--		inode->i_mapping->a_ops = &driverfs_aops;
--		inode->i_mapping->backing_dev_info = &driverfs_backing_dev_info;
--		switch (mode & S_IFMT) {
--		default:
--			init_special_inode(inode, mode, dev);
--			break;
--		case S_IFREG:
--			inode->i_fop = &driverfs_file_operations;
--			break;
--		case S_IFDIR:
--			inode->i_op = &driverfs_dir_inode_operations;
--			inode->i_fop = &simple_dir_operations;
--
--			/* directory inodes start off with i_nlink == 2 (for "." entry) */
--			inode->i_nlink++;
--			break;
--		case S_IFLNK:
--			inode->i_op = &page_symlink_inode_operations;
--			break;
--		}
--	}
--	return inode;
--}
--
--static int driverfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
--{
--	struct inode *inode;
--	int error = -ENOSPC;
--
--	if (dentry->d_inode)
--		return -EEXIST;
--
--	/* only allow create if ->d_fsdata is not NULL (so we can assume it 
--	 * comes from the driverfs API below. */
--	inode = driverfs_get_inode(dir->i_sb, mode, dev);
--	if (inode) {
--		d_instantiate(dentry, inode);
--		error = 0;
--	}
--	return error;
--}
--
--static int driverfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
--{
--	int res;
--	mode = (mode & (S_IRWXUGO|S_ISVTX)) | S_IFDIR;
-- 	res = driverfs_mknod(dir, dentry, mode, 0);
-- 	if (!res)
-- 		dir->i_nlink++;
--	return res;
--}
--
--static int driverfs_create(struct inode *dir, struct dentry *dentry, int mode)
--{
--	int res;
--	mode = (mode & S_IALLUGO) | S_IFREG;
-- 	res = driverfs_mknod(dir, dentry, mode, 0);
--	return res;
--}
--
--static int driverfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
--{
--	struct inode *inode;
--	int error = -ENOSPC;
--
--	if (dentry->d_inode)
--		return -EEXIST;
--
--	inode = driverfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
--	if (inode) {
--		int l = strlen(symname)+1;
--		error = page_symlink(inode, symname, l);
--		if (!error) {
--			d_instantiate(dentry, inode);
--			dget(dentry);
--		} else
--			iput(inode);
--	}
--	return error;
--}
--
--static inline int driverfs_positive(struct dentry *dentry)
--{
--	return (dentry->d_inode && !d_unhashed(dentry));
--}
--
--static int driverfs_empty(struct dentry *dentry)
--{
--	struct list_head *list;
--
--	spin_lock(&dcache_lock);
--
--	list_for_each(list, &dentry->d_subdirs) {
--		struct dentry *de = list_entry(list, struct dentry, d_child);
--		if (driverfs_positive(de)) {
--			spin_unlock(&dcache_lock);
--			return 0;
--		}
--	}
--
--	spin_unlock(&dcache_lock);
--	return 1;
--}
--
--static int driverfs_unlink(struct inode *dir, struct dentry *dentry)
--{
--	struct inode *inode = dentry->d_inode;
--	down(&inode->i_sem);
--	dentry->d_inode->i_nlink--;
--	up(&inode->i_sem);
--	d_invalidate(dentry);
--	dput(dentry);
--	return 0;
--}
--
--/**
-- * driverfs_read_file - "read" data from a file.
-- * @file:	file pointer
-- * @buf:	buffer to fill
-- * @count:	number of bytes to read
-- * @ppos:	starting offset in file
-- *
-- * Userspace wants data from a file. It is up to the creator of the file to
-- * provide that data.
-- * There is a struct device_attribute embedded in file->private_data. We
-- * obtain that and check if the read callback is implemented. If so, we call
-- * it, passing the data field of the file entry.
-- * Said callback is responsible for filling the buffer and returning the number
-- * of bytes it put in it. We update @ppos correctly.
-- */
--static ssize_t
--driverfs_read_file(struct file *file, char *buf, size_t count, loff_t *ppos)
--{
--	struct attribute * attr = file->f_dentry->d_fsdata;
--	struct driver_dir_entry * dir;
--	unsigned char *page;
--	ssize_t retval = 0;
--
--	dir = file->f_dentry->d_parent->d_fsdata;
--	if (!dir->ops->show)
--		return 0;
--
--	if (count > PAGE_SIZE)
--		count = PAGE_SIZE;
--
--	page = (unsigned char*)__get_free_page(GFP_KERNEL);
--	if (!page)
--		return -ENOMEM;
--
--	while (count > 0) {
--		ssize_t len;
--
--		len = dir->ops->show(dir,attr,page,count,*ppos);
--
--		if (len <= 0) {
--			if (len < 0)
--				retval = len;
--			break;
--		} else if (len > count)
--			len = count;
--
--		if (copy_to_user(buf,page,len)) {
--			retval = -EFAULT;
--			break;
--		}
--
--		*ppos += len;
--		count -= len;
--		buf += len;
--		retval += len;
--	}
--	free_page((unsigned long)page);
--	return retval;
--}
--
--/**
-- * driverfs_write_file - "write" to a file
-- * @file:	file pointer
-- * @buf:	data to write
-- * @count:	number of bytes
-- * @ppos:	starting offset
-- *
-- * Similarly to driverfs_read_file, we act essentially as a bit pipe.
-- * We check for a "write" callback in file->private_data, and pass
-- * @buffer, @count, @ppos, and the file entry's data to the callback.
-- * The number of bytes written is returned, and we handle updating
-- * @ppos properly.
-- */
--static ssize_t
--driverfs_write_file(struct file *file, const char *buf, size_t count, loff_t *ppos)
--{
--	struct attribute * attr = file->f_dentry->d_fsdata;
--	struct driver_dir_entry * dir;
--	ssize_t retval = 0;
--	char * page;
--
--	dir = file->f_dentry->d_parent->d_fsdata;
--
--	page = (char *)__get_free_page(GFP_KERNEL);
--	if (!page)
--		return -ENOMEM;
--
--	if (count >= PAGE_SIZE)
--		count = PAGE_SIZE - 1;
--	if (copy_from_user(page,buf,count))
--		goto done;
--	*(page + count) = '\0';
--
--	while (count > 0) {
--		ssize_t len;
--
--		len = dir->ops->store(dir,attr,page + retval,count,*ppos);
--
--		if (len <= 0) {
--			if (len < 0)
--				retval = len;
--			break;
--		}
--		retval += len;
--		count -= len;
--		*ppos += len;
--		buf += len;
--	}
-- done:
--	free_page((unsigned long)page);
--	return retval;
--}
--
--static loff_t
--driverfs_file_lseek(struct file *file, loff_t offset, int orig)
--{
--	loff_t retval = -EINVAL;
--
--	down(&file->f_dentry->d_inode->i_sem);
--	switch(orig) {
--	case 0:
--		if (offset > 0) {
--			file->f_pos = offset;
--			retval = file->f_pos;
--		}
--		break;
--	case 1:
--		if ((offset + file->f_pos) > 0) {
--			file->f_pos += offset;
--			retval = file->f_pos;
--		}
--		break;
--	default:
--		break;
--	}
--	up(&file->f_dentry->d_inode->i_sem);
--	return retval;
--}
--
--static int driverfs_open_file(struct inode * inode, struct file * filp)
--{
--	struct driver_dir_entry * dir;
--	int error = 0;
--
--	dir = (struct driver_dir_entry *)filp->f_dentry->d_parent->d_fsdata;
--	if (dir) {
--		struct attribute * attr = filp->f_dentry->d_fsdata;
--		if (attr && dir->ops) {
--			if (dir->ops->open)
--				error = dir->ops->open(dir);
--			goto Done;
--		}
--	}
--	error = -EINVAL;
-- Done:
--	return error;
--}
--
--static int driverfs_release(struct inode * inode, struct file * filp)
--{
--	struct driver_dir_entry * dir;
--	dir = (struct driver_dir_entry *)filp->f_dentry->d_parent->d_fsdata;
--	if (dir->ops->close)
--		dir->ops->close(dir);
--	return 0;
--}
--
--static struct file_operations driverfs_file_operations = {
--	.read		= driverfs_read_file,
--	.write		= driverfs_write_file,
--	.llseek		= driverfs_file_lseek,
--	.open		= driverfs_open_file,
--	.release	= driverfs_release,
--};
--
--static struct inode_operations driverfs_dir_inode_operations = {
--	.lookup		= simple_lookup,
--};
--
--static struct address_space_operations driverfs_aops = {
--	.readpage	= driverfs_readpage,
--	.writepage	= fail_writepage,
--	.prepare_write	= driverfs_prepare_write,
--	.commit_write	= driverfs_commit_write
--};
--
--static struct super_operations driverfs_ops = {
--	.statfs		= simple_statfs,
--	.drop_inode	= generic_delete_inode,
--};
--
--static int driverfs_fill_super(struct super_block *sb, void *data, int silent)
--{
--	struct inode *inode;
--	struct dentry *root;
--
--	sb->s_blocksize = PAGE_CACHE_SIZE;
--	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
--	sb->s_magic = DRIVERFS_MAGIC;
--	sb->s_op = &driverfs_ops;
--	inode = driverfs_get_inode(sb, S_IFDIR | 0755, 0);
--
--	if (!inode) {
--		DBG("%s: could not get inode!\n",__FUNCTION__);
--		return -ENOMEM;
--	}
--
--	root = d_alloc_root(inode);
--	if (!root) {
--		DBG("%s: could not get root dentry!\n",__FUNCTION__);
--		iput(inode);
--		return -ENOMEM;
--	}
--	sb->s_root = root;
--	return 0;
--}
--
--static struct super_block *driverfs_get_sb(struct file_system_type *fs_type,
--	int flags, char *dev_name, void *data)
--{
--	return get_sb_single(fs_type, flags, data, driverfs_fill_super);
--}
--
--static struct file_system_type driverfs_fs_type = {
--	.owner		= THIS_MODULE,
--	.name		= "driverfs",
--	.get_sb		= driverfs_get_sb,
--	.kill_sb	= kill_litter_super,
--};
--
--static int get_mount(void)
--{
--	struct vfsmount * mnt;
--
--	spin_lock(&mount_lock);
--	if (driverfs_mount) {
--		mntget(driverfs_mount);
--		++mount_count;
--		spin_unlock(&mount_lock);
--		goto go_ahead;
--	}
--
--	spin_unlock(&mount_lock);
--	mnt = kern_mount(&driverfs_fs_type);
--
--	if (IS_ERR(mnt)) {
--		printk(KERN_ERR "driverfs: could not mount!\n");
--		return -ENODEV;
--	}
--
--	spin_lock(&mount_lock);
--	if (!driverfs_mount) {
--		driverfs_mount = mnt;
--		++mount_count;
--		spin_unlock(&mount_lock);
--		goto go_ahead;
--	}
--
--	mntget(driverfs_mount);
--	++mount_count;
--	spin_unlock(&mount_lock);
--
-- go_ahead:
--	DBG("driverfs: mount_count = %d\n",mount_count);
--	return 0;
--}
--
--static void put_mount(void)
--{
--	struct vfsmount * mnt;
--
--	spin_lock(&mount_lock);
--	mnt = driverfs_mount;
--	--mount_count;
--	if (!mount_count)
--		driverfs_mount = NULL;
--	spin_unlock(&mount_lock);
--	mntput(mnt);
--	DBG("driverfs: mount_count = %d\n",mount_count);
--}
--
--int __init init_driverfs_fs(void)
--{
--	return register_filesystem(&driverfs_fs_type);
--}
--
--static struct dentry * get_dentry(struct dentry * parent, const char * name)
--{
--	struct qstr qstr;
--
--	qstr.name = name;
--	qstr.len = strlen(name);
--	qstr.hash = full_name_hash(name,qstr.len);
--	return lookup_hash(&qstr,parent);
--}
--
--/**
-- * driverfs_create_dir - create a directory in the filesystem
-- * @entry:	directory entry
-- * @parent:	parent directory entry
-- */
--int
--driverfs_create_dir(struct driver_dir_entry * entry,
--		    struct driver_dir_entry * parent)
--{
--	struct dentry * dentry = NULL;
--	struct dentry * parent_dentry;
--	int error = 0;
--
--	if (!entry)
--		return -EINVAL;
--
--	get_mount();
--
--	parent_dentry = parent ? parent->dentry : NULL;
--
--	if (!parent_dentry)
--		if (driverfs_mount && driverfs_mount->mnt_sb)
--			parent_dentry = driverfs_mount->mnt_sb->s_root;
--
--	if (!parent_dentry) {
--		put_mount();
--		return -EFAULT;
--	}
--
--	down(&parent_dentry->d_inode->i_sem);
--	dentry = get_dentry(parent_dentry,entry->name);
--	if (!IS_ERR(dentry)) {
--		dentry->d_fsdata = (void *) entry;
--		entry->dentry = dentry;
--		error = driverfs_mkdir(parent_dentry->d_inode,dentry,entry->mode);
--	} else
--		error = PTR_ERR(dentry);
--	up(&parent_dentry->d_inode->i_sem);
--
--	if (error)
--		put_mount();
--	return error;
--}
--
--/**
-- * driverfs_create_file - create a file
-- * @entry:	structure describing the file
-- * @parent:	directory to create it in
-- */
--int
--driverfs_create_file(struct attribute * entry,
--		     struct driver_dir_entry * parent)
--{
--	struct dentry * dentry;
--	int error = 0;
--
--	if (!entry || !parent)
--		return -EINVAL;
--
--	if (!parent->dentry) {
--		put_mount();
--		return -EINVAL;
--	}
--
--	down(&parent->dentry->d_inode->i_sem);
--	dentry = get_dentry(parent->dentry,entry->name);
--	if (!IS_ERR(dentry)) {
--		dentry->d_fsdata = (void *)entry;
--		error = driverfs_create(parent->dentry->d_inode,dentry,entry->mode);
--	} else
--		error = PTR_ERR(dentry);
--	up(&parent->dentry->d_inode->i_sem);
--	return error;
--}
--
--/**
-- * driverfs_create_symlink - make a symlink
-- * @parent:	directory we're creating in 
-- * @entry:	entry describing link
-- * @target:	place we're symlinking to
-- * 
-- */
--int driverfs_create_symlink(struct driver_dir_entry * parent, 
--			    char * name, char * target)
--{
--	struct dentry * dentry;
--	int error = 0;
--
--	if (!parent)
--		return -EINVAL;
--
--	if (!parent->dentry) {
--		put_mount();
--		return -EINVAL;
--	}
--	down(&parent->dentry->d_inode->i_sem);
--	dentry = get_dentry(parent->dentry,name);
--	if (!IS_ERR(dentry))
--		error = driverfs_symlink(parent->dentry->d_inode,dentry,target);
--	else
--		error = PTR_ERR(dentry);
--	up(&parent->dentry->d_inode->i_sem);
--	return error;
--}
--
--/**
-- * driverfs_remove_file - exported file removal
-- * @dir:	directory the file supposedly resides in
-- * @name:	name of the file
-- *
-- * Try and find the file in the dir's list.
-- * If it's there, call __remove_file() (above) for the dentry.
-- */
--void driverfs_remove_file(struct driver_dir_entry * dir, const char * name)
--{
--	struct dentry * dentry;
--
--	if (!dir->dentry)
--		return;
--
--	down(&dir->dentry->d_inode->i_sem);
--	dentry = get_dentry(dir->dentry,name);
--	if (!IS_ERR(dentry)) {
--		/* make sure dentry is really there */
--		if (dentry->d_inode && 
--		    (dentry->d_parent->d_inode == dir->dentry->d_inode)) {
--			driverfs_unlink(dir->dentry->d_inode,dentry);
--		}
--	}
--	up(&dir->dentry->d_inode->i_sem);
--}
--
--/**
-- * driverfs_remove_dir - exportable directory removal
-- * @dir:	directory to remove
-- *
-- * To make sure we don't orphan anyone, first remove
-- * all the children in the list, then do clean up the directory.
-- */
--void driverfs_remove_dir(struct driver_dir_entry * dir)
--{
--	struct list_head * node, * next;
--	struct dentry * dentry = dir->dentry;
--	struct dentry * parent;
--
--	if (!dentry)
--		goto done;
--
--	parent = dget(dentry->d_parent);
--	down(&parent->d_inode->i_sem);
--	down(&dentry->d_inode->i_sem);
--
--	list_for_each_safe(node,next,&dentry->d_subdirs) {
--		struct dentry * d = list_entry(node,struct dentry,d_child);
--		/* make sure dentry is still there */
--		if (d->d_inode)
--			driverfs_unlink(dentry->d_inode,d);
--	}
--
--	d_invalidate(dentry);
--	if (driverfs_empty(dentry)) {
--		dentry->d_inode->i_nlink -= 2;
--		dentry->d_inode->i_flags |= S_DEAD;
--		parent->d_inode->i_nlink--;
--	}
--	up(&dentry->d_inode->i_sem);
--	dput(dentry);
--
--	up(&parent->d_inode->i_sem);
--	dput(parent);
-- done:
--	put_mount();
--}
--
--EXPORT_SYMBOL(driverfs_create_file);
--EXPORT_SYMBOL(driverfs_create_symlink);
--EXPORT_SYMBOL(driverfs_create_dir);
--EXPORT_SYMBOL(driverfs_remove_file);
--EXPORT_SYMBOL(driverfs_remove_dir);
--MODULE_LICENSE("GPL");
-diff -Nru a/fs/kfs/Makefile b/fs/kfs/Makefile
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/kfs/Makefile	Mon Oct  7 15:40:26 2002
-@@ -0,0 +1,9 @@
-+#
-+# Makefile for the driverfs virtual filesystem.
-+#
-+
-+export-objs := inode.o
-+
-+obj-y := inode.o
-+
-+include $(TOPDIR)/Rules.make
-diff -Nru a/fs/kfs/inode.c b/fs/kfs/inode.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/kfs/inode.c	Mon Oct  7 15:40:26 2002
-@@ -0,0 +1,706 @@
-+/*
-+ * driverfs.c - The device driver file system
-+ *
-+ * Copyright (c) 2001 Patrick Mochel <mochel@osdl.org>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ * This is a simple, ram-based filesystem, which allows kernel
-+ * callbacks for read/write of files.
-+ *
-+ * Please see Documentation/filesystems/driverfs.txt for more information.
-+ */
-+
-+#include <linux/list.h>
-+#include <linux/init.h>
-+#include <linux/pagemap.h>
-+#include <linux/stat.h>
-+#include <linux/fs.h>
-+#include <linux/dcache.h>
-+#include <linux/namei.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/backing-dev.h>
-+#include <linux/kfs.h>
-+
-+#include <asm/uaccess.h>
-+
-+#undef DEBUG
-+
-+#ifdef DEBUG
-+# define DBG(x...) printk(x)
-+#else
-+# define DBG(x...)
-+#endif
-+
-+/* Random magic number */
-+#define DRIVERFS_MAGIC 0x42454552
-+
-+static struct super_operations driverfs_ops;
-+static struct file_operations driverfs_file_operations;
-+static struct inode_operations driverfs_dir_inode_operations;
-+static struct address_space_operations driverfs_aops;
-+
-+static struct vfsmount *driverfs_mount;
-+static spinlock_t mount_lock = SPIN_LOCK_UNLOCKED;
-+static int mount_count = 0;
-+
-+static struct backing_dev_info driverfs_backing_dev_info = {
-+	.ra_pages	= 0,	/* No readahead */
-+	.memory_backed	= 1,	/* Does not contribute to dirty memory */
-+};
-+
-+static int driverfs_readpage(struct file *file, struct page * page)
-+{
-+	if (!PageUptodate(page)) {
-+		void *kaddr = kmap_atomic(page, KM_USER0);
-+
-+		memset(kaddr, 0, PAGE_CACHE_SIZE);
-+		flush_dcache_page(page);
-+		kunmap_atomic(kaddr, KM_USER0);
-+		SetPageUptodate(page);
-+	}
-+	unlock_page(page);
-+	return 0;
-+}
-+
-+static int driverfs_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
-+{
-+	if (!PageUptodate(page)) {
-+		void *kaddr = kmap_atomic(page, KM_USER0);
-+
-+		memset(kaddr, 0, PAGE_CACHE_SIZE);
-+		flush_dcache_page(page);
-+		kunmap_atomic(kaddr, KM_USER0);
-+		SetPageUptodate(page);
-+	}
-+	return 0;
-+}
-+
-+static int driverfs_commit_write(struct file *file, struct page *page, unsigned offset, unsigned to)
-+{
-+	struct inode *inode = page->mapping->host;
-+	loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
-+
-+	set_page_dirty(page);
-+	if (pos > inode->i_size)
-+		inode->i_size = pos;
-+	return 0;
-+}
-+
-+
-+struct inode *driverfs_get_inode(struct super_block *sb, int mode, int dev)
-+{
-+	struct inode *inode = new_inode(sb);
-+
-+	if (inode) {
-+		inode->i_mode = mode;
-+		inode->i_uid = current->fsuid;
-+		inode->i_gid = current->fsgid;
-+		inode->i_blksize = PAGE_CACHE_SIZE;
-+		inode->i_blocks = 0;
-+		inode->i_rdev = NODEV;
-+		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+		inode->i_mapping->a_ops = &driverfs_aops;
-+		inode->i_mapping->backing_dev_info = &driverfs_backing_dev_info;
-+		switch (mode & S_IFMT) {
-+		default:
-+			init_special_inode(inode, mode, dev);
-+			break;
-+		case S_IFREG:
-+			inode->i_fop = &driverfs_file_operations;
-+			break;
-+		case S_IFDIR:
-+			inode->i_op = &driverfs_dir_inode_operations;
-+			inode->i_fop = &simple_dir_operations;
-+
-+			/* directory inodes start off with i_nlink == 2 (for "." entry) */
-+			inode->i_nlink++;
-+			break;
-+		case S_IFLNK:
-+			inode->i_op = &page_symlink_inode_operations;
-+			break;
-+		}
-+	}
-+	return inode;
-+}
-+
-+static int driverfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
-+{
-+	struct inode *inode;
-+	int error = -ENOSPC;
-+
-+	if (dentry->d_inode)
-+		return -EEXIST;
-+
-+	/* only allow create if ->d_fsdata is not NULL (so we can assume it 
-+	 * comes from the driverfs API below. */
-+	inode = driverfs_get_inode(dir->i_sb, mode, dev);
-+	if (inode) {
-+		d_instantiate(dentry, inode);
-+		error = 0;
-+	}
-+	return error;
-+}
-+
-+static int driverfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	int res;
-+	mode = (mode & (S_IRWXUGO|S_ISVTX)) | S_IFDIR;
-+ 	res = driverfs_mknod(dir, dentry, mode, 0);
-+ 	if (!res)
-+ 		dir->i_nlink++;
-+	return res;
-+}
-+
-+static int driverfs_create(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	int res;
-+	mode = (mode & S_IALLUGO) | S_IFREG;
-+ 	res = driverfs_mknod(dir, dentry, mode, 0);
-+	return res;
-+}
-+
-+static int driverfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
-+{
-+	struct inode *inode;
-+	int error = -ENOSPC;
-+
-+	if (dentry->d_inode)
-+		return -EEXIST;
-+
-+	inode = driverfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
-+	if (inode) {
-+		int l = strlen(symname)+1;
-+		error = page_symlink(inode, symname, l);
-+		if (!error) {
-+			d_instantiate(dentry, inode);
-+			dget(dentry);
-+		} else
-+			iput(inode);
-+	}
-+	return error;
-+}
-+
-+static inline int driverfs_positive(struct dentry *dentry)
-+{
-+	return (dentry->d_inode && !d_unhashed(dentry));
-+}
-+
-+static int driverfs_empty(struct dentry *dentry)
-+{
-+	struct list_head *list;
-+
-+	spin_lock(&dcache_lock);
-+
-+	list_for_each(list, &dentry->d_subdirs) {
-+		struct dentry *de = list_entry(list, struct dentry, d_child);
-+		if (driverfs_positive(de)) {
-+			spin_unlock(&dcache_lock);
-+			return 0;
-+		}
-+	}
-+
-+	spin_unlock(&dcache_lock);
-+	return 1;
-+}
-+
-+static int driverfs_unlink(struct inode *dir, struct dentry *dentry)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	down(&inode->i_sem);
-+	dentry->d_inode->i_nlink--;
-+	up(&inode->i_sem);
-+	d_invalidate(dentry);
-+	dput(dentry);
-+	return 0;
-+}
-+
-+/**
-+ * driverfs_read_file - "read" data from a file.
-+ * @file:	file pointer
-+ * @buf:	buffer to fill
-+ * @count:	number of bytes to read
-+ * @ppos:	starting offset in file
-+ *
-+ * Userspace wants data from a file. It is up to the creator of the file to
-+ * provide that data.
-+ * There is a struct device_attribute embedded in file->private_data. We
-+ * obtain that and check if the read callback is implemented. If so, we call
-+ * it, passing the data field of the file entry.
-+ * Said callback is responsible for filling the buffer and returning the number
-+ * of bytes it put in it. We update @ppos correctly.
-+ */
-+static ssize_t
-+driverfs_read_file(struct file *file, char *buf, size_t count, loff_t *ppos)
-+{
-+	struct attribute * attr = file->f_dentry->d_fsdata;
-+	struct driver_dir_entry * dir;
-+	unsigned char *page;
-+	ssize_t retval = 0;
-+
-+	dir = file->f_dentry->d_parent->d_fsdata;
-+	if (!dir->ops->show)
-+		return 0;
-+
-+	if (count > PAGE_SIZE)
-+		count = PAGE_SIZE;
-+
-+	page = (unsigned char*)__get_free_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+
-+	while (count > 0) {
-+		ssize_t len;
-+
-+		len = dir->ops->show(dir,attr,page,count,*ppos);
-+
-+		if (len <= 0) {
-+			if (len < 0)
-+				retval = len;
-+			break;
-+		} else if (len > count)
-+			len = count;
-+
-+		if (copy_to_user(buf,page,len)) {
-+			retval = -EFAULT;
-+			break;
-+		}
-+
-+		*ppos += len;
-+		count -= len;
-+		buf += len;
-+		retval += len;
-+	}
-+	free_page((unsigned long)page);
-+	return retval;
-+}
-+
-+/**
-+ * driverfs_write_file - "write" to a file
-+ * @file:	file pointer
-+ * @buf:	data to write
-+ * @count:	number of bytes
-+ * @ppos:	starting offset
-+ *
-+ * Similarly to driverfs_read_file, we act essentially as a bit pipe.
-+ * We check for a "write" callback in file->private_data, and pass
-+ * @buffer, @count, @ppos, and the file entry's data to the callback.
-+ * The number of bytes written is returned, and we handle updating
-+ * @ppos properly.
-+ */
-+static ssize_t
-+driverfs_write_file(struct file *file, const char *buf, size_t count, loff_t *ppos)
-+{
-+	struct attribute * attr = file->f_dentry->d_fsdata;
-+	struct driver_dir_entry * dir;
-+	ssize_t retval = 0;
-+	char * page;
-+
-+	dir = file->f_dentry->d_parent->d_fsdata;
-+
-+	page = (char *)__get_free_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+
-+	if (count >= PAGE_SIZE)
-+		count = PAGE_SIZE - 1;
-+	if (copy_from_user(page,buf,count))
-+		goto done;
-+	*(page + count) = '\0';
-+
-+	while (count > 0) {
-+		ssize_t len;
-+
-+		len = dir->ops->store(dir,attr,page + retval,count,*ppos);
-+
-+		if (len <= 0) {
-+			if (len < 0)
-+				retval = len;
-+			break;
-+		}
-+		retval += len;
-+		count -= len;
-+		*ppos += len;
-+		buf += len;
-+	}
-+ done:
-+	free_page((unsigned long)page);
-+	return retval;
-+}
-+
-+static loff_t
-+driverfs_file_lseek(struct file *file, loff_t offset, int orig)
-+{
-+	loff_t retval = -EINVAL;
-+
-+	down(&file->f_dentry->d_inode->i_sem);
-+	switch(orig) {
-+	case 0:
-+		if (offset > 0) {
-+			file->f_pos = offset;
-+			retval = file->f_pos;
-+		}
-+		break;
-+	case 1:
-+		if ((offset + file->f_pos) > 0) {
-+			file->f_pos += offset;
-+			retval = file->f_pos;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+	up(&file->f_dentry->d_inode->i_sem);
-+	return retval;
-+}
-+
-+static int driverfs_open_file(struct inode * inode, struct file * filp)
-+{
-+	struct driver_dir_entry * dir;
-+	int error = 0;
-+
-+	dir = (struct driver_dir_entry *)filp->f_dentry->d_parent->d_fsdata;
-+	if (dir) {
-+		struct attribute * attr = filp->f_dentry->d_fsdata;
-+		if (attr && dir->ops) {
-+			if (dir->ops->open)
-+				error = dir->ops->open(dir);
-+			goto Done;
-+		}
-+	}
-+	error = -EINVAL;
-+ Done:
-+	return error;
-+}
-+
-+static int driverfs_release(struct inode * inode, struct file * filp)
-+{
-+	struct driver_dir_entry * dir;
-+	dir = (struct driver_dir_entry *)filp->f_dentry->d_parent->d_fsdata;
-+	if (dir->ops->close)
-+		dir->ops->close(dir);
-+	return 0;
-+}
-+
-+static struct file_operations driverfs_file_operations = {
-+	.read		= driverfs_read_file,
-+	.write		= driverfs_write_file,
-+	.llseek		= driverfs_file_lseek,
-+	.open		= driverfs_open_file,
-+	.release	= driverfs_release,
-+};
-+
-+static struct inode_operations driverfs_dir_inode_operations = {
-+	.lookup		= simple_lookup,
-+};
-+
-+static struct address_space_operations driverfs_aops = {
-+	.readpage	= driverfs_readpage,
-+	.writepage	= fail_writepage,
-+	.prepare_write	= driverfs_prepare_write,
-+	.commit_write	= driverfs_commit_write
-+};
-+
-+static struct super_operations driverfs_ops = {
-+	.statfs		= simple_statfs,
-+	.drop_inode	= generic_delete_inode,
-+};
-+
-+static int driverfs_fill_super(struct super_block *sb, void *data, int silent)
-+{
-+	struct inode *inode;
-+	struct dentry *root;
-+
-+	sb->s_blocksize = PAGE_CACHE_SIZE;
-+	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
-+	sb->s_magic = DRIVERFS_MAGIC;
-+	sb->s_op = &driverfs_ops;
-+	inode = driverfs_get_inode(sb, S_IFDIR | 0755, 0);
-+
-+	if (!inode) {
-+		DBG("%s: could not get inode!\n",__FUNCTION__);
-+		return -ENOMEM;
-+	}
-+
-+	root = d_alloc_root(inode);
-+	if (!root) {
-+		DBG("%s: could not get root dentry!\n",__FUNCTION__);
-+		iput(inode);
-+		return -ENOMEM;
-+	}
-+	sb->s_root = root;
-+	return 0;
-+}
-+
-+static struct super_block *driverfs_get_sb(struct file_system_type *fs_type,
-+	int flags, char *dev_name, void *data)
-+{
-+	return get_sb_single(fs_type, flags, data, driverfs_fill_super);
-+}
-+
-+static struct file_system_type driverfs_fs_type = {
-+	.owner		= THIS_MODULE,
-+	.name		= "kfs",
-+	.get_sb		= driverfs_get_sb,
-+	.kill_sb	= kill_litter_super,
-+};
-+
-+static int get_mount(void)
-+{
-+	struct vfsmount * mnt;
-+
-+	spin_lock(&mount_lock);
-+	if (driverfs_mount) {
-+		mntget(driverfs_mount);
-+		++mount_count;
-+		spin_unlock(&mount_lock);
-+		goto go_ahead;
-+	}
-+
-+	spin_unlock(&mount_lock);
-+	mnt = kern_mount(&driverfs_fs_type);
-+
-+	if (IS_ERR(mnt)) {
-+		printk(KERN_ERR "driverfs: could not mount!\n");
-+		return -ENODEV;
-+	}
-+
-+	spin_lock(&mount_lock);
-+	if (!driverfs_mount) {
-+		driverfs_mount = mnt;
-+		++mount_count;
-+		spin_unlock(&mount_lock);
-+		goto go_ahead;
-+	}
-+
-+	mntget(driverfs_mount);
-+	++mount_count;
-+	spin_unlock(&mount_lock);
-+
-+ go_ahead:
-+	DBG("driverfs: mount_count = %d\n",mount_count);
-+	return 0;
-+}
-+
-+static void put_mount(void)
-+{
-+	struct vfsmount * mnt;
-+
-+	spin_lock(&mount_lock);
-+	mnt = driverfs_mount;
-+	--mount_count;
-+	if (!mount_count)
-+		driverfs_mount = NULL;
-+	spin_unlock(&mount_lock);
-+	mntput(mnt);
-+	DBG("driverfs: mount_count = %d\n",mount_count);
-+}
-+
-+int __init init_driverfs_fs(void)
-+{
-+	return register_filesystem(&driverfs_fs_type);
-+}
-+
-+static struct dentry * get_dentry(struct dentry * parent, const char * name)
-+{
-+	struct qstr qstr;
-+
-+	qstr.name = name;
-+	qstr.len = strlen(name);
-+	qstr.hash = full_name_hash(name,qstr.len);
-+	return lookup_hash(&qstr,parent);
-+}
-+
-+/**
-+ * driverfs_create_dir - create a directory in the filesystem
-+ * @entry:	directory entry
-+ * @parent:	parent directory entry
-+ */
-+int
-+driverfs_create_dir(struct driver_dir_entry * entry,
-+		    struct driver_dir_entry * parent)
-+{
-+	struct dentry * dentry = NULL;
-+	struct dentry * parent_dentry;
-+	int error = 0;
-+
-+	if (!entry)
-+		return -EINVAL;
-+
-+	get_mount();
-+
-+	parent_dentry = parent ? parent->dentry : NULL;
-+
-+	if (!parent_dentry)
-+		if (driverfs_mount && driverfs_mount->mnt_sb)
-+			parent_dentry = driverfs_mount->mnt_sb->s_root;
-+
-+	if (!parent_dentry) {
-+		put_mount();
-+		return -EFAULT;
-+	}
-+
-+	down(&parent_dentry->d_inode->i_sem);
-+	dentry = get_dentry(parent_dentry,entry->name);
-+	if (!IS_ERR(dentry)) {
-+		dentry->d_fsdata = (void *) entry;
-+		entry->dentry = dentry;
-+		error = driverfs_mkdir(parent_dentry->d_inode,dentry,entry->mode);
-+	} else
-+		error = PTR_ERR(dentry);
-+	up(&parent_dentry->d_inode->i_sem);
-+
-+	if (error)
-+		put_mount();
-+	return error;
-+}
-+
-+/**
-+ * driverfs_create_file - create a file
-+ * @entry:	structure describing the file
-+ * @parent:	directory to create it in
-+ */
-+int
-+driverfs_create_file(struct attribute * entry,
-+		     struct driver_dir_entry * parent)
-+{
-+	struct dentry * dentry;
-+	int error = 0;
-+
-+	if (!entry || !parent)
-+		return -EINVAL;
-+
-+	if (!parent->dentry) {
-+		put_mount();
-+		return -EINVAL;
-+	}
-+
-+	down(&parent->dentry->d_inode->i_sem);
-+	dentry = get_dentry(parent->dentry,entry->name);
-+	if (!IS_ERR(dentry)) {
-+		dentry->d_fsdata = (void *)entry;
-+		error = driverfs_create(parent->dentry->d_inode,dentry,entry->mode);
-+	} else
-+		error = PTR_ERR(dentry);
-+	up(&parent->dentry->d_inode->i_sem);
-+	return error;
-+}
-+
-+/**
-+ * driverfs_create_symlink - make a symlink
-+ * @parent:	directory we're creating in 
-+ * @entry:	entry describing link
-+ * @target:	place we're symlinking to
-+ * 
-+ */
-+int driverfs_create_symlink(struct driver_dir_entry * parent, 
-+			    char * name, char * target)
-+{
-+	struct dentry * dentry;
-+	int error = 0;
-+
-+	if (!parent)
-+		return -EINVAL;
-+
-+	if (!parent->dentry) {
-+		put_mount();
-+		return -EINVAL;
-+	}
-+	down(&parent->dentry->d_inode->i_sem);
-+	dentry = get_dentry(parent->dentry,name);
-+	if (!IS_ERR(dentry))
-+		error = driverfs_symlink(parent->dentry->d_inode,dentry,target);
-+	else
-+		error = PTR_ERR(dentry);
-+	up(&parent->dentry->d_inode->i_sem);
-+	return error;
-+}
-+
-+/**
-+ * driverfs_remove_file - exported file removal
-+ * @dir:	directory the file supposedly resides in
-+ * @name:	name of the file
-+ *
-+ * Try and find the file in the dir's list.
-+ * If it's there, call __remove_file() (above) for the dentry.
-+ */
-+void driverfs_remove_file(struct driver_dir_entry * dir, const char * name)
-+{
-+	struct dentry * dentry;
-+
-+	if (!dir->dentry)
-+		return;
-+
-+	down(&dir->dentry->d_inode->i_sem);
-+	dentry = get_dentry(dir->dentry,name);
-+	if (!IS_ERR(dentry)) {
-+		/* make sure dentry is really there */
-+		if (dentry->d_inode && 
-+		    (dentry->d_parent->d_inode == dir->dentry->d_inode)) {
-+			driverfs_unlink(dir->dentry->d_inode,dentry);
-+		}
-+	}
-+	up(&dir->dentry->d_inode->i_sem);
-+}
-+
-+/**
-+ * driverfs_remove_dir - exportable directory removal
-+ * @dir:	directory to remove
-+ *
-+ * To make sure we don't orphan anyone, first remove
-+ * all the children in the list, then do clean up the directory.
-+ */
-+void driverfs_remove_dir(struct driver_dir_entry * dir)
-+{
-+	struct list_head * node, * next;
-+	struct dentry * dentry = dir->dentry;
-+	struct dentry * parent;
-+
-+	if (!dentry)
-+		goto done;
-+
-+	parent = dget(dentry->d_parent);
-+	down(&parent->d_inode->i_sem);
-+	down(&dentry->d_inode->i_sem);
-+
-+	list_for_each_safe(node,next,&dentry->d_subdirs) {
-+		struct dentry * d = list_entry(node,struct dentry,d_child);
-+		/* make sure dentry is still there */
-+		if (d->d_inode)
-+			driverfs_unlink(dentry->d_inode,d);
-+	}
-+
-+	d_invalidate(dentry);
-+	if (driverfs_empty(dentry)) {
-+		dentry->d_inode->i_nlink -= 2;
-+		dentry->d_inode->i_flags |= S_DEAD;
-+		parent->d_inode->i_nlink--;
-+	}
-+	up(&dentry->d_inode->i_sem);
-+	dput(dentry);
-+
-+	up(&parent->d_inode->i_sem);
-+	dput(parent);
-+ done:
-+	put_mount();
-+}
-+
-+EXPORT_SYMBOL(driverfs_create_file);
-+EXPORT_SYMBOL(driverfs_create_symlink);
-+EXPORT_SYMBOL(driverfs_create_dir);
-+EXPORT_SYMBOL(driverfs_remove_file);
-+EXPORT_SYMBOL(driverfs_remove_dir);
-+MODULE_LICENSE("GPL");
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Mon Oct  7 15:40:26 2002
-+++ b/include/linux/device.h	Mon Oct  7 15:40:26 2002
-@@ -28,7 +28,7 @@
- #include <linux/ioport.h>
- #include <linux/list.h>
- #include <linux/sched.h>
--#include <linux/driverfs_fs.h>
-+#include <linux/kfs.h>
- 
- #define DEVICE_NAME_SIZE	80
- #define DEVICE_ID_SIZE		32
-diff -Nru a/include/linux/driverfs_fs.h b/include/linux/driverfs_fs.h
---- a/include/linux/driverfs_fs.h	Mon Oct  7 15:40:26 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,70 +0,0 @@
--/*
-- * driverfs_fs.h - definitions for the device driver filesystem
-- *
-- * Copyright (c) 2001 Patrick Mochel <mochel@osdl.org>
-- *
-- *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-- *
-- *  This program is distributed in the hope that it will be useful,
-- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *  GNU General Public License for more details.
-- *
-- *  You should have received a copy of the GNU General Public License
-- *  along with this program; if not, write to the Free Software
-- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-- *
-- * This is a simple, ram-based filesystem, which allows kernel
-- * callbacks for read/write of files.
-- *
-- * Please see Documentation/filesystems/driverfs.txt for more information.
-- */
--
--#ifndef _DRIVER_FS_H_
--#define _DRIVER_FS_H_
--
--struct driver_dir_entry;
--struct attribute;
--
--struct driverfs_ops {
--	int	(*open)(struct driver_dir_entry *);
--	int	(*close)(struct driver_dir_entry *);
--	ssize_t	(*show)(struct driver_dir_entry *, struct attribute *,char *, size_t, loff_t);
--	ssize_t	(*store)(struct driver_dir_entry *,struct attribute *,const char *, size_t, loff_t);
--};
+@@ -1,336 +0,0 @@
+-
+-driverfs - The Device Driver Filesystem
+-
+-Patrick Mochel	<mochel@osdl.org>
+-
+-2 August 2002
+-
+-
+-What it is:
+-~~~~~~~~~~~
+-driverfs is a ram-based filesystem. It was created by copying
+-ramfs/inode.c to driverfs/inode.c and doing a little search-and-replace. 
+-
+-driverfs is a means to export kernel data structures, their
+-attributes, and the linkages between them to userspace. 
+-
+-driverfs provides a unified interface for exporting attributes to
+-userspace. Currently, this interface is available only to device and
+-bus drivers. 
+-
+-
+-Using driverfs
+-~~~~~~~~~~~~~~
+-driverfs is always compiled in. You can access it by doing something like:
+-
+-    mount -t driverfs driverfs /devices 
+-
+-
+-Top Level Directory Layout
+-~~~~~~~~~~~~~~~~~~~~~~~~~~
+-The driverfs directory arrangement exposes the relationship of kernel
+-data structures. 
+-
+-The top level driverfs diretory looks like:
+-
+-bus/
+-root/
+-
+-root/ contains a filesystem representation of the device tree. It maps
+-directly to the internal kernel device tree, which is a hierarchy of
+-struct device. 
+-
+-bus/ contains flat directory layout of the various bus types in the
+-kernel. Each bus's directory contains two subdirectories:
+-
+-	devices/
+-	drivers/
+-
+-devices/ contains symlinks for each device discovered in the system
+-that point to the device's directory under root/.
+-
+-drivers/ contains a directory for each device driver that is loaded
+-for devices on that particular bus (this assmumes that drivers do not
+-span multiple bus types).
+-
+-
+-More information can device-model specific features can be found in
+-Documentation/device-model/. 
+-
+-
+-Directory Contents
+-~~~~~~~~~~~~~~~~~~
+-Each object that is represented in driverfs gets a directory, rather
+-than a file, to make it simple to export attributes of that object. 
+-Attributes are exported via ASCII text files. The programming
+-interface is discussed below. 
+-
+-Instead of having monolithic files that are difficult to parse, all
+-files are intended to export one attribute. The name of the attribute
+-is the name of the file. The value of the attribute are the contents
+-of the file. 
+-
+-There should be few, if any, exceptions to this rule. You should not
+-violate it, for fear of public humilation.
+-
+-
+-The Two-Tier Model
+-~~~~~~~~~~~~~~~~~~
+-
+-driverfs is a very simple, low-level interface. In order for kernel
+-objects to use it, there must be an intermediate layer in place for
+-each object type. 
+-
+-All calls in driverfs are intended to be as type-safe as possible. 
+-In order to extend driverfs to support multiple data types, a layer of
+-abstraction was required. This intermediate layer converts between the
+-generic calls and data structures of the driverfs core to the
+-subsystem-specific objects and calls. 
+-
+-
+-The Subsystem Interface
+-~~~~~~~~~~~~~~~~~~~~~~~
+-
+-The subsystems bear the responsibility of implementing driverfs
+-extensions for the objects they control. Fortunately, it's intended to
+-be really easy to do so. 
+-
+-It's divided into three sections: directories, files, and operations.
+-
+-
+-Directories
+-~~~~~~~~~~~
 -
 -struct driver_dir_entry {
--	char			* name;
--	struct dentry		* dentry;
--	mode_t			mode;
--	struct driverfs_ops	* ops;
+-        char                    * name;
+-        struct dentry           * dentry;
+-        mode_t                  mode;
+-        struct driverfs_ops     * ops;
 -};
 -
--struct attribute {
--	char			* name;
--	mode_t			mode;
--};
 -
--extern int
+-int
 -driverfs_create_dir(struct driver_dir_entry *, struct driver_dir_entry *);
 -
--extern void
+-void
 -driverfs_remove_dir(struct driver_dir_entry * entry);
 -
--extern int
--driverfs_create_file(struct attribute * attr,
--		     struct driver_dir_entry * parent);
+-The directory structure should be statically allocated, and reside in
+-a subsystem-specific data structure:
 -
--extern int 
--driverfs_create_symlink(struct driver_dir_entry * parent, 
--			char * name, char * target);
+-struct device {
+-       ...
+-       struct driver_dir_entry	dir;
+-};
 -
--extern void
+-The subsystem is responsible for initializing the name, mode, and ops
+-fields of the directory entry. (More on struct driverfs_ops later)
+-
+-
+-Files
+-~~~~~
+-
+-struct attribute {
+-        char                    * name;
+-        mode_t                  mode;
+-};
+-
+-
+-int
+-driverfs_create_file(struct attribute * attr, struct driver_dir_entry * parent);
+-
+-void
 -driverfs_remove_file(struct driver_dir_entry *, const char * name);
 -
--extern int init_driverfs_fs(void);
 -
--#endif /* _DDFS_H_ */
-diff -Nru a/include/linux/kfs.h b/include/linux/kfs.h
+-The attribute structure is a simple, common token that the driverfs
+-core handles. It has little use on its own outside of the
+-core. Objects cannot use a plain struct attribute to export
+-attributes, since there are no callbacks for reading and writing data.
+-
+-Therefore, the subsystem is required to define a data structure that
+-encapsulates the attribute structure, and provides type-safe callbacks
+-for reading and writing data.
+-
+-An example looks like this:
+-
+-struct device_attribute {
+-        struct attribute        attr;
+-        ssize_t (*show)(struct device * dev, char * buf, size_t count, loff_t off);
+-        ssize_t (*store)(struct device * dev, const char * buf, size_t count, loff_t off);
+-};
+-
+-
+-Note that there is a struct attribute embedded in the structure. In
+-order to relieve pain in declaring attributes, the subsystem should
+-also define a macro, like:
+-
+-#define DEVICE_ATTR(_name,_mode,_show,_store)      \
+-struct device_attribute dev_attr_##_name = {            \
+-        .attr = {.name  = __stringify(_name) , .mode   = _mode },      \
+-        .show   = _show,                                \
+-        .store  = _store,                               \
+-};
+-
+-This hides the initialization of the embedded struct, and in general,
+-the internals of each structure. It yields a structure by the name of
+-dev_attr_<name>.
+-
+-In order for objects to create files, the subsystem should create
+-wrapper functions, like this:
+-
+-int device_create_file(struct device *device, struct device_attribute * entry);
+-void device_remove_file(struct device * dev, struct device_attribute * attr);
+-
+-..and forward the call on to the driverfs functions.
+-
+-Note that there is no unique information in the attribute structures,
+-so the same structure can be used to describe files of several
+-different object instances. 
+-
+-
+-Operations
+-~~~~~~~~~~
+-
+-struct driverfs_ops {
+-        int     (*open)(struct driver_dir_entry *);
+-        int     (*close)(struct driver_dir_entry *);
+-        ssize_t (*show)(struct driver_dir_entry *, struct attribute *,char *, size_t, loff_t);
+-        ssize_t (*store)(struct driver_dir_entry *,struct attribute *,const char *, size_t, loff_t);
+-};
+-
+-
+-Subsystems are required to implement this set of callbacks. Their
+-purpose is to translate the generic data structures into the specific
+-objects, and operate on them. This can be done by defining macros like
+-this:
+-
+-#define to_dev_attr(_attr) container_of(_attr,struct device_attribute,attr)
+-
+-#define to_device(d) container_of(d, struct device, dir)
+-
+-
+-Since the directories are statically allocated in the object, you can
+-derive the pointer to the object that owns the file. Ditto for the
+-attribute structures. 
+-
+-Current Interfaces
+-~~~~~~~~~~~~~~~~~~
+-
+-The following interface layers currently exist in driverfs:
+-
+-
+-- devices (include/linux/device.h)
+-----------------------------------
+-Structure:
+-
+-struct device_attribute {
+-        struct attribute        attr;
+-        ssize_t (*show)(struct device * dev, char * buf, size_t count, loff_t off);
+-        ssize_t (*store)(struct device * dev, const char * buf, size_t count, loff_t off);
+-};
+-
+-Declaring:
+-
+-DEVICE_ATTR(_name,_str,_mode,_show,_store);
+-
+-Creation/Removal:
+-
+-int device_create_file(struct device *device, struct device_attribute * entry);
+-void device_remove_file(struct device * dev, struct device_attribute * attr);
+-
+-
+-- bus drivers (include/linux/device.h)
+---------------------------------------
+-Structure:
+-
+-struct bus_attribute {
+-        struct attribute        attr;
+-        ssize_t (*show)(struct bus_type *, char * buf, size_t count, loff_t off);
+-        ssize_t (*store)(struct bus_type *, const char * buf, size_t count, loff_t off);
+-};
+-
+-Declaring:
+-
+-BUS_ATTR(_name,_mode,_show,_store)
+-
+-Creation/Removal:
+-
+-int bus_create_file(struct bus_type *, struct bus_attribute *);
+-void bus_remove_file(struct bus_type *, struct bus_attribute *);
+-
+-
+-- device drivers (include/linux/device.h)
+------------------------------------------
+-
+-Structure:
+-
+-struct driver_attribute {
+-        struct attribute        attr;
+-        ssize_t (*show)(struct device_driver *, char * buf, size_t count, loff_t off);
+-        ssize_t (*store)(struct device_driver *, const char * buf, size_t count, loff_t off);
+-};
+-
+-Declaring:
+-
+-DRIVER_ATTR(_name,_mode,_show,_store)
+-
+-Creation/Removal:
+-
+-int driver_create_file(struct device_driver *, struct driver_attribute *);
+-void driver_remove_file(struct device_driver *, struct driver_attribute *);
+-
+-
+-Reading/Writing Data
+-~~~~~~~~~~~~~~~~~~~~
+-The callback functionality is similar to the way procfs works. When a
+-user performs a read(2) or write(2) on the file, it first calls a
+-driverfs function. This calls to the subsystem, which then calls to
+-the object's show() or store() function.
+-
+-The buffer pointer, offset, and length should be passed to each
+-function. The downstream callback should fill the buffer and return
+-the number of bytes read/written.
+-
+-
+-What driverfs is not:
+-~~~~~~~~~~~~~~~~~~~~~
+-It is not a replacement for either devfs or procfs.
+-
+-It does not handle device nodes, like devfs is intended to do. I think
+-this functionality is possible, but indeed think that integration of
+-the device nodes and control files should be done. Whether driverfs or
+-devfs, or something else, is the place to do it, I don't know.
+-
+-It is not intended to be a replacement for all of the procfs
+-functionality. I think that many of the driver files should be moved
+-out of /proc (and maybe a few other things as well ;).
+-
+-
+-
+-Limitations:
+-~~~~~~~~~~~~
+-The driverfs functions assume that at most a page is being either read
+-or written each time.
+-
+-There is a race condition that is really, really hard to fix; if not 
+-impossible. There exists a race between a driverfs file being opened
+-and the object that owns the file going away. During the driverfs
+-open() callback, the reference count for the owning object needs to be
+-incremented. 
+-
+-For drivers, we can put a struct module * owner in struct driver_dir_entry 
+-and do try_inc_mod_count() when we open a file. However, this won't
+-work for devices, that aren't tied to a module. And, it is still not
+-guaranteed to solve the race. 
+-
+-I'm looking into fixing this, but it may not be doable without making
+-a separate filesystem instance for each object. It's fun stuff. Please
+-mail me with creative ideas that you know will work. 
+-
+-
+-Possible bugs:
+-~~~~~~~~~~~~~~
+-It may not deal with offsets and/or seeks very well, especially if
+-they cross a page boundary.
+-
+diff -Nru a/Documentation/filesystems/kfs.txt b/Documentation/filesystems/kfs.txt
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/kfs.h	Mon Oct  7 15:40:26 2002
-@@ -0,0 +1,70 @@
-+/*
-+ * driverfs_fs.h - definitions for the device driver filesystem
-+ *
-+ * Copyright (c) 2001 Patrick Mochel <mochel@osdl.org>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ * This is a simple, ram-based filesystem, which allows kernel
-+ * callbacks for read/write of files.
-+ *
-+ * Please see Documentation/filesystems/driverfs.txt for more information.
-+ */
++++ b/Documentation/filesystems/kfs.txt	Mon Oct  7 15:40:18 2002
+@@ -0,0 +1,333 @@
 +
-+#ifndef _DRIVER_FS_H_
-+#define _DRIVER_FS_H_
++kfs - The Kernel Filesystem
 +
-+struct driver_dir_entry;
-+struct attribute;
++Patrick Mochel	<mochel@osdl.org>
 +
-+struct driverfs_ops {
-+	int	(*open)(struct driver_dir_entry *);
-+	int	(*close)(struct driver_dir_entry *);
-+	ssize_t	(*show)(struct driver_dir_entry *, struct attribute *,char *, size_t, loff_t);
-+	ssize_t	(*store)(struct driver_dir_entry *,struct attribute *,const char *, size_t, loff_t);
-+};
++2 August 2002
++
++
++What it is:
++~~~~~~~~~~~
++driverfs is a ram-based filesystem intended to export attributes of 
++kernel data structures and the relationships between them. 
++
++kfs provides a unified interface for exporting attributes to
++userspace. Currently, this interface is available only to device and
++bus drivers. 
++
++
++Using kfs
++~~~~~~~~~~~~~~
++kfs is always compiled in. You can access it by doing something like:
++
++    mount -t kfs kfs /devices 
++
++
++Top Level Directory Layout
++~~~~~~~~~~~~~~~~~~~~~~~~~~
++The kfs directory arrangement exposes the relationship of kernel
++data structures. 
++
++The top level kfs diretory looks like:
++
++bus/
++root/
++
++root/ contains a filesystem representation of the device tree. It maps
++directly to the internal kernel device tree, which is a hierarchy of
++struct device. 
++
++bus/ contains flat directory layout of the various bus types in the
++kernel. Each bus's directory contains two subdirectories:
++
++	devices/
++	drivers/
++
++devices/ contains symlinks for each device discovered in the system
++that point to the device's directory under root/.
++
++drivers/ contains a directory for each device driver that is loaded
++for devices on that particular bus (this assmumes that drivers do not
++span multiple bus types).
++
++
++More information can device-model specific features can be found in
++Documentation/device-model/. 
++
++
++Directory Contents
++~~~~~~~~~~~~~~~~~~
++Each object that is represented in kfs gets a directory, rather
++than a file, to make it simple to export attributes of that object. 
++Attributes are exported via ASCII text files. The programming
++interface is discussed below. 
++
++Instead of having monolithic files that are difficult to parse, all
++files are intended to export one attribute. The name of the attribute
++is the name of the file. The value of the attribute are the contents
++of the file. 
++
++There should be few, if any, exceptions to this rule. You should not
++violate it, for fear of public humilation.
++
++
++The Two-Tier Model
++~~~~~~~~~~~~~~~~~~
++
++kfs is a very simple, low-level interface. In order for kernel
++objects to use it, there must be an intermediate layer in place for
++each object type. 
++
++All calls in kfs are intended to be as type-safe as possible. 
++In order to extend kfs to support multiple data types, a layer of
++abstraction was required. This intermediate layer converts between the
++generic calls and data structures of the kfs core to the
++subsystem-specific objects and calls. 
++
++
++The Subsystem Interface
++~~~~~~~~~~~~~~~~~~~~~~~
++
++The subsystems bear the responsibility of implementing kfs
++extensions for the objects they control. Fortunately, it's intended to
++be really easy to do so. 
++
++It's divided into three sections: directories, files, and operations.
++
++
++Directories
++~~~~~~~~~~~
 +
 +struct driver_dir_entry {
-+	char			* name;
-+	struct dentry		* dentry;
-+	mode_t			mode;
-+	struct driverfs_ops	* ops;
++        char                    * name;
++        struct dentry           * dentry;
++        mode_t                  mode;
++        struct kfs_ops     * ops;
 +};
++
++
++int
++kfs_create_dir(struct driver_dir_entry *, struct driver_dir_entry *);
++
++void
++kfs_remove_dir(struct driver_dir_entry * entry);
++
++The directory structure should be statically allocated, and reside in
++a subsystem-specific data structure:
++
++struct device {
++       ...
++       struct driver_dir_entry	dir;
++};
++
++The subsystem is responsible for initializing the name, mode, and ops
++fields of the directory entry. (More on struct kfs_ops later)
++
++
++Files
++~~~~~
 +
 +struct attribute {
-+	char			* name;
-+	mode_t			mode;
++        char                    * name;
++        mode_t                  mode;
 +};
 +
-+extern int
-+driverfs_create_dir(struct driver_dir_entry *, struct driver_dir_entry *);
 +
-+extern void
-+driverfs_remove_dir(struct driver_dir_entry * entry);
++int
++kfs_create_file(struct attribute * attr, struct driver_dir_entry * parent);
 +
-+extern int
-+driverfs_create_file(struct attribute * attr,
-+		     struct driver_dir_entry * parent);
++void
++kfs_remove_file(struct driver_dir_entry *, const char * name);
 +
-+extern int 
-+driverfs_create_symlink(struct driver_dir_entry * parent, 
-+			char * name, char * target);
 +
-+extern void
-+driverfs_remove_file(struct driver_dir_entry *, const char * name);
++The attribute structure is a simple, common token that the kfs
++core handles. It has little use on its own outside of the
++core. Objects cannot use a plain struct attribute to export
++attributes, since there are no callbacks for reading and writing data.
 +
-+extern int init_driverfs_fs(void);
++Therefore, the subsystem is required to define a data structure that
++encapsulates the attribute structure, and provides type-safe callbacks
++for reading and writing data.
 +
-+#endif /* _DDFS_H_ */
++An example looks like this:
++
++struct device_attribute {
++        struct attribute        attr;
++        ssize_t (*show)(struct device * dev, char * buf, size_t count, loff_t off);
++        ssize_t (*store)(struct device * dev, const char * buf, size_t count, loff_t off);
++};
++
++
++Note that there is a struct attribute embedded in the structure. In
++order to relieve pain in declaring attributes, the subsystem should
++also define a macro, like:
++
++#define DEVICE_ATTR(_name,_mode,_show,_store)      \
++struct device_attribute dev_attr_##_name = {            \
++        .attr = {.name  = __stringify(_name) , .mode   = _mode },      \
++        .show   = _show,                                \
++        .store  = _store,                               \
++};
++
++This hides the initialization of the embedded struct, and in general,
++the internals of each structure. It yields a structure by the name of
++dev_attr_<name>.
++
++In order for objects to create files, the subsystem should create
++wrapper functions, like this:
++
++int device_create_file(struct device *device, struct device_attribute * entry);
++void device_remove_file(struct device * dev, struct device_attribute * attr);
++
++..and forward the call on to the kfs functions.
++
++Note that there is no unique information in the attribute structures,
++so the same structure can be used to describe files of several
++different object instances. 
++
++
++Operations
++~~~~~~~~~~
++
++struct kfs_ops {
++        int     (*open)(struct driver_dir_entry *);
++        int     (*close)(struct driver_dir_entry *);
++        ssize_t (*show)(struct driver_dir_entry *, struct attribute *,char *, size_t, loff_t);
++        ssize_t (*store)(struct driver_dir_entry *,struct attribute *,const char *, size_t, loff_t);
++};
++
++
++Subsystems are required to implement this set of callbacks. Their
++purpose is to translate the generic data structures into the specific
++objects, and operate on them. This can be done by defining macros like
++this:
++
++#define to_dev_attr(_attr) container_of(_attr,struct device_attribute,attr)
++
++#define to_device(d) container_of(d, struct device, dir)
++
++
++Since the directories are statically allocated in the object, you can
++derive the pointer to the object that owns the file. Ditto for the
++attribute structures. 
++
++Current Interfaces
++~~~~~~~~~~~~~~~~~~
++
++The following interface layers currently exist in kfs:
++
++
++- devices (include/linux/device.h)
++----------------------------------
++Structure:
++
++struct device_attribute {
++        struct attribute        attr;
++        ssize_t (*show)(struct device * dev, char * buf, size_t count, loff_t off);
++        ssize_t (*store)(struct device * dev, const char * buf, size_t count, loff_t off);
++};
++
++Declaring:
++
++DEVICE_ATTR(_name,_str,_mode,_show,_store);
++
++Creation/Removal:
++
++int device_create_file(struct device *device, struct device_attribute * entry);
++void device_remove_file(struct device * dev, struct device_attribute * attr);
++
++
++- bus drivers (include/linux/device.h)
++--------------------------------------
++Structure:
++
++struct bus_attribute {
++        struct attribute        attr;
++        ssize_t (*show)(struct bus_type *, char * buf, size_t count, loff_t off);
++        ssize_t (*store)(struct bus_type *, const char * buf, size_t count, loff_t off);
++};
++
++Declaring:
++
++BUS_ATTR(_name,_mode,_show,_store)
++
++Creation/Removal:
++
++int bus_create_file(struct bus_type *, struct bus_attribute *);
++void bus_remove_file(struct bus_type *, struct bus_attribute *);
++
++
++- device drivers (include/linux/device.h)
++-----------------------------------------
++
++Structure:
++
++struct driver_attribute {
++        struct attribute        attr;
++        ssize_t (*show)(struct device_driver *, char * buf, size_t count, loff_t off);
++        ssize_t (*store)(struct device_driver *, const char * buf, size_t count, loff_t off);
++};
++
++Declaring:
++
++DRIVER_ATTR(_name,_mode,_show,_store)
++
++Creation/Removal:
++
++int driver_create_file(struct device_driver *, struct driver_attribute *);
++void driver_remove_file(struct device_driver *, struct driver_attribute *);
++
++
++Reading/Writing Data
++~~~~~~~~~~~~~~~~~~~~
++The callback functionality is similar to the way procfs works. When a
++user performs a read(2) or write(2) on the file, it first calls a
++kfs function. This calls to the subsystem, which then calls to
++the object's show() or store() function.
++
++The buffer pointer, offset, and length should be passed to each
++function. The downstream callback should fill the buffer and return
++the number of bytes read/written.
++
++
++What kfs is not:
++~~~~~~~~~~~~~~~~~~~~~
++It is not a replacement for either devfs or procfs.
++
++It does not handle device nodes, like devfs is intended to do. I think
++this functionality is possible, but indeed think that integration of
++the device nodes and control files should be done. Whether kfs or
++devfs, or something else, is the place to do it, I don't know.
++
++It is not intended to be a replacement for all of the procfs
++functionality. I think that many of the driver files should be moved
++out of /proc (and maybe a few other things as well ;).
++
++
++
++Limitations:
++~~~~~~~~~~~~
++The kfs functions assume that at most a page is being either read
++or written each time.
++
++There is a race condition that is really, really hard to fix; if not 
++impossible. There exists a race between a kfs file being opened
++and the object that owns the file going away. During the kfs
++open() callback, the reference count for the owning object needs to be
++incremented. 
++
++For drivers, we can put a struct module * owner in struct driver_dir_entry 
++and do try_inc_mod_count() when we open a file. However, this won't
++work for devices, that aren't tied to a module. And, it is still not
++guaranteed to solve the race. 
++
++I'm looking into fixing this, but it may not be doable without making
++a separate filesystem instance for each object. It's fun stuff. Please
++mail me with creative ideas that you know will work. 
++
++
++Possible bugs:
++~~~~~~~~~~~~~~
++It may not deal with offsets and/or seeks very well, especially if
++they cross a page boundary.
++
 

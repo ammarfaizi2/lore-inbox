@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266927AbSKLU2x>; Tue, 12 Nov 2002 15:28:53 -0500
+	id <S266926AbSKLU1z>; Tue, 12 Nov 2002 15:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266930AbSKLU2x>; Tue, 12 Nov 2002 15:28:53 -0500
-Received: from head.linpro.no ([80.232.36.1]:22666 "EHLO head.linpro.no")
-	by vger.kernel.org with ESMTP id <S266927AbSKLU2v>;
-	Tue, 12 Nov 2002 15:28:51 -0500
-To: linux-kernel@vger.kernel.org
-Subject: iostats broken for devices with major number > DK_MAX_DISK (16)
-From: Per Andreas Buer <perbu@linpro.no>
-Organization: Linpro AS
-Date: 12 Nov 2002 21:35:38 +0100
-Message-ID: <PERBUMSGID-ul64ramh6g5.fsf@nfsd.linpro.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	id <S266927AbSKLU1z>; Tue, 12 Nov 2002 15:27:55 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7942 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id <S266926AbSKLU1z>;
+	Tue, 12 Nov 2002 15:27:55 -0500
+Date: Tue, 12 Nov 2002 21:34:35 +0100
+From: romieu@fr.zoreil.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, werner.almesberger@epfl.ch
+Subject: Re: ATM stack locking broken
+Message-ID: <20021112213435.A21918@electric-eye.fr.zoreil.com>
+References: <1037124679.2774.111.camel@zion>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Spam-Score: 0.0 (/)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18Bhl4-0003Ej-00*6LN.BWpPtPE*
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1037124679.2774.111.camel@zion>; from benh@kernel.crashing.org on Tue, Nov 12, 2002 at 07:11:19PM +0100
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Benjamin Herrenschmidt <benh@kernel.crashing.org> :
+[...]
+> I've spent some time trying to figure out why an ATM driver
+> I was hacking with kept deadlocking until I figured out the
+> problem actually is the kernel ATM stack on SMP.
+> 
+> spinlock usage in net/atm/* seem to be utterly broken, though
+> I don't know the ATM stack well enough myself to fix it quickly,
 
-sorry for the intrusion. I noticed iostats didn't display statistics for
-devices on Mylex RAID constrollers. Det statistics are completely
-missing in /proc/stat. The reason seems to be an assumption that disks
-have major numbers which are below 16
-(http://lxr.linux.no/source/include/linux/kernel_stat.h#L15) which is
-used by http://lxr.linux.no/source/fs/proc/proc_misc.c#L344.
+It's known (for quite some time :o/ )
+Don't hold your breath until xmas.
 
-Devices on Mylex-controllers have major number 48. Would it break
-anything if DK_MAX_MAJOR if set higher (e.g. 64)?
-
-AFAIK this goes for both 2.4 and the 2.5 series.
-
-
-
--- 
-Per Andreas Buer
+--
+Ueimor

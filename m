@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTJJXiX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 19:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTJJXiW
+	id S263171AbTJJXVk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 19:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbTJJXUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 19:38:22 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:63665 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263195AbTJJXiV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 19:38:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] x86_84 pci_map_sg fix for 2.6.0-test7
-Date: Fri, 10 Oct 2003 16:37:22 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <200310101426.33773.pbadari@us.ibm.com> <20031010231137.GA28985@wotan.suse.de>
-In-Reply-To: <20031010231137.GA28985@wotan.suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200310101637.22197.pbadari@us.ibm.com>
+	Fri, 10 Oct 2003 19:20:48 -0400
+Received: from mail.kroah.org ([65.200.24.183]:29154 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263172AbTJJXUA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 19:20:00 -0400
+Date: Fri, 10 Oct 2003 16:10:24 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] i2c driver fixes for 2.6.0-test7
+Message-ID: <20031010231024.GB18320@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 October 2003 04:11 pm, Andi Kleen wrote:
-> On Fri, Oct 10, 2003 at 02:26:33PM -0700, Badari Pulavarty wrote:
-> > Hi,
-> >
-> > Here is the patch to fix few minor issues with pci_map_sg() and
-> > pci_map_cont() for x86_64. I ran into these asserts while testing with
-> > qlogic fc driver.
->
-> Sounds like the driver is buggy.
+Hi,
 
-Hmm. Possible. I am not an expert in qlogic driver. Last time I looked
-commands are getting retried due to hardware error returns.
-(something like underruns). 
+Here are some i2c driver fixes for 2.6.0-test7.  They fix a bug in the
+i2c-dev class code, fix oopses in the i2c-sis630 driver, and fix a
+potential use-before-initialized error in the i2c chip drivers.
 
->
-> > The patch fixes following:
-> >
-> > 1) pci_map_sg() coalsces "sg" entries without modifying command's
-> > "use_sg" value. It sets the "sg" entries length to "0" to indicate that
-> > these entires are coalsced. If the command gets retried, the pci_map_sg()
-> > code trips on the assert that all entries length should be > 0.
->
-> As I explained for your last patch this change is wrong. Remapping
-> an already mapped sg is not possible - it leaks IOMMU space and
-> cause eventually system failure when the aperture fills up.
->
-> You have to somehow handle this in the caller, the pci-dma
-> layer cannot do it. Eeither free the modified sg and retry with the
-> original one or better just don't remap it and use the already mapped one)
->
-> I will add an BUG for passing sgs with dma_address != NULL to
-> pci_map_sg(). This should catch such abuses early.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
 
-Okay !! I will take a closer look at it. 
+thanks,
 
-> > 2) __pci_map_cont() incorrectly assumes that "start" is always 0, so it
-> > trips on few asserts.
->
-> That's the same high level bug I think.
+greg k-h
 
-pci_map_sg() can call pci_map_cont() with different start values.
+ drivers/i2c/busses/Kconfig      |    4 +-
+ drivers/i2c/busses/i2c-sis630.c |   67 ++++++++++++++++++++++++++++------------
+ drivers/i2c/chips/Kconfig       |   16 ++++-----
+ drivers/i2c/chips/adm1021.c     |    6 ++-
+ drivers/i2c/chips/it87.c        |    7 ++--
+ drivers/i2c/chips/lm75.c        |    5 ++
+ drivers/i2c/chips/lm78.c        |    7 ++--
+ drivers/i2c/chips/lm85.c        |    6 ++-
+ drivers/i2c/chips/via686a.c     |    7 ++--
+ drivers/i2c/chips/w83781d.c     |    6 ++-
+ drivers/i2c/i2c-dev.c           |   17 ++++++++--
+ 11 files changed, 99 insertions(+), 49 deletions(-)
+-----
 
-Thanks,
-Badari
+<amalysh:web.de>:
+  o I2C: i2c-sis630 driver fixes
+
+Greg Kroah-Hartman:
+  o I2C: fix i2c-dev class release function bug
+
+Jean Delvare:
+  o I2C: correct some errors in i2c/chips/Kconfig
+  o I2C: Chip driver initialization fixes
+

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266215AbUGASoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUGASyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266215AbUGASoM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 14:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUGASoM
+	id S266213AbUGASyX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 14:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUGASyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 14:44:12 -0400
-Received: from waste.org ([209.173.204.2]:4790 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266215AbUGASoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 14:44:04 -0400
-Date: Thu, 1 Jul 2004 13:43:55 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: John Sage <jsage@finchhaven.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Parentage of BPF code in Linux
-Message-ID: <20040701184354.GJ5414@waste.org>
-References: <20040701181002.GG6445@sparky.finchhaven.net>
+	Thu, 1 Jul 2004 14:54:23 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:16903 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S266213AbUGASyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 14:54:22 -0400
+Date: Thu, 1 Jul 2004 20:55:27 +0200
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Voodoo3 2000 is eating my chars!
+Message-ID: <20040701185527.GB122@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040701181002.GG6445@sparky.finchhaven.net>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 11:10:02AM -0700, John Sage wrote:
-> [Non-subscriber: please cc on replies]
-> 
-> WRT to the SCO/IBM/Linux imbroglio, there was an interesting assertion
-> made on the Yahoo! Finance message board for SCOX, and I wondered if
-> anyone could shed some light.
-> 
-> The assertion is this:
-> 
-> "...among other things, the Berkeley Packet Filter code, which was
-> written by an independent developer for the Missouri School District,
-> licensed under the BSD license terms that never was part of SysV at
-> any time..."
+    Hi all :)
 
-There's a from-scratch reimplementation of BPF in Linux (called Linux
-Socket Filter) by Jay Schulist in net/core/filter.c. And he appears to
-have worked for the _Wisconsin_ school district at the time. A Google
-search on "schulist filter wisconsin" reveals:
+    I recently put a Voodoo3 2000 (AGP) card to my home linux box,
+and now I have a problem in the console. When switching from X to the
+console, some chars dissappear, or appear cut, etc. I've googled for
+this, but with no success. Is this a known bug? Maybe an X bug?
 
-  Jay Schulist, a senior software engineer with Pleasanton,
-  California's Bivio Networks says he wrote the 500 lines of code in
-  1997 as part of a volunteer project for the Stevens Point Area
-  Catholic Schools in Wisconsin. "I used it for helping a local school
-  district in my home town to connect their old Apple Macintosh machines
-  to the Internet," he said.
+    Sorry if this seems offtopic, but since I haven't found any
+information in X forums, I think I may need some some think in the
+kernel configuration (maybe DRI, who knows, I'm really lost with all
+that graphics cards crap...).
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

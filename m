@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUDNVhU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 17:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUDNVhT
+	id S261830AbUDNVkI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 17:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUDNVkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 17:37:19 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:3346 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261822AbUDNVgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 17:36:04 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Organization: Linux-Systeme GmbH
-To: Greg KH <greg@kroah.com>
-Subject: Re: [SECURITY] CAN-2004-0075 (was: Re: [SECURITY] CAN-2004-0109 isofs fix.)
-Date: Wed, 14 Apr 2004 23:34:56 +0200
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <20040414171147.GB23419@redhat.com> <200404142230.33553@WOLK> <20040414212724.GA24809@kroah.com>
-In-Reply-To: <20040414212724.GA24809@kroah.com>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
+	Wed, 14 Apr 2004 17:40:07 -0400
+Received: from waste.org ([209.173.204.2]:18158 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261830AbUDNVij (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 17:38:39 -0400
+Date: Wed, 14 Apr 2004 16:37:49 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: jgarzik@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: [PATCH] conditionalize some boring buffer_head checks
+Message-ID: <20040414213748.GG1175@waste.org>
+References: <407CEB91.1080503@pobox.com> <20040414005832.083de325.akpm@osdl.org> <20040414010240.0e9f4115.akpm@osdl.org> <407CF201.408@pobox.com> <20040414011653.22c690d9.akpm@osdl.org> <407CFFF9.5010500@pobox.com> <20040414212539.GE1175@waste.org> <20040414142754.02a42048.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404142334.56143@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20040414142754.02a42048.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 April 2004 23:27, Greg KH wrote:
+On Wed, Apr 14, 2004 at 02:27:54PM -0700, Randy.Dunlap wrote:
+> On Wed, 14 Apr 2004 16:25:39 -0500 Matt Mackall wrote:
+> 
+> | On Wed, Apr 14, 2004 at 05:10:17AM -0400, Jeff Garzik wrote:
+> | > Andrew Morton wrote:
+> | > >Jeff Garzik <jgarzik@pobox.com> wrote:
+> | > >
+> | > >>I would rather not kill the code in submit_bh() outright, just disable 
+> | > >>it for non-filesystem developers.
+> | > >
+> | > >
+> | > >submit_bh() is a slowpath ;) The one in mark_buffer_dirty() will be called
+> | > >more often, possibly others.  Kill!
+> | > 
+> | > Jens seems to like the debugging checks, so here's an alterna-patch.
+> | > 
+> | > 	Jeff
+> | > 
+> | > 
+> | 
+> | > ===== arch/alpha/Kconfig 1.36 vs edited =====
+> | > +++ edited/arch/alpha/Kconfig	Wed Apr 14 04:58:08 2004
+> | > @@ -690,6 +690,13 @@
+> | >  	  Say Y here only if you plan to use gdb to debug the kernel.
+> | >  	  If you don't debug the kernel, you can say N.
+> | >  
+> | > +config DEBUG_BUFFERS
+> | > +	bool "Enable additional filesystem buffer_head checks"
+> | > +	depends on DEBUG_KERNEL
+> | > +	help
+> | > +	  If you say Y here, additional checks are performed that aid
+> | > +	  filesystem development.
+> | > +
+> | >  endmenu
+> | 
+> | Sticking this in arch/*/Kconfig seems silly (as does much of the
+> | duplication in said files). Can we stick this and other debug bits
+> | under the kallsyms option in init/Kconfig instead? Or alternately move
+> | debugging bits into their own file that gets included as appropriate.
+> 
+> Yes, I'll jump onto that if noone else does it.
+> Matt, are you making a patch for this?
 
-Hey Greg,
+It's all yours.
 
-> > Already ACKed by Greg. Only complaint was inproper coding style which is
-> > done with attached patch ;)
-
-> Eeek, I thought this one was already in the tree, very sorry about that.
-
-No problem. Therefore I am here ;) ... Every now and then I take a look into 
-my WOLK tree and see if there are important things not merged yet.
-
-
-> I'm applying it now and will send it to Linus in a bit.
-> thanks for reminding me,
-
-np. Thank you.
-
-
-ciao, Marc
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265228AbUGGRBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265226AbUGGRKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265228AbUGGRBo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 13:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUGGRBl
+	id S265226AbUGGRKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 13:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUGGRKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 13:01:41 -0400
-Received: from cmsrelay01.mx.net ([165.212.11.110]:17877 "HELO
-	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265226AbUGGRBi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 13:01:38 -0400
-X-USANET-Auth: 165.212.8.2     AUTO bradtilley@usa.net uwdvg002.cms.usa.net
-Date: Wed, 07 Jul 2004 13:01:35 -0400
-From: Brad Tilley <bradtilley@usa.net>
-To: Erik Mouw <erik@harddisk-recovery.com>, Brad Tilley <bradtilley@usa.net>
-Subject: Re: Directory where modules are loacted in 2.6.7 build
-CC: <linux-kernel@vger.kernel.org>
-X-Mailer: USANET web-mailer (CM.0402.7.09)
-Mime-Version: 1.0
-Message-ID: <808iggRBj8512S02.1089219695@uwdvg002.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 7 Jul 2004 13:10:07 -0400
+Received: from pop.gmx.net ([213.165.64.20]:12677 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265226AbUGGRKF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 13:10:05 -0400
+X-Authenticated: #4512188
+Message-ID: <40EC2E6F.9060302@gmx.de>
+Date: Wed, 07 Jul 2004 19:10:07 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>
+Subject: Re: 2.6.7-ck5
+References: <40EC13C5.2000101@kolivas.org> <40EC2898.1090306@comcast.net>
+In-Reply-To: <40EC2898.1090306@comcast.net>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> wrote:
+John Richard Moser wrote:
+> I'm on gentoo here, and just copied the ck2 ebuild to ck5, and it missed
+> on a patch called ck-sources-2.6.IPTables-RDoS.  Any idea what this is,
+> and is it already in?
 
-> You need to be root to install the modules in /lib/modules using "make
-> modules_install", but everything else can be done as a normal user. If
-> you want to have them installed somewhere else, you don't need to be
-> root, btw, "make INSTALL_MOD_PATH=/tmp modules_install" will install
-> the modules in /tmp/lib/modules .
+I think it is already inside (look at Con's patch list). Just remove the 
+line from the ebuild.
 
-Thank you. INSTALL_MOD_PATH is exactly what I needed.
-
-
+Prakash

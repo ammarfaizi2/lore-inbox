@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263104AbSJBOBj>; Wed, 2 Oct 2002 10:01:39 -0400
+	id <S263085AbSJBOL3>; Wed, 2 Oct 2002 10:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbSJBOBj>; Wed, 2 Oct 2002 10:01:39 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:64772 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263104AbSJBOBh>; Wed, 2 Oct 2002 10:01:37 -0400
-To: m.c.p@wolk-project.de
-Subject: Re: [PATCH] ALSA 'make menuconfig exits' fix
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Message-Id: <E17wk9W-0005c1-00@scrub.xs4all.nl>
-From: Roman Zippel <zippel@linux-m68k.org>
-Date: Wed, 02 Oct 2002 16:07:02 +0200
+	id <S263086AbSJBOL3>; Wed, 2 Oct 2002 10:11:29 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:2574 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263085AbSJBOL2>; Wed, 2 Oct 2002 10:11:28 -0400
+Date: Wed, 2 Oct 2002 16:16:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Grover <andrew.grover@intel.com>
+Subject: ACPI: do not have *two* acpi_power_off
+Message-ID: <20021002141656.GB23402@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Marc-Christian Petersen wrote:
+Having two acpi_power_off functions is extremely confusing... And the
+second one does not even power the machine off ;-). Please apply,
 
-> attached patch fixes "make menuconfig" crashes when entering Sound/ALSA.
-> 
-> Dunno if it is the correct way but it works. Consider this as a workaround.
+								Pavel
 
-This is no valid config syntax.
-Below is a better patch + another sparc sound config fix.
-Linus, please apply.
-
-bye, Roman
-
---- linux/arch/sparc/config.in	2002/10/02 09:30:33	1.1.1.14
-+++ linux/arch/sparc/config.in	2002/10/02 12:44:45
-@@ -222,6 +224,9 @@ source drivers/input/Config.in
+diff -ur clean-2.5.35/drivers/acpi/power.c linux-2.5.35/drivers/acpi/power.c
+--- clean-2.5.35/drivers/acpi/power.c	2002-09-16 04:18:30.000000000 +0200
++++ linux-2.5.35/drivers/acpi/power.c	2002-10-02 14:50:41.000000000 +0200
+@@ -210,7 +210,7 @@
  
- source fs/Config.in
  
-+mainmenu_option next_comment
-+comment 'Sound'
-+
- tristate 'Sound card support' CONFIG_SOUND
- if [ "$CONFIG_SOUND" != "n" ]; then
-    source sound/Config.in
---- linux/sound/Config.in	2002/10/02 09:34:47	1.1.1.3
-+++ linux/sound/Config.in	2002/10/02 10:23:26
-@@ -31,11 +31,10 @@ fi
- if [ "$CONFIG_SND" != "n" -a "$CONFIG_ARM" = "y" ]; then
-   source sound/arm/Config.in
- fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ]; then
--  source sound/sparc/Config.in
--fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
--  source sound/sparc/Config.in
-+if [ "$CONFIG_SND" != "n" ]; then
-+  if [ "$CONFIG_SPARC32" = "y" -o "$CONFIG_SPARC64" = "y" ]; then
-+    source sound/sparc/Config.in
-+  fi
- fi
+ static int
+-acpi_power_off (
++acpi_power_off_device (
+ 	acpi_handle		handle)
+ {
+ 	int			result = 0;
+@@ -218,7 +218,7 @@
+ 	struct acpi_device	*device = NULL;
+ 	struct acpi_power_resource *resource = NULL;
  
- endmenu
+-	ACPI_FUNCTION_TRACE("acpi_power_off");
++	ACPI_FUNCTION_TRACE("acpi_power_off_device");
+ 
+ 	result = acpi_power_get_context(handle, &resource);
+ 	if (result)
+@@ -351,7 +350,7 @@
+ 	 * Then we dereference all power resources used in the current list.
+ 	 */
+ 	for (i=0; i<cl->count; i++) {
+-		result = acpi_power_off(cl->handles[i]);
++		result = acpi_power_off_device(cl->handles[i]);
+ 		if (result)
+ 			goto end;
+ 	}
+
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267418AbUHJEKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUHJEJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267418AbUHJEKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 00:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUHJEKk
+	id S267259AbUHJEJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 00:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUHJEJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 00:10:40 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:23011 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267409AbUHJEK2 (ORCPT
+	Tue, 10 Aug 2004 00:09:59 -0400
+Received: from smtp3.ispsnet.net ([64.63.240.3]:24479 "EHLO smtp3.ispsnet.net")
+	by vger.kernel.org with ESMTP id S267259AbUHJEJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 00:10:28 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
+	Tue, 10 Aug 2004 00:09:56 -0400
+From: Robert Crawford <flacycads@access4less.net>
+Organization: Florida Cycads
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
-Date: Mon, 9 Aug 2004 23:08:56 -0500
-User-Agent: KMail/1.5
-References: <200408092240.05287.habanero@us.ibm.com>
-In-Reply-To: <200408092240.05287.habanero@us.ibm.com>
-Cc: rocklind@us.ibm.com, mbligh@aracnet.com, mingo@elte.hu, akpm@osdl.org
+Subject: 2.6.8-rc3-mm1 & mm2 break k3b
+Date: Tue, 10 Aug 2004 00:11:30 +0000
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200408092308.56160.habanero@us.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408100011.30730.flacycads@access4less.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 August 2004 22:40, you wrote:
->    Rick showed me schedstats graphs of the two ... it seems to have lower
->     latency, does less rebalancing, fewer pull_tasks, etc, etc. Everything
->     looks better ... he'll send them out soon, I think (hint, hint).
->
-> Okay, they're done. Here's the URL of the graphs:
->
->     http://eaglet.rain.com/rick/linux/staircase/scase-vs-noscase.html
->
-> General summary: as Martin reported, we're seeing improvements in a number
-> of areas, at least with sdet.  The graphs as listed there represent stats
-> from four separate sdet runs run sequentially with an increasing load.
-> (We're trying to see if we can get the information from each run
-> separately, rather than the aggregate -- one of the hazards of an automated
-> test harness :)
+I posted this on the Con Kolivas kernel list, and he suggested I post here, 
+regarding 2.6.8-rc3-mm kernels. I'm no expert by any means, but have been 
+testing kernels since 2.5.67, and have posted about kernels on the Gentoo & 
+PCLOS forums, among others.
 
-What's quite interesting is that there is a very noticeable surge in 
-load_balance with staircase in the early stage of the test, but there appears 
-to be -no- direct policy changes to load-balance at all in Con's patch (or at 
-least I didn't notice it -please tell me if you did!).  You can see it in 
-busy load_balance, sched_balance_exec, and pull_task.  The runslice and 
-latency stats confirm this -no-staircase does not balance early on, and the 
-tasks suffer, waiting on a cpu already loaded up.  I do not have an 
-explanation for this; perhaps it has something to do with eliminating expired 
-queue.
+"Just tested the latest staircase7.I with 2.6.8-rc3 vanilla, and 
+2.6.8-rc3-mm2, and both work fine- no problems I can see so far on my test 
+box. However,  2.6.8-rc3-mm1 and mm2 both still break my k3b cd burning 
+software, with these errors (using cdrecord 2.1a33, on Gentoo) :
 
-I would be nice to have per cpu runqueue lengths logged to see how this plays 
-out -do the cpus on staircase obtain a runqueue length close to 
-nr_running()/nr_online_cpus sooner than no-staircase?
+Unable to determine the last tracks data mode. using default
+cdrecord returned an unknown error (code 12)
+Cannot allocate memory
 
-Also, one big change apparent to me, the elimination of TIMESLICE_GRANULARITY.  
-Do you have cswitch data?  I would not be surprised if it's a lot higher on 
--no-staircase, and cache is thrashed a lot more.  This may be something you 
-can pull out of the -no-staircase kernel quite easily.
+Sometimes it says to lower the burn speed, even when it's set to 4x (on a 48x 
+burner), but that doesn't solve the problem. I get the same errors.
 
--Andrew Theurer
+This doesn't occur with all previous mm kernels (up to 2.6.8-rc2-mm2), or any 
+other kernel I've tried, and not with any ck patches, so I'm convinced it's 
+the rc3-mm patches causing this, and not anything ck." If I boot with other 
+kernels, same hardware, same config file, k3b works perfectly.
 
-
+Robert Crawford

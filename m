@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293061AbSB1V63>; Thu, 28 Feb 2002 16:58:29 -0500
+	id <S310168AbSB1WcA>; Thu, 28 Feb 2002 17:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310132AbSB1V4k>; Thu, 28 Feb 2002 16:56:40 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56082 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S292934AbSB1VzE>; Thu, 28 Feb 2002 16:55:04 -0500
-Date: Thu, 28 Feb 2002 16:53:38 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: texas <texas@ludd.luth.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
-In-Reply-To: <Pine.GSU.4.33.0202272021090.23682-100000@father.ludd.luth.se>
-Message-ID: <Pine.LNX.3.96.1020228165054.2006A-100000@gatekeeper.tmr.com>
+	id <S310172AbSB1W3x>; Thu, 28 Feb 2002 17:29:53 -0500
+Received: from courage.cs.stevens-tech.edu ([155.246.89.70]:51454 "HELO
+	courage.cs.stevens-tech.edu") by vger.kernel.org with SMTP
+	id <S310178AbSB1WYN>; Thu, 28 Feb 2002 17:24:13 -0500
+Newsgroups: comp.os.linux.development.system
+Date: Thu, 28 Feb 2002 17:23:54 -0500 (EST)
+From: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
+To: <kernelnewbies@nl.linux.org>
+Subject: simple problem with sleeping/waking up
+Message-ID: <Pine.NEB.4.33.0202281617001.3356-100000@courage.cs.stevens-tech.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, texas wrote:
+Hello,
 
-> We recently invested in a new database server (MySQL), a Dual P4 Xeon (2 x
-> 2GHz Prestonia, 1GB RDRAM) system, it's mainboard is a Supermicro P4DCE+
-> based on the i860 chipset.
+I want to implement the 2 following functions in 2.4.17 kernel:
 
-After boot disable screen blanking with "setterm -blank 0" and see if that
-helps. Seems some video cards do something odd at blanking time (or
-perhaps you're using the BIOS blanking option). Only seems to happen with
-SMP, and I got this from IBM support, so I doubt it's totally a folk tale.
+fun1(struct sock *sk)
+{
+	GO_TO_SLEEP_SOMEHOW(sk->sleep???);
+	while (some_pointer == NULL) {
+		/* do nothing */
+	}
+}
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+fun2(struct sock *sk)
+{
+	/* some event occured -- data vailable */
+	some_pointer == something;
+	WAKE_SLEEPING_PROCESS(sk->sleep)
+}
+
+I am doing it in networking stack (not a module) to implement accept(fun1)
+function. fun2 is supposed to be my main receiving function, which should
+wake accept up after receiving some data.
+So far I tried this:
+accept(struct sock sk*)
+{
+	DECLARE_WAITQUEUE(wait, current);
+	current->state = TASK_INTERRUPTIBLE;
+	while (1) {
+		schedule_timeout(timeo); /* process sleeps after that */
+		if (some_pointer != NULL) {
+			break;
+		}
+	}
+	current->state = TASK_RUNNING;
+	remove_wait_queue(sk->sleep, &wait);
+}
+
+receive(struct sock sk*)
+{
+	/* after getting the data */A
+	some_pointer = sk;
+	wake_up_interruptible(sk->sleep); /* this hangs my machine :-(*/
+}
+
+Please help, it'll be so greatly appreciated, since I've spent almost a
+week trying to do that...
+-marek
 

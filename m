@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271772AbRH0QgZ>; Mon, 27 Aug 2001 12:36:25 -0400
+	id <S271782AbRH0QzW>; Mon, 27 Aug 2001 12:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271775AbRH0QgQ>; Mon, 27 Aug 2001 12:36:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:49281 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271772AbRH0QgK>; Mon, 27 Aug 2001 12:36:10 -0400
-Date: Mon, 27 Aug 2001 12:36:10 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jens Hoefkens <hoefkens@msu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 boot failure
-In-Reply-To: <Pine.LNX.4.21.0108271157230.8066-100000@dvorak>
-Message-ID: <Pine.LNX.3.95.1010827123227.31563A-100000@chaos.analogic.com>
+	id <S271787AbRH0QzM>; Mon, 27 Aug 2001 12:55:12 -0400
+Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:11653 "EHLO
+	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S271782AbRH0QzB>; Mon, 27 Aug 2001 12:55:01 -0400
+Message-ID: <3B8A7B75.4A35B7E2@pandora.be>
+Date: Mon, 27 Aug 2001 18:55:17 +0200
+From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+Organization: MyHome
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: nl-BE, nl, en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: best mailinglist for porting from DOS2Linux?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001, Jens Hoefkens wrote:
+Sorry if this is a little bit off topic, but I've been searching for
+the best place to ask questions about porting DOS drivers to linux and
+up until now I don't haven't found a decent answer...
 
-> 
-> Hi Folks.
-> 
-> I have a M54Pe-12M dual Pentium board with 2xP100. The machine boots
-> fine with a single CPU kernel (dmesg output [1] and kernel config [2]
-> below), but fails to boot with SMP kernels (config below [3]).
-> 
-> All I get is the message "Uncompressing Linux... OK, booting the
-> kernel" and then the system hangs (the keyboard is completely dead, no
-> numlock, caps lock, or Ctrl-Alt-Del). And to be sure, I have run LILO
-> after installing the new kernel.
-> 
-> Since this is a toy project and not a production machine, I can run
-> any kind of tests with it...
-> 
-> 
-> Thanks,
-> 	
-> 							Jens
-[SNIPPED...]
+Is linux-kernel indeed the best place to ask questions about DOS2Linux
+(that is: how to translate DOS-specific things in DOS drivers to linux
+drivers etc...) or are there other mailinglists that fit better on
+that topic?
 
-There may be a configuration problem. Make sure that you do:
+Thanks,
+mc303
 
-make oldconfig
-make dep
-make clean
-make bzImage
-make modules
-make modules_install
-
-... after you set the SMP variable. A mixture of SMP and non-SMP
-code can cause hangs.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
+Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
+B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
+----------------------------------------------------------------------
+"Any fool can know, the point is to understand." - Albert Einstein

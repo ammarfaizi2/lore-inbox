@@ -1,108 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261905AbSJEBRi>; Fri, 4 Oct 2002 21:17:38 -0400
+	id <S261942AbSJEBZz>; Fri, 4 Oct 2002 21:25:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261910AbSJEBRh>; Fri, 4 Oct 2002 21:17:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20707 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261905AbSJEBRf>;
-	Fri, 4 Oct 2002 21:17:35 -0400
-Date: Fri, 04 Oct 2002 18:15:37 -0700 (PDT)
-Message-Id: <20021004.181537.104336257.davem@redhat.com>
-To: jmorris@intercode.com.au
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: tg3 and Netgear GA302T x 2 locks machine
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
-References: <20021004.142428.101875902.davem@redhat.com>
-	<Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261945AbSJEBZz>; Fri, 4 Oct 2002 21:25:55 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:44276 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S261942AbSJEBZy>; Fri, 4 Oct 2002 21:25:54 -0400
+Date: Fri, 4 Oct 2002 18:23:41 -0700
+From: Chris Wright <chris@wirex.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.40 capget fix
+Message-ID: <20021004182341.A6261@figure1.int.wirex.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: James Morris <jmorris@intercode.com.au>
-   Date: Sat, 5 Oct 2002 11:20:06 +1000 (EST)
+Linus,
 
-   On Fri, 4 Oct 2002, David S. Miller wrote:
-   
-   > You reported the other week problems with two Acenic's in
-   > this same machine right?  The second Acenic wouldn't even probe
-   > properly.  And the two Acenic's were identical.
-   
-   FWIW, my GA302T seems fine with the kernel he originally reported 
-   (2.4.20-pre8).
+Daniel Jacobowitz noticed that sys_capget is not behaving properly when
+called with pid of 0.  It is supposed to return current capabilities,
+not those of swapper.  Also cleaned up some duplicate code from a merge
+error.  Patch is tested, please apply.
 
-Yes but are you running parallel pktgen streams on two
-tg3's? :-)
+thanks,
+-chris
 
-Ben, by chance, does reverting the patch below cure your problems?
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.670   -> 1.671  
-#	   drivers/net/tg3.c	1.35    -> 1.36   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/17	davem@nuts.ninka.net	1.671
-# [TIGON3]: Optimize NAPI irq masking a bit.
-# --------------------------------------------
-#
-diff -Nru a/drivers/net/tg3.c b/drivers/net/tg3.c
---- a/drivers/net/tg3.c	Fri Oct  4 18:18:26 2002
-+++ b/drivers/net/tg3.c	Fri Oct  4 18:18:26 2002
-@@ -234,9 +234,23 @@
- 		tw32(GRC_LOCAL_CTRL,
- 		     tp->grc_local_ctrl | GRC_LCLCTRL_SETINT);
- 	}
--#if 0
- 	tr32(MAILBOX_INTERRUPT_0 + TG3_64BIT_REG_LOW);
--#endif
-+}
-+
-+static inline void tg3_mask_ints(struct tg3 *tp)
-+{
-+	tw32(TG3PCI_MISC_HOST_CTRL,
-+	     (tp->misc_host_ctrl | MISC_HOST_CTRL_MASK_PCI_INT));
-+}
-+
-+static inline void tg3_unmask_ints(struct tg3 *tp)
-+{
-+	tw32(TG3PCI_MISC_HOST_CTRL,
-+	     (tp->misc_host_ctrl & ~MISC_HOST_CTRL_MASK_PCI_INT));
-+	if (tp->hw_status->status & SD_STATUS_UPDATED) {
-+		tw32(GRC_LOCAL_CTRL,
-+		     tp->grc_local_ctrl | GRC_LCLCTRL_SETINT);
-+	}
- }
+--- 2.5.40/kernel/capability.c	Sun Sep 15 12:19:29 2002
++++ 2.5.40-capfix/kernel/capability.c	Wed Oct  2 09:24:44 2002
+@@ -33,7 +33,7 @@
+      int ret = 0;
+      pid_t pid;
+      __u32 version;
+-     task_t *target;
++     task_t *target = current;
+      struct __user_cap_data_struct data;
  
- static void tg3_switch_clocks(struct tg3 *tp)
-@@ -2093,7 +2107,7 @@
+      if (get_user(version, &header->version))
+@@ -52,21 +52,20 @@
+              return -EINVAL;
  
- 	if (done) {
- 		netif_rx_complete(netdev);
--		tg3_enable_ints(tp);
-+		tg3_unmask_ints(tp);
- 	}
+      spin_lock(&task_capability_lock);
+-     read_lock(&tasklist_lock); 
  
- 	spin_unlock_irq(&tp->lock);
-@@ -2120,11 +2134,10 @@
- 		return;
+-     target = find_task_by_pid(pid);
+-     if (!target) {
+-          ret = -ESRCH;
+-          goto out;
++     if (pid && pid != current->pid) {
++	     read_lock(&tasklist_lock); 
++	     target = find_task_by_pid(pid);
++	     read_unlock(&tasklist_lock); 
++	     if (!target) {
++	          ret = -ESRCH;
++	          goto out;
++	     }
+      }
  
- 	if (netif_rx_schedule_prep(dev)) {
--		/* NOTE: This write is posted by the readback of
-+		/* NOTE: These writes are posted by the readback of
- 		 *       the mailbox register done by our caller.
- 		 */
--		tw32(TG3PCI_MISC_HOST_CTRL,
--		     (tp->misc_host_ctrl | MISC_HOST_CTRL_MASK_PCI_INT));
-+		tg3_mask_ints(tp);
- 		__netif_rx_schedule(dev);
- 	} else {
- 		printk(KERN_ERR PFX "%s: Error, poll already scheduled\n",
-
+-     data.permitted = cap_t(target->cap_permitted);
+-     data.inheritable = cap_t(target->cap_inheritable); 
+-     data.effective = cap_t(target->cap_effective);
+      ret = security_ops->capget(target, &data.effective, &data.inheritable, &data.permitted);
+ 
+ out:
+-     read_unlock(&tasklist_lock); 
+      spin_unlock(&task_capability_lock);
+ 
+      if (!ret && copy_to_user(dataptr, &data, sizeof data))

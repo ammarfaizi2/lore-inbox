@@ -1,331 +1,299 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVBARQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVBARSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVBARQz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 12:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVBARQy
+	id S262079AbVBARSU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 12:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVBARRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 12:16:54 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:36023 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262074AbVBARQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 12:16:10 -0500
-Message-ID: <41FFB94C.3050807@grupopie.com>
-Date: Tue, 01 Feb 2005 17:15:56 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org
-Subject: Re: [PATCH 2.6] 7/7 replace snd_kmalloc_strdup by kstrdup
-References: <1107228526.41fef76e4c9be@webmail.grupopie.com>	<s5h651ch6lc.wl@alsa2.suse.de>	<41FF75C0.6040602@grupopie.com>	<s5hy8e8fol6.wl@alsa2.suse.de>	<41FF7F0D.5080800@grupopie.com>	<s5hvf9cfmj9.wl@alsa2.suse.de>	<41FFA2AD.9020006@grupopie.com> <s5hpszkfd4a.wl@alsa2.suse.de>
-In-Reply-To: <s5hpszkfd4a.wl@alsa2.suse.de>
-Content-Type: multipart/mixed;
- boundary="------------060508090903040809060303"
+	Tue, 1 Feb 2005 12:17:50 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:16352 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S262073AbVBARQm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 12:16:42 -0500
+To: linux-mm@kvack.org
+Subject: [PATCH 2/2] Helping prezoring with reduced fragmentation allocation
+Cc: linux-kernel@vger.kernel.org, clameter@sgi.com
+Message-Id: <20050201171641.CC15EE5E8@skynet.csn.ul.ie>
+Date: Tue,  1 Feb 2005 17:16:41 +0000 (GMT)
+From: mel@csn.ul.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060508090903040809060303
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Changelog V1
+ o Initial release
 
-Takashi Iwai wrote:
-> [...]
-> 
-> Thanks, that looks almost fine except:
-> 
-> 
->>diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/sound.c linux-2.6.11-rc2-bk9/sound/core/sound.c
->>--- vanilla-2.6.11-rc2-bk9/sound/core/sound.c	2005-01-31 20:05:34.000000000 +0000
->>+++ linux-2.6.11-rc2-bk9/sound/core/sound.c	2005-02-01 15:02:04.000000000 +0000
->>@@ -401,7 +401,6 @@ EXPORT_SYMBOL(snd_hidden_kfree);
->> EXPORT_SYMBOL(snd_hidden_vmalloc);
->> EXPORT_SYMBOL(snd_hidden_vfree);
->> #endif
->>-EXPORT_SYMBOL(snd_kmalloc_strdup);
->> EXPORT_SYMBOL(copy_to_user_fromio);
->> EXPORT_SYMBOL(copy_from_user_toio);
->>   /* init.c */
-> 
-> 
-> I guess here missing EXPORT(snd_hidden_kstrdup)?
+This is a patch that makes a step towards tieing the modified allocator
+for reducing fragmentation with the prezeroing of pages that is based
+on a discussion with Christoph. When a block has to be split to satisfy a
+zero-page, both buddies are zero'd, one is allocated and the other is placed
+on the free-list for the USERZERO pool. Care is taken to make sure the pools
+are not accidently fragmented.
 
-Good catch.
+When looking at /proc/buddyinfo, it will seem strange that the number of
+blocks free at each order for USERZERO will never get over zero. This is
+expected as when a page is freed, it cannot go back into the USERZERO pool
+on the assumption it is no longer all zeros.
 
-Here is the revised patch... I hope this time everything is ok
+I would expect that a scrubber daemon would go through the KERNNORCLM pool,
+remove pages, scrub them and move them to USERZERO. It is important that pages
+not be moved from the USERRCLM or KERNRCLM pools as it'll cause fragmentation
+problems over time.
 
--- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
-
---------------060508090903040809060303
-Content-Type: text/plain;
- name="patch7"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch7"
-
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/include/sound/core.h linux-2.6.11-rc2-bk9/include/sound/core.h
---- vanilla-2.6.11-rc2-bk9/include/sound/core.h	2005-01-31 20:05:33.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/include/sound/core.h	2005-02-01 15:02:04.000000000 +0000
-@@ -291,6 +291,7 @@ void *snd_hidden_kcalloc(size_t n, size_
- void snd_hidden_kfree(const void *obj);
- void *snd_hidden_vmalloc(unsigned long size);
- void snd_hidden_vfree(void *obj);
-+char *snd_hidden_kstrdup(const char *s, int flags);
- #define kmalloc(size, flags) snd_hidden_kmalloc(size, flags)
- #define kcalloc(n, size, flags) snd_hidden_kcalloc(n, size, flags)
- #define kfree(obj) snd_hidden_kfree(obj)
-@@ -300,6 +301,7 @@ void snd_hidden_vfree(void *obj);
- #define vmalloc_nocheck(size) snd_wrapper_vmalloc(size)
- #define kfree_nocheck(obj) snd_wrapper_kfree(obj)
- #define vfree_nocheck(obj) snd_wrapper_vfree(obj)
-+#define kstrdup(s, flags)  snd_hidden_kstrdup(s, flags)
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.11-rc2-mbuddy/include/linux/mmzone.h linux-2.6.11-rc2-mbuddy-prezero/include/linux/mmzone.h
+--- linux-2.6.11-rc2-mbuddy/include/linux/mmzone.h	2005-01-31 12:31:37.000000000 +0000
++++ linux-2.6.11-rc2-mbuddy-prezero/include/linux/mmzone.h	2005-02-01 11:57:57.000000000 +0000
+@@ -19,10 +19,11 @@
  #else
- #define snd_memory_init() /*NOP*/
- #define snd_memory_done() /*NOP*/
-@@ -310,7 +312,6 @@ void snd_hidden_vfree(void *obj);
- #define kfree_nocheck(obj) kfree(obj)
- #define vfree_nocheck(obj) vfree(obj)
+ #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
  #endif
--char *snd_kmalloc_strdup(const char *string, int flags);
- int copy_to_user_fromio(void __user *dst, const volatile void __iomem *src, size_t count);
- int copy_from_user_toio(volatile void __iomem *dst, const void __user *src, size_t count);
+-#define ALLOC_TYPES 3
++#define ALLOC_TYPES 4
+ #define ALLOC_KERNNORCLM 0
+ #define ALLOC_KERNRCLM 1
+ #define ALLOC_USERRCLM 2
++#define ALLOC_USERZERO 3
  
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/info.c linux-2.6.11-rc2-bk9/sound/core/info.c
---- vanilla-2.6.11-rc2-bk9/sound/core/info.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/info.c	2005-02-01 15:02:04.000000000 +0000
-@@ -24,6 +24,7 @@
- #include <linux/vmalloc.h>
- #include <linux/time.h>
- #include <linux/smp_lock.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/minors.h>
- #include <sound/info.h>
-@@ -755,7 +756,7 @@ static snd_info_entry_t *snd_info_create
- 	entry = kcalloc(1, sizeof(*entry), GFP_KERNEL);
- 	if (entry == NULL)
- 		return NULL;
--	entry->name = snd_kmalloc_strdup(name, GFP_KERNEL);
-+	entry->name = kstrdup(name, GFP_KERNEL);
- 	if (entry->name == NULL) {
- 		kfree(entry);
- 		return NULL;
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/info_oss.c linux-2.6.11-rc2-bk9/sound/core/info_oss.c
---- vanilla-2.6.11-rc2-bk9/sound/core/info_oss.c	2004-12-24 21:34:01.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/info_oss.c	2005-02-01 15:27:43.000000000 +0000
-@@ -22,6 +22,7 @@
- #include <sound/driver.h>
- #include <linux/slab.h>
- #include <linux/time.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/minors.h>
- #include <sound/info.h>
-@@ -51,7 +52,7 @@ int snd_oss_info_register(int dev, int n
- 			x = NULL;
- 		}
- 	} else {
--		x = snd_kmalloc_strdup(string, GFP_KERNEL);
-+		x = kstrdup(string, GFP_KERNEL);
- 		if (x == NULL) {
- 			up(&strings);
- 			return -ENOMEM;
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/memory.c linux-2.6.11-rc2-bk9/sound/core/memory.c
---- vanilla-2.6.11-rc2-bk9/sound/core/memory.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/memory.c	2005-02-01 15:02:04.000000000 +0000
-@@ -184,6 +184,20 @@ void snd_hidden_vfree(void *obj)
- 	snd_wrapper_vfree(obj);
- }
+ struct free_area {
+ 	struct list_head	free_list;
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.11-rc2-mbuddy/mm/page_alloc.c linux-2.6.11-rc2-mbuddy-prezero/mm/page_alloc.c
+--- linux-2.6.11-rc2-mbuddy/mm/page_alloc.c	2005-02-01 15:10:29.000000000 +0000
++++ linux-2.6.11-rc2-mbuddy-prezero/mm/page_alloc.c	2005-02-01 14:57:47.000000000 +0000
+@@ -47,28 +47,39 @@ long nr_swap_pages;
+ int sysctl_lower_zone_protection = 0;
  
-+char *snd_hidden_kstrdup(const char *s, int flags)
-+{
-+	int len;
-+	char *buf;
-+	
-+	if (!s) return NULL;
-+	
-+	len = strlen(s) + 1;
-+	buf = _snd_kmalloc(len, flags);
-+	if (buf)
-+		memcpy(buf, s, len);
-+	return buf;
-+}
+ /* Bean counters for the per-type buddy allocator */
+-int fallback_count[ALLOC_TYPES] = { 0, 0, 0};
++int fallback_count[ALLOC_TYPES] = { 0, 0, 0, 0};
+ int global_steal=0;
+ int global_refill=0;
+ int kernnorclm_count=0;
+ int kernrclm_count=0;
+ int userrclm_count=0;
++int userzero_count=0;
+ 
+ EXPORT_SYMBOL(totalram_pages);
+ EXPORT_SYMBOL(nr_swap_pages);
+ 
++static inline void prep_zero_page(struct page *page, int order, int gfp_flags);
 +
- static void snd_memory_info_read(snd_info_entry_t *entry, snd_info_buffer_t * buffer)
- {
- 	snd_iprintf(buffer, "kmalloc: %li bytes\n", snd_alloc_kmalloc);
-@@ -214,36 +228,9 @@ int __exit snd_memory_info_done(void)
- 	return 0;
- }
- 
--#else
--
--#define _snd_kmalloc kmalloc
--
- #endif /* CONFIG_SND_DEBUG_MEMORY */
- 
  /**
-- * snd_kmalloc_strdup - copy the string
-- * @string: the original string
-- * @flags: allocation conditions, GFP_XXX
-- *
-- * Allocates a memory chunk via kmalloc() and copies the string to it.
-- *
-- * Returns the pointer, or NULL if no enoguh memory.
-- */
--char *snd_kmalloc_strdup(const char *string, int flags)
--{
--	size_t len;
--	char *ptr;
--
--	if (!string)
--		return NULL;
--	len = strlen(string) + 1;
--	ptr = _snd_kmalloc(len, flags);
--	if (ptr)
--		memcpy(ptr, string, len);
--	return ptr;
--}
--
--/**
-  * copy_to_user_fromio - copy data from mmio-space to user-space
-  * @dst: the destination pointer on user-space
-  * @src: the source pointer on mmio
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c linux-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c
---- vanilla-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c	2005-02-01 15:02:04.000000000 +0000
-@@ -24,6 +24,7 @@
- #include <linux/smp_lock.h>
- #include <linux/slab.h>
- #include <linux/time.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/minors.h>
- #include <sound/control.h>
-@@ -1122,7 +1123,7 @@ static void snd_mixer_oss_proc_write(snd
- 			goto __unlock;
- 		}
- 		tbl->oss_id = ch;
--		tbl->name = snd_kmalloc_strdup(str, GFP_KERNEL);
-+		tbl->name = kstrdup(str, GFP_KERNEL);
- 		if (! tbl->name) {
- 			kfree(tbl);
- 			goto __unlock;
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c linux-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c
---- vanilla-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c	2005-02-01 15:02:04.000000000 +0000
-@@ -33,6 +33,7 @@
- #include <linux/time.h>
- #include <linux/vmalloc.h>
- #include <linux/moduleparam.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/minors.h>
- #include <sound/pcm.h>
-@@ -2349,7 +2350,7 @@ static void snd_pcm_oss_proc_write(snd_i
- 					for (setup1 = pstr->oss.setup_list; setup1->next; setup1 = setup1->next);
- 					setup1->next = setup;
- 				}
--				template.task_name = snd_kmalloc_strdup(task_name, GFP_KERNEL);
-+				template.task_name = kstrdup(task_name, GFP_KERNEL);
- 			} else {
- 				buffer->error = -ENOMEM;
- 			}
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/sound.c linux-2.6.11-rc2-bk9/sound/core/sound.c
---- vanilla-2.6.11-rc2-bk9/sound/core/sound.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/sound.c	2005-02-01 17:01:35.000000000 +0000
-@@ -400,8 +400,8 @@ EXPORT_SYMBOL(snd_hidden_kcalloc);
- EXPORT_SYMBOL(snd_hidden_kfree);
- EXPORT_SYMBOL(snd_hidden_vmalloc);
- EXPORT_SYMBOL(snd_hidden_vfree);
-+EXPORT_SYMBOL(snd_hidden_kstrdup);
- #endif
--EXPORT_SYMBOL(snd_kmalloc_strdup);
- EXPORT_SYMBOL(copy_to_user_fromio);
- EXPORT_SYMBOL(copy_from_user_toio);
-   /* init.c */
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/timer.c linux-2.6.11-rc2-bk9/sound/core/timer.c
---- vanilla-2.6.11-rc2-bk9/sound/core/timer.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/core/timer.c	2005-02-01 15:02:04.000000000 +0000
-@@ -26,6 +26,7 @@
- #include <linux/slab.h>
- #include <linux/time.h>
- #include <linux/moduleparam.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/timer.h>
- #include <sound/control.h>
-@@ -97,7 +98,7 @@ static snd_timer_instance_t *snd_timer_i
- 	timeri = kcalloc(1, sizeof(*timeri), GFP_KERNEL);
- 	if (timeri == NULL)
- 		return NULL;
--	timeri->owner = snd_kmalloc_strdup(owner, GFP_KERNEL);
-+	timeri->owner = kstrdup(owner, GFP_KERNEL);
- 	if (! timeri->owner) {
- 		kfree(timeri);
- 		return NULL;
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c linux-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c
---- vanilla-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c	2005-01-31 20:05:34.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c	2005-02-01 15:02:04.000000000 +0000
-@@ -21,6 +21,7 @@
+  * The allocator tries to put allocations of the same type in the
+  * same 2^MAX_ORDER blocks of pages. When memory is low, this may
+  * not be possible so this describes what order they should fall
+  * back on
++ *
++ * The order of the fallback is chosen to keep the userrclm and kernrclm
++ * pools as low as fragmentation as possible. To achieve this, those pools
++ * are only used when they have to be. This seems unusual for USERZERO as
++ * it's name implies it is like USERRCLM but that is not the case. USERZERO
++ * allocations are usually for userspace allocations *but* they are for PTEs
++ * which are difficult to reclaim. Hence the pool is treated more like
++ * KERNNORCLM until such time that PTEs can be reclaimed
+  */
+ int fallback_allocs[ALLOC_TYPES][ALLOC_TYPES] = { 
+-	{ ALLOC_KERNNORCLM, ALLOC_KERNRCLM,   ALLOC_USERRCLM },
+-	{ ALLOC_KERNRCLM,   ALLOC_KERNNORCLM, ALLOC_USERRCLM },
+-	{ ALLOC_USERRCLM,   ALLOC_KERNNORCLM, ALLOC_KERNRCLM }
++	{ ALLOC_KERNNORCLM,ALLOC_USERZERO,   ALLOC_KERNRCLM,   ALLOC_USERRCLM },
++	{ ALLOC_KERNRCLM,  ALLOC_KERNNORCLM, ALLOC_USERZERO,   ALLOC_USERRCLM },
++	{ ALLOC_USERRCLM,  ALLOC_KERNNORCLM, ALLOC_USERZERO,   ALLOC_KERNRCLM },
++	{ ALLOC_USERZERO,  ALLOC_KERNNORCLM, ALLOC_KERNRCLM,   ALLOC_USERRCLM }
+ };
+- 
  
- #include <sound/driver.h>
- #include <linux/slab.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/gus.h>
- #include <sound/info.h>
-@@ -213,7 +214,7 @@ snd_gf1_mem_block_t *snd_gf1_mem_alloc(s
- 	if (share_id != NULL)
- 		memcpy(&block.share_id, share_id, sizeof(block.share_id));
- 	block.owner = owner;
--	block.name = snd_kmalloc_strdup(name, GFP_KERNEL);
-+	block.name = kstrdup(name, GFP_KERNEL);
- 	nblock = snd_gf1_mem_xalloc(alloc, &block);
- 	snd_gf1_mem_lock(alloc, 1);
- 	return nblock;
-@@ -253,13 +254,13 @@ int snd_gf1_mem_init(snd_gus_card_t * gu
- 	if (gus->gf1.enh_mode) {
- 		block.ptr = 0;
- 		block.size = 1024;
--		block.name = snd_kmalloc_strdup("InterWave LFOs", GFP_KERNEL);
-+		block.name = kstrdup("InterWave LFOs", GFP_KERNEL);
- 		if (snd_gf1_mem_xalloc(alloc, &block) == NULL)
- 			return -ENOMEM;
+ /*
+  * Used by page_zone() to look up the address of the struct zone whose
+@@ -78,7 +89,8 @@ struct zone *zone_table[1 << (ZONES_SHIF
+ EXPORT_SYMBOL(zone_table);
+ 
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+-static char *type_names[ALLOC_TYPES] = { "KernNoRclm", "KernRclm", "UserRclm"};
++static char *type_names[ALLOC_TYPES] = { "KernNoRclm", "KernRclm", 
++					 "UserRclm", "UserZero"};
+ int min_free_kbytes = 1024;
+ 
+ unsigned long __initdata nr_kernel_pages;
+@@ -127,14 +139,26 @@ static void bad_page(const char *functio
+ 
+ /*
+  * Return what type of use the 2^MAX_ORDER block of pages is in use for
+- * that the given page is part of
++ * that the given page is part of. The bitmap is laid out as follows;
++ *
++ * 1. There are two bits to represent the 4 types of allocations.
++ * 2. The index in the bitmap is determined by the page within the mem_map
++ * 3. If no bits are set, it is a kernel non-reclaimable allocation
++ * 4. If bit 0 is set, it is a kernel reclaimable allocation
++ * 5. If bit 1 is set, it is a user reclaimable allocation
++ * 6. If bits 0+1 are set, it is a user allocation of a zero page
+  */
+ static inline int get_pageblock_type(struct page *page) {
+ 	struct zone *zone = page_zone(page);
+ 	int bitidx = ((page - zone->zone_mem_map) >> MAX_ORDER) * 2;
+ 
+ 	/* Bit 1 will be set if the block is kernel reclaimable */
+-	if (test_bit(bitidx,zone->free_area_usemap)) return ALLOC_KERNRCLM;
++	if (test_bit(bitidx,zone->free_area_usemap)) {
++		if (test_bit(bitidx+1, zone->free_area_usemap))
++			return ALLOC_USERZERO;
++		else
++			return ALLOC_KERNRCLM;
++	}
+ 
+ 	/* Bit 2 will be set if the block is user reclaimable */
+ 	if (test_bit(bitidx+1, zone->free_area_usemap)) return ALLOC_USERRCLM;
+@@ -160,6 +184,14 @@ static inline void set_pageblock_type(st
+ 		return;
  	}
- 	block.ptr = gus->gf1.default_voice_address;
- 	block.size = 4;
--	block.name = snd_kmalloc_strdup("Voice default (NULL's)", GFP_KERNEL);
-+	block.name = kstrdup("Voice default (NULL's)", GFP_KERNEL);
- 	if (snd_gf1_mem_xalloc(alloc, &block) == NULL)
- 		return -ENOMEM;
- #ifdef CONFIG_SND_DEBUG
-diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/synth/emux/emux.c linux-2.6.11-rc2-bk9/sound/synth/emux/emux.c
---- vanilla-2.6.11-rc2-bk9/sound/synth/emux/emux.c	2005-01-31 20:05:35.000000000 +0000
-+++ linux-2.6.11-rc2-bk9/sound/synth/emux/emux.c	2005-02-01 15:28:15.000000000 +0000
-@@ -22,6 +22,7 @@
- #include <linux/wait.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-+#include <linux/string.h>
- #include <sound/core.h>
- #include <sound/emux_synth.h>
- #include <linux/init.h>
-@@ -76,7 +77,7 @@ int snd_emux_register(snd_emux_t *emu, s
- 	snd_assert(name != NULL, return -EINVAL);
  
- 	emu->card = card;
--	emu->name = snd_kmalloc_strdup(name, GFP_KERNEL);
-+	emu->name = kstrdup(name, GFP_KERNEL);
- 	emu->voices = kcalloc(emu->max_voices, sizeof(snd_emux_voice_t), GFP_KERNEL);
- 	if (emu->voices == NULL)
- 		return -ENOMEM;
-
---------------060508090903040809060303--
++
++	if (type == ALLOC_USERZERO) {
++		set_bit(bitidx,   zone->free_area_usemap);
++		set_bit(bitidx+1, zone->free_area_usemap);
++		return;
++	}
++
++	/* KERNNORCLM allocation */
+ 	clear_bit(bitidx, zone->free_area_usemap);
+ 	clear_bit(bitidx+1, zone->free_area_usemap);
+ 	
+@@ -307,6 +339,12 @@ static inline void __free_pages_bulk (st
+ 
+ 	/* Select the areas to place free pages on */
+ 	alloctype = get_pageblock_type(page);
++
++	/*
++	 * Tricky, if the page was originally a zerod page, chances are it
++	 * is not any more
++	 */
++	if (alloctype == ALLOC_USERZERO) alloctype = ALLOC_KERNNORCLM;
+ 	freelist = zone->free_area_lists[alloctype];
+ 
+ 	zone->free_pages += order_size;
+@@ -502,7 +540,8 @@ static void prep_new_page(struct page *p
+  * Do the hard work of removing an element from the buddy allocator.
+  * Call me with the zone->lock already held.
+  */
+-static struct page *__rmqueue(struct zone *zone, unsigned int order, int flags)
++static struct page *__rmqueue(struct zone *zone, unsigned int order, int flags,
++				unsigned long *irq_flags)
+ {
+ 	struct free_area * area;
+ 	unsigned int current_order;
+@@ -514,7 +553,12 @@ static struct page *__rmqueue(struct zon
+ 	int alloctype;
+ 	int retry_count=0;
+ 	int startorder = order;
+-	if (flags & __GFP_USERRCLM) {
++
++	if (flags & __GFP_ZERO) {
++		alloctype = ALLOC_USERZERO;
++		userzero_count++;
++	}
++	else if (flags & __GFP_USERRCLM) {
+ 		alloctype = ALLOC_USERRCLM;
+ 		userrclm_count++;
+ 	}
+@@ -545,7 +589,45 @@ retry:
+ 		rmv_page_order(page);
+ 		area->nr_free--;
+ 		zone->free_pages -= 1UL << order;
++
++		/*
++		 * If this is a request for a zero page and the page was
++		 * not taken from the USERZERO pool, zero it all
++		 */
++		if ((flags & __GFP_ZERO) && alloctype != ALLOC_USERZERO) {
++			int zero_order=order;
++
++			/*
++			 * This is important. We are about to zero a block
++			 * which may be larger than we need so we have to
++			 * determine do we zero just what we need or do
++			 * we zero the whole block and put the pages in
++			 * the zero page. 
++			 *
++			 * We zero the whole block in the event we are taking
++			 * from the KERNNORCLM pools and otherwise zero just
++			 * what we need. The reason we do not always zero
++			 * everything is because we do not want unreclaimable
++			 * pages to leak into the USERRCLM and KERNRCLM 
++			 * pools
++			 *
++			 */
++			if (alloctype != ALLOC_USERRCLM &&
++			    alloctype != ALLOC_KERNRCLM) {
++				area = zone->free_area_lists[ALLOC_USERZERO] +
++					current_order;
++				zero_order = current_order;
++			}
++
++			
++			spin_unlock_irqrestore(&zone->lock, *irq_flags);
++			prep_zero_page(page, zero_order, flags);
++			spin_lock_irqsave(&zone->lock, *irq_flags);
++
++		}
++
+ 		return expand(zone, page, order, current_order, area);
++
+ 	}
+ 
+ 	/* Take from the global pool if this is the first attempt */
+@@ -562,6 +644,13 @@ retry:
+ 		global_steal++;
+ 		global_split=1;
+ 
++		/* Zero the whole block if this is a __GFP_ZERO allocation */
++		if (alloctype == ALLOC_USERZERO) {
++			spin_unlock_irqrestore(&zone->lock, *irq_flags);
++			prep_zero_page(page, MAX_ORDER-1, flags);
++			spin_lock_irqsave(&zone->lock, *irq_flags);
++		}
++
+ 		/* Mark this block of pages as for use with this alloc type */
+ 		set_pageblock_type(page, zone, alloctype);
+ 		startorder = MAX_ORDER-1;
+@@ -597,7 +686,7 @@ static int rmqueue_bulk(struct zone *zon
+ 	
+ 	spin_lock_irqsave(&zone->lock, flags);
+ 	for (i = 0; i < count; ++i) {
+-		page = __rmqueue(zone, order, gfp_flags);
++		page = __rmqueue(zone, order, gfp_flags, &flags);
+ 		if (page == NULL)
+ 			break;
+ 		allocated++;
+@@ -775,7 +864,7 @@ buffered_rmqueue(struct zone *zone, int 
+ 
+ 	if (page == NULL) {
+ 		spin_lock_irqsave(&zone->lock, flags);
+-		page = __rmqueue(zone, order, gfp_flags);
++		page = __rmqueue(zone, order, gfp_flags, &flags);
+ 		spin_unlock_irqrestore(&zone->lock, flags);
+ 	}
+ 
+@@ -784,9 +873,6 @@ buffered_rmqueue(struct zone *zone, int 
+ 		mod_page_state_zone(zone, pgalloc, 1 << order);
+ 		prep_new_page(page, order);
+ 
+-		if (gfp_flags & __GFP_ZERO)
+-			prep_zero_page(page, order, gfp_flags);
+-
+ 		if (order && (gfp_flags & __GFP_COMP))
+ 			prep_compound_page(page, order);
+ 	}
+@@ -1982,12 +2068,15 @@ static int frag_show(struct seq_file *m,
+  	seq_printf(m, "KernNoRclm allocs: %d\n", kernnorclm_count);
+  	seq_printf(m, "KernRclm allocs:   %d\n", kernrclm_count);
+  	seq_printf(m, "UserRclm allocs:   %d\n", userrclm_count);
++	seq_printf(m, "UserZero allocs:   %d\n", userzero_count);
+  	seq_printf(m, "%-10s Fallback count: %d\n", type_names[0], 
+ 							fallback_count[0]);
+  	seq_printf(m, "%-10s Fallback count: %d\n", type_names[1],
+ 							fallback_count[1]);
+  	seq_printf(m, "%-10s Fallback count: %d\n", type_names[2],
+ 							fallback_count[2]);
++ 	seq_printf(m, "%-10s Fallback count: %d\n", type_names[3],
++							fallback_count[3]);
+  
+  
+ 

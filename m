@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310186AbSCGLs7>; Thu, 7 Mar 2002 06:48:59 -0500
+	id <S310204AbSCGLuj>; Thu, 7 Mar 2002 06:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310204AbSCGLsr>; Thu, 7 Mar 2002 06:48:47 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:8687 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S310186AbSCGLsb>; Thu, 7 Mar 2002 06:48:31 -0500
-Message-ID: <3C87538D.9962723D@redhat.com>
-Date: Thu, 07 Mar 2002 11:48:29 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rework of /proc/stat
-In-Reply-To: <E16ik6y-0008Qf-00@the-village.bc.nu> <3C874AE8.9060208@linkvest.com>
+	id <S310285AbSCGLuX>; Thu, 7 Mar 2002 06:50:23 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:21516 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S310204AbSCGLtz>;
+	Thu, 7 Mar 2002 06:49:55 -0500
+Date: Thu, 7 Mar 2002 20:24:11 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scheduler: migration tasks startup
+Message-ID: <20020307092411.GB853@krispykreme>
+In-Reply-To: <Pine.LNX.4.21.0203061123270.2743-100000@sx6.ess.nec.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0203061123270.2743-100000@sx6.ess.nec.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Eric Cuendet wrote:
-> 
-> Alan Cox wrote:
-> 
-> >
-> >Any reason for preferring this over the sard patches in -ac ?
-> >
-> What does the sard patches?
-> What I need is to be able to get IO stats to pass them (through a home
-> made script) to SNMP which have no IO stats available.
-> Is it possible to get SARD values through /proc ? Or at least in a
-> simple shell script?
+ 
+> we encountered problems with the initial distribution of the
+> migration_tasks across the CPUs. Machines with 16 and more CPUs
+> sometimes won't boot. 
 
-yes.
+We found this on a 31 way and have sent a fix to Ingo already, we needed
+to do a set_current_state(TASK_UNINTERRUPTIBLE) before schedule_timeout()
+or we just busy loop.
 
-man iostat
+Anton

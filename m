@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264402AbTI2ShI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbTI2Sg6
+	id S264057AbTI2S05 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263976AbTI2RoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:36:58 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:51953 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id S264267AbTI2Sf0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:35:26 -0400
-Message-ID: <3F787C81.8060506@ericsson.ca>
-Date: Mon, 29 Sep 2003 14:40:01 -0400
-From: Jean-Guillaume <jean-guillaume.paradis@ericsson.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Simple Procfs question: Triggering an "action" when opening a
- directory instead of a file (with seqfile.h)???
-References: <3F786E73.6010306@ericsson.ca> <20030929180310.GO7665@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030929180310.GO7665@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Sep 2003 13:44:15 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:57528 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263973AbTI2RnB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:43:01 -0400
+Subject: [PATCH 4/4] Fix AT keyboard repeat rate setting.
+In-Reply-To: <10648573751939@twilight.ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Mon, 29 Sep 2003 19:42:55 +0200
+Message-Id: <10648573751561@twilight.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
->On Mon, Sep 29, 2003 at 01:40:03PM -0400, Jean-Guillaume wrote:
->  
->
->>Hello everybody :)
->>    
->>
-> 
->  
->
->>I need some help on this one, I couldn't find anything on google or in 
->>the archives of the mailing list. Here it goes:
->>
->>I want to trigger an action when "opening" a directory of the procfs. 
->>This is easy for files, but how is it done for directories...???
->>    
->>
->
->With a separate filesystem.  Don't do that on procfs, it's messy enough as
->it is.
->  
->
+===================================================================
 
-lol, ok then :)
+ChangeSet@1.1386, 2003-09-29 17:00:25+02:00, vojtech@suse.cz
+  input: Fix AT keyboard repeat rate setting, also make rate selection
+         in finer steps.
 
-I have indeed noticed some funny things with the procfs. Like, doing a 
-"ls" on my tipc dir  said the directory was empty, but I could do a "vi 
-/proc/tipc/file" and see the content of file. Invisible file? :)
 
+ atkbd.c |   19 ++++++++++---------
+ 1 files changed, 10 insertions(+), 9 deletions(-)
+
+===================================================================
+
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Mon Sep 29 19:36:47 2003
++++ b/drivers/input/keyboard/atkbd.c	Mon Sep 29 19:36:47 2003
+@@ -370,10 +370,11 @@
+ static int atkbd_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+ {
+ 	struct atkbd *atkbd = dev->private;
+-	struct { int p; u8 v; } period[] =	
+-		{ {30, 0x00}, {25, 0x02}, {20, 0x04}, {15, 0x08}, {10, 0x0c}, {7, 0x10}, {5, 0x14}, {0, 0x14} };
+-	struct { int d; u8 v; } delay[] =
+-        	{ {1000, 0x60}, {750, 0x40}, {500, 0x20}, {250, 0x00}, {0, 0x00} };
++	const short period[32] =
++		{ 33,  37,  42,  46,  50,  54,  58,  63,  67,  75,  83,  92, 100, 109, 116, 125,
++		 133, 149, 167, 182, 200, 217, 232, 250, 270, 303, 333, 370, 400, 435, 470, 500 };
++	const short delay[4] =
++		{ 250, 500, 750, 1000 };
+ 	char param[2];
+ 	int i, j;
+ 
+@@ -407,11 +408,11 @@
+ 			if (atkbd_softrepeat) return 0;
+ 
+ 			i = j = 0;
+-			while (period[i].p > dev->rep[REP_PERIOD]) i++;
+-			while (delay[j].d > dev->rep[REP_DELAY]) j++;
+-			dev->rep[REP_PERIOD] = period[i].p;
+-			dev->rep[REP_DELAY] = delay[j].d;
+-			param[0] = period[i].v | delay[j].v;
++			while (i < 32 && period[i] < dev->rep[REP_PERIOD]) i++;
++			while (j < 4 && delay[j] < dev->rep[REP_DELAY]) j++;
++			dev->rep[REP_PERIOD] = period[i];
++			dev->rep[REP_DELAY] = delay[j];
++			param[0] = i | (j << 5);
+ 			atkbd_command(atkbd, param, ATKBD_CMD_SETREP);
+ 
+ 			return 0;
 

@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUFOUEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265906AbUFOUIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUFOUEB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 16:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUFOUEA
+	id S265906AbUFOUIg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 16:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbUFOUIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 16:04:00 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:35716 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265910AbUFOUDl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 16:03:41 -0400
-Date: Tue, 15 Jun 2004 22:12:48 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Wolfgang Denk <wd@denx.de>
-Subject: Re: [PATCH 0/5] kbuild
-Message-ID: <20040615201248.GH2310@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk> <20040615191418.GD2310@mars.ravnborg.org> <20040615204616.E7666@flint.arm.linux.org.uk>
+	Tue, 15 Jun 2004 16:08:36 -0400
+Received: from mail.kroah.org ([65.200.24.183]:31369 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265906AbUFOUId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 16:08:33 -0400
+Date: Tue, 15 Jun 2004 13:06:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] [PATCH] Make USB process hub events in correct order
+Message-ID: <20040615200634.GA19411@kroah.com>
+References: <Pine.LNX.4.60.0406151412430.26219@winds.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040615204616.E7666@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.60.0406151412430.26219@winds.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 08:46:16PM +0100, Russell King wrote:
+On Tue, Jun 15, 2004 at 02:26:49PM -0400, Byron Stanoszek wrote:
+> This patch fixes the USB hub module to process events in the order that they
+> are received. It fixes the case where multi-port devices have multiple
+> hubs in them--while they are detected in the correct order, they are
+> initialized in reverse. It is required for the Sealink 8-port USB->serial 
+> hubs
+> to initialize with the port numbers in the correct order.
 > 
-> > Maybe Wolgang can jump in here - I do not know why mkimage is needed.
-> > But I do like to have it present for convinience.
-> > It is btw called mkuboot.sh in scripts/ to better say what it does.
-> 
-> I'll let you read mkuboot.sh - you'll find that it's just a wrapper
-> script to moan if you use mkuboot.sh and you don't have mkimage
-> installed.
-> 
-> I've no idea what mkimage actually does, but from the scant comments
-> in mkuboot.sh, it seems to package up into a "U-Boot image".
+> I don't think it breaks any existing functionality, but I won't send this to
+> Linus yet till I know it doesn't break anything.
 
-I know. I objected to the mkimage name in the past for a script in scripts/
-for the same reasons as you outline.
+Linus isn't the person to send this to :)
 
-	Sam
+> Patch below against 2.6.7-rc3.
+
+You know you still can't rely on the events happening in "numerical"
+order, even with this patch, right?
+
+That's what tools like udev is for, that way you can always name your
+/dev/ttyUSB* devices properly.
+
+Anyway, I don't have a problem with this patch, other than it doesn't
+apply to the current USB tree, as there has been a lot of work in the
+hub driver recently.  Care to make it up again against the latest -mm
+release, as that has the USB development tree included in it.
+
+thanks,
+
+greg k-h

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130265AbQLLXbs>; Tue, 12 Dec 2000 18:31:48 -0500
+	id <S130315AbQLLXeh>; Tue, 12 Dec 2000 18:34:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130329AbQLLXbi>; Tue, 12 Dec 2000 18:31:38 -0500
-Received: from mail2.uni-bielefeld.de ([129.70.4.90]:25650 "EHLO
-	mail.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S130265AbQLLXbY>; Tue, 12 Dec 2000 18:31:24 -0500
-Date: Tue, 12 Dec 2000 22:59:04 +0000
-From: Marc Mutz <Marc@Mutz.com>
-Subject: Re: VM problem (2.4.0-test11)
-To: Jussi Laako <jussi@jlaako.pp.fi>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3A36ADB8.3CE36940@Mutz.com>
-Organization: University of Bielefeld - Dep. of Mathematics / Dep. of Physics
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17i10-0001 i586)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
-In-Reply-To: <3A36A163.3F01277D@jlaako.pp.fi>
+	id <S130329AbQLLXe2>; Tue, 12 Dec 2000 18:34:28 -0500
+Received: from web.sajt.cz ([212.71.160.9]:49157 "EHLO web.sajt.cz")
+	by vger.kernel.org with ESMTP id <S130315AbQLLXeK>;
+	Tue, 12 Dec 2000 18:34:10 -0500
+Date: Wed, 13 Dec 2000 00:01:07 +0100 (CET)
+From: Pavel Rabel <pavel@web.sajt.cz>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] timer.h obsolete comments
+Message-ID: <Pine.LNX.4.21.0012122343180.26198-100000@web.sajt.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jussi Laako wrote:
-> 
-> Hello,
-> 
-> Would it be possible to implement some VM CPUtime/bandwidth limitation?
-> 
-<snip>
 
-Just to not miss the obvious: You know about ulimit(3)?
+Hi Linus,
 
-man 3 ulimit
-help ulimit (when in bash).
+Are the old static timers gone completely?
+Some comments are either obsolete or out of place.
 
-Marc
+Pavel Rabel
 
--- 
-Marc Mutz <Marc@Mutz.com>     http://EncryptionHOWTO.sourceforge.net/
-University of Bielefeld, Dep. of Mathematics / Dep. of Physics
-
-PGP-keyID's:   0xd46ce9ab (RSA), 0x7ae55b9e (DSS/DH)
+--- include/linux/timer.h.old	Tue Dec 12 22:07:35 2000
++++ include/linux/timer.h	Tue Dec 12 22:09:28 2000
+@@ -5,13 +5,9 @@
+ #include <linux/list.h>
+ 
+ /*
+- * This is completely separate from the above, and is the
++ * Old-style "hardcoded" timers are gone, this is the
+  * "new and improved" way of handling timers more dynamically.
+  * Hopefully efficient and general enough for most things.
+- *
+- * The "hardcoded" timers above are still useful for well-
+- * defined problems, but the timer-list is probably better
+- * when you need multiple outstanding timers or similar.
+  *
+  * The "data" field is in case you want to use the same
+  * timeout function for several timeouts. You can use this
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

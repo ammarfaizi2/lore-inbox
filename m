@@ -1,56 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHSNn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUHSNmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUHSNn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 09:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHSNn4
+	id S266155AbUHSNmu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 09:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUHSNmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 09:43:56 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:14211 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266169AbUHSNnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 09:43:21 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: kernel@wildsau.enemy.org, diablod3@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4124A024.nail7X62HZNBB@burner>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
-	 <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner>
-Content-Type: text/plain
+	Thu, 19 Aug 2004 09:42:50 -0400
+Received: from mailer.nec-labs.com ([138.15.108.3]:23723 "EHLO
+	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S266155AbUHSNmh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 09:42:37 -0400
+Message-ID: <4124AE51.2060700@nec-labs.com>
+Date: Thu, 19 Aug 2004 09:42:41 -0400
+From: Lei Yang <leiyang@nec-labs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+CC: Lei Yang <leiyang@nec-labs.com>
+Subject: problem with fwrite
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092919260.28141.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 19 Aug 2004 13:41:01 +0100
+X-OriginalArrivalTime: 19 Aug 2004 13:42:36.0738 (UTC) FILETIME=[6346CA20:01C485F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-19 at 13:42, Joerg Schilling wrote:
-> A program is an artwork (this is what the European Union did write into laws).
+Hi all,
 
-It's a "literary work". Not sure if the Germans call it something
-different ansd "artwork" is a translation. Artwork means something
-different in English (painting, picture, drawing).
+This is not really a kernel issue, apologize if anyone thinks that this 
+is not the right place to post it. But I am writing a kernel module and 
+got stuck on fwrite, really hope someone could point out what stupid 
+mistake I've made. I wrote a very simple code to test the idea, what I 
+really want to do in fred() is to read from 'dest' and write to 'src'. 
+It seems that upon running , fgetc doesn't get anything from in_stream, 
+so the first char it gets is an EOF and it breaks. Just why fwrite 
+didn't write anything to in_stream?
 
-> Even though you may get the permission to modify an artwork, you will not get 
-> the permission to create bad carricatures and call them just "modified 
-> versions".
+If this is not the right way to do it, what is ?
 
-The GPL gives modification rights explicitly and doesn't say "except
-ones I don't like". The GPL addresses this issue in a different manner
+Appreciate any comments, even harsh ones.
 
-   a) You must cause the modified files to carry prominent notices
-    stating that you changed the files and the date of any change.
+TIA
+Lei
 
-Any SuSE (or Red Hat or other) modifications should thus clearly state
-they are modified. If people are not marking the files as modified and
-you want them to you'd have a legitimate rant.
+// in test.c
 
-Secondly I think you would find it hard to argue that the SuSE one is a
-bad caricature given existing user interface knowledge, or that it
-harmed your reputation given your behaviour in the past.
+#include <stdio.h>
 
-Fortunately free software has a mechanism for bypassing problems as
-XFree86 4.4 demonstrated so elegantly.
+fred(char *dest, size_t *destlen, char *src, size_t size)
+{
+     FILE *in_stream = tmpfile();
+     FILE *out_stream = tmpfile();
+     fwrite(src, 1, size, in_stream);
 
+     int c, i;
+     for(i = 0;;i++)
+     {
+   	c = fgetc(in_stream);
+   	fprintf(stderr, "get char %c\n", c);
+	if ( c == EOF) break;
+   	fputc(c, out_stream);
+      }
+
+     *destlen = i;
+	
+     fseek(out_stream, 0, SEEK_SET); //rewind
+     fread(dest, 1, *destlen, out_stream);
+     fclose(in_stream);
+     fclose(out_stream);
+     fprintf(stderr, "buf = `%s', size = %d\n", dest, *destlen);
+}
+
+int main(void)
+{
+   static char source[] = "really hope this works ";
+
+   char *bp = malloc (2048);
+   size_t destlen;
+
+   fred(bp, &destlen, source, strlen(source));
+
+   fprintf(stderr, "buf = `%s', size = %d\n", bp, destlen);
+   return 0;
+}

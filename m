@@ -1,77 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbULYLqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbULYMDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbULYLqz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 06:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbULYLqz
+	id S261504AbULYMDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 07:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbULYMDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 06:46:55 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:11867 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261503AbULYLqw (ORCPT
+	Sat, 25 Dec 2004 07:03:09 -0500
+Received: from smtp.gentoo.org ([156.56.111.197]:48354 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S261504AbULYMDA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 06:46:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=Dk7qirWEyL9uhYMXdOTLkDFdv8V4avh84FQoKltQ16E730jrG9T0md87ooJYjmtyTIP64IwbLZcrvbqZCATe77aDVlvkMpvda/0P+BNrlRuMUu/+lC8zbV9UAUmH2c3IU0mz34GqYnozYp5vXipN50fLBW50jR8e9Uu9CoaOw4Y=
-Message-ID: <41CD5328.2090105@gmail.com>
-Date: Sat, 25 Dec 2004 13:46:48 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rajsekar <raj--cutme--sekar@cse.iDELTHISitm.ernet.in>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Trying out SCHED_BATCH
-References: <m3mzw262cu.fsf@rajsekar.pc>
-In-Reply-To: <m3mzw262cu.fsf@rajsekar.pc>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1E4E9CEAC6920E0370C1B7A6"
+	Sat, 25 Dec 2004 07:03:00 -0500
+Subject: [PATCH][1/2] - catch ignored copy_*_user() - fs/binfmt_elf.c
+From: Jeremy Huddleston <eradicator@gentoo.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ksw9ohoEysMenseEqbd/"
+Date: Sat, 25 Dec 2004 04:02:59 -0800
+Message-Id: <1103976179.1006.31.camel@cid.outersquare.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1E4E9CEAC6920E0370C1B7A6
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Rajsekar wrote:
-> I would like to try out the SCHED_BATCH.  Unfortunately, I am not able to
-> find a patch for my kernel.  Could someone enlighten me on this?
-> 
-> I am running 2.6.10-rc1-mm2 with staircase scheduler patch.  My `uname -a'
-> output is:
-> 
-> Linux rajsekar.pc 2.6.10-rc1-mm2staircase #2 Sat Dec 4 10:49:31 IST 2004 i686 AuthenticAMD unknown GNU/Linux
-> 
-
-2.6.10-ck1 can be found here (It has SCHED_BATCH):
-
-http://members.optusnet.com.au/ckolivas/kernel/
-
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plaintext   preffered
+--=-ksw9ohoEysMenseEqbd/
+Content-Type: multipart/mixed; boundary="=-JAMIeUz0xGUXMUkbl+NK"
 
 
---------------enig1E4E9CEAC6920E0370C1B7A6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+--=-JAMIeUz0xGUXMUkbl+NK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Here are a couple patches to cleanup some uncaught copy_*_user() calls.
+
+--=-JAMIeUz0xGUXMUkbl+NK
+Content-Disposition: attachment; filename=dontignore-fs-binfmt_elf.patch
+Content-Type: text/x-patch; name=dontignore-fs-binfmt_elf.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
+
+Q2F0Y2ggYW5kIGhhbmRsZSBzb21lIHByZXZpb3VzbHkgaWdub3JlZCBjb3B5XypfdXNlcigpIGNh
+bGxzDQoNClNpZ25lZC1vZmYtYnk6IEplcmVteSBIdWRkbGVzdG9uIDxlcmFkaWNhdG9yQGdlbnRv
+by5vcmc+DQoNCmRpZmYgLU5hdXJwIGxpbnV4LTIuNi4xMC1yYzMtYms4L2ZzL2JpbmZtdF9lbGYu
+YyBsaW51eC0yLjYuMTAtcmMzLWJrOC5lZGl0L2ZzL2JpbmZtdF9lbGYuYw0KLS0tIGxpbnV4LTIu
+Ni4xMC1yYzMtYms4L2ZzL2JpbmZtdF9lbGYuYwkyMDA0LTEyLTE1IDAwOjE1OjQ1LjAwMDAwMDAw
+MCAtMDgwMA0KKysrIGxpbnV4LTIuNi4xMC1yYzMtYms4LmVkaXQvZnMvYmluZm10X2VsZi5jCTIw
+MDQtMTItMTUgMTI6NTg6NDEuMDAwMDAwMDAwIC0wODAwDQpAQCAtMTAzLDE1ICsxMDMsMTggQEAg
+c3RhdGljIGludCBzZXRfYnJrKHVuc2lnbmVkIGxvbmcgc3RhcnQsIA0KICAgIGJlIGluIG1lbW9y
+eSAqLw0KIA0KIA0KLXN0YXRpYyB2b2lkIHBhZHplcm8odW5zaWduZWQgbG9uZyBlbGZfYnNzKQ0K
+K3N0YXRpYyBpbnQgcGFkemVybyh1bnNpZ25lZCBsb25nIGVsZl9ic3MpDQogew0KIAl1bnNpZ25l
+ZCBsb25nIG5ieXRlOw0KIA0KIAluYnl0ZSA9IEVMRl9QQUdFT0ZGU0VUKGVsZl9ic3MpOw0KIAlp
+ZiAobmJ5dGUpIHsNCiAJCW5ieXRlID0gRUxGX01JTl9BTElHTiAtIG5ieXRlOw0KLQkJY2xlYXJf
+dXNlcigodm9pZCBfX3VzZXIgKikgZWxmX2JzcywgbmJ5dGUpOw0KKwkJaWYoY2xlYXJfdXNlcigo
+dm9pZCBfX3VzZXIgKikgZWxmX2JzcywgbmJ5dGUpKQ0KKwkJCXJldHVybiAtRUZBVUxUOw0KIAl9
+DQorDQorCXJldHVybiAwOw0KIH0NCiANCiAvKiBMZXQncyB1c2Ugc29tZSBtYWNyb3MgdG8gbWFr
+ZSB0aGlzIHN0YWNrIG1hbmlwdWxhdGlvbiBhIGxpdGxlIGNsZWFyZXIgKi8NCkBAIC00MDMsNyAr
+NDA2LDEwIEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nIGxvYWRfZWxmX2ludGVycChzdHINCiAJICog
+dGhhdCB0aGVyZSBhcmUgemVyby1tYXBwZWQgcGFnZXMgdXAgdG8gYW5kIGluY2x1ZGluZyB0aGUg
+DQogCSAqIGxhc3QgYnNzIHBhZ2UuDQogCSAqLw0KLQlwYWR6ZXJvKGVsZl9ic3MpOw0KKwllcnJv
+ciA9IHBhZHplcm8oZWxmX2Jzcyk7DQorCWlmKGVycm9yKQ0KKwkJZ290byBvdXRfY2xvc2U7DQor
+DQogCWVsZl9ic3MgPSBFTEZfUEFHRVNUQVJUKGVsZl9ic3MgKyBFTEZfTUlOX0FMSUdOIC0gMSk7
+CS8qIFdoYXQgd2UgaGF2ZSBtYXBwZWQgc28gZmFyICovDQogDQogCS8qIE1hcCB0aGUgbGFzdCBv
+ZiB0aGUgYnNzIHNlZ21lbnQgKi8NCkBAIC03NzMsNyArNzc5LDExIEBAIHN0YXRpYyBpbnQgbG9h
+ZF9lbGZfYmluYXJ5KHN0cnVjdCBsaW51eF8NCiAJCQkJbmJ5dGUgPSBFTEZfTUlOX0FMSUdOIC0g
+bmJ5dGU7DQogCQkJCWlmIChuYnl0ZSA+IGVsZl9icmsgLSBlbGZfYnNzKQ0KIAkJCQkJbmJ5dGUg
+PSBlbGZfYnJrIC0gZWxmX2JzczsNCi0JCQkJY2xlYXJfdXNlcigodm9pZCBfX3VzZXIgKikgZWxm
+X2JzcyArIGxvYWRfYmlhcywgbmJ5dGUpOw0KKwkJCQlyZXR2YWwgPSBjbGVhcl91c2VyKCh2b2lk
+IF9fdXNlciAqKSBlbGZfYnNzICsgbG9hZF9iaWFzLCBuYnl0ZSk7DQorCQkJCWlmIChyZXR2YWwp
+IHsNCisJCQkJCXNlbmRfc2lnKFNJR0tJTEwsIGN1cnJlbnQsIDApOw0KKwkJCQkJZ290byBvdXRf
+ZnJlZV9kZW50cnk7DQorCQkJCX0NCiAJCQl9DQogCQl9DQogDQpAQCAtODU3LDcgKzg2NywxMSBA
+QCBzdGF0aWMgaW50IGxvYWRfZWxmX2JpbmFyeShzdHJ1Y3QgbGludXhfDQogCQlzZW5kX3NpZyhT
+SUdLSUxMLCBjdXJyZW50LCAwKTsNCiAJCWdvdG8gb3V0X2ZyZWVfZGVudHJ5Ow0KIAl9DQotCXBh
+ZHplcm8oZWxmX2Jzcyk7DQorCXJldHZhbCA9IHBhZHplcm8oZWxmX2Jzcyk7DQorCWlmKHJldHZh
+bCkgew0KKwkJc2VuZF9zaWcoU0lHS0lMTCwgY3VycmVudCwgMCk7DQorCQlnb3RvIG91dF9mcmVl
+X2RlbnRyeTsNCisJfQ0KIA0KIAlpZiAoZWxmX2ludGVycHJldGVyKSB7DQogCQlpZiAoaW50ZXJw
+cmV0ZXJfdHlwZSA9PSBJTlRFUlBSRVRFUl9BT1VUKQ0KQEAgLTEwMjAsNyArMTAzNCw5IEBAIHN0
+YXRpYyBpbnQgbG9hZF9lbGZfbGlicmFyeShzdHJ1Y3QgZmlsZSANCiAJCWdvdG8gb3V0X2ZyZWVf
+cGg7DQogDQogCWVsZl9ic3MgPSBlbGZfcGhkYXRhLT5wX3ZhZGRyICsgZWxmX3BoZGF0YS0+cF9m
+aWxlc3o7DQotCXBhZHplcm8oZWxmX2Jzcyk7DQorCWVycm9yID0gcGFkemVybyhlbGZfYnNzKTsN
+CisJaWYoZXJyb3IpDQorCQlnb3RvIG91dF9mcmVlX3BoOw0KIA0KIAlsZW4gPSBFTEZfUEFHRVNU
+QVJUKGVsZl9waGRhdGEtPnBfZmlsZXN6ICsgZWxmX3BoZGF0YS0+cF92YWRkciArIEVMRl9NSU5f
+QUxJR04gLSAxKTsNCiAJYnNzID0gZWxmX3BoZGF0YS0+cF9tZW1zeiArIGVsZl9waGRhdGEtPnBf
+dmFkZHI7DQo=
+
+
+--=-JAMIeUz0xGUXMUkbl+NK--
+
+--=-ksw9ohoEysMenseEqbd/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBzVMoA7Qvptb0LKURArjoAJ4vFmtxxqZG9Z1wdbD0vtAYFHgI2QCfUp1p
-vHXoScfrEfeu140CD1NOI74=
-=SVWA
+iD8DBQBBzVbzOpjtAl+gMRURAi0sAKCTD6/8A93MjLaK7GukcDWHTw0MTgCeNxxS
+N5JnBexeWGPo3++QEkIYK9g=
+=prBk
 -----END PGP SIGNATURE-----
 
---------------enig1E4E9CEAC6920E0370C1B7A6--
+--=-ksw9ohoEysMenseEqbd/--
+

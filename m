@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312888AbSDEOot>; Fri, 5 Apr 2002 09:44:49 -0500
+	id <S313113AbSDEQ60>; Fri, 5 Apr 2002 11:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312887AbSDEOoj>; Fri, 5 Apr 2002 09:44:39 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:40344 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S312872AbSDEOob>; Fri, 5 Apr 2002 09:44:31 -0500
-Date: Fri, 5 Apr 2002 16:31:02 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Chris Wilson <chris@jakdaw.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: P4/i845 Strange clock drifting
-In-Reply-To: <20020405132810.4728c01d.chris@jakdaw.org>
-Message-ID: <Pine.LNX.4.44.0204051614230.31733-100000@netfinity.realnet.co.sz>
+	id <S313131AbSDEQ6Q>; Fri, 5 Apr 2002 11:58:16 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:27615 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313113AbSDEQ6D>; Fri, 5 Apr 2002 11:58:03 -0500
+Message-ID: <3CADD798.20203@us.ibm.com>
+Date: Fri, 05 Apr 2002 08:58:00 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: roms@lpg.ticalc.org, linux-kernel@vger.kernel.org
+Subject: Re: BKL in tiglusb release function
+In-Reply-To: <3CACF1FF.2000508@us.ibm.com> <3CAD74DA.58561BF7@free.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Apr 2002, Chris Wilson wrote:
+Romain Liévin wrote:
+ > I have followed examples from other codes such as dabusb.c &
+ > printer.c (2.4.14). After a further look: - dabusb.c from 2.4.14
+ > contains a kernel_lock/unlock couple only in _release but it has
+ > been removed in 2.5.7 - printer.c contains a kernel_lock/unlock
+ > couple in _open & _release in both 2.4.14 and 2.5.7
 
-> > -dj2 P4 thermal patch is a bit broken (my bad), but the fact that it 
-> > doesn't detect an APIC means that code would, erm do interesting things...
-> 
-> <grin>
-> 
-> I've now tried a couple more kernels to no avail - nothing can find APICs.
-> Is it even possible for a P4 to not have a local APIC? System is a
-> supermicro 5012B*. 
-> 
-> /proc/cpuinfo shows:
-> 
-> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-> 
-> (notice no "apic"). Is this normal/correct? If just just removed the check
-> from apic.c and tried to enable the apic anyway then are bad things going
-> to happen? 
+I was probably responsible for the removal from dabusb.c.  In almost all
+cases that I found (over 60 of them), the BKL is not needed in the 
+release function.
 
-All P4s have a local APIC, however your bios can play a part in making it 
-unavailable (global enable flag in apic base MSR). Please send me your 
-dmesg.
-
-> I've also noticed [probably unrelated but...] that I can't reboot the box
-> without use of the reset button - it doesn't come up after /sbin/reboot -f
-> either. It's at a colo facility so I can't see what's being displayed
-> until I find out a null modem and go for a drive... :)
-
-Have you tried the various reboot kernel parameters? You can try the 
-following.
-
-reboot=w - Sets warm reboot flag
-reboot=c - Sets cold reboot flag
-reboot=b - Reboot via jump to BIOS
-
-and finally if you're really desperate ;)
-
-reboot=h - do a hard reboot, i think this is does a triple fault
-
-Cheers,
-	Zwane
+The use of s->mutex confuses me.  In tiglusb_disconnect(), there is an 
+up().  Where is the matching down?  The comment for the mutex just says, 
+"locks this struct".  However, it is clear that it doesn't protect the 
+whole structure.  There are many places where structure members are 
+accessed without the lock being held.
 
 -- 
-http://function.linuxpower.ca
-		
-
+Dave Hansen
+haveblue@us.ibm.com
 

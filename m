@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbTFFVZC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 17:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbTFFVZC
+	id S262285AbTFFVZd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 17:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTFFVZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 17:25:02 -0400
-Received: from mail331.mail.bellsouth.net ([205.152.58.209]:37429 "EHLO
-	imf31bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id S262284AbTFFVZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 17:25:01 -0400
-From: "J.C. Wren" <jcwren@jcwren.com>
-Reply-To: jcwren@jcwren.com
-To: <linux-kernel@vger.kernel.org>
-Subject: Is there a bug with su, and /dev/std*?
-Date: Fri, 6 Jun 2003 17:38:33 -0400
-User-Agent: KMail/1.5.2
-References: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
+	Fri, 6 Jun 2003 17:25:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:17680 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262285AbTFFVZb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 17:25:31 -0400
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: warren@togami.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70 thru bk10 amd64 compile failure
+References: <1054878617.3699.134.camel@laptop.suse.lists.linux.kernel>
+	<1054917352.28218.3.camel@serpentine.internal.keyresearch.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 06 Jun 2003 23:39:03 +0200
+In-Reply-To: <1054917352.28218.3.camel@serpentine.internal.keyresearch.com.suse.lists.linux.kernel>
+Message-ID: <p73smqm6g3s.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306061738.33612.jcwren@jcwren.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I was writing a script that writes to /dev/error, and I'm experiencing odd behavior.  This is with a 2.4.18 kernel.
+Bryan O'Sullivan <bos@serpentine.com> writes:
 
-	I login to an account, 'jcw'.
+> On Thu, 2003-06-05 at 22:50, Warren Togami wrote:
+> 
+> > kernel-2.5.70, 2.5.70-bk9 and 2.5.70-bk10 all fail compilation here on
+> > my amd64 with gcc-3.2.2-10 on stock RedHat GinGin64.  Please pardon me
+> > if this is a duplicate report, I am now subscribing in order to keep a
+> > closer eye on this list.
+> 
+> You're compiling with CONFIG_VT turned off.  Turn it on for now, as I
+> don't have a patch for that problem yet.
 
-	[jcw@drive jcw]$ echo test_msg >/dev/error
-        test_msg
-	[jcw@drive jcw]$ su - slimedr
-        Password:
-        [slimedr@drive jcw]$ echo test_msg >/dev/error
-	bash: /dev/stderr: Permission denied
+See it as a feature. Compiling with CONFIG_VT off is in 99.999999999%
+of all cases a mistake. On AMD64 it is more likely 100% ;-)
+  
+Seriously is quite possible that obscure configurations do not compile on amd64
+(obscure is anything that is not like arch/x86_64/defconfig ;) 
+They are not regularly tested. Patches are welcome.
 
-	As user 'jcw' we see
+As for CONFIG_VT I think this option should really be wrapped by 
+CONFIG_EMBEDDED, Turning it off is near always a mistake.
+Same for the keyboard drivers in the input layer at least for CONFIG_X86.
+This would work with make oldconfig too from 2.4 config files
+unlike the current way.
 
-	[jcw@drive jcw]$ ls -l /dev/stderr
-	lrwxrwxrwx    1 root     root           17 Mar 11 15:28 /dev/stderr -> ../proc/self/fd/2
-	[jcw@drive jcw]$ ls -l /proc/self/fd/2
-	lrwx------    1 jcw      jcw            64 Jun  6 17:31 /proc/self/fd/2 -> /dev/pts/5
-	
-	As user 'slimedr' we see
-
-	[slimedr@drive slimedr]$ ls -l /dev/stderr
-	lrwxrwxrwx    1 root     root           17 Mar 11 15:28 /dev/stderr -> ../proc/self/fd/2
-	[slimedr@drive slimedr]$ ls -l /proc/self/fd/2
-	lrwx------    1 slimedr  slimedr        64 Jun  6 17:34 /proc/self/fd/2 -> /dev/pts/5
-
-	So what gives?  Shouldn't the user context change with 'su -' allow me to write to /dev/stderr and /dev/stdout?
-
+-Andi

@@ -1,150 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbUKIRTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbUKIRZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbUKIRTi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 12:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbUKIRTi
+	id S261592AbUKIRZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 12:25:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbUKIRZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 12:19:38 -0500
-Received: from lucidpixels.com ([66.45.37.187]:45998 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261590AbUKIRTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 12:19:18 -0500
-Date: Tue, 9 Nov 2004 12:19:16 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Jean Delvare <khali@linux-fr.org>
-cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: Re: Kernel 2.6.9 & adm1021 & i2c_piix4 temperature monitoring
-In-Reply-To: <UfARNKk2.1099926156.4923140.khali@gcu.info>
-Message-ID: <Pine.LNX.4.61.0411091216120.3869@p500>
-References: <UfARNKk2.1099926156.4923140.khali@gcu.info>
+	Tue, 9 Nov 2004 12:25:58 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:27918 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261592AbUKIRZz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 12:25:55 -0500
+To: =?iso-8859-1?q?Ren=E9_Scharfe?= <rene.scharfe@lsrfire.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] Move check for invalid chars to
+ vfat_valid_longname()
+References: <41901DD1.mail5VX1GOOYK@lsrfire.ath.cx>
+	<20041109013524.GB6835@neapel230.server4you.de>
+	<87actr5ak8.fsf@devron.myhome.or.jp> <4190EED2.5040906@lsrfire.ath.cx>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 10 Nov 2004 02:25:28 +0900
+In-Reply-To: <4190EED2.5040906@lsrfire.ath.cx> =?iso-8859-1?q?=28Ren=E9?= Scharfe's message of "Tue, 09 Nov 2004 17:22:42 +0100")
+Message-ID: <87is8fj5o7.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How has it been re-worked, is the option no longer valid?
+René Scharfe <rene.scharfe@lsrfire.ath.cx> writes:
 
-I believe it was along early 2.6.x and possibly 2.6.5-2.6.6 that I tried 
-it without the option and the machine will shut itself off (due to 
-lm-sensors/etc writing "their" values for what is too hot, forcing the 
-machine to shutdown).
+> We want to make sure filenames don't contain '*', '?' etc.
 
-$ sensors
-max1617-i2c-0-1a
-Adapter: SMBus PIIX4 adapter at 0850
-Board:       +45 C  (low  =   -55 C, high =  +127 C)
-CPU:         +41 C  (low  =   -55 C, high =  +110 C)
-
-If I run without the option, the values change to something like -20 C to 
-50 or 60C, hence, when you compile a kernel it heats up and the box shuts 
-itself off, with no warning at all, just powers off.
-
-I may be able to try this later this week but not right now, as the 
-machine needs to remain online.
-
-Justin.
-
-  On Mon, 8 Nov 2004, Jean Delvare wrote:
-
->
-> Hi Justin,
->
->> I am monitoring the temperature sensors on my Dell GX1 box, and I get the
->> following in dmesg:
->>
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed reset at end of transaction (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed reset at end of transaction (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->> i2c_adapter i2c-0: Failed! (01)
->
-> First note that Dell systems are well known for their improperly
-> configured SMBus devices.
->
->> Of course the ``secret'' to getting the temperature sensors to work on a
->> Dell is two options when loading the i2c driver and the adm1024 driver.
->
-> I guess you really mean adm1021 here?
->
->>   TYPE="/sbin/modprobe"
->>
->>   $TYPE i2c_piix4 force=1
->>   $TYPE adm1021 read_only=1
->>
->> The force is required to enable it, otherwise I do not believe it even
->> loads.
->
-> True, because Dell's BIOS won't configure it.
->
-> As noted in lm_sensors' documentation here:
->  http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/doc/busses/i2c-piix4
-> you should be careful when using this option.
->
-> One possible cause for the trouble you experience would be that the
-> piix4's address happens to conflict with another device address on your
-> system. The driver should have complained if it were the case, but only
-> if the other device has a Linux driver. If, say, this is an I/O address
-> range the BIOS uses on its own, the i2c-piix4 driver may not know about
-> this. You can use "i2cdetect -l" (or browse /sys) to find out the
-> address the PIIX4 is using, as it shows in the I2C bus name.
->
-> One thing you could try would be to use the force_addr parameter of the
-> i2c-piix4 driver. As noted in the documentation, this is DANGEROUS so
-> you better be extremely careful if you do. Basically, you would force
-> the address to a supposedly unused address (check /proc/ioports for
-> ranges to NOT use). Address must be a multiple of 16.
->
-> Maybe you'll have better results when using this, maybe not. Please let
-> us know. Be warned that using an improper address may cause SEVERE
-> DAMAGE, and that there is unfortunately no way to know which addresses
-> are suitable.
->
-> See this thread:
->  http://archives.andrew.net.au/lm-sensors/msg21973.html
-> Now, what you want to risk is left to you.
->
-> This post:
->  https://bugzilla.redhat.com/bugzilla/long_list.cgi?buglist=73730
-> suggests that 0x6000 MIGHT be a good candidate.
->
-> BTW, you really should first try:
-> 1* Upgrading BIOSes if possible.
-> 2* Contacting Dell about the problem. This is really a BIOS issue, we may
-> try to work around it in the kernel but this is not where the original
-> problem lies.
->
->> The read_only=1 is so it does not change the temperature range in the
->> monitoring chip, if read_only=1 is not set and the machine gets hot, say
->> from compiling the kernel, the machine shuts itself off.
->
-> This is theoretically not necessary anymore since Linux kernel 2.6.6
-> (where adm1021 chip init was reworked). Could you please try without it
-> and let us know how it goes?
->
-> As a side note, I think that we should get rid of that "read_only"
-> module parameter. It makes the code more complex with no obvious benefit
-> (assuming you'll confirm that you don't need it anymore). No other
-> hardware monitoring chip driver has this.
->
->> My question is, why all the failed transactions?
->> I graph the temperature without any issues (system and CPU) but I still
->> get some of these in dmesg, any ideas?
->
-> I doubt that you really have no issue. Reads fail when you have a
-> "Failed! (01)" error. Since the adm1021 driver doesn't handle that
-> kind of error, this should result in bogus temperature readings
-> (typically -1).
->
-> Thanks,
-> --
-> Jean Delvare
->
+No. For example, Shift-JIS has 0x815c. It's contains the '\' (0x5c),
+but the 0x815c is a valid char for fatfs.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,165 +1,128 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314700AbSDTR5t>; Sat, 20 Apr 2002 13:57:49 -0400
+	id <S314697AbSDTR5P>; Sat, 20 Apr 2002 13:57:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314701AbSDTR5s>; Sat, 20 Apr 2002 13:57:48 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62148 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314700AbSDTR5n>;
-	Sat, 20 Apr 2002 13:57:43 -0400
-Date: Sat, 20 Apr 2002 13:57:43 -0400 (EDT)
+	id <S314698AbSDTR5P>; Sat, 20 Apr 2002 13:57:15 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:49091 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314697AbSDTR5M>;
+	Sat, 20 Apr 2002 13:57:12 -0400
+Date: Sat, 20 Apr 2002 13:57:11 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [CFT][PATCH] (3/5) sane procfs/dcache interaction
-In-Reply-To: <Pine.GSO.4.21.0204201356480.25383-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0204201357220.25383-100000@weyl.math.psu.edu>
+Subject: [CFT][PATCH] (2/5) sane procfs/dcache interaction
+In-Reply-To: <Pine.GSO.4.21.0204201304150.25383-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0204201356480.25383-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-diff -urN C8-name_to_int/fs/proc/base.c C8-retain_dentry/fs/proc/base.c
---- C8-name_to_int/fs/proc/base.c	Fri Apr 19 01:17:11 2002
-+++ C8-retain_dentry/fs/proc/base.c	Fri Apr 19 01:17:36 2002
-@@ -747,7 +747,7 @@
-  * directory. In this case, however, we can do it - no aliasing problems
-  * due to the way we treat inodes.
-  */
--static int pid_base_revalidate(struct dentry * dentry, int flags)
-+static int pid_revalidate(struct dentry * dentry, int flags)
- {
- 	if (proc_task(dentry->d_inode)->pid)
- 		return 1;
-@@ -755,25 +755,42 @@
- 	return 0;
- }
+diff -urN C8-unhash_process/fs/proc/base.c C8-name_to_int/fs/proc/base.c
+--- C8-unhash_process/fs/proc/base.c	Tue Mar 19 16:05:58 2002
++++ C8-name_to_int/fs/proc/base.c	Fri Apr 19 01:17:11 2002
+@@ -778,34 +778,41 @@
+ };
  
--static int pid_delete_dentry(struct dentry * dentry)
-+static void pid_base_iput(struct dentry *dentry, struct inode *inode)
-+{
-+	struct task_struct *task = proc_task(inode);
-+	write_lock_irq(&tasklist_lock);
-+	if (task->proc_dentry == dentry)
-+		task->proc_dentry = NULL;
-+	write_unlock_irq(&tasklist_lock);
-+	iput(inode);
-+}
+ /* Lookups */
+-#define MAX_MULBY10	((~0U-9)/10)
 +
-+static int pid_fd_delete_dentry(struct dentry * dentry)
- {
- 	return 1;
- }
- 
-+static int pid_delete_dentry(struct dentry * dentry)
++static unsigned name_to_int(struct dentry *dentry)
 +{
-+	return proc_task(dentry->d_inode)->pid == 0;
-+}
++	const char *name = dentry->d_name.name;
++	int len = dentry->d_name.len;
++	unsigned n = 0;
 +
- static struct dentry_operations pid_fd_dentry_operations =
++	if (len > 1 && *name == '0')
++		goto out;
++	while (len-- > 0) {
++		unsigned c = *name++ - '0';
++		if (c > 9)
++			goto out;
++		if (n >= (~0U-9)/10)
++			goto out;
++		n *= 10;
++		n += c;
++	}
++	return n;
++out:
++	return ~0U;
++}
+ 
+ /* SMP-safe */
+ static struct dentry *proc_lookupfd(struct inode * dir, struct dentry * dentry)
  {
- 	d_revalidate:	pid_fd_revalidate,
--	d_delete:	pid_delete_dentry,
-+	d_delete:	pid_fd_delete_dentry,
- };
+-	unsigned int fd, c;
+ 	struct task_struct *task = proc_task(dir);
++	unsigned fd = name_to_int(dentry);
+ 	struct file * file;
+ 	struct files_struct * files;
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+-	const char *name;
+-	int len;
  
- static struct dentry_operations pid_dentry_operations =
+-	fd = 0;
+-	len = dentry->d_name.len;
+-	name = dentry->d_name.name;
+-	if (len > 1 && *name == '0') goto out;
+-	while (len-- > 0) {
+-		c = *name - '0';
+-		name++;
+-		if (c > 9)
+-			goto out;
+-		if (fd >= MAX_MULBY10)
+-			goto out;
+-		fd *= 10;
+-		fd += c;
+-	}
++	if (fd == ~0U)
++		goto out;
+ 
+ 	inode = proc_pid_make_inode(dir->i_sb, task, PROC_PID_FD_DIR+fd);
+ 	if (!inode)
+@@ -992,17 +999,12 @@
+ /* SMP-safe */
+ struct dentry *proc_pid_lookup(struct inode *dir, struct dentry * dentry)
  {
-+	d_revalidate:	pid_revalidate,
- 	d_delete:	pid_delete_dentry,
- };
+-	unsigned int pid, c;
+ 	struct task_struct *task;
+-	const char *name;
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+-	int len;
++	unsigned pid;
  
- static struct dentry_operations pid_base_dentry_operations =
- {
--	d_revalidate:	pid_base_revalidate,
-+	d_revalidate:	pid_revalidate,
-+	d_iput:		pid_base_iput,
- 	d_delete:	pid_delete_dentry,
- };
- 
-@@ -842,6 +859,8 @@
- 		inode->i_mode |= S_IWUSR | S_IXUSR;
- 	dentry->d_op = &pid_fd_dentry_operations;
- 	d_add(dentry, inode);
-+	if (!proc_task(dentry->d_inode)->pid)
-+		d_drop(dentry);
- 	return NULL;
- 
- out_unlock2:
-@@ -959,6 +978,8 @@
+-	pid = 0;
+-	name = dentry->d_name.name;
+-	len = dentry->d_name.len;
+-	if (len == 4 && !memcmp(name, "self", 4)) {
++	if (dentry->d_name.len == 4 && !memcmp(dentry->d_name.name,"self",4)) {
+ 		inode = new_inode(dir->i_sb);
+ 		if (!inode)
+ 			return ERR_PTR(-ENOMEM);
+@@ -1017,18 +1019,9 @@
+ 		d_add(dentry, inode);
+ 		return NULL;
  	}
- 	dentry->d_op = &pid_dentry_operations;
- 	d_add(dentry, inode);
-+	if (!proc_task(dentry->d_inode)->pid)
-+		d_drop(dentry);
- 	return NULL;
+-	while (len-- > 0) {
+-		c = *name - '0';
+-		name++;
+-		if (c > 9)
+-			goto out;
+-		if (pid >= MAX_MULBY10)
+-			goto out;
+-		pid *= 10;
+-		pid += c;
+-		if (!pid)
+-			goto out;
+-	}
++	pid = name_to_int(dentry);
++	if (pid == ~0U)
++		goto out;
  
- out:
-@@ -1045,6 +1066,11 @@
- 
- 	dentry->d_op = &pid_base_dentry_operations;
- 	d_add(dentry, inode);
-+	read_lock(&tasklist_lock);
-+	proc_task(dentry->d_inode)->proc_dentry = dentry;
-+	read_unlock(&tasklist_lock);
-+	if (!proc_task(dentry->d_inode)->pid)
-+		d_drop(dentry);
- 	return NULL;
- out:
- 	return ERR_PTR(-ENOENT);
-diff -urN C8-name_to_int/include/linux/sched.h C8-retain_dentry/include/linux/sched.h
---- C8-name_to_int/include/linux/sched.h	Fri Apr 19 01:16:35 2002
-+++ C8-retain_dentry/include/linux/sched.h	Fri Apr 19 01:17:36 2002
-@@ -346,6 +346,7 @@
- 
- /* journalling filesystem info */
- 	void *journal_info;
-+	struct dentry *proc_dentry;
- };
- 
- extern void __put_task_struct(struct task_struct *tsk);
-diff -urN C8-name_to_int/kernel/exit.c C8-retain_dentry/kernel/exit.c
---- C8-name_to_int/kernel/exit.c	Fri Apr 19 01:16:35 2002
-+++ C8-retain_dentry/kernel/exit.c	Fri Apr 19 01:17:36 2002
-@@ -29,13 +29,28 @@
- 
- static inline void __unhash_process(struct task_struct *p)
- {
-+	struct dentry *proc_dentry;
- 	write_lock_irq(&tasklist_lock);
- 	nr_threads--;
- 	unhash_pid(p);
- 	REMOVE_LINKS(p);
- 	list_del(&p->thread_group);
- 	p->pid = 0;
-+	proc_dentry = p->proc_dentry;
-+	if (unlikely(proc_dentry)) {
-+		spin_lock(&dcache_lock);
-+		if (!list_empty(&proc_dentry->d_hash)) {
-+			dget_locked(proc_dentry);
-+			list_del_init(&proc_dentry->d_hash);
-+		} else
-+			proc_dentry = NULL;
-+		spin_unlock(&dcache_lock);
-+	}
- 	write_unlock_irq(&tasklist_lock);
-+	if (unlikely(proc_dentry)) {
-+		shrink_dcache_parent(proc_dentry);
-+		dput(proc_dentry);
-+	}
- }
- 
- static void release_task(struct task_struct * p)
-diff -urN C8-name_to_int/kernel/fork.c C8-retain_dentry/kernel/fork.c
---- C8-name_to_int/kernel/fork.c	Sun Apr 14 17:53:13 2002
-+++ C8-retain_dentry/kernel/fork.c	Fri Apr 19 01:17:36 2002
-@@ -665,6 +665,7 @@
- 
- 	copy_flags(clone_flags, p);
- 	p->pid = get_pid(clone_flags);
-+	p->proc_dentry = NULL;
- 
- 	INIT_LIST_HEAD(&p->run_list);
- 
+ 	read_lock(&tasklist_lock);
+ 	task = find_task_by_pid(pid);
 
 

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbUCHWPs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUCHWPs
+	id S261326AbUCHWTe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUCHWTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:15:48 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36848 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261331AbUCHWPi
+	Mon, 8 Mar 2004 17:19:33 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36594 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261326AbUCHWT2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:15:38 -0500
-Message-ID: <404CF07D.1090303@mvista.com>
-Date: Mon, 08 Mar 2004 14:15:25 -0800
+	Mon, 8 Mar 2004 17:19:28 -0500
+Message-ID: <404CF165.1010402@mvista.com>
+Date: Mon, 08 Mar 2004 14:19:17 -0800
 From: George Anzinger <george@mvista.com>
 Organization: MontaVista Software
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
@@ -20,87 +20,75 @@ To: "Amit S. Kale" <amitkale@emsyssoft.com>
 CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        trini@kernel.crashing.org, pavel@ucw.cz
 Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
-References: <200403081504.30840.amitkale@emsyssoft.com> <200403081545.09916.amitkale@emsyssoft.com> <20040308022602.766be828.akpm@osdl.org> <200403081619.16771.amitkale@emsyssoft.com>
-In-Reply-To: <200403081619.16771.amitkale@emsyssoft.com>
+References: <200403081504.30840.amitkale@emsyssoft.com> <20040308030722.01948c93.akpm@osdl.org> <200403081650.18641.amitkale@emsyssoft.com> <200403081714.05521.amitkale@emsyssoft.com>
+In-Reply-To: <200403081714.05521.amitkale@emsyssoft.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Amit S. Kale wrote:
-> On Monday 08 Mar 2004 3:56 pm, Andrew Morton wrote:
+> On Monday 08 Mar 2004 4:50 pm, Amit S. Kale wrote:
 > 
->>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>On Monday 08 Mar 2004 4:37 pm, Andrew Morton wrote:
 >>
->>>Here are features that are present only in full kgdb:
->>> 1. Thread support  (aka info threads)
+>>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>>
+>>>>On Monday 08 Mar 2004 3:56 pm, Andrew Morton wrote:
+>>>> > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>>> > > Here are features that are present only in full kgdb:
+>>>> > >  1. Thread support  (aka info threads)
+>>>> >
+>>>> > argh, disaster.  I discussed this with Tom a week or so ago when it
+>>>> > looked like this it was being chopped out and I recall being told
+>>>> > that the discussion was referring to something else.
+>>>> >
+>>>> > Ho-hum, sorry.  Can we please put this back in?
+>>>>
+>>>> Err., well this is one of the particularly dirty parts of kgdb. That's
+>>>>why it's been kept away. It takes care of correct thread backtraces in
+>>>>some rare cases.
+>>>
+>>>Let me just make sure we're taking about the same thing here.  Are you
+>>>saying that with kgdb-lite, `info threads' is completely missing, or does
+>>>it just not work correctly with threads (as opposed to heavyweight
+>>>processes)?
 >>
->>argh, disaster.  I discussed this with Tom a week or so ago when it looked
->>like this it was being chopped out and I recall being told that the
->>discussion was referring to something else.
+>>info threads shows a list of threads. Heavy/light weight processes doesn't
+>>matter. Thread frame shown is incorrect.
 >>
->>Ho-hum, sorry.  Can we please put this back in?
+>>I looked at i386 dependent code again. Following code in it is incorrect. I
+>>never noticed it because this code is rarely used in full version of kgdb:
+>>
+>>+void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct
+>>task_struct *p)
+>>....
+>>+	gdb_regs[_EBP] = *(int *)p->thread.esp;
+>>
+>>We can't guss ebp this way. This line should be removed.
+>>
+>>+	gdb_regs[_DS] = __KERNEL_DS;
+>>+	gdb_regs[_ES] = __KERNEL_DS;
+>>+	gdb_regs[_PS] = 0;
+>>+	gdb_regs[_CS] = __KERNEL_CS;
+>>+	gdb_regs[_PC] = p->thread.eip;
+>>+	gdb_regs[_ESP] = p->thread.esp;
+>>
+>>This should be gdb_regs[_ESP] = &p->thread.esp
 > 
 > 
-> Err., well this is one of the particularly dirty parts of kgdb. That's why 
-> it's been kept away. It takes care of correct thread backtraces in some rare 
-> cases.
+> That's not correct it. It should be gdb_regs[_ESP] = p->thread.esp;
+> Even with these changes I can't get thread listing correctly.
 > 
-> If you consider it an absolutely must, we can do something so that the dirty 
-> part is kept away and info threads almost always works.
-> 
+> Here is the intrusive piece of code that helps get thread state correctly. Any 
+> ideas on cleaning it?
 
-Amit,
+I wonder what version of gdb you are using.  What is it that you see?
 
-I think we should just put the info threads in the core.  No attempt to do any 
-trace back from kgdb.  Let them all show up in the switch code.  I have a script 
-(gdb macro) that will give a rather decent "info threads" display.  Oh, we need 
-to add one other responce to kgdb for the process info gdb command.
+You really do need a gdb that handles the dwarft2 frames.  This is a rather new 
+gdb (I use the CVS version).
 
-  * This query allows the target stub to return an arbitrary string
-  * (or strings) giving arbitrary information about the target process.
-  * This is optional; the target stub isn't required to implement it.
-  *
-  * Syntax: qfProcessInfo        request first string
-  *         qsProcessInfo        request subsequent string
-  * reply:  'O'<hex-encoded-string>
-  *         'l'                  last reply (empty)
-  */
-What we want here is the thread name.
-
-Here is the macro set:
-
-set var $low_sched=0
-
-define do_threads
-   if (void)$low_sched==(void)0
-	set_b
-   end
-   thread apply all do_th_lines
-end
-
-define do_th_lines
-   set var $do_th_co=0
-   while ($pc > $low_sched) && ($pc < $high_sched)
-     up-silent
-     set var $do_th_co=$do_th_co+1
-   end
-   if $do_th_co==0
-     info remote-process
-     bt
-   else
-     up-silent
-     info remote-process
-     down
-   end
-end
-
-define set_b
-   set var $low_sched=scheduling_functions_start_here
-   set var $high_sched=scheduling_functions_end_here
-end
-
-
+-g
 ~
 
 -- 

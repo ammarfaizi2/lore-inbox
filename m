@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUITX4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUIUACc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUITX4G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 19:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266790AbUITX4G
+	id S267409AbUIUACc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 20:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUIUACc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 19:56:06 -0400
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:62342 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261234AbUITX4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 19:56:02 -0400
-Date: Mon, 20 Sep 2004 16:56:00 -0700
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] scripts: Support output of new ld
-Message-ID: <20040920235600.GG5220@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040918065733.GA4549@darjeeling.triplehelix.org> <20040920161913.GC4501@logos.cnet>
+	Mon, 20 Sep 2004 20:02:32 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:19943 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267409AbUIUACa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 20:02:30 -0400
+Subject: Re: [RFC][PATCH] inotify 0.9
+From: Robert Love <rml@novell.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1040920180744.11755B-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1040920180744.11755B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Date: Mon, 20 Sep 2004 20:02:28 -0400
+Message-Id: <1095724948.2454.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040920161913.GC4501@logos.cnet>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.6+20040722i
-From: joshk@triplehelix.org (Joshua Kwan)
+X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 20, 2004 at 01:19:13PM -0300, Marcelo Tosatti wrote:
-> (We met at Palo Alto in a Debian dinner on a chinese restaurant, remember? :))
+On Mon, 2004-09-20 at 18:59 -0400, Bill Davidsen wrote:
 
-Oh! At the time I wasn't aware it was /this/ particular Marcelo... well,
-hello then ;)
+> I'm sorry you think think I'm talking to hear myself talk, the
+> point I'm making is valid to me.
 
-> Unfortunately this patch doenst apply cleanly
+Judgment suggests I should drop this, but the problem is that you never
+made a valid or well-informed point.
 
-Huh, strange, my mailer must have munged it, or maybe things have
-changed in BK. Here's a diff from a fresh checkout of linux-2.4.
-Just in case my mail client munges it again I've also put it at 
+You started off with "Did you work for Microsoft?" and you followed up
+with questions and critiques demonstrating no understanding whosoever
+for the way that Linux dcache or inode management works and further that
+you did not even read the patch.
 
-http://people.debian.org/~joshk/gnu_ld.diff
+My reply "well dnotify has this same issue" is not a rallying behind the
+status quo (I mean, I want dnotify dead myself) but that no one
+complains about the size issue with dnotify.  John and I want to address
+the issues with dnotify.
 
--- 
-Joshua Kwan
+If we can do something about space consumption, and if it turns out to
+be an issue, I am all for it.  I do not yet see a way around it, and no
+one has shown that normal use in the real world suffers from any issue.
 
-===== scripts/ver_linux 1.8 vs edited =====
---- 1.8/scripts/ver_linux	Wed Dec 17 23:34:53 2003
-+++ edited/scripts/ver_linux	Mon Sep 20 16:54:07 2004
-@@ -22,7 +22,8 @@
-       '/GNU Make/{print "Gnu make              ",$NF}'
- 
- ld -v 2>&1 | awk -F\) '{print $1}' | awk \
--      '/BFD/{print "binutils              ",$NF}'
-+      '/BFD/{print "binutils              ",$NF}
-+       /^GNU/{print "binutils              ",$4}'
- 
- fdformat --version | awk -F\- '{print "util-linux            ", $NF}'
- 
+Thanks,
+
+	Robert Love
+
+

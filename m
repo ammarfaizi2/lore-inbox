@@ -1,104 +1,263 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261752AbSI2TuT>; Sun, 29 Sep 2002 15:50:19 -0400
+	id <S261765AbSI2Tw5>; Sun, 29 Sep 2002 15:52:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261696AbSI2Tsr>; Sun, 29 Sep 2002 15:48:47 -0400
-Received: from mailhost2-bcvloh.bcvloh.ameritech.net ([66.73.20.44]:64910 "EHLO
-	mailhost.bcv2.ameritech.net") by vger.kernel.org with ESMTP
-	id <S261760AbSI2TsO> convert rfc822-to-8bit; Sun, 29 Sep 2002 15:48:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: james <jdickens@ameritech.net>
-To: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: v2.6 vs v3.0
-Date: Sun, 29 Sep 2002 14:53:35 -0500
-User-Agent: KMail/1.4.3
-Cc: Ingo Molnar <mingo@elte.hu>, Jeff Garzik <jgarzik@pobox.com>,
-       Larry Kessler <kessler@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-References: <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain> <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <20020929091539.GB1014@suse.de>
-In-Reply-To: <20020929091539.GB1014@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209291453.35096.jdickens@ameritech.net>
+	id <S261769AbSI2Tw5>; Sun, 29 Sep 2002 15:52:57 -0400
+Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:21266 "HELO
+	light-brigade.mit.edu") by vger.kernel.org with SMTP
+	id <S261765AbSI2TvZ>; Sun, 29 Sep 2002 15:51:25 -0400
+Date: Sun, 29 Sep 2002 15:56:48 -0400
+From: Gerald Britton <gbritton@alum.mit.edu>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: Gerald Britton <gbritton@alum.mit.edu>, linux-kernel@vger.kernel.org,
+       cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
+Message-ID: <20020929155648.A20308@light-brigade.mit.edu>
+References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020928134739.A11797@light-brigade.mit.edu> <20020929111603.F1250@brodo.de> <20020929121018.A811@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020929121018.A811@brodo.de>; from linux@brodo.de on Sun, Sep 29, 2002 at 12:10:18PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 29, 2002 at 12:10:18PM +0200, Dominik Brodowski wrote:
+> I think I found the problem: it should be GFP_ATOMIC and not GFP_KERNEL in
+> the allocation of struct cpufreq_driver. Will be fixed in the next release.
 
-Upon thinking about 2.6 v3.0 argument, I think we may be  looking at this 
-version comparison in the wrong light, it is not wether we have come far 
-enough from 2.4.x to make it 3.0 it is wether we have change enough from 
-version 2.0.x. 
-
-When I compare running linux 2.0.x to running what will be the next version we 
-are looking at a completely different system. For example in v2.0 the only 
-file system choices were ext2 or DOS, with a few others that wern't in wide 
-spread use.  where you created small partitions to keep fsck's fast, even if 
-you had battery backup, you were still basicly limited to 8 gig file systems. 
-Today we have ext2, ext3, reiserfs, JFS, XFS, in the last four,  journaling 
-capabilities. it is possible and expected  have huge filesystems and patches 
-exist to break the 2 terabyte file systems  exist in various stages of 
-testing. Not to mention we have LVM, and raid file systems, being used on 
-desktop as well server systems. 
-
-Networking has changed as well, we went from mostly 10mbit eternet cards and a 
-few 100 mbit cards, to now having 100mbit ethernet as the base of home 
-networking, not to mention gigabit ethernet, and ATM gaining popularity in 
-the server market, while they are just drivers, the real shift of thinking 
-comes in zero copy file transfer and a mature state of the art 
-firewalling/routing/bridging etc. in NAT and iptables 
-
-For video we changed from base VGA video text and X, to acellerated video 
-processors not just in X, but in framebuffers  used as consoles.
-
-We also have support for diverse set of buses, that change the way we think 
-about our system, multiple bridges on PCI, USB v1 and v2, to firewire. 
-
-I will let others more in the know in memory management, discuss the finer 
-points of this one, but it is a major change, in 2.0 we just killed random 
-programs when out of memory.  today we make a slightly more educated guess as 
-what to kill when we are out of memory, not to mention a just one base mix of 
-address support, I think it was 2gig user and 2gig, Today we can choose, 1. 
-2, or 3 gig of kernel space.  Large memory support in the Kernel , supporting  
-36bit memory accessing, That support more memory than I will ever see in the 
-near future. 
-
-we have changed from a System that barely supported smp with 2 processors with 
-basicly one big kernel lock to a system with finely grained locks and 
-semaphores and subsystem spinlocks,  that has decent performance on 8+ cpu 
-systems. Numa system surport also appeared since version 2.0.x 
-
-In 2.0.0 we had a 15bit pid with a maximum of 1000 active ( i beleve it is 
-less than this) today we have a 32+bit pid on the table with support of many 
-more active processes. of couse we have numourous internal file systems that 
-did not exist, tmpfs, devfs, etc.....  and changed the way we all think about 
-our systems. 
-
-A prempted kernel, need I say more. 
-
-
-well that is just a small list of the globals systems that change the way we 
-think of linux. 
-
-If we continue to justify major version changes based on change in minor 
-version to minor version, can we expect linux 2.98,x in the future?  In each 
-minor version we rewrite one or two subsytems. And these take many months to 
-plan, complete and test, so big enough change in a single minor version 
-number to minor version may not be possible at the current size of this 
-devolement effort, So yes we have come far enougth from v2.0.x to justify a 
-version 3.0.x. If I was a marketing person I would call it linux 3.0.0 
-enterprize edition, if we can get LVM2, raid and break the 2 terabyte 
-filesystem limit along with what we allready have accomplised. 
-
-Just my opionion 
-
-James
-
+Nope.  That should be fine, it's in a process context and not holding any
+locks, so GFP_KERNEL should be fine.  I found the bug though:
  
+-driver->policy = (struct cpufreq_policy *) (driver + sizeof(struct cpufreq_driver));
++driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+Remember your pointer arithmetic.
+ 
+I was also thinking about the quirkyness with the init process and safety with
+other code.  I'm currently running with a modified version adding a "notify"
+argument to speedstep_set_state() so that notifiers which is 0 during init so
+that the notifiers do not get run.  We're going to be flapping the speed here
+without notifying anything, so i disabled interrupts for the entire detection
+process.  It appears to be working reasonably well.  Patch below (also includes
+some cleaned up irq locking and the timer.c fix).
 
+Also, the notifier in timer.c is wrong.  it updates the per-cpu loops_per_jiffy
+with the global loops_per_jiffy value (which may have already been scaled).
 
+Also.. these adjusted values have rounding errors...
 
+cpu MHz		: 1132.403
+cpu MHz		: 732.731
+cpu MHz		: 1132.402
+cpu MHz		: 732.730
+cpu MHz		: 1132.400
+cpu MHz		: 732.729
+cpu MHz		: 1132.399
 
+There probably isn't a lot that can be done about these unfortunately, but
+they won't necessarily converge to a stable value so things may eventually
+start to fail.
 
+				-- Gerald
+
+--- linux/arch/i386/kernel/speedstep.c.old	Thu Sep 26 18:35:29 2002
++++ linux/arch/i386/kernel/speedstep.c	Sun Sep 29 15:21:33 2002
+@@ -91,6 +91,7 @@
+  */
+ static int speedstep_get_state (unsigned int *state)
+ {
++	unsigned long   flags;
+ 	u32             pmbase;
+ 	u8              value;
+ 
+@@ -110,9 +111,9 @@
+ 			return -EIO;
+ 
+ 		/* read state */
+-		local_irq_disable();
++		local_irq_save(flags);
+ 		value = inb(pmbase + 0x50);
+-		local_irq_enable();
++		local_irq_restore(flags);
+ 
+ 		dprintk(KERN_DEBUG "cpufreq: read at pmbase 0x%x + 0x50 returned 0x%x\n", pmbase, value);
+ 
+@@ -132,7 +133,7 @@
+  *
+  *   Tries to change the SpeedStep state. 
+  */
+-static void speedstep_set_state (unsigned int state)
++static void speedstep_set_state (unsigned int state, int notify)
+ {
+ 	u32                     pmbase;
+ 	u8	                pm2_blk;
+@@ -154,7 +155,8 @@
+ 	freqs.new = (state == SPEEDSTEP_HIGH) ? speedstep_high_freq : speedstep_low_freq;
+ 	freqs.cpu = CPUFREQ_ALL_CPUS; /* speedstep.c is UP only driver */
+ 	
+-	cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
++	if (notify)
++		cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
+ 
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+@@ -173,10 +175,11 @@
+ 			return;
+ 		}
+ 
++		/* Disable IRQs */
++		local_irq_save(flags);
++
+ 		/* read state */
+-		local_irq_disable();
+ 		value = inb(pmbase + 0x50);
+-		local_irq_enable();
+ 
+ 		dprintk(KERN_DEBUG "cpufreq: read at pmbase 0x%x + 0x50 returned 0x%x\n", pmbase, value);
+ 
+@@ -186,10 +189,6 @@
+ 
+ 		dprintk(KERN_DEBUG "cpufreq: writing 0x%x to pmbase 0x%x + 0x50\n", value, pmbase);
+ 
+-		/* Disable IRQs */
+-		local_irq_save(flags);
+-		local_irq_disable();
+-
+ 		/* Disable bus master arbitration */
+ 		pm2_blk = inb(pmbase + 0x20);
+ 		pm2_blk |= 0x01;
+@@ -202,14 +201,11 @@
+ 		pm2_blk &= 0xfe;
+ 		outb(pm2_blk, (pmbase + 0x20));
+ 
+-		/* Enable IRQs */
+-		local_irq_enable();
+-		local_irq_restore(flags);
+-
+ 		/* check if transition was sucessful */
+-		local_irq_disable();
+ 		value = inb(pmbase + 0x50);
+-		local_irq_enable();
++
++		/* Enable IRQs */
++		local_irq_restore(flags);
+ 
+ 		dprintk(KERN_DEBUG "cpufreq: read at pmbase 0x%x + 0x50 returned 0x%x\n", pmbase, value);
+ 
+@@ -223,7 +219,8 @@
+ 		printk (KERN_ERR "cpufreq: setting CPU frequency on this chipset unsupported.\n");
+ 	}
+ 
+-	cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
++	if (notify)
++		cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
+ 
+ 	return;
+ }
+@@ -291,7 +288,6 @@
+ 	if (speedstep_chipset_dev)
+ 		return SPEEDSTEP_CHIPSET_ICH2M;
+ 
+-
+ 	return 0;
+ }
+ 
+@@ -503,9 +499,13 @@
+  */
+ static int speedstep_detect_speeds (void)
+ {
++	unsigned long   flags;
+ 	unsigned int    state;
+ 	int             i, result;
+-    
++
++	/* Disable irqs for entire detection process */
++	local_irq_save(flags);
++
+ 	for (i=0; i<2; i++) {
+ 		/* read the current state */
+ 		result = speedstep_get_state(&state);
+@@ -522,7 +522,7 @@
+ 			case SPEEDSTEP_PROCESSOR_P4M:
+ 				speedstep_low_freq = pentium4_get_frequency();
+ 			}
+-			speedstep_set_state(SPEEDSTEP_HIGH);
++			speedstep_set_state(SPEEDSTEP_HIGH, 0);
+ 		} else {
+ 			switch (speedstep_processor) {
+ 			case SPEEDSTEP_PROCESSOR_PIII_C:
+@@ -532,14 +532,16 @@
+ 			case SPEEDSTEP_PROCESSOR_P4M:
+ 				speedstep_high_freq = pentium4_get_frequency();
+ 			}
+-			speedstep_set_state(SPEEDSTEP_LOW);
++			speedstep_set_state(SPEEDSTEP_LOW, 0);
+ 		}
+-
+-		if (!speedstep_low_freq || !speedstep_high_freq || 
+-		    (speedstep_low_freq == speedstep_high_freq))
+-			return -EIO;
+ 	}
+ 
++	local_irq_restore(flags);
++
++	if (!speedstep_low_freq || !speedstep_high_freq || 
++	    (speedstep_low_freq == speedstep_high_freq))
++		return -EIO;
++
+ 	return 0;
+ }
+ 
+@@ -556,16 +558,16 @@
+ 		return;
+ 
+ 	if (policy->min > speedstep_low_freq) 
+-		speedstep_set_state(SPEEDSTEP_HIGH);
++		speedstep_set_state(SPEEDSTEP_HIGH, 1);
+ 	else {
+ 		if (policy->max < speedstep_high_freq)
+-			speedstep_set_state(SPEEDSTEP_LOW);
++			speedstep_set_state(SPEEDSTEP_LOW, 1);
+ 		else {
+ 			/* both frequency states are allowed */
+ 			if (policy->policy == CPUFREQ_POLICY_POWERSAVE)
+-				speedstep_set_state(SPEEDSTEP_LOW);
++				speedstep_set_state(SPEEDSTEP_LOW, 1);
+ 			else
+-				speedstep_set_state(SPEEDSTEP_HIGH);
++				speedstep_set_state(SPEEDSTEP_HIGH, 1);
+ 		}
+ 	}
+ }
+@@ -653,8 +655,8 @@
+ 	if (!driver)
+ 		return -ENOMEM;
+ 
+-	driver->policy = (struct cpufreq_policy *) (driver + sizeof(struct cpufreq_driver));
+-	
++	driver->policy = (struct cpufreq_policy *) (driver + 1);
++
+ #ifdef CONFIG_CPU_FREQ_24_API
+ 	driver->cpu_min_freq    = speedstep_low_freq;
+ 	driver->cpu_cur_freq[0] = speed;
+--- linux/arch/i386/kernel/time.c.old	Thu Sep 26 18:35:01 2002
++++ linux/arch/i386/kernel/time.c	Sun Sep 29 15:10:10 2002
+@@ -659,7 +659,7 @@
+ 		}
+ 		for (i=0; i<NR_CPUS; i++)
+ 			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
+-				cpu_data[i].loops_per_jiffy = cpufreq_scale(loops_per_jiffy, freq->old, freq->new);
++				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
+ 		break;
+ 
+ 	case CPUFREQ_POSTCHANGE:
+@@ -670,7 +670,7 @@
+ 		}
+ 		for (i=0; i<NR_CPUS; i++)
+ 			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
+-				cpu_data[i].loops_per_jiffy = cpufreq_scale(loops_per_jiffy, freq->old, freq->new);
++				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
+ 		break;
+ 	}
+ 

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267259AbTBNTfy>; Fri, 14 Feb 2003 14:35:54 -0500
+	id <S267300AbTBNTmA>; Fri, 14 Feb 2003 14:42:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbTBNTfy>; Fri, 14 Feb 2003 14:35:54 -0500
-Received: from almesberger.net ([63.105.73.239]:18190 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267259AbTBNTfx>; Fri, 14 Feb 2003 14:35:53 -0500
-Date: Fri, 14 Feb 2003 16:44:36 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Corey Minyard <cminyard@mvista.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-Message-ID: <20030214164436.H2092@almesberger.net>
-References: <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org> <3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org> <3E4A70EA.4020504@mvista.com> <20030214001310.B2791@almesberger.net> <3E4CFB11.1080209@mvista.com> <20030214151001.F2092@almesberger.net> <3E4D3419.1070207@mvista.com> <Pine.LNX.4.50.0302141420220.3518-100000@montezuma.mastecende.com>
+	id <S267371AbTBNTmA>; Fri, 14 Feb 2003 14:42:00 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43392
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267300AbTBNTl7>; Fri, 14 Feb 2003 14:41:59 -0500
+Subject: Re: 3Com 3cr990 driver release
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Dillow <dillowd@y12.doe.gov>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E4D256E.903F076E@y12.doe.gov>
+References: <3E4C9FAA.FC8A2DC7@y12.doe.gov>
+	 <1045233209.7958.11.camel@irongate.swansea.linux.org.uk>
+	 <3E4D256E.903F076E@y12.doe.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045255922.1854.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302141420220.3518-100000@montezuma.mastecende.com>; from zwane@holomorphy.com on Fri, Feb 14, 2003 at 02:26:38PM -0500
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Feb 2003 20:52:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> I don't think suspending devices is safe at that stage since removing 
-> devices and walking lists and freeing memory and disabling devices and... 
-> kicks up quite a storm.
+On Fri, 2003-02-14 at 17:20, David Dillow wrote:
+> Unfortunately, the only way I can do this right now is to send them as a
+> compressed attachment -- the only avenue I have for hosting is currently
+> experiencing "network difficulties." 
+> 
+> typhoon-driver.patch is the actual driver, and applies to 2.4 and 2.5
+> The other patches put it in the build system, and should apply to recent
+> kernels.
 
-If you *really* don't want to stop devices, you can use the
-"reserved, non-DMA memory" approach, kexec the kernel that
-records the crash dump, and then do a system-wide reset, or
-such.
+Thanks. I speak attachments just fine 8)
 
-But if you don't have that - possibly considerable - amount
-of memory to spare, you don't have much of a choice than to
-stop devices. Of course, crash dumps don't need a neat and
-clean shutdown, so you can avoid all the kfrees, and such.
 
-(So adding a special mode to the power management code may
-be too much overhead. Besides, sometimes, you can just pull
-a reset line, and don't have to do anything even remotely
-related to power management.)
-
-Also, for each device you're using when dumping, you should
-have some means to bring it into a defined state already.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

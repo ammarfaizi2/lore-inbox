@@ -1,45 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVCOWLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVCOWOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVCOWLj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCOWLh
+	id S261935AbVCOWOR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:14:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVCOWNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:11:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30179 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261920AbVCOWLM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:11:12 -0500
-Date: Tue, 15 Mar 2005 23:07:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com
-Subject: Re: rtc misses interrupts after resume
-Message-ID: <20050315220712.GA20974@elf.ucw.cz>
-References: <20050315220031.GD29715@wiggy.net>
+	Tue, 15 Mar 2005 17:13:30 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:20900 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261925AbVCOWLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:11:22 -0500
+Subject: [PATCH] Add missing refrigerator calls
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050315220031.GD29715@wiggy.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 16 Mar 2005 09:12:37 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 15-03-05 23:00:31, Wichert Akkerman wrote:
-> I recently upgraded my laptop to 2.6.11.3 and removed the notsc boot
-> option I added a fairly long time ago to see if things worked properly
-> without it now. It seems to work, except that after a resume I get
-> an awful lot of these messages:
-> 
-> Mar 15 09:53:04 typhoon kernel: rtc: lost some interrupts at 1024Hz.
-> Mar 15 09:53:06 typhoon last message repeated 103 times
-> 
-> and indeed looking at /proc/interrupts interrupt 8 is not getting hit.
+Hi.
 
-Can you add code to free_irq 8 before suspend and reacquire it after
-resume? If it helps then we have some interrupt routing problems...
+There are a number of threads that currently have no refrigerator
+handling in Linus' tree. This patch addresses part of that issue. The
+remainder will be addressed in other patches, following soon.
 
-								Pavel
+Signed-off-by: Nigel Cunningham <ncunningham@cyclades.com>
+
+(Prepared against 2.6.11)
+
+diff -ruNp 213-missing-refrigerator-calls-old/drivers/media/video/msp3400.c 213-missing-refrigerator-calls-new/drivers/media/video/msp3400.c
+--- 213-missing-refrigerator-calls-old/drivers/media/video/msp3400.c	2005-03-16 09:01:17.000000000 +1100
++++ 213-missing-refrigerator-calls-new/drivers/media/video/msp3400.c	2005-03-16 09:01:25.000000000 +1100
+@@ -734,6 +734,7 @@ static int msp34xx_sleep(struct msp3400c
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
++again:
+ 	add_wait_queue(&msp->wq, &wait);
+ 	if (!kthread_should_stop()) {
+ 		if (timeout < 0) {
+@@ -749,9 +750,12 @@ static int msp34xx_sleep(struct msp3400c
+ #endif
+ 		}
+ 	}
+-	if (current->flags & PF_FREEZE)
+-		refrigerator(PF_FREEZE);
++
+ 	remove_wait_queue(&msp->wq, &wait);
++	
++	if (try_to_freeze(PF_FREEZE))
++		goto again;
++
+ 	return msp->restart;
+ }
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/drivers/media/video/tvaudio.c 213-missing-refrigerator-calls-new/drivers/media/video/tvaudio.c
+--- 213-missing-refrigerator-calls-old/drivers/media/video/tvaudio.c	2005-02-03 22:33:29.000000000 +1100
++++ 213-missing-refrigerator-calls-new/drivers/media/video/tvaudio.c	2005-03-11 09:35:15.000000000 +1100
+@@ -286,6 +286,7 @@ static int chip_thread(void *data)
+ 			schedule();
+ 		}
+ 		remove_wait_queue(&chip->wq, &wait);
++		try_to_freeze(PF_FREEZE);
+ 		if (chip->done || signal_pending(current))
+ 			break;
+ 		dprintk("%s: thread wakeup\n", i2c_clientname(&chip->c));
+diff -ruNp 213-missing-refrigerator-calls-old/drivers/mtd/mtd_blkdevs.c 213-missing-refrigerator-calls-new/drivers/mtd/mtd_blkdevs.c
+--- 213-missing-refrigerator-calls-old/drivers/mtd/mtd_blkdevs.c	2004-12-10 14:27:09.000000000 +1100
++++ 213-missing-refrigerator-calls-new/drivers/mtd/mtd_blkdevs.c	2005-03-11 09:35:15.000000000 +1100
+@@ -113,6 +113,8 @@ static int mtd_blktrans_thread(void *arg
+ 			schedule();
+ 			remove_wait_queue(&tr->blkcore_priv->thread_wq, &wait);
+ 
++			try_to_freeze(PF_FREEZE);
++
+ 			spin_lock_irq(rq->queue_lock);
+ 
+ 			continue;
+diff -ruNp 213-missing-refrigerator-calls-old/drivers/pnp/pnpbios/core.c 213-missing-refrigerator-calls-new/drivers/pnp/pnpbios/core.c
+--- 213-missing-refrigerator-calls-old/drivers/pnp/pnpbios/core.c	2005-02-14 09:05:26.000000000 +1100
++++ 213-missing-refrigerator-calls-new/drivers/pnp/pnpbios/core.c	2005-03-11 09:35:15.000000000 +1100
+@@ -180,8 +180,12 @@ static int pnp_dock_thread(void * unused
+ 		 * Poll every 2 seconds
+ 		 */
+ 		msleep_interruptible(2000);
+-		if(signal_pending(current))
++		
++		if(signal_pending(current)) {
++			if (try_to_freeze(PF_FREEZE))
++				continue;
+ 			break;
++		}
+ 
+ 		status = pnp_bios_dock_station_info(&now);
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/fs/afs/kafsasyncd.c 213-missing-refrigerator-calls-new/fs/afs/kafsasyncd.c
+--- 213-missing-refrigerator-calls-old/fs/afs/kafsasyncd.c	2005-02-03 22:33:40.000000000 +1100
++++ 213-missing-refrigerator-calls-new/fs/afs/kafsasyncd.c	2005-03-11 09:35:15.000000000 +1100
+@@ -116,6 +116,8 @@ static int kafsasyncd(void *arg)
+ 		remove_wait_queue(&kafsasyncd_sleepq, &myself);
+ 		set_current_state(TASK_RUNNING);
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* discard pending signals */
+ 		afs_discard_my_signals();
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/fs/afs/kafstimod.c 213-missing-refrigerator-calls-new/fs/afs/kafstimod.c
+--- 213-missing-refrigerator-calls-old/fs/afs/kafstimod.c	2005-02-03 22:33:40.000000000 +1100
++++ 213-missing-refrigerator-calls-new/fs/afs/kafstimod.c	2005-03-11 09:35:15.000000000 +1100
+@@ -91,6 +91,8 @@ static int kafstimod(void *arg)
+ 			complete_and_exit(&kafstimod_dead, 0);
+ 		}
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* discard pending signals */
+ 		afs_discard_my_signals();
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/fs/lockd/clntproc.c 213-missing-refrigerator-calls-new/fs/lockd/clntproc.c
+--- 213-missing-refrigerator-calls-old/fs/lockd/clntproc.c	2004-12-10 14:27:10.000000000 +1100
++++ 213-missing-refrigerator-calls-new/fs/lockd/clntproc.c	2005-03-11 09:35:15.000000000 +1100
+@@ -312,6 +312,7 @@ static int nlm_wait_on_grace(wait_queue_
+ 	prepare_to_wait(queue, &wait, TASK_INTERRUPTIBLE);
+ 	if (!signalled ()) {
+ 		schedule_timeout(NLMCLNT_GRACE_WAIT);
++		try_to_freeze(PF_FREEZE);
+ 		if (!signalled ())
+ 			status = 0;
+ 	}
+diff -ruNp 213-missing-refrigerator-calls-old/kernel/signal.c 213-missing-refrigerator-calls-new/kernel/signal.c
+--- 213-missing-refrigerator-calls-old/kernel/signal.c	2005-03-16 09:01:15.000000000 +1100
++++ 213-missing-refrigerator-calls-new/kernel/signal.c	2005-03-11 09:35:15.000000000 +1100
+@@ -2197,10 +2197,11 @@ sys_rt_sigtimedwait(const sigset_t __use
+ 			sigandsets(&current->blocked, &current->blocked, &these);
+ 			recalc_sigpending();
+ 			spin_unlock_irq(&current->sighand->siglock);
+-
+ 			current->state = TASK_INTERRUPTIBLE;
+ 			timeout = schedule_timeout(timeout);
+-
++			if (current->flags & PF_FREEZE) {
++				refrigerator(PF_FREEZE);
++			}
+ 			spin_lock_irq(&current->sighand->siglock);
+ 			sig = dequeue_signal(current, &these, &info);
+ 			current->blocked = current->real_blocked;
+diff -ruNp 213-missing-refrigerator-calls-old/net/bluetooth/rfcomm/core.c 213-missing-refrigerator-calls-new/net/bluetooth/rfcomm/core.c
+--- 213-missing-refrigerator-calls-old/net/bluetooth/rfcomm/core.c	2005-02-03 22:33:50.000000000 +1100
++++ 213-missing-refrigerator-calls-new/net/bluetooth/rfcomm/core.c	2005-03-11 09:35:15.000000000 +1100
+@@ -1793,6 +1793,8 @@ static void rfcomm_worker(void)
+ 			schedule();
+ 		}
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* Process stuff */
+ 		clear_bit(RFCOMM_SCHED_WAKEUP, &rfcomm_event);
+ 		rfcomm_process_sessions();
+diff -ruNp 213-missing-refrigerator-calls-old/net/rxrpc/krxiod.c 213-missing-refrigerator-calls-new/net/rxrpc/krxiod.c
+--- 213-missing-refrigerator-calls-old/net/rxrpc/krxiod.c	2005-02-03 22:33:53.000000000 +1100
++++ 213-missing-refrigerator-calls-new/net/rxrpc/krxiod.c	2005-03-11 09:35:15.000000000 +1100
+@@ -138,6 +138,8 @@ static int rxrpc_krxiod(void *arg)
+ 
+ 		_debug("### End Work");
+ 
++		try_to_freeze(PF_FREEZE);
++
+                 /* discard pending signals */
+ 		rxrpc_discard_my_signals();
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/net/rxrpc/krxsecd.c 213-missing-refrigerator-calls-new/net/rxrpc/krxsecd.c
+--- 213-missing-refrigerator-calls-old/net/rxrpc/krxsecd.c	2005-02-03 22:33:53.000000000 +1100
++++ 213-missing-refrigerator-calls-new/net/rxrpc/krxsecd.c	2005-03-11 09:35:15.000000000 +1100
+@@ -107,6 +107,8 @@ static int rxrpc_krxsecd(void *arg)
+ 
+ 		_debug("### End Inbound Calls");
+ 
++		try_to_freeze(PF_FREEZE);
++
+                 /* discard pending signals */
+ 		rxrpc_discard_my_signals();
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/net/rxrpc/krxtimod.c 213-missing-refrigerator-calls-new/net/rxrpc/krxtimod.c
+--- 213-missing-refrigerator-calls-old/net/rxrpc/krxtimod.c	2005-02-03 22:33:53.000000000 +1100
++++ 213-missing-refrigerator-calls-new/net/rxrpc/krxtimod.c	2005-03-11 09:35:15.000000000 +1100
+@@ -90,6 +90,8 @@ static int krxtimod(void *arg)
+ 			complete_and_exit(&krxtimod_dead, 0);
+ 		}
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* discard pending signals */
+ 		rxrpc_discard_my_signals();
+ 
+diff -ruNp 213-missing-refrigerator-calls-old/net/sunrpc/svcsock.c 213-missing-refrigerator-calls-new/net/sunrpc/svcsock.c
+--- 213-missing-refrigerator-calls-old/net/sunrpc/svcsock.c	2005-02-03 22:33:53.000000000 +1100
++++ 213-missing-refrigerator-calls-new/net/sunrpc/svcsock.c	2005-03-11 09:35:15.000000000 +1100
+@@ -1186,6 +1186,7 @@ svc_recv(struct svc_serv *serv, struct s
+ 	arg->len = (pages-1)*PAGE_SIZE;
+ 	arg->tail[0].iov_len = 0;
+ 	
++	try_to_freeze(PF_FREEZE);
+ 	if (signalled())
+ 		return -EINTR;
+ 
+
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+

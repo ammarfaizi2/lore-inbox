@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbSLMBl4>; Thu, 12 Dec 2002 20:41:56 -0500
+	id <S267589AbSLMBuY>; Thu, 12 Dec 2002 20:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267596AbSLMBl4>; Thu, 12 Dec 2002 20:41:56 -0500
-Received: from sneakemail.com ([207.106.87.13]:61605 "HELO
-	monkey.sneakemail.com") by vger.kernel.org with SMTP
-	id <S267595AbSLMBly>; Thu, 12 Dec 2002 20:41:54 -0500
-Message-ID: <5095-51149@sneakemail.com>
+	id <S267590AbSLMBuY>; Thu, 12 Dec 2002 20:50:24 -0500
+Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:16 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S267589AbSLMBuX>; Thu, 12 Dec 2002 20:50:23 -0500
+Message-ID: <3DF93D89.3000704@ixiacom.com>
+Date: Thu, 12 Dec 2002 17:53:13 -0800
+From: Dan Kegel <dkegel@ixiacom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Linux/alpha vs. 2.4.20 and ISO9660 vs long file names
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 12 Dec 2002 17:49:42 -0800
-From: "Stephen Williams" <zhig9f05jg02@sneakemail.com>
+Subject: procps 2.x vs. procps 3.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is an alpha-specific problem, but I am having
-some troubles with the off-the-shelf 2.4.20 kernel on a RedHat 7.2
-system (upgraded from 7.1).
+Albert Cahalan wrote in message "[ANNOUNCE] procps 3.1.3":
+> This release includes user selection in top, the sysctl -e
+> option needed to support the Red Hat 8.0 boot scripts, and
+> the use of /proc/*/wchan on recent 2.5.xx kernels.
+> 
+> For those of you still upgrading from procps 2.0.xx releases,
+> you can expect:
+ > ...
+> There's a procps-feedback@lists.sf.net mailing list you can
+> use for feature requests, bug reports, and so on. Use it!
 
-For some reason, ls is having trouble with long file names on the
-disk. I follow with strace, and getdents64 is returning the right
-number of entries, but then ls tries to lstat a truncated name.
-I can't say of the getdirent64 is trundating the name, but it seems
-likely.
+and
 
-The ls program itself is likely fine because I don't see this
-problem when running 2.4.18. Also, other programs that get directory
-listings have troubles with the longer file names on ISO CDROMS.
-Furthermore, shorter file names (still longer then 8 characters)
-work fine.
+Robert Love wrote in message "[announce] procps 2.0.11":
+> Rik and I are pleased to announce version 2.0.11 of procps, the package
+> that contains ps, top, free, vmstat, etc.
+> 
+> Newer versions of procps are required for 2.5 kernels.
+ > ...
+> 
+> Procps discussion, bugs, and patches are welcome at:
+> 	procps-list@redhat.com
 
-P.S. I'm not subscribed to the list. Please CC me.
+Which one should distributions use?
+Or is that a matter of taste?
 
--- 
-Steve Williams                "The woods are lovely, dark and deep.
-steve at icarus.com           But I have promises to keep,
-steve at picturel.com         and lines to code before I sleep,
-http://www.picturel.com       And lines to code before I sleep."
+- Dan
+
+
+
+
 
 

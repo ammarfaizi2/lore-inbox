@@ -1,26 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVA0Ivw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbVA0JAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVA0Ivw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 03:51:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVA0Ivw
+	id S262510AbVA0JAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 04:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVA0JAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 03:51:52 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25283 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262527AbVA0Ivu (ORCPT
+	Thu, 27 Jan 2005 04:00:35 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:56772 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262510AbVA0JAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 03:51:50 -0500
-Date: Thu, 27 Jan 2005 09:51:20 +0100
+	Thu, 27 Jan 2005 04:00:30 -0500
+Date: Thu, 27 Jan 2005 09:59:47 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Cal <hihone@bigpond.net.au>
-Cc: "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>, Mike Galbraith <efault@gmx.de>
-Subject: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D8
-Message-ID: <20050127085120.GF22482@elte.hu>
-References: <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au> <20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au> <87acqwnnx1.fsf@sulphur.joq.us> <41F7DA1B.5060806@bigpond.net.au> <87vf9km31j.fsf@sulphur.joq.us> <41F84BDF.3000506@bigpond.net.au>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050127085947.GA24801@elte.hu>
+References: <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <1106805249.5158.77.camel@npiggin-nld.site> <20050127083506.GD22482@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F84BDF.3000506@bigpond.net.au>
+In-Reply-To: <20050127083506.GD22482@elte.hu>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,18 +37,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Cal <hihone@bigpond.net.au> wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> Sorry for the delay, some sleep required. A build without SMP also 
-> fails, with multiple oops.
->   <http://www.graggrag.com/200501271213-oops/>.
+> negative nice levels are a guaranteed way to monopolize the CPU. 
+> SCHED_FIFO with throttling could at most be used to 'steal' CPU time
+> up to the threshold. Also, if a task 'runs away' in SCHED_FIFO mode it
+> will be efficiently throttled. While if it 'runs away' in nice--20
+> mode, it will take away 95+% of the CPU time quite agressively.
+> Furthermore, more nice--20 tasks will do much more damage (try thunk.c
+> at nice--20!), while more throttled SCHED_FIFO tasks only do damage to
+> their own class - the guaranteed share of SCHED_OTHER tasks (and
+> privileged RT tasks) is not affected.
 
-thanks, this pinpointed the bug - i've uploaded the -D8 patch to the
-usual place:
-
-  http://redhat.com/~mingo/rt-limit-patches/
-
-does it fix your crash? Mike Galbraith reported a crash too that i think
-could be the same one.
+furthermore, the current way of throttling SCHED_FIFO tasks that violate
+the limit makes it less likely that application writers would abuse the
+feature with CPU-intensive apps, because _if_ you violate the limit then
+the penalty is high. E.g. a blatant violation of the limit via a pure
+CPU loop ends up getting much less CPU time than even the limit would
+allow for. For audio/RT apps this is fine, because they must plan their
+CPU overhead anyway so they are a much more controlled environment and
+just do things properly to avoid the penalty.
 
 	Ingo

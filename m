@@ -1,89 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317692AbSFLNF7>; Wed, 12 Jun 2002 09:05:59 -0400
+	id <S317699AbSFLNWv>; Wed, 12 Jun 2002 09:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317697AbSFLNF6>; Wed, 12 Jun 2002 09:05:58 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:11434 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S317692AbSFLNF6>;
-	Wed, 12 Jun 2002 09:05:58 -0400
-Date: Wed, 12 Jun 2002 09:00:08 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Lincoln Dale <ltd@cisco.com>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "David S. Miller" <davem@redhat.com>,
-        Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-Subject: Re: RFC: per-socket statistics on received/dropped packets 
-In-Reply-To: <5.1.0.14.2.20020612224038.0251bd08@mira-sjcm-3.cisco.com>
-Message-ID: <Pine.GSO.4.30.0206120853320.799-100000@shell.cyberus.ca>
+	id <S317700AbSFLNWu>; Wed, 12 Jun 2002 09:22:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:16903 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317699AbSFLNWu>;
+	Wed, 12 Jun 2002 09:22:50 -0400
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, TRIVIAL] Fix argument of BLKGETSIZE64
+In-Reply-To: <15622.54728.469214.307901@wombat.chubb.wattle.id.au>
+	<E17I0sl-0004y0-00@wagner.rustcorp.com.au>
+	<15623.11051.890868.154587@wombat.chubb.wattle.id.au>
+X-Yow: I'm EXCITED!!  I want a FLANK STEAK WEEK-END!!  I think I'm JULIA
+ CHILD!!
+From: Andreas Schwab <schwab@suse.de>
+Date: Wed, 12 Jun 2002 15:22:48 +0200
+Message-ID: <jey9dkhbrr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.3.50 (ia64-suse-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Chubb <peter@chubb.wattle.id.au> writes:
 
+|> You could argue that this is a glibc bug.  But the way that glibc
+|> generates the include/linux headers is just to copy them from some
+|> kernel tree or other, with a little mangling on the side.
 
-On Wed, 12 Jun 2002, Lincoln Dale wrote:
+Glibc does not do anything with the kernel headers besides using some of
+them.  Especially it does not generate any of them.  The fact that the
+distributions usually pack the kernel headers together with the glibc
+headers does not mean that the kernel headers belong to glibc.
 
-> At 08:33 AM 12/06/2002 -0400, jamal wrote:
-> > > i know of many many folk who use transaction logs from HTTP caches for
-> > > volume-based billing.
-> > > right now, those bills are anywhere between 10% to 25% incorrect.
-> > >
-> > > you call that "extremely limited"?
-> >
-> >Surely, you must have better ways to do accounting than this -- otherwise
-> >you deserve to loose money.
->
-> many people don't have better ways to do accounting than this.
->
+Andreas.
 
-Then they dont care about loosing money.
-There's nothing _more important_ to a service provider than ability to do
-proper billing. Otherwise, they are a charity organization.
-
-> in the case of Squid and Linux, they're typically using it because its
-> open-source and "free".
-
-I am hoping you didnt mean to say squid was only good because it has
-these perks.
-
->
-> they want to use HTTP Caching to save bandwidth (and therefore save money),
-> but they also live in a regime of volume-based billing.  (not everywhere on
-> the planet is fixed-$/month for DSL).
->
-> the unfortunate solution is to use HTTP Transaction logs, which count
-> payload at layer-7, not payload+headers+retransmissions at layer-3.
->
-
-Look at your own employers eqpt if you want to do this right.
-And then search around freshmeat so you dont reinvent the wheel.
-
-> > > of course, i am doing exactly what Dave said to do -- maintaining my own
-> > > out-of-kernel patch -- but its a pain, i'm sure it will soon conflict with
-> > > stuff and is a damn shame - it isn't much code, but Dave seems pretty
-> > > steadfast that he isn't interested.
-> >
-> >You havent proven why its needed. And from the looks of it you dont even
-> >need it.
->
-> i don't need it because i already have it in my kernel.
-> but thats where it ends -- its destined to forever be a private patch.
->
-
-And until you prove it is worth it and useful to other people then
-forever thats where it belongs. I now of nobody serious about billing
-who is using sockets stats as the transaction point.
-
-> >If 3 people need it, then i would like to ask we add lawn mower
-> >support that my relatives have been asking for the last 5 years.
->
-> lawn-mower support sounds like a userspace application to me.
->
-
-But we need a new system call support
-
-cheers,
-jamal
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

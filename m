@@ -1,67 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273089AbRIIWxJ>; Sun, 9 Sep 2001 18:53:09 -0400
+	id <S273093AbRIIX2w>; Sun, 9 Sep 2001 19:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273090AbRIIWw7>; Sun, 9 Sep 2001 18:52:59 -0400
-Received: from blount.mail.mindspring.net ([207.69.200.226]:47926 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S273089AbRIIWwq>; Sun, 9 Sep 2001 18:52:46 -0400
-Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
-From: Robert Love <rml@tech9.net>
-To: psusi@cfl.rr.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
-Date: 09 Sep 2001 18:53:34 -0400
-Message-Id: <1000076015.18039.1.camel@phantasy>
-Mime-Version: 1.0
+	id <S273094AbRIIX2n>; Sun, 9 Sep 2001 19:28:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43277 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273093AbRIIX21>; Sun, 9 Sep 2001 19:28:27 -0400
+Date: Sun, 9 Sep 2001 16:24:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <20010909191317Z16475-26183+635@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0109091615570.22033-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-09-09 at 14:21, Phillip Susi wrote:
-> P.S.  I'd like to use a user mode daemon to detect disk idle, and issue the 
-> existing ioctl code to spin the disk down, and rely on the kernel to spin it 
-> back up as needed.  Isn't there somewhere in /proc that keeps IO counters on 
-> the disk I can monitor?  Also, is there a way I could ask the kernel to not 
-> flush dirty pages to disk unless it gets a whole lot of them so the disk 
-> won't be spun up all the time just to write a few KB?
 
-You can change the behavior of how dirty pages are flushed using
-/proc/bdflush.
+On Sun, 9 Sep 2001, Daniel Phillips wrote:
+>
+> Needed for basic IO functionality:
+>         atomic_t b_count;               /* users using this block */
+>         unsigned long b_state;          /* buffer state bitmap (see above) */
+>         unsigned long b_blocknr;        /* block number */
+>         unsigned long b_flushtime;      /* Time when (dirty) buffer should be written */
+>         struct page *b_page;            /* the page this bh is mapped to */
+>         struct buffer_head *b_reqnext;  /* request queue */
+>         wait_queue_head_t b_wait;
+>
+> Can get from mapping:
+>         unsigned short b_size;          /* block size */
 
-[18:41:55]rml@phantasy:/proc/sys/vm# cat bdflush 
-30	64	64	256	500	3000	60	0	0
+No.
 
-Of these 9 parameters, you probably care about the first and sixth.  The
-first is percent of buffer full before bdflush kicks in and starts
-flushing.  Setting this to 60% is fine, and will work towards your aim.
+Don't fall into the trap of thinking that blocksizes are constant for a
+mapping.
 
-Note that, Documentation/sysctl/vm.txt is outdated (I will send a patch
-off...) this is the correct values of the fields on bdflush:
+Yes, they are _right_now_, if only because of limitations of the old
+buffer cache. But it's very very wrong to think you can get the buffer
+size from the mapping.
 
-union bdflush_param {
-	struct {
-		int nfract;	/* Percentage of buffer cache dirty to 
-				   activate bdflush */
-		int dummy1;	/* old "ndirty" */
-		int dummy2;	/* old "nrefill" */
-		int dummy3;	/* unused */
-		int interval;	/* jiffies delay between kupdate flushes */
-		int age_buffer;	/* Time for normal buffer to age before we flush it */
-		int nfract_sync;/* Percentage of buffer cache dirty to 
-				   activate bdflush synchronously */
-		int dummy4;	/* unused */
-		int dummy5;	/* unused */
-	} b_un;
-	unsigned int data[N_PARAM];
-} bdf_prm = {{30, 64, 64, 256, 5*HZ, 30*HZ, 60, 0, 0}};
+Besides - we want to be able to do IO _without_ any mappings at all. The
+"iobuf" thing should be completely mapping-independent, in case somebody
+wants to just do raw IO.
 
-Finally, I like your idea.  I have an all SCSI system and would like my
-disks to spin down. Good luck.
+Which means that these two:
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+>         kdev_t b_dev;                   /* device (B_FREE = free) */
+>         void (*b_end_io)(struct buffer_head *bh, int uptodate); /* I/O completion */
+
+also have to be in the iobuf anyway, quite regardless of any other issues.
+
+> Could possibly get rid of (with a page cache mapping):
+>         struct buffer_head *b_next;     /* Hash queue list */
+>         struct buffer_head **b_pprev;   /* doubly linked list of hash-queue */
+
+Absolutely.
+
+> Used by raid, loop and highmem, could move to request struct:
+>         void *b_private;                /* reserved for b_end_io */
+
+No. We only have one request struct, and we can have hundreds of buffers
+associated with it. This is very much a iobuf thing.
+
+> Should die:
+>         kdev_t b_rdev;                  /* Real device */
+>         unsigned long b_rsector;        /* Real buffer location on disk */
+
+No - these are what all the indirect IO code uses.
+
+
+>         struct buffer_head *b_next_free;/* lru/free list linkage */
+>         struct buffer_head *b_prev_free;/* doubly linked list of buffers */
+
+Right now we keep the dirty list in these. We should drop it eventually,
+and just every time we mark a buffer dirty we also mark the page dirty,
+and then we use the _real_ dirty lists (which are nicely per-inode etc).
+
+> > Maybe we could do without bh->b_count, but it is at least
+> > currently required for backwards compatibility with all the code that
+> > thinks buffer heads are autonomous entities. But I actually suspect it
+> > makes a lot of sense even for a stand-alone IO entity (I'm a firm believer
+> > in reference counting as a way to avoid memory management trouble).
+>
+> Maybe.  We might be able to tell from the state flags and the page use count
+> that the buffer head is really freeable.
+
+I doubt it. Almost all data structures that are reachable many ways need
+to have a _count_.
+
+People who think that locking is a way of "pinning" data structures are
+invariably wrong, stupid, and need to get spanked. Reference counts rule.
+
+> > Dan, how much of this do you have?
+>
+> Working code?  Just the page cache version of ext2_getblk in the directory
+> indexing patch.
+
+Which is probably fine - we could replace the existing getblk with it, and
+do only minor fixups. Maybe.
+
+> One observation: the buffer hash link is currently unused for page cache
+> buffers.  We could possibly use that for reverse mapping from logical inode
+> blocks to physical device blocks, to combat aliasing.
+
+That still assumes that we have to look them up, which I'd rather avoid.
+Also, I'd rather get rid of the buffer hash link completely, instead of
+making it more confusing..
+
+>						  A spin-off benefit
+> is, the same mechanism could be used to implement a physical readahead
+> cache which can do things that logical readahead can't.
+
+Considering that 99.9% of all disks do this on a lower hardware layer
+anyway, I very much doubt it has any good properties to make software more
+complex by having that kind of readahead in sw.
+
+		Linus
 

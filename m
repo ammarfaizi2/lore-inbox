@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbTELA3E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 20:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTELA3D
+	id S261678AbTELAfC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 20:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTELAfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 20:29:03 -0400
-Received: from ns.indranet.co.nz ([210.54.239.210]:50135 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S261562AbTELA3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 20:29:01 -0400
-Date: Mon, 12 May 2003 12:41:28 +1200
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Valdis.Kletnieks@vt.edu
-cc: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100 
-Message-ID: <854719.1052743288@[192.168.1.249]>
-In-Reply-To: <200305112048.h4BKmdkc006140@turing-police.cc.vt.edu>
-References: <1405.1052575075@www9.gmx.net>           
- <3191078.1052695705@[192.168.1.249]>
- <200305112048.h4BKmdkc006140@turing-police.cc.vt.edu>
-X-Mailer: Mulberry/3.0.0 (Win32)
+	Sun, 11 May 2003 20:35:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17121 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261678AbTELAfA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 20:35:00 -0400
+Message-ID: <3EBEEF38.1070008@pobox.com>
+Date: Sun, 11 May 2003 20:47:52 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: eth0: Too much work in interrupt, status e401
+References: <1052699512.662.3.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1052699512.662.3.camel@teapot.felipe-alfaro.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felipe Alfaro Solana wrote:
+> Hi!
+> 
+> I'm having severe hardlocks with 2.5.69-mm3 when mounting an NFS volume
+> from one of my NFS servers. I think this is related to iptables, but
+> while investigating, I found the following messages on my dmesg ring:
+> 
+> spurious 8259A interrupt: IRQ7.
+> eth0: Setting full-duplex based on MII #0 link partner capability of
+> 01e1.
+> eth0: Transmit error, Tx status register 90.
 
 
---On Sunday, 11 May 2003 4:48 p.m. -0400 Valdis.Kletnieks@vt.edu wrote:
+Check out REPORTING-BUGS file in the kernel source code.  It describes 
+the information we find useful in bug reports.  In particularly, you did 
+not give us any information on your network hardware (network card, and 
+what it is connected to) or what drivers you have loaded.
 
-> On Sun, 11 May 2003 23:28:25 +1200, Andrew McGregor
-> <andrew@indranet.co.nz>  said:
->
->> cpufreq and speedstep don't work on Dell P3 laptops anyway, and the
->> *internal power supplies* of the i8x00 series make wierd noises when APM
->> tries to idle the CPU.  The board will do this anyway, without making
->> noise, so linux need not.
->
-> Dell Latitude C840 (1.6G Pentium4 Mobile) has the "power supplies buzz at
-> 1Khz on APM idle" symptom too. I haven't checked the ACPI side of the
-> fence yet, nor have I gotten brave enough to try the cpufreq and
-> speedstep stuff.
+	Jeff
 
-AFAIK Speedstep should always work on P4M systems, so it's worth a try.
 
->
-> Even *more* bizarre, there's "something odd" done by the seti@home client
-> (which usually causes 100% CPU use and thus silence) several minutes into
-> a workunit that causes  the noise to change frequencies - it will start
-> down around 500hz, sweep up to 1Khz (taking about 2 seconds to do so),
-> and repeat (so the buzzing is exhibiting a sawtooth wave).  I'm not
-> seeing any paging or swapping or I/O, so I'm wondering if it's some code
-> walking through a large array with strides 1/2/4/8/16 (like an FFT)
-> causing different cache hit ratios, and thus different power consumption
-> patterns while it's stuck on a L1/L2 cache miss.....
->
 
-That's pretty bizzarre, I agree :-)
-
-Probably it's an autocorrelation with a sliding offset.  I'd guess that the 
-reason the buzz starts at 500Hz and sweeps up is that if the frequency is 
-below 500Hz you don't hear it.  Maybe the RAM starts sucking more power as 
-the cache hit ratio drops...
-
-Andrew

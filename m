@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271823AbTHDPpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 11:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271824AbTHDPpe
+	id S271824AbTHDPrN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 11:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271827AbTHDPrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 11:45:34 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10880 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S271823AbTHDPpd
+	Mon, 4 Aug 2003 11:47:13 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:41923
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S271824AbTHDPrJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 11:45:33 -0400
-Date: Mon, 4 Aug 2003 11:57:05 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Jesse Pollard <jesse@cats-chateau.net>, aebr@win.tue.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-In-Reply-To: <20030804170506.11426617.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.53.0308041142520.802@chaos>
-References: <20030804141548.5060b9db.skraw@ithnet.com> <20030804134415.GA4454@win.tue.nl>
- <20030804155604.2cdb96e7.skraw@ithnet.com> <03080409334500.03650@tabby>
- <20030804170506.11426617.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Aug 2003 11:47:09 -0400
+Date: Mon, 4 Aug 2003 11:47:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: David McBride <dwm99@doc.ic.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of ICH5-R SATA RAID support?
+Message-ID: <20030804154708.GA26775@gtf.org>
+References: <Pine.LNX.4.50.0308041446580.17591-100000@texel27.doc.ic.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0308041446580.17591-100000@texel27.doc.ic.ac.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003, Stephan von Krawczynski wrote:
+On Mon, Aug 04, 2003 at 03:19:59PM +0100, David McBride wrote:
+> Howdy,
+> 
+> Intel's ICH5-R chipset, as found on their D875PBZ motherboard, supports
+> RAID-striping of SATA disks.
+> 
+> I've scoured the list archives and can't find any mention, for or
+> against, for support of this feature -- Jeff Garzik's libata patchkit,
+> although significant, doesn't appear to provide striping support.
+> 
+> Am I correct in thinking that there isn't any working striping support
+> at the moment -- and if so, is anyone working on an implementation?
+> If not, it might be fun to try and write support for it myself..
 
-> On Mon, 4 Aug 2003 09:33:44 -0500
-> Jesse Pollard <jesse@cats-chateau.net> wrote:
->
-> > Find for one. Any application that must scan the tree in a search. Any
-> > application that must backup every file for another (I know, dump bypasses
-> > the filesystem to make backups, tar doesn't).
->
-> All that can handle symlinks already have the same problem nowadays. Where is
-> the difference? And yet again: it is no _must_ for the feature to use it for
-> creating complete loops inside your fs.
-> You _can_ as well dd if=/dev/zero of=/dev/hda, but of course you shouldn't.
-> Have you therefore deleted dd from your bin ?
->
-> > It introduces too many unique problems to be easily handled. That is why
-> > symbolic links actually work. Symbolic links are not hard links, therefore
-> > they are not processed as part of the tree. and do not cause loops.
->
-> tar --dereference loops on symlinks _today_, to name an example.
-> All you have to do is to provide a way to find out if a directory is a
-> hardlink, nothing more. And that should be easy.
->
-[SNIPPED...]
 
-Reading Denis Howe's  Free Online Dictionary of Computing;
-http://burks.bton.ac.uk/burks/foldoc/55/51.html, we see that
-the chief reason for no directory hard-links is that `rm`
-and `rmdir` won't allow you to delete them. There is no
-POSIX requirement for eliminating them, and it is possible
-"Some systems provide link and unlink commands which give
-direct access to the system calls of the same name, for
-which no such restrictions apply."
+It's entirely software RAID, and as much, doesn't offer anything over
+existing Linux software RAID ("md" driver).
 
-Perhaps Linux does support hard-links to directories?
+I'm sure someone will eventually support it, but since Linux software
+RAID works just fine, right now, in production, there is little
+motivation to create yet another vendor-proprietary software RAID.
 
-mkdir("foo", 0644)                      = 0
-link("foo", "bar")                      = -1 EPERM (Operation not permitted)
-_exit(0)                                = ?
+	Jeff
 
-Nah... No such luck. I'll bet it's artificial. I think you
-could remove that S_IFDIR check and get away with it!
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+
 

@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbTEESoc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbTEESob
+	id S261227AbTEESnu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbTEESnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:44:31 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8151 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261233AbTEESoW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:44:22 -0400
-Date: Mon, 5 May 2003 20:56:19 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 654] New: Floppy access locks system with endless stream
- of errors
-In-Reply-To: <Pine.SOL.4.30.0305051932070.27113-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.SOL.4.30.0305052053220.27113-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 May 2003 14:43:49 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:21122 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261227AbTEESns (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:43:48 -0400
+Message-Id: <200305051856.h45IuFJC004011@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Timothy Miller <miller@techsource.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: will be able to load new kernel without restarting? 
+In-Reply-To: Your message of "Mon, 05 May 2003 14:49:15 EDT."
+             <3EB6B22B.7090009@techsource.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <freemail.20030403212422.18231@fm9.freemail.hu> <20030503205656.GA19352@middle.of.nowhere> <200305032252.h43Mq7X9006633@turing-police.cc.vt.edu>
+            <3EB6B22B.7090009@techsource.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1868142314P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 05 May 2003 14:56:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1868142314P
+Content-Type: text/plain; charset=us-ascii
 
-Okay, this one is fixed but people keep reporting there is more
-to be done. So floppy still is not 2.6 ready.
+On Mon, 05 May 2003 14:49:15 EDT, Timothy Miller said:
 
-On Mon, 5 May 2003, Bartlomiej Zolnierkiewicz wrote:
+> The only major issue is that the data structures used to manage 
+> processes would be different from one scheduler to the next.  One 
+> possible answer would be to have an unloading driver translate all of 
+> its process information into the default scheduler's format.  A newly 
+> loaded one would translate it to its own format.  Things that would be 
+> lost in the translation include interactivity information, etc.
 
-> Fixed in 2.5.69
->
-> On Mon, 5 May 2003, Martin J. Bligh wrote:
->
-> > http://bugme.osdl.org/show_bug.cgi?id=654
-> >
-> >            Summary: Floppy access locks system with endless stream of errors
-> >     Kernel Version: 2.5.68-bk11
-> >             Status: NEW
-> >           Severity: high
-> >              Owner: bugme-janitors@lists.osdl.org
-> >          Submitter: bwindle-kbt@fint.org
-> >
-> >
-> > Distribution: Debian Testing
-> > Hardware Environment: Dell Optiplex GXa
-> > Problem Description:
-> >
-> > Trying to mount a floppy gives an endless stream of:
-> > floppy0: disk absent or changed during operation
-> > end_request: I/O error, dev fd0, sector 0
-> > floppy0: disk absent or changed during operation
-> > end_request: I/O error, dev fd0, sector 0
-> > floppy0: disk absent or changed during operation
-> > end_request: I/O error, dev fd0, sector 0
-> >
-> > The system is non-responsive to changes to VTs, it can't be pinged, but
-> > alt+sysrq prints "SysRq: Show State" but never prints anything beyond that
-> > (but  changing LogLevel via Sysrq works).
-> >
-> > Ctrl+alt+delete has no effect, numlock won't turn on/off numlock light.
-> >
-> > Steps to reproduce:
-> > Insert floppy, try to mount it.
+We just had a similar battle regarding LSM extended attributes on files,
+the biggest problem being what a module should do if it doesn't understand
+the formats and semantics of the previous module...
 
+It's certainly *doable* - the telcos have been doing this since whichever
+of the SSn systems was first programmable rather than hardwire logic.  The
+big question is whether it will still look like Linux if you implement it.
+
+
+--==_Exmh_-1868142314P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+trPOcC3lWbTT17ARAlSGAJ9Da+YXyc0/6nGXwFV9TU53p4zEUQCg0Egb
+zWE/lR35Br9mdu2xVJ0Ykus=
+=ByWL
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1868142314P--

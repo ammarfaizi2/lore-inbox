@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285944AbRLTD0n>; Wed, 19 Dec 2001 22:26:43 -0500
+	id <S285940AbRLTDXD>; Wed, 19 Dec 2001 22:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285959AbRLTD0h>; Wed, 19 Dec 2001 22:26:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64004 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S285944AbRLTD0U>;
-	Wed, 19 Dec 2001 22:26:20 -0500
-Date: Thu, 20 Dec 2001 01:23:39 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: SteveW@ACM.org, jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
-        dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [PATCH][RFC 3] cleaning up struct sock
-Message-ID: <20011220012339.A919@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, SteveW@ACM.org,
-	jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
-	dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011218033552.B910@conectiva.com.br> <20011217.225134.91313099.davem@redhat.com> <20011218185200.A1211@conectiva.com.br> <20011218.130809.22018359.davem@redhat.com> <20011218232222.A1963@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011218232222.A1963@conectiva.com.br>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S285937AbRLTDWz>; Wed, 19 Dec 2001 22:22:55 -0500
+Received: from svr3.applink.net ([206.50.88.3]:57099 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S285940AbRLTDWn>;
+	Wed, 19 Dec 2001 22:22:43 -0500
+Message-Id: <200112200322.fBK3MVSr013812@svr3.applink.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Jean-Francois Levesque <jfl@jfworld.net>
+Subject: Re: UDMA problem with Maxtor 7200rpm disk
+Date: Wed, 19 Dec 2001 21:18:51 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net> <20011219203804.4c68f1ee.jfl@jfworld.net> <20011219214341.66b6b83e.jfl@jfworld.net>
+In-Reply-To: <20011219214341.66b6b83e.jfl@jfworld.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, patch for 2.5.1, without the bogus cvs $id strings hunks, being used
-in this machine now.
+On Wednesday 19 December 2001 20:43, Jean-Francois Levesque wrote:
+> I tried the 2.4.17-rc2 kernel and I was able to boot. (but I'm not with
+> 2.4.9, 2.4.12-ac5 and 2.4.16)
+>
+> Unfortunately, when I try hdparm -d1 /dev/hda, I get the same errors
+>
+> hda: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: DMA disabled
+> ide0: reset: success
+>
+>
+> What can influence the DMA on the BIOS else than the disk configuration?
+>
+> I always get this PCI bus warning :
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+>
+> Maybe I have somthing wrong with PCI bus that change everything???
+>
+> Jean-François
+>
+> PS: I have the lastest asus BIOS update (1003).
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Available at:
 
-http://www.kernel.org/pub/linux/kernel/people/acme/v2.5/2.5.1/
-sock.cleanup-2.5.1.patch.bz2
+Three things occur to me:
 
-Ah, the lat_unix_connect results on a pentium 300 mmx notebook:
+1. I had a Maxtor disk (of many good ones) which died one month
+before its warranty ran out.  I just sent it back to Maxtor for a replacement.
 
-2.5.1 + this patch
-UNIX connection cost : 96.1749 microseconds
-UNIX connection cost : 96.3361 microseconds
-UNIX connection cost : 97.2310 microseconds
-UNIX connection cost : 101.9180 microseconds
-UNIX connection cost : 97.2461 microseconds
+2. The PCI bus runs at 33 MHz unless, 
+	a) You have a server running at 66 MHz
+	b) You overclock your system.
 
-2.4.16 pristine
-UNIX connection cost : 112.7034 microseconds
-UNIX connection cost : 114.5494 microseconds
-UNIX connection cost : 114.0923 microseconds
-UNIX connection cost : 111.0959 microseconds
-UNIX connection cost : 120.8419 microseconds
+3. From your earlier post, I wasn't sure  if you understood PIO/DMA.
+Original disks used Programmed Input/Output to increase throughput.
+PIO Modes increase from 1 to 2 to 3 to 4.  And them the Direct Memory
+Access method gained acceptance and resulted in better throughput.
+DMA2 is good, DMA4 is great and DMA5 is the best of the best as
+of today.
 
-And about 100 KB of kernel memory saved for AF_UNIX sockets on a basic KDE
-session (i.e., the AF_UNIX struct sock now is about 400 bytes when it is about
-1200 bytes on a pristine kernel).
 
-- Arnaldo
+Just my $0.02.
+
+-- 
+timothy.covell@ashavan.org.

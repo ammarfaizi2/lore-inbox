@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbUKBPK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbUKBPK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbUKBPK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 10:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbUKBPJ7
+	id S261264AbUKBPK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 10:10:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbUKBN5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 10:09:59 -0500
-Received: from alog0507.analogic.com ([208.224.223.44]:2944 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261233AbUKBPFQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 10:05:16 -0500
-Date: Tue, 2 Nov 2004 10:02:47 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Andreas Steinmetz <ast@domdv.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-In-Reply-To: <Pine.LNX.4.58.0411011342090.28839@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0411020935010.3495@chaos.analogic.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
- <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
-  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
- <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
- <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
- <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
- <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
- <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
- <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
- <Pine.LNX.4.61.0410291424180.4870@chaos.analogic.com>
- <Pine.LNX.4.58.0410291209170.28839@ppc970.osdl.org>
- <Pine.LNX.4.61.0410312024150.19538@chaos.analogic.com>
- <Pine.LNX.4.61.0411011219200.8483@twinlark.arctic.org>
- <Pine.LNX.4.61.0411011542430.24533@chaos.analogic.com>
- <Pine.LNX.4.58.0411011327400.28839@ppc970.osdl.org>
- <Pine.LNX.4.58.0411011342090.28839@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 2 Nov 2004 08:57:30 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:25770 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262089AbUKBNKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 08:10:00 -0500
+Date: Tue, 2 Nov 2004 14:11:05 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] optional non-interactive mode for cpu scheduler
+Message-ID: <20041102131105.GA17535@elte.hu>
+References: <41871BA7.6070300@kolivas.org> <20041102125218.GH15290@elte.hu> <4187854C.6000803@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4187854C.6000803@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Linus,
+* Con Kolivas <kernel@kolivas.org> wrote:
 
-The patch you provided patched without any rejects. However,
-the system won't boot. It will not even get to
-  "Uncompressing Linux". After the GRUB loader sign-on,
-the interrupts just remain disabled (no caps-lock or num-lock
-change on the keyboard).
+> However the non-interactive mode addresses a number of different needs 
+> that seem to have come up. Specifically:
+> I have had users report great success with such a mode on my own 
+> scheduler in multiple X session setups where very choppy behaviour 
+> occurs in mainline.
 
-I patched Linux-2.6.9. Could you please review your patch?
-I will await the possibility of a simple typo that I can
-fix by hand before reverting.
+since SCHED_CPUBOUND would be inherited across fork(), it should be
+rather easy to start an X session with all tasks as SCHED_CPUBOUND.
 
+but i think the above rather points in the direction of some genuine
+weakness in the interactivity code (i know, for which the fix is
+staircase ;) which would be nice to debug.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+> Many high performance computing people do not wish interactivity code
+> modifying their choice of latency/distribution - admittedly this is a
+> soft one.
+
+well, SCHED_CPUBOUND would solve their needs too, right?
+
+	Ingo

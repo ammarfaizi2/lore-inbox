@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286866AbRL1MZY>; Fri, 28 Dec 2001 07:25:24 -0500
+	id <S286860AbRL1MMx>; Fri, 28 Dec 2001 07:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286867AbRL1MZO>; Fri, 28 Dec 2001 07:25:14 -0500
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:61480 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S286866AbRL1MY5>; Fri, 28 Dec 2001 07:24:57 -0500
-Date: Fri, 28 Dec 2001 07:26:13 -0500 (EST)
-From: rpjday <rpjday@mindspring.com>
-X-X-Sender: <rpjday@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: bug reports for CML2?
-In-Reply-To: <20011228121228.GA9920@emma1.emma.line.org>
-Message-ID: <Pine.LNX.4.33.0112280724180.24465-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286858AbRL1MMo>; Fri, 28 Dec 2001 07:12:44 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:5904 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S286860AbRL1MMd>; Fri, 28 Dec 2001 07:12:33 -0500
+Date: Fri, 28 Dec 2001 13:12:28 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: zImage not supported for 2.2.20?
+Message-ID: <20011228121228.GA9920@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 28 Dec 2001, Roy Hills wrote:
 
-  since i was greeted with a deafening silence the first time i tried,
-i'll give it another shot.  is there a formal place to discuss issues
-with CML2, including submitting bug reports when it generates python
-tracebacks?
+> I'm using linux kernel 2.2.20 on my systems.  This works fine as a
+> bzImage which most of my systems use, however one of my systems
+> (a Toshiba Tecra laptop) needs to use zImage, and I find that 2.2.20
+> does not work in this case, although previous versions e.g. 2.2.17 do.
 
-rday
+Did your kernel grow (configuration change)? zImage has tighter size
+limits than bzImage. Did you actually make zImage or did you just to
+make? The (b)zImage is in arch/i386/boot/
 
+-- 
+Matthias Andree

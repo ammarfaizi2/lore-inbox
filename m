@@ -1,83 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVB1RLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVB1ROI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbVB1RLq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 12:11:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVB1RLq
+	id S261694AbVB1ROI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 12:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVB1ROH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 12:11:46 -0500
-Received: from ext-nj2gw-6.online-age.net ([64.14.56.42]:65170 "EHLO
-	ext-nj2gw-6.online-age.net") by vger.kernel.org with ESMTP
-	id S261689AbVB1RLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 12:11:43 -0500
-From: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Date: Mon, 28 Feb 2005 18:11:27 +0100
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-Message-ID: <20050228171127.GA27153@wszip-kinigka.euro.med.ge.com>
-References: <cv5hv3$ana$1@gatekeeper.tmr.com> <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Mon, 28 Feb 2005 12:14:07 -0500
+Received: from ptb-relay03.plus.net ([212.159.14.214]:32779 "EHLO
+	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
+	id S261694AbVB1RNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 12:13:42 -0500
+Message-ID: <4223513F.4030403@katalix.com>
+Date: Mon, 28 Feb 2005 17:13:35 +0000
+From: James Chapman <jchapman@katalix.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: sensors@stimpy.netroedge.com
+CC: linux-kernel@vger.kernel.org, khali@linux-fr.org
+Subject: [PATCH: 2.6.11-rc5] i2c chips: add adt7461 support to lm90 driver
+Content-Type: multipart/mixed;
+ boundary="------------050700030009070208090202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 19, 2005 at 01:23:10AM +0100, Valdis.Kletnieks@vt.edu wrote:
-> 
->    On Fri, 18 Feb 2005 15:23:44 EST, Bill Davidsen said:
-> 
->    > I'll try to build a truth table for this, I'm now working with some
->    > non-iso data sets, so I'm a bit more interested. I would expect read()
->    > to only try to read one sector, so I'll just do a quick and dirty to get
->    > the size from the command line, seek and read.
->    >
->    > I haven't had a problem using dd to date, as long as I know how long the
->    > data set was, but I'll try to have results tonight.
-> 
->    The problem is that often you don't know exactly how long the data set is
->    (think "backup burned to CD/RW") - there's a *lot* of code that does stuff
->    like
-> 
->            while (actual=read(fd,buffer,65536) > 0) {
->                    ...
->            }
-> 
->    with the realistic expectation that the last read might return less than
->    64k,
->    in which case 'actual' will tell us how much was read.  Instead, we just get
->    an error on the read.
-> 
->    Note that 'dd' does this - that's why you get messages like '12343+1 blocks
->    read'.
->    We *really* want to get to a point where 'dd' will work *without* having to
->    tell it a 'bs=' and 'count=' to get the size right....
->    )
+This is a multi-part message in MIME format.
+--------------050700030009070208090202
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-my point was that even specifying the exact byte count was not sufficient.
-e.g
+Add ADT7461 (temperature sensor) support to LM90 driver.
 
-strace sdd if=/dev/zero bs=32k of=/dev/null ivsize=41234    gives:
-......
-munmap(0x46a000, 4096)                  = 0
-_llseek(3, 0, [0], SEEK_SET)            = 0
-_llseek(4, 0, [0], SEEK_SET)            = 0
-read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
-write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
-read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 8466) = 8466
-write(2, "sdd: Done with input volume # 1."..., 33sdd: Done with input volume # 1.
-) = 33
-write(2, "Do you want to continue with inp"..., 53Do you want to continue with input volume # 2 (y/n): ) = 53
+Signed-off-by: James Chapman <jchapman@katalix.com>
 
-that is, it requests exactly ivsize bytes (for iso cd's this can be got from isosize).
 
-even this was not good enough....
 
-Karl
 
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47
+
+
+--------------050700030009070208090202
+Content-Type: text/plain;
+ name="lm90.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lm90.patch"
+
+diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
+--- a/drivers/i2c/chips/lm90.c	2005-02-27 13:24:11 +00:00
++++ b/drivers/i2c/chips/lm90.c	2005-02-27 13:24:11 +00:00
+@@ -85,7 +85,7 @@
+  * Insmod parameters
+  */
+ 
+-SENSORS_INSMOD_5(lm90, adm1032, lm99, lm86, max6657);
++SENSORS_INSMOD_6(lm90, adm1032, lm99, lm86, max6657, adt7461);
+ 
+ /*
+  * The LM90 registers
+@@ -386,7 +386,10 @@
+ 			 && (reg_config1 & 0x3F) == 0x00
+ 			 && reg_convrate <= 0x0A) {
+ 				kind = adm1032;
+-			}
++			} else
++			if (address == 0x4c
++			 && chip_id == 0x51) /* ADT7461 */
++				kind = adt7461;
+ 		} else
+ 		if (man_id == 0x4D) { /* Maxim */
+ 			/*
+@@ -423,6 +426,8 @@
+ 		name = "lm86";
+ 	} else if (kind == max6657) {
+ 		name = "max6657";
++	} else if (kind == adt7461) {
++		name = "adt7461";
+ 	}
+ 
+ 	/* We can fill in the remaining client fields */
+
+
+
+
+
+
+--------------050700030009070208090202--

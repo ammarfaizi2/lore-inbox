@@ -1,69 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264777AbUFPVSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUFPVW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264777AbUFPVSK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUFPVSK
+	id S264815AbUFPVW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266299AbUFPVW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:18:10 -0400
-Received: from sziami.cs.bme.hu ([152.66.242.225]:5045 "EHLO sziami.cs.bme.hu")
-	by vger.kernel.org with ESMTP id S264777AbUFPVSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:18:06 -0400
-Date: Wed, 16 Jun 2004 23:17:17 +0200 (CEST)
-From: Egmont Koblinger <egmont@uhulinux.hu>
-X-X-Sender: egmont@sziami.cs.bme.hu
-To: jsimmons@pentafluge.infradead.org
-Cc: Zilvinas Valinskas <zilvinas@gemtek.lt>, Jeff Garzik <jgarzik@pobox.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       David MacKenzie <djm@gnu.ai.mit.edu>
-Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device
- or address)
-In-Reply-To: <Pine.LNX.4.56.0406161728150.14901@pentafluge.infradead.org>
-Message-ID: <Pine.LNX.4.58L0.0406162313450.20508@sziami.cs.bme.hu>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> 
- <20040616095805.GC14936@gemtek.lt>  <40D0432A.1080006@pobox.com>
- <1087395424.5314.2.camel@swoop.gemtek.lt> <Pine.LNX.4.56.0406161728150.14901@pentafluge.infradead.org>
+	Wed, 16 Jun 2004 17:22:59 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:19720 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S264815AbUFPVW4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 17:22:56 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <erikharrison@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: more files with licenses that aren't GPL-compatible
+Date: Wed, 16 Jun 2004 14:21:56 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEKKMKAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <5b18a542040616133415bf54d1@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2120
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 16 Jun 2004 13:59:43 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 16 Jun 2004 13:59:46 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jun 2004 jsimmons@pentafluge.infradead.org wrote:
 
-Hi,
+> On Tue, 15 Jun 2004 21:11:00 -0700, David Schwartz
+> <davids@webmaster.com> wrote:
 
-> +#ifdef TIOCGWINSZ
-> +  int size_was_set = 0;
-> +  int cols, rows;
-     ^^^^^^^^^^^^^^^
-These should both be initialized to -1 because...
+> > They can't grant that permission. Every single person
+> > who had contributed
+> > to the Linux kernel would have to agree. The GPL prohibits including
+> > software that isn't itself GPL'd from being combined with GPL'd
+> > software.
+> > The issue is not permission to distribute this driver, the issue is
+> > permission to distribute the *kernel*. The kernel's license prohibits
+> > distrubiting it in combination with works that have licenses more
+> > restrictive than the GPL.
+>
+> That better be bogus, or else vendors are going to be very upset that
+> they can't ship the kernel with, say, trademarked images. For example,
+> Mozilla's trademark on their artwork is fairly restrictive, or the
+> Mandrake Firewall product (if that's even still around - I don't keep
+> up).
 
-> -	      set_window_size ((int) integer_arg (argv[k]), -1,
-> -			       fd, device_name);
-> +	      rows = integer_arg (argv[k]);
-> +	      size_was_set = 1;
+	I can't speak to the trademark issue. I don't know enough about how the GPL
+deals with possible trademark issues. I believe you could not embed
+trademarked images into the kernel and distribute the result either.
 
-[...]
+	However, this is a pure copyright issue. You cannot combine GPL'd code with
+code that has a more restrictive license and distribute the resulting
+binaries. Read GPL section 2b:
 
-> -	      set_window_size (-1, (int) integer_arg (argv[k]),
-> -			       fd, device_name);
-> +	      cols = integer_arg (argv[k]);
-> +	      size_was_set = 1;
+  2. You may modify your copy or copies of the Program or any portion
+of it, thus forming a work based on the Program, and copy and
+distribute such modifications or work under the terms of Section 1
+above, provided that you also meet *all* of these conditions:
 
-...here maybe only one of them is set, but...
+...
 
-> +  if (size_was_set)
-> +    {
-> +      set_window_size (rows, cols, fd, device_name);
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
 
-...here both of them are used. Looking at the body of size_was_set()
-and the code that was removed from stty it's clear that -1 means don't
-change, while 0 means change to 0.
+	How can you cause the Linux kernel combined with this firmware to be
+licensed under the terms of the GPL? (And, by the way, I think this
+prohibits trademark as well, which is very interesting.)
+
+	DS
 
 
-
--- 
-Egmont

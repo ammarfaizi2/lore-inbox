@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbULTIni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbULTIpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbULTIni (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 03:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbULTIkq
+	id S261500AbULTIpA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbULTIo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 03:40:46 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:56678 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261458AbULTHpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 02:45:03 -0500
-Message-ID: <41C682F1.20200@yahoo.com.au>
-Date: Mon, 20 Dec 2004 18:44:49 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Mon, 20 Dec 2004 03:44:59 -0500
+Received: from illchn-static-203.199.197.226.vsnl.net.in ([203.199.197.226]:8206
+	"EHLO md3.vsnl.net.in") by vger.kernel.org with ESMTP
+	id S261206AbULTIof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 03:44:35 -0500
+Message-ID: <003001c4e670$3f5ef590$1600a8c0@sdsaravanan>
+Reply-To: "V.Meenatchi Sundaram" <vms@qmaxtech.com>
+From: "V.Meenatchi Sundaram" <vms@qmaxtech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Send me the solution for the error "USB disconnect on device 00:1d.7-7 address 3
+Date: Mon, 20 Dec 2004 14:15:24 +0530
+Organization: Qmax Test Equipments Pvt. Ltd.
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lista4@comhem.se, linux-kernel@vger.kernel.org, mr@ramendik.ru,
-       kernel@kolivas.org, riel@redhat.com
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-References: <1329986.1103525472726.JavaMail.tomcat@pne-ps1-sn1> <20041219231250.457deb12.akpm@osdl.org>
-In-Reply-To: <20041219231250.457deb12.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Voluspa <lista4@comhem.se> wrote:
-> 
->>Would be nice though if someone else could verify...
-> 
-> 
-> Well I'd love to, but afaik the only workloads which we currently know of
-> involve complex userspace apps which I have no experience running.
-> 
-> Did anyone come up with a simple step-by-step procedure for reproducing the
-> problem?  It would be good if someone could do this, because I don't think
-> we understand the root cause yet?
-> 
+Hi
+  We have wriiten  driver program for usb interface card which was
+manufactured
+by our company.In the driver, First  downloaded  the firmware
+supplied by Cypress Inc.This firmware implements a vendor specific
+command that will allow  to download the firmware to external RAM. At the
+time of
+downloading  the firmware for the ez-usb chip(in probe fn).
+The following Error has occured from the dmesg.
 
-I admit to generally being in the same boat as you with respect to
-running complex userspace apps.
 
-However, based on this and other scattered reports, I'd say it seems
-quite likely that token based thrashing control is the culprit. Based
-on the cost/benefit, I wonder if we should disable TBTC by default for
-2.6.10, rather than trying to fix it, and try again for 2.6.11?
+"yes!!!!registered
+USB device now attached to USBSample------->0
+usbsample: probe succeeded
+usb.c: USB disconnect on device 00:1d.7-7 address 2
+enter in to disconnect
+hub.c: new USB device 00:1d.7-7, assigned address 3
+usb.c: USB device 3 (vend/prod 0x4832/0x8003) is not claimed by any active
+drive
+r.
+usb.c: USB disconnect on device 00:1d.7-7 address 3   "
 
-Rik? Andrew?
 
-Also, it would be nice to have a sysctl to *completely* disable TBTC,
-that would make testing easier.
+That is the message has given "the USB disconnect on device" error.
+Send me the solution
 
-Nick
+          Regards
+V.Meenatchi Sundaram,
+

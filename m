@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbULDVRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbULDVXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbULDVRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 16:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbULDVRZ
+	id S261164AbULDVXY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 16:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbULDVXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 16:17:25 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:19657 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261161AbULDVRP (ORCPT
+	Sat, 4 Dec 2004 16:23:24 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:39881 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S261164AbULDVXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 16:17:15 -0500
-Subject: Re: Linux 2.6.10-rc3
+	Sat, 4 Dec 2004 16:23:13 -0500
+Subject: [PATCH] Fix ALSA resume
 From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Alex Romosan <romosan@sycorax.lbl.gov>
-Cc: Ari Pollak <aripollak@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <87eki66jx8.fsf@sycorax.lbl.gov>
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
-	 <pan.2004.12.04.09.06.09.707940@nn7.de> <87oeha6lj1.fsf@sycorax.lbl.gov>
-	 <cosrt1$j67$1@sea.gmane.org>  <87eki66jx8.fsf@sycorax.lbl.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fWNkZhe94iqcVKh7jGJN"
-Message-Id: <1102195032.1560.58.camel@tux.rsn.bth.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Yb+sBuFF9+nL/pfZTqCZ"
+Message-Id: <1102195391.1560.65.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Dec 2004 22:17:12 +0100
+Date: Sat, 04 Dec 2004 22:23:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-fWNkZhe94iqcVKh7jGJN
+--=-Yb+sBuFF9+nL/pfZTqCZ
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, 2004-12-04 at 18:40, Alex Romosan wrote:
-> Ari Pollak <aripollak@gmail.com> writes:
->=20
-> > Alex Romosan wrote:
-> >> well, it's still more than my thinkpad which doesn't want to wake up
-> >> from sleep anymore.
-> >
-> > My thinkpad will resume fine if I remove the intel8x0 and intel8x0m
-> > ALSA modules before going into suspend - works with both APM and ACPI,
-> > though I don't really use ACPI suspend because the battery drains like
-> > crazy.
->=20
-> i saw there were some changes to alsa cvs having to do with the new
-> pci device handling. i'll reconfigure the kernel with alsa as modules
-> and try alsa cvs to see if that makes any difference. thanks.
+Some time ago, a patch was merged that removed pci_save_state() and
+pci_restore_state() from various ALSA drivers. That patch also added
+pci_restore_state() to sound/core/init.c but didn't add pci_save_state()
+anywhere. This is needed since the core pci handling doesn't do this for
+us anymore.
 
-This has been discussed in an earlier thread, I was hoping the ALSA
-people would submit the patch but that hasn't happened.
-I'll submit it in a separate mail.
+My laptop doesn't resume (gets what I assume is an ACPI timeout and
+hangs solid) without this small obvious patch.
 
-Try the patch below, it should fix the problem.
+Signed-off-by: Martin Josefsson <gandalf@wlug.westbo.se>
+Fixed-by: Takashi Iwai <tiwai@suse.de>
 
 --- linux/sound/core/init.c	8 Nov 2004 11:37:08 -0000	1.48
 +++ linux/sound/core/init.c	12 Nov 2004 13:56:32 -0000
@@ -76,16 +62,16 @@ Try the patch below, it should fix the problem.
 --=20
 /Martin
 
---=-fWNkZhe94iqcVKh7jGJN
+--=-Yb+sBuFF9+nL/pfZTqCZ
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBBsilXWm2vlfa207ERAuuUAJ9Tg5EeznLXQPHiLu6bYO/bWC+f1gCfYSrE
-F0m219G+UEL/cvHgLPhCigk=
-=tLD8
+iD8DBQBBsiq/Wm2vlfa207ERAmu6AKCnZNYz8AVjtzJqwf3dewqGwjaXoACeM7Nq
+RScRzj85nBFkkMgizGgPeAk=
+=mSD4
 -----END PGP SIGNATURE-----
 
---=-fWNkZhe94iqcVKh7jGJN--
+--=-Yb+sBuFF9+nL/pfZTqCZ--

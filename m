@@ -1,74 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268113AbTBMWLy>; Thu, 13 Feb 2003 17:11:54 -0500
+	id <S268119AbTBMW2R>; Thu, 13 Feb 2003 17:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268119AbTBMWLy>; Thu, 13 Feb 2003 17:11:54 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:47492 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S268113AbTBMWLw>; Thu, 13 Feb 2003 17:11:52 -0500
-Message-Id: <200302132220.h1DMKtFT011682@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
-Subject: Re: 2.5.60 cheerleading... 
-In-Reply-To: Your message of "Thu, 13 Feb 2003 15:57:56 CST."
-             <1045173477.28494.66.camel@plars> 
-From: Valdis.Kletnieks@vt.edu
-References: <200302132154.h1DLs3ar012874@darkstar.example.net>
-            <1045173477.28494.66.camel@plars>
+	id <S268120AbTBMW2R>; Thu, 13 Feb 2003 17:28:17 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:15516 "EHLO w-patman.des")
+	by vger.kernel.org with ESMTP id <S268119AbTBMW2P>;
+	Thu, 13 Feb 2003 17:28:15 -0500
+Date: Thu, 13 Feb 2003 14:29:58 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.60 and current bk oops in file_ra_state_init
+Message-ID: <20030213142958.A16286@beaverton.ibm.com>
+References: <20030213120445.A15070@beaverton.ibm.com> <20030213131344.086e154e.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1894142700P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Feb 2003 17:20:55 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030213131344.086e154e.akpm@digeo.com>; from akpm@digeo.com on Thu, Feb 13, 2003 at 01:13:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1894142700P
-Content-Type: text/plain; charset=us-ascii
+On Thu, Feb 13, 2003 at 01:13:44PM -0800, Andrew Morton wrote:
+> Was this test frequently opening and closing device nodes, or does it just
+> open them once and hold them?
 
-On Thu, 13 Feb 2003 15:57:56 CST, Paul Larson said:
+Opens once only.
 
-> Since Linus hasn't chimed in yet, I'm guessing that's exactly what
-> happened.  I'm not trying to improve his workflow, but rather the
-> workflow of anyone who might be interested in getting more involved in
-> 2.5 testing.
+> Can you please prepare a testcase which I can use to reproduce this?
 
-What would help a lot of people (certainly me, at least), would be if
-somebody kept a well-publicized "already known errata" list along with
-(possibly unofficial) work-around patches.  Something along the line of:
+I have only been able to reproduce it on the qla2300 running the latest
+qla2300 driver. So maybe it is a qla only problem (blah).
 
-compile fails in drivers/widget/fooby.c with error:
-undefined structure member 'blat' in line 1149.
-To fix:   apply <this patch>
+As per previous oops reports by wli and Martin, running with the qlogicisp
+driver on the isp1020 gives an oops in isp1020_intr_handler :( 
 
-On Thu, 13 Feb 2003 22:11:17 +0000 (GMT), John Bradford said:
+I'm rebooting again.
 
-> You can always use 2.5.X-BK1 to get the fixes that we would probably
-> have been in 2.5.X if Linus had done more extensive testing on it
-> before releasing it.
+I was running this program, simultaneously one per drive up to 25, so I
+should have only one IO outstanding per disk (added the O_DIRECT):
 
-Almost but not quite what I meant - unless -BK1 is reserved for after-release
-whoops and doesn't contain "new stuff for release N+1".   If -BK1 is only
-bugfixes, that would be good.  
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int
+main (int argc, char **argv)
+{
+	int	fd;
+	int	loop_cnt;
+	char	*dev_name;
+	int	block_size = 512;
+	char	buff[4096], *bufp;
+	int	res;
 
 
+	dev_name = argv[1];
+	loop_cnt = atoi(argv[2]);
+	fprintf(stderr, "Re-reading device %s with %d iterations\n",
+		dev_name, loop_cnt);
+	fd = open (dev_name, O_RDONLY | O_DIRECT);
+	if (fd == -1) {
+		perror("open");
+		exit(1);
+	}
 
---==_Exmh_1894142700P
-Content-Type: application/pgp-signature
+	/* memset(buff, 'x', block_size); */
+	bufp = (char*) ((int)(buff + 4096) & 0xfffff000);
+	fprintf(stderr, "bufp is 0x%x; buff is 0x%x\n", bufp, buff);
+	while (loop_cnt-- > 0) {
+#ifdef NOTNOW
+#endif
+		res = read(fd, bufp, block_size);
+		if (res != block_size) {
+			fprintf(stderr, "Read only %d bytes of %d, cnt %d\n",
+				res, block_size, loop_cnt);
+			exit(1);
+		}
+		res = lseek(fd, 0, SEEK_SET);
+		if (res == -1) {
+			perror("lseek");
+			exit(1);
+		}
+	}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+	close(fd);
+}
 
-iD8DBQE+TBpGcC3lWbTT17ARAm/RAJ4i0OPfUx720kj5DC3GDBMSBxIRtACfW60u
-PIrt1YV3N6yGQ/3tntPnZ5Y=
-=VPK0
------END PGP SIGNATURE-----
-
---==_Exmh_1894142700P--
+-- Patrick Mansfield

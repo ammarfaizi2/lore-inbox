@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262440AbSJOLVY>; Tue, 15 Oct 2002 07:21:24 -0400
+	id <S262448AbSJOLlz>; Tue, 15 Oct 2002 07:41:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262443AbSJOLVY>; Tue, 15 Oct 2002 07:21:24 -0400
-Received: from thunk.org ([140.239.227.29]:42701 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S262440AbSJOLVY>;
-	Tue, 15 Oct 2002 07:21:24 -0400
-Date: Tue, 15 Oct 2002 07:27:13 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] Add extended attributes to ext2/3
-Message-ID: <20021015112713.GA31235@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <E181ISM-0001DW-00@snap.thunk.org> <87it04ngk1.fsf@goat.bogus.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87it04ngk1.fsf@goat.bogus.local>
-User-Agent: Mutt/1.3.28i
+	id <S262454AbSJOLlz>; Tue, 15 Oct 2002 07:41:55 -0400
+Received: from tailtiu.davidcoulson.net ([194.159.156.4]:31627 "EHLO
+	mail.mx.davidcoulson.net") by vger.kernel.org with ESMTP
+	id <S262448AbSJOLlz>; Tue, 15 Oct 2002 07:41:55 -0400
+Message-ID: <3DAC0063.9080701@davidcoulson.net>
+Date: Tue, 15 Oct 2002 12:47:47 +0100
+From: David Coulson <david@davidcoulson.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020915
+X-Accept-Language: en-gb
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org,
+       UML devel <user-mode-linux-devel@lists.sourceforge.net>
+Subject: swap_dup/swap_free errors with 2.4.20-pre10
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:26:54PM +0200, Olaf Dietsche wrote:
-> > diff -Nru a/fs/Config.in b/fs/Config.in
-> > --- a/fs/Config.in	Mon Oct 14 23:21:23 2002
-> > +++ b/fs/Config.in	Mon Oct 14 23:21:23 2002
-> > @@ -93,6 +93,7 @@
-> >  tristate 'ROM file system support' CONFIG_ROMFS_FS
-> >  
-> >  tristate 'Second extended fs support' CONFIG_EXT2_FS
-> > +dep_bool '  Ext2 extended attributes' CONFIG_EXT2_FS_XATTR $CONFIG_EXT3_FS
->                                                                         ^^^
-> Is this intentional?
+I'm running 2.4.20-pre10 on a Dual PIII system with 2Gb of RAM and three 
+2Gb swap logical volumes.
 
-Nope, that's a typo.  Thanks for catching it.
+It runs fine for a while, then I get lots of;
 
-							- Ted
+Oct 15 12:41:31 maeve kernel: swap_dup: Bad swap file entry 00000020
+Oct 15 12:41:31 maeve kernel: swap_dup: Bad swap file entry 00000020
+Oct 15 12:41:31 maeve kernel: swap_free: Bad swap file entry 00000020
+Oct 15 12:41:31 maeve kernel: swap_free: Bad swap file entry 00000020
+Oct 15 12:41:31 maeve kernel: swap_dup: Bad swap file entry 00000020
+Oct 15 12:41:31 maeve kernel: swap_dup: Bad swap file entry 00000020
+Oct 15 12:41:31 maeve kernel: swap_free: Bad swap file entry 00000020
+
+The address is always 00000020. I've tried the machine without any swap 
+space, and I get exactly the same error, so I'm assuming it's either bad 
+RAM or a kernel issue. I ran memtest86 on it yesterday, and it didn't 
+throw up any errors, but I'm going to swap the RAM out and see if that 
+fixes it.
+
+Thanks,
+David
+
+-- 
+David Coulson                                  http://davidcoulson.net/
+d@vidcoulson.com                       http://journal.davidcoulson.net/
+

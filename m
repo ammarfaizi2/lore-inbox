@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUITL7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUITMCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUITL7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUITL7O
+	id S266324AbUITMCk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 08:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUITMCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:59:14 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:51917 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S266319AbUITL7B
+	Mon, 20 Sep 2004 08:02:40 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:14030 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S266324AbUITMCh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:59:01 -0400
-Date: Mon, 20 Sep 2004 14:00:58 +0200
+	Mon, 20 Sep 2004 08:02:37 -0400
+Date: Mon, 20 Sep 2004 13:59:42 +0200
 From: DervishD <lkml@dervishd.net>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Olaf Hering <olh@suse.de>, Andries.Brouwer@cwi.nl,
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: DervishD <lkml@dervishd.net>, Andries.Brouwer@cwi.nl,
        linux-kernel@vger.kernel.org
 Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920120058.GH5684@DervishD>
-Mail-Followup-To: Andreas Schwab <schwab@suse.de>,
-	Olaf Hering <olh@suse.de>, Andries.Brouwer@cwi.nl,
+Message-ID: <20040920115942.GG5684@DervishD>
+Mail-Followup-To: Xavier Bestel <xavier.bestel@free.fr>,
+	DervishD <lkml@dervishd.net>, Andries.Brouwer@cwi.nl,
 	linux-kernel@vger.kernel.org
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <jeoek1xn9p.fsf@sykes.suse.de> <20040920105409.GH5482@DervishD> <jek6upxj1a.fsf@sykes.suse.de>
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920110631.GJ5482@DervishD> <1095680326.27965.238.camel@gonzales>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <jek6upxj1a.fsf@sykes.suse.de>
+In-Reply-To: <1095680326.27965.238.camel@gonzales>
 User-Agent: Mutt/1.4.2.1i
 Organization: DervishD
 X-PopBeforeSMTPSenders: raul@dervishd.net
@@ -41,16 +41,15 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Andreas :)
+    Hi Xavier :)
 
- * Andreas Schwab <schwab@suse.de> dixit:
-> >> > - fix all broken apps that still rely on mtab. like GNU df(1)
-> >> df does not rely on /etc/mtab.  It relies on getmntent.
-> >     Then my GNU df has any problem :???
-> No, if any then getmntent.
+ * Xavier Bestel <xavier.bestel@free.fr> dixit:
+> > does the kernel *read* /proc/mounts contents?
+> /proc/mounts is kernel-generated on the fly (it's alive only during the
+> read() call).
 
-    I've seen the code: my excuses. Is the libc which needs fixing,
-and it probably have been fixed, I don't have the latest version. 
+    Then you can cripple it with any extra contents you want, am I
+wrong? The kernel won't mind...
 
     Raúl Núñez de Arenas Coronado
 

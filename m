@@ -1,265 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbUKVRAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbUKVQzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbUKVRAI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 12:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbUKVQ7N
+	id S262177AbUKVQzj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUKVQoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:59:13 -0500
-Received: from smtp1.netcabo.pt ([212.113.174.28]:46768 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262205AbUKVQ4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:56:21 -0500
-Message-ID: <9182.195.245.190.93.1101142412.squirrel@195.245.190.93>
-In-Reply-To: <20041122154516.GC2036@elte.hu>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-    <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-    <20041122020741.5d69f8bf@mango.fruits.de>
-    <20041122094602.GA6817@elte.hu>
-    <56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
-    <20041122132459.GB19577@elte.hu>
-    <20041122142744.0a29aceb@mango.fruits.de>
-    <65529.195.245.190.94.1101133129.squirrel@195.245.190.94>
-    <20041122154516.GC2036@elte.hu>
-Date: Mon, 22 Nov 2004 16:53:32 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: "Florian Schmidt" <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       "Lee Revell" <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, "Bill Huey" <bhuey@lnxw.com>,
-       "Adam Heath" <doogie@debian.org>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Mon, 22 Nov 2004 11:44:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:46252 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262182AbUKVQXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 11:23:03 -0500
+Date: Mon, 22 Nov 2004 08:22:57 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: sparse segfaults
+In-Reply-To: <Pine.LNX.4.53.0411221132550.8845@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.58.0411220812580.20993@ppc970.osdl.org>
+References: <20041120143755.E13550@flint.arm.linux.org.uk>
+ <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com>
+ <Pine.LNX.4.58.0411211433540.20993@ppc970.osdl.org>
+ <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
+ <Pine.LNX.4.58.0411211644200.20993@ppc970.osdl.org>
+ <Pine.LNX.4.53.0411221132550.8845@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20041122165332_21453"
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 22 Nov 2004 16:56:16.0751 (UTC) FILETIME=[2E964FF0:01C4D0B4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20041122165332_21453
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
 
-> Ingo Molnar
+
+On Mon, 22 Nov 2004, Jan Engelhardt wrote:
 >
-> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
->
->> > It seems jackd has a limitation to 14 clients atm (don't ask me why).
->> The
->> > 15th kills jackd ;)
->> >
->>
->> So true.
->
-> is there any fix for that? Loading 14 jack_test clients only uses up
-> ~33% of CPU time on my testbox. Or should it be possible for me to
-> trigger xruns using so many clients and 33% CPU utilization already?
->
-> Could you perhaps try 14 instances of jack_test on your box, and see
-> whether you can generate similar xruns as you could generate with
-> fluidsynth? jack_test should certainly exclude as much jack-client side
-> complexity as possible.
->
-> 	Ingo
->
+> >BAD gcc extensions:
+> 
+> You don't have to use them...
 
-OK. I tried 14 instances of jack_test. I even modded Florian's original
-source code, to let each client instance have 4 ins and 4 outs, and to
-make things a litle bit heavier, all 4 inputs are mixed into each of the 4
-outputs.
+We don't, generally. But they are bad even if you DON'T use them, because 
+they sometimes make obvious syntax errors etc much harder to debug.
 
-Saw at least a couple of XRUNs in a 20 (4*5) minute test-run. CPU load
-doesn't get above 30% on my laptop (P4/UP 2.533Ghz).
+For example, the "nested function" thing makes something as simple as a 
+missing end brace cause the error reporting to be totally off, when gcc 
+decides that "hey, that's ok, those other function declarations are just 
+nested functions in the middle of that other function". So you get 
+something like
 
-On attach you may find my "4-multiplex" version of jack_test(.cpp), along
-with the jack_test3.sh shell script which has been used for my test runs.
+	file.c: lastline: parse error at end of input
 
-There's also a modified version of nmeter(.c) that served the purpose to
-log system performance counters (CPU usage, IRQs  and Context Switch
-rate).
+even though the _real_ parse error could have been pinpointed exactly if 
+gcc did NOT do it's totally braindamaged nested functions. IOW, the 
+extension causes problems even when you don't use it.
 
-Bye.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-------=_20041122165332_21453
-Content-Type: application/x-gzip-compressed; name="jack_test3.tar.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="jack_test3.tar.gz"
+Same goes for the "extended lvalues". They are not only insane, but they 
+mean that code like
 
-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
-F80fAKAAAA==
-------=_20041122165332_21453--
+	(0,i) = 1;
 
+actually compiles. Why is that a problem? Because some people (ie me) have 
+used constructs like this in macros to make sure that the macro is 
+"read-only", ie you have a situation where you don't want people to 
+mis-use the macro on some architecture. So having
 
+	int max_of_something;
+	#define MAX_SOMETHING (0,max_of_something)
+
+is actually a nice way to make sure nobody does anything like
+
+	MAX_SOMETHING = new;
+
+but the gcc extension means that this doesn't actually work.
+
+(Yes, I've been bitten by this. And no, I don't see the _point_ of the
+extension - does anybody actually admit to ever _using_ comma- expressions
+for assignments?)
+
+		Linus

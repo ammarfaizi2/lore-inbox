@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267644AbSLFWhm>; Fri, 6 Dec 2002 17:37:42 -0500
+	id <S267652AbSLFWod>; Fri, 6 Dec 2002 17:44:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267645AbSLFWhm>; Fri, 6 Dec 2002 17:37:42 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:39855 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267644AbSLFWhl>; Fri, 6 Dec 2002 17:37:41 -0500
-Subject: Re: 2.4.18 beats 2.5.50 in hard drive access????
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Ashley <dash@xdr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212061929.gB6JTvq10286@xdr.com>
-References: <200212061929.gB6JTvq10286@xdr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 23:20:45 +0000
-Message-Id: <1039216845.22983.39.camel@irongate.swansea.linux.org.uk>
+	id <S267653AbSLFWod>; Fri, 6 Dec 2002 17:44:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:12777 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267652AbSLFWoc>;
+	Fri, 6 Dec 2002 17:44:32 -0500
+Date: Fri, 06 Dec 2002 14:49:01 -0800 (PST)
+Message-Id: <20021206.144901.48134923.davem@redhat.com>
+To: James.Bottomley@steeleye.com
+Cc: adam@yggdrasil.com, willy@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200212062248.gB6Mmvh04649@localhost.localdomain>
+References: <davem@redhat.com>
+	<200212062248.gB6Mmvh04649@localhost.localdomain>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 19:29, David Ashley wrote:
->     ide0: BM-DMA at 0x1880-0x1887, BIOS settings: hda:pio, hdb:DMA
->     ide1: BM-DMA at 0x1888-0x188f, BIOS settings: hdc:pio, hdd:DMA
+   From: James Bottomley <James.Bottomley@steeleye.com>
+   Date: Fri, 06 Dec 2002 16:48:57 -0600
 
-When we read the settings DMA was disabled on hda and hdc. We therefore
-assumed the BIOS did that for a reason and followed caution.
+   I just don't like API names that look like
+   
+   dma_alloc_may_be_inconsistent()
+   
+   but if that's what it takes, I'll do it
 
-What happens if you do
-
-	hdparm -d1 /dev/hda
-
-?
-
+Just use dma_alloc_noncoherent() and we can grep for that.

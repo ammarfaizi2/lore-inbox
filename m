@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292407AbSCDO6u>; Mon, 4 Mar 2002 09:58:50 -0500
+	id <S292415AbSCDPEA>; Mon, 4 Mar 2002 10:04:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292399AbSCDO6n>; Mon, 4 Mar 2002 09:58:43 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55045 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292402AbSCDO6R>; Mon, 4 Mar 2002 09:58:17 -0500
-Subject: Re: ext3 and undeletion
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Mon, 4 Mar 2002 15:12:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jstrand1@rochester.rr.com (James D Strandboge),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20020304021714.GB353@matchmail.com> from "Mike Fedyk" at Mar 03, 2002 06:17:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292410AbSCDPDv>; Mon, 4 Mar 2002 10:03:51 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:23307 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S292409AbSCDPDi>; Mon, 4 Mar 2002 10:03:38 -0500
+Message-Id: <200203041503.g24F3WU01722@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Chris Mason <mason@suse.com>,
+        James Bottomley <James.Bottomley@SteelEye.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
+In-Reply-To: Message from Daniel Phillips <phillips@bonn-fries.net> 
+   of "Mon, 04 Mar 2002 06:05:29 +0100." <E16hkfB-0000Zp-00@starship.berlin> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16hu8q-00080A-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 04 Mar 2002 09:03:31 -0600
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> another inode after the trunc op would break unix semantics.  In order to
-> work, you'd have to use a new inode (in .undelete, of course), copy, then do
-> the actual trunc call. 
-> This would make truncation expensive, whereas before it was pretty fast.
-> Modifying unlink will probably suffice.
+phillips@bonn-fries.net said:
+> But chances are, almost all the IOs ahead of the journal commit belong
+> to your same filesystem anyway, so you may be worrying too much about
+> possibly waiting for something on another partition. 
 
-You would need to hook the truncate/unlink paths in the file system. If 
-you are doing it within the fs it becomes cheap (at least for ext2) - as
-you can simply reassign the data blocks to a new inode, stuff the new inode
-into the magic "stuff we deleted" directory and continue.
+My impression is that most modern JFS can work on multiple transactions 
+simultaneously.  All you really care about, I believe, is I/O ordering within 
+the transaction.  However, separate transactions have no I/O ordering 
+requirements with respect to each other (unless they actually overlap).  Using 
+ordered tags imposes a global ordering, not just a local transaction ordering, 
+so they may not be the most appropriate way to ensure the ordering of writes 
+within a single transaction.
+
+I'm not really a JFS expert, so perhaps those who actually develop these 
+filesystems could comment?
+
+James
+
 

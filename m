@@ -1,119 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132892AbRDJBzv>; Mon, 9 Apr 2001 21:55:51 -0400
+	id <S132894AbRDJB7K>; Mon, 9 Apr 2001 21:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132893AbRDJBzl>; Mon, 9 Apr 2001 21:55:41 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:50699 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S132892AbRDJBz0>; Mon, 9 Apr 2001 21:55:26 -0400
-Date: Tue, 10 Apr 2001 09:55:51 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Nick Urbanik <nicku@vtc.edu.hk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4-pre1 Unresolved symbols "strstr"
-In-Reply-To: <3AD235D7.E590147@vtc.edu.hk>
-Message-ID: <Pine.LNX.4.33.0104100953470.14088-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132898AbRDJB7A>; Mon, 9 Apr 2001 21:59:00 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:36108
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S132894AbRDJB44>; Mon, 9 Apr 2001 21:56:56 -0400
+Date: Mon, 9 Apr 2001 22:05:42 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, dledford@redhat.com
+Subject: Re: Version 6.1.11 of the aic7xxx driver availalbe
+Message-ID: <20010409220542.A32675@animx.eu.org>
+In-Reply-To: <200104092111.f39LBPs17548@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <200104092111.f39LBPs17548@aslan.scsiguy.com>; from Justin T. Gibbs on Mon, Apr 09, 2001 at 03:11:25PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> As always, the latest version of this driver is availalbe here:
+> 
+> http://people.FreeBSD.org/~gibbs/linux/
+> 
+> This site now includes installation instructions, feature set,
+> etc.  The page is under construction - comments welcome.
+> 
+> For the impatient:
+> 
+> CHANGELOG:
+>     http://people.FreeBSD.org/~gibbs/linux/CHANGELOG
+> 
+> 2.4.3-patch:
+>     http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.4.3.patch.gz
+> 
+> 2.2.19-patch:
+>     http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.2.19.patch.gz
 
-got this path from Niels ...
+So, what about on an alpha system.  I've asked a few times what I could do,
+but you didn't help nor explain what you meant.
 
-Works for me now.
-
-___________________________________________________________________________
-
-> From: Niels Kristian Bech Jensen <nkbj@image.dk>
-
-Try this patch:
-
-diff -u --recursive --new-file
-v2.4.4-pre1/linux/arch/i386/kernel/i386_ksyms.c
-linux/arch/i386/kernel/i386_ksyms.c
---- v2.4.4-pre1/linux/arch/i386/kernel/i386_ksyms.c     Sun Apr  8
-17:57:45 2001+++ linux/arch/i386/kernel/i386_ksyms.c Mon Apr  9 08:00:13
-2001
-@@ -97,6 +97,7 @@
- EXPORT_SYMBOL_NOVERS(__put_user_2);
- EXPORT_SYMBOL_NOVERS(__put_user_4);
-
-+EXPORT_SYMBOL(strstr);
- EXPORT_SYMBOL(strtok);
- EXPORT_SYMBOL(strpbrk);
- EXPORT_SYMBOL(simple_strtol);
-
---
-___________________________________________________________________________
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
-On Tue, 10 Apr 2001, Nick Urbanik wrote:
-
-> Jeff Chua wrote:
->
-> > depmod version 2.4.5
-> >
-> > Compiled 2.4.4-pre1 but running "depmod" generates a lot of these ...
-> >
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.4-pre1/kernel/drivers/char/ltmodem.o
-> > depmod:         strstr
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.4-pre1/kernel/drivers/char/serial.o
-> > depmod:         strstr
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-cd.o
-> > depmod:         strstr
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-mod.o
-> > depmod:         strstr
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-probe-mod.o
-> > depmod:         strstr
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.4-pre1/pcmcia/xirc2ps_cs.o
-> > depmod:         strstr
->
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-cd.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-tape.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/isdn/avmb1/capidrv.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/isdn/icn/icn.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/de4x5.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/depca.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/ewrk3.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/hamradio/baycom_epp.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/parport/parport.o
-> depmod:         strstr
->
-> This is on a Cyrix P-166.  Same with depmod 2.4.2 or 2.3.21
->
-> --
-> Nick Urbanik, Dept. of Computing and Mathematics
-> Hong Kong Institute of Vocational Education (Tsing Yi)
-> email: nicku@vtc.edu.hk
-> Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
-> pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267808AbUIGKQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUIGKQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267808AbUIGKQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 06:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIGKQ5
+	id S267807AbUIGKQi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 06:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIGKQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 06:16:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:7563 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267808AbUIGKQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 06:16:43 -0400
-Date: Tue, 7 Sep 2004 12:15:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: paulus@samba.org, juhl-lkml@dif.dk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remember to check return value from __copy_to_user() in cdrom_read_cdda_old()
-Message-ID: <20040907101529.GO6323@suse.de>
-References: <Pine.LNX.4.61.0409062335250.2705@dragon.hygekrogen.localhost> <20040907080223.GF6323@suse.de> <16701.32784.10441.884090@cargo.ozlabs.ibm.com> <20040907093437.GK6323@suse.de> <20040907025921.7f6a4139.akpm@osdl.org> <20040907100941.GN6323@suse.de> <20040907031258.15271794.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907031258.15271794.akpm@osdl.org>
+	Tue, 7 Sep 2004 06:16:35 -0400
+Received: from web8510.mail.in.yahoo.com ([202.43.219.172]:62633 "HELO
+	web8510.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S267807AbUIGKQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 06:16:22 -0400
+Message-ID: <20040907101615.75005.qmail@web8510.mail.in.yahoo.com>
+Date: Tue, 7 Sep 2004 11:16:15 +0100 (BST)
+From: =?iso-8859-1?q?Dinesh=20Ahuja?= <mdlinux7@yahoo.co.in>
+Subject: Kernel Programming
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > On Tue, Sep 07 2004, Andrew Morton wrote:
-> > > Jens Axboe <axboe@suse.de> wrote:
-> > > >
-> > > > On Tue, Sep 07 2004, Paul Mackerras wrote:
-> > > > > Jens Axboe writes:
-> > > > > 
-> > > > > > __copy_to_user is the unchecking version of copy_to_user.
-> > > > > 
-> > > > > It doesn't range-check the address, but it does return non-zero
-> > > > > (number of bytes not copied) if it encounters a fault writing to the
-> > > > > user buffer.
-> > > > 
-> > > > but it doesn't matter, if it returns non-zero then something happened
-> > > > between the access_ok() and the actual copy because the user app did
-> > > > something silly. so I don't care much really, I think the major point is
-> > > > the kernel will cope.
-> > > > 
-> > > > you could remove the access_ok() and change it to a copy_to_user()
-> > > > instead, I don't care either way. it's the old and slow interface which
-> > > > really never is used unless things have gone wrong anyways.
-> > > > 
-> > > 
-> > > Sure, but at present if an application tries to read cdrom data to address
-> > > 0x00000000 (say), the kernel will return "success".  It should return an
-> > > error code.  (Actually, it should return a short read if any data was
-> > > transferred, but whatever).
-> > 
-> > Because access_ok() isn't reliable?
-> 
-> access_ok() simply checks that the address is in the 0x00000000 -
-> 0xbfffffff range.  We can still get faults in that range.
+I have an experience in Solaris and Linux but I have
+never worked on Kernel level Programming. I am very
+keen to learn the Kernel level Programming so that I
+can customize the kernel for my own needs. Could
+anyone suggest me a book which can explain me about
+the Kernel source tree and how to proceed with Kernel
+Programming explaining the source code of kernel in
+detail so that i can get comforable with the Kernel.
 
-Ok, it's pretty useless then.
+I have Kernel 2.6.8 installed on my machine and I am
+interested in learning about futex, work queues and
+NPTL.
 
--- 
-Jens Axboe
+But when I say man futex, it does not display any
+details about that. Do these functionalities are in
+built in Kernel or I need to install some patch to get
+their support. Is there any book on Programming with
+Kernel 2.6 which could explore the new features
+introduced in this kernel from programming aspects.
 
+Regards
+Dinesh
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony

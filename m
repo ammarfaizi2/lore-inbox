@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311454AbSDUIvk>; Sun, 21 Apr 2002 04:51:40 -0400
+	id <S311523AbSDUJXN>; Sun, 21 Apr 2002 05:23:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311523AbSDUIvj>; Sun, 21 Apr 2002 04:51:39 -0400
-Received: from as14-4-3.jak.s.bonet.se ([217.215.163.33]:22952 "EHLO
-	pescadero.ampr.org") by vger.kernel.org with ESMTP
-	id <S311454AbSDUIvj>; Sun, 21 Apr 2002 04:51:39 -0400
-Message-ID: <3CC27D95.6A9F252F@ufh.se>
-Date: Sun, 21 Apr 2002 10:51:33 +0200
-From: Peter Enderborg <pme@ufh.se>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S311564AbSDUJXM>; Sun, 21 Apr 2002 05:23:12 -0400
+Received: from mail.scram.de ([195.226.127.117]:61131 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S311523AbSDUJXM>;
+	Sun, 21 Apr 2002 05:23:12 -0400
+Date: Sun, 21 Apr 2002 11:22:10 +0200 (CEST)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@alpha.bocc.de
+To: Larry McVoy <lm@bitmover.com>
+cc: Roman Zippel <zippel@linux-m68k.org>, Jeff Garzik <garzik@havoc.gtf.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <20020420171714.A31656@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0204211121010.18496-100000@alpha.bocc.de>
 MIME-Version: 1.0
-To: linux kermel <linux-kernel@vger.kernel.org>
-Subject: Strange kernel logging
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was playing with nmap and tryed to do portscan on my 2.4.18 kernel
-with iptables.
-I use port -sS -p 1 to search all ports. And I have iptables to do
-logging on all
-rejected messags. The scan mod was "norlmal" and that sends messags in
-bursts.
-And when this burts was recived the machine was very slo and had
-keyboard problems.
-It was very low latency for the keyevents. It was funny to see what
-happend when
-key relase event was delayed. A lot of same chars... This is on a dual
-PII and
-I guess that it is some race condition with in the logging in iptables.
-Is this
-a known problem? Any one that have solution?
+Hi Larry,
+
+> Huh?  BK requires no more net access than you require when submitting
+> a regular patch.  You need to be connected to move the bits.
+
+Wrong. Many corporate firewalls allow email and http (both via proxy) and 
+reject any other traffic. CVS and BK are both unusable in this 
+environment.
+
+--jochen
 

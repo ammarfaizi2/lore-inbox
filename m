@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbUKVKt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbUKVKug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbUKVKt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUKVKr5
+	id S262044AbUKVKug (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUKVKuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:47:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24450 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262042AbUKVKrK (ORCPT
+	Mon, 22 Nov 2004 05:50:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53228 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262053AbUKVKmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:47:10 -0500
-Date: Mon, 22 Nov 2004 02:46:54 -0800
+	Mon, 22 Nov 2004 05:42:02 -0500
+Date: Mon, 22 Nov 2004 02:41:45 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-Message-Id: <20041122024654.37eb5f3d.akpm@osdl.org>
+Message-Id: <20041122024145.5baaa0b0.akpm@osdl.org>
 In-Reply-To: <877joexjk5.fsf@devron.myhome.or.jp>
 References: <877joexjk5.fsf@devron.myhome.or.jp>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
@@ -26,6 +26,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 >
+>  If I do the following operation on fatfs, and my box under heavy load,
+> 
+>  	open("testfile", O_CREAT | O_TRUNC | O_RDWR, 0664);
+>  	lseek(fd, 500*1024*1024 - 1, SEEK_SET);
+>  	write(fd, "\0", 1);
+> 
+>  In cont_prepare_write(), kernel fills the hole by zero cleared page.
+> 
+>  fs/buffer.c:cont_prepare_write:2210,
+>  	while(page->index > (pgpos = *bytes>>PAGE_CACHE_SHIFT)) {
+> 
+>  		[...]	
 > 
 >  		status = __block_prepare_write(inode, new_page, zerofrom,
 >  						PAGE_CACHE_SIZE, get_block);
@@ -46,12 +58,10 @@ OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 >  flag of buffer_head is cleared in __block_write_full_page(). So hole
 >  page was not writed to disk.
 
-Oh I see.  After the above page is unlocked, it's temporarily outside
-i_size.
+But the page remains locked across both the ->prepare_write() and
+->commit_write() operations.  So writeback cannot get in there to call
+->writepage().
 
-Perhaps cont_prepare_write() should look to see if the zerofilled page is
-outside the current i_size and if so, advance i_size to the end of the
-zerofilled page prior to releasing the page lock.
+The page lock should correctly synchronise the prepare_write/commit_write
+and writeback functions.
 
-We might need to run mark_inode_dirty() at some stage, or perhaps just rely
-on the caller doing that in ->commit_write().

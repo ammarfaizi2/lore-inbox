@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289770AbSBKOZP>; Mon, 11 Feb 2002 09:25:15 -0500
+	id <S289806AbSBKOZ2>; Mon, 11 Feb 2002 09:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289757AbSBKOZG>; Mon, 11 Feb 2002 09:25:06 -0500
-Received: from angband.namesys.com ([212.16.7.85]:17536 "HELO
+	id <S289757AbSBKOZT>; Mon, 11 Feb 2002 09:25:19 -0500
+Received: from angband.namesys.com ([212.16.7.85]:19072 "HELO
 	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S289772AbSBKOYy>; Mon, 11 Feb 2002 09:24:54 -0500
-Date: Mon, 11 Feb 2002 17:24:49 +0300
+	id <S289772AbSBKOZJ>; Mon, 11 Feb 2002 09:25:09 -0500
+Date: Mon, 11 Feb 2002 17:25:04 +0300
 From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
         reiserfs-dev@namesys.com
-Subject: [PATCH] 2.5 [3 of 8] 03-savelink_dir_truncate.diff
-Message-ID: <20020211172449.C1768@namesys.com>
+Subject: [PATCH] 2.5 [5 of 8] 05-corrupt_items_checks.diff
+Message-ID: <20020211172504.E1768@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,69 +21,187 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-   Do not panic on incorrect savelink entries (truncate on directory).
-   Currently we suppose these can be created if switching between kernels
-   with and without savelinks support.
+   Do not panic when encountered item of unknown type, just print a warning.
 
 
---- linux/fs/reiserfs/super.c.orig	Mon Feb 11 09:55:58 2002
-+++ linux/fs/reiserfs/super.c	Mon Feb 11 09:58:31 2002
-@@ -115,7 +115,7 @@
-    protecting unlink is bigger that a key lf "save link" which
-    protects truncate), so there left no items to make truncate
-    completion on */
--static void remove_save_link_only (struct super_block * s, struct key * key)
-+static void remove_save_link_only (struct super_block * s, struct key * key, int oid_free)
+--- linux/include/linux/reiserfs_fs.h.orig	Mon Feb 11 10:13:19 2002
++++ linux/include/linux/reiserfs_fs.h	Mon Feb 11 10:16:19 2002
+@@ -337,7 +337,15 @@
+ #define REISERFS_VALID_FS    1
+ #define REISERFS_ERROR_FS    2
+ 
+-
++//
++// there are 5 item types currently
++//
++#define TYPE_STAT_DATA 0
++#define TYPE_INDIRECT 1
++#define TYPE_DIRECT 2
++#define TYPE_DIRENTRY 3 
++#define TYPE_MAXTYPE 3 
++#define TYPE_ANY 15 // FIXME: comment is required
+ 
+ /***************************************************************************/
+ /*                       KEY & ITEM HEAD                                   */
+@@ -373,7 +381,7 @@
  {
-     struct reiserfs_transaction_handle th;
- 
-@@ -123,7 +123,7 @@
-      journal_begin (&th, s, JOURNAL_PER_BALANCE_CNT);
+     offset_v2_esafe_overlay tmp = *(const offset_v2_esafe_overlay *)v2;
+     tmp.linear = le64_to_cpu( tmp.linear );
+-    return tmp.offset_v2.k_type;
++    return (tmp.offset_v2.k_type <= TYPE_MAXTYPE)?tmp.offset_v2.k_type:TYPE_ANY;
+ }
   
-      reiserfs_delete_solid_item (&th, key);
--     if (is_direct_le_key (KEY_FORMAT_3_5, key))
-+     if (oid_free)
-         /* removals are protected by direct items */
-         reiserfs_release_objectid (&th, le32_to_cpu (key->k_objectid));
+ static inline void set_offset_v2_k_type( struct offset_v2 *v2, int type )
+@@ -523,15 +531,6 @@
+ #define put_block_num(p, i, v) put_unaligned(cpu_to_le32(v), (p) + (i))
  
-@@ -196,7 +196,7 @@
- 	       "save" link and release objectid */
-             reiserfs_warning ("vs-2180: finish_unfinished: iget failed for %K\n",
-                               &obj_key);
--            remove_save_link_only (s, &save_link_key);
-+            remove_save_link_only (s, &save_link_key, 1);
-             continue;
-         }
+ //
+-// there are 5 item types currently
+-//
+-#define TYPE_STAT_DATA 0
+-#define TYPE_INDIRECT 1
+-#define TYPE_DIRECT 2
+-#define TYPE_DIRENTRY 3 
+-#define TYPE_ANY 15 // FIXME: comment is required
+-
+-//
+ // in old version uniqueness field shows key type
+ //
+ #define V1_SD_UNIQUENESS 0
+@@ -1498,7 +1497,7 @@
  
-@@ -204,9 +204,21 @@
- 	    /* file is not unlinked */
-             reiserfs_warning ("vs-2185: finish_unfinished: file %K is not unlinked\n",
-                               &obj_key);
--            remove_save_link_only (s, &save_link_key);
-+            remove_save_link_only (s, &save_link_key, 0);
-             continue;
- 	}
-+
-+	if (truncate && S_ISDIR (inode->i_mode) ) {
-+	    /* We got a truncate request for a dir which is impossible.
-+	       The only imaginable way is to execute unfinished truncate request
-+	       then boot into old kernel, remove the file and create dir with
-+	       the same key. */
-+	    reiserfs_warning("green-2101: impossible truncate on a directory %k. Please report\n", INODE_PKEY (inode));
-+	    remove_save_link_only (s, &save_link_key, 0);
-+	    truncate = 0;
-+	    iput (inode); 
-+	    continue;
+ extern struct item_operations stat_data_ops, indirect_ops, direct_ops, 
+   direntry_ops;
+-extern struct item_operations * item_ops [4];
++extern struct item_operations * item_ops [TYPE_ANY + 1];
+ 
+ #define op_bytes_number(ih,bsize)                    item_ops[le_ih_k_type (ih)]->bytes_number (ih, bsize)
+ #define op_is_left_mergeable(key,bsize)              item_ops[le_key_k_type (le_key_version (key), key)]->is_left_mergeable (key, bsize)
+--- linux/fs/reiserfs/stree.c.orig	Mon Dec 24 14:14:56 2001
++++ linux/fs/reiserfs/stree.c	Mon Dec 24 14:19:50 2001
+@@ -524,6 +524,10 @@
+     ih = (struct item_head *)(buf + BLKH_SIZE);
+     prev_location = blocksize;
+     for (i = 0; i < nr; i ++, ih ++) {
++	if ( le_ih_k_type(ih) == TYPE_ANY) {
++	    reiserfs_warning ("is_leaf: wrong item type for item %h\n",ih);
++	    return 0;
 +	}
-  
-         if (truncate) {
-             REISERFS_I(inode) -> i_flags |= i_link_saved_truncate_mask;
-@@ -272,6 +284,8 @@
- 			   4/*length*/, 0xffff/*free space*/);
-     } else {
- 	/* truncate */
-+	if (S_ISDIR (inode->i_mode))
-+	    reiserfs_warning("green-2102: Adding a truncate savelink for a directory %k! Please report\n", INODE_PKEY(inode));
- 	set_cpu_key_k_offset (&key, 1);
- 	set_cpu_key_k_type (&key, TYPE_INDIRECT);
+ 	if (ih_location (ih) >= blocksize || ih_location (ih) < IH_SIZE * nr) {
+ 	    reiserfs_warning ("is_leaf: item location seems wrong: %h\n", ih);
+ 	    return 0;
+--- linux/fs/reiserfs/item_ops.c.orig	Mon Dec 24 13:38:15 2001
++++ linux/fs/reiserfs/item_ops.c	Mon Dec 24 14:07:50 2001
+@@ -685,17 +685,110 @@
+ 
+ 
+ //////////////////////////////////////////////////////////////////////////////
++// Error catching functions to catch errors caused by incorrect item types.
++//
++static int errcatch_bytes_number (struct item_head * ih, int block_size)
++{
++    reiserfs_warning ("green-16001: Invalid item type observed, run fsck ASAP\n");
++    return 0;
++}
++
++static void errcatch_decrement_key (struct cpu_key * key)
++{
++    reiserfs_warning ("green-16002: Invalid item type observed, run fsck ASAP\n");
++}
++
++
++static int errcatch_is_left_mergeable (struct key * key, unsigned long bsize)
++{
++    reiserfs_warning ("green-16003: Invalid item type observed, run fsck ASAP\n");
++    return 0;
++}
++
++
++static void errcatch_print_item (struct item_head * ih, char * item)
++{
++    reiserfs_warning ("green-16004: Invalid item type observed, run fsck ASAP\n");
++}
++
++
++static void errcatch_check_item (struct item_head * ih, char * item)
++{
++    reiserfs_warning ("green-16005: Invalid item type observed, run fsck ASAP\n");
++}
++
++static int errcatch_create_vi (struct virtual_node * vn,
++			       struct virtual_item * vi, 
++			       int is_affected, 
++			       int insert_size)
++{
++    reiserfs_warning ("green-16006: Invalid item type observed, run fsck ASAP\n");
++    return 0;	// We might return -1 here as well, but it won't help as create_virtual_node() from where
++		// this operation is called from is of return type void.
++}
++
++static int errcatch_check_left (struct virtual_item * vi, int free,
++				int start_skip, int end_skip)
++{
++    reiserfs_warning ("green-16007: Invalid item type observed, run fsck ASAP\n");
++    return -1;
++}
++
++
++static int errcatch_check_right (struct virtual_item * vi, int free)
++{
++    reiserfs_warning ("green-16008: Invalid item type observed, run fsck ASAP\n");
++    return -1;
++}
++
++static int errcatch_part_size (struct virtual_item * vi, int first, int count)
++{
++    reiserfs_warning ("green-16009: Invalid item type observed, run fsck ASAP\n");
++    return 0;
++}
++
++static int errcatch_unit_num (struct virtual_item * vi)
++{
++    reiserfs_warning ("green-16010: Invalid item type observed, run fsck ASAP\n");
++    return 0;
++}
++
++static void errcatch_print_vi (struct virtual_item * vi)
++{
++    reiserfs_warning ("green-16011: Invalid item type observed, run fsck ASAP\n");
++}
++
++struct item_operations errcatch_ops = {
++    errcatch_bytes_number,
++    errcatch_decrement_key,
++    errcatch_is_left_mergeable,
++    errcatch_print_item,
++    errcatch_check_item,
++
++    errcatch_create_vi,
++    errcatch_check_left,
++    errcatch_check_right,
++    errcatch_part_size,
++    errcatch_unit_num,
++    errcatch_print_vi
++};
++
++
++
++//////////////////////////////////////////////////////////////////////////////
+ //
+ //
+ #if ! (TYPE_STAT_DATA == 0 && TYPE_INDIRECT == 1 && TYPE_DIRECT == 2 && TYPE_DIRENTRY == 3)
+   do not compile
+ #endif
+ 
+-struct item_operations * item_ops [4] = {
++struct item_operations * item_ops [TYPE_ANY + 1] = {
+   &stat_data_ops,
+   &indirect_ops,
+   &direct_ops,
+-  &direntry_ops
++  &direntry_ops,
++  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
++  &errcatch_ops		/* This is to catch errors with invalid type (15th entry for TYPE_ANY) */
+ };
+ 
  

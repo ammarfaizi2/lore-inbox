@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278403AbRJZLsI>; Fri, 26 Oct 2001 07:48:08 -0400
+	id <S278450AbRJZMAj>; Fri, 26 Oct 2001 08:00:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278437AbRJZLr7>; Fri, 26 Oct 2001 07:47:59 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:3155 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278403AbRJZLro>; Fri, 26 Oct 2001 07:47:44 -0400
-Date: Fri, 26 Oct 2001 13:48:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marvin Justice <Mjustice@boxxtech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-pre5-aa1 O_DIRECT drastic HIGHMEM performance hit
-Message-ID: <20011026134819.D30905@athlon.random>
-In-Reply-To: <3B6867E6CB09B24385A73719A50C7C9A01797E@athena.boxxtech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3B6867E6CB09B24385A73719A50C7C9A01797E@athena.boxxtech.com>; from Mjustice@boxxtech.com on Thu, Oct 25, 2001 at 11:57:08AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S278449AbRJZMA3>; Fri, 26 Oct 2001 08:00:29 -0400
+Received: from uucp.cistron.nl ([195.64.68.38]:44048 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S278374AbRJZMAW>;
+	Fri, 26 Oct 2001 08:00:22 -0400
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: Re: SCSI Tape Device FATAL error on 2.4.10
+Date: Fri, 26 Oct 2001 14:00:56 +0200
+Organization: Cistron Internet Services B.V.
+Message-ID: <9rbj9p$8tr$1@ncc1701.cistron.net>
+In-Reply-To: <20011025124036.A11885@vger.timpanogas.org>
+X-Trace: ncc1701.cistron.net 1004097658 9147 193.78.180.30 (26 Oct 2001 12:00:58 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 11:57:08AM -0500, Marvin Justice wrote:
-> Are we stuck with a low mem configuration or are there workarounds that
-> would allow us to stick with the initial 2GB of RAM and still get ~200
-> MB/sec.
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote in message
+news:cistron.20011025124036.A11885@vger.timpanogas.org...
+>
+>
+> On a ServerWorks HE Chipset system with an Exabyte EXB-480
+> Robotics Tape library we are seeing a fatal SCSI IO problem
+> that results in a SCSI bus hang on the system.  This error
+> is very fatal, and requires that the machine be rebooted
+> to recover.   Following this error, the Linux
+> Operating System is still running OK, but the affected
+> SCSI bus does not respond to any commands nor do any
+> devices attached to this bus.
+>
+> The Tape Drive is an Exabyte SCSI Tape.  The error occurs when
+> the device reaches end of tape (EOT) during a write operation
+> while writing to the tape.
+>
+> With tape programming, there really is no good way to know where
+> the end of tape is while archiving data real time, so this error
+> is pretty much fatal.  We are using tape partitioning, which we
+> have noticed not many applications in Linux use at present, so
+> these code paths may be related to the problem.  I have reviewed
+> st.c but it is not readily apparent where the problem may be
+> in this code, which is leading me to suspect it's related to
+> some interaction between st.c and the drivers with regard to
+> multiple seeks and writes between tape partitions.
+>
 
-the problem you seen isn't specific to O_DIRECT. This should solve your
-problem (not just for O_DIRECT):
+Jeff,
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/people/axboe/patches/2.4.13-pre4/block-highmem-all-17.bz2
+Logical end-of-tape handling is clearly defined in Exabyte's SCSI reference
+manual which you can download from their web page. There's nothing fatal
+about it, your application should handle it. The SCSI Write command that
+reaches logical end-of-tape (or end-of-partition) will end with a Check
+condition, Sense key 0h, ASC=00h, ASCQ=00h, EOM bit = 1. Your data will be
+written to tape just fine. There is plenty of tape left so you can
+gracefully write a delimiting filemark or whatever you need to close the
+current data set. All write commands after reaching LEOT will also result in
+a Check Condition with the above sense information (until you really run out
+of tape). It's a Logical end-of-tape you deal with, not a Physical one.
 
-It's a long time that I want to include the anti-bounce bits, but I am
-still looking into the vm. The uglier part is that I suspect we'll also
-need to make a 2G bounce option for some hardware combination. I hope
-I'm wrong :).
+As a side note, make sure you have the latest firmware loaded in your M2
+drives.
 
-Andrea
+Rob
+
+
+
+

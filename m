@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267765AbTBGJhQ>; Fri, 7 Feb 2003 04:37:16 -0500
+	id <S267771AbTBGJwh>; Fri, 7 Feb 2003 04:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267769AbTBGJhQ>; Fri, 7 Feb 2003 04:37:16 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:57356 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267765AbTBGJhP>; Fri, 7 Feb 2003 04:37:15 -0500
-Date: Fri, 7 Feb 2003 10:46:15 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Restore module support.
-In-Reply-To: <Pine.LNX.4.44.0302070006110.31954-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0302071042410.1336-100000@serv>
-References: <Pine.LNX.4.44.0302070006110.31954-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267773AbTBGJwg>; Fri, 7 Feb 2003 04:52:36 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:17884 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267771AbTBGJwg>;
+	Fri, 7 Feb 2003 04:52:36 -0500
+Date: Fri, 07 Feb 2003 01:48:36 -0800 (PST)
+Message-Id: <20030207.014836.78483470.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
+References: <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
+	<Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Max Krasnyansky <maxk@qualcomm.com>
+   Date: Sun, 19 Jan 2003 19:22:44 -0800 (PST)
 
-On Fri, 7 Feb 2003, Kai Germaschewski wrote:
+   So here is new patch.
 
-> So you have the choice of either sticking to the solution which was 
-> previously used (only that it's now done in the kernel, not in modutils), 
-> or doing something new and more efficient.
+Ok, it generally looks fine, and try_module_get() is cheap enough
+(basically the equivalent of a local-cpu statistic bump plus
+a compare) that I'm not concerned about any added overhead.
 
-Where is the problem to do the "new and more efficient" in modutils?
+And since it is fixing a bug... :-)
 
-> Now, what's the reason you're not happy with that? You've got more
-> flexibility than before, and you can even switch between different ways
-> without having to teach an external package about it, so you avoid the
-> compatibility issues when kernel and modutils are not in sync.
-
-Where is the problem with updating user space tools? We should certainly 
-reduce dependencies, but moving everything into the kernel source can't be 
-the answer either.
-
-bye, Roman
-
+Just let me discuss some things with Alexey before I apply this.

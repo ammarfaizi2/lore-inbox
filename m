@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbTENUa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 16:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbTENUa3
+	id S262856AbTENUei (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 16:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbTENUei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 16:30:29 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:63983 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261222AbTENUa2 convert rfc822-to-8bit (ORCPT
+	Wed, 14 May 2003 16:34:38 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:8206 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262856AbTENUeg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 16:30:28 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: RFC Proposal to enable MSI support in Linux kernel
-Date: Wed, 14 May 2003 13:43:15 -0700
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB56401E451DE@fmsmsx407.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RFC Proposal to enable MSI support in Linux kernel
-Thread-Index: AcMaU+U543/3MAAzSeqap8RlnFTsuwAAzqhw
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, <linux-kernel@vger.kernel.org>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>
-X-OriginalArrivalTime: 14 May 2003 20:43:15.0486 (UTC) FILETIME=[717BDBE0:01C31A59]
+	Wed, 14 May 2003 16:34:36 -0400
+Date: Wed, 14 May 2003 22:47:09 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
+Cc: mec@shout.net, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.69 Change to i386 Makefile to distinguish athlons.
+Message-ID: <20030514204709.GA1002@mars.ravnborg.org>
+Mail-Followup-To: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>,
+	mec@shout.net, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3EC29191.5030700@yahoo.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EC29191.5030700@yahoo.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ISA devices typically use hard-coded IRQs (< 16), and the drivers for those also assume such IRQs. You can break the driver if you provide the vector number instead of the IRQ for them. Unfortunately, vectors <16 are used for the processor, and thus not available. Good news is that vectors assigned to I/O are equal to or higher than FIRST_DEVICE_VECTOR (> 16), so there are no conflicts between the IRQ and vector space, i.e. you don't need to check if it's vector or IRQ at do_IRQ() time, for example.
-
-Non legacy drivers are all drivers but such legacy drivers. Included are PCI, USB drivers, etc.
-
-Thanks,
-Jun
-
-
-> -----Original Message-----
-> From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca]
-> Sent: Wednesday, May 14, 2003 12:54 PM
-> To: Nakajima, Jun
-> Cc: Nguyen, Tom L; linux-kernel@vger.kernel.org; Saxena, Sunil; Mallick,
-> Asit K; Carbonari, Steven
-> Subject: RE: RFC Proposal to enable MSI support in Linux kernel
+On Wed, May 14, 2003 at 02:57:21PM -0400, Jonathan Bastien-Filiatrault wrote:
+> It should succesfully set -march=athlon-<type> according to uname -p.
 > 
-> On Wed, 14 May 2003, Nakajima, Jun wrote:
+> --- linux-2.5.69/arch/i386/Makefile.orig    2003-05-14 
+> 13:37:19.000000000 -0400
+> +++ linux-2.5.69/arch/i386/Makefile    2003-05-14 14:50:03.000000000 -0400
+> @@ -23,7 +23,7 @@
+> CFLAGS += -pipe
 > 
-> > That's a good idea, and that's the way we did this (we added MSI
-> > support on top of the vector-based indexing). If people are interested
-> in
-> > the vector-based indexing (i.e. provide the vector number to device
-> > drivers (non-legacy drivers only) instead of IRQ) for some other uses,
-> we
-> > would like to discuss possible cleaner implementations.
-> >
-> > Long will post a patch containing the vector-based indexing part only.
-> 
-> Thanks! It'd be a lot easier to test the core changes too. What do you
-> mean by non legacy?
-> 
-> 	Zwane
-> --
-> function.linuxpower.ca
+> check_gcc = $(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > 
+> /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi)
+> -
+> +get_athlon_type = ${shell case `uname -p` in "* 4 *") echo 
+> "athlon-4";;*XP*) echo "athlon-xp";;*MP*) echo "athlon-mp";;*) echo 
+> "athlon";;esac}
+
+This is broken.
+You have no guarantee whatsoever that the kernel is being compiled
+for the machine where you do the compilation.
+
+	Sam

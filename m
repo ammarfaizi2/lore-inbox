@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265383AbSKACBN>; Thu, 31 Oct 2002 21:01:13 -0500
+	id <S265566AbSKAB6t>; Thu, 31 Oct 2002 20:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265451AbSKACBN>; Thu, 31 Oct 2002 21:01:13 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:54525 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265383AbSKACBK>; Thu, 31 Oct 2002 21:01:10 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A495@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Greg KH'" <greg@kroah.com>,
-       "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "Lee, Jung-Ik" <jung-ik.lee@intel.com>, linux-kernel@vger.kernel.org
-Subject: RE: bare pci configuration access functions ?
-Date: Thu, 31 Oct 2002 18:07:31 -0800
+	id <S265567AbSKAB6t>; Thu, 31 Oct 2002 20:58:49 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:26897 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265566AbSKAB6s>; Thu, 31 Oct 2002 20:58:48 -0500
+Date: Thu, 31 Oct 2002 21:03:55 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, Rasmus Andersen <rasmus@jaquet.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+In-Reply-To: <20021031011002.GB28191@opus.bloom.county>
+Message-ID: <Pine.LNX.3.96.1021031205920.22444F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Greg KH [mailto:greg@kroah.com] 
-> Nice, thanks for pointing that out.  But what about the fact that I
-> think we can now start optimizing certain parts of the 
-> "generic" code to
-> play nicer with Linux?
+On Wed, 30 Oct 2002, Tom Rini wrote:
 
-It is much much more important that ACPI be *correct* than fast or small. To
-that end, it is better to not fork ACPI-Linux from ACPI-everyone else. Linux
-benefits from core bugs found by other OSes (FBSD is not the only one - for
-some reason I'm not allowed to mention who else is using ACPI CA but they
-*do* send bug reports) and vice versa.
+> On Thu, Oct 31, 2002 at 01:53:14AM +0100, Adrian Bunk wrote:
+> > On Wed, 30 Oct 2002, Rasmus Andersen wrote:
 
-> Now I don't mean this to be an ACPI rant, I know why they did 
-> their code
-> this way, and without it, there probably would not be any ACPI Linux
-> code.  I just don't think it's the best way (from an engineering
-> standpoint) to do things.  And again, we are getting way off 
-> topic from
-> the original problem, sorry.
+> > >...
+> > > As before, your comments and suggestions will be
+> > > appreciated.
+> > 
+> > could you try to use "-Os" instead of "-O2" as gcc optimization option
+> > when CONFIG_TINY is enabled? Something like the following (completely
+> > untested) patch:
+> 
+> -Os can produce larger binaries, keep in mind.  If we're going to go
+> this route, how about something generally useful, and allow for general
+> optimization level / additional CFLAGS to be added.
 
-I'm used to ACPI ranting from all quarters, you know that ;-) but let me
-just say this:
+Sure, and unrolling loops can cause cache misses and be slower than that
+jmp back in a loop. The point is this is a string, the people who think
+they're able to hand diddle the options can change it. And more to the
+point anyone who can't find a string in a makefile shouldn't be second
+guessing the compiler anyway.
 
-- ACPI is not performance-critical
-- ACPI will never be simple and elegant, even if you made it Linux-specific
-- Portability enhances correctness and maximizes developer productivity
-- Read my lips, no new taxes!
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-(dunno where that last one came from ;-)
-
-Regards -- Andy

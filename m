@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265742AbUBJPd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 10:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265745AbUBJPd3
+	id S265932AbUBJPpa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 10:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265935AbUBJPpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 10:33:29 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:4993 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S265742AbUBJPd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 10:33:27 -0500
-From: Michael Frank <mhf@linuxmail.org>
-Subject: Fwd: [Swsusp-devel] Kernel 2.6 pm_send_all() issues.
-Date: Tue, 10 Feb 2004 23:43:06 +0800
-User-Agent: KMail/1.5.4
+	Tue, 10 Feb 2004 10:45:30 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:60803 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S265932AbUBJPp2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 10:45:28 -0500
+Date: Tue, 10 Feb 2004 10:44:49 -0500
+From: Eric Buddington <ebuddington@verizon.net>
 To: linux-kernel@vger.kernel.org
-Cc: Wolfgang Glas <wolfgang.glas@ev-i.at>, swsusp-devel@lists.sourceforge.net
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Reiserfs crash while deleting specific file in 2.6.2
+Message-ID: <20040210154449.GA1419@pool-151-203-182-190.wma.east.verizon.net>
+Reply-To: ebuddington@wesleyan.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402102343.06896.mhf@linuxmail.org>
+User-Agent: Mutt/1.4.1i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.203.182.190] at Tue, 10 Feb 2004 09:45:25 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This question is probably better suited for LKML.
+Kernel 2.6.2, not tainted.
 
-----------  Forwarded Message  ----------
+My reiser root fs filled up while compiling, so I started deleting
+extra files to make space. One directory in particular gives me a BUG
+when I try to rm -rf it (I don't know if it's the same file each time;
+the dir in question has no subdirs).
 
-Subject: [Swsusp-devel] Kernel 2.6 pm_send_all() issues.
-Date: Tuesday 10 February 2004 04:06
-From: Wolfgang Glas <wolfgang.glas@ev-i.at>
-To: swsusp-devel@lists.sourceforge.net
+Running 'dmesg' afterwards to check messages hangs. So do other
+commands I tried. I can still type at existing shells until I hit
+enter, so I had to reboot.
 
-Coming back to an earlier post, which states, that NVidia suspend/resume under 
-2.6.x could be resurrected, if  drivers_suspend() and drivers_resume() in 
-swsusp.c are tuned in a way, that pm_send_all() is called, I want to direct 
-the following question to more eligible persons in this list:
+When I repeated this at the console, I saw the following (which I had
+to scribble on paper, so I just grabbed what I guessed was most
+useful):
 
-  I inspected NVidia's driver and I found out, that it's implemented as a 
-character device and hence does not implement the suspend/resume kernel 
-driver interface, which has been introduced in linux-2.6. But nevertheless 
-this driver has the ability to register its own power management handler 
-through pm_register(), an interface already present in linux-2.4 and still 
-used in some 20 drivers present in the linux-2.6.1 code base, most notable 
-some audio driver and some irda drivers.
+-----------
+Kernel BUG at fs/reiserfs/prints.c:339
+invalid operand: 0000 [#1]
+call trace:
+	reiserfs_do_truncate+0x34a/0x5f0
+	reiserfs_delete_object
+	reiserfs_delete_inode
+	reiserfs_delete_inode
+	generic_delete_inode
+-------------
 
-  Diving further into the code, I recognized, that the kernel function 
-ppm_send_all(), which calls all handlers registered through pm_register() is 
-never called inside of swsusp2.c
+This is repeatable (2 for 2, anyway), and I will get more info if requested.
 
-  So, what I want to ask is, whether the pm_register/pm_send/pm_send_all 
-interface is simply deprecated and the NVidia driver (and other drivers, 
-which use pm_register) should be reeingineered in order to use the 
-resume/suspend interface of linux-2.6. Or should we try to modify swsusp2.c 
-in a way, that it additionally calls  pm_send_all for these drivers?
-
-   TIA,
-
-      Wolfgang
-
-
--------------------------------------------------------
-The SF.Net email is sponsored by EclipseCon 2004
-Premiere Conference on Open Tools Development and Integration
-See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
-http://www.eclipsecon.org/osdn
-_______________________________________________
-swsusp-devel mailing list
-swsusp-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/swsusp-devel
-
-
-
--------------------------------------------------------
-
+-Eric

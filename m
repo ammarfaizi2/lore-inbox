@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbTIJFfc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264565AbTIJFfc
+	id S264565AbTIJFfh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbTIJFfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:35:32 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6929
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264549AbTIJFfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:35:31 -0400
-Date: Tue, 9 Sep 2003 22:35:49 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       John Yau <jyau_kernel_dev@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Priority Inversion in Scheduling
-Message-ID: <20030910053549.GE28279@matchmail.com>
-Mail-Followup-To: Mike Galbraith <efault@gmx.de>,
-	Nick Piggin <piggin@cyberone.com.au>,
-	John Yau <jyau_kernel_dev@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <LAW10-OE63Zc1WPsAVe0000ab93@hotmail.com> <3F5E6F15.6040507@cyberone.com.au> <6.0.0.22.0.20030910062610.01cfacd8@pop.gmx.net>
-Mime-Version: 1.0
+	Wed, 10 Sep 2003 01:35:36 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:34310 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S264565AbTIJFff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:35:35 -0400
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Ralf Baechle <ralf@gnu.org>, Richard Henderson <rth@twiddle.net>
+Subject: Re: [PATCH] Move EISA_bus
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20030909222937.GH18654@parcelfarce.linux.theplanet.co.uk>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Wed, 10 Sep 2003 07:31:23 +0200
+Message-ID: <wrpbrttyztg.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030909222937.GH18654@parcelfarce.linux.theplanet.co.uk> (Matthew
+ Wilcox's message of "Tue, 9 Sep 2003 23:29:37 +0100")
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6.0.0.22.0.20030910062610.01cfacd8@pop.gmx.net>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 06:42:10AM +0200, Mike Galbraith wrote:
-> At 02:23 AM 9/10/2003, Nick Piggin wrote:
-> >Hi John,
-> >Your mechanism is basically "backboost". Its how you get X to keep a
-> >high piroirity, but quite unpredictable. Giving a boost to a process
-> >holding a semaphore is an interesting idea, but it doesn't address the
-> >X problem.
-> 
-> FWIW, I tried the hardware usage bonus thing, and it does cure the X 
-> inversion problem (yeah,  it's a pretty cheezy way to do it).  It also 
-> cures xmms skips if you can't get to the top without hw usage.  I also 
-> tried a cpu limited backboost from/to tasks associated with hardware, and 
-> it hasn't run amok... yet ;-)
+>>>>> "Matthew" == Matthew Wilcox <willy@debian.org> writes:
 
-Against which scheduler, and when are you going to post the patch?
+Matthew> While I'm at it, I also move the variable definition to
+Matthew> drivers/eisa/eisa-bus.c.  The rest of this patch is fixing up
+Matthew> the fallout from having to include <linux/eisa.h> if you use
+Matthew> EISA_bus.
+
+Yup.
+
+While we're at it, why not setting EISA_bus as 'deprecated', so people
+will know they'd better move the driver to the EISA probing API ?
+
+     M.
+-- 
+Places change, faces change. Life is so very strange.

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283514AbRK3F7f>; Fri, 30 Nov 2001 00:59:35 -0500
+	id <S283512AbRK3F6P>; Fri, 30 Nov 2001 00:58:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283515AbRK3F7Z>; Fri, 30 Nov 2001 00:59:25 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:44295 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S283514AbRK3F7L>;
-	Fri, 30 Nov 2001 00:59:11 -0500
-Date: Thu, 29 Nov 2001 21:58:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: linux-kernel@vger.kernel.org, ziegler@informatik.hu-berlin.de
-Subject: Re: IDE controller detection 2.4 +devfs
-Message-ID: <20011129215855.C8914@kroah.com>
-In-Reply-To: <20011130001138.78ab1242.rene.rebe@gmx.net> <200111300017.fAU0Hx704241@vindaloo.ras.ucalgary.ca> <20011130012752.0fd5380a.rene.rebe@gmx.net>
+	id <S283514AbRK3F6F>; Fri, 30 Nov 2001 00:58:05 -0500
+Received: from [208.48.139.185] ([208.48.139.185]:3553 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S283512AbRK3F5w>; Fri, 30 Nov 2001 00:57:52 -0500
+Date: Thu, 29 Nov 2001 21:57:46 -0800
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 freezed up with eepro100 module
+Message-ID: <20011129215746.A29355@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com> <20011129095107.A17457@conwaycorp.net> <3C070FEC.3602CB49@pobox.com> <20011130114506.A4789@bee.lk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011130012752.0fd5380a.rene.rebe@gmx.net>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 02 Nov 2001 03:42:17 -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011130114506.A4789@bee.lk>; from anuradha@gnu.org on Fri, Nov 30, 2001 at 11:45:06AM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 01:27:52AM +0100, Rene Rebe wrote:
+On Fri, Nov 30, 2001 at 11:45:06AM +0600, Anuradha Ratnaweera wrote:
 > 
-> Btw. Thanks for DevFS it really ROCKs!! (Except that USBfs exists
-> and I can not maintain / controll it via the devfsd :-(()
+> Has anybody got the same issue with non Dell machines?
+> 
+> I am running 2.4.16 on a Compaq proliant ML 370 without problems (machine has
+> been up for 2+ days with the new kernels, though).  Trafic is not very high.
 
-USBfs?  What's that?  I don't see that in the kernel, yet :)
+I don't have any non-Dell machines with the eepro100, but I did put one of
+our Dells on 2.2.16 35 hours ago with the eepro100 driver.  I don't know the
+exact model, but it's an older dual 500MHz PIII machine.  Traffic is light,
+with only appoximately 100MB being transfered over the network so far.
 
-thanks,
+Is there a workload that can reproduce the hang?  If so, I might be able to
+do a bit of testing...
 
-greg k-h
+I've also got a couple Dell 2400s, but those are still running 2.4.9. 
+Unfortunately those are production machines, so I don't want to mess with
+them right now.
+
+-Dave

@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130299AbRAAUdc>; Mon, 1 Jan 2001 15:33:32 -0500
+	id <S129413AbRAAU60>; Mon, 1 Jan 2001 15:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbRAAUdW>; Mon, 1 Jan 2001 15:33:22 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:52495 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130299AbRAAUdT>;
-	Mon, 1 Jan 2001 15:33:19 -0500
-Message-ID: <3A50E1E4.26A8124A@innominate.de>
-Date: Mon, 01 Jan 2001 21:00:36 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S129572AbRAAU6H>; Mon, 1 Jan 2001 15:58:07 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:16389 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129413AbRAAU57>; Mon, 1 Jan 2001 15:57:59 -0500
+Date: Mon, 1 Jan 2001 12:27:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+In-Reply-To: <Pine.LNX.4.10.10101011124160.22396-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10101011222560.22433-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <Pine.GSO.4.10.10101010332330.1050-100000@zeus.fh-brandenburg.de> <Pine.GSO.4.21.0012312220290.7648-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> GFP_BUFFER _may_ become an issue if we move bitmaps into pagecache.
-> Then we'll need a per-address_space gfp_mask. Again, patches exist
-> and had been tested (not right now - I didn't port them to current
-> tree yet). Bugger if I remember whether they were posted or not - they've
-> definitely had been mentioned on linux-mm, but IIRC I had sent the
-> modifications of VM code only to Jens. I can repost them.
 
-Please, and I'll ask Rik to post them on the kernelnewbies.org patch
-page.  (Rik?)  Putting bitmaps and group descriptors into the page cache
-will allow the current adhoc bitmap and groupdesc caching code to be
-deleted - the for-real cache should have better lru, be more efficient
-to access, not need special locking and won't have an arbitrary limit on
-number of cached bitmaps.  About 300 lines of spagetti gone.  I suppose
-the group descriptor pages still need to be locked in memory so we can
-address them through a table instead of searching the hash.  OK, this
-must be what you meant by a 'proper' fix to the ialloc group desc bug I
-posted last month, which by the way is *still* there.  How about
-applying my patch in the interim?  It's a real bug, it just doesn't
-trigger often.
 
-> Some pieces of balloc.c cleanup had been posted on fsdevel. Check the
-> archives. They prepare the ground for killing lock_super() contention
-> on ext2_new_inode(), but that part wasn't there back then.
+On Mon, 1 Jan 2001, Andre Hedrick wrote:
+
+> On Mon, 1 Jan 2001, Alan Cox wrote:
 > 
-> I will start -bird (aka FS-CURRENT) branch as soon as Linus opens 2.4.
-> Hopefully by the time of 2.5 it will be tested well enough. Right now
-> it exists as a large patchset against more or less recent -test<n> and
-> I'm waiting for slowdown of the changes in main tree to put them all
-> together.
+> > > > as it apparently makes CONFIG_IDEDMA_IVB a complete no-op?
+> > > 
+> > > Exactly what it is designed to do, Ignore Validity Bits, because the whole
+> > > damn messedup the rules between ATA-4 and ATA-6
+> > 
+> > I think the question is more - so why not lose the ifdef
+> > -
+> 
+> Because there are the exceptions that get it correct based on the level of
+> ATA support reported in the IDENTIFY page.
 
-It would be awfully nice to have those patches available via ftp. 
-Web-based mail archives don't make it because you can't generally can't
-get the patches out intact - the tabs get expanded and other noise
-inserted.
+Andre, stop blathering, and answer the question.
 
---
-Daniel
+The code on both sides of the #ifdef is the same.
+
+WHY IS THE IFDEF THERE?
+
+Don't bleat about standards and ATA-4/5/6. They won't make the code behave
+any other way.
+
+Why do you have a config option that doesn't _do_ anything, except restate
+the exact same test in two different ways?
+
+Doing the same test in two different ways and making it _look_ like two
+different tests is confusing. Your explanation seems to be that "the
+standards are confusing, the source code had better be confusing too". And
+quite frankly, that is not a very good reason.
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

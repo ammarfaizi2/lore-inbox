@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264635AbSIWASJ>; Sun, 22 Sep 2002 20:18:09 -0400
+	id <S264626AbSIWAQV>; Sun, 22 Sep 2002 20:16:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264638AbSIWASJ>; Sun, 22 Sep 2002 20:18:09 -0400
-Received: from dp.samba.org ([66.70.73.150]:45288 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264635AbSIWASD>;
-	Sun, 22 Sep 2002 20:18:03 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Kevin O'Connor" <kevin@koconnor.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] In-kernel module loader 1/7 
-In-reply-to: Your message of "Sat, 21 Sep 2002 03:38:30 -0400."
-             <20020921033830.A32446@arizona.localdomain> 
-Date: Mon, 23 Sep 2002 09:31:42 +1000
-Message-Id: <20020923002313.EAA412C12D@lists.samba.org>
+	id <S264630AbSIWAQV>; Sun, 22 Sep 2002 20:16:21 -0400
+Received: from u212-239-154-82.freedom.planetinternet.be ([212.239.154.82]:2564
+	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
+	id <S264626AbSIWAQV>; Sun, 22 Sep 2002 20:16:21 -0400
+Message-Id: <200209230019.g8N0JmvC003642@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.38 
+In-Reply-To: Your message of "Sat, 21 Sep 2002 21:34:18 PDT."
+             <Pine.LNX.4.33.0209212130360.2433-100000@penguin.transmeta.com> 
+Date: Mon, 23 Sep 2002 02:19:48 +0200
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020921033830.A32446@arizona.localdomain> you write:
-> Please consider the following non-module code snippet:
-> 
-> int
-> sys_enable_foo_security()
-> {
->         foocache = kmalloc(100000);
->         register_security(&foo_ops);
-> }
-> 
-> int
-> sys_disable_foo_security()
-> {
->         unregister_security(&foo_ops);
->         kfree(foocache);  // OOPS
-> }
-> 
-> 
-> If I follow Roman's argument correctly, the unload race is not module
-> specific.  (The problem is that unregister_security() only asserts that no
-> new callers will be made to foo_ops, it doesn't guarantee that there are no
-> current callers.)
 
-But in practice there are many resources which are only unregistered
-in the "unloading module" case: certainly by far the most common
-case.  It's hard for most module authors to spot this kind of race.
+> Trying to be a bit more timely about releases, especially since some 
+> people couldn't use 2.5.37 due to the X lockup that should hopefully
+> be fixed (no idea _why_ that old bug only started to matter recently, the 
+> bug itself was several months old).
 
-> In the above example, one solution would be to reference count foocache.
-> However, another viable solution would be to ref-count the security_ops
-> field.
-> 
-> Anyway, given that the problem is a general resource management issue (and
-> not module specific), I think one could implement call_security() with less
-> overhead:
-> 
-> #define call_security(method , ...)					\
-> 	({ int __ret;							\
-> 	   read_lock(&SecurityLock);                                    \
-> 	   __ret = security_ops->method(__VA_ARGS__);                   \
->            read_unlock(&SecurityLock);                                  \
-> 	  __ret;							\
-> 	})
+The boot time lock up, that I have indeed encountered intermittently ever 
+since switching to 2.5.3{01}, may indeed be gone, but the one where just 
+moving my mouse around locks things up in a matter of seconds hasn't. 
+This started somewhere in 2.5.3{234}, only the latter of which I was able 
+to compile for my box.
 
-Whack me with a cacheline... that's going to hurt on SMP.  You could
-use a brlock, though.
+Someone recently reported having similar problems and fixing them by 
+disabling MTRR, but this cannot be the entire story since I never had it 
+enabled in the first place. No wonder, on a dual P5 machine...
 
-You're assuming security methods cannot sleep?  If true, use a brlock
-and be done with it.  Otherwise, you'll need a refcount, and we're
-back to bigrefs and synchronize_kernel.  Adding a bigref to each
-security_ops struct might be acceptable, since it's so big.  Adding a
-single "owner" field certainly is.
+By the way, 2.3.38 gives me this:
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/net/ipv4/netfilter/ipt_owner.o
+depmod:         find_task_by_pid
+
+Regards,
+
+MCE

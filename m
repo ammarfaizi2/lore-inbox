@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317217AbSFXBdC>; Sun, 23 Jun 2002 21:33:02 -0400
+	id <S317251AbSFXBs1>; Sun, 23 Jun 2002 21:48:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317219AbSFXBdB>; Sun, 23 Jun 2002 21:33:01 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:4603 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S317217AbSFXBdA>; Sun, 23 Jun 2002 21:33:00 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15638.30407.605257.563235@wombat.chubb.wattle.id.au>
-Date: Mon, 24 Jun 2002 11:32:55 +1000
-To: Jeff Meininger <jeffm@boxybutgood.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: loopback block device 'offset' - 2GB limit?
-In-Reply-To: <708520218@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
- {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
- F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
-Comments: Hyperbole mail buttons accepted, v04.18.
+	id <S317230AbSFXBs0>; Sun, 23 Jun 2002 21:48:26 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:17119 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S317219AbSFXBsZ>; Sun, 23 Jun 2002 21:48:25 -0400
+Date: Sun, 23 Jun 2002 18:50:28 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] /proc/scsi/map
+To: Nick Bellinger <nickb@attheoffice.org>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Message-id: <3D167AE4.1080409@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <3D14B2CF.90002@pacbell.net> <1024769900.6875.139.camel@subjeKt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> This reiterates the need for a sound logical device naming scheme that
+> fits into driverfs without mucking up the basic structure.  Not being a
+> expert on naming, the least offensive format I can think with regard to
+> iSCSI would be something along the lines of:
+>   
+> $DRIVERFS/virt/iscsi/iqn.2002-06.com.foo.super.turbo.disk.array.3543/disk0
 
->>>>> "Jeff" == Jeff Meininger <jeffm@boxybutgood.com> writes:
+That could do the job, but I'll leave those discussions up to SCSI
+experts ... seems there are folk there who know something about the
+topic, unlike me !  :)
 
-Jeff> struct loop_info has a 32-bit 'int' offset (for x86 anyway), so
-Jeff> it might require something tricky.  
+Perhaps such things will be discussed at OLS next week, not that
+I'll be there.
 
-The Large Block Device patch enables this.  There'll be a patch
-against 2.5.24 coming soon.
+- Dave
 
 
-PeterC

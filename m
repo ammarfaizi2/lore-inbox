@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbTFDKut (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 06:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTFDKut
+	id S263201AbTFDK4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 06:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTFDK4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 06:50:49 -0400
-Received: from axion.xs4all.nl ([213.84.8.90]:54314 "EHLO axion.demon.nl")
-	by vger.kernel.org with ESMTP id S263199AbTFDKus (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 06:50:48 -0400
-Date: Wed, 4 Jun 2003 13:04:15 +0200
-From: Monchi Abbad <kernel@axion.demon.nl>
-To: linux-kernel@vger.kernel.org
-Subject: ever since 2.5.70 no isapnp for cs4236+
-Message-ID: <20030604110415.GA15922@axion.demon.nl>
+	Wed, 4 Jun 2003 06:56:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15747
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263201AbTFDK4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 06:56:50 -0400
+Subject: Re: Re:2.5.70-mm4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vitalis Tiknius <vt@vt.fermentas.lt>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306041308.24120.vt@vt.fermentas.lt>
+References: <200306041308.24120.vt@vt.fermentas.lt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054721542.9359.89.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Jun 2003 11:12:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mer, 2003-06-04 at 12:08, Vitalis Tiknius wrote:
+> re. cdrom mount problem: so far, so good with all combinations.
+> 
+> vesafb problem: does not work with memory >1Gb.
 
-ever since kernel 2.5.70 I have a problem with the kernel freezing upon initing the cs4236+
- sound card, whereas previously there was no such problem. Now I get the following message:
+There is a more complete fix in the -ac tree. The one you have there is
+ought on memory allocation by a factor of eight and doesn't allow for
+double buffering and catching some corner cases.
 
-Advanced Linux Sound Architecture Driver Version 0.9.4 (Sat May 31 13:37:06 2003 UTC).
-can't register device seq
-specify port
-isapnp detection failed and probing for CS4236+ is not supported
+The 2.4 one has been evolving somewhat over time
 
-It says that probing for cs4236+ is not supported, previously this worked just fine though.
-
-
-Monchi.
---

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274700AbRITXQT>; Thu, 20 Sep 2001 19:16:19 -0400
+	id <S274698AbRITXYi>; Thu, 20 Sep 2001 19:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274699AbRITXQH>; Thu, 20 Sep 2001 19:16:07 -0400
-Received: from waste.org ([209.173.204.2]:16655 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S274698AbRITXP7>;
-	Thu, 20 Sep 2001 19:15:59 -0400
-Date: Thu, 20 Sep 2001 18:15:45 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: Robert Love <rml@tech9.net>, Andrea Arcangeli <andrea@suse.de>,
-        Roger Larsson <roger.larsson@norran.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-In-Reply-To: <200109202253.RAA21082@waste.org>
-Message-ID: <Pine.LNX.4.30.0109201756400.20823-100000@waste.org>
+	id <S274696AbRITXY2>; Thu, 20 Sep 2001 19:24:28 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:38916 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S274710AbRITXYL>; Thu, 20 Sep 2001 19:24:11 -0400
+Date: Fri, 21 Sep 2001 01:24:06 +0200 (CEST)
+From: eduard.epi@t-online.de (Peter Bornemann)
+To: Andreas Dilger <adilger@turbolabs.com>, Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: noexec-flag does not work in Linux 2.4.10-pre10
+In-Reply-To: <20010920151708.F14526@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0109210114430.3966-100000@eduard.t-online.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Dieter Nützel wrote:
+On Thu, 20 Sep 2001, Andreas Dilger wrote:
 
-> > > > Right, the patch is returning the length preemption was unavailable
-> > > > (which is when a lock is held) in us. So it is indded 4ms.
-> > > >
-> > > > But, I think Dieter is saying he _sees_ 0.5~1s latencies (in the form
-> > > > of audio skips).  This is despite the 4ms locks being held.
-> > >
-> > > Yes, that's the case. During dbench 16,32,40,48, etc...
-> >
-> > You might actually be waiting on disk I/O and not blocked.
-> >
-> > Does your audio source depend on any files (eg mp3s) and if so, could they
-> > be moved to a ramfs? Do the skips go away then?
->
-> Good point.
->
-> I've copied one video (MP2) and one Ogg-Vorbis file into /dev/shm.
-> Little bit better but hiccup still there :-(
 
-Is anything else freezing up? Do you see your mouse stop moving, for
-instance? Do other apps stop getting scheduled (eg, ico)?
+> Are you sure this is actually a problem?  Can you really exec these
+> files, or is it just a matter of the flag?  Some changes were made
+> to mount flags by Al Viro.  If you really want the flags gone, you
+> should use a different umask (e.g. umask=111).  The noexec flag
+> means (for filesystems that actually have permissions) that _even if_
+> the "x" bit is set, it cannot be executed.
 
-You might try stracing artsd to see if it hangs at a particular syscall.
-Use -tt or -r for timestamps and pipe the output through tee (to a file on
-your ramfs).
+OK copying /bin/ls to /dosc and executing it gives:
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+peter@eduard:~ > /dosc/ls
+bash: /dosc/ls: Keine Berechtigung (no permission)
 
+This is no problem for me but an inconvenience. If You see all
+the x-flags You believe in the executability (is that right?), moreover,
+as on my system executables are displayed in red colour, I feel my eyes
+are deceived to some extent.
+But, as umask=111 works, I will switch to that.
+
+Thanks a lot!
+
+Peter B
 

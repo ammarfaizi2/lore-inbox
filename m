@@ -1,63 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129812AbRBFTOy>; Tue, 6 Feb 2001 14:14:54 -0500
+	id <S129741AbRBFTPo>; Tue, 6 Feb 2001 14:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbRBFTOo>; Tue, 6 Feb 2001 14:14:44 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:8829 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129744AbRBFTOb>; Tue, 6 Feb 2001 14:14:31 -0500
-Date: Tue, 6 Feb 2001 14:11:23 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        <kiobuf-io-devel@lists.sourceforge.net>,
-        Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.30.0102061955380.7919-100000@elte.hu>
-Message-ID: <Pine.LNX.4.30.0102061402200.15204-100000@today.toronto.redhat.com>
+	id <S129667AbRBFTPY>; Tue, 6 Feb 2001 14:15:24 -0500
+Received: from gear.torque.net ([204.138.244.1]:26118 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S129744AbRBFTOu>;
+	Tue, 6 Feb 2001 14:14:50 -0500
+Message-ID: <3A804C02.B09071@torque.net>
+Date: Tue, 06 Feb 2001 14:09:54 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: rawio usage
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Ingo Molnar wrote:
+ 
+Content-Type: multipart/mixed;
+ boundary="------------D4869FCB9AEAF2CC69FB9DEF"
 
->
-> On Tue, 6 Feb 2001, Ben LaHaise wrote:
->
-> > 	- reduce the overhead in submitting block ios, especially for
-> > 	  large ios. Look at the %CPU usages differences between 512 byte
-> > 	  blocks and 4KB blocks, this can be better.
->
-> my system is already submitting 4KB bhs. If anyone's raw-IO setup submits
-> 512 byte bhs thats a problem of the raw IO code ...
->
-> > 	- make asynchronous io possible in the block layer.  This is
-> > 	  impossible with the current ll_rw_block scheme and io request
-> > 	  plugging.
->
-> why is it impossible?
+This is a multi-part message in MIME format.
+--------------D4869FCB9AEAF2CC69FB9DEF
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-s/impossible/unpleasant/.  ll_rw_blk blocks; it should be possible to have
-a non blocking variant that does all of the setup in the caller's context.
-Yes, I know that we can do it with a kernel thread, but that isn't as
-clean and it significantly penalises small ios (hint: databases issue
-*lots* of small random ios and a good chunk of large ios).
+"Mayank Vasa" <mvasa@confluencenetworks.com> wrote:
+> I am quite new to rawio and am experimenting with with its usage. My test
+> environment is Redhat 7.0, kernel version 2.2.16-22 having an external fibre
+> channel drive having 2 disks (/dev/sda1 and /dev/sdb1)
+> 
+> All I am trying to do is to write and read to & from the disk using a raw
+> device. Externally I did a "raw /dev/raw/raw1 /dev/sdb1" and then I wrote a
+> small program to do the read/write.
 
-> > You mentioned non-spindle base io devices in your last message.  Take
-> > something like a big RAM disk. Now compare kiobuf base io to buffer
-> > head based io. Tell me which one is going to perform better.
->
-> roughly equal performance when using 4K bhs. And a hell of a lot more
-> complex and volatile code in the kiobuf case.
+[snip]
 
-I'm willing to benchmark you on this.
+Raw devices need to meet the alignment requirements of the
+device they are bound to; in the case of most disk this
+will be 512 bytes. You need to take this into account for:
+  - the buffer you give to the read() and write() calls
+  - the 'size' given to read() and write() should be a
+    multiple of 512
+  - the SEEK_SET 'offset' given to lseek() should be a
+    multiple of 512. Note you have a 2 G limit here.
+    You can use _llseek() to get around this.
 
-		-ben
+A small program that just reads from a raw device (or the
+corresponding block device which should give the same
+result) attached.
+
+If you were binding a raw device to a cdrom device then
+the BLKSIZE would need to be 2048 bytes (in most cases).
+
+Doug Gilbert
+--------------D4869FCB9AEAF2CC69FB9DEF
+Content-Type: text/plain; charset=us-ascii;
+ name="my_rawio_ex.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="my_rawio_ex.c"
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define BLKSIZE 512
+#define BLKS2READ 1
+
+int main(int argc, char *argv[])
+{
+    int fd, k;
+    unsigned char buff[BLKSIZE * (BLKS2READ + 1)]; // allow extra for alignment
+    unsigned char * arbp;			   // aligned read buffer ptr
+    long block_addr = 0;
+
+    arbp = (char *)(((unsigned long)buff + (BLKSIZE - 1)) & (~(BLKSIZE - 1)));
+
+    fd = open(argv[1], O_RDONLY);
+    if (fd < 0) {
+        perror("open");
+        exit (1);
+    }
+    if ((lseek(fd, block_addr * BLKSIZE, SEEK_SET)) < 0){
+        perror("lseek");	// problem if 2nd arg > 2G
+        exit (1);
+    }
+    if ((read(fd, arbp, BLKSIZE * BLKS2READ)) < 0) {
+        perror("read");
+        exit(1);
+    }
+
+    printf("First 16 bytes of the readbuf (in hex) are:\n   ");
+    for (k = 0; k < 16; ++k)
+	printf("%x ", (int)arbp[k]);
+    printf("\n");
+    close(fd);
+    return 0;
+}
+
+--------------D4869FCB9AEAF2CC69FB9DEF--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

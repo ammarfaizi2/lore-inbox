@@ -1,28 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261854AbSKLQAF>; Tue, 12 Nov 2002 11:00:05 -0500
+	id <S261742AbSKLP7Y>; Tue, 12 Nov 2002 10:59:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbSKLQAF>; Tue, 12 Nov 2002 11:00:05 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45518 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S261854AbSKLQAD>; Tue, 12 Nov 2002 11:00:03 -0500
-Message-ID: <3DD12714.30300@nortelnetworks.com>
-Date: Tue, 12 Nov 2002 11:06:44 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S261839AbSKLP7Y>; Tue, 12 Nov 2002 10:59:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:38019 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261742AbSKLP7X>; Tue, 12 Nov 2002 10:59:23 -0500
+Date: Tue, 12 Nov 2002 11:08:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Adam Voigt <adam@cryptocomm.com>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: File Limit in Kernel?
-References: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
+Message-ID: <Pine.LNX.3.95.1021112110028.23898A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Voigt wrote:
+On 12 Nov 2002, Adam Voigt wrote:
+
 > I have a directory with 39,000 files in it, and I'm trying to use the cp
 > command to copy them into another directory, and neither the cp or the
 > mv command will work, they both same "argument list too long" when I
@@ -34,22 +32,31 @@ Adam Voigt wrote:
 > 
 > mv -f * /usr/local/www/images
 > 
-> Is this a kernel limitation?
+> Is this a kernel limitation? If yes, how can I get around it?
+> If no, anyone know a workaround? I appreciate it.
+> 
 
-It's not a kernel limitiation, its a shell limitation.  "*" expands to 
-the list of 39000 names, which is too large.
+The '*' is expanded by your shell to be a command-line that has
+39,000 file-names in it! It is probably way too long for a command-
+line (argument list).
+
+The easiest way is to do:
+
+mv -f a* /usr/local/www/images
+mv -f b* /usr/local/www/images
+mv -f c* /usr/local/www/images
+
+... until the remaining argument list is short enough for the '*' only.
+
+You can also do a loop in a shell if the shell's internal buffer is
+big enough for the expanded '*' ...
+
+for x in * ; do mv -f $x /usr/local/www/images ; done
 
 
-You could try something like:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
 
-ls .|xargs cp -f --target-directory=/usr/local/www/images
-
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUJGPGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUJGPKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267375AbUJGPGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 11:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUJGPGO
+	id S266892AbUJGPKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 11:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUJGPJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 11:06:14 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:38357 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267386AbUJGPER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 11:04:17 -0400
-Message-ID: <41655A91.1010307@sgi.com>
-Date: Thu, 07 Oct 2004 10:02:41 -0500
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-CC: Grant Grundler <iod00d@hp.com>, Colin Ngam <cngam@sgi.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <20041006195424.GF25773@cup.hp.com> <41645150.6020608@sgi.com> <200410061344.38265.jbarnes@engr.sgi.com>
-In-Reply-To: <200410061344.38265.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 11:09:51 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:44943 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S264085AbUJGPHg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 11:07:36 -0400
+Date: Thu, 7 Oct 2004 17:05:15 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: "Andrei A. Voropaev" <av@simcon-mt.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: large auto variables cause segfault under 2.6
+Message-ID: <20041007150515.GA5590@thundrix.ch>
+References: <20041005132741.GD28160@avorop.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Disposition: inline
+In-Reply-To: <20041005132741.GD28160@avorop.local>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Wednesday, October 6, 2004 1:10 pm, Patrick Gefre wrote:
-> 
->>I don't plan on respinning the large patches (unless of course they get out
->>of date). It would be great to get the kill, add and qla patch in so we can
->>move forward and address some these other smaller issues - rather than
->>holding up the larger mods for them.
-> 
-> 
-> I agree, but could you please just 'vi' the 002-add-files patch and remove 
-> these?
-> 
->  drivers/char/mmtimer.c                          |    1
->  drivers/char/snsc.c                             |   25
->  drivers/ide/pci/sgiioc4.c                       |   23
->  drivers/serial/sn_console.c                     |  214
-> 
-> They should each be separate cleanup patches.  What I've done in the past is 
-> make copies (in this case 5) of the big patch.  Then I edit all of them to 
-> include only the hunks I want there.  Hopefully that'll minimize the pain of 
-> respinning the big patch (i.e. no respin).  Also, Tony doesn't want to deal 
-> with the above files, patches for them should be sent to Andrew as separate 
-> mails with lkml in the cc list.
-> 
 
-These are not cleanup.
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The mmtimer code and sn_console include a file that doesn't exist anymore in the directory included 
-- it's moved to somewhere else in the 002 patch.
+Salut,
 
-snsc.c, sgiioc4.c have changes for things that won't exist after this patch is applied.
+On Tue, Oct 05, 2004 at 03:27:41PM +0200, Andrei A. Voropaev wrote:
+>   int main( int argc, char **argv )
+>   {
+>        unsigned char  bRet =3D 0;
+>  =20
+>        char tst[67123456];
+>  =20
+>  =20
+>        const char* pcSupportedParams =3D "d:t:lV:C:cP:h";
+>  =20
+>        printf("pcSupportedParams =3D %s\n");
+>        return 0;
+>   }
 
+It might also crash because your printf is printing something odd.
+
+				Tonnerre
+
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBZVsq/4bL7ovhw40RAntxAJ0RxEaHq7uBaIzT7Do5nBk3voTbiwCgkC3T
+XVnBKGDIDpsHFitLClslAmk=
+=Dy+I
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267573AbTALW3G>; Sun, 12 Jan 2003 17:29:06 -0500
+	id <S267583AbTALWfN>; Sun, 12 Jan 2003 17:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267574AbTALW3F>; Sun, 12 Jan 2003 17:29:05 -0500
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:4843 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267573AbTALW2z>; Sun, 12 Jan 2003 17:28:55 -0500
-Date: Sun, 12 Jan 2003 17:35:44 -0500
-From: Rob Wilkens <robw@optonline.net>
+	id <S267594AbTALWfN>; Sun, 12 Jan 2003 17:35:13 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:4281 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267583AbTALWfJ> convert rfc822-to-8bit; Sun, 12 Jan 2003 17:35:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: robw@optonline.net
 Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <20030112221849.GO31238@vitelus.com>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Oliver Neukum <oliver@neukum.name>, Rik van Riel <riel@conectiva.com.br>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
+Date: Sun, 12 Jan 2003 23:43:41 +0100
+User-Agent: KMail/1.4.3
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042410944.1208.168.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
- <Pine.LNX.4.50L.0301121939170.26759-100000@imladris.surriel.com>
- <1042407845.3162.131.camel@RobsPC.RobertWilkens.com>
- <200301122312.41879.oliver@neukum.name> <20030112221849.GO31238@vitelus.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <200301122306.14411.oliver@neukum.name> <1042410145.3162.152.camel@RobsPC.RobertWilkens.com>
+In-Reply-To: <1042410145.3162.152.camel@RobsPC.RobertWilkens.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301122343.41150.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 17:18, Aaron Lehmann wrote:
-> On Sun, Jan 12, 2003 at 11:12:41PM +0100, Oliver Neukum wrote:
-> > Yes. Typical error cleanup looks like:
-> > err_out:
-> > 	up(&sem);
-> > 	return err;
-> > 
-> > Releasing a lock in another function is a crime punished by slow death.
-> 
-> Not to mention that the 'return err;' statement is hard to move to an
-> inline function meaningfully.
+Am Sonntag, 12. Januar 2003 23:22 schrieb Rob Wilkens:
+> On Sun, 2003-01-12 at 17:06, Oliver Neukum wrote:
+> > Please don't do such things. The next time locking is changed and a lock
+> > is needed here, some poor guy has to go through that and change all
+> > back to goto.
+> > This may not be applicable here, but as a general rule, don't do it.
+> > I speak from experience.
+> >
+> > As for efficiency, that is the compiler's job.
+>
+> I say "please don't use goto" and instead have a "cleanup_lock" function
+> and add that before all the return statements..  It should not be a
+> burden.  Yes, it's asking the developer to work a little harder, but the
+> end result is better code.
 
-Not that hard:  You just "return functionname()" where functionname is
-the name of your inline function that returns the value you want to
-return.
+It's code that causes added hardship for anybody checking the locking.
+It becomes impossible to see whether locks are balanced and turns into
+a nightmare as soon as you need error exits from several depths of locking
+or with and without memory to be freed.
 
--Rob
+Please listen to experience.
+
+err_out_buffer:
+	kfree(buffer);
+err_out_nobuffer:
+	up(&sem);
+err_out_nolock:
+	return err;
+
+is pretty much the only readable construction.
+
+	Regards
+		Oliver
 

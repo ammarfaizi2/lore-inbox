@@ -1,63 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbUCCFD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 00:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbUCCFD4
+	id S261472AbUCCFGU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 00:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbUCCFGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 00:03:56 -0500
-Received: from mailbox3.ucsd.edu ([132.239.1.55]:36109 "EHLO mailbox3.ucsd.edu")
-	by vger.kernel.org with ESMTP id S261609AbUCCFDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 00:03:54 -0500
-Message-ID: <40456735.2060505@cs.ucsd.edu>
-Date: Tue, 02 Mar 2004 21:03:49 -0800
-From: Diwaker Gupta <dgupta@cs.ucsd.edu>
-Reply-To: diwaker@ucsd.edu
-Organization: CS @ UCSD
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
+	Wed, 3 Mar 2004 00:06:20 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:36845 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261472AbUCCFGO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 00:06:14 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: George Anzinger <george@mvista.com>, Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [Kgdb-bugreport] [KGDB][RFC] Send a fuller T packet
+Date: Wed, 3 Mar 2004 10:36:00 +0530
+User-Agent: KMail/1.5
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net, Pavel Machek <pavel@suse.cz>
+References: <20040302220233.GG20227@smtp.west.cox.net> <20040302233635.GM20227@smtp.west.cox.net> <4045254E.5010505@mvista.com>
+In-Reply-To: <4045254E.5010505@mvista.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Badness in local_bh_enable
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-MailScanner: PASSED (v1.2.8 70089 i2353oD2089859 mailbox3.ucsd.edu)
+Content-Disposition: inline
+Message-Id: <200403031036.01388.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+ Summary:
-Getting repeated badness in local_bh_enable messages in syslog.
+Hi,
 
-+ Description:
-Here's a sample output from dmesg:
-Badness in local_bh_enable at kernel/softirq.c:121
-Call Trace:
- [<c01241f9>] local_bh_enable+0x89/0x90
- [<c012f985>] worker_thread+0x1c5/0x260
- [<e0995230>] xmit_bh+0x0/0xe0 [ndiswrapper]
- [<c011ccb0>] default_wake_function+0x0/0x20
- [<c010b2d2>] ret_from_fork+0x6/0x14
- [<c011ccb0>] default_wake_function+0x0/0x20
- [<c012f7c0>] worker_thread+0x0/0x260
- [<c01092a5>] kernel_thread_helper+0x5/0x10
+Polution of kgdb.h is definitely bad.
 
-+ Environment
-Linux 2.6.3 vanilla from kernel.org
-LIRC patch from <http://flameeyes.web.ctonet.it/downloads.html#lirc>
+I tried this code from Tom's bitkeeper tree some time back. It was incorrect 
+in two aspects hence I took only the minimal 'T' packet.
+1. It assumes 32 bit pc and sp.
+2. sp is not equal to ((char *)linux_regs) + SP_REGNUM * 4 on powerpc.
 
-I searched the archives and got a few lines here and there talking about
-PPP problems giving rise to similar messages. However, I'm not using PPP
-at all, and was having no such messages till 2.6.2. There were also some
-messages talking about IrDA issues, and I am using IrDA (which works fine).
+A full 'T' packet is still a good idea because it saves a 'g' packet in 
+following cases:
+1. gdb internal breakpoints, like module_event.
+2. conditional breakpoints.
+3. tracepoints.
 
-If this indeed is an IrDA problem, where can I find patches to fix it.
-If not, what else could be the problem?
+In general we can report an arbitrary number of registers in a 'T' packet.  
+Reporting registers other than PC and SP is effectively making 'T' packet 
+into a 'g' packet.
 
-Thanks
--- 
-Diwaker Gupta
-Graduate Student, Computer Sc. and Engg.
-University of California, San Diego
-<http://www.cs.ucsd.edu/~dgupta>
+Architecture dependent code is the right place to compose the PC and SP part 
+of a 'T' packet. Given a pt_regs pointer, an architecture dependent function 
+can compose PC number, PC value, SP number and SP value, all of which are 
+arch dependent. How about architecture dependent function:
+int make_pcsp_packet(struct pt_regs *, char *buffer)
+
+-Amit
+
+On Wednesday 03 Mar 2004 5:52 am, George Anzinger wrote:
+> Tom Rini wrote:
+> > On Tue, Mar 02, 2004 at 03:28:45PM -0800, George Anzinger wrote:
+> >>Tom Rini wrote:
+> >>>Hello.  Since a 'T' packet is allowed to send back information on an
+> >>>arbitrary number of registers, and on PPC32 we've always been including
+> >>>information on the stack pointer and program counter, I was wondering
+> >>>what people thought of the following patch:
+> >>>
+> >>>diff -u linux-2.6.3/include/asm-x86_64/kgdb.h
+> >>>linux-2.6.3/include/asm-x86_64/kgdb.h
+> >>>--- linux-2.6.3/include/asm-x86_64/kgdb.h	2004-02-27
+> >>>11:30:37.445782703 -0700
+> >>>+++ linux-2.6.3/include/asm-x86_64/kgdb.h	2004-03-02
+> >>>14:42:47.854532793 -0700
+> >>>@@ -48,6 +48,10 @@
+> >>>/* Number of bytes of registers.  */
+> >>>#define NUMREGBYTES (_LASTREG*8)
+> >>>
+> >>>+#define PC_REGNUM	_PC	/* Program Counter */
+> >>>+#define SP_REGNUM	_RSP	/* Stack Pointer */
+> >>>+#define PTRACE_PC	rip	/* Program Counter, in ptrace regs. */
+> >>
+> >>I would really like to keep this stuff out of kgdb.h since it may be
+> >>included by the user to pick up the BREAKPOINT() (which, by the way we
+> >>should standardize as I note that here it has () while not on the current
+> >>x86).
+> >
+> > It's BREAKPOINT() everywhere:
+>
+> Yeah, something you changed?  Oh well, I will just have to learn to put the
+> "()" in :)
+>
+> > $ grep BREAKPOINT include/asm-*/kgdb.h
+> > include/asm-i386/kgdb.h:#define BREAKPOINT() asm("   int $3");
+> > include/asm-ppc/kgdb.h:#define BREAKPOINT()             asm(".long
+> > 0x7d821008") /* twge r2, r2 */ include/asm-x86_64/kgdb.h:#define
+> > BREAKPOINT() asm("   int $3");
+> >
+> >>Isn't there a kgdb_local.h which is used only by kdgd and friends?  We
+> >>really do want to keep the name space as clean as possible to prevent
+> >>possible conflicts.
+> >
+> > The simple answer is you don't call BREAKPOINT() in your code anywhere.
+> > You call breakpoint() or kgdb_schedule_breakpoint().
+>
+> Uh, why?  Last I knew that was a real function.  Most of the time I just
+> want a simple breakpoint.  I surly don't want the register dumps and such
+> that a function call causes, not to mention that it may do something else
+> that is not friendly.
+>
+> > The split here is different in that <linux/kgdb.h> should be standalone
+> > (it's not, _yet_).
+>
+> Yeah, but it will most likely include asm/kgdb.h....
+>
+> > But this is all an aside to my question. :)
+>
+> Right, my answer on that is if it reduces the line traffic yes, if not, no.
+> Because then it is just bloat.
+

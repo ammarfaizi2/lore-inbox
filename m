@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVARVGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVARVH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbVARVGI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 16:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVARVGI
+	id S261431AbVARVH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 16:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVARVHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 16:06:08 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:6316 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261272AbVARVGF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 16:06:05 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "H.Peter Anvin" <hpa@zytor.com>
-Subject: Re: Patch to control VGA bus routing and active VGA device.
-Date: Tue, 18 Jan 2005 13:06:03 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <9e47339105011719436a9e5038@mail.gmail.com> <200501180946.47026.jbarnes@engr.sgi.com> <csjok4$gn3$1@terminus.zytor.com>
-In-Reply-To: <csjok4$gn3$1@terminus.zytor.com>
+	Tue, 18 Jan 2005 16:07:39 -0500
+Received: from smtpsig-4.ig.com.br ([200.226.132.141]:59015 "EHLO
+	smtpsig-4.ig.com.br") by vger.kernel.org with ESMTP id S261419AbVARVH2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 16:07:28 -0500
+Message-ID: <41ED7A83.3030104@superig.com.br>
+Date: Tue, 18 Jan 2005 18:07:15 -0300
+From: Luiz Felipe <kfox@superig.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: pt-br
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: A way to help newbies
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501181306.03635.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, January 18, 2005 11:38 am, H. Peter Anvin wrote:
-> > On Monday, January 17, 2005 7:43 pm, Jon Smirl wrote:
-> > > Attached is a patch to control VGA bus routing and the active VGA
-> > > device. It works by adding sysfs attributes to bridge and VGA devices.
-> > > The bridge attribute is read only and indicates if the bridge is
-> > > routing VGA. The attribute on the device has four values:
-> >
-> > How is it supposed to work?  Is VGA routing determined by the chipset? 
-> > Is it separate from other legacy I/O and memory addresses?
->
-> Yes, there are special control bits in any PCI bridge header for the
-> VGA ports.
+Hi,
+i'm (trying to be) a beginner kernel developer, and i would to know if 
+there are some exercises/challenges where i must practice what i've 
+readed, if the most experienced developers already done it. I learn 
+better when I practice something. Anyone knows it ?
 
-Well, not all of them, which is why I asked.  Though obviously this patch will 
-need some very platform specific bits at any rate.
+Here in this list, people talk about everything and is a bit complicated 
+for a beginner to get something. I would read about something and after 
+practice that, like on math books.  I think it's not so difficult for an 
+advanced kernel coder to do it, and is a great way to help people to 
+start. So please, can anyone make those questions and put it public ?
 
-Jesse
+See, i'm not wanting tutorials, tips, manuals, docs, etc. I just want to 
+practice, just beginner questions and exercises, separated by topics and 
+levels, something challenging me, but not get a TODO list of many 
+difficult patchs.
+
+I don't know if that list is the right place to ask about that, but by 
+the description of this list, maybe. Anyway, if is not the right place, 
+sorry for all.
+
+Regards,
+Luiz Felipe
+

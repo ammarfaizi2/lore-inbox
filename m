@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291102AbSCOLNF>; Fri, 15 Mar 2002 06:13:05 -0500
+	id <S290823AbSCOLPo>; Fri, 15 Mar 2002 06:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSCOLL5>; Fri, 15 Mar 2002 06:11:57 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11510 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S290277AbSCOLKq>; Fri, 15 Mar 2002 06:10:46 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3C90E994.2030702@candelatech.com> 
-In-Reply-To: <3C90E994.2030702@candelatech.com>  <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com> 
-To: Ben Greear <greearb@candelatech.com>
-Cc: Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 and BitKeeper 
+	id <S290277AbSCOLOj>; Fri, 15 Mar 2002 06:14:39 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:5896 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S290796AbSCOLNy>;
+	Fri, 15 Mar 2002 06:13:54 -0500
+Date: Fri, 15 Mar 2002 12:13:52 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Message-ID: <20020315121352.A25209@ucw.cz>
+In-Reply-To: <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E28A1.1070902@evision-ventures.com> <20020312172134.A5026@ucw.cz> <3C8E2C2C.2080202@evision-ventures.com> <20020312173301.C5026@ucw.cz> <3C8E3025.4070409@evision-ventures.com> <20020312175044.A5228@ucw.cz> <20020314140210.A37@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 15 Mar 2002 11:10:41 +0000
-Message-ID: <2865.1016190641@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020314140210.A37@toy.ucw.cz>; from pavel@suse.cz on Thu, Mar 14, 2002 at 02:02:11PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 14, 2002 at 02:02:11PM +0000, Pavel Machek wrote:
 
-greearb@candelatech.com said:
->  I did a clone with this.  However, I see no files, only directories.
-> The files do seem to be in the SCCS directories, but I don't know how
-> to make them appear in their normal place. 
+> > You may happen to have the numbers, though - that should be enough.
+> > 
+> > Btw, I have a CMD640B based PCI card lying around here, but never
+> > managed to get it generate any interrupts, though the rest seems to be
+> > working.
+> 
+> Attach it to the timer interrupt -- that should do it for testing. Simplest
+> way is to make ide timeouts HZ/100 and killing "lost interrupt" msg ;-).
 
-Type 'make config'. Make is clever enough to get the Makefile from SCCS for 
-you. Add the missing dependencies to the Makefile so that make will fetch 
-stuff like scripts/Configure before trying to run it, etc. 
+Well, it seems like we'll have to something like this anyway. Some chips
+sometimes forget to assert the IRQ after a transfer due to HW bugs, and
+some PIIX3s are reported to do it quite often.
 
-Making it get all the Config.in files by parsing arch/$(ARCH)/config.in is
-a fairly trivial task... but you do need to explicitly check out all the 
-include directories, because we don't know how to deal with that yet. With 
-kbuild-2.4, make dep won't work very well, but kbuild-2.5 ought to be OK 
-with everything but the include files, I think.
-
-Or you could just check it all out beforehand with bk -r co.
-
---
-dwmw2
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

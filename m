@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131540AbQLMUbz>; Wed, 13 Dec 2000 15:31:55 -0500
+	id <S129761AbQLMUee>; Wed, 13 Dec 2000 15:34:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbQLMUbp>; Wed, 13 Dec 2000 15:31:45 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:34830 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131540AbQLMUbh>; Wed, 13 Dec 2000 15:31:37 -0500
-Date: Wed, 13 Dec 2000 21:01:56 +0100 (CET)
-From: eduard.epi@t-online.de (Peter Bornemann)
+	id <S129777AbQLMUeY>; Wed, 13 Dec 2000 15:34:24 -0500
+Received: from u-code.de ([207.159.137.250]:33517 "EHLO u-code.de")
+	by vger.kernel.org with ESMTP id <S129761AbQLMUeI>;
+	Wed, 13 Dec 2000 15:34:08 -0500
+From: Eckhard Jokisch <e.jokisch@u-code.de>
+Reply-To: e.jokisch@u-code.de
 To: linux-kernel@vger.kernel.org
-Subject: parport1 gone in 2.2.18  
-Message-ID: <Pine.LNX.4.21.0012132059530.1616-100000@eduard.t-online.de>
+Subject: Re: [Solved]IDE_TAPE problem with ONSTREAM DI30
+Date: Wed, 13 Dec 2000 21:05:10 +0000
+X-Mailer: KMail [version 1.1.61]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.10.10012032315100.13699-100000@master.linux-ide.org> <200012040825.JAA08264@cave.bitwizard.nl> <20001204160554.L6281@garloff.etpnet.phys.tue.nl>
+In-Reply-To: <20001204160554.L6281@garloff.etpnet.phys.tue.nl>
+Cc: Kurt Garloff <garloff@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <00121321051000.22766@eckhard>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-I have a second parport installed as a PCI-card. In earlier Linux-versions
-this would lock the machine completely if parport & Co where compiled as
-modules (2.2.16 and 2.2.17). Compiled into the kernel however, everything
-worked fine. I wrote about that to LK, but no solution was found. Now in
-2.2.18 it is the other way round, modules work with the proper
-initialization in modules.conf, but if compiled into the kernel, the
-second parport vanishes completely.
- 
-lspci -v gives:
- 
-00:0d.0 Parallel controller: Timedia Technology Co Ltd: Unknown device
-7268 (rev 01) (prog-if 02 [ECP])
-        Subsystem: Timedia Technology Co Ltd: Unknown device 0103
-        Flags: stepping, medium devsel, IRQ 9
-        I/O ports at 9000
-        I/O ports at 8800
- 
-/proc/parport however only knows about parport0
- 
-As I prefer the parport being modularized, it´s no problem for me. But
-IMHO the other way it should work, too.
- 
-Cheers
-Peter B
+On Mon, 04 Dez 2000, Kurt Garloff wrote:
 
+>
+> If you want a really helpful advice:
+> Use the osst driver and the use it with ide-scsi.
+> Report problems to the osst mailing list.
+> So far, I'm not aware of anybody we failed to help.
+> http://linux1.onstream.nl/test/
 
+This was really really helpfull :-)
+It just works fine now.
+
+Wouldn't it be good to put a slight hint somewhere in the kernel 
+configuration?
+
+BR
+Eckhard Jokisch
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

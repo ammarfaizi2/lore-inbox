@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUL2Phx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbUL2PjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUL2Phx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 10:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUL2Phw
+	id S261360AbUL2PjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 10:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUL2PjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 10:37:52 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:37538 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261358AbUL2Pht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 10:37:49 -0500
-Subject: Re: PATCH: 2.6.10 - IT8212 IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Blazejowski <diffie@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <9dda349204122821262f71e375@mail.gmail.com>
-References: <9dda349204122821262f71e375@mail.gmail.com>
-Content-Type: text/plain
+	Wed, 29 Dec 2004 10:39:16 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:60548 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261360AbUL2PjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 10:39:03 -0500
+Message-ID: <41D2CF3B.4040304@colorfullife.com>
+Date: Wed, 29 Dec 2004 16:37:31 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] rcu: eliminate rcu_data.last_qsctr
+References: <41AA0D5F.21CB9ED3@tv-sign.ru>
+In-Reply-To: <41AA0D5F.21CB9ED3@tv-sign.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104330829.30087.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 29 Dec 2004 14:33:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-12-29 at 05:26, Paul Blazejowski wrote:
-> Alan,
-> 
-> This patch works here but the performance is very poor. When i set DMA
-> and 32bit I/O thru hdparm, performance is comparable to the ITE pseudo
-> SCSI driver.
+Oleg Nesterov wrote:
 
-32bit I/O won't matter. DMA does (but nothing else - the firmware does
-DMA and the controller actually does the UDMA itself in RAID mode and
-does not support fancy mode tuning via hdparm)
+>last_qsctr is used in rcu_check_quiescent_state() exclusively.
+>We can reset qsctr at the start of the grace period, and then
+>just test qsctr against 0.
+>
+>  
+>
+It seems the patch got lost, I've updated it a bit and resent it to Andrew.
 
+But: I think there is the potential for an even larger cleanup, although 
+this would be more a rewrite:
+Get rid of rcu_check_quiescent_state and instead use something like this 
+in rcu_qsctr_inc:
+
+static inline void rcu_qsctr_inc(int cpu)
+{
+        struct rcu_data *rdp = &per_cpu(rcu_data, cpu);
+        if (rdp->quiescbatch != rcp->cur) {
+             /* a new grace period is running. And we are at a quiescent
+              * point, so complete it
+              */
+             spin_lock(&rsp->lock);
+             rdp->quiescbatch = rcp->cur;
+             cpu_quiet(rdp->cpu, rcp, rsp);
+            spin_unlock(&rsp->lock);
+     }
+}
+
+It's just an idea, it needs testing on big systems - does reading from 
+the global rcp from every schedule call cause any problems? The cache 
+line is virtually read-only, so it shouldn't cause trashing, but who knows?
+
+--
+    Manfred

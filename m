@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbUDALG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 06:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbUDALG2
+	id S262863AbUDALOr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 06:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUDALOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 06:06:28 -0500
-Received: from mailout2.samsung.com ([203.254.224.25]:52958 "EHLO
-	mailout2.samsung.com") by vger.kernel.org with ESMTP
-	id S262844AbUDALGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 06:06:24 -0500
-Date: Thu, 01 Apr 2004 16:31:41 +0530
-From: mohanlal jangir <mohanlal@samsung.com>
-Subject: UART detection?
-To: linux-kernel@vger.kernel.org
-Message-id: <008b01c417d8$b7a53990$7f476c6b@sisodomain.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	Thu, 1 Apr 2004 06:14:47 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:30712 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262863AbUDALOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 06:14:46 -0500
+Date: Thu, 1 Apr 2004 13:14:43 +0200
+From: David Weinehall <tao@debian.org>
+To: Stefan Seyfried <seife@gmane0305.slipkontur.de>
+Cc: vcjones@NetworkingUnlimited.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.X versus APM Suspend on IBM X23
+Message-ID: <20040401111443.GV6041@khan.acc.umu.se>
+Mail-Followup-To: Stefan Seyfried <seife@gmane0305.slipkontur.de>,
+	vcjones@NetworkingUnlimited.com, linux-kernel@vger.kernel.org
+References: <20040331222723.GA6240@NetworkingUnlimited.com.suse.lists.linux.kernel> <20040331224527.GU6041@khan.acc.umu.se.suse.lists.linux.kernel> <20040401110712.GB4688@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040401110712.GB4688@suse.de>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How can I find in a kernel module, how many UARTs are present in my system?
-And how can I find their IO address and IRQ?
+On Thu, Apr 01, 2004 at 01:07:12PM +0200, Stefan Seyfried wrote:
+> On Wed, Mar 31, 2004 at 10:52:45PM +0000, David Weinehall wrote:
+> > On Wed, Mar 31, 2004 at 05:27:23PM -0500, Vincent C Jones wrote:
+> > 
+> > > Using APM with ACPI and CPUfreq disabled: Suspend works, but only if
+> > > running on battery. When running on AC, I get what sound like PCMCIA
+> > > failure beeps (brief high low), the display goes dark, but the system
+> > > keeps on running and hitting any key brings be right back (at least
+> 
+> > > FWIW: there were no problems with suspend under any 2.4 kernels. 
+> > 
+> > I can confirm the exact same behaviour on a Thinkpad A20m.
+> 
+> Do you have a pcmcia card inserted? IBM Thinkpads (at least older models,
+> the TP600 for sure) don't suspend, if (AC && PCMCIA_CARD_INSERTED). If
+> only AC or only CARD_INSERTED, then they suspend.
 
-Regards
-Mohanlal
+Nopes, no pcmcia-card inserted.  And, as noted by Vincent C Jones,
+the 2.4-kernel manages to suspend my Thinkpad just fine,
+even when (AC && PCMCIA_CARD_INSERTED).
 
 
-
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

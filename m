@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293076AbSCRV40>; Mon, 18 Mar 2002 16:56:26 -0500
+	id <S293075AbSCRV70>; Mon, 18 Mar 2002 16:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293082AbSCRV4Q>; Mon, 18 Mar 2002 16:56:16 -0500
-Received: from AMontpellier-201-1-5-11.abo.wanadoo.fr ([193.251.15.11]:10660
-	"EHLO awak") by vger.kernel.org with ESMTP id <S293076AbSCRV4B> convert rfc822-to-8bit;
-	Mon, 18 Mar 2002 16:56:01 -0500
-Subject: Re: Linux 2.5.7
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 18 Mar 2002 22:57:44 +0100
-Message-Id: <1016488665.19976.22.camel@bip>
+	id <S293082AbSCRV7Q>; Mon, 18 Mar 2002 16:59:16 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:49538 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S293075AbSCRV7D>;
+	Mon, 18 Mar 2002 16:59:03 -0500
+Date: Mon, 18 Mar 2002 22:26:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Bitkeeper licence issues
+Message-ID: <20020318212617.GA498@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le lun 18-03-2002 à 21:47, Linus Torvalds a écrit :
-> 
-> Ok, there's a 2.5.7 out there now, full changelog appended.
+Hi!
 
-... and it's a really nice changelog !
+Bitkeeper distribution contains stuff from GNU diffutils (copyrighted
+by FSF and GPL), yet bitkeeper docs does not mention its GPL-ed, and
+does not contain pointer to the sources. [I pointed couple other
+issues.]
 
-	Xav
+Larry's attitude is "you should shut up and be glad you may use this
+for free" and "sue me to get GPL issues fixed". Then, he tried to
+punish me for pointing at those mistakes by withdrawing installer from
+GPL.
 
-
+Nice attitude, I'd suggest you to stay away from
+bittrojan^Wbitkeeper. If you still think bitkeeper is good thing (tm),
+look at http://atrey.karlin.mff.cuni.cz/~pavel/bitkeeper.txt. [Sorry
+for slightly strange ordering of mails. You should be able to open it
+in mutt to see threads correctly.]
+									Pavel 
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

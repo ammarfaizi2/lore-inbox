@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316163AbSFZBPW>; Tue, 25 Jun 2002 21:15:22 -0400
+	id <S316167AbSFZBTJ>; Tue, 25 Jun 2002 21:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSFZBPV>; Tue, 25 Jun 2002 21:15:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1541 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316163AbSFZBPV>; Tue, 25 Jun 2002 21:15:21 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] 2.5.24: auto_fs.h typo.
-Date: 25 Jun 2002 18:15:02 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <afb4im$6nl$1@cesium.transmeta.com>
-References: <200206251759.34690.schwidefsky@de.ibm.com>
+	id <S316213AbSFZBTI>; Tue, 25 Jun 2002 21:19:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25874 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S316167AbSFZBTI>; Tue, 25 Jun 2002 21:19:08 -0400
+Date: Tue, 25 Jun 2002 21:23:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Phil Oester <kernel@theoesters.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.19-rc1 Fix NFS attribute caching bug
+In-Reply-To: <20020625162035.A8504@ns1.theoesters.com>
+Message-ID: <Pine.LNX.4.44.0206252123420.10492-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200206251759.34690.schwidefsky@de.ibm.com>
-By author:    Martin Schwidefsky <schwidefsky@de.ibm.com>
-In newsgroup: linux.dev.kernel
+
+
+On Tue, 25 Jun 2002, Phil Oester wrote:
+
+> Thank you!!!
 >
-> Hi Linus,
-> my last patch for include/linux/auto_fs.h contained a typo that removed the
-> trailing underscores from __x86_64__.
-> 
-> blue skies,
->   Martin.
-> 
-> diff -urN linux-2.5.24/include/linux/auto_fs.h linux-2.5.24-s390/include/linux/auto_fs.h
-> --- linux-2.5.24/include/linux/auto_fs.h	Fri Jun 21 00:53:40 2002
-> +++ linux-2.5.24-s390/include/linux/auto_fs.h	Fri Jun 21 14:46:59 2002
-> @@ -45,7 +45,7 @@
->   * If so, 32-bit user-space code should be backwards compatible.
->   */
->  
-> -#if defined(__sparc__) || defined(__mips__) || defined(__x86_64) \
-> +#if defined(__sparc__) || defined(__mips__) || defined(__x86_64__) \
->   || defined(__powerpc__) || defined(__s390__)
->  typedef unsigned int autofs_wqt_t;
->  #else
-> 
+> Ever since moving to 2.4.19-pre9 we've noticed an incredible jump in
+> GETATTR calls on our NFS server.  Will look forward to this making it
+> into 2.4.19 release.
 
-Please change this to:
+Its already in. ;)
 
-#ifndef __alpha__
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

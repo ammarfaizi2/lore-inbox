@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270462AbRHHLz7>; Wed, 8 Aug 2001 07:55:59 -0400
+	id <S270465AbRHHL57>; Wed, 8 Aug 2001 07:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270464AbRHHLzt>; Wed, 8 Aug 2001 07:55:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4104 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270462AbRHHLzl>; Wed, 8 Aug 2001 07:55:41 -0400
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is available.
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 8 Aug 2001 12:56:59 +0100 (BST)
-Cc: cate@dplanet.ch, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1556.997271459@ocs3.ocs-net> from "Keith Owens" at Aug 08, 2001 09:50:59 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270468AbRHHL5t>; Wed, 8 Aug 2001 07:57:49 -0400
+Received: from pc40.e18.physik.tu-muenchen.de ([129.187.154.153]:42252 "EHLO
+	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S270465AbRHHL5q>; Wed, 8 Aug 2001 07:57:46 -0400
+Date: Wed, 8 Aug 2001 13:57:10 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Ben Greear <greearb@candelatech.com>
+cc: Stuart Duncan <sety@perth.wni.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ARP's frustrating behavior
+In-Reply-To: <3B70A0DA.DE33CB87@candelatech.com>
+Message-ID: <Pine.LNX.4.31.0108081352200.21550-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15URxL-00058f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Absolutely agree.  But we have files in the tar ball that are generated
-> using standard tools.
-> 
-> net/802/pseudo/pseudocode.h is shipped, but it is generated using sed.
-> net/802/pseudo/actionnm.h is shipped, it is generated using sed,
-> nothing even uses the file.
-> net/802/transit/pdutr.h and timertr.h are shipped but they are
-> generated using awk.
-> net/802/cl2llc.c is shipped but it is generated using sed.
-> 
-> I will remove all of those from the tar ball.
+Hi!
 
-Please don't. net/802 is being rewritten and you'll just cause noise
+On Tue, 7 Aug 2001, Ben Greear wrote:
 
-Alan
+> Stuart Duncan wrote:
+> >
+> > Hi,
+> >
+> > I'm noticing on a machine with dual NICs that they they all seem to answer
+> > ARP queries, even if the request is not directed to their IP.  Here's an
+> > example:
+> >
+>
+> Evidently, this is considered a feature.  However, to turn it off:
+> echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+
+This doesn't work for me, which is quite annoying: the machine answers arp
+for 192.168.1.254 (its IP on the private net on eth1) when arping'ed on
+the official side (eth0). Networks are physically separated, the official
+side is inside a big network which routes 192.168 internally, so this is
+really bad. If anyone could fix it I would be pleased...
+
+Ciao,
+					Roland
+

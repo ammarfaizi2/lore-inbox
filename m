@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUBXR4U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUBXR4U
+	id S262341AbUBXSDg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbUBXSDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:56:20 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:31954 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262330AbUBXR4P (ORCPT
+	Tue, 24 Feb 2004 13:03:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46042 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262341AbUBXSDe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:56:15 -0500
-Date: Tue, 24 Feb 2004 10:56:12 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Eric Kerin <eric@bootseg.com>, Alexander Nyberg <alexn@telia.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.3 oops at kobject_unregister, alsa & aic7xxx
-Message-ID: <2098950000.1077645372@aslan.btc.adaptec.com>
-In-Reply-To: <1077602725.3172.19.camel@opiate>
-References: <1077546633.362.28.camel@boxen>	 <20040223160716.799195d0.akpm@osdl.org> <1077602725.3172.19.camel@opiate>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Feb 2004 13:03:34 -0500
+Date: Tue, 24 Feb 2004 10:03:25 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Please back out the bluetooth sysfs support
+Message-Id: <20040224100325.761f48eb.davem@redhat.com>
+In-Reply-To: <1077621601.2880.27.camel@pegasus>
+References: <20040223103613.GA5865@lst.de>
+	<20040223101231.71be5da2.davem@redhat.com>
+	<1077560544.2791.63.camel@pegasus>
+	<20040223184525.GA12656@lst.de>
+	<1077582336.2880.12.camel@pegasus>
+	<20040224004151.GF31035@parcelfarce.linux.theplanet.co.uk>
+	<20040223232149.5dd3a132.davem@redhat.com>
+	<1077621601.2880.27.camel@pegasus>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I stumbled up this in early January.  I posted a patch to linux-scsi,
-> but it dosn't seem to be merged at this point.  This problem will also
-> occur with the aic79xx driver.
+On Tue, 24 Feb 2004 12:20:01 +0100
+Marcel Holtmann <marcel@holtmann.org> wrote:
 
-After your report, I integrated a similar fix into the drivers posted
-from my site back in January.
+> > > > -		skb->dev = (void *) &bfusb->hdev;
+> > > > +		skb->dev = (void *) bfusb->hdev;
+> > > 
+> > > Wait a bloody minute.  skb->dev is supposed to be net_device; what's going
+> > > on here?
+> > 
+> > Oh yeah, this is busted.
+> > I'm surprised this doesn't explode.
+> 
+> we used this from the beginning and I don't see where this can explode,
+> because the SKB's are only used inside the Bluetooth subsystem.
 
---
-Justin
-
+Ok, if that is %100 true, then it's OK.

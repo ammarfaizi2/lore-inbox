@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270871AbTGPOaM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270956AbTGPOaM
+	id S270545AbTGPOfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270841AbTGPOfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:30:12 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:6635
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S270871AbTGPOaE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:30:04 -0400
-Date: Wed, 16 Jul 2003 16:24:31 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Antonio Vargas <wind@cocodriloo.com>, Ingo Molnar <mingo@elte.hu>,
-       Sean Neakums <sneakums@zork.net>, Andrew Morton <akpm@osdl.org>,
-       Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1-mm1
-Message-ID: <20030716142431.GA11190@wind.cocodriloo.com>
-References: <6uwueidhdd.fsf@zork.zork.net> <Pine.LNX.4.44.0307161052310.6193-100000@localhost.localdomain> <20030716101949.GE2684@wind.cocodriloo.com> <3F155536.8090608@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Jul 2003 10:35:18 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:39133 "EHLO
+	ponti.gallimedina.net") by vger.kernel.org with ESMTP
+	id S270545AbTGPOfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:35:07 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: Peter Osterlund <petero2@telia.com>
+Subject: Re: 2.6.0-test1: Synaptics driver makes touchpad unusable
+Date: Wed, 16 Jul 2003 16:49:55 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200307151244.53276.gallir@uib.es> <200307151753.59165.gallir@uib.es> <m2brvvh3vz.fsf@telia.com>
+In-Reply-To: <m2brvvh3vz.fsf@telia.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F155536.8090608@aitel.hist.no>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200307161649.55783.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:37:58PM +0200, Helge Hafting wrote:
-> Antonio Vargas wrote:
-> [...]
-> >It always happened to me when I run "make menuconfig" under gnome-terminal 
-> >on
-> >redhat 9 with 2.5.73. Is it because of busy-waiting on a variable shared
-> >amongst multiple processes/threads? If so, it smells of a bug in the 
-> >application,
-> >busy-waiting is _BAD_.
-> 
-> Ouch.  Well, it is good that scheduler changes made the bug visible,
-> so it can be fixed.  Certainly no reason to
-> work around it in the kernel, the effort is better spent on fixing
-> the bug.  Distributors can make sure they have fixed their apps
-> before distributing 2.6.
-> 
-> Helge Hafting
+On Tuesday 15 July 2003 23:33, Peter Osterlund shaped the electrons to shout:
+> Does it help to make the timeout even longer? (15 seconds for example)
+> Does it help to disable the reset sequence altogether, like this?
+>
+> diff -u -r -N linux-2.6.0-test1/drivers/input/mouse/synaptics.c
+> linux-tmp/drivers/input/mouse/synaptics.c ---
+> linux-2.6.0-test1/drivers/input/mouse/synaptics.c	Sat Jul 12 00:17:19 2003
+> +++ linux-tmp/drivers/input/mouse/synaptics.c	Tue Jul 15 23:31:01 2003 @@
+> -81,6 +81,8 @@
+>  {
+>  	unsigned char r[2];
+>
+> +	return 0;
+> +
+>  	if (psmouse_command(psmouse, r, PSMOUSE_CMD_RESET_BAT))
+>  		return -1;
+>  	if (r[0] == 0xAA && r[1] == 0x00)
 
-I filled an entry on redhat's bugzilla, but the response was
-"keep the terminal minimised while doing heavy terminal output".
-I quit redhat next day.
 
-I could translate this to "Look mom, I can config my kernel while blindfolded!!!" ;)
+No, it didn't help. With the above patch, the x server gives the following 
+errors:
+Query no Synaptics: 0000C8
+(EE) TouchPad no synaptics  touchpad detected and no repeater device
+(EE) TouchPad Unable to query/initialize Synaptics hardware.
 
-I wonder if someone has produced an small test-case for this,
-which works on 2.4 and dies in 2.5 or 2.6... it would then
-be "easy" to check and fix the apps.
 
-Greets, Antonio.
+
 
 -- 
-
-In fact, this is all you need to know to be
-a Caveman Database Programmer:
-
-A relational database is a big spreadsheet
-that several people can update simultaneously. 
+  ricardo galli       GPG id C8114D34
 

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267255AbSKSSwK>; Tue, 19 Nov 2002 13:52:10 -0500
+	id <S267218AbSKSSyv>; Tue, 19 Nov 2002 13:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267273AbSKSSwJ>; Tue, 19 Nov 2002 13:52:09 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:30664 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S267255AbSKSSwC>; Tue, 19 Nov 2002 13:52:02 -0500
-Date: Tue, 19 Nov 2002 11:58:50 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Raptorfan <raptorfan@earthlink.net>, linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx driver failing (2.4.19-ac4)
-Message-ID: <1604970000.1037732321@aslan.btc.adaptec.com>
-In-Reply-To: <001b01c28ff8$61ad1670$420aa8c0@beast>
-References: <001b01c28ff8$61ad1670$420aa8c0@beast>
-X-Mailer: Mulberry/3.0.0a5 (Linux/x86)
-MIME-Version: 1.0
+	id <S267290AbSKSSyv>; Tue, 19 Nov 2002 13:54:51 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39912 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267218AbSKSSyt>; Tue, 19 Nov 2002 13:54:49 -0500
+Date: Tue, 19 Nov 2002 20:01:47 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@codemonkey.org.uk>, Matthew Wilcox <willy@debian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dead & Dying interfaces
+Message-ID: <20021119190146.GX11952@fs.tum.de>
+References: <20021115184725.H20070@parcelfarce.linux.theplanet.co.uk> <20021118175535.GD15318@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20021118175535.GD15318@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Howdy. I'm having major fits with trying to use the aic7xxx driver with an
-> Adaptec AHA2948UW.
+On Mon, Nov 18, 2002 at 05:55:35PM +0000, Dave Jones wrote:
+> On Fri, Nov 15, 2002 at 06:47:25PM +0000, Matthew Wilcox wrote:
+> 
+>  > This list is a combination of interfaces which have gone during 2.5 and
+>  > interfaces that should go during 2.7.  Think of it as a `updating your
+>  > driver/filesystem to sane code' guide.
+> 
+> Adding printk (KERN_DEBUG "Usage of check_region() is deprecated");
+> to such interfaces may be an idea. For some of them, however it
+> is probably a bad idea if the logs get flooded with zillions of warnings
+> each boot.  Maybe just for the "We really should purge this crap next
+> time" functions ?
 
-Can you try to update your system with the driver version here:
+What about a #warning? With a #warning everyone compiling this code sees
+that there's something that needs updating but it doesn't flood the logs
+of users (#warning was already used for linux/malloc.h in 2.4).
 
-http://people.freebsd.org/~gibbs/linux/tarballs/aic79xx-linux-2.4.tar.gz
+> 		Dave
 
-The files are for the latest linux-2.4 tree, but should be easily
-modified to work with the kernel you are using.
+cu
+Adrian
 
---
-Justin
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

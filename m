@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310437AbSCGSP7>; Thu, 7 Mar 2002 13:15:59 -0500
+	id <S287817AbSCGSW3>; Thu, 7 Mar 2002 13:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310434AbSCGSPj>; Thu, 7 Mar 2002 13:15:39 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:42766 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S287817AbSCGSP3>;
-	Thu, 7 Mar 2002 13:15:29 -0500
-Date: Thu, 7 Mar 2002 11:15:35 -0700
-From: yodaiken@fsmlabs.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: yodaiken@fsmlabs.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S310434AbSCGSWU>; Thu, 7 Mar 2002 13:22:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14351 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287817AbSCGSWF>; Thu, 7 Mar 2002 13:22:05 -0500
+Message-ID: <3C87AFBE.3000104@zytor.com>
+Date: Thu, 07 Mar 2002 10:21:50 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
         Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Arch option to touch newly allocated pages
-Message-ID: <20020307111535.B32294@hq.fsmlabs.com>
-In-Reply-To: <E16iyGp-0002IL-00@the-village.bc.nu> <E16izrK-00038v-00@starship.berlin> <20020307095046.A29364@hq.fsmlabs.com> <E16j2IV-0003B6-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E16j2IV-0003B6-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Mar 07, 2002 at 07:07:23PM +0100
-Organization: FSM Labs
+In-Reply-To: <505.1015411792@redhat.com> <E16iecJ-0007Nn-00@the-village.bc.nu> <20020306222149.GC370@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 07:07:23PM +0100, Daniel Phillips wrote:
-> > Really? I thought LRUs were to approximate working sets. Obviously
-> > if a program is kmallocing its working set is changing but that
-> > does not tell us anything about whether it is a correct decision to
-> > rip a page from the working set of another process.
+Pavel Machek wrote:
+
+> Hi!
 > 
-> We're getting way far from the original question here.  Our lru has no
-> concept of working set, it's completely global.  That's not so great and
-> it's another problem to tackle.  Sometime.
-
-Global lru is an approximation of per-task working set. That's why it
-works. But it's not perfect.
-
 > 
-> > > You won't find one if you don't look for it.
-> > 
-> > I'm too dumb to come up with a solution here, but you are the one
-> > changing the interface, so surely you have a couple of "less borked"
-> > solutions in mind - right?
+>>>You say 'at once'. Does UML somehow give pages back to the host when they're 
+>>>freed, so the pages that are no longer used by UML can be discarded by the 
+>>>host instead of getting swapped?
+>>>
+>>Doesn't seem to but it looks like madvise might be enough to make that
+>>happen. That BTW is an issue for more than UML - it has a bearing on
+>>running lots of Linux instances on any supervisor/virtualising system
+>>like S/390
+>>
 > 
-> Yes.  Well, I'm not alone here, ping Marcelo on that if you like.  This is
-> known borkness that's been deferred while more pressing borkness is dealt
-> with.
+> I just imagined hardware which supports freeing memory -- just do not
+> refresh it any more to conserve power ;-))).
+> 
 
-So you and Marcelo are planning on making changes to the semantics
-of primitive memory allocation modules in the production kernel?
-
-Can that be true? I hope not.
-
+> Granted, it would probably only make sense in big chunks, like 2MB or
+> so... It might make sense for a PDA...
+> 									Pavel
 
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+Unlikely.  Also, if you're using ECC, then that really screws with you.
+
+However, if it is an issue for more than UML (I still consider the 
+particular UML case "in case you have a UML on a tmpfs set up by an 
+idiot admin" completely bogus) then it's another issue.  The S/390 issue 
+is real.
+
+	-hpa
+
 

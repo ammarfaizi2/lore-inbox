@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUKSSdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUKSSfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbUKSSdD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 13:33:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUKSSb4
+	id S261531AbUKSSfN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 13:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUKSSdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 13:31:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58602 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261531AbUKSSbi (ORCPT
+	Fri, 19 Nov 2004 13:33:16 -0500
+Received: from mail.kroah.org ([69.55.234.183]:31467 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261531AbUKSScb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 13:31:38 -0500
-Date: Fri, 19 Nov 2004 10:30:11 -0800
+	Fri, 19 Nov 2004 13:32:31 -0500
+Date: Fri, 19 Nov 2004 10:30:48 -0800
 From: Greg KH <greg@kroah.com>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Documentation/pci.txt inconsistency
-Message-ID: <20041119183011.GB20751@kroah.com>
-References: <200411171334.56492@bilbo.math.uni-mannheim.de> <20041117220310.GB1291@kroah.com> <200411181045.01691@bilbo.math.uni-mannheim.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove unused drivers/pci/hotplug/pciehp_sysfs.c
+Message-ID: <20041119183048.GD20751@kroah.com>
+References: <20041113030203.GU2249@stusta.de> <20041115195148.GA12820@kroah.com> <20041115230105.GA4946@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411181045.01691@bilbo.math.uni-mannheim.de>
+In-Reply-To: <20041115230105.GA4946@stusta.de>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 10:45:01AM +0100, Rolf Eike Beer wrote:
-> Greg KH wrote:
-> > On Wed, Nov 17, 2004 at 01:34:56PM +0100, Rolf Eike Beer wrote:
-> > > The examples in section 2 of Documentation/pci.txt use pci_get_*. Some
-> > > lines
-> > >
-> > > later there is this funny little paragraph:
-> > > > Note that these functions are not hotplug-safe.  Their hotplug-safe
-> > > > replacements are pci_get_device(), pci_get_class() and
-> > > > pci_get_subsys(). They increment the reference count on the pci_dev
-> > > > that they return. You must eventually (possibly at module unload)
-> > > > decrement the reference count on these devices by calling
-> > > > pci_dev_put().
-> > >
-> > > How about this:
-> > >
-> > > These functions are hotplug-safe. They increment the reference count on
-> > > the pci_dev that they return. You must eventually (possibly at module
-> > > unload) decrement the reference count on these devices by calling
-> > > pci_dev_put().
-> >
-> > Great, care to send a patch instead?
+On Tue, Nov 16, 2004 at 12:01:05AM +0100, Adrian Bunk wrote:
+> On Mon, Nov 15, 2004 at 11:51:48AM -0800, Greg KH wrote:
+> > On Sat, Nov 13, 2004 at 04:02:03AM +0100, Adrian Bunk wrote:
+> > > The patch below does some cleanups in the PCI code:
+> > > - make OSC_UUID in drivers/pci/pci-acpi.c static
+> > > - remove the completely unused drivers/pci/hotplug/pciehp_sysfs.c
+> > > - remove other unused code
+> > > 
+> > > Please review which of these changes are correct and which conflict with 
+> > > pending changes.
+> > > 
+> > 
+> > >  drivers/pci/hotplug/Makefile       |    1 
+> > >  drivers/pci/hotplug/pciehp.h       |    3 
+> > >  drivers/pci/hotplug/pciehp_sysfs.c |  143 -------------
+> > 
+> > Yeah, this can be deleted.  Care to make a patch for just this?
 > 
-> Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> It's below.
 
 Applied, thanks.
 

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317899AbSFNJmZ>; Fri, 14 Jun 2002 05:42:25 -0400
+	id <S317587AbSFNKGU>; Fri, 14 Jun 2002 06:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317902AbSFNJmY>; Fri, 14 Jun 2002 05:42:24 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:40695 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S317899AbSFNJmY>;
-	Fri, 14 Jun 2002 05:42:24 -0400
-Date: Fri, 14 Jun 2002 10:41:49 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.name>
-X-X-Sender: <tigran@einstein.homenet>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [VERY OFFTOPIC] (was VIRUS MAKER !
-In-Reply-To: <Pine.GSO.4.21.0206140512520.22388-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0206141035180.2247-100000@einstein.homenet>
+	id <S317903AbSFNKGT>; Fri, 14 Jun 2002 06:06:19 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:7955 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S317587AbSFNKGS>; Fri, 14 Jun 2002 06:06:18 -0400
+Message-ID: <3D09C00F.C43ADE77@aitel.hist.no>
+Date: Fri, 14 Jun 2002 12:06:07 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.20-dj3 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+In-Reply-To: <Pine.GSO.4.21.0206122016140.16357-100000@weyl.math.psu.edu> <3D08583F.B40A4AFD@aitel.hist.no> <200206131524.14495.roger.larsson@skelleftea.mail.telia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002, Alexander Viro wrote:
-> 	Not original.  The first time I've heard that one was back in
-> '76, I guess.  s/English course/job interview/, s/Iraq/Chukotka/, IIRC,
-> and s/Saddam Hussein/<something equally silly>/.
->
+Roger Larsson wrote:
 
-I do not lie. I testified of the truth but you have the right to not
-believe me, of course.
+> > The automated checker may use hard-coded limits for recursions with
+> > limited depth.  If follow_link stops after n iterations, tell
+> > the checker about it and it will use that in its computations.
+> 
+> Alexander Viro <viro@math.psu.edu> wrote:
+> > (link_path_walk->do_follow_link->foofs_follow_link->
+> > vfs_follow_link->link_path_walk)
+> 
+> It would not need to follow the recursion at all.
+> 
+> A simple warning "vfs_follow_link makes a recursive call back
+> to link_path_walk, stack space needed for each recursion is N bytes"
+> 
+That's all you can do with recursion of unknown depth, sure.
 
-Yes, I know of the Chukotka/etc anecdotes, of course, but I was referring
-to a real case with real Iraqis in a real college in London. Ok, maybe not
-all Iraqis are idiots, I am only saying _all_ I have seen/heard _are_ and
-this one only adds to the set.
+But the recursion here is known limited, and we want to know
+"what is the deepest stack we can get into, following the
+deepest call chain _after_ VFS recursed 5 levels of symlinks"
+We know it won't recurse after that - but it might go
+on calling x levels of non-recursive functions.
 
-Shame on you for doubting my words, Alexander. But it is a trivial thing,
-of course, and I am sure we both have more important things to do than
-argue about it.
+Hard-coding the limit for that particular call chain makes
+sense as a lot of stuff may be called from it.  Or similiar,
+various stuff may pile up on the stack and _then_ call into VFS
+and recurse to the limit.
 
-Regards
-Tigran
+Printing the hardcoded assumption is probably a good idea when 
+it is used to find some max depth - the kernel code might change
+after all.
 
-PS. On the other hand, your advice to take it elsewhere is very wise, i.e.
-I have still a few things to do in this life and wouldn't appreciate if
-the whole muslim world will now put exterminating me as their task#1 :)
 
+Helge Hafting

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288972AbSAUXO4>; Mon, 21 Jan 2002 18:14:56 -0500
+	id <S282845AbSAUXgn>; Mon, 21 Jan 2002 18:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288966AbSAUXOg>; Mon, 21 Jan 2002 18:14:36 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:13067 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288928AbSAUXOe>; Mon, 21 Jan 2002 18:14:34 -0500
-Message-ID: <3C4C9F53.D6949776@zip.com.au>
-Date: Mon, 21 Jan 2002 15:08:03 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
+	id <S288928AbSAUXgd>; Mon, 21 Jan 2002 18:36:33 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:34318 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S282845AbSAUXgW>;
+	Mon, 21 Jan 2002 18:36:22 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200201212336.g0LNa9b25643@oboe.it.uc3m.es>
+Subject: missing memset in divas and eicon in 2.2.20
+To: kkeil@suse.de, mac@melware.de
+Date: Tue, 22 Jan 2002 00:36:09 +0100 (MET)
+Cc: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Jeff Dike <jdike@karaya.com>, bulb@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 OOPS in tty code.
-In-Reply-To: <200201212204.RAA03719@ccure.karaya.com>,
-		<20020121151037.A21622@ucw.cz>
-		<200201212204.RAA03719@ccure.karaya.com> <200201212247.g0LMlBU01766@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> Jeff Dike writes:
-> > bulb@ucw.cz said:
-> > > Tty device code causes oopses when closing /dev/console and devfs is
-> > > used. The bug is reproducible on 2.4.17 UML port.
-> >
-> > How do you reproduce it?
-> >
-> > UML config, command line, a backtrace, etc would be nice.
-> 
-> Furthermore, this was done without applying the latest devfs patch
-> (v199.8 as I write this). Bug reports with old versions of devfs are
-> (and should be) dropped in the bit-bucket, especially considering
-> recent devfs patches have ChangeLog entries which talk about fixing
-> Oopses!
-> 
-
-Jan's report seems to have nothing to do with devfs.  It
-sounds like it's purely a tty-layer thing.
-
-I'd like to see the full backtrace before we bitbucket
-this one, please.
 
 
--
+  betty:/usr/local/src/linux-2.2.20% sudo depmod -ae -F System.map 2.2.20-SMP
+  depmod: *** Unresolved symbols in
+  /lib/modules/2.2.20-SMP/misc/divas.o depmod:         memset
+  depmod: *** Unresolved symbols in
+  /lib/modules/2.2.20-SMP/misc/eicon.o depmod:         memset
+
+Both compiled as modules, SMP kernel, i686 compile.  No, I didn't make a
+patch - I was too busy fighting with sct's patch for ext3, which is also
+slightly toasted in the deendencies department when compiled as a
+module.
+
+I don't know why these are missing memset. Of course memset is in the
+kernel and nobody else misses it one bit! Yes, they do include at least
+some header that incorporates memset (from linux/strings.h? Or in
+asm-i386?), because I tried copying an inline memset.h definition into
+their header files, and it produced a typical compiler error ("error
+before '?' .." sic) from a memset macro clash. One of the component
+sources of divas.o and eicon.o must be missing an #include
+<asm/strings.h>.
+
+Your mission is to find and eliminate that missing include.
+
+Good luck.
+
+
+---------------------------------------------------------------------
+Peter T. Breuer                   MA CASM PhD (Ing.), Prof. Asoc.
+Area de Ingenieria Telematica	  E-mail: ptb@it.uc3m.es
+Dpto. Ingenieria		  Tel: +34 (9)1 624 87 81
+Universidad Carlos III de Madrid  Fax: +34 (9)1 624 8749/9430
+Butarque 15, Leganes/Madrid       URL: http://www.it.uc3m.es/~ptb
+E-28911 Spain                     Mob: +34 69 666 7835

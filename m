@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbTFIKtW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 06:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTFIKtW
+	id S262827AbTFIKyW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 06:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTFIKyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 06:49:22 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:48044 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S262818AbTFIKtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 06:49:21 -0400
-Message-Id: <200306091102.h59B2wsG020791@ginger.cmf.nrl.navy.mil>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] assorted changes to atm protocol stack 
-In-reply-to: Your message of "Sun, 08 Jun 2003 21:51:21 EDT."
-             <200306090151.h591pLC07310@relax.cmf.nrl.navy.mil> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Mon, 09 Jun 2003 07:01:06 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-X-Spam-Score: (*) hits=1.7
+	Mon, 9 Jun 2003 06:54:22 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61074 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262827AbTFIKyV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 06:54:21 -0400
+Date: Mon, 09 Jun 2003 04:04:56 -0700 (PDT)
+Message-Id: <20030609.040456.13756172.davem@redhat.com>
+To: ink@jurassic.park.msu.ru
+Cc: willy@debian.org, linux-kernel@vger.kernel.org, davidm@hpl.hp.com
+Subject: Re: [PATCH] [3/3] PCI segment support
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030609150018.B15283@jurassic.park.msu.ru>
+References: <20030609144242.A15283@jurassic.park.msu.ru>
+	<20030609.034304.52179334.davem@redhat.com>
+	<20030609150018.B15283@jurassic.park.msu.ru>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	vcc->local = *addr;
-> 	vcc->reply = WAITING;
->-	add_wait_queue(&vcc->sleep,&wait);
->-	sigd_enq(vcc,as_bind,NULL,NULL,&vcc->local);
->+	add_wait_queue(&vcc->sleep, &wait);
->+	sigd_enq(vcc, as_bind, NULL, NULL, &vcc->local);
-> 	while (vcc->reply == WAITING && sigd) {
-> 		set_current_state(TASK_UNINTERRUPTIBLE);
-> 		schedule();
-> 	}
->-	remove_wait_queue(&vcc->sleep,&wait);
+   From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+   Date: Mon, 9 Jun 2003 15:00:18 +0400
+   
+   The root level controllers itself are not accessible from
+   PCI config space (unlike x86 host bridges). They have
+   dedicated control registers somewhere in the IO space.
 
-forgot to ask but i imagine that the add_wait_queue() and remove_wait_queue()
-should probably be converted to prepare_to_wait() and finish_wait()?
+This sounds more like a PCI host controller, not the
+root of the actual PCI bus.

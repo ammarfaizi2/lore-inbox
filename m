@@ -1,72 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVANMnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVANMpC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVANMnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 07:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVANMnX
+	id S261978AbVANMpC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 07:45:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVANMpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 07:43:23 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:62610 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261973AbVANMmI (ORCPT
+	Fri, 14 Jan 2005 07:45:02 -0500
+Received: from tornado.reub.net ([60.234.136.108]:21702 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S261974AbVANMn6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 07:42:08 -0500
-Message-Id: <200501141239.j0ECdaRj005677@laptop11.inf.utfsm.cl>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues 
-In-Reply-To: Message from Linus Torvalds <torvalds@osdl.org> 
-   of "Thu, 13 Jan 2005 09:33:38 -0800." <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Fri, 14 Jan 2005 09:39:36 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 14 Jan 2005 09:39:45 -0300 (CLST)
+	Fri, 14 Jan 2005 07:43:58 -0500
+Message-Id: <6.2.0.14.2.20050115014139.01dab5e0@tornado.reub.net>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.0.14
+Date: Sat, 15 Jan 2005 01:43:54 +1300
+To: Andrew Morton <akpm@osdl.org>
+From: Reuben Farrelly <reuben-lkml@reub.net>
+Subject: Re: Breakage with raid in 2.6.11-rc1-mm1 [Regression in mm]
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
+In-Reply-To: <20050114035852.3b5ff1a3.akpm@osdl.org>
+References: <6.2.0.14.2.20050114233439.01cbb8d8@tornado.reub.net>
+ <20050114035852.3b5ff1a3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> said:
-> On Thu, 13 Jan 2005, Alan Cox wrote:
-> > On Iau, 2005-01-13 at 16:38, Linus Torvalds wrote:
+At 12:58 a.m. 15/01/2005, Andrew Morton wrote:
+>Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >
+> > Something seems to have broken with 2.6.11-rc1-mm1, which worked ok with
+> > 2.6.10-mm3.
+> >
+> > NET: Registered protocol family 17
+> > Starting balanced_irq
+> > BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
+> > md: Autodetecting RAID arrays.
+> > md: autorun ...
+> > md: ... autorun DONE.
+> > VFS: Waiting 19sec for root device...
+> > VFS: Waiting 18sec for root device...
+> > VFS: Waiting 17sec for root device...
+> > VFS: Waiting 16sec for root device...
+> > VFS: Waiting 15sec for root device...
+> > VFS: Waiting 14sec for root device...
+> > VFS: Waiting 13sec for root device...
+> > VFS: Waiting 12sec for root device...
+> > VFS: Waiting 11sec for root device...
+> > VFS: Waiting 10sec for root device...
+> > VFS: Waiting 9sec for root device...
+> > VFS: Waiting 8sec for root device...
+> > VFS: Waiting 7sec for root device...
+> > VFS: Waiting 6sec for root device...
+> > VFS: Waiting 5sec for root device...
+> > VFS: Waiting 4sec for root device...
+> > VFS: Waiting 3sec for root device...
+> > VFS: Waiting 2sec for root device...
+> > VFS: Waiting 1sec for root device...
+> > VFS: Cannot open root device "md2" or unknown-block(0,0)
+> > Please append a correct "root=" boot option
+> > Kernel panic - not syncing: VFS: Unable to mount root fs on 
+> unknown-block(0,0)
+> >
+> > The system is running 5 RAID-1 partitions, and md2 is the root as per
+> > grub.conf.  Problem seems to be that raid autodetection finds no raid
+> > partitions :(
+> >
+> > The two ST380013AS SATA drives are detected earlier in the boot, so I 
+> don't
+> > think that's the problem..
+>
+>hm, the only raidy thing we have in there is the below.  Maybe you could
+>try reverting that?
+>
+>
+>--- 25/drivers/md/raid5.c~raid5-overlapping-read-hack   2005-01-09 
+>22:20:40.211246912 -0800
+>+++ 25-akpm/drivers/md/raid5.c  2005-01-09 22:20:40.216246152 -0800
+>@@ -232,6 +232,7 @@ static struct stripe_head *__find_stripe
+>  }
+>
+>  static void unplug_slaves(mddev_t *mddev);
+>+static void raid5_unplug_device(request_queue_t *q);
+>
+>  static struct stripe_head *get_active_stripe(raid5_conf_t *conf, 
+> sector_t sector,
+>                                              int pd_idx, int noblock)
 
-> > > It wouldn't be a global flag. It's a per-process flag. For example,
-> > > many people _do_ need to execute binaries in their home directory. I
-> > > do it all the time. I know what a compiler is.
+Ok the breakage occurred somewhere between 2.6.10-mm3 (works) and 
+2.6.11-rc1 (doesn't work) ie wasn't introduced into the latest -mm patchset 
+as I first thought.
 
-> > noexec has never been worth anything because of scripts. Kernel won't
-> > load that binary, I can write a script to do it.
+Are there any other patches that might be worth a try backing out?
 
-> Scripts can only do what the interpreter does. And it's often a lot harder
-> to get the interpreter to do certain things. For example, you simply
-> _cannot_ get any thread race conditions with most scripts out there, nor 
-> can you generally use magic mmap patterns.
+reuben
 
-But you can trivially run an executable via e.g.:
-
-    /lib/ld-2.3.4.so some-nice-proggie
-
-and the execute permissions (and noexec, etc) on some-nice-proggie don't
-matter.
-
-> Am I claiming that disallowing self-written ELF binaries gets rid of all 
-> security holes? Obviously not.
-
-It makes their running a bit harder, but not much.
-
->                                I'm claiming that there are things that 
-> people can do that make it harder, and that _real_ security is not about 
-> trusting one subsystem, but in making it hard enough in many independent 
-> ways that it's just too effort-intensive to attack.
-
-Right. But this is a broken idea, IMVHO.
-
-
-Besides, something that has been overlooked in all this discussion so far:
-It does routinely happen that fixing some "just an ordinary bug" really
-does correct a security problem. Plus backporting "only security fixes"
-gets harder and harder as they start depending on other random changes.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

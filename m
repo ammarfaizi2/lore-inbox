@@ -1,110 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262392AbUCCKQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 05:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUCCKQ0
+	id S262377AbUCCKTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 05:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUCCKTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 05:16:26 -0500
-Received: from styx.suse.cz ([82.208.2.94]:1920 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S262403AbUCCKNt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 05:13:49 -0500
-Date: Wed, 3 Mar 2004 11:13:47 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-bk7 i8042 does not work on a genuine i386 ibm ps/2 model 70.
-Message-ID: <20040303101347.GB310@ucw.cz>
-References: <m1znb29css.fsf@ebiederm.dsl.xmission.com>
+	Wed, 3 Mar 2004 05:19:32 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:61446 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262377AbUCCKTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 05:19:31 -0500
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: David Weinehall <david@southpole.se>, Andrew Ho <andrewho@animezone.org>,
+       Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
+       Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <200403031059.26483.robin.rosenberg.lists@dewire.com>
+References: <4044119D.6050502@andrew.cmu.edu>
+	 <200403030700.57164.robin.rosenberg.lists@dewire.com>
+	 <1078307033.904.1.camel@teapot.felipe-alfaro.com>
+	 <200403031059.26483.robin.rosenberg.lists@dewire.com>
+Content-Type: text/plain
+Message-Id: <1078309141.863.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1znb29css.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Wed, 03 Mar 2004 11:19:01 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 29, 2004 at 07:32:19AM -0700, Eric W. Biederman wrote:
+On Wed, 2004-03-03 at 10:59, Robin Rosenberg wrote:
+> On Wednesday 03 March 2004 10:43, Felipe Alfaro Solana wrote:
+> > But XFS easily breaks down due to media defects. Once ago I used XFS,
+> > but I lost all data on one of my volumes due to a bad block on my hard
+> > disk. XFS was unable to recover from the error, and the XFS recovery
+> > tools were unable to deal with the error.
 > 
-> The i8042 driver attempts to detect if IBM PC compatiblity mode i.e.
-> I8042_CTR_XLATE is enabled.  Unfortunately on a genuine IBM PS/2, (a pc
-> incompatible :) this does not work. 
-> 
-> In i8042_controller_init if I disable the detection of the keyboard
-> not being in XLATE mode everything works fine.
-> 
-> /*
->  * If the chip is configured into nontranslated mode by the BIOS, don't
->  * bother enabling translating and be happy.
->  */     
-> #if 0
-> 
-> 	if (~i8042_ctr & I8042_CTR_XLATE)
-> 		i8042_direct = 1;
-> #endif
-> 
-> 
-> The value of i8042_initial_ctr is 0x25 in case that helps.
-> 
-> I am not certain where to proceed from here.
+> What file systems work on defect media? 
 
-This bit is an equivalent to 2.4 code in pc_keyb.c, that adds a
-workaround for IBM PowerPC portables, which don't seem to support
-translated mode:
+It's not a matter of working: it's a matter of recovering. A bad disk
+block could potentially destroy a file or a directory, but shouldn't
+make a filesystem not mountable nor recoverable.
 
-       /* ibm powerpc portables need this to use scan-code set 1 -- Cort * */
-        if (!(kbd_write_command_w_and_wait(KBD_CCMD_READ_MODE) & KBD_MODE_KCC))
-        {
-                /*
-                 * If the controller does not support conversion,
-                 * Set the keyboard to scan-code set 1.
-                 */
-                kbd_write_output_w(0xF0);
-                kbd_wait_for_input();
-                kbd_write_output_w(0x01);
-                kbd_wait_for_input();
-        }
+> As for crashed disks I rarely bothered trying to "fix" them anymore. I save
+> what I can and restore what's backed up and recovery tools (other than
+> the undo-delete ones) usually destroy what's left, but that's not unique to
+> XFS. Depending on how good my backups are I sometimes try the recovery
+> tools just to see, but that has never helped so far.
 
-As you can see, this sets the keyboard to scancode set 1, if
-KBD_MODE_KCC (which is 0x40, same as I8042_CTR_XLATE), bit is set.
+The problem is that I couldn't save anything: the XFS volume refused to
+mount and the XFS recovery tools refused to fix anything. It was just a
+single disk bad block. For example in ext2/3 critical parts are
+replicated several times over the volume, so there's minimal chance of
+being unable to mount the volume and recover important files.
 
-This should break your keyboard as well, if it supports mode setting.
-
-I guess we could kill that bit, and ignore the old PowerPCs ....
-
-> The piece I am certain about is that the keyboard controller has
-> traditionally been a tiny microcontroller on PCs so that there is a
-> wide variance in the commands and the exact format that they support.
-
-Yes. The translate/don't bit is documented by IBM, though.
-
-> And so far every data sheet I have looked at the documentation is
-> slightly different.  The only real intel datasheet I could find was
-> for the i8741A.  And it does not document the traditional interface
-> implemented but the i8042, because that was done in firmware.
-> 
-> This machine is primarily a test machine to make certain my code
-> works on older hardware.  So I am willing try any interesting or
-> likely patches.
-
-Does the machine by any chance have a PS/2 mouse port? If not, it may be
-the reason - it would have an AT-style i8042, and those might not be
-implementing that bit.
-
-We could skip the above check if we don't detect the AUX port.
-
-> My primary problem is that the code does not do the conservative
-> thing and assume the BIOS setup the machine in PC compatible mode,
-> and only when certain XLATE mode is implemented by the i8042 act on
-> that information.  Instead the code is assumes it knows how the
-> hardware works when in fact it does not.  
-> 
-> One solution might be check to assume XLATE mode is always enabled
-> unless the underlying hardware matches a known list of superio chips.
-> 
-> It is extremely evil to try and use a machine when the scancodes are
-> misinterpreted.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

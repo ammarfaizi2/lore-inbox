@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbUKTG6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbUKTHED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbUKTG6X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 01:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUKTG6X
+	id S262769AbUKTHED (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 02:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUKTHED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 01:58:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13209 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262769AbUKTG57 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 01:57:59 -0500
-Date: Fri, 19 Nov 2004 22:57:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: wli@holomorphy.com, torvalds@osdl.org, clameter@sgi.com,
-       benh@kernel.crashing.org, hugh@veritas.com, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V11 [0/7]: overview
-Message-Id: <20041119225701.0279f846.akpm@osdl.org>
-In-Reply-To: <419EE911.20205@yahoo.com.au>
-References: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>
-	<20041120020306.GA2714@holomorphy.com>
-	<419EBBE0.4010303@yahoo.com.au>
-	<20041120035510.GH2714@holomorphy.com>
-	<419EC205.5030604@yahoo.com.au>
-	<20041120042340.GJ2714@holomorphy.com>
-	<419EC829.4040704@yahoo.com.au>
-	<20041120053802.GL2714@holomorphy.com>
-	<419EDB21.3070707@yahoo.com.au>
-	<20041120062341.GM2714@holomorphy.com>
-	<419EE911.20205@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 20 Nov 2004 02:04:03 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:7070
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262769AbUKTHEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 02:04:02 -0500
+Date: Fri, 19 Nov 2004 22:47:41 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: jmorris@redhat.com, Ian.Pratt@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, davem@redhat.com
+Subject: Re: [6/7] Xen VMM patch set : add alloc_skb_from_cache
+Message-Id: <20041119224741.5b407c00.davem@davemloft.net>
+In-Reply-To: <20041120060330.GA23850@taniwha.stupidest.org>
+References: <E1CVI7o-0004cT-00@mta1.cl.cam.ac.uk>
+	<Xine.LNX.4.44.0411192103150.12779-100000@thoron.boston.redhat.com>
+	<20041120060330.GA23850@taniwha.stupidest.org>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> per thread rss
 
-Given that we have contention problems updating a single mm-wide rss and
-given that the way to fix that up is to spread things out a bit, it seems
-wildly arbitrary to me that the way in which we choose to spread the
-counter out is to stick a bit of it into each task_struct.
-
-I'd expect that just shoving a pointer into mm_struct which points at a
-dynamically allocated array[NR_CPUS] of longs would suffice.  We probably
-don't even need to spread them out on cachelines - having four or eight
-cpus sharing the same cacheline probably isn't going to hurt much.
-
-At least, that'd be my first attempt.  If it's still not good enough, try
-something else.
-
+BTW I already have Ian's patches in my 2.6.11 tree.  I have no
+problem with the new interfaces, and the only reason it's not
+going into 2.6.10 is that Linus wants only bug fixes.

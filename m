@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbUAAPHH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 10:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUAAPHH
+	id S264397AbUAAPWz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 10:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbUAAPWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 10:07:07 -0500
-Received: from holomorphy.com ([199.26.172.102]:13769 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263571AbUAAPHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 10:07:05 -0500
-Date: Thu, 1 Jan 2004 07:06:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Michel D?nzer <michel@daenzer.net>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-Message-ID: <20040101150653.GC3242@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Michel D?nzer <michel@daenzer.net>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Jon Smirl <jonsmirl@yahoo.com>,
-	dri-devel <dri-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com> <1072958618.1603.236.camel@thor.asgaard.local> <1072959055.5717.1.camel@laptop.fenrus.com> <1072959820.1600.252.camel@thor.asgaard.local> <20040101122851.GA13671@devserv.devel.redhat.com> <1072967278.1603.270.camel@thor.asgaard.local>
+	Thu, 1 Jan 2004 10:22:55 -0500
+Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:62463 "EHLO
+	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S264397AbUAAPWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 10:22:54 -0500
+Subject: Re: udev and devfs - The final word
+From: Rob Love <rml@ximian.com>
+To: rob@landley.net
+Cc: Andries Brouwer <aebr@win.tue.nl>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+In-Reply-To: <200401010634.28559.rob@landley.net>
+References: <18Cz7-7Ep-7@gated-at.bofh.it>
+	 <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur>
+	 <200401010634.28559.rob@landley.net>
+Content-Type: text/plain
+Message-Id: <1072970573.3975.3.camel@fur>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072967278.1603.270.camel@thor.asgaard.local>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Thu, 01 Jan 2004 10:22:53 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01, 2004 at 03:27:59PM +0100, Michel D?nzer wrote:
-> Does this look better? Maybe a macro (or a typedef?) for the type of the
-> last argument would still be a good idea? Or is there yet a better way?
+On Thu, 2004-01-01 at 07:34, Rob Landley wrote:
 
-I'm going to regret suggesting this, but how about:
-(a) a typedef for the arg itself
-(b) a macro and/or inline for the type update
+> Fundamental problem: "Unique" depends on the other devices in the system.  You 
+> can't guarantee unique by looking at one device, more or less by definition.
 
-both simultaneously?
+Of course.
 
-So we'd have centralized in one place:
+> Combine that with hotplug and you have a world of pain.  Generating a number 
+> from a device is just a fancy hashing function, but as soon as you have two 
+> devices that generate the same number independently (when in separate 
+> systems) and you plug them both into the same system: boom.
 
-#if /* kernel version > 2.6.0 */
-typdef int *third_arg_t;
-#define third_arg_update(type)	do { *(type) = VM_FAULT_MINOR; } while (0)
-#else
-typdef int third_arg_t;
-#define third_arg_update(type)	do { } while (0)
-#endif
+A solution would have to deal with collisions.
 
-... and the natural usage that follows.
+> Of course the EASY way to deal with collisions is to just fail the hash thingy 
+> in a detectable way, and punt to some kind of udev override.  So if you yank 
+> a drive from system A, throw it in system B, try to re-export it NFS, and 
+> it's not going to work, it TELLS you.
 
--- wli
+No no no.  Nothing this complicated.  No punting to udev.
+
+> Solve 90% of the problem space and have a human deal with the exceptions.  How 
+> big's the unique number being exported, anyway?  (If it's 32 bits, the 
+> exceptions are 1 in 4 billion.  It may never be seen in the wild...)
+
+Device numbers are 64-bit now.
+
+	Rob Love
+
+

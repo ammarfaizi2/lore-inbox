@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUJHLJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269796AbUJHLLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268355AbUJHLJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269772AbUJHLJJ
+	id S269796AbUJHLLV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269772AbUJHLLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:09:09 -0400
-Received: from holomorphy.com ([207.189.100.168]:65237 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268355AbUJHLJD (ORCPT
+	Fri, 8 Oct 2004 07:11:21 -0400
+Received: from holomorphy.com ([207.189.100.168]:470 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269796AbUJHLKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:09:03 -0400
-Date: Fri, 8 Oct 2004 04:08:41 -0700
+	Fri, 8 Oct 2004 07:10:48 -0400
+Date: Fri, 8 Oct 2004 04:10:37 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: andersen@codepoet.org, "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, jonathan@jonmasters.org,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Message-ID: <20041008110841.GB9106@holomorphy.com>
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <20041008024054.GA1542@codepoet.org> <1097225451.25303.20.camel@tara.firmix.at>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec drivers and 2.6.x kernels
+Message-ID: <20041008111037.GD9106@holomorphy.com>
+References: <20041007222709.GA24314@animx.eu.org> <20041007224927.GZ9106@holomorphy.com> <20041008000637.GA24588@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097225451.25303.20.camel@tara.firmix.at>
+In-Reply-To: <20041008000637.GA24588@animx.eu.org>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 20:40 -0600, Erik Andersen wrote:
->> I'm suppose you have a plan to ask Leonard Zubkoff and
->> doubtless others to relicense their work?
+At some point in the past, I wrote:
+>> I have boxen with aic7xxx and aic79xx that don't see issues of this
+>> kind (granted, with bleeding edge -mm). Could you describe the systems
+>> in more detail?
 
-On Fri, Oct 08, 2004 at 10:50:51AM +0200, Bernd Petrovitsch wrote:
-> Obviously yes. And they seem to have a list of the ten of thousands of
-> Copyright/authors' rights ("Urheberrecht" as in Austria, Germany and
-> probably some other countries) with information to which parts of the
-> kernel they actually (may) have rights on.
+On Thu, Oct 07, 2004 at 08:06:37PM -0400, Wakko Warner wrote:
+> What I described was a single system.  See descriptions below, what else will
+> I need to provide?
 
-The dead do not relicense code.
+These are probably enough for the driver people to go on, and what I've
+been asked for before. Exactly the kind of information needed.
 
 
 -- wli

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135971AbREGBma>; Sun, 6 May 2001 21:42:30 -0400
+	id <S135975AbREGCHx>; Sun, 6 May 2001 22:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135973AbREGBmV>; Sun, 6 May 2001 21:42:21 -0400
-Received: from unthought.net ([212.97.129.24]:53381 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S135971AbREGBmK>;
-	Sun, 6 May 2001 21:42:10 -0400
-Date: Mon, 7 May 2001 03:42:08 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Ben Ford <ben@kalifornia.com>
-Cc: "Dwayne C. Litzenberger" <dlitz@dlitz.net>,
-        Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
-Message-ID: <20010507034208.A16593@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Ben Ford <ben@kalifornia.com>,
-	"Dwayne C. Litzenberger" <dlitz@dlitz.net>,
-	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010505063726.A32232@va.samba.org> <20010506011553.A11297@zed.dlitz.net> <3AF584A2.4050208@kalifornia.com>
+	id <S135976AbREGCHo>; Sun, 6 May 2001 22:07:44 -0400
+Received: from babylon5.babcom.com ([216.36.71.34]:37760 "EHLO
+	babylon5.babcom.com") by vger.kernel.org with ESMTP
+	id <S135975AbREGCH2>; Sun, 6 May 2001 22:07:28 -0400
+Date: Sun, 6 May 2001 19:07:21 -0700
+From: Phil Stracchino <alaric@babcom.com>
+To: God <atm@sdk.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernelnotes.org down / loop device results
+Message-ID: <20010506190721.A3719@babylon5.babcom.com>
+Mail-Followup-To: God <atm@sdk.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105061522440.23642-100000@scotch.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <3AF584A2.4050208@kalifornia.com>; from ben@kalifornia.com on Sun, May 06, 2001 at 10:06:42AM -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0105061522440.23642-100000@scotch.homeip.net>; from atm@sdk.ca on Sun, May 06, 2001 at 09:32:28PM -0400
+X-No-Archive: Yes
+X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
+X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
+X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
+X-Copyright: This message may not be reproduced, in part or in whole, for any commercial purpose without prior written permission.  Prior permission for securityfocus.com is implicit.
+X-UCE-Policy: No unsolicited commercial email is accepted at this site.  The sending of any UCE to this domain may result in the imposition of civil liability against the sender in accordance with Cal. Bus. & Prof. Code Section 17538.45, and all senders of UCE will be permanently blocked.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 10:06:42AM -0700, Ben Ford wrote:
-> Dwayne C. Litzenberger wrote:
-> 
-> >Hey, this is cool.
-> >
-> >How far away is the capability to "teleport" processes from one machine to
-> >another over the network?  Think of the uptime!
-> >
-> 
-> It is here.  Look at Mosix.
+On Sun, May 06, 2001 at 09:32:28PM -0400, God wrote:
+> If I make an image of a floppy:
+> then try to mount the image (no errors on the floppy):
+> Mount hangs ...  what do I mean by that? .. well:
 
-No.  Not for uptime.
+> box:
+> Red Nut 7.1,
+> Linux scotch 2.4.2 #2 SMP Thu Mar 1 18:08:51 EST 2001 i686 unknown
 
-The "responsibility" for process completion does not get delegated. A process
-will always be bound to it's home-node (in mosix terms), no matter how far
-it's "teleported".   If the home-node fails, the process won't know what hit
-it.
 
-There are good reasons why mosix let's processes depend on their home nodes.
+This is a known problem in the 2.4.2 kernel.  It's fixed in 2.4.3.
 
-This is not meant as backstabbing mosix, it's a great environment for a lot
-of things.
-
-But it's not the universal silver bullet.
 
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+ Linux Now!   ..........Because friends don't let friends use Microsoft.
+ phil stracchino   --   the renaissance man   --   mystic zen biker geek
+    Vr00m:  2000 Honda CBR929RR   --   Cage:  2000 Dodge Intrepid R/T
+ Previous vr00mage:  1986 VF500F (sold), 1991 VFR750F3 (foully murdered)

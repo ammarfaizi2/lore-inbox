@@ -1,627 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316530AbSIIFyd>; Mon, 9 Sep 2002 01:54:33 -0400
+	id <S316538AbSIIGRm>; Mon, 9 Sep 2002 02:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316532AbSIIFyd>; Mon, 9 Sep 2002 01:54:33 -0400
-Received: from dp.samba.org ([66.70.73.150]:35203 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S316530AbSIIFyY>;
-	Mon, 9 Sep 2002 01:54:24 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dan Aloni <da-x@gmx.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [TRIVIAL PATCH] Remove list_t infection. 
-In-reply-to: Your message of "Fri, 06 Sep 2002 12:28:29 +0300."
-             <20020906092829.GA32379@callisto.yi.org> 
-Date: Mon, 09 Sep 2002 15:57:27 +1000
-Message-Id: <20020909055908.610F62C075@lists.samba.org>
+	id <S316541AbSIIGRl>; Mon, 9 Sep 2002 02:17:41 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:47301 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S316538AbSIIGRk>; Mon, 9 Sep 2002 02:17:40 -0400
+Date: Mon, 9 Sep 2002 02:22:23 -0400
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+Message-ID: <20020909062223.GA19766@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: Luca Barbieri <ldb@ldb.ods.org>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+References: <15730.8121.554630.859558@charged.uio.no> <1030890022.2145.52.camel@ldb> <15730.17171.162970.367575@charged.uio.no> <1030906488.2145.104.camel@ldb> <15730.27952.29723.552617@charged.uio.no> <1030916061.2145.344.camel@ldb> <15730.36080.987645.452664@charged.uio.no> <1030920630.1993.420.camel@ldb> <20020903034607.GF29452@ravel.coda.cs.cmu.edu> <1031522643.3025.279.camel@ldb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031522643.3025.279.camel@ldb>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020906092829.GA32379@callisto.yi.org> you write:
-> task_t, anyone?
+On Mon, Sep 09, 2002 at 12:04:03AM +0200, Luca Barbieri wrote:
+> > Now if this is a multithreaded application that does this in one thread
+> > and another thread happens to open a completely unrelated file around
+> > the time that the first thread drops this application's setuid
+> > permissions. If we don't use a copy during the open upcall, but copy it
+> > after the fact, we don't have the correct permissions around the time
+> > the file is closed.
+> You would copy them during the filesystem open.
+> My point was that in the generic vfs open there is no need to use copied
+> credentials so credentials copying can be restricted to network
+> filesystems with not-very-good designs.
+> 
+> > > BTW, imho a correctly designed network filesystem should have a single
+> > > stateful encrypted connection (or a pool of equally authenticated ones)
+> > > and credentials (i.e. passwords) should only be passed when the user
+> > > makes the first filesystem access. After that the server should do
+> > > authentication with the OR of all credentials received and the client
+> > > kernel should further decide whether it can give access to a particular
+> > > user.
+> > 
+> > Right, which is pretty close to what Coda does.
+> This is in contradiction with your statement about credentials sent
+> during close.
 
-Great minds think alike.  Mainly in the scheduler, but some leakage
-into exit.c and fork.c.
+How so, Coda has a pool of authenticated connections per user. But the
+userspace cachemanager still needs to know which user performed the
+operation in order to pick the right connection to send the message.
 
-This one's worse than list_t, since you often want to pass "struct
-task_struct *" without requiring the definition.
+If user A opens a file and then user B writes/closes it, should it send
+the write/close message over the authenticated connection of user B?
+Ofcourse not, so we need to store the credentials of the opener with the
+file.
 
-Name: task_t removal patch
-Author: Rusty Russell
-Section: Misc
-Status: Trivial
+This behaviour is the same for any filesystem that performs/requires
+additional permission checking after a file is opened, i.e. probably all
+network filesystems.
 
-D: This removes task_t, which is a gratuitous typedef for a "struct
-D: task_struct".  Unless there is good reason, the kernel doesn't usually
-D: typedef, as typedefs cannot be predeclared unlike structs.
+> The advantage of the model I described is that, with the exception of
+> connection management, it works exactly like a normal filesystem with
+> the exception of some totally inaccessible files due to server access
+> denies.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/Documentation/sched-coding.txt working-2.5.33-cset-1.621-task_t/Documentation/sched-coding.txt
---- working-2.5.33-cset-1.621/Documentation/sched-coding.txt	2002-05-30 10:00:45.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/Documentation/sched-coding.txt	2002-09-09 15:48:07.000000000 +1000
-@@ -31,14 +31,14 @@ to be locked, lock acquires must be orde
- 
- A specific runqueue is locked via
- 
--	task_rq_lock(task_t pid, unsigned long *flags)
-+	task_rq_lock(struct task_struct *task, unsigned long *flags)
- 
--which disables preemption, disables interrupts, and locks the runqueue pid is
-+which disables preemption, disables interrupts, and locks the runqueue task is
- running on.  Likewise,
- 
--	task_rq_unlock(task_t pid, unsigned long *flags)
-+	task_rq_unlock(struct task_struct *task, unsigned long *flags)
- 
--unlocks the runqueue pid is running on, restores interrupts to their previous
-+unlocks the runqueue task is running on, restores interrupts to their previous
- state, and reenables preemption.
- 
- The routines
-@@ -99,11 +99,11 @@ rt_task(pid)
- Process Control Methods
- -----------------------
- 
--void set_user_nice(task_t *p, long nice)
-+void set_user_nice(struct task_struct *p, long nice)
- 	Sets the "nice" value of task p to the given value.
- int setscheduler(pid_t pid, int policy, struct sched_param *param)
- 	Sets the scheduling policy and parameters for the given pid.
--void set_cpus_allowed(task_t *p, unsigned long new_mask)
-+void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
- 	Sets a given task's CPU affinity and migrates it to a proper cpu.
- 	Callers must have a valid reference to the task and assure the
- 	task not exit prematurely.  No locks can be held during the call.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/arch/alpha/kernel/process.c working-2.5.33-cset-1.621-task_t/arch/alpha/kernel/process.c
---- working-2.5.33-cset-1.621/arch/alpha/kernel/process.c	2002-07-25 10:13:01.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/arch/alpha/kernel/process.c	2002-09-09 15:46:54.000000000 +1000
-@@ -441,7 +441,7 @@ out:
-  */
- 
- unsigned long
--thread_saved_pc(task_t *t)
-+thread_saved_pc(struct task_struct *t)
- {
- 	unsigned long base = (unsigned long)t->thread_info;
- 	unsigned long fp, sp = t->thread_info->pcb.ksp;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/arch/ia64/kernel/smpboot.c working-2.5.33-cset-1.621-task_t/arch/ia64/kernel/smpboot.c
---- working-2.5.33-cset-1.621/arch/ia64/kernel/smpboot.c	2002-09-01 12:22:58.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/arch/ia64/kernel/smpboot.c	2002-09-09 15:47:02.000000000 +1000
-@@ -75,7 +75,7 @@ extern void start_ap (void);
- extern unsigned long ia64_iobase;
- 
- int cpucount;
--task_t *task_for_booting_cpu;
-+struct task_struct *task_for_booting_cpu;
- 
- /* Bitmask of currently online CPUs */
- volatile unsigned long cpu_online_map;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/include/linux/sched.h working-2.5.33-cset-1.621-task_t/include/linux/sched.h
---- working-2.5.33-cset-1.621/include/linux/sched.h	2002-09-09 13:31:53.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/include/linux/sched.h	2002-09-09 13:36:41.000000000 +1000
-@@ -143,10 +143,8 @@ struct completion;
- extern rwlock_t tasklist_lock;
- extern spinlock_t mmlist_lock;
- 
--typedef struct task_struct task_t;
--
--extern void sched_init(void);
--extern void init_idle(task_t *idle, int cpu);
-+ extern void sched_init(void);
-+extern void init_idle(struct task_struct *idle, int cpu);
- extern void show_state(void);
- extern void cpu_init (void);
- extern void trap_init(void);
-@@ -423,14 +421,14 @@ do { if (atomic_dec_and_test(&(tsk)->usa
- #define _STK_LIM	(8*1024*1024)
- 
- #if CONFIG_SMP
--extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
-+extern void set_cpus_allowed(struct task_struct *p, unsigned long new_mask);
- #else
- # define set_cpus_allowed(p, new_mask) do { } while (0)
- #endif
- 
--extern void set_user_nice(task_t *p, long nice);
--extern int task_prio(task_t *p);
--extern int task_nice(task_t *p);
-+extern void set_user_nice(struct task_struct *p, long nice);
-+extern int task_prio(struct task_struct *p);
-+extern int task_nice(struct task_struct *p);
- extern int idle_cpu(int cpu);
- 
- void yield(void);
-@@ -512,7 +510,7 @@ extern long FASTCALL(interruptible_sleep
- 						    signed long timeout));
- extern int FASTCALL(wake_up_process(struct task_struct * tsk));
- extern void FASTCALL(wake_up_forked_process(struct task_struct * tsk));
--extern void FASTCALL(sched_exit(task_t * p));
-+extern void FASTCALL(sched_exit(struct task_struct * p));
- 
- #define wake_up(x)			__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1)
- #define wake_up_nr(x, nr)		__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, nr)
-@@ -657,7 +655,7 @@ extern void exit_sighand(struct task_str
- 
- extern void reparent_to_init(void);
- extern void daemonize(void);
--extern task_t *child_reaper;
-+extern struct task_struct *child_reaper;
- 
- extern int do_execve(char *, char **, char **, struct pt_regs *);
- extern struct task_struct *do_fork(unsigned long, unsigned long, struct pt_regs *, unsigned long, int *);
-@@ -666,8 +664,8 @@ extern void FASTCALL(add_wait_queue(wait
- extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
- extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
- 
--extern void wait_task_inactive(task_t * p);
--extern void kick_if_running(task_t * p);
-+extern void wait_task_inactive(struct task_struct * p);
-+extern void kick_if_running(struct task_struct * p);
- 
- #define __wait_event(wq, condition) 					\
- do {									\
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/kernel/capability.c working-2.5.33-cset-1.621-task_t/kernel/capability.c
---- working-2.5.33-cset-1.621/kernel/capability.c	2002-07-21 17:43:10.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/kernel/capability.c	2002-09-09 13:36:22.000000000 +1000
-@@ -33,7 +33,7 @@ asmlinkage long sys_capget(cap_user_head
-      int ret = 0;
-      pid_t pid;
-      __u32 version;
--     task_t *target;
-+     struct task_struct *target;
-      struct __user_cap_data_struct data;
- 
-      if (get_user(version, &header->version))
-@@ -83,7 +83,7 @@ static inline void cap_set_pg(int pgrp, 
- 			      kernel_cap_t *inheritable,
- 			      kernel_cap_t *permitted)
- {
--     task_t *target;
-+     struct task_struct *target;
- 
-      for_each_task(target) {
-              if (target->pgrp != pgrp)
-@@ -100,7 +100,7 @@ static inline void cap_set_all(kernel_ca
- 			       kernel_cap_t *inheritable,
- 			       kernel_cap_t *permitted)
- {
--     task_t *target;
-+     struct task_struct *target;
- 
-      for_each_task(target) {
-              if (target == current || target->pid == 1)
-@@ -125,7 +125,7 @@ asmlinkage long sys_capset(cap_user_head
- {
-      kernel_cap_t inheritable, permitted, effective;
-      __u32 version;
--     task_t *target;
-+     struct task_struct *target;
-      int ret;
-      pid_t pid;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/kernel/exit.c working-2.5.33-cset-1.621-task_t/kernel/exit.c
---- working-2.5.33-cset-1.621/kernel/exit.c	2002-09-09 13:31:54.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/kernel/exit.c	2002-09-09 13:35:55.000000000 +1000
-@@ -237,7 +237,9 @@ void daemonize(void)
- 	reparent_to_init();
- }
- 
--static void reparent_thread(task_t *p, task_t *reaper, task_t *child_reaper)
-+static void reparent_thread(struct task_struct *p,
-+			    struct task_struct *reaper,
-+			    struct task_struct *child_reaper)
- {
- 	/* We dont want people slaying init */
- 	p->exit_signal = SIGCHLD;
-@@ -443,7 +445,8 @@ static inline void forget_original_paren
- 	read_unlock(&tasklist_lock);
- }
- 
--static inline void zap_thread(task_t *p, task_t *father)
-+static inline void zap_thread(struct task_struct *p,
-+			      struct task_struct *father)
- {
- 	ptrace_unlink(p);
- 	list_del_init(&p->sibling);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/kernel/fork.c working-2.5.33-cset-1.621-task_t/kernel/fork.c
---- working-2.5.33-cset-1.621/kernel/fork.c	2002-09-09 13:31:54.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/kernel/fork.c	2002-09-09 13:36:02.000000000 +1000
-@@ -65,7 +65,7 @@ rwlock_t tasklist_lock __cacheline_align
-  * the very last portion of sys_exit() is executed with
-  * preemption turned off.
-  */
--static task_t *task_cache[NR_CPUS] __cacheline_aligned;
-+static struct task_struct *task_cache[NR_CPUS] __cacheline_aligned;
- 
- void __put_task_struct(struct task_struct *tsk)
- {
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/kernel/ptrace.c working-2.5.33-cset-1.621-task_t/kernel/ptrace.c
---- working-2.5.33-cset-1.621/kernel/ptrace.c	2002-09-09 13:31:54.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/kernel/ptrace.c	2002-09-09 13:36:28.000000000 +1000
-@@ -24,7 +24,7 @@
-  *
-  * Must be called with the tasklist lock write-held.
-  */
--void __ptrace_link(task_t *child, task_t *new_parent)
-+void __ptrace_link(struct task_struct *child, struct task_struct *new_parent)
- {
- 	if (!list_empty(&child->ptrace_list))
- 		BUG();
-@@ -42,7 +42,7 @@ void __ptrace_link(task_t *child, task_t
-  *
-  * Must be called with the tasklist lock write-held.
-  */
--void __ptrace_unlink(task_t *child)
-+void __ptrace_unlink(struct task_struct *child)
- {
- 	if (!child->ptrace)
- 		BUG();
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/kernel/sched.c working-2.5.33-cset-1.621-task_t/kernel/sched.c
---- working-2.5.33-cset-1.621/kernel/sched.c	2002-09-09 13:31:54.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/kernel/sched.c	2002-09-09 13:35:23.000000000 +1000
-@@ -117,7 +117,7 @@
- #define BASE_TIMESLICE(p) (MIN_TIMESLICE + \
- 	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
- 
--static inline unsigned int task_timeslice(task_t *p)
-+static inline unsigned int task_timeslice(struct task_struct *p)
- {
- 	return BASE_TIMESLICE(p);
- }
-@@ -147,11 +147,11 @@ struct runqueue {
- 	spinlock_t lock;
- 	unsigned long nr_running, nr_switches, expired_timestamp,
- 			nr_uninterruptible;
--	task_t *curr, *idle;
-+	struct task_struct *curr, *idle;
- 	prio_array_t *active, *expired, arrays[2];
- 	int prev_nr_running[NR_CPUS];
- 
--	task_t *migration_thread;
-+	struct task_struct *migration_thread;
- 	struct list_head migration_queue;
- 
- } ____cacheline_aligned;
-@@ -178,7 +178,8 @@ static struct runqueue runqueues[NR_CPUS
-  * interrupts.  Note the ordering: we can safely lookup the task_rq without
-  * explicitly disabling preemption.
-  */
--static inline runqueue_t *task_rq_lock(task_t *p, unsigned long *flags)
-+static inline runqueue_t *task_rq_lock(struct task_struct *p,
-+				       unsigned long *flags)
- {
- 	struct runqueue *rq;
- 
-@@ -250,7 +251,7 @@ static inline void enqueue_task(struct t
-  *
-  * Both properties are important to certain workloads.
-  */
--static inline int effective_prio(task_t *p)
-+static inline int effective_prio(struct task_struct *p)
- {
- 	int bonus, prio;
- 
-@@ -271,7 +272,7 @@ static inline int effective_prio(task_t 
-  * Also update all the scheduling statistics stuff. (sleep average
-  * calculation, priority modifiers, etc.)
-  */
--static inline void activate_task(task_t *p, runqueue_t *rq)
-+static inline void activate_task(struct task_struct *p, runqueue_t *rq)
- {
- 	unsigned long sleep_time = jiffies - p->sleep_timestamp;
- 	prio_array_t *array = rq->active;
-@@ -312,7 +313,7 @@ static inline void deactivate_task(struc
-  * might also involve a cross-CPU call to trigger the scheduler on
-  * the target CPU.
-  */
--static inline void resched_task(task_t *p)
-+static inline void resched_task(struct task_struct *p)
- {
- #ifdef CONFIG_SMP
- 	int need_resched, nrpolling;
-@@ -339,7 +340,7 @@ static inline void resched_task(task_t *
-  * The caller must ensure that the task *will* unschedule sometime soon,
-  * else this function might spin for a *long* time.
-  */
--void wait_task_inactive(task_t * p)
-+void wait_task_inactive(struct task_struct * p)
- {
- 	unsigned long flags;
- 	runqueue_t *rq;
-@@ -378,7 +379,7 @@ repeat:
-  * while the message is in flight then it will notice the
-  * sigpending condition anyway.)
-  */
--void kick_if_running(task_t * p)
-+void kick_if_running(struct task_struct * p)
- {
- 	if ((task_running(task_rq(p), p)) && (task_cpu(p) != smp_processor_id()))
- 		resched_task(p);
-@@ -397,7 +398,7 @@ void kick_if_running(task_t * p)
-  *
-  * returns failure only if the task is already active.
-  */
--static int try_to_wake_up(task_t * p, int sync)
-+static int try_to_wake_up(struct task_struct * p, int sync)
- {
- 	unsigned long flags;
- 	int success = 0;
-@@ -434,7 +435,7 @@ repeat_lock_task:
- 	return success;
- }
- 
--int wake_up_process(task_t * p)
-+int wake_up_process(struct task_struct * p)
- {
- 	return try_to_wake_up(p, 0);
- }
-@@ -445,7 +446,7 @@ int wake_up_process(task_t * p)
-  * This function will do some initial scheduler statistics housekeeping
-  * that must be done for every newly created process.
-  */
--void wake_up_forked_process(task_t * p)
-+void wake_up_forked_process(struct task_struct * p)
- {
- 	runqueue_t *rq = this_rq_lock();
- 
-@@ -475,7 +476,7 @@ void wake_up_forked_process(task_t * p)
-  * artificially, because any timeslice recovered here
-  * was given away by the parent in the first place.)
-  */
--void sched_exit(task_t * p)
-+void sched_exit(struct task_struct * p)
- {
- 	local_irq_disable();
- 	if (p->first_time_slice) {
-@@ -498,7 +499,7 @@ void sched_exit(task_t * p)
-  * @prev: the thread we just switched away from.
-  */
- #if CONFIG_SMP || CONFIG_PREEMPT
--asmlinkage void schedule_tail(task_t *prev)
-+asmlinkage void schedule_tail(struct task_struct *prev)
- {
- 	finish_arch_switch(this_rq(), prev);
- }
-@@ -508,7 +509,8 @@ asmlinkage void schedule_tail(task_t *pr
-  * context_switch - switch to the new MM and the new
-  * thread's register state.
-  */
--static inline task_t * context_switch(task_t *prev, task_t *next)
-+static inline struct task_struct *context_switch(struct task_struct *prev,
-+						 struct task_struct *next)
- {
- 	struct mm_struct *mm = next->mm;
- 	struct mm_struct *oldmm = prev->active_mm;
-@@ -711,7 +713,7 @@ out:
-  * pull_task - move a task from a remote runqueue to the local runqueue.
-  * Both runqueues must be locked.
-  */
--static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, task_t *p, runqueue_t *this_rq, int this_cpu)
-+static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, struct task_struct *p, runqueue_t *this_rq, int this_cpu)
- {
- 	dequeue_task(p, src_array);
- 	src_rq->nr_running--;
-@@ -740,7 +742,7 @@ static void load_balance(runqueue_t *thi
- 	runqueue_t *busiest;
- 	prio_array_t *array;
- 	struct list_head *head, *curr;
--	task_t *tmp;
-+	struct task_struct *tmp;
- 
- 	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance);
- 	if (!busiest)
-@@ -776,7 +778,7 @@ skip_bitmap:
- 	head = array->queue + idx;
- 	curr = head->prev;
- skip_queue:
--	tmp = list_entry(curr, task_t, run_list);
-+	tmp = list_entry(curr, struct task_struct, run_list);
- 
- 	/*
- 	 * We do not migrate tasks that are:
-@@ -856,7 +858,7 @@ void scheduler_tick(int user_ticks, int 
- {
- 	int cpu = smp_processor_id();
- 	runqueue_t *rq = this_rq();
--	task_t *p = current;
-+	struct task_struct *p = current;
- 
- 	if (p == rq->idle) {
- 		/* note: this timer irq context must be accounted for as well */
-@@ -934,7 +936,7 @@ void scheduling_functions_start_here(voi
-  */
- asmlinkage void schedule(void)
- {
--	task_t *prev, *next;
-+	struct task_struct *prev, *next;
- 	runqueue_t *rq;
- 	prio_array_t *array;
- 	struct list_head *queue;
-@@ -998,7 +1000,7 @@ pick_next_task:
- 
- 	idx = sched_find_first_bit(array->bitmap);
- 	queue = array->queue + idx;
--	next = list_entry(queue->next, task_t, run_list);
-+	next = list_entry(queue->next, struct task_struct, run_list);
- 
- switch_tasks:
- 	prefetch(next);
-@@ -1053,7 +1055,7 @@ need_resched:
- 
- int default_wake_function(wait_queue_t *curr, unsigned mode, int sync)
- {
--	task_t *p = curr->task;
-+	struct task_struct *p = curr->task;
- 	return ((p->state & mode) && try_to_wake_up(p, sync));
- }
- 
-@@ -1233,7 +1235,7 @@ long sleep_on_timeout(wait_queue_head_t 
- 
- void scheduling_functions_end_here(void) { }
- 
--void set_user_nice(task_t *p, long nice)
-+void set_user_nice(struct task_struct *p, long nice)
- {
- 	unsigned long flags;
- 	prio_array_t *array;
-@@ -1321,7 +1323,7 @@ asmlinkage long sys_nice(int increment)
-  * RT tasks are offset by -200. Normal tasks are centered
-  * around 0, value goes from -16 to +15.
-  */
--int task_prio(task_t *p)
-+int task_prio(struct task_struct *p)
- {
- 	return p->prio - MAX_USER_RT_PRIO;
- }
-@@ -1330,7 +1332,7 @@ int task_prio(task_t *p)
-  * task_nice - return the nice value of a given task.
-  * @p: the task in question.
-  */
--int task_nice(task_t *p)
-+int task_nice(struct task_struct *p)
- {
- 	return TASK_NICE(p);
- }
-@@ -1348,7 +1350,7 @@ int idle_cpu(int cpu)
-  * find_process_by_pid - find a process with a matching PID value.
-  * @pid: the pid in question.
-  */
--static inline task_t *find_process_by_pid(pid_t pid)
-+static inline struct task_struct *find_process_by_pid(pid_t pid)
- {
- 	return pid ? find_task_by_pid(pid) : current;
- }
-@@ -1363,7 +1365,7 @@ static int setscheduler(pid_t pid, int p
- 	prio_array_t *array;
- 	unsigned long flags;
- 	runqueue_t *rq;
--	task_t *p;
-+	struct task_struct *p;
- 
- 	if (!param || pid < 0)
- 		goto out_nounlock;
-@@ -1471,7 +1473,7 @@ asmlinkage long sys_sched_setparam(pid_t
- asmlinkage long sys_sched_getscheduler(pid_t pid)
- {
- 	int retval = -EINVAL;
--	task_t *p;
-+	struct task_struct *p;
- 
- 	if (pid < 0)
- 		goto out_nounlock;
-@@ -1499,7 +1501,7 @@ asmlinkage long sys_sched_getparam(pid_t
- {
- 	struct sched_param lp;
- 	int retval = -EINVAL;
--	task_t *p;
-+	struct task_struct *p;
- 
- 	if (!param || pid < 0)
- 		goto out_nounlock;
-@@ -1541,7 +1543,7 @@ asmlinkage int sys_sched_setaffinity(pid
- {
- 	unsigned long new_mask;
- 	int retval;
--	task_t *p;
-+	struct task_struct *p;
- 
- 	if (len < sizeof(new_mask))
- 		return -EINVAL;
-@@ -1594,7 +1596,7 @@ asmlinkage int sys_sched_getaffinity(pid
- 	unsigned int real_len;
- 	unsigned long mask;
- 	int retval;
--	task_t *p;
-+	struct task_struct *p;
- 
- 	real_len = sizeof(mask);
- 	if (len < real_len)
-@@ -1732,7 +1734,7 @@ asmlinkage long sys_sched_rr_get_interva
- {
- 	int retval = -EINVAL;
- 	struct timespec t;
--	task_t *p;
-+	struct task_struct *p;
- 
- 	if (pid < 0)
- 		goto out_nounlock;
-@@ -1758,10 +1760,10 @@ out_unlock:
- 	return retval;
- }
- 
--static void show_task(task_t * p)
-+static void show_task(struct task_struct * p)
- {
- 	unsigned long free = 0;
--	task_t *relative;
-+	struct task_struct *relative;
- 	int state;
- 	static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
- 
-@@ -1807,7 +1809,7 @@ static void show_task(task_t * p)
- 		printk(" (NOTLB)\n");
- 
- 	{
--		extern void show_trace_task(task_t *tsk);
-+		extern void show_trace_task(struct task_struct *tsk);
- 		show_trace_task(p);
- 	}
- }
-@@ -1829,7 +1831,7 @@ char * render_sigset_t(sigset_t *set, ch
- 
- void show_state(void)
- {
--	task_t *p;
-+	struct task_struct *p;
- 
- #if (BITS_PER_LONG == 32)
- 	printk("\n"
-@@ -1852,7 +1854,7 @@ void show_state(void)
- 	read_unlock(&tasklist_lock);
- }
- 
--void __init init_idle(task_t *idle, int cpu)
-+void __init init_idle(struct task_struct *idle, int cpu)
- {
- 	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(task_cpu(idle));
- 	unsigned long flags;
-@@ -1897,7 +1899,7 @@ void __init init_idle(task_t *idle, int 
- 
- typedef struct {
- 	struct list_head list;
--	task_t *task;
-+	struct task_struct *task;
- 	struct completion done;
- } migration_req_t;
- 
-@@ -1910,7 +1912,7 @@ typedef struct {
-  * task must not exit() & deallocate itself prematurely.  The
-  * call is not atomic; no spinlocks may be held.
-  */
--void set_cpus_allowed(task_t *p, unsigned long new_mask)
-+void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
- {
- 	unsigned long flags;
- 	migration_req_t req;
-@@ -1991,7 +1993,7 @@ static int migration_thread(void * data)
- 		int cpu_src, cpu_dest;
- 		migration_req_t *req;
- 		unsigned long flags;
--		task_t *p;
-+		struct task_struct *p;
- 
- 		spin_lock_irqsave(&rq->lock, flags);
- 		head = &rq->migration_queue;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.33-cset-1.621/kernel/timer.c working-2.5.33-cset-1.621-task_t/kernel/timer.c
---- working-2.5.33-cset-1.621/kernel/timer.c	2002-08-11 15:31:43.000000000 +1000
-+++ working-2.5.33-cset-1.621-task_t/kernel/timer.c	2002-09-09 13:36:13.000000000 +1000
-@@ -788,7 +788,7 @@ asmlinkage long sys_getegid(void)
- 
- static void process_timeout(unsigned long __data)
- {
--	wake_up_process((task_t *)__data);
-+	wake_up_process((struct task_struct *)__data);
- }
- 
- /**
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Filedescriptors being used by processes with different user credentials
+compared to the opener are more common than you might think. One common
+example is stdout/stderr redirection with setuid apps in a shellscript,
+another is due to fd passing through Unix domain sockets, or apps that
+open files and then drop their priveledges. And it happens even more
+with network sockets and pipes, although those possibly don't affect the
+VFS (haven't checked if they use generic VFS paths, pipes probably do,
+network sockets might).
+
+Jan
+

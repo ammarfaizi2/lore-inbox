@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVB1OEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVB1OIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVB1OEe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVB1ODw
+	id S261628AbVB1OIE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVB1OGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:03:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37604 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261620AbVB1OCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:02:45 -0500
-Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
-From: Arjan van de Ven <arjan@infradead.org>
-To: dtor_core@ameritech.net
-Cc: "colbuse@ensisun.imag.fr" <colbuse@ensisun.imag.fr>,
-       linux-kernel@vger.kernel.org, akpm@zip.com.au
-In-Reply-To: <d120d5000502280548733724a0@mail.gmail.com>
-References: <1109596437.422319158044b@webmail.imag.fr>
-	 <d120d5000502280548733724a0@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 15:02:32 +0100
-Message-Id: <1109599352.6298.94.camel@laptopd505.fenrus.org>
+	Mon, 28 Feb 2005 09:06:54 -0500
+Received: from eth0-0.arisu.projectdream.org ([194.158.4.191]:10185 "EHLO
+	b.mx.projectdream.org") by vger.kernel.org with ESMTP
+	id S261610AbVB1Nwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 08:52:47 -0500
+Date: Mon, 28 Feb 2005 14:53:07 +0100
+From: Thomas Graf <tgraf@suug.ch>
+To: jamal <hadi@cyberus.ca>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       kaigai@ak.jp.nec.com, marcelo.tosatti@cyclades.com,
+       "David S. Miller" <davem@redhat.com>, jlan@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, elsa-devel@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-ID: <20050228135307.GP31837@postel.suug.ch>
+References: <20050224212839.7953167c.akpm@osdl.org> <20050227094949.GA22439@logos.cnet> <4221E548.4000008@ak.jp.nec.com> <20050227140355.GA23055@logos.cnet> <42227AEA.6050002@ak.jp.nec.com> <1109575236.8549.14.camel@frecb000711.frec.bull.fr> <20050227233943.6cb89226.akpm@osdl.org> <1109592658.2188.924.camel@jzny.localdomain> <20050228132051.GO31837@postel.suug.ch> <1109598010.2188.994.camel@jzny.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109598010.2188.994.camel@jzny.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-\
-> > >> + for(npar = NPAR-1; npar < NPAR; npar--)
-> > 
-> > >How many times do you want this for loop to run?
-> > 
-> > NPAR times :-). As I stated, npar is unsigned.
-> > 
+* jamal <1109598010.2188.994.camel@jzny.localdomain> 2005-02-28 08:40
 > 
-> for (npar = NPAR - 1; npar >= 0; npar--)
-> 
-> would be more readable and may be even faster on a dumb compiler than
-> your variant. Still, I'd have compiler worry about such
-> micro-optimizations.
+> netlink broadcast or a wrapper around it.
+> Why even bother doing the check with netlink_has_listeners()?
 
-actually that goes wrong for npar unsigned...
-
-
-
+To implement the master enable/disable switch they want. The messages
+don't get send out anyway but why bother doing all the work if nothing
+will get send out in the end? It implements a well defined flag
+controlled by open/close on fds (thus handles dying applications)
+stating whether the whole code should be enabled or disabled. It is of
+course not needed to avoid sending unnecessary messages.

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271730AbTHDNWa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 09:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271731AbTHDNWa
+	id S271729AbTHDNOl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 09:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271730AbTHDNOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 09:22:30 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:65206 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271730AbTHDNW3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 09:22:29 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 15:22:26 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: mru@users.sourceforge.net (=?ISO-8859-15?Q?M=E5ns_Rullg=E5rd?=)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030804152226.60204b61.skraw@ithnet.com>
-In-Reply-To: <yw1xsmohioah.fsf@users.sourceforge.net>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<yw1xsmohioah.fsf@users.sourceforge.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Aug 2003 09:14:41 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51867 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271729AbTHDNOk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 09:14:40 -0400
+Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel
+	from being modified easily
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: bert hubert <ahu@ds9a.nl>
+Cc: David Lang <david.lang@digitalinsight.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devik@cdi.cz,
+       aebr@win.tue.nl
+In-Reply-To: <20030803214738.GA16129@outpost.ds9a.nl>
+References: <20030803140031.7665546c.akpm@osdl.org>
+	 <Pine.LNX.4.44.0308031425100.24695-100000@dlang.diginsite.com>
+	 <20030803214738.GA16129@outpost.ds9a.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060002642.416.9.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Aug 2003 14:10:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Aug 2003 14:45:58 +0200
-mru@users.sourceforge.net (Måns Rullgård) wrote:
+On Sul, 2003-08-03 at 22:47, bert hubert wrote:
+> As to what Alan said about LSM, I've yet to see how to do that in a
+> reasonable way. But I didn't look too hard.
 
-> Stephan von Krawczynski <skraw@ithnet.com> writes:
-> 
-> > although it is very likely I am entering (again :-) an ancient
-> > discussion I would like to ask why hardlinks on directories are not
-> > allowed/no supported fs action these days. I can't think of a good
-> > reason for this, but can think of many good reasons why one would
-> > like to have such a function, amongst those:
-> 
-> I don't know the exact reasons it isn't allowed, but you can always
-> use "mount --bind" to get a similar effect.
+Just refuse anything needing CAP_SYS_RAWIO at all times. Thats why this
+capability flag exists. Or with SELinux you can create a role which has
+RAWIO access but is very limited in other ways (eg "Only my X server",
+or "only the firmware loader for my serial card") and which is tainted
+if anything else touches those files
 
-I guess this is not really an option if talking about hundreds or thousands of
-"links", is it?
+Alan
 
-Regards,
-Stephan

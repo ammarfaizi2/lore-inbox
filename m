@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131226AbQIBQo4>; Sat, 2 Sep 2000 12:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131221AbQIBQor>; Sat, 2 Sep 2000 12:44:47 -0400
-Received: from [203.46.105.129] ([203.46.105.129]:12807 "HELO pornstar.not.very.secure.org") by vger.kernel.org with SMTP id <S131219AbQIBQoh>; Sat, 2 Sep 2000 12:44:37 -0400
-Subject: error in arch/i386/kernel/ptrace.c (subtle)
-To: linux-kernel@vger.kernel.org
-Date: Sun, 3 Sep 100 01:50:18 +1000 (EST)
-Cc: silvio@big.net.au
-X-Mailer: ELM [version 2.4ME+ PL31 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20000902155021.51C9E4917@pornstar.not.very.secure.org>
-From: silvio@big.net.au (Silvio Cesare)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131368AbQIBRzA>; Sat, 2 Sep 2000 13:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131363AbQIBRyu>; Sat, 2 Sep 2000 13:54:50 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:44163 "EHLO vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP id <S131352AbQIBRyd>; Sat, 2 Sep 2000 13:54:33 -0400
+Date: Sat, 2 Sep 2000 11:42:10 -0600
+Message-Id: <200009021742.e82HgA707621@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v99.18 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  This is my first post to this list (not that i'm even subscribed) and am
-very new to linux internals so apologies up front :)
+  Hi, all. Version 99.18 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
+This work has been sponsored by SGI.
 
-There is a subtle bug in the behaviour of ptrace when modifying the EIP
-register.  Noteably, if the eip changes and a syscall was interrupted, the
-signal handling code will subtract 2 from the eip thinking its trying to
-restart the syscall (obviously, only on systems that restart slow syscalls).
-This behaviour could cause problems with debuggers that change the execution
-path.
+Patch directly available from:
+(NOTE NEW LOCATION!):
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.2/devfs-patch-current.gz
 
-My fix would be to change orig_eax to -1 if the eip register is modified.
-Thus the signal handling code wouldnt think it needed to restart any syscalls.
-This is untested code btw.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.2/devfs-patch-current.gz
 
-in the putreg function
+NOTE: the devfs-patch-v99.x patches are maintenance patches for the
+2.2.x production kernels. Devfs development is done against recent
+development kernels. Occasionally, the latest devfs patch for the
+development kernels may be backported to 2.2.x series, but this
+happens rarely.
 
-	case EIP:
-		put_stack_long(child, 4*ORIG_EAX - sizeof(struct pt_regs), -1);
-		break;
+This is against 2.2.17-pre20. Highlights of this release:
 
-I believe that is all that is required, but since I'd hardly call myself a
-kernel hacker I'll let the experts decide.  Its highly likely that many other
-unix systems have this same problem.
+- Ported devfs-patch-v99.17 to kernel 2.2.17-pre20
 
-Please reply to this email personally, as I'm not a subscriber to this
-mailing list.
+- Updated README from master HTML file
 
---
-Silvio
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

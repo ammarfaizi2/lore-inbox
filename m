@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUHDXXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUHDX0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267502AbUHDXXL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 19:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUHDXXK
+	id S267508AbUHDX0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 19:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUHDX0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 19:23:10 -0400
-Received: from web53802.mail.yahoo.com ([206.190.36.197]:33930 "HELO
-	web53802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267502AbUHDXW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 19:22:57 -0400
-Message-ID: <20040804232252.30644.qmail@web53802.mail.yahoo.com>
-Date: Wed, 4 Aug 2004 16:22:52 -0700 (PDT)
-From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: Interesting failures of 'cscope'
-To: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Aug 2004 19:26:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30874 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267505AbUHDX0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 19:26:04 -0400
+Date: Wed, 4 Aug 2004 16:29:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: cciss update [1 of 6]
+Message-Id: <20040804162928.5c3d2262.akpm@osdl.org>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107436092@cceexc23.americas.cpqcorp.net>
+References: <D4CFB69C345C394284E4B78B876C1CF107436092@cceexc23.americas.cpqcorp.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI
+"Miller, Mike (OS Dev)" <mike.miller@hp.com> wrote:
+>
+> Patch 1 of 6
+> Name: p001_ioctl32_fix_for_268rc2.patch
 
-  The first failure seems to be a confusion between function declarations and definitions - 
-eg for linux-2.6.7, it says FsmNew() is called by drivers/isdn/hisax/fsm.h::CallcNew, thus:
+It would make life easier for me if you could give each patch a nice
+Subject: which describes what it does.  "cciss update [N of 6]" isn't very
+meaningful.  And the name of the file into which you chose to place the
+patch isn't a suitable description either.  Thanks.
 
-$cscope -d -p9 -L -3 FsmNew
-  ...
-  drivers/isdn/hisax/fsm.h CallcNew 50 int FsmNew(struct Fsm *fsm, struct FsmNode,*fnlist, int
-fncount);
-  ...
+All of these patches are generating rejects for me - eager beavers have
+been patching your driver when you weren't looking.  Could you please redo
+and reissue the patch series against -rc3?
 
-  but there is no call there, only an external declaration of FsmNew, and no declaration of
-CallcNew of any kind whatsoever in that file!
-
-
-  The second failure appears to be related to an inability to cope with complicated declarations
-within a prototype, such of those of type pointer-to-function. For example, the definition:
-
-  struct net_device *alloc_netdev(int sizeof_priv, const char *mask, 
-                                         void (*setup)(struct net_device *))
-
-from line 73 of drivers/net/net_init.c, is not recognized by cscope as a valid function definition
-and so it does not find the call to kmalloc (or anything else) contained in that function.
-
-$ cscope -d -p9 -L -1 alloc_netdev
-<nothing>
-$ cscope -d -p9 -L -3 kmalloc | grep alloc_netdev
-<nothing>
-
-
+Thanks.

@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbUCEJD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUCEJD5
+	id S262263AbUCEJGa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUCEJGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:03:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59593 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262265AbUCEJDz (ORCPT
+	Fri, 5 Mar 2004 04:06:30 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62153 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262263AbUCEJG2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:03:55 -0500
+	Fri, 5 Mar 2004 04:06:28 -0500
 Subject: Re: [PATCH] For test only: pmac_zilog fixes (cups lockup at boot):
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Russell King <rmk+lkml@arm.linux.org.uk>
@@ -20,10 +20,10 @@ In-Reply-To: <20040305085838.B22156@flint.arm.linux.org.uk>
 References: <1078473270.5703.57.camel@gaston>
 	 <20040305085838.B22156@flint.arm.linux.org.uk>
 Content-Type: text/plain
-Message-Id: <1078477351.6327.65.camel@gaston>
+Message-Id: <1078477504.5700.69.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 20:02:31 +1100
+Date: Fri, 05 Mar 2004 20:05:05 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -35,13 +35,9 @@ On Fri, 2004-03-05 at 19:58, Russell King wrote:
 > 
 > I'm not even going to bother reviewing these changes - the gratuitous
 > change of "up" to "uap" makes this task virtually impossible.
-> 
-> Please separate out the changes.
 
-I'm not sure you need to bother about reviewing at this point :)
-
-I'm just asking for feedback from users who had problems. I'll talk
-to you about the issues I had separately
+Oh... and the change wasn't gratuitous... "up" do actually conflict
+with up() as soon as you try to use a semaphore :)
 
 Ben.
 

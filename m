@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbULOERx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbULOEVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbULOERx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 23:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbULOERx
+	id S261862AbULOEVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 23:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbULOEVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 23:17:53 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:33789 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261856AbULOERp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 23:17:45 -0500
-Date: Tue, 14 Dec 2004 23:17:27 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: Understanding schedular and slab allocation
-In-reply-to: <41BFB3F3.5010909@globaledgesoft.com>
-To: krishna <krishna.c@globaledgesoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <41BFBAD7.2000201@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <41BFB3F3.5010909@globaledgesoft.com>
+	Tue, 14 Dec 2004 23:21:06 -0500
+Received: from ozlabs.org ([203.10.76.45]:5310 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261862AbULOEVC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 23:21:02 -0500
+Subject: Re: [netfilter-core] [PATCH] no __initdata in netfilter?
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Harald Welte <laforge@netfilter.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Patrick McHardy <kaber@trash.net>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Netfilter Core Team <coreteam@netfilter.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041214183911.GA15606@apps.cwi.nl>
+References: <20041114013724.GA21219@apps.cwi.nl>
+	 <41970FAD.6010501@trash.net> <20041114112610.GB8680@pclin040.win.tue.nl>
+	 <20041214130041.GU22577@sunbeam.de.gnumonks.org>
+	 <20041214183911.GA15606@apps.cwi.nl>
+Content-Type: text/plain
+Date: Wed, 15 Dec 2004 15:21:04 +1100
+Message-Id: <1103084464.4696.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2004-12-14 at 19:39 +0100, Andries Brouwer wrote:
+> I think that argument is valid only when satisfying the static tool
+> is especially cumbersome or inefficient, requires ugly code, etc.
+> In most cases a trivial rewrite will suffice, and the result is cleaner
+> code, easier to maintain, fewer bugs.
 
-krishna wrote:
-> Hi all,
-> 
-> Can any one refer me any documentation to understand the schedular and
-> slab allocation in the kernel.
-> 
-> Regards,
-> Krishna Chaitanya
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Exactly, and Harald just handed you that trivial rewrite.  It's clearer
+than before, and shouldn't trip your static checker.
 
-The slab allocator was published by Jeff Bonwick for USENIX in 94:
+Your patch just ripped out the __initdata, making it suboptimal
+*without* making the code clearer.
 
-http://citeseer.ist.psu.edu/compress/0/papers/cs/8756/http:zSzzSzluthien.nuclecu.unam.mxzSz~miguelzSzbonwick.ps.gz/bonwick94slab.ps
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-(original link appears to be down)
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBv7rXdQs4kOxk3/MRAgWLAJ4rX++mRGBMAWtX2Aic9fDm7APUYgCfeFsG
-3hRr2+2E6RA6mJhTlc+4FAE=
-=J1k4
------END PGP SIGNATURE-----

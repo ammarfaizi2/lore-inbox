@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283708AbRLWFj4>; Sun, 23 Dec 2001 00:39:56 -0500
+	id <S283658AbRLWFhF>; Sun, 23 Dec 2001 00:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283758AbRLWFjq>; Sun, 23 Dec 2001 00:39:46 -0500
-Received: from quechua.inka.de ([212.227.14.2]:16406 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S283708AbRLWFjh>;
-	Sun, 23 Dec 2001 00:39:37 -0500
-From: Bernd Eckenfels <usenet2001-12@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <Pine.GSO.4.30.0112222114120.9228-100000@balu>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16I1MI-0006f6-00@sites.inka.de>
-Date: Sun, 23 Dec 2001 06:39:38 +0100
+	id <S283714AbRLWFg4>; Sun, 23 Dec 2001 00:36:56 -0500
+Received: from tierra.ucsd.edu ([132.239.214.132]:51369 "EHLO burn")
+	by vger.kernel.org with ESMTP id <S283708AbRLWFgm>;
+	Sun, 23 Dec 2001 00:36:42 -0500
+Date: Sat, 22 Dec 2001 21:35:37 -0800
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        billh@tierra.ucsd.edu, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
+Message-ID: <20011222213537.A12352@burn.ucsd.edu>
+In-Reply-To: <20011219224717.A3682@redhat.com> <E16HTPN-0000v0-00@the-village.bc.nu> <20011221121644.A15926@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011221121644.A15926@redhat.com>; from bcrl@redhat.com on Fri, Dec 21, 2001 at 12:16:45PM -0500
+From: Bill Huey <billh@tierra.ucsd.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.30.0112222114120.9228-100000@balu> you wrote:
-> What error reports do you receive?
+On Fri, Dec 21, 2001 at 12:16:45PM -0500, Benjamin LaHaise wrote:
+> On Fri, Dec 21, 2001 at 05:24:33PM +0000, Alan Cox wrote:
+> > select/poll is a win - and Java recently discovered poll/select semantics 8)
+> 
+> Anything is a win over Java's threading model.
+> 
+> 		-ben
 
-about kb, Kb, kB beeing wrong (even if the number in bytes is listed ppl
-complaint they had to pay more money then expected... i wont comment on this,
-but I have now a solution which will get used, I am sure :)
+Yeah, it's just another abstraction layer that lives on top of native threading
+model, so you don't have to worry about stuff like spinlock contention since
+it's been pushed down into the native threading implementation. It doesn't really
+add a tremendous amount of overhead given how delegates all of that to the
+native OS threading model.
 
-Greetings
-Bernd
+Also, t would be nice to have some regular way of doing read-write lock without
+having to implement it in Java language itself, but it's not too critical since
+folks don't really push or use the JVM in that way just yet. It's certainly
+important in certain high contention systems in the kernel.
+
+bill
+

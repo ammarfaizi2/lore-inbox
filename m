@@ -1,88 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUFIJMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264255AbUFIJh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265724AbUFIJMX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 05:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUFIJMW
+	id S264255AbUFIJh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 05:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265761AbUFIJh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 05:12:22 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:9367 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S265724AbUFIJMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 05:12:09 -0400
-Date: Wed, 9 Jun 2004 10:12:08 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [2.6.7-bk patch] Update Documentation/filesystems/Locking 
-Message-ID: <Pine.SOL.4.58.0406091003330.28207@orange.csi.cam.ac.uk>
+	Wed, 9 Jun 2004 05:37:27 -0400
+Received: from zero.aec.at ([193.170.194.10]:31748 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264255AbUFIJhX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 05:37:23 -0400
+To: Keith Owens <kaos@sgi.com>, jfv@bluesong.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: kdb v4.4 x86-64 updates for for kernel 2.6.6
+References: <250er-7es-5@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 09 Jun 2004 11:37:18 +0200
+In-Reply-To: <250er-7es-5@gated-at.bofh.it> (Keith Owens's message of "Wed,
+ 09 Jun 2004 03:40:07 +0200")
+Message-ID: <m3smd5kr75.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, hi Linus,
+Keith Owens <kaos@sgi.com> writes:
 
-As I discovered while working on NTFS and as agreed by Andrew, a
-filesystem's ->writepage() implementation nowadays must run either
-redirty_page_for_writepage() or the combination of set_page_writeback()/
-end_page_writeback().  Failure to do so leaves the page itself marked
-clean but it is tagged as dirty in the radix tree (PAGECACHE_TAG_DIRTY).
-This incoherency can lead to all sorts of hard-to-debug problems in the
-filesystem like having dirty inodes at umount and losing written data.
+> KDB (Linux Kernel Debugger) has been updated.
+>
+> ftp://oss.sgi.com/projects/kdb/download/v4.4/
+>
+> kdb-v4.4-2.6.6-x86-64-2.bz2 is available.  The x86-64 patch is still a
+> work in progress, use with care.  Changelog extract.
+>
+> 2004-05-15 Jack F. Vogel <jfv@bluesong.net>
+> 	* port to 2.6.6 for x86_64
 
-Please apply the below patch which updates
-Documentation/filesystems/Locking to reflect this requirement.
+It uses the wrong interfaces. The x86-64 die notifier was exactly 
+designed to avoid putting KDB hooks all over the kernel, but you
+added them anyways. Please fix that.
 
-Best regards,
+In theory with the die hooks interface kdb could be a loadable (although
+not unloadable) module btw.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Some comments:
 
---- bklinux-2.6/Documentation/filesystems/Locking.old	2004-06-09 09:34:23.808663656 +0100
-+++ bklinux-2.6/Documentation/filesystems/Locking	2004-06-09 09:57:52.315538064 +0100
-@@ -203,20 +203,34 @@ currently-in-progress I/O.
++#if defined(CONFIG_SMP) && defined(CONFIG_KDB)
++static void do_ack_apic_irq(void)
++{
++       ack_APIC_irq();
++}
++#endif
 
- If the filesystem is not called for "sync" and it determines that it
- would need to block against in-progress I/O to be able to start new I/O
--against the page the filesystem shoud redirty the page (usually with
--__set_page_dirty_nobuffers()), then unlock the page and return zero.
-+against the page the filesystem should redirty the page with
-+redirty_page_for_writepage(), then unlock the page and return zero.
- This may also be done to avoid internal deadlocks, but rarely.
+NMIs don't need to be ACKed in the x86 APIC. The only reason to ack
+something is that a higher priority interrupt can run, but there is no
+higher priority interrupt than an NMI.
 
- If the filesytem is called for sync then it must wait on any
- in-progress I/O and then start new I/O.
++#if defined(CONFIG_SMP) && defined(CONFIG_KDB)
++       /*
++        * Call the debugger to see if this NMI is due
++        * to a KDB requested IPI. If so, it will handle
++        */
++       if (kdb_ipi(regs, do_ack_apic_irq)){
++               nmi_exit();
++               return;
++       }
++#endif
 
- The filesystem should unlock the page synchronously, before returning
--to the caller.  If the page has write I/O underway against it,
--writepage() should run SetPageWriteback() against the page prior to
--unlocking it.  The write I/O completion handler should run
--end_page_writeback() against the page.
-+to the caller.
+Please just grab DIE_NMI_IPI in the die chain, which you're already
+using. The NMI handler can veto the NMI then using NOTIFY_BAD.
+The ack is also not needed.
 
--That is: after 2.5.12, pages which are under writeout are *not* locked.
-+Unless the filesystem is going to redirty_page_for_writepage(), unlock the page
-+and return zero, writepage *must* run set_page_writeback() against the page,
-+followed by unlocking it.  Once set_page_writeback() has been run against the
-+page, write I/O can be submitted and the write I/O completion handler must run
-+end_page_writeback() once the I/O is complete.  If no I/O is submitted, the
-+filesystem must run end_page_writeback() against the page before returning from
-+writepage.
-+
-+That is: after 2.5.12, pages which are under writeout are *not* locked.  Note,
-+if the filesystem needs the page to be locked during writeout, that is ok, too,
-+the page is allowed to be unlocked at any point in time between the calls to
-+set_page_writeback() and end_page_writeback().
-+
-+Note, failure to run either redirty_page_for_writepage() or the combination of
-+set_page_writeback()/end_page_writeback() on a page submitted to writepage
-+will leave the page itself marked clean but it will be tagged as dirty in the
-+radix tree.  This incoherency can lead to all sorts of hard-to-debug problems
-+in the filesystem like having dirty inodes at umount and losing written data.
 
- 	->sync_page() locking rules are not well-defined - usually it is called
- with lock on page, but that is not guaranteed. Considering the currently
+@@ -367,6 +376,10 @@
+        handle_BUG(regs);
+        __die(str, regs, err);
+        oops_end();
++#ifdef  CONFIG_KDB
++        kdb_diemsg = str;
++       kdb(KDB_REASON_OOPS, err, regs);
++#endif  /* CONFIG_KDB */
+
+__die already has a die chain hook for that. Use that instead.
+
++#if !defined(CONFIG_KDB)
+ DO_ERROR( 3, SIGTRAP, "int3", int3);
++#endif
+
+and 
+
++#ifdef CONFIG_KDB
++/*
++ * KDB Breakpoint vector
++ */
++asmlinkage int do_int3(struct pt_regs * regs, long error_code)
++{
++       if (kdb(KDB_REASON_BREAK, error_code, regs))
++               return 0;
++       do_trap(3, SIGTRAP, "int3", regs, error_code, NULL);
++       return 0;
++}
+
+Unnecessary when you have a die chain handler (which you have
+already). Take a look at how DO_ERROR is defined.
+
+-       set_intr_gate_ist(18,&machine_check, MCE_STACK); 
++#ifdef  CONFIG_KDB
++       {
++               set_intr_gate(18, &machine_check);
++       }
++       kdb_enablehwfault();
+
+and
+
++void
++kdba_enable_mce(void)
++{
++       /* No longer required, arch/x86_64/kernel/bluesmoke.c does the job now *
+/
++}
+
+
+kdb_enablehwfault only calls kdba_enable_mce and is a complete 
+nop. Can be just removed.
+
+Overall about 90% of your changes to arch/x86_64/kernel/traps.c are
+unnecessary and the rest could be easily moved into arch/x86_64/kdb,
+giving an completely independent and low maintainance kdb.
+
+-Andi
+

@@ -1,160 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270101AbRHYSve>; Sat, 25 Aug 2001 14:51:34 -0400
+	id <S270309AbRHYTCf>; Sat, 25 Aug 2001 15:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270309AbRHYSvZ>; Sat, 25 Aug 2001 14:51:25 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:59047 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S270101AbRHYSvJ>; Sat, 25 Aug 2001 14:51:09 -0400
-Date: Sat, 25 Aug 2001 19:51:23 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: What version of the kernel fixes these VM issues?
-Message-ID: <20010825195123.D2694@flint.arm.linux.org.uk>
-In-Reply-To: <20010825163138Z16125-32384+506@humbolt.nl.linux.org> <Pine.LNX.4.33.0108251420510.20456-100000@xanadu.home>
+	id <S270386AbRHYTCZ>; Sat, 25 Aug 2001 15:02:25 -0400
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:56257 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270309AbRHYTCM>;
+	Sat, 25 Aug 2001 15:02:12 -0400
+Message-Id: <200108251903.f7PJ3Zl21152@www.2ka.mipt.ru>
+Date: Sat, 25 Aug 2001 23:04:09 +0400
+From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
+To: Bob McElrath <mcelrath@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: basic module bug
+In-Reply-To: <20010825105645.T21497@draal.physics.wisc.edu>
+In-Reply-To: <20010825005957.Q21497@draal.physics.wisc.edu> <200108251122.f7PBMvl17221@www.2ka.mipt.ru> <20010825102756.R21497@draal.physics.wisc.edu>
+	<20010825105645.T21497@draal.physics.wisc.edu>
+Reply-To: johnpol@2ka.mipt.ru
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.9; i686)
+Organization: MIPT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0108251420510.20456-100000@xanadu.home>; from nico@cam.org on Sat, Aug 25, 2001 at 02:29:00PM -0400
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I'm saying this for the record, Nico already knows the following ;)
+Hello.
 
-On Sat, Aug 25, 2001 at 02:29:00PM -0400, Nicolas Pitre wrote:
-> SysRq: Show Memory
-> Mem-info:
-> Free pages:        1016kB (     0kB HighMem)
-> ( Active: 2554, inactive_dirty: 0, inactive_clean: 0, free: 254 (255 510 765) )
-> 4*4kB 1*8kB 0*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB = 1016kB)
-> = 0kB)
-> = 0kB)
-> Swap cache: add 0, delete 0, find 0/0
-> Free swap:            0kB
-> 8192 pages of RAM
-> 395 free pages
-> 626 reserved pages
-> 581 pages shared
-> 0 pages swap cached
-> 3 page tables cached
-> Buffer memory:     8000kB
+On Sat, 25 Aug 2001 10:56:45 -0500
+Bob McElrath <mcelrath@draal.physics.wisc.edu> wrote:
 
-The above buffer memory usage is caused by an 8MB ramdisk.  Unfortunately,
-we are looking by default for 8192 * (2 + 2) / 100 = 327 pages between the
-buffermem and the page cache before triggering the OOM handler.
+BM> Where can I find a "skeleton" kernel module for comparison?
 
-With an 8MB ramdisk (== 2000 pages) obviously we'll never reach that, so
-we might as well not have the oom handler in this case... or...
+You wrote it some strins below.
 
-With the attached patch, we take the number of ramdisk pages into account
-when checking for OOM.  (side note: we don't seem to account for ramdisk
-pages, therefore I have to count the individual pages on the active list).
+BM> Here's a simpler case more compatible with the options passed to gcc
+BM> when the kernel is compiled:
 
-The patch below factors out the fixed ramdisk allocation, and allows the
-OOM killer to be functional on machines with ramdisks.  We only count the
-number of ramdisk pages when we're getting close to the limit (ie,
-freepages stuff indicates oom, and there's no swap).
+BM> /* test module.  Compile with: gcc -c -I/usr/src/linux/include
+BM> * -D__KERNEL__ -DMODULE test.c  */
+BM> #include <linux/module.h>
+BM> #include <linux/kernel.h>
+BM> #include <asm/current.h>
+BM> #ifdef MODULE
+BM> int init_module(void)
+BM> #else
+BM> int test_init(void)
+BM> #endif
+BM> {
+BM> return 0;
+BM> }
+BM> #ifdef MODULE
+BM> void cleanup_module(void)
+BM> {
+BM> }
+BM> #endif
 
-As an added bonus, this patch also dumps out the number of Page Cache
-pages, buffermem pages, and ramdisk pages on sysrq-m.
+BM> (0)<mcelrath@draal:/home/mcelrath> gcc -c -I/usr/src/linux/include
+-D__KERNEL__
+BM> -DMODULE test.c
+BM> In file included from test.c:5:
+BM> /usr/src/linux/include/asm/current.h:4: warning: call-clobbered
+register
+BM> used for global register variable
 
-Note that this doesn't solve Nico's original problem.
+[s0mbre@Sombre /tmp]$ gcc ./test.c -c -o ./test.o -D__KERNEL__ -DMODULE
+-I/usr/src/linux/include
+[s0mbre@Sombre /tmp]$ 
 
-diff -x .* -x *.[oas] -urN ref/mm/oom_kill.c linux/mm/oom_kill.c
---- ref/mm/oom_kill.c	Tue Aug 14 21:39:03 2001
-+++ linux/mm/oom_kill.c	Sat Aug 25 18:01:41 2001
-@@ -193,6 +193,8 @@
- 	return;
- }
- 
-+extern long count_ramdisk_pages(void);
-+
- /**
-  * out_of_memory - is the system out of memory?
-  *
-@@ -210,6 +212,10 @@
- 	if (nr_free_pages() + nr_inactive_clean_pages() > freepages.low)
- 		return 0;
- 
-+	/* Enough swap space left?  Not OOM. */
-+	if (nr_swap_pages > 0)
-+		return 0;
-+
- 	/*
- 	 * If the buffer and page cache (excluding swap cache) are over
- 	 * their (/proc tunable) minimum, we're still not OOM.  We test
-@@ -219,14 +225,11 @@
- 	cache_mem = atomic_read(&page_cache_size);
- 	cache_mem += atomic_read(&buffermem_pages);
- 	cache_mem -= swapper_space.nrpages;
-+	cache_mem -= count_ramdisk_pages();
- 	limit = (page_cache.min_percent + buffer_mem.min_percent);
- 	limit *= num_physpages / 100;
- 
- 	if (cache_mem > limit)
--		return 0;
--
--	/* Enough swap space left?  Not OOM. */
--	if (nr_swap_pages > 0)
- 		return 0;
- 
- 	/* Else... */
-diff -x .* -x *.[oas] -urN ref/mm/page_alloc.c linux/mm/page_alloc.c
---- ref/mm/page_alloc.c	Tue Aug 21 22:30:51 2001
-+++ linux/mm/page_alloc.c	Sat Aug 25 18:01:12 2001
-@@ -690,6 +690,8 @@
-      return (sum > 0 ? sum : 0);
- }
- 
-+extern long count_ramdisk_pages(void);
-+
- /*
-  * Show free area list (used inside shift_scroll-lock stuff)
-  * We also calculate the percentage fragmentation. We do this by counting the
-@@ -743,6 +745,10 @@
- #ifdef SWAP_CACHE_INFO
- 	show_swap_cache_info();
- #endif	
-+
-+	printk("Page cache size: %d\n", atomic_read(&page_cache_size));
-+	printk("Buffer mem: %d\n", atomic_read(&buffermem_pages));
-+	printk("Ramdisk pages: %ld\n", count_ramdisk_pages());
- }
- 
- void show_free_areas(void)
-diff -x .* -x *.[oas] -urN ref/mm/vmscan.c linux/mm/vmscan.c
---- ref/mm/vmscan.c	Thu Aug 23 20:07:43 2001
-+++ linux/mm/vmscan.c	Sat Aug 25 19:11:46 2001
-@@ -816,6 +816,24 @@
- 	return nr_deactivated;
- }
- 
-+long count_ramdisk_pages(void)
-+{
-+	struct list_head *page_lru;
-+	struct page *page;
-+	long nr_ramdisk = 0;
-+
-+	spin_lock(&pagemap_lru_lock);
-+	for (page_lru = active_list.next; page_lru != &active_list;
-+	     page_lru = page_lru->next) {
-+		page = list_entry(page_lru, struct page, lru);
-+		if (page_ramdisk(page))
-+			nr_ramdisk ++;
-+	}
-+	spin_unlock(&pagemap_lru_lock);
-+
-+	return nr_ramdisk;
-+}
-+
- /*
-  * Check if there are zones with a severe shortage of free pages,
-  * or if all zones have a minor shortage.
+All is OK.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+BM> Yet a simpler case:
 
+BM> #include <asm/current.h>
+BM> int main() {}
+
+[s0mbre@Sombre /tmp]$ gcc ./test1.c -o ./test1
+[s0mbre@Sombre /tmp]$ cat ./test1.c
+#include <asm/current.h>
+int main()
+        {}
+[s0mbre@Sombre /tmp]$
+
+BM> Generates the same warning message.  Why does this message not occur
+BM> when compiling the kernel?
+
+I have no problem.
+But if i would have this problem, i 
+a) rewrite include dir and check symlink
+b) reinstall system :)
+
+BM> Cheers,
+BM> -- Bob
+
+---
+WBR. //s0mbre

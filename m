@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316437AbSHRWWf>; Sun, 18 Aug 2002 18:22:35 -0400
+	id <S316446AbSHRWjD>; Sun, 18 Aug 2002 18:39:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316446AbSHRWWf>; Sun, 18 Aug 2002 18:22:35 -0400
-Received: from mail17.speakeasy.net ([216.254.0.217]:21708 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S316437AbSHRWWe>; Sun, 18 Aug 2002 18:22:34 -0400
-Subject: devfs
-From: Ed Sweetman <safemode@speakeasy.net>
-To: "Barry K. Nathan" <barryn@pobox.com>
+	id <S316465AbSHRWjD>; Sun, 18 Aug 2002 18:39:03 -0400
+Received: from monster.nni.com ([216.107.0.51]:54798 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S316446AbSHRWjC>;
+	Sun, 18 Aug 2002 18:39:02 -0400
+Date: Sun, 18 Aug 2002 18:41:35 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: Ed Sweetman <safemode@speakeasy.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020818215355.GB5154@ip68-4-77-172.oc.oc.cox.net>
+Subject: Re: cerberus errors on 2.4.19 (ide dma related)
+Message-Id: <20020818184135.66fe0ba2.arodland@noln.com>
+In-Reply-To: <1029695363.1357.5.camel@psuedomode>
 References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu>
-	<1029662182.2970.23.camel@psuedomode> <1029694235.520.9.camel@psuedomode>
-	<6un0rkuiyg.fsf@zork.zork.net> <1029695363.1357.5.camel@psuedomode>
-	<6uhehsui80.fsf@zork.zork.net> 
-	<20020818215355.GB5154@ip68-4-77-172.oc.oc.cox.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Aug 2002 18:26:35 -0400
-Message-Id: <1029709596.3331.32.camel@psuedomode>
+	<1029662182.2970.23.camel@psuedomode>
+	<1029694235.520.9.camel@psuedomode>
+	<6un0rkuiyg.fsf@zork.zork.net>
+	<1029695363.1357.5.camel@psuedomode>
+X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.282Vh:JMiTZ4?S"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-18 at 17:53, Barry K. Nathan wrote:
-> On Sun, Aug 18, 2002 at 07:36:47PM +0100, Sean Neakums wrote:
-> > commence  Ed Sweetman quotation:
-> [snip]
-> > > the devfs documentation says it doesn't need to have devfs mounted
-> > > to work, but this doesn't seem to be true at all.
-> > 
-> > If it does say exactly that, then it is outrageously wrong.
-> 
-> Starting at line 722 of
-> linux-2.4.19/Documentation/filesystems/devfs/README:
-> 
-> > In general, a kernel built with CONFIG_DEVFS_FS=y but without mounting
-> > devfs onto /dev is completely safe, and requires no
-> > configuration changes.
-> 
-> I skimmed through the documentation and it appears to assume that you're
-> not deleting all the stuff in /dev before switching over to devfs.
+--=.282Vh:JMiTZ4?S
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-This has nothing to do with not mounting devfs and still using devfs to
-work with devices.   If devfs is not mounted but you're still using
-devfs, you shouldn't need anything in /dev.   The documentation says you
-can use devfs without mounting and This is what i'm saying is
-problematic and doesn't seem possible in normal usage.   It's an
-optional config so are we using devfs when we dont mount it or not?  
-and if not, then why make not mounting it an option ? 
+On 18 Aug 2002 14:29:23 -0400
+Ed Sweetman <safemode@speakeasy.net> wrote:
 
-If it's using the old device files in /dev then how can it be using
-devfs and how can accessing physical inodes on the disk be intentional
-to devfs? 
+> I know i have no device nodes.  I removed them all before installing
+> devfs.  
 
+Well then you have no device nodes without devfs. D'uh? :)
 
-> Right, there's no way around that. If you deleted everything in /dev --
-> which you're not supposed to do -- then there's no way for anything to
-> find any devices if devfs isn't enabled. (And you should have a rescue
-> CD around anyway -- you never know when you might need it! BTW, what
-> distribution are you (Ed) using? Some distributions have special boot
-> options you can use when booting their install CDs to get into a rescue
-> mode.)
-> 
-> In any event, it might be a good idea to make the documentation a bit
-> more explicit about this, and I might send a patch to the mailing
-> list later today.
+> the devfs documentation says it doesn't need to have devfs
+> mounted to work, but this doesn't seem to be true at all.
 
-I'm not talking about booting without devfs enabled being the problem, i
-know booting without devfs enabled I'll have issues booting the system
-without physical /dev entries, i was referring to having devfs enabled
-and not mounting it.  Which according to the documentation should be
-perfectly functional and valid.  This is not the case though.   devfs
-should not require the old /dev entries at all since it doesn't use them
-so why would keeping them be required at all when using it (not counting
-the "if i want to not use devfs" argument).  This is what should be
-cleared up in the documentation.  
+No, the devfs documentation says that it is "safe" to have devfs
+compiled in and not use it -- you will just use the standard /dev. It
+does not imply in any way that you will be using devfs if you don't
+mount it, it says that if you choose _not_ to use devfs, then it will be
+able to fall cleanly back to standard /dev. In other words,
+CONFIG_DEVFS_FS provides the _ability_ to use devfs, not a
+_requirement_. 
 
+That's all it says.
+To assume that it means anything else would be incredibly silly.
+
+--=.282Vh:JMiTZ4?S
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9YCKlQ3MWXxdwvVwRAqYCAKCdUreDeQoeuNaB9ZRoMvl7tqvskgCgjiqn
+2AKPpc43dttz0ccOP67Bct8=
+=RxEN
+-----END PGP SIGNATURE-----
+
+--=.282Vh:JMiTZ4?S--

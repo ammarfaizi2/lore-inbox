@@ -1,81 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUKZV4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263469AbUKZV4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263784AbUKZV4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUKZTxA
+	id S263469AbUKZV4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbUKZVur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:53:00 -0500
-Received: from smtp1.freeserve.com ([193.252.22.158]:39731 "EHLO
-	mwinf3001.me.freeserve.com") by vger.kernel.org with ESMTP
-	id S262482AbUKZTb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:31:27 -0500
-Message-ID: <22941355.1101489838173.JavaMail.www@wwinf3001>
-From: Felix Bellaby <member@bellaby.freeserve.co.uk>
-Reply-To: member@bellaby.freeserve.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: RAID10 overwrites partition tables
+	Fri, 26 Nov 2004 16:50:47 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:14260 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263948AbUKZVrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 16:47:40 -0500
+Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125233243.GB2909@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101298112.5805.330.camel@desktop.cunninghams>
+	 <20041125233243.GB2909@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101427035.27250.161.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 10:57:15 +1100
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [195.92.168.164]
-Date: Fri, 26 Nov 2004 18:23:58 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdadm --level 10 does not seem to respect disk partition boundaries.
+Hi.
 
-Whilst trying to construct a small RAID10 array on a workstation, I naturally attempted
-to set the array up over partitions to leave somewhere for grub to access the kernel.
-Using partitions also assists with booting Fedora 3 as it relies on RAID autodetection
-and partition labels in its standard initial ram disk.
+On Fri, 2004-11-26 at 10:32, Pavel Machek wrote:
+> You have your own abstraction on the top of /proc? That's no-no.
 
-However, the RAID10 seems to overwrite some of the partition tables.
+You'd prefer the same code repeated 20 times?
 
-For example, configuring a RAID10 array over 3 partitions as follows:
+> ...aha, you do that to enable plugin system. Take it as another reason
+> why plugins have to go.
 
-        mdadm --create /dev/md0 --level 10 --raid-devices 3 \
-                /dev/sda1 /dev/sdb1 /dev/sdc1
+No, it's just useful. The /proc abstraction predated the plugins. What I
+really want to do is switch to kobjects for the plugins. But that can
+wait a little longer.
 
-seems to overwrite the partition tables for the disks in the
-same way as configuring RAID10 over the complete disks:
+> And your own keyboard driver :-(.
 
-        mdadm --create /dev/md0 --level 10 --raid-devices 3 \
-                /dev/sda /dev/sdb /dev/sdc
+It's not really a keyboard driver. We're just making serial console and
+local keypresses into the same key codes and letting them be handled by
+the relevant plugin.
 
-A more detailed example:
+> > +		say("BIG FAT WARNING!! %s\n\n", suspend_print_buf);
+> > +		if (can_erase_image) {
+> > +			say("If you want to use the current suspend image, reboot and try\n");
+> > +			say("again with the same kernel that you suspended from. If you want\n");
+> > +			say("to forget that image, continue and the image will be erased.\n");
+> > +		} else {
+> > +			say("If you continue booting, note that any image WILL NOT BE REMOVED.\n");
+> > +			say("Suspend is unable to do so because the appropriate modules aren't\n");
+> > +			say("loaded. You should manually remove the image to avoid any\n");
+> > +			say("possibility of corrupting your filesystem(s) later.\n");
+> > +		}
+> > +		say("Press SPACE to reboot or C to continue booting with this kernel\n");
+> 
+> Plus kernel now actually expects user interaction to solve problems
+> during boot. No, no.
 
-        echo ',,fd' | sfdisk /dev/sda
-        echo ',,fd' | sfdisk /dev/sdb
-        echo ',,fd' | sfdisk /dev/sdc
+You want your cake and to eat it too? :> We don't want to warn the user
+before they shoot themselves in the foot, but not loudly enough that
+they can't help notice and choose to do something before the damage is
+done?
 
-        mdadm --create /dev/md0 --level 10 --raid-devices 3 \
-                /dev/sda1 /dev/sdb1 /dev/sdc1
+Regards,
 
-        mke2fs /dev/md0
-
-        sfdisk -d /dev/sda
-        sfdisk -d /dev/sdb
-        sfdisk -d /dev/sdc
-
-One of the partition tables in the above example will be replaced with
-the start of the second chunk of the ext2 fs, just as one would expect
-with an array configured over /dev/sda, dev/sdb and /dev/sdc.
-
-The problem appears consistently on my test system (minimal Fedora 3 on
-an NForce3 system using the sata_nv.ko device driver). I have had the
-same results with a separate, identical system, and when using various
-custom 2.6.9 kernels. However, the problems do not appear with RAID5.
-
-The code in raid10.c is probably to blame. A cursory examination suggests
-that raid10.c accesses the configured devices using very similar code to
-raid1.c (where the problem might go unnoticed) but rather differently from
-raid5.c.
-
-Felix
-
+Nigel
 -- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-Whatever you Wanadoo:
-http://www.wanadoo.co.uk/time/
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 
-This email has been checked for most known viruses - find out more at: http://www.wanadoo.co.uk/help/id/7098.htm

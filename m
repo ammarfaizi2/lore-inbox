@@ -1,92 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266150AbRGLQDy>; Thu, 12 Jul 2001 12:03:54 -0400
+	id <S266161AbRGLQKE>; Thu, 12 Jul 2001 12:10:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266151AbRGLQDp>; Thu, 12 Jul 2001 12:03:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39265 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S266150AbRGLQD2>; Thu, 12 Jul 2001 12:03:28 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Dave J Woolley <david.woolley@bts.co.uk>, <andrew.grover@intel.com>,
-        <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>,
-        <acpi@phobos.fachschaften.tu-muenchen.de>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-In-Reply-To: <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 Jul 2001 09:57:43 -0600
-In-Reply-To: <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com>
-Message-ID: <m1zoaa6sy0.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S266158AbRGLQJy>; Thu, 12 Jul 2001 12:09:54 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:6106 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S266164AbRGLQJm>; Thu, 12 Jul 2001 12:09:42 -0400
+Message-ID: <3B4DCBB1.A9EC8C04@oracle.com>
+Date: Thu, 12 Jul 2001 09:09:21 -0700
+From: Lance Larsh <Lance.Larsh@oracle.com>
+Organization: Oracle Corporation
+X-Mailer: Mozilla 4.7 [en]C-CCK-MCD  (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <freitag@alancoxonachip.com>
+CC: llarsh@oracle.com, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+In-Reply-To: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com.suse.lists.linux.kernel> <oup8zhue9on.fsf@pigdrop.muc.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------35A2B0643D74B48D1725D962"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+This is a multi-part message in MIME format.
+--------------35A2B0643D74B48D1725D962
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> On Wed, 4 Jul 2001, Alan Cox wrote:
+Andi Kleen wrote:
 
-> We migth want to just make initrd a built-in thing in the kernel,
-> something that you simply cannot avoid. A lot of these things (ie dhcp for
-> NFS root etc) are right now done in kernel space, simply because we don't
-> want to depend on initrd, and people want to use old loaders.
+> My understanding is that this is normally true for Oracle, but probably
+> not for iozone so it would be better if you benchmarked random writes
+> to an already allocated file.
 
-That and the linux tools for making small binaries are relatively
-immature.
+You are correct that this is true for Oracle:  we preallocate the file at db create
+time, and we use O_DSYNC to avoid atime updates.  The same is true for iozone:  it
+performs writes to all the blocks (creating the file and allocating blocks), then
+rewrites all of the blocks.  The write and rewrite times are measured and reported
+in separate.  Naturally, we only care about the rewrite times, and those are the
+results I'm quoting when I casually use the term "writes".  Also, we pass the "-o"
+option to iozone, which causes it to open the file with O_SYNC (which on Linux is
+really O_DSYNC), just like Oracle does.  So, the mode I'm running iozone in really
+does model Oracle i/o.  Sorry if that wasn't clear.
 
-> I don't like the current initrd very much myself, I have to admit. I'm not
-> going to accept a "you have to have a ramdisk" approach - I think the
-> ramdisks are really broken.
-> 
-> But I've seen a "populate ramfs from a tar-file built into 'bzImage'"
-> patch somewhere, and that would be a whole lot more palatable to me.
+Thanks,
+Lance
 
-To some extent I'd prefer to build the tar-file into vmlinux as that
-makes it a multi architecture solution.  I don't like the fact that
-rdev only works on x86.
- 
-> If anybody were to send me a patch that just unconditionally does this, I
-> would probably not be adverse to putting it into 2.5.x. We have all the
-> infrastructure to make all this a lot cleaner than it used to be (ie the
-> "pivot_root()" stuff etc means that we can _truly_ do things from user
-> mode, with no magic kernel flags).
->
-> But if we do this, then we should _truly_ get rid of all the root device
-> etc setup crap (and the "search for init" etc stuff - it _is_ going to be
-> there, and THAT process is the one that should then search for the real
-> init once it has booted).
 
-A list of issues I can see with doing this right now.
 
-- umounting the initial fs after you have called pivot_root is
-  tricky, can we run a program from an internal mount only?
-  (We can remove all of the files on the initial fs with rm -rf /
-   assuming we are running on ramfs)
+--------------35A2B0643D74B48D1725D962
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="Lance.Larsh.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Lance Larsh
+Content-Disposition: attachment;
+ filename="Lance.Larsh.vcf"
 
-- The version of ``preinit'' cannot use glibc, there is too much
-  bloat.  uclibc is o.k. but a little immature.  We can probably use
-  the infrastructure we have in linux/unistd.h for doing system calls
-  from the kernel to remove any dependieces on other packages.  But
-  using kernel headers from user space has been outlawed... 
+begin:vcard 
+n:Larsh;Lance
+x-mozilla-html:FALSE
+url:http://www.oracle.com
+org:Oracle Corporation;<img src=http://www.geocities.com/TheTropics/3068/oraani.gif>
+version:2.1
+email;internet:Lance.Larsh@oracle.com
+title:Principal Software Engineer
+adr;quoted-printable:;;500 Oracle Pkwy=0D=0AMS 401ip4;Redwood Shores;CA;94065;
+x-mozilla-cpt:;6896
+fn:Lance Larsh
+end:vcard
 
-- In the case of console=tty0 console=ttyS0 /dev/console does not
-  output to the same locations as printk.
+--------------35A2B0643D74B48D1725D962--
 
-- We must be architecture netural.  Do this only for x86 is
-  unacceptable.
-
-- The _init stuff that allows us to throw code after device
-  initialization would need to be disabled to some extent because it
-  would now depends on code in user space.
-
-> That, together with reasonable interfaces to let ACPI set irq data for the
-> kernel etc, might make moving ACPI back into user space possible in
-> _practice_ and not just in theory.
-
-Irq tables.  A corrected system memory map.  Builtin ISA devices.
-Long term we need is an interface to feed a pre intialized 
-``struct device'' (the renamed struct pci_device) tree into the kernel.
-
-Eric

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135271AbRDLTm7>; Thu, 12 Apr 2001 15:42:59 -0400
+	id <S135284AbRDLTm4>; Thu, 12 Apr 2001 15:42:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135281AbRDLTmZ>; Thu, 12 Apr 2001 15:42:25 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28076 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135279AbRDLTkc>;
-	Thu, 12 Apr 2001 15:40:32 -0400
-Message-ID: <3AD604B0.2713F08B@mandrakesoft.com>
-Date: Thu, 12 Apr 2001 15:40:32 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
-X-Accept-Language: en
+	id <S135271AbRDLTmX>; Thu, 12 Apr 2001 15:42:23 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:7057 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S135281AbRDLTkX>; Thu, 12 Apr 2001 15:40:23 -0400
+Date: Thu, 12 Apr 2001 15:53:27 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: "thunder7@xs4all.nl" <thunder7@xs4all.nl>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [lkml]Re: [PATCH] matroxfb and mga XF4 driver coexistence...
+In-Reply-To: <20010412205303.A20394@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.31.0104121546340.15715-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-To: modica@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Proposal for a new PCI function call
-In-Reply-To: <3AD601B4.7E0B14E4@sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Modica wrote:
-> 
-> Hi All,
-> 
-> We found recently that the acenic driver for the 3com gigabit ethernet card does
-> not enable 64 bit DMAs.  (this is done by setting the appropriate mask in
-> pci_dev->dma_mask).
-> 
-> Jes suggested that the appropriate way to fix this would be to create a function
-> like pci_enable_dma64 and then have the driver call that, rather than directly
-> setting this value (a small handful of drivers do this now).
-> 
-> I think the function idea would let us do some sanity checking to make sure
-> drivers weren't setting this to 64bit on non-64 bit busses and stuff.
+On Thu, 12 Apr 2001, thunder7@xs4all.nl wrote:
 
-pci_set_dma_mask.  Modify that to do the additional checks you need.
+> Of course, but if we can fix the problem by making the kernel smaller,
+> what possible motive could you have for opposing it other than 'but it
+> doesn't solve _my_ problems!' ?
 
-Nobody should be setting dma_mask directly anymore, it should be done
-through this function.
+Agreed.  The only thing I was thinking, was if the kernel is doing the
+right thing now, it shouldn't be forced to work around a bug in XFree.
+By not "fixing" the kernel, the XFree team would be forced to do the right
+thing.
 
-	Jeff
+As for me, I'm going to see about getting the matroxfb working, so if the
+patch goes in I'll be able to use a nice 132 character wide terminal
+again.  And I'm getting addicted to dual head in X, might be fun on the
+console too.
 
-
+-Chris
 -- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

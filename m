@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274205AbRISWEt>; Wed, 19 Sep 2001 18:04:49 -0400
+	id <S272706AbRISWD7>; Wed, 19 Sep 2001 18:03:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274204AbRISWEm>; Wed, 19 Sep 2001 18:04:42 -0400
-Received: from adsl-66-122-62-224.dsl.sntc01.pacbell.net ([66.122.62.224]:848
-	"HELO top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S274202AbRISWEb>; Wed, 19 Sep 2001 18:04:31 -0400
-From: brian@worldcontrol.com
-Date: Wed, 19 Sep 2001 15:14:13 -0700
-To: Dan Hollis <goemon@anime.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Athlon bug stomper: perf. results
-Message-ID: <20010919151413.A11415@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Dan Hollis <goemon@anime.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010919133539.A11184@top.worldcontrol.com> <Pine.LNX.4.30.0109191329170.27640-100000@anime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0109191329170.27640-100000@anime.net>
-User-Agent: Mutt/1.3.19i
+	id <S274204AbRISWDj>; Wed, 19 Sep 2001 18:03:39 -0400
+Received: from ns.caldera.de ([212.34.180.1]:34758 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S274202AbRISWDf>;
+	Wed, 19 Sep 2001 18:03:35 -0400
+Date: Thu, 20 Sep 2001 00:03:20 +0200
+Message-Id: <200109192203.f8JM3Kh10663@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: greearbxu@candelatech.com (Ben Greear)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Replace the eepro100 driver with the e100 driver??
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3BA90EF2.527C9A50@candelatech.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 01:30:36PM -0700, Dan Hollis wrote:
-> On Wed, 19 Sep 2001 brian@worldcontrol.com wrote:
-> > Linux 2.4.9ac5 *without* althon bug stomper patch:
-> >     oopes to death on boot.
-> 
-> And without kernel athlon optimization, please.
-> 
-> It should be clear: run the athlon.c on a kernel WITHOUT athlon kernel
-> optimization, but with the 'athlon bug stomper patch' on and off.
+In article <3BA90EF2.527C9A50@candelatech.com> you wrote:
+> The e100 license appears to be compatible, and it has some nice features, like
+> interrupt-cooelescing that I don't think are supported in the eepro100..
+>
+> I keep thinking that if everyone could get behind a single driver,
+> especially one with corporate support, we may have a more stable
+> result...
+>
+> Here's the license:
 
-Did I miss a simple program for turning the bit on and off?
+Even if the license were compatible (it isn't) I wouldn't ever choose
+to replace eeproo100 with e100 - whilst eeproo100 is a rather nice
+behaving Linux driver, e100 is an utter piece of crap.  Never seen
+a driver so full of interface violations, wrong types, races, bugs,
+etc..
 
-Or do I need to build appropriate kernels?
+	Christoph
 
 -- 
-Brian Litzinger <brian@worldcontrol.com>
-
-    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264534AbTE1Fev (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 01:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTE1Fev
+	id S263584AbTE1Fi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 01:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTE1Fi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 01:34:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4788 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264534AbTE1Feu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 01:34:50 -0400
-Date: Wed, 28 May 2003 06:48:05 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Shaya Potter <spotter@cs.columbia.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: permission() operating on inode instead of dentry?
-Message-ID: <20030528054804.GF27916@parcelfarce.linux.theplanet.co.uk>
-References: <1054099180.6942.71.camel@zaphod>
+	Wed, 28 May 2003 01:38:57 -0400
+Received: from holomorphy.com ([66.224.33.161]:10477 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263584AbTE1Fi4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 01:38:56 -0400
+Date: Tue, 27 May 2003 22:52:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at include/linux/blkdev (2.5.70)
+Message-ID: <20030528055201.GT8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Ivan Gyurdiev <ivg2@cornell.edu>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <200305272323.29063.ivg2@cornell.edu> <20030528052934.GS8978@holomorphy.com> <Pine.LNX.4.50.0305280130160.15323-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1054099180.6942.71.camel@zaphod>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.50.0305280130160.15323-100000@montezuma.mastecende.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 01:19:40AM -0400, Shaya Potter wrote:
-> [please cc: responses to me, have 10k message backlog in l-k folder)
-> 
-> Is there a good reason why the fs permission function operates on the
-> inode instead of the dentry? It would seem if the dentry was passed into
-> the function instead of the inode, one would have a better structure to
-> play with, such as being able to use d_put() to get the real path name. 
-> The inode is still readily accessible from the dentry.
+On Tue, May 27, 2003 at 11:23:29PM -0400, Ivan Gyurdiev wrote:
+>>> Out of nowhere on mozilla open (after it worked fine all afternoon):
+>>> ------------[ cut here ]------------
+>>> kernel BUG at include/linux/blkdev.h:408!
+>>> invalid operand: 0000 [#1]
+>>> CPU:    0
+>>> EIP:    0060:[<c02322be>]    Tainted: P  
+>>> EFLAGS: 00010046
+>>> EIP is at blk_queue_start_tag+0x8e/0x100
 
-man grep.
+On Tue, 27 May 2003, William Lee Irwin III wrote:
+>> This appears to be tainted by a proprietary module. Please reproduce
+>> without it or forward the bugreport to the originator of the module.
 
-Then use the resulting knowledge to find the callers of said function in
-the tree.
+On Wed, May 28, 2003 at 01:38:35AM -0400, Zwane Mwaikambo wrote:
+> Looks valid;
+> We tried to remove the previous request.. but there was none. The BUG 
+> check looks odd (what happens to the first tag?)
 
-Then think where you would get dentry (and vfsmount, since you want path)
-for each of these.  Exclude ones that have them available.  See which
-functions contain the rest of calls.
+Okay, I'll back off and let someone with a remote clue of what's going
+on in ll_rw_blk.c take over.
 
-Repeat the entire thing for each of these functions, until the set is
-empty.  At that point you have a sequence of changes that need to be
-done.  Start moving from the end of list, changing the prototypes and
-updating callers.  You will get a sequence of patches ending with
-what you want.  Look at their sizes.  If they are tolerably small and
-straightforward - start posting them to fsdevel, one by one.  With
-summaries.  Start with posting the list of changes (step 1 propagates
-..., step 2...,  step n gives what we want).
-
-Get that stuff merged, one by one.  Since it won't go in one release,
-repeat the searches to verify that your analysis is still correct and
-no new paths had appeared.
-
-That's how it's done - there's nothing more to it.  And yes, this one
-will end up in a moderately long chain of patches - it appeared to be
-doable the last time I'd looked, but would result in 10-15 steps _if_
-nothing tricky would crop up.
+-- wli

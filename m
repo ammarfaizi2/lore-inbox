@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267190AbTGGThF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 15:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbTGGThF
+	id S262177AbTGGTsw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 15:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTGGTsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 15:37:05 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:726 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S267190AbTGGThC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 15:37:02 -0400
-Message-Id: <200307071951.h67JpVEp005152@eeyore.valparaiso.cl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.7x: No vga=0x317?
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Mon, 07 Jul 2003 15:51:31 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 7 Jul 2003 15:48:52 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:42892 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262177AbTGGTsu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 15:48:50 -0400
+Date: Mon, 7 Jul 2003 21:03:15 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Eric Varsanyi <e0216@foo21.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll vs stdin/stdout
+Message-ID: <20030707200315.GA10939@mail.jlokier.co.uk>
+References: <20030707154823.GA8696@srv.foo21.com> <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com> <20030707194736.GF9328@srv.foo21.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030707194736.GF9328@srv.foo21.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a Toshiba Satellite notebook 1800 (P3 mobile/1100, 256MiB RAM,
-Trident CyberBlade XPAi1 (rev 82) graphics card; RH 9.
+Eric Varsanyi wrote:
+> Epoll's API/impl is great as it is IMO, not suggesting need for change, I was
+> hoping there was a good standard trick someone worked up to get around
+> this specifc end case of stdin/stdout usually being dups but sometimes
+> not. Porting my event system over to use epoll was easy/straightforward
+> except for this one minor hitch.
 
-STFW for this machine I found that adding "vga=0x317" to the kernel args
-uses the full screen on the virtual TTYs (normal is 80x24 in a small
-rectangle at the center of the screen). I tried several 2.5 kernels, and
-was convinced they didn't boot (no time to investigate further, sorry).
-With 2.5.74 I noticed that the machine does in fact boot, but nothing at
-all shows up on the screen until X starts. Deleting the "vga=..." stuff
-shows the customary 80x24 rectangle, vga=ask gives a only a few 80x<mumble>
-modes. The ones I tried are useless.
+Easy: if it's a read event, it's stdin; if it's a write event, it's stdout :)
 
-Anything I can try/hack to pieces? Not exactly urgent, but having
-fullscreen vt's is quite nice.
+You've raised an interesting problem.  It is easy to fix this in the
+specific case of stdin/stdout, however what happens when your process
+is passed a pair of fds from some other process (or more than one
+process, using AF_UNIX), and told to read one and write the other?
+What happens when you have 10 fds from different sources, some for
+reading and some for writing (quite typical in a complex server)?
 
-Thanks!
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+With the epoll API, your process has to know whether any paids or fds
+correspond to the same file *, in order to decide whether to register
+one interested in READ+WRITE or two interests separately.
+
+Unfortunately I cannot think of a way for a process to know, in
+general, whether two fds that it is passed correspond to the same file
+*.  Well, apart from trying epoll on it and seeing what happens :/
+
+Perhaps this indicates the epoll API _is_ flawed.  Epoll maintains
+this state mapping:
+
+	file * -> (event mask, event states)
+
+when it ought to maintain this:
+
+	(file *, event type) -> event state
+
+In other words, perhaps epoll should be keeping registered interest in
+read events and registered interest in write events completely
+separate.
+
+I suspect changing the API to do that wouldn't even break any of the
+existing apps.
+
+Davide, what do you think?
+
+-- Jamie

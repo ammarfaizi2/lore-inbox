@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136066AbREGI6w>; Mon, 7 May 2001 04:58:52 -0400
+	id <S135614AbREGIzM>; Mon, 7 May 2001 04:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132922AbREGI6m>; Mon, 7 May 2001 04:58:42 -0400
-Received: from t2.redhat.com ([199.183.24.243]:39156 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136049AbREGI6d>; Mon, 7 May 2001 04:58:33 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AF65FB3.777461BA@TeraPort.de> 
-In-Reply-To: <3AF65FB3.777461BA@TeraPort.de>  <E14vFZb-0005GA-00@the-village.bc.nu> 
-To: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [Solved ?] Re: pcmcia problems after upgrading from 2.4.3-ac7 to 2.4.4 
-Mime-Version: 1.0
+	id <S136047AbREGIzD>; Mon, 7 May 2001 04:55:03 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32676 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135614AbREGIyv>;
+	Mon, 7 May 2001 04:54:51 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 07 May 2001 09:58:00 +0100
-Message-ID: <1870.989225880@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15094.25285.410379.109719@pizda.ninka.net>
+Date: Mon, 7 May 2001 01:54:29 -0700 (PDT)
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: Jonathan Morton <chromi@cyberspace.org>,
+        BERECZ Szabolcs <szabi@inf.elte.hu>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
+In-Reply-To: <15094.10942.592911.70443@pizda.ninka.net>
+	<Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Martin.Knoblauch@TeraPort.de said:
-> 
->   I am not sure whether this should be closed alltogether. Maybe
-> i82365 was not the proper choice for my hardware in the first place.
-> Anyway, the module seems to be retired as of 2.4.3-ac10/ac11. Maybe a
-> hint should go into the changes document. 
+Tobias Ringstrom writes:
+ > But is it really specified in the C "standards" to be exctly zero or one,
+ > and not zero and non-zero?
 
-i82365 is for use only on PCMCIA bridges, not CardBus. It should not be 
-'retired' but should probably have the config option renamed to prevent 
-confusion.
+I'm pretty sure it does.
 
---
-dwmw2
+ > IMHO, the ?: construct is way more readable and reliable.
 
+Well identical code has been there for several months just a few lines
+away.
 
+I've seen this idiom used in many places (even the GCC sources :-),
+so I'm rather surprised people are seeing it for the first time.
+
+Later,
+David S. Miller
+davem@redhat.com

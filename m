@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266165AbUFIP4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265809AbUFIP6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266165AbUFIP4E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 11:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUFIP4E
+	id S265809AbUFIP6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 11:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUFIP6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 11:56:04 -0400
-Received: from holomorphy.com ([207.189.100.168]:21125 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266165AbUFIP4A (ORCPT
+	Wed, 9 Jun 2004 11:58:20 -0400
+Received: from cantor.suse.de ([195.135.220.2]:49616 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265809AbUFIP6J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 11:56:00 -0400
-Date: Wed, 9 Jun 2004 08:50:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Eric BEGOT <eric_begot@yahoo.fr>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc3-mm1
-Message-ID: <20040609155055.GO1444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Eric BEGOT <eric_begot@yahoo.fr>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040609015001.31d249ca.akpm@osdl.org> <40C6F3C3.9040401@yahoo.fr> <Pine.LNX.4.58.0406090910170.1838@montezuma.fsmlabs.com> <20040609133653.GH1444@holomorphy.com> <Pine.LNX.4.58.0406090942420.1838@montezuma.fsmlabs.com> <20040609144809.GK1444@holomorphy.com> <20040609145849.GL1444@holomorphy.com> <40C73198.4080700@yahoo.fr>
+	Wed, 9 Jun 2004 11:58:09 -0400
+Date: Wed, 9 Jun 2004 17:56:13 +0200
+From: Andi Kleen <ak@suse.de>
+To: Anton Blanchard <anton@samba.org>
+Cc: manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use numa policy API for boot time policy
+Message-Id: <20040609175613.487903b5.ak@suse.de>
+In-Reply-To: <20040609154429.GA6152@krispykreme>
+References: <20040605034356.1037d299.ak@suse.de>
+	<40C12865.9050803@colorfullife.com>
+	<20040605041813.75e2d22d.ak@suse.de>
+	<20040605023211.GA16084@krispykreme>
+	<20040605122239.4a73f5e8.ak@suse.de>
+	<20040609154429.GA6152@krispykreme>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40C73198.4080700@yahoo.fr>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Actually I think blowing it away immediately is best. Bounds checks
->> don't work for everything.
+On Thu, 10 Jun 2004 01:44:29 +1000
+Anton Blanchard <anton@samba.org> wrote:
 
+>  
+> > It would be a one liner change to allow process policy interleaving 
+> > for orders > 0 in mempolicy. But I'm not sure how useful it is, since
+> > the granuality would be really bad.
+> 
+> OK. Id like to take a quick look at order > 0 allocations during boot
+> to see if its worth it. The ppc64 page size is small and we might be
+> doing a significant number of order 1 allocations.
 
-On Wed, Jun 09, 2004 at 05:49:44PM +0200, Eric BEGOT wrote:
-> Ok I applied the two patches and i works now. I have a 2.6.7-rc3-mm1. I 
-> attached the two patches.
-> Thx william.
+For what? 
 
-Thank you very much for testing and being patient with the programming
-errors of mine present in stock 2.6.7-rc3-mm1.
+> > Have you ever tried to switch to implement a vmalloc_interleave() for these
+> > tables instead? My bet is that it will perform better.
+> 
+> Im warming to this idea. We would need a per arch override, since there
+> is a trade off here between interleaving and TLB usage.
 
-akpm, could you please apply the two fixes I sent Eric?
+Actually just standard vmalloc is enough. The interleave policy in alloc_pages
+will transparently interleave the order 0 pages allocated by vmalloc.
 
-Thanks.
+When I find some time I will try that on Opteron too.
 
+> 
+> We also have a problem in 2.6 on our bigger machines where our dcache
+> hash and inode hash cache are limited to MAX_ORDER (16MB on ppc64). By
+> using vmalloc would allow us to interleave the memory and allocate more
+> than 16MB for those hashes.
 
--- wli
+IMHO 16MB hash table for a kernel structure is madness. A different data
+structure is probably needed if it's really a problem
+(is your dcache that big?). Or maybe just limit the dcache more aggressively
+to keep the max number of entries smaller.
+
+-Andi

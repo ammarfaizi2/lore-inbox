@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276921AbRJHPJy>; Mon, 8 Oct 2001 11:09:54 -0400
+	id <S276339AbRJHPLO>; Mon, 8 Oct 2001 11:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276339AbRJHPJo>; Mon, 8 Oct 2001 11:09:44 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:57348 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S276921AbRJHPJe>; Mon, 8 Oct 2001 11:09:34 -0400
-Date: Mon, 8 Oct 2001 11:10:04 -0400
-Message-Id: <200110081510.f98FA4910571@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <20011008023118.L726@athlon.random>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S276919AbRJHPLF>; Mon, 8 Oct 2001 11:11:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43277 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276339AbRJHPKx>; Mon, 8 Oct 2001 11:10:53 -0400
+Subject: Re: Problem creating filesystems (and othe operations) under 2.4.10
+To: quintaq@yahoo.co.uk
+Date: Mon, 8 Oct 2001 16:16:47 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011008145018Z276906-760+22140@vger.kernel.org> from "quintaq@yahoo.co.uk" at Oct 08, 2001 03:50:17 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qc99-0000qB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011008023118.L726@athlon.random> andrea@suse.de wrote:
+> I have just installed a Maxtor 30GB drive as /dev/hdc in my SuSE 7.0 system
+> which has a vanilla 2.4.10 kernel.  I found that I could write the
+> partition table and create a small ext2 partition for /boot plus 768MB of
+> swap.  Creation of the main ext2 filesystem on /hdc7 failed (before the
+> inode tables even began to be written), with "file size limit exceeded".
+> The same problem recurred every time I tried - and I did try various
+> combinations of partition size.  I see the same error message when trying
+> to change partition table flags.  The problem is identical using fdisk,
+> cfdisk and parted.  I have no file limits set in ulimit and I do not think
+> that this is the problem. 
+> 
+> I eventually put the same drive as /dev/hdc in another box running a stock
+> SuSE 2.2.16 kernel and creation of the filesystems completed without any
+> problem.  I have also verified this by booting this box using SuSE's 2.2.16
+> rescue kernel.
+> 
+> Any ideas?
 
-| You're perfectly right that it's not ok for a generic computing
-| environment to spend lots of cpu in polling, but it is clear that in a
-| dedicated router/firewall we can just shutdown the NIC interrupt forever via
-| disable_irq (no matter if the nic supports hw flow control or not, and
-| in turn no matter if the kid tries to spam the machine with small
-| packets) and dedicate 1 cpu to the polling-work with ksoftirqd polling
-| forever the NIC to deliver maximal routing performance or something like
-| that.  ksoftirqd will ensure fairness with the userspace load as well.
-| You probably wouldn't get a benefit with tux because you would
-| potentially lose way too much cpu with true polling and you're traffic
-| is mostly going from the server to the clients not the othet way around
-| (plus the clients uses delayed acks etc..), but the world isn't just
-| tux.
-| 
-| Of course we agree that such a "polling router/firewall" behaviour must
-| not be the default but it must be enabled on demand by the admin via
-| sysctl or whatever else userspace API. And I don't see any problem with
-| that.
+Obvious one to check would be to see if when 2.4.10 acquired the page cache 
+changes someone backed out the device picks up underlying file size limit bug 
+fix that the -ac tree has and went to Linus.
 
-  Depending on implementation, this may be an acceptable default,
-assuming that the code can determine when too many irqs are being
-serviced. There are many servers, and even workstations in campus
-environments, which would benefit from changing to polling under burst
-load. I don't know if even a router need be locked in that state, it
-should stay there under normal load.
+It really sounds like that happened.
 
-  I'm convinced that polling under heavy load is beneficial or
-non-harmful on virtually every type of networked machine. Actually, any
-machine subject to interrupt storms, many device interface or control
-systems can get high rates due to physical events, networking is just a
-common problem.
+Alan
 
--- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe

@@ -1,37 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268500AbTBWPXR>; Sun, 23 Feb 2003 10:23:17 -0500
+	id <S268496AbTBWPRL>; Sun, 23 Feb 2003 10:17:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268501AbTBWPXQ>; Sun, 23 Feb 2003 10:23:16 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:20870 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S268500AbTBWPXP>;
-	Sun, 23 Feb 2003 10:23:15 -0500
-Date: Sun, 23 Feb 2003 16:34:39 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [ak@suse.de: Re: iosched: impact of streaming read on read-many-files]
-Message-ID: <20030223153439.GE29467@dualathlon.random>
-References: <20030222054307.GA22074@wotan.suse.de> <20030221230716.630934cf.akpm@digeo.com>
+	id <S268491AbTBWPPP>; Sun, 23 Feb 2003 10:15:15 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:60660 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S268490AbTBWPOl>;
+	Sun, 23 Feb 2003 10:14:41 -0500
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030223153316.262a201e.skraw@ithnet.com>
+References: <20030202153009$2e0d@gated-at.bofh.it>
+	 <20030205181006$107c@gated-at.bofh.it>
+	 <20030205181006$7bb8@gated-at.bofh.it>
+	 <20030205181006$455c@gated-at.bofh.it>
+	 <20030205181006$5dba@gated-at.bofh.it>
+	 <20030205181006$3358@gated-at.bofh.it>
+	 <200302061451.h16Epl0Z001134@pc.skynet.be>
+	 <20030223153316.262a201e.skraw@ithnet.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xIUTfJQ0boLCSZTU2r+E"
+Organization: 
+Message-Id: <1046012671.1964.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030221230716.630934cf.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 23 Feb 2003 16:04:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 11:07:16PM -0800, Andrew Morton wrote:
-> request within ten milliseconds is an impossibility.  Attempting to 
-> achieve it will result in something which seeks all over the place.
 
-This is called SFQ, or CFQ with 0 dispatch queue level and it works
-fine (given a fixed amount of tasks doing I/O). You still don't
-understand you don't care about throughput and seeks if you only need to
-read 1 block with the max fairness and you don't mind to read another
-block within 1 second. seeking is the last problem here, waiting more
-than 1 second is the only problem here.
+--=-xIUTfJQ0boLCSZTU2r+E
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Andrea
+On Sun, 2003-02-23 at 15:33, Stephan von Krawczynski wrote:
+> On Thu, 06 Feb 2003 15:51:47 +0100
+> Hans Lambrechts <hans.lambrechts@skynet.be> wrote:
+>=20
+> > Stephan von Krawczynski wrote:
+> >=20
+> > <---snip--->
+> >=20
+> > >=20
+> > >            CPU0       CPU1
+> > >   0:      71158          0    IO-APIC-edge  timer
+> > >   1:        941          0    IO-APIC-edge  keyboard
+> > >   2:          0          0          XT-PIC  cascade
+> > >  12:      33166          0    IO-APIC-edge  PS/2 Mouse
+> > >  15:          4          0    IO-APIC-edge  ide1
+
+<snip>
+
+> I am sorry, but this patch is:
+> a) already included in 2.4.21-pre4 (which I run)
+> b) does therefore obviously not help
+>=20
+> Any other suggestions?=20
+
+could you give the irqbalance daemon from
+
+http://people.redhat.com/arjanv/irqbalance/irqbalance-0.06.tar.gz
+
+a try ?
+
+Greetings,
+   Arjan van de Ven
+
+--=-xIUTfJQ0boLCSZTU2r+E
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+WOL/xULwo51rQBIRAkrLAKCpWVAi0BHMAuoP6fFHApUl3znC8gCfdyqx
+QWoaXL5DifVImKvpM7BXIE8=
+=5fdY
+-----END PGP SIGNATURE-----
+
+--=-xIUTfJQ0boLCSZTU2r+E--

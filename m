@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbTJ0Jq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 04:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTJ0Jq0
+	id S261464AbTJ0Jpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 04:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTJ0Jpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 04:46:26 -0500
-Received: from smtp1.att.ne.jp ([165.76.15.137]:39632 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261486AbTJ0JqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 04:46:24 -0500
-Message-ID: <3cbb01c39c6f$17608410$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Hans Reiser '" <reiser@namesys.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>,
-       <nikita@namesys.com>, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-References: <785F348679A4D5119A0C009027DE33C105CDB39C@mcoexc04.mlm.maxtor.com>
-Subject: Re: Blockbusting news, results end
-Date: Mon, 27 Oct 2003 18:45:24 +0900
+	Mon, 27 Oct 2003 04:45:39 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:57804 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261464AbTJ0Jph
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 04:45:37 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Michel Bouissou <michel@bouissou.net>
+Subject: Re: Patch for Promise PDC20276
+Date: Mon, 27 Oct 2003 10:49:32 +0100
+User-Agent: KMail/1.5.4
+References: <200310271009.13054@totor.bouissou.net>
+In-Reply-To: <200310271009.13054@totor.bouissou.net>
+Cc: abrutschy@xylon.de, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Disposition: inline
+Message-Id: <200310271049.32819.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Mudama wrote:
 
-> If a drive wants to reallocate a block, but due to some temporary
-> condition is unable to (vibration, excessive temperature, etc), odds are
-> there's no way for that drive to "remember" that it needs to reassign that
-> block, so if you reboot the drive or reset it or whatever, you're back at
-> square 1.
+This was discussed few times before.
+Just enable "Special FastTrak feature" (overriding BIOS) config option.
 
-Bingo.  This is why reallocation at the time of a failed read is also
-necessary.  Yes the data are lost, yes the failure needs to be both logged
-(once) and displayed to the user (once), yes if an application reads it
-again before writing then it will be garbage or zeroes, but get the LBA
-sector number moved to a place that is less likely to be unreliable.
-
-Meanwhile software must still make up for defective firmware.
+On Monday 27 of October 2003 10:09, Michel Bouissou wrote:
+> Hi there,
+>
+> The patch that Arne Brutschy posted here (see
+> http://www.cs.helsinki.fi/linux/linux-kernel/2003-22/0386.html) almost
+> saved my life as it allowed me to understand why my 2.4.22 kernel didn't
+> activate my Promise PDC20276 IDE controller properly.
+>
+> (For the record, my kernel was displaying the following message at boot:
+> PDC20276: neither IDE port enabled (BIOS)
+> )
+>
+> But this patch was only halfway satisfactory, as it enabled only one of my
+> 2 controller channels.
+>
+> So I did a quick-and-dirty hack that gives the following patch, that allows
+> activation of both channels of my PDC20276.
+>
+> This might help others encountering the same problem...
+>
+> ========== CUT HERE ==========
+> --- drivers/ide/setup-pci.c.orig	2003-08-25 13:44:41.000000000 +0200
+> +++ drivers/ide/setup-pci.c	2003-10-26 20:35:49.000000000 +0100
+> @@ -577,7 +577,7 @@
+>  	ata_index_t index;
+>  	u8 tmp = 0;
+>  	ide_hwif_t *hwif, *mate = NULL;
+> -	static int secondpdc = 0;
+> +/* MiB	static int secondpdc = 0; */
+>
+>  	index.all = 0xf0f0;
+>
+> @@ -637,10 +637,10 @@
+>  		 * by the bios for raid purposes.
+>  		 * Skip the normal "is it enabled" test for those.
+>  		 */
+> -		if (((d->vendor == PCI_VENDOR_ID_PROMISE) &&
+> +		if ((d->vendor == PCI_VENDOR_ID_PROMISE) &&
+>  		     ((d->device == PCI_DEVICE_ID_PROMISE_20262) ||
+> -		      (d->device == PCI_DEVICE_ID_PROMISE_20265))) &&
+> -		    (secondpdc++==1) && (port==1))
+> +		      (d->device == PCI_DEVICE_ID_PROMISE_20265) ||
+> +		      (d->device == PCI_DEVICE_ID_PROMISE_20276)))
+>  			goto controller_ok;
+>
+>  		if (e->reg && (pci_read_config_byte(dev, e->reg, &tmp) ||
+> ========== CUT HERE ==========
+>
+> Regards
 

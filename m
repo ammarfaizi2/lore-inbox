@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275898AbTHOLHj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 07:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275899AbTHOLHj
+	id S262439AbTHOLCS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 07:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275903AbTHOLCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 07:07:39 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:6839 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S275898AbTHOLHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 07:07:37 -0400
-Date: Fri, 15 Aug 2003 12:07:00 +0100
-From: Dave Jones <davej@redhat.com>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Via KT400 agpgart issues
-Message-ID: <20030815110700.GE22433@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Mark Watts <m.watts@eris.qinetiq.com>, linux-kernel@vger.kernel.org
-References: <200308141025.12747.m.watts@eris.qinetiq.com> <20030814184838.GB10901@redhat.com> <200308150859.03617.m.watts@eris.qinetiq.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308150859.03617.m.watts@eris.qinetiq.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 15 Aug 2003 07:02:18 -0400
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:16913 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262439AbTHOLCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 07:02:17 -0400
+X-Envelope-From: roubm9am@barbora.ms.mff.cuni.cz
+Message-ID: <00a501c3631c$676237b0$401a71c3@izidor>
+From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
+To: "Paul Nasrat" <pauln@truemesh.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+References: <003701c3630f$387a6330$401a71c3@izidor> <20030815103529.GQ13037@shitake.truemesh.com>
+Subject: Re: 2.6.0test3mm2 - Synaptics touchpad problem
+Date: Fri, 15 Aug 2003 13:00:09 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 08:59:03AM +0100, Mark Watts wrote:
+Hi,
+I am using the new drivers for XFree86 and if the touchpad is visible
+in dmesg, than it is working in XFree86 too. When it isn't,
+it isn't than listed in /proc/bus/input/devices and is not working in
+XFree86.
+    Milan Roubal
 
- > I thought the KT400 chipset (at least) had been backported to 2.4.21 ?
+> On Fri, Aug 15, 2003 at 11:25:47AM +0200, Milan Roubal wrote:
+> > Hi,
+> > I have got problem runing Synaptics touchpad on kernel 2.6.0test3mm2.
+> > When previously booted system was windows XP, than the touchpad is
+working:
+> > here is part of working dmesg:
+>
+> The touchpad driver uses the new event layer.  You either need
+> userspace which understands it.
+>
+> http://w1.894.telia.com/~u89404340/touchpad/ for XFree86 driver
+>
+> The other option is to append, is to disable the extensions from
+> psmouse by appending
+>
+> psmouse_noext=1 to your kernel arguments
+>
+>
+> Paul
 
-Only for AGP2.x mode.
-
- > I'm not experiancing any technical problems. The nvidia /proc interfaces are 
- > reporting that I'm running at agp 8x
-
-if its using its own agpgart routines, maybe. If it isn't, it's broken,
-or lying.
-
- > , and I have full hardware acceleration 
- > enough to play games like Unreal Tournament 2003 quite fast (~50fps), its 
- > just that agpgart cant find my aperature size...
-
-which happens when agpgart tries to read the AGP2.x size, when the
-chipset is in 3.x mode.
-
- > I just tried my vendors (mandrake) 2.4.22 kernel and I get exactly the same 
- > output.
-
-No vendor that I know of has backported the AGP3 support it its
-entirity. The closest to a backport so far is the trainwreck that
-is the ATI FireGL drivers.
-
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130137AbRBJBix>; Fri, 9 Feb 2001 20:38:53 -0500
+	id <S130892AbRBJBpr>; Fri, 9 Feb 2001 20:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130892AbRBJBin>; Fri, 9 Feb 2001 20:38:43 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:48391 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S130137AbRBJBii>; Fri, 9 Feb 2001 20:38:38 -0500
-To: "David L. Nicol" <dnicol@cstp.umkc.edu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "Miller, Brendan" <Brendan.Miller@Dialogic.com>
-Subject: Re: bidirectional named pipe?
-In-Reply-To: <E14OxTz-0007yS-00@the-village.bc.nu>
-	<3A81D5B4.9CBC9B0D@kasey.umkc.edu> <3A848BFF.C7C0E258@cstp.umkc.edu>
-From: Doug McNaught <doug@wireboard.com>
-Date: 09 Feb 2001 20:37:44 -0500
-In-Reply-To: "David L. Nicol"'s message of "Fri, 09 Feb 2001 18:31:59 -0600"
-Message-ID: <m3vgqjz5av.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S131276AbRBJBph>; Fri, 9 Feb 2001 20:45:37 -0500
+Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:13577 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S131048AbRBJBpW>; Fri, 9 Feb 2001 20:45:22 -0500
+Message-ID: <3A849CB6.C8EF4345@damncats.org>
+Date: Fri, 09 Feb 2001 20:43:18 -0500
+From: John Cavan <johnc@damncats.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Greg KH <greg@wirex.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Mucho timeouts on USB
+In-Reply-To: <3A8489DE.D8C2B80A@damncats.org> <20010209165309.S10691@wirex.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David L. Nicol" <dnicol@cstp.umkc.edu> writes:
-
-> According to the Understanding the Linux Kernel book I
-> plowed through yesterday afternoon the EXT2 file system
-> has a defined file type "socket," distinct from fifo.
+Greg KH wrote:
 > 
-> How does one set up a named socket in a file system?  Is it
-> a legacy constant that has never been supported or what?
+> On Fri, Feb 09, 2001 at 07:22:54PM -0500, John Cavan wrote:
+> >
+> > Current config:
+> >
+> > Dual P3-500 w/ 512mb of RAM
+> > Tyan Tiger 133 mobo with VIA chipset, onboard USB
+> > Kernel 2.4.1-ac9 compiled with egcs-1.1.2
 > 
+> This motherboard does not currently work with USB in SMP mode, unless
+> you boot with "noapic" on the command line.  People are working on it,
+> but it's slow going.
 
-Call bind() on an AF_LOCAL (aka AF_UNIX) socket. 
+That did the trick! Thanks alot.
 
-About as far from legacy as you can get...
+Nice too, first song played by Rush. :o)
 
--Doug
+John
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

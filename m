@@ -1,37 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbUD3XfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUD3XlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUD3XfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 19:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUD3XfZ
+	id S261832AbUD3XlO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 19:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUD3XlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 19:35:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63643 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261852AbUD3XfW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 19:35:22 -0400
-Date: Fri, 30 Apr 2004 16:34:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: FabF <Fabian.Frederick@skynet.be>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, pbadari@us.ibm.com
-Subject: Re: [PATCH 2.6.6-rc3-mm1] Add maxthinktime to sysfs
-Message-Id: <20040430163459.401d3421.akpm@osdl.org>
-In-Reply-To: <1083368224.4976.9.camel@bluerhyme.real3>
-References: <1083364002.6303.9.camel@bluerhyme.real3>
-	<20040430154246.2019f9ec.akpm@osdl.org>
-	<1083368224.4976.9.camel@bluerhyme.real3>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Apr 2004 19:41:14 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:26326 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261832AbUD3XlL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 19:41:11 -0400
+Date: Fri, 30 Apr 2004 16:40:39 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Dave Kleikamp <shaggy@austin.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       Madanlal S Musuvathi <madan@stanford.edu>,
+       "David L. Dill" <dill@cs.stanford.edu>
+Subject: [CHECKER] Kernel panic when diWrite fails to get a page
+Message-ID: <Pine.GSO.4.44.0404301638500.14945-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FabF <Fabian.Frederick@skynet.be> wrote:
->
->        I notice huge variations in first seconds of a 10 client
->  throughput activity as attached (5,100,300 as maxthinktime).
->  It's just another parameter I'd like to play with ;)
 
-Fair enough.  Interesting result.
+txCommit calls diWrite, which can fail (diWrite -> read_metapage ->
+read_cache_page).  txAbortCommit will be called in that case.  Kernel will
+panic in LogSyncRelease on assert(log) because the "lo"g fields for some
+metapages are NULL.  If we are going to kernel panic anyway, we should
+panic at the first place without doing all these works to abort a
+transcation.
 
-Can you describe and/or publish ffbench?
+
+int diWrite(tid_t tid, struct inode *ip)
+{
+	...
+      retry:
+	mp = read_metapage(ipimap, pageno << sbi->l2nbperpage, PSIZE, 1);
+	if (mp == 0)
+Fail -->	return -EIO;
+	...
+}
+
+static void txAbortCommit(struct commit * cd)
+{
+	...
+			if (mp->xflag & COMMIT_PAGE)
+-->				LogSgyncRelease(mp);
+	...
+}
+
+
+
+
+static void LogSyncRelease(struct metapage * mp)
+{
+	struct jfs_log *log = mp->log;
+
+	assert(atomic_read(&mp->nohomeok));
+Panic -->
+	assert(log);
+	atomic_dec(&mp->nohomeok);
+
+	if (atomic_read(&mp->nohomeok))
+		return;
+
+	hold_metapage(mp, 0);
+
+	LOGSYNC_LOCK(log);
+	mp->log = NULL;
+	mp->lsn = 0;
+	mp->clsn = 0;
+	log->count--;
+	list_del_init(&mp->synclist);
+	LOGSYNC_UNLOCK(log);
+
+	release_metapage(mp);
+}
+
+

@@ -1,98 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280799AbRKOJzi>; Thu, 15 Nov 2001 04:55:38 -0500
+	id <S280805AbRKOJ4I>; Thu, 15 Nov 2001 04:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280805AbRKOJzU>; Thu, 15 Nov 2001 04:55:20 -0500
-Received: from mons.uio.no ([129.240.130.14]:17080 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S280801AbRKOJzR>;
-	Thu, 15 Nov 2001 04:55:17 -0500
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: generic_file_llseek() broken?
-In-Reply-To: <UTC200111150055.AAA93544.aeb@cwi.nl>
-	<20011115020259.C5739@lynx.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 15 Nov 2001 10:55:07 +0100
-In-Reply-To: <20011115020259.C5739@lynx.no>
-Message-ID: <shsd72kcq9w.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S280809AbRKOJz7>; Thu, 15 Nov 2001 04:55:59 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16395 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280805AbRKOJzl>; Thu, 15 Nov 2001 04:55:41 -0500
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+To: pgallen@randomlogic.com (Paul G. Allen)
+Date: Thu, 15 Nov 2001 10:01:56 +0000 (GMT)
+Cc: alastair.stevens@mrc-bsu.cam.ac.uk (Alastair Stevens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3BF31C42.469BF2B2@randomlogic.com> from "Paul G. Allen" at Nov 14, 2001 05:37:06 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E164JLI-0007m8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andreas Dilger <adilger@turbolabs.com> writes:
+> The only problem I still have is IDE. I can not run the IDE drive using DMA or the system will hang HARD, usually with the drive access light on. Even with DMA
+> disabled it might hang under high IDE usage. I will replace the IDE drive with a SCSI drive soon as the SCSI interface works perfectly and very fast. Early MP
+> chipsets had AGP and DMA hardware bugs, but according to AMD errata, the revision in my MoBo should not have these bugs (that doesn't mean it doesn't have them
+> though).
 
-     > --- linux.orig/fs/read_write.c Tue Aug 14 12:09:09 2001
-     > +++ linux/fs/read_write.c Thu Nov 15 01:54:35 2001
-     > @@ -36,15 +36,24 @@
-     >  		case 1:
-     >  			offset += file->f_pos;
-     >  	}
-     > +
-     > + /* LFS 2.1.1.6: can't seek to a position that doesn't fit in
-     >  	off_t */
-     > + retval = -EOVERFLOW;
-     > + if ((!(file->f_flags & O_LARGEFILE) && offset > MAX_NON_LFS)
-     >  	||
-     > + offset > file->f_dentry->d_inode->i_sb->s_maxbytes)
-     > + goto out;
-     > +
-     >  	retval = -EINVAL;
-     > - if (offset>=0 &&
-     >  	offset<=file->f_dentry->d_inode->i_sb->s_maxbytes) {
-     > - if (offset != file->f_pos) {
-     > - file->f_pos = offset;
-     > - file->f_reada = 0;
-     > - file->f_version = ++event;
-     > - }
-     > - retval = offset;
-     > + if (offset < 0)
-     > + goto out;
-     > +
-     > + if (offset != file->f_pos) {
-     > + file->f_pos = offset;
-     > + file->f_reada = 0;
-     > + file->f_version = ++event;
-     >  	}
-     > + retval = offset;
-     > +out:
-     >  	return retval;
-     >  }
- 
-     > @@ -64,6 +73,12 @@
-     >  		case 1:
-     >  			offset += file->f_pos;
-     >  	}
-     > +
-     > + /* LFS 2.1.1.6: can't seek to a position that doesn't fit in
-     >  	off_t */
-     > + retval = -EOVERFLOW;
-     > + if (!(file->f_flags & O_LARGEFILE) && offset > MAX_NON_LFS)
-     > + goto out;
-     > +
-     >  	retval = -EINVAL; if (offset >= 0) {
-     >  		if (offset != file->f_pos) {
-     > @@ -73,6 +88,7 @@
-     >  		} retval = offset;
-     >  	}
-     > +out:
-     >  	return retval;
-     >  }
- 
-     > @@ -103,8 +119,6 @@
-     >  	if (origin <= 2) {
-     >  		loff_t res = llseek(file, offset, origin);
-     >  		retval = res;
-     > - if (res != (loff_t)retval)
-     > - retval = -EOVERFLOW; /* LFS: should only happen on 32 bit
-     >  			platforms */
-     >  	} fput(file);
-     >  bad:
-
-This breaks NFS badly for which a directory seek position is *not* a
-file offset, but is an unsigned cookie. Please ensure that the above
-checks are only made on regular files.
-
-Cheers,
-   Trond
+The earlier MP chipsets die if you have IDE prefetching enabled (see the
+errata doc). I'd be suprised if a BIOS had left that on.

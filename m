@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261338AbTCGD5c>; Thu, 6 Mar 2003 22:57:32 -0500
+	id <S261319AbTCGDyV>; Thu, 6 Mar 2003 22:54:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261341AbTCGD5c>; Thu, 6 Mar 2003 22:57:32 -0500
-Received: from 130.146.174.203.mel.ntt.net.au ([203.174.146.130]:15495 "EHLO
-	enki.rimspace.net") by vger.kernel.org with ESMTP
-	id <S261338AbTCGD5b>; Thu, 6 Mar 2003 22:57:31 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Disabling ATAPI retry?
-In-Reply-To: <1046991672.17715.134.camel@irongate.swansea.linux.org.uk> (Alan
- Cox's message of "06 Mar 2003 23:01:12 +0000")
-References: <3e67c49b.7c12.1804289383@wideopenwest.com>
-	<1046991672.17715.134.camel@irongate.swansea.linux.org.uk>
-From: Daniel Pittman <daniel@rimspace.net>
-Organization: Not today, thank you, Mother.
-Date: Fri, 07 Mar 2003 15:08:02 +1100
-Message-ID: <87k7fbq0nx.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261338AbTCGDyV>; Thu, 6 Mar 2003 22:54:21 -0500
+Received: from [216.234.192.169] ([216.234.192.169]:25608 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP
+	id <S261319AbTCGDyU>; Thu, 6 Mar 2003 22:54:20 -0500
+Subject: Re: Those ruddy punctuation fixes
+From: Steven Cole <elenstev@mesatop.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Val Henson <val@nmt.edu>, Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <300890000.1047008011@[10.10.2.4]>
+References: <20030305111015.B8883@flint.arm.linux.org.uk><20030305122008.GA4280@suse.de>
+	 <1046920285.3786.68.camel@spc1.mesatop.com>
+	<20030307010422.GI26725@boardwalk>
+	<1047005054.4114.99.camel@spc1.mesatop.com> 
+	<300890000.1047008011@[10.10.2.4]>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 06 Mar 2003 21:02:49 -0700
+Message-Id: <1047009782.4114.108.camel@spc1.mesatop.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Mar 2003, Alan Cox wrote:
-> On Thu, 2003-03-06 at 20:58, kelleycook@wideopenwest.com wrote:
->> Is there a boot parameter or a runtime command that can tell
->> the linux IDE driver not to automatically retry on error.
+On Thu, 2003-03-06 at 20:33, Martin J. Bligh wrote:
+> >> Wait, this sounds like a conversation with the Mafia:
+> >> 
+> >> "Pay us protection money."
+> >> "Why do we need to pay you for protection?"
+> >> "So we can protect you from criminals like ourselves."
+> > 
+> > That's a ridiculous comparison and it weakens your argument.  Leaving a
 > 
-> There isn't. You can always build a kernel set not to, but even then
-> it takes the drive firmware a sizeable time to retry a block. 
+> Reductio ad absurdum is often enlightening.
+> 
+> > potential problem in place rather than fixing it as I did would be the
+> > passive-aggressive approach, not the other way around.
+> 
+> But that's not exactly what you're doing - you're replacing one 
+> (very small) problem with another (very real) problem, the breakage 
+> of people's patches. Fixing up patches because of spelling
+> errors is a total waste of developer's time.
 
-Hrm. Is this something that is likely to be introduced at some point?
+Agreed.
 
-My interest lies in the fact that I use a Linux based DVD player which
-locked up for around twenty minutes the other night trying to read a
-dozen bad blocks on a DVD with a single scratch...
+> 
+> >> I'd rather solve this problem by making standalone spelling fixes and
+> >> other cosmetic changes taboo.  Cosmetic changes combined with actual
+> >> useful code changes are fine with me.  If you're risking breaking the
+> >> build, there should be some benefit that justifies the risk.
+> > 
+> > Breaking the build is a low probability (many hundreds of fixes and one 
+> > build break AFAIK) and low consequence failure (a build fix of that
+> > nature is obvious and quickly and easily done).
+> 
+> Breaking the build is indeed a low probability (assuming you compile
+> test your tree). Breaking other people's patches is a high probablility.
 
-Being able to reduce that time lag to a minimum, even if it left the
-hardware delays, would be great -- even if it was only for ATAPI
-devices.
+So another approach to this is to offer cleanup services to willing
+maintainers who don't have the time to do it themselves.  If anyone
+wants their section of the tree spell-corrected, I can do that with the
+help of Dan's scripts (the easy part), and review the resulting diff for
+inappropriate fixes (broken puns, changed meaning, broken compiles),
+send that around to a small group (the spelling police squad) for
+further review, and then send it back to the requesting maintainer, who
+can /dev/null it entirely, or hack it up to his delight before sending
+it Linuswards.
 
+How's that?
 
-The biggest slowdown was the kernel retrying each block a number of
-times, then performing a full ATAPI bus reset before giving up.
+Steven
 
-       Daniel
-
--- 
-Why could one never do a natural thing without having to
-screen it behind a structure of artifice?
-        -- Edith Wharton,  _House of Mirth_

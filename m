@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271841AbRH3JaL>; Thu, 30 Aug 2001 05:30:11 -0400
+	id <S271936AbRH3J3b>; Thu, 30 Aug 2001 05:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272003AbRH3J3v>; Thu, 30 Aug 2001 05:29:51 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:48454 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S271841AbRH3J3m>;
-	Thu, 30 Aug 2001 05:29:42 -0400
-Date: Thu, 30 Aug 2001 11:29:59 +0200 (MEST)
-From: Hans-Christian Armingeon <linux.johnny@gmx.net>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: problems with rtl8139too under 2.4.9
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0006640197@gmx.net
-X-Authenticated-IP: [217.2.85.249]
-Message-ID: <22447.999163799@www56.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+	id <S271841AbRH3J3V>; Thu, 30 Aug 2001 05:29:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18829 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271936AbRH3J3I>;
+	Thu, 30 Aug 2001 05:29:08 -0400
+Date: Thu, 30 Aug 2001 02:29:17 -0700 (PDT)
+Message-Id: <20010830.022917.52165205.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: manik@cisco.com, linux-kernel@vger.kernel.org
+Subject: Re: ioctl conflicts
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E15cNuP-0000mP-00@the-village.bc.nu>
+In-Reply-To: <20010830.013023.94071732.davem@redhat.com>
+	<E15cNuP-0000mP-00@the-village.bc.nu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a problem with the rtl8139c onboard lan on an Elitegroup K7AMA with
-the ALI Magik chipset. ifconfig shows the hardware ethernet address
-ff:ff:ff:ff:ff:ff but under w2k everything works fine. The box runs mainly under
-linux so LAN is very important.
-Any suggestions?
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Thu, 30 Aug 2001 10:14:45 +0100 (BST)
 
-Thanks Johnny
+   >    Thats fine. ext2 ioctls and video ioctls go to different places
+   > Consider sparc64.
+   
+   If the ioctl translation layer can't handle duplicates it has bigger
+   problems than that
 
+How else can the current scheme translate arguments correctly
+if the ioctl values are identical?
 
--- 
-GMX - Die Kommunikationsplattform im Internet.
-http://www.gmx.net
+Let's say that the video info struct is two ints, right?
+That would make the two ioctl values in question be identical.
 
+I agree whole-heartedly that the current scheme is flawed, what
+really should happen is that the translations occur in the ioctl
+handlers themselves, not in some funny sparc port sources.
 
+That is something I will be doing in 2.5.x, for sure.
+
+Later,
+David S. Miller
+davem@redhat.com

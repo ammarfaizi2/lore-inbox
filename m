@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317591AbSFRUF5>; Tue, 18 Jun 2002 16:05:57 -0400
+	id <S317593AbSFRUJo>; Tue, 18 Jun 2002 16:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317592AbSFRUF4>; Tue, 18 Jun 2002 16:05:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30982 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317591AbSFRUFa>; Tue, 18 Jun 2002 16:05:30 -0400
-Date: Tue, 18 Jun 2002 13:05:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Robert Love <rml@tech9.net>,
+	id <S317594AbSFRUJn>; Tue, 18 Jun 2002 16:09:43 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:61206 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S317593AbSFRUJi>; Tue, 18 Jun 2002 16:09:38 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: latest linus-2.5 BK broken 
-In-Reply-To: <E17KPDr-0003Pa-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0206181302300.872-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-reply-to: Your message of "Tue, 18 Jun 2002 15:29:49 -0400."
+             <20020618152949.B16091@redhat.com> 
+Date: Wed, 19 Jun 2002 06:13:44 +1000
+Message-Id: <E17KPMG-0003oZ-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20020618152949.B16091@redhat.com> you write:
+> On Wed, Jun 19, 2002 at 04:51:31AM +1000, Rusty Russell wrote:
+> > You could do a loop here, but the real problem is the broken userspace
+> > interface.  Can you fix this so it takes a single CPU number please?
+> > 
+> > ie.
+> > 	/* -1 = remove affinity */
+> > 	sys_sched_setaffinity(pid_t pid, int cpu);
+> > 
+> > This will work everywhere, and doesn't require userspace to know the
+> > size of the cpu bitmask etc.
+> 
+> That doesn't work.  Think of SMT CPU pairs (aka HyperThreading) or 
+> quads that share caches.
 
+This is the NUMA "I want to be in this group" problem.  If you're
+serious about this, you'll go for a sys_sched_groupaffinity call, or
+add an extra arg to sys_sched_setaffinity, or simply use the top 16
+bits of the cpu arg.
 
-On Wed, 19 Jun 2002, Rusty Russell wrote:
->
-> NO.  They want to be node-affine.  They don't want to specify what
-> CPUs they attach to.
+You will also add /proc/cpugroups or something to export this
+information to users so there's a point.
 
-So you're going to have separate interfaces for that? Gag me with a volvo,
-but that's idiotic.
+Sorry, the current interface is insufficient for NUMA *and* is
+impossible[1] for the user to use correctly.
 
-Besides, even that would be broken. You want bitmaps, because bitmaps is
-really what it is all about. It's NOT about "I must run on this CPU", it
-can equally well be "I mustn't run on those two CPU's that are hosting the
-RT part of this thing" or something like that.
-
-		Linus
-
+Rusty.
+[1] Defined as "too hard for them to ever do it properly"
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTJ3CKl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 21:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJ3CKl
+	id S262116AbTJ3C1G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 21:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJ3C1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 21:10:41 -0500
-Received: from mho.net ([64.58.22.195]:49383 "EHLO sm1420")
-	by vger.kernel.org with ESMTP id S262119AbTJ3CKj (ORCPT
+	Wed, 29 Oct 2003 21:27:06 -0500
+Received: from ozlabs.org ([203.10.76.45]:52715 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262116AbTJ3C1D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 21:10:39 -0500
-Date: Wed, 29 Oct 2003 19:09:09 -0700 (MST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-X-X-Sender: abelits@sm1420.belits.com
-To: Joseph Pingenot <trelane@digitasaru.net>
-cc: Dax Kelson <dax@gurulabs.com>, Hans Reiser <reiser@namesys.com>,
-       andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-In-Reply-To: <20031030002005.GC3094@digitasaru.net>
-Message-ID: <Pine.LNX.4.58.0310291848590.11170@sm1420.belits.com>
-References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org>
- <3FA0475E.2070907@namesys.com> <1067466349.3077.274.camel@mentor.gurulabs.com>
- <20031030002005.GC3094@digitasaru.net>
+	Wed, 29 Oct 2003 21:27:03 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16288.30574.745348.194005@cargo.ozlabs.ibm.com>
+Date: Thu, 30 Oct 2003 13:29:02 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Bug somewhere in crypto or ipsec stuff
+X-Mailer: VM 7.17 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Oct 2003, Joseph Pingenot wrote:
+I get this oops in strcmp, called from crypto_alg_lookup, when I run
+the "spi" command from a freeswan snapshot from 13 October this year.
+The kernel is 2.6.0-test9.
 
-> >> them.
-> >Except, they didn't release a beta.
-> >They released a developer preview (not even alpha), mostly to show off
-> >the APIs.
-> >AFAIK the developer preview has no WinFS bits in it at all.
->
-> Regardless, it's an interesting idea, and one which might be fruitful.
+Oops: kernel access of bad area, sig: 11 [#1]
+NIP: C001323C LR: C00CEE6C SP: CB8D1C60 REGS: cb8d1bb0 TRAP: 0301    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 00000000, DSISR: 40000000
+TASK = ca0c2320[934] 'spi' Last syscall: 4 
+GPR00: C02D5204 CB8D1C60 CA0C2320 00000063 FFFFFFFF C02D5284 CB472A38 00000003 
+GPR08: C03D0C84 C033BCBC 00000000 C00CF03C C03D0C84 
+Call trace:
+ [c00cf058] crypto_alloc_tfm+0x1c/0x104
+ [cd97fb34] ipcomp_init_state+0x90/0x118 [ipcomp]
+ [c0233a2c] pfkey_msg2xfrm_state+0x598/0x740
+ [c0233ed4] pfkey_add+0x2c/0x148
+ [c0235bb4] pfkey_process+0xb8/0xc0
+ [c0236ba0] pfkey_sendmsg+0x124/0x204
+ [c01c2018] sock_aio_write+0xe8/0x104
+ [c0054e6c] do_sync_write+0x74/0xb8
+ [c0054fc0] vfs_write+0x110/0x128
+ [c005508c] sys_write+0x40/0x74
+ [c0007a9c] ret_from_syscall+0x0/0x44
 
-  There is another possibility -- that the only implementation of the
-standardized indexable/searchable format that Microsoft wants to base this
-system on is a horrendous resource pig, infected with inflexible
-restrictions and requirements, that everything will have to follow, and
-will be unable to do any further progress in various directions where
-non-Microsoft software has advantage.
+The problem is basically that crypto_alg_lookup gets called with NULL
+for the `name' parameter.
 
-  What most of XML-based formats certainly are. If further development
-will blindly take this road, we will lose huge amount of flexibility in
-exchange for a certain Microsoft-compatible (for a while) system of
-organizing data. But, say, using grep on a text file will become
-impossible without making a XML-ified file, and XML-ified grep. Pipes and
-sockets will have to be redesigned, too, and many kinds of low-level
-functionality that Unixlike systems enjoyed thanks to unified file
-descriptors and nonintrusive way of OS handling the data will become
-cumbersome second-class citizens in a world where structured data files
-(VMS? Mainframes?) and strong file-type binding (MacOS? PalmOS?) are what
-the system is based on. Not to mention niceties like having to stuff the
-whole expat into the kernel, and enjoy memory bloat and various kinds of
-DoS based on that. It won't harm Microsoft a single bit -- it would be
-their wet dream to outlaw all file formats but MS Office, and make every
-program talk through the Office-based interface, but it will turn Linux
-(or any other system that follows this idea) into something else.
+The command that provokes the oops is:
 
-It may be a great idea to add additional interfaces that will provide
-a similar functionality through multiple userspace applications that will
-form another layer of data access. But those can't be just stuffed into
-kernel, or have one, set in stone format, imposed on files and queries. It
-may allow something compatible with Microsoft, but it certainly should not
-grant immortality to current incarnation of XML, SQL and derivatives of
-those. Linux's greatest strength is in providing good infrastructure, and
-just stuffing particular (bound to be bad) implementations of some ideas
-(that are not necessarily good beyond their basic core) into the system
-instead of providing sufficient infrastructure to provide those in various
-ways, makes it more like an ideologically-charged finished environment
-than an infrastructure for creating such environments. Microsoft always
-created narrowly-defined, bloated, followed-the-party-line environments
-that captured and confined the developers. There is no need to imitate
-that in a system that is known for being just the opposite.
+spi --af inet --said tun.1234@10.61.2.68 --ip4 --src 10.61.2.90 \
+    --dst 10.61.2.68
 
--- 
-Alex
+I was trying this because the freeswan web pages claim that they have
+some preliminary support for 2.6 in their user command set.  I was
+only half expecting the spi command to work, but it shouldn't have
+been able to cause an oops.
+
+Paul.

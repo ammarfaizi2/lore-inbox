@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279963AbRKMOjz>; Tue, 13 Nov 2001 09:39:55 -0500
+	id <S279717AbRKMOp4>; Tue, 13 Nov 2001 09:45:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279717AbRKMOjq>; Tue, 13 Nov 2001 09:39:46 -0500
-Received: from 107.ppp1-8.ski.worldonline.dk ([213.237.84.235]:60291 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S279963AbRKMOji>; Tue, 13 Nov 2001 09:39:38 -0500
-Date: Tue, 13 Nov 2001 15:39:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mark Peloquin <peloquin@us.ibm.com>
-Cc: Christoph Hellwig <hch@caldera.de>, dalecki@evision.ag,
-        linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: Re: Hardsector size support in 2.4 and 2.5
-Message-ID: <20011113153900.A17933@suse.de>
-In-Reply-To: <OF2769A354.FD887DD7-ON85256B03.004C650C@raleigh.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF2769A354.FD887DD7-ON85256B03.004C650C@raleigh.ibm.com>
+	id <S279728AbRKMOpq>; Tue, 13 Nov 2001 09:45:46 -0500
+Received: from sirppi.helsinki.fi ([128.214.205.27]:19724 "EHLO
+	sirppi.helsinki.fi") by vger.kernel.org with ESMTP
+	id <S279717AbRKMOph>; Tue, 13 Nov 2001 09:45:37 -0500
+Date: Tue, 13 Nov 2001 16:45:35 +0200 (EET)
+From: Robert A H Holmberg <rahholmb@cc.helsinki.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: Odd partition overlapping problem
+Message-ID: <Pine.OSF.4.30.0111131627170.14606-100000@sirppi.helsinki.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 13 2001, Mark Peloquin wrote:
-> On Tue, Nov 13 2001, Jens Axboe wrote:
-> > On Mon, Nov 12 2001, Christoph Hellwig wrote:
-> > > On Mon, Nov 12, 2001 at 02:05:19PM -0600, Mark Peloquin wrote:
-> > > > So any block device, can always expect to receive buffer heads
-> > > > whose b_rsector value represents the offset from the beginning
-> > > > of that device in 512 byte multiples? And this will continue
-> > > > to hold true in 2.5 as well?
-> > >
-> > > There is a good chance that no 2.5 block driver will ever see a
-> buffer_head,
-> > > take a look at
-> http://www.kernel.org/pub/linux/kernel/people/axboe/v2.5/ for
-> > > details.
-> 
-> > To expand on the specific point -- in 2.5, what will change is that
-> > b_rsector (or equiv field, bi_sector in bio) will be offset from the
-> > beginning of the disk, not the beginning of the partition. This moves
-> > toe partion remaps out of the driver itself.
-> 
-> This is an important difference, so I'd like to make sure I fully
-> understand the scope. Ok, so bi_sector for partitions will be
-> disk relative, not partition relative. I'll assume that bi_sector
+Hi,
+I have a dual-boot setup with win98 and linux. I primarily use linux, but
+I want to keep windows around for some inportant productivity
+applications, mostly games.  My partition table is as follows:
 
-Well, know you have b_rdev == MKDEV(3, 5) and b_rsector = 0 for the
-first sector of /dev/hda5 -- with the new remapped approach, this would
-be b_rdev = MKDEV(3, 0) b_rsector 123456 (imagined value, of course).
+<snip>
+[root@localhost documents]# fdisk /dev/hda
 
-> will be set inside of submit_bh. So top level block devices always
-> see something that is disk relative. Is this change ONLY for
-> partitions? And if not, how will this affect what top and
+The number of cylinders for this disk is set to 3736.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
 
-Inside generic_make_request currentl, so stacking works.
+Command (m for help): p
 
-> intermediate levels of stacked block devices receive for a
-> bi_sector value? If I had MD on LVM on partitions, what would
-> bi_sector value initially be relative to? The MD device, the
-> LVM device, or the disk underlying the partitions? It seems it
+Disk /dev/hda: 255 heads, 63 sectors, 3736 cylinders
+Units = cylinders of 16065 * 512 bytes
 
-Nothing changes for stacking. The only difference is that the remapping
-for partition offset is now done above the driver. Drivers can still
-remap b_rdev and b_rsector as they see fit.
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *         1       523   4200966    c  Win95 FAT32 (LBA)
+/dev/hda2           524       525     16065   83  Linux
+/dev/hda3           526      2647  17044965   83  Linux
+/dev/hda4          2648      3736   8747392+   5  Extended
+/dev/hda5          2648      2713    530113+  82  Linux swap
+/dev/hda6          2714      3736   8217216    c  Win95 FAT32 (LBA)
 
--- 
-Jens Axboe
+Command (m for help):
+</snip>
+
+/dev/hda3 is my linux root partition (hda2 is /boot)  and hda6 is D: in
+windows. Somehow, that I can't figure out hda3 overlaps hda6. I see this
+by writing some data to hda3, booting to windows and finding out that my
+D: is no longer considered "formatted". If I format D: and boot back to
+linux, some of my files that I just wrote are corrupted. Since fdisk shows
+no overlap and there is tha swap partition between these two partitions, I
+can't figure out how this happens (other than, that somewhere there is a
+bug and these two partitions DO overlap) and more importantly, for me, how
+to stop this from happening without reinstalling my whole system.
+
+My question is, can anyone here give me any ideas of how to debug this
+problem? I use Linux 2.4.14 and reiserfs on hda3. I partitioned the drive
+with linux fdisk, since I don't trust dos fdisk. My fdisk version is
+2.10s .
+
+Please cc to me, I'm not on the list,
+
+Robert Holmberg
 

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTLPUJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 15:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTLPUJt
+	id S262081AbTLPUhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 15:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTLPUhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 15:09:49 -0500
-Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:24079 "EHLO
-	centaur.culm.net") by vger.kernel.org with ESMTP id S261909AbTLPUJs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 15:09:48 -0500
-From: Witold Krecicki <adasi@kernel.pl>
-To: jw schultz <jw@pegasys.ws>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: raid0 slower than devices it is assembled of?
-Date: Tue, 16 Dec 2003 21:09:36 +0100
-User-Agent: KMail/1.5.93
-References: <200312151434.54886.adasi@kernel.pl> <20031216040156.GJ12726@pegasys.ws>
-In-Reply-To: <20031216040156.GJ12726@pegasys.ws>
-MIME-Version: 1.0
+	Tue, 16 Dec 2003 15:37:16 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:38864 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S262081AbTLPUhP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 15:37:15 -0500
+Date: Tue, 16 Dec 2003 12:37:09 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Jean-Luc Fontaine <jfontain@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/partitions statistics question
+Message-ID: <20031216203709.GB1402@matchmail.com>
+Mail-Followup-To: Jean-Luc Fontaine <jfontain@free.fr>,
+	linux-kernel@vger.kernel.org
+References: <3FDF5E6A.7010201@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200312162109.36672.adasi@kernel.pl>
+In-Reply-To: <3FDF5E6A.7010201@free.fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Tuesday 16 of December 2003 05:01, jw schultz napisa³:
-> No Linux [R]AID improves sequential performance.  How would
-> reading 65KB from two disks in alternation be faster than
-> reading continuously from one disk?
-Well, but at the beginning I've got about 85-90MB/sec for buffered array 
-reads. That was on 2.4.21-pre or even patched 2.4.20 (on siimage - in it's 
-early stages, not sata_sil driver). Now it's 3 times slower (checkedwith 
-preemptible kernel, it's even slower) - so something went bad.
--- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+On Tue, Dec 16, 2003 at 08:35:06PM +0100, Jean-Luc Fontaine wrote:
+> (24566 - 7925) = 16641 were written, whereas
+> (23567 - 7152) = 16415 were read
+> I would have expected something near 1048576 (kilobytes),
+> but the results seem to be roughly 64 times less...
+> 
+> I would really appreciate an explanation, as I use those statistics
+> in a monitoring program and for filesystems performance tests.
+> 
+> Many thanks for your help!
+> 
+
+check out the man page for iostat in the sar/sysstat package.  It documents
+what is happening here.   This is in blocks, and there is merging to
+consider and etc...
+
+> -- 
+> Jean-Luc Fontaine  mailto:jfontain@free.fr  http://jfontain.free.fr/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

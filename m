@@ -1,96 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbUBRC7J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 21:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUBRC7J
+	id S262048AbUBRDDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUBRDDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 21:59:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39890 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261967AbUBRC7D (ORCPT
+	Tue, 17 Feb 2004 22:03:15 -0500
+Received: from dp.samba.org ([66.70.73.150]:7328 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262048AbUBRDCv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 21:59:03 -0500
-Date: Tue, 17 Feb 2004 18:58:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Adrian Bunk <bunk@fs.tum.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, GCS <gcs@lsc.hu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, vandrove@vc.cvut.cz
-Subject: Re: Linux 2.6.3-rc4
-In-Reply-To: <Pine.LNX.4.58.0402180337100.7851@serv>
-Message-ID: <Pine.LNX.4.58.0402171856410.2686@home.osdl.org>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
- <20040217184543.GA18495@lsc.hu> <Pine.LNX.4.58.0402171107040.2154@home.osdl.org>
- <20040217200545.GP1308@fs.tum.de> <Pine.LNX.4.58.0402171214230.2154@home.osdl.org>
- <20040217225905.GQ1308@fs.tum.de> <Pine.LNX.4.58.0402180337100.7851@serv>
+	Tue, 17 Feb 2004 22:02:51 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16434.54737.59564.622998@samba.org>
+Date: Wed, 18 Feb 2004 14:02:41 +1100
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <200402172327.08962.robin.rosenberg.lists@dewire.com>
+References: <16433.38038.881005.468116@samba.org>
+	<200402172208.25398.robin.rosenberg.lists@dewire.com>
+	<Pine.LNX.4.58.0402171314320.2154@home.osdl.org>
+	<200402172327.08962.robin.rosenberg.lists@dewire.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robin,
 
+ > Having to put up with the existence of Windows day in and out is
+ > the reason I'm still on an eight-bit encoding.  Sorry for not
+ > explaining the REAL problem, but only a partial problem. I need to
+ > support all kinds of clients on Windows with protocols that convey
+ > no character set info. With samba that's no problem. Having to put
+ > up with a Unix world running ISO-8859-1 (or ISO-8859-15) is
+ > another. Ofcourse that means Linux machines also add to the
+ > disturbance by not storing things as unicode. The real obstable is
+ > file names, everything else including content of files, I can
+ > handle (I think). Maybe I'll find a solution for the filenames too,
+ > but usually some hot discussions are needed for the brain to kick
+ > into the right gear.
 
-On Wed, 18 Feb 2004, Roman Zippel wrote:
-> 
-> Linus, I think that's the best solution for now. I have to think a bit
-> more about the problem, how a boolean symbol should select a tristate
-> symbol.
+I suspect you are running Samba 2.x, which negotiated all that
+multi-byte stuff on the wire. Samba 3.x does the same as windows
+servers have done for years and negotiates UCS-2, which means that
+every windows box that connects to it no matter what locale it is in
+uses the same charset encoding as every other windows box.
 
-Hmm.. I already rewrote it the way you suggested earlier, ie like the 
-appended. A quick (but ny no means exhaustive) test implied that 
-this works fine too.
+There are still some legacy interfaces on the wire that use the old
+encodings, but they are rare and getting rarer. To support these,
+Samba3 juggles 4 character set encodings internally:
 
-		Linus
+  * the unix-charset, which it uses to talk to the OS, and defaults to
+    UTF-8
 
-----
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1646  -> 1.1647 
-#	drivers/video/Kconfig	1.38    -> 1.39   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/02/17	torvalds@home.osdl.org	1.1647
-# Fix the dependency chain for I2C_ALGOBIT from the FB
-# drivers that need it. 
-# 
-# This allows us to have I2C as a module iff the FB driver
-# that needs it is a module.
-# --------------------------------------------
-#
-diff -Nru a/drivers/video/Kconfig b/drivers/video/Kconfig
---- a/drivers/video/Kconfig	Tue Feb 17 18:57:36 2004
-+++ b/drivers/video/Kconfig	Tue Feb 17 18:57:36 2004
-@@ -462,6 +462,7 @@
- config FB_MATROX
- 	tristate "Matrox acceleration"
- 	depends on FB && PCI
-+	select I2C_ALGOBIT if FB_MATROX_I2C
- 	---help---
- 	  Say Y here if you have a Matrox Millennium, Matrox Millennium II,
- 	  Matrox Mystique, Matrox Mystique 220, Matrox Productiva G100, Matrox
-@@ -549,7 +550,6 @@
- config FB_MATROX_I2C
- 	tristate "Matrox I2C support"
- 	depends on FB_MATROX && I2C
--	select I2C_ALGOBIT
- 	---help---
- 	  This drivers creates I2C buses which are needed for accessing the
- 	  DDC (I2C) bus present on all Matroxes, an I2C bus which
-@@ -627,6 +627,7 @@
- config FB_RADEON
- 	tristate "ATI Radeon display support"
- 	depends on FB && PCI
-+	select I2C_ALGOBIT if FB_RADEON_I2C
- 	help
- 	  Choose this option if you want to use an ATI Radeon graphics card as
- 	  a framebuffer device.  There are both PCI and AGP versions.  You
-@@ -645,7 +646,6 @@
- config FB_RADEON_I2C
- 	bool "DDC/I2C for ATI Radeon support"
- 	depends on FB_RADEON && I2C
--	select I2C_ALGOBIT
- 	default y
- 	help
- 	  Say Y here if you want DDC/I2C support for your Radeon board. 
+  * the windows wire charset, which is always UCS-2
+
+  * the dos-charset for legacy parts of the protocol, which you have
+    to configure in the samba config if you care about these legacy
+    parts of the protocol (for example if you have older apps). It
+    defaults to either CP850 or ASCII depending on what autoconf
+    discovers. 
+
+  * the display-charset which is used to put stuff on an admins
+    terminal for utilities like smbclient. The default depends on your
+    LOCALE setting, or if nothing is set it uses ASCII.
+
+Internally Samba3 only ever stores stuff in the "unix-charset"
+encoding, which is usually UTF-8. It converts to the others as needed
+when talking on the wire or to terminals.
+
+ > I want to switch to UTF-8 to work better with the outside world,
+ > but as things are people will start to take notice of what OS is
+ > running in the shadows when they see the filename problems, and
+ > start demanding Windows, and ...  You see; I'm not mean; I don't
+ > want to do that to them (or myself),
+
+If you use Samba3 then they will not notice what charset you are using
+on your Linux filesystems. The windows clients will just see UCS-2.
+
+Cheers, Tridge

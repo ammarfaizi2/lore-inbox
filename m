@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283718AbRLTK1v>; Thu, 20 Dec 2001 05:27:51 -0500
+	id <S284009AbRLTKed>; Thu, 20 Dec 2001 05:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284009AbRLTK1l>; Thu, 20 Dec 2001 05:27:41 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:29365 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S283718AbRLTK13>; Thu, 20 Dec 2001 05:27:29 -0500
-Date: Thu, 20 Dec 2001 11:27:28 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: kuznet@ms2.inr.ac.ru
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [BUG/WANT TO FIX] Equal Cost Multipath Broken in 2.4.x
-Message-ID: <20011220112728.A11112@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, kuznet@ms2.inr.ac.ru,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S284037AbRLTKeY>; Thu, 20 Dec 2001 05:34:24 -0500
+Received: from p0029.as-l043.contactel.cz ([194.108.242.29]:1284 "EHLO devix")
+	by vger.kernel.org with ESMTP id <S284009AbRLTKeN>;
+	Thu, 20 Dec 2001 05:34:13 -0500
+Date: Thu, 20 Dec 2001 11:30:21 +0100 (CET)
+From: devik <devik@cdi.cz>
+X-X-Sender: <devik@devix>
+To: Robert Love <rml@tech9.net>
+cc: Chris Meadors <clubneon@hereintown.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 3.0.2/kernel details (-O issue)
+In-Reply-To: <1008792213.806.36.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0112201115030.626-100000@devix>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- # ip ro add dev eth0 default nexthop via 10.0.0.1 dev eth0 nexthop via
-   10.0.0.202 dev eth0
- # ip ro ls
- 10.0.0.0/8 dev eth0  proto kernel  scope link  src 10.0.0.11 
- default 
- 	nexthop via 10.0.0.1  dev eth0 weight 1 dead
- 	nexthop via 10.0.0.202  dev eth0 weight 1
+> Well, you certainly won't get errors, because compiler optimizations
+> shouldn't change expected syntax.
 
-10.0.0.1 however is far from dead, if we add yet another nexthop:
+not always true, inb() doesn't compile without -O for example.
 
- # ip ro add dev eth0 default nexthop via 10.10.10.10 dev eth0 nexthop via
-   10.0.0.1 dev eth0 nexthop via 10.0.0.202 dev eth0
+> -O2 is the standard optimization level for the kernel; everything is
+> compiled via it.  When developers test their code, nuances that the
+> optimization introduce are accepted.  Removing the optimization may
+> break those expectations.  Thus the kernel requires it.
 
- # ip ro ls
- 10.0.0.0/8 dev eth0  proto kernel  scope link  src 10.0.0.11 
- default 
- 	nexthop via 10.10.10.10  dev eth0 weight 1 dead
- 	nexthop via 10.0.0.1  dev eth0 weight 1
- 	nexthop via 10.0.0.202  dev eth0 weight 1
+I'm quite comfortable with the requirement, only I can't imagine
+code which depends on -O and -O2 difference. Inline assembly is
+handled by compiler so it should not break things ..
+Maybe externaly linked assembly code ? But optimization level should
+not change register usage in calling convention ..
+Please can you give me example which kind of code breaks those
+expectations ?
 
-This first nexthop is *always* declared dead. Linux 2.4.x, iproute 20010824.
+Thanks, Martin
 
-If anybody can point me in the direction of this problem, it must be known
-as it has been there for a *long* time, it would be appreciated. I'll try to
-fix it.
-
-Thanks!
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267408AbSLLDf4>; Wed, 11 Dec 2002 22:35:56 -0500
+	id <S267407AbSLLDdK>; Wed, 11 Dec 2002 22:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267409AbSLLDf4>; Wed, 11 Dec 2002 22:35:56 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:49682 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S267408AbSLLDfz>;
-	Wed, 11 Dec 2002 22:35:55 -0500
-Date: Wed, 11 Dec 2002 22:43:38 -0500 (EST)
-Message-Id: <200212120343.gBC3hcO11146@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Changes doc update.
+	id <S267408AbSLLDdK>; Wed, 11 Dec 2002 22:33:10 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:20441 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S267407AbSLLDdJ>; Wed, 11 Dec 2002 22:33:09 -0500
+Message-ID: <000c01c2a190$1f3d5170$0200a8c0@cirilium.com>
+From: "Mark Hamblin" <MarkHamblin@cox.net>
+To: <root@chaos.analogic.com>, "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1021211214435.28053A-100000@chaos.analogic.com>
+Subject: Re: Is this going to be true ?
+Date: Wed, 11 Dec 2002 20:39:44 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Grow up and stop spreading FUD. I haven't had to reinstall a Windows
+> > 2000 server ever since it was released (not that there were many that
+> > I ever used. But I actually did and deployed apps on them). 95, 98 and
+> > ME maybe. NT4 almost never and W2K is a quite stable platform even
+> > under load.
 
-Dave Jones writes:
+> I  wish to hell it was FUD. I have watched all the Sun Workstations
+> at work be replaced with Windows/2000/Professional PCs. I have watched
+> all the 'nix programmers leave, replaced by Internet junkies who
+> don't (can't) write any code. In spite of the fact that don't actually
+> use their machines for any work, about 10 percent out of 600++ are
+> down at any one moment, most always to "reload Windows".
 
-> - Alternatively, the procps by Albert Cahalan now supports the
->   altered formats since v3.0.5, but lags behind the bleeding edge
->   version maintained by Rik and Robert. -- http://procps.sf.net/
+Clearly the truth is somewhere between your two viewpoints, but one thing is
+for sure:  The Linux kernel is hands down the better product.  There are
+still a few exceptions to this rule, but those are disappearing rapidly
+(epoll cures the last one that gives me heartburn).
 
-Currently I'd say it's mostly the other way around.
-
-Differences between procps-2.1.11 and procps-3.1.2 that relate
-to Linux 2.5.xx support are:
-
-1. Robert has /proc/*/wchan support (for WCHAN w/o System.map)
-2. My vmstat has a fast O(1) algorithm for 2.5.xx kernels
-3. My vmstat reports IO-wait time
-4. My sysctl handles the 2.5.xx VLAN interfaces
-
-So that's 1-to-3 in my favor, based strictly on support of the
-2.5.xx kernels. I find this odd actually, seeing as the procps-2
-developers made #2 and #3 possible. The only time I fell behind
-was when Rik patched procps _before_ Linus accepted a change.
-
+Now, if only the application designers could match what Windows applications
+designers have accomplished.  I think the first step would to torpedo
+X-Windows :) ...But that's a topic for some other mailing list.
 
 

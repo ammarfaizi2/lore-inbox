@@ -1,140 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUDIWR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 18:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUDIWR0
+	id S261942AbUDIWUq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 18:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbUDIWUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 18:17:26 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:12228 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261744AbUDIWRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 18:17:21 -0400
-Date: Fri, 09 Apr 2004 14:40:42 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-Message-ID: <1260000.1081546841@[10.10.2.4]>
-In-Reply-To: <Pine.GSO.4.58.0404091722580.1898@eecs2340u12.engin.umich.edu>
-References: <Pine.LNX.4.44.0404041330580.21790-100000@localhost.localdomain><1524892704.1081543162@[10.10.2.4]> <Pine.GSO.4.58.0404091722580.1898@eecs2340u12.engin.umich.edu>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 9 Apr 2004 18:20:46 -0400
+Received: from opersys.com ([64.40.108.71]:14093 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261942AbUDIWUk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 18:20:40 -0400
+Message-ID: <40772318.8090901@opersys.com>
+Date: Fri, 09 Apr 2004 18:26:32 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Announce RTAI 3.1-test1 (RTAI for Linux 2.6)]
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does SDET use mremap a lot ? Hugh added i_shared_sem in mremap -> move_vma
-> -> move_page_tables path to avoid orphaned ptes due to mremap vs. truncate
-> race. That may be the reason for the slowdown, I am not sure.
 
-I don't think so .... I presume you're just holding the sem for longer
-during normal operations due to the more complex data structure.
-This was just with vs without the prio tree patch, so Hughs's changes
-were in both sets ...
+For those who are interested:
 
-M.
+-------- Original Message --------
+From: Paolo Mantegazza <mantegazza@aero.polimi.it>
+Subject: Announce RTAI 3.1-test1 (RTAI for Linux 2.6)
+Date: Fri, 09 Apr 2004 19:56:09 -0700
 
-> Rajesh
-> 
-> On Fri, 9 Apr 2004, Martin J. Bligh wrote:
-> 
->> > This anobjrmap 9 (or anon_mm9) patch adds Rajesh's radix priority search
->> > tree on top of Martin's 2.6.5-rc3-mjb2 tree, making a priority mjb tree!
->> > Approximately equivalent to Andrea's 2.6.5-aa1, but using anonmm instead
->> > of anon_vma, and of course each tree has its own additional features.
->> 
->> This slows down kernel compile a little, but worse, it slows down SDET
->> by about 25% (on the 16x). I think you did something horrible to sem
->> contention ... presumably i_shared_sem, which SDET was fighting with
->> as it was anyway ;-(
->> 
->> Diffprofile shows:
->> 
->> 
->>     122626    15.7% total
->>      44129   790.0% __down
->>      20988     4.1% default_idle
->>      12101   550.3% __wake_up
->>      11723   489.1% finish_task_switch
->>       6988    77.4% do_wp_page
->>       3983    21.7% copy_page_range
->>       2683    19.2% zap_pte_range
->>       2325    54.3% do_anonymous_page
->>       2293    73.1% copy_mm
->>       1787    68.3% remove_shared_vm_struct
->>       1768   101.6% pte_alloc_one
->>       1564    40.0% do_no_page
->>       1520    50.8% do_page_fault
->>       1376    39.2% clear_page_tables
->>       1282    63.4% __copy_user_intel
->>        926     9.4% page_remove_rmap
->>        878    13.1% __copy_to_user_ll
->>        835    46.8% __block_prepare_write
->>        788    35.8% copy_process
->>        777     0.0% __vma_prio_tree_remove
->>        761    48.8% buffered_rmqueue
->>        740    48.6% free_hot_cold_page
->>        674   128.4% vma_link
->>        641     0.0% __vma_prio_tree_insert
->>        612   941.5% sched_clock
->>        585     0.0% prio_tree_insert
->>        563    60.4% exit_notify
->>        547   225.1% split_vma
->>        539     6.4% release_pages
->>        534   464.3% schedule
->>        495    32.0% release_task
->>        422   148.1% flush_signal_handlers
->>        421    66.6% find_vma
->>        420    79.5% set_page_dirty
->>        409    60.1% fput
->>        359    44.5% __copy_from_user_ll
->>        319    47.6% do_mmap_pgoff
->>        290   254.4% find_vma_prepare
->>        270   167.7% rb_insert_color
->>        254    61.7% pte_alloc_map
->>        251    91.3% exit_mmap
->>        229    23.2% __read_lock_failed
->>        228     9.9% filemap_nopage
->> ...
->>       -100   -29.3% group_reserve_blocks
->>       -107   -53.5% .text.lock.namespace
->>       -107   -18.4% render_sigset_t
->>       -126   -18.7% mmgrab
->>       -146   -10.9% generic_file_open
->>       -166    -9.5% ext2_new_inode
->>       -166   -38.1% d_path
->>       -166   -20.1% __find_get_block_slow
->>       -173   -20.7% proc_pid_status
->>       -182   -19.3% update_atime
->>       -185   -25.8% fd_install
->>       -202   -13.8% .text.lock.highmem
->>       -221   -14.5% __fput
->>       -225   -14.3% number
->>       -257   -14.2% proc_pid_stat
->>       -284   -21.6% file_kill
->>       -290   -35.3% proc_root_link
->>       -300   -36.5% ext2_new_block
->>       -349   -61.7% .text.lock.base
->>       -382   -48.0% proc_check_root
->>       -412   -19.4% path_release
->>       -454   -20.0% file_move
->>       -462   -32.2% lookup_mnt
->>       -515    -4.5% find_get_page
->>       -547   -34.5% .text.lock.dcache
->>       -689   -31.2% follow_mount
->>       -940   -33.8% .text.lock.dec_and_lock
->>      -1043   -51.6% .text.lock.file_table
->>      -1115    -9.9% __d_lookup
->>      -1226   -20.1% path_lookup
->>      -1305   -61.5% grab_block
->>      -2101   -29.8% atomic_dec_and_lock
->>      -2554   -40.3% .text.lock.filemap
->> 
->> 
-> 
-> 
+Ciao,
 
+Philippe did it, likely the first real time Linux-2.6.
+
+So at the RTAI home site: http://www.aero.polimi.it/~rtai/, you'll find
+rtai-3.1-test1 for both Linux 2.4.xx and 2.6.x.
+
+ From the content point of view it is what you'll find in 3.0r3, with
+some glitches discovered in between ironed off. There is a very
+important and significant change however: the death of the RTHAL way of
+working for ix86 machines. That alone sets a milestone in RTAI life.
+So RTAI i386 will work just on ADEOS and nothing else.
+
+It should be remarked once more that RTAI is 4 things now (in
+alphbetical order): FUSION/RTAI/RTAILab/XENOMAI.
+
+A particular note should be reserved to FUSION and I hope that Philippe
+will find time to advertise it a bit more in the near future. With
+FUSION RTAI has an almost continuous grading of real time requirements:
+soft (standard Linux), firm (Linux low latency), hard-1 FUSION, hard-2
+LXRT, hard-3 kernel. In my opinion it is likely that a well matured
+FUSION will become a key player for many users.
+
+BTW, do not activate the low latency option in Linux 2.6 for a while
+more. It is also likely you'll have problems with SMP. After all it is
+test1 only :-).
+
+At the moment the known problems with this new RTAI are mine. In fact
+I've not made  netrpc working yet. For the rest most user space examples
+in showroom seems to be OK under UP, but examples involving kernel
+modules do not even compile. The core RTAI testsuite works well however
+in both kernel and user space.
+
+So give a try, have fun and help to make it better.
+
+Happy Easter.
+
+Paolo.
 

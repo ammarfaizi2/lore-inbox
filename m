@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261913AbRETNRj>; Sun, 20 May 2001 09:17:39 -0400
+	id <S261886AbRETNfw>; Sun, 20 May 2001 09:35:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261886AbRETNR3>; Sun, 20 May 2001 09:17:29 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:16395 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261877AbRETNRZ>; Sun, 20 May 2001 09:17:25 -0400
-Date: 20 May 2001 11:53:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <81Cnv5o1w-B@khms.westfalen.de>
-In-Reply-To: <20010519214321.A9550@atrey.karlin.mff.cuni.cz>
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device Num
-X-Mailer: CrossPoint v3.12d.kh6 R/C435
+	id <S261918AbRETNfm>; Sun, 20 May 2001 09:35:42 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:50441 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S261886AbRETNfd>; Sun, 20 May 2001 09:35:33 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200105201335.PAA03927@green.mif.pg.gda.pl>
+Subject: Re: [PATCH] 2.4.4-ac11 network drivers cleaning
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sun, 20 May 2001 15:35:35 +0200 (CEST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <12098.990324222@ocs3.ocs-net> from "Keith Owens" at May 20, 2001 12:03:42 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.21.0105191231020.14472-100000@penguin.transmeta.com> <torvalds@transmeta.com> <20010519211717.A7961@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0105191231020.14472-100000@penguin.transmeta.com> <20010519214321.A9550@atrey.karlin.mf
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pavel@suse.cz (Pavel Machek)  wrote on 19.05.01 in <20010519214321.A9550@atrey.karlin.mff.cuni.cz>:
+> 
+> On Sat, 19 May 2001 17:58:49 -0400, 
+> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> >Finally, I don't know if I mentioned this earlier, but to be complete
+> >and optimal, version strings should be a single variable 'version', such
+> >that it can be passed directly to printk like
+> >
+> >	printk(version);
+> 
+> Nit pick.  That has random side effects if version contains any '%'
+> characters.  Make it
 
-> I think that plan9 uses something different -- they have ttyS0 and
-> ttyS0ctl. This would leave us with problem "how do I get handle to
-> ttyS0ctl when I only have handle to ttyS0"?
+It should not. I see no reason for a literal % in the version string.
 
-I've seen this question several times in this thread. I haven't seen the  
-obvious answer, though.
+> 
+> 	printk("%s\n", version);
+> 
+> Not quite as optimal but safer.
 
-Have a new system call:
+It is simpler to remove the %s from version. I don't think any of them
+require it. If one add a % he should know what he is doing.
 
-ctlfd = open_device_control_fd(fd);
-
-If fd is something that doesn't have a control interface (say, it already  
-is a control filehandle), this returns an appropriate error code.
-
-This has another benefit, in that you can get control descriptors for  
-stuff that doesn't currently have a filename (but does have ioctls), such  
-as network sockets.
-
-MfG Kai
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  tel.  (0-58) 347 14 61
+Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej

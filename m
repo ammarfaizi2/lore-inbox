@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263413AbUEXHOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264026AbUEXHPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263413AbUEXHOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUEXHOO
+	id S264026AbUEXHPl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUEXHOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 24 May 2004 03:14:25 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:47225 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264026AbUEXHOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 24 May 2004 03:14:14 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50847 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263413AbUEXHNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:13:50 -0400
-Date: Mon, 24 May 2004 11:15:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: scheduler: IRQs disabled over context switches
-Message-ID: <20040524091504.GC26183@elte.hu>
-References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu> <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com> <20040524090538.GA26183@elte.hu> <40B19FF8.2050402@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B19FF8.2050402@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-ID: <40B1A0C2.60207@yahoo.com.au>
+Date: Mon, 24 May 2004 17:14:10 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Con Kolivas <kernel@kolivas.org>, Billy Biggs <vektor@dumbterm.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tvtime and the Linux 2.6 scheduler
+References: <20040523154859.GC22399@dumbterm.net> <200405240254.20171.kernel@kolivas.org> <20040524084334.GB24967@elte.hu> <40B19D15.1090105@yahoo.com.au> <20040524091243.GB26183@elte.hu>
+In-Reply-To: <20040524091243.GB26183@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> >+# define prepare_arch_switch(rq, next)				\
-> >+		do {						\
-> >+			spin_lock(&(next)->switch_lock);	\
-> >+			spin_unlock(&(rq)->lock);		\
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> spin_unlock_irq?
+> 
+>>Just one other thing - realtime scheduling was basically broken up
+>>until around 2.6.5. Before starting any tests, please ensure first
+>>that you are using at least the 2.6.5 kernel. Thanks.
+> 
+> 
+> you mean the spurious 'queue to end of prio-queue' bug noticed by Joe
+> Korty?
 
-and spin_unlock in the finish_arch_switch() case, instead of
-spin_unlock_irq. New patch below.
+Yes I did mean that one.
 
-	Ingo
+  tvtime should not be affected by this one. This bug only hits if
+> there are multiple SCHED_FIFO tasks on the same priority level - tvtime
+> is a single-process application.
+> 
 
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -247,9 +247,15 @@ static DEFINE_PER_CPU(struct runqueue, r
-  * Default context-switch locking:
-  */
- #ifndef prepare_arch_switch
--# define prepare_arch_switch(rq, next)	do { } while (0)
--# define finish_arch_switch(rq, next)	spin_unlock_irq(&(rq)->lock)
--# define task_running(rq, p)		((rq)->curr == (p))
-+# define prepare_arch_switch(rq, next)				\
-+		do {						\
-+			spin_lock(&(next)->switch_lock);	\
-+			spin_unlock_irq(&(rq)->lock);		\
-+		} while (0)
-+# define finish_arch_switch(rq, prev) \
-+		spin_unlock(&(prev)->switch_lock)
-+# define task_running(rq, p) \
-+		((rq)->curr == (p) || spin_is_locked(&(p)->switch_lock))
- #endif
- 
- /*
+Yes I see.

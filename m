@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264013AbTJOSzg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTJOSyq
+	id S264056AbTJOS5M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTJOSzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:54:46 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:6855 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S264056AbTJOSxb
+	Wed, 15 Oct 2003 14:55:44 -0400
+Received: from mail.midmaine.com ([66.252.32.202]:48057 "HELO
+	mail.midmaine.com") by vger.kernel.org with SMTP id S264056AbTJOSys
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:53:31 -0400
-From: root@mauve.demon.co.uk
-Message-Id: <200310151854.TAA09370@mauve.demon.co.uk>
+	Wed, 15 Oct 2003 14:54:48 -0400
+To: josh@temp123.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Transparent compression in the FS
-To: Nikita@Namesys.COM (Nikita Danilov)
-Date: Wed, 15 Oct 2003 19:54:22 +0100 (BST)
-Cc: erik@harddisk-recovery.com (Erik Mouw), josh@temp123.org (Josh Litherland),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <16269.23199.833564.163986@laputa.namesys.com> from "Nikita Danilov" at Oct 15, 2003 06:33:03 PM
-X-Mailer: ELM [version 2.5 PL1]
+X-Eric-Conspiracy: There Is No Conspiracy
+References: <1066163449.4286.4.camel@Borogove>
+	<20031015133305.GF24799@bitwizard.nl>
+	<16269.20654.201680.390284@laputa.namesys.com>
+	<20031015142738.GG24799@bitwizard.nl>
+	<16269.23199.833564.163986@laputa.namesys.com>
+	<20031015160430.GH24799@bitwizard.nl> <1066238667.836.4.camel@Borogove>
+From: Erik Bourget <erik@midmaine.com>
+Date: Wed, 15 Oct 2003 14:53:35 -0400
+In-Reply-To: <1066238667.836.4.camel@Borogove> (Josh Litherland's message of
+ "Wed, 15 Oct 2003 13:24:27 -0400")
+Message-ID: <87u16a5o40.fsf@loki.odinnet>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Erik Mouw writes:
->  > On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
->  > > Erik Mouw writes:
->  > >  > Nowadays disks are so incredibly cheap, that transparent compression
->  > >  > support is not realy worth it anymore (IMHO).
-<snip>
->  > You have a point, but remember that modern IDE drives can do about
->  > 50MB/s from medium. I don't think you'll find a CPU that is able to
->  > handle transparent decompression on the fly at 50MB/s, even not with a
->  > simple compression scheme as used in NTFS (see the NTFS docs on
->  > SourceForge for details).
+Josh Litherland <josh@temp123.org> writes:
 
-I haven't got the original message (mail problems) so I'm responding here.
+> On Wed, 2003-10-15 at 12:04, Erik Mouw wrote:
+>
+>> FYI: you hardly see compressed files on NTFS. If you do, it's either
+>> because the user thought it was a fun feature
+>
+> -shrug-  The windows disk cleanup tool does this by default now if you
+> let it.  It compresses files that have an old access time.  Not a bad
+> idea imo, if perhaps one of limited usefulness.
 
-I misread your message, and thought you said compression.
-My Duron 1300 (hardly the fastest machine) compresses (gzip -1) at around
-40Mb/sec (repetitive log-files that compress to 5% using gzip -1) and 
-10Mb/sec on text (compressing to 40%).
+What happens when you go through and do a folder-open on that old directory of
+pictures that you had, which re-reads them to generate thumbnails?  Do they
+have to be uncompressed-on-disk to be read?  Will they stay compressed
+forever, or be decompressed automatically on access?
 
-On expansion, it decompresses compressed text at around 14Mb/sec (resulting
-in 30Mb/sec, around my disk speed), and logfiles at 110Mb/sec, which is 
-significantly faster.
+- Erik Bourget
 
-This is with a single stick of PC133 RAM, and a tiny 64K cache.
-I would be very surprised if even a high end consumer machine couldn't handle
-50Mb/sec.

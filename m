@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272335AbTG3Xc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 19:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272339AbTG3Xc4
+	id S272308AbTG3Xq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 19:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272319AbTG3Xq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 19:32:56 -0400
-Received: from waste.org ([209.173.204.2]:46250 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272335AbTG3Xbo (ORCPT
+	Wed, 30 Jul 2003 19:46:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28876 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272308AbTG3XqZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 19:31:44 -0400
-Date: Wed, 30 Jul 2003 18:31:29 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alan Cox <alan@redhat.com>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Warn about taskfile?
-Message-ID: <20030730233129.GL6049@waste.org>
-References: <20030730205935.GA238@elf.ucw.cz> <200307302111.h6ULBci06803@devserv.devel.redhat.com>
+	Wed, 30 Jul 2003 19:46:25 -0400
+Date: Wed, 30 Jul 2003 16:42:52 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC+PATCH] calling request_irq() with lock held (+sungem fix)
+Message-Id: <20030730164252.300d272a.davem@redhat.com>
+In-Reply-To: <1059586244.2420.41.camel@gaston>
+References: <1059586244.2420.41.camel@gaston>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307302111.h6ULBci06803@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 05:11:38PM -0400, Alan Cox wrote:
-> > I had some strange fs corruption, and andi suggested that it probably
-> > is TASKFILE-related. Perhaps this is good idea?
-> 
-> Well without taskfile multimode may corrupt your disks, so pick one.
-> This needs debugging not paranoia.
-> 
-> > +	  It is safe to say Y to this question, but you should attach
-> > +	  scratch monkey, first.
-> 
-> "a scratch monkey" - also a lot of people won't get the reference
+On 30 Jul 2003 13:30:44 -0400
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-And some that do might not appreciate it.
- 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+> i386 was sort-fixed by using GFP_ATOMIC in the kmalloc() done inside
+> request_irq() itself, but what about all of the proc related stuff
+> that gets done when setup_irq() calls register_irq_proc() ? So the
+> _fact_ is that the current implementations in archs, including i386,
+> are unsafe to call from "atomic" context.
+
+That's true.
+
+> David: this patch fixes sungem for that.
+
+Ok, I'll review this and probably apply it, thanks.

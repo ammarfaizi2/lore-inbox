@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263954AbTIIF4U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 01:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbTIIF4U
+	id S263962AbTIIGET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 02:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTIIGET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 01:56:20 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:4110
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S263954AbTIIF4T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 01:56:19 -0400
-Subject: Re: [PATCH] use group_leader->pgrp (was Re: setpgid and threads)
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, mingo@redhat.com,
-       Roland McGrath <roland@redhat.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030908211746.25fff0f1.akpm@osdl.org>
-References: <1061424262.24785.29.camel@localhost.localdomain>
-	 <20030820194940.6b949d9d.akpm@osdl.org>
-	 <1063072786.4004.11.camel@localhost.localdomain>
-	 <20030908191215.22f501a2.akpm@osdl.org>
-	 <1063073637.4004.14.camel@localhost.localdomain>
-	 <20030908202147.3cba2ecd.akpm@osdl.org> <3F5D4EFA.30102@redhat.com>
-	 <20030908211746.25fff0f1.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1063086977.12268.17.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 08 Sep 2003 22:56:17 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 02:04:19 -0400
+Received: from [218.17.205.5] ([218.17.205.5]:31012 "ehlo sina.com")
+	by vger.kernel.org with ESMTP id S263962AbTIIGER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 02:04:17 -0400
+From: "HY Tech" <hongkonghy@sina.com>
+Subject: New price list for mp3 player, digital camera, cd/vcd/mp3 player and
+ USB flash drive!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hongkonghy@sina.com
+Date: Tue, 9 Sep 2003 14:04:12 +0800
+X-Priority: 2
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <S263962AbTIIGER/20030909060417Z+3171@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-08 at 21:17, Andrew Morton wrote:
-> All other instances of foo->pgrp have been converted to process_group(foo),
-> which is foo->group_leader->__pgrp.
-> 
-> Should setpgrp() in a thread affect the group leader?   It does...
+Dear valued customer,
 
-Eh?  sys_setpgid() fails with EINVAL if another thread tries to change
-the process group.  Oh, I see.  setpgrp() is a wrapper which passes
-pid=0 to setpgid; sys_setpgid uses current->pid rather than
-current->tgid, so it always uses the thread group leader's ID.  Looks OK
-to me.
+Sorry to disturb you about this letter.
 
-	J
+We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB 
+flash drive in Shenzhen, China.
 
+Please see the price of some products:
+mp3 player with digital recorder and USB flash drive
+64M 39USD      128M   52USD
+
+cd/vcd/mp3 player (3 function in 1)
+21.5USD
+
+digital camera
+300K pixels  15.5USD      1.3M pixels    24USD
+
+PC camera
+13USD 350K pixel
+
+USB flash drive
+64M  17.9USD       128M  29.9USD      256M  54.9USD     
+
+If you have interest, please contact us and we will give you the detailed catalogue and price 
+list. 
+
+We always try our best to attract our clients with unbeatable prices and quality. Our goal is 
+to treat every client the same as the most potential business partner.So however the client is 
+big or small,we offer the best service. 
+
+Any question, please contact me at any time.
+ 
+Have a nice day!
+
+Best Regards,
+
+Frank Ho
+HY Technology (Hong Kong) Company Ltd.

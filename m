@@ -1,111 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUIPINq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUIPISd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267829AbUIPINq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 04:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUIPINq
+	id S267839AbUIPISd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 04:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUIPISd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 04:13:46 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:61956 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S267829AbUIPINh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 04:13:37 -0400
-From: "Bc. Michal Semler" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD-ROM can't be ejected
-Date: Thu, 16 Sep 2004 10:13:35 +0200
-User-Agent: KMail/1.6.2
-References: <200409160025.35961.cijoml@volny.cz> <200409160918.40767.cijoml@volny.cz> <20040916073616.GO2300@suse.de>
-In-Reply-To: <20040916073616.GO2300@suse.de>
+	Thu, 16 Sep 2004 04:18:33 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:47885 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267839AbUIPIS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 04:18:26 -0400
+Message-ID: <41494D6D.2090704@hist.no>
+Date: Thu, 16 Sep 2004 10:23:09 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409161013.35454.cijoml@volny.cz>
+To: Timothy Miller <miller@techsource.com>
+CC: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <41352279.7020307@slaphack.com> <41356321.4030307@namesys.com> <Pine.LNX.4.58.0408312259180.2295@ppc970.osdl.org> <413578C9.8020305@namesys.com> <414876AD.6060404@techsource.com>
+In-Reply-To: <414876AD.6060404@techsource.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dne èt 16. záøí 2004 09:36 jste napsal(a):
-> (don't top post, and don't trim cc list!)
->
-> On Thu, Sep 16 2004, Bc. Michal Semler wrote:
-> > notas:/home/cijoml# mount /cdrom/
-> > notas:/home/cijoml# umount /cdrom/
-> > notas:/home/cijoml# strace -o eject /dev/hdc
-> > eject: unable to eject, last error: Nep?ípustný argument
-> >
-> > As you can see, I dont't enter to directory...
-> >
-> > And output is included
-> >
-> > ioctl(3, CDROMEJECT, 0xbffffac8)        = -1 EIO (Input/output error)
->
-> That's the important bit, the reason you get EINVAL passed back is
-> because eject tries the floppy eject as well and decides to print the
-> warning from that. It really should just stop of it sees -EIO, only
-> continue if EINVAL/ENOTTY is passed back.
->
-> Try this little c program and report back what it tells you. Compile
-> with
->
-> gcc -Wall -o eject eject.c
->
-> and run without arguments.
->
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <fcntl.h>
-> #include <string.h>
-> #include <sys/ioctl.h>
-> #include <linux/cdrom.h>
->
-> int main(int argc, char *argv[])
-> {
-> 	int fd = open("/dev/hdc", O_RDONLY | O_NONBLOCK);
-> 	struct cdrom_generic_command cgc;
-> 	struct request_sense sense;
->
-> 	memset(&cgc, 0, sizeof(cgc));
-> 	memset(&sense, 0, sizeof(sense));
->
-> 	cgc.cmd[0] = 0x1b;
-> 	cgc.cmd[4] = 0x02;
-> 	cgc.sense = &sense;
-> 	cgc.data_direction = CGC_DATA_NONE;
->
-> 	if (ioctl(fd, CDROM_SEND_PACKET, &cgc) == 0) {
-> 		printf("eject worked\n");
-> 		return 0;
-> 	}
->
-> 	printf("command failed - sense %x/%x/%x\n", sense.sense_key, sense.asc,
-> sense.ascq); return 1;
-> }
+Timothy Miller wrote:
 
-2.4.27-mh1
-notas:~# /home/cijoml/eject
-ATAPI device hdc:
-  Error: Not ready -- (Sense key=0x02)
-  (reserved error code) -- (asc=0x53, ascq=0x02)
-  The failed "Start/Stop Unit" packet command was:
-  "1b 00 00 00 02 00 00 00 00 00 00 00 "
-command failed - sense 2/53/2
+> I'm probably not the first to suggest this idea, and it's probably not 
+> a very good idea, but here's my idea anyhow:
+>
+> You have a file "/usr/bin/emacs"
+> with a metadata property in the overlaid namespace 
+> "/usr/bin/emacs/[[..]metas/]icon"
+>
+> According to some, this could cause some confusion.  Howabout instead:
+>
+> You have a file "/usr/bin/emacs"
+> with a metadata property in a slightly separated namespace 
+> "/metas/usr/bin/emacs/icon"
+>
+And the problem with such a "solution" is
+mv /usr/bin/emacs /usr/bin/old-emacs
+Do this with an ordinary fs, and the /metas/usr/bin/emacs/icon
+won't move with it.  Now metas might might not be an ordinary fs,
+so perhaps the move happens automatically there, but if so
+it will be unexpected. 
 
+> This has the advantage of still having the metadata in the filesystem 
+> namespace but without the confusion of having files-as-directories, 
+> ambiguity of filename, backup issues, etc.  This is the reverse of 
+> having the namespaces overlaid with a "/nometas" view which is separate.
+>
+> Furthermore, you can split things further like this:
+>
+> You have a file "/usr/bin/emacs"
+> with an automatically-generated metadata property that you don't want 
+> to back up in "/autometas/usr/bin/emacs/modification_date"
+> and a manually generated metadata property that you MAY want to backup 
+> in "/staticmetas/usr/bin/emacs/icon".
+>
+> This is inelegant, I know.  But if we do this, we can add the extra 
+> features of reiser4 without confusing existing apps or having to 
+> modify them to support the new functionality.
+>
+> Furthermore, you can easily hide the extra features by not mounting 
+> the meta top-level directories (assuming they're mounted like separate 
+> filesystems, rather than just magically appearing there, which is okay 
+> too).
 
-2.6.9-rc2
-notas:~# mount /cdrom/
-notas:~# umount /cdrom/
-notas:~# /home/cijoml/eject
-Here isn't opened
-command failed - sense 2/53/2
-notas:~# eject /cdrom/
-program eject is using a deprecated SCSI ioctl, please convert it to SG_IO
-program eject is using a deprecated SCSI ioctl, please convert it to SG_IO
-program eject is using a deprecated SCSI ioctl, please convert it to SG_IO
-Here is cd-rom opened
-eject: unable to eject, last error: Nepøípustný argument
-notas:~# /home/cijoml/eject
-Here is cd-rom opened
-eject worked
+Having to go up to root and then down a similar but different path to 
+reach a
+file's metadata seems very counterintuitive to me.  And you have to 
+update all
+tools to do this automatically, or it'll be hopeless to actually use.
+
+Helge Hafting
 

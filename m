@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSGQQTz>; Wed, 17 Jul 2002 12:19:55 -0400
+	id <S315279AbSGQQPk>; Wed, 17 Jul 2002 12:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSGQQTz>; Wed, 17 Jul 2002 12:19:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22943 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S315370AbSGQQTy>;
-	Wed, 17 Jul 2002 12:19:54 -0400
-Date: Thu, 18 Jul 2002 18:21:41 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: shreenivasa H V <shreenihv@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Gang Scheduling in linux
-In-Reply-To: <20020716225441.23939.qmail@uwdvg008.cms.usa.net>
-Message-ID: <Pine.LNX.4.44.0207181818300.29003-100000@localhost.localdomain>
+	id <S315282AbSGQQPk>; Wed, 17 Jul 2002 12:15:40 -0400
+Received: from web14806.mail.yahoo.com ([216.136.224.222]:60178 "HELO
+	web14806.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S315279AbSGQQPj>; Wed, 17 Jul 2002 12:15:39 -0400
+Message-ID: <20020717161834.12994.qmail@web14806.mail.yahoo.com>
+Date: Wed, 17 Jul 2002 09:18:34 -0700 (PDT)
+From: spy9599 <spy9599@yahoo.com>
+Subject: Is TCP CA_LOSS to CA_RECOVERY possible
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 16 Jul 2002, shreenivasa H V wrote:
+I have a question regrading the TCP implementation. I
+am not subscribed to this list, so please cc your
+response.
 
-> I wanted to know whether there is any support for gang scheduling in the
-> linux kernel. If so, what is the status of the implementation and if
-> there are any documents about the same.
+In the present TCP (2.5.x) implementation, the TCP
+sender never exits TCP_CA_Loss state until all packets
+upto high_seq are acknowledged. But lets say while
+doing retransmissions, some packet less than high_seq
+are lost again. Ideally the TCP sender should just
+enter fast retransmit and fast recovery, but from the
+present implementation it seems the only way to come
+out of it is after a timeout. 
 
-yes - the 'synchronous wakeup' feature is a form of gang scheduling. It in
-essence uses real process-communication information to migrate 'related'
-tasks to the same CPU. So it's automatic, no need to declare processes to
-be part of a 'gang' in some formal (and thus fundamentally imperfect) way.
+Could somebody explain this to me please.
 
-(another form of 'gang scheduling' can be achieved by binding the 'parent'
-process to a single CPU - all children will be bound to that CPU as well.)
+Thank you very much.
+Best Regards
+--SPY
 
-	Ingo
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Autos - Get free new car price quotes
+http://autos.yahoo.com

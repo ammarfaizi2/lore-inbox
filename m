@@ -1,42 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVBMCxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVBMDPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVBMCxw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 21:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVBMCxw
+	id S261236AbVBMDPw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 22:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVBMDPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 21:53:52 -0500
-Received: from web14525.mail.yahoo.com ([216.136.224.54]:31611 "HELO
-	web14525.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261236AbVBMCxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 21:53:45 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=gs4VOLCX0edYeo2MFylvYj756LW5iivNbVUkCQ/Q5x2CDH6g9otaJ9ZLMMz8U18ZcnTtwBOoSL429QQVSLnLw/MdkjV7qIqK7Mn4XExUAsfIlznsciSUjYCU/peCiNw23TFXKOlnmTXWU5sqmOHY/TY1ZJlcbOD5A5ZBTADK26M=  ;
-Message-ID: <20050213025342.14876.qmail@web14525.mail.yahoo.com>
-Date: Sat, 12 Feb 2005 18:53:42 -0800 (PST)
-From: Daniel Dickman <didickman@yahoo.com>
-Subject: [PATCH] correctly name the Shell sort
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 12 Feb 2005 22:15:52 -0500
+Received: from users.ccur.com ([208.248.32.211]:2428 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S261236AbVBMDPm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 22:15:42 -0500
+Date: Sat, 12 Feb 2005 22:15:32 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: memset argument order misuses
+Message-ID: <20050213031532.GA8656@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As per http://www.nist.gov/dads/HTML/shellsort.html, this should be referred to
-as a Shell sort. Shell-Metzner is a misnomer.
+Hi Andrew,
+A simple 'grep memset.*\<0);' shows argument order errors in several uses
+of memset.
 
-Signed-off-by: Daniel Dickman <didickman@yahoo.com>
+This grep was inspired by Al Viro's recent patch, megaraid_mbox fix,
+which fixed this problem in the megaraid driver.
 
---- linux-2.6.11-rc3-bk9/kernel/sys.c   2005-02-12 22:17:26.801294776 -0500
-+++ linux/kernel/sys.c  2005-02-12 17:53:15.000000000 -0500
-@@ -1192,7 +1192,7 @@
-        return 0;
- }
+Completely untested.
 
--/* a simple shell-metzner sort */
-+/* a simple Shell sort */
- static void groups_sort(struct group_info *group_info)
- {
-        int base, max, stride;
+Regards,
+Joe
+--
+"Money can buy bandwidth, but latency is forever" -- John Mashey
 
+
+
+diff -Nura base/drivers/s390/block/dasd_genhd.c new/drivers/s390/block/dasd_genhd.c
+--- base/drivers/s390/block/dasd_genhd.c	2004-12-24 16:35:24.000000000 -0500
++++ new/drivers/s390/block/dasd_genhd.c	2005-02-12 21:55:48.546192009 -0500
+@@ -149,8 +149,8 @@
+ 	 * Can't call delete_partitions directly. Use ioctl.
+ 	 * The ioctl also does locking and invalidation.
+ 	 */
+-	memset(&bpart, sizeof(struct blkpg_partition), 0);
+-	memset(&barg, sizeof(struct blkpg_ioctl_arg), 0);
++	memset(&bpart, 0, sizeof(struct blkpg_partition));
++	memset(&barg, 0, sizeof(struct blkpg_ioctl_arg));
+ 	barg.data = &bpart;
+ 	barg.op = BLKPG_DEL_PARTITION;
+ 	for (bpart.pno = device->gdp->minors - 1; bpart.pno > 0; bpart.pno--)
+diff -Nura base/drivers/s390/cio/cmf.c new/drivers/s390/cio/cmf.c
+--- base/drivers/s390/cio/cmf.c	2004-12-24 16:33:48.000000000 -0500
++++ new/drivers/s390/cio/cmf.c	2005-02-12 21:56:08.430256458 -0500
+@@ -526,7 +526,7 @@
+ 	time = get_clock() - cdev->private->cmb_start_time;
+ 	spin_unlock_irqrestore(cdev->ccwlock, flags);
+ 
+-	memset(data, sizeof(struct cmbdata), 0);
++	memset(data, 0, sizeof(struct cmbdata));
+ 
+ 	/* we only know values before device_busy_time */
+ 	data->size = offsetof(struct cmbdata, device_busy_time);
+@@ -736,7 +736,7 @@
+ 	time = get_clock() - cdev->private->cmb_start_time;
+ 	spin_unlock_irqrestore(cdev->ccwlock, flags);
+ 
+-	memset (data, sizeof(struct cmbdata), 0);
++	memset (data, 0, sizeof(struct cmbdata));
+ 
+ 	/* we only know values before device_busy_time */
+ 	data->size = offsetof(struct cmbdata, device_busy_time);
+diff -Nura base/drivers/s390/cio/css.c new/drivers/s390/cio/css.c
+--- base/drivers/s390/cio/css.c	2005-02-12 21:51:28.000000000 -0500
++++ new/drivers/s390/cio/css.c	2005-02-12 21:56:20.066538550 -0500
+@@ -527,7 +527,7 @@
+ 	new_slow_sch = kmalloc(sizeof(struct slow_subchannel), GFP_ATOMIC);
+ 	if (!new_slow_sch)
+ 		return -ENOMEM;
+-	memset(new_slow_sch, sizeof(struct slow_subchannel), 0);
++	memset(new_slow_sch, 0, sizeof(struct slow_subchannel));
+ 	new_slow_sch->schid = schid;
+ 	spin_lock_irqsave(&slow_subchannel_lock, flags);
+ 	list_add_tail(&new_slow_sch->slow_list, &slow_subchannels_head);

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263011AbTCLDiW>; Tue, 11 Mar 2003 22:38:22 -0500
+	id <S263022AbTCLDwb>; Tue, 11 Mar 2003 22:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263012AbTCLDiW>; Tue, 11 Mar 2003 22:38:22 -0500
-Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:41610
-	"HELO thomasons.org") by vger.kernel.org with SMTP
-	id <S263011AbTCLDiU>; Tue, 11 Mar 2003 22:38:20 -0500
-From: scott thomason <scott-kernel@thomasons.org>
-Reply-To: scott-kernel@thomasons.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bio too big device
-Date: Tue, 11 Mar 2003 21:49:04 -0600
-User-Agent: KMail/1.5
-References: <200303112055.31854.scott-kernel@thomasons.org> <15982.43897.703221.456961@notabene.cse.unsw.edu.au>
-In-Reply-To: <15982.43897.703221.456961@notabene.cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S263024AbTCLDwb>; Tue, 11 Mar 2003 22:52:31 -0500
+Received: from bitmover.com ([192.132.92.2]:50576 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S263022AbTCLDwa>;
+	Tue, 11 Mar 2003 22:52:30 -0500
+Date: Tue, 11 Mar 2003 20:03:09 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Zack Brown <zbrown@tumblerings.org>, Daniel Phillips <phillips@arcor.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030312040309.GA7510@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Zack Brown <zbrown@tumblerings.org>,
+	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+References: <20030311184043.GA24925@renegade> <200303120347.h2C3loEG002703@eeyore.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303112149.04144.scott-kernel@thomasons.org>
+In-Reply-To: <200303120347.h2C3loEG002703@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 March 2003 09:37 pm, you wrote:
-> raid0 doesn't really work well in 2.5 yet.... as you have
-> noticed.
->
-> We really need to grab the bio splitting code out of md/dm.c
-> and use it to split bios that are too big or that cross device
-> boundaries.
->
-> any volunteers??
->
-> NeilBrown
+> > * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+> > This document is copyright Zack Brown and released under the terms of the
+> > GNU General Public License, version 2.0.
+> > * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Given all the grief I've encountered with ALSA, SCSI emulation, 
-other stuff, and now RAID 0, I would certainly say that the 
-spelling corrections may have been a little premature. It 
-doesn't feel ready for 2.6 to me :(
----scott
-
+Since a substantial amount of the information in there is what I said,
+Zack has no right to impose any license on the information.  It's a bit
+unethical if you ask me, it's my copyright, not his.  And I didn't impose
+any silly license on it.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264312AbUEDLnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264313AbUEDLzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264312AbUEDLnS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 07:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUEDLnR
+	id S264313AbUEDLzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 07:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbUEDLzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 07:43:17 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:21265 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S264312AbUEDLnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 07:43:14 -0400
+	Tue, 4 May 2004 07:55:53 -0400
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:15454 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264313AbUEDLzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 07:55:51 -0400
+Date: Tue, 4 May 2004 07:00:47 -0500 (CDT)
+From: Brent Cook <busterbcook@yahoo.com>
+X-X-Sender: busterb@ozma.hauschen
+Reply-To: busterbcook@yahoo.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: 4x card in 8x AGP KT600 = locked solid (AGP bug?)
-Reply-To: Ian McConnell <ian@emit.demon.co.uk>
-References: <871xm1tz1f.fsf@emit.demon.co.uk>
-From: Ian McConnell <ian@emit.demon.co.uk>
-Date: Tue, 04 May 2004 12:43:12 +0100
-In-Reply-To: <871xm1tz1f.fsf@emit.demon.co.uk> (Ian McConnell's message of
- "Mon, 03 May 2004 14:34:20 +0100")
-Message-ID: <874qqw8lkf.fsf@emit.demon.co.uk>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Common Lisp, linux)
+Subject: Slab cache seems to grow forever - 2.6.6-rc3-mm1
+Message-ID: <Pine.LNX.4.58.0405040651150.18153@ozma.hauschen>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian McConnell <kernel@emit.demon.co.uk> writes:
+Hello,
 
-> So two difference implementations of DRI hanging makes me suspect that there
-> is a bug with AGP (Also the same video card, kernel and X worked well with
-> an older 4xAGP KT133 motherboard)
+This might be related to the change in fs-writeback.c that fixed
+redirtying inodes on NFS, but I'm not sure. It seems that the Slab cache
+never shrinks. Could this be a memory leak? It definitely affects system
+performance. Here are the numbers after running for about 12 hours with
+heavy NFS traffic (this is the client).
 
-Looks like I was wrong about it being an AGP bug. I found testgart and 
-everything works fine:
+What's the best way to see who is allocating Slab memory?
 
-# testgart 
-agpgart: Found an AGP 3.5 compliant device at 0000:00:00.0.
-agpgart: Device is in legacy mode, falling back to 2.x
-agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
-agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
-version: 0.100
-bridge id: 0x31891106
-agp_mode: 0x1f000a17
-aper_base: 0xe8000000
-aper_size: 64
-pg_total: 112384
-pg_system: 112384
-pg_used: 0
-entry.key : 0
-entry.key : 1
-Allocated 8 megs of GART memory
-MemoryBenchmark: 1173 mb/s
-MemoryBenchmark: 1766 mb/s
-MemoryBenchmark: 1772 mb/s
-Average speed: 1570 mb/s
-Testing data integrity (1st pass): passed on first pass.
-Testing data integrity (2nd pass): passed on second pass.
+/proc/meminfo
+MemTotal:       517044 kB
+MemFree:        116876 kB
+Buffers:          1176 kB
+Cached:          18908 kB
+SwapCached:       3428 kB
+Active:          17840 kB
+Inactive:         8448 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       517044 kB
+LowFree:        116876 kB
+SwapTotal:      506036 kB
+SwapFree:       497804 kB
+Dirty:             940 kB
+Writeback:           0 kB
+Mapped:           9012 kB
+Slab:           367588 kB
+Committed_AS:    19856 kB
+PageTables:        548 kB
+VmallocTotal:   516020 kB
+VmallocUsed:      8748 kB
+VmallocChunk:   506908 kB
 
+Thanks
+ - Brent

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135266AbRD3U0c>; Mon, 30 Apr 2001 16:26:32 -0400
+	id <S135239AbRD3U3W>; Mon, 30 Apr 2001 16:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135239AbRD3U0W>; Mon, 30 Apr 2001 16:26:22 -0400
-Received: from adsl-63-206-198-42.dsl.snfc21.pacbell.net ([63.206.198.42]:28876
-	"EHLO adsl-63-206-198-42.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S135283AbRD3U0F>; Mon, 30 Apr 2001 16:26:05 -0400
-Date: Mon, 30 Apr 2001 13:22:59 -0700 (PDT)
-From: Francois Gouget <fgouget@free.fr>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Elmer Joandi <elmer@linking.ee>, Ookhoi <ookhoi@dds.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Aironet doesn't work
-In-Reply-To: <3AEDB0D4.2CB47196@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0104301319570.30974-100000@amboise.dolphin>
+	id <S135283AbRD3U3M>; Mon, 30 Apr 2001 16:29:12 -0400
+Received: from viper.haque.net ([66.88.179.82]:20887 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S135239AbRD3U3K>;
+	Mon, 30 Apr 2001 16:29:10 -0400
+Date: Mon, 30 Apr 2001 16:28:59 -0400 (EDT)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19 locks up on SMP
+In-Reply-To: <Pine.LNX.4.33.0104301255020.12259-100000@age.cs.columbia.edu>
+Message-ID: <Pine.LNX.4.33.0104301623070.530-100000@viper.haque.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Jeff Garzik wrote:
+On Mon, 30 Apr 2001, Ion Badulescu wrote:
 
-> Francois Gouget wrote:
-> > CONFIG_PCMCIA=y
-> > CONFIG_CARDBUS=y
-> > CONFIG_I82365=y
-> 
-> Not correct -- you do not need I82365 if you have CardBus.  However, if
-> you are running 2.4.4 you should be ok.
+> Except that the only driver I'm using is eepro100, and the only change to
+> that driver was the patch I submitted myself and which is also in 2.4.
+>
+> Also, another data point: those two SMP boxes have been running 2.2.18 +
+> Andrea's VM-global patch since January, without a hitch.
+>
+> Ok, so onto the binary search through the 2.2.19pre series...
 
-   Ok. I upgraded to 2.4.4 and modified my config file to be:
+Just to give another data point...
 
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-# CONFIG_I82365 is not set
+2.2.19 + LVM patches - dual P3 550
+1 GB RAM
+eepro100
+ncr53c8xx scsi
+mylex accelRAID 1100 RAID controller
 
-   But now I get the same missing symbols I initially had in 2.4.3:
+We've transferred around 1 GB of stuff over the network and about 200 GB
+between two raids w/o problems in a little under 3 days.
 
-Apr 30 13:19:34 oleron cardmgr[148]: initializing socket 0
-Apr 30 13:19:34 oleron cardmgr[148]: socket 0: Aironet PC4800
-Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_core'
-Apr 30 13:19:34 oleron cardmgr[148]: + Warning: /lib/modules/2.4.4/kernel/drivers/net/aironet4500_core.o 
-symbol for parameter rx_queue_len not found
-Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_proc'
-Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_cs'
-Apr 30 13:19:35 oleron cardmgr[148]: get dev info on socket 0
-failed: Resource temporarily unavailable
+We've only scratched into swap. Free show 128K being used.
 
+-- 
 
---
-Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
-                            1 + e ^ ( i * pi ) = 0
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 

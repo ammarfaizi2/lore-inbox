@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267019AbSLDSuH>; Wed, 4 Dec 2002 13:50:07 -0500
+	id <S267021AbSLDSyH>; Wed, 4 Dec 2002 13:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267021AbSLDSuH>; Wed, 4 Dec 2002 13:50:07 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:21392 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267019AbSLDSuG>; Wed, 4 Dec 2002 13:50:06 -0500
-Message-ID: <3DEE4AFD.2020608@enib.fr>
-Date: Wed, 04 Dec 2002 19:35:41 +0100
-From: XI <xizard@enib.fr>
-Reply-To: xizard@enib.fr
-Organization: http://www.chez.com/xizard
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Bennee <alex@braddahead.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ctrl-Alt-Backspace kills machine not X. ACPI?
-References: <1039005946.2366.25.camel@cambridge.braddahead> 	<3DEDF74D.2090204@enib.fr> <1039007556.2217.30.camel@cambridge.braddahead>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267024AbSLDSyH>; Wed, 4 Dec 2002 13:54:07 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:777 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267021AbSLDSyH>; Wed, 4 Dec 2002 13:54:07 -0500
+Date: Wed, 4 Dec 2002 19:01:38 +0000
+From: John Levon <levon@movementarian.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] NMI notifiers for 2.5
+Message-ID: <20021204190138.GA31519@compsoc.man.ac.uk>
+References: <1039027142.20387.11.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1039027142.20387.11.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18JemA-0005sL-00*cR5znPxHBT.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bennee wrote:
-> On Wed, 2002-12-04 at 12:38, XI wrote:
-> 
->>Alex Bennee wrote:
->>
->>>Hi,
->>>
->>>I've been running into problems with my machine locking up in X but
->>>however I have been unable to diagnose it because the Ctrl-Alt-Backspace
->>>key sequence kills my whole machine (i.e. powers it down).
->>>
->>>I've done some searching on google but haven't been able to find any
->>>references except a one errata note for Mandrake that mentions disabling
->>>the APIC which I tried and had no effect.
->>>
->>>The Ctrl-Alt-Backspace sequence will power down my machine at any point
->>>(BIOS Self-test, Grub, Console mode or X) but doesn't to it once Windows
->>>is running. I have a suspicion that this is ACPI related but even with
->>>acpi=off and apm=off flags is can still stop the box which can't be
->>>right. Any pointers? I stand ready to provide any additional data.
->>>
->>
->>Hi,
->>I have a P.C. with short-cut CTRL+ALT+BACKSPACE to shutdown in bios. I 
->>can't find how to disable it, and I don't know if it works under windoze.
->>I think you have the same kind of stupid bios. no?
-> 
-> 
-> The machine is a Fujitsu/Siemens based around the GA-8STXCFS motherboard
-> running the latest Award BIOS 6.0PG. And yes, there is no option to
-> actually disable ACPI, just change modes for S1 to S3 (shutdown vs
-> suspend to RAM IIRC).
-> 
-> What machine have you got? Do you also experience lockups in X because
-> I'm wondering if the 2 are related.
-> 
-> 
+On Wed, Dec 04, 2002 at 10:39:02AM -0800, Stephen Hemminger wrote:
 
-Hi,
-I can't remember the brand and the model of the motherboard, but it is 
-based on a SIS chipset. (the machine is at 1000km over). The machine 
-isn't a Fujitsu, it's a "no name" machine.
+> +/* 
+> + * Registration for maintance routines that want to do something
+> + * on NMI.
+> + */
+> +extern struct notifier_block *nmi_notifier_list;
+> +static inline int register_nmi_notifier(struct notifier_block *nb) {
+> +	return notifier_chain_register(&nmi_notifier_list, nb);
+> +}
 
-I didn't remember any X lookup, I was running a mdk8.1, the machine is 
-quite stable.
+Easy way to confuse the hell out of people...
 
-Xavier
+> +			
+> +			notifier_call_chain(&nmi_notifier_list, 0, regs);
+> +
 
+... because it's really a lockup detect notifier. Please rethink the
+naming
+
+(oh and maintenance not maintance)
+
+regards
+john
+
+-- 
+"Trolls like content too."
+	- Bob Abooey, /.

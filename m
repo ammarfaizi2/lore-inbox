@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312989AbSC0LMa>; Wed, 27 Mar 2002 06:12:30 -0500
+	id <S311900AbSC0LLT>; Wed, 27 Mar 2002 06:11:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312826AbSC0LMT>; Wed, 27 Mar 2002 06:12:19 -0500
-Received: from www.wen-online.de ([212.223.88.39]:15634 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S312550AbSC0LMI>;
-	Wed, 27 Mar 2002 06:12:08 -0500
-Date: Wed, 27 Mar 2002 12:24:19 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: stas.orel@mailcity.com
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Anyone else seen VM related oops on 2.4.18?
-In-Reply-To: <3CA197B9.2070502@yahoo.com>
-Message-ID: <Pine.LNX.4.10.10203271222230.8985-100000@mikeg.wen-online.de>
+	id <S312550AbSC0LK7>; Wed, 27 Mar 2002 06:10:59 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:9357 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S311900AbSC0LKu>;
+	Wed, 27 Mar 2002 06:10:50 -0500
+Date: Wed, 27 Mar 2002 11:15:32 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: <tigran@einstein.homenet>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: initrd and BLKFLSBUF
+In-Reply-To: <Pine.LNX.4.33.0203261427340.1089-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33.0203271112330.1796-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Stas Sergeev wrote:
+amazing that people start adding complications (all that "bdev" filesystem
+stuff in recent kernels) without first getting the basics right -- the
+bd_openers accounting doesn't seem to be correct.
 
-> Hello.
-> 
-> Arjan Opmeer wrote:
-> > Are there other people that are suffering from a VM related oops on kernel 
-> > 2.4.18?
-> Yes:(
-> I've seen that oops 24/7 after installing a
-> new video card Radeon 7500 AGP.
-> Before I had PCI video card.
-> When DRI is enabled, the whole box hangs after
-> ~10 minutes of using OpenGL, and if DRI disabled
-> and radeon.o is unloaded, I have a vm-related Oopses.
+On Tue, 26 Mar 2002, Tigran Aivazian wrote:
 
-You can use dri with your 7500?  Same processor as 8500 cards?
-If so, which X sources are you using?
-
-I bought an 8500 Evil Master II specifically because I saw Radeon
-support in the kernel and X source.  Much to my chagrin, I can't
-use dri because the source (4.2.0) says dri is not yet implimented
-for that processor.
-
-	-Mike
+> Hello,
+>
+> Is blockdev --flushbufs supposed to work on /dev/ram0 if it was loaded as
+> initrd ramdisk? I unmount it and try to free the memory but hit this
+> EBUSY in drivers/block/rd.c:rd_ioctl():
+>
+>                         /* special: we want to release the ramdisk memory,
+>                            it's not like with the other blockdevices where
+>                            this ioctl only flushes away the buffer cache. */
+>                         if ((atomic_read(&inode->i_bdev->bd_openers) > 2))
+>                                 return -EBUSY;
+>
+> The kernel is 2.4.9 but this code is almost the same in 2.4.18. So, who is
+> this opener that keeps the inode->i_bdev->bd_openers too high?
+>
+> Regards,
+> Tigran
+>
+>
 

@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbUJ0Bcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUJ0BdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbUJ0Bcm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 21:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUJ0Bcm
+	id S261531AbUJ0BdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 21:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbUJ0BdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 21:32:42 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:38777 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261526AbUJ0Bck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 21:32:40 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: Input: sunkbd concern
-Date: Tue, 26 Oct 2004 20:32:27 -0500
-User-Agent: KMail/1.6.2
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-References: <200410221833.04057.dtor_core@ameritech.net> <20041026180622.14fc6268.davem@davemloft.net>
-In-Reply-To: <20041026180622.14fc6268.davem@davemloft.net>
+	Tue, 26 Oct 2004 21:33:08 -0400
+Received: from jpnmailout02.yamato.ibm.com ([203.141.80.82]:7645 "EHLO
+	jpnmailout02.yamato.ibm.com") by vger.kernel.org with ESMTP
+	id S261531AbUJ0BdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 21:33:02 -0400
+In-Reply-To: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
+Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space for
+ suspend/resume
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>, greg@kroah.com,
+       Len Brown <len.brown@intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+X-Mailer: Lotus Notes Release 6.0.2CF2 July 23, 2003
+Message-ID: <OF7E38C2D0.FC23B846-ON49256F3A.000672D1-49256F3A.0007BB88@jp.ibm.com>
+From: Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
+Date: Wed, 27 Oct 2004 10:32:18 +0900
+X-MIMETrack: Serialize by Router on D19ML115/19/M/IBM(Release 6.51HF338 | June 21, 2004) at
+ 2004/10/27 10:32:19
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410262032.27938.dtor_core@ameritech.net>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 08:06 pm, David S. Miller wrote:
-> On Fri, 22 Oct 2004 18:33:04 -0500
-> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> 
-> > I have been looking at sunkbd.c and it seems that it attaches not only to
-> > ports that speak SUNKBD protocol but also to ports that do not specify any
-> > protocol:
-> > 
-> > 	if ((serio->type & SERIO_PROTO) && (serio->type & SERIO_PROTO) != SERIO_SUNKBD)
-> > 		return;
-> > 
-> > Was that an oversight or it was done intentionally?
-> 
-> I believe it is intentional.
-> 
-> If SERIO_PROTO bits are all clear, this is supposed to have
-> a special meaning in that any keyboard driver can claim
-> the serio line.
-> 
-> So if it's the "wildcard" zero value, or specifically SERIO_SUNKBD,
-> we'll attach to it.
-> 
 
-I would buy if I see another keyboard doing this, but so far only sunkbd
-does this. The rest of keyboards connecting to a RS232-type ports require
-exact protocol match...
 
-The background is that I am trying to create a bus "match" function for
-serio and trying to understand the requirements... 
- 
--- 
-Dmitry
+
+
+Hi,
+
+acpi-devel-admin@lists.sourceforge.net wrote on 2004/10/26 13:50:57:
+
+> Hi,
+> We suffer from PCI config space issue for a long time, which causes many
+> system can't correctly resume. Current Linux mechanism isn't sufficient.
+> Here is a another idea:
+> Record all PCI writes in Linux kernel, and redo all the write after
+> resume in order. The idea assumes Firmware will restore all PCI config
+> space to the boot time state, which is true at least for IA32.
+>
+
+I think a basic problem of current Linux device model is that there is no
+effective message path from sibling devices to their root device.
+Although the message direction from a root device to sibling devices is
+natural from the viewpoint of device enumeration, the direction from
+sibling devices to a root device is required for effective arbitration for
+device configuration and power management.
+
+The Windows driver model uses the direction from sibling drivers to a root
+bus driver mainly, i.e. sibling drivers are layered on a root bus driver.
+While we need a kind of callback mechanism from PCI (sibling) devices to
+PCI bus (root) device instead because their normal call interface is from a
+root device to sibling devices.
+
+- Hiro.
+

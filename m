@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265394AbUAGIu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 03:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265422AbUAGIu7
+	id S265423AbUAGIwA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 03:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUAGIwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 03:50:59 -0500
-Received: from debian4.unizh.ch ([130.60.73.144]:48035 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S265394AbUAGIu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 03:50:57 -0500
-Date: Wed, 7 Jan 2004 09:50:50 +0100
-From: martin f krafft <madduck@madduck.net>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: problem booting aic7xxx-old with reiserfs
-Message-ID: <20040107085050.GA25572@piper.madduck.net>
-Mail-Followup-To: martin f krafft <madduck@madduck.net>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1aMb6-3Fs-37@gated-at.bofh.it> <20040106084152.7B47D52003@chello062178157104.9.14.vie.surfer.at> <20040106084728.GA3094@piper.madduck.net> <20040106093926.GA5904@piper.madduck.net> <2263062704.1073407695@aslan.scsiguy.com> <20040106195225.GA12262@piper.madduck.net> <3461762704.1073419548@aslan.btc.adaptec.com>
+	Wed, 7 Jan 2004 03:52:00 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:60832 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265423AbUAGIvw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 03:51:52 -0500
+Date: Wed, 7 Jan 2004 09:51:04 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Fredrik Olausson <fredrik@olaussons.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: bad scancode for USB keyboard
+Message-ID: <20040107085104.GA14771@ucw.cz>
+References: <3FF6EFE0.9030109@develer.com> <3FFB6A5D.9030606@olaussons.net> <3FFB6E9E.6040500@develer.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3461762704.1073419548@aslan.btc.adaptec.com>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
+In-Reply-To: <3FFB6E9E.6040500@develer.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 07, 2004 at 03:27:42AM +0100, Bernardo Innocenti wrote:
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >I have the same problem with a Logitech cordless desktop.
+> >I can easily change the keycode to generate the right characters when in 
+> >console-mode, but XFree gives that key and the Print Screen key the same 
+> >keycode.
+> >After changing the xmodmap I can get the unmodified character, 
+> >but modifiers doesn't work, it just gives me the same character not 
+> >matter what modifier I use (shift, alt, alt_gr etc.)
+> 
+> I had fixed my console keymap too, but I've not been able to
+> figure out how to change the X keymap.  I've been looking in
+> the /usr/X11R6/lib/X11/xkb/ directory, but perhaps XKB is not
+> being used for old-style keyboard mapping?
+> 
+> Could you provide detailed instructions?  C coding with missing
+> backslash and bar keys is quite hard :-)
+> 
+> Of course, I still thing its' a 2.6 kernel bug and it should be
+> fixed.  Vojtech, do you have an idea why it's happening?
 
-also sprach Justin T. Gibbs <gibbs@scsiguy.com> [2004.01.06.2105 +0100]:
-> My bad.  The debug level needs to be 0x7f to get the output I need.
-> Can you run the test again?
+The reason is that this key is not the ordinary backslash-bar key, it's
+the so-called 103rd key on some european keyboards. It generates a
+different scancode.
 
-Please find the updated version here:
+2.4 used the same keycode for both the scancodes, 2.6 does not, so that
+it's possible to differentiate between the keys on keyboards that have
+both this one and also the standard backslash-bar.
 
-  ftp://ftp.madduck.net/scratch/dmesg-aix7xxx-debug-0x7f.gz
-
-Thank you!
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-"if one cannot enjoy reading a book over and over again,
- there is no use in reading it at all."
-                                                        -- oscar wilde
-
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/+8hqIgvIgzMMSnURAulNAKDSKTUx/+ahev89rPINnczMULlalQCgofQv
-ipsCK5cBZeJIHeIvH1A/jGc=
-=0M8O
------END PGP SIGNATURE-----
-
---ibTvN161/egqYuK8--
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

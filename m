@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274728AbRIUBCY>; Thu, 20 Sep 2001 21:02:24 -0400
+	id <S274727AbRIUBDE>; Thu, 20 Sep 2001 21:03:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274727AbRIUBCP>; Thu, 20 Sep 2001 21:02:15 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:48282 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S274728AbRIUBCA>;
-	Thu, 20 Sep 2001 21:02:00 -0400
-Message-ID: <3BAA9197.21774168@pobox.com>
-Date: Thu, 20 Sep 2001 18:02:15 -0700
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre12 i686)
-X-Accept-Language: en
+	id <S274729AbRIUBCo>; Thu, 20 Sep 2001 21:02:44 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18704 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274727AbRIUBCn>; Thu, 20 Sep 2001 21:02:43 -0400
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+To: roger.larsson@norran.net (Roger Larsson)
+Date: Fri, 21 Sep 2001 02:03:37 +0100 (BST)
+Cc: oxymoron@waste.org (Oliver Xymoron),
+        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=),
+        stefan@space.twc.de (Stefan Westerfeld), rml@tech9.net (Robert Love),
+        andrea@suse.de (Andrea Arcangeli),
+        linux-kernel@vger.kernel.org (linux-kernel),
+        reiserfs-list@namesys.com (ReiserFS List)
+In-Reply-To: <200109210047.f8L0lkv26045@maile.telia.com> from "Roger Larsson" at Sep 21, 2001 02:42:56 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Garst R. Reese" <reese@isn.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: VM or Netscape problem?
-In-Reply-To: <E15kDpr-0006dy-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15kEjB-0006n9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> If this analysis is correct:
+> We really need to run RT processes with RT priorities!
+> 
+> It is also possible that multimedia applications needs to be rewritten =
+> to
 
-> > This could be a long standing bug as it is difficult to reproduce.
-> > Periodically Netscape(4.75) will tell me that it cannot find anybody,
-> > including my mail server. This is after it has already been there in the
->
-> Seems to be netscape. I've seen this problem for years. I now run Mozilla
-> and life is much happier
+I dont believe this is an application problem. Applications allocating
+memory can end up doing page outs for other people. Its really important
+they dont get stuck doing a huge amount of pageout work for someone else.
+Thats one thing I seem to be seeing with the 10pre11 VM.
 
-Using netscape 4.78 here - other than blowing
-up with a bus error every so often, it works well -
+Sound cards have a lot of buffering, we are talking 64-128Kbytes + on card
+buffers. Thats 0.25-0.5 seconds at 48Khz 16bit stereo
 
-mozilla is still not quite there for me as of 0.9.4 -
-
-cu
-
-jjs
-
+Alan

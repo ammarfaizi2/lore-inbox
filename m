@@ -1,56 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318097AbSHDFEe>; Sun, 4 Aug 2002 01:04:34 -0400
+	id <S318100AbSHDF1x>; Sun, 4 Aug 2002 01:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318100AbSHDFEe>; Sun, 4 Aug 2002 01:04:34 -0400
-Received: from webmail9.rediffmail.com ([202.54.124.178]:18356 "HELO
-	webmail9.rediffmail.com") by vger.kernel.org with SMTP
-	id <S318097AbSHDFEe>; Sun, 4 Aug 2002 01:04:34 -0400
-Date: 4 Aug 2002 05:07:40 -0000
-Message-ID: <20020804050740.5833.qmail@webmail9.rediffmail.com>
+	id <S318101AbSHDF1x>; Sun, 4 Aug 2002 01:27:53 -0400
+Received: from mailhost1-sfldmi.sfldmi.ameritech.net ([206.141.193.105]:25992
+	"EHLO mailhost.det2.ameritech.net") by vger.kernel.org with ESMTP
+	id <S318100AbSHDF1w>; Sun, 4 Aug 2002 01:27:52 -0400
+Date: Sun, 4 Aug 2002 01:31:25 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.localnet.net
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: linux-kernel@vger.kernel.org
+Subject: reboot at the end of fsck (2.4.19)
+Message-ID: <Pine.LNX.4.44.0208040118150.24641-100000@node2.localnet.net>
 MIME-Version: 1.0
-From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
-Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
-To: "Brad Hards" <bhards@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>
-Subject: Re: Re: installation of latest kernel on compaq notebook
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanx Hards,
-It worked.
-Regards
-Venku.
 
-On Sat, 03 Aug 2002 Brad Hards wrote :
->On Sat, 3 Aug 2002 15:09, Enugala Venkata Ramana wrote:
-> > Hi ,
-> > Using the make xconfig. i cannot even select it.
->I assume that you can select other options, but not
->this particular option (Hint: you could have told me that).
->
->I take it that you didn't look at the options that this
->option depends on, and you need to turn on the
->configuration options for CONFIG_EXPERIMENTAL
->and possibly CONFIG_NET
->
->Brad
->--
->http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds 
->in Black.
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  
->http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+I have a strange problem.. Hopefully someone will offer a solution.
 
-__________________________________________________________
-Give your Company an email address like
-ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
-Know more. http://www.rediffmailpro.com/signup/
+In a nutshell my computer reboots, at random moments. I think I have
+traced this to hard disk activity, in particular:
+
+In single user mode (nothing is running and only root mounted), when I do
+fsck it always reboots after Step 5. This happens on one partition only,
+ext3, which is on 18gig scsi disk. The reboot happens right after the disk
+does "zzzzzz" it always does in the end of fsck on large partition. (the
+partition in question is 17gig)
+
+Help is appreciated. (and more details follow).
+
+                   thanks !
+
+                       Vladimir Dergachev
+PS ---------------------- Details -----------------------
+
+Kernel: 2.4.19, with alsa drivers.
+
+Partition: ext3, there were a number of reboots without fsck
+(it's a development box), on /dev/sda3
+------------------- cat /proc/interupts ----------------------
+          CPU0
+  0:      31275          XT-PIC  timer
+  1:          6          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:       1887          XT-PIC  usb-uhci, usb-uhci
+  8:          1          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 10:       2174          XT-PIC  eth0
+ 11:      12883          XT-PIC  sym53c8xx, CS46XX, ehci-hcd
+ 12:          0          XT-PIC  usb-uhci, PS/2 Mouse
+ 14:        338          XT-PIC  ide0
+ 15:          1          XT-PIC  ide1
+NMI:          0
+LOC:      31231
+ERR:          0
+MIS:          0
+
+Note: same happens when IO-APIC is turned off.
+
+--------------------- cat /proc/modules -----------------------
+serial                 41952   0 (autoclean)
+usbkbd                  2880   0 (autoclean) (unused)
+usbmouse                1792   0 (autoclean) (unused)
+nfs                    70684   1 (autoclean)
+keybdev                 1664   0 (unused)
+mousedev                3808   1
+input                   3136   0 [usbkbd usbmouse keybdev mousedev]
+ehci-hcd               20064   0 (unused)
+uhci                   24744   0 (unused)
+usbcore                60512   1 [usbkbd usbmouse ehci-hcd uhci]
+snd-pcm-oss            35268   0 (unused)
+snd-mixer-oss           8864   0 [snd-pcm-oss]
+snd-cs46xx             69316   0
+gameport                1308   0 [snd-cs46xx]
+snd-pcm                46592   0 [snd-pcm-oss snd-cs46xx]
+snd-timer               9952   0 [snd-pcm]
+snd-rawmidi            11712   0 [snd-cs46xx]
+snd-seq-device          3728   0 [snd-rawmidi]
+snd-ac97-codec         23172   0 [snd-cs46xx]
+snd                    23880   0 [snd-pcm-oss snd-mixer-oss snd-cs46xx
+snd-pcm snd-timer snd-rawmidi snd-seq-device snd-ac97-codec]
+soundcore               3332   5 [snd]
+nfsd                   65408   1 (autoclean)
+lockd                  46688   1 (autoclean) [nfs nfsd]
+sunrpc                 56660   1 (autoclean) [nfs nfsd lockd]
+tulip                  37504   1
+vfat                    9212   1 (autoclean)
+fat                    28856   0 (autoclean) [vfat]
+---------------------------------------------------------------
+Anything else ? - just ask
 

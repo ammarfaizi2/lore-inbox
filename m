@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135186AbRDZIUb>; Thu, 26 Apr 2001 04:20:31 -0400
+	id <S135198AbRDZIc4>; Thu, 26 Apr 2001 04:32:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135193AbRDZIUW>; Thu, 26 Apr 2001 04:20:22 -0400
-Received: from pD9575938.dip.t-dialin.net ([217.87.89.56]:61714 "EHLO
-	ntlinux1.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
-	id <S135186AbRDZIUG>; Thu, 26 Apr 2001 04:20:06 -0400
-Message-ID: <3AE7DA33.5D06D159@gmx.net>
-Date: Thu, 26 Apr 2001 10:20:03 +0200
-From: Richard Ems <r.ems.mtg@gmx.net>
-Reply-To: r.ems@gmx.net
-Organization: MTG - Marinetechnik GmbH
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en, de-DE, es, pt-BR, it
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sr1: CDROM (ioctl) reports ILLEGAL REQUEST.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135201AbRDZIcq>; Thu, 26 Apr 2001 04:32:46 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:24856 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S135198AbRDZIci>;
+	Thu, 26 Apr 2001 04:32:38 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [Announce] kdb v1.8 updates are available
+Date: Thu, 26 Apr 2001 18:31:15 +1000
+Message-ID: <19032.988273875@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-While burning a cdrom, xcdroast 0.98alpha8 hanged up. After killing it,
-the cdwriter doesn't respond to any commands and the tray door doesn't
-open anymore.
-The cdwriter isn't mounted (df output and cat /proc/mounts).
+Content-Type: text/plain; charset=us-ascii
 
-output from eject -v /dev/scd1:
+These updates to kdb have had minimal testing, they compile and boot
+for me(TM).
 
-eject: device name is `/dev/scd1'
-eject: expanded name is `/dev/scd1'
-eject: `/dev/scd1' is not mounted
-eject: `/dev/scd1' is not a mount point
-eject: `/dev/scd1' is not a multipartition device
-eject: trying to eject `/dev/scd1' using CD-ROM eject command
-eject: CD-ROM eject command failed
-eject: trying to eject `/dev/scd1' using SCSI commands
-eject: SCSI eject failed
-eject: trying to eject `/dev/scd1' using floppy eject command
-eject: floppy eject command failed
-eject: trying to eject `/dev/scd1' using tape offline command
-eject: tape offline command failed
-eject: unable to eject, last error: Invalid argument
+http://oss.sgi.com/projects/kdb/download/
 
+  ix86/
+    kdb-v1.8-2.4.2-ac28.gz
+    kdb-v1.8-2.4.3.gz
+    kdb-v1.8-2.4.3-ac14.gz
+    kdb-v1.8-2.4.4-pre7.gz
 
-vanilla linux 2.2.19 SMP (2x700 Mhz Pentium III Coppermine, 512 MB)
-SuSE 7.1 distro
+  ia64/
+    kdb-v1.8-2.4.3-ia64-010405.gz
 
-output from scsi_inquiry /dev/sr1:
-PLEXTOR   CD-R   PX-W1210S  1.01, byte_7=0x18
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-in /var/log/messages:
-kernel: sr1: CDROM (ioctl) reports ILLEGAL REQUEST.
+iD8DBQE659zTi4UHNye0ZOoRAtNaAKDQd+QWW1y80POlsX7O9t+8jQRkfwCgto9g
+VGWN+P7+hb9ORFLzPP1Ly9E=
+=Nvgx
+-----END PGP SIGNATURE-----
 
-
-Can I somehow do a scsi reset or anything to be able to use again the
-cdwriter whitout rebooting?
-Why did this happen?
-
-Thanks, Richard
-
-Please CC to my address since I'm not on the linux-kernel list.
-
-
-
---
-   Richard Ems
-   ... e-mail: r.ems.mtg@gmx.net
-   ... Computing Science, University of Hamburg
-
-   Unix IS user friendly. It's just selective about who its friends are.

@@ -1,59 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266932AbTGGJbI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 05:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266934AbTGGJbI
+	id S266935AbTGGJly (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 05:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266939AbTGGJly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 05:31:08 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:16654 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S266932AbTGGJbF
+	Mon, 7 Jul 2003 05:41:54 -0400
+Received: from m239.net195-132-57.noos.fr ([195.132.57.239]:138 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S266935AbTGGJlw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 05:31:05 -0400
-Subject: rebased cpufreq patch?
-From: Anders Karlsson <anders@trudheim.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Bill Nottingham <notting@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TYuez6bE9D/cFR/rwBVw"
-Organization: Trudheim Technology Limited
-Message-Id: <1057571137.2584.5.camel@tor.trudheim.com>
+	Mon, 7 Jul 2003 05:41:52 -0400
+Date: Mon, 7 Jul 2003 11:56:12 +0200
+From: Stelian Pop <stelian@popies.net>
+To: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH 2.4.22-pre3] Export 'acpi_disabled' symbol to modules...
+Message-ID: <20030707095612.GA1507@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	acpi-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
-Date: 07 Jul 2003 10:45:37 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-TYuez6bE9D/cFR/rwBVw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+'acpi_disabled' is not exported by the current 2.4-pre kernel, but
+is used by at least the sonypi module.
 
-Hi there,
+I have submitted a similar patch for 2.5 some weeks ago (and it got
+applied) but for some reason the 2.4 ACPI branch don't have it.
 
-Is there any chance of getting the CPUFreq patch rebased against
-2.4.22-pre3 ?
+Andy, Marcelo, please apply.
 
-I have been using the two patches linux-2.4.20-cpufreq.patch and
-cpufreq-centrino.patch against 2.4.21-rc7-ac1 since June 12th without
-any problems. From what I can tell, it is working very well indeed, so
-if it could be included in -pre4 it'd be great.
+(Alan, a similar change is needed for -ac, but the current patch will
+not apply on top of the ac tree. Do you want me to send you a patch
+correcting this or you'll do the change by hand ?)
 
-Regards,
+Thanks,
 
-/A
+Stelian.
 
-
-
---=-TYuez6bE9D/cFR/rwBVw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA/CUFBLYywqksgYBoRAqhaAJ995bnPYFTQe+9K0w6K1+EvGilgQwCg1Su8
-9wh+8z2af53dq3ZTGM9BVOA=
-=Uh1h
------END PGP SIGNATURE-----
-
---=-TYuez6bE9D/cFR/rwBVw--
-
+===== arch/i386/kernel/setup.c 1.68 vs edited =====
+--- 1.68/arch/i386/kernel/setup.c	Mon Jun 23 08:41:25 2003
++++ edited/arch/i386/kernel/setup.c	Mon Jul  7 09:28:46 2003
+@@ -107,6 +107,7 @@
+ #include <linux/seq_file.h>
+ #include <asm/processor.h>
+ #include <linux/console.h>
++#include <linux/module.h>
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+@@ -175,10 +176,11 @@
+ static u32 disabled_x86_caps[NCAPINTS] __initdata = { 0 };
+ 
+ #ifdef CONFIG_ACPI_HT_ONLY
+-int acpi_disabled __initdata = 1;
++int acpi_disabled = 1;
+ #else
+-int acpi_disabled __initdata = 0;
++int acpi_disabled = 0;
+ #endif
++EXPORT_SYMBOL(acpi_disabled);
+ 
+ extern int blk_nohighio;
+ 
+===== arch/i386/kernel/Makefile 1.6 vs edited =====
+--- 1.6/arch/i386/kernel/Makefile	Fri Jun 13 09:01:12 2003
++++ edited/arch/i386/kernel/Makefile	Mon Jul  7 09:28:57 2003
+@@ -14,7 +14,7 @@
+ 
+ O_TARGET := kernel.o
+ 
+-export-objs     := mca.o mtrr.o msr.o cpuid.o microcode.o i386_ksyms.o time.o
++export-objs     := mca.o mtrr.o msr.o cpuid.o microcode.o i386_ksyms.o time.o setup.o
+ 
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
+-- 
+Stelian Pop <stelian@popies.net>

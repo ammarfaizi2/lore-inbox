@@ -1,128 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbUCECEm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 21:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbUCECEm
+	id S262157AbUCECLD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 21:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbUCECLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 21:04:42 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:54401 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262165AbUCECE2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 21:04:28 -0500
-Date: Thu, 04 Mar 2004 18:05:14 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: Chris Wright <chrisw@osdl.org>
-cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       greg@kroah.com, paulus@samba.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6] Patch to hook up PPP to simple class sysfs support
-Message-ID: <42870000.1078452314@w-hlinder.beaverton.ibm.com>
-In-Reply-To: <20040303195539.S22989@build.pdx.osdl.net>
-References: <200403032328.i23NSwlv009796@orion.dwf.com> <22370000.1078362205@w-hlinder.beaverton.ibm.com> <20040303195539.S22989@build.pdx.osdl.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Mar 2004 21:11:03 -0500
+Received: from gate.crashing.org ([63.228.1.57]:15305 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262157AbUCECLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 21:11:00 -0500
+Subject: Re: problem with cache flush routine for G5?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Tom Rini <trini@kernel.crashing.org>
+In-Reply-To: <4047CBB3.9050608@nortelnetworks.com>
+References: <40479A50.9090605@nortelnetworks.com>
+	 <1078444268.5698.27.camel@gaston>  <4047CBB3.9050608@nortelnetworks.com>
+Content-Type: text/plain
+Message-Id: <1078452637.5700.45.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Mar 2004 13:10:38 +1100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> It did in 2.4, and we added a syscall to export it to userspace.  Now 
+> I'm supposed to figure out what to do for 2.6, and it appears that the 
+> kernel version is gone and the one in boot is screwed.
 
-Thanks Chris. Your changes fixed the reload oops I was seeing.
+Ugh ? No, the kernel doesn't contain a routine that you can
+use to flush the entire cache. It contains and use routines
+to flush regions of the dcache & icache, and those can prefectly
+be used in userland. In fact, none of the cache flush code is
+relying on supervisor mode, you don't need to add a syscall for
+that, just copy the code you need in userland.
 
-root@w-hlinder2 root]# modprobe ppp_generic
-[root@w-hlinder2 root]# tree /sys/class/ppp
-/sys/class/ppp
-`-- ppp
-    `-- dev
+> The only remaining ppc version of flush_data_cache is used by 
+> flush_instruction_cache in arc/ppc/boot/common/util.S
 
-1 directory, 1 file
-[root@w-hlinder2 root]# rmmod ppp_generic
-[root@w-hlinder2 root]# tree /sys/class/ppp
-/sys/class/ppp [error opening dir]
+That's wrong. You should flush the cache over the range
+where you need it flushed. Also, there are very few reasons
+why one would want to flush the dcache, so it would be interesting
+to know what you are really trying to do.
 
-0 directories, 0 files
-[root@w-hlinder2 root]# modprobe ppp_generic
-[root@w-hlinder2 root]# tree /sys/class/ppp
-/sys/class/ppp
-`-- ppp
-    `-- dev
+> There is also another version of flush_instruction_cache implemented in 
+> arch/ppc/kernel/misc.S.
 
-1 directory, 1 file
+That is only used on some embedded CPUs afaik.
 
-Please consider the patch below for inclusion.
-
-Thanks.
-
-
---On Wednesday, March 03, 2004 07:55:39 PM -0800 Chris Wright <chrisw@osdl.org> wrote:
-
-> 
-> something like below.
-> 
-> thanks,
-> -chris
-> 
-> ===== drivers/net/ppp_generic.c 1.43 vs edited =====
-> --- 1.43/drivers/net/ppp_generic.c	Wed Feb 18 19:42:37 2004
-> +++ edited/drivers/net/ppp_generic.c	Wed Mar  3 19:08:24 2004
-> @@ -45,6 +45,7 @@
->  #include <linux/smp_lock.h>
->  #include <linux/rwsem.h>
->  #include <linux/stddef.h>
-> +#include <linux/device.h>
->  #include <net/slhc_vj.h>
->  #include <asm/atomic.h>
->  
-> @@ -271,6 +272,8 @@
->  static int ppp_disconnect_channel(struct channel *pch);
->  static void ppp_destroy_channel(struct channel *pch);
->  
-> +static struct class_simple *ppp_class;
-> +
->  /* Translates a PPP protocol number to a NP index (NP == network protocol) */
->  static inline int proto_to_npindex(int proto)
->  {
-> @@ -804,15 +807,29 @@
->  	printk(KERN_INFO "PPP generic driver version " PPP_VERSION "\n");
->  	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
->  	if (!err) {
-> +		ppp_class = class_simple_create(THIS_MODULE, "ppp");
-> +		if (IS_ERR(ppp_class)) {
-> +			err = PTR_ERR(ppp_class);
-> +			goto out_chrdev;
-> +		}
-> +		class_simple_device_add(ppp_class, MKDEV(PPP_MAJOR, 0), NULL, "ppp");
->  		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
->  				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
->  		if (err)
-> -			unregister_chrdev(PPP_MAJOR, "ppp");
-> +			goto out_class;
->  	}
->  
-> +out:
->  	if (err)
->  		printk(KERN_ERR "failed to register PPP device (%d)\n", err);
->  	return err;
-> +
-> +out_class:
-> +	class_simple_device_remove(MKDEV(PPP_MAJOR,0));
-> +	class_simple_destroy(ppp_class);
-> +out_chrdev:
-> +	unregister_chrdev(PPP_MAJOR, "ppp");
-> +	goto out;
->  }
->  
->  /*
-> @@ -2545,6 +2562,8 @@
->  	if (unregister_chrdev(PPP_MAJOR, "ppp") != 0)
->  		printk(KERN_ERR "PPP: failed to unregister PPP device\n");
->  	devfs_remove("ppp");
-> +	class_simple_device_remove(MKDEV(PPP_MAJOR, 0));
-> +	class_simple_destroy(ppp_class);
->  }
->  
->  /*
-> 
+Ben.
 
 

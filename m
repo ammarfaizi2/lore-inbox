@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVCUUBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVCUUEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVCUUBs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 15:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVCUUBr
+	id S261853AbVCUUEF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 15:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVCUUEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 15:01:47 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:14040 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261852AbVCUUBh (ORCPT
+	Mon, 21 Mar 2005 15:04:04 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:8972 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261853AbVCUUCe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:01:37 -0500
-Date: Mon, 21 Mar 2005 21:01:32 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 140 bugs, many of which are post-2.6.10 regressions - got a
- list?
-In-Reply-To: <20050321114457.44d0282f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0503212101000.30781@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.62.0503211451140.10323@jjulnx.backbone.dif.dk>
- <20050321114457.44d0282f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 21 Mar 2005 15:02:34 -0500
+Date: Mon, 21 Mar 2005 15:02:27 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: cramerj@intel.com, john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+       netdev@oss.sgi.com, jgarzik@pobox.com
+Subject: [patch 2.6.11] e1000: flush work queues on remove
+Message-ID: <20050321200222.GA32390@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, cramerj@intel.com,
+	john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+	netdev@oss.sgi.com, jgarzik@pobox.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  I'm wondering if you have a list of those bugs somewhere?
->I need to get down and sort through the list, categorise, weed things out.
+Flush work queues in ->remove() for e1000.
 
-How about the "unplugged" list?
+Acked-by: Ganesh Venkatesan <ganesh.venkatesan@intel.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+Since e1000 is using work queues, we need to call
+flush_scheduled_work() before removing the driver from memory.
+Otherwise, we are prone to an Oops...
 
+ drivers/net/e1000/e1000_main.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-
-Jan Engelhardt
+--- e1000-work-flush-2.6/drivers/net/e1000/e1000_main.c.orig	2005-03-17 21:37:30.000000000 -0500
++++ e1000-work-flush-2.6/drivers/net/e1000/e1000_main.c	2005-03-21 14:52:46.077220964 -0500
+@@ -660,6 +660,8 @@ e1000_remove(struct pci_dev *pdev)
+ 	struct e1000_adapter *adapter = netdev->priv;
+ 	uint32_t manc;
+ 
++	flush_scheduled_work();
++
+ 	if(adapter->hw.mac_type >= e1000_82540 &&
+ 	   adapter->hw.media_type == e1000_media_type_copper) {
+ 		manc = E1000_READ_REG(&adapter->hw, MANC);
 -- 
+John W. Linville
+linville@tuxdriver.com

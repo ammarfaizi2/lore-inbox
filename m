@@ -1,120 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264862AbUEPBXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUEPBYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbUEPBXD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 21:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUEPBXD
+	id S264857AbUEPBYd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 21:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264863AbUEPBYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 21:23:03 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.68]:41270 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S264858AbUEPBWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 21:22:55 -0400
-Date: Sat, 15 May 2004 21:22:45 -0400
-From: Mathieu Chouquet-Stringer <mchouque@online.fr>
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
- 3:{EoxBR
-Subject: [PATCH] Fix for 2.6.6 Makefiles to get KBUILD_OUTPUT working
-To: linux-kernel@vger.kernel.org, rth@twiddle.net, linux-alpha@vger.kernel.org,
-       ralf@gnu.org, linux-mips@linux-mips.org, akpm@osdl.org, bjornw@axis.com,
-       dev-etrax@axis.com
-Mail-followup-to: Mathieu Chouquet-Stringer <mchouque@online.fr>,
- linux-kernel@vger.kernel.org, rth@twiddle.net, linux-alpha@vger.kernel.org,
- ralf@gnu.org, linux-mips@linux-mips.org, akpm@osdl.org, bjornw@axis.com,
- dev-etrax@axis.com
-Message-id: <20040516012245.GA11733@localhost>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 15 May 2004 21:24:33 -0400
+Received: from nacho.zianet.com ([216.234.192.105]:32268 "HELO
+	nacho.zianet.com") by vger.kernel.org with SMTP id S264857AbUEPBYM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 21:24:12 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Sat, 15 May 2004 19:23:41 -0600
+User-Agent: KMail/1.6.1
+Cc: adi@bitmover.com, scole@lanl.gov, support@bitmover.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14> <20040514204153.0d747933.akpm@osdl.org>
+In-Reply-To: <20040514204153.0d747933.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405151923.41353.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Friday 14 May 2004 09:41 pm, Andrew Morton wrote:
+> Lincoln Dale <ltd@cisco.com> wrote:
+> >
+> > At 02:53 AM 15/05/2004, Andy Isaacson wrote:
+> > >That corruption size really does make me think of network packets, so
+> > >I'm tempted to blame it on PPP.  Can you find out the MTU of your PPP
+> > >link?  "ifconfig ppp0" or something like that.
+> > 
+> > 1352 bytes coule be remarkably close to the TCP MSS . . .
+> > perhaps there is some interaction with ppp where there is an overrun / lost 
+> > packet and the TCP window is mistakenly advanced?
+> 
+> Steve, if it's a memory stomp then perhaps CONFIG_DEBUG_PAGEALLOC and
+> CONFIG_DEBUG_SLAB might pick it up.
+> 
+> It seems awfully deterministic though.
+> 
+> 
+Second reply with some interesting developments.
 
-if you use O=/someotherdir or KBUILD_OUTPUT=/someotherdir on the following
-architectures: alpha, mips, sh and cris, the build process is probably
-going to fail at one point or another, depending on the target you used,
-because make can't find scripts/Makefile.build or scripts/Makefile.clean.
+I ran Andy's bk exersisor script on a vendor supplied kernel (2.6.3-4mdk) for
+36 iterations, with no failures at all.
 
-The following patch (which should apply cleanly to the latest 2.6.6 bk
-tree) fixes this, I greped the whole tree and these four were the only
-"offenders" I found.
+I then stopped that test, updated the 2.6-tree to the state at 15:00 MDT today,
+compiled with the above two DEBUG options, and rebooted with that new
+kernel.
 
-PS: Andrew I mailed you because I couldn't find the maintainer for the sh
-    port and you're the last who touched arch/sh/Makefile
+I ran Andy's script again, and it caused a failure right away.  Here is a
+snipped version of the log:
 
---- arch/alpha/Makefile.orig	2004-05-15 20:46:06.000000000 -0400
-+++ arch/alpha/Makefile	2004-05-15 20:47:52.000000000 -0400
-@@ -106,10 +106,10 @@ boot := arch/alpha/boot
- all boot: $(boot)/vmlinux.gz
- 
- $(boot)/vmlinux.gz: vmlinux
--	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
-+	$(Q)$(MAKE) $(build)=$(boot) $@
- 
- bootimage bootpfile bootpzfile: vmlinux
--	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $(boot)/$@
-+	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
- 
- prepare: include/asm-$(ARCH)/asm_offsets.h
-@@ -121,7 +121,7 @@ include/asm-$(ARCH)/asm_offsets.h: arch/
- 	$(call filechk,gen-asm-offsets)
- 
- archclean:
--	$(Q)$(MAKE) -f scripts/Makefile.clean obj=$(boot)
-+	$(Q)$(MAKE) $(clean)=$(boot)
- 
- CLEAN_FILES += include/asm-$(ARCH)/asm_offsets.h
- 
---- arch/mips/Makefile.orig	2004-05-15 20:48:52.000000000 -0400
-+++ arch/mips/Makefile	2004-05-15 20:49:58.000000000 -0400
-@@ -686,7 +686,7 @@ vmlinux.64: vmlinux
- 		--change-addresses=0xa800000080000000 $< $@
- endif
- 
--makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/mips/boot $(1)
-+makeboot =$(Q)$(MAKE) $(build)=arch/mips/boot $(1)
- 
- ifdef CONFIG_SGI_IP27
- all:	vmlinux.64
-@@ -708,9 +708,9 @@ CLEAN_FILES += vmlinux.ecoff \
- 	       vmlinux.rm200
- 
- archclean:
--	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/boot
--	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/baget
--	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/lasat
-+	@$(MAKE) $(clean)=arch/mips/boot
-+	@$(MAKE) $(clean)=arch/mips/baget
-+	@$(MAKE) $(clean)=arch/mips/lasat
- 
- # Generate <asm/offset.h 
- #
---- arch/sh/boot/Makefile.orig	2004-05-15 20:50:11.000000000 -0400
-+++ arch/sh/boot/Makefile	2004-05-15 20:50:41.000000000 -0400
-@@ -16,5 +16,5 @@ $(obj)/zImage: $(obj)/compressed/vmlinux
- 	@echo 'Kernel: $@ is ready'
- 
- $(obj)/compressed/vmlinux: FORCE
--	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(obj)/compressed $@
-+	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
- 
---- arch/cris/Makefile.orig	2004-05-15 20:59:49.000000000 -0400
-+++ arch/cris/Makefile	2004-05-15 21:00:36.000000000 -0400
-@@ -81,7 +81,7 @@ compressed: zImage
- 
- archmrproper:
- archclean:
--	$(Q)$(MAKE) -f scripts/Makefile.clean obj=arch/$(ARCH)/boot	
-+	$(Q)$(MAKE) $(clean)=arch/$(ARCH)/boot	
- 	rm -f timage vmlinux.bin cramfs.img
- 	rm -rf $(LD_SCRIPT).tmp
- 
+renumber: can't read SCCS info in "SCCS/s.ChangeSet".
+include/asm-x86_64/SCCS/s.i387.h
+[list of files snipped]
+net/ipv4/SCCS/s.ip_output.c
+Your repository should be back to where it was before undo started
+We are running a consistency check to verify this.
+check passed
+Undo failed, repository left locked.
+WARNING: deleting orphan file /home/steven/tmp/bk_clone2_0dH5v6
+Entire repository is locked by:
+        RESYNC directory.
+ERROR-Unable to lock repository for update.
+1 renumber: can't read SCCS info in "RESYNC/SCCS/s.ChangeSet".
+bk: takepatch.c:1343: applyCsetPatch: Assertion `s && s->tree' failed.
+2 renumber: can't read SCCS info in "RESYNC/SCCS/s.ChangeSet".
+bk: takepatch.c:1343: applyCsetPatch: Assertion `s && s->tree' failed.
+3
 
--- 
-Mathieu Chouquet-Stringer                 E-Mail: mchouque@online.fr
-       Never attribute to malice that which can be adequately
-                    explained by stupidity.
-                     -- Hanlon's Razor --
+The digits in column 1 above are an iteration count from the testing script.
+
+I control-c'ed out at that point.
+For reference, here is Andy's script again:
+#!/bin/sh
+x=0
+while true; do
+        bk clone -qlr40514130hBbvgP4CvwEVEu27oxm46w testing-2.6 foo
+        (cd foo; bk pull -q)
+        rm -rf foo
+        x=`expr $x + 1`
+        echo -n "$x "
+done
+
+The RESYNC directory in 'foo' does not contain an SCSS directory.
+There were no unusual messages in dmesg.
+
+In the spirit of 'rounding up the usual suspects', I'll unset CONFIG_PREEMT
+and try again.
+
+Steven

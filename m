@@ -1,153 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUK1LLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbUK1LSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbUK1LLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 06:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUK1LLJ
+	id S261433AbUK1LSO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 06:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUK1LSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 06:11:09 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6156 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261431AbUK1LKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 06:10:52 -0500
-Date: Sun, 28 Nov 2004 11:10:47 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Exar ST16C2550 rev A2 bug
-Message-ID: <20041128111047.A10807@flint.arm.linux.org.uk>
-Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1100716008.32679.55.camel@tdi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1100716008.32679.55.camel@tdi>; from alex.williamson@hp.com on Wed, Nov 17, 2004 at 11:26:47AM -0700
+	Sun, 28 Nov 2004 06:18:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:42439 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261433AbUK1LSK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 06:18:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Pasi Savolainen <psavo@iki.fi>
+Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
+Date: Sun, 28 Nov 2004 11:18:07 +0000 (UTC)
+Message-ID: <slrncqjcve.19r.psavo@varg.dyndns.org>
+References: <33133.192.168.0.2.1101499190.squirrel@192.168.0.10> <32942.192.168.0.2.1101549298.squirrel@192.168.0.10> <slrncqhqib.19r.psavo@varg.dyndns.org> <33262.192.168.0.2.1101597468.squirrel@192.168.0.10>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
+X-Face: $sk2zxhxVp'QPUj~kr+z:<m>#+84DO\Ab{4Hes1.P>]p=XhgsnwZM^[:"M?W#_x{W5[lu7i bqv7lOL`]5G%fH"Pgd5;+t"w)sOPDg::&T$Z9p#|xSMIb`$Udj6u14lh]imQ\z
+User-Agent: slrn/0.9.8.1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 11:26:47AM -0700, Alex Williamson wrote:
->    There seem to be an increasing number of the above UARTs floating
-> around and I'm wondering if we can do something to better detect and
-> work around their flaw.  Exar has documented the problem and their
-> proposed serial driver changes to work around the issue here:
-> 
-> http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
+* Thomas Fritzsche <tf@noto.de>:
+> the error message you receive means that your device don't support the SET
+> STREAMING command. But I'm wondering because an other user reported
+> success with exactly the DVD model you have. Do you use the latest FW? Do
+> you have any other special software / hardware setup that could explain
+> this difference?
 
-Can you check whether this patch solves it?  I'd rather not rely on
-size_fifo() to do the right thing in every circumstance.
+I updated firmware today to F506 (from F502). Same answer as before.
 
-Essentially, if we find an EFR, we check whether the UART reports
-DVID/DREV values corresponding to the known problem scenario, and
-if so, we essentially ignore the EFR.
+FWIW, the drive doesn't support setcd -command either.
 
-What I don't know is whether these DVID/DREV values correspond to
-a real device which does have an EFR.  Maybe Exar people can shed
-some light on this?
+> What Kernel do you use?
 
-(Also, one has to wonder what information Exar has about what we're
-working on, which we don't know ourselves about... check out the
-above link, FAQ question 6. 8))
+Linux tienel 2.6.10-rc2-mm1 #1 SMP Wed Nov 17 01:19:53 EET 2004 i686 GNU/Linux
 
-===== drivers/serial/8250.c 1.92 vs edited =====
---- 1.92/drivers/serial/8250.c	2004-11-19 07:03:10 +00:00
-+++ edited/drivers/serial/8250.c	2004-11-28 11:02:32 +00:00
-@@ -479,6 +479,34 @@
- }
- 
- /*
-+ * Read UART ID using the divisor method - set DLL and DLM to zero
-+ * and the revision will be in DLL and device type in DLM.  We
-+ * preserve the device state across this.
-+ */
-+static unsigned int autoconfig_read_divisor_id(struct uart_8250_port *p)
-+{
-+	unsigned char old_dll, old_dlm, old_lcr;
-+	unsigned int id;
-+
-+	old_lcr = serial_inp(p, UART_LCR);
-+	serial_outp(p, UART_LCR, UART_LCR_DLAB);
-+
-+	old_dll = serial_inp(p, UART_DLL);
-+	old_dlm = serial_inp(p, UART_DLM);
-+
-+	serial_outp(p, UART_DLL, 0);
-+	serial_outp(p, UART_DLM, 0);
-+
-+	id = serial_inp(p, UART_DLL) | serial_inp(p, UART_DLM) << 8;
-+
-+	serial_outp(p, UART_DLL, old_dll);
-+	serial_outp(p, UART_DLM, old_dlm);
-+	serial_outp(p, UART_LCR, old_lcr);
-+
-+	return id;
-+}
-+
-+/*
-  * This is a helper routine to autodetect StarTech/Exar/Oxsemi UART's.
-  * When this function is called we know it is at least a StarTech
-  * 16650 V2, but it might be one of several StarTech UARTs, or one of
-@@ -490,7 +518,7 @@
-  */
- static void autoconfig_has_efr(struct uart_8250_port *up)
- {
--	unsigned char id1, id2, id3, rev, saved_dll, saved_dlm;
-+	unsigned int id1, id2, id3, rev;
- 
- 	/*
- 	 * Everything with an EFR has SLEEP
-@@ -540,21 +568,13 @@
- 	 *  0x12 - XR16C2850.
- 	 *  0x14 - XR16C854.
- 	 */
--	serial_outp(up, UART_LCR, UART_LCR_DLAB);
--	saved_dll = serial_inp(up, UART_DLL);
--	saved_dlm = serial_inp(up, UART_DLM);
--	serial_outp(up, UART_DLL, 0);
--	serial_outp(up, UART_DLM, 0);
--	id2 = serial_inp(up, UART_DLL);
--	id1 = serial_inp(up, UART_DLM);
--	serial_outp(up, UART_DLL, saved_dll);
--	serial_outp(up, UART_DLM, saved_dlm);
--
--	DEBUG_AUTOCONF("850id=%02x:%02x ", id1, id2);
--
--	if (id1 == 0x10 || id1 == 0x12 || id1 == 0x14) {
--		if (id1 == 0x10)
--			up->rev = id2;
-+	id1 = autoconfig_read_divisor_id(up);
-+	DEBUG_AUTOCONF("850id=%04x ", id1);
-+
-+	id2 = id1 >> 8;
-+	if (id2 == 0x10 || id2 == 0x12 || id2 == 0x14) {
-+		if (id2 == 0x10)
-+			up->rev = id1 & 255;
- 		up->port.type = PORT_16850;
- 		return;
- 	}
-@@ -634,8 +654,16 @@
- 	serial_outp(up, UART_LCR, 0xBF);
- 	if (serial_in(up, UART_EFR) == 0) {
- 		DEBUG_AUTOCONF("EFRv2 ");
--		autoconfig_has_efr(up);
--		return;
-+
-+		/*
-+		 * Exar ST16C2550 "A2" devices incorrectly detect as
-+		 * having an EFR, and report an ID of 0x0201.  See
-+		 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
-+		 */
-+		if (autoconfig_read_divisor_id(up) != 0x0201) {
-+			autoconfig_has_efr(up);
-+			return;
-+		}
- 	}
- 
- 	/*
+Actually now that I rebooted (for DVD flashing) and started back into
+linux, after running dvdspeed it also says:
+"scsi: unknown opcode 0xb6" (which is SET_STREAMING). Code for this is
+in drivers/block/scsi_ioctl.c, and if I read it right, it can't prevent
+root from executing that command.
+
+I modified your speed-1.0 to open device O_RDWR, didn't help.
+I modified it to also dump_sense after CMD_SEND_PACKET, it's just
+duplicate packet.
 
 
+Thanks.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+   Psi -- <http://www.iki.fi/pasi.savolainen>
+

@@ -1,177 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVAGWb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVAGWiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVAGWb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVAGWbV
+	id S261641AbVAGWiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVAGWcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:31:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261676AbVAGW30 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:29:26 -0500
-Date: Fri, 7 Jan 2005 14:29:20 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, mingo@elte.hu, chrisw@osdl.org,
-       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107142920.K2357@build.pdx.osdl.net>
-References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org> <20050107221059.GA17392@infradead.org>
+	Fri, 7 Jan 2005 17:32:22 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:25252 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261641AbVAGW13
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:27:29 -0500
+Subject: [RFC/PATCH] add support for sysdev class attributes
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1105136891.13391.20.camel@pants.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050107221059.GA17392@infradead.org>; from hch@infradead.org on Fri, Jan 07, 2005 at 10:10:59PM +0000
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 07 Jan 2005 16:28:12 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christoph Hellwig (hch@infradead.org) wrote:
-> On Fri, Jan 07, 2005 at 01:49:41PM -0800, Andrew Morton wrote:
-> > Chris Wright <chrisw@osdl.org> wrote:
-> > >
-> > > ...
-> > > Last I checked they could be controlled separately in that module.  It
-> > > has been suggested (by me and others) that one possible solution would
-> > > be to expand it to be generic for all caps.
-> > 
-> > Maybe this is the way?
-> 
-> It's at least not as bad as the current hack (when properly done in
-> the capabilities modules instead of adding one ontop).
-> 
-> I must say I'm not exactly happy with that idea still.  It ties the
-> privilegues we have been separating from a special uid (0) to filesystem
-> permissions again.  It's not nessecarily a bad idea per, but it doesn't
-> really fit into the model we've been working to.  I'd expect quite a few
-> unpleasant devices when a user detects that the distibution had been
-> binding various capabilities to uids/gids behinds his back.
+Hi Greg,
 
-I agree, it's still a hack, just a generic and complete hack ;-)
+Would you consider a patch such as the one below which adds support for
+sysdev class attributes?  I would like to have this for doing cpu add
+and remove on ppc64 (for "probing" and removing cpus on partitioned
+machines).  I think the memory hotplug people probably will want it,
+too, eventually.
 
-> So to make forward progress I'd like the audio people to confirm whether
-> the mlock bits in 2.6.9+ do help that half of their requirement first
 
-It sure should, but I guess they can reply on that.
+Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
 
-> (and if not find a way to fix it) and then tackle the scheduling part.
-> For that one I really wonder whether the combination of the now actually
-> working nicelevels (see Mingo's post) and a simple wrapper for the really
-> high requirements cases doesn't work.
 
-I saw Jack (I think) post some numbers showing that it wasn't enough.
-What about making priority level protected via rlimit?
+---
 
-Here's an uncompiled, untested patch doing that (probably has some math
-error or logic hole in it, but idea seems sound enough).  I think it has
-at least one problem, where nice 19 process, could renice itself back to
-0.  And it doesn't really handle the different scheduling policies,
-other than implicit 40 - 139 being used for SCHED_FIFO/SCHED_RR.
 
-It takes the 140 priority levels (0-139), inverts their priority
-order, and then uses that number as the basis for the rlimit (so that a
-larger rlimit means higher priority, to fall inline with normal rlimit
-semantics).  Defaults to 19 (which should be niceval of 0).  And allows
-CAP_SYS_NICE to continue to override if the rlimit is too low.
-
-===== kernel/sched.c 1.386 vs edited =====
---- 1.386/kernel/sched.c	2005-01-04 18:48:21 -08:00
-+++ edited/kernel/sched.c	2005-01-07 14:23:32 -08:00
-@@ -3009,12 +3009,8 @@ asmlinkage long sys_nice(int increment)
- 	 * We don't have to worry. Conceptually one call occurs first
- 	 * and we have a single winner.
- 	 */
--	if (increment < 0) {
--		if (!capable(CAP_SYS_NICE))
--			return -EPERM;
--		if (increment < -40)
--			increment = -40;
--	}
-+	if (increment < -40)
-+		increment = -40;
- 	if (increment > 40)
- 		increment = 40;
+diff -puN drivers/base/sys.c~sysdev_class-attr-support drivers/base/sys.c
+--- linux-2.6.10-bk10/drivers/base/sys.c~sysdev_class-attr-support	2005-01-07 16:17:11.000000000 -0600
++++ linux-2.6.10-bk10-nathanl/drivers/base/sys.c	2005-01-07 16:17:11.000000000 -0600
+@@ -76,6 +76,41 @@ void sysdev_remove_file(struct sys_devic
+ EXPORT_SYMBOL_GPL(sysdev_create_file);
+ EXPORT_SYMBOL_GPL(sysdev_remove_file);
  
-@@ -3024,6 +3020,11 @@ asmlinkage long sys_nice(int increment)
- 	if (nice > 19)
- 		nice = 19;
- 
-+	if ((MAX_PRIO-1) - NICE_TO_PRIO(nice) > 
-+	    current->signal->rlim[RLIMIT_PRIO].rlim_cur &&
-+	    !capable(CAP_SYS_NICE))
-+		return -EPERM;
++#define to_sysdev_class(k) container_of(to_kset(k), struct sysdev_class, kset)
++#define to_sysdev_class_attr(a) container_of(a, struct sysdev_class_attribute, attr)
 +
- 	retval = security_task_setnice(current, nice);
- 	if (retval)
- 		return retval;
-@@ -3057,6 +3058,15 @@ int task_nice(const task_t *p)
- }
- 
- /**
-+ * nice_to_prio - return priority of give nice value
-+ * @nice: nice value
-+ */
-+int nice_to_prio(const int nice)
++static ssize_t
++sysdev_class_show(struct kobject * kobj, struct attribute * attr, char * buffer)
 +{
-+	return NICE_TO_PRIO(nice);
++	struct sysdev_class * sysdev_class = to_sysdev_class(kobj);
++	struct sysdev_class_attribute * sysdev_class_attr = to_sysdev_class_attr(attr);
++
++	if (sysdev_class_attr->show)
++		return sysdev_class_attr->show(sysdev_class, buffer);
++	return 0;
 +}
 +
-+/**
-  * idle_cpu - is a given cpu idle currently?
-  * @cpu: the processor in question.
-  */
-@@ -3140,6 +3150,7 @@ recheck:
- 
- 	retval = -EPERM;
- 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
-+	    lp.sched_priority+40 > p->signal->rlim[RLIMIT_PRIO].rlim_cur && 
- 	    !capable(CAP_SYS_NICE))
- 		goto out_unlock;
- 	if ((current->euid != p->euid) && (current->euid != p->uid) &&
-===== kernel/sys.c 1.102 vs edited =====
---- 1.102/kernel/sys.c	2005-01-06 23:25:46 -08:00
-+++ edited/kernel/sys.c	2005-01-07 14:13:37 -08:00
-@@ -225,7 +225,9 @@ static int set_one_prio(struct task_stru
- 		error = -EPERM;
- 		goto out;
- 	}
--	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
-+	if ((MAX_PRIO-1) - nice_to_prio(niceval) > 
-+	    p->signal->rlim[RLIMIT_PRIO].rlim_cur &&
-+	    !capable(CAP_SYS_NICE)) {
- 		error = -EACCES;
- 		goto out;
- 	}
-===== include/asm-i386/resource.h 1.5 vs edited =====
---- 1.5/include/asm-i386/resource.h	2004-08-23 01:15:26 -07:00
-+++ edited/include/asm-i386/resource.h	2005-01-07 13:55:37 -08:00
-@@ -18,8 +18,9 @@
- #define RLIMIT_LOCKS	10		/* maximum file locks held */
- #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
- #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
-+#define RLIMIT_PRIO	13		/* maximum scheduling priority */
- 
--#define RLIM_NLIMITS	13
-+#define RLIM_NLIMITS	14
- 
- 
++static ssize_t
++sysdev_class_store(struct kobject * kobj, struct attribute * attr,
++	     const char * buffer, size_t count)
++{
++	struct sysdev_class * sysdev_class = to_sysdev_class(kobj);
++	struct sysdev_class_attribute * sysdev_class_attr = to_sysdev_class_attr(attr);
++
++	if (sysdev_class_attr->store)
++		return sysdev_class_attr->store(sysdev_class, buffer, count);
++	return 0;
++}
++
++static struct sysfs_ops sysdev_class_sysfs_ops = {
++	.show	= sysdev_class_show,
++	.store	= sysdev_class_store,
++};
++
++static struct kobj_type sysdev_class_ktype = {
++	.sysfs_ops	= &sysdev_class_sysfs_ops,
++};
++
  /*
-@@ -45,6 +46,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
- 	{ MQ_BYTES_MAX, MQ_BYTES_MAX },			\
-+	{           19,	            19 },		\
+  * declare system_subsys
+  */
+@@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
+ 	INIT_LIST_HEAD(&cls->drivers);
+ 	cls->kset.subsys = &system_subsys;
+ 	kset_set_kset_s(cls, system_subsys);
++
++	/* I'm not going to claim to understand this; see
++	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
++	 */
++	cls->kset.kobj.ktype = &sysdev_class_ktype;
++
+ 	return kset_register(&cls->kset);
  }
  
- #endif /* __KERNEL__ */
-===== include/linux/sched.h 1.280 vs edited =====
---- 1.280/include/linux/sched.h	2005-01-04 18:48:20 -08:00
-+++ edited/include/linux/sched.h	2005-01-07 14:14:16 -08:00
-@@ -760,6 +760,7 @@ extern void sched_idle_next(void);
- extern void set_user_nice(task_t *p, long nice);
- extern int task_prio(const task_t *p);
- extern int task_nice(const task_t *p);
-+extern int nice_to_prio(const int nice);
- extern int task_curr(const task_t *p);
- extern int idle_cpu(int cpu);
+@@ -98,6 +139,19 @@ void sysdev_class_unregister(struct sysd
+ 	kset_unregister(&cls->kset);
+ }
  
++int sysdev_class_create_file(struct sysdev_class *s, struct sysdev_class_attribute *a)
++{
++	return sysfs_create_file(&s->kset.kobj, &a->attr);
++}
++
++
++void sysdev_class_remove_file(struct sysdev_class *s, struct sysdev_class_attribute *a)
++{
++	sysfs_remove_file(&s->kset.kobj, &a->attr);
++}
++
++EXPORT_SYMBOL_GPL(sysdev_class_create_file);
++EXPORT_SYMBOL_GPL(sysdev_class_remove_file);
+ EXPORT_SYMBOL_GPL(sysdev_class_register);
+ EXPORT_SYMBOL_GPL(sysdev_class_unregister);
+ 
+diff -puN include/linux/sysdev.h~sysdev_class-attr-support include/linux/sysdev.h
+--- linux-2.6.10-bk10/include/linux/sysdev.h~sysdev_class-attr-support	2005-01-07 16:17:11.000000000 -0600
++++ linux-2.6.10-bk10-nathanl/include/linux/sysdev.h	2005-01-07 16:18:02.000000000 -0600
+@@ -40,6 +40,21 @@ struct sysdev_class {
+ extern int sysdev_class_register(struct sysdev_class *);
+ extern void sysdev_class_unregister(struct sysdev_class *);
+ 
++struct sysdev_class_attribute {
++	struct attribute	attr;
++	ssize_t (*show)(struct sysdev_class *, char *);
++	ssize_t (*store)(struct sysdev_class *, const char *, size_t);
++};
++
++#define SYSDEV_CLASS_ATTR(_name,_mode,_show,_store) 		\
++struct sysdev_class_attribute attr_##_name = { 			\
++	.attr = {.name = __stringify(_name), .mode = _mode },	\
++	.show	= _show,					\
++	.store	= _store,					\
++};
++
++extern int sysdev_class_create_file(struct sysdev_class *, struct sysdev_class_attribute *);
++extern void sysdev_class_remove_file(struct sysdev_class *, struct sysdev_class_attribute *);
+ 
+ /**
+  * Auxillary system device drivers.
+
+_
+
+

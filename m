@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288435AbSADA5N>; Thu, 3 Jan 2002 19:57:13 -0500
+	id <S288433AbSADAxD>; Thu, 3 Jan 2002 19:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288434AbSADA5D>; Thu, 3 Jan 2002 19:57:03 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:34018 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288435AbSADA4x>;
-	Thu, 3 Jan 2002 19:56:53 -0500
-Date: Thu, 3 Jan 2002 19:56:51 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Joerg Schilling <schilling@fokus.gmd.de>, anderson@metrolink.com,
-        hch@caldera.de, lsb-discuss@lists.linuxbase.org,
-        lsb-spec@lists.linuxbase.org, linux-kernel@vger.kernel.org
-Subject: Re: LSB1.1: /proc/cpuinfo
-In-Reply-To: <20020103190219.B27938@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0201031944320.23693-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288434AbSADAwn>; Thu, 3 Jan 2002 19:52:43 -0500
+Received: from ns2.auctionwatch.com ([64.14.24.2]:7428 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S288433AbSADAwd>; Thu, 3 Jan 2002 19:52:33 -0500
+Date: Thu, 3 Jan 2002 16:52:29 -0800
+From: Petro <petro@auctionwatch.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: brian@worldcontrol.com, linux-kernel@vger.kernel.org
+Subject: Re: Bounce from andre@linuxdiskcert.org
+Message-ID: <20020104005229.GL28238@auctionwatch.com>
+In-Reply-To: <WHITEvJ1xKjtgZe0J64000008b1@white.pocketinet.com> <200112301911.UAA07512@webserver.ithnet.com> <20011231013817.A3377@top.worldcontrol.com> <20011231163800.57cda2f7.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011231163800.57cda2f7.skraw@ithnet.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 31, 2001 at 04:38:00PM +0100, Stephan von Krawczynski wrote:
+> SPAM is of nature broadcasted information, but anyway you would probably not
+> mind getting the complete same info as a mail _only_ addressed to you. Still
 
+    Don't know about you, but I really don't need or want *any*
+    information relating to Viagra, Teenage Incest and Horses or How To
+    Secure My Windows Machine showing up in my mail box. 
 
-On Thu, 3 Jan 2002, Eric S. Raymond wrote:
-
-> Well, hell.  If the "/proc is a blight on the face of the planet" ranting that
-> I've been hearing is just about the *name* /proc, then let's separate the
-> name issue from the content issue.
-
-It's more than just a name.
-	a) granularity.  Current "all or nothing" policy in procfs has
-a lot of obvious problems.
-	b) tree layout policy (lack thereof, to be precise).
-	c) horribly bad layout of many, many files.  Any file exported by
-kernel should be treated as user-visible API.  As it is, common mentality
-is "it's a common dump; anything goes here".  Inconsistent across
-architectures for no good reason, inconsistent across kernel versions,
-just plain stupid, choke-full of buffer overruns...
-
-Fixing these problems will _hurt_.  Badly.  We have to do it, but it
-won't be fast and it certainly won't happen overnight.
-
+-- 
+Share and Enjoy. 

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264109AbTCXFGK>; Mon, 24 Mar 2003 00:06:10 -0500
+	id <S264108AbTCXFVc>; Mon, 24 Mar 2003 00:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264110AbTCXFGK>; Mon, 24 Mar 2003 00:06:10 -0500
-Received: from mail.mascot.co.in ([202.140.137.148]:39184 "EHLO
-	masblrconnector.mascotsystems.com") by vger.kernel.org with ESMTP
-	id <S264109AbTCXFGJ>; Mon, 24 Mar 2003 00:06:09 -0500
-Message-ID: <5575473D4532D411BE4C009027E8C8380AB81635@masblrexc02.mascotsystems.com>
-From: Manu Anand <ManuA@mascotsystems.com>
-To: linux-kernel@vger.kernel.org
-Subject: 
-Date: Mon, 24 Mar 2003 10:46:00 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S264110AbTCXFVc>; Mon, 24 Mar 2003 00:21:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45001 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264108AbTCXFVc>;
+	Mon, 24 Mar 2003 00:21:32 -0500
+Date: Sun, 23 Mar 2003 21:29:50 -0800 (PST)
+Message-Id: <20030323.212950.05858732.davem@redhat.com>
+To: mk@linux-ipv6.org
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       usagi-core@linux-ipv6.org
+Subject: Re: [PATCH] IPv6 Extension headers
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <87of48h6f8.wl@karaba.org>
+References: <20030306093219.1a702868.kazunori@miyazawa.org>
+	<20030305.204348.130225511.davem@redhat.com>
+	<87of48h6f8.wl@karaba.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	unsubscribe linux-kernel manua@mascotsystems.com
+   From: Mitsuru KANDA / 神田 充 <mk@linux-ipv6.org>
+   Date: Tue, 18 Mar 2003 10:32:27 -0800
+   
+   Could you check this patch?
+   (This patch is against 2.5.65.)
 
+I applied this patch with some minor changes.
 
-DISCLAIMER: Information contained and transmitted by this E-MAIL is
-proprietary to Mascot Systems Limited and is intended for use only by the
-individual or entity to which it is addressed, and may contain information
-that is privileged, confidential or exempt from disclosure under applicable
-law. If this is a forwarded message, the content of this E-MAIL may not have
-been sent with the authority of the Company. If you are not the intended
-recipient, an agent of the intended recipient or a person responsible for
-delivering the information to the named recipient, you are notified that any
-use, distribution, transmission, printing, copying or dissemination of this
-information in any way or in any manner is strictly prohibited. If you have
-received this communication in error, please delete this mail & notify us
-immediately at Mailadmin@mascotsystems.com Before opening attachments,
-please scan for viruses. 
+First, many functions in net/ipv6/exthdrs.c and net/ipv6/reassembly.c
+can be marked static now.
 
+Second, some local variables (for example, "nhoff" in ip6_input()) can
+be eliminated entirely because they compute a value in one place and
+use it in the very next line and nowhere else is it referenced.
 
+Thank you.

@@ -1,66 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTD2E1x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 00:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTD2E1x
+	id S261953AbTD2E4t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 00:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTD2E4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 00:27:53 -0400
-Received: from aktion1.adns.de ([62.116.145.13]:30665 "EHLO aktion1.adns.de")
-	by vger.kernel.org with ESMTP id S261940AbTD2E1w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 00:27:52 -0400
-Message-ID: <3EAE0224.2030502@asbest-online.de>
-Date: Tue, 29 Apr 2003 06:40:04 +0200
-From: Sven Krohlas <sven@asbest-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4b) Gecko/20030423
-X-Accept-Language: de, de-at, de-de, de-li, de-lu, de-ch, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc1 freezes
-References: <fa.gkftieo.3iqshi@ifi.uio.no> <fa.ikvjpcr.34s8rv@ifi.uio.no>
-In-Reply-To: <fa.ikvjpcr.34s8rv@ifi.uio.no>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 29 Apr 2003 00:56:49 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:46804 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261953AbTD2E4r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 00:56:47 -0400
+Date: Mon, 28 Apr 2003 22:08:56 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matthias Schniedermeyer <ms@citd.de>,
+       Ross Vandegrift <ross@willow.seitz.com>,
+       Chris Adams <cmadams@hiwaay.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030429050856.GC23581@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Dax Kelson <dax@gurulabs.com>, Larry McVoy <lm@bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Matthias Schniedermeyer <ms@citd.de>,
+	Ross Vandegrift <ross@willow.seitz.com>,
+	Chris Adams <cmadams@hiwaay.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030429000904.GA9653@work.bitmover.com> <Pine.LNX.4.44.0304282144200.22872-100000@mooru.gurulabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304282144200.22872-100000@mooru.gurulabs.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=1.3, required 4.5,
+	DATE_IN_PAST_06_12, ITS_LEGAL)
+X-MailScanner-SpamScore: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Your complaint/observation about cloning/re-implementation is recognized.  
+> 
+> The counter claims are:
+> 
+> 1. Unless patents are involved, it is perfectly LEGAL.
+> 2. Virtually nothing is original to begin with.
+> 3. The practice is hardly unique to Open Source developers.
 
-Hi,
+Me:  Action A is leading to reaction B which you don't want.
+You: Action A is perfectly legal, etc., etc.
+Me:  It's not about whether it is legal or not, it's about reaction B.
+You: Action A is perfectly legal, etc., etc.
+Me:  Reaction B is what you don't want, it's behaviour A which is the cause.
+You: Action A is perfectly legal, etc., etc.
+Me:  You keep missing the point about the reaction B.
+You: Action A is perfectly legal, etc., etc.
+Me:  Err, umm, how many times do I have to tell you it is the reaction that
+     is what you want to avoid?
+You: Action A is perfectly legal, etc., etc.
+Me:  Sigh.
 
->>Could you have a look at my boot.log and see if you've got
->>similar hardware? Maybe we can narrow the problem down a bit.
->
-> 	I have VIA chipset too (KT400), I hope it is not chipset specific. Int=
-> el, SIS
-> people how are you doing?
 
-Hey, don't forget my Ali one ;)
-I see the problem with a Ali Aladdin V (ALI1543)
+I think the point that you are missing is that if the corporations are 
+threatened by your actions they will take steps to remove that threat.
+The various IP protection changes which we are seeing are those steps.
+People keep telling me how I don't understand the legality of the threats
+and I keep telling them that the world evolves, we're in a world which 
+is moving more and more towards a place where much of the economy is
+based on IP, not physical goods.  As that happens the laws will be
+evolved to protect the owners of the IP, technology will evolve to 
+protect that IP, everything becomes about the IP.
 
-linux:/home/sven # lspci
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M1541 PCI to AGP Controller (rev 04)
-00:02.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03)
-00:03.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev c3)
-00:09.0 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 26)
-00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-00:0c.0 Unknown mass storage controller: Promise Technology, Inc. 20269 (rev 02)
-00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
-01:00.0 VGA compatible controller: nVidia Corporation NV4 [Riva TnT] (rev 04)
+To the extent that the corporations view your actions as a threat,
+they will react.  Consider at Microsoft Word, if you don't talk Word
+you don't do business.  So if Microsoft gets really nervous about
+their office monopoly what is to prevent them from encrypting the data?
+You can build all the Word compatible programs you want and it won't do a
+bit of good if you can't read the data.  It's the data, not the program,
+which is valuable.  He who owns the data wins.  Office is more than proof.
 
-BTW: At least DMA is working for me again with rc1 on my M1541 :-)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+It's my belief that the more you chase the leaders, the more the leaders
+will lock up what gives them that lead.  Various people on this list have
+said that the lockup will fail, it will be too inconvenient.  I don't buy
+it for a second.  If only the Word binaries can read Word documents, that
+doesn't cause the users any headaches, they can still get their job done.
 
-iD8DBQE+rgIiUKRT/HXmN7cRAplyAKDjW3VJU3f1hgHdOluiBEATfys3PQCg1xcr
-+S5tDsirlzpaJ9qhNmXIVGA=
-=U8lZ
------END PGP SIGNATURE-----
+So how do you win?  Create a *better* answer.  Chasing is a waste of your
+time, all that happens is that the people being chased will do a little
+work to make it impossible to get at the data produced by their tools.
+You win by being a leader, not following a leader.
 
+It's not that hard to lead, you just need to decide to do it.  Look at Word.
+What's wrong with it?  Well, it's a binary file format, you can't version
+control it in a meaningful way, there is no way to merge diverged docs,
+so development on any doc is single threaded.  Suppose you made an
+ascii file format (me being the geek I am, I'd use troff as the back
+end but that's just me), add version control (RCS would be good enough),
+made a 3 way merge tool, TADA, you have just parallelized documentation
+(never mind that we had this in the 70's and Microsoft screwed it up).
+There is a huge, huge market for this sort of thing.
+
+Instead of actually making real progress, people work on reimplementation
+of the same thing.  Doomed, the leader changes a few things, you're
+incompatible, you lose because noone can open their files in your tool.
+
+The problem, in my not so respected opinion, is that the open source
+community is good at chasing and hasn't figured out how to lead.
+Linux is a hell of a success story but it's still Unix.  It's a nice
+Unix, I much prefer it over any other but I could just as easily live
+on MacOS X if I had to, the processors are fast enough for what I do.
+But Linux isn't really the issue, the OS has never been the issue, it's
+always been the applications.  And there, again, we see reimplementation
+of proprietary apps and infrastructure.  When Microsoft is following
+Mono rather than the other way around, then the tide will have changed.
+As long as you chase them, you're bound to lose.
+
+We may now return to our regularly scheduled thread of how I don't get
+that reimplementation is perfectly legal and I'll go do some real work...
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

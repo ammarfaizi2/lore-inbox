@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268939AbTBSPhM>; Wed, 19 Feb 2003 10:37:12 -0500
+	id <S268928AbTBSPeS>; Wed, 19 Feb 2003 10:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268940AbTBSPhM>; Wed, 19 Feb 2003 10:37:12 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:36841
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S268939AbTBSPhL>; Wed, 19 Feb 2003 10:37:11 -0500
-Date: Wed, 19 Feb 2003 10:47:05 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Pavel =?iso-8859-2?q?Jan=EDk?= <Pavel@Janik.cz>
-cc: David Lang <david.lang@digitalinsight.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-In-Reply-To: <m3d6lopt70.fsf@Janik.cz>
-Message-ID: <Pine.LNX.4.44.0302191043550.9671-100000@xanadu.home>
+	id <S268938AbTBSPeS>; Wed, 19 Feb 2003 10:34:18 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:34182 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S268928AbTBSPeR>; Wed, 19 Feb 2003 10:34:17 -0500
+Date: Wed, 19 Feb 2003 03:43:34 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.62]: 2/3: Make SCSI low-level drivers also a seperate,
+ complete selectable submenu
+In-Reply-To: <Pine.LNX.3.96.1030219084918.9798A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0302190332200.4923-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, Pavel [iso-8859-2] Janík wrote:
+On Wed, 19 Feb 2003, Bill Davidsen wrote:
 
->    From: David Lang <david.lang@digitalinsight.com>
->    Date: Tue, 18 Feb 2003 14:34:42 -0800 (PST)
+> I don't think it matters, the idea is to avoid all the low-level SCSI
+> menus in one place, without disabling the ability to handle ATAPI devices.
+> Using the ide-scsi or not still uses SCSI drivers AFAIK.
 > 
->    > Ok, it sounds like we have the following resources available for getting
->    > the kernel source
+> > There was talk about it awhile back on the list.  I've been burning CDs 
+> > using ide cdrom support for several kernel revisions now.
 > 
-> [...]
-> 
->    > This isn't enough for people so will adding read-only CVS access to the
->    > tree itself be enough?
-> 
-> This will be enough for people who want to have usual access to the Linux
-> kernel source repository. It won't satisfy people who do not like the
-> approach of using non-free software for developing the Linux kernel.
+> Have you checked/used them? I kind of wrote that off after a while, I
+> don't need more coasters :-( At the time I deferred testing the score was
+> CD: read okay burn failed, ide-floppy (ZIP in my case): ng, and tape: not
+> even visible. That was back around 2.5.52 or so, since ide-scsi seems to
+> work I haven't been motivated to care.
 
-As soon as you have stellar access to the kernel source through free 
-software, then it shouldn't be your business if others are using non-free 
-tools to manage their own copy.
-
-
-Nicolas
+As I said, I've been using it successfully.  I've not tested ide-floppy 
+since I don't have one, nor a tape.  I would rather not have to use 
+ide-scsi if I can help it.  ide cd support is incompatible with ide-scsi 
+cdrom support, so things are simpler if I can just cut out the scsi 
+support entirely.
 

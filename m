@@ -1,71 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265668AbSJXWBk>; Thu, 24 Oct 2002 18:01:40 -0400
+	id <S265686AbSJXWMl>; Thu, 24 Oct 2002 18:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265676AbSJXWBk>; Thu, 24 Oct 2002 18:01:40 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:60689 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265668AbSJXWBj>;
-	Thu, 24 Oct 2002 18:01:39 -0400
-Date: Thu, 24 Oct 2002 15:06:08 -0700
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: "'KOCHI, Takayoshi'" <t-kouchi@mvf.biglobe.ne.jp>,
-       "Luck, Tony" <tony.luck@intel.com>,
-       pcihpd-discuss@lists.sourceforge.net,
-       linux ia64 kernel list <linux-ia64@linuxia64.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI Hotplug Drivers for 2.5
-Message-ID: <20021024220608.GM25159@kroah.com>
-References: <20021024164629.GF22654@kroah.com> <72B3FD82E303D611BD0100508BB29735046DFF45@orsmsx102.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF45@orsmsx102.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S265687AbSJXWMl>; Thu, 24 Oct 2002 18:12:41 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:12948 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S265686AbSJXWMk>; Thu, 24 Oct 2002 18:12:40 -0400
+Date: Fri, 25 Oct 2002 00:18:50 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <linux-kernel@vger.kernel.org>, <arjanv@redhat.com>
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
+Message-ID: <Pine.LNX.4.33.0210250013120.32410-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 10:40:05AM -0700, Lee, Jung-Ik wrote:
-> 
-> **resource management**
-> Non-ACPI platforms uses $HRT/EBDA, pcibios_*(), SMBIOS, etc. for slot
-> enumeration/configuration.
-> DIG64/ACPI, and SHPC requires ACPI for this. IPF platforms only have ACPI
-> _CRS, _PRT, _HPP, _BBN, _STA, _ADR, _SUN, etc on the namespace for PHP, and
-> we have to use them. (as a side note, this functionality is common for other
-> hotplug-* as mentioned in first mail. No API will be common for
-> hotplug-everything, but functionality is common and has not to be
-> duplicated)
-> 
-> **event management in terms of controller/slot operations **
-> ACPI provides only _EJ0, _PS?, _STA, etc for slot operations but these are
-> not mandatory. That means, we can use either ACPI method or controller
-> driver.
-> intcphp driver has not enabled ACPI method based solution but uses
-> controller driver.
-> intcphp driver is also capable of performing ACPI method based solution
-> since it works on ACPI namespace. This is why acpiphp and intcphp could be
-> sharing resource management and event management.
+> Attached is a test app that compares several memory copy implementations.
+> Could you run it and report the results to me, together with cpu, 
+> chipset and memory type?
 
-Ok, that makes more sense to me now.  Thank you for taking the time to
-explain this.
+since everone seems to CC: lkml in the reply...
 
-> > As this means there is a lot of "dead code" in the driver, you should
-> > take all of it out.
-> 
-> Well, I removed many dead codes from the base driver. This is not dead code
-> but needed to support other types.
-> However, if it's not acceptable, I'll remove them.
+Athlon-500, AMD-751 Irongate, PC800-222 ECC SDRAM
 
-If the code can never be called, it looks pretty dead to me :)
+> ./a.out 
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-But as you're going to be sending me a patch for the existing driver, we
-don't have to worry about this anymore.
+copy_page() tests 
+copy_page function 'warm up run'         took 9998 cycles per page
+copy_page function '2.4 non MMX'         took 15269 cycles per page
+copy_page function '2.4 MMX fallback'    took 15192 cycles per page
+copy_page function '2.4 MMX version'     took 10152 cycles per page
+copy_page function 'faster_copy'         took 10264 cycles per page
+copy_page function 'even_faster'         took 10013 cycles per page
+copy_page function 'no_prefetch'         took 11527 cycles per page
+> ./a.out
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-> OK, then, I'll send you a patch against your cpqphp driver asap.
+copy_page() tests 
+copy_page function 'warm up run'         took 9975 cycles per page
+copy_page function '2.4 non MMX'         took 15513 cycles per page
+copy_page function '2.4 MMX fallback'    took 15219 cycles per page
+copy_page function '2.4 MMX version'     took 10009 cycles per page
+copy_page function 'faster_copy'         took 10186 cycles per page
+copy_page function 'even_faster'         took 10088 cycles per page
+copy_page function 'no_prefetch'         took 11583 cycles per page
+> ./a.out
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-Looking forward to it.
+copy_page() tests 
+copy_page function 'warm up run'         took 9967 cycles per page
+copy_page function '2.4 non MMX'         took 15178 cycles per page
+copy_page function '2.4 MMX fallback'    took 15178 cycles per page
+copy_page function '2.4 MMX version'     took 10086 cycles per page
+copy_page function 'faster_copy'         took 10124 cycles per page
+copy_page function 'even_faster'         took 10025 cycles per page
+copy_page function 'no_prefetch'         took 11524 cycles per page
+> lspci 
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] 
+System Controller (rev 23)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] AGP 
+Bridge (rev 01)
+00:04.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] 
+(rev 64)
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
+(rev 14)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 06)
+00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 06)
+00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
+10)
+01:05.0 VGA compatible controller: S3 Inc. 86c368 [Trio 3D/2X] (rev 02)
+> cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 1
+model name      : AMD-K7(tm) Processor
+stepping        : 2
+cpu MHz         : 499.051
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat mmx syscall mmxext 3dnowext 3dnow
+bogomips        : 992.87
 
-thanks,
 
-greg k-h
+Tim
+

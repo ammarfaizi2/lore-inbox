@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbULWM6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbULWNLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbULWM6a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 07:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbULWM6a
+	id S261227AbULWNLh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 08:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbULWNLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 07:58:30 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:62222 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261224AbULWM6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 07:58:23 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.6.x BUGs at boot time (APIC related)
-Date: Thu, 23 Dec 2004 14:57:25 +0000
-X-Mailer: KMail [version 1.4]
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-References: <200412221731.20105.vda@port.imtp.ilyichevsk.odessa.ua> <200412231102.10171.vda@port.imtp.ilyichevsk.odessa.ua> <20041223091243.GA771@holomorphy.com>
-In-Reply-To: <20041223091243.GA771@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_P7K6P5SZ4XCITEWGH4HE"
-Message-Id: <200412231457.25944.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 23 Dec 2004 08:11:37 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:60079 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261227AbULWNLf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 08:11:35 -0500
+Date: Thu, 23 Dec 2004 14:11:35 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pc stalling when processing large files [2.6.9]
+Message-ID: <20041223131135.GA11257@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Folkert van Heusden <folkert@vanheusden.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.33.0412231205470.28376-100000@muur.intranet.vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0412231205470.28376-100000@muur.intranet.vanheusden.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 23, 2004 at 12:09:10PM +0100, Folkert van Heusden wrote:
+> Hi,
+> 
+> I have a P-III with 384MB of ram running kernel 2.6.9. It has one IDE disk.
+> When processing a large mailbox with sa-learn (the bayes learn tool of
+> spamassassin), the system gets very unresponsive. Like: when typing commands
+> on it via ssh, the system doesn't respond several times for seconds (1 or 2
+> maybe 3). Then when I continue to type, it gets a little better but when
+> idling for say 10 seconds it gets unresponsive again. The large mailbox is
+> aprox 200MB.
 
---------------Boundary-00=_P7K6P5SZ4XCITEWGH4HE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Sounds obvious, but can you show the output of hdparm /dev/hda ? You have
+IDE DMA support enabled, but does the kernel recognize your IDE controller?
 
-On Thursday 23 December 2004 09:12, William Lee Irwin III wrote:
-> On Wednesday 22 December 2004 17:31, Denis Vlasenko wrote:
-> >>         if (!apic_id_registered())
-> >>                 BUG();   <=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> On Thu, Dec 23, 2004 at 11:02:09AM +0000, Denis Vlasenko wrote:
-> > Tested with noapic nolapic boot params. Still happens.
-> > Call chain is init() -> APIC_init_uniprocessor() ->
-> > ->  setup_local_APIC(). I am a bit suspicious why
-> > APIC_init_uniprocessor() does not bail out
-> > if enable_local_apic<0 (i.e. if I boot with "nolapic"):
-> > int __init APIC_init_uniprocessor (void)
-> > {
-> >         if (enable_local_apic < 0)
-> >                 clear_bit(X86_FEATURE_APIC,
-> > boot_cpu_data.x86_capability); <=3D=3D=3D=3D=3D missing "return -1"?
-> >
-> >         if (!smp_found_config && !cpu_has_apic)
-> >                 return -1;
-> > ...
->
-> Sounds pretty serious. What happens if you add the missing return -1?
+What you describe vould very well be caused by DMA being switched off for
+IDE.
 
-Just tested that. It booted ok. Patch is in attachment.
---=20
-vda
---------------Boundary-00=_P7K6P5SZ4XCITEWGH4HE
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="apic.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="apic.c.diff"
-
---- linux-2.6.10-rc3.src/arch/i386/kernel/apic.c.old	Mon Dec 20 14:13:59 2004
-+++ linux-2.6.10-rc3.src/arch/i386/kernel/apic.c	Thu Dec 23 08:54:13 2004
-@@ -1250,8 +1250,10 @@
-  */
- int __init APIC_init_uniprocessor (void)
- {
--	if (enable_local_apic < 0)
-+	if (enable_local_apic < 0) {
- 		clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-+		return -1;
-+	}
- 
- 	if (!smp_found_config && !cpu_has_apic)
- 		return -1;
-
---------------Boundary-00=_P7K6P5SZ4XCITEWGH4HE--
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

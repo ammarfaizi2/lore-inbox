@@ -1,110 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292407AbSBUOlk>; Thu, 21 Feb 2002 09:41:40 -0500
+	id <S292397AbSBUOnk>; Thu, 21 Feb 2002 09:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292403AbSBUOlX>; Thu, 21 Feb 2002 09:41:23 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:50075 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S292396AbSBUOlD>;
-	Thu, 21 Feb 2002 09:41:03 -0500
-Date: Thu, 21 Feb 2002 16:40:59 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Stupid filters, and valid Linux kernel driver symbols...
-Message-ID: <20020221164059.L628@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Yia77v5a8fyVHJSl"
-Content-Disposition: inline
+	id <S292396AbSBUOnW>; Thu, 21 Feb 2002 09:43:22 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:45788 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S292397AbSBUOnB>;
+	Thu, 21 Feb 2002 09:43:01 -0500
+Message-ID: <3C7506B5.20103@dplanet.ch>
+Date: Thu, 21 Feb 2002 15:39:49 +0100
+From: Giacomo Catenazzi <cate@dplanet.ch>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Giacomo Catenazzi <cate@debian.org>, andersen@codepoet.org,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux kernel config converter
+In-Reply-To: <fa.fsgrt4v.1bngh9t@ifi.uio.no> <fa.hp69onv.i7qtq3@ifi.uio.no> <3C74FF03.8070502@debian.org> <3C7503B1.E7CA83AA@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Feb 2002 14:42:59.0551 (UTC) FILETIME=[0EBBAEF0:01C1BAE6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Yia77v5a8fyVHJSl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Jeff Garzik wrote:
 
-  The attached text is an extract from an error report about several
-subscribers, as those people ISPs/corporations run rather simple-minded
-message content filters.
-
-  No doubt you have received your share of triple alphabet denoted
-messages about "services" some purvouers want to draw your attention
-into.  Unfortunately (for the Adaptec driver config symbol name)
-the  AIC7NNN (lets use "wrong" character here to avoid scanners)
-is considered by weak quality scanners to be the very same as "NNN",
-which usually is a signature feature in such messages.
-
-To understand this, you need to consider how you would detect when the
-"NNN" is stand-alone, and when it is just part of some other string.
-See  "man perlre"  for "\w" and "\W" patterns.
-
-Similar kind of content scanner pattern mistakes creep up weekly,
-if not daily.  Sometimes forbidden words lie inside other longer
-words, sometimes I can't figure out why systems complain about some
-messages.
+>> 
+> For directories like kernel/* and mm/* and arch/*, I imagine that down
+> the road we will want kernel.conf and mm.conf too, though right now they
+> would probably remain as makefiles...
+> 
+> If you look closely at the problem, you will see there is no fundamental
+> reason why we cannot package makefile rules like we want to package
+> config information.
 
 
-Some people have asked us (me and DaveM) of why we don't run fully
-automatic list management (instead of ancient Majordomo 1.x), e.g.
-a bounce leads into immediate unsubscription.  Think about that..
+I agree that in most case (drivers) it is the right thing.
+But for kernel/, arch/ there are no simple way to tell:
+"this makefile rule belong to this configuration".
+In such cases we should not split makefiles and configurations
+in an artificial way.
+We should not generalize and split configuration and makefile
+just because in most case it is the right thing.
 
-/Matti Aarnio
+[ Some Makefile define at the beginning some flags that
+   should be used for all driver in such subdir.
+   These info should be in a 'main' .conf (main = where normal
+   user would check, without grep to all .conf)
+  ]
 
---Yia77v5a8fyVHJSl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: base64
+	giacomo
 
-RkFJTEVEOg0KICBEaWFnbm9zdGljIHRleHRzOg0KICAgICAgPDwtIE1BSUwgRnJvbTo8bGlu
-dXgta2VybmVsLW93bmVyQHZnZXIua2VybmVsLm9yZz4NCiAgICAgLT4+IDI1MCBDb21tYW5k
-IE1BSUwgT0sNCiAgICAgPDwtIFJDUFQgVG86PGFuZHJlYXNoYXBwZUBzdWJkaW1lbnNpb24u
-Y29tPiBOT1RJRlk9RkFJTFVSRSBPUkNQVD1yZmM4MjI7YW5kcmVhc2hhcHBlQHN1YmRpbWVu
-c2lvbi5jb20NCiAgICAgLT4+IDI1MCBDb21tYW5kIFJDUFQgVXNlciBmb3VuZCBPSw0KICAg
-ICA8PC0gREFUQQ0KICAgICAtPj4gMzU0IENvbW1hbmQgREFUQSBTdGFydCBtYWlsIGlucHV0
-OyBlbmQgd2l0aCA8Q1JMRj4uPENSTEY+DQogICAgIDw8LSAuDQogICAgIC0+PiA1NzAgTUZp
-bHRlciAobGluZSAyMDogY29udGVudCBleGNlcHRpb24pDQpGQUlMRUQ6DQogIERpYWdub3N0
-aWMgdGV4dHM6DQogICAgICA8PC0gTUFJTCBGcm9tOjxsaW51eC1rZXJuZWwtb3duZXJAdmdl
-ci5rZXJuZWwub3JnPiBCT0RZPThCSVRNSU1FIFNJWkU9MjE1Mw0KICAgICAtPj4gMjUwIDIu
-MS4wIDxsaW51eC1rZXJuZWwtb3duZXJAdmdlci5rZXJuZWwub3JnPi4uLiBTZW5kZXIgb2sN
-CiAgICAgPDwtIFJDUFQgVG86PGV2YW5AdGhldW5peG1hbi5jb20+IE5PVElGWT1GQUlMVVJF
-IE9SQ1BUPXJmYzgyMjtldmFuQHRoZXVuaXhtYW4uY29tDQogICAgIC0+PiAyNTAgMi4xLjUg
-PGV2YW5AdGhldW5peG1hbi5jb20+Li4uIFJlY2lwaWVudCBvaw0KICAgICA8PC0gREFUQQ0K
-ICAgICAtPj4gMzU0IEVudGVyIG1haWwsIGVuZCB3aXRoICIuIiBvbiBhIGxpbmUgYnkgaXRz
-ZWxmDQogICAgIDw8LSAuDQogICAgIC0+PiA1NTAgNS43LjEgR28gYXdheSBzcGFtbWVyDQpG
-QUlMRUQ6DQogIERpYWdub3N0aWMgdGV4dHM6DQogICAgICA8PC0gTUFJTCBGcm9tOjxsaW51
-eC1rZXJuZWwtb3duZXJAdmdlci5rZXJuZWwub3JnPiBCT0RZPThCSVRNSU1FIFNJWkU9MjE1
-Mw0KICAgICAtPj4gMjUwIDIuMC4wIGxpbnV4LWtlcm5lbC1vd25lckB2Z2VyLmtlcm5lbC5v
-cmcgT0sNCiAgICAgPDwtIFJDUFQgVG86PGFkZGVyZEB3bW9sLmNvbT4gTk9USUZZPUZBSUxV
-UkUgT1JDUFQ9cmZjODIyO2FkZGVyZEB3bW9sLmNvbQ0KICAgICAtPj4gMjUwIDIuMC4wIGFk
-ZGVyZEB3bW9sLmNvbSBPSw0KICAgICA8PC0gREFUQQ0KICAgICAtPj4gMzU0IFJlYWR5IGZv
-ciBkYXRhDQogICAgIDw8LSAuDQogICAgIC0+PiA1NTQgRmlsdGVyZWQgb3V0IGJ5IEZpbHRl
-ciAwIGJlY2F1c2UgIlN1YmplY3QiID0gIlJlOiBBSUM3WFhYIDYuMi41IGRyaXZlciINCg0K
-Rm9sbG93aW5nIGlzIGNvcHkgb2YgdGhlIG1lc3NhZ2UgaGVhZGVycy4gT3JpZ2luYWwgbWVz
-c2FnZSBjb250ZW50IG1heQ0KYmUgaW4gc3Vic2VxdWVudCBwYXJ0cyBvZiB0aGlzIE1FU1NB
-R0UvREVMSVZFUlktU1RBVFVTIHN0cnVjdHVyZS4NCg0KUmVjZWl2ZWQ6IChtYWpvcmRvbW9A
-dmdlci5rZXJuZWwub3JnKSBieSB2Z2VyLmtlcm5lbC5vcmcgdmlhIGxpc3RleHBhbmQNCglp
-ZCA8UzI5MjM4NEFiU0JVTjdqPjsgVGh1LCAyMSBGZWIgMjAwMiAwODo1OTozOSAtMDUwMA0K
-UmVjZWl2ZWQ6IChtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnKSBieSB2Z2VyLmtlcm5lbC5v
-cmcNCglpZCA8UzI5MjM4NUFiU0JVTjczPjsgVGh1LCAyMSBGZWIgMjAwMiAwODo1OToyOSAt
-MDUwMA0KUmVjZWl2ZWQ6IGZyb20gbnMudmlydHVhbGhvc3QuZGsgKFsxOTUuMTg0Ljk4LjE2
-MF06ODIwOCAiRUhMTyB2aXJ0dWFsaG9zdC5kayIpDQoJYnkgdmdlci5rZXJuZWwub3JnIHdp
-dGggRVNNVFAgaWQgPFMyOTIzODRBYlNCVU43Uz47DQoJVGh1LCAyMSBGZWIgMjAwMiAwODo1
-OToxOCAtMDUwMA0KUmVjZWl2ZWQ6IGZyb20gYnVybnMuaG9tZS5rZXJuZWwuZGsgKFsxOTIu
-MTY4LjAuMl0gaWRlbnQ9bWFpbCkNCglieSB2aXJ0dWFsaG9zdC5kayB3aXRoIGVzbXRwIChF
-eGltIDMuMzQgIzEpDQoJaWQgMTZkdGtMLTAwMDNxdi0wMDsgVGh1LCAyMSBGZWIgMjAwMiAx
-NDo1ODo1NCArMDEwMA0KUmVjZWl2ZWQ6IGZyb20gYXhib2UgYnkgYnVybnMuaG9tZS5rZXJu
-ZWwuZGsgd2l0aCBsb2NhbCAoRXhpbSAzLjM0ICMxKQ0KCWlkIDE2ZHRrRS0wMDAzcnUtMDA7
-IFRodSwgMjEgRmViIDIwMDIgMTQ6NTg6NDYgKzAxMDANCkRhdGU6CVRodSwgMjEgRmViIDIw
-MDIgMTQ6NTg6NDYgKzAxMDANCkZyb206CUplbnMgQXhib2UgPGF4Ym9lQHN1c2UuZGU+DQpU
-bzoJQWxhbiBDb3ggPGFsYW5AbHhvcmd1ay51a3V1Lm9yZy51az4NCkNjOglDYXJsbyBTY2Fy
-Zm9nbGlvIDxzY2FyZm9nbGlvQGFycGFjb29wLml0PiwNCglsaW51eC1rZXJuZWxAdmdlci5r
-ZXJuZWwub3JnLCAiSnVzdGluIFQuIEdpYmJzIiA8Z2liYnNAc2NzaWd1eS5jb20+DQpTdWJq
-ZWN0OiBSZTogQUlDN1hYWCA2LjIuNSBkcml2ZXINCk1lc3NhZ2UtSUQ6IDwyMDAyMDIyMTEz
-NTg0Ni5HQTE0NjM0QHN1c2UuZGU+DQpSZWZlcmVuY2VzOiA8MjAwMjAyMjEwNzUyNTMuR0gy
-NjU0QHN1c2UuZGU+IDxFMTZkdG12LTAwMDZ6Mi0wMEB0aGUtdmlsbGFnZS5iYy5udT4NCk1p
-bWUtVmVyc2lvbjogMS4wDQpDb250ZW50LVR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXMt
-YXNjaWkNCkNvbnRlbnQtRGlzcG9zaXRpb246IGlubGluZQ0KSW4tUmVwbHktVG86IDxFMTZk
-dG12LTAwMDZ6Mi0wMEB0aGUtdmlsbGFnZS5iYy5udT4NClNlbmRlcjoJbGludXgta2VybmVs
-LW93bmVyQHZnZXIua2VybmVsLm9yZw0KUHJlY2VkZW5jZTogYnVsaw0KWC1NYWlsaW5nLUxp
-c3Q6CWxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCg0K
-
---Yia77v5a8fyVHJSl--

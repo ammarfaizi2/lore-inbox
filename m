@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262649AbREZXDS>; Sat, 26 May 2001 19:03:18 -0400
+	id <S262614AbREZXDQ>; Sat, 26 May 2001 19:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262660AbREZXB1>; Sat, 26 May 2001 19:01:27 -0400
+	id <S261968AbREZXBa>; Sat, 26 May 2001 19:01:30 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262656AbREZXAg>;
-	Sat, 26 May 2001 19:00:36 -0400
-Date: Sat, 26 May 2001 13:45:25 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: David G?mez <davidge@jazzfree.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ov511 driver doesn't compile
-Message-ID: <20010526134525.V15193@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.21.0105261250100.8159-100000@fargo>
-Mime-Version: 1.0
+	by vger.kernel.org with ESMTP id <S262649AbREZXAd>;
+	Sat, 26 May 2001 19:00:33 -0400
+Message-ID: <3B0F8042.90DD5C5D@pocketpenguins.com>
+Date: Sat, 26 May 2001 20:06:58 +1000
+From: Greg Banks <gbanks@pocketpenguins.com>
+Organization: Pocket Penguins Inc
+X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
+MIME-Version: 1.0
+To: Jaswinder Singh <jaswinder.singh@3disystems.com>
+CC: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Configure.help entries wanted
+In-Reply-To: <20010525012200.A5259@thyrsus.com> <3B0F3268.A671BC7A@pocketpenguins.com> <002401c0e5aa$0049a000$47a6b3d0@Toshiba>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105261250100.8159-100000@fargo>; from davidge@jazzfree.com on Sat, May 26, 2001 at 12:52:48PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 12:52:48PM +0200, David G?mez  wrote:
-> On kernel 2.4.5, the ov511 usb driver shows a failure at compile
-> time. const version is not defined.
+Jaswinder Singh wrote:
+> 
+> > Use LinuxSH standard BIOS
+> > CONFIG_SH_STANDARD_BIOS
+> >   Say Y here if your target has the gdb-sh-stub package from
+> >   www.m17n.org (or any conforming standard LinuxSH BIOS) in FLASH
+> >   or EPROM.  The kernel will use standard BIOS calls during boot
+> >   for various housekeeping tasks.  Note this does not work with
+> >   WindowsCE machines.  If unsure, say N.
+> >
+> 
+> "WindowsCE" word looks very abrupt in Linux's Configure.help, Please use
+> some better word inspite of it like HandHeld Devices or PDAs.
 
-I send a patch to Linus for linux-2.4.5-pre5, but apparently he didn't
-include it. Here it is again.
+  The class of machines for which this option does not apply is
+"machines with an existing operating system in mask rom and no
+flash", which AFAICT is equivalent to "WindowsCE machines
+".  The
+class "handheld devices" is too broad as it includes machines
+like the Rockwell DMIDA which is handheld but has flash.  So
+this seems to me to be a reasonably good choice of words.
 
-BTW, this is already fixed in 2.4.4-ac17, so I suppose Alan will pass
-it to Linus.
+  Having said that, I agree that the help text entries for the SH
+port are in general of less than stellar quality, for various 
+(mostly good) reasons.  I'm hoping ESR will give us some editorial
+feedback which will provide a good excuse to fix them.
 
-
-Erik
-
---- drivers/usb/ov511.c.orig	Thu May 24 15:21:58 2001
-+++ drivers/usb/ov511.c	Thu May 24 15:24:20 2001
-@@ -337,7 +337,7 @@
- 	/* IMPORTANT: This output MUST be kept under PAGE_SIZE
- 	 *            or we need to get more sophisticated. */
- 
--	out += sprintf (out, "driver_version  : %s\n", version);
-+	out += sprintf (out, "driver_version  : %s\n", DRIVER_VERSION);
- 	out += sprintf (out, "custom_id       : %d\n", ov511->customid);
- 	out += sprintf (out, "model           : %s\n", ov511->desc ?
- 		clist[ov511->desc].description : "unknown");
-
-
+Greg.
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+These are my opinions not PPIs.

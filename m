@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318864AbSG1AgC>; Sat, 27 Jul 2002 20:36:02 -0400
+	id <S318869AbSG1AjY>; Sat, 27 Jul 2002 20:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318867AbSG1AgC>; Sat, 27 Jul 2002 20:36:02 -0400
-Received: from dsl-213-023-021-146.arcor-ip.net ([213.23.21.146]:25729 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318864AbSG1AgB>;
-	Sat, 27 Jul 2002 20:36:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Russell Lewis <spamhole-2001-07-16@deming-os.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
-Date: Sun, 28 Jul 2002 02:40:05 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <3D418DFD.8000007@deming-os.org>
-In-Reply-To: <3D418DFD.8000007@deming-os.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Yc6Q-0001yA-00@starship>
+	id <S318867AbSG1AjY>; Sat, 27 Jul 2002 20:39:24 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:41073 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S318865AbSG1AjW>; Sat, 27 Jul 2002 20:39:22 -0400
+Date: Sun, 28 Jul 2002 02:42:35 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Alexander Viro <viro@math.psu.edu>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sd_many done right (1/5)
+Message-ID: <20020728004235.GA7691@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Christoph Hellwig <hch@infradead.org>,
+	Alexander Viro <viro@math.psu.edu>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+References: <20020726154533.GD19721@nbkurt.etpnet.phys.tue.nl> <Pine.GSO.4.21.0207261245070.21586-100000@weyl.math.psu.edu> <20020726165411.GI19721@nbkurt.etpnet.phys.tue.nl> <20020726175027.GC2746@clusterfs.com> <20020726185545.B18629@infradead.org> <20020726223224.GJ19721@nbkurt.etpnet.phys.tue.nl> <20020727104119.A5992@infradead.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
+In-Reply-To: <20020727104119.A5992@infradead.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 July 2002 19:59, Russell Lewis wrote:
-> I have spent some time working on AIX, which pages its kernel memory. 
-> It pins the interrupt handler functions, and any data that they access, 
-> but does not pin the other code.
-> 
-> I'm looking for links as to why (unless I'm mistaken) Linux doesn't do 
-> this, so I can better understand the system.
 
-You could say that most of the kernel memory is paged because it consists of 
-disk cache and pages that are handed out to be mapped into process memory.  
-Slab caches - The kernel's working memory - are not paged at all.  Instead, 
-certain 'well-known' caches (inode, dentry, quota) are scanned for 
-inactive/unused objects, which are evicted on the theory that they can be 
-readily reconstructed from the file store if needed again.  Buffer heads are 
-treated similarly, but with a different mechanism.
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That leaves quite a few bits and pieces of slab cache in the 'misc' category 
-(including all kmalloc'd memory) and I guess we just cross our fingers, try 
-not to be too wasteful with it, and hope for the best.
+Hi Christoph, Al,
 
-There are two elephants in the bathtub: the mem_map array, which holds a few 
-bytes of state information for each physical page in the system, and page 
-tables, neither of which are swapped or pruned in any way.  We are now 
-beginning to suffer pretty badly because of this, on certain high end 
-configurations.  The problem is, these structures have to keep track of much 
-more than just the kernel memory.  The former has to have entries for all of 
-the high memory pages (not addressable within the kernel's normal virtual 
-address space) and the latter has to keep track of pages mapped into every 
-task in the system, in other words, a virtually unlimited amount of memory 
-(pun intended).  Solutions are being pursued.  Paging page tables to swap is 
-one of the solutions being considered, though nobody has gone so far as to 
-try it yet.  An easier solution is to place page tables in high memory, and a 
-patch for this exists.  There is also work being done on page table sharing.
+On Sat, Jul 27, 2002 at 10:41:19AM +0100, Christoph Hellwig wrote:
+> On Sat, Jul 27, 2002 at 12:32:24AM +0200, Kurt Garloff wrote:
+> Linus wants this, and he stated that again on the kernel summit. =20
 
-Hmm, that was more than I intended to write, but you have to be aware of all 
-of this to be able to think seriously about the question of why kernel memory 
-isn't paged.  Besides the complexity, the real reason is performance.  It 
-would be slower to take faults on all the different flavors of pages the 
-kernel deals with than to check explicitly for the presence of objects the 
-kernel needs to work with, such as file cache and inodes.  This would also 
-conflict with the large (4 meg) pages used to map the kernel itself.  There 
-would be extra costs for memory cache reloading (some architectures) and tlb 
-shootdowns (all architectures).  Finally, on 32 bit processors, where will 
-you get all the virtual memory space you need to map hundreds or thousands of 
-cached files?
+I've not been there :-(
 
-So there you are, a once-over-lightly of a simple question that has a 
-not-so-simple answer.  We sort-of page some kernel memory, but not with the 
-hardware faulting mechanism.  Some kernel memory isn't paged or pruned and 
-perhaps needs to be.  We wave our hands at the rest as small change.
+> But to do this porperly (=3D not the EVMS way) it needs preparation. =20
+> Al currently does lots of work in that area to make the block drivers
+> largely independent of the major number.
 
--- 
-Daniel
+So he should port my sd patch to 2.5. All the data it uses is in a per-major
+data structure. Currently, in most function it uses the kdev_t passed to fi=
+nd
+the right pointer. But that's very easy to replace.
+Of course, sd still assumes it gets a whole major and not parts of one. Oth=
+er-
+wise, more splitting would be needed.
+
+> Once the drivers don't need the major number anymore
+> internally the only that needs sorting out is userlevel backwards-compati=
+nlity.
+
+That takes more effort than the change itself, I guess.
+
+> I'm pretty sure the preparation will be finished for 2.6, also I can't co=
+mment
+> whether the unified disk major will be done. (Al?)
+
+Would certainly be nice.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9Qz37xmLh6hyYd04RAjIIAJ9g87rIiH2xsaT88ZD2BOx0LaRq/wCgiyJw
+2X1f1rb+Ll+nar92MwQ6pok=
+=/2ox
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

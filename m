@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269571AbTGJURX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 16:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269561AbTGJUQc
+	id S269572AbTGJUSA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 16:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTGJUR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 16:16:32 -0400
-Received: from [212.209.10.216] ([212.209.10.216]:31147 "EHLO
-	krynn.se.axis.com") by vger.kernel.org with ESMTP id S269533AbTGJUPp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 16:15:45 -0400
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB03277AA7@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'Greg KH'" <greg@kroah.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'starvik@axis.com'" <mikael.starvik@axis.com>
-Subject: RE: [PATCH] CRIS architecture update for 2.5.74
-Date: Thu, 10 Jul 2003 22:30:20 +0200
+	Thu, 10 Jul 2003 16:17:59 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:10897 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269572AbTGJUR4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 16:17:56 -0400
+Date: Thu, 10 Jul 2003 13:20:12 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Chuck Luciano <chuck@mrluciano.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: My own 3.5G patch plus question on Ingo's 4G/$G patch
+Message-ID: <810600000.1057868412@flay>
+In-Reply-To: <NFBBKNADOLMJPCENHEALKEAHGBAA.chuck@mrluciano.com>
+References: <NFBBKNADOLMJPCENHEALKEAHGBAA.chuck@mrluciano.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, there will be a future for this driver and the other missing
-drivers. I have choosed to delete drivers that we haven't ported yet
-because otherwise people assume that they work. I will try to
-port the USB host driver and the other missing drivers from 2.4 as 
-soon as possible.
-
-/Mikael
-
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com]
-Sent: Thursday, July 10, 2003 9:54 PM
-To: Linux Kernel Mailing List; starvik@axis.com
-Subject: Re: [PATCH] CRIS architecture update for 2.5.74
-
-
-On Thu, Jul 10, 2003 at 05:30:06PM +0000, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1358.18.1, 2003/07/10 10:30:06-07:00, mikael.starvik@axis.com
+> On the subject of the 4G/4G patch, I started with 2.5.74, added 
+> patch-2.5.74-bk1 and http://redhat.com/~mingo/4g-patches/4g-2.5.74-F8
+> and I get a hunk that fails:
 > 
-> 	[PATCH] CRIS architecture update for 2.5.74
-> 	
-> #	arch/cris/drivers/usb-host.c	1.11    ->         (deleted)      
-> #	arch/cris/drivers/usb-host.h	1.2     ->         (deleted)      
+> patching file include/asm-i386/mmu_context.h
+> Hunk #1 FAILED at 29.
+> Hunk #2 succeeded at 38 (offset -5 lines).
+> Hunk #4 FAILED at 75.
+> 2 out of 4 hunks FAILED -- saving rejects to file include/asm-i386/mmu_context.h.rej
+> 
+> Is/are there a patch(es) that I'm missing?
 
-Is there going to be a future update for this, or have you all dropped
-USB support for CRIS?
+Put it on top of the -bk6 snapshot.
 
-thanks,
+M.
 
-greg k-h

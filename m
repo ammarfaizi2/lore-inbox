@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265039AbTBXH5S>; Mon, 24 Feb 2003 02:57:18 -0500
+	id <S262418AbTBXI3t>; Mon, 24 Feb 2003 03:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbTBXH5S>; Mon, 24 Feb 2003 02:57:18 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:47368 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265039AbTBXH5R>; Mon, 24 Feb 2003 02:57:17 -0500
-Date: Mon, 24 Feb 2003 08:07:05 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Larry McVoy <lm@work.bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Bill Davidsen <davidsen@tmr.com>, lse-tech@lists.sf.et,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S263326AbTBXI3t>; Mon, 24 Feb 2003 03:29:49 -0500
+Received: from packet.digeo.com ([12.110.80.53]:26535 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262418AbTBXI3s>;
+	Mon, 24 Feb 2003 03:29:48 -0500
+Date: Mon, 24 Feb 2003 00:40:05 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Cc: wli@holomorphy.com, lm@work.bitmover.com, mbligh@aracnet.com,
+       davidsen@tmr.com, greearb@candelatech.com, linux-kernel@vger.kernel.org,
+       billh@gnuppy.monkey.org
 Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224080704.A30910@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Larry McVoy <lm@work.bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
-	Bill Davidsen <davidsen@tmr.com>, lse-tech@lists.sf.et,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1030223181400.999D-100000@gatekeeper.tmr.com> <E18n9Kx-0000kA-00@w-gerrit2> <20030224040246.GA4215@work.bitmover.com>
+Message-Id: <20030224004005.5e46758d.akpm@digeo.com>
+In-Reply-To: <20030224080052.GA4764@gnuppy.monkey.org>
+References: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com>
+	<33350000.1046043468@[10.10.2.4]>
+	<20030224045717.GC4215@work.bitmover.com>
+	<20030224074447.GA4664@gnuppy.monkey.org>
+	<20030224075430.GN10411@holomorphy.com>
+	<20030224080052.GA4764@gnuppy.monkey.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030224040246.GA4215@work.bitmover.com>; from lm@bitmover.com on Sun, Feb 23, 2003 at 08:02:46PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Feb 2003 08:39:53.0526 (UTC) FILETIME=[4D441560:01C2DBE0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 08:02:46PM -0800, Larry McVoy wrote:
-> On Sun, Feb 23, 2003 at 07:31:26PM -0800, Gerrit Huizenga wrote:
-> > But most
-> > people don't connect big machines to IDE drive subsystems.
-> 
-> 3ware controllers.  They look like SCSI to the host, but use cheap IDE
-> drives on the back end.  Really nice cards.  bkbits.net runs on one.
+Bill Huey (Hui) <billh@gnuppy.monkey.org> wrote:
+>
+> especially given some of the IO performance improvement that happened as a courtesy
+> of preempt.
 
-That's true (similar for some nice scsi2ide external raid boxens), but Alan's
-original argument was about the Linux IDE driver on bix machines which is used
-by neither..
+There is no evidence for any such thing.  Nor has any plausible
+theory been put forward as to why such an improvement should occur.
 

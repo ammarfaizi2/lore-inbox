@@ -1,111 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263814AbRFCXzY>; Sun, 3 Jun 2001 19:55:24 -0400
+	id <S263786AbRFCWQg>; Sun, 3 Jun 2001 18:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263811AbRFCXYQ>; Sun, 3 Jun 2001 19:24:16 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:19260 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S263589AbRFCW43>; Sun, 3 Jun 2001 18:56:29 -0400
-Date: Sun, 3 Jun 2001 18:56:27 -0400 (EDT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+	id <S263773AbRFCV2t>; Sun, 3 Jun 2001 17:28:49 -0400
+Received: from cheviot1.ncl.ac.uk ([128.240.233.15]:2716 "EHLO
+	cheviot1.ncl.ac.uk") by vger.kernel.org with ESMTP
+	id <S263760AbRFCVWg>; Sun, 3 Jun 2001 17:22:36 -0400
+Date: Sun, 3 Jun 2001 22:22:33 +0100 (GMT)
+From: James Slater <J.C.K.Slater@newcastle.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: XMM: monitor Linux MM inactive/active lists graphically
-In-Reply-To: <87d78lolxs.fsf@atlas.iskon.hr>
-Message-ID: <Pine.LNX.4.10.10106031828390.7303-100000@coffee.psychology.mcmaster.ca>
+Subject: Cache size calculation on Athlon/Duron
+Message-ID: <Pine.SOL.4.21.0106032218350.17006-100000@aidan.ncl.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Filter-Version: 2.1 (cheviot1.ncl.ac.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> XMM is heavily modified XMEM utility that shows graphically size of
-> different Linux page lists: active, inactive_dirty, inactive_clean,
-> code, free and swap usage. It is better suited for the monitoring of
-> Linux 2.4 MM implementation than original (XMEM) utility.
-> 
-> Find it here:  <URL:http://linux.inet.hr/>
+Hi,
 
-interesting.  I prefer to collect data separately from viewing it,
-and use the following simple perl script to do so; obviously, 
-it generates a bunch of separate files, one for each metric,
-suitable for traditional filtering, gnuplot, etc.
+Reading through arch/i386/kernel/setup.c in 2.4.5, I noticed that the code
+which sets x86_cache_size sets it to the size of the chip's L2 cache if
+present.
 
-#!/bin/perl
-use IO::Handle;
+Which is fine for everything except the Athlon/Duron, which have exclusive
+L1/L2 caches, so surely they should be added together in this case to give
+the total cache size? Or am I just missing something stupid?
 
-require 'sys/syscall.ph';
-sub gettimeofday {
-    $timeval = pack("LL", ());
-    syscall( &SYS_gettimeofday, $timeval, 0) != -1
-	or die "gettimeofday: $!";
-    ($sec,$usec) = unpack("LL", $timeval);
-    return $sec + 1e-6 * $usec;
-}
+--- arch/i386/kernel/setup.c.orig	Sun Jun  3 21:49:45 2001
++++ arch/i386/kernel/setup.c	Sun Jun  3 22:16:58 2001
+@@ -1098,7 +1098,15 @@
+ 	if ( l2size == 0 )
+ 		return;		/* Again, no L2 cache is possible */
+ 
+-	c->x86_cache_size = l2size;
++	/*
++	 * Athlon/Duron have exclusive L1/L2 cache, so sum them,
++	 * for everyone else set cache size to be L2 only.
++	 */
++	if (c->x86_vendor == X86_VENDOR_AMD && c->x86 == 6) {
++		c->x86_cache_size += l2size;
++	} else {
++		c->x86_cache_size = l2size;
++	}
+ 
+ 	printk(KERN_INFO "CPU: L2 Cache: %dK (%d bytes/line)\n",
+ 	       l2size, ecx & 0xFF);
 
-open(S,"</proc/stat") || die("failed to open /proc/stat");
-open(M,"</proc/meminfo") || die("failed to open /proc/meminfo");
-open(B,"</proc/slabinfo") || die("failed to open /proc/slabinfo");
-
-open(PI,">pi.st"); 	PI->autoflush(1);
-open(PO,">po.st");	PO->autoflush(1);
-open(SI,">si.st");	SI->autoflush(1);
-open(SO,">so.st");	SO->autoflush(1);
-open(CX,">ctx.st");	CX->autoflush(1);
-open(MF,">free.st");	MF->autoflush(1);
-open(BF,">buf.st");	BF->autoflush(1);
-open(AC,">act.st");	AC->autoflush(1);
-open(ID,">id.st");	ID->autoflush(1);
-open(IC,">ic.st");	IC->autoflush(1);
-open(IT,">it.st");	IT->autoflush(1);
-open(SW,">swap.st");	SW->autoflush(1);
-open(BH,">bh.st");	BH->autoflush(1);
-open(IN,">inode.st");	IN->autoflush(1);
-open(DE,">dentry.st");	DE->autoflush(1);
-
-$c = 0;
-$first = gettimeofday();
-while (1) {
-      sleep(1);
-      $now = gettimeofday() - $first;
-
-      seek(S,0,SEEK_SET);
-      while (<S>) {
-	  if (/^page\s+(\d+)\s+(\d+)$/) {
-	      if ($c) { print PI "$now ",4*($1 - $pi),"\n"; }
-	      if ($c) { print PO "$now ",4*($2 - $po),"\n"; }
-	      $pi = $1;
-	      $po = $2;
-	      next;
-	  }
-	  if (/^swap\s+(\d+)\s+(\d+)$/) {
-	      if ($c) { print SI "$now ",4*($1 - $si),"\n"; }
-	      if ($c) { print SO "$now ",4*($2 - $so),"\n"; }
-	      $si = $1;
-	      $so = $2;
-	      next;
-	  }
-	  if (/^ctxt\s+(\d+)$/) {
-	      if ($c) { print CX "$now ",$1 - $cx,"\n"; }
-	      $cx = $1;
-	      next;
-	  }
-      }
-      seek(M,0,SEEK_SET);
-      while (<M>) {
-	  if (/^MemFree:\s+(\d+) kB$/) {	print MF "$now ",$1,"\n"; next; }
-	  if (/^Buffers:\s+(\d+) kB$/) {	print BF "$now ",$1,"\n"; next; }
-	  if (/^Active:\s+(\d+) kB$/) {		print AC "$now ",$1,"\n"; next; }
-	  if (/^Inact_dirty:\s+(\d+) kB$/) {	print ID "$now ",$1,"\n"; next; }
-	  if (/^Inact_clean:\s+(\d+) kB$/) {	print IC "$now ",$1,"\n"; next; }
-	  if (/^Inact_target:\s+(\d+) kB$/) {	print IT "$now ",$1,"\n"; next; }
-	  if (/^Inact_target:\s+(\d+) kB$/) {	print IT "$now ",$1,"\n"; next; }
-	  if (/^Swap:\s+\d+\s+(\d+)/) 	{	print SW "$now ",$1,"\n"; next; }
-      }
-      seek(B,0,SEEK_SET);
-      while (<B>) {
-	  if (/^buffer_head\s+(\d+)\s+(\d+)\s+(\d+)/) {	print BH "$now ",$1*$3/1024,"\n"; next; }
-	  if (/^inode_cache\s+(\d+)\s+(\d+)\s+(\d+)/) {	print IN "$now ",$1*$3/1024,"\n"; next; }
-	  if (/^dentry_cache\s+(\d+)\s+(\d+)\s+(\d+)/) {print DE "$now ",$1*$3/1024,"\n"; next; }
-      }
-      $c++;
-}
+-- 
+James Slater
+j.c.k.slater@ncl.ac.uk
 

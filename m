@@ -1,103 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVAGSxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVAGSye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVAGSxV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 13:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVAGSxV
+	id S261527AbVAGSye (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 13:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVAGSye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 13:53:21 -0500
-Received: from alog0205.analogic.com ([208.224.220.220]:6528 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261382AbVAGSxL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 13:53:11 -0500
-Date: Fri, 7 Jan 2005 13:53:04 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Shakthi Kannan <shakstux@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mount PCI-express RAM memory as block device
-In-Reply-To: <20050107183645.72411.qmail@web54501.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.61.0501071342290.21110@chaos.analogic.com>
-References: <20050107183645.72411.qmail@web54501.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 7 Jan 2005 13:54:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:10385 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261527AbVAGSyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 13:54:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=KKYGuQ0ZUb60Z8zafWrVMQYUAj2yIS7C72YP8f0XQe0g7kPjD+UljsIpJfM21RoLPDG8qJpWl2tizwyqxVY/llcc4Nt1nijQstXAfmYImk/oMhswfMbGaWiFzf+h1XAJZKDubuXLiQ6xo+bf3VPx/4BBSbITTTPrwFo8965isrg=
+Message-ID: <5b64f7f0501071054589f451f@mail.gmail.com>
+Date: Fri, 7 Jan 2005 13:54:22 -0500
+From: Rahul Karnik <deathdruid@gmail.com>
+Reply-To: Rahul Karnik <deathdruid@gmail.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: 2.6.x features log
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <41DEC82C.4040502@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41DEC82C.4040502@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005, Shakthi Kannan wrote:
+On Fri, 07 Jan 2005 09:34:36 -0800, Randy.Dunlap <rddunlap@osdl.org> wrote:
 
-> Greetings!
->
-> I would like to know as to how we can mount a
-> filesystem for RAM memory on a PCI-express card.
-> System for development is x86 with 2.4.22 kernel.
->
-> I, initially wrote a ramdisk driver to read/write data
-> between buffer and RAM. Here, I have used:
-> device->data = vmalloc (device->size);
-> where:
-> - device is the device driver structure variable
-> - data = unsigned char *
-> - size = unsigned int
->
-> I am able to load the above block driver and mount a
-> filesystem using:
-> dd if=/dev/zero of=/dev/sbull bs=1k count=64
-> mkdir /mnt/mysbull
-> mke2fs -vm0 /dev/sbull 64
-> mount /dev/sbull /mnt/mysbull
->
-> For PCI device driver, I have modifed the above to
-> directly ioremap device->data as follows:
-> device->data = ioremap_nocache (BASE_ADDRESS,
-> BASE_SIZE);
-> Have successfully done:
-> dd if=/dev/zero of=/dev/sbull bs=1k count=64
-> mkdir /mnt/mysbull
-> mke2fs -vm0 /dev/sbull 64
->
-> But, when I proceed to mount a filesystem, it fails.
-> mount /dev/sbull /mnt/mysbull
->
-> mount:error while guessing filesystem type
-> mount: you must specify the filesystem type
->
-> Also, if I give "fsck -v /dev/sbull", it returns with
-> improper filesystem super block. Even if I specify "-t
-> ext2" for mount, it fails. I even tried a
-> loopback device mount, but it fails too:
-> mount -o loop /dev/sbull /mnt/mysbull
->
-> FAT: bogus logical sector size 0
-> VFS: Can't find a valid FAT filesystem on dev FA:00
->
-> How can I map the RAM memory on the PCI card, even
-> though I don't allocate any memory (during ioremap)
-> and display that to the end user as a mounted
-> filesystem so that he/she can read/write files to it?
->
-> Any help/pointers to links is appreciated.
->
-> Thanks,
->
-> K Shakthi
->
+> What I'm seeing (and getting a little concerned about,
+> although I dislike PR with a passion) is that the 2.6.x
+> continuous development cycle will cause us (the Linux
+> community) to miss logging some of these important new
+> features (outside of bk).  Has anyone kept a track of new
+> features that are being added in 2.6?
 
-When you ioremap() in the kernel, you get a cookie that you
-can use (in the kernel) to copy data to and from the device.
+Personally speaking, the key feature of the Halloween document was not
+documenting what new features we had in the kernel -- it was the
+ability to see what _user-visible_ changes there were. As a
+"mainstream" user, I might not care much about a new O(1) scheduler,
+but I might be affected by the removal of (say) ipchains.
 
-This doesn't allow a user to copy data directly. Instead,
-in your read() and write() routines, you use the appropriate
-copy_to/from_user() routines. If the device is not a
-block device, then you will have to mount it through the
-loop device. If it is a block device, you can mount it
-directly after initialization.
-
->From your explanation, it looks like the BASE_ADDRESS is not
-the device's on-board memory, but instead, its control
-registers, i.e., a simple implementation bug.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Thanks,
+Rahul

@@ -1,228 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263896AbTDVXT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 19:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTDVXT2
+	id S263911AbTDVXVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 19:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTDVXVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 19:19:28 -0400
-Received: from lisa.JS.Jura.Uni-Goettingen.de ([134.76.166.209]:43681 "EHLO
-	lisa.goe.net") by vger.kernel.org with ESMTP id S263908AbTDVXTY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 19:19:24 -0400
-Date: Wed, 23 Apr 2003 00:30:56 +0200
-From: Bernhard Kaindl <bernhard.kaindl@gmx.de>
-X-X-Sender: bkaindl@hase.a11.local
-To: Yusuf Wilajati Purna <purna@sm.sony.co.jp>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, arjanv@redhat.com,
-       Bernhard Kaindl <bk@suse.de>
-Subject: [PATCH][2.4+ptrace] fix side effects of the kmod/ptrace secfix 
-In-Reply-To: <3EA4CD3F.9040902@sm.sony.co.jp>
-Message-ID: <Pine.LNX.4.53.0304222236040.2341@hase.a11.local>
-References: <3E9E3FA9.6060509@sm.sony.co.jp> <Pine.LNX.4.53.0304190532520.1887@hase.a11.local>
- <3EA4CD3F.9040902@sm.sony.co.jp>
+	Tue, 22 Apr 2003 19:21:11 -0400
+Received: from opersys.com ([64.40.108.71]:32013 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S263911AbTDVXVI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 19:21:08 -0400
+Message-ID: <3EA5D024.9728E1A6@opersys.com>
+Date: Tue, 22 Apr 2003 19:28:36 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283901862-1009201789-1051046294=:2341"
-Content-ID: <Pine.LNX.4.53.0304222322510.2341@hase.a11.local>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: Re: [patch] printk subsystems
+References: <A46BBDB345A7D5118EC90002A5072C780C263A2C@orsmsx116.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---1283901862-1009201789-1051046294=:2341
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.53.0304222322511.2341@hase.a11.local>
+[The CC list has been trimmed]
 
-Hello Marcelo, Hello Yusuf!
+"Perez-Gonzalez, Inaky" wrote:
+> copy_to_user() has to do some more gymnastics in the process,
+> but basically, the bulk is the same [at least by reading the
+> asm of __copy_user() in usercopy.c and __memcpy() in string.h
+> -- it is kind of different, but in function is/should
+> be the same - bar that copy_to_user() might sleep due to
+> paging-in and preemption and who knows what else].
 
-  I've attached a patch which fixes the remaining side effects
-which the ptrace fix posted by Alan introduced(which affect production
-systems) and I'm sending this because I think 2.4.20-rc1 should
-not be released as 2.4.21 without these problems fixed.
+The difference between copy_to_user() and memcpy() is not a
+minor detail. There is a reason why relayfs does its things the
+way it does.
 
-On Tue, 22 Apr 2003, Yusuf Wilajati Purna wrote:
->
-> Thanks for the clarification. :-)
+> That is a good point, that brought me yesterday night to the following
+> doubt. How do you guarantee integrity of the data when reading with
+> mmap. In other words, if I am just copying the mmap region, how do
+> I know that what I am copying is safe enough, that it is not being
+> modified by CPU #2, for example?
+[snip]
 
-Sorry if my descriptions in my previos mail did not have any word too
-much(really short) but I tried to make the point straight for people
-which know the code. I'm adding a little bit more verbosity now :-)
+"Use the source, Luke."
 
-The check added by Alan's patch to ptrace_check_attach was:
+> As I explained below, you don't _have_to_ drop it; however, in some
+> cases, it makes sense to drop it because it is meaningless anyway (ie
+> the device-plugged message - why would I want the userspace to check
+> it if I know there is no device - so I recall it). Errors are another
+> matter, and you don't want to recall those.
 
-+       if (!is_dumpable(child))
-+               return -EPERM;
+OK, so you are suggesting we start making a difference in the kernel
+between those printks which are "optional" and those that are
+"compulsory"? Interested kernel developers are free to voice their
+interest at any time now ...
 
-New, replacement check in ptrace_check_attach:
+> This is different from running out of space. Like it or not, if you
+> have a circular buffer with limited space and you run out ... moc!
+> you loose, drop something somewhere to make space for it. This is not
+> a kue limitation, this is a property of buffers: they fill up.
 
-+       if (!child->task_dumpable)
-+               return -EPERM;
+I wasn't interested in teaching anyone about buffering basics. The point
+I was making is that different buffering schemes have different behaviors
+in regards to overflow. IMNSHO I think the drop-the-oldest behavior
+is preferable to the drop-whatever-has-gone-away behavior. But maybe
+that's just me.
 
-I want to explain now, why the above use of is_dumpable() broke ptrace
-of setuid programs by root:
+> Now, if you want to make it resizable, that understands Japanese and
+> does double loops followed by a nose dive and a vertical climb up,
+> well, that's up to the client of the API. And I didn't want to
+> constraint the gymnastics that the client could do to handle a buffer.
 
-is_dumpable() checks if both, task_dumpable and mm->dumpable are set, and
-evaluates to false, if one of them is false.
+Well, if we're talking about "double loops followed by a nose dive"
+we're certainly not going anywhere. I'll leave it to other LKML
+subscribers to decided wether automatically resizeable buffers are
+of interest.
 
-The new kernel_thread() function added by Alan's patch sets task_dumpable
-(which is 1 by default) for the new kernel thread to 0, and this is the
-only place where his new variable is set to 0, so "non_kernel_thread"
-would accurately describe what it is saying.
+> > I'm sorry, but the way I see printk() is that once I send something
+> > to it, it really ought to show up somewhere. Heck, I'm printk'ing
+> > it. If I plugged a device and the driver said "Your chair is
+> > on fire", I want to know about it whether the device has been
+> > unplugged later or not.
+> 
+> I would say this case, printk(), would fit in my second example,
+> doesn't it? ... this is one message you want delivered, not recalled.
 
-By adding is_dumpable(child) to ptrace_check_attach(), the patch posted
-by Alan, not only a check if the task is a kernel thread, but also a
-check if the task changed it's uid's was added(what mm->dumpable says)
-so even root was blocked out by this check.
+What I've been trying to say here is that there are no two kinds of
+printk. printk is printk and it ought to behave the same in all
+instances.
 
-So, removing the wrong check to child->mm->dumpable and only checking
-child->task_dumpable (wnich really means "non_kernel_thread") is the
-first part of the fix.
+Karim
 
-The other place which needed to be touched to fix Alan's patch was
-access_process_vm(), where Alan's patch did this change:
-
-> >@@ -123,6 +127,8 @@ int access_process_vm(struct task_struct
-> >        /* Worry about races with exit() */
-> >        task_lock(tsk);
-> >        mm = tsk->mm;
-> >+       if (!is_dumpable(tsk) || (&init_mm == mm))
-> >+               mm = NULL;
-> >        if (mm)
-> >                atomic_inc(&mm->mm_users);
-> >        task_unlock(tsk);
-
-access_process_vm() is in the same code patch as ptrace_check_attach.
-
-If you read the sys_ptrace implementation in arch/i386/kernel/ptrace.c,
-you'll find a call to ptrace_check_attach() and then, shortly afterwards,
-depending on what ptrace action was requested, a call to access_process_vm()
-
-So the !is_dumpable(tsk) check above it just a repetition if the previous
-check which you can also replace with !tsk->task_dumpable which you correctly
-understood and you show below in your change:
-
-> Just to recapitulate,
-> The following changes to the original patch (Alan's patch):
->
->    int ptrace_check_attach(struct task_struct *child, int kill)
->    {
->            ...
->    +      if (!child->task_dumpable)
->    +      return -EPERM;
->    }
->
->    int access_process_vm(struct task_struct *tsk, unsigned long addr,
-> void *buf, int len, int write)
->    {
->            ...
->            /* Worry about races with exit() */
->            task_lock(tsk);
->            mm = tsk->mm;
->    +      if (!tsk->task_dumpable || (&init_mm == mm))
->    +                mm = NULL;
-
-Note, in addtion to breaking root's ability to trace setuid programs,
-having the tsk->mm->dumpable checked by !is_dumpable(tsk) at this place
-also broke /proc/PID/cmdline and /proc/PID/environ because access_process_vm()
-is also used by these proc functions.
-
-If somebody says this opens a securtiy leak, I'd have to say:
-
- If a suid task leaks such information thru it's cmdline buffer, it's
- the problem of the suid process not acting secure and should be reviewed.
-
- You would need to restrict cmdline access to all root processes(not only
- suid) and maybe even to all processes with different capabilites and uid/gid
- to work around problems in such processes. But you would break even more
- system monitoring stuff this way(I've even heard shutdown is affected)
-
->            ...
->    }
->
-> can solve the following side-effects introduced by the original patch:
->
-> - /proc/PID/cmdline and /proc/PID/environ are empty for non-dumpable
-> process es
->   even for root. (ps displays those processes in [] brackets.)
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=104807368719299&w=2
->
-> - strace started by root cannot ptrace user threads or such non-dumpable
-> processes.
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=104835339619706&w=2
-
-Yes exacly, they do fix these side-effects, as your test correctly gives:
-
-> At least, I have confirmed this on an i386/IA-32 platform. And I have
-> checked also
-> that ptrace/kmod exploits such as isec-ptrace-kmod-exploit.c, ptrace.c,
-> km3.c cannot
-> get root privilege with the changes.
-
-Exactly, the change (effectve removal of the task->mm->dumpable flag check,
-which is not part of the kernel_thread/ptrace issue, fix the the two side
-effects you describe above while maintaining same security against the
-kmod/ptrace exploits because it only removes code that has nothing to
-do with the kernel_thread/ptrace issue, which was added by Alan's patch
-and introduced these side effects.
-
-It's really that easy, you just have to look and the code and see it ;-)
-
-Ok, you need to understand how the ptrace code works and how Alan's
-patch effectively blocks all possible trace attempts and backdoors,
-but once you understood how it works, it's easy to identify the parts
-of Alan's patch which cause these side effects.
-
-It's just cleanup, nothing more, nothing very creative, but a nice
-opportunity to learn a little bit about the kernel, no deep knowledge
-about VM or something really complex is needed.
-
-<tiny font>
-If you look sharper, you can even start cleaning up more of code added
-by the patch Alan sent (the above checks are completely unneccesary ;-)
-but you need the big picture for this and I have to give you this big
-picture in a separate mail to make this point.
-</tiny font>
-
-> Any comments?
-
-I'm sorry that I did not send a patch the first time to make the
-change 100% clear to anybody, but I'm doing this now.
-
-Incremental patch which applies on top of the patch posted by
-Alan and also on top of 2.4.21-rc1 is attached now.
-
-With only this patch applied I'd think 2.4.21 could be released,
-but not without this minimum fix.
-
-2.4.21-rc1, if it would be released as is, has the potential of
-breaking lots of systems which rely on not seeing the side effects
-Yusuf Wilajati Purna describes above and are fixed by this
-incremental fix.
-
-Best Regards,
-Bernhard Kaindl
-SuSE Linux
---1283901862-1009201789-1051046294=:2341
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="ptrace-minimum.dif"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0304222318140.2341@hase.a11.local>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="ptrace-minimum.dif"
-
-LS0tIGtlcm5lbC9wdHJhY2UuYwkyMDAzLzA0LzIyIDIxOjE0OjIwCTEuMQ0K
-KysrIGtlcm5lbC9wdHJhY2UuYwkyMDAzLzA0LzIyIDIxOjE1OjQwDQpAQCAt
-MjIsNyArMjIsNyBAQA0KIGludCBwdHJhY2VfY2hlY2tfYXR0YWNoKHN0cnVj
-dCB0YXNrX3N0cnVjdCAqY2hpbGQsIGludCBraWxsKQ0KIHsNCiAJbWIoKTsN
-Ci0JaWYgKCFpc19kdW1wYWJsZShjaGlsZCkpDQorCWlmICghY2hpbGQtPnRh
-c2tfZHVtcGFibGUpDQogCQlyZXR1cm4gLUVQRVJNOw0KIA0KIAlpZiAoIShj
-aGlsZC0+cHRyYWNlICYgUFRfUFRSQUNFRCkpDQpAQCAtMTI3LDcgKzEyNyw3
-IEBADQogCS8qIFdvcnJ5IGFib3V0IHJhY2VzIHdpdGggZXhpdCgpICovDQog
-CXRhc2tfbG9jayh0c2spOw0KIAltbSA9IHRzay0+bW07DQotCWlmICghaXNf
-ZHVtcGFibGUodHNrKSB8fCAoJmluaXRfbW0gPT0gbW0pKQ0KKwlpZiAoIXRz
-ay0+dGFza19kdW1wYWJsZSB8fCAoJmluaXRfbW0gPT0gbW0pKQ0KIAkJbW0g
-PSBOVUxMOw0KIAlpZiAobW0pDQogCQlhdG9taWNfaW5jKCZtbS0+bW1fdXNl
-cnMpOw0K
-
---1283901862-1009201789-1051046294=:2341--
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

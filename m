@@ -1,1860 +1,1118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264823AbSJaI0b>; Thu, 31 Oct 2002 03:26:31 -0500
+	id <S264790AbSJaIdD>; Thu, 31 Oct 2002 03:33:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264787AbSJaIZs>; Thu, 31 Oct 2002 03:25:48 -0500
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:57315 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S265221AbSJaIW0>;
-	Thu, 31 Oct 2002 03:22:26 -0500
+	id <S264797AbSJaIb1>; Thu, 31 Oct 2002 03:31:27 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:62435 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S264863AbSJaIWl>;
+	Thu, 31 Oct 2002 03:22:41 -0500
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: [PATCH] 5/11  Ext2/3 Updates: Extended attributes, ACL, etc.
+Subject: [PATCH] 10/11  Ext2/3 Updates: Extended attributes, ACL, etc.
 From: tytso@mit.edu
-Message-Id: <E187Ah6-0003bJ-00@snap.thunk.org>
-Date: Thu, 31 Oct 2002 03:28:48 -0500
+Message-Id: <E187AhN-0003bT-00@snap.thunk.org>
+Date: Thu, 31 Oct 2002 03:29:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Port of (bugfixed) 0.8.50 xattr-ext3 to 2.5 (w/ hch cleanups. mbcache API)
+Port of (bugfixed) 0.8.50 acl-ext3 to 2.5.
 
-This patch adds extended attribute support to the ext3 filesystem.  This
-uses the generic extended attribute patch which was developed by Andreas
-Gruenbacher and the XFS team.  As a result, the user space utilities
-which work for XFS will also work with these patches.
+This patch adds ACL support to the ext3 filesystem.
 
- fs/Kconfig               |   11 
- fs/ext3/Makefile         |    6 
- fs/ext3/file.c           |    6 
- fs/ext3/ialloc.c         |    3 
- fs/ext3/inode.c          |   35 -
- fs/ext3/namei.c          |   22 
- fs/ext3/super.c          |   18 
- fs/ext3/symlink.c        |   16 
- fs/ext3/xattr.c          | 1127 +++++++++++++++++++++++++++++++++++++++++++++++
- fs/ext3/xattr.h          |  133 +++++
- fs/ext3/xattr_user.c     |   99 ++++
- include/linux/ext3_fs.h  |   31 -
- include/linux/ext3_jbd.h |    8 
- 13 files changed, 1466 insertions(+), 49 deletions(-)
+ fs/Kconfig                |   14 +
+ fs/ext3/Makefile          |    4 
+ fs/ext3/acl.c             |  590 ++++++++++++++++++++++++++++++++++++++++++++++
+ fs/ext3/acl.h             |   87 ++++++
+ fs/ext3/file.c            |    2 
+ fs/ext3/ialloc.c          |   32 +-
+ fs/ext3/inode.c           |   21 +
+ fs/ext3/namei.c           |   11 
+ fs/ext3/super.c           |   41 +++
+ fs/ext3/xattr.c           |   23 +
+ include/linux/ext3_fs.h   |    1 
+ include/linux/ext3_fs_i.h |    4 
+ 12 files changed, 807 insertions(+), 23 deletions(-)
 
 diff -Nru a/fs/Kconfig b/fs/Kconfig
---- a/fs/Kconfig	Thu Oct 31 02:39:15 2002
-+++ b/fs/Kconfig	Thu Oct 31 02:39:15 2002
-@@ -289,6 +289,17 @@
- 	  of your root partition (the one containing the directory /) cannot
- 	  be compiled as a module, and so this may be dangerous.
+--- a/fs/Kconfig	Thu Oct 31 02:39:40 2002
++++ b/fs/Kconfig	Thu Oct 31 02:39:40 2002
+@@ -300,6 +300,20 @@
  
-+config EXT3_FS_XATTR
-+	bool "Ext3 extended attributes"
-+	depends on EXT3_FS
-+	default y
-+	---help---
-+	  Extended attributes are name:value pairs associated with inodes by
-+	  the kernel or by users (see the attr(5) manual page, or visit
-+	  <http://acl.bestbits.at/> for details).
+ 	  If unsure, say N.
+ 
++	  You need this for POSIX ACL support on ext3.
 +
-+	  If unsure, say N.
++config EXT3_FS_POSIX_ACL
++	bool "Ext3 POSIX Access Control Lists"
++	depends on EXT3_FS_XATTR
++	---help---
++	  Posix Access Control Lists (ACLs) support permissions for users and
++	  groups beyond the owner/group/world scheme.
++
++	  To learn more about Access Control Lists, visit the Posix ACLs for
++	  Linux website <http://acl.bestbits.at/>.
++
++	  If you don't know what Access Control Lists are, say N
 +
  # CONFIG_JBD could be its own option (even modular), but until there are
  # other users than ext3, we will simply make it be the same as CONFIG_EXT3_FS
  # dep_tristate '  Journal Block Device support (JBD for ext3)' CONFIG_JBD $CONFIG_EXT3_FS
 diff -Nru a/fs/ext3/Makefile b/fs/ext3/Makefile
---- a/fs/ext3/Makefile	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/Makefile	Thu Oct 31 02:39:15 2002
-@@ -7,4 +7,10 @@
- ext3-objs    := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o inode.o \
- 		ioctl.o namei.o super.o symlink.o hash.o
+--- a/fs/ext3/Makefile	Thu Oct 31 02:39:40 2002
++++ b/fs/ext3/Makefile	Thu Oct 31 02:39:40 2002
+@@ -13,4 +13,8 @@
+ ext3-objs += xattr.o xattr_user.o
+ endif
  
-+export-objs += xattr.o
-+
-+ifeq ($(CONFIG_EXT3_FS_XATTR),y)
-+ext3-objs += xattr.o xattr_user.o
++ifeq ($(CONFIG_EXT3_FS_POSIX_ACL),y)
++ext3-objs += acl.o
 +endif
 +
  include $(TOPDIR)/Rules.make
+diff -Nru a/fs/ext3/acl.c b/fs/ext3/acl.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/fs/ext3/acl.c	Thu Oct 31 02:39:41 2002
+@@ -0,0 +1,590 @@
++/*
++ * linux/fs/ext3/acl.c
++ *
++ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
++ */
++
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/ext3_jbd.h>
++#include <linux/ext3_fs.h>
++#include "xattr.h"
++#include "acl.h"
++
++/*
++ * Convert from filesystem to in-memory representation.
++ */
++static struct posix_acl *
++ext3_acl_from_disk(const void *value, size_t size)
++{
++	const char *end = (char *)value + size;
++	int n, count;
++	struct posix_acl *acl;
++
++	if (!value)
++		return NULL;
++	if (size < sizeof(ext3_acl_header))
++		 return ERR_PTR(-EINVAL);
++	if (((ext3_acl_header *)value)->a_version !=
++	    cpu_to_le32(EXT3_ACL_VERSION))
++		return ERR_PTR(-EINVAL);
++	value = (char *)value + sizeof(ext3_acl_header);
++	count = ext3_acl_count(size);
++	if (count < 0)
++		return ERR_PTR(-EINVAL);
++	if (count == 0)
++		return NULL;
++	acl = posix_acl_alloc(count, GFP_KERNEL);
++	if (!acl)
++		return ERR_PTR(-ENOMEM);
++	for (n=0; n < count; n++) {
++		ext3_acl_entry *entry =
++			(ext3_acl_entry *)value;
++		if ((char *)value + sizeof(ext3_acl_entry_short) > end)
++			goto fail;
++		acl->a_entries[n].e_tag  = le16_to_cpu(entry->e_tag);
++		acl->a_entries[n].e_perm = le16_to_cpu(entry->e_perm);
++		switch(acl->a_entries[n].e_tag) {
++			case ACL_USER_OBJ:
++			case ACL_GROUP_OBJ:
++			case ACL_MASK:
++			case ACL_OTHER:
++				value = (char *)value +
++					sizeof(ext3_acl_entry_short);
++				acl->a_entries[n].e_id = ACL_UNDEFINED_ID;
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP:
++				value = (char *)value + sizeof(ext3_acl_entry);
++				if ((char *)value > end)
++					goto fail;
++				acl->a_entries[n].e_id =
++					le32_to_cpu(entry->e_id);
++				break;
++
++			default:
++				goto fail;
++		}
++	}
++	if (value != end)
++		goto fail;
++	return acl;
++
++fail:
++	posix_acl_release(acl);
++	return ERR_PTR(-EINVAL);
++}
++
++/*
++ * Convert from in-memory to filesystem representation.
++ */
++static void *
++ext3_acl_to_disk(const struct posix_acl *acl, size_t *size)
++{
++	ext3_acl_header *ext_acl;
++	char *e;
++	int n;
++
++	*size = ext3_acl_size(acl->a_count);
++	ext_acl = (ext3_acl_header *)kmalloc(sizeof(ext3_acl_header) +
++		acl->a_count * sizeof(ext3_acl_entry), GFP_KERNEL);
++	if (!ext_acl)
++		return ERR_PTR(-ENOMEM);
++	ext_acl->a_version = cpu_to_le32(EXT3_ACL_VERSION);
++	e = (char *)ext_acl + sizeof(ext3_acl_header);
++	for (n=0; n < acl->a_count; n++) {
++		ext3_acl_entry *entry = (ext3_acl_entry *)e;
++		entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
++		entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
++		switch(acl->a_entries[n].e_tag) {
++			case ACL_USER:
++			case ACL_GROUP:
++				entry->e_id =
++					cpu_to_le32(acl->a_entries[n].e_id);
++				e += sizeof(ext3_acl_entry);
++				break;
++
++			case ACL_USER_OBJ:
++			case ACL_GROUP_OBJ:
++			case ACL_MASK:
++			case ACL_OTHER:
++				e += sizeof(ext3_acl_entry_short);
++				break;
++
++			default:
++				goto fail;
++		}
++	}
++	return (char *)ext_acl;
++
++fail:
++	kfree(ext_acl);
++	return ERR_PTR(-EINVAL);
++}
++
++/*
++ * Inode operation get_posix_acl().
++ *
++ * inode->i_sem: down
++ */
++static struct posix_acl *
++ext3_get_acl(struct inode *inode, int type)
++{
++	int name_index;
++	char *value;
++	struct posix_acl *acl, **p_acl;
++	const size_t size = ext3_acl_size(EXT3_ACL_MAX_ENTRIES);
++	int retval;
++
++	if (!test_opt(inode->i_sb, POSIX_ACL))
++		return 0;
++
++	switch(type) {
++		case ACL_TYPE_ACCESS:
++			p_acl = &EXT3_I(inode)->i_acl;
++			name_index = EXT3_XATTR_INDEX_POSIX_ACL_ACCESS;
++			break;
++
++		case ACL_TYPE_DEFAULT:
++			p_acl = &EXT3_I(inode)->i_default_acl;
++			name_index = EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT;
++			break;
++
++		default:
++			return ERR_PTR(-EINVAL);
++	}
++	if (*p_acl != EXT3_ACL_NOT_CACHED)
++		return posix_acl_dup(*p_acl);
++	value = kmalloc(size, GFP_KERNEL);
++	if (!value)
++		return ERR_PTR(-ENOMEM);
++
++	retval = ext3_xattr_get(inode, name_index, "", value, size);
++
++	if (retval == -ENODATA || retval == -ENOSYS)
++		*p_acl = acl = NULL;
++	else if (retval < 0)
++		acl = ERR_PTR(retval);
++	else {
++		acl = ext3_acl_from_disk(value, retval);
++		if (!IS_ERR(acl))
++			*p_acl = posix_acl_dup(acl);
++	}
++	kfree(value);
++	return acl;
++}
++
++/*
++ * Set the access or default ACL of an inode.
++ *
++ * inode->i_sem: down unless called from ext3_new_inode
++ */
++static int
++ext3_set_acl(handle_t *handle, struct inode *inode, int type,
++	     struct posix_acl *acl)
++{
++	int name_index;
++	void *value = NULL;
++	struct posix_acl **p_acl;
++	size_t size;
++	int error;
++
++	if (S_ISLNK(inode->i_mode))
++		return -EOPNOTSUPP;
++
++	switch(type) {
++		case ACL_TYPE_ACCESS:
++			name_index = EXT3_XATTR_INDEX_POSIX_ACL_ACCESS;
++			p_acl = &EXT3_I(inode)->i_acl;
++			if (acl) {
++				mode_t mode = inode->i_mode;
++				error = posix_acl_equiv_mode(acl, &mode);
++				if (error < 0)
++					return error;
++				else {
++					inode->i_mode = mode;
++					ext3_mark_inode_dirty(handle, inode);
++					if (error == 0)
++						acl = NULL;
++				}
++			}
++			break;
++
++		case ACL_TYPE_DEFAULT:
++			name_index = EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT;
++			p_acl = &EXT3_I(inode)->i_default_acl;
++			if (!S_ISDIR(inode->i_mode))
++				return acl ? -EACCES : 0;
++			break;
++
++		default:
++			return -EINVAL;
++	}
++ 	if (acl) {
++		if (acl->a_count > EXT3_ACL_MAX_ENTRIES)
++			return -EINVAL;
++		value = ext3_acl_to_disk(acl, &size);
++		if (IS_ERR(value))
++			return (int)PTR_ERR(value);
++	}
++
++	error = ext3_xattr_set(handle, inode, name_index, "", value, size, 0);
++
++	if (value)
++		kfree(value);
++	if (!error) {
++		if (*p_acl && *p_acl != EXT3_ACL_NOT_CACHED)
++			posix_acl_release(*p_acl);
++		*p_acl = posix_acl_dup(acl);
++	}
++	return error;
++}
++
++static int
++__ext3_permission(struct inode *inode, int mask, int lock)
++{
++	int mode = inode->i_mode;
++
++	/* Nobody gets write access to a read-only fs */
++	if ((mask & MAY_WRITE) && IS_RDONLY(inode) &&
++	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
++		return -EROFS;
++	/* Nobody gets write access to an immutable file */
++	if ((mask & MAY_WRITE) && IS_IMMUTABLE(inode))
++	    return -EACCES;
++	if (current->fsuid == inode->i_uid) {
++		mode >>= 6;
++	} else if (test_opt(inode->i_sb, POSIX_ACL)) {
++		/* ACL can't contain additional permissions if
++		   the ACL_MASK entry is 0 */
++		if (!(mode & S_IRWXG))
++			goto check_groups;
++		if (EXT3_I(inode)->i_acl == EXT3_ACL_NOT_CACHED) {
++			struct posix_acl *acl;
++
++			if (lock) {
++				down(&inode->i_sem);
++				acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
++				up(&inode->i_sem);
++			} else
++				acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
++
++			if (IS_ERR(acl))
++				return PTR_ERR(acl);
++			posix_acl_release(acl);
++			if (EXT3_I(inode)->i_acl == EXT3_ACL_NOT_CACHED)
++				return -EIO;
++		}
++		if (EXT3_I(inode)->i_acl) {
++			int error = posix_acl_permission(inode,
++				EXT3_I(inode)->i_acl, mask);
++			if (error == -EACCES)
++				goto check_capabilities;
++			return error;
++		} else
++			goto check_groups;
++	} else {
++check_groups:
++		if (in_group_p(inode->i_gid))
++			mode >>= 3;
++	}
++	if ((mode & mask & S_IRWXO) == mask)
++		return 0;
++
++check_capabilities:
++	/* Allowed to override Discretionary Access Control? */
++	if ((mask & (MAY_READ|MAY_WRITE)) || (inode->i_mode & S_IXUGO))
++		if (capable(CAP_DAC_OVERRIDE))
++			return 0;
++	/* Read and search granted if capable(CAP_DAC_READ_SEARCH) */
++	if (capable(CAP_DAC_READ_SEARCH) && ((mask == MAY_READ) ||
++	    (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE))))
++		return 0;
++	return -EACCES;
++}
++
++/*
++ * Inode operation permission().
++ *
++ * inode->i_sem: up
++ */
++int
++ext3_permission(struct inode *inode, int mask)
++{
++	return __ext3_permission(inode, mask, 1);
++}
++
++/*
++ * Used internally if i_sem is already down.
++ */
++int
++ext3_permission_locked(struct inode *inode, int mask)
++{
++	return __ext3_permission(inode, mask, 0);
++}
++
++/*
++ * Initialize the ACLs of a new inode. Called from ext3_new_inode.
++ *
++ * dir->i_sem: down
++ * inode->i_sem: up (access to inode is still exclusive)
++ */
++int
++ext3_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
++{
++	struct posix_acl *acl = NULL;
++	int error = 0;
++
++	if (!S_ISLNK(inode->i_mode)) {
++		if (test_opt(dir->i_sb, POSIX_ACL)) {
++			acl = ext3_get_acl(dir, ACL_TYPE_DEFAULT);
++			if (IS_ERR(acl))
++				return PTR_ERR(acl);
++		}
++		if (!acl)
++			inode->i_mode &= ~current->fs->umask;
++	}
++	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
++		struct posix_acl *clone;
++		mode_t mode;
++
++		if (S_ISDIR(inode->i_mode)) {
++			error = ext3_set_acl(handle, inode,
++					     ACL_TYPE_DEFAULT, acl);
++			if (error)
++				goto cleanup;
++		}
++		clone = posix_acl_clone(acl, GFP_KERNEL);
++		error = -ENOMEM;
++		if (!clone)
++			goto cleanup;
++		
++		mode = inode->i_mode;
++		error = posix_acl_create_masq(clone, &mode);
++		if (error >= 0) {
++			inode->i_mode = mode;
++			if (error > 0) {
++				/* This is an extended ACL */
++				error = ext3_set_acl(handle, inode,
++						     ACL_TYPE_ACCESS, clone);
++			}
++		}
++		posix_acl_release(clone);
++	}
++cleanup:
++	posix_acl_release(acl);
++	return error;
++}
++
++/*
++ * Does chmod for an inode that may have an Access Control List. The
++ * inode->i_mode field must be updated to the desired value by the caller
++ * before calling this function.
++ * Returns 0 on success, or a negative error number.
++ *
++ * We change the ACL rather than storing some ACL entries in the file
++ * mode permission bits (which would be more efficient), because that
++ * would break once additional permissions (like  ACL_APPEND, ACL_DELETE
++ * for directories) are added. There are no more bits available in the
++ * file mode.
++ *
++ * inode->i_sem: down
++ */
++int
++ext3_acl_chmod(struct inode *inode)
++{
++	struct posix_acl *acl, *clone;
++        int error;
++
++	if (S_ISLNK(inode->i_mode))
++		return -EOPNOTSUPP;
++	if (!test_opt(inode->i_sb, POSIX_ACL))
++		return 0;
++	acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
++	if (IS_ERR(acl) || !acl)
++		return PTR_ERR(acl);
++	clone = posix_acl_clone(acl, GFP_KERNEL);
++	posix_acl_release(acl);
++	if (!clone)
++		return -ENOMEM;
++	error = posix_acl_chmod_masq(clone, inode->i_mode);
++	if (!error) {
++		handle_t *handle;
++
++		handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
++		if (IS_ERR(handle)) {
++			ext3_std_error(inode->i_sb, error);
++			return PTR_ERR(handle);
++		}
++		error = ext3_set_acl(handle, inode, ACL_TYPE_ACCESS, clone);
++		ext3_journal_stop(handle, inode);
++	}
++	posix_acl_release(clone);
++	return error;
++}
++
++/*
++ * Extended attribute handlers
++ */
++static size_t
++ext3_xattr_list_acl_access(char *list, struct inode *inode,
++			   const char *name, int name_len)
++{
++	const size_t len = sizeof(XATTR_NAME_ACL_ACCESS)-1;
++
++	if (!test_opt(inode->i_sb, POSIX_ACL))
++		return 0;
++	if (list)
++		memcpy(list, XATTR_NAME_ACL_ACCESS, len);
++	return len;
++}
++
++static size_t
++ext3_xattr_list_acl_default(char *list, struct inode *inode,
++			    const char *name, int name_len)
++{
++	const size_t len = sizeof(XATTR_NAME_ACL_DEFAULT)-1;
++
++	if (!test_opt(inode->i_sb, POSIX_ACL))
++		return 0;
++	if (list)
++		memcpy(list, XATTR_NAME_ACL_DEFAULT, len);
++	return len;
++}
++
++static int
++ext3_xattr_get_acl(struct inode *inode, int type, void *buffer, size_t size)
++{
++	struct posix_acl *acl;
++	int error;
++
++	if (!test_opt(inode->i_sb, POSIX_ACL))
++		return -EOPNOTSUPP;
++
++	acl = ext3_get_acl(inode, type);
++	if (IS_ERR(acl))
++		return PTR_ERR(acl);
++	if (acl == NULL)
++		return -ENODATA;
++	error = posix_acl_to_xattr(acl, buffer, size);
++	posix_acl_release(acl);
++
++	return error;
++}
++
++static int
++ext3_xattr_get_acl_access(struct inode *inode, const char *name,
++			  void *buffer, size_t size)
++{
++	if (strcmp(name, "") != 0)
++		return -EINVAL;
++	return ext3_xattr_get_acl(inode, ACL_TYPE_ACCESS, buffer, size);
++}
++
++static int
++ext3_xattr_get_acl_default(struct inode *inode, const char *name,
++			   void *buffer, size_t size)
++{
++	if (strcmp(name, "") != 0)
++		return -EINVAL;
++	return ext3_xattr_get_acl(inode, ACL_TYPE_DEFAULT, buffer, size);
++}
++
++static int
++ext3_xattr_set_acl(struct inode *inode, int type, const void *value, size_t size)
++{
++	handle_t *handle;
++	struct posix_acl *acl;
++	int error;
++
++	if (!test_opt(inode->i_sb, POSIX_ACL))
++		return -EOPNOTSUPP;
++	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
++		return -EPERM;
++
++	if (value) {
++		acl = posix_acl_from_xattr(value, size);
++		if (IS_ERR(acl))
++			return PTR_ERR(acl);
++		else if (acl) {
++			error = posix_acl_valid(acl);
++			if (error)
++				goto release_and_out;
++		}
++	} else
++		acl = NULL;
++
++	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
++	if (IS_ERR(handle))
++		return PTR_ERR(handle);
++	error = ext3_set_acl(handle, inode, type, acl);
++	ext3_journal_stop(handle, inode);
++
++release_and_out:
++	posix_acl_release(acl);
++	return error;
++}
++
++static int
++ext3_xattr_set_acl_access(struct inode *inode, const char *name,
++			  const void *value, size_t size, int flags)
++{
++	if (strcmp(name, "") != 0)
++		return -EINVAL;
++	return ext3_xattr_set_acl(inode, ACL_TYPE_ACCESS, value, size);
++}
++
++static int
++ext3_xattr_set_acl_default(struct inode *inode, const char *name,
++			   const void *value, size_t size, int flags)
++{
++	if (strcmp(name, "") != 0)
++		return -EINVAL;
++	return ext3_xattr_set_acl(inode, ACL_TYPE_DEFAULT, value, size);
++}
++
++struct ext3_xattr_handler ext3_xattr_acl_access_handler = {
++	prefix:	XATTR_NAME_ACL_ACCESS,
++	list:	ext3_xattr_list_acl_access,
++	get:	ext3_xattr_get_acl_access,
++	set:	ext3_xattr_set_acl_access,
++};
++
++struct ext3_xattr_handler ext3_xattr_acl_default_handler = {
++	prefix:	XATTR_NAME_ACL_DEFAULT,
++	list:	ext3_xattr_list_acl_default,
++	get:	ext3_xattr_get_acl_default,
++	set:	ext3_xattr_set_acl_default,
++};
++
++void
++exit_ext3_acl(void)
++{
++	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
++			      &ext3_xattr_acl_access_handler);
++	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
++			      &ext3_xattr_acl_default_handler);
++}
++
++int __init
++init_ext3_acl(void)
++{
++	int error;
++
++	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
++				    &ext3_xattr_acl_access_handler);
++	if (error)
++		goto fail;
++	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
++				    &ext3_xattr_acl_default_handler);
++	if (error)
++		goto fail;
++	return 0;
++
++fail:
++	exit_ext3_acl();
++	return error;
++}
+diff -Nru a/fs/ext3/acl.h b/fs/ext3/acl.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/fs/ext3/acl.h	Thu Oct 31 02:39:41 2002
+@@ -0,0 +1,87 @@
++/*
++  File: fs/ext3/acl.h
++
++  (C) 2001 Andreas Gruenbacher, <a.gruenbacher@computer.org>
++*/
++
++#include <linux/xattr_acl.h>
++
++#define EXT3_ACL_VERSION	0x0001
++#define EXT3_ACL_MAX_ENTRIES	32
++
++typedef struct {
++	__u16		e_tag;
++	__u16		e_perm;
++	__u32		e_id;
++} ext3_acl_entry;
++
++typedef struct {
++	__u16		e_tag;
++	__u16		e_perm;
++} ext3_acl_entry_short;
++
++typedef struct {
++	__u32		a_version;
++} ext3_acl_header;
++
++static inline size_t ext3_acl_size(int count)
++{
++	if (count <= 4) {
++		return sizeof(ext3_acl_header) +
++		       count * sizeof(ext3_acl_entry_short);
++	} else {
++		return sizeof(ext3_acl_header) +
++		       4 * sizeof(ext3_acl_entry_short) +
++		       (count - 4) * sizeof(ext3_acl_entry);
++	}
++}
++
++static inline int ext3_acl_count(size_t size)
++{
++	ssize_t s;
++	size -= sizeof(ext3_acl_header);
++	s = size - 4 * sizeof(ext3_acl_entry_short);
++	if (s < 0) {
++		if (size % sizeof(ext3_acl_entry_short))
++			return -1;
++		return size / sizeof(ext3_acl_entry_short);
++	} else {
++		if (s % sizeof(ext3_acl_entry))
++			return -1;
++		return s / sizeof(ext3_acl_entry) + 4;
++	}
++}
++
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++
++/* Value for inode->u.ext3_i.i_acl and inode->u.ext3_i.i_default_acl
++   if the ACL has not been cached */
++#define EXT3_ACL_NOT_CACHED ((void *)-1)
++
++/* acl.c */
++extern int ext3_permission (struct inode *, int);
++extern int ext3_permission_locked (struct inode *, int);
++extern int ext3_acl_chmod (struct inode *);
++extern int ext3_init_acl (handle_t *, struct inode *, struct inode *);
++
++extern int init_ext3_acl(void);
++extern void exit_ext3_acl(void);
++
++#else  /* CONFIG_EXT3_FS_POSIX_ACL */
++#include <linux/sched.h>
++#define ext3_permission NULL
++
++static inline int
++ext3_acl_chmod(struct inode *inode)
++{
++	return 0;
++}
++
++static inline int
++ext3_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
++{
++	inode->i_mode &= ~current->fs->umask;
++	return 0;
++}
++#endif  /* CONFIG_EXT3_FS_POSIX_ACL */
++
 diff -Nru a/fs/ext3/file.c b/fs/ext3/file.c
---- a/fs/ext3/file.c	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/file.c	Thu Oct 31 02:39:15 2002
-@@ -23,7 +23,7 @@
- #include <linux/jbd.h>
+--- a/fs/ext3/file.c	Thu Oct 31 02:39:41 2002
++++ b/fs/ext3/file.c	Thu Oct 31 02:39:41 2002
+@@ -24,6 +24,7 @@
  #include <linux/ext3_fs.h>
  #include <linux/ext3_jbd.h>
--#include <linux/smp_lock.h>
-+#include "xattr.h"
+ #include "xattr.h"
++#include "acl.h"
  
  /*
   * Called when an inode is released. Note that this is different
-@@ -98,5 +98,9 @@
- struct inode_operations ext3_file_inode_operations = {
- 	.truncate	= ext3_truncate,
- 	.setattr	= ext3_setattr,
-+	.setxattr	= ext3_setxattr,
-+	.getxattr	= ext3_getxattr,
-+	.listxattr	= ext3_listxattr,
-+	.removexattr	= ext3_removexattr,
+@@ -102,5 +103,6 @@
+ 	.getxattr	= ext3_getxattr,
+ 	.listxattr	= ext3_listxattr,
+ 	.removexattr	= ext3_removexattr,
++	.permission	= ext3_permission,
  };
  
 diff -Nru a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
---- a/fs/ext3/ialloc.c	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/ialloc.c	Thu Oct 31 02:39:15 2002
-@@ -25,6 +25,8 @@
- #include <asm/bitops.h>
+--- a/fs/ext3/ialloc.c	Thu Oct 31 02:39:40 2002
++++ b/fs/ext3/ialloc.c	Thu Oct 31 02:39:40 2002
+@@ -26,6 +26,7 @@
  #include <asm/byteorder.h>
  
-+#include "xattr.h"
-+
+ #include "xattr.h"
++#include "acl.h"
+ 
  /*
   * ialloc.c contains the inodes allocation and deallocation routines
-  */
-@@ -118,6 +120,7 @@
- 	 * as writing the quota to disk may need the lock as well.
- 	 */
- 	DQUOT_INIT(inode);
-+	ext3_xattr_delete_inode(handle, inode);
- 	DQUOT_FREE_INODE(inode);
- 	DQUOT_DROP(inode);
+@@ -423,20 +424,27 @@
+ 	inode->i_generation = EXT3_SB(sb)->s_next_generation++;
  
-diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
---- a/fs/ext3/inode.c	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/inode.c	Thu Oct 31 02:39:15 2002
-@@ -42,6 +42,18 @@
-  */
- #undef SEARCH_FROM_ZERO
- 
-+/*
-+ * Test whether an inode is a fast symlink.
-+ */
-+static inline int ext3_inode_is_fast_symlink(struct inode *inode)
-+{
-+	int ea_blocks = EXT3_I(inode)->i_file_acl ?
-+		(inode->i_sb->s_blocksize >> 9) : 0;
+ 	ei->i_state = EXT3_STATE_NEW;
+-	err = ext3_mark_inode_dirty(handle, inode);
+-	if (err) goto fail;
+-	
 +
-+	return (S_ISLNK(inode->i_mode) &&
-+		inode->i_blocks - ea_blocks == 0);
-+}
-+
- /* The ext3 forget function must perform a revoke if we are freeing data
-  * which has been journaled.  Metadata (eg. indirect blocks) must be
-  * revoked in all cases. 
-@@ -51,7 +63,7 @@
-  * still needs to be revoked.
-  */
- 
--static int ext3_forget(handle_t *handle, int is_metadata,
-+int ext3_forget(handle_t *handle, int is_metadata,
- 		       struct inode *inode, struct buffer_head *bh,
- 		       int blocknr)
- {
-@@ -167,9 +179,7 @@
- {
- 	handle_t *handle;
- 	
--	if (is_bad_inode(inode) ||
--	    inode->i_ino == EXT3_ACL_IDX_INO ||
--	    inode->i_ino == EXT3_ACL_DATA_INO)
-+	if (is_bad_inode(inode))
- 		goto no_delete;
- 
- 	lock_kernel();
-@@ -1979,6 +1989,8 @@
- 	if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
- 	    S_ISLNK(inode->i_mode)))
- 		return;
-+	if (ext3_inode_is_fast_symlink(inode))
-+		return;
- 	if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
- 		return;
- 
-@@ -2130,8 +2142,6 @@
- 	struct ext3_group_desc * gdp;
- 		
- 	if ((inode->i_ino != EXT3_ROOT_INO &&
--		inode->i_ino != EXT3_ACL_IDX_INO &&
--		inode->i_ino != EXT3_ACL_DATA_INO &&
- 		inode->i_ino != EXT3_JOURNAL_INO &&
- 		inode->i_ino < EXT3_FIRST_INO(inode->i_sb)) ||
- 		inode->i_ino > le32_to_cpu(
-@@ -2263,10 +2273,7 @@
- 
- 	brelse (iloc.bh);
- 
--	if (inode->i_ino == EXT3_ACL_IDX_INO ||
--	    inode->i_ino == EXT3_ACL_DATA_INO)
--		/* Nothing to do */ ;
--	else if (S_ISREG(inode->i_mode)) {
-+	if (S_ISREG(inode->i_mode)) {
- 		inode->i_op = &ext3_file_inode_operations;
- 		inode->i_fop = &ext3_file_operations;
- 		if (ext3_should_writeback_data(inode))
-@@ -2277,18 +2284,20 @@
- 		inode->i_op = &ext3_dir_inode_operations;
- 		inode->i_fop = &ext3_dir_operations;
- 	} else if (S_ISLNK(inode->i_mode)) {
--		if (!inode->i_blocks)
-+		if (ext3_inode_is_fast_symlink(inode))
- 			inode->i_op = &ext3_fast_symlink_inode_operations;
- 		else {
--			inode->i_op = &page_symlink_inode_operations;
-+			inode->i_op = &ext3_symlink_inode_operations;
- 			if (ext3_should_writeback_data(inode))
- 				inode->i_mapping->a_ops = &ext3_writeback_aops;
- 			else
- 				inode->i_mapping->a_ops = &ext3_aops;
- 		}
--	} else 
-+	} else {
-+		inode->i_op = &ext3_special_inode_operations;
- 		init_special_inode(inode, inode->i_mode,
- 				   le32_to_cpu(iloc.raw_inode->i_block[0]));
+ 	unlock_super(sb);
+ 	ret = inode;
+ 	if(DQUOT_ALLOC_INODE(inode)) {
+ 		DQUOT_DROP(inode);
+-		inode->i_flags |= S_NOQUOTA;
+-		inode->i_nlink = 0;
+-		iput(inode);
+-		ret = ERR_PTR(-EDQUOT);
+-	} else {
+-		ext3_debug("allocating inode %lu\n", inode->i_ino);
++		err = -EDQUOT;
++		goto fail2;
+ 	}
++	err = ext3_init_acl(handle, inode, dir);
++	if (err) {
++		DQUOT_FREE_INODE(inode);
++		goto fail2;
++  	}
++	err = ext3_mark_inode_dirty(handle, inode);
++	if (err) {
++		ext3_std_error(sb, err);
++		DQUOT_FREE_INODE(inode);
++		goto fail2;
 +	}
- 	if (ei->i_flags & EXT3_SYNC_FL)
- 		inode->i_flags |= S_SYNC;
- 	if (ei->i_flags & EXT3_APPEND_FL)
-diff -Nru a/fs/ext3/namei.c b/fs/ext3/namei.c
---- a/fs/ext3/namei.c	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/namei.c	Thu Oct 31 02:39:15 2002
-@@ -36,6 +36,7 @@
- #include <linux/quotaops.h>
- #include <linux/buffer_head.h>
- #include <linux/smp_lock.h>
-+#include "xattr.h"
++
++	ext3_debug("allocating inode %lu\n", inode->i_ino);
+ 	goto really_out;
+ fail:
+ 	ext3_std_error(sb, err);
+@@ -447,6 +455,12 @@
+ really_out:
+ 	brelse(bitmap_bh);
+ 	return ret;
++
++fail2:
++	inode->i_flags |= S_NOQUOTA;
++	inode->i_nlink = 0;
++	iput(inode);
++	return ERR_PTR(err);
+ }
  
+ /* Verify that we are loading a valid orphan from disk */
+diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
+--- a/fs/ext3/inode.c	Thu Oct 31 02:39:40 2002
++++ b/fs/ext3/inode.c	Thu Oct 31 02:39:40 2002
+@@ -34,6 +34,8 @@
+ #include <linux/string.h>
+ #include <linux/buffer_head.h>
+ #include <linux/mpage.h>
++#include "xattr.h"
++#include "acl.h"
  
  /*
-@@ -1654,7 +1655,7 @@
- 	if (IS_DIRSYNC(dir))
- 		handle->h_sync = 1;
+  * SEARCH_FROM_ZERO forces each block allocation to search from the start
+@@ -2199,7 +2201,11 @@
+ 	struct buffer_head *bh;
+ 	int block;
+ 	
+-	if(ext3_get_inode_loc(inode, &iloc))
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	ei->i_acl = EXT3_ACL_NOT_CACHED;
++	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
++#endif
++	if (ext3_get_inode_loc(inode, &iloc))
+ 		goto bad_inode;
+ 	bh = iloc.bh;
+ 	raw_inode = iloc.raw_inode;
+@@ -2491,13 +2497,8 @@
+  * be freed, so we have a strong guarantee that no future commit will
+  * leave these blocks visible to the user.)  
+  *
+- * This is only needed for regular files.  rmdir() has its own path, and
+- * we can never truncate a direcory except on final unlink (at which
+- * point i_nlink is zero so recovery is easy.)
+- *
+- * Called with the BKL.  
++ * Called with inode->sem down.
+  */
+-
+ int ext3_setattr(struct dentry *dentry, struct iattr *attr)
+ {
+ 	struct inode *inode = dentry->d_inode;
+@@ -2517,7 +2518,8 @@
  
--	inode = ext3_new_inode (handle, dir, S_IFDIR);
-+	inode = ext3_new_inode (handle, dir, S_IFDIR | mode);
+ 	lock_kernel();
+ 
+-	if (attr->ia_valid & ATTR_SIZE && attr->ia_size < inode->i_size) {
++	if (S_ISREG(inode->i_mode) &&
++	    attr->ia_valid & ATTR_SIZE && attr->ia_size < inode->i_size) {
+ 		handle_t *handle;
+ 
+ 		handle = ext3_journal_start(inode, 3);
+@@ -2541,6 +2543,9 @@
+ 	 * orphan list manually. */
+ 	if (inode->i_nlink)
+ 		ext3_orphan_del(NULL, inode);
++
++	if (!rc && (ia_valid & ATTR_MODE))
++		rc = ext3_acl_chmod(inode);
+ 
+ err_out:
+ 	ext3_std_error(inode->i_sb, error);
+diff -Nru a/fs/ext3/namei.c b/fs/ext3/namei.c
+--- a/fs/ext3/namei.c	Thu Oct 31 02:39:40 2002
++++ b/fs/ext3/namei.c	Thu Oct 31 02:39:40 2002
+@@ -37,7 +37,7 @@
+ #include <linux/buffer_head.h>
+ #include <linux/smp_lock.h>
+ #include "xattr.h"
+-
++#include "acl.h"
+ 
+ /*
+  * define how far ahead to read directories while searching them.
+@@ -1624,7 +1624,10 @@
+ 	inode = ext3_new_inode (handle, dir, mode);
  	err = PTR_ERR(inode);
- 	if (IS_ERR(inode))
- 		goto out_stop;
-@@ -1662,7 +1663,6 @@
- 	inode->i_op = &ext3_dir_inode_operations;
- 	inode->i_fop = &ext3_dir_operations;
- 	inode->i_size = EXT3_I(inode)->i_disksize = inode->i_sb->s_blocksize;
--	inode->i_blocks = 0;	
- 	dir_block = ext3_bread (handle, inode, 0, 1, &err);
- 	if (!dir_block) {
- 		inode->i_nlink--; /* is this nlink == 0? */
-@@ -1689,9 +1689,6 @@
- 	BUFFER_TRACE(dir_block, "call ext3_journal_dirty_metadata");
- 	ext3_journal_dirty_metadata(handle, dir_block);
- 	brelse (dir_block);
--	inode->i_mode = S_IFDIR | mode;
--	if (dir->i_mode & S_ISGID)
--		inode->i_mode |= S_ISGID;
- 	ext3_mark_inode_dirty(handle, inode);
- 	err = ext3_add_entry (handle, dentry, inode);
- 	if (err) {
-@@ -2068,7 +2065,7 @@
- 		goto out_stop;
- 
- 	if (l > sizeof (EXT3_I(inode)->i_data)) {
--		inode->i_op = &page_symlink_inode_operations;
-+		inode->i_op = &ext3_symlink_inode_operations;
- 		if (ext3_should_writeback_data(inode))
- 			inode->i_mapping->a_ops = &ext3_writeback_aops;
- 		else
-@@ -2284,4 +2281,17 @@
+ 	if (!IS_ERR(inode)) {
+-		init_special_inode(inode, mode, rdev);
++		init_special_inode(inode, inode->i_mode, rdev);
++#ifdef CONFIG_EXT3_FS_XATTR
++		inode->i_op = &ext3_special_inode_operations;
++#endif
+ 		err = ext3_add_nondir(handle, dentry, inode);
+ 		ext3_mark_inode_dirty(handle, inode);
+ 	}
+@@ -2281,17 +2284,21 @@
  	.rmdir		= ext3_rmdir,
  	.mknod		= ext3_mknod,
  	.rename		= ext3_rename,
-+	.setxattr	= ext3_setxattr,	
-+	.getxattr	= ext3_getxattr,	
-+	.listxattr	= ext3_listxattr,	
-+	.removexattr	= ext3_removexattr,
++	.setattr	= ext3_setattr,
+ 	.setxattr	= ext3_setxattr,	
+ 	.getxattr	= ext3_getxattr,	
+ 	.listxattr	= ext3_listxattr,	
+ 	.removexattr	= ext3_removexattr,
++	.permission	= ext3_permission,
  };
-+
-+struct inode_operations ext3_special_inode_operations = {
-+	.setxattr	= ext3_setxattr,
-+	.getxattr	= ext3_getxattr,
-+	.listxattr	= ext3_listxattr,
-+	.removexattr	= ext3_removexattr,
-+};
-+
-+ 
+ 
+ struct inode_operations ext3_special_inode_operations = {
++	.setattr	= ext3_setattr,
+ 	.setxattr	= ext3_setxattr,
+ 	.getxattr	= ext3_getxattr,
+ 	.listxattr	= ext3_listxattr,
+ 	.removexattr	= ext3_removexattr,
++	.permission	= ext3_permission,
+ };
+ 
+  
 diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
---- a/fs/ext3/super.c	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/super.c	Thu Oct 31 02:39:15 2002
-@@ -30,6 +30,7 @@
- #include <linux/smp_lock.h>
+--- a/fs/ext3/super.c	Thu Oct 31 02:39:41 2002
++++ b/fs/ext3/super.c	Thu Oct 31 02:39:41 2002
+@@ -31,6 +31,7 @@
  #include <linux/buffer_head.h>
  #include <asm/uaccess.h>
-+#include "xattr.h"
+ #include "xattr.h"
++#include "acl.h"
  
  #ifdef CONFIG_JBD_DEBUG
  static int ext3_ro_after; /* Make fs read-only after this many jiffies */
-@@ -375,6 +376,7 @@
- 	struct ext3_super_block *es = sbi->s_es;
- 	int i;
+@@ -428,6 +429,10 @@
+ 	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS);
+ 	if (!ei)
+ 		return NULL;
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	ei->i_acl = EXT3_ACL_NOT_CACHED;
++	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
++#endif
+ 	return &ei->vfs_inode;
+ }
  
-+	ext3_xattr_put_super(sb);
- 	journal_destroy(sbi->s_journal);
- 	if (!(sb->s_flags & MS_RDONLY)) {
- 		EXT3_CLEAR_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_RECOVER);
-@@ -551,6 +553,13 @@
- 			continue;
- 		if ((value = strchr (this_char, '=')) != NULL)
- 			*value++ = 0;
-+#ifdef CONFIG_EXT3_FS_XATTR
-+		if (!strcmp (this_char, "user_xattr"))
-+			set_opt (sbi->s_mount_opt, XATTR_USER);
-+		else if (!strcmp (this_char, "nouser_xattr"))
-+			clear_opt (sbi->s_mount_opt, XATTR_USER);
+@@ -465,6 +470,26 @@
+ 		printk(KERN_INFO "ext3_inode_cache: not all structures were freed\n");
+ }
+ 
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++
++static void ext3_clear_inode(struct inode *inode)
++{
++       if (EXT3_I(inode)->i_acl &&
++           EXT3_I(inode)->i_acl != EXT3_ACL_NOT_CACHED) {
++               posix_acl_release(EXT3_I(inode)->i_acl);
++               EXT3_I(inode)->i_acl = EXT3_ACL_NOT_CACHED;
++       }
++       if (EXT3_I(inode)->i_default_acl &&
++           EXT3_I(inode)->i_default_acl != EXT3_ACL_NOT_CACHED) {
++               posix_acl_release(EXT3_I(inode)->i_default_acl);
++               EXT3_I(inode)->i_default_acl = EXT3_ACL_NOT_CACHED;
++       }
++}
++
++#else
++# define ext3_clear_inode NULL
++#endif
++
+ static struct super_operations ext3_sops = {
+ 	.alloc_inode	= ext3_alloc_inode,
+ 	.destroy_inode	= ext3_destroy_inode,
+@@ -479,6 +504,7 @@
+ 	.unlockfs	= ext3_unlockfs,		/* BKL not held.  We take it */
+ 	.statfs		= ext3_statfs,		/* BKL not held. */
+ 	.remount_fs	= ext3_remount,		/* BKL held */
++	.clear_inode	= ext3_clear_inode,	/* BKL not needed. */
+ };
+ 
+ struct dentry *ext3_get_parent(struct dentry *child);
+@@ -560,6 +586,13 @@
+ 			clear_opt (sbi->s_mount_opt, XATTR_USER);
+ 		else
+ #endif
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++		if (!strcmp(this_char, "acl"))
++			set_opt (sbi->s_mount_opt, POSIX_ACL);
++		else if (!strcmp(this_char, "noacl"))
++			clear_opt (sbi->s_mount_opt, POSIX_ACL);
 +		else
 +#endif
  		if (!strcmp (this_char, "bsddf"))
  			clear_opt (sbi->s_mount_opt, MINIX_DF);
  		else if (!strcmp (this_char, "nouid32")) {
-@@ -1017,6 +1026,8 @@
- 		set_opt(sbi->s_mount_opt, GRPID);
- 	if (def_mount_opts & EXT3_DEFM_UID16)
+@@ -1028,6 +1061,8 @@
  		set_opt(sbi->s_mount_opt, NO_UID32);
-+	if (def_mount_opts & EXT3_DEFM_XATTR_USER)
-+		set_opt(sbi->s_mount_opt, XATTR_USER);
+ 	if (def_mount_opts & EXT3_DEFM_XATTR_USER)
+ 		set_opt(sbi->s_mount_opt, XATTR_USER);
++	if (def_mount_opts & EXT3_DEFM_ACL)
++		set_opt(sbi->s_mount_opt, POSIX_ACL);
  	if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_DATA)
  		sbi->s_mount_opt |= EXT3_MOUNT_JOURNAL_DATA;
  	else if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_ORDERED)
-@@ -1840,7 +1851,10 @@
+@@ -1046,6 +1081,9 @@
+ 	if (!parse_options ((char *) data, sbi, &journal_inum, 0))
+ 		goto failed_mount;
  
- static int __init init_ext3_fs(void)
- {
--	int err = init_inodecache();
-+	int err = init_ext3_xattr();
-+	if (err)
-+		return err;
-+	err = init_inodecache();
- 	if (err)
- 		goto out1;
-         err = register_filesystem(&ext3_fs_type);
-@@ -1850,6 +1864,7 @@
- out:
- 	destroy_inodecache();
- out1:
-+ 	exit_ext3_xattr();
- 	return err;
- }
- 
-@@ -1857,6 +1872,7 @@
- {
- 	unregister_filesystem(&ext3_fs_type);
- 	destroy_inodecache();
-+	exit_ext3_xattr();
- }
- 
- MODULE_AUTHOR("Remy Card, Stephen Tweedie, Andrew Morton, Andreas Dilger, Theodore Ts'o and others");
-diff -Nru a/fs/ext3/symlink.c b/fs/ext3/symlink.c
---- a/fs/ext3/symlink.c	Thu Oct 31 02:39:15 2002
-+++ b/fs/ext3/symlink.c	Thu Oct 31 02:39:15 2002
-@@ -20,6 +20,7 @@
- #include <linux/fs.h>
- #include <linux/jbd.h>
- #include <linux/ext3_fs.h>
-+#include "xattr.h"
- 
- static int ext3_readlink(struct dentry *dentry, char *buffer, int buflen)
- {
-@@ -33,7 +34,20 @@
- 	return vfs_follow_link(nd, (char*)ei->i_data);
- }
- 
-+struct inode_operations ext3_symlink_inode_operations = {
-+	.readlink	= page_readlink,
-+	.follow_link	= page_follow_link,
-+	.setxattr	= ext3_setxattr,
-+	.getxattr	= ext3_getxattr,
-+	.listxattr	= ext3_listxattr,
-+	.removexattr	= ext3_removexattr,
-+};
++	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
++		((sbi->s_mount_opt & EXT3_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
 +
- struct inode_operations ext3_fast_symlink_inode_operations = {
--	.readlink	= ext3_readlink,		/* BKL not held.  Don't need */
-+	.readlink	= ext3_readlink,	/* BKL not held.  Don't need */
- 	.follow_link	= ext3_follow_link,	/* BKL not held.  Don't need */
-+	.setxattr	= ext3_setxattr,
-+	.getxattr	= ext3_getxattr,
-+	.listxattr	= ext3_listxattr,
-+	.removexattr	= ext3_removexattr,
- };
+ 	if (le32_to_cpu(es->s_rev_level) == EXT3_GOOD_OLD_REV &&
+ 	    (EXT3_HAS_COMPAT_FEATURE(sb, ~0U) ||
+ 	     EXT3_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
+@@ -1734,6 +1772,9 @@
+ 
+ 	if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
+ 		ext3_abort(sb, __FUNCTION__, "Abort forced by user");
++
++	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
++		((sbi->s_mount_opt & EXT3_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
+ 
+ 	es = sbi->s_es;
+ 
 diff -Nru a/fs/ext3/xattr.c b/fs/ext3/xattr.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/xattr.c	Thu Oct 31 02:39:15 2002
-@@ -0,0 +1,1127 @@
-+/*
-+ * linux/fs/ext3/xattr.c
-+ *
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ *
-+ * Fix by Harrison Xing <harrison@mountainviewdata.com>.
-+ * Ext3 code with a lot of help from Eric Jarman <ejarman@acm.org>.
-+ * Extended attributes for symlinks and special files added per
-+ *  suggestion of Luka Renko <luka.renko@hermes.si>.
-+ */
-+
-+/*
-+ * Extended attributes are stored on disk blocks allocated outside of
-+ * any inode. The i_file_acl field is then made to point to this allocated
-+ * block. If all extended attributes of an inode are identical, these
-+ * inodes may share the same extended attribute block. Such situations
-+ * are automatically detected by keeping a cache of recent attribute block
-+ * numbers and hashes over the block's contents in memory.
-+ *
-+ *
-+ * Extended attribute block layout:
-+ *
-+ *   +------------------+
-+ *   | header           |
-+ *   ¦ entry 1          | |
-+ *   | entry 2          | | growing downwards
-+ *   | entry 3          | v
-+ *   | four null bytes  |
-+ *   | . . .            |
-+ *   | value 1          | ^
-+ *   | value 3          | | growing upwards
-+ *   | value 2          | |
-+ *   +------------------+
-+ *
-+ * The block header is followed by multiple entry descriptors. These entry
-+ * descriptors are variable in size, and alligned to EXT3_XATTR_PAD
-+ * byte boundaries. The entry descriptors are sorted by attribute name,
-+ * so that two extended attribute blocks can be compared efficiently.
-+ *
-+ * Attribute values are aligned to the end of the block, stored in
-+ * no specific order. They are also padded to EXT3_XATTR_PAD byte
-+ * boundaries. No additional gaps are left between them.
-+ *
-+ * Locking strategy
-+ * ----------------
-+ * The VFS holdsinode->i_sem semaphore when any of the xattr inode
-+ * operations are called, so we are guaranteed that only one
-+ * processes accesses extended attributes of an inode at any time.
-+ *
-+ * For writing we also grab the ext3_xattr_sem semaphore. This ensures that
-+ * only a single process is modifying an extended attribute block, even
-+ * if the block is shared among inodes.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/slab.h>
-+#include <linux/ext3_jbd.h>
-+#include <linux/ext3_fs.h>
-+#include <linux/mbcache.h>
-+#include <linux/quotaops.h>
-+#include <asm/semaphore.h>
-+#include "xattr.h"
-+
-+#define EXT3_EA_USER "user."
-+
-+#define HDR(bh) ((struct ext3_xattr_header *)((bh)->b_data))
-+#define ENTRY(ptr) ((struct ext3_xattr_entry *)(ptr))
-+#define FIRST_ENTRY(bh) ENTRY(HDR(bh)+1)
-+#define IS_LAST_ENTRY(entry) (*(__u32 *)(entry) == 0)
-+
-+#ifdef EXT3_XATTR_DEBUG
-+# define ea_idebug(inode, f...) do { \
-+		printk(KERN_DEBUG "inode %s:%ld: ", \
-+			kdevname(inode->i_dev), inode->i_ino); \
-+		printk(f); \
-+		printk("\n"); \
-+	} while (0)
-+# define ea_bdebug(bh, f...) do { \
-+		printk(KERN_DEBUG "block %s:%ld: ", \
-+			kdevname(bh->b_dev), bh->b_blocknr); \
-+		printk(f); \
-+		printk("\n"); \
-+	} while (0)
-+#else
-+# define ea_idebug(f...)
-+# define ea_bdebug(f...)
-+#endif
-+
-+static int ext3_xattr_set2(handle_t *, struct inode *, struct buffer_head *,
-+			   struct ext3_xattr_header *);
-+
-+static int ext3_xattr_cache_insert(struct buffer_head *);
-+static struct buffer_head *ext3_xattr_cache_find(struct inode *,
-+						 struct ext3_xattr_header *);
-+static void ext3_xattr_cache_remove(struct buffer_head *);
-+static void ext3_xattr_rehash(struct ext3_xattr_header *,
-+			      struct ext3_xattr_entry *);
-+
-+static struct mb_cache *ext3_xattr_cache;
-+
-+/*
-+ * If a file system does not share extended attributes among inodes,
-+ * we should not need the ext3_xattr_sem semaphore. However, the
-+ * filesystem may still contain shared blocks, so we always take
-+ * the lock.
-+ */
-+
-+static DECLARE_MUTEX(ext3_xattr_sem);
-+static struct ext3_xattr_handler *ext3_xattr_handlers[EXT3_XATTR_INDEX_MAX];
-+static rwlock_t ext3_handler_lock = RW_LOCK_UNLOCKED;
-+
-+int
-+ext3_xattr_register(int name_index, struct ext3_xattr_handler *handler)
-+{
-+	int error = -EINVAL;
-+
-+	if (name_index > 0 && name_index <= EXT3_XATTR_INDEX_MAX) {
-+		write_lock(&ext3_handler_lock);
-+		if (!ext3_xattr_handlers[name_index-1]) {
-+			ext3_xattr_handlers[name_index-1] = handler;
-+			error = 0;
-+		}
-+		write_unlock(&ext3_handler_lock);
-+	}
-+	return error;
-+}
-+
-+void
-+ext3_xattr_unregister(int name_index, struct ext3_xattr_handler *handler)
-+{
-+	if (name_index > 0 || name_index <= EXT3_XATTR_INDEX_MAX) {
-+		write_lock(&ext3_handler_lock);
-+		ext3_xattr_handlers[name_index-1] = NULL;
-+		write_unlock(&ext3_handler_lock);
-+	}
-+}
-+
-+static inline const char *
-+strcmp_prefix(const char *a, const char *a_prefix)
-+{
-+	while (*a_prefix && *a == *a_prefix) {
-+		a++;
-+		a_prefix++;
-+	}
-+	return *a_prefix ? NULL : a;
-+}
-+
-+/*
-+ * Decode the extended attribute name, and translate it into
-+ * the name_index and name suffix.
-+ */
-+static inline struct ext3_xattr_handler *
-+ext3_xattr_resolve_name(const char **name)
-+{
-+	struct ext3_xattr_handler *handler = NULL;
-+	int i;
-+
-+	if (!*name)
-+		return NULL;
-+	read_lock(&ext3_handler_lock);
-+	for (i=0; i<EXT3_XATTR_INDEX_MAX; i++) {
-+		if (ext3_xattr_handlers[i]) {
-+			const char *n = strcmp_prefix(*name,
-+				ext3_xattr_handlers[i]->prefix);
-+			if (n) {
-+				handler = ext3_xattr_handlers[i];
-+				*name = n;
-+				break;
-+			}
-+		}
-+	}
-+	read_unlock(&ext3_handler_lock);
-+	return handler;
-+}
-+
-+static inline struct ext3_xattr_handler *
-+ext3_xattr_handler(int name_index)
-+{
-+	struct ext3_xattr_handler *handler = NULL;
-+	if (name_index > 0 && name_index <= EXT3_XATTR_INDEX_MAX) {
-+		read_lock(&ext3_handler_lock);
-+		handler = ext3_xattr_handlers[name_index-1];
-+		read_unlock(&ext3_handler_lock);
-+	}
-+	return handler;
-+}
-+
-+/*
-+ * Inode operation getxattr()
-+ *
-+ * dentry->d_inode->i_sem down
-+ */
-+ssize_t
-+ext3_getxattr(struct dentry *dentry, const char *name,
-+	      void *buffer, size_t size)
-+{
-+	struct ext3_xattr_handler *handler;
-+	struct inode *inode = dentry->d_inode;
-+
-+	handler = ext3_xattr_resolve_name(&name);
-+	if (!handler)
-+		return -EOPNOTSUPP;
-+	return handler->get(inode, name, buffer, size);
-+}
-+
-+/*
-+ * Inode operation listxattr()
-+ *
-+ * dentry->d_inode->i_sem down
-+ */
-+ssize_t
-+ext3_listxattr(struct dentry *dentry, char *buffer, size_t size)
-+{
-+	return ext3_xattr_list(dentry->d_inode, buffer, size);
-+}
-+
-+/*
-+ * Inode operation setxattr()
-+ *
-+ * dentry->d_inode->i_sem down
-+ */
-+int
-+ext3_setxattr(struct dentry *dentry, const char *name,
-+	      void *value, size_t size, int flags)
-+{
-+	struct ext3_xattr_handler *handler;
-+	struct inode *inode = dentry->d_inode;
-+
-+	if (size == 0)
-+		value = "";  /* empty EA, do not remove */
-+	handler = ext3_xattr_resolve_name(&name);
-+	if (!handler)
-+		return -EOPNOTSUPP;
-+	return handler->set(inode, name, value, size, flags);
-+}
-+
-+/*
-+ * Inode operation removexattr()
-+ *
-+ * dentry->d_inode->i_sem down
-+ */
-+int
-+ext3_removexattr(struct dentry *dentry, const char *name)
-+{
-+	struct ext3_xattr_handler *handler;
-+	struct inode *inode = dentry->d_inode;
-+
-+	handler = ext3_xattr_resolve_name(&name);
-+	if (!handler)
-+		return -EOPNOTSUPP;
-+	return handler->set(inode, name, NULL, 0, XATTR_REPLACE);
-+}
-+
-+/*
-+ * ext3_xattr_get()
-+ *
-+ * Copy an extended attribute into the buffer
-+ * provided, or compute the buffer size required.
-+ * Buffer is NULL to compute the size of the buffer required.
-+ *
-+ * Returns a negative error number on failure, or the number of bytes
-+ * used / required on success.
-+ */
-+int
-+ext3_xattr_get(struct inode *inode, int name_index, const char *name,
-+	       void *buffer, size_t buffer_size)
-+{
-+	struct buffer_head *bh = NULL;
-+	struct ext3_xattr_entry *entry;
-+	unsigned int size;
-+	char *end;
-+	int name_len, error;
-+
-+	ea_idebug(inode, "name=%d.%s, buffer=%p, buffer_size=%ld",
-+		  name_index, name, buffer, (long)buffer_size);
-+
-+	if (name == NULL)
-+		return -EINVAL;
-+	if (!EXT3_I(inode)->i_file_acl)
-+		return -ENODATA;
-+	ea_idebug(inode, "reading block %d", EXT3_I(inode)->i_file_acl);
-+	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
-+	if (!bh)
-+		return -EIO;
-+	ea_bdebug(bh, "b_count=%d, refcount=%d",
-+		atomic_read(&(bh->b_count)), le32_to_cpu(HDR(bh)->h_refcount));
-+	end = bh->b_data + bh->b_size;
-+	if (HDR(bh)->h_magic != cpu_to_le32(EXT3_XATTR_MAGIC) ||
-+	    HDR(bh)->h_blocks != cpu_to_le32(1)) {
-+bad_block:	ext3_error(inode->i_sb, "ext3_xattr_get",
-+			"inode %ld: bad block %d", inode->i_ino,
-+			EXT3_I(inode)->i_file_acl);
-+		error = -EIO;
-+		goto cleanup;
-+	}
-+	/* find named attribute */
-+	name_len = strlen(name);
-+
-+	error = -ERANGE;
-+	if (name_len > 255)
-+		goto cleanup;
-+	entry = FIRST_ENTRY(bh);
-+	while (!IS_LAST_ENTRY(entry)) {
-+		struct ext3_xattr_entry *next =
-+			EXT3_XATTR_NEXT(entry);
-+		if ((char *)next >= end)
-+			goto bad_block;
-+		if (name_index == entry->e_name_index &&
-+		    name_len == entry->e_name_len &&
-+		    memcmp(name, entry->e_name, name_len) == 0)
-+			goto found;
-+		entry = next;
-+	}
-+	/* Check the remaining name entries */
-+	while (!IS_LAST_ENTRY(entry)) {
-+		struct ext3_xattr_entry *next =
-+			EXT3_XATTR_NEXT(entry);
-+		if ((char *)next >= end)
-+			goto bad_block;
-+		entry = next;
-+	}
-+	if (ext3_xattr_cache_insert(bh))
-+		ea_idebug(inode, "cache insert failed");
-+	error = -ENODATA;
-+	goto cleanup;
-+found:
-+	/* check the buffer size */
-+	if (entry->e_value_block != 0)
-+		goto bad_block;
-+	size = le32_to_cpu(entry->e_value_size);
-+	if (size > inode->i_sb->s_blocksize ||
-+	    le16_to_cpu(entry->e_value_offs) + size > inode->i_sb->s_blocksize)
-+		goto bad_block;
-+
-+	if (ext3_xattr_cache_insert(bh))
-+		ea_idebug(inode, "cache insert failed");
-+	if (buffer) {
-+		error = -ERANGE;
-+		if (size > buffer_size)
-+			goto cleanup;
-+		/* return value of attribute */
-+		memcpy(buffer, bh->b_data + le16_to_cpu(entry->e_value_offs),
-+			size);
-+	}
-+	error = size;
-+
-+cleanup:
-+	brelse(bh);
-+
-+	return error;
-+}
-+
-+/*
-+ * ext3_xattr_list()
-+ *
-+ * Copy a list of attribute names into the buffer
-+ * provided, or compute the buffer size required.
-+ * Buffer is NULL to compute the size of the buffer required.
-+ *
-+ * Returns a negative error number on failure, or the number of bytes
-+ * used / required on success.
-+ */
-+int
-+ext3_xattr_list(struct inode *inode, char *buffer, size_t buffer_size)
-+{
-+	struct buffer_head *bh = NULL;
-+	struct ext3_xattr_entry *entry;
-+	unsigned int size = 0;
-+	char *buf, *end;
-+	int error;
-+
-+	ea_idebug(inode, "buffer=%p, buffer_size=%ld",
-+		  buffer, (long)buffer_size);
-+
-+	if (!EXT3_I(inode)->i_file_acl)
-+		return 0;
-+	ea_idebug(inode, "reading block %d", EXT3_I(inode)->i_file_acl);
-+	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
-+	if (!bh)
-+		return -EIO;
-+	ea_bdebug(bh, "b_count=%d, refcount=%d",
-+		atomic_read(&(bh->b_count)), le32_to_cpu(HDR(bh)->h_refcount));
-+	end = bh->b_data + bh->b_size;
-+	if (HDR(bh)->h_magic != cpu_to_le32(EXT3_XATTR_MAGIC) ||
-+	    HDR(bh)->h_blocks != cpu_to_le32(1)) {
-+bad_block:	ext3_error(inode->i_sb, "ext3_xattr_list",
-+			"inode %ld: bad block %d", inode->i_ino,
-+			EXT3_I(inode)->i_file_acl);
-+		error = -EIO;
-+		goto cleanup;
-+	}
-+	/* compute the size required for the list of attribute names */
-+	for (entry = FIRST_ENTRY(bh); !IS_LAST_ENTRY(entry);
-+	     entry = EXT3_XATTR_NEXT(entry)) {
-+		struct ext3_xattr_handler *handler;
-+		struct ext3_xattr_entry *next =
-+			EXT3_XATTR_NEXT(entry);
-+		if ((char *)next >= end)
-+			goto bad_block;
-+
-+		handler = ext3_xattr_handler(entry->e_name_index);
-+		if (handler) {
-+			size += handler->list(NULL, inode, entry->e_name,
-+					      entry->e_name_len) + 1;
-+		}
-+	}
-+
-+	if (ext3_xattr_cache_insert(bh))
-+		ea_idebug(inode, "cache insert failed");
-+	if (!buffer) {
-+		error = size;
-+		goto cleanup;
-+	} else {
-+		error = -ERANGE;
-+		if (size > buffer_size)
-+			goto cleanup;
-+	}
-+
-+	/* list the attribute names */
-+	buf = buffer;
-+	for (entry = FIRST_ENTRY(bh); !IS_LAST_ENTRY(entry);
-+	     entry = EXT3_XATTR_NEXT(entry)) {
-+		struct ext3_xattr_handler *handler;
-+
-+		handler = ext3_xattr_handler(entry->e_name_index);
-+		if (handler) {
-+			buf += handler->list(buf, inode, entry->e_name,
-+					     entry->e_name_len);
-+			*buf++ = '\0';
-+		}
-+	}
-+	error = size;
-+
-+cleanup:
-+	brelse(bh);
-+
-+	return error;
-+}
-+
-+/*
-+ * If the EXT3_FEATURE_COMPAT_EXT_ATTR feature of this file system is
-+ * not set, set it.
-+ */
-+static void ext3_xattr_update_super_block(handle_t *handle,
-+					  struct super_block *sb)
-+{
-+	if (EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_EXT_ATTR))
-+		return;
-+
-+	lock_super(sb);
-+	ext3_journal_get_write_access(handle, EXT3_SB(sb)->s_sbh);
-+	EXT3_SB(sb)->s_es->s_feature_compat |=
-+		cpu_to_le32(EXT3_FEATURE_COMPAT_EXT_ATTR);
-+	sb->s_dirt = 1;
-+	ext3_journal_dirty_metadata(handle, EXT3_SB(sb)->s_sbh);
-+	unlock_super(sb);
-+}
-+
-+/*
-+ * ext3_xattr_set()
-+ *
-+ * Create, replace or remove an extended attribute for this inode. Buffer
-+ * is NULL to remove an existing extended attribute, and non-NULL to
-+ * either replace an existing extended attribute, or create a new extended
-+ * attribute. The flags XATTR_REPLACE and XATTR_CREATE
-+ * specify that an extended attribute must exist and must not exist
-+ * previous to the call, respectively.
-+ *
-+ * Returns 0, or a negative error number on failure.
-+ */
-+int
-+ext3_xattr_set(handle_t *handle, struct inode *inode, int name_index,
-+	       const char *name, const void *value, size_t value_len, int flags)
-+{
-+	struct super_block *sb = inode->i_sb;
-+	struct buffer_head *bh = NULL;
-+	struct ext3_xattr_header *header = NULL;
-+	struct ext3_xattr_entry *here, *last;
-+	unsigned int name_len;
-+	int min_offs = sb->s_blocksize, not_found = 1, free, error;
-+	char *end;
-+	
-+	/*
-+	 * header -- Points either into bh, or to a temporarily
-+	 *           allocated buffer.
-+	 * here -- The named entry found, or the place for inserting, within
-+	 *         the block pointed to by header.
-+	 * last -- Points right after the last named entry within the block
-+	 *         pointed to by header.
-+	 * min_offs -- The offset of the first value (values are aligned
-+	 *             towards the end of the block).
-+	 * end -- Points right after the block pointed to by header.
-+	 */
-+	
-+	ea_idebug(inode, "name=%d.%s, value=%p, value_len=%ld",
-+		  name_index, name, value, (long)value_len);
-+
-+	if (IS_RDONLY(inode))
-+		return -EROFS;
-+	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
-+		return -EPERM;
-+	if (value == NULL)
-+		value_len = 0;
-+	if (name == NULL)
-+		return -EINVAL;
-+	name_len = strlen(name);
-+	if (name_len > 255 || value_len > sb->s_blocksize)
-+		return -ERANGE;
-+	down(&ext3_xattr_sem);
-+
-+	if (EXT3_I(inode)->i_file_acl) {
-+		/* The inode already has an extended attribute block. */
-+		bh = sb_bread(sb, EXT3_I(inode)->i_file_acl);
-+		error = -EIO;
-+		if (!bh)
-+			goto cleanup;
-+		ea_bdebug(bh, "b_count=%d, refcount=%d",
-+			atomic_read(&(bh->b_count)),
-+			le32_to_cpu(HDR(bh)->h_refcount));
-+		header = HDR(bh);
-+		end = bh->b_data + bh->b_size;
-+		if (header->h_magic != cpu_to_le32(EXT3_XATTR_MAGIC) ||
-+		    header->h_blocks != cpu_to_le32(1)) {
-+bad_block:		ext3_error(sb, "ext3_xattr_set",
-+				"inode %ld: bad block %d", inode->i_ino,
-+				EXT3_I(inode)->i_file_acl);
-+			error = -EIO;
-+			goto cleanup;
-+		}
-+		/* Find the named attribute. */
-+		here = FIRST_ENTRY(bh);
-+		while (!IS_LAST_ENTRY(here)) {
-+			struct ext3_xattr_entry *next = EXT3_XATTR_NEXT(here);
-+			if ((char *)next >= end)
-+				goto bad_block;
-+			if (!here->e_value_block && here->e_value_size) {
-+				int offs = le16_to_cpu(here->e_value_offs);
-+				if (offs < min_offs)
-+					min_offs = offs;
-+			}
-+			not_found = name_index - here->e_name_index;
-+			if (!not_found)
-+				not_found = name_len - here->e_name_len;
-+			if (!not_found)
-+				not_found = memcmp(name, here->e_name,name_len);
-+			if (not_found <= 0)
-+				break;
-+			here = next;
-+		}
-+		last = here;
-+		/* We still need to compute min_offs and last. */
-+		while (!IS_LAST_ENTRY(last)) {
-+			struct ext3_xattr_entry *next = EXT3_XATTR_NEXT(last);
-+			if ((char *)next >= end)
-+				goto bad_block;
-+			if (!last->e_value_block && last->e_value_size) {
-+				int offs = le16_to_cpu(last->e_value_offs);
-+				if (offs < min_offs)
-+					min_offs = offs;
-+			}
-+			last = next;
-+		}
-+
-+		/* Check whether we have enough space left. */
-+		free = min_offs - ((char*)last - (char*)header) - sizeof(__u32);
-+	} else {
-+		/* We will use a new extended attribute block. */
-+		free = sb->s_blocksize -
-+			sizeof(struct ext3_xattr_header) - sizeof(__u32);
-+		here = last = NULL;  /* avoid gcc uninitialized warning. */
-+	}
-+
-+	if (not_found) {
-+		/* Request to remove a nonexistent attribute? */
-+		error = -ENODATA;
-+		if (flags & XATTR_REPLACE)
-+			goto cleanup;
-+		error = 0;
-+		if (value == NULL)
-+			goto cleanup;
-+		else
-+			free -= EXT3_XATTR_LEN(name_len);
-+	} else {
-+		/* Request to create an existing attribute? */
-+		error = -EEXIST;
-+		if (flags & XATTR_CREATE)
-+			goto cleanup;
-+		if (!here->e_value_block && here->e_value_size) {
-+			unsigned int size = le32_to_cpu(here->e_value_size);
-+
-+			if (le16_to_cpu(here->e_value_offs) + size > 
-+			    sb->s_blocksize || size > sb->s_blocksize)
-+				goto bad_block;
-+			free += EXT3_XATTR_SIZE(size);
-+		}
-+	}
-+	free -= EXT3_XATTR_SIZE(value_len);
-+	error = -ENOSPC;
-+	if (free < 0)
-+		goto cleanup;
-+
-+	/* Here we know that we can set the new attribute. */
-+
-+	if (header) {
-+		if (header->h_refcount == cpu_to_le32(1)) {
-+			ea_bdebug(bh, "modifying in-place");
-+			ext3_xattr_cache_remove(bh);
-+			error = ext3_journal_get_write_access(handle, bh);
-+			if (error)
-+				goto cleanup;
-+		} else {
-+			int offset;
-+
-+			ea_bdebug(bh, "cloning");
-+			header = kmalloc(bh->b_size, GFP_KERNEL);
-+			error = -ENOMEM;
-+			if (header == NULL)
-+				goto cleanup;
-+			memcpy(header, HDR(bh), bh->b_size);
-+			header->h_refcount = cpu_to_le32(1);
-+			offset = (char *)header - bh->b_data;
-+			here = ENTRY((char *)here + offset);
-+			last = ENTRY((char *)last + offset);
-+		}
-+	} else {
-+		/* Allocate a buffer where we construct the new block. */
-+		header = kmalloc(sb->s_blocksize, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (header == NULL)
-+			goto cleanup;
-+		memset(header, 0, sb->s_blocksize);
-+		end = (char *)header + sb->s_blocksize;
-+		header->h_magic = cpu_to_le32(EXT3_XATTR_MAGIC);
-+		header->h_blocks = header->h_refcount = cpu_to_le32(1);
-+		last = here = ENTRY(header+1);
-+	}
-+
-+	if (not_found) {
-+		/* Insert the new name. */
-+		int size = EXT3_XATTR_LEN(name_len);
-+		int rest = (char *)last - (char *)here;
-+		memmove((char *)here + size, here, rest);
-+		memset(here, 0, size);
-+		here->e_name_index = name_index;
-+		here->e_name_len = name_len;
-+		memcpy(here->e_name, name, name_len);
-+	} else {
-+		/* Remove the old value. */
-+		if (!here->e_value_block && here->e_value_size) {
-+			char *first_val = (char *)header + min_offs;
-+			int offs = le16_to_cpu(here->e_value_offs);
-+			char *val = (char *)header + offs;
-+			size_t size = EXT3_XATTR_SIZE(
-+				le32_to_cpu(here->e_value_size));
-+			memmove(first_val + size, first_val, val - first_val);
-+			memset(first_val, 0, size);
-+			here->e_value_offs = 0;
-+			min_offs += size;
-+
-+			/* Adjust all value offsets. */
-+			last = ENTRY(header+1);
-+			while (!IS_LAST_ENTRY(last)) {
-+				int o = le16_to_cpu(last->e_value_offs);
-+				if (!last->e_value_block && o < offs)
-+					last->e_value_offs =
-+						cpu_to_le16(o + size);
-+				last = EXT3_XATTR_NEXT(last);
-+			}
-+		}
-+		if (value == NULL) {
-+			/* Remove this attribute. */
-+			if (EXT3_XATTR_NEXT(ENTRY(header+1)) == last) {
-+				/* This block is now empty. */
-+				error = ext3_xattr_set2(handle, inode, bh,NULL);
-+				goto cleanup;
-+			} else {
-+				/* Remove the old name. */
-+				int size = EXT3_XATTR_LEN(name_len);
-+				last = ENTRY((char *)last - size);
-+				memmove(here, (char*)here + size,
-+					(char*)last - (char*)here);
-+				memset(last, 0, size);
-+			}
-+		}
-+	}
-+
-+	if (value != NULL) {
-+		/* Insert the new value. */
-+		here->e_value_size = cpu_to_le32(value_len);
-+		if (value_len) {
-+			size_t size = EXT3_XATTR_SIZE(value_len);
-+			char *val = (char *)header + min_offs - size;
-+			here->e_value_offs =
-+				cpu_to_le16((char *)val - (char *)header);
-+			memset(val + size - EXT3_XATTR_PAD, 0,
-+			       EXT3_XATTR_PAD); /* Clear the pad bytes. */
-+			memcpy(val, value, value_len);
-+		}
-+	}
-+	ext3_xattr_rehash(header, here);
-+
-+	error = ext3_xattr_set2(handle, inode, bh, header);
-+
-+cleanup:
-+	brelse(bh);
-+	if (!(bh && header == HDR(bh)))
-+		kfree(header);
-+	up(&ext3_xattr_sem);
-+
-+	return error;
-+}
-+
-+/*
-+ * Second half of ext3_xattr_set(): Update the file system.
-+ */
-+static int
-+ext3_xattr_set2(handle_t *handle, struct inode *inode,
-+		struct buffer_head *old_bh, struct ext3_xattr_header *header)
-+{
-+	struct super_block *sb = inode->i_sb;
-+	struct buffer_head *new_bh = NULL;
-+	int error;
-+
-+	if (header) {
-+		new_bh = ext3_xattr_cache_find(inode, header);
-+		if (new_bh) {
-+			/*
-+			 * We found an identical block in the cache.
-+			 * The old block will be released after updating
-+			 * the inode.
-+			 */
-+			ea_bdebug(old_bh, "reusing block %ld",
-+				new_bh->b_blocknr);
-+			
-+			error = -EDQUOT;
-+			if (DQUOT_ALLOC_BLOCK(inode, 1))
-+				goto cleanup;
-+			
-+			error = ext3_journal_get_write_access(handle, new_bh);
-+			if (error)
-+				goto cleanup;
-+			HDR(new_bh)->h_refcount = cpu_to_le32(
-+				le32_to_cpu(HDR(new_bh)->h_refcount) + 1);
-+			ea_bdebug(new_bh, "refcount now=%d",
-+				le32_to_cpu(HDR(new_bh)->h_refcount));
-+		} else if (old_bh && header == HDR(old_bh)) {
-+			/* Keep this block. */
-+			new_bh = old_bh;
-+			ext3_xattr_cache_insert(new_bh);
-+		} else {
-+			/* We need to allocate a new block */
-+			int goal = le32_to_cpu(
-+					EXT3_SB(sb)->s_es->s_first_data_block) +
-+				EXT3_I(inode)->i_block_group *
-+				EXT3_BLOCKS_PER_GROUP(sb);
-+			int block  = ext3_new_block(handle,
-+				inode, goal, 0, 0, &error);
-+			if (error)
-+				goto cleanup;
-+			ea_idebug(inode, "creating block %d", block);
-+
-+			new_bh = sb_getblk(sb, block);
-+			if (!new_bh) {
-+getblk_failed:
-+				ext3_free_blocks(handle, inode, block, 1);
-+				error = -EIO;
-+				goto cleanup;
-+			}
-+			lock_buffer(new_bh);
-+			error = ext3_journal_get_create_access(handle, new_bh);
-+			if (error) {
-+				unlock_buffer(new_bh);
-+				goto getblk_failed;
-+			}
-+			memcpy(new_bh->b_data, header, new_bh->b_size);
-+			set_buffer_uptodate(new_bh);
-+			unlock_buffer(new_bh);
-+			ext3_xattr_cache_insert(new_bh);
-+			
-+			ext3_xattr_update_super_block(handle, sb);
-+		}
-+		error = ext3_journal_dirty_metadata(handle, new_bh);
-+		if (error)
-+			goto cleanup;
-+	}
-+
-+	/* Update the inode. */
-+	EXT3_I(inode)->i_file_acl = new_bh ? new_bh->b_blocknr : 0;
-+	inode->i_ctime = CURRENT_TIME;
-+	ext3_mark_inode_dirty(handle, inode);
-+	if (IS_SYNC(inode))
-+		handle->h_sync = 1;
-+
-+	error = 0;
-+	if (old_bh && old_bh != new_bh) {
-+		/*
-+		 * If there was an old block, and we are not still using it,
-+		 * we now release the old block.
-+		*/
-+		unsigned int refcount = le32_to_cpu(HDR(old_bh)->h_refcount);
-+
-+		error = ext3_journal_get_write_access(handle, old_bh);
-+		if (error)
-+			goto cleanup;
-+		if (refcount == 1) {
-+			/* Free the old block. */
-+			ea_bdebug(old_bh, "freeing");
-+			ext3_free_blocks(handle, inode, old_bh->b_blocknr, 1);
-+
-+			/* ext3_forget() calls bforget() for us, but we
-+			   let our caller release old_bh, so we need to
-+			   duplicate the handle before. */
-+			get_bh(old_bh);
-+			ext3_forget(handle, 1, inode, old_bh,old_bh->b_blocknr);
-+		} else {
-+			/* Decrement the refcount only. */
-+			refcount--;
-+			HDR(old_bh)->h_refcount = cpu_to_le32(refcount);
-+			DQUOT_FREE_BLOCK(inode, 1);
-+			ext3_journal_dirty_metadata(handle, old_bh);
-+			ea_bdebug(old_bh, "refcount now=%d", refcount);
-+		}
-+	}
-+
-+cleanup:
-+	if (old_bh != new_bh)
-+		brelse(new_bh);
-+
-+	return error;
-+}
-+
-+/*
-+ * ext3_xattr_delete_inode()
-+ *
-+ * Free extended attribute resources associated with this inode. This
-+ * is called immediately before an inode is freed.
-+ */
-+void
-+ext3_xattr_delete_inode(handle_t *handle, struct inode *inode)
-+{
-+	struct buffer_head *bh;
-+
-+	if (!EXT3_I(inode)->i_file_acl)
-+		return;
-+	down(&ext3_xattr_sem);
-+
-+	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
-+	if (!bh) {
-+		ext3_error(inode->i_sb, "ext3_xattr_delete_inode",
-+			"inode %ld: block %d read error", inode->i_ino,
-+			EXT3_I(inode)->i_file_acl);
-+		goto cleanup;
-+	}
-+	ea_bdebug(bh, "b_count=%d", atomic_read(&(bh->b_count)));
-+	if (HDR(bh)->h_magic != cpu_to_le32(EXT3_XATTR_MAGIC) ||
-+	    HDR(bh)->h_blocks != cpu_to_le32(1)) {
-+		ext3_error(inode->i_sb, "ext3_xattr_delete_inode",
-+			"inode %ld: bad block %d", inode->i_ino,
-+			EXT3_I(inode)->i_file_acl);
-+		goto cleanup;
-+	}
-+	ext3_journal_get_write_access(handle, bh);
-+	ea_bdebug(bh, "refcount now=%d", le32_to_cpu(HDR(bh)->h_refcount) - 1);
-+	if (HDR(bh)->h_refcount == cpu_to_le32(1)) {
-+		ext3_xattr_cache_remove(bh);
-+		ext3_free_blocks(handle, inode, EXT3_I(inode)->i_file_acl, 1);
-+		ext3_forget(handle, 1, inode, bh, EXT3_I(inode)->i_file_acl);
-+		bh = NULL;
-+	} else {
-+		HDR(bh)->h_refcount = cpu_to_le32(
-+			le32_to_cpu(HDR(bh)->h_refcount) - 1);
-+		ext3_journal_dirty_metadata(handle, bh);
-+		if (IS_SYNC(inode))
-+			handle->h_sync = 1;
-+		DQUOT_FREE_BLOCK(inode, 1);
-+	}
-+	EXT3_I(inode)->i_file_acl = 0;
-+
-+cleanup:
-+	brelse(bh);
-+	up(&ext3_xattr_sem);
-+}
-+
-+/*
-+ * ext3_xattr_put_super()
-+ *
-+ * This is called when a file system is unmounted.
-+ */
-+void
-+ext3_xattr_put_super(struct super_block *sb)
-+{
-+	mb_cache_shrink(ext3_xattr_cache, sb->s_bdev);
-+}
-+
-+/*
-+ * ext3_xattr_cache_insert()
-+ *
-+ * Create a new entry in the extended attribute cache, and insert
-+ * it unless such an entry is already in the cache.
-+ *
-+ * Returns 0, or a negative error number on failure.
-+ */
-+static int
-+ext3_xattr_cache_insert(struct buffer_head *bh)
-+{
-+	__u32 hash = le32_to_cpu(HDR(bh)->h_hash);
-+	struct mb_cache_entry *ce;
-+	int error;
-+
-+	ce = mb_cache_entry_alloc(ext3_xattr_cache);
-+	if (!ce)
-+		return -ENOMEM;
-+	error = mb_cache_entry_insert(ce, bh->b_bdev, bh->b_blocknr, &hash);
-+	if (error) {
-+		mb_cache_entry_free(ce);
-+		if (error == -EBUSY) {
-+			ea_bdebug(bh, "already in cache (%d cache entries)",
-+				atomic_read(&ext3_xattr_cache->c_entry_count));
-+			error = 0;
-+		}
-+	} else {
-+		ea_bdebug(bh, "inserting [%x] (%d cache entries)", (int)hash,
-+			  atomic_read(&ext3_xattr_cache->c_entry_count));
-+		mb_cache_entry_release(ce);
-+	}
-+	return error;
-+}
-+
-+/*
-+ * ext3_xattr_cmp()
-+ *
-+ * Compare two extended attribute blocks for equality.
-+ *
-+ * Returns 0 if the blocks are equal, 1 if they differ, and
-+ * a negative error number on errors.
-+ */
-+static int
-+ext3_xattr_cmp(struct ext3_xattr_header *header1,
-+	       struct ext3_xattr_header *header2)
-+{
-+	struct ext3_xattr_entry *entry1, *entry2;
-+
-+	entry1 = ENTRY(header1+1);
-+	entry2 = ENTRY(header2+1);
-+	while (!IS_LAST_ENTRY(entry1)) {
-+		if (IS_LAST_ENTRY(entry2))
-+			return 1;
-+		if (entry1->e_hash != entry2->e_hash ||
-+		    entry1->e_name_len != entry2->e_name_len ||
-+		    entry1->e_value_size != entry2->e_value_size ||
-+		    memcmp(entry1->e_name, entry2->e_name, entry1->e_name_len))
-+			return 1;
-+		if (entry1->e_value_block != 0 || entry2->e_value_block != 0)
-+			return -EIO;
-+		if (memcmp((char *)header1 + le16_to_cpu(entry1->e_value_offs),
-+			   (char *)header2 + le16_to_cpu(entry2->e_value_offs),
-+			   le32_to_cpu(entry1->e_value_size)))
-+			return 1;
-+
-+		entry1 = EXT3_XATTR_NEXT(entry1);
-+		entry2 = EXT3_XATTR_NEXT(entry2);
-+	}
-+	if (!IS_LAST_ENTRY(entry2))
-+		return 1;
-+	return 0;
-+}
-+
-+/*
-+ * ext3_xattr_cache_find()
-+ *
-+ * Find an identical extended attribute block.
-+ *
-+ * Returns a pointer to the block found, or NULL if such a block was
-+ * not found or an error occurred.
-+ */
-+static struct buffer_head *
-+ext3_xattr_cache_find(struct inode *inode, struct ext3_xattr_header *header)
-+{
-+	__u32 hash = le32_to_cpu(header->h_hash);
-+	struct mb_cache_entry *ce;
-+
-+	if (!header->h_hash)
-+		return NULL;  /* never share */
-+	ea_idebug(inode, "looking for cached blocks [%x]", (int)hash);
-+	ce = mb_cache_entry_find_first(ext3_xattr_cache, 0, inode->i_bdev, hash);
-+	while (ce) {
-+		struct buffer_head *bh = sb_bread(inode->i_sb, ce->e_block);
-+
-+		if (!bh) {
-+			ext3_error(inode->i_sb, "ext3_xattr_cache_find",
-+				"inode %ld: block %ld read error",
-+				inode->i_ino, (unsigned long) ce->e_block);
-+		} else if (le32_to_cpu(HDR(bh)->h_refcount) >
-+			   EXT3_XATTR_REFCOUNT_MAX) {
-+			ea_idebug(inode, "block %ld refcount %d>%d",
-+				  (unsigned long) ce->e_block,
-+				  le32_to_cpu(HDR(bh)->h_refcount),
-+				  EXT3_XATTR_REFCOUNT_MAX);
-+		} else if (!ext3_xattr_cmp(header, HDR(bh))) {
-+			ea_bdebug(bh, "b_count=%d",atomic_read(&(bh->b_count)));
-+			mb_cache_entry_release(ce);
-+			return bh;
-+		}
-+		brelse(bh);
-+		ce = mb_cache_entry_find_next(ce, 0, inode->i_bdev, hash);
-+	}
-+	return NULL;
-+}
-+
-+/*
-+ * ext3_xattr_cache_remove()
-+ *
-+ * Remove the cache entry of a block from the cache. Called when a
-+ * block becomes invalid.
-+ */
-+static void
-+ext3_xattr_cache_remove(struct buffer_head *bh)
-+{
-+	struct mb_cache_entry *ce;
-+
-+	ce = mb_cache_entry_get(ext3_xattr_cache, bh->b_bdev,
-+				bh->b_blocknr);
-+	if (ce) {
-+		ea_bdebug(bh, "removing (%d cache entries remaining)",
-+			  atomic_read(&ext3_xattr_cache->c_entry_count)-1);
-+		mb_cache_entry_free(ce);
-+	} else 
-+		ea_bdebug(bh, "no cache entry");
-+}
-+
-+#define NAME_HASH_SHIFT 5
-+#define VALUE_HASH_SHIFT 16
-+
-+/*
-+ * ext3_xattr_hash_entry()
-+ *
-+ * Compute the hash of an extended attribute.
-+ */
-+static inline void ext3_xattr_hash_entry(struct ext3_xattr_header *header,
-+					 struct ext3_xattr_entry *entry)
-+{
-+	__u32 hash = 0;
-+	char *name = entry->e_name;
-+	int n;
-+
-+	for (n=0; n < entry->e_name_len; n++) {
-+		hash = (hash << NAME_HASH_SHIFT) ^
-+		       (hash >> (8*sizeof(hash) - NAME_HASH_SHIFT)) ^
-+		       *name++;
-+	}
-+
-+	if (entry->e_value_block == 0 && entry->e_value_size != 0) {
-+		__u32 *value = (__u32 *)((char *)header +
-+			le16_to_cpu(entry->e_value_offs));
-+		for (n = (le32_to_cpu(entry->e_value_size) +
-+		     EXT3_XATTR_ROUND) >> EXT3_XATTR_PAD_BITS; n; n--) {
-+			hash = (hash << VALUE_HASH_SHIFT) ^
-+			       (hash >> (8*sizeof(hash) - VALUE_HASH_SHIFT)) ^
-+			       le32_to_cpu(*value++);
-+		}
-+	}
-+	entry->e_hash = cpu_to_le32(hash);
-+}
-+
-+#undef NAME_HASH_SHIFT
-+#undef VALUE_HASH_SHIFT
-+
-+#define BLOCK_HASH_SHIFT 16
-+
-+/*
-+ * ext3_xattr_rehash()
-+ *
-+ * Re-compute the extended attribute hash value after an entry has changed.
-+ */
-+static void ext3_xattr_rehash(struct ext3_xattr_header *header,
-+			      struct ext3_xattr_entry *entry)
-+{
-+	struct ext3_xattr_entry *here;
-+	__u32 hash = 0;
-+	
-+	ext3_xattr_hash_entry(header, entry);
-+	here = ENTRY(header+1);
-+	while (!IS_LAST_ENTRY(here)) {
-+		if (!here->e_hash) {
-+			/* Block is not shared if an entry's hash value == 0 */
-+			hash = 0;
-+			break;
-+		}
-+		hash = (hash << BLOCK_HASH_SHIFT) ^
-+		       (hash >> (8*sizeof(hash) - BLOCK_HASH_SHIFT)) ^
-+		       le32_to_cpu(here->e_hash);
-+		here = EXT3_XATTR_NEXT(here);
-+	}
-+	header->h_hash = cpu_to_le32(hash);
-+}
-+
-+#undef BLOCK_HASH_SHIFT
-+
-+int __init
-+init_ext3_xattr(void)
-+{
-+	int	err;
-+	
-+	err = ext3_xattr_register(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
-+	if (err)
-+		return err;
-+	ext3_xattr_cache = mb_cache_create("ext3_xattr", NULL,
-+		sizeof(struct mb_cache_entry) +
-+		sizeof(struct mb_cache_entry_index), 1, 6);
-+	if (!ext3_xattr_cache) {
-+		ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
-+		return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
-+void
-+exit_ext3_xattr(void)
-+{
-+	if (ext3_xattr_cache)
-+		mb_cache_destroy(ext3_xattr_cache);
-+	ext3_xattr_cache = NULL;
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
-+}
-+
-diff -Nru a/fs/ext3/xattr.h b/fs/ext3/xattr.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/xattr.h	Thu Oct 31 02:39:15 2002
-@@ -0,0 +1,133 @@
-+/*
-+  File: fs/ext3/xattr.h
-+
-+  On-disk format of extended attributes for the ext3 filesystem.
-+
-+  (C) 2001 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
-+
-+#include <linux/config.h>
-+#include <linux/xattr.h>
-+
-+/* Magic value in attribute blocks */
-+#define EXT3_XATTR_MAGIC		0xEA020000
-+
-+/* Maximum number of references to one attribute block */
-+#define EXT3_XATTR_REFCOUNT_MAX		1024
-+
-+/* Name indexes */
-+#define EXT3_XATTR_INDEX_MAX			10
-+#define EXT3_XATTR_INDEX_USER			1
-+#define EXT3_XATTR_INDEX_POSIX_ACL_ACCESS	2
-+#define EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT	3
-+
-+struct ext3_xattr_header {
-+	__u32	h_magic;	/* magic number for identification */
-+	__u32	h_refcount;	/* reference count */
-+	__u32	h_blocks;	/* number of disk blocks used */
-+	__u32	h_hash;		/* hash value of all attributes */
-+	__u32	h_reserved[4];	/* zero right now */
-+};
-+
-+struct ext3_xattr_entry {
-+	__u8	e_name_len;	/* length of name */
-+	__u8	e_name_index;	/* attribute name index */
-+	__u16	e_value_offs;	/* offset in disk block of value */
-+	__u32	e_value_block;	/* disk block attribute is stored on (n/i) */
-+	__u32	e_value_size;	/* size of attribute value */
-+	__u32	e_hash;		/* hash value of name and value */
-+	char	e_name[0];	/* attribute name */
-+};
-+
-+#define EXT3_XATTR_PAD_BITS		2
-+#define EXT3_XATTR_PAD		(1<<EXT3_XATTR_PAD_BITS)
-+#define EXT3_XATTR_ROUND		(EXT3_XATTR_PAD-1)
-+#define EXT3_XATTR_LEN(name_len) \
-+	(((name_len) + EXT3_XATTR_ROUND + \
-+	sizeof(struct ext3_xattr_entry)) & ~EXT3_XATTR_ROUND)
-+#define EXT3_XATTR_NEXT(entry) \
-+	( (struct ext3_xattr_entry *)( \
-+	  (char *)(entry) + EXT3_XATTR_LEN((entry)->e_name_len)) )
-+#define EXT3_XATTR_SIZE(size) \
-+	(((size) + EXT3_XATTR_ROUND) & ~EXT3_XATTR_ROUND)
-+
-+# ifdef CONFIG_EXT3_FS_XATTR
-+
-+struct ext3_xattr_handler {
-+	char *prefix;
-+	size_t (*list)(char *list, struct inode *inode, const char *name,
-+		       int name_len);
-+	int (*get)(struct inode *inode, const char *name, void *buffer,
-+		   size_t size);
-+	int (*set)(struct inode *inode, const char *name, const void *buffer,
-+		   size_t size, int flags);
-+};
-+
-+extern int ext3_xattr_register(int, struct ext3_xattr_handler *);
-+extern void ext3_xattr_unregister(int, struct ext3_xattr_handler *);
-+
-+extern int ext3_setxattr(struct dentry *, const char *, void *, size_t, int);
-+extern ssize_t ext3_getxattr(struct dentry *, const char *, void *, size_t);
-+extern ssize_t ext3_listxattr(struct dentry *, char *, size_t);
-+extern int ext3_removexattr(struct dentry *, const char *);
-+
-+extern int ext3_xattr_get(struct inode *, int, const char *, void *, size_t);
-+extern int ext3_xattr_list(struct inode *, char *, size_t);
-+extern int ext3_xattr_set(handle_t *handle, struct inode *, int, const char *, const void *, size_t, int);
-+
-+extern void ext3_xattr_delete_inode(handle_t *, struct inode *);
-+extern void ext3_xattr_put_super(struct super_block *);
-+
-+extern int init_ext3_xattr(void);
-+extern void exit_ext3_xattr(void);
-+
-+# else  /* CONFIG_EXT3_FS_XATTR */
-+#  define ext3_setxattr		NULL
-+#  define ext3_getxattr		NULL
-+#  define ext3_listxattr	NULL
-+#  define ext3_removexattr	NULL
-+
-+static inline int
-+ext3_xattr_get(struct inode *inode, int name_index, const char *name,
-+	       void *buffer, size_t size, int flags)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int
-+ext3_xattr_list(struct inode *inode, void *buffer, size_t size, int flags)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int
-+ext3_xattr_set(handle_t *handle, struct inode *inode, int name_index,
-+	       const char *name, const void *value, size_t size, int flags)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline void
-+ext3_xattr_delete_inode(handle_t *handle, struct inode *inode)
-+{
-+}
-+
-+static inline void
-+ext3_xattr_put_super(struct super_block *sb)
-+{
-+}
-+
-+static inline int
-+init_ext3_xattr(void)
-+{
-+	return 0;
-+}
-+
-+static inline void
-+exit_ext3_xattr(void)
-+{
-+}
-+
-+# endif  /* CONFIG_EXT3_FS_XATTR */
-+
-+extern struct ext3_xattr_handler ext3_xattr_user_handler;
-diff -Nru a/fs/ext3/xattr_user.c b/fs/ext3/xattr_user.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/xattr_user.c	Thu Oct 31 02:39:15 2002
-@@ -0,0 +1,99 @@
-+/*
-+ * linux/fs/ext3/xattr_user.c
-+ * Handler for extended user attributes.
-+ *
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/string.h>
-+#include <linux/fs.h>
-+#include <linux/smp_lock.h>
-+#include <linux/ext3_jbd.h>
-+#include <linux/ext3_fs.h>
-+#include "xattr.h"
-+
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+# include "acl.h"
-+#endif
-+
-+#define XATTR_USER_PREFIX "user."
-+
-+static size_t
-+ext3_xattr_user_list(char *list, struct inode *inode,
-+		     const char *name, int name_len)
-+{
-+	const int prefix_len = sizeof(XATTR_USER_PREFIX)-1;
-+
-+	if (!test_opt(inode->i_sb, XATTR_USER))
-+		return 0;
-+
-+	if (list) {
-+		memcpy(list, XATTR_USER_PREFIX, prefix_len);
-+		memcpy(list+prefix_len, name, name_len);
-+	}
-+	return prefix_len + name_len;
-+}
-+
-+static int
-+ext3_xattr_user_get(struct inode *inode, const char *name,
-+		    void *buffer, size_t size)
-+{
-+	int error;
-+
-+	if (strcmp(name, "") == 0)
-+		return -EINVAL;
-+	if (!test_opt(inode->i_sb, XATTR_USER))
-+		return -EOPNOTSUPP;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	error = ext3_permission_locked(inode, MAY_READ);
-+#else
-+	error = permission(inode, MAY_READ);
-+#endif
-+	if (error)
-+		return error;
-+
-+	return ext3_xattr_get(inode, EXT3_XATTR_INDEX_USER, name,
-+			      buffer, size);
-+}
-+
-+static int
-+ext3_xattr_user_set(struct inode *inode, const char *name,
-+		    const void *value, size_t size, int flags)
-+{
-+	handle_t *handle;
-+	int error;
-+
-+	if (strcmp(name, "") == 0)
-+		return -EINVAL;
-+	if (!test_opt(inode->i_sb, XATTR_USER))
-+		return -EOPNOTSUPP;
-+	if ( !S_ISREG(inode->i_mode) &&
-+	    (!S_ISDIR(inode->i_mode) || inode->i_mode & S_ISVTX))
-+		return -EPERM;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	error = ext3_permission_locked(inode, MAY_WRITE);
-+#else
-+	error = permission(inode, MAY_WRITE);
-+#endif
-+	if (error)
-+		return error;
-+  
-+	lock_kernel();
-+	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-+	if (IS_ERR(handle))
-+		return PTR_ERR(handle);
-+	error = ext3_xattr_set(handle, inode, EXT3_XATTR_INDEX_USER, name,
-+			       value, size, flags);
-+	ext3_journal_stop(handle, inode);
-+	unlock_kernel();
-+
-+	return error;
-+}
-+
-+struct ext3_xattr_handler ext3_xattr_user_handler = {
-+	prefix:	XATTR_USER_PREFIX,
-+	list:	ext3_xattr_user_list,
-+	get:	ext3_xattr_user_get,
-+	set:	ext3_xattr_user_set,
-+};
-diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
---- a/include/linux/ext3_fs.h	Thu Oct 31 02:39:15 2002
-+++ b/include/linux/ext3_fs.h	Thu Oct 31 02:39:15 2002
-@@ -64,8 +64,6 @@
-  */
- #define	EXT3_BAD_INO		 1	/* Bad blocks inode */
- #define EXT3_ROOT_INO		 2	/* Root inode */
--#define EXT3_ACL_IDX_INO	 3	/* ACL inode */
--#define EXT3_ACL_DATA_INO	 4	/* ACL inode */
- #define EXT3_BOOT_LOADER_INO	 5	/* Boot loader inode */
- #define EXT3_UNDEL_DIR_INO	 6	/* Undelete directory inode */
- #define EXT3_RESIZE_INO		 7	/* Reserved group descriptors inode */
-@@ -95,7 +93,6 @@
- #else
- # define EXT3_BLOCK_SIZE(s)		(EXT3_MIN_BLOCK_SIZE << (s)->s_log_block_size)
- #endif
--#define EXT3_ACLE_PER_BLOCK(s)		(EXT3_BLOCK_SIZE(s) / sizeof (struct ext3_acl_entry))
- #define	EXT3_ADDR_PER_BLOCK(s)		(EXT3_BLOCK_SIZE(s) / sizeof (__u32))
- #ifdef __KERNEL__
- # define EXT3_BLOCK_SIZE_BITS(s)	((s)->s_blocksize_bits)
-@@ -130,28 +127,6 @@
- #endif
+--- a/fs/ext3/xattr.c	Thu Oct 31 02:39:40 2002
++++ b/fs/ext3/xattr.c	Thu Oct 31 02:39:40 2002
+@@ -61,6 +61,7 @@
+ #include <linux/quotaops.h>
+ #include <asm/semaphore.h>
+ #include "xattr.h"
++#include "acl.h"
  
- /*
-- * ACL structures
-- */
--struct ext3_acl_header	/* Header of Access Control Lists */
--{
--	__u32	aclh_size;
--	__u32	aclh_file_count;
--	__u32	aclh_acle_count;
--	__u32	aclh_first_acle;
--};
+ #define EXT3_EA_USER "user."
+ 
+@@ -1105,15 +1106,27 @@
+ 	err = ext3_xattr_register(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
+ 	if (err)
+ 		return err;
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	err = init_ext3_acl();
++	if (err)
++		goto out;
++#endif
+ 	ext3_xattr_cache = mb_cache_create("ext3_xattr", NULL,
+ 		sizeof(struct mb_cache_entry) +
+ 		sizeof(struct mb_cache_entry_index), 1, 6);
+ 	if (!ext3_xattr_cache) {
+-		ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto out1;
+ 	}
 -
--struct ext3_acl_entry	/* Access Control List Entry */
--{
--	__u32	acle_size;
--	__u16	acle_perms;	/* Access permissions */
--	__u16	acle_type;	/* Type of entry */
--	__u16	acle_tag;	/* User or group identity */
--	__u16	acle_pad1;
--	__u32	acle_next;	/* Pointer on next entry for the */
--					/* same inode or on next free entry */
--};
+ 	return 0;
++out1:
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	exit_ext3_acl();
++out:
++#endif
++	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER,
++			      &ext3_xattr_user_handler);
++	return err;
+ }
+ 
+ void
+@@ -1122,6 +1135,8 @@
+ 	if (ext3_xattr_cache)
+ 		mb_cache_destroy(ext3_xattr_cache);
+ 	ext3_xattr_cache = NULL;
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	exit_ext3_acl();
++#endif
+ 	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
+ }
 -
--/*
-  * Structure of a blocks group descriptor
-  */
- struct ext3_group_desc
-@@ -347,6 +322,7 @@
-   #define EXT3_MOUNT_WRITEBACK_DATA	0x0C00	/* No data ordering */
+diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
+--- a/include/linux/ext3_fs.h	Thu Oct 31 02:39:40 2002
++++ b/include/linux/ext3_fs.h	Thu Oct 31 02:39:40 2002
+@@ -323,6 +323,7 @@
  #define EXT3_MOUNT_UPDATE_JOURNAL	0x1000	/* Update the journal format */
  #define EXT3_MOUNT_NO_UID32		0x2000  /* Disable 32-bit UIDs */
-+#define EXT3_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
+ #define EXT3_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
++#define EXT3_MOUNT_POSIX_ACL		0x8000	/* POSIX Access Control Lists */
  
  /* Compatibility, for having both ext2_fs.h and ext3_fs.h included at once */
  #ifndef _LINUX_EXT2_FS_H
-@@ -532,7 +508,7 @@
- #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008 /* Journal device */
- #define EXT3_FEATURE_INCOMPAT_META_BG		0x0010
- 
--#define EXT3_FEATURE_COMPAT_SUPP	0
-+#define EXT3_FEATURE_COMPAT_SUPP	EXT2_FEATURE_COMPAT_EXT_ATTR
- #define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE| \
- 					 EXT2_FEATURE_INCOMPAT_META_BG)
- #define EXT3_FEATURE_INCOMPAT_SUPP	(EXT3_FEATURE_INCOMPAT_FILETYPE| \
-@@ -731,6 +707,7 @@
- 
- 
- /* inode.c */
-+extern int ext3_forget(handle_t *, int, struct inode *, struct buffer_head *, int);
- extern struct buffer_head * ext3_getblk (handle_t *, struct inode *, long, int, int *);
- extern struct buffer_head * ext3_bread (handle_t *, struct inode *, int, int, int *);
- 
-@@ -799,8 +776,10 @@
- 
- /* namei.c */
- extern struct inode_operations ext3_dir_inode_operations;
-+extern struct inode_operations ext3_special_inode_operations;
- 
- /* symlink.c */
-+extern struct inode_operations ext3_symlink_inode_operations;
- extern struct inode_operations ext3_fast_symlink_inode_operations;
- 
- 
-diff -Nru a/include/linux/ext3_jbd.h b/include/linux/ext3_jbd.h
---- a/include/linux/ext3_jbd.h	Thu Oct 31 02:39:15 2002
-+++ b/include/linux/ext3_jbd.h	Thu Oct 31 02:39:15 2002
-@@ -30,13 +30,19 @@
- 
- #define EXT3_SINGLEDATA_TRANS_BLOCKS	8
- 
-+/* Extended attributes may touch two data buffers, two bitmap buffers,
-+ * and two group and summaries. */
-+
-+#define EXT3_XATTR_TRANS_BLOCKS		8
-+
- /* Define the minimum size for a transaction which modifies data.  This
-  * needs to take into account the fact that we may end up modifying two
-  * quota files too (one for the group, one for the user quota).  The
-  * superblock only gets updated once, of course, so don't bother
-  * counting that again for the quota updates. */
- 
--#define EXT3_DATA_TRANS_BLOCKS		(3 * EXT3_SINGLEDATA_TRANS_BLOCKS - 2)
-+#define EXT3_DATA_TRANS_BLOCKS		(3 * EXT3_SINGLEDATA_TRANS_BLOCKS + \
-+					 EXT3_XATTR_TRANS_BLOCKS - 2)
- 
- extern int ext3_writepage_trans_blocks(struct inode *inode);
+diff -Nru a/include/linux/ext3_fs_i.h b/include/linux/ext3_fs_i.h
+--- a/include/linux/ext3_fs_i.h	Thu Oct 31 02:39:40 2002
++++ b/include/linux/ext3_fs_i.h	Thu Oct 31 02:39:40 2002
+@@ -41,6 +41,10 @@
+ 	__u32	i_prealloc_count;
+ #endif
+ 	__u32	i_dir_start_lookup;
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	struct posix_acl	*i_acl;
++	struct posix_acl	*i_default_acl;
++#endif
+ 	
+ 	struct list_head i_orphan;	/* unlinked but open inodes */
  

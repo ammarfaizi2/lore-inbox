@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbVAPOcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVAPOdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbVAPOcn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 09:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVAPOcn
+	id S262518AbVAPOdM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 09:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVAPOdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 09:32:43 -0500
-Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:31891 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S262513AbVAPOa4
+	Sun, 16 Jan 2005 09:33:12 -0500
+Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:32659 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S262518AbVAPObC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 09:30:56 -0500
-Date: Sun, 16 Jan 2005 23:30:49 +0900
-Message-ID: <m21xclh2ee.wl%ysato@users.sourceforge.jp>
+	Sun, 16 Jan 2005 09:31:02 -0500
+Date: Sun, 16 Jan 2005 23:30:58 +0900
+Message-ID: <m2zmz9fntp.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH} H8/300 defconfig update
+Subject: [PATCH] H8/300 mm update
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.9 (Domyoji) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,407 +23,145 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+o include/asm-h8300/mmu.h: 
+  Changeset 1.2053 support
+o mm/nommu.c:
+  add __vm_enough_memory
+
 Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-diff -Nru a/arch/h8300/defconfig b/arch/h8300/defconfig
---- a/arch/h8300/defconfig	2005-01-16 06:03:32 -08:00
-+++ b/arch/h8300/defconfig	2005-01-16 06:03:32 -08:00
-@@ -1,5 +1,7 @@
- #
- # Automatically generated make config: don't edit
-+# Linux kernel version: 2.6.11-rc1
-+# Sun Jan 16 17:24:38 2005
- #
- CONFIG_H8300=y
- # CONFIG_MMU is not set
-@@ -8,32 +10,37 @@
- CONFIG_UID16=y
- CONFIG_RWSEM_GENERIC_SPINLOCK=y
- # CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
-+CONFIG_GENERIC_CALIBRATE_DELAY=y
- CONFIG_ISA=y
-+# CONFIG_PCI is not set
+diff -Nru a/include/asm-h8300/mmu.h b/include/asm-h8300/mmu.h
+--- a/include/asm-h8300/mmu.h	2005-01-16 06:03:02 -08:00
++++ b/include/asm-h8300/mmu.h	2005-01-16 06:03:02 -08:00
+@@ -3,19 +3,8 @@
  
- #
- # Code maturity level options
- #
- CONFIG_EXPERIMENTAL=y
- CONFIG_CLEAN_COMPILE=y
--CONFIG_STANDALONE=y
- CONFIG_BROKEN_ON_SMP=y
+ /* Copyright (C) 2002, David McCullough <davidm@snapgear.com> */
  
- #
- # General setup
- #
--# CONFIG_SYSVIPC is not set
-+CONFIG_LOCALVERSION=""
- # CONFIG_BSD_PROCESS_ACCT is not set
- # CONFIG_SYSCTL is not set
-+# CONFIG_AUDIT is not set
- CONFIG_LOG_BUF_SHIFT=14
-+# CONFIG_HOTPLUG is not set
- # CONFIG_IKCONFIG is not set
- CONFIG_EMBEDDED=y
--CONFIG_KALLSYMS=y
--CONFIG_FUTEX=y
--CONFIG_EPOLL=y
--CONFIG_IOSCHED_NOOP=y
--CONFIG_IOSCHED_AS=y
--CONFIG_IOSCHED_DEADLINE=y
-+# CONFIG_KALLSYMS is not set
-+# CONFIG_FUTEX is not set
-+# CONFIG_EPOLL is not set
- CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-+CONFIG_CC_ALIGN_FUNCTIONS=0
-+CONFIG_CC_ALIGN_LABELS=0
-+CONFIG_CC_ALIGN_LOOPS=0
-+CONFIG_CC_ALIGN_JUMPS=0
-+CONFIG_TINY_SHMEM=y
+-struct mm_rblock_struct {
+-	int	size;
+-	int	refcount;
+-	void	*kblock;
+-};
+-
+-struct mm_tblock_struct {
+-	struct mm_rblock_struct	*rblock;
+-	struct mm_tblock_struct	*next;
+-};
+-
+ typedef struct {
+-	struct mm_tblock_struct	tblock;
++	struct vm_list_struct	*vmlist;
+ 	unsigned long		end_brk;
+ } mm_context_t;
  
- #
- # Loadable module support
-@@ -43,32 +50,42 @@
- #
- # Processor type and features
- #
--# CONFIG_H8300H_GENERIC is not set
-+CONFIG_H8300H_GENERIC=y
- # CONFIG_H8300H_AKI3068NET is not set
- # CONFIG_H8300H_H8MAX is not set
--CONFIG_H8300H_SIM=y
-+# CONFIG_H8300H_SIM is not set
-+# CONFIG_H8S_GENERIC is not set
- # CONFIG_H8S_EDOSK2674 is not set
- # CONFIG_H8S_SIM is not set
+diff -Nru a/mm/nommu.c b/mm/nommu.c
+--- a/mm/nommu.c	2005-01-16 06:03:02 -08:00
++++ b/mm/nommu.c	2005-01-16 06:03:02 -08:00
+@@ -41,8 +41,12 @@
+ int sysctl_max_map_count = DEFAULT_MAX_MAP_COUNT;
+ int heap_stack_gap = 0;
+ 
+-EXPORT_SYMBOL(sysctl_max_map_count);
+ EXPORT_SYMBOL(mem_map);
++EXPORT_SYMBOL(sysctl_max_map_count);
++EXPORT_SYMBOL(sysctl_overcommit_memory);
++EXPORT_SYMBOL(sysctl_overcommit_ratio);
++EXPORT_SYMBOL(vm_committed_space);
++EXPORT_SYMBOL(__vm_enough_memory);
+ 
+ /* list of shareable VMAs */
+ struct rb_root nommu_vma_tree = RB_ROOT;
+@@ -968,3 +972,90 @@
+ 			 int even_cows)
+ {
+ }
 +
-+#
-+# Detail Selection
-+#
- # CONFIG_H83002 is not set
--CONFIG_H83007=y
-+# CONFIG_H83007 is not set
- # CONFIG_H83048 is not set
--# CONFIG_H83068 is not set
--# CONFIG_H8S2678 is not set
--CONFIG_CPU_H8300H=y
--CONFIG_CPU_CLOCK=16000
-+CONFIG_H83068=y
-+CONFIG_CPU_CLOCK=20000
- # CONFIG_RAMKERNEL is not set
- CONFIG_ROMKERNEL=y
-+CONFIG_CPU_H8300H=y
-+# CONFIG_PREEMPT is not set
- 
- #
- # Executable file formats
- #
- CONFIG_BINFMT_FLAT=y
--# CONFIG_BINFMT_ZFLAT is not set
-+CONFIG_BINFMT_ZFLAT=y
-+# CONFIG_BINFMT_SHARED_FLAT is not set
- # CONFIG_BINFMT_MISC is not set
- 
- #
- # Generic Driver Options
- #
-+# CONFIG_STANDALONE is not set
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_DEBUG_DRIVER is not set
- 
- #
- # Memory Technology Devices (MTD)
-@@ -76,7 +93,7 @@
- CONFIG_MTD=y
- # CONFIG_MTD_DEBUG is not set
- CONFIG_MTD_PARTITIONS=y
--# CONFIG_MTD_CONCAT is not set
-+CONFIG_MTD_CONCAT=y
- # CONFIG_MTD_REDBOOT_PARTS is not set
- # CONFIG_MTD_CMDLINE_PARTS is not set
- 
-@@ -94,10 +111,19 @@
- #
- # CONFIG_MTD_CFI is not set
- # CONFIG_MTD_JEDECPROBE is not set
-+CONFIG_MTD_MAP_BANK_WIDTH_1=y
-+CONFIG_MTD_MAP_BANK_WIDTH_2=y
-+CONFIG_MTD_MAP_BANK_WIDTH_4=y
-+# CONFIG_MTD_MAP_BANK_WIDTH_8 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_16 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_32 is not set
-+CONFIG_MTD_CFI_I1=y
-+CONFIG_MTD_CFI_I2=y
-+# CONFIG_MTD_CFI_I4 is not set
-+# CONFIG_MTD_CFI_I8 is not set
- CONFIG_MTD_RAM=y
--# CONFIG_MTD_ROM is not set
-+CONFIG_MTD_ROM=y
- # CONFIG_MTD_ABSENT is not set
--# CONFIG_MTD_OBSOLETE_CHIPS is not set
- 
- #
- # Mapping drivers for chip access
-@@ -109,8 +135,10 @@
- # Self-contained MTD device drivers
- #
- # CONFIG_MTD_SLRAM is not set
-+# CONFIG_MTD_PHRAM is not set
- # CONFIG_MTD_MTDRAM is not set
- # CONFIG_MTD_BLKMTD is not set
-+# CONFIG_MTD_BLOCK2MTD is not set
- 
- #
- # Disk-On-Chip Device Drivers
-@@ -130,114 +158,30 @@
- # CONFIG_BLK_DEV_FD is not set
- # CONFIG_BLK_DEV_XD is not set
- # CONFIG_BLK_DEV_LOOP is not set
--# CONFIG_BLK_DEV_NBD is not set
- # CONFIG_BLK_DEV_RAM is not set
--# CONFIG_BLK_DEV_INITRD is not set
-+CONFIG_BLK_DEV_RAM_COUNT=16
-+CONFIG_INITRAMFS_SOURCE=""
-+# CONFIG_CDROM_PKTCDVD is not set
- 
- #
--# ATA/ATAPI/MFM/RLL support
-+# IO Schedulers
- #
--# CONFIG_IDE is not set
-+CONFIG_IOSCHED_NOOP=y
-+# CONFIG_IOSCHED_AS is not set
-+# CONFIG_IOSCHED_DEADLINE is not set
-+# CONFIG_IOSCHED_CFQ is not set
- 
- #
--# IDE Extra configuration
-+# ATA/ATAPI/MFM/RLL support
- #
-+# CONFIG_IDE is not set
- 
- #
- # Networking support
- #
--CONFIG_NET=y
--
--#
--# Networking options
--#
--# CONFIG_PACKET is not set
--# CONFIG_NETLINK_DEV is not set
--# CONFIG_UNIX is not set
--# CONFIG_NET_KEY is not set
--# CONFIG_INET is not set
--# CONFIG_INET_AH is not set
--# CONFIG_INET_ESP is not set
--# CONFIG_INET_IPCOMP is not set
--# CONFIG_DECNET is not set
--# CONFIG_BRIDGE is not set
--# CONFIG_NETFILTER is not set
--# CONFIG_ATM is not set
--# CONFIG_VLAN_8021Q is not set
--# CONFIG_LLC2 is not set
--# CONFIG_IPX is not set
--# CONFIG_ATALK is not set
--# CONFIG_X25 is not set
--# CONFIG_LAPB is not set
--# CONFIG_NET_DIVERT is not set
--# CONFIG_WAN_ROUTER is not set
--# CONFIG_NET_HW_FLOWCONTROL is not set
--
--#
--# QoS and/or fair queueing
--#
--# CONFIG_NET_SCHED is not set
--
--#
--# Network testing
--#
--# CONFIG_NET_PKTGEN is not set
--CONFIG_NETDEVICES=y
--
--#
--# ARCnet devices
--#
--# CONFIG_ARCNET is not set
--# CONFIG_DUMMY is not set
--# CONFIG_BONDING is not set
--# CONFIG_EQUALIZER is not set
--# CONFIG_TUN is not set
--
--#
--# Ethernet (10 or 100Mbit)
--#
--# CONFIG_NET_ETHERNET is not set
--
--#
--# Ethernet (1000 Mbit)
--#
--
--#
--# Ethernet (10000 Mbit)
--#
--# CONFIG_PPP is not set
--# CONFIG_SLIP is not set
--
--#
--# Wireless LAN (non-hamradio)
--#
--# CONFIG_NET_RADIO is not set
--
--#
--# Token Ring devices
--#
--# CONFIG_TR is not set
--# CONFIG_SHAPER is not set
--
--#
--# Wan interfaces
--#
--# CONFIG_WAN is not set
--
--#
--# Amateur Radio support
--#
--# CONFIG_HAMRADIO is not set
--
--#
--# IrDA (infrared) support
--#
--# CONFIG_IRDA is not set
--
--#
--# Bluetooth support
--#
--# CONFIG_BT is not set
-+# CONFIG_NET is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
- 
- #
- # Input device support
-@@ -264,9 +208,6 @@
- # Character devices
- #
- # CONFIG_VT is not set
--# CONFIG_SERIAL is not set
--CONFIG_SH_SCI=y
--CONFIG_SERIAL_CONSOLE=y
- 
- #
- # Unix98 PTY support
-@@ -281,6 +222,10 @@
- #
- # Non-8250 serial port support
- #
-+CONFIG_SERIAL_SH_SCI=y
-+CONFIG_SERIAL_SH_SCI_CONSOLE=y
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_CORE_CONSOLE=y
- 
- #
- # I2C support
-@@ -290,6 +235,12 @@
- #
- # USB support
- #
-+# CONFIG_USB_ARCH_HAS_HCD is not set
-+# CONFIG_USB_ARCH_HAS_OHCI is not set
++/*
++ * Check that a process has enough memory to allocate a new virtual
++ * mapping. 0 means there is enough memory for the allocation to
++ * succeed and -ENOMEM implies there is not.
++ *
++ * We currently support three overcommit policies, which are set via the
++ * vm.overcommit_memory sysctl.  See Documentation/vm/overcommit-accounting
++ *
++ * Strict overcommit modes added 2002 Feb 26 by Alan Cox.
++ * Additional code 2002 Jul 20 by Robert Love.
++ *
++ * cap_sys_admin is 1 if the process has admin privileges, 0 otherwise.
++ *
++ * Note this is a helper function intended to be used by LSMs which
++ * wish to use this logic.
++ */
++int __vm_enough_memory(long pages, int cap_sys_admin)
++{
++	unsigned long free, allowed;
 +
-+#
-+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
-+#
- 
- #
- # USB Gadget Support
-@@ -308,6 +259,7 @@
- # CONFIG_MINIX_FS is not set
- CONFIG_ROMFS_FS=y
- # CONFIG_QUOTA is not set
-+# CONFIG_DNOTIFY is not set
- # CONFIG_AUTOFS_FS is not set
- # CONFIG_AUTOFS4_FS is not set
- 
-@@ -320,14 +272,15 @@
- #
- # DOS/FAT/NT Filesystems
- #
--# CONFIG_FAT_FS is not set
-+# CONFIG_MSDOS_FS is not set
-+# CONFIG_VFAT_FS is not set
- # CONFIG_NTFS_FS is not set
- 
- #
- # Pseudo filesystems
- #
- CONFIG_PROC_FS=y
--CONFIG_PROC_KCORE=y
-+# CONFIG_SYSFS is not set
- # CONFIG_DEVFS_FS is not set
- # CONFIG_TMPFS is not set
- # CONFIG_HUGETLB_PAGE is not set
-@@ -339,6 +292,7 @@
- # CONFIG_ADFS_FS is not set
- # CONFIG_AFFS_FS is not set
- # CONFIG_HFS_FS is not set
-+# CONFIG_HFSPLUS_FS is not set
- # CONFIG_BEFS_FS is not set
- # CONFIG_BFS_FS is not set
- # CONFIG_EFS_FS is not set
-@@ -352,11 +306,6 @@
- # CONFIG_UFS_FS is not set
- 
- #
--# Network File Systems
--#
--# CONFIG_EXPORTFS is not set
--
--#
- # Partition Types
- #
- # CONFIG_PARTITION_ADVANCED is not set
-@@ -370,18 +319,23 @@
- #
- # Kernel hacking
- #
-+CONFIG_DEBUG_KERNEL=y
-+# CONFIG_SCHEDSTATS is not set
-+# CONFIG_DEBUG_KOBJECT is not set
-+# CONFIG_DEBUG_FS is not set
- CONFIG_FULLDEBUG=y
--# CONFIG_MAGIC_SYSRQ is not set
- # CONFIG_HIGHPROFILE is not set
- CONFIG_NO_KERNEL_MSG=y
--CONFIG_GDB_MAGICPRINT=y
- # CONFIG_SYSCALL_PRINT is not set
-+# CONFIG_GDB_DEBUG is not set
-+# CONFIG_CONFIG_SH_STANDARD_BIOS is not set
- # CONFIG_DEFAULT_CMDLINE is not set
- # CONFIG_BLKDEV_RESERVE is not set
- 
- #
- # Security options
- #
-+# CONFIG_KEYS is not set
- # CONFIG_SECURITY is not set
- 
- #
-@@ -390,6 +344,13 @@
- # CONFIG_CRYPTO is not set
- 
- #
-+# Hardware crypto devices
-+#
++	vm_acct_memory(pages);
 +
-+#
- # Library routines
- #
--# CONFIG_CRC32 is not set
-+# CONFIG_CRC_CCITT is not set
-+CONFIG_CRC32=y
-+# CONFIG_LIBCRC32C is not set
-+CONFIG_ZLIB_INFLATE=y
++	/*
++	 * Sometimes we want to use more memory than we have
++	 */
++	if (sysctl_overcommit_memory == OVERCOMMIT_ALWAYS)
++		return 0;
++
++	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
++		unsigned long n;
++
++		free = get_page_cache_size();
++		free += nr_swap_pages;
++
++		/*
++		 * Any slabs which are created with the
++		 * SLAB_RECLAIM_ACCOUNT flag claim to have contents
++		 * which are reclaimable, under pressure.  The dentry
++		 * cache and most inode caches should fall into this
++		 */
++		free += atomic_read(&slab_reclaim_pages);
++
++		/*
++		 * Leave the last 3% for root
++		 */
++		if (!cap_sys_admin)
++			free -= free / 32;
++
++		if (free > pages)
++			return 0;
++
++		/*
++		 * nr_free_pages() is very expensive on large systems,
++		 * only call if we're about to fail.
++		 */
++		n = nr_free_pages();
++		if (!cap_sys_admin)
++			n -= n / 32;
++		free += n;
++
++		if (free > pages)
++			return 0;
++		vm_unacct_memory(pages);
++		return -ENOMEM;
++	}
++
++	allowed = totalram_pages * sysctl_overcommit_ratio / 100;
++	/*
++	 * Leave the last 3% for root
++	 */
++	if (!cap_sys_admin)
++		allowed -= allowed / 32;
++	allowed += total_swap_pages;
++
++	/* Don't let a single process grow too big:
++	   leave 3% of the size of this process for other processes */
++	allowed -= current->mm->total_vm / 32;
++
++	if (atomic_read(&vm_committed_space) < allowed)
++		return 0;
++
++	vm_unacct_memory(pages);
++
++	return -ENOMEM;
++}
++
 
 -- 
 Yoshinori Sato

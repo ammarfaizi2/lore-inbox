@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319600AbSIMK7D>; Fri, 13 Sep 2002 06:59:03 -0400
+	id <S319599AbSIMLBf>; Fri, 13 Sep 2002 07:01:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319599AbSIMK7C>; Fri, 13 Sep 2002 06:59:02 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:58093 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S319600AbSIMK7C>; Fri, 13 Sep 2002 06:59:02 -0400
-Date: Fri, 13 Sep 2002 11:59:52 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: Syam Sundar V Appala <syam@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.19 Oops error
-Message-ID: <20020913115952.A1796@linux-m68k.org>
-References: <Pine.GSO.4.44.0209112015100.17831-100000@msabu-view1.cisco.com>
+	id <S319601AbSIMLBf>; Fri, 13 Sep 2002 07:01:35 -0400
+Received: from slider.rack66.net ([212.3.252.135]:26841 "EHLO
+	slider.rack66.net") by vger.kernel.org with ESMTP
+	id <S319599AbSIMLBe>; Fri, 13 Sep 2002 07:01:34 -0400
+Date: Fri, 13 Sep 2002 13:07:10 +0200
+From: Filip Van Raemdonck <filipvr@xs4all.be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Message-ID: <20020913110710.GB25353@debian>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3D81B09B.7030405@iinet.net.au> <Pine.LNX.4.44.0209131250480.8722-100000@magic.vamo.orbitel.bg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.44.0209112015100.17831-100000@msabu-view1.cisco.com>; from syam@cisco.com on Wed, Sep 11, 2002 at 08:23:09PM -0700
+In-Reply-To: <Pine.LNX.4.44.0209131250480.8722-100000@magic.vamo.orbitel.bg>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 08:23:09PM -0700, Syam Sundar V Appala wrote:
-> Hello,
-> I am relatively new to linux and I am facing the following problem. Can
-> someone explain what is going on?
+On Fri, Sep 13, 2002 at 01:22:22PM +0300, Ivan Ivanov wrote:
 > 
-> Oops:
-> ---
-> EXT2-fs error (device ide0(3,1)): ext2_check_page: bad entry in directory
-> #21179
-> 6: unaligned directory entry - offset=0, inode=4294967295, rec_len=65535,
-> name_l
-> en=255
+> I think that it is not fair to insist for merging of XFS only. There ara
+> many other projects that are of bigger value for linux then iet another
+> filesystem - RSBAC,OpenMosix,LSM,HTree and more.
 
-some inode was ovewritten by 0xfffffff...., look back in the log for other
-strange messages. Run memtest.
+And who are most likely far more intrusive than XFS is currently, or have
+other issues. [1]
 
-Richard
+> Some people like Linus, Alan, Marchelo etc. have the responsibility to
+> provide users with a usable, stable kernel.
 
+So they mark XFS experimental, and unless the user configures for
+experimental features to be asked for they won't even notice their presence.
+
+> I am not an expert, just a sysadmin, and I am testing XFS since kernel
+> 2.4.6 ( I am writing this mail from a test machine with kernel 2.4.18
+> and XFS root filesystem ), and I also think that XFS is not ready for
+> production ( I lost some unimportant files after a crash yesterday ).
+
+So, you are not using ext2 then either? Since that can loose files, too, on
+a crash. (I've actually even once seen a whole ext2 partition disappear
+after a crash. Same for reiserfs, BTW)
+
+Any fs can have bugs. Even while ext2 is indeed more likely to be the most
+tested, it too can bite you sometimes. [1]
+
+
+Regards,
+
+Filip
+
+[1] Actually I've had problems with dma timeouts resulting in ide hangs on
+    an ext2 system last week, and it too managed to lose a few files. Sure,
+    fsck picked up most of them, and none were critical, but it does prove
+    my point well enough.
+
+-- 
+We have joy, we have fun,
+we have Linux on our Sun.
+	-- Andreas Tille

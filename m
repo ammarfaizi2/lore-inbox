@@ -1,78 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318934AbSICVCb>; Tue, 3 Sep 2002 17:02:31 -0400
+	id <S318925AbSICVAR>; Tue, 3 Sep 2002 17:00:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318935AbSICVCb>; Tue, 3 Sep 2002 17:02:31 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:4869 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318934AbSICVC3>;
-	Tue, 3 Sep 2002 17:02:29 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209032107.g83L71h10758@oboe.it.uc3m.es>
-Subject: Re: [RFC] mount flag "direct" (fwd)
-In-Reply-To: <20020903185344.GA7836@marowsky-bree.de> from Lars Marowsky-Bree
- at "Sep 3, 2002 08:53:44 pm"
-To: Lars Marowsky-Bree <lmb@suse.de>
-Date: Tue, 3 Sep 2002 23:07:01 +0200 (MET DST)
-Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, root@chaos.analogic.com,
-       Rik van Riel <riel@conectiva.com.br>,
-       linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S318930AbSICVAR>; Tue, 3 Sep 2002 17:00:17 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:13701 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318925AbSICVAP>;
+	Tue, 3 Sep 2002 17:00:15 -0400
+Message-Id: <200209032103.g83L30J11272@w-gaughen.beaverton.ibm.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+Reply-to: gone@us.ibm.com
+From: Patricia Gaughen <gone@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: 2.4.20pre5 not booting on numa-q with CONFIG_MULTIQUAD
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Sep 2002 14:02:59 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Lars Marowsky-Bree wrote:"
-> On 2002-09-03T18:29:02,
->    "Peter T. Breuer" <ptb@it.uc3m.es> said:
-> 
-> > > Lets say you have a perfect locking mechanism, a fake SCSI layer
-> > OK.
-> 
-> BTW, I would like to see your perfect distributed locking mechanism.
 
-That bit's easy and is done. The "trick" is NOT to distribute the lock,
-but to have it in one place - on the driver that guards the remote
-disk resource.
+Hi,
 
-> > The directory entry would certainly have to be reread after a write
-> > operation on disk that touched it - or more simply, the directory entry
-> > would have to be reread every time it were needed, i.e. be uncached.
-> 
-> *ouch* Sure. Right. You just have to read it from scratch every time. How
-> would you make readdir work?
+2.4.20pre4 booted fine for me, but 2.4.20pre5 is not booting on the numa-q 
+boxes when I turn on CONFIG_MULTIQUAD.  I've included the messages that I see 
+leading up to the panic. I looked over some pci changes that went in pre5 and 
+don't see anything suspect, but I'm not familiar with that area of code.
 
-Well, one has to read it from scratch. I'll set about seeing how to do.
-CLues welcome.
+Starting kswapd
+allocated 32 pages and 32 bhs reserved for the highmem bounces
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI 
+enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+starfire.c:v1.03 7/26/2000  Written by Donald Becker <becker@scyld.com>
+ (unofficial 2.2/2.4 kernel port, version 1.03+LK1.3.6, March 7, 2002)
+eth0: Adaptec Starfire 6915 at 0xf8a01000, 00:00:d1:ec:a9:0d, IRQ 40.
+eth0: MII PHY found at address 1, status 0x7809 advertising 01e1.
+eth0: scatter-gather and hardware TCP cksumming disabled.
+eth1: Adaptec Starfire 6915 at 0xf8a82000, 00:00:d1:ec:a9:0e, IRQ 39.
+eth1: MII PHY found at address 1, status 0x7809 advertising 01e1.
+eth1: scatter-gather and hardware TCP cksumming disabled.
+eth2: Adaptec Starfire 6915 at 0xf8b03000, 00:00:d1:ec:a9:0f, IRQ 38.
+eth2: MII PHY found at address 1, status 0x7809 advertising 01e1.
+eth2: scatter-gather and hardware TCP cksumming disabled.
+eth3: Adaptec Starfire 6915 at 0xf8b84000, 00:00:d1:ec:a9:10, IRQ 37.
+eth3: MII PHY found at address 1, status 0x7809 advertising 01e1.
+eth3: scatter-gather and hardware TCP cksumming disabled.
+PCI: Unable to reserve mem region #1:80000@fd900000 for device 02:04.0
+PCI: Unable to reserve mem region #1:80000@fd900000 for device 02:04.0
+Trying to free nonexistent resource <30303750-69462030>
+Trying to free nonexistent resource <00000000-00000029>
+Trying to free nonexistent resource <f7ac6800-f7ac6000>
+Trying to free nonexistent resource <6e6f4320-6c6f7274>
+Trying to free nonexistent resource <202e7072-34353238>
+Trying to free nonexistent resource <fcc2ffff-00000200>
+<.... removed about 120000 instances of this message...>
+Trying to free nonexistent resource <00004000-00029615>
+Trying to free nonexistent resource <00000000-69680000>
+Trying to free nonexistent resource <f390f3bc-0246f000>
+Trying to free nonexistent resource <ffff7e00-0000ed00>
+Trying to free nonexistent resource <f00000fd-f00000fd>
+Trying to free nonexistent resource <f000efd2-f000f3a3>
+Unable to handle kernel paging request at virtual address bfffffec
+c01a527b
+*pde = 00000000
+Oops: 0000
+CPU:    2
+EIP:    0010:[<c01a527b>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010283
+eax: c85397dc   ebx: fe02fc44   ecx: f7ac6800   edx: f000e2c3
+esi: fe02fc45   edi: f7ac6800   ebp: f7ac6800   esp: f7adbf34
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=f7adb000)
+Stack: fe02fc44 f7ac6800 fe02fc46 c01a5508 f7ac6800 fe02fc45 00080000 f77dc000
+       fd900000 c0187db1 f7ac6800 f77dc000 00000001 00000001 00000000 00000028
+       c022ddd8 c022de20 f7ac6800 00000000 c01a55dc f7ac6800 c022ddd8 f7ac6800
+Call Trace:    [<c01a5508>] [<c0187db1>] [<c01a55dc>] [<c01a5642>] [<c0105000>]
+  [<c0105078>] [<c0105000>] [<c01071c6>] [<c0105050>]
+Code: 8b 54 38 10 85 d2 75 08 8b 4c 38 14 85 c9 74 6b 8b 5c 38 14
 
-> > If that presently is not possible, then I would like to think about
-> > making it possible.
-> 
-> Just please, tell us why.
+>>EIP; c01a527b <pci_release_region+1b/a0>   <=====
+Trace; c01a5508 <pci_request_regions+a8/c0>
+Trace; c0187db1 <starfire_init_one+e1/4d0>
+Trace; c01a55dc <pci_announce_device+3c/60>
+Trace; c01a5642 <pci_register_driver+42/60>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105078 <init+28/190>
+Trace; c0105000 <_stext+0/0>
+Trace; c01071c6 <kernel_thread+26/30>
+Trace; c0105050 <init+0/190>
+Code;  c01a527b <pci_release_region+1b/a0>
+00000000 <_EIP>:
+Code;  c01a527b <pci_release_region+1b/a0>   <=====
+   0:   8b 54 38 10               mov    0x10(%eax,%edi,1),%edx   <=====
+Code;  c01a527f <pci_release_region+1f/a0>
+   4:   85 d2                     test   %edx,%edx
+Code;  c01a5281 <pci_release_region+21/a0>
+   6:   75 08                     jne    10 <_EIP+0x10> c01a528b 
+<pci_release_re
+gion+2b/a0>
+Code;  c01a5283 <pci_release_region+23/a0>
+   8:   8b 4c 38 14               mov    0x14(%eax,%edi,1),%ecx
+Code;  c01a5287 <pci_release_region+27/a0>
+   c:   85 c9                     test   %ecx,%ecx
+Code;  c01a5289 <pci_release_region+29/a0>
+   e:   74 6b                     je     7b <_EIP+0x7b> c01a52f6 
+<pci_release_re
+gion+96/a0>
+Code;  c01a528b <pci_release_region+2b/a0>
+  10:   8b 5c 38 14               mov    0x14(%eax,%edi,1),%ebx
 
-You don't really want the whole rationale. It concerns certain 
-european (nay, world ..) scientific projects and the calculations of the
-technologists about the progress in hardware over the next few years.
-We/they foresee that we will have to move to multiple relatively small
-distributed disks per node in order to keep the bandwidth per unit of
-storage at the levels that they will have to be at to keep the farms
-fed.  We are talking petabytes of data storage in thousands of nodes
-moving over gigabit networks.
+ <0>Kernel panic: Attempted to kill init!
 
-The "big view" calculations indicate that we must have distributed
-shared writable data.
 
-These calculations affect us all. They show us what way computing
-will evolve under the price and technology pressures. The calculations
-are only looking to 2006, but that's what they show. For example
-if we think about a 5PB system made of 5000 disks of 1TB each in a GE
-net, we calculate the aggregate bandwidth available in the topology as
-50GB/s, which is less than we need in order to keep the nodes fed
-at the rates they could be fed at (yes, a few % loss translates into
-time and money).  To increase available bandwidth we must have more
-channels to the disks, and more disks, ... well, you catch my drift.
+Thanks,
+Pat
 
-So, start thinking about general mechanisms to do distributed storage.
-Not particular FS solutions.
+-- 
+Patricia Gaughen (gone@us.ibm.com)
+IBM Linux Technology Center
+http://www.ibm.com/linux/ltc/
 
-Peter
+

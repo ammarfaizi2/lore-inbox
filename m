@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315267AbSHBRHU>; Fri, 2 Aug 2002 13:07:20 -0400
+	id <S316258AbSHBRIq>; Fri, 2 Aug 2002 13:08:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315442AbSHBRHU>; Fri, 2 Aug 2002 13:07:20 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:48083 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315267AbSHBRHT>; Fri, 2 Aug 2002 13:07:19 -0400
-Message-ID: <3D4ABD12.BBAA0646@nortelnetworks.com>
-Date: Fri, 02 Aug 2002 13:10:42 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: question about CONFIG_IP_ACCEPT_UNSOLICITED_ARP 
+	id <S316322AbSHBRIq>; Fri, 2 Aug 2002 13:08:46 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:58123 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316258AbSHBRIp>;
+	Fri, 2 Aug 2002 13:08:45 -0400
+Date: Fri, 2 Aug 2002 10:10:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Enugala Venkata Ramana <caps_linux@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: installation of latest kernel on compaq notebook
+Message-ID: <20020802171022.GA32459@kroah.com>
+References: <20020802141213.31759.qmail@webmail30.rediffmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020802141213.31759.qmail@webmail30.rediffmail.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Fri, 05 Jul 2002 16:07:28 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 02, 2002 at 02:12:13PM -0000, Enugala Venkata Ramana wrote:
+> 
+> Hi Greg,
+> Thanks for response.
+> here i am attaching the usb_devices listing.
 
-I was looking at the arp code and noticed the CONFIG_IP_ACCEPT_UNSOLICITED_ARP
-option.
+That device should work just fine with the catc.c driver.  Have you
+build that one in your kernel configuration?
 
-I'm a bit confused, however, since there is no way to enable this option without
-specifying it on the command line.  Is this by intent?  It seems to have been
-added back in 1998 in a patch by Thomas Koenig.
+thanks,
 
-Just curious,
-
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+greg k-h

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267065AbRGYQbO>; Wed, 25 Jul 2001 12:31:14 -0400
+	id <S268590AbRGYQmE>; Wed, 25 Jul 2001 12:42:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268581AbRGYQbE>; Wed, 25 Jul 2001 12:31:04 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:21194 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S267065AbRGYQav>;
-	Wed, 25 Jul 2001 12:30:51 -0400
-Message-ID: <3B5EF43E.C9EAF2B1@Sun.COM>
-Date: Wed, 25 Jul 2001 18:30:54 +0200
-From: Julien Laganier <Julien.Laganier@Sun.COM>
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S268591AbRGYQlz>; Wed, 25 Jul 2001 12:41:55 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8462 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268590AbRGYQlk>; Wed, 25 Jul 2001 12:41:40 -0400
+Date: Wed, 25 Jul 2001 13:41:43 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <0107251802300B.00907@starship>
+Message-ID: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: David CM Weber <dweber@backbonesecurity.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: device struct
-In-Reply-To: <94FD5825A793194CBF039E6673E9AFE0C017@bbserver1.backbonesecurity.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-David CM Weber wrote:
-> 
-> I'm looking at some old (circa v2.2.5 of the kernel) sample code,
-> referring to the networking system. It refers to a structure named
-> "device".  Was this replaced with something else?
-> 
-> On a similar note, is there a "good" way of finding this data myself?
-> I've been using ctags, and this is of limited use. (Sometimes good,
-> sometimes bad).
-> 
+On Wed, 25 Jul 2001, Daniel Phillips wrote:
+> On Wednesday 25 July 2001 08:33, Marcelo Tosatti wrote:
+> > Now I'm not sure why directly adding swapcache pages to the inactive
+> > dirty lits with 0 zero age improves things.
+>
+> Because it moves the page rapidly down the inactive queue towards the
+> ->writepage instead of leaving it floating around on the active ring
+> waiting to be noticed.  We already know we want to evict that page,
 
-Use CSCOPE, available at http://cscope.sourceforge.net
-It's very usefull !
+We don't.
 
--- 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+The page gets unmapped and added to the swap cache the first
+time it wasn't referenced by the process.
+
+This is before any page aging is done.
+
+Rik
 --
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
-    Julien Laganier
-     Student Intern
-Sun Microsystem Laboratories
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

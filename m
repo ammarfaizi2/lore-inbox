@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312141AbSC2Vsh>; Fri, 29 Mar 2002 16:48:37 -0500
+	id <S312208AbSC2Vwr>; Fri, 29 Mar 2002 16:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312162AbSC2Vs2>; Fri, 29 Mar 2002 16:48:28 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:48775 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312141AbSC2VsP>;
-	Fri, 29 Mar 2002 16:48:15 -0500
-Date: Fri, 29 Mar 2002 22:27:47 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [patch] Device model update (with power state transitions)
-Message-ID: <20020329212745.GA4751@elf.ucw.cz>
-In-Reply-To: <20020326190858.D324@toy.ucw.cz>
-Mime-Version: 1.0
+	id <S312194AbSC2Vwi>; Fri, 29 Mar 2002 16:52:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2574 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312169AbSC2VwV>; Fri, 29 Mar 2002 16:52:21 -0500
+Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only
+To: Ruth.Ivimey-Cook@ivimey.org (Ruth Ivimey-Cook)
+Date: Fri, 29 Mar 2002 22:08:41 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <5.1.0.14.0.20020329210032.00b82b38@mailhost.ivimey.org> from "Ruth Ivimey-Cook" at Mar 29, 2002 09:32:02 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16r4Y5-00023F-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Please note I didn't say .20 *and all future versions*. I asked because it 
+> just seems to me that while kernel 2.4 is definitely improving, it is being 
+> pulled hard in 2 directions -- towards stability and towards 2.5.
 
-> (The first is not necessarily related to the other two, but the other two 
-> were created relative to the first, and it's otherwise innocuous).
-> 
-> 1. Implements notion of 'system' bus, so system level devices can be added 
-> in a comon spot. This includes things like CPUs, PICs, timers, etc.
+In a lot of cases like the USB stuff they are both the same thing. The
+stuff filtering back is bug fixes found in the development tree and tested
+by the lunatic fringe. The 2.4 -ac tree doesn't quite obey the rules but
+the fun stuff like the O(1) scheduler code is stuff I don't intend to
+push to Marcelo. 
 
-Good thing, but naming is pretty inconsistent.
+> I was hoping that, if we had a release that was focused on stability, the 
+> current code base might get a longer testing phase, resulting in a better 
+> code base overall.
 
-You have device_register() but register_sys_device(). 
+That release is 2.4.* (or should be)
 
-> Testing welcome also, though I wouldn't expect one to get very far, since 
-> they're not actually used. ;) Which, brings up another question - what 
-> would be the proper place to call device_shutdown()? (I haven't looked 
-> very far into that part...)
+Alan
 
-Tested, seems to work.
-									Pavel
-PS: On toshiba 4030cdt, I can suspend once without no apparent ill
-effects. On resume I get 
-
-utmisc-0373 Ut_acquire_mutex : Invalid acquire order: Thread 5C owns
-[ACPI_MTX_Hardware], wants [ACPI_MTX_Namespace].
-
-followed by more warnings. Is there easy way to debug this?
-
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

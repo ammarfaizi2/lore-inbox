@@ -1,92 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbTKEUgh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 15:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbTKEUgh
+	id S263185AbTKEUpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 15:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTKEUpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 15:36:37 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62168 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263157AbTKEUge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 15:36:34 -0500
-Date: Wed, 5 Nov 2003 21:36:33 +0100
-From: Jan Kara <jack@suse.cz>
-To: linux-kernel@vger.kernel.org, Alex Lyashkov <shadow@itt.net.ru>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: Linux 2.4 quota (accounting?) bug ...
-Message-ID: <20031105203633.GD9697@atrey.karlin.mff.cuni.cz>
-References: <20031025162640.GA24020@DUK2.13thfloor.at> <20031025163128.GA20786@atrey.karlin.mff.cuni.cz> <20031025174225.GB24020@DUK2.13thfloor.at>
+	Wed, 5 Nov 2003 15:45:30 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:48054 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263185AbTKEUpX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 15:45:23 -0500
+Date: Wed, 5 Nov 2003 12:45:22 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: BK2CVS problem
+Message-ID: <20031105204522.GA11431@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031025174225.GB24020@DUK2.13thfloor.at>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Somebody has modified the CVS tree on kernel.bkbits.net directly.  Dave looked
+at the machine and it looked like someone may have been trying to break in and
+do it.  
 
-> On Sat, Oct 25, 2003 at 06:31:28PM +0200, Jan Kara wrote:
-> >   Hi,
-> > 
-> > > a friend of mine, made me aware of the following
-> > > imbalance, which looks like a minor accounting bug 
-> > > to me, but might be a quota bug ...
-> >   Sorry but the code seems correct to me - we get reference to dquot by
-> > get_dquot_ref() and than we put the reference by dqput(). dqput() is
-> > correct because something nasty might happen in the mean time and so we
-> > might be the last holders of the dquot. What do you think is wrong?
-> 
-> dqput() does dqstats.drops++;
-> which isn't correct if this should be the same as
-> put_dquot_ref(), but maybe I'm just irritated by 
-> strange statistics on some kernels showing more
-> drops than lookups+allocated after sync/quotaoff
-  So I finally got to fixing the bug. The patch (also with a deletition
-of unnecessary variable) is attached. Marcello please apply.
+We've fixed the file in question, the conversion is done back here at BitMover
+and after we transfer the files we check them and make sure they are OK and 
+this file got flagged.  
 
-									Honza
+The CVS tree is fine, you might want to remove and update exit.c to make sure
+you have the current version in your tree however.
 
----------------------cut here-------------------------------------------
+The problem file is kernel/exit.c which has a few extra entries like so:
 
-diff -ruX ../kerndiffexclude linux-2.4.22-um/fs/dquot.c linux-2.4.22-fixstat/fs/dquot.c
---- linux-2.4.22-um/fs/dquot.c	Mon Aug 25 13:44:43 2003
-+++ linux-2.4.22-fixstat/fs/dquot.c	Wed Nov  5 21:21:58 2003
-@@ -392,6 +392,7 @@
- 		 * is enough since if dquot is locked/modified it can't be
- 		 * on the free list */
- 		get_dquot_ref(dquot);
-+		dqstats.lookups++;
- 		if (dquot->dq_flags & DQ_LOCKED)
- 			wait_on_dquot(dquot);
- 		if (dquot_dirty(dquot))
-@@ -622,7 +623,6 @@
- 		dqput(dquot);
- 		return NODQUOT;
- 	}
--	++dquot->dq_referenced;
- 	dqstats.lookups++;
- 
- 	return dquot;
-@@ -642,7 +642,6 @@
- 	if (dquot->dq_flags & DQ_LOCKED)
- 		printk(KERN_ERR "VFS: dqduplicate(): Locked quota to be duplicated!\n");
- 	get_dquot_dup_ref(dquot);
--	dquot->dq_referenced++;
- 	dqstats.lookups++;
- 
- 	return dquot;
-Only in linux-2.4.22-fixstat/include/linux: modules
-diff -ruX ../kerndiffexclude linux-2.4.22-um/include/linux/quota.h linux-2.4.22-fixstat/include/linux/quota.h
---- linux-2.4.22-um/include/linux/quota.h	Mon Aug 25 13:44:44 2003
-+++ linux-2.4.22-fixstat/include/linux/quota.h	Wed Nov  5 21:27:44 2003
-@@ -222,8 +222,6 @@
- 	loff_t dq_off;			/* Offset of dquot on disk */
- 	short dq_type;			/* Type of quota */
- 	short dq_flags;			/* See DQ_* */
--	unsigned long dq_referenced;	/* Number of times this dquot was 
--					   referenced during its lifetime */
- 	struct mem_dqblk dq_dqb;	/* Diskquota usage */
- };
- 
+    revision 1.121
+    date: 2003/11/04 16:44:19;  author: davem;  state: Exp;  lines: +58 -0
+    Oops, I worked on the  the wrong file, fixed again.
+    ----------------------------
+    revision 1.120
+    date: 2003/11/04 16:42:00;  author: davem;  state: Exp;  lines: +0 -58
+    *** empty log message ***
+    ----------------------------
+    revision 1.119
+    date: 2003/11/04 16:22:47;  author: davem;  state: Exp;  lines: +2 -0
+    *** empty log message ***
+    ----------------------------
+    revision 1.118
+    date: 2003/10/27 19:50:03;  author: torvalds;  state: Exp;  lines: +11 -5
+    Fix ZOMBIE race with self-reaping threads.
+
+    exit_notify() used to leave a window open when a thread
+    died that made the thread visible as a ZOMBIE even though
+    the thread reaped itself. This closes that window by marking
+    the thread DEAD within the tasklist_lock.
+
+    (Logical change 1.14141)
+    ----------------------------
+
+Notice how the top 3 do not have the (Logical change X.YZ) at the end?
+That is a pointer so you can figure out the changeset boundaries and
+it is added back here during the conversion process.  The file here is
+fine which leads me to believe that someone modified the file either on
+kernel.bkbits.net or managed to get in through the pserver.  Dave swears
+up and down that it wasn't him so if anyone can step forward and claim
+responsibility that would be nice.
+
+It's not a big deal, we catch stuff like this, but it's annoying to the 
+CVS users.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbTHaEoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 00:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbTHaEoQ
+	id S261241AbTHaFKj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 01:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTHaFKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 00:44:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54493 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262448AbTHaEoO (ORCPT
+	Sun, 31 Aug 2003 01:10:39 -0400
+Received: from rth.ninka.net ([216.101.162.244]:49597 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261241AbTHaFKi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 00:44:14 -0400
-Date: Sat, 30 Aug 2003 21:47:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>
-Subject: Re: 2.6.0-test4-mm3.1 oops with ext3 extended attributes on R/O
- filesystem
-Message-Id: <20030830214751.5baaab4c.akpm@osdl.org>
-In-Reply-To: <200308310412.h7V4Cxd7013786@turing-police.cc.vt.edu>
-References: <200308310412.h7V4Cxd7013786@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 31 Aug 2003 01:10:38 -0400
+Date: Sat, 30 Aug 2003 22:10:32 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: lm@bitmover.com, jamie@shareable.org, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-Id: <20030830221032.1edf71d0.davem@redhat.com>
+In-Reply-To: <20030829230521.GD3846@matchmail.com>
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+	<20030829154101.GB16319@work.bitmover.com>
+	<20030829230521.GD3846@matchmail.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> Working on installing SELINUX, and I get to the part where all the file labels
->  get added.  Unfortunately, I had some file systems mounted R/O (intentionally,
->  forgot to mount them R/W for this).  The ext3 code upchucked while trying
->  to set extended attributes on the filesystem it couldn't write to.
+On Fri, 29 Aug 2003 16:05:21 -0700
+Mike Fedyk <mfedyk@matchmail.com> wrote:
 
-Thanks.   It's a very straightforward bug; I'll fix it with the below patch.
+> Does this mean that userspace has to take into consideration that the isn't
+> coherent for adjacent small memory accesses on sparc?  What could happen if
+> it doesn't, or does it need to at all?
 
-A wider question is whether we should have got this far into the filesystem
-code if the fs is mounted read-only.  A check right up at the VFS
-setxattr() level might make sense.
+For shared memory, we enforce the correct mapping alignment
+so that coherency issues don't crop up.
 
-Regardless of that, this fix is needed because journal_start() could fail
-for other reasons.
-
-
-diff -puN fs/ext3/xattr.c~ext3-xattr-oops-fix fs/ext3/xattr.c
---- 25/fs/ext3/xattr.c~ext3-xattr-oops-fix	2003-08-30 21:41:24.000000000 -0700
-+++ 25-akpm/fs/ext3/xattr.c	2003-08-30 21:42:41.000000000 -0700
-@@ -873,17 +873,22 @@ ext3_xattr_set(struct inode *inode, int 
- 	       const void *value, size_t value_len, int flags)
- {
- 	handle_t *handle;
--	int error, error2;
-+	int error;
- 
- 	handle = ext3_journal_start(inode, EXT3_DATA_TRANS_BLOCKS);
--	if (IS_ERR(handle))
-+	if (IS_ERR(handle)) {
- 		error = PTR_ERR(handle);
--	else
-+	} else {
-+		int error2;
-+
- 		error = ext3_xattr_set_handle(handle, inode, name_index, name,
- 					      value, value_len, flags);
--	error2 = ext3_journal_stop(handle);
-+		error2 = ext3_journal_stop(handle);
-+		if (error == 0)
-+			error = error2;
-+	}
- 
--	return error ? error : error2;
-+	return error;
- }
- 
- /*
-
-_
+How does this program work?  I haven't taken a close look
+at it.  Does it use MAP_SHARED or IPC shm?
 

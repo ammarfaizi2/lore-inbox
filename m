@@ -1,45 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266839AbTBCPm5>; Mon, 3 Feb 2003 10:42:57 -0500
+	id <S266749AbTBCPuP>; Mon, 3 Feb 2003 10:50:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbTBCPm5>; Mon, 3 Feb 2003 10:42:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30990 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266839AbTBCPm5>; Mon, 3 Feb 2003 10:42:57 -0500
-Date: Mon, 3 Feb 2003 15:52:25 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] vmalloc, kmalloc - 2.4.x
-Message-ID: <20030203155225.A5968@flint.arm.linux.org.uk>
-Mail-Followup-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1044285222.2396.14.camel@gregs> <1044285758.2527.8.camel@laptop.fenrus.com> <1044286926.2396.28.camel@gregs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1044286926.2396.28.camel@gregs>; from gj@pointblue.com.pl on Mon, Feb 03, 2003 at 03:42:06PM +0000
+	id <S266765AbTBCPuP>; Mon, 3 Feb 2003 10:50:15 -0500
+Received: from [205.205.44.10] ([205.205.44.10]:26890 "EHLO
+	sembo111.teknor.com") by vger.kernel.org with ESMTP
+	id <S266749AbTBCPuJ> convert rfc822-to-8bit; Mon, 3 Feb 2003 10:50:09 -0500
+Message-ID: <5009AD9521A8D41198EE00805F85F18F219C27@sembo111.teknor.com>
+From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
+To: high-res-timers-discourse@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Unexpected lock during "Calibrating delay loop" and  failure 
+	to compile without "HighRes"
+Date: Mon, 3 Feb 2003 10:59:40 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 03:42:06PM +0000, Grzegorz Jaskiewicz wrote:
-> > and that
-> >         printk("<1>%d\n", TimerIntrpt);
-> > you shouldn't use <1> in printk strings ever.
-> <1>gives me messages on screen on my box, thats why.
+
+Compilation with high-res turned off:
+
+
+add #define do_gettimeoffset() do_slow_gettimeoffset()  at line 283 in
+arch/i386/kernel/time.c
+
+their was a 
+"static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;"
+instead of the #define found for other configuration
+
+at line 875
+
+#ifndef do_gettimeoffset
+			do_gettimeoffset = do_fast_gettimeoffset;
+#endif
+
+would be compiled even when the CONFIG_X86_TSC is off.
+
+
+> -----Original Message-----
+> From: Isabelle, Francois [mailto:Francois.Isabelle@ca.kontron.com]
+> Sent: 3 février, 2003 10:07
+> To: Isabelle, Francois; 
+> high-res-timers-discourse@lists.sourceforge.net
+> Cc: linux-kernel@vger.kernel.org
+> Subject: RE: Errata : Unexpected lock during "Calibrating delay loop"
+> and failure to co mpile without "HighRes"
 > 
-> the same effect is while using kmalloc, just change vmalloc to kmalloc.
-
-#include <linux/kernel.h>
-
-and then use
-
-printk(KERN_CRIT "%d\n", TimerIntrpt);
-
-We have these definitions for a reason. 8)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+> 
+> Please Read: 
+>  to build withOUT High-Res, the kernel won't build
+> 
+> > -----Original Message-----
+> > From: Isabelle, Francois [mailto:Francois.Isabelle@ca.kontron.com]
+> > Sent: 3 février, 2003 09:47
+> > To: high-res-timers-discourse@lists.sourceforge.net
+> > Cc: linux-kernel@vger.kernel.org
+> > Subject: Unexpected lock during "Calibrating delay loop" and 
+> > failure to
+> > co mpile without "HighRes"
+> > 
+> > 
+> > Hi,
+> >     I'm trying to integrate some tools on a 486-powered cpu 
+> > board, I don't
+> > really need "High Resolution Timers", but one of the tools 
+> > would really make
+> > good use of the POSIX API you implemented. I've patch kernel 
+> > 2.4.20 with the
+> > latest 2.4.20-1.0 hrtimers.
+> > 
+> > Here comes the trouble.
+> > 
+> > - Trying to build with High-Res, the kernel won't build
+> > 
+> > time.c: In function `time_init':
+> > time.c:873: `do_fast_gettimeoffset' undeclared (first use in 
+> > this function)
+> > time.c:873: (Each undeclared identifier is reported only once
+> > time.c:873: for each function it appears in.)
+> > make[1]: *** [time.o] Error 1
+> > make[1]: Leaving directory `/usr/src/linux-2.4.20/arch/i386/kernel'
+> > make: *** [_dir_arch/i386/kernel] Error 2
+> > 
+> > seems like it should try to link "do_slow_gettimeoffset" 
+> > instead since 486
+> > does not handle TSC, (I'll have to check that..)
+> > 
+> > 
+> > - Trying to boot with "PIT-based" high-res support, the 
+> > kernel lock during
+> > calibration "Calibrating delay loop".
+> > 	Same occurs with IOAPIC and TSC ... 
+> > 
+> > 
+> > If you have any hint, I'll be glad to hear it.
+> > 
+> > Thanks
+> > 
+> > 
+> > Frank
+> > 
+> > 
+> > 
+> > -------------------------------------------------------
+> > This SF.NET email is sponsored by:
+> > SourceForge Enterprise Edition + IBM + LinuxWorld = Something 2 See!
+> > http://www.vasoftware.com
+> > to unsubscribe: 
+> http://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
+> High-res-timers-discourse mailing list
+> High-res-timers-discourse@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
+> 
+> 
+> -------------------------------------------------------
+> This SF.NET email is sponsored by:
+> SourceForge Enterprise Edition + IBM + LinuxWorld = Something 2 See!
+> http://www.vasoftware.com
+> to unsubscribe: 
+> http://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
+> High-res-timers-discourse mailing list
+> High-res-timers-discourse@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
+> 

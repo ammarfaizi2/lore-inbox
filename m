@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbTLHSf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 13:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTLHSf6
+	id S261659AbTLHSv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 13:51:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTLHSv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 13:35:58 -0500
-Received: from postal.usc.edu ([128.125.253.6]:2529 "EHLO postal.usc.edu")
-	by vger.kernel.org with ESMTP id S261837AbTLHSfw (ORCPT
+	Mon, 8 Dec 2003 13:51:27 -0500
+Received: from holomorphy.com ([199.26.172.102]:11228 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261659AbTLHSv0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 13:35:52 -0500
-Date: Mon, 08 Dec 2003 10:37:01 -0800
-From: weifei <weifeil@usc.edu>
-Subject: Re: PROBLEM:can't load module "ide-cd" automatically(2.6.0-test10)
-To: Bongani Hlope <bonganilinux@mweb.co.za>
+	Mon, 8 Dec 2003 13:51:26 -0500
+Date: Mon, 8 Dec 2003 10:51:21 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Volkov <Andrew.Volkov@transas.com>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <004801c3bdba$45169360$12087d80@eagle>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <009d01c3bcfa$e409a8b0$0300a8c0@tiger>
- <20031207221328.4220ea00.bonganilinux@mweb.co.za>
+Subject: Re: PROBLEM: possible proceses leak
+Message-ID: <20031208185121.GM8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Volkov <Andrew.Volkov@transas.com>,
+	linux-kernel@vger.kernel.org
+References: <2E74F312D6980D459F3A05492BA40F8D0391B0EE@clue.transas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2E74F312D6980D459F3A05492BA40F8D0391B0EE@clue.transas.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 08, 2003 at 09:45:17PM +0300, Andrew Volkov wrote:
+> Yes.
+> And same bug in kernel/sched.c in ALL *_sleep_on
+> Andrey
 
------ Original Message ----- 
-From: "Bongani Hlope" <bonganilinux@mweb.co.za>
-To: "Lee" <weifeil@usc.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, December 07, 2003 12:13 PM
-Subject: Re: PROBLEM:can't load module "ide-cd" automatically(2.6.0-test10)
+Heh, no wonder everyone wants to get rid of the things.
 
-No file named /etc/modprobe.preload and no manual for this file. Sould you
-please tell me where to find manual for it?
-Thanks
 
+-- wli

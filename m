@@ -1,120 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264190AbTFIMIW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 08:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264202AbTFIMIW
+	id S263152AbTFIM0w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 08:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTFIM0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 08:08:22 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:58374 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S264190AbTFIMIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 08:08:19 -0400
-Message-ID: <3EE47BE4.8020000@xss.co.at>
-Date: Mon, 09 Jun 2003 14:21:56 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Mon, 9 Jun 2003 08:26:52 -0400
+Received: from CPE-203-51-32-18.nsw.bigpond.net.au ([203.51.32.18]:17145 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S263152AbTFIM0u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 08:26:50 -0400
+Message-ID: <3EE48037.91F46F74@eyal.emu.id.au>
+Date: Mon, 09 Jun 2003 22:40:23 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-rc7] AP1700-S5 system freeze :-((
-References: <Pine.LNX.4.55L.0306031353580.3892@freak.distro.conectiva>	<3EDF3310.7040501@xss.co.at>	<3EE208F1.4000008@xss.co.at>	<3EE45E94.7070209@xss.co.at> <20030609134606.094d55ae.skraw@ithnet.com>
-In-Reply-To: <20030609134606.094d55ae.skraw@ithnet.com>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4: usb+scsi+X leads to scsi data corruption
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I have spent the last few weeks attempting to identify the combination
+that causes data corruption when I write to (or read from) my scsi
+DDS2 tape.
 
-Hi!
+So far I found that if I either shut down X (using "nv") or unload
+usb (usb-hci+usbcore) then all is clean. The loaded modules when
+I see the problem are.
 
-Many thanks for your reply!
+Module                  Size  Used by    Not tainted
+usb-uhci               21796   0  (unused)
+usbcore                56704   1  [usb-uhci]
+bttv                   69696   0  (autoclean)
+tuner                   8772   1 
+i2c-algo-bit            7180   1  (autoclean) [bttv]
+videodev                5664   2  (autoclean) [bttv]
+es1371                 27040   0  (autoclean)
+ac97_codec             10240   0  (autoclean) [es1371]
+gameport                1548   0  (autoclean) [es1371]
+soundcore               3588   4  (autoclean) [bttv es1371]
+dc395x_trm             47136   0  (autoclean)
+st                     27028   0  (autoclean)
+scsi_mod               83560   2  (autoclean) [dc395x_trm st]
+ipt_limit                960   2  (autoclean)
+ipt_LOG                 3200   3  (autoclean)
+ipt_state                608   4  (autoclean)
+iptable_filter          1760   1  (autoclean)
+ip_conntrack_ftp        3808   0  (unused)
+ip_conntrack           17324   2  [ipt_state ip_conntrack_ftp]
+ip_tables              10752   4  [ipt_limit ipt_LOG ipt_state
+iptable_filter]
+ide-cd                 27200   0  (autoclean)
+cdrom                  29024   0  (autoclean) [ide-cd]
+via686a                 8228   0 
+eeprom                  3552   0  (unused)
+i2c-proc                6368   0  [via686a eeprom]
+i2c-isa                 1252   0  (unused)
+i2c-viapro              3880   0  (unused)
+i2c-core               12960   0  [bttv tuner i2c-algo-bit via686a
+eeprom i2c-pr
+oc i2c-isa i2c-viapro]
+3c509                  10368   1  (autoclean)
+nls_iso8859-1           2848   2  (autoclean)
+nls_cp437               4384   2  (autoclean)
+msdos                   4988   2  (autoclean)
+fat                    29880   0  (autoclean) [msdos]
+serial                 43808   1  (autoclean)
+isa-pnp                28796   0  (autoclean) [3c509 serial]
+rtc                     6012   0  (autoclean)
+unix                   13892  39  (autoclean)
 
-Stephan von Krawczynski wrote:
-> Hello Andreas,
->
-> I am not quite sure if you are experiencing something similar to my problem.
-> Fact is this:
->
-> I have a serverworks based dual PIII board and I am experiencing freezes just
-> about every day.
->
-> Equal setups:
->
-> Kernel 2.4.21-rc7
-> 00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (me: rev 23 you: rev 31)
-> 00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
->
-> Lockups during light load
->
-Me too.
-I had it running for 24 hours with heavy stress testing
-and a load above 7 all the time without problems. I then
-stopped this test, and the box locked up 2 hours later,
-and locked up about 7 or 8 times in the past few days :-(
+I did not use to have usb loaded, so I did not have any problems for
+until
+recently, when I acquired a digital camera that shows up as USB storage.
 
->
-> Differing:
->
-> Just about everything else:
->                        yours:            mine:
-> Storage System:        Symbios           AIC
+I do not need to actually have anything connected to the usb system in
+order for the problem to show up, I just need to do:
 
-This is not a "normal" symbios logic "sym53c8xx"
-storage controller, but a "Symbios Logic 53c1030",
-which uses the Fusion MPT driver. This is the first
-time I'm running this driver, so I don't know if it's
-considered stable (but I guess so)
-Unfortunately I can't replace it as I don't have any
-spare SCSI controller which fits right now.
+modprobe usb-uhci
+mount /proc/bus/usb
 
-> VGA           :        ATI Rage XL       ATI Radeon RV200
-> Network       :        Intel/3com        Intel/Broadcom
-> Processor     :        Xeon UP           PIII SMP
->
->
-> I could already produce oops-messages on the problem and mine all come up in
-> kmem_cache_alloc_batch. It would be interesting where your box freezes. It
-> cannot be at this same place, because the code is not there in UP.
-> Try this (in case you are not working in front of the box):
->
-> Start box and switch to text console, enter "setterm -blank 0" to disable
-> screen blanker. Wait for oops. If we are lucky you will see something, get a
-> pencil then :-)
->
-I always have the system running with text console and
-screen blanking disabled. Alas, I see no oops :-(
+Or I can shutdown xdm.
 
-IMHO it doesn't look like the kernel crashes with an oops,
-it does look more like it suddenly goes into an endless
-loop or ridiculously high load somehow.
-Last time I hade this freeze, I noticed that the system
-answered my ICMP ping messages with a delay of more than
-60 seconds. This looked like the system was very busy
-at that time.
+I have confirmed the problem with dozens of runs, this is no fluke. It
+shows
+up in 2.4.20 vanilla (did not try an older kernel yet) as well as the
+later
+rc's (up to -rc7).
 
-I'm now running with 2.4.20rc2, and also have syslog
-routed to another system on the network. We'll see if
-I can get any more information out of this.
+I get, on average, 100 bad bytes in 400MB of data. The least I saw was 8
+and
+the most 204 bytes (so far).
 
-- - andreas
+The data that gets inserted is not random, and not zeroes. It can be
+very short:
+     offset    new old
+  1: 391353697   2   0
+  2: 391353698 241   0
+  3: 391353699 211   0
+  4: 391353700   5   0
 
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+  5: 391353717 100   0
+  6: 391353718 241   0
+  7: 391353719 211   0
+  8: 391353720   5   0
+The test file is all zeroes.
 
-iD8DBQE+5HvjxJmyeGcXPhERAvOvAJ94cQS4tlzylHiVU084v7FK/e/aowCgw4w9
-M3YWSHXzx9IuKeU4Z6WicEk=
-=8102
------END PGP SIGNATURE-----
+Most are bursts of 4-20 bytes, sometime close together, with similar
+content repeated.
 
+I can supply any required information - just ask. I put some files
+up:
+	http://users.bigpond.net.au/eyal/bootup.txt
+	http://users.bigpond.net.au/eyal/config.txt
+	http://users.bigpond.net.au/eyal/lspci.txt
+	http://users.bigpond.net.au/eyal/test7.sh
+The last one is the script I run for the test.
+
+Ask for moreif needed.
+
+TIA
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289299AbSAIJ3v>; Wed, 9 Jan 2002 04:29:51 -0500
+	id <S289308AbSAIJeL>; Wed, 9 Jan 2002 04:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289300AbSAIJ3r>; Wed, 9 Jan 2002 04:29:47 -0500
-Received: from dns.logatique.fr ([213.41.101.1]:6397 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S289299AbSAIJ30>; Wed, 9 Jan 2002 04:29:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Capricelli <tcaprice@logatique.fr>
-To: Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: fs corruption recovery?
-Date: Wed, 9 Jan 2002 10:28:57 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C3BB082.8020204@fit.edu> <20020108200705.S769@lynx.adilger.int>
-In-Reply-To: <20020108200705.S769@lynx.adilger.int>
-Cc: linux-kernel@vger.kernel.org
+	id <S289305AbSAIJdv>; Wed, 9 Jan 2002 04:33:51 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:62725 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289306AbSAIJdm>; Wed, 9 Jan 2002 04:33:42 -0500
+Message-ID: <3C3C0CB1.16A7CC5B@zip.com.au>
+Date: Wed, 09 Jan 2002 01:26:09 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020109092659.2907323CBB@persephone.dmz.logatique.fr>
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Robert Love <rml@tech9.net>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <E16O3L5-0000B8-00@starship.berlin> <3C3B70D7.43786888@zip.com.au>,
+		<3C3B70D7.43786888@zip.com.au> <E16OEr0-0000DR-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> On January 8, 2002 11:21 pm, Andrew Morton wrote:
+> > Daniel Phillips wrote:
+> > > The preemptible kernel can reschedule, on average, sooner than the
+> > > scheduling-point kernel, which has to wait for a scheduling point to roll
+> > > around.
+> >
+> > Yes.  It can also fix problematic areas which my testing
+> > didn't cover.
+> 
+> I bet, with a minor hack, it can help you *find* those problem areas too.
+> You compile the two patches together and automatically log any event along
+> with the execution address, where your explicit schedule points failed to
+> reschedule in time.  Sort of like a profile but suited exactly to your
+> problem.
 
+Well, one of the instrumentation patches which I use detects a
+scheduling overrun at interrupt time and emits an all-CPU backtrace.
+You just feed the trace into ksymoops or gdb then go stare at
+the offending code.  
 
-On Wednesday 09 January 2002 04:07, Andreas Dilger wrote:
-> Try "e2fsck -B 4096 -b 32768 <device>" instead.
+That's the easy part - the hard part is getting sufficient coverage.
+There are surprising places.  close_files(), exit_notify(), ...
 
-	I thought e2fsck was already trying the different superblocks present on the 
-device. Why isn't e2fsck smart enought to look for then ? Is this an 
-intended purpose ?
+> This just detects the problem areas in normal kernel execution, not
+> spinlocks, but that is probably where most of the maintainance will be anyway.
+> 
+> By the way, did you check for latency in directory operations?
 
-	Why do you use the -B option ? How can it be useful to force the block size 
-? Especially if this one is different. 
+Yes.  They can be very bad for really large directories.  Scheduling
+on the found-in-cache case in bread() kills that one easily for most
+local filesystems.  There may still be a problem in ext2.
 
-Thanx,
-Thomas
+-

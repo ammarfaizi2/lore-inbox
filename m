@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbUAIL1f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 06:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUAIL1f
+	id S261298AbUAILd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 06:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUAILd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 06:27:35 -0500
-Received: from viefep16-int.chello.at ([213.46.255.17]:8223 "EHLO
-	viefep16-int.chello.at") by vger.kernel.org with ESMTP
-	id S261152AbUAIL1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 06:27:34 -0500
-From: Andreas Theofilu <noreply@TheosSoft.net>
-Subject: Re: New FBDev patch
-To: James Simmons <jsimmons@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Date: Fri, 09 Jan 2004 12:27:32 +0100
-References: <1bRBM-5lD-13@gated-at.bofh.it> <1bSRe-19C-21@gated-at.bofh.it>
-Organization: Theos Soft
-User-Agent: KNode/0.7.2
+	Fri, 9 Jan 2004 06:33:28 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:20609 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261298AbUAILd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 06:33:26 -0500
+Date: Fri, 9 Jan 2004 06:33:24 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.1
+In-Reply-To: <1073634494.5572.16.camel@faith>
+Message-ID: <Pine.LNX.4.58.0401090632500.3098@localhost.localdomain>
+References: <Pine.LNX.4.58.0401082242010.27013@evo.osdl.org>
+ <1073634494.5572.16.camel@faith>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20040109112733.EB14228003@chello062178157104.9.14.vie.surfer.at>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
 
-> 
-> 
-> Try it again. I missed a patch for the radeon.
-> 
-This is what happens here:
 
-  CC      drivers/video/aty/radeon_base.o
-drivers/video/aty/radeon_base.c: In function `radeon_find_mem_vbios':
-drivers/video/aty/radeon_base.c:522: `rom' undeclared (first use in this
-function)
-drivers/video/aty/radeon_base.c:522: (Each undeclared identifier is reported
-only once
-drivers/video/aty/radeon_base.c:522: for each function it appears in.)
-make[3]: *** [drivers/video/aty/radeon_base.o] Error 1
-make[2]: *** [drivers/video/aty] Error 2
-make[1]: *** [drivers/video] Error 2
-make: *** [drivers] Error 2
+On Fri, 9 Jan 2004, Stewart Smith wrote:
 
--- 
-Andreas Theofilu
-http://www.TheosSoft.net
-E-Mail: andreas at TheosSoft dot net
+> On Fri, 2004-01-09 at 17:49, Linus Torvalds wrote:
+> > I'm going to be in Australia (and on airplanes) for the week, but we're
+> > all in the capable hands of Andrew, so why worry? The fact that I'm
+> > fleeing the country should in no way be construed as anything sinister at
+> > all, no siree. Nope. I'm innocent, and nobody saw me do it. 
+> 
+> Isn't it just fleeing to better beer?
+> 
+
+That could be almost anywhere :)

@@ -1,65 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133088AbRDLJob>; Thu, 12 Apr 2001 05:44:31 -0400
+	id <S133087AbRDLJnt>; Thu, 12 Apr 2001 05:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133090AbRDLJoV>; Thu, 12 Apr 2001 05:44:21 -0400
-Received: from hermes.sistina.com ([208.210.145.141]:54020 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S133088AbRDLJoJ>;
-	Thu, 12 Apr 2001 05:44:09 -0400
-Date: Thu, 12 Apr 2001 10:44:02 +0000
-From: "Heinz J. Mauelshagen" <Mauelshagen@Sistina.com>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: Jonathan Lahr <lahr@sequent.com>, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: block device snapshot capability
-Message-ID: <20010412104402.A25018@sistina.com>
-Reply-To: Mauelshagen@Sistina.com
-In-Reply-To: <20010411142654.A23996@w-lahr.des.sequent.com> <200104112140.XAA05309@ns.caldera.de>
+	id <S133091AbRDLJnk>; Thu, 12 Apr 2001 05:43:40 -0400
+Received: from p3EE3C797.dip.t-dialin.net ([62.227.199.151]:23556 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S133088AbRDLJna> convert rfc822-to-8bit; Thu, 12 Apr 2001 05:43:30 -0400
+Date: Thu, 12 Apr 2001 11:43:14 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.19/ide.03252001 bug: "kernel timer added twice"
+Message-ID: <20010412114314.A3167@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200104112140.XAA05309@ns.caldera.de>; from hch@caldera.de on Wed, Apr 11, 2001 at 11:40:36PM +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 11, 2001 at 11:40:36PM +0200, Christoph Hellwig wrote:
-> In article <20010411142654.A23996@w-lahr.des.sequent.com> you wrote:
-> 
-> > Hello all,
-> >
-> > Is anyone aware of ongoing development to provide the capability 
-> > to take a snapshot of a block device?
-> 
-> It's part of Linux-LVM since version 0.8 and thus part of Linux 2.4.
+I just spotted these messages in my xconsole:
 
-You need to get the recent LVM 0.9.1 Beta 7 software *and* to patch your
-kernel as well, because that'll fix some snapshot related flaws.
+Apr 12 11:22:19 emma1 kernel: hda: status error: status=0x50 { DriveReady SeekComplete }
+Apr 12 11:22:19 emma1 kernel: hda: no DRQ after issuing MULTWRITE
+Apr 12 11:22:19 emma1 kernel: hda: ide_set_handler: handler not null; old=c01acc04, new=c01acc04
+Apr 12 11:22:19 emma1 kernel: bug: kernel timer added twice at c01a835d.
 
-> 
-> 	Christoph
-> 
-> -- 
-> Of course it doesn't work. We've performed a software upgrade.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+My system.map mentions these in the vicinity of that address:
+c01a8308 T ide_set_handler
+c01a836c T current_capacity
+
+The mentioned ide_set_handler:
+c01acc04 T task_no_data_intr
+
+
+
+The kernel has been compiled with gcc 2.95.2 with some other patches
+which should not interfere however. (IDE 2.2.19.03252001, I²C 2.5.5,
+ReiserFS 3.5.32, Serial 5.05, autofs4 from 4.0.0pre10, ext3 0.0.6b,
+OpenWall OW1 patch)
+
+I cannot tell what has happened exactly, at the time of this writing,
+I'm running amanda (backup) which comprises dump and tar and this
+message has not shown up again in the past 16 minutes.
+
+This is a Western Digital Caviar AC420400D (seems to be IBM DJNA OEM)
+attached to a VIA KT133 (board is a Gigabyte 7ZXR):
+
+lspci info:
+
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10) (pr
+        Flags: bus master, medium devsel, latency 32
+        I/O ports at ffa0
+        Capabilities: [c0] Power Management version 2
+
+hdparm v3.6 info:
+
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 2482/255/63, sectors = 39876480, start = 0
+
+ Model=WDC AC420400D, FwRev=J58OA30K, SerialNo=[NOT SHOWN]
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
+ BuffType=3(DualPortCache), BuffSize=1966kB, MaxMultSect=16, MultSect=16
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39876480
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2 
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4 
+ UDMA modes: mode0 mode1 mode2 mode3 *mode4 
+ Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA-4 
 
 -- 
-
-Regards,
-Heinz    -- The LVM Guy --
-
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Matthias Andree

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266301AbUBDFQN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 00:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266307AbUBDFQN
+	id S266144AbUBDFYV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 00:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266239AbUBDFYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 00:16:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28374 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266301AbUBDFQM (ORCPT
+	Wed, 4 Feb 2004 00:24:21 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:23718 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S266144AbUBDFYU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 00:16:12 -0500
-Date: Tue, 3 Feb 2004 21:13:33 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "raymond jennings" <highwind747@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Create a message board?
-Message-Id: <20040203211333.2ae26042.rddunlap@osdl.org>
-In-Reply-To: <BAY1-F172CvbQPgmStr0006974a@hotmail.com>
-References: <BAY1-F172CvbQPgmStr0006974a@hotmail.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Feb 2004 00:24:20 -0500
+Message-ID: <402081F6.9010508@matchmail.com>
+Date: Tue, 03 Feb 2004 21:24:06 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alok Mooley <rangdi@yahoo.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+References: <20040204050915.59866.qmail@web9704.mail.yahoo.com>
+In-Reply-To: <20040204050915.59866.qmail@web9704.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 Feb 2004 17:08:20 -0800 "raymond jennings" <highwind747@hotmail.com> wrote:
+Alok Mooley wrote:
 
-| Would a message board based forum help to alleviate some of the mailing list 
-| traffic by keeping information exchanges thread local (no pun intended)?  
-| This way the developers specializing in a certain portion of the kernel 
-| aren't swamped with information about something totally irrelevant, thus 
-| they can focus on what they know.  Example:  File system programmers getting 
-| messages relating to sound cards.
-| 
-| I am interested in any feedback on this idea.
-
-Actually I'd prefer fewer places to look instead of more places.
-
-BTW, there is a linux-fsdevel mailing list for filesystem development.
-
---
-~Randy
+> The regular buddy freeing function also increases the
+>number of free pages. Since we are not actually
+>freeing pages (we are just moving them), we do not
+>want the original freeing function. But then we could 
+>decrease the number of free pages by the same number &
+>use the buddy freeing function. Will do. Thanks.
+>  
+>
+Then you need to split the parts you want out into sub-functions and 
+call it from the previous callers, and your new use for it...

@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUI1VLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUI1VLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267936AbUI1VLE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267968AbUI1VLD
+	id S267935AbUI1VLN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 17:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267940AbUI1VLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:11:03 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:59702 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S267936AbUI1VKo convert rfc822-to-8bit
+	Tue, 28 Sep 2004 17:11:13 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:30157 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S267935AbUI1VKt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:10:44 -0400
-Subject: Re: Serial driver hangs
-From: Paul Fulghum <paulkf@microgate.com>
-To: Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409281734.38781.roland.cassebohm@visionsystems.de>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1096405831.2513.37.camel@deimos.microgate.com>
+	Tue, 28 Sep 2004 17:10:49 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: Ray Lee <ray-lk@madrabbit.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
+In-Reply-To: <1096403167.30123.5.camel@vertex>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+	 <1096403167.30123.5.camel@vertex>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Date: Tue, 28 Sep 2004 14:10:48 -0700
+Message-Id: <1096405848.5177.15.camel@issola.madrabbit.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 28 Sep 2004 16:10:31 -0500
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-28 at 10:34, Roland Caßebohm wrote:
-> As I can see, the bit TTY_DONT_FLIP in tty->flags is set, so 
-> the receive-buffer can't be flipped. In receive_chars() all 
-> ports are checked for received bytes, but if the buffer is 
-> full and can't be flipped, no byte are read from the UART and 
-> the interrupt will never go inactive.
+On Tue, 2004-09-28 at 16:26 -0400, John McCutchan wrote:
+> On Tue, 2004-09-28 at 01:45, Ray Lee wrote:
+> > The current way pads out the structure unnecessarily, and still doesn't
+> > handle the really long filenames, by your admission. It incurs extra
+> > syscalls, as few filenames are really 256 characters in length. It makes
+> > userspace double-check whether the filename extends all the way to the
+> > boundary of the structure, and if so, then go back to the disk to try to
+> > guess what the kernel really meant to say.
+> 
+> I thought that filenames where limited to 256 characters? That was the
+> idea behind the 256 character limit.
 
-Definately a bug.
-It is the same in 2.6 kernels (serial/8250.c).
+I thought so too, as linux/limits.h claims:
 
-One way or another, the interrupt must be cleared.
-(serviced or deactivated)
+#define NAME_MAX         255    /* # chars in a file name */
 
-> I have tried just to read all byte left in the FIFO of the 
-> UART in that case and throw them away.
+But Robert earlier said:
 
-In my opinion, this is the correct way to handle the problem.
-This is what I do in the SyncLink drivers.
+> Technically speaking, a single filename can be as large as PATH_MAX-1.
+> The comment is just a warning, though, to explain the dreary
+> theoretical side of the world.
 
-> This is working but would probably not the best way, because 
-> there could be enough place in the other flip buffer. Maybe 
-> it is possible to disable the receive interrupt of the UART 
-> till the receive routine read_chan(), which sets 
-> TTY_DONT_FLIP, releases the buffer.
+...where PATH_MAX is 4096.
 
-The flip buffer and N_TTY line disciplines are
-generic facilities for all tty drivers. They can't
-directly perform device specific tasks like
-enabling/disabling UART interrupts.
+So, got me. I believe there is some minor confusion going on.
 
-Adding notification to the driver to do these
-tasks does not seem like a win either.
-On a receive IRQ, the UART Rx FIFO
-is already running out of space. If you
-disable the rx IRQ, you will likely still lose
-data shortly after.
-
-That said, the flip buffer code could be improved
-to provide better buffering to prevent lost data.
-There may also be synchronization problems:
-The driver usually calls tty_flip_buffer_push at
-hard IRQ context to queue a task (flush_to_ldisc)
-to feed the data to the line discipline. In the case
-of a full flip buffer, the driver calls flush_to_ldisc
-directly (via tty->flip.tqueue.routine) at hard IRQ context.
-I don't see any locking in the flip buffer code
-to synchronize this.
-
--- 
-Paul Fulghum
-paulkf@microgate.com
+Ray
 

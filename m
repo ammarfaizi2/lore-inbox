@@ -1,153 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbTFHKsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 06:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTFHKsj
+	id S261450AbTFHLFo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 07:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTFHLFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 06:48:39 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:32516 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261422AbTFHKsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 06:48:37 -0400
-Date: Sun, 8 Jun 2003 12:01:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: lord@sgi.com, linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-mm5: XFS compile error if CONFIG_SYSCTL && !CONFIG_PROC_FS
-Message-ID: <20030608120159.A450@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, lord@sgi.com, linux-xfs@oss.sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20030607140844.GM15311@fs.tum.de>
+	Sun, 8 Jun 2003 07:05:44 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:51471 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S261450AbTFHLFm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 07:05:42 -0400
+Date: Sun, 8 Jun 2003 13:19:01 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: willy@w.ods.org, gibbs@scsiguy.com, marcelo@conectiva.com.br,
+       green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030608131901.7cadf9ea.skraw@ithnet.com>
+In-Reply-To: <20030605181423.GA17277@alpha.home.local>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<20030605181423.GA17277@alpha.home.local>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030607140844.GM15311@fs.tum.de>; from bunk@fs.tum.de on Sat, Jun 07, 2003 at 04:08:44PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 04:08:44PM +0200, Adrian Bunk wrote:
-> I'm getting the following compile error in 2.5.70-mm5 if CONFIG_SYSCTL 
-> && !CONFIG_PROC_FS:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      fs/xfs/linux/xfs_sysctl.o
-> fs/xfs/linux/xfs_sysctl.c: In function `xfs_stats_clear_proc_handler':
-> fs/xfs/linux/xfs_sysctl.c:61: `xfsstats' undeclared (first use in this function)
-> fs/xfs/linux/xfs_sysctl.c:61: (Each undeclared identifier is reported only once
-> fs/xfs/linux/xfs_sysctl.c:61: for each function it appears in.)
-> make[2]: *** [fs/xfs/linux/xfs_sysctl.o] Error 1
+Hello all,
 
-This should fix it:
+looking at code around my problem I discovered this:
 
+static inline void * __kmem_cache_alloc (kmem_cache_t *cachep, int flags)
+{
+        unsigned long save_flags;
+        void* objp;
 
---- 1.10/fs/xfs/linux/xfs_sysctl.c	Mon May 19 20:29:41 2003
-+++ edited/fs/xfs/linux/xfs_sysctl.c	Sat Jun  7 12:01:27 2003
-@@ -36,12 +36,12 @@
- #include <linux/proc_fs.h>
- 
- 
--STATIC ulong xfs_min[XFS_PARAM] = { 0, 0, 0, 0, 0,   0, HZ };
--STATIC ulong xfs_max[XFS_PARAM] = { 1, 1, 1, 1, 127, 3, HZ * 60 };
-+STATIC ulong xfs_min[XFS_PARAM] = { 0, 0, 0, 0, 0, HZ, 0 };
-+STATIC ulong xfs_max[XFS_PARAM] = {  1, 1, 1, 127, 3, HZ * 60, 1 };
- 
- static struct ctl_table_header *xfs_table_header;
- 
--
-+#ifdef CONFIG_PROC_FS
- STATIC int
- xfs_stats_clear_proc_handler(
- 	ctl_table	*ctl,
-@@ -66,35 +66,39 @@
- 
- 	return ret;
- }
-+#endif /* CONFIG_PROC_FS */
- 
- STATIC ctl_table xfs_table[] = {
--	{XFS_STATS_CLEAR, "stats_clear", &xfs_params.stats_clear,
--	sizeof(ulong), 0644, NULL, &xfs_stats_clear_proc_handler,
--	&sysctl_intvec, NULL, &xfs_min[0], &xfs_max[0]},
--
- 	{XFS_RESTRICT_CHOWN, "restrict_chown", &xfs_params.restrict_chown,
- 	sizeof(ulong), 0644, NULL, &proc_doulongvec_minmax,
--	&sysctl_intvec, NULL, &xfs_min[1], &xfs_max[1]},
-+	&sysctl_intvec, NULL, &xfs_min[0], &xfs_max[0]},
- 
- 	{XFS_SGID_INHERIT, "irix_sgid_inherit", &xfs_params.sgid_inherit,
- 	sizeof(ulong), 0644, NULL, &proc_doulongvec_minmax,
--	&sysctl_intvec, NULL, &xfs_min[2], &xfs_max[2]},
-+	&sysctl_intvec, NULL, &xfs_min[1], &xfs_max[1]},
- 
- 	{XFS_SYMLINK_MODE, "irix_symlink_mode", &xfs_params.symlink_mode,
- 	sizeof(ulong), 0644, NULL, &proc_doulongvec_minmax,
--	&sysctl_intvec, NULL, &xfs_min[3], &xfs_max[3]},
-+	&sysctl_intvec, NULL, &xfs_min[2], &xfs_max[2]},
- 
- 	{XFS_PANIC_MASK, "panic_mask", &xfs_params.panic_mask,
- 	sizeof(ulong), 0644, NULL, &proc_doulongvec_minmax,
--	&sysctl_intvec, NULL, &xfs_min[4], &xfs_max[4]},
-+	&sysctl_intvec, NULL, &xfs_min[3], &xfs_max[3]},
- 
- 	{XFS_ERRLEVEL, "error_level", &xfs_params.error_level,
- 	sizeof(ulong), 0644, NULL, &proc_doulongvec_minmax,
--	&sysctl_intvec, NULL, &xfs_min[5], &xfs_max[5]},
-+	&sysctl_intvec, NULL, &xfs_min[4], &xfs_max[4]},
- 
- 	{XFS_SYNC_INTERVAL, "sync_interval", &xfs_params.sync_interval,
- 	sizeof(ulong), 0644, NULL, &proc_doulongvec_minmax,
-+	&sysctl_intvec, NULL, &xfs_min[5], &xfs_max[5]},
-+
-+	/* please keep this the last entry */
-+#ifdef CONFIG_PROC_FS
-+	{XFS_STATS_CLEAR, "stats_clear", &xfs_params.stats_clear,
-+	sizeof(ulong), 0644, NULL, &xfs_stats_clear_proc_handler,
- 	&sysctl_intvec, NULL, &xfs_min[6], &xfs_max[6]},
-+#endif
- 
- 	{0}
- };
-===== fs/xfs/linux/xfs_sysctl.h 1.8 vs edited =====
---- 1.8/fs/xfs/linux/xfs_sysctl.h	Mon May 19 20:29:41 2003
-+++ edited/fs/xfs/linux/xfs_sysctl.h	Sat Jun  7 12:01:07 2003
-@@ -42,7 +42,6 @@
- #define XFS_PARAM	(sizeof(struct xfs_param) / sizeof(ulong))
- 
- typedef struct xfs_param {
--	ulong	stats_clear;	/* Reset all XFS statistics to zero.     */
- 	ulong	restrict_chown;	/* Root/non-root can give away files.    */
- 	ulong	sgid_inherit;	/* Inherit ISGID bit if process' GID is  */
- 				/*  not a member of the parent dir GID.  */
-@@ -50,6 +49,7 @@
- 	ulong	panic_mask;	/* bitmask to specify panics on errors.  */
- 	ulong	error_level;	/* Degree of reporting for internal probs*/
- 	ulong	sync_interval;	/* time between sync calls		 */
-+	ulong	stats_clear;	/* Reset all XFS statistics to zero.     */
- } xfs_param_t;
- 
- /*
-@@ -68,13 +68,13 @@
-  */
- 
- enum {
--	XFS_STATS_CLEAR = 1,
--	XFS_RESTRICT_CHOWN = 2,
--	XFS_SGID_INHERIT = 3,
--	XFS_SYMLINK_MODE = 4,
--	XFS_PANIC_MASK = 5,
--	XFS_ERRLEVEL = 6,
--	XFS_SYNC_INTERVAL = 7,
-+	XFS_RESTRICT_CHOWN = 1,
-+	XFS_SGID_INHERIT = 2,
-+	XFS_SYMLINK_MODE = 3,
-+	XFS_PANIC_MASK = 4,
-+	XFS_ERRLEVEL = 5,
-+	XFS_SYNC_INTERVAL = 6,
-+	XFS_STATS_CLEAR = 7,
- };
- 
- extern xfs_param_t	xfs_params;
+        kmem_cache_alloc_head(cachep, flags);
+try_again:
+        local_irq_save(save_flags);
+#ifdef CONFIG_SMP
+        {
+                cpucache_t *cc = cc_data(cachep);
+
+                if (cc) {
+                        if (cc->avail) {
+                                STATS_INC_ALLOCHIT(cachep);
+                                objp = cc_entry(cc)[--cc->avail];
+                        } else {
+                                STATS_INC_ALLOCMISS(cachep);
+                                objp = kmem_cache_alloc_batch(cachep,cc,flags);
+                                if (!objp)
+                                        goto alloc_new_slab_nolock;
+                        }
+                } else {
+                        spin_lock(&cachep->spinlock);
+                        objp = kmem_cache_alloc_one(cachep);
+                        spin_unlock(&cachep->spinlock);
+                }
+        }
+#else
+        objp = kmem_cache_alloc_one(cachep);
+#endif
+        local_irq_restore(save_flags);
+        return objp;
+alloc_new_slab:  
+#ifdef CONFIG_SMP
+        spin_unlock(&cachep->spinlock);
+alloc_new_slab_nolock:
+#endif
+        local_irq_restore(save_flags);
+        if (kmem_cache_grow(cachep, flags))
+                /* Someone may have stolen our objs.  Doesn't matter, we'll
+                 * just come back here again.
+                 */
+                goto try_again;
+        return NULL;
+} 
+  
+
+I suggest it for most-absurd-goto-usage-award.
+
+1) There seems to be no reference for symbol "alloc_new_slab"
+2) "spin_unlock" (right below) is never reached
+3) The not-ifdef'ed code below is only used if CONFIG_SMP
+4) The code "alloc_new_slab_nolock" is referenced only once by a goto
+   (why not simply pasted there?)
+
+This does not look like a problem, it only is damn ugly. I have no idea 
+what this code actually does, but it looks patched-to-the-limit. Has 
+anybody reviewed slab regarding CONFIG_SMP?
+
+Regards,
+Stephan

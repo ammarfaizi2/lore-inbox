@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132313AbRDMWw2>; Fri, 13 Apr 2001 18:52:28 -0400
+	id <S132316AbRDMW6s>; Fri, 13 Apr 2001 18:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132316AbRDMWwT>; Fri, 13 Apr 2001 18:52:19 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23739 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132313AbRDMWwC>;
-	Fri, 13 Apr 2001 18:52:02 -0400
-Message-ID: <3AD7830D.BD326BFE@mandrakesoft.com>
-Date: Fri, 13 Apr 2001 18:51:57 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-17mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michael Reinelt <reinelt@eunet.at>
-Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>,
-        Tim Waugh <twaugh@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-In-Reply-To: <Pine.LNX.4.10.10104071507230.1561-100000@linux.local> <3ACF5E15.2A6E4F3C@eunet.at> <3ACF5FFE.24ECA0CA@mandrakesoft.com> <3AD04DA0.A1BC49B7@eunet.at>
+	id <S132327AbRDMW6i>; Fri, 13 Apr 2001 18:58:38 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:39951 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132316AbRDMW6Y>;
+	Fri, 13 Apr 2001 18:58:24 -0400
+Date: Sat, 14 Apr 2001 00:58:16 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Doug McNaught <doug@wireboard.com>, Dennis Bjorklund <db@zigo.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Data-corruption bug in VIA chipsets
+Message-ID: <20010414005816.B2290@pcep-jamie.cern.ch>
+In-Reply-To: <m38zl5exm0.fsf@belphigor.mcnaught.org> <E14o3k7-0002tq-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14o3k7-0002tq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Apr 13, 2001 at 02:36:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Reinelt wrote:
+Alan Cox wrote:
+> > Is this problem likely to affect 2.2.X?  I have a VIA-based board on
+> > order (Tyan Trinity) and I don't plan to run 2.4 on it anytime soon
+> > (it's upgrading a stock RH6.2 box).
+> > 
+> > Am I safe if I stay in PIO mode?
 > 
-> Jeff Garzik wrote:
-> >
-> > > Another (design) question: How will such a driver/module deal with
-> > > autodetection and/or devfs? I don't like to specify 'alias /dev/tts/4
-> > > netmos', because thats pure junk to me. What about pci hotplugging?
-> >
-> > pci hotplugging happens pretty much transparently.  When a new device is
-> > plugged in, your pci_driver::probe routine is called.  When a new device
-> > is removed, your pci_driver::remove routine is called.
-> 
-> Thats clear to me. But the probe and remove routine can only be called
-> if the module is already loaded. My question was: who will load the
-> module? (I'll call it 'netmos.o')
+> I have received exactly zero reports of 2.2 problems, and as the 2.2
+> maintainer I would have expected more (I delete 2.2 + ide-patch
+> reports). My suspicion is the problem requires UDMA to occur, or to
+> occur with any probability.
 
-typically a hotplug agent, cardmgr in this case.
+Are you talking about IDE DMA problems on any VIA boards, or the Tyan in
+particular?  I've sent several reports of sudden system death on a VIA
+motherboard, that were confirmed by a few other people.  It's still
+present in 2.2: Mandrake 7's installer froze, twice, until I added
+"ide=nodma" (or whatever the option is).  Note, this is _without_ UDMA:
+the board is not capable of UDMA.
 
-> If I do a 'modprobe serial', how should the serial driver know that the
-> netmos.o should be loaded, too?
-
-cardmgr ideally should load netmos.o, which will automatically pull in
-serial.o.
-
-(cardmgr is from the pcmcia-cs package, at
-http://pcmcia-cs.sourceforge.net/)
-
-Regards,
-
-	Jeff
-
-
-
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+-- Jamie

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVC2WLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVC2WMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVC2WLa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC2WL3
+	id S261172AbVC2WMN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC2WMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:11:29 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:54493 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261548AbVC2WLL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:11:11 -0500
-Date: Wed, 30 Mar 2005 00:11:07 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Olivier Fourdan <fourdan@xfce.org>, johnstul@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Clock 3x too fast on AMD64 laptop [WAS Re: Various issues after rebooting]
-Message-ID: <20050329221107.GA4212@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Olivier Fourdan <fourdan@xfce.org>, johnstul@us.ibm.com,
-	linux-kernel@vger.kernel.org
-References: <1112039799.6106.16.camel@shuttle> <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle> <20050328193921.GW30052@alpha.home.local> <1112131714.14248.8.camel@shuttle> <1112133731.14248.14.camel@shuttle>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 29 Mar 2005 17:12:12 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:49360 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261172AbVC2WLz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 17:11:55 -0500
+Subject: Re: Clock 3x too fast on AMD64 laptop [WAS Re: Various issues
+	after rebooting]
+From: john stultz <johnstul@us.ibm.com>
+To: Olivier Fourdan <fourdan@xfce.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
 In-Reply-To: <1112133731.14248.14.camel@shuttle>
-User-Agent: Mutt/1.5.6+20040907i
+References: <1112039799.6106.16.camel@shuttle>
+	 <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle>
+	 <20050328193921.GW30052@alpha.home.local>
+	 <1112131714.14248.8.camel@shuttle>  <1112133731.14248.14.camel@shuttle>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 14:11:52 -0800
+Message-Id: <1112134312.17854.55.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 12:02:11AM +0200, Olivier Fourdan wrote:
-> Hi,
-> 
+On Wed, 2005-03-30 at 00:02 +0200, Olivier Fourdan wrote:
 > A quick look at the source shows that the error is triggered in
 > arch/i386/kernel/timers/timer_pm.c by the verify_pmtr_rate() function.
 > 
 > My guess is that the pmtmr timer is right and the pit is wrong in my
 > case. That would explain why the clock is wrong when being based on pit
 > (like when forced with "clock=pit")
-> 
+
+Yea. From your description this is most likely the cause of the issue.
+Currently the time of day is still tick-based, using the tsc/pmtmr/hpet
+only for interpolating between ticks. 
+
 > Maybe, if I can prove my guesses, a fix could be to "trust" the pmtmr
 > clock when the user has passed a "clock=pmtmr" argument ? Does that make
 > any sense ?
 
-This would make a lot of sense, IMHO. John, what do you think?
+Well, if you tried the time of day re-work I've been working on it would
+mask the issue somewhat, but you'd still have the problem that you are
+taking too many timer interrupts.
 
-	Dominik
+One thing you could try is playing with the CLOCK_TICK_RATE value to see
+if you just have very unique hardware. 
+
+A similar sounding issue has also been reported here:
+http://bugme.osdl.org/show_bug.cgi?id=3927
+
+thanks
+-john
+
+
+
+

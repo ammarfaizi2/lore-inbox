@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263667AbTK3KXx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 05:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTK3KXx
+	id S263666AbTK3KUz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 05:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263667AbTK3KUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 05:23:53 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:15510 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S263667AbTK3KXw (ORCPT
+	Sun, 30 Nov 2003 05:20:55 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:14486 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S263666AbTK3KUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 05:23:52 -0500
-Date: Sun, 30 Nov 2003 11:23:51 +0100
+	Sun, 30 Nov 2003 05:20:54 -0500
+Date: Sun, 30 Nov 2003 11:20:53 +0100
 From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 -- Failed to open /dev/ttyS0: No such device
-Message-ID: <20031130102351.GB10380@outpost.ds9a.nl>
+To: Rainer Hochreiter <rainer@hochreiter.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ip routing
+Message-ID: <20031130102053.GA10380@outpost.ds9a.nl>
 Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Rainer Hochreiter <rainer@hochreiter.at>,
 	linux-kernel@vger.kernel.org
-References: <20031130071757.GA9835@node1.opengeometry.net>
+References: <1070180482.1852.25.camel@freddie.hochreiter.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031130071757.GA9835@node1.opengeometry.net>
+In-Reply-To: <1070180482.1852.25.camel@freddie.hochreiter.at>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 02:17:57AM -0500, William Park wrote:
-> Does anyone have modem working in 2.6.0-test11?
-> 
-> I have external modem connected to /dev/ttyS0 (COM1).  Kernel
-> 2.6.0-test11 give me
 
-Double check your .config and attach it if in doubt.
+On Sun, Nov 30, 2003 at 09:24:01AM +0100, Rainer Hochreiter wrote:
 
-Something like grep SERIAL .config might be enlightning.
+>      eth0=10.1.0.1/16 +-----+ eth1=10.2.0.1/16
+>                    .--|Tux1 |--.
+>                    |  +-----+  |
+> eth1=10.1.0.254/16 |           | eth1=10.2.0.254/16
+
+I haven't read all of your problem, but you might want to look policy
+routing on http://lartc.org/howto/lartc.rpdb.html
+
 
 -- 
 http://www.PowerDNS.com      Open source, database driven DNS Software 

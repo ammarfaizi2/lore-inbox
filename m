@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbUCaIfV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 03:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUCaIfV
+	id S261851AbUCaIk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 03:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUCaIk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 03:35:21 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:64417 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261843AbUCaIfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 03:35:17 -0500
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
+	Wed, 31 Mar 2004 03:40:58 -0500
+Received: from ASte-Genev-Bois-101-1-4-241.w217-128.abo.wanadoo.fr ([217.128.44.241]:15112
+	"EHLO slartibartfast.qube.net") by vger.kernel.org with ESMTP
+	id S261851AbUCaIk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 03:40:57 -0500
+Date: Wed, 31 Mar 2004 10:40:53 +0200
+From: Ignacy Gawedzki <ig@zenon.mine.nu>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc3: unknown symbol in tekram.ko
-Date: Wed, 31 Mar 2004 10:42:24 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Cc: David Stevens <dlstevens@us.ibm.com>,
+       USAGI users <usagi-users@linux-ipv6.org>
+Subject: Re: (usagi-users 02870) Re: IPv6 multicast in 2.4.25 broken?
+Message-ID: <20040331084053.GA25253@zenon.mine.nu>
+Mail-Followup-To: Ignacy Gawedzki <ig@zenon.mine.nu>,
+	linux-kernel@vger.kernel.org, David Stevens <dlstevens@us.ibm.com>,
+	USAGI users <usagi-users@linux-ipv6.org>
+References: <20040324185243.GB27409@zenon.mine.nu> <OFE1BE522F.02DB03E7-ON88256E67.00767AD5-88256E67.0077576D@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403311042.25265.rjwysocki@sisk.pl>
+In-Reply-To: <OFE1BE522F.02DB03E7-ON88256E67.00767AD5-88256E67.0077576D@us.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get something like this after 'make modules_install':
+On Tue, Mar 30, 2004 at 01:47:06PM -0800, thus spake David Stevens:
+>    Can you reproduce this in a small test program and send me
+>    the source? Also, the contents of /dev/proc/igmp6 and any
+>    arguments you ran the program with would be helpful.
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.5-rc3; fi
-WARNING: /lib/modules/2.6.5-rc3/kernel/drivers/net/irda/tekram.ko needs 
-unknown symbol irda_task_delete
+Not at this time, as I would have to reinstall a 2.4.25 kernel.  But I
+plan to do the testing soon.
+
+>    At first I thought it might be that you have an MLD-snooping
+>    switch that doesn't understand MLDv2 packets, but ff02::1 is
+>    the all-nodes address which all hosts join, and which is not
+>    advertised at all. That should work if you're receiving any
+>    multicasts at all.
+
+Well, I see those packets with tcpdump on both the sending and receiving
+interfaces, so no ethernet equipment is involved.  Moreover, the same
+code works perfectly on 2.4.24, which should indicate that there are
+some changes between the two (more precisely between 2.4.24 and
+2.4.25-pre4) that break something.  Somehow the multicast packets are
+received but not relayed to the socket...
 
 -- 
-Rafael J. Wysocki,
-SiSK
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+ "The whole problem with the world is that fools and fanatics are
+   always so certain of themselves, and wiser people so full of doubts."
+                                                 - Bertrand Russell

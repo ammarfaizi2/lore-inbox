@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129965AbRAOAkK>; Sun, 14 Jan 2001 19:40:10 -0500
+	id <S130251AbRAOBKR>; Sun, 14 Jan 2001 20:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbRAOAkB>; Sun, 14 Jan 2001 19:40:01 -0500
-Received: from alex.intersurf.net ([216.115.129.11]:26380 "HELO
-	alex.intersurf.net") by vger.kernel.org with SMTP
-	id <S129965AbRAOAjz>; Sun, 14 Jan 2001 19:39:55 -0500
-Message-ID: <XFMail.20010114183953.markorr@intersurf.com>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S130461AbRAOBKI>; Sun, 14 Jan 2001 20:10:08 -0500
+Received: from mail0.netcom.net.uk ([194.42.236.2]:12757 "EHLO
+	mail0.netcom.net.uk") by vger.kernel.org with ESMTP
+	id <S130251AbRAOBJ6>; Sun, 14 Jan 2001 20:09:58 -0500
+Message-ID: <3A624E77.634D42AD@netcomuk.co.uk>
+Date: Mon, 15 Jan 2001 01:12:23 +0000
+From: Bill Crawford <billc@netcomuk.co.uk>
+Organization: Netcom Internet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Date: Sun, 14 Jan 2001 18:39:53 -0600 (CST)
-Reply-To: Mark Orr <markorr@intersurf.com>
-From: Mark Orr <markorr@intersurf.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-ac9 works, but slower and swappier
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.0-ac9
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ I have a problem here with loopback-mounted filesystem freezing. The
+process writing to the filesystem (ext2) gets stuck in uninterruptible
+state with WCHAN showing "lock_p" which I believe to be lock_page.
 
-I've been running 2.4.0-ac9 for a day and a half now.
+ First time I noticed this, the system froze shortly afterwards but I
+do not know if this is related (because on another occasion the system
+has been fine apart from this wedged process).
 
-I have pretty low-end hardware (Pentium 1/ 100MHz, 16Mb RAM,
-17Mb swap)  and it really seems to bog down with anything
-heavy in memory.    Netscape seems to really drag, and any
-Java applets I encounter positively crawl -- you can see
-the individual widgets being drawn.
+ Underlying system is also ext2 if that makes any difference.
 
-My previous kernel was 240-ac4, and it was fine.
+ Machine is AMD K6-III 400, kernel patched also with the DRM code from
+XFree86 CVS but otherwise untouched, compiler (possible suspect) is
+"(gcc version 2.96 20000731 (Red Hat Linux 7.0))" from gcc-2.96-69.
 
+ However the "vanishing (PS/2) mouse and keyboard" problem seems to be
+cured with this release (he says ;·).
 
-Oh, one other thing...cat /proc/filesystems shows:
+ I also had a problem occasionally with -ac8 printing something like
+"Undead swap entry" repeatedly during shutdown recently, not sure if
+that's gone yet.
 
-nodev   sockfs
-nodev   swapfs
-nodev   shm
-nodev   pipefs
-nodev   proc
-        ext2
-nodev   devpts
-
-I thought swapfs _replaces_  shm?   I mention this because
-my startup scripts mount'ed shm the way it always does.
-I figured it'd fail because shm wouldnt be there.  I've
-since disabled that.
-
-So,  mount swapfs to /dev/shm, and leave the shm filesystem
-unmounted?   Go back to the way it was before (mounting to
-/var/shm) ??
-
-W/ swapfs (only) mounted,  MITSHM apps like MpegTV, Virtual
-Gameboy, Xanim, etc.  seem to work okay.
-
---
-Mark Orr
-markorr@intersurf.com
-
+-- 
+/* Bill Crawford, Unix Systems Developer, ebOne, formerly GTS Netcom */
+#include "stddiscl.h"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265206AbUAFUGR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 15:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUAFUGQ
+	id S265062AbUAFUVf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 15:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUAFUVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 15:06:16 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:21378 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S265206AbUAFUGQ
+	Tue, 6 Jan 2004 15:21:35 -0500
+Received: from postfix3-1.free.fr ([213.228.0.44]:39102 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S265062AbUAFUVd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 15:06:16 -0500
-Message-ID: <3FFB1528.2080206@inp-net.eu.org>
-Date: Tue, 06 Jan 2004 21:06:00 +0100
-From: =?ISO-8859-1?Q?Rapha=EBl_RIGO?= <raphael.rigo@inp-net.eu.org>
-User-Agent: Mozilla Thunderbird 0.5a (20031223)
-X-Accept-Language: en-us, en
+	Tue, 6 Jan 2004 15:21:33 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: "Guldo K" <guldo@tiscali.it>
+Subject: Re: speedtouch for 2.6.0
+Date: Tue, 6 Jan 2004 21:21:18 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <16366.61517.501828.389749@gargle.gargle.HOWL> <200312301702.26973.baldrick@free.fr> <16378.65140.114558.996798@gargle.gargle.HOWL>
+In-Reply-To: <16378.65140.114558.996798@gargle.gargle.HOWL>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1-rc2] SATA problem.
-References: <3FD4C785.4080306@jburgess.uklinux.net>	 <3FD5E454.2030404@inp-net.eu.org> <3FD60552.5090903@jburgess.uklinux.net>	 <3FD6094C.5040502@inp-net.eu.org> <3FD60C5D.6010203@jburgess.uklinux.net>	 <3FD60EC9.8040709@inp-net.eu.org> <3FD614DB.7090207@jburgess.uklinux.net>	 <3FD61615.30507@inp-net.eu.org> <3FD6197B.1070704@jburgess.uklinux.net>	 <3FD62990.80708@inp-net.eu.org>  <3FFAFF39.7090606@jburgess.uklinux.net> <1073415714.26330.5.camel@mhcln02>
-In-Reply-To: <1073415714.26330.5.camel@mhcln02>
-X-Enigmail-Version: 0.82.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401062121.18531.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Hentges wrote:
-> FWIW my P4P 800 Deluxe w/ SATA and PATA drives works fine in 2.6.
-> The trick for me was to configure "Enhanced Mode, SATA only" in
-> the BIOS.
-> 
-> See http://www.hentges.net/howtos/p4p800_SATA.html for details.
-> 
-> HTH
+Hi Guldo,
 
-Thanks for the help... it is now (partially) working. But a fix in the kernel 
-would be better :) (Maybe I should finally start to learn kernel coding)
-The partially is because i tried to burn a CD (with k3b without trying anything 
-before) => complete freeze.
-Raphaël RIGO.
+> I compiled 2.4.22, and tried to install speedbundle;
+> but it looks like I still have the very same error
+> messages... I'd try and understand what kernel headers
+> *are* (sorry), but in the meantime I switched back to
+> the user driver.
+
+Looks like your libc has 2.6 kernel headers.  I refer you to my
+previous answer:
+
+You are compiling against 2.6 kernel headers.
+(Most people have 2.4 kernel headers in
+/usr/include/linux, even if they are running a
+2.6 kernel).  You will need to update the
+firmware_loader directory.  Do the following:
+
+        cvs -d:pserver:anonymous@cvs.speedtouch.sourceforge.net:/cvsroot/speedtouch login
+
+(just hit return if asked for a password).  Then do
+
+        cvs -z 9 -d:pserver:anonymous@cvs.speedtouch.sourceforge.net:/cvsroot/speedtouch co speedtouch
+
+This creates a directory called speedtouch.  Replace the contents of the
+firmware_loader directory with the contents of this new speedtouch
+directory.  Now rebuild: in the top level of the speedbundle do
+
+        make clean
+        make
+(become root)
+        make install
+
+
+> One more thing to ask you: I discarded all the config
+> made for the kernel driver (I think so...), but as I plug
+> my modem in, the speedtch module is loaded.
+> I have to unload it in order to get modem_run to work
+> properly with the user driver.
+> Why is it so? How can I make speedtch not to be loaded
+> automatically, if I can?
+> (without recompiling the kernel)
+
+Remove the speedtch.o file in
+/lib/modules/(kernelversion)/kernel/drivers/usb
+
+Ciao,
+
+Duncan.

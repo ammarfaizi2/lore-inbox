@@ -1,57 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129410AbQLRWLy>; Mon, 18 Dec 2000 17:11:54 -0500
+	id <S129595AbQLRWRr>; Mon, 18 Dec 2000 17:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129810AbQLRWLp>; Mon, 18 Dec 2000 17:11:45 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:23050 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S129410AbQLRWLb>; Mon, 18 Dec 2000 17:11:31 -0500
-Date: Mon, 18 Dec 2000 16:41:03 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Heitzso <xxh1@cdc.gov>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: usb broken in 2.4.0 test 12 versus 2.2.18
-Message-ID: <20001218164101.D1627@sventech.com>
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>; from Heitzso on Mon, Dec 18, 2000 at 04:33:26PM -0500
+	id <S129747AbQLRWRh>; Mon, 18 Dec 2000 17:17:37 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:9743 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129595AbQLRWRZ>; Mon, 18 Dec 2000 17:17:25 -0500
+Date: Mon, 18 Dec 2000 22:46:17 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Chris Lattner <sabre@nondot.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.LNX.4.21.0012181825180.2595-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.3.96.1001218215008.1190A-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000, Heitzso <xxh1@cdc.gov> wrote:
-> I have a Canon usb camera that I access via a
-> recent copy of the s10sh program (with -u option).
-> 
-> Getting to the camera via s10sh -u worked through 
-> large sections of 2.4.0 test X but broke recently.  
-> I cannot say for certain which test/patch the 
-> break occurred in.
-> 
-> Running 2.4.0 test12 malloc errors appear.
-> Everything is fine with 2.2.18.  I haven't tried
-> the test13 series of patches.  
-> 
-> key .config options:
->  CONFIG_USB on
->  DEVICEFS on
->  HOTPLUG on
->  UHCI on
-> everything else off (i.e. printers, keyboards,
-> mice, etc.). 
-> 
-> Baseline system is RH6.2 with most patches applied
-> (so avoiding RH7 compiler problems).  Basic dev
-> environment is same (i.e. compiling the two kernels
-> on the same box).
-> 
-> If someone wants to email me a debug sequence or
-> ask more specific questions feel free.
+On Mon, 18 Dec 2000, Rik van Riel wrote:
 
-Could you give us the exact error message you saw?
+> On Sat, 16 Dec 2000, Mikulas Patocka wrote:
+> 
+> > > Not unless your driver is broken.
+> > 
+> > ok_to_allocate:
+> > 		******* INTERRUPT ********
+> >         spin_lock_irqsave(&page_alloc_lock, flags);
+> >         /* if it's not a dma request, try non-dma first */
+> >         if (!(gfp_mask & __GFP_DMA))
+> >                 RMQUEUE_TYPE(order, 0);
+> >         RMQUEUE_TYPE(order, 1);
+> >         spin_unlock_irqrestore(&page_alloc_lock, flags);
+> > 
+> > nopage:
+> >         return 0;
+> > }
+> 
+> Now read the code carefully and see how allocations can
+> end up here ... and when they can't...
 
-JE
+GFP_ATOMIC allocations can eat all memory in 2.2. There are no free pages. 
+Now process wants to allocate page with GFP_KERNEL or GFP_USER. It calls
+try_to_free_pages.  try_to_free_pages succeeds and frees few pages.
+Interrupt is received and eats pages that were just freed. RMQUEUE fails.
+get_free_page returns zero. Process is shot.
+
+> > Deadlock in getblk, if memory is full of dirty file mapped pages. 
+> 
+> Wrong. Getblk won't deadlock, it will just sleep and another
+> thread will continue later on. Killing processes will (in 2.4)
+> only happen when you run out of swap ... 2.4 will simply have
+> its processes loop in alloc_pages() until memory is available.
+
+I'm talking about 2.2. getblk will sleep until some memory becomes
+available. And some memory can be available only if getblk succeeds.
+
+> > You actually do not need network flood to kill your box. Just imagine that
+> > kpiod is swapping files out too slowly, free memory is going lower and
+> > lower, every process screaming with "VM: do_try_to_free_pages failed" and
+> > the system is aproaching instant death.
+> 
+> Umm?  Can you explain how this could happen?
+
+Imagine that kpiod is slow. try_to_swap_out returns 1 and pretends it
+freed something but it didn't. It just passed request to kpiod. There are
+no pages to be freed by shrink_mmap. do_try_to_swap_out calls swap_out
+several times, then returns. And this repeats again and again.
+
+There are two possible ends:
+
+-swap_out unmaps everything and fails (all pages are pending on kpiod
+queue), try_to_free_pages fails, process is shot
+
+-as try_to_free_pages is pretending that it freed something, free memory
+is going lower and lower; finally it reaches zero - see above
+
+Mikulas
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

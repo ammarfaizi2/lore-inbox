@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbTE2MpT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 08:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTE2MpT
+	id S262013AbTE2Mv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 08:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTE2Mv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 08:45:19 -0400
-Received: from [212.18.235.100] ([212.18.235.100]:65296 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S261888AbTE2MpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 08:45:18 -0400
-Subject: SiI 3112 sata_error
-From: Justin Cormack <justin@street-vision.com>
-To: Kernel mailing list <linux-kernel@vger.kernel.org>, andre@linux-ide.org
-Content-Type: text/plain
+	Thu, 29 May 2003 08:51:58 -0400
+Received: from dyn-ctb-203-221-73-2.webone.com.au ([203.221.73.2]:36363 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262013AbTE2Mv4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 08:51:56 -0400
+Message-ID: <3ED60574.3080308@cyberone.com.au>
+Date: Thu, 29 May 2003 23:04:52 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kevin Jacobs <jacobs@penguin.theopalgroup.com>
+CC: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 meta-data performance
+References: <Pine.LNX.4.44.0305290819370.11990-100000@penguin.theopalgroup.com>
+In-Reply-To: <Pine.LNX.4.44.0305290819370.11990-100000@penguin.theopalgroup.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 29 May 2003 13:58:37 +0100
-Message-Id: <1054213120.17709.72.camel@lotte>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-I have a SiI3112 PCI card 
+Kevin Jacobs wrote:
 
-01:01.0 Unknown mass storage controller: CMD Technology Inc: Unknown
-device 3112 (rev 01)
+>I've recently upgraded our company rsync/backup server and have been running
+>into performance slowdowns.  The old system was a dual processor Pentium III
+>(Coppermine) 866MHz running Redhat 7.3 with IDE disks (ext2 filesystems). 
+>We have since upgraded it to Redhat 9, added a 3Ware 7500-8 RAID controller
+>and more disks (w/ ext3 filesystems + external journal).
+>
+>The primary use for this system is to provide live rsync snapshots of
+>several of our primary servers.  For each system we maintain a "current"
+>snapshot, from which a hard-linked image is taken after each rsync update.
+>i.e., we rsync and then 'cp -Rl current snapshot-$DATE'.  After the update
+>to Redhat 9, the rsync itself was faster, but the time to make the
+>hard-links became an order of magnitude slower (~4min -> ~50min for a tree
+>with 500,000 files).  Not only was it slower, but it destroyed system
+>interactivity for minutes at a time.
+>
+>Since these rsync backups are done in addition to traditional daily tape
+>backups, we've taken the system out of production use and opened the door
+>for experimentation.  So, the next logical step was to try a 2.5 kernel. 
+>After some work, I've gotten 2.5.70-mm2 booting and it is _much_ better than
+>the Redhat 2.4 kernels, and the system interactivity is flawless.  However,
+>the speed of creating hard-links is still three and a half times slower than
+>with the old 2.2 kernel.  It now takes ~14 minutes to create the links, and
+>from what I can tell, the bottlenecks is not the CPU or the disk-throughput. 
+>
+Its probably seek bound.
+Provide some more information about your disk/partition setup, and external
+journals, and data= mode. Remember ext3 will generally always have to do
+more work than ext2.
 
-SiI3112 Serial ATA: IDE controller at PCI slot 01:01.0
-SiI3112 Serial ATA: chipset revision 1
-SiI3112 Serial ATA: not 100% native mode: will probe irqs later
-    ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
-    ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+If you want to play with the scheduler, try set
+/sys/block/blockdev*/queue/nr_requests = 8192
+then try
+/sys/block/blockdev*/queue/iosched/antic_expire = 0
 
-The drives are Maxtor 4A250J0 parallel ATA with Silicon Image
-converters.
+Try the above combinations with and without a big TCQ depth. You should
+be able to set them on the fly and see what happens to throughput during
+the operation. Let me know what you see.
 
-hdparm -i /dev/hde
-
-/dev/hde:
-
- Model=Maxtor 4A250J0, FwRev=RAMB1TU0, SerialNo=A804KZ3E
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=268435455
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: (null):  1 2 3 4 5 6 7
-
-
-running under 2.4.21-pre4-ac1 and I get continual errors of:
-
-May 29 12:42:42 calamari kernel: hde: sata_error = 0x00000000, watchdog
-= 0, siimage_mmio_ide_dma_test_irq
-May 29 12:42:42 calamari kernel: hdg: sata_error = 0x00000000, watchdog
-= 0, siimage_mmio_ide_dma_test_irq
-
-as soon as I turn dma on. 
-
-If I remove the printk from siimage.c they seem to run fine, with good
-performance, so I wonder if this error might be bogus?
-
-
+Nice to see interactivity is good though.
 

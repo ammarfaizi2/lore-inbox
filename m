@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264646AbUFXTsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264904AbUFXT6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264646AbUFXTsH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 15:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUFXTsH
+	id S264904AbUFXT6b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 15:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUFXT6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 15:48:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15311 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264646AbUFXTsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 15:48:03 -0400
-Date: Thu, 24 Jun 2004 12:47:51 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: hadi@znyx.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [NET]: Add tc extensions infrastructure.
-Message-Id: <20040624124751.51a63e8e.davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.58.0406241658050.5358@waterleaf.sonytel.be>
-References: <200406240108.i5O184QA014889@hera.kernel.org>
-	<Pine.GSO.4.58.0406241658050.5358@waterleaf.sonytel.be>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Jun 2004 15:58:31 -0400
+Received: from mail.dynextechnologies.com ([65.120.73.98]:13472 "EHLO
+	mail.dynextechnologies.com") by vger.kernel.org with ESMTP
+	id S264904AbUFXT63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 15:58:29 -0400
+Message-ID: <40DB3263.40600@dynextechnologies.com>
+Date: Thu, 24 Jun 2004 15:58:27 -0400
+From: "Fao, Sean" <Sean.Fao@dynextechnologies.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: linux-kernel@vger.kernel.org, Amit Gud <gud@eth.net>
+Subject: Re: Elastic Quota File System (EQFS)
+References: <40d9ac40.674.0@eth.net> <200406231853.35201.mrwatts@fast24.co.uk> <1088016048.15211.10.camel@sage.kitchen> <001901c459cd_bc436e40_868209ca@home> <20040624115019.GA3614@suse.de> <20040624141742.GD698@openzaurus.ucw.cz>
+In-Reply-To: <20040624141742.GD698@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jun 2004 19:58:29.0230 (UTC) FILETIME=[9E79F8E0:01C45A25]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jun 2004 16:59:02 +0200 (MEST)
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+Pavel Machek wrote:
 
-> > +	  gathers stats that could be used to tune u32 classifier perfomance.
->                                                                   ^^^^^^^^^^
-> performance
+>>>What action should be taken can be specified by the user while making the
+>>>files elastic. He can either opt to delete the file, compress it or move it
+>>>to some place (backup) where he know he has write access. The corresponding
+>>>      
+>>>
+>>- having files disappear at the discretion of the filesystem seems to be
+>>  bad behaviour: either I need this file, then I do not want it to just
+>>  disappear, or I do not need it, and then I can delete it myself.
+>>    
+>>
+>
+>
+>Actually, think .o or mozilla cache files... You don't need them, but if you have them,
+>things are faster.
+>  
+>
+I fail to understand the point you're trying to make.  Are you 
+suggesting that a feature doesn't necessarily have to be implemented, 
+just because it's there?  If so, the proposed idea on the "elastic" file 
+system differs greatly.  Cached content, for instance, speeds up the 
+browsing experience *without* hindering the ability of the application 
+to function normally.  Caching is a true enhancement --in most 
+circumstances.  I can personally see no way to implement EQFS without 
+greatly exasperating end users with its shortcomings.
 
-Thanks Geert, fixed in my tree.
+Sean
+

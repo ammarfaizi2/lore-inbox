@@ -1,34 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVAITkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVAITmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVAITkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 14:40:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVAITkQ
+	id S261732AbVAITmB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 14:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVAITmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 14:40:16 -0500
-Received: from p3EE2B9FA.dip.t-dialin.net ([62.226.185.250]:45072 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261728AbVAITkN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 14:40:13 -0500
-Date: Sun, 9 Jan 2005 20:39:44 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: removing bcopy... because it's half broken
-Message-ID: <20050109193944.GA19083@linux-mips.org>
-References: <20050109192305.GA7476@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050109192305.GA7476@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 9 Jan 2005 14:42:00 -0500
+Received: from mail1.skjellin.no ([80.239.42.67]:28880 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S261732AbVAITlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 14:41:53 -0500
+Message-ID: <41E188FE.7010609@tomt.net>
+Date: Sun, 09 Jan 2005 20:41:50 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: printf() overhead
+References: <41E18522.7060004@comcast.net>
+In-Reply-To: <41E18522.7060004@comcast.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09, 2005 at 07:23:05PM +0000, Arjan van de Ven wrote:
+John Richard Moser wrote:
+> using strace to run a program takes aeons.  Redirecting the output to a
+> file can be a hundred times faster sometimes.  This raises question.
+> 
+> I understand that output to the screen is I/O.  What exactly causes it
+> to be slow, and is there a possible way to accelerate the process?
 
-For a long time MIPS has defined __HAVE_ARCH_BCOPY without actually
-implementing bcopy, so any kernel use did result in a build error.  As
-far as I can recall all that it has caught were a few missconfigured
-gccs, so yes, away with it.
-
-  Ralf
+The terminal is a major factor; gnome-terminal for example can be 
+*extremely* slow.

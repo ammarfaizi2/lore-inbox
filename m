@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUIFVR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUIFVSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266560AbUIFVR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 17:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266845AbUIFVR4
+	id S266845AbUIFVSY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 17:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUIFVSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 17:17:56 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:49826 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266560AbUIFVRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 17:17:54 -0400
-Subject: Re: New proposed DRM interface design
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hamie <hamish@travellingkiwi.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-In-Reply-To: <413CCF79.2080407@travellingkiwi.com>
-References: <20040904102914.B13149@infradead.org>
-	 <4139C8A3.6010603@tungstengraphics.com>
-	 <9e47339104090408362a356799@mail.gmail.com>
-	 <4139FEB4.3080303@tungstengraphics.com>
-	 <9e473391040904110354ba2593@mail.gmail.com>
-	 <1094386050.1081.33.camel@localhost.localdomain>
-	 <9e47339104090508052850b649@mail.gmail.com>
-	 <1094398257.1251.25.camel@localhost.localdomain>
-	 <9e47339104090514122ca3240a@mail.gmail.com>
-	 <1094417612.1936.5.camel@localhost.localdomain>
-	 <9e4733910409051511148d74f0@mail.gmail.com>
-	 <1094425142.2125.2.camel@localhost.localdomain>
-	 <413CCF79.2080407@travellingkiwi.com>
-Content-Type: text/plain
+	Mon, 6 Sep 2004 17:18:24 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10447 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266845AbUIFVSQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 17:18:16 -0400
+Message-ID: <413CD4FF.8070408@sgi.com>
+Date: Mon, 06 Sep 2004 16:22:07 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
+       piggin@cyberone.com.au, mbligh@aracnet.com, kernel@kolivas.org
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+References: <413CB661.6030303@sgi.com> <20040906131027.227b99ac.akpm@osdl.org>
+In-Reply-To: <20040906131027.227b99ac.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094501705.4531.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 06 Sep 2004 21:15:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-09-06 at 21:58, Hamie wrote:
-> The fs -> SCSI interface is a logical one.
 
-We just have to make the fb and DRI to hardware one logical.
 
-> Unless you can have fb sitting on top of DRM of course... (I discount 
-> DRM on-top of fb, because of the D == Direct... No other reason :)...
+Andrew Morton wrote:
+
 > 
-> Does it make sens to have fb ontop of DRM at all? Anyone?
+> That being said, your tests are interesting.  There's a wide spread of
+> results across different kernel versions and across different swappiness
+> settings.  But the question is: which behaviour is correct for your users,
+> and why?
+> 
 
-In some cases yes. The DRM is happy with the idea of the kernel being a
-DRM client too.
+Andrew,
+
+Behavior more like that of 2.6.5 and 2.6.6 is what we would like to see, I 
+think.  We have had problems in the past with a single large HPC application 
+that runs for a long time then wants to push its data out quickly.  What 
+happens to us in 2.4.21 is that the page cache pages swap out the user pages, 
+and that is somethine we would like to avoid, since it can reduce the data
+rate significantly.
+
+We were planning on suggesting that such users set swappiness=0 to give
+user pages priority over the page cache pages.  But it doesn't look like that 
+works very well in the more recent kernels.
+
+One (perhaps) desirable feature would be for intermediate values of swappiness 
+to have behavior in between the two extremes (mapped pages have higher 
+priority vs page cache pages having priority over unreferenced mapped pages),
+so that one would have finer grain control over the amount of swap used.  I'm 
+not sure how to achieve such a goal, however.  :-)
+
+On a separate issue, the response to my proposal for a mempolicy to control
+allocation of page cache pages has been <ahem> underwhelming.
+
+(See: http://marc.theaimsgroup.com/?l=linux-mm&m=109416852113561&w=2
+  and  http://marc.theaimsgroup.com/?l=linux-mm&m=109416852416997&w=2 )
+
+I wonder if this is because I just posted it to linux-mm or its not fleshed 
+out enough yet to be interesting?
+
+Thanks,
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136184AbRAMK7x>; Sat, 13 Jan 2001 05:59:53 -0500
+	id <S136357AbRAMLeu>; Sat, 13 Jan 2001 06:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136357AbRAMK7m>; Sat, 13 Jan 2001 05:59:42 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:50336 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S136184AbRAMK7h>; Sat, 13 Jan 2001 05:59:37 -0500
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200101131059.LAA25032@sunrise.pg.gda.pl>
-Subject: Re: 2.4.1-pre2/3 and Pentium-III not stable
-To: pierre.rousselet@wanadoo.fr (Pierre Rousselet)
-Date: Sat, 13 Jan 2001 11:59:28 +0100 (MET)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A602DAE.E213A79F@wanadoo.fr> from "Pierre Rousselet" at Jan 13, 2001 11:27:59 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
+	id <S136618AbRAMLek>; Sat, 13 Jan 2001 06:34:40 -0500
+Received: from kiln.isn.net ([198.167.161.1]:14656 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S136357AbRAMLe1>;
+	Sat, 13 Jan 2001 06:34:27 -0500
+Message-ID: <3A603D1B.DAC9C8F4@isn.net>
+Date: Sat, 13 Jan 2001 07:33:47 -0400
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.1pre3 compile problems
+Content-Type: multipart/mixed;
+ boundary="------------0B585D2FAB5859E7ABBA5273"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pierre Rousselet wrote:"
-> Pentium-III 256Mo
-> For testing, I try to compile glibc. The start is good.
-> When the process PID reaches a value around 22000
-> (variable), all goes wrong. Make gives error messages
-> such as :
-> 
-> make[2]: *** No rule to make target
-> `../sysdeps/wordsize-32/bits/wordsi:e.h'
-> make[2]: *** No rule to make target
-> `/usr/lib/g#c-lib/i686-pc-linux-gnu/2.95.2/include/stddef.h'
+This is a multi-part message in MIME format.
+--------------0B585D2FAB5859E7ABBA5273
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-As "z" / ":" and "c" / "#" differ only on a single bit
-it looks like a bad memory problem.
+log attached.
+same problem with ac8
+gcc-2.95.2.1
+UP
+Garst
+--------------0B585D2FAB5859E7ABBA5273
+Content-Type: text/plain; charset=us-ascii;
+ name="makebzlilo.log"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="makebzlilo.log"
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i586  -DUTS_MACHINE='"i386"' -c -o init/version.o init/version.c
+make CFLAGS="-D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i586 " -C  kernel
+make[1]: Entering directory `/usr/src/linux/kernel'
+make all_targets
+make[2]: Entering directory `/usr/src/linux/kernel'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i586    -DEXPORT_SYMTAB -c ksyms.c
+In file included from /usr/src/linux/include/linux/modversions.h:93,
+                 from /usr/src/linux/include/linux/module.h:21,
+                 from ksyms.c:14:
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:76: warning: `cpu_data' redefined
+/usr/src/linux/include/asm/processor.h:78: warning: this is the location of the previous definition
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:80: warning: `smp_num_cpus' redefined
+/usr/src/linux/include/linux/smp.h:80: warning: this is the location of the previous definition
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:82: warning: `cpu_online_map' redefined
+/usr/src/linux/include/linux/smp.h:88: warning: this is the location of the previous definition
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:96: warning: `smp_call_function' redefined
+/usr/src/linux/include/linux/smp.h:87: warning: this is the location of the previous definition
+In file included from /usr/src/linux/include/linux/modversions.h:117,
+                 from /usr/src/linux/include/linux/module.h:21,
+                 from ksyms.c:14:
+/usr/src/linux/include/linux/modules/ksyms.ver:504: warning: `del_timer_sync' redefined
+/usr/src/linux/include/linux/timer.h:34: warning: this is the location of the previous definition
+In file included from /usr/src/linux/include/linux/interrupt.h:45,
+                 from ksyms.c:21:
+/usr/src/linux/include/asm/hardirq.h:37: warning: `synchronize_irq' redefined
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:84: warning: this is the location of the previous definition
+In file included from ksyms.c:17:
+/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
+/usr/src/linux/include/linux/kernel_stat.h:48: `smp_num_cpus' undeclared (first use in this function)
+/usr/src/linux/include/linux/kernel_stat.h:48: (Each undeclared identifier is reported only once
+/usr/src/linux/include/linux/kernel_stat.h:48: for each function it appears in.)
+make[2]: *** [ksyms.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux/kernel'
+make: *** [_dir_kernel] Error 2
+
+--------------0B585D2FAB5859E7ABBA5273--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTFJMsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 08:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTFJMsa
+	id S262589AbTFJMvW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 08:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTFJMvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 08:48:30 -0400
-Received: from [61.95.53.28] ([61.95.53.28]:30471 "EHLO dreamcraft.com.au")
-	by vger.kernel.org with ESMTP id S262578AbTFJMs2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 08:48:28 -0400
-Date: Tue, 10 Jun 2003 23:02:05 +1000
-From: Simon Fowler <simon@himi.org>
-To: jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-bk radeonfb oops on boot.
-Message-ID: <20030610130204.GC27768@himi.org>
-Mail-Followup-To: jsimmons@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20030610061654.GB25390@himi.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aT9PWwzfKXlsBJM1"
-Content-Disposition: inline
-In-Reply-To: <20030610061654.GB25390@himi.org>
-User-Agent: Mutt/1.3.28i
+	Tue, 10 Jun 2003 08:51:22 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:22400
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S262589AbTFJMvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 08:51:21 -0400
+Date: Tue, 10 Jun 2003 08:51:35 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: linux-kernel@vger.kernel.org, "" <willy@w.ods.org>, "" <gibbs@scsiguy.com>,
+       "" <marcelo@conectiva.com.br>, "" <green@namesys.com>
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030610123015.4242716e.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.50.0306100847580.19137-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+ <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
+ <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
+ <20030605181423.GA17277@alpha.home.local> <20030608131901.7cadf9ea.skraw@ithnet.com>
+ <20030608134901.363ebe42.skraw@ithnet.com> <20030609171011.7f940545.skraw@ithnet.com>
+ <Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
+ <20030610123015.4242716e.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Jun 2003, Stephan von Krawczynski wrote:
 
---aT9PWwzfKXlsBJM1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Uh, do I trust Linus ? ;-) Well, probably I am going to take a look. The whole
+> story eats a lot of time as I have to deal with GBs of data for every single
+> test.
 
-On Tue, Jun 10, 2003 at 04:16:54PM +1000, Simon Fowler wrote:
-> I've started seeing a hard lockup on boot with my Fujitsu Lifebook
-> p2120 laptop, with a radeon mobility M6 LY, when using a Linus bk
-> kernel as of 2003-06-09 (possibly earlier - the last kernel I've
-> tested is bk as of 2003-06-04). lspci lists this hardware:
->=20
-I've narrowed the start of the problem down: 2.5.70-bk13 works,
--bk14 oopses.=20
+Cool, i'll wait on that then.
 
-Simon
+> Can you clarify? Do you mean options "nosmp noapic" or just "noapic" on SMP
+> kernel?
 
---=20
-PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
-(crappy) Homepage: http://himi.org
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
+Kernel built with CONFIG_SMP and booted with 'noapic' kernel parameter
 
---aT9PWwzfKXlsBJM1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> Hm, my question is: if it were exclusively an apic problem, why do other
+> controllers (in a filesystem environment) work flawlessly. Maybe the driver and
+> apic simply have differing opinions in certain race cases, but that does not
+> mean that apic is always to blame, does it?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+I'm a bit wary of blaming the interrupt routing setup, as i have also 
+noted that other devices work fine. But we have to be objective and try 
+and isolate things first. You seem to have a good head start on that.
 
-iD8DBQE+5dbMQPlfmRRKmRwRAhcAAKCGOo+/Mj6Mk9NBjj5zv6Qa5AcnfgCfZqI5
-QPVUD6iC6TLeh7NKj88p4bo=
-=FNv/
------END PGP SIGNATURE-----
-
---aT9PWwzfKXlsBJM1--
+	Zwane
+-- 
+function.linuxpower.ca

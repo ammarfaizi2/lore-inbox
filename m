@@ -1,85 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbUJYF4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUJYGDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbUJYF4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 01:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJYF43
+	id S261505AbUJYGDL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 02:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUJYGDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 01:56:29 -0400
-Received: from ozlabs.org ([203.10.76.45]:13445 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261456AbUJYF4Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 01:56:16 -0400
-Subject: Re: [RFC/PATCH] Per-device parameter support (13/16)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Tejun Heo <tj@home-tj.org>
-Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041023043138.GN3456@home-tj.org>
-References: <20041023043138.GN3456@home-tj.org>
-Content-Type: text/plain
-Date: Mon, 25 Oct 2004 15:56:13 +1000
-Message-Id: <1098683773.8098.43.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 02:03:10 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:63718 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261505AbUJYGDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 02:03:07 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: generic hardirq code in 2.6.10-rc1
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+	<20041024155443.GA25013@infradead.org>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Mon, 25 Oct 2004 15:02:59 +0900
+In-Reply-To: <20041024155443.GA25013@infradead.org> (Christoph Hellwig's
+ message of "Sun, 24 Oct 2004 16:54:43 +0100")
+Message-ID: <buod5z7jpws.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 13:31 +0900, Tejun Heo wrote:
->  dp_13_devparam.diff
-> 
->  This is the 13rd patch of 16 patches for devparam.
-> 
->  This patch adds needed data fields to module and device structures
-> and actually implements devparam.  This patch doesn't hook devparam
-> into the driver model it's done in the next patch.
+Christoph Hellwig <hch@infradead.org> writes:
+> Btw, it would be nice if all architectures that have more or less
+> a copy of the i386 irq.c could switch to the generic code.
+>
+> That would be:  alpha,ia64, m32r, mips, sh, sh64, um, v850
 
-> +int devparam_unknown_modparam(char *name, char *val, void *arg)
-> +{
-> +	struct module *mod = arg;
-> +	char **param;
-> +
-> +	param = vector_elem(&mod->param_vec, vector_len(&mod->param_vec),
-> +			    GFP_KERNEL);
-> +
-> +	if (param == NULL) {
-> +		printk(KERN_ERR
-> +		       "Device params: Insufficient memory for `%s'\n", name);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	param[0] = name;
-> +	param[1] = val;
-> +
-> +	return 0;
-> +}
-> +
-> +void devparam_module_done(struct module *mod)
-> +{
-> +	struct vector *vec = &mod->param_vec;
-> +	int i;
-> +
-> +	for (i = 0; i < vector_len(vec); i++) {
-> +		char **param = vector_elem(vec, i, 0);
-> +		if (param[0])
-> +			printk(KERN_ERR
-> +			       "Device params: Unknown parameter `%s'\n",
-> +			       param[0]);
-> +	}
-> +	
-> +	vector_destroy(vec);
-> +}
+Er, yeah, hold on (speaking for v850, I generally only ever look at real
+releases and try to update for the next one).
 
-That seems a strange place to warn...  Is that right?
-
-> +
-> +	/* Module parameter vector, used by deviceparam */
-> +	struct vector param_vec;
-
-I don't mind the addition of your vector type, but adding infrastructure
-always results in arguments.  Can you think of another place which needs
-it?
-
-Rusty.
+-Miles
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+`...the Soviet Union was sliding in to an economic collapse so comprehensive
+ that in the end its factories produced not goods but bads: finished products
+ less valuable than the raw materials they were made from.'  [The Economist]

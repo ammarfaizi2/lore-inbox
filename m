@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264610AbSIVXGR>; Sun, 22 Sep 2002 19:06:17 -0400
+	id <S264603AbSIVXOh>; Sun, 22 Sep 2002 19:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264609AbSIVXGQ>; Sun, 22 Sep 2002 19:06:16 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:18387 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S264610AbSIVXGP>;
-	Sun, 22 Sep 2002 19:06:15 -0400
-Date: Mon, 23 Sep 2002 01:19:04 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: bob <bob@watson.ibm.com>
-Cc: Karim Yaghmour <karim@opersys.com>, <okrieg@us.ibm.com>, <trz@us.ibm.com>,
+	id <S264608AbSIVXOh>; Sun, 22 Sep 2002 19:14:37 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:20609 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264603AbSIVXOg>; Sun, 22 Sep 2002 19:14:36 -0400
+Date: Sun, 22 Sep 2002 18:19:38 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Sam Ravnborg <sam@ravnborg.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-In-Reply-To: <15758.19140.200081.346286@k42.watson.ibm.com>
-Message-ID: <Pine.LNX.4.44.0209230115270.3792-100000@localhost.localdomain>
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] linux kernel conf 0.6
+In-Reply-To: <Pine.LNX.4.44.0209230102170.8911-100000@serv>
+Message-ID: <Pine.LNX.4.44.0209221813430.11808-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 23 Sep 2002, Roman Zippel wrote:
 
-On Sun, 22 Sep 2002, bob wrote:
+> > I intentionally only printed a message and errored out in this case, and I
+> > think that's more useful, particularly for people doing
+> >
+> > make all 2>&1 > make.log
+> >
+> > which now may take forever waiting for input.
+> 
+> You should have tried this first :) :
 
-> However, for sake of argument, the above is still not true.  A global
-> lock has a different (worse) performance problem then the lock-free
-> atomic operation even given a global queue.  The difference is 1) the
-> Linux global lock is very expensive [... and interacts with potential
-> other processes, [...]
+Yup, obviously ;) Sorry about that.
 
-huh? what is 'the Linux global lock'?
+> 
+> $ make | cat
+> make[1]: Entering directory `/home/roman/src/linux-lkc/scripts'
+> make[1]: Leaving directory `/home/roman/src/linux-lkc/scripts'
+> make[1]: Entering directory `/home/roman/src/lc'
+> make[1]: `conf' is up to date.
+> make[1]: Leaving directory `/home/roman/src/lc'
+> ./scripts/lkc/conf -s arch/i386/config.new
+> #
+> # using defaults found in .config
+> #
+> *
+> * Restart config...
+> *
+> Enable loadable module support (MODULES) [Y/n/?] y
+>   Set version information on all module symbols (MODVERSIONS) [N/y/?] (NEW) aborted!
+> 
+> Console input/output is redirected. Run 'make oldconfig' to update configuration.
+> 
+> make: *** [include/linux/autoconf.h] Error 1
 
-> [...] and 2) you have to hold the lock for the entire duration of
-> logging the event; with the atomic operation you are finished once
-> you've reserved you space. [...]
+I'm still not happy at least for the ".config does not exist" case. Since 
+when I forget to "cp ../config-2.5 .config", I don't really want "make 
+oldconfig", I want to do the forgotten cp. I think there's hardly anyone 
+who wants oldconfig in that case, rather menuconfig/xconfig or a cp like I 
+mentioned. Since kbuild/lkc does not know, it shouldn't make that (bad) 
+guess.
 
-you dont have to hold the lock for the duration of saving the event, the
-lock could as well protect a 'current entry' index. (Not that those 2-3
-cycles saving off the event into a single cacheline counts that much ...)
+If .config exist but is not current, I think in 99% of the cases we really 
+want make oldconfig, so that's fine.
 
-the tail-atomic method is precisely equivalent to a global spinlock. The
-tail of a global event buffer acts precisely as a global spinlock: if one
-CPU writes to it in a stream then it performs okay, if two CPUs trace in
-parallel then it causes cachelines to bounce like crazy.
+--Kai
 
-> [...] If you didn't use the expensive Linux global lock and just a
-> global lock, you could be interrupted in the middle of holding the lock
-> and performance would fall off the map.
-
-again, what 'expensive Linux global lock' are you talking about?
-
-	Ingo
 

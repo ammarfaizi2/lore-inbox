@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290572AbSAYGAf>; Fri, 25 Jan 2002 01:00:35 -0500
+	id <S290504AbSAYGGf>; Fri, 25 Jan 2002 01:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290573AbSAYGAZ>; Fri, 25 Jan 2002 01:00:25 -0500
-Received: from [204.42.16.60] ([204.42.16.60]:23302 "EHLO gerf.org")
-	by vger.kernel.org with ESMTP id <S290572AbSAYGAR>;
-	Fri, 25 Jan 2002 01:00:17 -0500
-Date: Fri, 25 Jan 2002 00:00:16 -0600
-From: The Doctor What <docwhat@gerf.org>
-To: linux-kernel@vger.kernel.org
-Subject: O(1) on powerpc....
-Message-ID: <20020125000016.A4561@gerf.org>
-Mail-Followup-To: The Doctor What <docwhat@gerf.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S290573AbSAYGGZ>; Fri, 25 Jan 2002 01:06:25 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:58074 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S290504AbSAYGGK>; Fri, 25 Jan 2002 01:06:10 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux console at boot
+Date: Thu, 24 Jan 2002 22:06:56 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBEEPAEGAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to compile the O(1) patch on the powerpc kernel (using
-BenH's latest greatest).  But it didn't work.  It puked on the
-counter and processor stuff in mk_def.c:4[01] in arch/powerpc/kernel
+If all else fails, try a scan converter and a VCR with a decent freeze-frame
+capability.
 
-Is this patch just incompatable with the powerpc in some way, or is
-it something that hasn't been addressed because Ingo has only ia32
-systems at his disposal?
+M. Edward Borasky
+znmeb@borasky-research.net
+http://www.borasky-research.net/
 
-Ciao!
+> -----Original Message-----
+> Is there any way to stop the console scrolling during boot?
 
--- 
-"By the pricking of my thumbs, something wicked this way comes."
-	--Shakespeare, MacBeth, IV:i
-
-The Doctor What: Need I say more?                http://docwhat.gerf.org/
-docwhat@gerf.org                                                   KF6VNC

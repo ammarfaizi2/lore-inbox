@@ -1,51 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264420AbUA3X24 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 18:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264433AbUA3X24
+	id S264433AbUA3XbL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 18:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbUA3XbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 18:28:56 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27332 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264420AbUA3X2x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 18:28:53 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: markus reichelt <mr@lists.notified.de>
-Subject: Re: 2.6.1 "clock preempt"?
-Date: Sat, 31 Jan 2004 00:32:23 +0100
-User-Agent: KMail/1.5.3
-References: <1074800554.21658.68.camel@cog.beaverton.ibm.com> <20040123203835.GA518@h00a0cca1a6cf.ne.client2.attbi.com> <20040127213026.GA1315@lists.notified.de>
-In-Reply-To: <20040127213026.GA1315@lists.notified.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Fri, 30 Jan 2004 18:31:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3537 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264433AbUA3Xak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 18:30:40 -0500
+Date: Fri, 30 Jan 2004 15:31:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: thockin@sun.com
+Cc: arjanv@redhat.com, thomas.schlichter@web.de, thoffman@arnor.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-rc2-mm2
+Message-Id: <20040130153149.00bcb210.akpm@osdl.org>
+In-Reply-To: <20040130232103.GF9155@sun.com>
+References: <1075489136.5995.30.camel@moria.arnor.net>
+	<200401302007.26333.thomas.schlichter@web.de>
+	<1075490624.4272.7.camel@laptop.fenrus.com>
+	<20040130114701.18aec4e8.akpm@osdl.org>
+	<20040130201731.GY9155@sun.com>
+	<20040130123301.70009427.akpm@osdl.org>
+	<20040130211256.GZ9155@sun.com>
+	<20040130140024.4b409335.akpm@osdl.org>
+	<20040130223105.GC9155@sun.com>
+	<20040130150819.2425386b.akpm@osdl.org>
+	<20040130232103.GF9155@sun.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401310032.23285.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 of January 2004 22:30, markus reichelt wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Tim Hockin <thockin@sun.com> wrote:
 >
-> timothy parkinson <t@timothyparkinson.com> wrote:
-> > * Running with SpeedStep (this is a cpu thing i assume?) could cause
-> > this. * Not having DMA enabled on your hard disk(s) could cause this. 
-> > See the hdparm utility to enable it.
-> > * Incorrect TSC synchronization on SMP systems could cause this.
-> > * Anything else?
->
-> Yepp:
->
-> Jan 27 20:12:12 tatooine kernel: Losing too many ticks!
->
-> I had to set "CONFIG_IDE_TASK_IOCTL=y" in my .config in order to get
-> it working.
+> > +	struct group_info *group_info = NULL;
+> 
+> Why init to NULL?
 
-How's that possible?
-This config option only exports HDIO_DRIVE_TASKFILE ioctl to user-space.
+leftovers.
 
---bart
+> > +	ngroups = 0;
+> > +	if (!(exp->ex_flags & NFSEXP_ALLSQUASH)) {
+> > +		for (i = 0; i < SVC_CRED_NGROUPS; i++) {
+> > +			if (cred->cr_groups[i])
+> > +				ngroups++;
+> > +		}
+> > +	}
+> 
+> I though of doing this, but passed in favor of simplicity of patch :)
+> 
+> The original made a specific point of doing
+> 	gid_t group = cred->cr_groups[i];
+> 	if (group == (gid_t) NOGROUP)
+> 		break;
+> 
+> So the count loop should probably be
+> 	ngroups = 0;
+> 	if (!(exp->ex_flags & NFSEXP_ALLSQUASH)) {
+> 		for (i = 0; i < SVC_CRED_NGROUPS; i++) {
+> 			gid_t group = cred->cr_groups[i];
+> 			if (group == (gid_t) NOGROUP)
+> 				break;
+> 			ngroups++;
+> 		}
+> 	}
+> So that we don't assume anything about NOGROUP.
+
+yes, thanks.
+
+> > +	return ret;
+> 
+> The caller in fs/nfsd/nfsfh.c still needs to check the return value and do
+> something with it, or all this is just dumb.
+
+We can add that to Neil's todo list ;)
+
+
+diff -puN fs/nfsd/auth.c~increase-NGROUPS-nfsd-cleanup-checks fs/nfsd/auth.c
+--- 25/fs/nfsd/auth.c~increase-NGROUPS-nfsd-cleanup-checks	Fri Jan 30 15:03:55 2004
++++ 25-akpm/fs/nfsd/auth.c	Fri Jan 30 15:28:36 2004
+@@ -11,13 +11,26 @@
+ #include <linux/nfsd/nfsd.h>
+ 
+ #define	CAP_NFSD_MASK (CAP_FS_MASK|CAP_TO_MASK(CAP_SYS_RESOURCE))
+-void
+-nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
++
++int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
+ {
+ 	struct svc_cred	*cred = &rqstp->rq_cred;
+-	int		i, j;
+-	gid_t		groups[SVC_CRED_NGROUPS];
+ 	struct group_info *group_info;
++	int ngroups;
++	int i;
++	int ret;
++
++	ngroups = 0;
++	if (!(exp->ex_flags & NFSEXP_ALLSQUASH)) {
++		for (i = 0; i < SVC_CRED_NGROUPS; i++) {
++			if (cred->cr_groups[i] == (gid_t)NOGROUP)
++				break;
++			ngroups++;
++		}
++	}
++	group_info = groups_alloc(ngroups);
++	if (group_info == NULL)
++		return -ENOMEM;
+ 
+ 	if (exp->ex_flags & NFSEXP_ALLSQUASH) {
+ 		cred->cr_uid = exp->ex_anon_uid;
+@@ -41,25 +54,24 @@ nfsd_setuser(struct svc_rqst *rqstp, str
+ 		current->fsgid = cred->cr_gid;
+ 	else
+ 		current->fsgid = exp->ex_anon_gid;
++
+ 	for (i = 0; i < SVC_CRED_NGROUPS; i++) {
+ 		gid_t group = cred->cr_groups[i];
+ 		if (group == (gid_t) NOGROUP)
+ 			break;
+-		groups[i] = group;
++		GROUP_AT(group_info, i) = group;
+ 	}
+-	group_info = groups_alloc(i);
+-	/* should be error checking, but we can't return ENOMEM! */
+-	for (j = 0; j < i; j++)
+-		GROUP_AT(group_info, j) = groups[j];
+-	if (set_current_groups(group_info))
+-		put_group_info(group_info);
+-		/* should be error handling but we return void */
+ 
+-	if ((cred->cr_uid)) {
+-		cap_t(current->cap_effective) &= ~CAP_NFSD_MASK;
++	ret = set_current_groups(group_info);
++	if (ret == 0) {
++		if ((cred->cr_uid)) {
++			cap_t(current->cap_effective) &= ~CAP_NFSD_MASK;
++		} else {
++			cap_t(current->cap_effective) |= (CAP_NFSD_MASK &
++							current->cap_permitted);
++		}
+ 	} else {
+-		cap_t(current->cap_effective) |= (CAP_NFSD_MASK &
+-						  current->cap_permitted);
++		put_group_info(group_info);
+ 	}
+-
++	return ret;
+ }
+diff -puN include/linux/nfsd/auth.h~increase-NGROUPS-nfsd-cleanup-checks include/linux/nfsd/auth.h
+--- 25/include/linux/nfsd/auth.h~increase-NGROUPS-nfsd-cleanup-checks	Fri Jan 30 15:03:55 2004
++++ 25-akpm/include/linux/nfsd/auth.h	Fri Jan 30 15:03:55 2004
+@@ -21,7 +21,7 @@
+  * Set the current process's fsuid/fsgid etc to those of the NFS
+  * client user
+  */
+-void		nfsd_setuser(struct svc_rqst *, struct svc_export *);
++int nfsd_setuser(struct svc_rqst *, struct svc_export *);
+ 
+ #endif /* __KERNEL__ */
+ #endif /* LINUX_NFSD_AUTH_H */
+
+_
 

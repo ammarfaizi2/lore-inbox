@@ -1,51 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbTANPkk>; Tue, 14 Jan 2003 10:40:40 -0500
+	id <S264681AbTANPrv>; Tue, 14 Jan 2003 10:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264010AbTANPkk>; Tue, 14 Jan 2003 10:40:40 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:39460 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S264614AbTANPkg>; Tue, 14 Jan 2003 10:40:36 -0500
-Date: Tue, 14 Jan 2003 16:48:59 +0100 (CET)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: ext3 users list <ext3-users@redhat.com>, akpm@zip.com.au,
-       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Bartlomiej Solarz <solarz@wsisiz.edu.pl>
-Subject: Re: 2.4.21-pre3 - problems with ext3
-In-Reply-To: <1042557354.5427.164.camel@sisko.scot.redhat.com>
-Message-ID: <Pine.LNX.4.51.0301141645070.2887@lt.wsisiz.edu.pl>
-References: <Pine.LNX.4.51.0301141401260.6636@oceanic.wsisiz.edu.pl>
- <1042557354.5427.164.camel@sisko.scot.redhat.com>
+	id <S264683AbTANPrv>; Tue, 14 Jan 2003 10:47:51 -0500
+Received: from mx01.netapp.com ([198.95.226.53]:15070 "EHLO mx01.netapp.com")
+	by vger.kernel.org with ESMTP id <S264681AbTANPrr> convert rfc822-to-8bit;
+	Tue, 14 Jan 2003 10:47:47 -0500
+Message-ID: <6440EA1A6AA1D5118C6900902745938E07D551E8@black.eng.netapp.com>
+From: "Lever, Charles" <Charles.Lever@netapp.com>
+To: =?iso-8859-1?Q?=27Peter_=C5strand=27?= <peter@cendio.se>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: RE: [NFS] Re: broken umount -f
+Date: Tue, 14 Jan 2003 07:56:12 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Jan 2003, Stephen C. Tweedie wrote:
+"umount -f" doesn't end pending RPCs.  if there are processes
+with pending RPCs, then they are stuck and you will have to
+reboot.  "intr" may allow some of these processes to be killed
+before trying the "umount."
 
-> Hi,
+however, if there are no outstanding RPCs on the client, but
+the server is not available, umount -f works as advertised.
+
+> -----Original Message-----
+> From: Peter Åstrand [mailto:peter@cendio.se] 
+> Sent: Monday, January 13, 2003 4:45 AM
+> To: Trond Myklebust
+> Cc: nfs@lists.sourceforge.net; linux-kernel@vger.kernel.org
+> Subject: [NFS] Re: broken umount -f
 > 
-> On Tue, 2003-01-14 at 13:15, Lukasz Trabinski wrote:
 > 
-> > Jan 14 12:53:52 oceanic kernel: Code: 0f 0b f9 00 f4 4f 8b f8 ff 43 08 89 d8 8b 5c 24 14 8b 74 24 
+> >>For as long as I remember, umount -f has been broken. I got 
+> a reminder 
+> >>of this fact today when we took an older NFS server out of 
+> use. I had 
+> >>to reboot almost all machines that had mounts from this server. Not 
+> >>nice.
 > 
-> That's a BUG(), and you should have had some form of ext3 or jbd assert
-> failure in the logs just before this oops --- could you supply that,
-> please?
-
-Here is:
-
-Jan 14 12:53:52 oceanic kernel: Assertion failure in
- journal_start_Rsmp_909c88ec() at transaction.c:249:
- "handle->h_transaction->t_journal == journal"
-Jan 14 12:53:52 oceanic kernel: kernel BUG at transaction.c:249!
-Jan 14 12:53:52 oceanic kernel: invalid operand: 0000
-Jan 14 12:53:52 oceanic kernel: CPU:    1
-
-Thank You for your answer.
-
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+> ...
+> 
+> > AFAICS It works for me.
+> > 
+> > Are you using the 'intr' mount option,
+> 
+> Yes, as often I can. But IMHO, it should be possible to 
+> unmount an unreachable NFS fs even if it wasn't mounted with 
+> "intr". Otherwise we have a quite silly "sysadmin trap".
+> 
+> >and are you remembering to kill
+> > those processes that are actually using the mount point first?
+> 
+> One some machines, I killed more or less everything. It 
+> didn't help. One some other machines, I couldn't kill so 
+> blindly. Remember, both "lsof" and "fuser" hangs.
+> 
+> Also, as far as I understand, Solaris 8 does not require that 
+> you kill all processes before unmounting, if you use the "-f" 
+> flag (processes will get EIO). Would it be possible to 
+> implement this feature in Linux? That would be really nice.
+> 
+> Regards, Peter
+> 
+> 
+> >>For as long as I remember, umount -f has been broken. I got 
+> a reminder 
+> >>of this fact today when we took an older NFS server out of 
+> use. I had 
+> >>to reboot almost all machines that had mounts from this server. Not 
+> >>nice.
+> >>
+> >>Anyone knows why -f does not work? When I try, I get:
+> >>
+> >># umount -f /import/applix Cannot MOUNTPROG RPC: RPC: Port mapper 
+> >>failure - RPC: Unable to receive umount2: Device or resource busy
+> >>umount: /import/applix: device is busy
+> >>
+> >>lsof and fuser hangs, as do "df" and "du". Really frustrating. It's 
+> >>not even possible to cleanly reboot the system, since 
+> RedHats shutdown 
+> >>scripts wants to unmount NFS fs's.
+> >>
+> >>I'm not exactly sure I understand what -f is supposed to do. Is it 
+> >>correct that it is supposed to unmount without contacting the NFS 
+> >>server? I assume that I still have to make sure no 
+> processes are using 
+> >>the FS? Would it be possible to add a "-9" flag (or something like 
+> >>that) that kills off all processes that uses the NFS fs 
+> automatically?
+> >>
+> >>(I'm using all kinds of RedHat Linux versions, from 5.0 up to 7.3. 
+> >>From what I can tell, this problems exists in all versions.)
+> >>
+> 
+> 
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.NET email is sponsored by: FREE  SSL Guide from 
+> Thawte are you planning your Web Server Security? Click here 
+> to get a FREE Thawte SSL guide and find the answers to all 
+> your  SSL security issues. 
+> http://ads.sourceforge.net/cgi-> bin/redirect.pl?thaw0026en
+> 
+> 
+> _______________________________________________
+> NFS maillist  -  NFS@lists.sourceforge.net 
+> https://lists.sourceforge.net/lists/listinfo/n> fs
+> 

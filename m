@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290000AbSAPQjC>; Wed, 16 Jan 2002 11:39:02 -0500
+	id <S289999AbSAPQiY>; Wed, 16 Jan 2002 11:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290434AbSAPQix>; Wed, 16 Jan 2002 11:38:53 -0500
-Received: from willow.seitz.com ([207.106.55.140]:32272 "EHLO willow.seitz.com")
-	by vger.kernel.org with ESMTP id <S290000AbSAPQip>;
-	Wed, 16 Jan 2002 11:38:45 -0500
-From: Ross Vandegrift <ross@willow.seitz.com>
-Date: Wed, 16 Jan 2002 11:38:40 -0500
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-Message-ID: <20020116113840.A16168@willow.seitz.com>
-In-Reply-To: <20020115145324.A5772@thyrsus.com> <20020115152643.A6846@willow.seitz.com> <20020115230211.A5177@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020115230211.A5177@thyrsus.com>; from esr@thyrsus.com on Tue, Jan 15, 2002 at 11:02:11PM -0500
+	id <S290000AbSAPQiD>; Wed, 16 Jan 2002 11:38:03 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:33242 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S289999AbSAPQh5>; Wed, 16 Jan 2002 11:37:57 -0500
+From: <benh@kernel.crashing.org>
+To: <linux-kernel@vger.kernel.org>, Lukas Geyer <geyer@ml.kva.se>
+Subject: Re: Two issues with 2.4.18pre3 on PPC
+Date: Wed, 16 Jan 2002 17:37:37 +0100
+Message-Id: <20020116163737.29030@mailhost.mipsys.com>
+In-Reply-To: <Pine.LNX.4.33.0201161417540.6868-100000@cauchy.ml.kva.se>
+In-Reply-To: <Pine.LNX.4.33.0201161417540.6868-100000@cauchy.ml.kva.se>
+X-Mailer: CTM PowerMail 3.1.1 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 11:02:11PM -0500, Eric S. Raymond wrote:
-> Ross Vandegrift <ross@willow.seitz.com>:
-> > I tried CML2 (2.1.2) yesterday with Linux 2.4.17 and found that I
-> > couldn't turn on suppression ('S' didn't seem to toggle, only
-> > disable suppression, which was already off) and entering into a
-> > submenu marked FROZEN locked up the configurator.
-> 
-> I'd sure like to know how you managed this.  Since 2.1.2 frozen symbols
-> are no longer supposed to be visible at all.  Can you reproduce this?
-> Can you give me the recipe for reproducing it?
+>- The generic RTC driver in drivers/char/rtc.c does not work for this
+>  iBook. The driver in drivers/macintosh/rtc.c does work, but it only
+>  implements the two ioctls RTC_RD_TIME and RTC_SET_TIME. (Is this due to
+>  hardware limitations?) Anyway, it is confusing to have both drivers
+>  configurable for PPC, maybe the corresponding Config.in files should be
+>  adjusted. (In addition, this is complicated by the fact that both
+>  configuration options appear in different submenus and if you select
+>  both as modules, then the generic driver will "shadow" the macintosh
+>  one.)
 
-Here's what I do to reproduce it:
+That's a weirdness we haven't solved yet. Part of the problem is
+that a common kernel can boot pmac, chrp and prep, and the later
+ones can use the drivers/char/rtc.c driver. Actually, the
+drivers/macintosh/rtc.c one may work on these too as it's just
+a wrapper on some platform code selected at runtime depending on
+the machine class.
 
-$ tar yxvf linux-2.4.17.tar.bz2
-...
-$ cd cml2-2.1.2
-$ ./install-cml2 /home/ross/linux
-Examining your build environment...
-Good. You have Python 2.x installed as 'python' already.
-Python looks sane...
-Good, your python has curses support linked in.
-Good, your python has Tk support linked in.
-Compiling file list...
-Operating on /home/ross/linux...
-Installing new files...
-Merging in CML2 help texts from Configure.help...
-Modifying configuration productions...
-You are ready to go, cd to /home/ross/linux.
-$ cd ../linux
-$ make config
+Now, regarding the support of only GET/SET ioctls, it's normal.
+Some of these machines don't have the legacy PC hardware RTC with
+alarm support etc... That's the case of macs where the RTC hardware
+is purely a real time clock. (It has other features, like scheduled
+power up, but these aren't implemented yet and could be done entirely
+in userland using /dev/adb anyway).
 
-At this point the rules are compiled and a dialog box indicates that
-Suppression has been turned off (press any key to continue).  I hit any key and
-am presented with the first menu.
+So the driver in drivers/macintosh/rtc.c is just a wrapper on the
+get/set time functions provided by each type of machine.
 
-The first selection at the top of the screen is "Intel or Processor type
-(FROZEN)" and it is highlighted as the default selection.  If I press enter
-*boom*, I'm locked solid.  If I move the active selection off of this menu item,
-I can't move back to it, though it remains visible.  If I enter a submenu, the
-frozen processor type menu is gone.
+Ben.
 
-It's reproduceable with fresh trees (as above), existing trees, and at least
-linux 2.4.12 and linux 2.4.17 (the two kernel tarballs I have lying around).
 
-I'm planning on trying this on a Debian testing box I have at work at some
-point.
 
-Ross Vandegrift
-ross@willow.seitz.com

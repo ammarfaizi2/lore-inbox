@@ -1,461 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273293AbTG3TEK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 15:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273292AbTG3TEK
+	id S273292AbTG3TFb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273295AbTG3TFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 15:04:10 -0400
-Received: from astra.telenet-ops.be ([195.130.132.58]:47249 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S273293AbTG3TDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 15:03:37 -0400
-Date: Wed, 30 Jul 2003 21:02:56 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.0-test2 - Watchdog patches - new module_param (patch 1 + 2)
-Message-ID: <20030730210256.A2578@infomag.infomag.iguana.be>
+	Wed, 30 Jul 2003 15:05:31 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:34474 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S273292AbTG3TFS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 15:05:18 -0400
+Date: Wed, 30 Jul 2003 21:05:25 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030730190525.GB7260@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Marc Giger <gigerstyle@gmx.ch>,
+	linux-kernel@vger.kernel.org
+References: <200307301608.h6UG8YQJ000339@81-2-122-30.bradfords.org.uk> <20030730174457.GI10276@atrey.karlin.mff.cuni.cz> <20030730205002.1e2a27bf.gigerstyle@gmx.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030730205002.1e2a27bf.gigerstyle@gmx.ch>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Wed, Jul 30, 2003 at 08:50:02PM +0200, Marc Giger wrote:
+> Hi All,
+> 
+> On Wed, 30 Jul 2003 19:44:57 +0200
+> Pavel Machek <pavel@suse.cz> wrote:
+> 
+> > Hi!
+> > 
+> > > > But this kind of blinkenlights needed pretty fast LEDs. (At 486
+> > > > time I decided that parport on ISA is fast enough..)
+> > > 
+> > > I'll buy some LEDs and build a parallel port connected LED panel
+> > > tomorrow...  Do you think the overhead of driving the LEDs would
+> > > have too much of a negative effect on system performance?  If so, or
+> > > if we
+> 
+> Yesterday I connected 8 LED's to the parallelport datalines. Today I
+> read this thread. What for a coincidence...
+> The goal of this "project" was to show the current cpu load. It works
+> great now! I can see randomly the LED's lightening up while I am writing
+> this mail:-))
+> 
+> > 
+> > I'm not sure. At 486 days I was pretty sure it did not matter. These
+> > days you might get 10% slowdown on some microbenchmark, or something
+> > like that. I do not think it can slow down common tasks.
+> > 
+> > My construction of LED lights is extremely flaky, and I'm afraid of
+> > burning printer port. At 486 days ports were expected to survive such
+> > abuse. Not sure if todays EPP/wtf ports can handle that.
+> > 								Pavel
+> 
+> At beginning I had some fear to connect LEDS directly to the parport,
+> because its an onboard controller (like the most mainboards have).
+> I don't notice system performance slowdowns. (CPU Load code was borrowed
+> from xosview:-))
+> 
+> My personal goal would be to controll a Dot-Matrix Display. The
+> Display should show something like the actual CPU temperature,
+> CPU-load, processes, s.m.a.r.t state, etc etc etc etc..........But my
+> problem is how to beginn with that. I would prefer to controll it with a
+> PCI card. Also I looked today at 68HC11 microcontrollers, which I can
+> connect to the serial port and transmit the needed infos.
 
-I'm looking for people to test the following two patches.
-The first patch convert these watchdog modules to the new module_param syntax.
-The second patch fixes machzwd.c (you need to declare the variable before using the module_param subroutine).
+sounds interesting ...
 
-Thanks,
-Wim.
+> Are there suggestions / comments / questions?
 
-====================================================================================================
-diff -Nru a/drivers/char/watchdog/acquirewdt.c b/drivers/char/watchdog/acquirewdt.c
---- a/drivers/char/watchdog/acquirewdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/acquirewdt.c	Wed Jul 30 20:53:31 2003
-@@ -24,6 +24,7 @@
- 
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
-@@ -55,7 +56,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-diff -Nru a/drivers/char/watchdog/alim7101_wdt.c b/drivers/char/watchdog/alim7101_wdt.c
---- a/drivers/char/watchdog/alim7101_wdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/alim7101_wdt.c	Wed Jul 30 20:53:31 2003
-@@ -38,6 +38,7 @@
- #include <linux/notifier.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
-+#include <linux/moduleparam.h>
- #include <linux/pci.h>
- 
- #include <asm/io.h>
-@@ -79,7 +80,7 @@
- static int nowayout = 0;
- #endif
-  
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-diff -Nru a/drivers/char/watchdog/ib700wdt.c b/drivers/char/watchdog/ib700wdt.c
---- a/drivers/char/watchdog/ib700wdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/ib700wdt.c	Wed Jul 30 20:53:31 2003
-@@ -42,6 +42,7 @@
- #include <linux/reboot.h>
- #include <linux/init.h>
- #include <linux/spinlock.h>
-+#include <linux/moduleparam.h>
- 
- #include <asm/io.h>
- #include <asm/uaccess.h>
-@@ -122,7 +123,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- 
-diff -Nru a/drivers/char/watchdog/indydog.c b/drivers/char/watchdog/indydog.c
---- a/drivers/char/watchdog/indydog.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/indydog.c	Wed Jul 30 20:53:31 2003
-@@ -20,6 +20,7 @@
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/init.h>
-+#include <linux/moduleparam.h>
- #include <asm/uaccess.h>
- #include <asm/sgi/sgimc.h>
- 
-@@ -33,7 +34,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- static void indydog_ping()
-diff -Nru a/drivers/char/watchdog/machzwd.c b/drivers/char/watchdog/machzwd.c
---- a/drivers/char/watchdog/machzwd.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/machzwd.c	Wed Jul 30 20:53:31 2003
-@@ -30,6 +30,7 @@
- 
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/timer.h>
- #include <linux/jiffies.h>
-@@ -97,7 +98,8 @@
- MODULE_AUTHOR("Fernando Fuganti <fuganti@conectiva.com.br>");
- MODULE_DESCRIPTION("MachZ ZF-Logic Watchdog driver");
- MODULE_LICENSE("GPL");
--MODULE_PARM(action, "i");
-+
-+module_param(action, int, 0);
- MODULE_PARM_DESC(action, "after watchdog resets, generate: 0 = RESET(*)  1 = SMI  2 = NMI  3 = SCI");
- 
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
-@@ -106,7 +108,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- #define PFX "machzwd"
-diff -Nru a/drivers/char/watchdog/mixcomwd.c b/drivers/char/watchdog/mixcomwd.c
---- a/drivers/char/watchdog/mixcomwd.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/mixcomwd.c	Wed Jul 30 20:53:31 2003
-@@ -36,6 +36,7 @@
- #define VERSION "0.5" 
-   
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/miscdevice.h>
-@@ -67,7 +68,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- static void mixcomwd_ping(void)
-diff -Nru a/drivers/char/watchdog/pcwd.c b/drivers/char/watchdog/pcwd.c
---- a/drivers/char/watchdog/pcwd.c	Wed Jul 30 20:53:30 2003
-+++ b/drivers/char/watchdog/pcwd.c	Wed Jul 30 20:53:30 2003
-@@ -45,6 +45,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/timer.h>
- #include <linux/config.h>
-@@ -87,7 +88,7 @@
- static int timeout = 2;
- static int expect_close = 0;
- 
--MODULE_PARM(timeout,"i");
-+module_param(timeout, int, 0);
- MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default=2)"); 
- 
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
-@@ -96,7 +97,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- 
-diff -Nru a/drivers/char/watchdog/sa1100_wdt.c b/drivers/char/watchdog/sa1100_wdt.c
---- a/drivers/char/watchdog/sa1100_wdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/sa1100_wdt.c	Wed Jul 30 20:53:31 2003
-@@ -19,6 +19,7 @@
-  */
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/fs.h>
-@@ -208,9 +209,11 @@
- 
- MODULE_AUTHOR("Oleg Drokin <green@crimea.edu>");
- MODULE_DESCRIPTION("SA1100 Watchdog");
--MODULE_PARM(margin,"i");
-+
-+module_param(margin, int, 0);
- MODULE_PARM_DESC(margin, "Watchdog margin in seconds (default 60s)");
- 
--MODULE_PARM(nowayout, "i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
-+
- MODULE_LICENSE("GPL");
-diff -Nru a/drivers/char/watchdog/sbc60xxwdt.c b/drivers/char/watchdog/sbc60xxwdt.c
---- a/drivers/char/watchdog/sbc60xxwdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/sbc60xxwdt.c	Wed Jul 30 20:53:31 2003
-@@ -56,6 +56,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/timer.h>
- #include <linux/jiffies.h>
-@@ -111,7 +112,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-diff -Nru a/drivers/char/watchdog/sc520_wdt.c b/drivers/char/watchdog/sc520_wdt.c
---- a/drivers/char/watchdog/sc520_wdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/sc520_wdt.c	Wed Jul 30 20:53:31 2003
-@@ -49,6 +49,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/timer.h>
- #include <linux/miscdevice.h>
-@@ -111,7 +112,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- static spinlock_t wdt_spinlock;
-diff -Nru a/drivers/char/watchdog/scx200_wdt.c b/drivers/char/watchdog/scx200_wdt.c
---- a/drivers/char/watchdog/scx200_wdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/scx200_wdt.c	Wed Jul 30 20:53:31 2003
-@@ -19,6 +19,7 @@
- 
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/init.h>
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
-@@ -41,11 +42,11 @@
- #endif
- 
- static int margin = 60;		/* in seconds */
--MODULE_PARM(margin, "i");
-+module_param(margin, int, 0);
- MODULE_PARM_DESC(margin, "Watchdog margin in seconds");
- 
- static int nowayout = CONFIG_WATCHDOG_NOWAYOUT;
--MODULE_PARM(nowayout, "i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Disable watchdog shutdown on close");
- 
- static u16 wdto_restart;
-diff -Nru a/drivers/char/watchdog/shwdt.c b/drivers/char/watchdog/shwdt.c
---- a/drivers/char/watchdog/shwdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/shwdt.c	Wed Jul 30 20:53:31 2003
-@@ -1,5 +1,5 @@
- /*
-- * drivers/char/shwdt.c
-+ * drivers/char/watchdog/shwdt.c
-  *
-  * Watchdog driver for integrated watchdog in the SuperH processors.
-  *
-@@ -19,6 +19,7 @@
-  */
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/init.h>
- #include <linux/types.h>
- #include <linux/miscdevice.h>
-@@ -395,9 +396,11 @@
- MODULE_AUTHOR("Paul Mundt <lethal@linux-sh.org>");
- MODULE_DESCRIPTION("SuperH watchdog driver");
- MODULE_LICENSE("GPL");
--MODULE_PARM(clock_division_ratio, "i");
-+
-+module_param(clock_division_ratio, int, 0);
- MODULE_PARM_DESC(clock_division_ratio, "Clock division ratio. Valid ranges are from 0x5 (1.31ms) to 0x7 (5.25ms). Defaults to 0x7.");
--MODULE_PARM(nowayout,"i");
-+
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- module_init(sh_wdt_init);
-diff -Nru a/drivers/char/watchdog/softdog.c b/drivers/char/watchdog/softdog.c
---- a/drivers/char/watchdog/softdog.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/softdog.c	Wed Jul 30 20:53:31 2003
-@@ -37,6 +37,7 @@
-  */
-  
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/miscdevice.h>
-@@ -56,8 +57,8 @@
- static int soft_noboot = 0;
- #endif  /* ONLY_TESTING */
- 
--MODULE_PARM(soft_margin,"i");
--MODULE_PARM(soft_noboot,"i");
-+module_param(soft_margin, int, 0);
-+module_param(soft_noboot, int, 0);
- MODULE_LICENSE("GPL");
- 
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
-@@ -66,7 +67,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-diff -Nru a/drivers/char/watchdog/wafer5823wdt.c b/drivers/char/watchdog/wafer5823wdt.c
---- a/drivers/char/watchdog/wafer5823wdt.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/wafer5823wdt.c	Wed Jul 30 20:53:31 2003
-@@ -27,6 +27,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/fs.h>
-@@ -63,7 +64,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- static void wafwdt_ping(void)
-diff -Nru a/drivers/char/watchdog/wdt285.c b/drivers/char/watchdog/wdt285.c
---- a/drivers/char/watchdog/wdt285.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/wdt285.c	Wed Jul 30 20:53:31 2003
-@@ -16,6 +16,7 @@
-  */
-  
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/fs.h>
-@@ -222,7 +223,7 @@
- MODULE_DESCRIPTION("Footbridge watchdog driver");
- MODULE_LICENSE("GPL");
- 
--MODULE_PARM(soft_margin,"i");
-+module_param(soft_margin, int, 0);
- MODULE_PARM_DESC(soft_margin,"Watchdog timeout in seconds");
- 
- module_init(footbridge_watchdog_init);
-diff -Nru a/drivers/char/watchdog/wdt977.c b/drivers/char/watchdog/wdt977.c
---- a/drivers/char/watchdog/wdt977.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/wdt977.c	Wed Jul 30 20:53:31 2003
-@@ -21,6 +21,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
-@@ -44,9 +45,9 @@
- static	int testmode;
- static int expect_close = 0;
- 
--MODULE_PARM(timeout, "i");
-+module_param(timeout, int, 0);
- MODULE_PARM_DESC(timeout,"Watchdog timeout in seconds (60..15300), default=60");
--MODULE_PARM(testmode, "i");
-+module_param(testmode, int, 0);
- MODULE_PARM_DESC(testmode,"Watchdog testmode (1 = no reboot), default=0");
- 
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
-@@ -55,7 +56,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- 
-diff -Nru a/drivers/char/watchdog/wdt_pci.c b/drivers/char/watchdog/wdt_pci.c
---- a/drivers/char/watchdog/wdt_pci.c	Wed Jul 30 20:53:31 2003
-+++ b/drivers/char/watchdog/wdt_pci.c	Wed Jul 30 20:53:31 2003
-@@ -38,6 +38,7 @@
- #include <linux/config.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
-@@ -88,7 +89,7 @@
- static int nowayout = 0;
- #endif
- 
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-====================================================================================================
-diff -Nru a/drivers/char/watchdog/machzwd.c b/drivers/char/watchdog/machzwd.c
---- a/drivers/char/watchdog/machzwd.c	Wed Jul 30 20:54:08 2003
-+++ b/drivers/char/watchdog/machzwd.c	Wed Jul 30 20:54:08 2003
-@@ -99,9 +99,6 @@
- MODULE_DESCRIPTION("MachZ ZF-Logic Watchdog driver");
- MODULE_LICENSE("GPL");
- 
--module_param(action, int, 0);
--MODULE_PARM_DESC(action, "after watchdog resets, generate: 0 = RESET(*)  1 = SMI  2 = NMI  3 = SCI");
--
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
- static int nowayout = 1;
- #else
-@@ -129,6 +126,9 @@
-  * defaults to GEN_RESET (0)
-  */
- static int action = 0;
-+module_param(action, int, 0);
-+MODULE_PARM_DESC(action, "after watchdog resets, generate: 0 = RESET(*)  1 = SMI  2 = NMI  3 = SCI");
-+
- static int zf_action = GEN_RESET;
- static int zf_is_open = 0;
- static int zf_expect_close = 0;
+http://www.ewal.net/lcd.php
+http://patrick.wattle.id.au/cameron/information/lcd/
+
+> If somebody is interested to develop such a card / controller with me, I
+> will be pleased to hear from you!
+
+I'm interested in discussions and willing to share my
+knowledge (was working with embedded systems) on this
+issue ... 
+
+best,
+Herbert
+
+> Thank you
+> 
+> Marc
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

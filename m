@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318299AbSG3OcJ>; Tue, 30 Jul 2002 10:32:09 -0400
+	id <S318309AbSG3Ojs>; Tue, 30 Jul 2002 10:39:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318298AbSG3OcJ>; Tue, 30 Jul 2002 10:32:09 -0400
-Received: from avscan1.sentex.ca ([199.212.134.11]:10246 "EHLO
-	avscan1.sentex.ca") by vger.kernel.org with ESMTP
-	id <S318297AbSG3OcH>; Tue, 30 Jul 2002 10:32:07 -0400
-Message-ID: <008801c237d6$8b7dc640$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Matthew Wilcox" <willy@debian.org>, "Russell King" <rmk@arm.linux.org.uk>,
-       <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
-References: <20020729040824.GA2351@zax> <20020729100009.A23843@flint.arm.linux.org.uk> <20020729144408.GA11206@opus.bloom.county> <20020729181702.E25451@flint.arm.linux.org.uk> <20020729231927.D3317@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [parisc-linux] 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
-Date: Tue, 30 Jul 2002 10:36:51 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S318310AbSG3Ojs>; Tue, 30 Jul 2002 10:39:48 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9726 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318309AbSG3Ojs>; Tue, 30 Jul 2002 10:39:48 -0400
+Subject: Re: Weirdness with AF_INET listen() backlog [2.4.18]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Kerrisk <m.kerrisk@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7911.1028039755@www55.gmx.net>
+References: <7911.1028039755@www55.gmx.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 30 Jul 2002 16:59:22 +0100
+Message-Id: <1028044762.6726.44.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Matthew Wilcox" <willy@debian.org>
-> I'm not.  All the issues you mention below go away if we make the rule
-> that _all_ serial ports are /dev/ttyS*.  Userspace can have symlinks to
-> ease the transition if necessary.
+On Tue, 2002-07-30 at 15:35, Michael Kerrisk wrote:
+> I had expected that if a server creates a listening socket, but does not
+> accept() the incoming connections, then after the (possibly fudge-factored)
+> Is this all expected behaviour?  If so, is there a way of getting Linux to
+> behave more like other implementations here?  (As a wild shot I tried setting
+> /proc/sys/net/ipv4/tcp_syncookies to 0, but this made no apparent
+> difference.)
 
-I agree.
+The world of tcp synflooding changed how stacks handle this sort of
+stuff forever. Welcome to the new world order 8)
 
-> but we should be able to reclaim:
->
-> Chase serial card (major 17/18), the Cyclades (major 19/20), Digiboard
-> (major 22/23), Stallion (major 24/25), Specialix (32/33), isdn4linux
-> (43/44), Comtrol (46/47), SDL RISCom (48/49), Hayes (57/58), Computone
-> (71/72), Specialix (75/76), PAM (78/79), Comtrol VS (105/106), ISI
-> (112/113), Technology Concepts (148/149), Specialix RIO (154/155/156/157),
-> Chase Research (164/165), ACM (166/167), Moxa (172/173), SmartIO
-> (174/175), USB (188/189), Low-density misc serial ports (204/205),
-> userspace (208/209) BlueTooth (216/217), A2232 (224/225) ... holy crap,
-> that's a lot of char dev space ;-)  52 majors.. think what those must
-> be worth on the open market ;-)
+You will get connections completing, they will time out. If you expect
+the server to say something you'll see the timeout there instead of
+seeing it on the connect. 
 
-I don't know if reclaiming the USB major is a good idea or not.
-
-..Stu
-
+Since a timeout on the data can happen in the real world Im sure your
+code already correctly handles this case ;)
 

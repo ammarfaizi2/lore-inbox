@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267424AbTA1QjK>; Tue, 28 Jan 2003 11:39:10 -0500
+	id <S267431AbTA1QkY>; Tue, 28 Jan 2003 11:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTA1QjK>; Tue, 28 Jan 2003 11:39:10 -0500
-Received: from 200-206-134-238.async.com.br ([200.206.134.238]:35014 "EHLO
-	anthem.async.com.br") by vger.kernel.org with ESMTP
-	id <S267424AbTA1QjJ>; Tue, 28 Jan 2003 11:39:09 -0500
-Date: Tue, 28 Jan 2003 14:47:59 -0200
-From: Christian Reis <kiko@async.com.br>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       NFS@lists.sourceforge.net
-Subject: Re: [NFS] Re: NFS client locking hangs for period
-Message-ID: <20030128144759.D11078@blackjesus.async.com.br>
-References: <20030124184951.A23608@blackjesus.async.com.br> <shs8yx7lgyt.fsf@charged.uio.no> <20030126204711.A25997@blackjesus.async.com.br> <200301280815.h0S8FLs10146@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
+	id <S267435AbTA1QkY>; Tue, 28 Jan 2003 11:40:24 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:24018 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267431AbTA1QkW>; Tue, 28 Jan 2003 11:40:22 -0500
+Date: Tue, 28 Jan 2003 08:49:34 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@suse.de>
+cc: jasonp@boo.net, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
+Message-ID: <1498630000.1043772571@titus>
+In-Reply-To: <p73k7gpz0vu.fsf@oldwotan.suse.de>
+References: <3.0.6.32.20030127224726.00806c20@boo.net.suse.lists.linux.kernel> <884740000.1043737132@titus.suse.lists.linux.kernel> <20030128071313.GH780@holomorphy.com.suse.lists.linux.kernel> <1466000000.1043770007@titus.suse.lists.linux.kernel> <p73k7gpz0vu.fsf@oldwotan.suse.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200301280815.h0S8FLs10146@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Tue, Jan 28, 2003 at 10:14:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 10:14:09AM +0200, Denis Vlasenko wrote:
-> > None of the users have root access so writing to the partition only
-> > is done as the result of servers running. I used a lot of reboots and
-> > ls -lt to find out what needs to be separate, and there are few
-> > issues that need fixing (/etc/ioctl.save being the latest).
+> The main advantage of cache coloring normally is that benchmarks 
+> should get stable results. Without it a benchmark result can vary based on 
+> random memory allocation patterns.
 > 
-> Entire /etc.  How can you have different per-client configs for
-> e.g. /etc/resolv.conf?  I know you don't usually need that.
-> Sometimes we need to do unusual things ;)
+> Just having stable benchmarks may be worth it.
 
-Well, the per-client configurations are an exception at our office, and
-the only things we customize are XFree86 (we use the
-Xfree86Config.hostname capability), gpm and the kernel, which is
-dealt out by DHCPD. We also have a special startup script that is run
-for the named box if it exists (/etc/init.d/host-specific/`hostname`).
+OK, I'll try to hack the scripts to measure standard deviation between runs
+as well.
 
-I'm sure this won't work for everybody, but it does work for us, a
-smallish development team.
+> I suspect the benefit will vary a lot based on the CPU. Your caches may
+> have good enough associativity. On other CPUs it may make much more difference.
 
-> Same here. Devfs is cool ;)
-> For one, it forces people to think before they got strange ideas of
-> putting something foreign in /dev. Like abm syslogd.
+IIRC, P3's are 4 way associative ... people had been saying that this would
+make more of a difference on machines with larger caches, which is why I ran
+it ... 2Mb is fairly big for ia32. 
 
-Only after using devfs in this context have I come to appreciate how
-nice it is. And I had it in place after 10 minutes of reading and two of
-recompiled kernels. Amazing.
+M.
 
-Take care,
---
-Christian Reis, Senior Engineer, Async Open Source, Brazil.
-http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

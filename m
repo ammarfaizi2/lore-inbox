@@ -1,122 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290381AbSAPHrR>; Wed, 16 Jan 2002 02:47:17 -0500
+	id <S289889AbSAPHuh>; Wed, 16 Jan 2002 02:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289889AbSAPHrI>; Wed, 16 Jan 2002 02:47:08 -0500
-Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:21674 "EHLO
-	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S290381AbSAPHrB>; Wed, 16 Jan 2002 02:47:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Larry McVoy <lm@bitmover.com>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@thyrsus.com>, Eli Carter <eli.carter@inet.com>,
-        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Date: Tue, 15 Jan 2002 18:44:56 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-In-Reply-To: <20020114105341.E27433@work.bitmover.com> <192999434.1011130714@[195.224.237.69]>
-In-Reply-To: <192999434.1011130714@[195.224.237.69]>
+	id <S290383AbSAPHua>; Wed, 16 Jan 2002 02:50:30 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:55559 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S289889AbSAPHuT>;
+	Wed, 16 Jan 2002 02:50:19 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200201160750.g0G7oBg70888@saturn.cs.uml.edu>
+Subject: Re: [RFC] klibc requirements
+To: felix-dietlibc@fefe.de (Felix von Leitner)
+Date: Wed, 16 Jan 2002 02:50:11 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), greg@kroah.com (Greg KH),
+        linux-kernel@vger.kernel.org, andersen@codepoet.org
+In-Reply-To: <20020115115544.GA20020@codeblau.de> from "Felix von Leitner" at Jan 15, 2002 12:55:44 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020116074700.IUTL28557.femail14.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 January 2002 04:38 pm, Alex Bligh - linux-kernel wrote:
+Felix von Leitner writes:
+> Thus spake Albert D. Cahalan (acahalan@cs.uml.edu):
 
-> However, Eric's approach (dmesg) is still flawed as normally
-> the way these distros fail is either (a) hanging on boot, or
-> (b) failing to detect the relevant hardware. Needless to say,
-> neither failure mode is going to give much use to a configurator
-> tool which looks at dmesg.
-
-"make autoconfigure" looks at a bunch of things, one of which is dmesg.  (It 
-also looks at the PCI bus, isapnp, enumerates filesystems in use out of the 
-mounted partitions, checks /proc/cpuinfo to see what to optimize for...)
-
-It's actually doing a fairly decent job, although it's not quite ready for 
-prime time yet.  (Improving rapidly, of course, as we continue to thump on 
-it. :)
-
-> Eric: I think you'd be far better off trying to identify the
-> machine (and hence get a working .config) rather than the
-> hardware.
+>> I think the dietlibc idea has to be scrapped so we can run BSD apps.
+>> (and others maybe, but I'm not looking to start a flame war)
 >
-> Example: put in some wget based thingy, which goes to some (fixed) web
-> site, searches for (some extracted or Tillie composed string) which
-> describes the hardware (bound to have been bought as-is and never opened),
-> pulls down a set of config files and heuristics to determine between them
-> (look at BIOS, or 'that model will always show this or that in the PCI
-> table') and guesses the correct (initial) config as tested by some other
-> user.
+> What apps are you talking about?
 
-Meaning you'll continue to be six months behind the curve, and fail every 
-time Dell tweaks its laptop layout.  (Dell does things like switch sound 
-chips without switching model numbers ALL THE TIME.)
+I'm talking about all apps under the traditional 4-clause
+BSD license. Every single one of them is incompatible with
+a GPL libc. An LGPL library works fine.
 
-Are you volunteering to maintain this database?
+BTW, the LGPL isn't just for libraries anymore. It's now the
+called the "Lesser" GPL, perfectly suited for apps as well
+as libraries. I know this must be what RMS had in mind, so I
+released all my "ps" source code under the LGPL. :-)
 
-So no-name assembled white boxes from e-machines and stuff wouldn't be 
-supported?
+> You don't need NIS or SMB before mounting the root disk.
 
-Have you TRIED the current auto-configurator?
+NIS can be used to specify what filesystem to use.
+SMB could be that filesystem.
 
-> This is the automated equivalent of going to www.google.com/linux,
-> typing your machine name followed by 'kernel .config'. If the site
-> it contacted was configurable by the distro, you'd then have
-> the distros praising you in that once they have solved the problem
-> for one IBM T23, they've solved it for all of them, without doing
-> a new release.
+>> Treat ELF like a.out, getting rid of the -fPIC stuff in favor of
+>> offsets assigned when you build the initramfs.
+>
+> ELF is a standard.
+> You can't just go out and re-invent dynamic linking completely.
 
-Assuming every IBM T23 has the same hardware in it, which oddly enough is a 
-bit of a gamble.  (OK, IBM is better at this than Dell, largely due to 
-inventory management reasons.)  And assuming the finite number of database 
-maintainers has yet bought an IBM T23, and that the rest of the world can 
-wait until then.
-
-Requiring live network access for the autoconfigurator to work is one heck of 
-an extra requirement, though.  Most of the world is still using dialup, you 
-know...
-
-> And Aunt Tillie (apart from the module changes whatever)
-> can be using the kernel version etc. from their distro (recompiled),
-> rather than the latest 2.[2468].xx with lots of new bugs^Wunwanted
-> fixes in.
-
-You want to write some other tool.
-
-In order to compile a new kernel and use it on a new machine, you need to 
-configure it, which is time consuming and tedious, and can require a bit of 
-detective work.  This is a problem that Giacamo and Eric decided to address.
-
-This is NOT the problem you're trying to address.
-
-Aunt Tillie is a side issue.  She's going to continue to run Windows until 
-Linux comes preinstalled on her new computer, or until somebody ELSE installs 
-it for her and does an awful lot of hand holding.  And what she probably 
-really WANTS is an iMac. :)
-
-Autoprobing PCI is -EASY-.  Almost trivial.  USB and PCMCIA/Cardbus were 
-DESIGNED to be autoprobed.  Finding out your CPU type and chipset aren't too 
-hard either.
-
-It's really the old nasty ISA devices that are a pain to auto-probe, and they 
-are finally, mercifully, dying off.  The newer and more naieve the user, the 
-less likely they are to have lashed together an old 486 with VESA local bus, 
-three different SCSI adapters, a CD-ROM hanging off the sound blaster, and a 
-ham radio interface plugged into the parallel port.  Autoprobe really should 
-become EASIER as time goes on.
-
-Giacamo and Eric started work on the autoprobe as a way to reduce the number 
-of questions the configurator showed people by eliminating hardware that they 
-provably do not have, and defaulting the stuff they DO have to on.  But it 
-turns out that on any relatively recent machine, it's an easy enough problem 
-that you can autoprobe EVERYTHING and build straight from that.  So the Linux 
-kernel could finally do "configure; make; make install".
-
-I consider that a neat hack.
-
-Rob
+Sure you can. As long as the kernel loader is happy, no problem.
+People commit worse sins trying to squeeze stuff onto a floppy.

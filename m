@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264329AbUFDAQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264404AbUFDAWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbUFDAQx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 20:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUFDAQw
+	id S264404AbUFDAWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 20:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265007AbUFDAWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 20:16:52 -0400
-Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:52455 "EHLO
-	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264329AbUFDAQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 20:16:51 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: FabF <fabian.frederick@skynet.be>
-Subject: Re: why swap at all?
-Date: Fri, 4 Jun 2004 10:16:40 +1000
-User-Agent: KMail/1.6.1
-Cc: Valdis.Kletnieks@vt.edu, Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net> <1086279414.2295.13.camel@localhost.localdomain> <200406040956.17808.kernel@kolivas.org>
-In-Reply-To: <200406040956.17808.kernel@kolivas.org>
+	Thu, 3 Jun 2004 20:22:44 -0400
+Received: from webmail.cs.unm.edu ([64.106.20.39]:39657 "EHLO mail.cs.unm.edu")
+	by vger.kernel.org with ESMTP id S264404AbUFDAWn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 20:22:43 -0400
+Message-ID: <40BFCA4C.2000904@cs.unm.edu>
+Date: Thu, 03 Jun 2004 19:03:08 -0600
+From: Sushant Sharma <sushant@cs.unm.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: modifying struct sk_buff
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406041016.40927.kernel@kolivas.org>
+X-Scanner: exiscan *1BW2Tj-0005I5-00*VNpWp25vi7k*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jun 2004 09:56, Con Kolivas wrote:
-> On Fri, 4 Jun 2004 02:16, FabF wrote:
-> > On Thu, 2004-06-03 at 01:54, Con Kolivas wrote:
-> > > Try this version instead which biases it downwards.
-> >
-> > I've been unhappy with this one.sw range : 19->60.
-> > So I've been playing slightly with sw curve replacing nerve centre with
->
-> Are you unhappy with the numbers for swappiness it gives or the feel of it?
-> It gives a range of 0-100 in meaningful ways. Your version gives swappiness
-> > 100 at times (oops). If this version does not feel good, the last linear
-> one is better and you simply dont have enough ram for it to feel good after
-> updatedb.
+Hi
+I want to add a new member (say uint32_t) in the
+struct sk_buff{...}
+in the file include/linux/skbuff.h.
 
-Oh and I forgot to say, if that's the case then you should try Nick's patches 
-which are far more sophisticated than this.
+If i add this new member and I want to assign it
+some value when ever function
+struct sk_buff *alloc_skb(unsigned int *size,* int gfp_mask)
+in file
+net/core/skbuff.c
+is called
+Do I need to allocate memory for this member
+(  ie add sizeof(_new-member_) to *size* while doing kmalloc()  )
+or I should not worry abt that and I can assign some value
+to this _new-member_ every time this function is called.
 
-Con
+Thanks
+Sushant
+

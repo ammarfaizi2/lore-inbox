@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbUCEM5g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbUCEM5g
+	id S262585AbUCEM6K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbUCEM6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:57:36 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:11444 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262584AbUCEM5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:57:35 -0500
-Subject: Re: INIT_REQUEST & CURRENT undeclared!
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Jinu M." <jinum@esntechnologies.co.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040305124718.GQ10923@suse.de>
-References: <1118873EE1755348B4812EA29C55A9721286F8@esnmail.esntechnologies.co.in>
-	 <20040305124718.GQ10923@suse.de>
-Content-Type: text/plain
-Message-Id: <1078491449.13916.0.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Fri, 05 Mar 2004 12:57:30 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 5 Mar 2004 07:58:10 -0500
+Received: from mail4-141.ewetel.de ([212.6.122.141]:5783 "EHLO mail4.ewetel.de")
+	by vger.kernel.org with ESMTP id S262585AbUCEM6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 07:58:08 -0500
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
+In-Reply-To: <1wle0-48P-31@gated-at.bofh.it>
+References: <1wle0-48P-31@gated-at.bofh.it>
+Date: Fri, 5 Mar 2004 13:57:54 +0100
+Message-Id: <E1AzEtm-00003y-Pi@localhost>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-05 at 13:47 +0100, Jens Axboe wrote:
-> Just a reference to the fact that you didn't even state what kernel
-> version you were using.
+On Fri, 05 Mar 2004 12:00:24 +0100, you wrote in linux.kernel:
 
-But he did, in his (broken) compile command:
-#cc -D__KERNEL__ -I/usr/src/linux-2.4/include -O2 -DMODULE -c simple.c
+> linld image=3D263 initrd=3Dimage.gz vga=3D4 "cl=3Droot=3D/dev/ram init=3D=
+> /linuxrc.nfs.vda devfs=3Dmount"
+
+Try root=/dev/ram0
 
 -- 
-dwmw2
-
+Ciao,
+Pascal

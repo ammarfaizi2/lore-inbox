@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317258AbSFRBAK>; Mon, 17 Jun 2002 21:00:10 -0400
+	id <S317264AbSFRBAl>; Mon, 17 Jun 2002 21:00:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317261AbSFRBAI>; Mon, 17 Jun 2002 21:00:08 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:51401 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317258AbSFRA7F>;
-	Mon, 17 Jun 2002 20:59:05 -0400
-Date: Tue, 18 Jun 2002 02:59:06 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200206180059.CAA11576@harpo.it.uu.se>
-To: marcelo@conectiva.com.br
-Subject: [PATCH][2.4.19-pre10] fs/ufs/super.c:ufs_read_super() fixes
-Cc: linux-kernel@vger.kernel.org
+	id <S317265AbSFRBAQ>; Mon, 17 Jun 2002 21:00:16 -0400
+Received: from ares.kos.net ([199.246.2.117]:7325 "HELO ares.kos.net")
+	by vger.kernel.org with SMTP id <S317264AbSFRA7v>;
+	Mon, 17 Jun 2002 20:59:51 -0400
+Message-ID: <004e01c21663$4f5f1540$0a00000a@kos.net>
+From: "Steve Cole" <coles@vip.kos.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Dual Athlon issue temporarily resolved
+Date: Mon, 17 Jun 2002 20:58:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-BlackHole: Version 0.9.83 by Chris Kennedy (C) 2002
+X-BlackHole-Sender: (null)
+X-BlackHole-Relay: 199.246.3.1
+X-BlackHole-Match: No Match
+X-BlackHole-Info: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are three obvious errors:
-1. When checking minimum fragment size the code references the
-   wrong variable (block size).
-2. Ditto when checking maximum fragment size.
-3. (Minor) If the block size is too small, the wrong variable
-   (fragment size) is printed in the error message.
+I went back to a single Athlon board and chip.  Some fix. :(
 
-The first two patches are already in the current 2.5 code.
+I think it's the motherboard.  Putting the board into single CPU mode and
+recompiling the kernel that way, then removing the CPU helped none.  Trying
+yet another stick of memory got me nothing.
 
-/Mikael
+So now I'm getting the board replaced.  Of course, I phone up ASUS and they
+discontinued the board because it has too many problems.  Bingo!
 
---- linux-2.4.19-pre10/fs/ufs/super.c.~1~	Thu Jun  6 14:40:21 2002
-+++ linux-2.4.19-pre10/fs/ufs/super.c	Thu Jun  6 14:50:17 2002
-@@ -662,12 +662,12 @@
- 			uspi->s_fsize);
- 		goto failed;
- 	}
--	if (uspi->s_bsize < 512) {
-+	if (uspi->s_fsize < 512) {
- 		printk(KERN_ERR "ufs_read_super: fragment size %u is too small\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
--	if (uspi->s_bsize > 4096) {
-+	if (uspi->s_fsize > 4096) {
- 		printk(KERN_ERR "ufs_read_super: fragment size %u is too large\n",
- 			uspi->s_fsize);
- 		goto failed;
-@@ -679,7 +679,7 @@
- 	}
- 	if (uspi->s_bsize < 4096) {
- 		printk(KERN_ERR "ufs_read_super: block size %u is too small\n",
--			uspi->s_fsize);
-+			uspi->s_bsize);
- 		goto failed;
- 	}
- 	if (uspi->s_bsize / uspi->s_fsize > 8) {

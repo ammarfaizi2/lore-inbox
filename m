@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312397AbSC3Vna>; Sat, 30 Mar 2002 16:43:30 -0500
+	id <S292730AbSC3WC6>; Sat, 30 Mar 2002 17:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312456AbSC3VnU>; Sat, 30 Mar 2002 16:43:20 -0500
-Received: from gumby.it.wmich.edu ([141.218.23.21]:2513 "EHLO
-	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
-	id <S312397AbSC3VnN>; Sat, 30 Mar 2002 16:43:13 -0500
-Subject: Re: Linux 2.4.19-pre5
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Randy Hron <rwhron@earthlink.net>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-In-Reply-To: <E16rQNU-00007G-00@gull.prod.itd.earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 30 Mar 2002 16:42:52 -0500
-Message-Id: <1017524577.444.61.camel@psuedomode>
-Mime-Version: 1.0
+	id <S292813AbSC3WCr>; Sat, 30 Mar 2002 17:02:47 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35592
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292730AbSC3WCd>; Sat, 30 Mar 2002 17:02:33 -0500
+Date: Sat, 30 Mar 2002 14:01:14 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Art Wagner <awagner@westek-systems.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre4-ac[23] do not boot
+In-Reply-To: <3CA51A31.80405@westek-systems.com>
+Message-ID: <Pine.LNX.4.10.10203301400540.10681-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-03-30 at 16:33, Randy Hron wrote:
-> > > run.  More importantly, read_latency2 drops max latency
-> > > with 32-128 tiobench threads from 300-600+ seconds
-> > > down to 2-8 seconds.  (2.4.19-pre5 is still unfair
-> > > to some read requests when threads >= 32)
-> > 
-> > These numbers are surprising.  The get_request starvation
-> > change should have smoothed things out.   Perhaps there's
-> > something else going on, or it's not working right.  If
-> > you could please send me all the details to reproduce this
-> > I'll take a look.  Thanks.
-> 
-> There was an improvement (reduction) in max latency
-> during sequential _writes after get_request starvation 
-> went in.  Tiobench didn't show an improvement for seq _read 
-> max latency though.  read_latency2 makes the huge difference.
-> 
-> The sequential read max latency walls for various trees looks like:
-> tree		# of threads
-> rmap		128
-> ac		128
-> marcelo		32
-> linus		64
-> 2.5-akpm-everything	>128 
-> 2.4 read latency2	>128
-> 
-> I.E. tiobench with threads > the numbers above would probably
-> give the impression the machine was locked up or frozen if your
-> read request was the unlucky max.  The average latencies are 
-> generally reasonable.  It's the max, and % of high latency
 
-Is that to say an ac branch (which uses rmap) can do the 128 but is
-non-responsive?   I sent a couple mails of my own preliminary runs and
-the feel i got when running the test was absolutely no effect on
-responsiveness even as the load hit 110.  Of course this is with riel's
-preempt patch for 2.4.19-pre4-ac3.  I guess I'll try with threads = 256
-just to see if this frozen feeling occurs in preempt kernels as well. 
-You dont seem to test them anywhere on your own site.  
+Fixed now!
+Code drop tonight!
+
+On Fri, 29 Mar 2002, Art Wagner wrote:
+
+> Hi;
+> I seem to have the identical problem with system hangs on boot. The 
+> problem I see occurs on a Abit BP6
+> on the first access of the first drive on the HPT-366 interface. The 
+> problem occurs on all -ac-x revisions
+> 1 through 3.  The attached log is from an boot on 2.4.19-pre4 which did 
+> not hang but the log is identical
+> except for the fact that the hang occurs with only the "hde:" portion of 
+> the last line displayed.
+> If I can provide any further information pleas let me know via the list 
+> or direct email.
+> Art Wagner
+> 
+> Andre Hedrick wrote:
+> 
+> >On Fri, 29 Mar 2002, Alan Cox wrote:
+> >
+> >>>This is possible, however one of the problems encountered is the
+> >>>following under several chipsets.  If there is no pio timing set at all,
+> >>>then we can run into host lock issues if the driver drops out of dma.
+> >>>Thus, if it is going to lockup here it would/could lock up in other
+> >>>places when one trys to program the host for PIO.
+> >>>
+> >>Well right at the moment the ALi locks up on boot reliably. That means a
+> >>fix has to be found, or the ALi changes reverted 
+> >>
+> >
+> >Pull out the GOOF-UP of mine :-/
+> >
+> >autotune is enabled and does the same thing, Gurrr....
+> >
+> >Cheers,
+> >
+> >Andre Hedrick
+> >LAD Storage Consulting Group
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> 
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

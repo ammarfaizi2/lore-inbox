@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267062AbSLKIZE>; Wed, 11 Dec 2002 03:25:04 -0500
+	id <S267072AbSLKIgM>; Wed, 11 Dec 2002 03:36:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267068AbSLKIZE>; Wed, 11 Dec 2002 03:25:04 -0500
-Received: from danielle.hinet.hr ([195.29.148.143]:26543 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S267062AbSLKIZD>; Wed, 11 Dec 2002 03:25:03 -0500
-Date: Wed, 11 Dec 2002 09:31:32 +0100
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Franke <daniel@franke.homeip.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       arjanv@redhat.com
-Subject: Re: Radeon DRI
-Message-ID: <20021211083131.GA8898@danielle.hinet.hr>
-References: <20021209224553.GA469@silmaril> <20021210015423.GA469@silmaril> <1039539378.14175.31.camel@irongate.swansea.linux.org.uk>
+	id <S267076AbSLKIgM>; Wed, 11 Dec 2002 03:36:12 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:50193 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267072AbSLKIgL>; Wed, 11 Dec 2002 03:36:11 -0500
+Date: Wed, 11 Dec 2002 09:43:50 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IBM spamms me with error messages
+Message-ID: <20021211084350.GA8740@merlin.emma.line.org>
+Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
+References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1039539378.14175.31.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 04:56:18PM +0000, Alan Cox wrote:
-> 
-> I'm removing the drm update in -ac soon I think. 
+On Tue, 10 Dec 2002, Pavel Machek wrote:
 
-Where can we find latest Radeon DRI/DRM update !?
-So I can resolve something like this ->
+> I replied to some mail on l-k and IBM spammed me with 20+ error
+> messages. Now it is apparently going to do that again.
 
-Radeon DRI driver:
-        Compatibility mode for DRM driver version 1.1.1
-        TCL will be disabled, expect reduced performance
-        (prefer DRM radeon.o 1.3.x or newer)
+Oh, speaking if ibm.com, I had them return mail from @austin.ibm.com to
+my From: address for a Bugtraq post, even though I put a Reply-To.
 
-ps
-	linus-2.4.20
-
-
--- 
-Mario Mikoèeviæ (Mozgy)
-mozgy at hinet dot hr
-My favourite FUBAR ...
+One should ban all domains after the first virusscanner or autoresponder
+trespass until they show proof they switched their virusscanner or
+groupware.

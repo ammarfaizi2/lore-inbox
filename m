@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264837AbRGNTPM>; Sat, 14 Jul 2001 15:15:12 -0400
+	id <S264841AbRGNTen>; Sat, 14 Jul 2001 15:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264841AbRGNTOw>; Sat, 14 Jul 2001 15:14:52 -0400
-Received: from smtp7vepub.gte.net ([206.46.170.28]:25680 "EHLO
-	smtp7ve.mailsrvcs.net") by vger.kernel.org with ESMTP
-	id <S264837AbRGNTOn>; Sat, 14 Jul 2001 15:14:43 -0400
-From: aset@bellatlantic.com
-Message-ID: <3B509CA6.6E7EE91@bellatlantic.com>
-Date: Sat, 14 Jul 2001 15:25:31 -0400
-X-Mailer: Mozilla 4.77 (Macintosh; U; PPC)
-X-Accept-Language: en
+	id <S264846AbRGNTed>; Sat, 14 Jul 2001 15:34:33 -0400
+Received: from [64.165.192.135] ([64.165.192.135]:27659 "EHLO
+	server1.skystream.com") by vger.kernel.org with ESMTP
+	id <S264841AbRGNTeU>; Sat, 14 Jul 2001 15:34:20 -0400
+Message-ID: <B25E2E5A003CD311B61E00902778AF2A02BBD74B@SERVER1>
+From: Brian Kuschak <brian.kuschak@skystream.com>
+To: "'paulus@linuxcare.com.au'" <paulus@linuxcare.com.au>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ppp_generic.c: last_channel_index
+Date: Sat, 14 Jul 2001 12:30:46 -0700
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux USB boot hang
-Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I found that after I repeatedly opened and closed PPP connections, I would
+get an Oops.  PPP daemon would try to allocate strange PPP interface numbers
+(ppp12, for example) and other sanity checks would fail (kind != INTERFACE
+|| CHANNEL)
 
-I compiled and installed Linux-2.4.5smp on a dual 300 MHz Pentium II
-running Red Hat 7.0 with gcc 2.96. The motherboard has two sets of USB
-headers but there are no USB ports. If I configure the kernel with USB
-modules, at boot linux complains repeatedly:
+The last_channel_index wasn't being cleaned up when the channel was closed,
+leading to these problems the next time a PPP channel was opened.  This
+patch fixes the problem for me.
 
-    hub.c: Cannot  enable port 1 of hub 1, disabling port.
-    hub.c: Maybe USB cable is bad?
-    hub.c: Cannot enable port 2 of hub 1, disabling port.
-    hub.c: Maybe USB cable is bad?
+using ppp-2.4.0, patch against: linux-2.4.6
 
- I don't know how to get out of this, so I just wait for it to time out
-to finish booting. If I don't configure the kernel for a USB controller
-then the during the boot process it complains that it can't find the
-usb-uhci module and the boot process hangs at sendmail. Again I wait for
-the time-out for the boot process to finish.  How do I fix this dilemma.
-Is there some way I can modifiy hub.c to stop looking for ports 1 and 2?
+Regards,
+Brian
 
-Thanks, from a Linux newbie.
-
-Don Werder
-aset@bellatlantic.net
-
+*** ppp_generic.c       Sun Apr 22 09:46:40 2001
+--- /home/brian/linux/drivers/net/ppp_generic.c Fri Jul 13 18:38:30 2001
+***************
+*** 1871,1876 ****
+--- 1796,1802 ----
+        ppp_disconnect_channel(pch);
+        wake_up_interruptible(&pch->file.rwait);
+        spin_lock_bh(&all_channels_lock);
++       last_channel_index--;
+        list_del(&pch->file.list);
+        spin_unlock_bh(&all_channels_lock);
+        if (atomic_dec_and_test(&pch->file.refcnt)) 

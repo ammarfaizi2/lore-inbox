@@ -1,124 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbSKWWhT>; Sat, 23 Nov 2002 17:37:19 -0500
+	id <S267092AbSKWWrE>; Sat, 23 Nov 2002 17:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267086AbSKWWhT>; Sat, 23 Nov 2002 17:37:19 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:33408 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S267083AbSKWWhR> convert rfc822-to-8bit; Sat, 23 Nov 2002 17:37:17 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.49 with contest
-Date: Sun, 24 Nov 2002 09:45:57 +1100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
+	id <S267088AbSKWWrE>; Sat, 23 Nov 2002 17:47:04 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:49853 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267087AbSKWWrD> convert rfc822-to-8bit; Sat, 23 Nov 2002 17:47:03 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <folkert@vanheusden.com>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Sat, 23 Nov 2002 14:54:12 -0800
+In-Reply-To: <001701c29340$749e8110$3640a8c0@boemboem>
+Subject: RE: TCP memory pressure question
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200211240946.08248.conman@kolivas.net>
+Message-ID: <20021123225414.AAA6403@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Here are the latest contest (http://contest.kolivas.net) benchmarks
+On Sat, 23 Nov 2002 23:34:15 +0100, Folkert van Heusden wrote:
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [5]              71.7    93      0       0       0.99
-2.5.47 [3]              73.5    93      0       0       1.02
-2.5.48 [5]              73.9    93      0       0       1.02
-2.5.48-mm1 [5]          73.8    93      0       0       1.02
-2.5.49 [3]              74.0    93      0       0       1.02
+>What about:
 
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [2]              66.6    99      0       0       0.92
-2.4.19 [2]              68.0    99      0       0       0.94
-2.5.47 [3]              68.3    99      0       0       0.94
-2.5.48 [5]              68.5    99      0       0       0.95
-2.5.48-mm1 [5]          68.3    99      0       0       0.94
-2.5.49 [3]              68.9    99      0       0       0.95
+>int WRITE(int handle, char *whereto, int len)
+>{
+>int cnt=len;
+>
+>while(len>0)
+>{
+>int rc;
+>
+>rc = write(handle, whereto, len);
+>
+>if (rc == -1)
+>{
+>if (errno == EINTR)
+>                {
+>                    /* just try again */
+>                }
+>                else if (errno == EAGAIN)
+>                {
+>                    /* give up time-slice */
+>                    if (sched_yield() == -1)
+>                    {
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              109.5   57      119     44      1.51
-2.4.19 [3]              106.5   59      112     43      1.47
-2.5.47 [3]              83.4    82      22      21      1.15
-2.5.47-mm3 [2]          84.2    82      22      21      1.16
-2.5.48 [5]              86.5    79      26      23      1.20
-2.5.48-mm1 [5]          90.5    76      30      26      1.25
-2.5.49 [3]              83.2    82      21      21      1.15
+	By yielding your time slice, you prevent yourself from performing any 
+'read's. So what's going to fix the memory pressure?
 
-dbench_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [1]              346.6   20      1       57      4.79
-2.4.19 [1]              342.6   20      1       62      4.74
-2.5.47 [2]              224.2   33      1       44      3.10
-2.5.48 [5]              236.4   31      1       43      3.27
-2.5.48-mm1 [5]          234.2   32      1       39      3.24
-2.5.49 [3]              217.5   36      1       43      3.01
+	There are two cases where this could work:
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              117.4   63      1       7       1.62
-2.4.19 [2]              106.5   70      1       8       1.47
-2.5.47 [3]              93.9    80      1       5       1.30
-2.5.48 [5]              93.5    81      1       5       1.29
-2.5.48-mm1 [5]          95.4    79      1       5       1.32
-2.5.49 [3]              93.3    81      1       5       1.29
+	1) For an application that uses very little TCP memory. By yielding, perhaps 
+some other process will come along, a more heavy TCP memory user, and fix the 
+problem.
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              150.8   49      2       8       2.09
-2.4.19 [1]              132.4   55      2       9       1.83
-2.5.47 [3]              167.1   45      2       7       2.31
-2.5.48 [5]              184.4   41      2       6       2.55
-2.5.48-mm1 [5]          210.7   35      2       6       2.91
-2.5.49 [3]              139.1   56      1       7       1.92
+	2) For an application that uses a thread-per-connection architecture. By 
+yielding, we give other threads a chance to run and hope that they will 
+relieve the memory pressure.
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              474.1   15      36      10      6.56
-2.4.19 [3]              492.6   14      38      10      6.81
-2.5.47 [3]              165.9   46      9       9       2.29
-2.5.48 [5]              131.4   59      6       8       1.82
-2.5.48-mm1 [5]          119.9   62      4       7       1.66
-2.5.49 [3]              164.4   46      9       9       2.27
+	But for a poll/select loop application that is heavily using TCP memory, 
+this makes things worse. By stopping our own execution, we delay the time 
+when we'll do 'read's. So we extend the TCP memory pressure problem for even 
+longer.
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              102.3   70      6       3       1.41
-2.4.19 [2]              134.1   54      14      5       1.85
-2.5.47 [3]              103.4   74      6       4       1.43
-2.5.48 [5]              102.9   74      6       4       1.42
-2.5.48-mm1 [5]          256.7   29      11      2       3.55
-2.5.49 [3]              106.4   71      6       3       1.47
+	DS
 
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              90.2    76      1       17      1.25
-2.4.19 [1]              89.8    77      1       20      1.24
-2.5.47 [3]              100.2   71      1       20      1.39
-2.5.48 [5]              98.2    72      1       19      1.36
-2.5.48-mm1 [5]          99.3    72      1       21      1.37
-2.5.49 [3]              103.5   69      1       21      1.43
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              103.3   70      32      3       1.43
-2.4.19 [3]              100.0   72      33      3       1.38
-2.5.47 [3]              151.1   49      35      2       2.09
-2.5.48 [5]              121.2   61      30      2       1.68
-2.5.48-mm1 [5]          290.7   26      42      1       4.02
-2.5.49 [3]              118.5   63      29      2       1.64
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE94AUmF6dfvkL3i1gRAlUKAJ42Mu81+mSDrCIGfKe9roC4WNgM/wCfdJ4X
-z29k/7qd09p+P7Hr49p5vhw=
-=sdZF
------END PGP SIGNATURE-----

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbTLUMiA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 07:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTLUMh7
+	id S262838AbTLUMk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 07:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTLUMk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 07:37:59 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:43420 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S262767AbTLUMh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 07:37:58 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: 2.6.0-test11 BK: sg and scanner modules not auto-loaded?
-Date: Sun, 21 Dec 2003 13:37:30 +0100
-User-Agent: KMail/1.5.4
-References: <20031219181039.GI3017@kroah.com> <20031221003020.63E6A2C0B8@lists.samba.org> <20031221012531.GB30123@merlin.emma.line.org>
-In-Reply-To: <20031221012531.GB30123@merlin.emma.line.org>
+	Sun, 21 Dec 2003 07:40:59 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:12770 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262838AbTLUMk5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 07:40:57 -0500
+Message-ID: <3FE594D0.8000807@colorfullife.com>
+Date: Sun, 21 Dec 2003 13:40:48 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jamie Lokier <jamie@shareable.org>
+CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org>
+In-Reply-To: <20031221113640.GF3438@mail.shareable.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312211337.30900.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 December 2003 02:25, Matthias Andree wrote:
-> On Sat, 20 Dec 2003, Rusty Russell wrote:
-> > It's been argued that kmod should place a request with the hotplug
-> > subsystem, rather than call modprobe, but that's a little too radical
-> > for me just yet.
+Jamie Lokier wrote:
+
+>Manfred Spraul wrote:
+>  
 >
-> Hotplug works for 2.4, I don't know what is different in 2.6 - are there
-> hotplug relevant kernel changes? Stupid question maybe, but I'm asking
-> nonetheless :-)
+>>What about switching to rcu?
+>>    
+>>
+>
+>What about killing fasync_helper altogether and using the method that
+>epoll uses to register "listeners" which send a signal when the poll
+>state of a device changes?
+>
+I think it would be a step in the wrong direction: poll should go away 
+from a simple wake-up to an interface that transfers the band info 
+(POLL_IN, POLL_OUT, etc). Right now at least two passes over the f_poll 
+functions are necessary, because the info which event actually triggered 
+is lost. kill_fasync transfers the band info, thus I don't want to 
+remove it.
 
-I haven't been following this thread, so I don't know if this is relevant:
-do you have the *very latest* hotplug scripts?  The previous ones tested
-the kernel version against "2.5", while the latest test against that and also
-"2.6".  I think this was in the usb script.  Without the "2.6" test device
-scripts are not run, at least for usb devices.
+>
+>That would trim off code all over the place, make the fast paths a
+>little bit faster (in the case that there aren't any listeners), and
+>most importantly make SIGIO reliable for every kind of file descriptor,
+>instead of the pot luck you get now.
+>
+>Just an idea :)
+>
+It's a good idea, but requires lots of changes - perhaps it will be 
+necessary to change the pollwait and f_poll prototypes.
 
-Ciao,
+--
+    Manfred
 
-Duncan.

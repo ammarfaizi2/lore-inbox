@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264426AbUFLAXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUFLA1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264426AbUFLAXL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 20:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUFLAXL
+	id S264461AbUFLA1y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 20:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUFLA1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 20:23:11 -0400
-Received: from mail.kroah.org ([65.200.24.183]:33223 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264426AbUFLAWe (ORCPT
+	Fri, 11 Jun 2004 20:27:54 -0400
+Received: from opersys.com ([64.40.108.71]:35341 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S264461AbUFLA1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 20:22:34 -0400
-Date: Fri, 11 Jun 2004 17:18:22 -0700
-From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: [PATCH 2.6.7-rc3] Add's class support to msr.c
-Message-ID: <20040612001822.GA10389@kroah.com>
-References: <146320000.1086823391@dyn318071bld.beaverton.ibm.com> <147490000.1086824437@dyn318071bld.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <147490000.1086824437@dyn318071bld.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 11 Jun 2004 20:27:52 -0400
+Message-ID: <40CA4D23.2010006@opersys.com>
+Date: Fri, 11 Jun 2004 20:24:03 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+CC: high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, George Anzinger <george@mvista.com>
+Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
+References: <40C7BE29.9010600@am.sony.com>
+In-Reply-To: <40C7BE29.9010600@am.sony.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 04:40:37PM -0700, Hanna Linder wrote:
-> --On Wednesday, June 09, 2004 04:23:11 PM -0700 Hanna Linder <hannal@us.ibm.com> wrote:
-> > 
-> > This patch enables class support in arch/i386/kernel/msr.c. Very simliar
-> > to cpuid (with the fixes Zwane/Greg made, thanks). 
-> > 
-> > [root@w-hlinder2 root]# tree /sys/class/msr
-> > /sys/class/msr
-> >| -- msr0
-> >|   `-- dev
-> > `-- msr1
-> >     `-- dev
-> > 
-> > 2 directories, 2 files
-> > 
-> > Please consider for testing/inclusion.
-> > 
-> > Signed-off-by Hanna Linder <hannal@us.ibm.com>
-> > 
-> > Thanks.
-> > 
-> > Hanna Linder
-> > IBM Linux Technology Center
-> 
-> Thanks to Randy Dunlap for pointing out the unnecessary tabs. Fixed.
 
-Looks good, applied thanks.
+Geoff Levand wrote:
+> For those interested, the set of three patches provide POSIX high-res 
+> timer support for linux-2.6.6.  The core and i386 patches are updates of 
+> George Anzinger's hrtimers-2.6.5-1.0.patch available on SourceForge 
+> <http://sourceforge.net/projects/high-res-timers/>.  The ppc32 port is 
+> not available on SourceForge yet.
 
-greg k-h
+I've got to ask:
+
+Just reading from the Posix 1003.1b section 14 spec referenced by the HRT
+main project page, I see the following:
+------------------------------------------------------------------------------
+Realtime applications must be able to operate on data within strict timing
+constraints in order to schedule application or system events. Timing
+requirements can be in response to the need for either high system throughput
+or fast response time. Applications requiring high throughput may process
+large amounts of data and use a continuous stream of data points equally
+spaced in time. For example, electrocardiogram research uses a continuous
+stream of data for qualitative and quantitative analysis.
+------------------------------------------------------------------------------
+
+If this is really the goal here, then why not just integrate Adeos into
+the kernel and make some form of HRT as a loadable module that uses Adeos to
+provide its services?
+
+Currently Adeos runs on x86, ARM (MMU-full and MMU-less), PPC, so portability
+is not an issue. Plus, the interface provided can either be directly used
+by drivers to get hard-rt interrupts or it can be used by another layer to
+provide more elaborate services (like RTAI or, potentially, HRT.) Using the
+virtual interrupts that can be dynamically allocated at runtime, it's rather
+easy to send signals between domains.
+
+Sure, you may not have the exact Posix 1003.1b API, but I don't remember there
+being any persistent goal of having the kernel conform to any standard.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+
+

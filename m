@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbULANUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbULAN1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbULANUF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 08:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbULANUF
+	id S261240AbULAN1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 08:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbULAN1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 08:20:05 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:45538 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261231AbULANUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 08:20:00 -0500
-From: kernel-stuff@comcast.net
-To: Oliver Neukum <oliver@neukum.org>
+	Wed, 1 Dec 2004 08:27:47 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:62861 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261240AbULAN1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 08:27:45 -0500
+Date: Wed, 1 Dec 2004 14:27:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: OHCI1394:sleeping function called from invalid context [need idea for fixing]
-Date: Wed, 01 Dec 2004 13:19:48 +0000
-Message-Id: <120120041319.21474.41ADC4F3000DDF24000053E2220075894200009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Nov 22 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-17
+Message-ID: <20041201132710.GA8328@elte.hu>
+References: <41AD9A33.3070205@cola.voip.idv.tw> <20041201113746.GA21640@elte.hu> <20041201115221.GA22697@elte.hu> <41ADBE1C.9010807@cola.voip.idv.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41ADBE1C.9010807@cola.voip.idv.tw>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay - So the dma_pool_destroy problem can be solved by schedule_work() (that's what I think allows to create and schedule work queues, correct me if I am wrong). For allocation - I think it cannot be scheduled as the driver needs memory then and there.  How can that be handled? (dma_pool_create doesn't seem to be taking any flags like SLAB_ATOMIC - which would have solved the problem..)
 
-Thanks!
+* Wen-chien Jesse Sung <jesse@cola.voip.idv.tw> wrote:
 
-Parry
+> I redo the test with a vanilla 2.6.10-rc2-mm3-V0.7.31-16 again, and it
+> still hangs at hwclock. Here's the complete config file.
 
+ok, could you try the -17 kernel i've just uploaded to the usual place:
 
-> Am Mittwoch, 1. Dezember 2004 06:22 schrieb kernel-stuff@comcast.net:
-> > I am trying to debug  a problem with the OHCI1394 module. Basically i get 
-> "sleeping function called from invalid context" in dmesg whenever I capture 
-> video from my camcorder. Looking at the stack trace - dma_pool_create is called 
-> from within IRQ handler - or so it seems. Similarly the ohci1394 module also 
-> calls dma_pool_destroy in IRQ. This happens when I connect and disconnect the 
-> camcorder.
-> > I am thinking of ways to fix this - and have no clue so far. I fixed couple 
-> other similar but easy-to-fix ones in ohci1394.c - by changing from GFP_KERNEL 
-> to GFP_ATOMIC but this one looks more complicated - DMA Pool needs to be freed 
-> when device disconnects - how to do this outside of the IRQ? More complicated 
-> (to me of course :) is the allocaction part - driver needs a DMA pool on device 
-> connect - no idea how to get it outside of the IRQ path.
-> > 
-> > Can anyone give an idea how to go about fixing this? Normally what's the 
-> correct place for a module to call dma_pool_create/destroy?
-> 
-> You might switch to work queues.
-> 
-> 	HTH
-> 		Oliver
+    http://redhat.com/~mingo/realtime-preempt/
+
+does this fix the lockup?
+
+i believe the lockup is an interesting side-effect of threading IRQ#0:
+any code within the kernel that loops on jiffies will produce a lockup,
+because it starves the timer IRQ thread.
+
+The RTC driver had two such places, but i also found one in the
+IRQ-autodetect code. We want to eliminate such code anyway, and a lockup
+is certainly an effective way to detect it ;)
+
+to debug such lockups in the future you can do:
+
+	echo 1 > /proc/sys/kernel/debug_direct_keyboard
+	/sbin/hwclock ...
+
+and use the sysrq keys to get a stack dump of the lockup. NOTE: dont use
+the keyboard in this mode for too long, it can lock up.
+
+	Ingo

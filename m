@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbUJ0WRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbUJ0Uym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262938AbUJ0WRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbUJ0WNK
+	id S262706AbUJ0Uym (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbUJ0Uwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:13:10 -0400
-Received: from mail3.utc.com ([192.249.46.192]:45189 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S262930AbUJ0Vlz (ORCPT
+	Wed, 27 Oct 2004 16:52:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56294 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262707AbUJ0Ugn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:41:55 -0400
-Message-ID: <418015D8.1010304@cybsft.com>
-Date: Wed, 27 Oct 2004 16:40:40 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com>	 <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com>	 <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>	 <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com>	 <20041027150548.GA11233@elte.hu>	 <1098889994.1448.14.camel@krustophenia.net>	 <20041027151701.GA11736@elte.hu> <1098897241.8596.5.camel@krustophenia.net>	 <417FD915.304@cybsft.com> <1098898017.8596.9.camel@krustophenia.net>	 <417FDE34.6020704@cybsft.com> <1098906454.1514.1.camel@krustophenia.net>
-In-Reply-To: <1098906454.1514.1.camel@krustophenia.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 27 Oct 2004 16:36:43 -0400
+Date: Wed, 27 Oct 2004 13:34:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: John Cherry <cherry@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm1 (compile stats)
+Message-Id: <20041027133443.62b1fb29.akpm@osdl.org>
+In-Reply-To: <1098895320.9269.32.camel@cherrybomb.pdx.osdl.net>
+References: <20041026213156.682f35ca.akpm@osdl.org>
+	<1098895320.9269.32.camel@cherrybomb.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Wed, 2004-10-27 at 12:43 -0500, K.R. Foley wrote:
+John Cherry <cherry@osdl.org> wrote:
+>
+>  Build error is still...
 > 
->>OH! And thanks. :)
->>
-> 
-> 
-> Well I tried it and it does not seem to work exactly right.  This might
-> be because I enabled the HPET so the RTC is not getting used.  When I
-> run amlat for a few minutes I get a histogram with only 38 samples.
-> Does this work for you?
-> 
-> Lee
-> 
-> 
-Sorry it took a while to get back to you. Yes I did try it a little 
-earlier and did seem to be getting reasonable numbers. I wouldn't want 
-to publish those numbers yet because I haven't done anything with 
-priorities and I was seeing some higher numbers. I don't have the HPET 
-turned on myself.
+>    LD      vmlinux
+>    SYSMAP  System.map
+>    SYSMAP  .tmp_System.map
+>    AS      arch/i386/boot/bootsect.o
+>    AS      arch/i386/boot/compressed/head.o
+>    AS      arch/i386/boot/setup.o
+>    HOSTCC  arch/i386/boot/tools/build
+>    CC      arch/i386/boot/compressed/misc.o
+>    LD      arch/i386/boot/bootsect
+>    OBJCOPY arch/i386/boot/compressed/vmlinux.bin
+>  BFD: Warning: Writing section `.bss' to huge (ie negative) file offset 0xc02e4000.
+>  objcopy: arch/i386/boot/compressed/vmlinux.bin: File truncated
 
-kr
+I think that means you need a binutils upgrade.  What version are you running?

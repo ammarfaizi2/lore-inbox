@@ -1,73 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVACSsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVACSwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVACSsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVACSpX
+	id S261836AbVACSwE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVACStH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:45:23 -0500
-Received: from thunk.org ([69.25.196.29]:43935 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261779AbVACSl5 (ORCPT
+	Mon, 3 Jan 2005 13:49:07 -0500
+Received: from gprs215-62.eurotel.cz ([160.218.215.62]:47068 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261772AbVACSpw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:41:57 -0500
-Date: Mon, 3 Jan 2005 13:36:21 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050103183621.GA2885@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
-	Diego Calleja <diegocg@teleline.es>,
-	Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com,
-	aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-	linux-kernel@vger.kernel.org
-References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+	Mon, 3 Jan 2005 13:45:52 -0500
+Date: Mon, 3 Jan 2005 19:33:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: lindqvist@netstar.se, edi@gmx.de, john@hjsoft.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH] swsusp: properly suspend and resume *all* devices
+Message-ID: <20050103183317.GA1353@elf.ucw.cz>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net> <20050102184239.GA21322@butterfly.hjsoft.com> <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net> <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net> <20050103170807.GA8163@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050103170807.GA8163@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 12:18:36PM -0500, Bill Davidsen wrote:
-> I have to say that with a few minor exceptions the introduction of new
-> features hasn't created long term (more than a few days) of problems. And
-> we have had that in previous stable versions as well. New features
-> themselves may not be totally stable, but in most cases they don't break
-> existing features, or are fixed in bk1 or bk2. What worries me is removing
-> features deliberately, and I won't beat that dead horse again, I've said
-> my piece.
+On Po 03-01-05 18:08:07, Pavel Machek wrote:
+> Hi!
+> 
+> > swsusp does not suspend and resume *all* devices, including system
+> > devices. This has been the case since at least 2.6.9, if not earlier.
+> > 
+> > One effect of this is that resuming fails to properly reconfigure
+> > interrupt routers. In 2.6.9 this was obscured by other kernel code,
+> > but in 2.6.10 this often causes post-resume APIC errors and near-total
+> > failure of some PCI devices (e.g. network, sound and USB controllers).
+> > 
+> > On at least one of my systems, without this patch I also have to "ifdown
+> > eth0;ifup eth0" to get networking to function after resuming, even after
+> > working around the interrupt routing problem mentioned above. With this
+> > patch, networking simply works after a resume, and the ifdown/ifup is
+> > no longer needed.
+> > 
+> > This patch is against 2.6.10-mm1, although it applies with an offset to
+> > 2.6.10-bk4 as well. I have tested it against 2.6.10-mm1 and 2.6.10-bk4,
+> > with and without "noapic", with and without "acpi=off". However, I have
+> > not tested it on a highmem system.
+> > 
+> > I believe this patch fixes a severe problem in swsusp; I would like to
+> > see this patch (or at least *some* kind of fix for this problem) tested
+> > more widely and committed to mainline before the 2.6.11 release.
+> > 
+> > Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+> 
+> Ack. [I have similar patch in my tree, but yours is better in error
+> checking area. Please push it to akpm.]
 
-Indeed.  Part of the problem is that we don't get that much testing
-with the rc* releases, so there are a lot of problems that don't get
-noticed until after 2.6.x ships.  This has been true for both 2.6.9
-and 2.6.10.  My personal practice is to never run with 2.6.x release,
-but wait for 2.6.x plus one or 2 days (i.e. bk1 or bk2).  The problems
-with this approach are that (1) out-of-tree patches against official
-versions of the kernel (i.e., things like the mppc/mppe patch) don't
-necessarly apply cleanly, and (2) other more destablizing patches get
-folded in right after 2.6.x ships, so there is a chance bk1 or bk2 may
-not be stable.
+Actually you missed second half: same code should be added around
+swsusp_arch_resume. It is not too critical there, but its right thing
+to do.
+									Pavel
 
-We could delay the destablizing changes until after rc1 ships, and
-ship rc1 about 2-3 days after 2.6.x is released, so that the really
-obvious/critical regressions can be addressed immediately.  The
-problem with this approach though is that some people will just wait
-until rc1 ships before they start using a new kernel version, and we
-lose the testing we need to stablize the release.  
+> > --- linux-2.6.10-mm1/kernel/power/swsusp.c	2005-01-03 02:16:15.175265255 -0800
+> > +++ linux-2.6.10-mm1-bkn3/kernel/power/swsusp.c	2005-01-03 06:27:07.753344731 -0800
+> > @@ -843,11 +843,22 @@
+> >  	if ((error = arch_prepare_suspend()))
+> >  		return error;
+> >  	local_irq_disable();
+> > +	/* At this point, device_suspend() has been called, but *not*
+> > +	 * device_power_down(). We *must* device_power_down() now.
+> > +	 * Otherwise, drivers for some devices (e.g. interrupt controllers)
+> > +	 * become desynchronized with the actual state of the hardware
+> > +	 * at resume time, and evil weirdness ensues.
+> > +	 */
+> > +	if ((error = device_power_down(PM_SUSPEND_DISK))) {
+> > +		local_irq_enable();
+> > +		return error;
+> > +	}
+> >  	save_processor_state();
+> >  	error = swsusp_arch_suspend();
+> >  	/* Restore control flow magically appears here */
+> >  	restore_processor_state();
+> >  	restore_highmem();
+> > +	device_power_up();
+> >  	local_irq_enable();
+> >  	return error;
+> >  }
+> 
 
-The real key, as always, is getting users to download and test a
-release.  So another approach might be to shorten the time between
-2.6.x and 2.6.x+1 releases, so as to recreate more testing points,
-without training people to wait for -bk1, -bk2, -rc1, etc. before
-trying out the kernel code.  This is the model that we used with the
-2.3.x series, where the time between releases was often quite short.
-That worked fairly well, but we stopped doing it when the introduction
-of BitKeeper eliminated the developer synch-up problem.  But perhaps
-we've gone too far between 2.6.x releases, and should shorten the time
-in order to force more testing.  
-
-							- Ted
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

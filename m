@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289367AbSBJKAJ>; Sun, 10 Feb 2002 05:00:09 -0500
+	id <S289481AbSBJKIJ>; Sun, 10 Feb 2002 05:08:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289467AbSBJJ76>; Sun, 10 Feb 2002 04:59:58 -0500
-Received: from paule.demon.co.uk ([158.152.178.86]:36100 "HELO
-	paule.demon.co.uk") by vger.kernel.org with SMTP id <S289367AbSBJJ7o>;
-	Sun, 10 Feb 2002 04:59:44 -0500
-Date: Sun, 10 Feb 2002 09:59:40 +0000
-From: paule@ilu.vu
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Chris Ball <chris@void.printf.net>, linux-kernel@vger.kernel.org
-Subject: Re: 3com pcmcia modules.
-Message-ID: <20020210095940.A1147@ilu.vu>
-In-Reply-To: <20020209151533.A644@ilu.vu> <877kpmvetv.fsf@lexis.house.pkl.net>, <877kpmvetv.fsf@lexis.house.pkl.net>; <20020209160407.A1222@ilu.vu> <3C6584F3.D571C1CB@zip.com.au> <20020209220805.A383@ilu.vu>
+	id <S289487AbSBJKH7>; Sun, 10 Feb 2002 05:07:59 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:39693 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S289481AbSBJKHs>; Sun, 10 Feb 2002 05:07:48 -0500
+Date: Sun, 10 Feb 2002 11:07:45 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Felix Seeger <felix.seeger@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sonypi in 2.4.18-pre9
+Message-ID: <20020210100745.GA18294@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20020209115453Z288878-13996+19685@vger.kernel.org> <E16ZcwO-0000ee-00@smtp.fr.alcove.com> <20020209200609.GC32401@come.alcove-fr> <E16Zg6y-0001Dq-00@smtp.fr.alcove.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020209220805.A383@ilu.vu>; from paule@ilu.vu on Sat, Feb 09, 2002 at 10:08:05PM +0000
+In-Reply-To: <E16Zg6y-0001Dq-00@smtp.fr.alcove.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 10:08:05PM +0000, paule@ilu.vu wrote:
-> On Sat, Feb 09, 2002 at 12:22:11PM -0800, Andrew Morton wrote:
-> > paule@ilu.vu wrote:
-> > > 
-> > > root@paule:/lib/modules/2.5.3/kernel/drivers/net# insmod 3c59x
-> > > Using /lib/modules/2.5.3/kernel/drivers/net/3c59x.o
-> > > /lib/modules/2.5.3/kernel/drivers/net/3c59x.o: unresolved symbol
-> > > del_timer_sync
-> > 
-> > That can't happen :)
-> > 
-> 
-> reconfigured kernel, re-made, and reconfigured rc.inet1 (under 
-> slackware8.0) to support multiple interfaces,
-> and now it's all happy! *yay* :)
-> (yes im being sick, and using a screen-less laptop to route
->  two internal networks, but hey, it's less than 1u, and cheaper
->  than a router :)
-> 
+On Sat, Feb 09, 2002 at 11:30:06PM +0100, Felix Seeger wrote:
 
-An old problem has re-appeared since I have done this,
-On a soft-reboot ('reboot / shutdown -r now') the kernel
-stops on its way back up stating
-Socket Status 0x0000003
+> With kernel 2.4.17, spicctrl -p shows an error message:
+> ioctl failed: Invalid argument
 
-(or something similar)
-and it then requires a hard-reset to clear.
-This only seems to be under the 3c59x code / more-so the vortex module.
+That's normal. Power status was added only in 2.4.18-pre1.
+In your original mail hovewer, you seemed to state that spicctrl -b/-B
+failed on those kernels.
 
-Any help would be appreciated.
+> With kernel 2.4.18-pre9 it works fine, the only difference between the config 
+> is that I have enabled IO Device Support.
+> I don't know what this is and maybe I don' need it.
+> I've only activated it because of the error message (ioctl failed)
 
-Cheers,
+My question marks were because I don't know either what IO Device Support
+means nor where you did select that. Unless you mean Sony I/O Control
+Device Support...
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVAXSxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVAXSz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVAXSxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 13:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVAXSxK
+	id S261337AbVAXSz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 13:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVAXSz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 13:53:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58556 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261565AbVAXSxH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 13:53:07 -0500
-Date: Mon, 24 Jan 2005 13:52:58 -0500
-From: Dave Jones <davej@redhat.com>
-To: Brice.Goglin@ens-lyon.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050124185258.GB27570@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Brice.Goglin@ens-lyon.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 13:55:56 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:21520 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261337AbVAXSzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 13:55:51 -0500
+From: Stephen Kitchener <stephen@g6dzj.demon.co.uk>
+Organization: None
+To: Anssi Hannula <anssi.hannula@mbnet.fi>
+Subject: Re: System beeper - no sound from mobo's own speaker
+Date: Mon, 24 Jan 2005 18:55:50 +0000
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org
+References: <200501231937.53099.stephen@g6dzj.demon.co.uk> <200501232007.21027.stephen@g6dzj.demon.co.uk> <ct16l6$jra$1@sea.gmane.org>
+In-Reply-To: <ct16l6$jra$1@sea.gmane.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <41F4E28A.3090305@ens-lyon.fr>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501241855.50361.stephen@g6dzj.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 12:56:58PM +0100, Brice Goglin wrote:
- > X does not work anymore when using DRI on my Compaq Evo N600c (Radeon 
- > Mobility M6 LY).
- > My XFree 4.3 (from Debian testing) with DRI uses drm and radeon kernel 
- > modules.
- 
-My fault. I'm looking into it.
-Drop the agpgart-bk update for now.
+On Sunday 23 Jan 2005 21:58, Anssi Hannula wrote:
+> Stephen Kitchener wrote:
+> > On Sunday 23 Jan 2005 19:50, Sergey Vlasov wrote:
+> >>Does "modprobe pcspkr" help?  In 2.6.x kernels the PC speaker support
+> >>can be built as a loadable module; probably the startup scripts do not
+> >>load it automatically.
+> >
+> > You know - I've just found that and yes it does help on one system, so
+> > I'm 50% better off - just need to find out where to put the command so
+> > that it loads it on startup...modules.conf would be it I guess.
+>
+> Put it on /etc/modprobe.preload
 
-		Dave
+Thanks
 
+-- 
+                 O  o
+            _\_   o
+         \\/  o\ .
+         //\___=
+            ''
+Mon, 24 Jan 2005 18:55:40 +0000
+ 18:55:40 up  8:55,  0 users,  load average: 1.12, 1.23, 1.19
+Life in the state of nature is solitary, poor, nasty, brutish, and short.
+- Thomas Hobbes, Leviathan

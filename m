@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265901AbUAUA0o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 19:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUAUA0o
+	id S265904AbUAUA2g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 19:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUAUA2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 19:26:44 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:23564 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265901AbUAUA0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 19:26:43 -0500
-Date: Wed, 21 Jan 2004 00:26:35 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix updates
-Message-ID: <20040121002635.A24123@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patrick Gefre <pfg@sgi.com>, akpm@osdl.org,
-	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com> <20040116144132.A24555@infradead.org> <400D6A5B.7090009@sgi.com> <20040120180851.A18872@infradead.org> <400D8BBF.7070005@sgi.com> <20040120202132.A20668@infradead.org> <400DAA76.2080103@sgi.com> <20040120233417.A23173@infradead.org> <400DC67C.30705@sgi.com>
+	Tue, 20 Jan 2004 19:28:36 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2015 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265904AbUAUA2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 19:28:30 -0500
+Date: Wed, 21 Jan 2004 01:28:27 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Dri-devel] [2.6 patch] disallow DRM on 386
+Message-ID: <20040121002827.GG6441@fs.tum.de>
+References: <20040120212421.GF12027@fs.tum.de> <1074643498.25861.14.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <400DC67C.30705@sgi.com>; from pfg@sgi.com on Tue, Jan 20, 2004 at 06:23:24PM -0600
+In-Reply-To: <1074643498.25861.14.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 06:23:24PM -0600, Patrick Gefre wrote:
-> So something like this will work for you ???
+On Wed, Jan 21, 2004 at 12:04:59AM +0000, Alan Cox wrote:
+> On Maw, 2004-01-20 at 21:24, Adrian Bunk wrote:
+> > I got the following compile error in 2.6.1-mm5 with X86_CMPXCHG=n.
+> > This problem is not specific to -mm, and it always occurs when you 
+> > include support for the 386 cpu (oposed to the 486 or later cpus) since 
+> > in this case X86_CMPXCHG=n and therefoore cmpxchg isn't defined in 
+> > include/asm-i386/system.h .
+> > 
+> > The patch below disallows DRM if X86_CMPXCHG=n.
+> 
+> Ugly.
+> 
+> Fix system.h to always define cmpxchg.h and check its presence at
+> runtime when the DRM module loads, then you can build 386 kernels that
+> support DRI on higher machines.
+> 
+> The problem isnt that cmpxchg definitely doesn't exist, so system.h is
+> wrong IMHO
 
-Yes.  Although I'd really like to see a rationale why you need the version
-operating on the I/O addresses at all.  The only thing I could up with is
-that someone is too lazy to update a bunch of function prototypes. 
+???
+
+AFAIR cmpxchg wasn't present in cpus earlier than the 486.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

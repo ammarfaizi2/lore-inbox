@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267486AbUHEEoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267541AbUHEEqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267486AbUHEEoh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 00:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUHEEoh
+	id S267541AbUHEEqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 00:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUHEEow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 00:44:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4262 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267486AbUHEEo2 (ORCPT
+	Thu, 5 Aug 2004 00:44:52 -0400
+Received: from holomorphy.com ([207.189.100.168]:62400 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267499AbUHEEoa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 00:44:28 -0400
-Date: Wed, 4 Aug 2004 21:42:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, jbarnes@engr.sgi.com
-Subject: Re: [PATCH] don't pass mem_map into init functions
-Message-Id: <20040804214250.2de3dd81.akpm@osdl.org>
-In-Reply-To: <1091581282.27397.6676.camel@nighthawk>
-References: <1091581282.27397.6676.camel@nighthawk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 5 Aug 2004 00:44:30 -0400
+Date: Wed, 4 Aug 2004 21:44:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [sparc32] [4/13] smp_processor_id() BITFIXUP fixes
+Message-ID: <20040805044427.GV2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040802015527.49088944.akpm@osdl.org> <20040805043817.GS2334@holomorphy.com> <20040805043957.GT2334@holomorphy.com> <20040805044130.GU2334@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805044130.GU2334@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> wrote:
->
-> When using CONFIG_NONLINEAR, a zone's mem_map isn't contiguous, and
->  isn't allocated in the same place.  This means that nonlinear doesn't
->  really have a mem_map[] to pass into free_area_init_node() or 
->  memmap_init_zone() which makes any sense.  
-> 
->  So, this patch removes the 'struct page *mem_map' argument to both of
->  those functions.  All non-NUMA architectures just pass a NULL in there,
->  which is ignored.  The solution on the NUMA arches is to pass the
->  mem_map in via the pgdat, which works just fine. 
-> 
->  To replace the removed arguments, a call to pfn_to_page(node_start_pfn)
->  is made.  This is valid because all of the pfn_to_page() implementations
->  rely only on the pgdats, which are already set up at this time.  Plus,
->  the pfn_to_page() method should work for any future nonlinear-type
->  code.  
-> 
->  Finally, the patch creates a function: node_alloc_mem_map(), which I
->  plan to effectively #ifdef out for nonlinear at some future date.  
+On Wed, Aug 04, 2004 at 09:41:30PM -0700, William Lee Irwin III wrote:
+> cpu_present_map is a cpumask_t. Sweep arch/sparc/kernel/sun4d_smp.c so
+> that it is treated as such.
 
-You wanna take a shot at fixing this up please?
+The SMP initialization functions try to do btfixups on the wrong
+symbols for smp_processor_id(), which is now implemented in terms
+of current_thread_info()->cpu. hard_smp_processor_id() etc. are now
+in use where smp_processor_id() was once used.
 
-arch/sparc64/mm/init.c: In function `paging_init':
-arch/sparc64/mm/init.c:1589: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
-arch/sparc64/mm/init.c:1589: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
-arch/sparc64/mm/init.c:1589: error: too many arguments to function `free_area_init_node'
 
+Index: mm2-2.6.8-rc2/arch/sparc/kernel/sun4m_smp.c
+===================================================================
+--- mm2-2.6.8-rc2.orig/arch/sparc/kernel/sun4m_smp.c
++++ mm2-2.6.8-rc2/arch/sparc/kernel/sun4m_smp.c
+@@ -458,9 +458,9 @@
+ 
+ void __init sun4m_init_smp(void)
+ {
+-	BTFIXUPSET_BLACKBOX(smp_processor_id, smp4m_blackbox_id);
++	BTFIXUPSET_BLACKBOX(hard_smp_processor_id, smp4m_blackbox_id);
+ 	BTFIXUPSET_BLACKBOX(load_current, smp4m_blackbox_current);
+ 	BTFIXUPSET_CALL(smp_cross_call, smp4m_cross_call, BTFIXUPCALL_NORM);
+ 	BTFIXUPSET_CALL(smp_message_pass, smp4m_message_pass, BTFIXUPCALL_NORM);
+-	BTFIXUPSET_CALL(__smp_processor_id, __smp4m_processor_id, BTFIXUPCALL_NORM);
++	BTFIXUPSET_CALL(__hard_smp_processor_id, __smp4m_processor_id, BTFIXUPCALL_NORM);
+ }
+Index: mm2-2.6.8-rc2/arch/sparc/kernel/sun4d_smp.c
+===================================================================
+--- mm2-2.6.8-rc2.orig/arch/sparc/kernel/sun4d_smp.c
++++ mm2-2.6.8-rc2/arch/sparc/kernel/sun4d_smp.c
+@@ -496,11 +496,11 @@
+ 	t_nmi[1] = t_nmi[1] + (linux_trap_ipi15_sun4d - linux_trap_ipi15_sun4m);
+ 	
+ 	/* And set btfixup... */
+-	BTFIXUPSET_BLACKBOX(smp_processor_id, smp4d_blackbox_id);
++	BTFIXUPSET_BLACKBOX(hard_smp_processor_id, smp4d_blackbox_id);
+ 	BTFIXUPSET_BLACKBOX(load_current, smp4d_blackbox_current);
+ 	BTFIXUPSET_CALL(smp_cross_call, smp4d_cross_call, BTFIXUPCALL_NORM);
+ 	BTFIXUPSET_CALL(smp_message_pass, smp4d_message_pass, BTFIXUPCALL_NORM);
+-	BTFIXUPSET_CALL(__smp_processor_id, __smp4d_processor_id, BTFIXUPCALL_NORM);
++	BTFIXUPSET_CALL(__hard_smp_processor_id, __smp4d_processor_id, BTFIXUPCALL_NORM);
+ 	
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		ccall_info.processors_in[i] = 1;

@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVAUW6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVAUW71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVAUW6j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 17:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVAUW6j
+	id S262560AbVAUW71 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVAUW71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 17:58:39 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:20432
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262521AbVAUW6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 17:58:31 -0500
-Date: Fri, 21 Jan 2005 14:56:08 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: David Dillow <dave@thedillows.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, dave@thedillows.org
-Subject: Re: [RFC 2.6.10 4/22] xfrm: Try to offload inbound xfrm_states
-Message-Id: <20050121145608.65ad2d48.davem@davemloft.net>
-In-Reply-To: <20041230035000.13@ori.thedillows.org>
-References: <20041230035000.12@ori.thedillows.org>
-	<20041230035000.13@ori.thedillows.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 21 Jan 2005 17:59:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37059 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262560AbVAUW7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 17:59:22 -0500
+Subject: Re: [ea-in-inode 0/5] Further fixes
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Andrew Tridgell <tridge@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050120020124.110155000@suse.de>
+References: <20050120020124.110155000@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1106348336.1989.484.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 21 Jan 2005 22:58:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Dec 2004 03:48:35 -0500
-David Dillow <dave@thedillows.org> wrote:
+Hi Andreas,
 
-> # This is a BitKeeper generated diff -Nru style patch.
-> #
-> # ChangeSet
-> #   2004/12/30 00:33:11-05:00 dave@thedillows.org 
-> #   Plumb in offloading of inbound xfrm_states.
-> #   
-> #   Signed-off-by: David Dillow <dave@thedillows.org>
+On Thu, 2005-01-20 at 02:01, Andreas Gruenbacher wrote:
 
-Hmmm, this seems to deadlock.  xfrm_state_add() is invoked
-with the RTNL semaphore already acquired.  For example, via
-xfrm_user.c:xfrm_add_sa()
+> here is a set of fixes for ext3 in-inode attributes:
+
+Obvious first question --- have these diffs survived the same
+torture-by-tridgell that the previous batch suffered?
+
+Cheers,
+ Stephen
+

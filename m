@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbSLFMlp>; Fri, 6 Dec 2002 07:41:45 -0500
+	id <S262420AbSLFMtP>; Fri, 6 Dec 2002 07:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSLFMlp>; Fri, 6 Dec 2002 07:41:45 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:18897 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262322AbSLFMlo>; Fri, 6 Dec 2002 07:41:44 -0500
-Date: Fri, 6 Dec 2002 10:48:58 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Norman Gaywood <norm@turing.une.edu.au>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-In-Reply-To: <20021206122753.A8992@turing.une.edu.au>
-Message-ID: <Pine.LNX.4.50L.0212061047180.22252-100000@duckman.distro.conectiva>
-References: <mailman.1039133948.27411.linux-kernel2news@redhat.com>
- <200212060035.gB60ZnV07386@devserv.devel.redhat.com> <20021206122753.A8992@turing.une.edu.au>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262430AbSLFMtP>; Fri, 6 Dec 2002 07:49:15 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:2006 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262420AbSLFMtO>;
+	Fri, 6 Dec 2002 07:49:14 -0500
+Date: Fri, 6 Dec 2002 15:15:30 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: NPT library mailing list <phil-list@redhat.com>
+Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: what's the relationship between tgid, tid and pid ?
+In-Reply-To: <200212052047.gB5Kle620684@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.44.0212061510270.6255-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Dec 2002, Norman Gaywood wrote:
-> On Thu, Dec 05, 2002 at 07:35:49PM -0500, Pete Zaitcev wrote:
 
-> > Check your /proc/slabinfo, just in case, to rule out a leak.
->
-> Here is a /proc/slabinfo diff of a good system and a very sluggish one:
+On Thu, 5 Dec 2002, Roland McGrath wrote:
 
-> > inode_cache       305071 305081    512 43583 43583    1 :  124   62
-> > buffer_head       3431966 3432150    128 114405 114405    1 :  252  126
+> "tgid" is the PID of the whole POSIX.1 process.
+> "pid" is a per-thread PID-like number.
 
-Guess what ?  120 MB in inode cache and 450 MB in buffer heads,
-or 570 MB of zone_normal eaten with just these two items.
+there's a "PID number space" under Linux, and "PID types". Each PID type
+allocates from the same base number space, but they can also share the
+same PID, ie. are overlayed:
 
-Looks like the RH kernel needs Stephen Tweedie's patch to
-reclaim the buffer heads once IO is done ;)
+enum pid_type
+{
+        PIDTYPE_PID,
+        PIDTYPE_TGID,
+        PIDTYPE_PGID,
+        PIDTYPE_SID,
 
-regards,
+the 'TGID' is the "process PID" as in POSIX.1. The 'PID' is the same for
+standalone processes and for leader threads, it's different for threads.  
+Furthermore, the PID is also globally unique, and is recognized by the
+sys_tkill() interface - ie. you can send signals between threads of
+different "processes". The 'PGID' is the process group PID. The 'SID' is
+the session ID.
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
-http://www.surriel.com/		http://guru.conectiva.com/
+the kernel guarantees reference counting, ie. only when the last type
+detaches a given number is it allocatable again. This is partly required
+by semantics for things like the PGID and the SID, and it's simply handy
+for things like the thread identificator.
+
+	Ingo
+

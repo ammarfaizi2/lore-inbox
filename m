@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131254AbQLLL1x>; Tue, 12 Dec 2000 06:27:53 -0500
+	id <S130901AbQLLLcX>; Tue, 12 Dec 2000 06:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131265AbQLLL1n>; Tue, 12 Dec 2000 06:27:43 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:22362 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S131254AbQLLL1c>; Tue, 12 Dec 2000 06:27:32 -0500
-Date: Tue, 12 Dec 2000 22:23:13 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stephen Rothwell <sfr@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre21 oops reading /proc/apm
-In-Reply-To: <Pine.LNX.4.05.10012121332300.25479-200000@marina.lowendale.com.au>
-Message-ID: <Pine.LNX.4.05.10012122203130.26037-100000@marina.lowendale.com.au>
+	id <S131103AbQLLLcN>; Tue, 12 Dec 2000 06:32:13 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:530 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S130901AbQLLLb7>; Tue, 12 Dec 2000 06:31:59 -0500
+Message-ID: <3A360577.CC5E776E@idb.hist.no>
+Date: Tue, 12 Dec 2000 12:01:11 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: elenstev@mesatop.com, linux-kernel@vger.kernel.org
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+In-Reply-To: <Pine.Linu.4.10.10012120529110.970-100000@mikeg.weiden.de> <00121122173600.03488@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2000, Neale Banks wrote:
-
+Steven Cole wrote:
 [...]
-> Diff against unmolested 2.2.18pre24 is attached.
+> Simple question here, and risking displaying great ignorance:
+> Does it make sense to use make -jN where N is much greater than the
+> number of CPUs?
 
-Hold that one, I just found another case I haven't covered: booting with
-apm=debug causes oops and nukes the bootup.  Reading the source, I can't
-see how this doesn't also affect the "dell_crap" case too.
+No, but it makes sense to have N at least one more than the number of
+cpus,
+if you have the memory.  This because your processes occationally
+will wait for disk io, and this time may then be utilized to
+run the "extra" task.  But don't overdo it, as you get less disk
+cache this way.  make -j3 seems to be fastest on my 2-cpu machine
+with 128M ram.
 
-New diff to follow, hopefully tomorrow.
-
-Neale.
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

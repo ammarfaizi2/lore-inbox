@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbUDHWZz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 18:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUDHWZz
+	id S262874AbUDHWdY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 18:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUDHWdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 18:25:55 -0400
-Received: from puppen.tomt.net ([217.8.136.222]:62631 "EHLO puppen.tomt.net")
-	by vger.kernel.org with ESMTP id S262873AbUDHWZZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 18:25:25 -0400
-Message-ID: <4075D155.2030603@tomt.net>
-Date: Fri, 09 Apr 2004 00:25:25 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Thu, 8 Apr 2004 18:33:24 -0400
+Received: from web40504.mail.yahoo.com ([66.218.78.121]:38255 "HELO
+	web40504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262874AbUDHWdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 18:33:22 -0400
+Message-ID: <20040408223321.57722.qmail@web40504.mail.yahoo.com>
+Date: Thu, 8 Apr 2004 15:33:21 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Martin Waitz <tali@admingilde.org>
+Cc: Timothy Miller <miller@techsource.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040408131116.GO27401@admingilde.org>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Does OSS sound work in 2.6 or not?
-References: <4075BDE0.6050302@tmr.com>
-In-Reply-To: <4075BDE0.6050302@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> I have several user machines I would like to convert to 2.6 because they 
-> run threaded applications and would be happier if I did. However, being 
-> able to play forwarded wav files is also needed. I have been assurred by 
-> several people in Email that it does, *without* converting the whole 
-> machine from OSS to ALSA, but by running the ALSA+OSS emulation.
-> 
-> if this really works, could someone point me to a working example? I 
-> have copied the Documentation/sound config for OSS, changing only the 
-> sound card type, and it totally doesn't work. It looks like it plays but 
-> it doesn't make any sound.
-> 
-> I know that if I convert to ALSA I have to use their mixer to turn up 
-> the sound and disable mute, if all the people telling me they do it with 
-> the OSS mixer and emulation are wrong, I'll just leave the machines on 
-> 2.4 until I get some time to waste.
-> 
-> I have read the docs I can find, this is a yes/no question, will OSS 
-> work or not. I am not asking how to convert to ALSA, did that once, took 
-> more time than the benefit justifies.
+Hi, :-)
 
-OSS works just fine here in 2.6, on all the machines I have. I don't use 
-ALSA's OSS emulation layer, just the "native" OSS thats in the kernel. 
-It's used just like in 2.4, same module names and all. No black magic 
-involved.
+--- Martin Waitz <tali@admingilde.org> wrote:
+> hi :)
+> 
+> On Tue, Apr 06, 2004 at 04:17:34PM -0700, Sergiy
+> Lozovsky wrote:
+> > What? Give an example. I want something high
+> level, so
+> > Forth will not do. Sure, encapsulation is needed,
+> to
+> > protect kernel from pointer errors and so on.
+> 
+> who says that the language that's used by your
+> policy administrator
+> is the same as the language interpreted by the
+> kernel?
+> 
+> let your administrator write his policy in java/lisp
+> or whatever,
+> but compile this policy into an easy to interpret
+> and safe
+> bytecode.
 
--- 
-Cheers,
-André Tomt
+That will not give any benefits. LISP has internal
+representation of program and data for sure
+('bytecode'), but it is lists. How to unload it to
+something one can move around? One of the ways -
+unload it in a text form. But it exactly what initial
+source code is. Parser of LISP is very small (because
+syntax is simple), so producing some non standard
+bytecode make no sense - source code of LISP is very
+close to it's 'bytecode'.
+
+Serge.
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262187AbSKDQmk>; Mon, 4 Nov 2002 11:42:40 -0500
+	id <S262689AbSKDQpx>; Mon, 4 Nov 2002 11:45:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262497AbSKDQmk>; Mon, 4 Nov 2002 11:42:40 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:41476 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S262187AbSKDQmj>; Mon, 4 Nov 2002 11:42:39 -0500
-From: "" <simon@baydel.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 4 Nov 2002 09:40:59 -0000
+	id <S263026AbSKDQpx>; Mon, 4 Nov 2002 11:45:53 -0500
+Received: from excalibur.cc.purdue.edu ([128.210.189.22]:61195 "EHLO
+	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
+	id <S262689AbSKDQpw>; Mon, 4 Nov 2002 11:45:52 -0500
+Date: Mon, 4 Nov 2002 11:53:56 -0500 (EST)
+From: Patrick Finnegan <pat@purdueriots.com>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <wirges@purdue.edu>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <87u1ixfi4m.fsf@goat.bogus.local>
+Message-ID: <Pine.LNX.4.44.0211041138060.16432-100000@ibm-ps850.purdueriots.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: halt and schedule
-Message-ID: <3DC640AB.12893.F77CB@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Nov 2002, Olaf Dietsche wrote:
 
-I have been changing 2.4.19 to run on some new hardware, X86 
-based. The system boots and runs off a ramdisk. I am having 
-problems which I see as pauses. The system starts up and loads 
-the kernel. All seems ok until the ramdisk is mouned and INIT is 
-started. From this point on the system appears to stop responding 
-for a few seconds and then start again. Eventually, when logged in 
-command input can be slow with pauses between entering a 
-character and the console displaying the character.
+> Patrick Finnegan <pat@purdueriots.com> writes:
+>
+> > I see no one has responded to this yet, so I'll ask again.
+> >
+> > Does anyone have any comments about my idea outlined below?
+> [... capabilities in elf executables ...]
+>
+> Take a look at <http://atrey.karlin.mff.cuni.cz/~pavel/elfcap.html>.
+> Maybe this is what you had in mind?
+
+Similar, but not exactly the same:
+
+1) Capabilities should be enabled explicitly not dropped explicitly -
+   it's a 'more secure' way to do it.
+
+2) Capabilities shouldn't be preserved across an execve except for once,
+   as needed by wrapper scripts/binaries. This way even if someone figures
+   out how to exploit the code to do an exec, they're left with no caps at
+   all.  If desired, a new binfmt "cap_wrap" could be created that can be
+   used as a capabilities wrapper for executables, which the kernel looks
+   at to determine 1) what caps to use and 2) what binary to run.  The
+   wrapper will need to be suid root in order to gain caps still.
+
+3) Defining a new ELF header seems to me like it could (potentially) break
+   backward/forward compatibility.  My method preserves compatibility,
+   with the only difference being if the app really gets capabilities or
+   if it gets SUID root instead.  If this really isn't a problem, you can
+   take the works 'ELF Symbol' and change them to 'ELF Header' and make
+   the idea still work the same in other aspects.
+
+4) If the app has capabilities associated with it, no userspace code is
+   run as uid 0, the kernel can avoid even changing uid during the execve
+   syscall.  It's just treated as a caps flag unless the kernel determines
+   that the file has no capabilities, and then can run it as suid root.
 
 
-I have tried to debug this and found that the kernel is in the 
-cpu_idle() routine which is repeatedly calling default_idle() and
-safe_halt(). If you then type a character on the console, using a
-scope, you can see the interrupt being serviced and a character 
-being taken from the RX fifo, quickly. However there is no
-response for some seconds. I have also noticed that if you keep the
-thing busy with a benchmark or something simple like ls -lR there is
-no pause.  
+Pat
+--
+Purdue Universtiy ITAP/RCS
+Information Technology at Purdue
+Research Computing and Storage
+http://www-rcd.cc.purdue.edu
 
-I noticed that to get out of this loop the kernel is looking for a
-process to schedule. It is as if the process is not being scheduled 
-as soon as it could be.
+http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
 
-One point to consider is that this board has no RTC or CTC just the 
-timer wired to a 10ms interrupt.
-
-I suspect that this is a hardware problem but I don't really know
-where to start looking. Can anyone help ?
-
-Many thanks
-
-Simon.
-__________________________
-
-Simon Haynes - Baydel 
-Phone : 44 (0) 1372 378811
-Email : simon@baydel.com
-__________________________

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbSKRS6a>; Mon, 18 Nov 2002 13:58:30 -0500
+	id <S262981AbSKRSvL>; Mon, 18 Nov 2002 13:51:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbSKRS6a>; Mon, 18 Nov 2002 13:58:30 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:19934 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262602AbSKRS63>;
-	Mon, 18 Nov 2002 13:58:29 -0500
-Date: Mon, 18 Nov 2002 19:02:00 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
-Message-ID: <20021118190200.GA20936@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org,
-	marcelo@conectiva.com.br
-References: <200211171549.gAHFnSrE021923@mnm.uib.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211171549.gAHFnSrE021923@mnm.uib.es>
-User-Agent: Mutt/1.4i
+	id <S263204AbSKRSvL>; Mon, 18 Nov 2002 13:51:11 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:23686 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S262981AbSKRSvK>; Mon, 18 Nov 2002 13:51:10 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 18 Nov 2002 10:58:34 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Dave Hansen <haveblue@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       <riel@surriel.com>
+Subject: Re: unusual scheduling performance
+In-Reply-To: <3DD936F4.EDA4968A@digeo.com>
+Message-ID: <Pine.LNX.4.44.0211181057550.979-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 17, 2002 at 04:55:22PM +0100, Ricardo Galli wrote:
- > Marcelo,
- > 	please attach this patch to recognise the Tualatin processors' 
- > cache. 
- > 
- > I think this has been already discussed in the list, and DaveJ 
- > also applied it in his tree and/or 2.5.x. It is documented by
- > Intel.
+On Mon, 18 Nov 2002, Andrew Morton wrote:
 
-I sent Marcelo a patch containing this and other IDs.
-He wants to take it for .21pre1
+> Here's Dave's profile.  ep_notify_file_close() makes a small appearance.
+> The change you made to 2.5.48 will wipe that out.  Neat.
 
-It's purely cosmetic, so that's fine with me..
+It was per-Linus suggestion actually :)
 
-		Dave
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+- Davide
+
+

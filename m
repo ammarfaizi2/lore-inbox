@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314124AbSEDPiK>; Sat, 4 May 2002 11:38:10 -0400
+	id <S314136AbSEDPpx>; Sat, 4 May 2002 11:45:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314136AbSEDPiJ>; Sat, 4 May 2002 11:38:09 -0400
-Received: from ASYNC7-9.NET.CS.CMU.EDU ([128.2.188.71]:18948 "EHLO
-	mentor.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S314124AbSEDPiI>; Sat, 4 May 2002 11:38:08 -0400
-Date: Sat, 4 May 2002 09:41:18 -0400
-To: Ward Fenton <ward@db2adm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre8 syntax errors in fs/ufs/super.c
-Message-ID: <20020504134118.GA17203@mentor.odyssey.cs.cmu.edu>
-Mail-Followup-To: Ward Fenton <ward@db2adm.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205032310200.21194-100000@roz.db2adm.com>
-Mime-Version: 1.0
+	id <S314239AbSEDPpw>; Sat, 4 May 2002 11:45:52 -0400
+Received: from relay1.pair.com ([209.68.1.20]:27411 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S314136AbSEDPpw>;
+	Sat, 4 May 2002 11:45:52 -0400
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CD402D2.E3A94CA2@kegel.com>
+Date: Sat, 04 May 2002 08:48:34 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: khttpd newbie problem
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 11:15:10PM -0400, Ward Fenton wrote:
-> The following is a portion of the 2.4.19-pre8 patch with a correction
-> for a few syntax errors.
-> 
-> from patch-2.4.19-pre8
-> missing commas in several added printk statements...
+I'm having an oops with khttpd on an embedded 2.4.17 ppc405
+system, so I thought I'd try it out on my pc.  But I can't
+get khttpd to serve any requests.
 
-That's not just the only problem,
+I built khttpd into the kernel with vanilla 2.4.17smp on 
+Intel on Red Hat 7.2, then turned it on as follows:
 
-> +	if (uspi->s_bsize < 512) {
-> +		printk("ufs_read_super: fragment size %u is too small\n"
-> +			uspi->s_fsize);
-> +		goto failed;
-> +	}
-> +	if (uspi->s_bsize > 4096) {
-> +		printk("ufs_read_super: fragment size %u is too large\n"
-> +			uspi->s_fsize);
-> +		goto failed;
-> +	}
+echo /home/dank/stress > /proc/sys/net/khttpd/documentroot
+echo 80 > /proc/sys/net/khttpd/serverport
+echo 8000 > /proc/sys/net/khttpd/maxconnect
+echo 1 > /proc/sys/net/khttpd/start
 
-The patch is testing s_bsize and complains about s_fsize.
+I also made sure there was an index.html in /home/dank/stress,
+turned off the firewall, did /etc/init.c/ipchains restart,
+and made sure netstat reported port 80 as listening.
 
-Jan
+But... when I try to fetch http://localhost/index.html,
+it just sits there.  Likewise, when I telnet to port 80,
+even from a different machine, it just accepts bytes forever; 
+no matter what I type, it just echoes the bytes right back at me.
 
+If I do
+echo 1 > /proc/sys/net/khttpd/stop
+port 80 stops listening, and any open connections are closed.
+
+I must be doing something silly... surely khttpd works?
+Is it because I'm running SMP, perhaps?
+- Dan

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131293AbRDBT2O>; Mon, 2 Apr 2001 15:28:14 -0400
+	id <S131233AbRDBTmO>; Mon, 2 Apr 2001 15:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131270AbRDBT2F>; Mon, 2 Apr 2001 15:28:05 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:25860 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131261AbRDBT1v>; Mon, 2 Apr 2001 15:27:51 -0400
-Message-Id: <200104021926.f32JQxs89810@aslan.scsiguy.com>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-   aic7xxx@FreeBSD.ORG
-Subject: Re: aic7xxx TCQ settings? 
-In-Reply-To: Your message of "Mon, 02 Apr 2001 15:16:34 EDT."
-             <Pine.LNX.4.10.10104021509450.32252-100000@athena.intergrafix.net> 
-Date: Mon, 02 Apr 2001 13:26:59 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131269AbRDBTmF>; Mon, 2 Apr 2001 15:42:05 -0400
+Received: from waste.org ([209.173.204.2]:33401 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S131233AbRDBTlr>;
+	Mon, 2 Apr 2001 15:41:47 -0400
+Date: Mon, 2 Apr 2001 14:39:55 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: David Lang <dlang@diginsite.com>,
+   Manfred Spraul <manfred@colorfullife.com>,
+   "Albert D. Cahalan" <acahalan@cs.uml.edu>, <lm@bitmover.com>,
+   <linux-kernel@vger.kernel.org>
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0104021436110.24812-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 1 Apr 2001, Jeff Garzik wrote:
+
+> On Sun, 1 Apr 2001, David Lang wrote:
+> > if we want to get the .config as part of the report then we need to make
+> > it part of the kernel in some standard way (the old /proc/config flamewar)
+> > it's difficult enough sometimes for the sysadmin of a box to know what
+> > kernel is running on it, let alone a bug reporting script.
 >
->I'm using 2.4.3 vanilla with aic7xxx (aic7880 onboard)
->I set the max # of TCQ commands per device setting to 50..what's a really
->good setting for this, just the default of 253?
-
-Depends on the device.  The aic7xxx driver will determine the
-maximum number of tags that a particular device can handle and limit
-the transactions accordingly.  For devices with now hard limit, transactions
-will be dynamically varied to limit the occurrance of queue full but
-to otherwise try to keep the limit as high as possible.  Some devices
-do not perform well when lots of transactions are outstanding even though
-they never report queue full.  On these devices, you will get better
-performance if you lower your transaction settings.
-
+> Let's hope it's not a flamewar, but here goes :)
 >
->In /proc/scsi/aic7xxx/0 i see for my drives these numbers:
->	Commands Queued 140000
+> We -need- .config, but /proc/config seems like pure bloat.
 
-This is a count of the number of commands ever queued to the device.
-The only time it will "decrease" is when the counter wraps to 0.
-The counter, at least in the 6.1.8 driver, is an unsigned long.
-
->	Commands Active 0
-
-This is a count of the number of commands currently outstanding to the
-device.  You system was idle, SCSI wise, when you pulled this information.
-
->	Command Openings 253
-
-Current "soft limit" on tagged transactions.  We've never seen a queue full
-from this device, so the tag count has not been reduced from its original
-setting.
-
->	Max Tagged Openings 253
-
-Hard limit on the number of tagged transactions.  The hard limit is
-set by monitoring the device's "queue full" behavior.
+As a former proponent of /proc/config (I wrote one of the much-debated
+patches), I tend to agree. Debian's make-kpkg does the right thing, namely
+treating .config the same way it treats System-map, putting it in the
+package and eventually installing it in /boot/config-x.y.z. If Redhat's
+kernel-install script did the same it would rapidly become a non-issue.
 
 --
-Justin
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

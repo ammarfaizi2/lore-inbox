@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVCZPDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVCZPKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbVCZPDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 10:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVCZPDc
+	id S261811AbVCZPKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 10:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCZPKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 10:03:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44043 "EHLO
+	Sat, 26 Mar 2005 10:10:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25612 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262113AbVCZPDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 10:03:30 -0500
-Date: Sat, 26 Mar 2005 15:03:21 +0000
+	id S261811AbVCZPKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 10:10:10 -0500
+Date: Sat, 26 Mar 2005 15:10:05 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
-Message-ID: <20050326150321.C12809@flint.arm.linux.org.uk>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
-	tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <20050325212234.F12715@flint.arm.linux.org.uk> <4244C3B7.4020409@yahoo.com.au> <20050326113530.A12809@flint.arm.linux.org.uk> <20050326133720.B12809@flint.arm.linux.org.uk> <424568D2.7090701@yahoo.com.au>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Luca <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+Subject: Re: Garbage on serial console after serial driver loads
+Message-ID: <20050326151005.D12809@flint.arm.linux.org.uk>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Luca <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+References: <20050325202414.GA9929@dreamland.darkstar.lan> <20050325203853.C12715@flint.arm.linux.org.uk> <20050325210132.GA11201@dreamland.darkstar.lan> <Pine.LNX.4.61.0503261115480.28431@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <424568D2.7090701@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sun, Mar 27, 2005 at 12:51:14AM +1100
+In-Reply-To: <Pine.LNX.4.61.0503261115480.28431@yvahk01.tjqt.qr>; from jengelh@linux01.gwdg.de on Sat, Mar 26, 2005 at 11:16:09AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 27, 2005 at 12:51:14AM +1100, Nick Piggin wrote:
-> Hmm, in that case it could be just a problem with that BUG_ON() -
-> it wasn't there before... but it seems like a very useful test,
-> especially with all this new work going on, so it would be a shame
-> not to run it in releases.
+On Sat, Mar 26, 2005 at 11:16:09AM +0100, Jan Engelhardt wrote:
+> >Well, serial_core seems to think so:
+> >
+> >Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+> >ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
+> >ttyS1 at I/O 0x2f8 (irq = 3) is a NS16550A
+> >ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
+> 
+> Does it work if you set the baud rate manually, as a bootloader option?
 
-Indeed.
+Doesn't matter.  The problem is that dwmw2's NS16550A patch (from ages
+ago) changes the prescaler setting for this device so we can use the
+higher speed baud rates.  This means any programmed divisor (programmed
+at early serial console initialisation time) suddenly becomes wrong as
+soon as we fiddle with the prescaler during normal UART initialisation
+time.
 
-> But I don't quite understand (should really look at the code more),
-> how come you aren't leaking memory?
+I think the argument for not initialising serial console _until_ after
+UART initialisation time is gaining more technical merit:
 
-The ARM free_pgd_slow() knows about this special first L1 page table, and
-knows to free it if it exists when its called.
+1. spinlock initialisation issues (see other threads)
+2. prescaler/divisor interaction issues (this thread)
 
-> Do _all_ processes share this same first L1 page table?
-
-No.  It has to be specific to each process.  Each L1 page table entry
-covers 2MB, but executables start at virtual 0x8000.
-
-I guess we could open-code pte_alloc_map() in get_pgd_slow() which
-could solve this problem by omitting the mm->nr_ptes accounting; it
-may also reduce the complexity as well.
-
-I'm just slightly concerned that this may be rather fragile in terms
-of future development.
+even though it isn't _that_ desirable.
 
 -- 
 Russell King

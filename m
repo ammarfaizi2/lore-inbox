@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130998AbQLQJB1>; Sun, 17 Dec 2000 04:01:27 -0500
+	id <S131767AbQLQJDR>; Sun, 17 Dec 2000 04:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131061AbQLQJBS>; Sun, 17 Dec 2000 04:01:18 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:63831
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S130998AbQLQJA5>; Sun, 17 Dec 2000 04:00:57 -0500
-Date: Sun, 17 Dec 2000 09:30:24 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: link failure (drivers/char/riscom8.c) (240test13p2)
-Message-ID: <20001217093024.A612@jaquet.dk>
-In-Reply-To: <20001216225222.D609@jaquet.dk> <E147Pxr-0003IA-00@the-village.bc.nu>
+	id <S131061AbQLQJDH>; Sun, 17 Dec 2000 04:03:07 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:62226 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131767AbQLQJCy> convert rfc822-to-8bit;
+	Sun, 17 Dec 2000 04:02:54 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: nbreun@gmx.de
+cc: f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test13-pre2, unresolved symbols 
+In-Reply-To: Your message of "Sun, 17 Dec 2000 09:22:04 BST."
+             <00121709220400.00938@nmb> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E147Pxr-0003IA-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Dec 16, 2000 at 10:37:59PM +0000
+Content-Type: text/plain; charset=iso-8859-1
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Date: Sun, 17 Dec 2000 19:32:19 +1100
+Message-ID: <1408.977041939@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 10:37:59PM +0000, Alan Cox wrote:
-> Remove the call from tty_init. riscom8 now uses the new style initialisers
+On Sun, 17 Dec 2000 09:22:04 +0100, 
+Norbert Breun <nbreun@gmx.de> wrote:
+>having applied your patch below + modutils2.3.23-1 + kernel2.4.0-test13pre2 
+>all seems to run perfect. 
+>But when starting kwintv  /dev/video is not found. /dev/video is a symling on 
+>/dev/video0 and with kernel kernel2.4.0-test12 there is no problem at all.
+>
+>>can't open /dev/video: Kein passendes Gerät gefunden
 
-I guess this would do it then.
+"No suitable device found", -ENODEV.  The video driver has not been
+loaded or has not been initialised correctly.  Compare the dmesg output
+from 2.4.0-test12 and 0-test13-pre2 to see what is different.  It might
+be a side effect of Linus's Makefile reordering.
 
-
---- linux-240-t13-pre2-clean/drivers/char/tty_io.c	Thu Dec 14 20:13:29 2000
-+++ linux/drivers/char/tty_io.c	Sun Dec 17 09:27:32 2000
-@@ -2319,9 +2319,6 @@
- #ifdef CONFIG_DIGIEPCA
- 	pc_init();
- #endif
--#ifdef CONFIG_RISCOM8
--	riscom8_init();
--#endif
- #ifdef CONFIG_SPECIALIX
- 	specialix_init();
- #endif
-
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-Cutler Webster's Law: There are two sides to every argument, unless a 
-person is personally involved, in which case there is only one. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

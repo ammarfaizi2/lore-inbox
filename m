@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283288AbRLMENn>; Wed, 12 Dec 2001 23:13:43 -0500
+	id <S283311AbRLME0P>; Wed, 12 Dec 2001 23:26:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283287AbRLMENd>; Wed, 12 Dec 2001 23:13:33 -0500
-Received: from web14914.mail.yahoo.com ([216.136.225.241]:12556 "HELO
-	web14914.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S283268AbRLMENZ>; Wed, 12 Dec 2001 23:13:25 -0500
-Message-ID: <20011213041323.96594.qmail@web14914.mail.yahoo.com>
-Date: Wed, 12 Dec 2001 23:13:23 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: Communication between two modules
+	id <S283314AbRLME0E>; Wed, 12 Dec 2001 23:26:04 -0500
+Received: from acolyte.thorsen.se ([193.14.93.247]:16645 "HELO
+	acolyte.hack.org") by vger.kernel.org with SMTP id <S283311AbRLMEZ4>;
+	Wed, 12 Dec 2001 23:25:56 -0500
+From: Christer Weinigel <wingel@acolyte.hack.org>
 To: linux-kernel@vger.kernel.org
-Cc: nmundi@karthika.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Asking for opinions on GPIO API
+Message-Id: <20011213042553.5C6E0F5B@acolyte.hack.org>
+Date: Thu, 13 Dec 2001 05:25:53 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,everyone, I have some questions about Linux file
-system and block device.
- 
-First, you know for the block device there is a
-blk_dev table which is indexed by the major number of
-the block device. The register_blkdev() function is
-used to insert a new entry into this blk_dev table.
-How can I access to this table in my kernel module?
-The reason why I want to access to this table is I
-want to access some specific Block Device Driver
-Descriptor so that I can access to the request queue
-of that block device, such as floppy disk device. This
-table is a global variable?
- 
-Second, whether two kernel modules can communicate
-with each other or not? For example, can my own kernel
-module communicate with the floppy block device? And
-how? I want to intercept the read/write operations to
-the floppy block device. I mean I want to hook all the
-read/write operations to the floppy block device in my
-kernel module.
- 
-Third, I know that the kernel statically allocates a
-fixed number of request descriptors to handle all the
-requests for block devices. There are NR_REQUEST
-descriptors (usually 128) stored in the all_requests
-array (This is from the book "Understanding the Linux
-Kernel" by Daniel P. Bovet&Marco Cesati. P403). How
-can I access this all_requests array? I need to access
-the request descriptor of the floppy disk device.
- 
-Last one, about the ll_rw_block() function.  How can I
-intercept this function in my kernel module? Can I get
-the function pointer of this function in my module?
- 
-Any idea will be appreciated.
- 
-Michael
+Hi,
 
-______________________________________________________ 
-Send your holiday cheer with http://greetings.yahoo.ca
+I'm working on a small embedded computer based on the National
+Semiconductor SC2200 CPU.  This CPU has a lot of GPIO pins and I'm
+wondering how to design a good API to control these pins.
+
+Right now I have a few functions looking like this:
+
+/* read the input from the GPIO and return 1/0 */
+unsigned sc2200_gpio_get(unsigned index);
+
+/* set and clear the pin */
+void sc2200_gpio_set(unsigned index);
+void sc2200_gpio_clr(unsigned index);
+
+would it be better to have a function which takes the desired state of
+the pin as an argument instead?
+
+void sc2200_gpio_set(unsigned index, unsigned state);
+
+Second, I have a pure implementation question, right now the set
+function looks like this:
+
+void sc2200_gpio_set(unsigned index) {
+        unsigned flags;
+        spin_lock_irqsave(&sc2200_gpio_lock, flags);
+        outl(inl(gpio_base) | (1 << (index & 31)), gpio_base);
+        spin_unlock_irqrestore(&sc2200_gpio_lock, flags);
+}
+
+which is safe, but clearing the interrupts is a rather expensive
+operation, so I'd like to avoid it if possible.  Is it possible to do
+something like the atomic set_bit function but with outl/inl?  Are
+there any tricks that can be done?  Since the SC2200 is an ix86 CPU I
+can use assembly language if neccesary and at least for this design, I
+know that the system is a uniprocessor system and thus I won't have to
+consider possible races between two CPU's.
+
+    /Christer
+
+

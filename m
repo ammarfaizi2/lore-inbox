@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314106AbSDZSuO>; Fri, 26 Apr 2002 14:50:14 -0400
+	id <S314128AbSDZTIT>; Fri, 26 Apr 2002 15:08:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314123AbSDZSuO>; Fri, 26 Apr 2002 14:50:14 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15232 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S314106AbSDZSuN>; Fri, 26 Apr 2002 14:50:13 -0400
-Date: Fri, 26 Apr 2002 14:50:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: Alexander Viro <viro@math.psu.edu>, Pavel Machek <pavel@ucw.cz>,
-        Michael Dreher <dreher@math.tu-freiberg.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-pre7: rootfs mounted twice
-In-Reply-To: <Pine.LNX.4.44.0204270145140.6483-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.3.95.1020426144850.12616A-100000@chaos.analogic.com>
+	id <S314129AbSDZTIS>; Fri, 26 Apr 2002 15:08:18 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:27785 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314128AbSDZTIS>; Fri, 26 Apr 2002 15:08:18 -0400
+To: linux-kernel@vger.kernel.org
+Cc: stephan@maciej.muc.de
+Subject: Re: [BUG] 2.5.10 - kernel hangs after detecting CD/DVD ROM (was: Re: IDE problem:  2.5.10 compiles but hangs during boot)
+In-Reply-To: <200204251757.07947.stephan@maciej.muc.de>
+From: Andi Kleen <freitag@alancoxonachip.com>
+X-No-Archive: yes
+Date: 26 Apr 2002 21:08:13 +0200
+Message-ID: <m3adrq6zxe.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Apr 2002, Jeff Chua wrote:
-
-> On Fri, 26 Apr 2002, Alexander Viro wrote:
+Stephan Maciej <stephan@maciej.muc.de> writes:
+> later
+> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+>     ide0: BM-DMA at 0x1c40-0x1c47, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0x1c48-0x1c4f, BIOS settings: hdc:DMA, hdd:pio
+> hda: HITACHI_DK23CA-20, ATA DISK drive
+> hdc: QSI DVD-ROM SDR-081, ATAPI CD/DVD-ROM drive
 > 
-> >
-> >
-> > On Fri, 26 Apr 2002, Pavel Machek wrote:
-> >
-> > > > does statfs("/", &buf); for both.  Surprise, surprise, results of
-> > > > two calls of statf2(2) are identical - what with arguments being
-> > > > the same both times - and refer to the filesystem where your "/"
-> > > > lives.  I.e. to ext3.
-> > >
-> > > df might be wrong, but lets say that this /proc/mounts become
-> > > interesting. This could not have happened in the past. That means you
-> >
-> > This _could_ happen in past - as the matter of fact, I can reproduce it
-> > on any 2.4 kernel.  Mount something over the root of already mounted
-> > filesystem and watch the show.
-> >
-> > Now, we could disable showing rootfs in /proc/mounts and it might be a
-> > good idea for 2.4,  I'm not all that sure that it's a right thing, though.
-> 
-> 
-> This happens all the time if you use initrd ramdisk and switch to hard
-> disk during boot up.
-> 
-> 2.4.19-pre6 is ok, but 2.4.19-pre7 is not.
-> 
-> Jeff.
-> 
+> That's the last line I see from a 2.5.10 kernel booting up. 2.5.9 does go
+> farther:
 
-In 2.4.18, it looks like this when booting initrd and switching
-to a hard disk. This looks okay.
+I have a similar problem on the VirtuHammer simulator. On trying to access
+the virtual disk using PIO mode the simular breaks with an error
+in a rep ; outsb loop complaining about "writing data while in data in phase".
+I guess your problem could be the same, as the DVD is likely accessed
+using PIO. 2.5.10 fails, 2.5.9 works.
 
-/dev/root.old /initrd ext2 rw 0 0
-/dev/root / ext2 rw 0 0
-/dev/sdc1 /alt ext2 rw 0 0
-/dev/sdc3 /home/users ext2 rw 0 0
-none /proc proc rw 0 0
-/dev/sda1 /dos/drive_C msdos rw 0 0
-/dev/sda5 /dos/drive_D msdos rw 0 0
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-Andi

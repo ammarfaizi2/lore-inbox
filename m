@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbQLACvZ>; Thu, 30 Nov 2000 21:51:25 -0500
+	id <S129345AbQLAEUz>; Thu, 30 Nov 2000 23:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLACvP>; Thu, 30 Nov 2000 21:51:15 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:28685 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129514AbQLACvC>; Thu, 30 Nov 2000 21:51:02 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Florian Heinz <sky@dereference.de>
-Date: Fri, 1 Dec 2000 13:11:45 +1100 (EST)
-MIME-Version: 1.0
+	id <S129664AbQLAEUq>; Thu, 30 Nov 2000 23:20:46 -0500
+Received: from mail.du.gtn.com ([194.77.9.57]:65499 "EHLO mail.du.gtn.com")
+	by vger.kernel.org with ESMTP id <S129345AbQLAEUd>;
+	Thu, 30 Nov 2000 23:20:33 -0500
+>Received: (from bj@localhost)
+	by warp.zuto.de (8.9.3/8.9.3/Debian 8.9.3-6) id VAA22747
+	for linux-kernel@vger.kernel.org; Thu, 30 Nov 2000 21:45:29 +0100
+Date: Thu, 30 Nov 2000 21:45:28 +0100
+From: Rainer Clasen <bj@zuto.de>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Bonding...
+Message-ID: <20001130214528.E24351@zuto.de>
+Reply-To: bj@zuto.de
+Mail-Followup-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0011291619440.22577-100000@asdf.capslock.lan> <975575796.3a261af501379@imp.free.fr>
+Mime-Version: 1.0
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <975575796.3a261af501379@imp.free.fr>; from wtarreau@free.fr on Thu, Nov 30, 2000 at 10:16:37AM +0100
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14887.2273.174231.960990@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: Some problems with the raid-stuff in 2.4.0-test12pre3
-In-Reply-To: message from Florian Heinz on Thursday November 30
-In-Reply-To: <20001130123322.A672@inode.real-linux.de>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday November 30, sky@dereference.de wrote:
-> Hello people,
+On Thu, Nov 30, 2000 at 10:16:37AM +0100, Willy Tarreau wrote:
+> > When using ethernet bonding, does it divide the load between the
+> > two based on connection, or packet by packet?
 > 
-> I have some trouble with the raid-stuff.
-> My machine is a Pentium-III, 256 MB ram and 7 scsi-disks (IBM DNES-318350W
-> 17B). I'm using raid5 for 6 of these disks (chunk-size 8).
-> Machine boots, I do mkraid /dev/md0 and then mke2fs /dev/md0 and that's
-> where the problems start. mkfs tries to write 684 inode-tables and after the
-> first 30 it gets very slow. ps ax (with wchan) tells me it hangs in
-> wakeup_bdflush.
-> I'm rather sure it's related to the raidcode, because without raid the disks
-> work as expected.
-> I'm using an Adaptec 7892A with the aic7xxx-driver, I have disabled the TCQ
-> and the extra checks for the new queueing code, but I have tried with both
-> activated, too.
-> No related messages from the kernel in the syslog.
-> It worked fine with 2.2.x.
+> packet by packet, so you can use both links to aggregate your bandwidth. I've
+> used it at 200 Mbps with success.
 
-Is it just "very slow", but it eventually finishes, it is it so slow,
-that it actually stops and doesn't make any progress at all?
+Linux distributes outgoing outgoing packets in a round robin manner.
 
-raid5 in 2.4 is definately slower than in 2.2.  Could that be all that
-you are seeing?
+Ciscos are supposed to do this based on the XOr value of the last two bits
+of source AND destination MAC. 
 
-NeilBrown
+I was astonished to see a Catalyst2924EN distribute traffic EITHER by
+source OR by destination MAC address (configurable). 
+
+My BayStack450 seems to do roind robin, too.
+
+Ciscos MAC based distribution limits each TCP connection to 100 Mbps.
+
+ Rainer
+
+
+PS: Thanks to Willy for his work on the bonding driver. 
+
+-- 
+KeyID=58341901 fingerprint=A5 57 04 B3 69 88 A1 FB  78 1D B5 64 E0 BF 72 EB
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbSA1J7U>; Mon, 28 Jan 2002 04:59:20 -0500
+	id <S284717AbSA1KCa>; Mon, 28 Jan 2002 05:02:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282843AbSA1J7K>; Mon, 28 Jan 2002 04:59:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65035 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286692AbSA1J66>;
-	Mon, 28 Jan 2002 04:58:58 -0500
-Message-ID: <3C551F18.873EA52E@zip.com.au>
-Date: Mon, 28 Jan 2002 01:51:20 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S285060AbSA1KCU>; Mon, 28 Jan 2002 05:02:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2319 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284717AbSA1KCN>; Mon, 28 Jan 2002 05:02:13 -0500
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+To: jdthood@mail.com (Thomas Hood)
+Date: Mon, 28 Jan 2002 10:14:59 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        sfr@canb.auug.org.au (Stephen Rothwell)
+In-Reply-To: <1012185478.2165.73.camel@thanatos> from "Thomas Hood" at Jan 27, 2002 09:37:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: benh@kernel.crashing.org
-CC: Ed Sweetman <ed.sweetman@wmich.edu>,
-        Kristian <kristian.peters@korseby.net>, linux-kernel@vger.kernel.org
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-In-Reply-To: <3C550BD4.E9CBE6A@zip.com.au>,
-		<3C550BD4.E9CBE6A@zip.com.au> <20020128095136.1298@mailhost.mipsys.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16V8oV-0004FV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-benh@kernel.crashing.org wrote:
+> > managing the APM state of the processor (and leaving it in
+> > powersave)
 > 
-> >At no stage does a packet-mode DMA error turn off drive-level
-> >DMA.  This is because some devices seem to perform ordinary
-> >ATA DMA OK, but screw up packet DMA.
-> >
-> >The kernel internally retries the requests when it performs fallback,
-> >so userspace shouldn't see any disruption as the kernel works
-> >out what to do.
-> >
-> >Once the drive has fallen back to single-frame (or PIO mode) for
-> >packet reads, the only way to get it back to a higher level is
-> >a reboot.
-> 
-> Doesn that mean that a bad media (typically a scratched CDROM) will
-> cause the drive to revert to PIO until next reboot ?
-> 
+> APM idling is done if apm_cpu_idle() is called, and then if
+>     DELTA(current->times.tms_stime)
+>     -------------------------------
+>     DELTA(jiffies)
+> is greater than the idle threshold of 0.95.  Could that ratio be
+> affected by VMware?  If so, how?
 
-Nope.  This error handling is specifically for busmastering
-errors, not for media errors.
+Suppose vmware decides to switch between running Linux and its virtualised
+Windows OS. Can it do this during an interrupt - if so what ensures that
+vmware isnt switched to after we have done APM idle calls and slowed the
+CPU right down ?
 
-I've tested media errors (whiteboard marker scribblings on the
-CD do this nicely).  DMA errors (bad return value from
-HWIF->dmaproc) I can only simulate.
+If so then I suspect vmware should be issuing APM cpu busy calls itself
 
-
--

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUHBHzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUHBHzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266333AbUHBHzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 03:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUHBHzI
+	id S266345AbUHBHzl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 03:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHBHzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 03:55:08 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:32913 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266333AbUHBHzF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 03:55:05 -0400
-Date: Mon, 2 Aug 2004 09:56:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
-Message-ID: <20040802075616.GE8332@elte.hu>
-References: <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <1091411152.973.1.camel@mindpipe> <1091412858.973.6.camel@mindpipe>
+	Mon, 2 Aug 2004 03:55:41 -0400
+Received: from traminer.chepelov.org ([62.212.101.212]:46086 "EHLO
+	traminer.chepelov.org") by vger.kernel.org with ESMTP
+	id S266345AbUHBHzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 03:55:37 -0400
+Date: Mon, 2 Aug 2004 09:55:34 +0200
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp in 2.6.8-rc2-mm1
+Message-ID: <20040802075534.GA22537@chepelov.org>
+References: <20040729232204.GA8020@chepelov.org> <Pine.LNX.4.50.0408012320500.4359-100000@monsoon.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1091412858.973.6.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.50.0408012320500.4359-100000@monsoon.he.net>
+X-Face: "99`N"mZV/:<T->OLp[>#d3R;u.!ivtwAEpIQDL8rD#;L3Wm)~^)Uv=#;S!LZf1y8oRY7J#JR\Lr{*4Cn*32C89ln>0~5~tm--}j%hvhj+vtW><xbwA=@G8M||zPV0-r`:6zhMqq+_OC_0W*-:Wxzm3%|A5EE}VFnIgRU=+,L-hGdM"j&l'_^zK+%MBOsdmi#e3(3fGg^SGM
+Accept-Languages: fr, en, ru 
+User-Agent: Mutt/1.5.6i
+From: Cyrille Chepelov <cyrille@chepelov.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le Sun, Aug 01, 2004, Ã  11:22:04PM -0700, Patrick Mochel a écrit:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+> On Fri, 30 Jul 2004, Cyrille Chepelov wrote:
 
-> On Sun, 2004-08-01 at 21:45, Lee Revell wrote:
-> > I will post numbers soon.
+> > Long story made short, it seems that the new swsusp code felt like
+> > dereferencing a NULL, and I thought you'd might want to know about that.
+> > I know it's pretty bad form to send an oops in a photographic way, but
+> > that's better than nothing and I hope you'll be able to exploit this.
+> >
+> > I've put the stuff at http://www.chepelov.org/cyrille/swsusp
 > 
-> I will be out of town for a few days, so this is the last batch.  On my
-> hardware at least, all the latency problems have been resolved.
+> It's better than nothing, but would please post to the list next time.
+> That way other people with similar problems may be able to help, too.
+> 
+> Hrm, I can't seem to connect..will look into it later..
 
-> 55      2
-> 56      2
+OK, sorry about that. My 486 router/web server is dying, and I've got
+some heavy reformatting/replacement action pending next week. Here's an
+alternative address for now:
+	http://perso.crans.org/~chepelov/swsusp/
 
-nice. I'd not worry about the identity of the -M5 latencies too much if
-they are gone in -O2.
+I've put the list on CC: too (I can't subscribe, otherwise I'll really
+kill the 486 [die spammers die!] before its time has come, but I'll try
+to follow through the archives).
 
-	Ingo
+Thanks in advance!
+
+	-- Cyrille
+
+-- 

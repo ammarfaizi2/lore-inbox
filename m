@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUHBXmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUHBXo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbUHBXmj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 19:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUHBXmj
+	id S264389AbUHBXo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 19:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUHBXo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 19:42:39 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:43665 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264500AbUHBXiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 19:38:20 -0400
-Date: Tue, 3 Aug 2004 00:36:52 +0100
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, dsaxena@plexity.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH TRIVIAL] Add Intel IXP2400 & IXP2800 to PCI.ids
-Message-ID: <20040802233652.GI12724@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Jeff Garzik <jgarzik@pobox.com>, dsaxena@plexity.net,
-	linux-kernel@vger.kernel.org
-References: <20040716170832.GA4997@plexity.net> <40F81020.5010808@pobox.com> <20040716194654.GA20555@redhat.com> <20040716200113.GB20555@redhat.com> <20040802221047.GA15007@kroah.com>
-Mime-Version: 1.0
+	Mon, 2 Aug 2004 19:44:57 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:10671 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264389AbUHBXon (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 19:44:43 -0400
+Date: Mon, 02 Aug 2004 16:44:04 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.8-rc2-mm2 warning on NUMA-Q
+Message-ID: <154410000.1091490244@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040802221047.GA15007@kroah.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 03:10:47PM -0700, Greg KH wrote:
+arch-i386-kernel-smpc-gcc341-inlining-fix.patch seems to cause
+the following warning:
 
- > > How's that sound Greg? Or would you prefer I dump
- > > this into a bk tree you can regularly pull from?
- > > It's only a bit more scripting to do so..
- > 
- > Sending me emails with the patches is fine for me.  Feel free to
- > automate it if you want to, that would really help out.
+include/asm-i386/mach-numaq/mach_ipi.h:4: warning: static declaration for `send_
+IPI_mask_sequence' follows non-static. 
 
-Ok, will do so.
+This should fix it (and make it match the other subarches):
 
- > Do we have a way for patches to flow back into sf.net.
-
-You can send unified diffs to pciids@lists.sf.net and the robot
-should automatically recognise them, and add them to the
-"to be approved" queue. Then its just a matter of how long it
-takes for someone with rights to approve entries.
-
- > I remember we
- > had some "line too long" warnings that we had to fix up by hand in that
- > file that probably didn't make it upstream.
-
-Ah yes, I'd forgotten about those.  I'm not sure if they got fixed
-upstream or not. Holler if you spot anything odd, and I'll try my
-best to get changes to such entries approved quickly.
-
- > I'll go grab the latest version of the patch on your site to add to my
- > bk-pci tree right now...
-
-Cool.
-
-		Dave
+diff -purN -X /home/mbligh/.diff.exclude mm2/include/asm-i386/mach-numaq/mach_ipi.h send_IPI_mask_sequence/include/asm-i386/mach-numaq/mach_ipi.h
+--- mm2/include/asm-i386/mach-numaq/mach_ipi.h	Wed Dec 17 18:59:16 2003
++++ send_IPI_mask_sequence/include/asm-i386/mach-numaq/mach_ipi.h	Mon Aug  2 15:55:27 2004
+@@ -1,7 +1,7 @@
+ #ifndef __ASM_MACH_IPI_H
+ #define __ASM_MACH_IPI_H
+ 
+-static inline void send_IPI_mask_sequence(cpumask_t, int vector);
++inline void send_IPI_mask_sequence(cpumask_t, int vector);
+ 
+ static inline void send_IPI_mask(cpumask_t mask, int vector)
+ {
 

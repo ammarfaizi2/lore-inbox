@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVCJCs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVCJCkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVCJCs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVCJCrt
+	id S261158AbVCJCkb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVCJBPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 21:47:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:8135 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261713AbVCJCqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 21:46:51 -0500
-Subject: bk commits and dates
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 13:41:59 +1100
-Message-Id: <1110422519.32556.159.camel@gaston>
+	Wed, 9 Mar 2005 20:15:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46239 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262612AbVCJAmZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:25 -0500
+Cc: gregkh@suse.de
+Subject: [PATCH] sysdev: make system_subsys static as no one else needs access to it.
+In-Reply-To: <111041488554@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:34:45 -0800
+Message-Id: <11104148853742@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While we are at such requests ...
+ChangeSet 1.2049, 2005/03/09 09:59:49-08:00, gregkh@suse.de
 
-When you pull from one of the trees, like netdev, the commit messages
-are sent to the bk commit list with the original date stamp of the patch
-in the netdev tree.
+[PATCH] sysdev: make system_subsys static as no one else needs access to it.
 
-For example, if Jeff commited a patch from somebody in his netdev tree 3
-weeks ago, and you pull Jeff's tree today, we'll get all the commit
-messages today, but dated from 3 weeks ago.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-That means that in my mailing list archive, where my mailer sorts them
-by date, I can't say, for example, everything that is before the 2.6.11
-tag release was in 2.6.11. It's also difficult to spot "new" stuffs as
-they can arrive with dates weeks ago, and thus show up in places I will
-not look for.
 
-I don't know if I'm the only one to have a problem with that, but it
-would be nice if it was possible, when you pull a bk tree, to have the
-commit messages for the csets in that tree be dated from the day you
-pulled, and not the day when they went in the source tree.
+ drivers/base/sys.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Ben.
 
+diff -Nru a/drivers/base/sys.c b/drivers/base/sys.c
+--- a/drivers/base/sys.c	2005-03-09 16:28:45 -08:00
++++ b/drivers/base/sys.c	2005-03-09 16:28:45 -08:00
+@@ -79,7 +79,7 @@
+ /*
+  * declare system_subsys
+  */
+-decl_subsys(system, &ktype_sysdev, NULL);
++static decl_subsys(system, &ktype_sysdev, NULL);
+ 
+ int sysdev_class_register(struct sysdev_class * cls)
+ {
 

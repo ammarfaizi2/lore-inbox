@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbTBPAKV>; Sat, 15 Feb 2003 19:10:21 -0500
+	id <S265396AbTBPASe>; Sat, 15 Feb 2003 19:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbTBPAKV>; Sat, 15 Feb 2003 19:10:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7953 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265477AbTBPAKU>; Sat, 15 Feb 2003 19:10:20 -0500
-Date: Sat, 15 Feb 2003 16:16:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roger Luethi <rl@hellgate.ch>
-cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [0/4][via-rhine] Improvements
-In-Reply-To: <20030215225204.GA6887@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.44.0302151611310.23496-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265423AbTBPASe>; Sat, 15 Feb 2003 19:18:34 -0500
+Received: from packet.digeo.com ([12.110.80.53]:60340 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265396AbTBPASd>;
+	Sat, 15 Feb 2003 19:18:33 -0500
+Date: Sat, 15 Feb 2003 16:29:04 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.61-mm1
+Message-Id: <20030215162904.6ba8fdc2.akpm@digeo.com>
+In-Reply-To: <m365rlf5ia.fsf@lugabout.jhcloos.org>
+References: <20030214231356.59e2ef51.akpm@digeo.com>
+	<m365rlf5ia.fsf@lugabout.jhcloos.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2003 00:28:23.0639 (UTC) FILETIME=[509E6E70:01C2D552]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 15 Feb 2003, Roger Luethi wrote:
+"James H. Cloos Jr." <cloos@jhcloos.com> wrote:
+>
+> I just tried 2.5.61 and 2.5.61-mm1 on a dell inspiron 8100.
 > 
-> Thanks for raising that issue. It is my understanding that PIO ops are
-> synchronous (on IA-32). If that is correct, problems should only occur if
-> the driver is built with MMIO support, no?
+> 2.5.61 is working OK, but -mm1 hung as soon as it tried to exec init.
+> init=/bin/bash showed the same failure.
+> 
+> init(8) was able to print out it's first line, announcing its version
+> but then stopped.  with init=/bin/bash bash did not output anything.
+> 
 
-No, even PIO ops are asynchronous. They are _more_ synchronous than the
-MMIO ones (I think the CPU waits until they hit the bus, and most bridges
-just pass them through), but the CPU does not wait for them to hit the
-device.
+If you are using devfs then yes, there is a locking problem.
 
-So in practice, this _tends_ to mean that a PIO write will usually hit the 
-device within a microsecond or less of being issued by the CPU, and you 
-don't need a IO read to force it out. But considering the wide variety of 
-PCI bridges out there I bet there are some that will post even PIO writes 
-and might hold on to them for some time, especially if other activity like 
-DMA keeps the bus busy.
+If you are not using devfs then please send me your .config.
 
-In other words: I suspect the code will work. But it's probably _safer_ to 
-do the normal "read to synchronize" unless there are major performance 
-issues (which is clearly not the case in this particular instance, but 
-might be somewhere else).
-
-		Linus
-
+Thanks.

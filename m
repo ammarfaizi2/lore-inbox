@@ -1,65 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbTKJMIp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 07:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTKJMIp
+	id S263320AbTKJM2F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 07:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263352AbTKJM2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 07:08:45 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:12016 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263277AbTKJMIn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 07:08:43 -0500
-Message-ID: <3FAF7FC8.8050503@softhome.net>
-Date: Mon, 10 Nov 2003 13:08:40 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Mon, 10 Nov 2003 07:28:05 -0500
+Received: from web20605.mail.yahoo.com ([216.136.226.163]:18447 "HELO
+	web20605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263320AbTKJM2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 07:28:02 -0500
+Message-ID: <20031110122801.16452.qmail@web20605.mail.yahoo.com>
+Date: Mon, 10 Nov 2003 04:28:01 -0800 (PST)
+From: Stefan Talpalaru <stefantalpalaru@yahoo.com>
+Subject: Re: PATCH: CMD640 IDE chipset
+To: Alexander Atanasov <alex@ssi.bg>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20031029144845.14d57ba6.alex@ssi.bg>
 MIME-Version: 1.0
-To: Davide Rossetti <davide.rossetti@roma1.infn.it>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-References: <QiyV.1k3.15@gated-at.bofh.it>
-In-Reply-To: <QiyV.1k3.15@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Alexander!
 
-   sendfile(2) - ?
+> 	Hello,
+> On Wed, 29 Oct 2003 04:12:18 -0800 (PST)
+> Stefan Talpalaru <stefantalpalaru@yahoo.com> wrote:
+> > and also some useless code (the wrapers: __put_cmd640_reg() and 
+> > __get_cmd640_reg() - which I removed and placed the locks where
+> > needed; the pci_conf1() and pci_conf2() functions).
+> 	These wrappers were added to correct the locking in
+> driver. There are places that you must access serveral registers
 
-Davide Rossetti wrote:
-> it may be orribly RTFM... but writing a simple framework I realized 
-> there is no libc/POSIX/whoknows
-> copy(const char* dest_file_name, const char* src_file_name)
-> 
-> What is the technical reason???
-> 
-> I understand that there may be little space for kernel side 
-> optimizations in this area but anyway I'm surprised I have to write
-> 
-> < the bits to clone the metadata of src_file_name on opening 
-> dest_file_name >
-> const int BUFSIZE = 1<<12;
-> char buffer[BUFSIZE];
-> int nrb;
-> while((nrb = read(infd, buffer, BUFSIZE) != -1) {
->  ret = write(outfd, buffer, nrb);
->  if(ret != nrb) {...}
-> }
-> 
-> instead of something similar to:
-> sys_fscopy(...)
-> 
-> regards
-> 
+ where?
+
+> holding the lock and that's why the wrappers came, so they
+> are not useless. The locking in your patch is wrong -
+
+  They are ugly.
+
+> the problem is that you call get_cmd640_reg or put_cmd640_reg, which
+> try to take ide_lock, while already holding it and it's a deadlock 
+
+  I find it hard to believe (I'm running a patched kernel right now!),
+but
+ i'm only a newbie at kernel hacking, so please show me the light (not
+joking).
+  Thanks in advance.
+
+> - thats what the wrappers solved. So, please , drop that change.
+>        setup_count |= __get_cmd640_reg(arttim_regs[index]) & 0x3f;
+> -       __put_cmd640_reg(arttim_regs[index], setup_count);
+> -       __put_cmd640_reg(drwtim_regs[index],
+pack_nibbles(active_count, recovery
+> _count));
+> +       setup_count |= get_cmd640_reg(arttim_regs[index]) & 0x3f;
+> +       put_cmd640_reg(arttim_regs[index], setup_count);
+> +       put_cmd640_reg(drwtim_regs[index], pack_nibbles(active_count,
+recovery_c
+> ount));
+>         spin_unlock_irqrestore(&ide_lock, flags);
+>  }
+> 	here
+> -       __put_cmd640_reg(reg, b);
+> +       put_cmd640_reg(reg, b);
+>         spin_unlock_irqrestore(&ide_lock, flags);
+> 	and here for example.
+> --
+> have fun,
+> alex
+
+later,
 
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  "... and for $64000 question, could you get yourself       |_|*|_|
-    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
-                                 -- Al Viro @ LKML           |*|*|*|
+=====
+Stefan Talpalaru
 
+__________________________________
+Do you Yahoo!?
+Protect your identity with Yahoo! Mail AddressGuard
+http://antispam.yahoo.com/whatsnewfree

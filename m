@@ -1,40 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264781AbSJVRSM>; Tue, 22 Oct 2002 13:18:12 -0400
+	id <S264785AbSJVRSR>; Tue, 22 Oct 2002 13:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264787AbSJVRSM>; Tue, 22 Oct 2002 13:18:12 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:50956
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264781AbSJVRSL>; Tue, 22 Oct 2002 13:18:11 -0400
-Subject: Re: [PATCH] NMI request/release
-From: Robert Love <rml@tech9.net>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <3DB54C53.9010603@mvista.com>
-References: <3DB4AABF.9020400@mvista.com>
-	<20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com>
-	<20021022025346.GC41678@compsoc.man.ac.uk>  <3DB54C53.9010603@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 13:23:47 -0400
-Message-Id: <1035307430.1008.1476.camel@phantasy>
+	id <S264787AbSJVRSR>; Tue, 22 Oct 2002 13:18:17 -0400
+Received: from adedition.com ([216.209.85.42]:16644 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S264785AbSJVRSM>;
+	Tue, 22 Oct 2002 13:18:12 -0400
+Date: Tue, 22 Oct 2002 13:24:04 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: Use of yield() in the kernel
+Message-ID: <20021022172404.GB1314@mark.mielke.cc>
+References: <200210151536.39029.baldrick@wanadoo.fr> <200210191425.34627.baldrick@wanadoo.fr> <20021019220000.GC28445@atrey.karlin.mff.cuni.cz> <200210201110.33254.baldrick@wanadoo.fr>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210201110.33254.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 09:02, Corey Minyard wrote:
+Would it be sensible to add a "yield_short()" function to the kernel?
 
-> I looked, and the rcu code relys on turning off interrupts to avoid 
-> preemption.  So it won't work.
+mark
 
-At least on the variant of RCU that is in 2.5, the RCU code does the
-read side by disabling preemption.  Nothing else.
 
-The write side is the same with or without preemption - wait until all
-readers are quiescent, change the copy, etc.
+On Sun, Oct 20, 2002 at 11:10:33AM +0200, Duncan Sands wrote:
+> > > Hi Pavel, I agree.  I have some questions about the code though:
+> > > when you come across a thread with (p->flags & PF_FROZEN), why
+> > > break out of the loop?  Why not just skip this thread and go on to
+> > > the
+> >
+> > There's "continue;" in there, and it should "just skip this thread".
+> > 									Pavel
+> 
+> I meant, why not just do as in the following code (I've changed
+> INTERESTING also, for same reason, as explained below):
+> 
+> 	do {
+> 		todo = 0;
+> 		read_lock(&tasklist_lock);
+> 		do_each_thread(g, p) {
+> 			unsigned long flags;
+> 
+>                         if (
+> 				!(p->flags & PF_IOTHREAD) &&
+> 				(p != current) &&
+> 				(p->state != TASK_ZOMBIE) &&
+> 				!(p->flags & PF_FROZEN)
+> 			) {
+> 
+> 				/* FIXME: smp problem here: we may not access other process' flags
+> 				   without locking */
+> 				p->flags |= PF_FREEZE;
+> 				spin_lock_irqsave(&p->sig->siglock, flags);
+> 				signal_wake_up(p);
+> 				spin_unlock_irqrestore(&p->sig->siglock, flags);
+> 				todo++;
+> 			}
+> 		} while_each_thread(g, p);
+> 		read_unlock(&tasklist_lock);
+> 		yield();
+> 		if (time_after(jiffies, start_time + TIMEOUT)) {
+> 			printk( "\n" );
+> 			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
+> 			return todo;
+> 		}
+> 	} while(todo);
+> 
+> The reason is that yield(), which sends the current task to the expired list,
+> can take a long time before it runs again.  With the current code, every time
+> you meet, for example, a kernel thread you break out of the loop, perform
+> a yield (= wait a long time), before going on to the next thread.  This could
+> take forever.  With code like that above, you mark as many tasks frozen as
+> possible, with as few yields as possible.  Isn't that better?
+> 
+> Ciao,
+> 
+> Duncan.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-But anyhow, disabling interrupts should not affect NMIs, no?
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-	Robert Love
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

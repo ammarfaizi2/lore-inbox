@@ -1,80 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265912AbUBPVs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 16:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbUBPVs5
+	id S265904AbUBPVrq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 16:47:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbUBPVrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 16:48:57 -0500
-Received: from mail.ondacorp.com.br ([200.195.196.14]:715 "EHLO
-	mail.ondacorp.com.br") by vger.kernel.org with ESMTP
-	id S265914AbUBPVs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 16:48:28 -0500
-Message-ID: <40313AA9.1060906@arenanetwork.com.br>
-Date: Mon, 16 Feb 2004 21:48:25 +0000
-From: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
-Organization: ArenaNetwork Lan House & Cyber
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: Re: 2.6.2: P4 ClockMod speed
-References: <20040216213435.GA9680@dominikbrodowski.de>
-In-Reply-To: <20040216213435.GA9680@dominikbrodowski.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 16 Feb 2004 16:47:46 -0500
+Received: from galileo.bork.org ([66.11.174.156]:64644 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S265904AbUBPVrl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 16:47:41 -0500
+Date: Mon, 16 Feb 2004 16:47:40 -0500
+From: Martin Hicks <mort@wildopensource.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: steiner@sgi.com, linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk
+Subject: [PATCH] Inefficient TLB flush fix
+Message-ID: <20040216214740.GE12142@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="CMEQapY8OuP5ao1l"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
-> Hi,
-> 
-> 
->>I have a P4 2.4 running @ 3.12GHz.
-> 
-> 
-> So you overclock your CPU but then throttle it down... strange, but well...
 
-Actually it isn't throttled down, only sysfs is showing it with low 
-speed. It *is* running @ 3.12 (or /proc/cpuinfo and boot messages are 
-lying to me) when in full power.
+--CMEQapY8OuP5ao1l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->>In 2.6.0, i could change it frequency 
->>via speedfreqd(8) up to its actual speed. Since 2.6.1, its max speed is 
->>locked on cpu *real* speed.
-> 
-> 
-> It's just a change of appearance -- the cpufreq driver uses the theoretical
-> speed of the CPU for its calculations; the actual CPU speed isn't
-> affected. You can verify this by looking at /proc/cpuinfo which still tells
-> 3124.376 MHz.
-> 
-> By doing so it becomes easier to enter different frequencies e.g. into
-> /sys/devices/system/cpu/cpufreq/scaling_setspeed -- on my desktop, typing in
-> 1200000 is easier than 12121224... [*]
 
-Sure but if i want to downgrade it, for example, by night, to a lower 
-speed, and then next day return it to full power? Will I stuck at 2.4GHz?
+Hi Andrew,
 
-> 	Dominik
-> 
-> [*] The _actual_ CPU speed should be used on all cpufreq drivers where this
-> specific CPU frequency has implications to external components, e.g. LCD,
-> memory or pcmcia devices. Where only the _frequency ratio_ is of importance
-> [for loops_per_jiffy and friends] such "rounding" is acceptable, as long as
-> the ratio is constant.
+This is a patch based on one that Jack Steiner sent to the ia64 list in
+November.  The original thread can be found at:
 
-Indeed. I'll showing in LCD a lower speed than the running.
+http://marc.theaimsgroup.com/?l=linux-ia64&m=106869606922555&w=2
+
+I created the little wrapper function that was requested.  I think the only
+other arch, other than ia64, that doesn't at least include asm-generic/tlb.h
+is arm.
+
+The patch booted fine on a 12-way Altix.  Against 2.6.3-rc3-mm1
+
+mh
 
 -- 
-dual_bereta_r0x -- Alexandre Hautequest
-ArenaNetwork Lan House & Cyber -- www.arenanetwork.com.br
+Martin Hicks                Wild Open Source Inc.
+mort@wildopensource.com     613-266-2296
 
-Três anéis para os Reis Élficos sob este céu,
-    Sete para os Senhores-Anões em seus rochosos corredores,
-Nove para Homens Mortais, fadados ao eternos sono,
-    Um para o Senhor do Escuro em seu escuro trono
-Na Terra de Mordor onde as Sombras se deitam.
-    Um Anel para a todos governar, Um Anel para encontrá-los,
-    Um Anel para a todos trazer e na escuridão aprisioná-los
-Na Terra de Mordor onde as Sombras se deitam.
+--CMEQapY8OuP5ao1l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tlb-flush-fix.diff"
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1679  -> 1.1680 
+#	include/asm-generic/tlb.h	1.19    -> 1.20   
+#	include/asm-arm/tlb.h	1.8     -> 1.9    
+#	include/asm-ia64/tlb.h	1.17    -> 1.18   
+#	         mm/memory.c	1.150   -> 1.151  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/02/16	mort@tomahawk.engr.sgi.com	1.1680
+# TLB flush optimization.  Here's the original blurb by Jack Steiner <steiner@sgi.com>
+# 
+# Something appears broken in TLB flushing on IA64 (& possibly other
+# architectures). Functionally, it works but performance is bad on
+# systems with large cpu counts.
+# 
+# The result is that TLB flushing in exit_mmap() is frequently being done via
+# IPIs to all cpus rather than with a "ptc" instruction or with a new context..
+# --------------------------------------------
+#
+diff -Nru a/include/asm-arm/tlb.h b/include/asm-arm/tlb.h
+--- a/include/asm-arm/tlb.h	Mon Feb 16 13:46:29 2004
++++ b/include/asm-arm/tlb.h	Mon Feb 16 13:46:29 2004
+@@ -70,6 +70,12 @@
+ 	check_pgt_cache();
+ }
+ 
++static inline unsigned int
++tlb_is_full_mm(struct mmu_gather *tlb)
++{
++     return tlb->fullmm;
++}
++
+ #define tlb_remove_tlb_entry(tlb,ptep,address)	do { } while (0)
+ 
+ #define tlb_start_vma(tlb,vma)						\
+diff -Nru a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+--- a/include/asm-generic/tlb.h	Mon Feb 16 13:46:29 2004
++++ b/include/asm-generic/tlb.h	Mon Feb 16 13:46:29 2004
+@@ -98,6 +98,11 @@
+ 	check_pgt_cache();
+ }
+ 
++static inline unsigned int
++tlb_is_full_mm(struct mmu_gather *tlb)
++{
++	return tlb->fullmm;
++}
+ 
+ /* tlb_remove_page
+  *	Must perform the equivalent to __free_pte(pte_get_and_clear(ptep)), while
+diff -Nru a/include/asm-ia64/tlb.h b/include/asm-ia64/tlb.h
+--- a/include/asm-ia64/tlb.h	Mon Feb 16 13:46:29 2004
++++ b/include/asm-ia64/tlb.h	Mon Feb 16 13:46:29 2004
+@@ -173,6 +173,12 @@
+ 	check_pgt_cache();
+ }
+ 
++static inline unsigned int
++tlb_is_full_mm(struct mmu_gather *tlb)
++{
++     return tlb->fullmm;
++}
++
+ /*
+  * Logically, this routine frees PAGE.  On MP machines, the actual freeing of the page
+  * must be delayed until after the TLB has been flushed (see comments at the beginning of
+diff -Nru a/mm/memory.c b/mm/memory.c
+--- a/mm/memory.c	Mon Feb 16 13:46:29 2004
++++ b/mm/memory.c	Mon Feb 16 13:46:29 2004
+@@ -581,9 +581,10 @@
+ 			if ((long)zap_bytes > 0)
+ 				continue;
+ 			if (need_resched()) {
++				int fullmm = tlb_is_full_mm(*tlbp);
+ 				tlb_finish_mmu(*tlbp, tlb_start, start);
+ 				cond_resched_lock(&mm->page_table_lock);
+-				*tlbp = tlb_gather_mmu(mm, 0);
++				*tlbp = tlb_gather_mmu(mm, fullmm);
+ 				tlb_start_valid = 0;
+ 			}
+ 			zap_bytes = ZAP_BLOCK_SIZE;
+
+--CMEQapY8OuP5ao1l--

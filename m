@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143413AbREKWgD>; Fri, 11 May 2001 18:36:03 -0400
+	id <S143414AbREKWkn>; Fri, 11 May 2001 18:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143414AbREKWfx>; Fri, 11 May 2001 18:35:53 -0400
-Received: from jalon.able.es ([212.97.163.2]:61914 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S143413AbREKWfm>;
-	Fri, 11 May 2001 18:35:42 -0400
-Date: Sat, 12 May 2001 00:35:34 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "Martin . Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Subject: Re: Size of /proc/kcore growing over time ?
-Message-ID: <20010512003534.A1060@werewolf.able.es>
-In-Reply-To: <3AFBE5BF.5865B0CA@TeraPort.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3AFBE5BF.5865B0CA@TeraPort.de>; from Martin.Knoblauch@TeraPort.de on Fri, May 11, 2001 at 15:14:39 +0200
-X-Mailer: Balsa 1.1.4
+	id <S143416AbREKWkY>; Fri, 11 May 2001 18:40:24 -0400
+Received: from 213.237.80.42.adsl.he.worldonline.dk ([213.237.80.42]:46454
+	"EHLO udgaard.com") by vger.kernel.org with ESMTP
+	id <S143415AbREKWkP>; Fri, 11 May 2001 18:40:15 -0400
+Date: Sat, 12 May 2001 00:41:42 +0200
+From: Peter Rasmussen (udgaard) <plr@udgaard.com>
+Message-Id: <200105112241.AAA12420@udgaard.com>
+To: linux-kernel@vger.kernel.org
+Subject: How can I help with VIA MVP3 problems?
+Cc: plr@udgaard.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am not on this list but has followed it on Kernel Traffic.
 
-On 05.11 Martin.Knoblauch wrote:
-> 
->  I ask, because I thought the size of kproc could be used to determine
-> the amount of physical memory. If this assumption is wrong, is there
-> another way to achive the goal?
-> 
+Incidentally I have a VIA MVP3 (82C59?) motherboard with an AMD K6-2 3D CPU and
+I haven't been too happy with the performance of 2.4.* kernels, and it includes
+every release of Linus' and AC's test kernels, when comparing to 2.2.16 (my 
+reference 2.2 kernel).
 
-#include <sys/sysinfo.h> // for get_phys_pages()
-#include <unistd.h> // for getpagesize()
+My benchmarks are kernel compiles and the Livid OMS DVD application that are
+noticeable slower.
 
-ram = get_phys_pages()*getpagesize();
+Supposedly there are some problems with the VIA chipsets, but apparently it
+has been better before so I wonder why it is worse now and what the plans are 
+regarding any improvement?
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.4-ac6 #1 SMP Wed May 9 14:28:00 CEST 2001 i686
+I would love to do something to help, ie. on the testing/bug reporting side of
+things. I looked in the MAINTAINERS file, but couldn't find any general 
+maintainer for the VIA chipsets.
+
+If I know what to test and look for I expect to provide much better bug reports
+than this one, but a full test report would be many kilobytes of data so I
+thought I'd hold it off in the first posting :-)
+
+Thanks,
+
+Peter
 

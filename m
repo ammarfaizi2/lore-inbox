@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbVBECxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266541AbVBED3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbVBECxh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 21:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264109AbVBECxg
+	id S266541AbVBED3X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 22:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266924AbVBED3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 21:53:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9988 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S265305AbVBEClf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 21:41:35 -0500
-Date: Sat, 5 Feb 2005 03:41:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Victor Krapivin <vik@belcaf.minsk.by>
-Cc: vojtech@suse.cz, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] input/gameport/cs461x.c: make 2 functions static
-Message-ID: <20050205024132.GI19408@stusta.de>
-Mime-Version: 1.0
+	Fri, 4 Feb 2005 22:29:22 -0500
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:34696 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S266541AbVBEC6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 21:58:32 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: 3TB disk hassles
+To: Neil Conway <nconway_kernel@yahoo.co.uk>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 05 Feb 2005 03:58:39 +0100
+References: <fa.fng0mbi.10jm21g@ifi.uio.no> <fa.ls0rpqi.104a23q@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1CxG9f-0005Yi-Sp@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global functions static.
+Neil Conway <nconway_kernel@yahoo.co.uk> wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> I thought sure I had read somewhere that typical x86 PC BIOSes just
+> didn't understand the GPT ptbl, and thus couldn't boot from a GPT'ed
+> disk.
 
---- linux-2.6.11-rc3-mm1-full/drivers/input/gameport/cs461x.c.old	2005-02-05 03:23:44.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/input/gameport/cs461x.c	2005-02-05 03:24:21.000000000 +0100
-@@ -318,12 +318,12 @@
-         .remove =       __devexit_p(cs461x_pci_remove),
- };
- 
--int __init cs461x_init(void)
-+static int __init cs461x_init(void)
- {
-         return pci_module_init(&cs461x_pci_driver);
- }
- 
--void __exit cs461x_exit(void)
-+static void __exit cs461x_exit(void)
- {
-         pci_unregister_driver(&cs461x_pci_driver);
- }
-
+No common x86 BIOS can understand any partition table. Booting is done by
+loading the first sector of the boot device and executing it. The common
+MBR code will move it's code to a unused location, load the first sector
+of the active partition and execute it. If you replace the MBR code with
+the GPT MBR code, it should understand GPTs. If you replace it with lilo
+or grub, one of these tools will run. If you replace it with a boot virus,
+it will (usurally) install it's hooks and chain-load the original boot
+sector, which in turn does it's work.

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbTI1QP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 12:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbTI1QP4
+	id S262587AbTI1QUc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 12:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTI1QUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 12:15:56 -0400
-Received: from boss.staszic.waw.pl ([195.205.163.66]:12491 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP id S262597AbTI1QPz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 12:15:55 -0400
-From: Marek Szyprowski <march@staszic.waw.pl>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 28 Sep 2003 18:09:39 +0100
-Message-ID: <yam9401.1994.1201663704@boss.staszic.waw.pl>
-X-Mailer: YAM 2.4p1 [040] AmigaOS E-mail Client (c) 2000-2003 by YAM Open Source Team - http://www.yam.ch/
-Subject: [PATCH] ASFS filesystem patch, kernel 2.6.0test5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Sun, 28 Sep 2003 12:20:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61158 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262587AbTI1QU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 12:20:28 -0400
+Date: Sun, 28 Sep 2003 18:20:22 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: rth@twiddle.ne
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small alpha Kconfig cleanup
+Message-ID: <20030928162022.GL15338@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Richard,
 
-This patch is a quick port of my 2.4.x ASFS driver. It adds read-only
-support for Amiga SmartFileSystem. This filesystem is being used very
-commonly on AmigaOS and MorphOS systems. This patch has been tested on
-Linux/x86 machine. This patch is prepared for kernel 2.6.0test5.
+the patch below does a small arch/alpha/Kconfig cleanup without changing 
+the semantics.
 
-The patch is available on
-http://www.staszic.waw.pl/~march/asfs/asfs-0.6_patch_2.6.0t5.diff
-(because of the size, it has over 1000 lines).
+cu
+Adrian
 
-Regards
--- 
-Marek Szyprowski .. GG:2309080 .. mailto:marek@amiga.pl ..
-...... happy AmigaOS, MacOS and Debian/Linux user ........
-........... http://march.home.staszic.waw.pl/ ............
-
+--- linux-2.6.0-test6-full/arch/alpha/Kconfig.old	2003-09-28 18:15:48.000000000 +0200
++++ linux-2.6.0-test6-full/arch/alpha/Kconfig	2003-09-28 18:17:16.000000000 +0200
+@@ -311,8 +311,8 @@
+ 
+ config ALPHA_EV4
+ 	bool
+-	depends on ALPHA_JENSEN || (ALPHA_SABLE && !ALPHA_GAMMA) || ALPHA_LYNX || ALPHA_NORITAKE && !ALPHA_PRIMO || ALPHA_MIKASA && !ALPHA_PRIMO || ALPHA_CABRIOLET || ALPHA_AVANTI_CH || ALPHA_EB64P_CH || ALPHA_XL || ALPHA_NONAME || ALPHA_EB66 || ALPHA_EB66P || ALPHA_P2K
+-	default y if !ALPHA_LYNX
++	depends on ALPHA_JENSEN || (ALPHA_SABLE && !ALPHA_GAMMA) || ALPHA_NORITAKE && !ALPHA_PRIMO || ALPHA_MIKASA && !ALPHA_PRIMO || ALPHA_CABRIOLET || ALPHA_AVANTI_CH || ALPHA_EB64P_CH || ALPHA_XL || ALPHA_NONAME || ALPHA_EB66 || ALPHA_EB66P || ALPHA_P2K
++	default y
+ 
+ config ALPHA_LCA
+ 	bool

@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbTAYXDV>; Sat, 25 Jan 2003 18:03:21 -0500
+	id <S264867AbTAYXIJ>; Sat, 25 Jan 2003 18:08:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbTAYXDV>; Sat, 25 Jan 2003 18:03:21 -0500
-Received: from packet.digeo.com ([12.110.80.53]:62205 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264001AbTAYXDT>;
-	Sat, 25 Jan 2003 18:03:19 -0500
-Date: Sat, 25 Jan 2003 15:13:01 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org, hch@lst.de, jack@suse.cz, mason@suse.com
-Subject: Re: ext2 FS corruption with 2.5.59.
-Message-Id: <20030125151301.18b70ef3.akpm@digeo.com>
-In-Reply-To: <20030125153607.A10590@namesys.com>
-References: <20030123153832.A860@namesys.com>
-	<20030124023213.63d93156.akpm@digeo.com>
-	<20030124153929.A894@namesys.com>
-	<20030124225320.5d387993.akpm@digeo.com>
-	<20030125153607.A10590@namesys.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264878AbTAYXIJ>; Sat, 25 Jan 2003 18:08:09 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:37789 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP
+	id <S264867AbTAYXII>; Sat, 25 Jan 2003 18:08:08 -0500
+Message-ID: <3E331AA2.38F99839@verizon.net>
+Date: Sat, 25 Jan 2003 15:15:46 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.54 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, rpjday@mindspring.com
+Subject: Re: restructuring of filesystems config menu
+References: <Pine.LNX.4.33L2.0301132030590.2674-101000@dragon.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jan 2003 23:12:25.0372 (UTC) FILETIME=[390155C0:01C2C4C7]
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [4.64.236.51] at Sat, 25 Jan 2003 17:17:17 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin <green@namesys.com> wrote:
->
-> Here is my version:
+Hi,
+
+> Date: Sun, 12 Jan 2003 07:57:33 -0500 (EST)
+> From: Robert P. J. Day <rpjday@mindspring.com>
+> Subject: restructuring of filesystems config menu
 > 
-> #!/bin/bash
-> mke2fs /dev/hdb2
-> mount /dev/hdb2 /mnt -t ext2
-> cd /mnt
-> /tests/fsstress -p10 -n 1000000 -d . &
-> while /tests/fsx -c 1234 -N60309 testfile ; do rm -rf testfile*; done
+>   i've attached a gzipped patch against 2.5.56 for reorganizing
+> the filesystem menu under "make xconfig", and i'm certainly
+> open to feedback/comments/criticism/large sums of money.
+
+Good luck with those.  :)
+
+I finally looked at this on 2.5.59.  The fs menu certainly
+needs some help/work, so I'd like to see you keep plugging away
+at this.  I didn't see much feedback -- was there feedback?
+Maybe on a different subject/thread?  A newer version that I
+missed?
+
+>   some points about this patch:
 > 
-> > So I'm going to have to ask you to investigate further.  Does it happen on
-> > other machines?  Other filesystems?  Older kernels?  That sort of thing.
+> 1) if anyone wants to carefully check the dependencies and
+>    make sure they're correct, that would be nice.
 > 
-> Ok. I am able to reproduce that same thing on dual Pentium4 2.2GHz (HT enabled), 512M RAM.
-> My testing reveals that 2.5.50, 2.5.52 and 2.5.53 do not have the problem.
-> 2.5.54, 2.5.55, 2.5.59 have the problem.
-> ext3 and reiserfs do not show this problem.
-> Looking through 2.5.54, I found that changeset named "[PATCH] quota locking update" forwarded by you
-> is the cause for the problem.
-> (also by reviewing the changeset it became clear that in order to succesfully reproduce the
-> problem one must have CONFIG_QUOTA to be disabled).
-> This small patch below fixes the problem for me (just reverts back part of quota locking patch in fact).
-> Also I think that taking BKL just to update some inode accounting stuff is kind of expensive,
-> so certainly better solution must exist.
+> 2) perhaps making sure the dependencies match the claims
+>    in the help screens would be helpful.  i noticed that
+>    the help screens sometimes make dependency claims that
+>    are wildly untrue, but i didn't want to mess with that
+>    stuff yet as i wasn't totally comfortable.
+> 
+> 3) much to my delight, i found out by accident that i can
+>    add leading asterisks to menu and config lines with no
+>    effect on the eventual config step -- this makes it
+>    wonderfully easy to edit and reorganize using emacs
+>    outline mode, particularly showing subdependencies.
 
-aaargggggghhh.  I noticed that when I was reviewing the patch, but promptly
-forgot to check it more closely.
+I find it odd that "help" in a Kconfig file can be spelled
+"help" or "---help---", but "--help--" leads to errors.
 
-However, in reviewing it, I don't see exactly what's going on.  Because only
-one process is accessing the stat information of the fsx inode anyway?
+>    is this just a fluke?  obviously, it's easy enough to
+>    strip out the leading asterisks in the final version,
+>    but if they're not doing any harm, i'd just as soon
+>    leave them in.
 
-Yes, we need to rub out that i_bytes/i_blocks thing, replace it with an
-atomically updated loff_t, etc.  But I'd like to understand what the exact
-failure is first.  It _seems_ that stat has somehow seen a >4G value of
-stat->size, but how can this happen???
+I expected to just see the filesystems listed in alpha order,
+but I don't have a problem with the groupings that you
+have made for them.
 
-I need to breathe life back into my P4 box, see if I can get it to happen
-there.
-
-Thanks.
+Thanks,
+~Randy

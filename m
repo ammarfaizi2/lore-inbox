@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUHDQ1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267345AbUHDQ1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267343AbUHDQ1f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 12:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267347AbUHDQ1e
+	id S267345AbUHDQ1n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 12:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267347AbUHDQ1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 12:27:34 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:18652 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S267344AbUHDQ0c (ORCPT
+	Wed, 4 Aug 2004 12:27:43 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:45510 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267345AbUHDQ0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 12:26:32 -0400
-Date: Wed, 4 Aug 2004 19:26:03 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <Pine.LNX.4.44.0408032256110.2281-100000@silmu.st.jyu.fi>
-Message-ID: <Pine.LNX.4.44.0408041915510.14609-100000@silmu.st.jyu.fi>
+	Wed, 4 Aug 2004 12:26:37 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: ebiederm@xmission.com (Eric W. Biederman), khalid.aziz@hp.com
+Subject: Re: [BROKEN PATCH] kexec for ia64
+Date: Wed, 4 Aug 2004 09:24:12 -0700
+User-Agent: KMail/1.6.2
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-ia64@vger.kernel.org,
+       fastboot@osdl.org, <linux-kernel@vger.kernel.org>
+References: <200407261524.40804.jbarnes@engr.sgi.com> <20040730155504.2a51b1fa.rddunlap@osdl.org> <m18ycvhx1j.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m18ycvhx1j.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Wed, 04 Aug 2004 19:26:09 +0300
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408040924.12407.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Aug 2004, Pasi Sjoholm wrote:
+On Wednesday, August 4, 2004 6:07 am, Eric W. Biederman wrote:
+> "Randy.Dunlap" <rddunlap@osdl.org> writes:
+> > On Mon, 26 Jul 2004 15:36:05 -0700 Jesse Barnes wrote:
+> > | On Monday, July 26, 2004 3:24 pm, Jesse Barnes wrote:
+> > | >   o userspace tools need ia64 support
+>
+> Correct.  But all they need are the ia64 bits of the ELF loader,
+> plus ia64 specific goo.  The generic part of the ELF loader is already
+> written.
 
-> > If you remove the "if (received > 0) {" test in r8139-10.patch and keep
-> > both patches applied, I assume you are back to a crash within 15min (instead
-> > of within 2min as suggested by the log), right ?
-> I removed "if (received > 0) {" and tested it something like 3 hours and 
-> wasn't able to crash the driver. I will test it for couple more hours 
-> tomorrow and if I'm not still able the crash it, we may have find some 
-> sort of a solution.
-> I'm not sure yet if it's a good one because of that earlier crash I had.
-> I guess I will also test if
-> "- read the interruption status word that the driver will ack before the
->   actual processing is done;" has something to do with it.
+I think Khalid might already have these bits done.
 
-Ok, now I have tested it for 6 hours without crashing the driver. The 
-system's load has been something like 5-6 the whole time. I also made some 
-network load with ~90Mbps-incoming and ~90Mbps-outgoing traffic. 
+> Sort of fundamentally they are arch dependent.
+>
+> I believe that DMA FIXME is a red hearing.  Initially that patch
+> was targeted for a kernel without device_shutdown(), so I was
+> likely considering the old trick of running through all of the PCI
+> devices and disabling their bus master bit.
 
-I haven't had time to test anything else but I'm quite sure that there is 
-no need for that anymore because the stability we have reached. 
+Yeah, I added that bit to remind me to think about it.
 
-I'll let you know if there's any problems within next few days but I would 
-recommend that those patches would be included in 2.6.8. (without that "if 
-(received > 0) {").
+> 1) What is the kernel's argument passing format, what arguments
 
-Many thanks for your help to resolve this problem. 
+Right, and that should be pretty straightforward.
 
-Hector, have you tested these patches?
+> 2) The code itself in machine_kexec.c and relocate_kernel.S needs
+>    to place the machine in a state where virtual and physical addresses
+>    are identity mapped.  And the arch specific registers are in some
+>    well defined state.  Usually the least setup you can guarantee to make
+>    it work the better.
+>
+> (This is the kernel side)
+>
+> We should probably start capturing these pieces of information in
+> a kexec.3 man page.  Volunteers?
+>
+> For ia64 in particular I believe the binary arguments are the
+> FPSWA and EFI memory map, and the firmware entry points (PAL and SAL
+> and EFI).
 
---
-Pasi Sjöholm
+With the addition of some ACPI tables and such.  I don't think those are freed 
+by the kernel right now though, so it should be pretty easy to point at the 
+originals from the newly kexec'd kernel, or make copies.
 
-
+Jesse

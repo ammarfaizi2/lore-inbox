@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbVA0SyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVA0S40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262696AbVA0SyT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 13:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVA0SyT
+	id S262706AbVA0S40 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 13:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVA0S40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 13:54:19 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:3960 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262696AbVA0SyO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 13:54:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=MU+OJ6TNdnxE/6QoAUQkgGAn5Sfckk0I8oB4FnOCICpJddv1NImRzy0nj1mqPOVOZMskIjkVGmXArBELua5z5fIdD6aPOUYe/w9bSmJMrhhqqP0MVAedQTSKmY/WJtUhxhySUHNuN1mV0+W9/8cjM8eAz8ezBF3TfdvsYpqFmKA=
-Message-ID: <3f250c7105012710541d3e7ad1@mail.gmail.com>
-Date: Thu, 27 Jan 2005 14:54:13 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Cc: tglx@linutronix.de, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050126004901.GD7587@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <20050111083837.GE26799@dualathlon.random>
-	 <3f250c71050121132713a145e3@mail.gmail.com>
-	 <3f250c7105012113455e986ca8@mail.gmail.com>
-	 <20050122033219.GG11112@dualathlon.random>
-	 <3f250c7105012513136ae2587e@mail.gmail.com>
-	 <1106689179.4538.22.camel@tglx.tec.linutronix.de>
-	 <3f250c71050125161175234ef9@mail.gmail.com>
-	 <20050126004901.GD7587@dualathlon.random>
+	Thu, 27 Jan 2005 13:56:26 -0500
+Received: from alog0423.analogic.com ([208.224.222.199]:46976 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262706AbVA0SzM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 13:55:12 -0500
+Date: Thu, 27 Jan 2005 13:54:30 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Viktor Horvath <ViktorHorvath@gmx.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: patches to 2.6.9 and 2.6.10 - make menuconfig shows "v2.6.8.1"
+In-Reply-To: <1106851254.720.4.camel@Charon>
+Message-ID: <Pine.LNX.4.61.0501271350440.23139@chaos.analogic.com>
+References: <1106851254.720.4.camel@Charon>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+On Thu, 27 Jan 2005, Viktor Horvath wrote:
 
-On Wed, 26 Jan 2005 01:49:01 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> On Tue, Jan 25, 2005 at 08:11:19PM -0400, Mauricio Lin wrote:
-> > Sometimes the first application to be killed is XFree. AFAIK the
-> 
-> This makes more sense now. You need somebody trapping sigterm in order
-> to lockup and X sure traps it to recover the text console.
-> 
-> Can you replace this:
-> 
->         if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
->                 force_sig(SIGTERM, p);
->         } else {
->                 force_sig(SIGKILL, p);
->         }
-> 
-> with this?
-> 
->         force_sig(SIGKILL, p);
-> 
-> in mm/oom_kill.c.
+> Hello everybody,
+>
+> today I patched myself up from 2.6.7 vanilla to 2.6.10 vanilla, but
+> after all patches succeeded, "make menuconfig" shows "v2.6.8.1
+> Configuration". Even worse, a compiled kernel calls in his bootlog
+> himself "2.6.8.1". When installing the whole kernel package, this
+> behaviour doesn't show up.
+>
+> Sorry if this is a dumb question, but I could not find an answer in the
+> archives.
+>
+> Have a nice day,
+> Viktor.
 
-Nice. Your suggestion made the error goes away.
+Check the Makefile, near the beginning:
 
-We are still testing in order to compare between your OOM Killer and
-Original OOM Killer.
+# head Makefile
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 10
+EXTRAVERSION =
+NAME=Woozy Numbat
 
-BR,
+Put in the numbers you expect.
+Do `make clean ; make` all over again.
 
-Mauricio Lin.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312253AbSDNMyy>; Sun, 14 Apr 2002 08:54:54 -0400
+	id <S312254AbSDNM7S>; Sun, 14 Apr 2002 08:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312254AbSDNMyx>; Sun, 14 Apr 2002 08:54:53 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19982 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S312253AbSDNMyw>; Sun, 14 Apr 2002 08:54:52 -0400
-Date: Sun, 14 Apr 2002 13:54:46 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Steve Kieu <haiquy@yahoo.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Another compile error with 2.4.19-pre6aa1
-Message-ID: <20020414135446.B31359@flint.arm.linux.org.uk>
-In-Reply-To: <20020414124101.1434.qmail@web10401.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312261AbSDNM7R>; Sun, 14 Apr 2002 08:59:17 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1479 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S312254AbSDNM7R>;
+	Sun, 14 Apr 2002 08:59:17 -0400
+Date: Sun, 14 Apr 2002 08:59:15 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Patch: aliasing bug in blockdev-in-pagecache?
+In-Reply-To: <20020413235948.E4937@redhat.com>
+Message-ID: <Pine.GSO.4.21.0204140857190.394-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 14, 2002 at 10:41:01PM +1000, Steve Kieu wrote:
-> Me again, after unselect the Texas Instrument PCILynx
-> support in config I proceed the make modules and this
-> time I got.
 
-Marcelo missed pulling my BK tree with the fix for this - it should
-be fixed in the latest 2.4.19 tree.  If not, let me know (I've not been
-following 2.4.19 the past week.)
 
-Just disable the SA1100 PCMCIA option for now.
+On Sat, 13 Apr 2002, Stephen C. Tweedie wrote:
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> To solve this, we really do need to have block_read_full_page() test
+> the uptodate state under protection of the buffer_head lock.  We
+> already go through 3 stages in block_read_full_page(): gather the
+> buffers needing IO, then lock them, then submit the IO.  To be safe,
+> we need a final test for buffer_uptodate() *after* we have locked the
+> required buffers.
+
+Ouch.
+
+I suspect that correct fix is to do that test in submit_bh() itself
+(and remove it from ll_rw_block()).  IMO it's cleaner than messing
+with all callers out there...  Linus?
 

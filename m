@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVBMQRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVBMQij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVBMQRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 11:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVBMQRM
+	id S261185AbVBMQij (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 11:38:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVBMQij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 11:17:12 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:64462 "EHLO
-	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S261275AbVBMQRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 11:17:09 -0500
-Date: Sun, 13 Feb 2005 11:17:09 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Andries Brouwer <aebr@win.tue.nl>, dtor_core@ameritech.net,
-       linux-input@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i8042 access timings
-Message-ID: <20050213161709.GA22287@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lee Revell <rlrevell@joe-job.com>, Andries Brouwer <aebr@win.tue.nl>,
-	dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com> <20050125194647.GB3494@pclin040.win.tue.nl> <1106685456.10845.40.camel@krustophenia.net> <1106838875.14782.20.camel@localhost.localdomain> <20050127163431.GA31212@ti64.telemetry-investments.com> <20050127163714.GA15327@ucw.cz> <20050213001659.GA7349@ti64.telemetry-investments.com> <20050213082246.GC1535@ucw.cz>
+	Sun, 13 Feb 2005 11:38:39 -0500
+Received: from smtpout1.uol.com.br ([200.221.4.192]:23726 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261185AbVBMQhp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 11:37:45 -0500
+Date: Sun, 13 Feb 2005 14:37:39 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: linux-kernel@vger.kernel.org
+Subject: Re: irq 10: nobody cared! (was: Re: 2.6.11-rc3-mm1)
+Message-ID: <20050213163738.GC4563@ime.usp.br>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050204103350.241a907a.akpm@osdl.org> <20050205224558.GB3815@ime.usp.br> <20050212222104.GA1965@node1.opengeometry.net> <20050212224715.GA8249@ime.usp.br> <20050212232134.GA2242@node1.opengeometry.net> <20050212235043.GA4291@ime.usp.br> <20050213014151.GA2735@node1.opengeometry.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050213082246.GC1535@ucw.cz>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050213014151.GA2735@node1.opengeometry.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 13, 2005 at 09:22:46AM +0100, Vojtech Pavlik wrote:
-> And I suppose it was running just fine without the patch as well?
- 
-Correct.
+On Feb 12 2005, William Park wrote:
+> On Sat, Feb 12, 2005 at 09:50:43PM -0200, Rog?rio Brito wrote:
+> > To prevent the matters of loosing track of what is being done, I only
+> > changed one option at a time. I put the dmesg logs of all my attempts
+> > at <http://www.ime.usp.br/~rbrito/ide-problem/>.
+> > 
+> > Please let me know if I can provide any other useful information.
+> 
+> Your 'dmesg' says
+>     Warning: Secondary channel requires an 80-pin cable for operation.
+> I assume it is.
 
-> The question was whether the patch helps, or whether it is not needed.
- 
-If you look again at the patch I posted, it only borrowed a few lines
-of the patch from Dmitry that started this thread; I eliminated Alan's
-recent udelay(50) addition, reduced the loop delay, and added debug
-printks to the *_wait routines to determine whether the loop is ever taken.
+Indeed, I have two HDs plugged on the Promise controller. One of them (the
+first one) has a 80-pin cable and the bios configures it to use UDMA 4.
 
-At least so far, those debugging statements have produced no output.
-I'll use the machine a bit and report back if I trigger anything.
+Since I only have one 80-ribbon cable, the second HD uses a 40-ribbon cable
+and is configured as the master of the other channel of the Promise
+controller (to avoid having problems with the first one and to increase the
+performance, since IDE does not have the ability to "disconnect" devices).
 
-Regards,
+Perhaps that is the problem? I will try to turn off the second drive for a
+moment, but I guess that there shouldn't be such problems.
 
-	Bill Rugolsky
+One thing that is curious is that since both HDs are on different channels
+of the Promise controller (as masters), the BIOS configures the first one
+(with the 80-pin cable) as UDMA 4 and the second one (with the 40-pin
+cable) as UDMA 2.
+
+Then, when Linux boots, it downgrades both devices to UDMA 2, including the
+one with the 80-ribbon cable. Is that expected behaviour?
+
+> Do you have MSI on by any chance?  (CONFIG_PCI_MSI)  If so, try kernel
+> without it.  My motherboard exhibits runaway IRQ with it.
+
+I don't know what MSI is (I only know of a manufacturer of motherboards
+called MSI), but my motherboard is an Asus A7V with chipset VIA KT133 (not
+the latter revision, VIA KT133A).
+
+
+Thank you very much for your help, Rogério.
+
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269883AbRHEA4D>; Sat, 4 Aug 2001 20:56:03 -0400
+	id <S269888AbRHEBAn>; Sat, 4 Aug 2001 21:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269885AbRHEAzx>; Sat, 4 Aug 2001 20:55:53 -0400
-Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:11217 "EHLO
-	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S269883AbRHEAzi>; Sat, 4 Aug 2001 20:55:38 -0400
-Date: Sat, 4 Aug 2001 20:55:37 -0400
-From: Tom Vier <tmv5@home.com>
-To: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7-ac4 disk thrashing
-Message-ID: <20010804205537.A17307@zero>
-In-Reply-To: <20010804113841.A2196@zero> <3B6C7F9B.30303@yahoo.co.nz>
-Mime-Version: 1.0
+	id <S269889AbRHEBAd>; Sat, 4 Aug 2001 21:00:33 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18697 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269890AbRHEBAb>; Sat, 4 Aug 2001 21:00:31 -0400
+Subject: Re: MTRR and Athlon Processors
+To: pgallen@randomlogic.com (Paul G. Allen)
+Date: Sun, 5 Aug 2001 02:01:55 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux kernel developer's mailing list)
+In-Reply-To: <no.id> from "Paul G. Allen" at Aug 04, 2001 05:47:49 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B6C7F9B.30303@yahoo.co.nz>; from kiwiunixman@yahoo.co.nz on Sun, Aug 05, 2001 at 11:04:59AM +1200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15TCIm-0005i6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001 at 11:04:59AM +1200, Matthew Gardiner wrote:
-> Tom Vier wrote:
-> >switching from 2.4.7-ac3 to -ac4, disk access seems to be much more
-> >synchronis. running a ./configure script causes all kinds of trashing, as
-> >does installing .debs. i'm using reiserfs on top of software raid 0 on an
-> >alpha.
+> Is the mtrr code supposed to work properly for Athlon (Model 4) in
+> kernel 2.4.7?
+> 
+> I still get mtrr errors/warnings.
 
-> Apparently, in ac5 (which I am running), there was a bug on non-x86 
-> cpu's using reiserfs. Download and install the new patch and try.
-
-that's just a signedness fix. i've tried ac5 and it has the same problem as
-ac4.
-
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+Mismatched mtrr warnings indicate bios writers who cannot read
+specifications. The kernel will fix up after it

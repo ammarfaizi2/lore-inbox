@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316952AbSFQSze>; Mon, 17 Jun 2002 14:55:34 -0400
+	id <S316951AbSFQSzG>; Mon, 17 Jun 2002 14:55:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316953AbSFQSzd>; Mon, 17 Jun 2002 14:55:33 -0400
-Received: from unthought.net ([212.97.129.24]:59057 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S316952AbSFQSzc>;
-	Mon, 17 Jun 2002 14:55:32 -0400
-Date: Mon, 17 Jun 2002 20:55:33 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Marco Colombo <marco@esi.it>
-Cc: Roberto Fichera <kernel@tekno-soft.it>,
-       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: Developing multi-threading applications
-Message-ID: <20020617185532.GC7974@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Marco Colombo <marco@esi.it>, Roberto Fichera <kernel@tekno-soft.it>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-References: <5.1.1.6.0.20020617094803.00a96bd0@mail.tekno-soft.it> <Pine.LNX.4.44.0206171755340.1449-100000@Megathlon.ESI>
+	id <S316952AbSFQSzF>; Mon, 17 Jun 2002 14:55:05 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:64241 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316951AbSFQSzE>;
+	Mon, 17 Jun 2002 14:55:04 -0400
+Date: Mon, 17 Jun 2002 11:55:05 -0700
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] : ir250_headers_init-2.diff
+Message-ID: <20020617115505.B5818@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20020610175143.C21783@bougret.hpl.hp.com> <3D0A7235.9080705@mandrakesoft.com> <3D0C00C2.9030306@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0206171755340.1449-100000@Megathlon.ESI>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D0C00C2.9030306@evision-ventures.com>; from dalecki@evision-ventures.com on Sun, Jun 16, 2002 at 05:06:42AM +0200
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 17, 2002 at 06:07:51PM +0200, Marco Colombo wrote:
-> On Mon, 17 Jun 2002, Roberto Fichera wrote:
+On Sun, Jun 16, 2002 at 05:06:42AM +0200, Martin Dalecki wrote:
+> U¿ytkownik Jeff Garzik napisa³:
+> > Patch also did not apply...
 > 
-> [...]
-> > process to a CPU. But I continue to not hunderstand why
-> > I must have only one thread per CPU. There is some URL
-> > where can I see some kernel/sched/vm/I-O/other-think graph about
-> > this point ?
 > 
-> To put it simply, because you have only one PC per CPU. It's not
-> really an OS thing.
-> 
-> Every time you're saving the PC (and SP, and all the "thread context")
-> you're "emulating" more CPUs on just one. And what you got is just...
-> an emulation. A Thread is an execution abstraction, and a CPU is an
-> execution actor. Sounds sensible to match the two. Use functions instead
-> to group instructions by their (functional) meaning.
+> Please use the "white space lazy" flag to the patch command.
 
-It is common to use many threads per processor on some operating
-systems. But this is (in my experience) because of the lack of proper
-non-blocking APIs on said OS.
+	Don't worry, I'll pick up the pieces. If Jeff's comment is to
+be trusted, it's a bit more than whitespace anyway.
 
-You can emulate non-blocking APIs with threads and a blocking API. And
-on some systems you simply have to.
-
-On GNU/Linux this is not generally a problem.  And as Marco said, you
-really shouldn't have to do that.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+	Jean

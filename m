@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277294AbRLQNYI>; Mon, 17 Dec 2001 08:24:08 -0500
+	id <S278932AbRLQNga>; Mon, 17 Dec 2001 08:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278932AbRLQNX7>; Mon, 17 Dec 2001 08:23:59 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:15075 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S277294AbRLQNXj>; Mon, 17 Dec 2001 08:23:39 -0500
-Date: Mon, 17 Dec 2001 13:54:36 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: "Edward Killips" <etkillips@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Netfilter Oops Solved
-Message-ID: <20011217135436.S32507@sunbeam.de.gnumonks.org>
-In-Reply-To: <F141o1ujjSkZSvx5bd600005006@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <F141o1ujjSkZSvx5bd600005006@hotmail.com>; from etkillips@hotmail.com on Mon, Dec 17, 2001 at 01:07:52AM -0500
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.14
-X-Date: Today is Boomtime, the 55th day of The Aftermath in the YOLD 3167
+	id <S279313AbRLQNgU>; Mon, 17 Dec 2001 08:36:20 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:21005 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S278932AbRLQNgI>; Mon, 17 Dec 2001 08:36:08 -0500
+Content-Type: text/plain;
+  charset="PT 154"
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Jan-Benedict Glaw <jbglaw@microdata-pos.de>, linux-kernel@vger.kernel.org
+Subject: Re: xchg and GCC's optimisation:-(
+Date: Mon, 17 Dec 2001 15:33:47 -0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011217134526.A31801@microdata-pos.de>
+In-Reply-To: <20011217134526.A31801@microdata-pos.de>
+MIME-Version: 1.0
+Message-Id: <01121715334709.02146@manta>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 01:07:52AM -0500, Edward Killips wrote:
-> I found the problem in the netfilter code. In the file ipt_TOS.c the 
-> following code is wrong;
+On Monday 17 December 2001 10:45, Jan-Benedict Glaw wrote:
 
-Thanks for pointing out this issue.  According to DaveM, this fix has already
-been submitted to Marcelo for Kernel inclusion.
+> void free_dma(unsigned int dmanr)
+> {
+>         if (dmanr >= MAX_DMA_CHANNELS) {
+>                 printk("Trying to free DMA%d\n", dmanr);
+>                 return;
+>         }
+>
+>         if (xchg(&dma_chan_busy[dmanr].lock, 0) == 0) {
+> /* ERROR */     printk("Trying to free free DMA%d\n", dmanr);
+>                 return;
+>         }
+>
+> } /* free_dma */
+>
+> Including a real_printk() at the line marked with ERROR will
+> result in:
+[snip]
+> ...which is fine and contains the needed xchg call. However,
+> substituting the printk() with "do {} while (0)" above,
+> the "if" path seems to be completely removed by the optimizer:
+>
+> 00000088 <free_dma>:
+>   88:   c3                      ret
+>   89:   8d b4 26 00 00 00 00    lea    0x0(%esi,1),%esi
+>
+>
+> I've looked at ./include/asm-i386/system.h which does some black
+> magic with it, and I don't really understand that. However, the
+> result is that the xchg gets optimized away, rendering at least
+> the floppy module unuseable:-(
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+There is a comment that asm is not 100% valid.
+My GCC 3.0.1 does not produce buggy code, guess why?
+It does _not_ inline __xchg() even at -O99!
+
+So much of compiler improvement  8-(
+--
+vda

@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVBVCSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVBVCh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVBVCSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 21:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVBVCSS
+	id S262193AbVBVCh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 21:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVBVCh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 21:18:18 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:3527 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S262192AbVBVCSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 21:18:15 -0500
-Date: Tue, 22 Feb 2005 11:18:10 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Asier Llano Palacios <a.llano@usyscom.com>, jamey.hicks@hp.com
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: gpio api
-Message-Id: <20050222111810.7f3f6e22.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <1108980144.15299.16.camel@localhost.localdomain>
-References: <4215F1A0.1030805@hp.com>
-	<1108980144.15299.16.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Feb 2005 21:37:57 -0500
+Received: from mxsf19.cluster1.charter.net ([209.225.28.219]:11708 "EHLO
+	mxsf19.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S262193AbVBVChx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 21:37:53 -0500
+X-Ironport-AV: i="3.90,105,1107752400"; 
+   d="scan'208"; a="615167593:sNHT25814448"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16922.39677.25633.782857@smtp.charter.net>
+Date: Mon, 21 Feb 2005 21:37:49 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: me <cellsan@interia.pl>, linux-kernel@vger.kernel.org
+Subject: Re: USB Storage problem (usb hangs)
+In-Reply-To: <16922.30184.268574.616226@smtp.charter.net>
+References: <20050220173401.48EF9E5B93@poczta.interia.pl>
+	<16922.30184.268574.616226@smtp.charter.net>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005 11:02:24 +0100
-Asier Llano Palacios <a.llano@usyscom.com> wrote:
+>>>>> "John" == John Stoffel <john@stoffel.org> writes:
 
-> I think that implementing a GPIO interface is a must-have. And I also
-> think that your proposal is awesome. I work with GPIOs a lot, and I hate
-> not doing it in a cross-platform way.
-> 
-> I generally agree with your proposal but I see some missing behaviours.
+me> Kernel: 2.6.9, 2.6.10 (i cant remember from which one is attached log).
+me> Distribution: Gentoo.
 
-me too,
+John> Try upgrading to 2.6.11-rc2-mm2 or newer, I've found that usb-storage
+John> works a bit better here, though I haven't confirmed this without debug
+John> enabled in the usb-storage driver yet.
 
-> Configuration that should be done on GPIOs.
-> - GPIO direction (input/output)
-> - GPIO modes (standard CMOS / open drain).
+John> Maybe later tonight if I get a chance to reboot.
 
-I also need pull-up/pull-down.
+Just another note, 2.6.11-rc2-mm2 without USB-STORAGE debugging turned
+on passes an 'iozone -a' test on my 40gb WD firewire/USB enclosure
+under USB 2.0 interface.  
 
-> - GPIO interruption generation (by level or edge, high, low, raising,
-> falling)
+Now to swap in the problematic 120gb WD drive and see if that works
+under USB as well as firewire too.  
 
-We also need a method that GPIO cascade to IRQ.
-
-Yoichi
+John

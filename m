@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135338AbRANTrc>; Sun, 14 Jan 2001 14:47:32 -0500
+	id <S135293AbRANTrc>; Sun, 14 Jan 2001 14:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135337AbRANTrX>; Sun, 14 Jan 2001 14:47:23 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:45320 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S135333AbRANTrN>; Sun, 14 Jan 2001 14:47:13 -0500
-Date: Sun, 14 Jan 2001 20:46:57 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Robert J. Bell" <rob@bellfamily.org>
-Cc: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: USB Mass Storage in 2.4.0
-Message-ID: <20010114204657.B17160@pcep-jamie.cern.ch>
-In-Reply-To: <3A5F8956.9040305@bellfamily.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5F8956.9040305@bellfamily.org>; from rob@bellfamily.org on Fri, Jan 12, 2001 at 02:46:46PM -0800
+	id <S135338AbRANTrX>; Sun, 14 Jan 2001 14:47:23 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:64781 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S135293AbRANTrM>;
+	Sun, 14 Jan 2001 14:47:12 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101141946.WAA25337@ms2.inr.ac.ru>
+Subject: Re: Kernel oops in tcp_ipv4.c
+To: pim@uknet.spacesurfer.com
+Date: Sun, 14 Jan 2001 22:46:48 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A5F55AF.9651CCF1@spacesurfer.com> from "Patrick" at Jan 12, 1 10:15:02 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert J. Bell wrote:
-> I have a Fujufilm FX-1400 digital camera that uses the USB Mass Storage 
-> driver. I know it works because I had it working in 2.4.0-test12, and in 
-> 2.4.0 however I had a major system failure and lost my new kernel. 
+Hello!
 
-Fwiw, I have a Fujifilm FinePix 2400Zoom and it appears to be working
-fine with the USB Mass Storage driver from 2.4.0.  I used the uhci.c
-driver to test, even though I normally use the usb-uhci.c driver when
-I'm using my USB modem.  No reason, I just forgot which one I normally
-use :-)
+> Recently I tried 2.2.17, this kernel was up for about a month, before
+> there was a kernel oops. The syslog messages are:
 
--- Jamie
+This is caused by illegal setting of /proc/sys/net/ipv4/ip_local_port_range
+with kernels before 2.2.18.
+
+Do not touch this value or change it to something reasonable,
+f.e. to one of values recommended in net/ipv4/tcp_ipv4.c
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

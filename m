@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVDAVA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbVDAVBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbVDAVA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 16:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVDAU6H
+	id S262906AbVDAVBp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 16:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVDAVBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 15:58:07 -0500
+	Fri, 1 Apr 2005 16:01:08 -0500
 Received: from webmail.topspin.com ([12.162.17.3]:35887 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262906AbVDAUvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:51:16 -0500
+	id S262910AbVDAUvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 15:51:20 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][16/27] IB/mthca: allow address handle creation in interrupt context
-In-Reply-To: <2005411249.qipkNNwvZYuE2KBu@topspin.com>
+Subject: [PATCH][20/27] IB/mthca: add mthca_table_find() function
+In-Reply-To: <2005411249.t0DdCtarOabubO3D@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Fri, 1 Apr 2005 12:49:53 -0800
-Message-Id: <2005411249.gEJosMqrkm8KOH4C@topspin.com>
+Message-Id: <2005411249.Tkvt1lzz8zEHUMmz@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 20:49:53.0419 (UTC) FILETIME=[5ADF9DB0:01C536FC]
+X-OriginalArrivalTime: 01 Apr 2005 20:49:53.0716 (UTC) FILETIME=[5B0CEF40:01C536FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make address handle verbs usable from interrupt context.
+From: Michael S. Tsirkin <mst@mellanox.co.il>
 
+Add mthca_table_find() function, which returns the lowmem address of
+an entry in a mem-free HCA's context tables.  This will be used by the
+FMR implementation.
+
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_av.c	2005-03-31 19:07:01.000000000 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_av.c	2005-04-01 12:38:26.648176093 -0800
-@@ -63,7 +63,7 @@
- 	ah->type = MTHCA_AH_PCI_POOL;
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-01 12:38:23.500859288 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-01 12:38:28.285820606 -0800
+@@ -192,6 +192,40 @@
+ 	up(&table->mutex);
+ }
  
- 	if (dev->hca_type == ARBEL_NATIVE) {
--		ah->av   = kmalloc(sizeof *ah->av, GFP_KERNEL);
-+		ah->av   = kmalloc(sizeof *ah->av, GFP_ATOMIC);
- 		if (!ah->av)
- 			return -ENOMEM;
- 
-@@ -77,7 +77,7 @@
- 		if (index == -1)
- 			goto on_hca_fail;
- 
--		av = kmalloc(sizeof *av, GFP_KERNEL);
-+		av = kmalloc(sizeof *av, GFP_ATOMIC);
- 		if (!av)
- 			goto on_hca_fail;
- 
-@@ -89,7 +89,7 @@
- on_hca_fail:
- 	if (ah->type == MTHCA_AH_PCI_POOL) {
- 		ah->av = pci_pool_alloc(dev->av_table.pool,
--					SLAB_KERNEL, &ah->avdma);
-+					SLAB_ATOMIC, &ah->avdma);
- 		if (!ah->av)
- 			return -ENOMEM;
- 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-01 12:38:22.630048317 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-01 12:38:26.644176961 -0800
-@@ -315,7 +315,7 @@
- 	int err;
- 	struct mthca_ah *ah;
- 
--	ah = kmalloc(sizeof *ah, GFP_KERNEL);
-+	ah = kmalloc(sizeof *ah, GFP_ATOMIC);
- 	if (!ah)
- 		return ERR_PTR(-ENOMEM);
- 
++void *mthca_table_find(struct mthca_icm_table *table, int obj)
++{
++	int idx, offset, i;
++	struct mthca_icm_chunk *chunk;
++	struct mthca_icm *icm;
++	struct page *page = NULL;
++
++	if (!table->lowmem)
++		return NULL;
++
++	down(&table->mutex);
++
++	idx = (obj & (table->num_obj - 1)) * table->obj_size;
++	icm = table->icm[idx / MTHCA_TABLE_CHUNK_SIZE];
++	offset = idx % MTHCA_TABLE_CHUNK_SIZE;
++
++	if (!icm)
++		goto out;
++
++	list_for_each_entry(chunk, &icm->chunk_list, list) {
++		for (i = 0; i < chunk->npages; ++i) {
++			if (chunk->mem[i].length >= offset) {
++				page = chunk->mem[i].page;
++				break;
++			}
++			offset -= chunk->mem[i].length;
++		}
++	}
++
++out:
++	up(&table->mutex);
++	return page ? lowmem_page_address(page) + offset : NULL;
++}
++
+ int mthca_table_get_range(struct mthca_dev *dev, struct mthca_icm_table *table,
+ 			  int start, int end)
+ {
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.h	2005-04-01 12:38:19.895641881 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.h	2005-04-01 12:38:28.280821691 -0800
+@@ -85,6 +85,7 @@
+ void mthca_free_icm_table(struct mthca_dev *dev, struct mthca_icm_table *table);
+ int mthca_table_get(struct mthca_dev *dev, struct mthca_icm_table *table, int obj);
+ void mthca_table_put(struct mthca_dev *dev, struct mthca_icm_table *table, int obj);
++void *mthca_table_find(struct mthca_icm_table *table, int obj);
+ int mthca_table_get_range(struct mthca_dev *dev, struct mthca_icm_table *table,
+ 			  int start, int end);
+ void mthca_table_put_range(struct mthca_dev *dev, struct mthca_icm_table *table,
 

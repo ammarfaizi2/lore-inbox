@@ -1,86 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVC0Oay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVC0Od6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVC0Oay (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 09:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVC0Oay
+	id S261675AbVC0Od6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 09:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVC0Od6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 09:30:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14545 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261685AbVC0Oab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 09:30:31 -0500
-Subject: Re: [PATCH] remove redundant NULL pointer checks prior to calling
-	kfree() in fs/nfsd/
-From: Arjan van de Ven <arjan@infradead.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: linux-os@analogic.com, Jesper Juhl <juhl-lkml@dif.dk>,
-       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200503271545.28335.vda@ilport.com.ua>
-References: <Pine.LNX.4.62.0503252319220.2498@dragon.hyggekrogen.localhost>
-	 <Pine.LNX.4.61.0503251731240.6372@chaos.analogic.com>
-	 <1111826041.6293.31.camel@laptopd505.fenrus.org>
-	 <200503271545.28335.vda@ilport.com.ua>
-Content-Type: text/plain
-Date: Sun, 27 Mar 2005 16:30:19 +0200
-Message-Id: <1111933819.6297.45.camel@laptopd505.fenrus.org>
+	Sun, 27 Mar 2005 09:33:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5389 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261675AbVC0Odz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 09:33:55 -0500
+Date: Sun, 27 Mar 2005 16:33:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/i386/kernel/cpu/mtrr/generic.c: make generic_get_mtrr static
+Message-ID: <20050327143354.GC4285@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-27 at 15:45 +0300, Denis Vlasenko wrote:
-> On Saturday 26 March 2005 10:34, Arjan van de Ven wrote:
-> > On Fri, 2005-03-25 at 17:34 -0500, linux-os wrote:
-> > > On Fri, 25 Mar 2005, Jesper Juhl wrote:
-> > > 
-> > > > (please keep me on CC)
-> > > >
-> > > >
-> > > > checking for NULL before calling kfree() is redundant and needlessly
-> > > > enlarges the kernel image, let's get rid of those checks.
-> > > >
-> > > 
-> > > Hardly. ORing a value with itself and jumping on condition is
-> > > real cheap compared with pushing a value into the stack
-> > 
-> > which century are you from?
-> > "jumping on condition" can easily be 100+ cycles, depending on how
-> > effective the branch predictor is. Pushing a value onto the stack otoh
-> > is half a cycle.
-> 
-> linux-os is right because kfree does NULL check with exactly
-> the same code sequence, test and branch:
+This patch makes a needlessly global function static.
 
-I know it does. The thing is that you have *two* chances to get a branch
-mispredict now.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Now if kfree did NOT do the if but move it always to the caller, then
-you have somewhat different dynamics (since you then always if the
-conditional jump once no matter) but that is not the case.
+---
 
-> I conclude that if(p) kfree(p) makes sense only if:
-> a) p is more often NULL than not, and
-> b) it's in the hot path (you don't want to save on code size)
-> 
-> Since (a) is not typical, I think Jesper's cleanups are ok.
+This patch was already sent on:
+- 20 Mar 2005
 
-note that to gain from teh branch predictor "more often than not"
-probably needs to be in the 20:1 ratio to actually gain.
-
+--- linux-2.6.11-mm4-full/arch/i386/kernel/cpu/mtrr/generic.c.old	2005-03-20 19:43:46.000000000 +0100
++++ linux-2.6.11-mm4-full/arch/i386/kernel/cpu/mtrr/generic.c	2005-03-20 19:44:11.000000000 +0100
+@@ -114,8 +114,8 @@
+ 	return -ENOSPC;
+ }
+ 
+-void generic_get_mtrr(unsigned int reg, unsigned long *base,
+-		      unsigned int *size, mtrr_type * type)
++static void generic_get_mtrr(unsigned int reg, unsigned long *base,
++			     unsigned int *size, mtrr_type * type)
+ {
+ 	unsigned int mask_lo, mask_hi, base_lo, base_hi;
+ 
 

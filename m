@@ -1,72 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTEFJhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 05:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbTEFJhE
+	id S262429AbTEFJwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 05:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTEFJwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 05:37:04 -0400
-Received: from WebDev.iNES.RO ([80.86.100.174]:35212 "EHLO webdev.ines.ro")
-	by vger.kernel.org with ESMTP id S262482AbTEFJhD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 05:37:03 -0400
-Date: Tue, 6 May 2003 12:49:34 +0300 (EEST)
-From: Andrei Ivanov <andrei.ivanov@ines.ro>
-X-X-Sender: shadow@webdev.ines.ro
-To: Greg KH <greg@kroah.com>
-cc: Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69-mm1
-In-Reply-To: <20030505164505.GA1177@kroah.com>
-Message-ID: <Pine.LNX.4.50L0.0305061243450.4098-100000@webdev.ines.ro>
-References: <20030504231650.75881288.akpm@digeo.com>
- <Pine.LNX.4.50L0.0305051826500.4098-100000@webdev.ines.ro>
- <20030505164505.GA1177@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 May 2003 05:52:16 -0400
+Received: from us02smtp1.synopsys.com ([198.182.60.75]:6395 "HELO
+	vaxjo.synopsys.com") by vger.kernel.org with SMTP id S262429AbTEFJwP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 05:52:15 -0400
+Date: Tue, 6 May 2003 12:04:35 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org, Eric Lammerts <eric@lammerts.org>
+Subject: Fwd: allow rename to "--bind"-mounted filesystem
+Message-ID: <20030506100435.GH890@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+i just came over this patch, and wondered why is it missing
+in both 2.4 and 2.5 (the code in do_rename is identical in both
+kernels).
 
-I've tried plain 2.5.69 and -mm1, with all the combinations of acpi 
-and local apic (enabled and disabled), and it still doesn't work. The only 
-thing that works is to unplug and to plug in the mouse after start-up.
+Are such renames really not allowed, or was it just fixed differently?
 
-relevant boot messages:
+-alex
 
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface 
-driver v2.0uhci-hcd 00:07.2: VIA Technologies, In USB
-uhci-hcd 00:07.2: irq 11, io base 0000d400
-uhci-hcd 00:07.2: new USB bus registered, assigned bus number 1
-hub 1-0:0: USB hub found
-hub 1-0:0: 2 ports detected
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-mice: PS/2 mouse device common for all mice
-hub 1-0:0: debounce: port 2: delay 100ms stable 4 status 0x301
-hub 1-0:0: new USB device on port 2, assigned address 2
-usb 1-2: USB device not accepting new address=2 (error=-110)
-hub 1-0:0: new USB device on port 2, assigned address 3
-usb 1-2: USB device not accepting new address=3 (error=-110)
+----- Forwarded message from Eric Lammerts <eric@lammerts.org> -----
 
-after re-pluging the mouse:
-
-hub 1-0:0: debounce: port 2: delay 100ms stable 4 status 0x301
-hub 1-0:0: new USB device on port 2, assigned address 4
-input: USB HID v1.10 Mouse [Microsoft Microsoft 3-Button Mouse with 
-IntelliEye(TM)] on usb-00:07.2-2
+Date: 	Sun, 19 Jan 2003 00:34:59 +0100
+Subject: [PATCH] allow rename to "--bind"-mounted filesystem 
+From: Eric Lammerts <eric@lammerts.org>
+To: linux-kernel@vger.kernel.org
+Message-ID: <20030118233459.GA18011@ally.lammerts.org>
+X-Mailing-List: 	linux-kernel@vger.kernel.org
 
 
-On Mon, 5 May 2003, Greg KH wrote:
+Hi,
+I just discovered that rename(2) does not allow you to rename a file within
+the same filesystem if there is a "--bind" in the way. For example:
 
-> On Mon, May 05, 2003 at 06:32:36PM +0300, Andrei Ivanov wrote:
-> > 
-> > The usb mouse still doesn't work... :(
-> > Is there anything else I should try ?
-> 
-> Yes, does 2.5.69 (no -mm) work ok?
-> And what are the usb messages from the kernel log when you plug your USB
-> mouse in?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+# mkdir mydir
+# mount --bind . mydir
+# touch myfile
+# strace -erename perl -e 'rename "myfile", "mydir/myfile2"'
+rename("myfile", "mydir/myfile2") = -1 EXDEV (Invalid cross-device link)
+
+IMHO it should be possible to do a rename in this situation.
+
+I propose to remove the check in do_rename() altogether. It shouldn't be
+necessary, since there's also a check for a cross-device rename in
+vfs_rename_dir() and vfs_rename_other().
+
+Patch below has been tested.
+
+Eric
+
+
+--- linux-2.4.21-pre3/fs/namei.c.orig	2003-01-18 23:56:46.000000000 +0100
++++ linux-2.4.21-pre3/fs/namei.c	2003-01-18 23:57:30.000000000 +0100
+@@ -1860,10 +1860,6 @@
+ 	if (error)
+ 		goto exit1;
+ 
+-	error = -EXDEV;
+-	if (oldnd.mnt != newnd.mnt)
+-		goto exit2;
+-
+ 	old_dir = oldnd.dentry;
+ 	error = -EBUSY;
+ 	if (oldnd.last_type != LAST_NORM)

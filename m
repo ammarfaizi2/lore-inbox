@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263198AbTHXKvw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 06:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbTHXKvv
+	id S263416AbTHXKzK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 06:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbTHXKzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 06:51:51 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:30124 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263198AbTHXKvZ (ORCPT
+	Sun, 24 Aug 2003 06:55:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18624 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263416AbTHXKzH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 06:51:25 -0400
-Date: Sun, 24 Aug 2003 12:46:15 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2 mouse attached
-Message-ID: <20030824104615.GC29804@ucw.cz>
-References: <1061233756.1520.16.camel@teapot.felipe-alfaro.com>
+	Sun, 24 Aug 2003 06:55:07 -0400
+Date: Sun, 24 Aug 2003 03:46:37 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.0-test4][ATM][RESEND] fix ambassador.c
+Message-Id: <20030824034637.522fdeb3.davem@redhat.com>
+In-Reply-To: <1061629891.1121.7.camel@lima.royalchallenge.com>
+References: <1061629891.1121.7.camel@lima.royalchallenge.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061233756.1520.16.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 09:09:16PM +0200, Felipe Alfaro Solana wrote:
+On 23 Aug 2003 14:41:31 +0530
+Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
 
-> If I try to boot my P4 box (i845DE motherboard) with no PS/2 mouse
-> plugged into the PS/2 port, the kernel hangs while checking the AUX
-> ports in function i8042_check_aux(). The i8042_check_aux() function is
-> trying to request IRQ #12, but the call to request_irq() causes the
-> hang. The kernel hangs exactly at:
-> 
->         if (request_irq(values->irq, i8042_interrupt, SA_SHIRQ,
->                                 "i8042", i8042_request_irq_cookie))
+> This patch cleans up the code making use of sti/cli.
 
-What happens if you remove the SA_SHIRQ and replace with 0?
-
-> in drivers/input/serio/i8042.c, with a value of 12 for values->irq. If I
-> boot with my PS/2 mouse attached, the kernel is able to boot normally.
-> Also, disabling ACPI support in the kernel allows me to boot
-> 2.6.0-test3-bk6 with no PS/2 mouse plugged in.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Please make sure to send this to the ATM maintainer.  He's very
+responsible so I only take significant ATM patches that come through
+him.

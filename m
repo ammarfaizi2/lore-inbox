@@ -1,92 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSLWAjS>; Sun, 22 Dec 2002 19:39:18 -0500
+	id <S265201AbSLWAlN>; Sun, 22 Dec 2002 19:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSLWAjR>; Sun, 22 Dec 2002 19:39:17 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:60093 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264739AbSLWAjQ>;
-	Sun, 22 Dec 2002 19:39:16 -0500
-Date: Sun, 22 Dec 2002 16:46:00 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dev_printk macro
-In-Reply-To: <200212222104.gBML4vI15305@hera.kernel.org>
-Message-ID: <Pine.LNX.4.33L2.0212221634210.16753-100000@dragon.pdx.osdl.net>
+	id <S265276AbSLWAlN>; Sun, 22 Dec 2002 19:41:13 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:46005 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265201AbSLWAlM> convert rfc822-to-8bit; Sun, 22 Dec 2002 19:41:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] scheduler tunables with contest - exit_weight
+Date: Mon, 23 Dec 2002 01:49:01 +0100
+User-Agent: KMail/1.4.3
+Cc: Con Kolivas <conman@kolivas.net>
+References: <200212220818.22906.conman@kolivas.net>
+In-Reply-To: <200212220818.22906.conman@kolivas.net>
+Organization: WOLK - Working Overloaded Linux Kernel
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212230148.16806.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 21 December 2002 22:18, Con Kolivas wrote:
 
-Hi LKML,
+Hey Con,
 
-I'm glad to see this patch available, as Greg was.
-Now I have some questions about it.
+> osdl hardware, contest results, 2.5.52-mm2 with scheduler tunable - exit
+> weight (ew1= exit weight ==1 and so on)
+Can you please try another thing?
 
-a.  Is it only for drivers?  If so, why?
-    Filesystems and other subsystems that are not drivers could use
-    something like this also.
+kernel/sched.c
 
-b.  Is it only for drivers that have a device?
-    What does a driver use for dev_printk() if it doesn't have a <dev>?
-    However, these do cover the large majority of cases, so that's good.
+        /*
+         * If the child was a (relative-) CPU hog then decrease
+         * the sleep_avg of the parent as well.  
+         */
+        if (p->sleep_avg < p->parent->sleep_avg)
+                p->parent->sleep_avg = (p->parent->sleep_avg * exit_weight +
+                        p->sleep_avg) / (exit_weight + 1);
 
-c.  Maybe I'm too cautious (I don't like panics or oopsen :), but I would
-    have checked <dev> for NULL in those macros.
+Remove these please and run again.
 
-d.  and I know that <sev> is severity, but spelling it as severity
-    or level would have been better.  :)
-
-IOW, this is a good start, no doubt.  However, it appears to be limited
-in scope to drivers.  That's still a good start, but there's more to do.
-
--- 
-~Randy
-
-PS:  Yes, I know Greg's 2 favorite words:  Patches accepted.
-Maybe early next year.  ;)
-
-
-On Sun, 22 Dec 2002, Linux Kernel Mailing List wrote:
-
-| ChangeSet 1.865.28.18, 2002/12/21 23:54:35-08:00, jkenisto@us.ibm.com
-|
-| 	[PATCH] dev_printk macro
-|
-| #	include/linux/device.h	1.69    -> 1.70
-|
-| diff -Nru a/include/linux/device.h b/include/linux/device.h
-| --- a/include/linux/device.h	Sun Dec 22 13:04:59 2002
-| +++ b/include/linux/device.h	Sun Dec 22 13:04:59 2002
-| @@ -396,22 +396,21 @@
-|  extern void firmware_unregister(struct subsystem *);
-|
-|  /* debugging and troubleshooting/diagnostic helpers. */
-| +#define dev_printk(sev, dev, format, arg...)	\
-| +	printk(sev "%s %s: " format , (dev).driver->name , (dev).bus_id , ## arg)
-| +
-|  #ifdef DEBUG
-|  #define dev_dbg(dev, format, arg...)		\
-| -	printk (KERN_DEBUG "%s %s: " format ,	\
-| -		(dev).driver->name , (dev).bus_id , ## arg)
-| +	dev_printk(KERN_DEBUG , (dev) , format , ## arg)
-|  #else
-|  #define dev_dbg(dev, format, arg...) do {} while (0)
-|  #endif
-|
-|  #define dev_err(dev, format, arg...)		\
-| -	printk (KERN_ERR "%s %s: " format ,	\
-| -		(dev).driver->name , (dev).bus_id , ## arg)
-| +	dev_printk(KERN_ERR , (dev) , format , ## arg)
-|  #define dev_info(dev, format, arg...)		\
-| -	printk (KERN_INFO "%s %s: " format ,	\
-| -		(dev).driver->name , (dev).bus_id , ## arg)
-| +	dev_printk(KERN_INFO , (dev) , format , ## arg)
-|  #define dev_warn(dev, format, arg...)		\
-| -	printk (KERN_WARNING "%s %s: " format ,	\
-| -		(dev).driver->name , (dev).bus_id , ## arg)
-| +	dev_printk(KERN_WARNING , (dev) , format , ## arg)
-|
-|  #endif /* _DEVICE_H_ */
-
+ciao, Marc

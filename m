@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135609AbRDXNgT>; Tue, 24 Apr 2001 09:36:19 -0400
+	id <S135612AbRDXNgT>; Tue, 24 Apr 2001 09:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135614AbRDXNgD>; Tue, 24 Apr 2001 09:36:03 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:9463 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S135609AbRDXNfq>; Tue, 24 Apr 2001 09:35:46 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: David Woodhouse <dwmw2@infradead.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <Pine.GSO.4.21.0104240639580.6992-100000@weyl.math.psu.edu>
-Organisation: SAP LinuxLab
-Date: 24 Apr 2001 15:34:08 +0200
-In-Reply-To: <Pine.GSO.4.21.0104240639580.6992-100000@weyl.math.psu.edu>
-Message-ID: <m3n196v2un.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S135609AbRDXNgI>; Tue, 24 Apr 2001 09:36:08 -0400
+Received: from memphis.cbn.net.id ([202.158.3.16]:19985 "HELO
+	memphis.cbn.net.id") by vger.kernel.org with SMTP
+	id <S135613AbRDXNf5>; Tue, 24 Apr 2001 09:35:57 -0400
+Date: Tue, 24 Apr 2001 20:37:51 +0700 (JAVT)
+From: <imel96@trustix.co.id>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.3.95.1010424090323.12078B-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0104242029140.16230-100000@tessy.trustix.co.id>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
 
-On Tue, 24 Apr 2001, Alexander Viro wrote:
-> So yes, IMO having such patches available _is_ a good thing. And in
-> 2.5 we definitely want them in the tree. If encapsulation part gets
-> there during 2.4 and separate allocation is available for all of
-> them it will be easier to do without PITA in process.
 
-OK I will do that for tmpfs soon. And I will do the symlink inlining
-with that patch.
+On Tue, 24 Apr 2001, Richard B. Johnson wrote:
+> You are on the wrong list. You don't modify the kernel to make
+> a "single-user" machine. You modify the password file in /etc/passwd.
+> Until you know, and completely understand this, you will be laughed at.
+>
+> When an interactive process is started, /bin/login gets the new
+> process information from the /etc/passwd file just before it gets
+> overwritten (exec) by the shell shown in that same password file.
+>
+> If you want your accounts to have root privs, you set the UID and
+> GID fields in the password file to 0 and 0 respectively. I would
+> not suggest that you connect your computer to a network if you
+> do this.
 
-Greetings
-		Christoph
+thank you very much fyi.
+if just you tried to understand it a little further:
+i didn't change all uid/gid to 0!
+
+why? so with that radical patch, users will still have
+uid/gid so programs know the user's profile.
+
+if everyone had 0/0 uid/gid, pine will open /var/spool/mail/root,
+etc.
+
+
+		imel
 
 

@@ -1,74 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261165AbSJUHM7>; Mon, 21 Oct 2002 03:12:59 -0400
+	id <S261173AbSJUHOh>; Mon, 21 Oct 2002 03:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261173AbSJUHM7>; Mon, 21 Oct 2002 03:12:59 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:35556 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S261165AbSJUHM6>; Mon, 21 Oct 2002 03:12:58 -0400
-Message-ID: <3DB3AABC.2040208@snapgear.com>
-Date: Mon, 21 Oct 2002 17:20:28 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261177AbSJUHOh>; Mon, 21 Oct 2002 03:14:37 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:33212 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S261173AbSJUHOg> convert rfc822-to-8bit; Mon, 21 Oct 2002 03:14:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: Bitkeeper outrage, old and new
+Date: Sun, 20 Oct 2002 21:20:37 -0500
+User-Agent: KMail/1.4.3
+Cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+References: <E180rX3-0005dL-00@fencepost.gnu.org> <m1d6q4wzwb.fsf@frodo.biederman.org> <20021020194232.A15648@work.bitmover.com>
+In-Reply-To: <20021020194232.A15648@work.bitmover.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Rob Landley <landley@trommello.org>
-Subject: Re:  Rob Landley <landley@trommello.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210202120.37176.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rob,
+On Sunday 20 October 2002 21:42, Larry McVoy wrote:
 
-Rob Landley wrote:
- > If your patch isn't on the list, speak out now.  Better yet, post a 
-URL to the
- > latest version.  It's "show me the code" time.  (Yes, Hans Reiser, 
-this means
- > you. :)  There are still 7 days till the end of Linus's cruise, but 
-that's
- > not much time to get guinea pigs to publicly pipe up with a hearty 
-"AOL!" of
- > support for your work...
+> > The GPL forces people to respect others freedom to use a work so
+> > covered.  That is still a power, but used in a good way.  The power
+> > to silence criticism is definitely not a power that enhances anyones
+> > freedom.
+>
+> Hogwash indeed.  Free means the freedom to do whatever you want.
+> Consider the US free speech.  Nobody says "this sort of speech is good
+> for the world, therefor it is the sanctioned form of free speech and
+> all other forms are prohibited".
 
-Here's another feature I would like to see go in: MMU-less procesor support.
+Actually, they do.  Commercial speech can be more heavily regulated than 
+non-commercial speech, and then of course there's the old "obscenity" bit.  
+And of course the test of yelling "movie" in a crowed firehouse... :)
 
-Latest patches for the memory management changes are at:
+There are several important supreme court cases on this, attempting to 
+delineate the bounds of the first amendment.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-mm.patch.gz
+> playing God.  The GPL is *not* about freedom it is about forcing the
+> source code to be freely available.
 
-The core of this stuff has been around for years (earliest in 2.0.33),
-with a _lot_ of users (easily > 50000). And specifically these patches
-have been tracking every 2.5 release pretty much since it started.
+The GPL is about giving free software an immune system so that Forker du jour 
+can't hire all your developers away to work on a closed fork of the codebase 
+the way netscape gutted Mosaic, BSDi shredded the berkeley CSRG, and the two 
+Lisp companies drained the original MIT AI lab.
 
-The other important peice with this is the FLAT format exe loader
-(binfmt_flat), patch at:
+Technically speaking, the bill of rights is a list of restrictions.  Can't 
+shut people up, can't take the guns away, can't impose a religion on 
+people...
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-binflat.patch.gz
+> And it does a fairly poor job of that
 
-To make this truely useful though you also need some new archiecture
-support. Up to date patches for 2 of these are at:
+Seems to have worked fine so far. :)
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-m68knommu.patch.gz
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-v850.patch.gz
+> if it really wanted to do so it would be far more simplistic about
+> it and say "any changes you make must be published within 24 hours or
+> your license is revoked".
 
-These support the non-VM 68k processors (683XXX and ColdFire), and the
-NEC v850 family. [We have many more (ARM, SPARC, i960, etc) but they are
-not 2.5 ready yet].
+Wouldn't hold up in court, for a number of reasons.
 
-Also some drivers to go along with this, but I won't bother listing
-them here. See my other emails on the list for those patches...
+> All you are doing is saying that your goals are better than other goals.
 
-Regards
-Greg
+Stallman isn't saying you can't put your code under the license you like.  
+He's not really addressing you.  (I think he's written you off as a lost 
+cause.)  He was talking to the rest of the kernel development list and going 
+"What are you, NUTS?  There be strings attached!"  And they went "So why 
+doesn't the FSF sponsor a bitcreeper replacement?"  And he has studiously 
+chosen to ignore this, it seems.  Either that or his inbox runneth over...
 
+> That's not freedom, that is you deciding what is best for the world.
+> You may well be right, your goals may be what is best for the world.
+> None the less, that's not freedom.  That's Big Brother making decisions
+> for all "the little people" in the world.
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+The same could be said about the founding fathers and the constitution...
 
+>  And, surprise surprise, you
+> may not be right.  Freedom is about everyone have equal rights to make
+> their own choices, nobody died and elected you God.
+
+If freedom is about everyone having equal rights, then if everybody is locked 
+up in the same size cell, we're all free.  (In prison you get to make any 
+choice you want.  Whether or not you can act on it is another matter, but 
+that's a pragmetic concern wherever you go.  It's easy to choose how to spend 
+a million dollars...)
+
+The difference between the utopian ideal of putting all your code in the 
+public domain and licensing it under the GPL, is that the GPL works and 
+putting our code in the public domain means, under our legal system, people 
+can sue you if your "hello world" fails to cure cancer for them.
+
+Who are you to take away their freedom to sue you by putting clauses in your 
+license forbidding it? :)
+
+Rob

@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbTKIDAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 22:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTKIDAZ
+	id S262114AbTKIDUK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 22:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTKIDUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 22:00:25 -0500
-Received: from mel1.uecomm.net.au ([203.94.129.130]:13481 "EHLO
-	mel1.unite.net.au") by vger.kernel.org with ESMTP id S262064AbTKIDAX
+	Sat, 8 Nov 2003 22:20:10 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:32529 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S262114AbTKIDUF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 22:00:23 -0500
-Subject: Re: Re:No backlight control on PowerBook G4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Reply-To: benh@kernel.crashing.org
-To: Daniel Egger <degger@fhm.edu>
-Cc: Dustin Lang <dalang@cs.ubc.ca>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1068198639.796.109.camel@sonja>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
-	 <1067896476.692.36.camel@gaston>  <1067976347.945.4.camel@sonja>
-	 <1068078504.692.175.camel@gaston>  <1068198639.796.109.camel@sonja>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1068346792.673.25.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 09 Nov 2003 13:59:53 +1100
+	Sat, 8 Nov 2003 22:20:05 -0500
+Date: Sat, 8 Nov 2003 22:20:03 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Bug (?) in subsystem kset refcounts
+Message-ID: <Pine.LNX.4.44L0.0311082209330.7127-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-11-07 at 20:50, Daniel Egger wrote:
-> Am Don, den 06.11.2003 schrieb Benjamin Herrenschmidt um 01:28:
-> 
-> > No, I told you to use _my_ 2.6 tree which contains a new radeonfb
-> > that have not yet been merged upstream.
-> 
-> Still cannot try this because your kernel wouldn't even survive yaboot.
+I hesitate to say this is definitely a bug, since it might be intended 
+behavior.  But it is rather strange.
 
-Can you give details ? It should work just fine, except if I broke
-something in the past few days when getting G5 support in, but I didn't
-have any other report of this, so...
+Subsystems included an embedded kset, which itself includes an embedded 
+kobject and so is subject to reference counting.  Whenever a kobject 
+belonging to the kset is destroyed, the kset's reference count is 
+decremented.  However, kobjects can be added to a kset via the three 
+macros
 
-> With your tree I now have the problem that it doesn't even boot anymore.
-> The CHRP kernel which worked before stopped after "CHRP kernel
-> loader...", the elf-pmac one still crashes with:
-> Elf32 kernel loaded...
-> chrpboot starting: loaded at 0x01000000
-> heap at 0x00003000
-> gunzipping (0x00010000 <- 0x01006cf8:0x01155486)...
-> Decrementer exception at %SRR0: 01005804   %SRR1: 00003030
->  ok
-> 0 >
+	kobj_set_kset_s, kset_set_kset_s, and subsys_set_kset
 
-Well, you are not supposed to use the zImage.chrp on a PowerMac,
-and definitely not from yaboot.
+and these do _not_ increment the kset's reference count.  As a result, the 
+reference count only goes down, not up, quickly becoming negative.
 
-It may have altered some open firmware settings in a bad way.
-I suggest you reset your nvram first (hopefully, booting with
-cmd-opt-P-R will do the trick).
+Now maybe this doesn't matter -- if subsystems are intended to be
+permanent (i.e., never released), for example.  But it provokes a warning
+message from kernels that check for reference counts going below zero,
+appears to be unintended, and may cause other problems as well.
 
-Last I tried, then just netbooting vmlinux.elf-pmac worked fine
-on all the "newworld" models I have here). For yaboot, you need
-to load a plain vmlinux binary.
+The patch below is offered as a possible solution.  I don't know that it's 
+the right one, but at least it prevents the unwanted warning messages.
 
-Ben.
+Alan Stern
+
+
+--- a/include/linux/kobject.h.orig	Thu Sep 11 09:46:38 2003
++++ a/include/linux/kobject.h	Sat Nov  8 17:57:35 2003
+@@ -168,7 +168,7 @@
+  */
+ 
+ #define kobj_set_kset_s(obj,subsys) \
+-	(obj)->kobj.kset = &(subsys).kset
++	(obj)->kobj.kset = kset_get(&(subsys).kset)
+ 
+ /**
+  *	kset_set_kset_s(obj,subsys) - set kset for embedded kset.
+@@ -182,7 +182,7 @@
+  */
+ 
+ #define kset_set_kset_s(obj,subsys) \
+-	(obj)->kset.kobj.kset = &(subsys).kset
++	(obj)->kset.kobj.kset = kset_get(&(subsys).kset)
+ 
+ /**
+  *	subsys_set_kset(obj,subsys) - set kset for subsystem
+@@ -195,7 +195,7 @@
+  */
+ 
+ #define subsys_set_kset(obj,_subsys) \
+-	(obj)->subsys.kset.kobj.kset = &(_subsys).kset
++	(obj)->subsys.kset.kobj.kset = kset_get(&(_subsys).kset)
+ 
+ extern void subsystem_init(struct subsystem *);
+ extern int subsystem_register(struct subsystem *);
 

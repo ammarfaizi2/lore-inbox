@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266411AbSKGJJb>; Thu, 7 Nov 2002 04:09:31 -0500
+	id <S266416AbSKGJOD>; Thu, 7 Nov 2002 04:14:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266413AbSKGJJb>; Thu, 7 Nov 2002 04:09:31 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:52374 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266411AbSKGJJa>;
-	Thu, 7 Nov 2002 04:09:30 -0500
-Date: Thu, 07 Nov 2002 01:15:26 -0800 (PST)
-Message-Id: <20021107.011526.120464470.davem@redhat.com>
-To: randy.dunlap@verizon.net
-Cc: linux-kernel@vger.kernel.org, ahu@ds9a.nl
-Subject: Re: Silly advise in bridge Configure help
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DC9EA2A.142559AA@verizon.net>
-References: <3DC9EA2A.142559AA@verizon.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S266420AbSKGJOD>; Thu, 7 Nov 2002 04:14:03 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:10386 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S266416AbSKGJOB>; Thu, 7 Nov 2002 04:14:01 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 7 Nov 2002 11:16:23 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       Trivial Patch Monkey <trivial@rustcorp.com.au>
+Subject: [patch] gemtek radio fix
+Message-ID: <20021107101623.GA1924@bytesex.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-   Date: Wed, 06 Nov 2002 20:20:58 -0800
-   
-   Sounds good, so here's the patch to 2.5.46 Kconfig to do that
-   if you want it.
+  Hi,
 
-I had a similar patch in my queue from Lennert Buytenhek (written by
-Bart De Schuyer) which I'm about to send to Linus.
+This patch makes the gemtek radio device start muted.
 
-[BRIDGE] update help docs
+please apply,
 
---- linux-2.5.45/net/Kconfig	Thu Oct 31 01:41:43 2002
-+++ linux-2.5.45-bezig/net/Kconfig	Sat Nov  2 12:25:21 2002
-@@ -382,10 +382,10 @@
- 	  for location. Please read the Bridge mini-HOWTO for more
- 	  information.
+  Gerd
+
+--- linux-2.5.46/drivers/media/radio/radio-gemtek.c	2002-11-07 09:18:21.000000000 +0100
++++ linux/drivers/media/radio/radio-gemtek.c	2002-11-07 09:22:16.000000000 +0100
+@@ -269,14 +269,14 @@
+ 	printk(KERN_INFO "GemTek Radio Card driver.\n");
  
--	  Note that if your box acts as a bridge, it probably contains several
--	  Ethernet devices, but the kernel is not able to recognize more than
--	  one at boot time without help; for details read the Ethernet-HOWTO,
--	  available from in <http://www.linuxdoc.org/docs.html#howto>.
-+	  If you enable iptables support along with the bridge support then you
-+	  turn your bridge into a bridging firewall.
-+	  iptables will then see the IP packets being bridged, so you need to
-+	  take this into account when setting up your firewall rules.
+ 	spin_lock_init(&lock);
+- 	/* mute card - prevents noisy bootups */
+-	outb(0x10, io);
+-	udelay(5);
+-	gemtek_unit.muted = 1;
  
- 	  If you want to compile this code as a module ( = code which can be
- 	  inserted in and removed from the running kernel whenever you want),
+ 	/* this is _maybe_ unnecessary */
+ 	outb(0x01, io);
+ 
++ 	/* mute card - prevents noisy bootups */
++	gemtek_unit.muted = 0;
++	gemtek_mute(&gemtek_unit);
++
+ 	return 0;
+ }
+ 
+
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

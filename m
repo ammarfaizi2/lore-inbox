@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288992AbSANUfN>; Mon, 14 Jan 2002 15:35:13 -0500
+	id <S289022AbSANUbE>; Mon, 14 Jan 2002 15:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSANUc1>; Mon, 14 Jan 2002 15:32:27 -0500
-Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:12391 "HELO
-	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S289013AbSANUbT>;
-	Mon, 14 Jan 2002 15:31:19 -0500
+	id <S289024AbSANU3i>; Mon, 14 Jan 2002 15:29:38 -0500
+Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:28935 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S288992AbSANU23>;
+	Mon, 14 Jan 2002 15:28:29 -0500
+Date: Mon, 14 Jan 2002 13:01:55 +0000 (/etc/localtime)
+From: <gmack@innerfire.net>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
 Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
-	the elegant solution)
-From: Justin Carlson <justincarlson@cmu.edu>
-To: esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org
+ the elegant solution)
 In-Reply-To: <20020114145035.E17522@thyrsus.com>
-In-Reply-To: <20020114132618.G14747@thyrsus.com>
-	<m16QCNJ-000OVeC@amadeus.home.nl>  <20020114145035.E17522@thyrsus.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-DPX0qPgcxV5HQj95+lQ1"
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 14 Jan 2002 15:30:46 -0500
-Message-Id: <1011040246.19071.42.camel@gs256.sp.cs.cmu.edu>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.21.0201141255040.21227-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Jan 2002, Eric S. Raymond wrote:
 
---=-DPX0qPgcxV5HQj95+lQ1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Date: Mon, 14 Jan 2002 14:50:35 -0500
+> From: Eric S. Raymond <esr@thyrsus.com>
+> To: arjan@fenrus.demon.nl
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery
+>     -- the elegant solution)
+> "Crap." Melvin thinks.  "I don't remember what kind of network card I
+> compiled in.  Am I going to have to open this puppy up just to eyeball
+> the hardware?" Doing that would take time Melvin was planning to spend
+> chatting up a girl geek he's noticed over at the computer lab.
 
-There are many times I would have found (and, I anticipate, many times I
-will find) an autoconfigurator useful in my work, if only to get a
-rough-cut kernel configuration done in minimal time.  For my purposes,
-it doesn't have to be 100% correct to save me some significant amount of
-work.
+BTDT queried the current kernel for the info I needed.
 
-Does this mean I'm incapable of configuring a kernel with the available
-tools?  No.  And it doesn't mean I think there needs to be some grand
-shift in the way distro vendors provide kernels, but this kind of a
-facility would be useful for *me*.  I don't want to get into whether
-this is an appropriate thing to make easily accessible to good ol' Aunt
-Tillie.=20
+ISA doesn't look like it was designed to be autodetected at least not the
+really old stuff.. if it's on a 586 it's likely to be at least PnP and
+therefore more easilly detectable.
 
->From the other side, how does having the ability to probe local hardware
-hurt?  It should be cleanly seperable from the classical build process
-for the purists, and helpful to some (I think) significant portion of
-the userbase, particularly those folks who like to test bleeding edge
-stuff on a variety of hardware.  I don't really understand the
-resistance to the idea of someone going out and implementing this.
+IMO ISA was designed for techies and not for J Random User.
 
-my $.02.
 
--Justin
+--
+Gerhard Mack
 
---=-DPX0qPgcxV5HQj95+lQ1
-Content-Type: application/pgp-signature
+gmack@innerfire.net
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8Qz/247Lg4cGgb74RAqpcAKDE+NVnfV19AkQOcCAff8fei04qAQCgk4re
-TYUz+vTp9nAAYiQv0JiABfU=
-=6C03
------END PGP SIGNATURE-----
-
---=-DPX0qPgcxV5HQj95+lQ1--
+<>< As a computer I find your faith in technology amusing.
 

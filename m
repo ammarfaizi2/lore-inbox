@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290636AbSBLA1L>; Mon, 11 Feb 2002 19:27:11 -0500
+	id <S290641AbSBLAav>; Mon, 11 Feb 2002 19:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290643AbSBLA1D>; Mon, 11 Feb 2002 19:27:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:33040 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290636AbSBLA0q>;
-	Mon, 11 Feb 2002 19:26:46 -0500
-Date: Tue, 12 Feb 2002 01:24:05 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Robert Love <rml@tech9.net>, Luigi Genoni <kernel@Expansa.sns.it>,
-        Arkadiy Chapkis - Arc <achapkis@mail.dls.net>,
-        <LINUX-KERNEL@vger.kernel.org>
-Subject: Re: thread_info implementation
-In-Reply-To: <3C685FBA.A9D60B3A@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0202120120410.11745-100000@Appserv.suse.de>
+	id <S290643AbSBLAal>; Mon, 11 Feb 2002 19:30:41 -0500
+Received: from dsl-213-023-038-214.arcor-ip.net ([213.23.38.214]:29893 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290641AbSBLAae>;
+	Mon, 11 Feb 2002 19:30:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Tue, 12 Feb 2002 01:32:08 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020211140359.642A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020211140359.642A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16aQrh-0003lv-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Jeff Garzik wrote:
+On February 11, 2002 08:05 pm, Bill Davidsen wrote:
+> On Mon, 11 Feb 2002, Daniel Phillips wrote:
+> 
+> > On February 9, 2002 07:15 pm, Bill Davidsen wrote:
+> > > On Wed, 6 Feb 2002, Randy.Dunlap wrote:
+> > > 
+> > > > I still prefer your suggestion to append it to the kernel image
+> > > > as __initdata so that it's discarded from memory but can be
+> > > > read with some tool(s).
+> > > 
+> > > The problem is that it make the kernel image larger, which lives in 
+> > > /boot on many systems. Putting it in a module directory, even if not a 
+> > > module, would be a better place for creative boot methods, of which 
+> > > there are many.
+> > 
+> > You don't seem to be clear on the concept of 'option'.
+> 
+> Did I miss discussion of an option to put it somewhere other than as part
+> of the kernel? Sorry, I missed that.
 
-> >  Exactly the same symptoms, portmap borken, NIS/NFS subsequently fail.
-> /etc/nsswitch.conf set up correctly?  /etc/host.conf?
+It's a trick question?  The config option would let you specify that no 
+kernel config information at all would be stored with or in the kernel.  No 
+cost, no memory footprint.  And I would get to have the extra warm n fuzzy 
+usability I tend to go on at such lengths about.  So we're both happy, right? 
 
-No problems there. This box worked fine on any other kernel,
-and that problem only showed up the once..
-
-> I notice that newer RH and MDK initscripts require a bunch of stuff like
-> netlink devices and ipv6 support, make sure you have those enabled
-> too...
-
-Yup.
+I'd even remain happy if the option were set *off* by default.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Daniel

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUDSSki (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 14:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUDSSki
+	id S261711AbUDSSs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 14:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUDSSs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 14:40:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6633 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261704AbUDSSjo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 14:39:44 -0400
-Date: Mon, 19 Apr 2004 11:38:55 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>, brking@us.ibm.com
-Subject: Re: [PATCH] Use workqueue for call_usermodehelper
-Message-ID: <20040419113854.H22989@build.pdx.osdl.net>
-References: <1082345766.30154.13.camel@bach>
+	Mon, 19 Apr 2004 14:48:56 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:45073 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261711AbUDSSsz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 14:48:55 -0400
+Date: Mon, 19 Apr 2004 20:49:11 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Fabian Fenaut <fabian.fenaut@free.fr>
+Cc: sensors@Stimpy.netroedge.com, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Sensors (W83627HF) in Tyan S2882
+Message-Id: <20040419204911.50cea556.khali@linux-fr.org>
+In-Reply-To: <4084192E.1040708@free.fr>
+References: <1082387882.4083edaa52780@imp.gcu.info>
+	<200404191600.i3JG0ElX089970@zone3.gcu-squad.org>
+	<20040419190133.351d1401.khali@linux-fr.org>
+	<40840A18.8070907@free.fr>
+	<20040419195034.24664469.khali@linux-fr.org>
+	<4084192E.1040708@free.fr>
+Reply-To: sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1082345766.30154.13.camel@bach>; from rusty@rustcorp.com.au on Mon, Apr 19, 2004 at 01:36:06PM +1000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rusty Russell (rusty@rustcorp.com.au) wrote:
-> [ Vatsa, this should solve your NUMA+HOTPLUG_CPU deadlock too, I think ]
+> > Except that it doesn't apply, yes ;)
+> > 
+> > I suspect that your email client is converting tabs to spaces.
 > 
-> This uses the create_singlethread_workqueue() function presented in the
-> last patch, although it could just as easily use create_workqueue().
+> Sorry, see attachment.
 
-Nice, this seems like it should fixup the problem Brian was seeing too,
-and maintain return code from kernel_thread(), etc. instead of the async
-option.  Brian, did you give these changes a whirl? (they're in latest
--mm tree)
+I forgot to tell you... Patches are prefered in such a form that patch
+-p1 from inside the linux directory works. Yours don't. I don't think
+Greg will like it. That said, I don't think Greg likes patches as
+attachements anyway ;)
 
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

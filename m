@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267674AbUHPO4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267675AbUHPO6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267674AbUHPO4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHPO4f
+	id S267675AbUHPO6o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHPO6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:56:35 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:28380 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S267676AbUHPOxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:53:51 -0400
-Date: Mon, 16 Aug 2004 07:53:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: How to debug 2.6 PReP boot hang?
-Message-ID: <20040816145347.GD2377@smtp.west.cox.net>
-References: <20040729225559.GJ16468@smtp.west.cox.net> <Pine.GSO.4.44.0408161729570.5336-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0408161729570.5336-100000@math.ut.ee>
-User-Agent: Mutt/1.5.6+20040803i
+	Mon, 16 Aug 2004 10:58:44 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:30164
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S267681AbUHPO61 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 10:58:27 -0400
+Message-ID: <4120CB92.50102@bio.ifi.lmu.de>
+Date: Mon, 16 Aug 2004 16:58:26 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, John Wendel <jwendel10@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+References: <411FD919.9030702@comcast.net>	 <20040816143817.0de30197.Ballarin.Marc@gmx.de> <1092661385.20528.25.camel@localhost.localdomain>
+In-Reply-To: <1092661385.20528.25.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 05:39:19PM +0300, Meelis Roos wrote:
+Hi,
 
-> > My suggestion is to go back in releases until one does work, see where
-> > the changes are that break it, and work from there.  It should be
-> > possible to fix what broke. :)
-> 
-> OK, did some compiling and testing and fout that my suspicion was right:
-> BK changeset 1.1371.384.5 boots ok but 1.1371.384.6 makes it hang.
-> 
-> It's the one that reorganizes boot code:
-> PPC32: Kill off arch/ppc/boot/prep and rearrange some files.
+Alan Cox wrote:
 
-Sadly, that is what I expected.  Try narrowing down the differences
-between prep/head.S and simple/head.S (or rather head.s via make
-arch/ppc/boot/prep/head.s and simple/head.s to strip out comments, etc).
+ >>This patch restores the behaviour of previous kernels, security issues included:
+ >
+ >
+ > Like allowing any user to erase your drive firmware. What you could do
+ > which is much more useful is printk the command byte that gets refused
+ > and see if you can pin down what commands are being blocked that
+ > are needed by K3B
+
+growisofs from the dvd+rw tools doesn't work either with 2.6.8, not even
+with suid bit set. So it seems that the 2.6.8.1 kernel keeps normal users
+from writing CDs except when setting cdrecord suid, which I read on this
+list would imply "some security bugs" (I don't know if that is true or not...)
+
+But is that really the intention with 2.6.8.1 to give all programs for cd/dvd
+writing the suid bit to allow users writing cds/dvds? (while even with
+that at least k3b and growisofs fail at the moment)
+
+At least this is a major change which I guess will make almost everyone
+trying this kernel run into problems with cd writing :-(
+
+cu,
+Frank
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+

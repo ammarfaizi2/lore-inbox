@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290837AbSARVgb>; Fri, 18 Jan 2002 16:36:31 -0500
+	id <S290845AbSARVoM>; Fri, 18 Jan 2002 16:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290842AbSARVgZ>; Fri, 18 Jan 2002 16:36:25 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:29056 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S290837AbSARVgK> convert rfc822-to-8bit; Fri, 18 Jan 2002 16:36:10 -0500
-Date: Fri, 18 Jan 2002 16:37:19 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: DervishD <raul@viadomus.com>
-cc: bgerst@didntduck.org, linux-kernel@vger.kernel.org, yinlei_yu@hotmail.com
-Subject: Re: Is there anyway to use 4M pages on x86 linux in user level?
-In-Reply-To: <E16RgGu-0005tD-00@DervishD.viadomus.com>
-Message-ID: <Pine.LNX.3.95.1020118163202.3008A-100000@chaos.analogic.com>
+	id <S290846AbSARVn4>; Fri, 18 Jan 2002 16:43:56 -0500
+Received: from host155.209-113-146.oem.net ([209.113.146.155]:36598 "EHLO
+	tibook.netx4.com") by vger.kernel.org with ESMTP id <S290845AbSARVng>;
+	Fri, 18 Jan 2002 16:43:36 -0500
+Message-ID: <3C4896E5.400@embeddededge.com>
+Date: Fri, 18 Jan 2002 16:43:01 -0500
+From: Dan Malek <dan@embeddededge.com>
+Organization: Embedded Edge, LLC.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.11-pre6-ben0 ppc; en-US; 0.8) Gecko/20010419
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+CC: hozer@drgw.net, linux-kernel@vger.kernel.org, groudier@free.fr
+Subject: Re: pci_alloc_consistent from interrupt == BAD
+In-Reply-To: <20020118130209.J14725@altus.drgw.net>	<3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jan 2002, DervishD wrote:
+David S. Miller wrote:
 
->     Hi Brian :)
-> 
-> >The large page size is 4MB, except in PAE mode where they are 2MB. 
-> >Normal pages are always 4KB.  Noting in the GDT affects the page
-> >size.
-> 
->     The entries in the GDT, do not set the page size for that
-> descriptor? I'm certainly rusted on the i386 O:)))
-> 
->     Raúl
 
-Nope! You might be confusing the "granularity" number. This just
-tells the CPU how to interpret the rest of the stuff. Right now
-the base and limit is set for 32-bits for a, gawd help me, 
-`segment`. You can go back to 16-bit segments if you want.
+> If it specifies GFP_ATOMIC, there are no problems from interrupts.
+> You will see that every port other than the mentioned two above use
+> GFP_ATOMIC in their pci_alloc_consistent implementation, for this very
+> reason.
 
-Paging is different, there's a single bit that controls the size
-of a page; small or big, nothing in-between.  That's it.
+The PowerPC does use (or is supposed to use) GFP_ATOMIC.  I don't
+know why ARM doesn't.
 
-Cheers,
-Dick Johnson
+I guess I'm just trying to understand the value of calling it from interrupt.
+If the purpose is to allocate a page of memory, and that doesn't happen,
+all you have done is pushed added complexity to a device driver.  If
+an interrupt handler (and the remainder of the driver) must handle the
+condition of wanting a page but not getting one in the interrupt handler,
+why bother trying to do it at all?
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+> The ARM and PPC ports could set __GFP_HIGH in their page table
+> allocation calls when invoked via pci_alloc_consistent,
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+How does this solve anything?  All it does is make more memory potentially
+available.  If memory isn't available, the call is still going to fail.
+
+> ......  It is a trivial fix whereas backing
+> out this ability to call pci_alloc_consistent from interrupts is not
+> a trivial change at all.
+
+You can call pci_alloc_consistent from anywhere on any architecture,
+but anyone calling it and not handling an error condition is a broken
+implementation.
+
+I have to apologize to hozer, because the allocation of page tables would
+be a condition where pci_alloc_consistent could return an error.  However,
+he must be looking into the future because that is the way it will be
+later today when I'm done changing the functions, not the current implementation.
+
+Thanks.
+
+
+	-- Dan
 
 

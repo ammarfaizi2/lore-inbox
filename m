@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263058AbUDLTiO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 15:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUDLTiO
+	id S262962AbUDLTpc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 15:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUDLTpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 15:38:14 -0400
-Received: from wanderer.mr.itd.umich.edu ([141.211.93.146]:38865 "EHLO
-	wanderer.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S263058AbUDLTiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 15:38:10 -0400
-Date: Mon, 12 Apr 2004 15:38:01 -0400 (EDT)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@red.engin.umich.edu
-To: Hugh Dickins <hugh@veritas.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-In-Reply-To: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu>
-References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Apr 2004 15:45:32 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:33166 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262962AbUDLTpa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 15:45:30 -0400
+Date: Mon, 12 Apr 2004 21:52:08 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Marcus Hartig <m.f.h@web.de>
+Subject: Re: 2.6.5-mm4
+Message-ID: <20040412195208.GA12665@mars.ravnborg.org>
+Mail-Followup-To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org, Marcus Hartig <m.f.h@web.de>
+References: <407AEBB0.1050305@web.de> <200404122135.57622@WOLK>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404122135.57622@WOLK>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 12, 2004 at 09:35:57PM +0200, Marc-Christian Petersen wrote:
+> On Monday 12 April 2004 21:19, Marcus Hartig wrote:
+> 
+> Hi Marcus,
+> 
+> > patch: "kbuild-external-module-support" ?
+> 
+> actually, this one: "move-__this_module-to-modpost.patch" started breaking 
+> nvidia, but strangely not for all people. For me it worked fine (prior to 
+> 2.6.5-mm4), but other people got "invalid module format" after compiling 
+> nvidia driver and tried to load it. P.S.: kbuild-external-module-support 
+> breaks VMware too :p
+Could I please get more info. I do not plan to install wmware right now,
+so at least some minimal information allowing me to realise why it no
+longer works.
+Please with pointers to the used WMWare version so I can check their
+Makefile etc.
 
-On Mon, 12 Apr 2004, Hugh Dickins wrote:
-> On Mon, 12 Apr 2004, Martin J. Bligh wrote:
-> >
-> > If it were just a list, maybe RCU would be appropriate. It might be
-> > rather write-heavy though ? I think I played with an rwsem instead
-> > of a sem in the past too (though be careful if you try this, as for
-> > no good reason the return codes are inverted ;-()
->
-> Yes, I think all the common paths have to write, in case the
-> uncommon paths (truncation and swapout) want to read: the wrong
-> way round for any kind of read-write optimization, isn't it?
-
-In common workloads e.g., add libc mapping using  __vma_prio_tree_insert,
-mostly you do not add new nodes to the tree. Instead, you just add to
-a vm_set list. I am currently considering using rwsem to optimize
-such cases. Similarly __vma_prio_tree_remove can also be optimized
-in some common cases. I don't know whether it will help. Let us see...
-
-Rajesh
-
-
-
+	Sam

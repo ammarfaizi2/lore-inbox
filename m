@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263573AbUEKTy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263557AbUEKTzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbUEKTy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 15:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbUEKTy4
+	id S263557AbUEKTzV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 15:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUEKTzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 15:54:56 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:55703 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263366AbUEKTyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 15:54:53 -0400
-Subject: Re: [BK PATCH] SCSI updates for 2.6.6
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0405112125150.3836-100000@poirot.grange>
-References: <Pine.LNX.4.44.0405112125150.3836-100000@poirot.grange>
-Content-Type: text/plain
+	Tue, 11 May 2004 15:55:21 -0400
+Received: from mailgate1b.savvis.net ([216.91.182.6]:39329 "EHLO
+	mailgate1b.savvis.net") by vger.kernel.org with ESMTP
+	id S263557AbUEKTzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 15:55:17 -0400
+From: "Dan A. Dickey" <dan.dickey@savvis.net>
+Reply-To: dan.dickey@savvis.net
+Organization: WAM!NET a Division of SAVVIS, Inc.
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: Sock leak in net/ipv4/af_inet.c - 2.4.26
+Date: Tue, 11 May 2004 14:55:11 -0500
+User-Agent: KMail/1.6.2
+Cc: <m.c.p@kernel.linux-systeme.com>, <linux-kernel@vger.kernel.org>,
+       <kuznet@ms2.inr.ac.ru>
+References: <20040511115934.0c591667.davem@redhat.com>
+In-Reply-To: <20040511115934.0c591667.davem@redhat.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 May 2004 14:54:33 -0500
-Message-Id: <1084305274.2570.12.camel@mulgrave>
-Mime-Version: 1.0
+Message-Id: <200405111455.11935.dan.dickey@savvis.net>
+X-ECS-MailScanner: No virus is found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-11 at 14:29, Guennadi Liakhovetski wrote:
-> I hoped the tmscsim 64-bit bugfix would somehow find its way into the
-> mainstream after 2.6. Does it still have a chance?
+On Tuesday 11 May 2004 13:59, David S. Miller wrote:
+> The sk_free() should occur when the final sock_put() call brings the count
+> down to zero, then the socket destroy function is called and the eventual
+> sk_free() occurs there.
 
-The DC390 is a maintained driver:
+Yes, I'm figuring this out.
+I think my earlier report of this problem was a bit premature.
+I'm refining my debug code and will let you know what I find.
+	-Dan
 
-DC390/AM53C974 SCSI driver
-P:	Kurt Garloff
-M:	garloff@suse.de
-W:	http://www.garloff.de/kurt/linux/dc390/
-S:	Maintained
-
-You need to get the maintainer to approve acceptance.
-
-James
-
-
+-- 
+Dan A. Dickey
+dan.dickey@savvis.net

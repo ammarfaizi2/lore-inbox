@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315214AbSFDQuq>; Tue, 4 Jun 2002 12:50:46 -0400
+	id <S315179AbSFDQ4R>; Tue, 4 Jun 2002 12:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315232AbSFDQuO>; Tue, 4 Jun 2002 12:50:14 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:35084 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315214AbSFDQt2>; Tue, 4 Jun 2002 12:49:28 -0400
-Message-ID: <3CFCE1E2.1040906@evision-ventures.com>
-Date: Tue, 04 Jun 2002 17:50:58 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: device model documentation 2/3
-In-Reply-To: <Pine.LNX.4.33.0206040918490.654-100000@geena.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315218AbSFDQ4Q>; Tue, 4 Jun 2002 12:56:16 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:61448 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315179AbSFDQ4P>;
+	Tue, 4 Jun 2002 12:56:15 -0400
+Date: Tue, 4 Jun 2002 09:53:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: device model documentation 1/3
+Message-ID: <20020604165345.GB28805@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0206040904430.654-100000@geena.pdx.osdl.net> <3CFCE09B.6090007@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Tue, 07 May 2002 14:47:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
-> Document 2: driver.txt
-
+On Tue, Jun 04, 2002 at 05:45:31PM +0200, Martin Dalecki wrote:
+> Patrick Mochel wrote:
 > 
-> This callback only verifies that there actually is supported hardware
-> present. It may allocate a driver-specific structure, but it should
-> not do any initialization of the hardware itself. The device-specific
-> structure may be stored in the device's driver_data field. 
+> >Bus Types 
+> >
+> >struct bus_type {
 > 
-> 	int	(*init)		(struct device * dev);
+> ...
 > 
-> init is called during the binding stage. It is called after probe has
-> successfully returned and the device has been registered with its
-> class. It is responsible for initializing the hardware.
+> 
+> >	int	(*bind)		(struct device * dev, struct device_driver * 
+> >	drv);
+> >};
+> >
+> 
+> Please - Why do you call it bind? Does it have something with
+> netowrking to do? Please just name it attach. This way the old UNIX
+> guys among us won't have to drag a too big
+> "UNIX to Linux translation dictionary" around with them.
+> As an "added bonus" you will stay consistent with -
+> 
+> USB code base in kernel
 
-"init is called during the *attachment*."
-You see it even sounds more naturall.
+Huh?  The usb code base doesn't use either "bind" or "attach" in it's
+api.
 
+And who cares?  You knew what he ment by this, and it's a pretty
+standard term.
+
+greg k-h

@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315429AbSEYWgj>; Sat, 25 May 2002 18:36:39 -0400
+	id <S315438AbSEYWyB>; Sat, 25 May 2002 18:54:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSEYWgj>; Sat, 25 May 2002 18:36:39 -0400
-Received: from surf.viawest.net ([216.87.64.26]:16295 "EHLO surf.viawest.net")
-	by vger.kernel.org with ESMTP id <S315429AbSEYWgh>;
-	Sat, 25 May 2002 18:36:37 -0400
-Date: Sat, 25 May 2002 15:33:15 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: linux-kernel@vger.kernel.org
-Subject: ioctl() still problem w/2.5.18
-Message-ID: <20020525223315.GA6029@wizard.com>
+	id <S315439AbSEYWyA>; Sat, 25 May 2002 18:54:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:63495 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315438AbSEYWx7>;
+	Sat, 25 May 2002 18:53:59 -0400
+Date: Sun, 26 May 2002 00:53:59 +0200
+From: Dave Jones <davej@suse.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Luca Barbieri <ldb@ldb.ods.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4}
+Message-ID: <20020526005359.E16102@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Luca Barbieri <ldb@ldb.ods.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1022360474.21238.5.camel@ldb> <20020525233739.GA2022@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux/2.5.7 (i686)
-X-uptime: 3:26pm  up 13:31,  2 users,  load average: 0.54, 0.20, 0.10
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        I posted this before with 2.5.8 - 2.5.16 before, but the problem still
-exists in 2.5.18, so I'll repost.
+On Sun, May 26, 2002 at 01:37:39AM +0200, J.A. Magallon wrote:
+ > Could you also split 
+ > 	Pentium-Pro/Celeron/Pentium-II     CONFIG_M686
+ > into
+ > 	
+ > 	Pentium-Pro            CONFIG_M686
+ > 	Pentium-II/Celeron     CONFIG_MPENTIUMII
+ > 
+ > Gcc-3.1 has also a -march=pentium2 specific target, that is not a synomym
+ > for any other.
 
+There are also a few extra Athlon targets iirc. athlon-xp and the like,
+which I'm not sure the purpose of. Some gcc know-all want to clue me in
+to what these offer over -march=athlon ?
 
-        In 2.5.16, have any restrictions been placed on ioctl()? With 2.5.16,
-a non-root user is unable to use /dev/cdrom with an ide cd, to play audio cds.
-An strace of workbone shows this:
+ > BTW, I think an option to enable -mmmx would also be useful. Nothing more,
+ > because afaik sse is only floating point.
 
-open("/dev/cdrom", O_RDONLY)            = 3
-ioctl(3, CDROMSUBCHNL, 0xbfffe814)      = -1 EACCES (Permission denied)  
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-rt_sigaction(SIGINT, {SIG_IGN}, {SIG_DFL}, 8) = 0
-ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-ioctl(0, SNDCTL_TMR_START, {B38400 opost isig -icanon -echo ...}) = 0
-ioctl(0, TCGETS, {B38400 opost isig -icanon -echo ...}) = 0
-write(1, "\n", 1
-)                       = 1
-ioctl(0, SNDCTL_TMR_START, {B38400 opost isig icanon echo ...}) = 0
-ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-rt_sigaction(SIGINT, {SIG_DFL}, {SIG_IGN}, 8) = 0
-munmap(0x40017000, 4096)                = 0
-_exit(0)                                = ?
+Another interesting recently-added option which may be worth
+benchmarking on modern CPUs is the prefetch-loops option.
+In a lot of cases, the kernel 'knows better' and is adding the
+prefetches itself, but it may be interesting to see what difference
+gcc can make here. (More interesting would be examining the output to
+see *where* gcc is putting the prefetches)
 
-        Workbone is supposed to access /dev/cdrom, and then wait for user 
-input from the number pad, to play the cd. the following strace from workbone 
-in 2.5.7 shows this working properly:
+Given the immaturity of all these options, I'd doubt they're that good
+an idea for 2.4. Getting them tested during 2.5 may prove to get any
+bugs shaken out in time for $compiler_of_the_choice for 2.6 though.
 
-write(1, "\33[10m\n", 6
-) = 55                                               
-open("/dev/cdrom", O_RDONLY)            = 3  "..., 55
-ioctl(3, CDROMSUBCHNL, 0xbfffe654)      = 0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ioctl(3, CDROMREADTOCHDR, 0xbfffe626)   = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-rt_sigaction(SIGINT, {SIG_IGN}, {SIG_DFL}, 8) = 0
-ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+    Dave
 
-        This worked as root, and with  a kernel <= 2.5.13. I didn't try this 
-with 2.5.14 or 2.5.15.
-
-        since open("/dev/cdrom", O_RDONLY) is returning as it should, It would 
-be safe to assume that the ioctl() call is causing the problem. /dev/cdrom has 
-permissions 0666 applied to it.
-
-                                                        BL.
 -- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

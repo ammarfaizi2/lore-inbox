@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280738AbRKSWUE>; Mon, 19 Nov 2001 17:20:04 -0500
+	id <S280754AbRKSWTE>; Mon, 19 Nov 2001 17:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKSWT5>; Mon, 19 Nov 2001 17:19:57 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:64984 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S280738AbRKSWTn>;
-	Mon, 19 Nov 2001 17:19:43 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 19 Nov 2001 22:19:41 GMT
-Message-Id: <UTC200111192219.WAA17887.aeb@cwi.nl>
-To: adam@yggdrasil.com, andre@linux-ide.org
-Subject: Re: Notes on ATA/133 patch (ide.2.4.14.11062001.patch)
-Cc: linux-kernel@vger.kernel.org
+	id <S280757AbRKSWSy>; Mon, 19 Nov 2001 17:18:54 -0500
+Received: from bones.kulnet.kuleuven.ac.be ([134.58.253.193]:47317 "HELO
+	pedro.unibuc.ro") by vger.kernel.org with SMTP id <S280750AbRKSWSm>;
+	Mon, 19 Nov 2001 17:18:42 -0500
+Message-ID: <3BF985A4.5B4AE053@abcpages.com>
+Date: Mon, 19 Nov 2001 23:20:20 +0100
+From: Nicolae Mihalache <mache@abcpages.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: problems with Pioneer DVD-ROM 116
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 04:59:21AM -0800, Adam J. Richter wrote:
+Hello!
 
-> I do not yet understand the purpose of ide_xlate_1024
-> to understand whether it really is specific to the
-> MSDOS style of partition labeling.
+I recently bought a Pioneer 116 DVD-ROM drive and I see strange things
+happening. I can't read DVDs with it in standard IDE mode. If I try the
+command "cat /dev/hdc" nothing is returned and there is no error like
+the DVD inside has capacity 0. However if I use SCSI emulation
+everything work perfect. I tried with kernel 2.4.6 and 2.4.14. The drive
+works fine with CDs and unfortunately so far I only tried with DVD-R and
+DVD-RW produced with another Pioneer DVD writer. I don' know if it works
+with a real DVD disk but it should make no difference.
+Please CC me in the answer because I'm not subscribed.
 
-Yes, it is.
-
-When DOS had a 528 MB limit various kludges were developed
-to make larger disks available. BIOS-kludges went under the
-name of "translation". Kludges that avoided the BIOS went
-under the name "Disk Manager". Linux has some detailed knowledge
-about these kludges, enough to enable Linux to successfully
-share a disk with a DOS using translation and/or Disk Manager.
-
-All of this stuff is totally obsolete today.
-I think ide_xlate_1024 and family can be ripped out of 2.5
-and nobody will notice, especially since it will be a long
-time before 2.6.
-
-Andries
+Thanks,
+mache

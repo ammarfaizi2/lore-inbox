@@ -1,108 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129465AbQL2QHh>; Fri, 29 Dec 2000 11:07:37 -0500
+	id <S129465AbQL2QMJ>; Fri, 29 Dec 2000 11:12:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130092AbQL2QH1>; Fri, 29 Dec 2000 11:07:27 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:31552 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129465AbQL2QHO>; Fri, 29 Dec 2000 11:07:14 -0500
-Date: Fri, 29 Dec 2000 16:36:45 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jure Pecar <pegasus@telemach.net>
-Cc: linux-kernel@vger.kernel.org, jef@acme.com
-Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
-Message-ID: <20001229163645.B12791@athlon.random>
-In-Reply-To: <3A4BE9B0.5C809AAC@telemach.net> <20001229032953.A9810@athlon.random> <3A4C4E16.52AAAFE1@telemach.net>
-Mime-Version: 1.0
+	id <S130092AbQL2QL7>; Fri, 29 Dec 2000 11:11:59 -0500
+Received: from exit1.i-55.com ([204.27.97.1]:28107 "EHLO exit1.i-55.com")
+	by vger.kernel.org with ESMTP id <S130072AbQL2QLx>;
+	Fri, 29 Dec 2000 11:11:53 -0500
+Message-ID: <3A4CAF32.4CCF6E36@mailhost.cs.rose-hulman.edu>
+Date: Fri, 29 Dec 2000 09:35:14 -0600
+From: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test11 alpha)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx 2.4.0 test12 hang
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A4C4E16.52AAAFE1@telemach.net>; from pegasus@telemach.net on Fri, Dec 29, 2000 at 09:40:54AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2000 at 09:40:54AM +0100, Jure Pecar wrote:
-> problem on a similary configured 2.2.17 with VM-global patch 3. gcc
+>>   While I am in the code I also want to go digging around and see if I
+>> can find a 
+>> way to turn of the in memory buffering that Linux does for block devices
+>> as this
+>> would make my fscking a LOT shorter, (18 gigs is slow),
+>
+>No, because you need to do the ordering too. You could drop reiserfs on the
+>disk if you are feeling adventurous as that will cut your fsck time right
+>down. 
 
-Good. Can you try to reproduce with 2.2.19pre3? (if you absolutely need raid
-0.90 you can try again with 2.2.19pre3aa3 after backing out 04_wake-one-3 that
-introduces a deadlocks spotted by Chris and that I'm debugging right now)
+Good point, sigh , I will look into reserfs but my adventurous nature is
+getting a good beat down lately.
 
-> select(7, [5], [6], NULL, {98, 547000}) = 1 (in [5], left {98, 210000})
 
-	num_ready = fdwatch( tmr_mstimeout( &tv ) );
-	if ( num_ready < 0 )
-	    {
-	    if ( errno == EINTR )
-		continue;       /* try again */
-	    syslog( LOG_ERR, "fdwatch - %m" );
-	    exit( 1 );
-	    }
+>> >          i've read about similar hangs on an alpha on this list (same kind of controller)
+>> >          any solution there ...
+>
+>AIC7xxx makes invalid uses of 32bit values for set_bit() and friends so it
+>may be that for the Alpha and the like problems
 
-> gettimeofday({978078109, 324744}, NULL) = 0
+A CLUE!
 
-	(void) gettimeofday( &tv, (struct timezone*) 0 );
+Cool I will dig into this weekend. 
 
-> accept(5, {sin_family=AF_INET, sin_port=htons(3687),
-> sin_addr=inet_addr("62.76.36.242")}, [16]) = 7
+Thanks a lot
+Leslie Donaldson
 
-httpd_get_conn( httpd_server* hs, int listen_fd, httpd_conn* hc )
-[..]
-    hc->conn_fd = accept( listen_fd, &sa.sa, &sz );
 
-> fcntl(7, F_SETFD, FD_CLOEXEC)           = 0
 
-    (void) fcntl( hc->conn_fd, F_SETFD, 1 );
+This was also sent to me
 
-> fcntl(7, F_GETFL)                       = 0x2 (flags O_RDWR)
+>> would make my fscking a LOT shorter, (18 gigs is slow),
+>
+>18G is small by today's standards.  so I suspect the problem is 
+>actually that you have sub-4K blocks, and or haven't enabled 
+>sparse superblocks.  both fairly dramatically speed up fsck.
 
-	flags = fcntl( c->hc->conn_fd, F_GETFL, 0 );
 
-> fcntl(7, F_SETFL, O_RDWR|O_NONBLOCK)    = 0
+True 18 gigs is small and yes I don't have those two options
+turned on , but my problem is this crash occures while Writing
+to the drive not reading. So, Out of an estimated 24 crashes every
+last one of them have caused me to enter single user mode manually
+run e2fsck on the partition and hold down th y key for a few
+minutes. Then after booting I have to go and clean out the directory
+which (1-3) times results in another crash. Rexecute loop.
 
-	else if ( fcntl( c->hc->conn_fd, F_SETFL, flags | O_NDELAY ) < 0 )
+What I was thinking about is if I could remove the buffer layer
+then I would have a lot less damage on the disk and maybe it could
+just reboot on it's own. sigh
 
-> brk(0x8078000)                          = 0x8077000
-> brk(0x8078000)                          = 0x8077000
 
-for some unknown reason it doesn't notice it has to handle the new connection.
 
-> time([978078109])                       = 978078109
-> getpid()                                = 22061
-> send(3, "<27>Dec 29 09:21:49 thttpd[22061"..., 69, 0) = 69
-
-    shut_down();
-    syslog( LOG_NOTICE, "exiting" );
-
-> munmap(0x125000, 4096)                  = 0
-> _exit(1)                                = ?
-
-However according to the latest sources (2.20b) shut_down() should at least
-call gettimeofday at once and that's not the case for you:
-
-shut_down( void )
-    {
-    int cnum;
-    struct timeval tv;
-
-#ifdef STATS_TIME
-    show_stats( JunkClientData, (struct timeval*) 0 );
-#endif /* STATS_TIME */
-    (void) gettimeofday( &tv, (struct timezone*) 0 );
-
-So you aren't using thttpd version 2.20b (or it's not the vanilla source).
-
-Well, this would look like an userspace bug, but I understand it's strange that
-it works well for three days.... Can you try to upgrade thttpd to the latest
-version compiled from vanilla sources?
-
-But regardless of the userspace upgrade, I still recommend to upgrade to
-2.2.19pre3 or 2.2.19pre3aa3 minus 04_wake-one-3 (once I'll fix wake-one-3 I'll
-release -4 revision and pre3aa4).
-
-Thanks,
-Andrea
+-- 
+/----------------------------\ Current Contractor: None
+|    Leslie F. Donaldson     | Current Customer  : None
+|    Computer Contractor     | Skills:
+Unix/OS9/VMS/Linux/SUN-OS/C/C++/assembly
+| Have Computer will travel. | WWW  :
+http://www.cs.rose-hulman.edu/~donaldlf
+\----------------------------/ Email: mail://donaldlf@cs.rose-hulman.edu
+Goth Code V1.1: GoCS$$ TYg(T6,T9) B11Bk!^1 C6b-- P0(1,7) M+ a24 n---
+b++:+
+                H6'11" g m---- w+ r+++ D--~!% h+ s10 k+++ R-- Ssw
+LusCA++
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

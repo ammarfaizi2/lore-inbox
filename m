@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131022AbQLMRqW>; Wed, 13 Dec 2000 12:46:22 -0500
+	id <S131851AbQLMRr5>; Wed, 13 Dec 2000 12:47:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131866AbQLMRp5>; Wed, 13 Dec 2000 12:45:57 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:23715 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S130639AbQLMRpm>; Wed, 13 Dec 2000 12:45:42 -0500
-From: Christoph Rohland <cr@sap.com>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,preliminary] cleanup shm handling
-In-Reply-To: <23640.976725805@warthog.cambridge.redhat.com>
-Organisation: SAP LinuxLab
-Date: 13 Dec 2000 18:15:02 +0100
-In-Reply-To: David Howells's message of "Wed, 13 Dec 2000 16:43:25 +0000"
-Message-ID: <qwwn1e0i6p5.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131914AbQLMRrr>; Wed, 13 Dec 2000 12:47:47 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:12928 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131851AbQLMRr3>;
+	Wed, 13 Dec 2000 12:47:29 -0500
+Date: Wed, 13 Dec 2000 09:01:03 -0800
+Message-Id: <200012131701.JAA03695@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: fribes@capgemini.fr
+CC: ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <3A37AE70.B5F76D63@capgemini.fr> (message from Fabien Ribes on
+	Wed, 13 Dec 2000 18:14:24 +0100)
+Subject: Re: Networking: RFC1122 and 1123 status for kernel 2.4
+In-Reply-To: <3A30F463.2EE04F4E@capgemini.fr> <200012081454.GAA02632@pizda.ninka.net> <20001208163154.A20038@gruyere.muc.suse.de> <200012081528.HAA02778@pizda.ninka.net> <20001208165855.A20706@gruyere.muc.suse.de> <200012112206.OAA00936@pizda.ninka.net> <3A37AE70.B5F76D63@capgemini.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+   Date: Wed, 13 Dec 2000 18:14:24 +0100
+   From: Fabien Ribes <fribes@capgemini.fr>
 
-On Wed, 13 Dec 2000, David Howells wrote:
-> Looks interesting.
-> 
-> There looks to be a logical mapping between CreateFileMapping() +
-> MEM_SHARED and your shmem_file_setup(), as long as anonymously named
-> sections are catered for (not difficult).
+   I may get some time to work on this topic, but what do you mean by kill
+   it ?
 
-Yup.
+It means removing all of the "RFC1122 Status" comments from net/ipv4/*.c
 
-> There also looks to be a logical mapping between MapViewOfFile() and
-> how you propose do_mmap() should be used.
-> 
-> At the moment, I have to do most of do_mmap for myself when
-> implementing CreateFileMapping() with SEC_IMAGE as a parameter since
-> I need to change the VMA ops table. But that only applies to where a
-> file-backed PE Image (EXE/DLL) is being mapped.
+   Is it the removal of RFC 1122 evaluation in modules' headers ? By
+   the way, is RFC 1122 still accurate ?
 
-If you want to change the vma ops table you can replace the f_ops
-table with your own one. SYSV ipc uses this also to be able to catch
-unmaps.
+It should be unless some later RFC specifies something which
+supercedes a statement made in RFC1122, I believe there are not
+many such cases if any.
 
-> I'm not sure how shared sections in PE Images are handled on all
-> versions of Windows (ie: whether they are actually shared), but I
-> image I could adapt your mechanism for that too. I'd probably just
-> have to create a SHMEM file and load the backing data into it, and
-> then use the SHMEM as the file to attach to the VMA for that section
-> (and then it's someone else's problem as far as swapping is
-> concerned).
-
-Oh, that's too much Windows for me ;-)
-
-Greetings
-		Christoph
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

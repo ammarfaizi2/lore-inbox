@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264131AbTICQ4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTICQ4t
+	id S264077AbTICRGt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTICRGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:56:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:58240 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264131AbTICQ4q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:56:46 -0400
-Date: Wed, 3 Sep 2003 12:58:50 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Alberto Manuel =?ISO-8859-1?Q?Brand=E3o_Sim=F5es?= 
-	<albie@alfarrabio.di.uminho.pt>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems compiling kernel 2.4.22
-In-Reply-To: <1062607884.623.23.camel@eremita.di.uminho.pt>
-Message-ID: <Pine.LNX.4.53.0309031257410.28170@chaos>
-References: <1062606509.623.20.camel@eremita.di.uminho.pt>
- <1062607884.623.23.camel@eremita.di.uminho.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	Wed, 3 Sep 2003 13:06:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48548 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264077AbTICRGi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:06:38 -0400
+Date: Wed, 3 Sep 2003 10:07:16 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Daniel McNeil <daniel@osdl.org>,
+       Mary Edie Meredith <maryedie@osdl.org>
+Subject: FYI: dbt testing on 2.6.0-test4-mm4 fails
+Message-ID: <20030903170716.GA23487@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Alberto Manuel [ISO-8859-1] Brandão Simões wrote:
 
+Andrew,
 
-> On Wed, 2003-09-03 at 17:28, Alberto Manuel Brandão Simões wrote:
-> > [1.] One line summary of the problem:
-> >  modules symbols broken references
-> >
-> > [2.] Full description of the problem/report:
-> >  when I make 'make modules_install' I get:
-> >  depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipv4/ipip.o
-> >  depmod:         ip_send_check
-> >  depmod:         register_netdevice
-> >  ..
-> >
-> > and so on, and not only for these modules: vfat, smbfs, msdos, etc
-> >
-> > By the way, when I tried to ssh to paste more information, I got in the
-> > console:
+I'm just mailing you this to keep you informed, Daniel McNeil and
+I are investigating a failure of the dbt database workload test on
+2.6.0-test4-mm4.
 
-[SNIPPED...]
+The failure MAY have begun as early as 2.6.0-test4.  We were able
+to test on test4 only after I generated a patch to raw_open() for that
+kernel version.  The database test4 failure LOOKS the same as the
+test4-mm4 failure.  But we haven't investigated it as closely there yet.
+We know test3 worked OK.  We may try some of the test3-mm patches to
+see if something happened on one of those patches.
 
-BYW. Did you try booting the new system, THEN, executing `depmod -a` ?
+In the test4-mm4 case, the kernel doesn't oops or hang. Instead, the
+database software detects a failure of some sort.  We've done an
+strace on the database processes, and in one of them we see the following
+output:
 
+_llseek(38, 8192, [8192], SEEK_SET) = 0
+write(38, "\0\0\0\0\4\3\1\0\7\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 8192)                     = 0
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+A seek on file descriptor 38 to offset 8192, followed by a write of 8k.
+The write returns with 0 bytes written.
 
+Immediately after this, we can see this process writing to the error
+log a message indicating an error has been detected.
 
+File descriptor 38 is for the file /dev/raw/raw1.  This is the
+transaction log file for the database.  This is early in itialization
+of the database, so it's initializing the transaction log file.

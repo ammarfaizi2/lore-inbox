@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289378AbSAJKfa>; Thu, 10 Jan 2002 05:35:30 -0500
+	id <S289379AbSAJKgA>; Thu, 10 Jan 2002 05:36:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289379AbSAJKfK>; Thu, 10 Jan 2002 05:35:10 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:54306 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289378AbSAJKfG>; Thu, 10 Jan 2002 05:35:06 -0500
-Date: Thu, 10 Jan 2002 11:34:22 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-Message-ID: <20020110113421.H3357@inspiron.school.suse.de>
-In-Reply-To: <E16ORfZ-0002Zu-00@the-village.bc.nu> <200201092348.g09NmHg25671@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200201092348.g09NmHg25671@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Wed, Jan 09, 2002 at 03:48:17PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289380AbSAJKfv>; Thu, 10 Jan 2002 05:35:51 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:27141 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S289379AbSAJKfd>; Thu, 10 Jan 2002 05:35:33 -0500
+Date: Thu, 10 Jan 2002 10:35:31 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+In-Reply-To: <20020109182902.A2804@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0201101014560.14207-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 03:48:17PM -0800, Badari Pulavarty wrote:
-> Alan,
-> 
-> > 
-> > > If it is not reasonable to fix all the brokern drivers,
-> > > how about making this configurable (to do variable size IO) ?
-> > > Do you favour this solution ?
-> > 
-> > We have hardware that requires aligned power of two for writes (ie 4K on
-> > 4K boundaries only). The 3ware is one example Jeff Merkey found
-> > 
-> 
-> emm.. come to think of it, I can easily (2 line) change my patch to
-> do 512 byte buffer heads till we get PAGE alignment and then start
-> issuing 4K IO buffer heads. What do you think ? will this work ? 
+On Wed, 9 Jan 2002, Eric S. Raymond wrote:
 
-you should make sure the buffer is naturally aligned with the b_size (so
-you emulate the change of blocksize in a filesystem), if it wasn't the
-case you should fix it.
+> > 	if [ /proc/ -nt /var/run/dmidecode ]; then
+> > 		echo We need to run some code as root.
+> > 		echo -n Enter root\'s\
+> > 		su -c 'dmidecode > /var/run/dmidecode'
+> > 	fi
 
-> 
-> And also, do you know any low level drivers Ben mentioning:
-> 
-> > low level drivers, some of which assume that 
-> > all buffer heads within a request have the same block size.
-> 
-> Is it still true for 2.4 ? 
+> The autoconfigurator is *not* mean to be run at boot time, or as root.
 
-yes, you simply need to call submit_bh or to use separate ll_rw_blocks
-when you change b_size.
+Under normal circumstances.
 
-> 
-> Regards,
-> Badari
+> It is intended to be run by ordinary users, after system boot time.
+> This is so they can configure and experimentally build kernels without
+> incurring the "oops..." risks of going root.
 
+Then ship it in a separate package with initscripts.  Either
+CML2 is well enough designed that the autoconfigurator will
+not need to change as the kernel does, or all your
+overengineering was for nought.
 
-Andrea
+> Therefore, the above 'solution' is not acceptable.
+
+To who?  It provides as way for your configurator to function
+out-of-the-box until distributions choose whether it's worth
+their while to support your scheme.
+
+Matthew.
+

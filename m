@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265003AbUEYRls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265001AbUEYRtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265003AbUEYRls (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUEYRlg
+	id S265001AbUEYRtd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbUEYRtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:41:36 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:38890 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264990AbUEYRkb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:40:31 -0400
-Message-Id: <200405251740.i4PHeQJY014847@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "La Monte H.P. Yarroll" <piggy@timesys.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission 
-In-Reply-To: Your message of "Tue, 25 May 2004 11:44:21 EDT."
-             <40B369D5.7070805@timesys.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
-            <40B369D5.7070805@timesys.com>
+	Tue, 25 May 2004 13:49:33 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:39042 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S265001AbUEYRtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 13:49:31 -0400
+Date: Tue, 25 May 2004 13:18:05 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040525171805.GG1286@phunnypharm.org>
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <20040525131139.GW1286@phunnypharm.org> <Pine.LNX.4.58.0405251012260.9951@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_152842466P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 May 2004 13:40:26 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405251012260.9951@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_152842466P
-Content-Type: text/plain; charset=us-ascii
+On Tue, May 25, 2004 at 10:15:15AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 25 May 2004, Ben Collins wrote:
+> >
+> > I've got a question about this. A lot of times I get patches that are
+> > just one/two-liners and the explanation is somewhat self-explantory,
+> > etc. Say the patch comes to me from some patch collection maintainer,
+> > who got it from the original author.
+> > 
+> > So the original person never put a Signed-off-by, and neither did the
+> > person who sent me the patch, should I still add the eplicit
+> > Signed-off-by's to the patch, and add myself, before sending it to you?
+> 
+> You should never sign off for somebody else.
+> 
+> You _can_ sign off as yourself, and just add a note of "From xxxx". That's
+> what the (b) case is all about (ie "to the best of my knowledge it's
+> already under a open-source license").
+> 
+> Of course, if it's a _big_ work with lots of original content, and you're 
+> unsure of exactly what the original author wanted to do with this, you 
+> obviously should _not_ sign off on it. But you knew that.
 
-On Tue, 25 May 2004 11:44:21 EDT, "La Monte H.P. Yarroll" said:
+I know you want this simple, but should we keep the paper-trail momentum
+going by adding a "Submitted-by"? Like if I get a one-liner fix, which
+is obviously not adding new code, rather than go through the whole
+process of asking for them to agree to the signoff deal, could I do:
 
-> I THINK I have a case not covered here. I sometimes need to post unpublished
-> work done by other people at my company. Since the work is not yet 
-> published,
-> the GPL doesn't really grant me any special rights. The authorization I use
-> to publish is in fact NOT an open source license. I think clause (b) could
-> probably be weakened to cover my case.
+Submitted-by: Jimmy Janitor <jimmy@janitor.blah>
+Signed-off-by: Ben Collins <bcollins@debian.org>
 
-Hmm.. I'm missing something here.
+? I like the idea of knowing where a patch came from and via who. This
+would make it easier to analyze that info, but keep it simple for
+trivial patches that so many of us get (in the (b) case).
 
-It's unclear (at least to me) whether your issue is:
-
-a) You're submitting patches that consist of GPL'able code that you don't have
-the company-internal paperwork in place to authorize the release; or
-
-b) The patches you're releasing aren't GPL'able because they're in some way
-encumbered by a licensing issue.
-
-In either case, we need to clarify and fix the problem, totally separate from
-the DCO issue (all *that* does is that if somebody points out a problem with a
-patch of yours down the road, we know to ask *you* about it....)
-
-
---==_Exmh_152842466P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAs4UJcC3lWbTT17ARAktMAKCV/TpHNlZhaeKE2sWokXbpNHg7RgCg5khu
-2MMAlZP/bBsSixOtR4fDmns=
-=/O8V
------END PGP SIGNATURE-----
-
---==_Exmh_152842466P--
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

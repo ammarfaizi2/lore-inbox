@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290756AbSA3Xmo>; Wed, 30 Jan 2002 18:42:44 -0500
+	id <S290753AbSA3X7l>; Wed, 30 Jan 2002 18:59:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290746AbSA3Xi1>; Wed, 30 Jan 2002 18:38:27 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:60654 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S290750AbSA3Xho>;
-	Wed, 30 Jan 2002 18:37:44 -0500
-Date: Wed, 30 Jan 2002 16:37:30 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Kris Urquhart <kurquhart@littlefeet-inc.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: ext2/mount - multiple mounts corrupts inodes
-Message-ID: <20020130163730.N763@lynx.adilger.int>
-Mail-Followup-To: Kris Urquhart <kurquhart@littlefeet-inc.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <B9F49C7F90DF6C4B82991BFA8E9D547B1256F4@BUFORD.littlefeet-inc.com>
-Mime-Version: 1.0
+	id <S290755AbSA3X7X>; Wed, 30 Jan 2002 18:59:23 -0500
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:59014 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S290753AbSA3X7K>;
+	Wed, 30 Jan 2002 18:59:10 -0500
+Message-ID: <3C588884.9643C0E@canit.se>
+Date: Thu, 31 Jan 2002 00:57:56 +0100
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Eli Carter <eli.carter@inet.com>,
+        Georg Nikodym <georgn@somanetworks.com>, Ingo Molnar <mingo@elte.hu>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <3C586C8D.2C100509@inet.com> <Pine.LNX.4.33.0201301408290.2618-100000@penguin.transmeta.com> <20020130143608.I22323@work.bitmover.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B9F49C7F90DF6C4B82991BFA8E9D547B1256F4@BUFORD.littlefeet-inc.com>; from kurquhart@littlefeet-inc.com on Wed, Jan 30, 2002 at 03:07:19PM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 30, 2002  15:07 -0800, Kris Urquhart wrote:
-> [1.] One line summary of the problem: 
-> A mount of an already mounted ext2 partition corrupts inodes if there have
-> been recent writes without an intervening sync.
+Larry McVoy wrote:
 
-This _should_ be handled OK by the kernel simply by not mounting the
-filesystem the second time.  If you try and mount it a second time it
-_should_ just do a "bind" mount instead of a real mount, I think.
+> On Wed, Jan 30, 2002 at 02:17:05PM -0800, Linus Torvalds wrote:
+> > The way BK works now, if we call the quick-and-dirty fix "A", and the real
+> > fix "B", the developer has a really hard time just sending "B" to me. He'd
+> > have to re-clone an earlier BK tree, re-do B in that tree, and then send
+> > me the second version.
+> >
+> > I'm suggesting that he just send me B, and get rid of his tree. There are
+> > no dependencies on A, and I do not want _crap_ in my tree just because A
+> > was a temporary state for him.
+>
+> And you just lost some useful information.  The fact that so-and-so did
+> fix A and then did B is actually useful.  It tells me that A didn't work
+> and B does.  You think it's "crap" and by tossing it dooms all future
+> developers to rethink the A->B transition.
+>
 
-<stating the obvious>
-Rather than mounting the device to try and see if it is already
-mounted, use /proc/mounts or /etc/mtab or "df" or "mount" output
-instead.  Doctor, it hurts when I do this... ;-).
-</stating the obvious>
+I think Linus meant that A never got sent out before the developer did the B
+version. Now A could be a even bigger bug than what it was intended to fix so the
+developer really dont wan't the world to se that sucker but can't just send the B
+changeset as it depends on A. So I guess he needs a easy way to make A just go
+away. Basically just collaps A and B into the same changeset. This should probably
+ony work on changeset that has not been pushed to other trees.
 
-Granted, this does appear to be a bug so the above will only work
-around it and not fix it.  Al Viro is the one to pester about it.
-Hopefully he will see this email and reply (== fix the problem).
 
-> [4.] Kernel version (from /proc/version): 
-> Linux version 2.4.10 (kurquhart@bay.sw.littlefeet-inc.com) (gcc version
-> egcs-2.91.66 
-> 19990314/Linux (egcs-1.1.2 release)) #1 Wed Jan 30 09:46:52 PST 2002
-
-The 2.4.10 kernel is a bad one to use for several reasons, don't use it.
-
-Cheers, Andreas
-
-PS - nice bug report, if only all of them were this useful.
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

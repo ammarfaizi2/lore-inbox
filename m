@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315734AbSHARCS>; Thu, 1 Aug 2002 13:02:18 -0400
+	id <S317035AbSHARKb>; Thu, 1 Aug 2002 13:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSHARCS>; Thu, 1 Aug 2002 13:02:18 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:60425 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315734AbSHARCR>;
-	Thu, 1 Aug 2002 13:02:17 -0400
-Date: Thu, 1 Aug 2002 10:04:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Enugala Venkata Ramana <caps_linux@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: installation of latest kernel on compaq notebook
-Message-ID: <20020801170403.GB26625@kroah.com>
-References: <20020801044026.27710.qmail@webmail10.rediffmail.com>
-Mime-Version: 1.0
+	id <S317054AbSHARKa>; Thu, 1 Aug 2002 13:10:30 -0400
+Received: from nameservices.net ([208.234.25.16]:49315 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S317035AbSHARKa>;
+	Thu, 1 Aug 2002 13:10:30 -0400
+Message-ID: <3D496A33.2192F164@opersys.com>
+Date: Thu, 01 Aug 2002 13:04:51 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Fabrizio Morbini <fabrizio.morbini@libero.it>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Tracing each new process...
+References: <Pine.LNX.4.33L2.0208011340130.957-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020801044026.27710.qmail@webmail10.rediffmail.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 04 Jul 2002 15:31:46 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 04:40:26AM -0000, Enugala Venkata Ramana wrote:
-> Hi ,
->  This is what is existing configuration
->    have compaq presario 1200 12XL506 model notebook
->    installed Redhat Linux 7.1
->    Everything is fine except the usb to ethernet (SmartNic2 
-> 1500
-> ) does not work although it is shown in the /proc/usb/devices
 
-Please provide the USB specific information that is asked for in the
-Linux USB FAQ at http://www.linux-usb.org/  That would help us out a lot
-:)
+Have a look at the Linux Trace Toolkit:
+http://www.opersys.com/LTT/
 
-thanks,
+Fabrizio Morbini wrote:
+> Hi, somebody know how signaling the creation of each new process?
+> (watching the proc filesystem or ps output is too slow)
+> 
+> If this software doesn't exists where (in the kernel source) I must
+> insert hook for tracing the creation of new process?
+> 
+> Thank you very much for any help!!
+> 
+> Fabrizio.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-greg k-h
+-- 
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

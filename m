@@ -1,61 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263144AbTCSQsh>; Wed, 19 Mar 2003 11:48:37 -0500
+	id <S263060AbTCSQju>; Wed, 19 Mar 2003 11:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbTCSQsh>; Wed, 19 Mar 2003 11:48:37 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:26247 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S263144AbTCSQsg> convert rfc822-to-8bit; Wed, 19 Mar 2003 11:48:36 -0500
-Date: Wed, 19 Mar 2003 12:01:37 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Matthias Schniedermeyer <ms@citd.de>,
-       "Richard B. Johnson" <johnson@quark.analogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Everything gone!
-In-Reply-To: <1048091858.989.10.camel@bip.localdomain.fake>
-Message-ID: <Pine.LNX.4.53.0303191158180.31905@chaos>
-References: <Pine.LNX.4.53.0303191041370.27397@quark.analogic.com> 
- <20030319160437.GA22939@citd.de> <1048091858.989.10.camel@bip.localdomain.fake>
+	id <S263068AbTCSQju>; Wed, 19 Mar 2003 11:39:50 -0500
+Received: from mail.ccur.com ([208.248.32.212]:55556 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id <S263060AbTCSQjs>;
+	Wed, 19 Mar 2003 11:39:48 -0500
+Message-ID: <3E789FF4.DFDE1248@ccur.com>
+Date: Wed, 19 Mar 2003 11:51:00 -0500
+From: Jim Houston <jim.houston@ccur.com>
+Reply-To: jim.houston@ccur.com
+Organization: Concurrent Computer Corp.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Mike Galbraith <efault@gmx.de>
+CC: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@digeo.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, joe.korty@ccur.com
+Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
+References: <20030318215228.417e0a58.akpm@digeo.com>
+	 <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain>
+	 <20030318215228.417e0a58.akpm@digeo.com> <5.2.0.9.2.20030319091819.00ca4bf0@pop.gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Mar 2003, Xavier Bestel wrote:
 
-> Le mer 19/03/2003 à 17:04, Matthias Schniedermeyer a écrit :
->
-> > rm -rf *
-> > Should do the same(*) but with much better speed.
-> >
-> > Normaly the system should lockup at sometime while doing it.
-> >
-> >
-> >
-> >
-> > *: OK. The version above will "break" in the middle after "/bin/rm" (or
-> > "/lib/libc.so.6") got deleted.
->
-> That would be surprising. Did you actually try it ? :)
->
-> 	Xav
+Hi Everyone,
 
-I think that, with a single instance of `rm`, not as written above,
-this would complete because all the open runtime libraries would
-remain mem-mapped until the last close. So, I think you could
-remove everything with -rf except the programs that will return
-'text file busy' errors because they are open for execution.
+I like Ingo's round down the sleep time fix.  It solves most
+of the problems.
 
-An, no. I am not going to try it! Well maybe sometime when I
-mount an alternate root that I am going to replace.
+I have been chasing a small case it doesn't fix.  If you have
+a circle of processes passing a token (like the irman test which
+is part of contest), the processes can still get to inflated 
+priorities if they are preempted by other processes.
 
+Consider one of the processes in the circle.  It spends most of
+its time blocked waiting for its turn to pass the token.  With Ingo's
+change it doesn't get a sleep time credit because the sleep time 
+almost always rounds down to zero.  But if any of the process in
+the loop is delayed (maybe it used its time slice), then all of the
+other processes in the chain will get a sleep_avg credit for that
+delay time.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Here is the idea I have been playing with (in activate_task):
 
+        sync_wake_cycle = 0
+	if (!in_interrupt()) {
+                /*
+                 * Detect cycles of synchronous wakeups.  This catches
+                 * the old circle of processes passing a token benchmarks.
+                 * If none of the processes ever sleep they should not
+                 * get an interactive bonus.
+                 */
+                if (current->sync_wake_leader == p->sync_wake_leader)
+                        sync_wake_cycle = 1;
+                else if (current->sync_wake_leader)
+                        p->sync_wake_leader = current->sync_wake_leader;
+                else
+                        p->sync_wake_leader = current;
+        } else {
+                p->sync_wake_leader = 0;
+        } 
+
+If sync_wake_cycle is set, don't credit the sleep_avg.  If there is an 
+interactive task in the loop, it will break the loop when it is woken by
+a real interrupt.
+
+I hope to get another version of my run_avg based (and overly optimistically
+named) self-tuning scheduler out soon.
+
+Jim Houston - Concurrent Computer Corp.

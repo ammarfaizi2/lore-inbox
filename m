@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266694AbUF3PTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266693AbUF3PVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266694AbUF3PTB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 11:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUF3PTB
+	id S266693AbUF3PVd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 11:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266699AbUF3PV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 11:19:01 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:16313 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S266694AbUF3PS5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 11:18:57 -0400
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 30 Jun 2004 16:18:55 +0100
-MIME-Version: 1.0
-Subject: Re: 2.4.26: IDE drives become unavailable randomly
-Message-ID: <40E2E7EF.15243.10093E4E@localhost>
-X-mailer: Pegasus Mail for Windows (4.21b)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Wed, 30 Jun 2004 11:21:27 -0400
+Received: from janus.foobazco.org ([198.144.194.226]:1408 "EHLO
+	mail.foobazco.org") by vger.kernel.org with ESMTP id S266693AbUF3PVK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 11:21:10 -0400
+Date: Wed, 30 Jun 2004 08:21:07 -0700
+From: wesolows@foobazco.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jamie Lokier <jamie@shareable.org>, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on Sparc and Sparc64
+Message-ID: <20040630152107.GA20438@foobazco.org>
+References: <20040630030503.GA25149@mail.shareable.org> <20040629221711.77f0fca5.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040629221711.77f0fca5.davem@redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was getting this problem, and advice from smartmontools people was 
-to clean out the box and reseat all cables etc.  Seemed to work for 
-me on the box at work with this DMA timeout issue - BTW, always 
-happened at idle, like 2:15am in the middle of the night etc.
+On Tue, Jun 29, 2004 at 10:17:11PM -0700, David S. Miller wrote:
 
-Reference:
+> > In include/asm-sparc/pgtsrmmu.h, there's:
+> > 
+> > #define SRMMU_PAGE_NONE    __pgprot(SRMMU_VALID | SRMMU_CACHE | \
+> > 				    SRMMU_PRIV | SRMMU_REF)
+> > #define SRMMU_PAGE_RDONLY  __pgprot(SRMMU_VALID | SRMMU_CACHE | \
+> > 				    SRMMU_EXEC | SRMMU_REF)
+> > 
+> > This one bothers me.  The difference is that PROT_NONE pages are not
+> > accessible to userspace, and not executable.
+> > 
+> > So userspace will get a fault if it tries to read a PROT_NONE page.
+> > 
+> > But what happens when the kernel reads one?  Don't those bits mean
+> > that the read will succeed?  I.e. write() on a PROT_NONE page will
+> > succeed, instead of returning EFAULT?
+> > 
+> > If so, this is a bug.  A minor bug, perhaps, but nonetheless I wish to
+> > document it.
+> 
+> Yes this one is a bug and not intentional.
+> 
+> Keith W., we need to fix this.  Probably the simplest fix is just to
+> drop the SRMMU_VALID bit.
 
-http://sourceforge.net/mailarchive/message.php?msg_id=8660397
-
-http://sourceforge.net/mailarchive/forum.php?thread_id=4908273&forum_i
-d=12495
-
-Nick
+Ok, I'll try this approach and see what happens.
 
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
-
+Keith M Wesolowski

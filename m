@@ -1,43 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262647AbTCTV6h>; Thu, 20 Mar 2003 16:58:37 -0500
+	id <S262655AbTCTWAl>; Thu, 20 Mar 2003 17:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262646AbTCTV6g>; Thu, 20 Mar 2003 16:58:36 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:26504 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S262648AbTCTV6P>; Thu, 20 Mar 2003 16:58:15 -0500
-Date: Thu, 20 Mar 2003 14:09:02 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Larger dev_t and major/minor split
-Message-ID: <20030320220901.GR2835@ca-server1.us.oracle.com>
-References: <b5dckh$lv1$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b5dckh$lv1$1@cesium.transmeta.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+	id <S262653AbTCTV76>; Thu, 20 Mar 2003 16:59:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8073 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262655AbTCTV7o>; Thu, 20 Mar 2003 16:59:44 -0500
+Date: Thu, 20 Mar 2003 17:13:42 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Ed Vance <EdV@macrolink.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.20 modem control
+In-Reply-To: <Pine.LNX.4.53.0303191959110.1386@chaos>
+Message-ID: <Pine.LNX.4.53.0303201711550.6079@chaos>
+References: <11E89240C407D311958800A0C9ACF7D1A33DEF@EXCHANGE>
+ <Pine.LNX.4.53.0303191959110.1386@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 01:42:41PM -0800, H. Peter Anvin wrote:
-> b) In order to support NFSv2 and other filesystems which only support
->    a 32-bit dev_t, I suggest we stay within a (12,20)-bit range for as
+On Wed, 19 Mar 2003, Richard B. Johnson wrote:
 
-	Hmm, I guess that means dropping ext2/3 for / ;-(
+> On Wed, 19 Mar 2003, Ed Vance wrote:
+>
+> > On Wed, Mar 19, 2003 2:32 PM, Richard B. Johnson wrote:
+> > > On Wed, 19 Mar 2003, Ed Vance wrote:
+> > > [SNIPPED...]
+> > >
+> > > > Hi Richard,
+> > > >
+> > > > The following patch to serial.c in 2.4.20 is a brute-force addition
+> > > > of a hang-up delay of 0.5 sec just before close returns to the user,
+> > > > if the hupcl flag is set. Please try this to determine if there are
+> > > > any other issues with the remote login. If it works, I'll write a
+> > > > better patch that does not duplicate other delays, etc.
+> > > >
+> > > > Cheers,
+> > > > Ed
+> > > >
+> > >
+> > > Well, it's the "right church, but wrong pew". As soon as anything
+> > > closes STDIO_FILENO, **bang** the modem hangs up. NotGood(tm)!
+> > > So as long as I just execute the shell which was exec'ed ...
+> > > getty...rlogin...bash never called close. However, `ls` on my
+> > > machine is `color-ls` when it calls exit(0)... well you get
+> > > the idea! I can log in, but can't actually execute anything that
+> > > terminates, closing STDIO_FILENO...
+> > >
+> > >
+> > Hi Richard,
+> >
+> > Bummer! Do you think that each of those events was a "last close"
+> > of the port? Doesn't bash hold the port open while the `color-ls`
+> > runs?
+> >
+> > Since the path only delays (doesn't change modem control), these
+> > closes must have been hidden by quick reopens. Does the unmodified
+> > agetty set the baud rate to zero to hangup, or was that your change?
+> > I was thinking that I could move the delay to the code that
+> > disconnects when baud rate zero is set.
+> >
+> > your thoughts?
+> >
+> > Cheers,
+> > Ed
 
-Joel
+[SNIPPED...]
 
--- 
+This patch works (no other promises).
 
-"Nothing is wrong with California that a rise in the ocean level
- wouldn't cure."
-        - Ross MacDonald
+--- linux-2.4.20/drivers/char/serial.c.orig	2003-03-20 16:21:55.000000000 -0500
++++ linux-2.4.20/drivers/char/serial.c	2003-03-20 16:31:23.000000000 -0500
+@@ -1538,8 +1538,12 @@
+ 	serial_out(info, UART_LCR, serial_inp(info, UART_LCR) & ~UART_LCR_SBC);
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+ 	if (!info->tty || (info->tty->termios->c_cflag & HUPCL))
+-		info->MCR &= ~(UART_MCR_DTR|UART_MCR_RTS);
+-	serial_outp(info, UART_MCR, info->MCR);
++        {
++           serial_outp(info, UART_MCR,info->MCR & ~(UART_MCR_DTR|UART_MCR_RTS));
++           set_current_state(TASK_INTERRUPTIBLE);
++           schedule_timeout(HZ/2);              /* Disconnect modem  */
++        }
++	serial_outp(info, UART_MCR, info->MCR);  /* Don't keep it off */
+
+ 	/* disable FIFO's */
+ 	serial_outp(info, UART_FCR, (UART_FCR_ENABLE_FIFO |
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

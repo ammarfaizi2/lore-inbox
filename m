@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291126AbSBSKzy>; Tue, 19 Feb 2002 05:55:54 -0500
+	id <S291160AbSBSK5E>; Tue, 19 Feb 2002 05:57:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291157AbSBSKzf>; Tue, 19 Feb 2002 05:55:35 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:56582 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S291126AbSBSKzX>; Tue, 19 Feb 2002 05:55:23 -0500
-Date: Tue, 19 Feb 2002 11:55:12 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3 fs problem in 2.4.18-rc1?
-Message-ID: <20020219105512.GA5634@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1013933289.18783.8.camel@psuedomode>
+	id <S291161AbSBSK44>; Tue, 19 Feb 2002 05:56:56 -0500
+Received: from holomorphy.com ([216.36.33.161]:55957 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291160AbSBSK4m>;
+	Tue, 19 Feb 2002 05:56:42 -0500
+Date: Tue, 19 Feb 2002 02:56:21 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] reduce struct_page size
+Message-ID: <20020219105621.GI3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.33.0202181806340.24597-100000@home.transmeta.com> <Pine.LNX.4.33L.0202190736290.1930-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <1013933289.18783.8.camel@psuedomode>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <Pine.LNX.4.33L.0202190736290.1930-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Feb 2002, Ed Sweetman wrote:
+On Mon, 18 Feb 2002, Rik van Riel wrote:
+>>> o page->zone is shrunk from a pointer to an index into a small
+>>>   array of zones ... this means we have space for 3 more chars
+>>>   in the struct page to other stuff (say, page->age)
 
-> I'm using 2.4.18-rc1 with the preempt patch and whenever I run fsck, it
-> keeps finding more and more errors.  Specifically those related to
-> corrupted orphan linked lists. I dont know what is going on but I know
-> it's not the drives because they were all tested before partitioning
-> under an older (woody's kernel) and everything was fine (bad block
-> test).  
+On Mon, 18 Feb 2002, Linus Torvalds wrote:
+>> Why not put "page->zone" into the page flags instead?
 
-Can you confirm your memory is OK? I saw this behaviour on 2.4.14 or
-2.4.16 (release) with a fault memory module. Run memtest86 to figure --
-the kernel may trigger it now while another kernel does not because of
-changed memory management.
+On Tue, Feb 19, 2002 at 07:38:02AM -0300, Rik van Riel wrote:
+> The original reason it's not in page->flags is that the
+> rmap patch also has page->age.
+> Furthermore, the NUMA folks wanted the ability to have
+> quite a few zones.
 
--- 
-Matthias Andree
+I didn't have any particular objection to it. With ->age in there
+the unsigned char didn't make a difference and it perhaps looked
+cleaner.
 
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+On Mon, 18 Feb 2002, Linus Torvalds wrote:
+>> The patch looks good, it's just silly to say that you made "struct page"
+>> smaller, and then waste four bytes.
+
+On Tue, Feb 19, 2002 at 07:38:02AM -0300, Rik van Riel wrote:
+> If you want I'll look into shoving the zone bits into
+> page->flags ...
+
+I still have my old code sitting around that I could quickly
+resurrect to provide this. I can integrate it and send it to
+you for review if that would help.
+
+I don't really care one way or the other about whether my original
+implementation is reused so much as preventing my inaction from
+delaying the merge. The difference is just trivial.
+
+
+Cheers,
+Bill

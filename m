@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265344AbUFXOsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265349AbUFXOvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265344AbUFXOsj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 10:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265348AbUFXOsh
+	id S265349AbUFXOvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 10:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265353AbUFXOuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 10:48:37 -0400
-Received: from [66.199.228.3] ([66.199.228.3]:54534 "EHLO xdr.com")
-	by vger.kernel.org with ESMTP id S265344AbUFXOsW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 10:48:22 -0400
-Date: Thu, 24 Jun 2004 07:48:20 -0700
-From: David Ashley <dash@xdr.com>
-Message-Id: <200406241448.i5OEmK60025648@xdr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cached memory never gets released
+	Thu, 24 Jun 2004 10:50:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51170 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265349AbUFXOta
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 10:49:30 -0400
+Date: Thu, 24 Jun 2004 11:16:37 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [oom]: [0/4] fix OOM deadlock running OAST
+Message-ID: <20040624141637.GA20702@logos.cnet>
+References: <0406231407.HbLbJbXaHbKbWa5aJb1a4aKb0a3aKb1a0a2aMbMbYa3aLbMb3aJbWaJbXaMbLb1a342@holomorphy.com> <20040623151659.70333c6d.akpm@osdl.org> <20040623223146.GG1552@holomorphy.com> <20040623153758.40e3a865.akpm@osdl.org> <20040623230730.GJ1552@holomorphy.com> <20040623163819.013c8585.akpm@osdl.org> <20040624000308.GK1552@holomorphy.com> <20040623171818.39b73d52.akpm@osdl.org> <20040624002651.GL1552@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040624002651.GL1552@holomorphy.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught wrote:
+On Wed, Jun 23, 2004 at 05:26:51PM -0700, William Lee Irwin III wrote:
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> >> It's a
+> >> judgment call as to whether it's beneficial in general, as it does
+> >> insulate userspace somewhat from needing to wait for slow IO being the
+> >> ostensible cause of the allocation failure.
+> 
+> On Wed, Jun 23, 2004 at 05:18:18PM -0700, Andrew Morton wrote:
+> > mm...  I can only see that happening if the IO system is retiring write
+> > requests at much less than 10/sec, which seems unlikely.  Still, that can
+> > be tuned around.
+> 
+> Then it sounds like the smaller fix below may be better for you.
+> 
+> 
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> >> RedHat vendor kernels have removed the check entirely
+> 
+> On Wed, Jun 23, 2004 at 05:18:18PM -0700, Andrew Morton wrote:
+> > When telling us this sort of thing, please always specify the kernel version.
+> > I assume you're referring to a 2.6 kernel?  If so, some thwapping might be
+> > in order.
+> 
+> No, RHEL3. I'm not aware of any mm/oom_kill.c changes in any of the
+> Fedora snapshots.
+> 
+> 
+> -- wli
+> 
+> During stress testing at Oracle to determine the maximum number of
+> clients 2.6 can service, it was discovered that the failure mode of
+> excessive numbers of clients was kernel deadlock. The following patch
+> removes the check if (nr_swap_pages > 0) from out_of_memory() as this
+> heuristic fails to detect memory exhaustion due to pinned allocations,
+> directly causing the aforementioned deadlock.
+> 
+> 
+> ===== mm/oom_kill.c 1.26 vs edited =====
+> --- 1.26/mm/oom_kill.c	Thu Jun  3 01:46:39 2004
+> +++ edited/mm/oom_kill.c	Wed Jun 23 17:22:22 2004
+> @@ -230,12 +230,6 @@
+>  	static unsigned long first, last, count, lastkill;
+>  	unsigned long now, since;
+>  
+> -	/*
+> -	 * Enough swap space left?  Not OOM.
+> -	 */
+> -	if (nr_swap_pages > 0)
+> -		return;
+> -
+>  	spin_lock(&oom_lock);
+>  	now = jiffies;
+>  	since = now - last;
 
->Have you tried a kernel that's less than 8 months old? 2.4.26 is current.
-
-Not so easy, we've got some custom modules and the kernel is modified a
-little to suit our needs (not related to buffer caches though).
-
-It seems the problem is *not* brought on by the kernel killing XFree86
-like I had posted before. Just normal use of the system seems to cause the
-Cached value in /proc/meminfo to go up, and it seems it can't go back down
-as needed when memory runs low.
-
-What would be helpful is any advice as to where to look in the kernel source
-to try and track this down. I followed the path:
-fs/proc/proc_misc.c handles /proc/meminfo, the cached value is based on
-  page_cache_size
-mm/swap.c is what changes page_cache_size in delta_nr_cache_pages() function
-linux/swap.h has macros dec_nr_cache_pages inc_nr_cache_pages which call this
-mm/filemap.c is the only place that calls dec_nr_cache_pages in function
-  remove_page_from_hash_queue
-mm/filemap.c function __remove_inode_page and remove_inode_page call that
-mm/filemap.c function invalidate_inode_pages and truncate_complete_page
-  call those
-mm/filemap.c invalide_this_page2 and truncate_list_pages call
-  truncate_complete_page
-invalidate_inode_pages is called all over the place...
-
-So we're snowballing but I don't know what mechanism is supposed to actually
-free the cached pages when the system is low on memory. Any advice would
-be welcome.
-
-Thanks--
-Dave
+Removing the check on v2.4 based kernels will trigger the OOM killer
+too soon for a lot of cases, I'm pretty sure.

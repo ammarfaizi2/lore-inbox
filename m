@@ -1,80 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUIVXlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUIVX6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268113AbUIVXlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 19:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUIVXlt
+	id S268115AbUIVX6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 19:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268118AbUIVX6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 19:41:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:23750 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268088AbUIVXlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 19:41:18 -0400
-Date: Wed, 22 Sep 2004 16:40:44 -0700
-From: Greg KH <greg@kroah.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [RFC] put symbolic links between drivers and modules in the sysfs tree
-Message-ID: <20040922234044.GA14552@kroah.com>
-References: <1095701390.2016.34.camel@mulgrave> <20040922230423.GA14279@kroah.com> <20040922230650.GB14279@kroah.com>
-Mime-Version: 1.0
+	Wed, 22 Sep 2004 19:58:46 -0400
+Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:38065
+	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S268115AbUIVX6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 19:58:45 -0400
+Message-ID: <415211A8.8040907@ppp0.net>
+Date: Thu, 23 Sep 2004 01:58:32 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Aubin <daubin@actuality-systems.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is there a user space pci rescan method?
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com>
+In-Reply-To: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922230650.GB14279@kroah.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 04:06:50PM -0700, Greg KH wrote:
-> On Wed, Sep 22, 2004 at 04:04:23PM -0700, Greg KH wrote:
-> > I'll post my usb core change after this, to show you how USB can
-> > be hooked up to it.
+Dave Aubin wrote:
+> Hi,
 > 
-> And here's the 3 line patch that I added to the usb core to hook up both
-> the usb and usb-serial drivers to support the modules symlinks.
-> 
-> I'll go mess with the pci core now, but as there is no "struct module *"
-> in the pci driver structure, it will take a bit of auditing to get them
-> all hooked up properly.
+>   I know very little about hotplug, but does make sense.
+> How do you motivate a hotplug insertion event?  Or should
+> I just go read the /docs on hotplugging?  Any help is
+> Appreciated:)
 
-Here's that patch, if anyone cares...
+There is a "fake" hotplug driver which works for normal pci. But last
+time I looked at it, it did only support hot disabling, not hot enabling
+- but this surely can be fixed.
 
-thanks,
+Thanks,
 
-greg k-h
-
-------
-
-
-PCI: add "struct module *" to struct pci_driver to show symlink in sysfs for pci drivers.
-
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
---- a/drivers/pci/pci-driver.c	2004-09-22 16:24:57 -07:00
-+++ b/drivers/pci/pci-driver.c	2004-09-22 16:24:57 -07:00
-@@ -417,6 +417,7 @@
- 	drv->driver.bus = &pci_bus_type;
- 	drv->driver.probe = pci_device_probe;
- 	drv->driver.remove = pci_device_remove;
-+	drv->driver.owner = drv->owner;
- 	drv->driver.kobj.ktype = &pci_driver_kobj_type;
- 	pci_init_dynids(&drv->dynids);
- 
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2004-09-22 16:24:57 -07:00
-+++ b/include/linux/pci.h	2004-09-22 16:24:57 -07:00
-@@ -632,9 +632,11 @@
- 	unsigned int use_driver_data:1; /* pci_driver->driver_data is used */
- };
- 
-+struct module;
- struct pci_driver {
- 	struct list_head node;
- 	char *name;
-+	struct module *owner;
- 	const struct pci_device_id *id_table;	/* must be non-NULL for probe to be called */
- 	int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);	/* New device inserted */
- 	void (*remove) (struct pci_dev *dev);	/* Device removed (NULL if not a hot-plug capable driver) */
+Jan

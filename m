@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277785AbRJLRMc>; Fri, 12 Oct 2001 13:12:32 -0400
+	id <S277791AbRJLRTW>; Fri, 12 Oct 2001 13:19:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277783AbRJLRMX>; Fri, 12 Oct 2001 13:12:23 -0400
-Received: from mail11.speakeasy.net ([216.254.0.211]:59146 "EHLO
-	mail11.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S277785AbRJLRMG>; Fri, 12 Oct 2001 13:12:06 -0400
-Date: Fri, 12 Oct 2001 10:08:39 -0700 (PDT)
-From: Mike Borrelli <mike@nerv-9.net>
-To: linux-kernel@vger.kernel.org
-Subject: No love for the PPC
-Message-ID: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net>
+	id <S277788AbRJLRTM>; Fri, 12 Oct 2001 13:19:12 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:30902
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S277781AbRJLRSw>; Fri, 12 Oct 2001 13:18:52 -0400
+Date: Fri, 12 Oct 2001 13:18:44 -0400
+From: Chris Mason <mason@suse.com>
+To: Tom Rini <trini@kernel.crashing.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: reiserfs-list <reiserfs-list@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] Re: Linux 2.4.12-ac1
+Message-ID: <1822570000.1002907124@tiny>
+In-Reply-To: <20011012083616.C9992@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20011012072910.N21564@cpe-24-221-152-185.az.sprintbbd.net> <E15s44B-0007Vk-00@the-village.bc.nu> <20011012083616.C9992@cpe-24-221-152-185.az.sprintbbd.net>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry about the tone of this e-mail, but it is somewhat painful when,
-after downloading a new kernel to play with, it doesn't compile on the
-ppc.  It isn't even big problems either.  A single line (#include
-<linux/pm.h>) is missing from pc_keyb.c and has been for at least three
--ac releases.  Now, process.c in arch/ppc/kernel/ dies from an undeclared
-identifier (init_mmap).
 
-I'm sure the appropriate response would be to fix them myself, but I don't
-know enough about the kernel or the ppc arhitecture.  I'm also sure that
-if Theo (or anyone like him) was to read this s/he would tell me to stop
-whining.
 
-Anyway, the real question is, why does the ppc arhitecture /always/ break
-between versions?
+On Friday, October 12, 2001 08:36:16 AM -0700 Tom Rini <trini@kernel.crashing.org> wrote:
 
-I'll stop complaining now.
+> On Fri, Oct 12, 2001 at 04:17:39PM +0100, Alan Cox wrote:
+>> > On Fri, Oct 12, 2001 at 02:17:26PM +0100, Alan Cox wrote:
+>> > 
+>> > > 2.4.12-ac1
+>> > > o	Merge the majority of 2.4.11/12
+>> > > 	-	Fall back to the Linus reiserfs code set
+>> > [snip]
+>> > 
+>> > The endian-safe patches will come back tho, right?  I don't think those
+>> > have made it into Linus' tree yet...
+>> 
+>> Really what needs to happen is the important bits that were tested and
+>> the reiser folks were happy with get pushed back bit by bit into both trees
+>> now
+> [reiserfs list added to cc]
+> 
+> That would be nice.  Are there any plans on behalf of the reiserfs
+> people to merge in the Endian-Safeness patches now?
 
-Regards,
--Mike
+Jeff had sent them to linus before 2.4.10 came out, and again 
+earlier this week.  Hopefully they'll make it into 2.4.13pre.
+
+-chris
 

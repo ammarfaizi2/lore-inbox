@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRBQHW2>; Sat, 17 Feb 2001 02:22:28 -0500
+	id <S129608AbRBQHbK>; Sat, 17 Feb 2001 02:31:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129608AbRBQHWI>; Sat, 17 Feb 2001 02:22:08 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:9743 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129387AbRBQHWF>;
-	Sat, 17 Feb 2001 02:22:05 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Shawn Starr <Shawn.Starr@sh0n.net>
-cc: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [PROBLEM]: grep hanging with ReiserFS 
-In-Reply-To: Your message of "Sat, 17 Feb 2001 02:12:40 CDT."
-             <3A8E2467.FC6FE1B4@sh0n.net> 
-Mime-Version: 1.0
+	id <S130028AbRBQHbA>; Sat, 17 Feb 2001 02:31:00 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:45580
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129608AbRBQHav>; Sat, 17 Feb 2001 02:30:51 -0500
+Date: Fri, 16 Feb 2001 23:29:28 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Balazic <david.balazic@uni-mb.si>
+cc: Michael E Brown <michael_e_brown@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: block ioctl to read/write last sector
+In-Reply-To: <3A8A7AB0.5D483D5F@uni-mb.si>
+Message-ID: <Pine.LNX.4.10.10102162328370.30327-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Feb 2001 18:21:58 +1100
-Message-ID: <15264.982394518@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Feb 2001 02:12:40 -0500, 
-Shawn Starr <Shawn.Starr@sh0n.net> wrote:
-> grep -r "216.234.235.46" *
->Im using grep in /etc and its just waiting....
+On Wed, 14 Feb 2001, David Balazic wrote:
 
-grep -r follows symlinks and tries to open named pipes.  If you have
-qmail installed then /etc/qmail is a symlink to /var/qmail and named
-pipe /var/qmail/queue/lock/trigger lives down there.  grep hangs trying
-to open the pipe.  Not a reiserfs problem, just a badly designed
-application.
+> Did you try scsi-emulation on IDE disks ?
+
+Don't be silly.
+That emulation is from scsi-packet to atapi-packet.
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUBFVwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 16:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUBFVwp
+	id S266825AbUBFV6z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 16:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266828AbUBFV6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 16:52:45 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:31946 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S266485AbUBFVwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 16:52:33 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Fri, 6 Feb 2004 19:52:29 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: FATAL: Kernel too old
-In-Reply-To: <20040206152943.B26348@discworld.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0402061948590.2139@pervalidus.dyndns.org>
-References: <Pine.LNX.4.53.0402061550440.681@chaos> <20040206152943.B26348@discworld.dyndns.org>
-X-Archive: encrypt
+	Fri, 6 Feb 2004 16:58:55 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:7382 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266825AbUBFV6A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 16:58:00 -0500
+Message-ID: <40240DE4.8030705@cyberone.com.au>
+Date: Sat, 07 Feb 2004 08:57:56 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rick Lindsley <ricklind@us.ibm.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, mjbligh@us.ibm.com,
+       dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
+References: <200402061813.i16IDO707026@owlet.beaverton.ibm.com>
+In-Reply-To: <200402061813.i16IDO707026@owlet.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004, Charles Cazabon wrote:
 
-> Richard B. Johnson <root@chaos.analogic.com> wrote:
 
-Hmm, getmail's author doing this :-) ?
+Rick Lindsley wrote:
 
-> > Script started on Fri Feb  6 15:44:32 2004
-> > # rlogin -l johnson quark
-> > ATAL: kernel too old
-> > # rlogin -l johnson quark
-> > ATAL: kernel too old
+>    >+	if ((long)*imbalance < 0)
+>    >+		*imbalance = 0;
+>    > 
+>    
+>    You're right Rick, thanks for catching this. Why do you have
+>    this last test though? This shouldn't be possible?
 >
-> I saw something similar at a customer's site, when someone rooted the box and
-> replaced the default login shell with a rootkitted/backdoored one in a newer
-> executable format not supported by the old kernel.
+>A combination of paranoia and leftover code from a previous fix :)  At the
+>least, this could probably become a BUG_ON now, or I wouldn't cry if
+>we took it out entirely.
+>
+>
 
-I think it's also what you get if you compile glibc with, say,
---enable-kernel=2.4.20 and boot 2.4.19 and earlier. But in your
-case, probably the above.
+I gave it a run with WARN_ON for a while and its fine so we'll
+take it out all together.
 
--- 
-http://www.pervalidus.net/contact.html
+We also shouldn't need load_diff, because if (avg_load <= this_load)
+then imbalance will be zero, so I'll fix that up.
+

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266335AbUAHUpp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 15:45:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUAHUpp
+	id S265611AbUAHVCL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 16:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265615AbUAHVCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 15:45:45 -0500
-Received: from mail.kroah.org ([65.200.24.183]:17078 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266335AbUAHUpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 15:45:43 -0500
-Date: Thu, 8 Jan 2004 12:19:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Inconsistency in sysfs behavior?
-Message-ID: <20040108201920.GB16183@kroah.com>
-References: <Pine.LNX.4.44L0.0401071039150.850-100000@ida.rowland.org> <20040107172750.GC31177@kroah.com> <20040108103242.GA2267@in.ibm.com>
-Mime-Version: 1.0
+	Thu, 8 Jan 2004 16:02:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46597 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S265611AbUAHVCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 16:02:09 -0500
+Message-ID: <3FFDC51B.8070108@zytor.com>
+Date: Thu, 08 Jan 2004 13:01:15 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Jim Carter <jimc@math.ucla.edu>
+CC: Mike Waychison <Michael.Waychison@sun.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+References: <3FFB12AD.6010000@sun.com>	<Pine.LNX.4.53.0401071139430.20046@simba.math.ucla.edu>	<3FFC8E5B.40203@sun.com> <Pine.LNX.4.53.0401080911390.27090@simba.math.ucla.edu>
+In-Reply-To: <Pine.LNX.4.53.0401080911390.27090@simba.math.ucla.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040108103242.GA2267@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 04:02:42PM +0530, Maneesh Soni wrote:
->                                                                                 
-> The problem is that we have live references to the kobject dentry but 
-> kobject is gone. Problems can occur if kobject is accessed
-> through dentry->d_fsdata field. The fix I did was to take a ref. to the
-> kobject while linking the dentry with the kobject in create_dir(). This
-> ref. can be released when dentry ref. count goes to zero, that is when
-> dentry is being freed, through dentry->d_op->d_iput() call. With this
-> patch we can have a kobject alive during the life time of the corresponding
-> dentry. 
+Jim Carter wrote:
 > 
-> Please comment.
+>>For justification to it's worth, some institutions have file servers
+>>that export hundreds or even thousands of shares over NFS.   As /net is
+>>really just a kind of executable indirect map that returns multimounts
+>>for each hostname used as a key,  just doing 'cd /net/hostname' may
+>>potentially mount hundreds of filesystems.  This is not cool!
+> 
+> Definitely not cool.  But some users (yours truly among them) do "alias ls
+> 'ls -F'", which requires "ls" to stat (and thus mount) every exported
+> filesystem.  More uncool, and I don't see any non-disgusting way around it.
+> 
 
-This is the patch already in the -mm tree, right?  I think it's already
-in Pat's pending queue of patches to send off (we're a bit hampered by
-the weather right now in this part of the world...)
+No, it doesn't... this has been covered several times already.  It
+requires ls to *lstat* the point; it only does a stat() if the resulting
+entry is S_IFLNK.  The same is true for GUI tools.  There is a fairly
+easy way to distinguish lstat() from virtually all other filesystem
+calls -- it doesn't invoke follow_link.  So the answer is simply to
+create an inode which is S_IFDIR but has a follow_link method.  The
+follow_link method triggers a mount.  This is called a "pseudo-symlink
+directory" or sometimes "ghost directory".
 
-thanks,
+	-hpa
 
-greg k-h

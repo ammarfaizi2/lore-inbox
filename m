@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265853AbUBKQgN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 11:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbUBKQgM
+	id S265573AbUBKQan (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 11:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbUBKQan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 11:36:12 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:20614 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265853AbUBKQgK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 11:36:10 -0500
-Subject: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Tim Connors <tconnors+linuxkernel1076481367@astro.swin.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>
-In-Reply-To: <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au>
-References: <20040209115852.GB877@schottelius.org>
-	 <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au>
-Content-Type: text/plain
-Message-Id: <1076517309.21961.169.camel@shaggy.austin.ibm.com>
+	Wed, 11 Feb 2004 11:30:43 -0500
+Received: from main.gmane.org ([80.91.224.249]:44737 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265573AbUBKQam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 11:30:42 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: reiserfs for bkbits.net?
+Date: Wed, 11 Feb 2004 17:30:37 +0100
+Message-ID: <yw1xisidino2.fsf@kth.se>
+References: <200402111523.i1BFNnOq020225@work.bitmover.com> <20040211161358.GA11564@favonius>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 11 Feb 2004 10:35:10 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:lohf+RPhwDNNwh5EfLkYU8DD6Hg=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-11 at 00:39, Tim Connors wrote:
-> I submitted a bug to the jfs people, because jfs incorrectly returns
-> -EINVAL (this isn't even documented in man pages as a valid return
-> from open()) from an open() on a filename with UTF-8 in it.
-> 
-> See http://www-124.ibm.com/developerworks/bugs/?func=detailbug&bug_id=3838&group_id=35
-> and http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=229308
-> 
-> This was triggered just by upgrading the console-utils package in
-> debian (the problem existed all along, except that when I first made
-> the filesystem a jfs one, I reinstalled from backups, rather than
-> reinstalling debian from scratch)
+Sander <sander@humilis.net> writes:
 
-Yeah, JFS has poor default behavior based on CONFIG_NLS_DEFAULT.  I
-attempted to explain why it works that way in the first bug listed above
-if anyone is curious.
+> Larry McVoy wrote (ao):
+>> We're moving openlogging back to our offices and I'm experimenting
+>> with filesystems to see what gives the best performance for BK usage.
+>> Reiserfs looks pretty good and I'm wondering if anyone knows any
+>> reasons that we shouldn't use it for bkbits.net. Also, would it help
+>> if the journal was on a different disk? Most of the bkbits traffic is
+>> read so I doubt it.
+>> 
+>> Please cc me, I'm not on the list.
+>
+> I've cc'ed the Reiserfs mailinglist.
+>
+> IME Reiserfs is a fast and stable fs. If you have the time to benchmark
+> ext3, reiserfs, jfs and xfs (and ..) with bk then you would know first
+> hand which fs is best for you. It might be worth the time.
 
-I think the right thing for JFS to do is to change the default behavior
-to simply store the bytes as they are seen, and to only do charset
-conversion when the iocharset mount option is explicitly set.  This may
-impact some current users, but they will be able to get the old behavior
-by setting iocharset to whatever CONFIG_NLS_DEFAULT is set to in the
-running kernel.
+If someone does any tests, I'd be interested to hear about the
+results.
 
-I intend to make this change soon if there are no objections.
-
-Thanks,
-Shaggy
 -- 
-David Kleikamp
-IBM Linux Technology Center
+Måns Rullgård
+mru@kth.se
 

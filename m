@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUGHWl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265168AbUGHWlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUGHWl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 18:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUGHWlz
+	id S265168AbUGHWlm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 18:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUGHWlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 18:41:55 -0400
-Received: from mail5.tpgi.com.au ([203.12.160.101]:20899 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S265195AbUGHWlq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 18:41:46 -0400
+	Thu, 8 Jul 2004 18:41:36 -0400
+Received: from zlynx.org ([199.45.143.209]:5382 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S265170AbUGHWlY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 18:41:24 -0400
 Subject: Re: GCC 3.4 and broken inlining.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
+From: Zan Lynx <zlynx@acm.org>
+To: ncunningham@linuxmail.org
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Jakub Jelinek <jakub@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040708222511.GL28324@fs.tum.de>
+In-Reply-To: <1089324043.3098.3.camel@nigel-laptop.wpcb.org.au>
 References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au>
 	 <20040708120719.GS21264@devserv.devel.redhat.com>
-	 <20040708205225.GI28324@fs.tum.de>
-	 <20040708210925.GA13908@devserv.devel.redhat.com>
-	 <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au>
-	 <20040708222511.GL28324@fs.tum.de>
-Content-Type: text/plain
-Message-Id: <1089326266.3276.15.camel@nigel-laptop.wpcb.org.au>
+	 <1089288664.2687.23.camel@nigel-laptop.wpcb.org.au>
+	 <200407090036.39323.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1089324043.3098.3.camel@nigel-laptop.wpcb.org.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mEHhHb22II3g6S9TUgvy"
+Message-Id: <1089326491.22042.68.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 09 Jul 2004 08:37:46 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 08 Jul 2004 16:41:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Fri, 2004-07-09 at 08:25, Adrian Bunk wrote:
-> I'm currently working on fixing the compile errors and I plan to send 
-> some fixes later.
+--=-mEHhHb22II3g6S9TUgvy
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Great! Thanks!
+On Thu, 2004-07-08 at 16:00, Nigel Cunningham wrote:
+> On Fri, 2004-07-09 at 07:36, Denis Vlasenko wrote:
+> > It was decided to #define inline so that it means always_inline for lk.
+> > Dunno why include/linux/compiler-gcc3.h stopped doing that
+> > specifically for gcc 3.4...
+>=20
+> I tried getting it to use the always_inline definition for gcc 3.4. It
+> resulted in the compilation failing in a number of places. The fixes
+> were generally trivial, involving rearranging the contents of files so
+> that inline function bodies appear before routines calling them, or
+> removing the inline where this isn't possible. IMHO, this is what should
+> be done. I didn't complete the changes, however: I thought I'd try for a
+> simpler solution, just in case I'm wrong.
 
-Nigel
+I believe that just adding -funit-at-a-time as a compile option solves
+the problems with inline function body ordering.
+--=20
+Zan Lynx <zlynx@acm.org>
 
+--=-mEHhHb22II3g6S9TUgvy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA7c2bG8fHaOLTWwgRAkUtAJ9uu6FMH9kHwLANp17Jz9lRJb/JGwCfZkBk
+1CKwOtY749adNqsCI/hrKpY=
+=ZrtX
+-----END PGP SIGNATURE-----
+
+--=-mEHhHb22II3g6S9TUgvy--
 

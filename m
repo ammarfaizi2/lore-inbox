@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267120AbTB0WKm>; Thu, 27 Feb 2003 17:10:42 -0500
+	id <S267204AbTB0WPP>; Thu, 27 Feb 2003 17:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267126AbTB0WKm>; Thu, 27 Feb 2003 17:10:42 -0500
-Received: from oumail.zero.ou.edu ([129.15.0.75]:17558 "EHLO c3p0.ou.edu")
-	by vger.kernel.org with ESMTP id <S267120AbTB0WKl>;
-	Thu, 27 Feb 2003 17:10:41 -0500
-Date: Thu, 27 Feb 2003 16:20:56 -0600
-From: Steve Kenton <skenton@ou.edu>
-Subject: Re: pointer to .subsection and .previous usage in kernel?
-To: lkml <linux-kernel@vger.kernel.org>
-Message-id: <3E5E8F47.635B41D0@ou.edu>
-Organization: The University Of Oklahoma
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (X11; U; SunOS 5.8 sun4u)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	id <S267206AbTB0WPP>; Thu, 27 Feb 2003 17:15:15 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:54215 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267204AbTB0WPM>; Thu, 27 Feb 2003 17:15:12 -0500
+Date: Thu, 27 Feb 2003 14:16:16 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, linux-kernel@vger.kernel.org
+cc: akpm@digeo.com
+Subject: Re: [BENCHMARK] AIM9 results. 2.4.19 vs 2.5.58 vs 2.5.63
+Message-ID: <189330000.1046384176@flay>
+In-Reply-To: <20030227213954.2125.qmail@linuxmail.org>
+References: <20030227213954.2125.qmail@linuxmail.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, I was following up on some pointers from Jeff Dike on the
-User Mode Linux home page about possibly running UML in a windows environment.
-Jeff says that SMP has worked in the past and will again in the future
-so I'm pretty sure that spinlocks will be needed ...
+> page_test 10000 123.9       210630.00 System Allocations & Pages/second
+> page_test 10000 102.8       174760.00 System Allocations & Pages/second
+> page_test 10010 101.898       173226.77 System Allocations & Pages/second
+> ^^^^^Here we are still slowe then 2.4.19
+>
+> brk_test 10010 48.951       832167.83 System Memory Allocations/second
+> brk_test 10000 43.7       742900.00 System Memory Allocations/second
+> brk_test 10020 41.018       697305.39 System Memory Allocations/second
+> ^^^^Slower then .58 and a lot slower then 2.4.19
+>
+> exec_test 10000 13.8           69.00 Program Loads/second
+> exec_test 10030 12.8614           64.31 Program Loads/second
+> exec_test 10020 12.7745           63.87 Program Loads/second
+> ^^^^ Slower then 2.4.19
+> 
+> fork_test 10000 44.8         4480.00 Task Creations/second
+> fork_test 10020 24.8503         2485.03 Task Creations/second
+> fork_test 10000 23.2         2320.00 Task Creations/second
+> ^^^^^ A lot slower then 2.4.19
 
-As a first pass to see where the problems were located I tried to build a
-'host' kernel for i386 using the cygwin tool chain.  That version of gcc produces
-i386pe format output instead of elf which triggered the problem with .subsection
-not being a recognized gas directive.  I understand that .subsections force
-things to be closely located within a section when there is no other logical
-association and that they are not visible to the the linker which only deals with
-sections.  They only reason *I *can see for this is to improve cache hits but
-I'm just guessing, hence the question.
+Could you compare 63 mainline to -mjb or -mm with objrmap patches in?
+I think you'll get significant improvements on the tests above.
 
-FYI, by hacking out the .subsection/.previous directive I was able to build a
-vmlinux for 2.5.59 using the cygwin tool chain under windows.  Obviously it is
-not useful as is, but there seem to be relatively few syntax and toolchain
-problems to deal with.  Hopefully the hard part of an actual UML port to windows
-can be snarfed from the LINE project.  Again based on a pointer from Jeff Dike.
+> mem_rtns_1 10000 27.7       831000.00 Dynamic Memory Operations/second
+> mem_rtns_1 10000 24.1       723000.00 Dynamic Memory Operations/second
+> mem_rtns_1 10020 22.7545       682634.73 Dynamic Memory Operations/second
+> ^^^^^Slow, slow, slow...
+> 
+> misc_rtns_1 10000 782.2         7822.00 Auxiliary Loops/second
+> misc_rtns_1 10000 706         7060.00 Auxiliary Loops/second
+> misc_rtns_1 10000 686.9         6869.00 Auxiliary Loops/second
+> ^^^^ Slow too...
+> 
+> shared_memory 10000 2227.4       222740.00 Shared Memory Operations/second
+> shared_memory 10000 1973.1       197310.00 Shared Memory Operations/second
+> shared_memory 10000 1955.2       195520.00 Shared Memory Operations/second
+> ^^^^Slow, slow, slow...
 
-Anyway, I'm just trying to get up to speed and was wondering *WHY* things are
-done that way.  Most of the in-line and asm stuff still looks like voodoo to me.
-The .subsection/.previous just looks like a little blacker magic than normal.
-
-Steve
+And possibly those three as well, though I'm less sure.
  
->If you are writing code under cygwin, you should not be encountering
->spin-locks and kernel-specific things. Perhaps you are including
->>the wrong header files? You should never do:
->
->        #include <linux/xxx.h>
->        #include <asm/xxx.h>
->
->... unless you are writing modules. And you don't do that in cygwin.
->
->
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
->Why is the government concerned about the lunatic fringe? Think about it.
+Thanks,
+
+M.
+

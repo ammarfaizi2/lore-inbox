@@ -1,159 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUGAHCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUGAHEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUGAHCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 03:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUGAHCh
+	id S264129AbUGAHEw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 03:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264160AbUGAHEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 03:02:37 -0400
-Received: from mail4.speakeasy.net ([216.254.0.204]:10381 "EHLO
-	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S264113AbUGAHCb
+	Thu, 1 Jul 2004 03:04:52 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:51177 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S264129AbUGAHEn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 03:02:31 -0400
-Date: Thu, 1 Jul 2004 00:02:24 -0700
-Message-Id: <200407010702.i6172O38019744@magilla.sf.frob.com>
+	Thu, 1 Jul 2004 03:04:43 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: linux-usb-users@lists.sourceforge.net
+Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption & lockups & poor performance
+Date: Thu, 1 Jul 2004 09:04:39 +0200
+User-Agent: KMail/1.6.2
+Cc: janne <sniff@xxx.ath.cx>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.40.0407010017360.1548-100000@xxx.xxx>
+In-Reply-To: <Pine.LNX.4.40.0407010017360.1548-100000@xxx.xxx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andreas Schwab <schwab@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: zombie with CLONE_THREAD
-In-Reply-To: Linus Torvalds's message of  Wednesday, 30 June 2004 21:57:35 -0700 <Pine.LNX.4.58.0406302147350.11212@ppc970.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Zippy-Says: ..  So, if we convert SUPPLY-SIDE SOYBEAN FUTURES into HIGH-YIELD
-   T-BILL INDICATORS, the PRE-INFLATIONARY risks will DWINDLE to a
-   rate of 2 SHOPPING SPREES per EGGPLANT!!
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200407010904.39925.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I do think the locking is broken in your patch.
+> Hardware:
+>  Athlon XP 1600+
+>  Epox 8KHA+ VIA KT266A
+>  BT878 TV-card (bttv card=36 tuner=1)
+>  Edimax Via6302 4port PCI Usb2 controller (ehci-hcd)
+>  Lacie P3 250GB Usb2 hard drive (usb-storage, reiserfs)
 
-I was afraid of that.
+I get hard hangs with a Bt878 + disk activity (every time it hangs,
+the disk activity LED is on).  But I don't have usb2.  However I have
+a similar processor, Athlon XP 2100+, and motherboard, VIA KT333.
+I'm also using reiserfs (where an OOPS occurred in your system logs).
+I also have a realtek 8139 ethernet card.  We both have VIA usb 1.1
+controllers.  My hangs happen with both 2.4 and 2.6 kernels.  I only
+get hangs if I'm using the bttv card.
 
-> Since you release the tasklist lock, the children on our list of children 
-> might go away while you released the lock, making the
+lspci:
+
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
+0000:00:05.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+0000:00:06.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
+0000:00:08.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+0000:00:08.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+0000:00:0b.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 04)
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 80)
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 80)
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 80)
+0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV200 QW [Radeon 7500]
+
+> I recently updated my machine with pci usb2 controller and usb2 hard
+> drive. I have been running the same machine on 2.4 kernels for a long
+> time and it has never had stability issues.
 > 
-> 	list_for_each_safe(..)
-
-You know, I never really looked at the macros, but seeing "_safe" here made
-me think that exactly this is what it's safe from.  That was obviously a
-silly thing to think, since it's clearly just safe from removing the list
-element during the iteration.
-
-> HOWEVER, I think you can fix it with something like
+> I decided to upgrade to kernel version 2.6.6 since realtek gigabit
+> ethernet driver in 2.4.26 causes hangs.
 > 
-> 	_n = father->children.next;
+> Soon after i updated i noticed problems whenever bttv, usb2 hard drive
+> and nfs/GigE were used together at high loads.
 > 
-> after you've re-aquired the lock (that will re-start the loop, but since 
-> we should have gotten rid of all the previous entries, the "restart" is 
-> actually going to just continue at the point where we were going to 
-> continue anyway, so it shouldn't cause any extra iterations).
+> First of all, usb2 throughput was disappointing, i only got about 5-15MB/s
+> (usually about 8MB/s) while the manufacturer claims sustained datarate of
+> 35MB/s.
+
+Are you sure you plugged your device into a usb 2 port, and not a usb 1.1 port?
+Also, some products claim to be usb 2 devices, when they are in fact only usb 1.1.
+
+> I tried to stresstest the drivers by launching TvTime (which uses bttv),
+> listening to mp3s, and at the same time transferring data to and from
+> usb2 hdd and nfs partitions on another machine.
 > 
-> Does that still work for you, or have I totally messed up?
+> Problems while transferring data from usb2 hdd:
+> 
+> - TV picture has weird artifacts
+> - Constant clicks and snaps from mp3 player
+> - NFS will hang for about 10sec every now and then
+> - And finally after a few minutes the machine either hangs completely
+>   or the usb-storage and ehci drivers freeze and the usb2 hdd isn't
+>   accessible before the machine is rebooted.
+> 
+> 
+> 
+> Here's a clip from syslog:
+> 
+> Jun 30 04:09:36 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:11:30 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:13:14 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:13:38 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:14:32 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:15:23 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:16:49 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:17:04 ebola kernel: bttv0: SCERR @ 22a1d01c,bits: VSYNC* HSYNC OFLOW FBUS SCERR*
+> Jun 30 04:17:05 ebola kernel: scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+> Jun 30 04:17:05 ebola kernel: SCSI error : <0 0 0 0> return code = 0x70000
+> Jun 30 04:17:05 ebola kernel: end_request: I/O error, dev sda, sector 283278791
+> Jun 30 04:17:05 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:05 ebola last message repeated 2 times
+> Jun 30 04:17:05 ebola kernel: Buffer I/O error on device sda1, logical block 22417398
+> Jun 30 04:17:05 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:05 ebola kernel: Buffer I/O error on device sda1, logical block 2492
+> Jun 30 04:17:05 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:05 ebola kernel: Buffer I/O error on device sda1, logical block 2493
+> Jun 30 04:17:05 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 2494
+> Jun 30 04:17:06 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 2495
+> Jun 30 04:17:06 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 2496
+> Jun 30 04:17:06 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 2497
+> Jun 30 04:17:06 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 2498
+> Jun 30 04:17:06 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:06 ebola kernel: journal-601, buffer write failed
+> Jun 30 04:17:06 ebola kernel: ------------[ cut here ]------------
+> Jun 30 04:17:06 ebola kernel: kernel BUG at fs/reiserfs/prints.c:338!
+> Jun 30 04:17:06 ebola kernel: invalid operand: 0000 [#1]
+> Jun 30 04:17:06 ebola kernel: PREEMPT
+> Jun 30 04:17:06 ebola kernel: CPU:    0
+> Jun 30 04:17:06 ebola kernel: EIP:    0060:[__crc_poll_freewait+1357058/3378185]    Tainted: P
+> Jun 30 04:17:06 ebola kernel: EFLAGS: 00010286   (2.6.6-2-k7)
+> Jun 30 04:17:06 ebola kernel: EIP is at reiserfs_panic+0x33/0x70 [reiserfs]
+> Jun 30 04:17:06 ebola kernel: eax: 00000024   ebx: f3ef8e00   ecx: 00000001   edx: c02af378
+> Jun 30 04:17:06 ebola kernel: esi: f0c8f310   edi: 00000000   ebp: f3ef8e00   esp: c3411d58
+> Jun 30 04:17:06 ebola kernel: ds: 007b   es: 007b   ss: 0068
+> Jun 30 04:17:06 ebola kernel: Process pdflush (pid: 11287, threadinfo=c3410000 task=ee52fa30)
+> Jun 30 04:17:06 ebola kernel: Stack: f8bff124 f8c073a0 f0c8f310 00000000 f8bf2722 f3ef8e00 f8bfd0c0 00000000
+> Jun 30 04:17:06 ebola kernel:        00001000 f1ebd000 f8b94068 f0c8f328 dd5e36e8 f3ef8e00 00000000 f0c8f310
+> Jun 30 04:17:06 ebola kernel:        f8b940e4 f8bf7359 f3ef8e00 f0c8f310 00000001 00001000 f0c8f310 c3410000
+> Jun 30 04:17:06 ebola kernel: Call Trace:
+> Jun 30 04:17:06 ebola kernel:  [__crc_poll_freewait+1406817/3378185] flush_commit_list+0x282/0x3f0 [reiserfs]
+> Jun 30 04:17:06 ebola kernel:  [__crc_poll_freewait+1426328/3378185] do_journal_end+0x829/0xb70 [reiserfs]
+> Jun 30 04:17:06 ebola kernel:  [__crc_poll_freewait+1421724/3378185] journal_end_sync+0x4d/0x90 [reiserfs]
+> Jun 30 04:17:06 ebola kernel:  [__crc_poll_freewait+1343963/3378185] reiserfs_sync_fs+0x5c/0xb0 [reiserfs]
+> Jun 30 04:17:06 ebola kernel:  [__down_failed_trylock+7/12]__down_failed_trylock+0x7/0xc
+> Jun 30 04:17:06 ebola kernel:  [sync_supers+172/192] sync_supers+0xac/0xc0
+> Jun 30 04:17:06 ebola kernel:  [wb_kupdate+54/288] wb_kupdate+0x36/0x120
+> Jun 30 04:17:06 ebola kernel:  [schedule+812/1440] schedule+0x32c/0x5a0
+> Jun 30 04:17:06 ebola kernel:  [__pdflush+202/448] __pdflush+0xca/0x1c0
+> Jun 30 04:17:06 ebola kernel:  [pdflush+0/48] pdflush+0x0/0x30
+> Jun 30 04:17:06 ebola kernel:  [pdflush+40/48] pdflush+0x28/0x30
+> Jun 30 04:17:06 ebola kernel:  [wb_kupdate+0/288] wb_kupdate+0x0/0x120
+> Jun 30 04:17:06 ebola kernel:  [pdflush+0/48] pdflush+0x0/0x30
+> Jun 30 04:17:06 ebola kernel:  [kthread+165/176] kthread+0xa5/0xb0
+> Jun 30 04:17:06 ebola kernel:  [kthread+0/176] kthread+0x0/0xb0
+> Jun 30 04:17:06 ebola kernel:  [kernel_thread_helper+5/20] kernel_thread_helper+0x5/0x14
+> Jun 30 04:17:06 ebola kernel:
+> Jun 30 04:17:06 ebola kernel: Code: 0f 0b 52 01 2a f1 bf f8 c7 04 24 00 bb bf f8 c7 44 24 08 a0
+> Jun 30 04:17:06 ebola kernel:  <3>scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 22417398
+> Jun 30 04:17:06 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:06 ebola kernel: Buffer I/O error on device sda1, logical block 35409841
+> Jun 30 04:17:06 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:06 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:10 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:10 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:14 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:14 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:18 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:18 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:23 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:23 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:27 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:27 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:31 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:31 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:36 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:36 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:40 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:40 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:44 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:44 ebola kernel: zam-7001: io error in reiserfs_find_entry
+> Jun 30 04:17:53 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:53 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:53 ebola kernel: Buffer I/O error on device sda1, logical block 21740738
+> Jun 30 04:17:59 ebola kernel: scsi0 (0:0): rejecting I/O to offline device
+> Jun 30 04:17:59 ebola kernel: Buffer I/O error on device sda1, logical block 2500
+> Jun 30 04:17:59 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:59 ebola kernel: Buffer I/O error on device sda1, logical block 2501
+> Jun 30 04:17:59 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:59 ebola kernel: Buffer I/O error on device sda1, logical block 2502
+> Jun 30 04:17:59 ebola kernel: lost page write due to I/O error on sda1
+> Jun 30 04:17:59 ebola kernel: Buffer I/O error on device sda1, logical block 2503
+> Jun 30 04:17:59 ebola kernel: lost page write due to I/O error on sda1
+> 
+> 
+> lspci output:
+> 
+> 0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+> 0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
+> 0000:00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet (rev 10)
+> 0000:00:0a.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 04)
+> 0000:00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+> 0000:00:0c.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+> 0000:00:0c.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+> 0000:00:0d.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 50)
+> 0000:00:0d.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 50)
+> 0000:00:0d.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
+> 0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+> 0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+> 0000:00:11.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
+> 0000:00:11.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
+> 0000:00:11.4 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
+> 0000:01:00.0 VGA compatible controller: nVidia Corporation NV18 [GeForce4 MX 440 AGP 8x] (rev a4)
+> 
+> 
+> 
+> Janne Hayrynen
+> sniff@xxx.ath.cx
 
-That does still work.
+All the best,
 
-> I do agree with Andrea that it's ugly, and my patch just makes it uglier 
-> still. I wonder if there is some cleaner way to do the same thing.
-
-Well, which thing?  
-
-As to this locking issue, something I was considering to reduce that dance
-was changing release_task to take a flag saying the caller already holds
-some lock.  That would be to make things hold the tasklist_lock for longer
-stretches than it does now, which might not be what we wnat.
-
-I can think of two approaches to simply avoid calling release_task inside
-that loop in forget_original_parent, and so have the locking issue to
-contend with, if that is what you mean.  First, queue them on a list for
-calling release_task later when life is calmer.  The following patch works:
-
---- linux-2.6.7-mm4/kernel/exit.c.~1~	2004-06-30 16:29:06.000000000 -0700
-+++ linux-2.6.7-mm4/kernel/exit.c	2004-06-30 23:03:57.000000000 -0700
-@@ -594,7 +594,8 @@ static inline void reparent_thread(task_
-  * group, and if no such member exists, give it to
-  * the global child reaper process (ie "init")
-  */
--static inline void forget_original_parent(struct task_struct * father)
-+static inline void forget_original_parent(struct task_struct * father,
-+					  struct list_head *to_release)
- {
- 	struct task_struct *p, *reaper = father;
- 	struct list_head *_p, *_n;
-@@ -618,9 +619,19 @@ static inline void forget_original_paren
- 			reparent_thread(p, father, 0);
- 		} else {
- 			ptrace_unlink (p);
--			if (p->state == TASK_ZOMBIE && p->exit_signal != -1 &&
--			    thread_group_empty(p))
--				do_notify_parent(p, p->exit_signal);
-+			if (p->state == TASK_ZOMBIE) {
-+				if (p->exit_signal == -1) {
-+					/*
-+					 * This was only a zombie because
-+					 * we were tracing it.  Now it should
-+					 * disappear as it would have done
-+					 * if we hadn't been tracing it.
-+					 */
-+					list_add(&p->ptrace_list, to_release);
-+				}
-+				else if (thread_group_empty(p))
-+					do_notify_parent(p, p->exit_signal);
-+			}
- 		}
- 	}
- 	list_for_each_safe(_p, _n, &father->ptrace_children) {
-@@ -638,6 +649,7 @@ static void exit_notify(struct task_stru
- {
- 	int state;
- 	struct task_struct *t;
-+	struct list_head ptrace_dead, *_p, *_n;
- 
- 	if (signal_pending(tsk) && !tsk->signal->group_exit
- 	    && !thread_group_empty(tsk)) {
-@@ -673,7 +685,8 @@ static void exit_notify(struct task_stru
- 	 *	jobs, send them a SIGHUP and then a SIGCONT.  (POSIX 3.2.2.2)
- 	 */
- 
--	forget_original_parent(tsk);
-+	INIT_LIST_HEAD(&ptrace_dead);
-+	forget_original_parent(tsk, &ptrace_dead);
- 	BUG_ON(!list_empty(&tsk->children));
- 
- 	/*
-@@ -759,6 +772,12 @@ static void exit_notify(struct task_stru
- 	_raw_write_unlock(&tasklist_lock);
- 	local_irq_enable();
- 
-+	list_for_each_safe(_p, _n, &ptrace_dead) {
-+		list_del_init(_p);
-+		t = list_entry(_p,struct task_struct,ptrace_list);
-+		release_task(t);
-+	}
-+
- 	/* If the process is dead, release it - nobody will wait for it */
- 	if (state == TASK_DEAD)
- 		release_task(tsk);
-
-
-The second approach to that is to have some other thread call release_task
-for you.  The benefit there would be no change whatsoever in the main
-exit_notify code path, the only new code in the exit path being in just
-this one unusual case.  To make init do that reaping in the normal course
-of things might be a pain.  The thread would have to be fully divorced from
-its thread group and made a normal zombie (i.e. only one in its own thread
-group) in its own right.  Tweaking the pid hashes to do that entails its
-own locking nightmare.  If not init, it could be some random kernel service
-thread, but I don't see what existing thread would want to do such a thing.
-
-Both of those are probably worse in real costs than the ugliness of
-dropping and reacquiring the lock around calling release_task in the loop.
-
-If you are talking about reorganizing exit handling in a larger sense not
-to have this kind of trouble, then that would take more thought than I am
-going to give it tonight.
-
-
-Thanks,
-Roland
+Duncan.

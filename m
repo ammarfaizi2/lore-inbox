@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315748AbSGFS0v>; Sat, 6 Jul 2002 14:26:51 -0400
+	id <S315754AbSGFSeT>; Sat, 6 Jul 2002 14:34:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315754AbSGFS0u>; Sat, 6 Jul 2002 14:26:50 -0400
-Received: from mail.clsp.jhu.edu ([128.220.34.27]:35557 "EHLO
-	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
-	id <S315748AbSGFSZm>; Sat, 6 Jul 2002 14:25:42 -0400
-Date: Sat, 6 Jul 2002 02:58:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stephen Tweedie <sct@redhat.com>
-Cc: Andrew Morton <akpm@zip.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Automatically mount or remount EXT3 partitions with EXT2 when alaptop is powered by a battery?
-Message-ID: <20020706005834.GA112@elf.ucw.cz>
-References: <1024948946.30229.19.camel@turbulence.megapathdsl.net> <3D18A273.284F8EDD@zip.com.au> <20020628215942.GA3679@pelks01.extern.uni-tuebingen.de> <20020702131314.B4711@redhat.com> <20020704220511.GA4728@pelks01.extern.uni-tuebingen.de> <20020705085917.F27198@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020705085917.F27198@redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S315758AbSGFSeS>; Sat, 6 Jul 2002 14:34:18 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55551 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S315754AbSGFSeS>; Sat, 6 Jul 2002 14:34:18 -0400
+Date: Sat, 6 Jul 2002 20:36:26 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Grega Fajdiga <Gregor.Fajdiga@telemach.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Where is Martin Dalecki?
+In-Reply-To: <Pine.LNX.4.10.10207061009290.25668-100000@master.linux-ide.org>
+Message-ID: <Pine.SOL.4.30.0207062024150.3164-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > an fsync() on any file or directory on the filesystem will ensure that
-> > > all old transactions have completed, and a sync() will ensure that any
-> > > old transactions are at least on their way to disk.
-> > 
-> > With emphasis on 'on the filesystem', I suppose?  In other words, if we
-> > have an ext3 fs on /dev/hda1 mounted on /mnt, it is not sufficient to
-> > fsync("/dev/hda1") to flush the transactions, but fsync("/mnt") will do?
-> > (Excuse the sloppy notation.)
-> 
-> Right.
+On Sat, 6 Jul 2002, Andre Hedrick wrote:
 
-So... If I do fsync("/"), will it flush everything? Probably not.
+> With any luck gone and Bartlomiej who actually knows something about the
+> hardware and driver design is now going to be running the show.
+> I gather his latest patch revert many of the bogus bugs designed by MD.
+> You should pray he does not come back!
+>
+> Bartlomiej is significantly more capable and more of a storage architect.
+> I trust he will be doing the correct thing.
+>
+> Cheers,
 
-Is there some easy way to sync everything to disk and wait for
-completion? [On suspend-to-something I'd llike to do that for
-additional safety.
-									Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Thanks for warm words, but please dont discard MD yet.
+
+To the time I cooperated with Martin just fine, he makes mistakes but
+everyone does. He can admit them.
+
+He should be more careful and spent more time on thinking about changes
+and their impact instead of simply trying them out.
+
+If he does, it will be all right...
+
+--
+Bartlomiej
+
+> On Sat, 6 Jul 2002, Grega Fajdiga wrote:
+>
+> > Good day,
+> >
+> > There has been a while since any IDE patches have gone into main tree.
+> > Also, it's been a while since Martin Dalecki released an IDE patch.
+> > Where is he? In lat two weeks or so only Bartolmej (did I spell this
+> > correctly?) has been releasing them. Could anyone elaborate?
+> >
+> > Regards,
+> > Grega Fajdiga
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

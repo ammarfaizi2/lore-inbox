@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbUCJTJX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbUCJTJX
+	id S262788AbUCJTMk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 14:12:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUCJTMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:09:23 -0500
-Received: from open.nlnetlabs.nl ([213.154.224.1]:26127 "EHLO
-	open.nlnetlabs.nl") by vger.kernel.org with ESMTP id S262783AbUCJTJN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:09:13 -0500
-Date: Wed, 10 Mar 2004 20:09:02 +0100
-From: Miek Gieben <miekg@atoom.net>
-To: linux-kernel@vger.kernel.org
-Subject: pts/X counts on
-Message-ID: <20040310190902.GA2226@atoom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Vim/Mutt/Linux
-X-Home: www.miek.nl
+	Wed, 10 Mar 2004 14:12:40 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:3466 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262788AbUCJTL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 14:11:56 -0500
+Message-ID: <404F687A.7040301@acm.org>
+Date: Wed, 10 Mar 2004 13:11:54 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Davis, Todd C" <todd.c.davis@intel.com>, greg@kroah.com,
+       sensors@stimpy.netroedge.com, "Simon G. Vogl" <simon@tk.uni-linz.ac.at>
+Subject: Re: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
+References: <20040307223221.0f2db02e.akpm@osdl.org> <20040309013917.GH14833@fs.tum.de> <404F3BC3.2090906@acm.org> <20040310185105.GS14833@fs.tum.de>
+In-Reply-To: <20040310185105.GS14833@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Adrian Bunk wrote:
 
-I'm seeing to following (obscure) thing happening:
+>The patch to i2c-core.c is strange:
+>
+>
+>  
+>
+>>--- linux-v31/drivers/i2c/i2c-core.c	2004-02-19 19:31:07.000000000 -0600
+>>+++ linux/drivers/i2c/i2c-core.c	2004-03-10 09:48:08.000000000 -0600
+>>@@ -1256,6 +1256,12 @@
+>> 	return (func & adap_func) == func;
+>> }
+>> 
+>>+int i2c_spin_delay;
+>>+void i2c_set_spin_delay(int val)
+>>+{
+>>+	i2c_spin_delay = val;
+>>+}
+>>+
+>> EXPORT_SYMBOL(i2c_add_adapter);
+>> EXPORT_SYMBOL(i2c_del_adapter);
+>> EXPORT_SYMBOL(i2c_add_driver);
+>>@@ -1292,6 +1298,8 @@
+>> 
+>> EXPORT_SYMBOL(i2c_get_functionality);
+>> EXPORT_SYMBOL(i2c_check_functionality);
+>>+EXPORT_SYMBOL(i2c_set_spin_delay);
+>>+EXPORT_SYMBOL(i2c_spin_delay);
+>> 
+>> MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+>> MODULE_DESCRIPTION("I2C-Bus main module");
+>>...
+>>    
+>>
+>
+>
+>You can either add get/set functions and export them (more an OO 
+>paradigm) or export the variable.
+>
+>If you export the variable, it's quite useless to add such a set 
+>function since everyone can set the variable directly.
+>
+I think the point is that lower-level drivers need to use this variable 
+(because of its use in the include file), but it's better to set it with 
+a function from external code.
 
-I open an xterm, it gets the pseudo term: pts/1
-I close the term and open a new one: pts/2, in stead
-of pts/1.
+Todd, am I correct here?
 
-Like this:
+-Corey
 
-USER     TTY      FROM   LOGIN@   IDLE   JCPU   PCPU WHAT
-miekg    pts/1    arena  19:57    3.00s  0.24s  0.11s vi bla
-miekg    pts/4    arena  20:03    0.00s  0.06s  0.00s w
-$ logout
-
-login again:
-
-USER     TTY      FROM   LOGIN@   IDLE   JCPU   PCPU WHAT
-miekg    pts/1    arena  19:57    3.00s  0.25s  0.12s vi bla
-miekg    pts/5    arena  20:03    0.00s  0.05s  0.00s w
-        ^^^^^^^
-
-It just counts on.... 
-
-I'm using devfs on 2.6.4-rc3, I first noticed this in 2.6.3.
-(all 2.6.4-rcX have it),
-
-Does anybody know why this is happening?
-
-grtz Miek
-
-[ I'm not on this list, please CC me on replies ]

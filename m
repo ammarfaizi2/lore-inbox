@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVCNVoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVCNVuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbVCNVoz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVCNVop
+	id S262012AbVCNVuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVCNVuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:44:45 -0500
-Received: from waste.org ([216.27.176.166]:57793 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261932AbVCNVnn (ORCPT
+	Mon, 14 Mar 2005 16:50:21 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:22467 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262012AbVCNVtp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 16:43:43 -0500
-Date: Mon, 14 Mar 2005 13:43:36 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Vegard Lima <Vegard.Lima@hia.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pam and nice-rt-prio-rlimits
-Message-ID: <20050314214336.GG3163@waste.org>
-References: <1110791657.1807.11.camel@pingvin.krs.hia.no>
+	Mon, 14 Mar 2005 16:49:45 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: [patch 2.6.11-rc5] Add target debug_kallsyms 
+In-reply-to: Your message of "Mon, 14 Mar 2005 22:43:41 BST."
+             <20050314214341.GF17925@mars.ravnborg.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110791657.1807.11.camel@pingvin.krs.hia.no>
-User-Agent: Mutt/1.5.6+20040907i
+Date: Tue, 15 Mar 2005 08:49:35 +1100
+Message-ID: <31391.1110836975@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 10:14:17AM +0100, Vegard Lima wrote:
-> Hello,
-> 
-> in the long thread on "[request for inclusion] Realtime LSM" there
-> doesn't appear to be too many people who has actually tested the
-> nice-and-rt-prio-rlimits.patch. Well, it works for me...
-> 
-> However, the patch to pam_limits posted here:
->   http://lkml.org/lkml/2005/1/14/174
-> is a little bit aggressive on the semi-colon side.
+On Mon, 14 Mar 2005 22:43:41 +0100, 
+Sam Ravnborg <sam@ravnborg.org> wrote:
+>On Sat, Feb 26, 2005 at 09:50:02PM +1100, Keith Owens wrote:
+>> Make it easier to generate maps for debugging kallsyms problems.
+>> debug_kallsyms is only a debugging target so no help or silent mode.
+>> 
+>> Signed-off-by: Keith Owens <kaos@ocs.com.au>
+>Applied to my kbuild tree.
+>I will remove it when we stop see kallsyms reports.
 
-It would be more helpful if you pointed out the exact bug. But I think
-I spotted the bug in question the first time around.
+Good luck!  Most of the kallsyms reports are not really kallsyms bugs,
+rather they are caused by the kallsyms checking picking up toolchain
+problems.
 
-Please double-check and test this patch from -mm, which will likely
-show up in mainline:
-
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/broken-out/nice-and-rt-prio-rlimits.patch
-
--- 
-Mathematics is the supreme nostalgia of our time.

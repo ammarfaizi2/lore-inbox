@@ -1,92 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265941AbUAKRV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 12:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265942AbUAKRV5
+	id S265942AbUAKRXc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 12:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUAKRXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 12:21:57 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:52424 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265941AbUAKRVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 12:21:55 -0500
-Date: Sun, 11 Jan 2004 18:23:36 +0100 (CET)
-From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
-Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>,
-       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Peter Berg Larsen <pebl@math.ku.dk>
-Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
- loss (With Patch). (fwd)
-In-Reply-To: <200401111138.49858.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.53.0401111821410.1813@calcula.uni-erlangen.de>
-References: <Pine.LNX.4.53.0401111652510.1271@calcula.uni-erlangen.de>
- <200401111138.49858.dtor_core@ameritech.net>
+	Sun, 11 Jan 2004 12:23:32 -0500
+Received: from chello212017098056.surfer.at ([212.17.98.56]:15122 "EHLO
+	hofr.at") by vger.kernel.org with ESMTP id S265942AbUAKRXV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 12:23:21 -0500
+From: Der Herr Hofrat <der.herr@hofr.at>
+Message-Id: <200401101722.i0AHM3l17594@hofr.at>
+Subject: Re: 2.6.0 schedule_tick question
+In-Reply-To: <Pine.LNX.4.44.0401110855420.19685-100000@bigblue.dev.mdolabs.com>
+ from Davide Libenzi at "Jan 11, 2004 08:57:28 am"
+To: Davide Libenzi <davidel@xmailserver.org>
+Date: Sat, 10 Jan 2004 18:22:03 +0100 (CET)
+CC: Der Herr Hofrat <der.herr@hofr.at>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last mail from me for this theme:
+> 
+> >  in 2.6.0 kernel/sched.c scheduler_tick currently the 
+> >  case of rt_tasks for SCHED_RR is doing
+> > 
+> > 	if ((p->policy == SCHED_RR) && !--p->time_slice) {
+> > 			...
+> >                         dequeue_task(p, rq->active);
+> >                         enqueue_task(p, rq->active);
+> > 
+> >  which is:
+> > 
+> > static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
+> > {
+> >         array->nr_active--;
+> >         list_del(&p->run_list);
+> >         if (list_empty(array->queue + p->prio))
+> >                 __clear_bit(p->prio, array->bitmap);
+> > }
+> > 
+> > static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
+> > {
+> >         list_add_tail(&p->run_list, array->queue + p->prio);
+> >         __set_bit(p->prio, array->bitmap);
+> >         array->nr_active++;
+> >         p->array = array;
+> > }
+> > 
+> >  looking at these two functions this looks like quite some overhead as it
+> >  actually could be reduced to:
+> > 
+> >         list_del(&p->run_list);
+> > 	list_add_tail(&p->run_list, array->queue + p->prio);
+> > 
+> >  for the rest I don't see any effect it would have ?
+> 
+> Yes, we could have a rotate_task() function but the impact is basically 
+> zero because of the little overhead compared to the frequency of the 
+> operation.
+>
+ok - well maby someone wants to drop it in any way as its
+trivial and actually it would be easier to read if the function name
+were rotate_task and not dequeue/enqueu to implement RR behavior.
 
-The kernel version without Your patches gets sync losses even when I use
-the i8042.nomux=1 parameter.
-
-Yours,
-
-	Gunter.
-
-On Today, Dmitry Torokhov wrote:
-
->From: Dmitry Torokhov <dtor_core@ameritech.net>
->Date: Sun, 11 Jan 2004 11:38:49 -0500
->To: Gunter Königsmann <gunter.koenigsmann@gmx.de>,
->     Gunter Königsmann <gunter@peterpall.de>
->Delivered-To: GMX delivery to gunter.koenigsmann@gmx.de
->Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
->     Peter Berg Larsen <pebl@math.ku.dk>
->Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
->    loss (With Patch). (fwd)
->
->On Sunday 11 January 2004 11:27 am, Gunter Königsmann wrote:
->> Strike! Helps.
->>
->> No more warnings, no more bad clicks, and a *real* smooth movement.
->>
->
->Great!
->
->Could you tell us what kind of laptop you have (manufacturer/model)
->so other people would not have such pain as you had with it?
->
->> Never thought, a touchpad can work *this* well... ;-)
->>
->> Anyway, I still get those 4 lines  on leaving X, but don't know, if it
->> is an error of the kernel, anyway, and doesn't do anything bad exept of
->> warning me:
->>
->> atkbd.c: Unknown key released (translated set 2, code 0x7a on
->> isa0060/serio0). atkbd.c: Unknown key released (translated set 2, code
->> 0x7a on isa0060/serio0). atkbd.c: Unknown key released (translated set
->> 2, code 0x7a on isa0060/serio0). atkbd.c: Unknown key released
->> (translated set 2, code 0x7a on isa0060/serio0).
->
->I believe Vojtech said that it's because X on startup tries to talk to the
->keyboard controller directly, nothing to worry about... But I might be
->mistaken.
->
->>
->>
->> Yours,
->>
->> 	Gunter.
->
->Dmitry
->
->
-
--- 
-If today is the first day of the rest of your life, what the hell was yesterday?
-	---fortune(6)
+thx !
+hofrat
+ 

@@ -1,126 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVAXUgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVAXUiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVAXUgT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVAXUfk
+	id S261646AbVAXUiv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVAXUh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:35:40 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:45101 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261632AbVAXUZc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:25:32 -0500
-Date: Mon, 24 Jan 2005 22:26:09 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andi Kleen <ak@suse.de>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, chrisw@osdl.org,
-       davem@davemloft.net
-Subject: [PATCH] move common compat ioctls to hash
-Message-ID: <20050124202609.GA15057@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050118072133.GB76018@muc.de> <20050118110432.GE23127@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 24 Jan 2005 15:37:57 -0500
+Received: from loncoche.terra.com.br ([200.154.55.229]:41415 "EHLO
+	loncoche.terra.com.br") by vger.kernel.org with ESMTP
+	id S261639AbVAXUcu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:32:50 -0500
+X-Terra-Karma: 0%
+X-Terra-Hash: 092d8896cc4eda404f61dac7d54cac8d
+Date: Mon, 24 Jan 2005 20:32:48 +0000
+Message-Id: <IAU92O$ED2B08BF5E8FE7D59813AE9A30B9CC4E@terra.com.br>
+Subject: [BUG]  Celeron D Step C0 L30-Changes to CR3 Register...
+MIME-Version: 1.0
+X-Sensitivity: 3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+From: "Camilo Telles" <camilot@terra.com.br>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+X-XaM3-API-Version: 4.1 (B90)
+X-type: 0
+X-SenderIP: 200.128.80.136
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-The new ioctl code in fs/compat.c can be streamlined a little
-using the compat hash instead of an explicit switch statement.
+Sirs,
 
-The attached patch is against 2.6.11-rc2-bk2.
-Andi, could you please comment? Does this make sence?
+I think that I confirmed the bug that I have post some days ago.  
+Checking the specs updates from Intel I have found this report:
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+===========
+L30. Changes to CR3 Register Do Not Fence Pending Instruction Page Walks
 
-diff -rup linux-2.6.10/fs/compat.c linux-2.6.10-rc2-bk2/fs/compat.c
---- linux-2.6.10/fs/compat.c	2005-01-24 21:47:17.252499536 +0200
-+++ linux-2.6.10-rc2-bk2/fs/compat.c	2005-01-24 22:06:00.254777240 +0200
-@@ -439,37 +439,10 @@ asmlinkage long compat_sys_ioctl(unsigne
- 	if (!filp)
- 		goto out;
- 
--	/*
--	 * To allow the compat_ioctl handlers to be self contained
--	 * we need to check the common ioctls here first.
--	 * Just handle them with the standard handlers below.
--	 */
--	switch (cmd) {
--	case FIOCLEX:
--	case FIONCLEX:
--	case FIONBIO:
--	case FIOASYNC:
--	case FIOQSIZE:
--		break;
--
--	case FIBMAP:
--	case FIGETBSZ:
--	case FIONREAD:
--		if (S_ISREG(filp->f_dentry->d_inode->i_mode))
--			break;
--		/*FALL THROUGH*/
--
--	default:
--		if (filp->f_op && filp->f_op->compat_ioctl) {
--			error = filp->f_op->compat_ioctl(filp, cmd, arg);
--			if (error != -ENOIOCTLCMD)
--				goto out_fput;
--		}
--
--		if (!filp->f_op ||
--		    (!filp->f_op->ioctl && !filp->f_op->unlocked_ioctl))
--			goto do_ioctl;
--		break;
-+	if (filp->f_op && filp->f_op->compat_ioctl) {
-+		error = filp->f_op->compat_ioctl(filp, cmd, arg);
-+		if (error != -ENOIOCTLCMD)
-+			goto out_fput;
- 	}
- 
- 	/* When register_ioctl32_conversion is finally gone remove
-@@ -509,7 +482,7 @@ asmlinkage long compat_sys_ioctl(unsigne
- 	}
- 
- 	up_read(&ioctl32_sem);
-- do_ioctl:
-+ 
- 	error = sys_ioctl(fd, cmd, arg);
-  out_fput:
- 	fput_light(filp, fput_needed);
-diff -rup linux-2.6.10/fs/ioctl.c linux-2.6.10-rc2-bk2/fs/ioctl.c
---- linux-2.6.10/fs/ioctl.c	2005-01-24 21:47:17.400477040 +0200
-+++ linux-2.6.10-rc2-bk2/fs/ioctl.c	2005-01-24 22:05:38.346107864 +0200
-@@ -80,7 +80,7 @@ static int file_ioctl(struct file *filp,
- 
- /*
-  * When you add any new common ioctls to the switches above and below
-- * please update compat_sys_ioctl() too.
-+ * please update compat_ioctl.h too.
-  */
- asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
-diff -rup linux-2.6.10/include/linux/compat_ioctl.h linux-2.6.10-rc2-bk2/include/linux/compat_ioctl.h
---- linux-2.6.10/include/linux/compat_ioctl.h	2005-01-24 21:47:21.486855816 +0200
-+++ linux-2.6.10-rc2-bk2/include/linux/compat_ioctl.h	2005-01-24 22:06:22.349418344 +0200
-@@ -10,6 +10,15 @@
- #define ULONG_IOCTL(cmd)  HANDLE_IOCTL((cmd),(ioctl_trans_handler_t)sys_ioctl)
- #endif
- 
-+/* Common stuff */
-+HANDLE_IOCTL(FIOCLEX)
-+HANDLE_IOCTL(FIONCLEX)
-+HANDLE_IOCTL(FIONBIO)
-+HANDLE_IOCTL(FIOASYNC)
-+HANDLE_IOCTL(FIOQSIZE)
-+HANDLE_IOCTL(FIBMAP)
-+HANDLE_IOCTL(FIGETBSZ)
-+HANDLE_IOCTL(FIONREAD)
- /* Big T */
- COMPATIBLE_IOCTL(TCGETA)
- COMPATIBLE_IOCTL(TCSETA)
+Problem: When software writes to the CR3 register, it is expected that
+all previous/outstanding code, data accesses and page walks are
+completed using the previous value in CR3 register. Due to this
+erratum, it is possible that a pending instruction page walk is still
+in progress, resulting in an access (to the PDE portion of the page
+table) that may be directed to an incorrect memory address.
+
+Implication: The results of the access to the PDE will not be consumed
+by the processor so the return of incorrect data is benign. However,
+the system may hang if the access to the PDE does not complete with
+data (e.g. infinite number of retries).
+
+Workaround: There is no workaround.
+===========
+
+And the code of reboot ( that follows ) uses the CR3 register to go
+from protected mode to real mode. My Processor SSpec is SL7C4 and
+processor signature 0F33h. Can someone from Intel confirm this and if
+possible point to any newer workaround? 
+
+Thanks
+
+Camilo
 
 
--- 
-I dont speak for Mellanox.
+version 2.4.28
+
+arch/i386/kernel/process.c Line 248
+
+static unsigned char real_mode_switch [] =
+{
+        0x66, 0x0f, 0x20, 0xc0,                 /*    movl  %cr0,%eax
+       */
+        0x66, 0x83, 0xe0, 0x11,                 /*    andl 
+$0x00000011,%eax */
+        0x66, 0x0d, 0x00, 0x00, 0x00, 0x60,     /*    orl  
+$0x60000000,%eax */
+        0x66, 0x0f, 0x22, 0xc0,                 /*    movl  %eax,%cr0
+       */
+===>    0x66, 0x0f, 0x22, 0xd8,                 /*    movl  %eax,%cr3
+       */
+        0x66, 0x0f, 0x20, 0xc3,                 /*    movl  %cr0,%ebx
+       */
+        0x66, 0x81, 0xe3, 0x00, 0x00, 0x00, 0x60,       /*    andl 
+$0x60000000,%ebx */
+        0x74, 0x02,                             /*    jz    f        
+       */
+        0x0f, 0x09,                             /*    wbinvd         
+       */
+        0x24, 0x10,                             /* f: andb  $0x10,al 
+       */
+        0x66, 0x0f, 0x22, 0xc0                  /*    movl  %eax,%cr0
+       */
+}
+
+
+version 
+
+arch/i386/kernel/reboot.c Line 192
+
+static unsigned char real_mode_switch [] =
+{
+        0x66, 0x0f, 0x20, 0xc0,                 /*    movl  %cr0,%eax
+       */
+        0x66, 0x83, 0xe0, 0x11,                 /*    andl 
+$0x00000011,%eax */
+        0x66, 0x0d, 0x00, 0x00, 0x00, 0x60,     /*    orl  
+$0x60000000,%eax */
+        0x66, 0x0f, 0x22, 0xc0,                 /*    movl  %eax,%cr0
+       */
+===>    0x66, 0x0f, 0x22, 0xd8,                 /*    movl  %eax,%cr3
+       */
+        0x66, 0x0f, 0x20, 0xc3,                 /*    movl  %cr0,%ebx
+       */
+        0x66, 0x81, 0xe3, 0x00, 0x00, 0x00, 0x60,       /*    andl 
+$0x60000000,%ebx */
+        0x74, 0x02,                             /*    jz    f        
+       */
+        0x0f, 0x09,                             /*    wbinvd         
+       */
+        0x24, 0x10,                             /* f: andb  $0x10,al 
+       */
+        0x66, 0x0f, 0x22, 0xc0                  /*    movl  %eax,%cr0
+       */
+}
+

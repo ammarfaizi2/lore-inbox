@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266484AbUFQNMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUFQNMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266484AbUFQNMk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 09:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUFQNMK
+	id S266486AbUFQNMl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 09:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUFQNMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 09:12:10 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:29222 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266484AbUFQNKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 09:10:54 -0400
-Date: Thu, 17 Jun 2004 08:10:31 -0500
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech <lse-tech@lists.sourceforge.net>,
-       linux-mm@kvack.org
-Subject: Re: [PATCH]: Option to run cache reap in thread mode
-Message-ID: <20040617131031.GB8473@sgi.com>
-References: <40D08225.6060900@colorfullife.com> <20040616180208.GD6069@sgi.com> <40D09872.4090107@colorfullife.com>
+	Thu, 17 Jun 2004 09:12:05 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:18626 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266485AbUFQNK2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 09:10:28 -0400
+Date: Thu, 17 Jun 2004 15:11:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andi Kleen <ak@muc.de>
+Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
+Message-ID: <20040617131140.GA26107@elte.hu>
+References: <20040617121356.GA24338@elte.hu> <CBC4546BAB9F1Aindou.takao@soft.fujitsu.com> <20040617131016.GA25920@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40D09872.4090107@colorfullife.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040617131016.GA25920@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred,
 
-On Wed, Jun 16, 2004 at 08:58:58PM +0200, Manfred Spraul wrote:
-> Could you try to reduce them? Something like (as root)
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> * Takao Indoh <indou.takao@soft.fujitsu.com> wrote:
 > 
-> # cd /proc
-> # cat slabinfo | gawk '{printf("echo \"%s %d %d %d\" > 
-> /proc/slabinfo\n", $1,$9,4,2);}' | bash
+> > It sounds good because change of timer/tasklet code is not needed.
+> > But, I wonder whether this method is safe. For example, if kernel
+> > crashes because of problem of timer, clearing lists may be dangerous
+> > before dumping. Is it possible to clear all timer lists safely?
 > 
-> If this doesn't help then perhaps the timer should run more frequently 
-> and scan only a part of the list of slab caches.
+> yes it can be done safely - just INIT_LIST_HEAD() all the timer list
+> heads - like init_timers_cpu() does.
 
-I tried the modification you suggested and it had little effect.  On a 4 cpu
-(otherwise idle) system I saw the characteristic 30+ usec interruptions
-(holdoffs) every 2 seconds.
+obviously this only involves the dumping CPU - no other CPU will run any
+kernel code. On SMP you should also clear the timer spinlock of the
+dumping CPU's timer base, if the crash happened within the timer code.
 
-Since it's running in timer context, this of course includes all of the
-timer_interrupt logic, but I've verified no other timers running during those
-times (and I see only very short holdoffs during other timer interrupts).
-
+	Ingo

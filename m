@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272023AbRHWG40>; Thu, 23 Aug 2001 02:56:26 -0400
+	id <S272092AbRHWHaT>; Thu, 23 Aug 2001 03:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272209AbRHWG4Q>; Thu, 23 Aug 2001 02:56:16 -0400
-Received: from fe000.worldonline.dk ([212.54.64.194]:61714 "HELO
-	fe000.worldonline.dk") by vger.kernel.org with SMTP
-	id <S272023AbRHWG4H>; Thu, 23 Aug 2001 02:56:07 -0400
-Date: Thu, 23 Aug 2001 08:59:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jes Sorensen <jes@trained-monkey.org>
-Cc: Adam Radford <aradford@3WARE.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: [patch] 3Ware 64 bit locking issues
-Message-ID: <20010823085902.M604@suse.de>
-In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EAE47@siamese> <m3g0ajncgh.fsf@trained-monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3g0ajncgh.fsf@trained-monkey.org>
+	id <S272209AbRHWHaJ>; Thu, 23 Aug 2001 03:30:09 -0400
+Received: from balu.sch.bme.hu ([152.66.208.40]:13286 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S272092AbRHWH3t>;
+	Thu, 23 Aug 2001 03:29:49 -0400
+Date: Thu, 23 Aug 2001 09:29:40 +0200 (MEST)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: Jordan Breeding <ledzep37@home.com>
+cc: Shawn McGovern <shawnm@splorkin.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Shutdown and power off on a multi-processor machine
+In-Reply-To: <3B8461E3.14DAC8A7@home.com>
+Message-ID: <Pine.GSO.4.30.0108230927440.20823-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22 2001, Jes Sorensen wrote:
-> >>>>> "Adam" == Adam Radford <aradford@3WARE.com> writes:
-> 
-> Adam> Thanks for flags type fix and redundant pushf/popf fix.
-> Adam> Regarding your question about the error handling routines, the
-> Adam> 3ware driver uses the new style scsi error handling, so looking
-> Adam> through scsi_error.c, all calls to
-> Adam> hostt->eh_abort_handler() and hostt->eh_host_reset_handler() are
-> Adam> wrapped with a spin_lock_irqsave(&io_request_lock, flags) and
-> Adam> spin_unlock_irqrestore(&io_request_lock, flags) so they should
-> Adam> be okay.
-> 
-> Hmm ok. However, since Jens is working on killing the io_request_lock
-> so something will need to get done when that happens.
-> 
-> Jens, what is the strategy for that?
 
-Lots of the lower level hooks are done with io_request_lock required,
-the only one I've killed so far is ->detect() and that was mainly
-because it didn't fit with the new scheme (per-host locking, host not
-inited at this time). IMO it was a mistake to ever grab io_request_lock
-(or any other lock, for that matter) before calling into the lower
-levels -- it's not very clean and it makes progressing to a better
-locking structure harder.
+I had the same problems, and the only way i could have a poweroff at
+shutdown was to pass the apm=power-off option to the kernel at boot time.
+(e.g. in lilo.conf, have a append="apm=power-off" line.)
 
-Basically we want to move the locking down a notch, so the mid layer is
-not responsible for providing reentrance protection for the low level
-drivers. It will be painfull...
+Hope that helps,
+Balazs Pozsar.
 
+On Wed, 22 Aug 2001, Jordan Breeding wrote:
+
+> I too am having trouble powering off and rebooting an SMP machine.  It
+> is a Tyan Tiger 230.  I have tried to report this a few times with
+> little to no response.  The last kernel that worked for me in this
+> respect was 2.4.6-ac2.  I have tried linus' and alan's kernels both with
+> no success.  I have tried configuring all kernel with APM soft-power
+> off, real-mode power off (I enable power-off even though the rest of APM
+> is broken on SMP), ACPI (multiple setups), and nothing at all.  None of
+> these kernel/configuration combos allow me to shutdown or reboot my
+> machine.  I would like to be able to and I know the board still works
+> because Windows 2000/XP (even though I hate using them) both manage to
+> shutdown/reboot the machine properly.  I have everything I can think of
+> copiled in statically instead of as modules and also have PNPBIOS enable
+> in the kernel and the BIOS.  Any help would be appreciated.
+>
+> Jordan
+>
+> Shawn McGovern wrote:
+> >
+> > I have a need for a headless machine to power off at the end of shutdown,
+> > but cannot get it to work for smp kernels. I tried 2.2.14, and 2.4.9,
+> > built with smp and apm. If there is a way to make this work, I would
+> > really appreciate any advice. If it cannot be done I would sure like to
+> > know that too, so I can stop banging my head on this particular wall.
+> > Please send responses to me directly as I am not on this list. TIA.
+> >
+> > Cheers,
+> > Shawn
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+pozsy
 -- 
-Jens Axboe
+
 

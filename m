@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285972AbRLHVdm>; Sat, 8 Dec 2001 16:33:42 -0500
+	id <S285970AbRLHV1W>; Sat, 8 Dec 2001 16:27:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285974AbRLHVdd>; Sat, 8 Dec 2001 16:33:33 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:51194 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S285972AbRLHVdV>; Sat, 8 Dec 2001 16:33:21 -0500
-Message-ID: <3C11358D.28400117@sympatico.ca>
-Date: Fri, 07 Dec 2001 16:33:01 -0500
-From: Chris Friesen <chris_friesen@sympatico.ca>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S285971AbRLHV1D>; Sat, 8 Dec 2001 16:27:03 -0500
+Received: from smtp01.uc3m.es ([163.117.136.121]:14863 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S285970AbRLHV0z>;
+	Sat, 8 Dec 2001 16:26:55 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200112082126.WAA10376@nbd.it.uc3m.es>
+Subject: porting howto for 2.5?
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+To: linux kernel <linux-kernel@vger.kernel.org>
+Date: Sat, 8 Dec 2001 22:26:48 +0100 (CET)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: software raid issues -- possible kernel I/O problem?
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just installed some new ata100 hard drives and matching controller
-card in a machine running 2.4.16, and have been experimenting with
-software raid.  I've run into some interesting issues with regards to
-transfer speeds.
+OK, I'm beat for the night.
 
-I've got md0 as a raid0, and md1 as a raid1.  hda is an older ata33
-drive connected as master to the motherboard, while hde and hdg are the
-new ata100 drives each connected as master on one of the two channels on
-the adapter (but the adapter only has one IRQ, so I don't know how that
-will affect things...).
+   io_request_lock disappeared. OK, so apparently I'm now supposed
+   to use the queue lock.
 
-Using hdparm, I get the following results:
+   req->cmd is now an array. OK, so I really wanted the direction of
+   the req, so I used rq_data_dir, which looks at the req->flags.
+   But what are the flags for? I need space on a req to hold a
+   "sequence number". Doesn't matter if it wraps. Just has to be
+   valid for 10s. What is the cmd array an array OF?
 
-md0: 98.46/42.67
-md1: 98.46/29.22
-hda: 98.46/9.1
-hde: 97.71/31.37
-hdg: 96.24/30.92
+   buffer heads have gone! Now there are "bio"s. Boo hoo .. just 
+   when I was really getting good with buffer_head. How do I
+   copy stuff to/from user space from a bio!? It seems to contain
+   bio_vecs. 
 
-I also tried some simultaneous runs, with results as follows:
-hde and hdg:  50.20/23.27  and  53.56/21.77
-hde and hda:  50.59/29.09  and  55.90/9.17
+Is there a 2.4-2.5 porting howto beginning to be developed somewhere?
+Please?
 
+How can one man do such damage in just one version increment :-)?
 
-So, my observations are as follows:
-
-1) It seems as though I can't get aggregate burst speeds up above about
-100MB/s no matter what I do, even when it's on separate interfaces with
-separate IRQs.  Is this running into the limitation of the PCI bus?  I'm
-also somewhat confused as to how my old ata33 drive managed to score
-nearly 100MB/s burst speed, as well as how some people are claiming
-scores of 160MB/s on a ata100 drive (and why I'm not getting that on
-mine).
-
-2) Similarly, actual read speads appear limited to an agregate of about
-45MB/s in both the raid-0 and simultaneous runs. Why am I not getting
-twice the throughput of the single drive case?  Could this be due to the
-ata100 controller only using a single IRQ?
-
-3) It doesn't appear as though raid-1 reads are being parallelized. 
-This surprised me, as I thought that raid-1 was supposed to come close
-to raid-0 in terms of read performance.  Anyone have any ideas about why
-this isn't happening?
-
-I'd appreciate any comments you have, or if this isn't the right place
-to talk about this, then a redirection to the appropriate forum.
-
-Thanks,
-
-Chris
+Peter

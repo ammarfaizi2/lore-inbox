@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267120AbTAFUlQ>; Mon, 6 Jan 2003 15:41:16 -0500
+	id <S264690AbTAFUvx>; Mon, 6 Jan 2003 15:51:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbTAFUlQ>; Mon, 6 Jan 2003 15:41:16 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:52441 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267120AbTAFUlQ>; Mon, 6 Jan 2003 15:41:16 -0500
-From: Richard Stallman <rms@gnu.org>
-To: andre@pyxtechnologies.com
-CC: akpm@digeo.com, riel@conectiva.com.br, andrew@indranet.co.nz,
-       linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.10.10301051947340.421-100000@master.linux-ide.org>
-	(message from Andre Hedrick on Sun, 5 Jan 2003 20:08:23 -0800 (PST))
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-Reply-to: rms@gnu.org
-References: <Pine.LNX.4.10.10301051947340.421-100000@master.linux-ide.org>
-Message-Id: <E18VeC1-0006Vx-00@fencepost.gnu.org>
-Date: Mon, 06 Jan 2003 15:49:53 -0500
+	id <S267133AbTAFUvx>; Mon, 6 Jan 2003 15:51:53 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:43531 "EHLO
+	buggy.badula.org") by vger.kernel.org with ESMTP id <S264690AbTAFUvw>;
+	Mon, 6 Jan 2003 15:51:52 -0500
+Date: Mon, 6 Jan 2003 16:00:06 -0500
+Message-Id: <200301062100.h06L06V03070@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
+In-Reply-To: <418420000.1041781806@aslan.scsiguy.com>
+User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Can you admit the follow, that GPL has everything to control
-    redistribution, and has ZERO context for copyright.
+On Sun, 05 Jan 2003 08:50:06 -0700, Justin T. Gibbs <gibbs@scsiguy.com> wrote:
+>> Out of this, two problems :
+>>  - AIC7xxx fails to use DMA, with :
+>> aic7xxx: PCI Device 0:8:0 failed memory mapped test.  Using PIO.
+>> scsi0: PCI error Interrupt at seqaddr = 0x3
+>> scsi0: Signaled a Target Abort
+> 
+> This is because your system is violating the PCI spec.  There is
+> now an explicit test for this during driver initialization so that
+> the driver doesn't unexpectedly fail later.  I can change the driver
+> so that it doesn't print out the diagnostic if it would make you
+> feel better. 8-)
 
-It is not clear what those words mean, so I won't agree or disagree.
+The problem with the message is that it makes people think PIO vs DMA
+(which matters a lot for e.g. IDE), not PIO vs MMIO which is what it
+really is, and doesn't matter nearly as much.
 
-      The holders of the
-    copyright control the issues.
+Ion
 
-That is certainly true.  The copyright holders of the code can permit
-whatever they wish to permit, for that code.  The copyright holders of
-Linux can permit whatever they wish to permit, for Linux.  I've said
-this many times.  The last occasion was in the message that you just
-responded to:
-
-> The Linux developers can certainly do this, if the copyright holders
-> of the substantial functions in question go along with it.
-
-When I say X and you respond by demanding angrily that I agree to X, I
-have to think we're failing to communicate.
-
-
-
-
-
-
-
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263019AbTC1Po4>; Fri, 28 Mar 2003 10:44:56 -0500
+	id <S263027AbTC1PrZ>; Fri, 28 Mar 2003 10:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263020AbTC1Po4>; Fri, 28 Mar 2003 10:44:56 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:21688 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S263019AbTC1Poy>;
-	Fri, 28 Mar 2003 10:44:54 -0500
-Date: Fri, 28 Mar 2003 08:58:03 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Swsusp <swsusp@lister.fornax.hu>, Florent Chabaud <fchabaud@free.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Annouce: Initial SWSUSP 2.4 port to 2.5 available.
-In-Reply-To: <20030328113549.GB10121@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33.0303280857540.999-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263030AbTC1PrZ>; Fri, 28 Mar 2003 10:47:25 -0500
+Received: from splat.lanl.gov ([128.165.17.254]:38029 "EHLO
+	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
+	id <S263027AbTC1PrH>; Fri, 28 Mar 2003 10:47:07 -0500
+Date: Fri, 28 Mar 2003 08:57:19 -0700
+From: Eric Weigle <ehw@lanl.gov>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x gives HWaddr FF:FF:...
+Message-ID: <20030328155719.GC14040@lanl.gov>
+References: <20030328145159.GA4265@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030328145159.GA4265@werewolf.able.es>
+X-Eric-Conspiracy: There is no conspiracy
+X-Editor: Vim, http://www.vim.org
+X-GnuPG-fingerprint: 112E F8CA 12A9 771E DB10  6514 D4B0 D758 59EA 9C4F
+X-GnuPG-key: http://public.lanl.gov/ehw/ehw.gpg.key
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I have just switched the network card for my internal network from a 8139
+> to a 3c905C-TX/TX-M. The 3c59x driver gives the buggy FF:FF:FF:FF:FF:FF
+> hardware address for the adapter.  [...]
+I've seen this on laptops (but never on desktops) when the PCMCIA card wasn't
+seated properly-- the connectors wore out after too many plug/unplug cycles.
+Something didn't work and it failed over to broadcast.
 
-On Fri, 28 Mar 2003, Pavel Machek wrote:
-
-> Hi!
-> 
-> > I'm glad to hear that you have completed the full port, but many people 
-> > appreciate incremental patches, especially if the cumulative changes 
-> > touch multiple parts of the kernel. Please consider breaking the one large 
-> > patch into multiple, easily digestible, chunks. 
-> > 
-> > Finally, with either patch, there are unresolved symbols:
-> > 
-> > arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
-> > arch/i386/kernel/built-in.o(.data+0x1644): undefined reference to `save_processor_state'
-> > arch/i386/kernel/built-in.o(.data+0x164a): undefined reference to `saved_context_esp'
-> > arch/i386/kernel/built-in.o(.data+0x164f): undefined reference to `saved_context_eax'
-> > arch/i386/kernel/built-in.o(.data+0x1655): undefined reference to `saved_context_ebx'
-> > arch/i386/kernel/built-in.o(.data+0x165b): undefined reference to `saved_context_ecx'
-> > arch/i386/kernel/built-in.o(.data+0x1661): undefined reference to `saved_context_edx'
-> > arch/i386/kernel/built-in.o(.data+0x1667): undefined reference to `saved_context_ebp'
-> > arch/i386/kernel/built-in.o(.data+0x166d): undefined reference to `saved_context_esi'
-> > arch/i386/kernel/built-in.o(.data+0x1673): undefined reference to `saved_context_edi'
-> > arch/i386/kernel/built-in.o(.data+0x167a): undefined reference to `saved_context_eflags'
-> > 
-> > The fix is likely trivial, but it is annoying that it happens in the first 
-> > place.
-> 
-> Thats S3 support. Likely Nigel has not S3 compiled in and you
-> have. Disalbe CONFIG_ACPI_SLEEP as a workaround.
-
-That works.
-
-Thanks,
+> Any suggestion ?
+If all else fails, yank the card and reseat it.
 
 
-	-pat
+-Eric
 
+-- 
+------------------------------------------------------------
+        Eric H. Weigle -- http://public.lanl.gov/ehw/
+"They that can give up essential liberty to obtain a little
+temporary safety deserve neither" -- Benjamin Franklin
+------------------------------------------------------------

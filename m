@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273305AbRJaVq5>; Wed, 31 Oct 2001 16:46:57 -0500
+	id <S273588AbRJaVqq>; Wed, 31 Oct 2001 16:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273534AbRJaVqs>; Wed, 31 Oct 2001 16:46:48 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:14706 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S273305AbRJaVqj>;
-	Wed, 31 Oct 2001 16:46:39 -0500
-Date: Wed, 31 Oct 2001 14:45:20 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Tim Schmielau <tim@physik3.uni-rostock.de>,
-        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-Message-ID: <20011031144520.R16554@lynx.no>
-Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Tim Schmielau <tim@physik3.uni-rostock.de>,
-	vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <7DFB419183D@vcnet.vc.cvut.cz>
+	id <S273565AbRJaVqg>; Wed, 31 Oct 2001 16:46:36 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:14089 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S273305AbRJaVq2>;
+	Wed, 31 Oct 2001 16:46:28 -0500
+Date: Wed, 31 Oct 2001 14:42:44 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: Craig Milo Rogers <rogers@ISI.EDU>
+Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+        Timur Tabi <ttabi@interactivesi.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Module Licensing?
+Message-ID: <20011031144244.R607@ftsoj.fsmlabs.com>
+In-Reply-To: <20011031092228.J1506@work.bitmover.com> <4986.1004558101@ISI.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <7DFB419183D@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Wed, Oct 31, 2001 at 10:11:09PM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4986.1004558101@ISI.EDU>; from rogers@ISI.EDU on Wed, Oct 31, 2001 at 11:55:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 31, 2001  22:11 +0000, Petr Vandrovec wrote:
->   this reminds me. Year or so ago there was patch from someone, which 
-> detected jiffies overflow in /proc/uptime proc_read() code, so only thing
-> you had to do was run 'uptime', 'w', 'top' or something like that
-> every 497 days - you can schedule it as cron job for Jan 1, 0:00:00,
-> to find some workoholics.
+The GPL 2.0 uses language that makes it pretty clear that it was meant to
+describe the source code, not the object module.  It uses "source code" to
+refer to what is licensed under the GPL several times.
 
-Sorry, your posting is 14 minutes too late ;-).  I just re-invented this
-wheel.  Such is the pace of Linux kernel development.
+The GPL has been a great source for nebulous debates without much in the
+way of solid ground to stand on.  It's not remarkable that it has a history
+in academia.
 
-> static unsigned long long jiffies_hi = 0;
-> static unsigned long old_jiffies = 0;
-> unsigned long jiffy_cache;
-> 
-> /* some spinlock or inode lock or something like that */
-> jiffy_cache = jiffies;
-> if (jiffy_cache < old_jiffies) {
->    jiffies_hi += 1ULL << BITS_PER_LONG;
-> }
+Too bad those who drafted the GPL were not (competent) lawyers, either. 
 
-Ah, my code only stored the high 32 bits of the jiffies_hi, so we don't
-ever do 64-bit math for this, only a simple increment.  Otherwise it is
-exactly the same, including the "some spinlock or something" comment ;-).
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+} 	Your compiled object module might be a derived work, hence its
+} distribution would be restricted by the terms of the GPL version 2.
+} Your source code file would not be a derived work (under certain
+} currently widely-held assumptions about interface copyrights), and
+} hence could be distributed without restriction by the GPL.
+} 
+} 	Usual disclaimer:  I am not a lawyer.
+} 
+} 					Craig Milo Rogers
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTKTSKl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 13:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTKTSKl
+	id S262687AbTKTSJH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 13:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTKTSJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 13:10:41 -0500
-Received: from smtp.dkm.cz ([62.24.64.34]:62992 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S262086AbTKTSKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 13:10:31 -0500
-From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: XI-325H and Acer TravelMate 242
-Date: Thu, 20 Nov 2003 19:10:32 +0100
-User-Agent: KMail/1.5.4
+	Thu, 20 Nov 2003 13:09:07 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:13840
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id S262687AbTKTSJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 13:09:03 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A34047@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org,
+       "'Marek Michalkiewicz'" <marekm@amelek.gda.pl>,
+       "'Russell King'" <rmk@arm.linux.org.uk>
+Subject: RE: 2.4.x parport_serial link order bug (only works as a module)
+Date: Thu, 20 Nov 2003 10:09:39 -0800
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311201910.32039.cijoml@volny.cz>
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Marcelo,
 
-I have bought ZCOM XI-325H Prism2 based card into PCMCIA slot.
+on Thu, November 20, 2003 at 7:23 AM, Marek Michalkiewicz wrote:
+> I've just looked at the 2.4.x changelog (up to 2.4.23-rc2) and still
+> don't see any fix for the parport_serial link order bug fix.  Without
+> it, the driver (which handles various PCI multi I/O serial+parallel
+> cards) only works as a module (broken when compiled into the kernel,
+> because parport_serial must be initialised after serial).
+> 
+> I've tried to submit the fix a few times since 2.4.19 or so, with
+> no success so far.  Is there any hope that it would go into 2.4.23?
+> 
+> The patch is here (can be updated to 2.4.23-rc if you are interested):
+> 
+> http://www.amelek.gda.pl/linux-patches/2.4.21/00_parport_serial
+> 
+> Quite big, but the largest part of it simply moves parport_serial.c
+> from drivers/parport/ to drivers/char/ without changing a single line
+> inside the file.  Really, no 2-line local root backdoors inserted ;-)
+> 
+> In the same directory, you can also find the NetMos patch, 
+> which should
+> be applied after the parport_serial link order bugfix patch.  Yes, I'm
+> still using a few NM9835 cards, no problems except having to 
+> patch each
+> kernel version forever.  This boring task would be easier for me if at
+> least the simple parport_serial link order fix would be accepted...
 
-After plugging into slot leds starts shining, but card is not shown in lspci.
-Under WinXP card works normally!!
+Russell King looked at this about a year ago and found no specific flaw with
+moving the parport_serial.c file from drivers/parport/ to drivers/char to
+solve the ordering issue: 
 
-My ethernet card into PCMCIA slot works perfectly and is shown in lspci
+On Mon, Sep 30, 2002 at 2:49 AM, Russell King wrote:
+[snip] 
+> Other than it's a gross hack rather than a fix.  However, for 2.4, I
+> think this is probably the best solution without creating a risk of
+> other init ordering problems.  Ed, any comments?
+> 
+> In 2.5, its easier to solve; we just need to make sure serial is
+> initialised before parport.  This is easy, since serial now has its
+> own drivers/serial subdirectory.
 
-Can somebody help me? This card is very expensive and I need it to get it work 
-under Linux :((
+I think it should go into 2.4. It fixes this particular ordering issue
+without mucking about with the ordering mechanism or even adding code. I'm
+sorry to say that I had forgotten about it. It's a good minimum-change
+brute-force umm... solution. No bloat or complexity issues. 
 
-notas:~# lspci
-00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
-00:00.1 System peripheral: Intel Corp.: Unknown device 3584 (rev 02)
-00:00.3 System peripheral: Intel Corp.: Unknown device 3585 (rev 02)
-00:02.0 VGA compatible controller: Intel Corp. 82852/855GM Integrated Graphics 
-Device (rev 02)
-00:02.1 Display controller: Intel Corp. 82852/855GM Integrated Graphics Device 
-(rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 03)
-00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 03)
-00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 03)
-00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 03)
-00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 83)
-00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 03)
-00:1f.1 IDE interface: Intel Corp. 82801DBM Ultra ATA Storage Controller (rev 
-03)
-00:1f.3 SMBus: Intel Corp. 82801DB/DBM SMBus Controller (rev 03)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio 
-Controller (rev 03)
-00:1f.6 Modem: Intel Corp. 82801DB AC'97 Modem Controller (rev 03)
-02:04.0 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus Controller 
-(rev 01)
-02:04.1 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus Controller 
-(rev 01)
-02:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
+At your convenience, please move the parport_serial.c file and apply the
+corresponding Makefile changes. 
 
-
-Michal
-
+cheers,
+Ed Vance

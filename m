@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130157AbRAFI6O>; Sat, 6 Jan 2001 03:58:14 -0500
+	id <S129532AbRAFJ72>; Sat, 6 Jan 2001 04:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130200AbRAFI6E>; Sat, 6 Jan 2001 03:58:04 -0500
-Received: from austin.jhcloos.com ([206.224.83.202]:19216 "HELO
-	austin.jhcloos.com") by vger.kernel.org with SMTP
-	id <S130157AbRAFI5q>; Sat, 6 Jan 2001 03:57:46 -0500
-To: linux-kernel@vger.kernel.org
-Subject: ixj.o vs ixj_cs.o
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-Date: 06 Jan 2001 02:57:45 -0600
-Message-ID: <m3zoh5njli.fsf@austin.jhcloos.com>
+	id <S129806AbRAFJ7T>; Sat, 6 Jan 2001 04:59:19 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:25868 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129431AbRAFJ7L>; Sat, 6 Jan 2001 04:59:11 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A56E983.343007BC@yahoo.com>
+Date: Sat, 06 Jan 2001 04:46:43 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
 MIME-Version: 1.0
+To: Aschwin van der Woude <aschwin@sofis.fi>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, becker@scyld.com,
+        linux-net@vger.kernel.org
+Subject: Re: Kernel halts rock solid on assigning ip (ne2k-pci)
+In-Reply-To: <3A55D540.1FA574D9@sofis.fi>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If CONFIG_PCMCIA=y, CONFIG_PHONE!=n and CONFIG_IXJ=m, the resultant
-ixj.o will support the (PCMCIA) internet phonecard, provided it is
-insmod(8)ed as ixj_cs.o.
+Aschwin van der Woude wrote:
+> 
+> I have a problem with a network-driver.
+> The ne2k-pci modules loads fine, no problem at all. Everything works
+> like a sunshine.
+> But as soon as I try to assign an IP-adress the whole system halts
+> rock-solid, the magic sysrq combinations don't even work anymore.
+> 
+> I am not sure if this is due to an IRQ-conflict. But I do know it all
+> happens to work perfectly fine with 2.4.0-test10. This happens on both
+> 2.4.0-prerelease and the 2.4.0-kernel.
+> 
+> I attached some info about my configuration. I hope you/somebody can
+> help me solve this, I am eager to start using 2.4.0.
+> So far I have been very happy using 2.4.0-test10.
 
-As such, were make modules_install (iff the above config) to:
+The test11 patch has the ne2k-pci changes for FD support, and the
+test12 patch has the Tx timeout relocation in 8390 (which ne2k-pci
+uses).  Can you see which one of those (if either) causes the
+breakage?  You should be able to put the 8390.c and ne2k-pci.c
+from test10 directly into 2.4.0 proper (one at a time and then
+both if required) to see which (if either) is responsible.
 
-  mkdir $(MODDIR)/kernel/drivers/telephony/pcmcia
-  ln -s ../ixj.o $(MODDIR)/kernel/drivers/telephony/pcmcia/ixj_cs.o
+Thanks,
+Paul.
 
-things would Just Work.
 
-But that just doesn't seem like the right solution.
-
-Looks like were $(TOPDIR)/drivers/telephon/pcmcia to exist with
-a suitable makefile to cp ../ixj.o ixj_cs.o iff the above config
-things would also just work.
-
-But I suspect ixj.c needs to be broken out, perhaps to ixj.c,
-ixj-main.c and pcmcia/ixj_cs.c?  Or just a pcmcia/ixj_cs.c which
-links against ../ixj.o?
-
-What is the proper solution?
-
-(And, for that matter, is this essentially the same problem the drm
-tree has wrt modules?)
-
--JimC
--- 
-James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
-<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

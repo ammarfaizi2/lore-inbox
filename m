@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268364AbTBWRSR>; Sun, 23 Feb 2003 12:18:17 -0500
+	id <S268516AbTBWR1s>; Sun, 23 Feb 2003 12:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268410AbTBWRSR>; Sun, 23 Feb 2003 12:18:17 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48962 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268364AbTBWRSQ>; Sun, 23 Feb 2003 12:18:16 -0500
+	id <S268518AbTBWR1s>; Sun, 23 Feb 2003 12:27:48 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:19428 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S268516AbTBWR1r> convert rfc822-to-8bit; Sun, 23 Feb 2003 12:27:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
 To: Rik van Riel <riel@imladris.surriel.com>
-Cc: Hanna Linder <hannal@us.ibm.com>, "" <lse-tech@lists.sourceforge.net>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-References: <96700000.1045871294@w-hlinder>
-	<m1smufn7xu.fsf@frodo.biederman.org>
-	<Pine.LNX.4.50L.0302231126380.2206-100000@imladris.surriel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Feb 2003 10:28:04 -0700
-In-Reply-To: <Pine.LNX.4.50L.0302231126380.2206-100000@imladris.surriel.com>
-Message-ID: <m1of52nbyz.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+Subject: Re: oom killer and its superior braindamage in 2.4
+Date: Sun, 23 Feb 2003 18:35:56 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+References: <200302222025.48129.m.c.p@wolk-project.de> <Pine.LNX.4.50L.0302221711100.2206-100000@imladris.surriel.com> <Pine.LNX.4.50L.0302221732010.2206-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.50L.0302221732010.2206-100000@imladris.surriel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302231833.05944.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@imladris.surriel.com> writes:
+On Saturday 22 February 2003 21:32, Rik van Riel wrote:
 
-> On Sat, 22 Feb 2003, Eric W. Biederman wrote:
-> 
-> > Note: rmap chains can be restricted to an arbitrary length, or an
-> > arbitrary total count trivially. All you have to do is allow a fixed
-> > limit on the number of people who can map a page simultaneously.
-> >
-> > The selection of which chain to unmap can be a bit tricky but is
-> > relatively straight forward.  Why doesn't someone who is seeing
-> > this just hack this up?
-> 
-> I'm not sure how useful this feature would be. 
+Hi Rik,
 
-The problem.  There is no upper bound to how many rmap
-entries there can be at one time.  And the unbounded
-growth can overwhelm a machine.
+> > > - Feb 21 10:04:57 codeman kernel: Out of Memory: Killed process 2657
+> > > (apache).
+> > > The above log entry (apache) appeared for about 4 hours every some
+> > > seconds (same PID) until I thought about sysrq-b
+> > > Is there any chance we can fix this up?
+> > Yes.
+> Never mind my last idea, it can be done much simpler ;)
+hehe :)
 
-The goal is to provide an overall system cap on the number
-of rmap entries.
+> Does the below patch fix your problem ?
+Well, this makes a difference. I filled up my memory with something else 
+before starting mystress.pl because of top's|ps' slowness with many processes.
+I had about 400 processes. The test from yesterday had ~ 1800.
 
-> Also,
-> there are a bunch of corner cases in which you cannot
-> limit the number of processes mapping a page, think
-> about eg. mlock, nonlinear vmas and anonymous memory.
+With your patch, mystress.pl was marked to get killed, every PID only once, no 
+apache or similar (good). ... But the strange thing is, that it seems none of 
+the processes, which are marked to be killed, get killed. So sysrq-t tells 
+me. Sysrq-i gave me the chance to get out of the OOM killing process and only 
+kernel threads were left + getty's so I was able to log in again.
 
-Unless something has changed for nonlinear vmas, and anonymous
-memory we have been storing enough information to recover
-the page in the page tables for ages.  
-
-For mlock we want a cap on the number of pages that are locked,
-so it should not be a problem.  But even then we don't have to
-guarantee the page is constantly in the processes page table, simply
-that the mlocked page is never swapped out.
-
-> All in all I suspect that the cost of such a feature
-> might be higher than any benefits.
-
-Cost?  What Cost?
-
-The simple implementation is to walk the page lists and unmap 
-the pages that are least likely to be used next.
-
-This is not something new.  We have been doing this in 2.4.x and
-before for years.  Before it just never freed up rmap entries, as well
-as preparing a page to be paged out.
-
-Eric
+ciao, Marc

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVALEpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVALFAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVALEpT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 23:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVALEpT
+	id S261228AbVALFAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 00:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbVALFAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 23:45:19 -0500
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:20652 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261232AbVALEpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 23:45:10 -0500
-Subject: [PATCH] (trivial) spelling fix in comment in Makefile
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: kai@germaschewski.name, sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Content-Type: text/plain
-Message-Id: <1105504445.5047.46.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 11 Jan 2005 23:34:05 -0500
+	Wed, 12 Jan 2005 00:00:22 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:62449 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261228AbVALFAR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 00:00:17 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None, usuallly detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: ieee1394 errors on attempted insmod
+Date: Wed, 12 Jan 2005 00:00:15 -0500
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501120000.15177.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.12.118] at Tue, 11 Jan 2005 23:00:16 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply
+Greetings;
 
---- linux-2.6.10/Makefile.orig	2005-01-11 22:45:30.971843616 -0500
-+++ linux-2.6.10/Makefile	2005-01-11 22:58:55.627517360 -0500
-@@ -18,7 +18,7 @@
- #
- # Most importantly: sub-Makefiles should only ever modify files in
- # their own directory. If in some directory we have a dependency on
--# a file in another dir (which doesn't happen often, but it's of
-+# a file in another dir (which doesn't happen often, but it's often
- # unavoidable when linking the built-in.o targets which finally
- # turn into vmlinux), we will call a sub make in that other dir, and
- # after that we are sure that everything which is in that other dir
+I just bought a Sony HandyCam DCR-TRV460, which has both firewire and 
+usb ports.
 
+But I couldn't seem to open a path to it using usb, so I plugged in an 
+old firewire card that has the TI-Lynx chipset on it.  Its recognized 
+(apparently) by both dmesg and kudzu, but although I'd turned on all 
+the 1394 stuff as modules when I got ready to plug the card in and 
+rebuilt my 2.6.10-ac8 kernel, kudzu didn't load any of them, and when 
+I try to, I'm getting "-1 Unknown Symbol in module" errors. 
 
+Probably an attack of dumbass, but I'd appreciate any help that can be 
+tossed my way.  ATM I'm rebuilding again with the base module built 
+in.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

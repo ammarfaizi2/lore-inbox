@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131507AbRC0TkK>; Tue, 27 Mar 2001 14:40:10 -0500
+	id <S131503AbRC0TeU>; Tue, 27 Mar 2001 14:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131508AbRC0TkA>; Tue, 27 Mar 2001 14:40:00 -0500
-Received: from web13307.mail.yahoo.com ([216.136.175.43]:39946 "HELO
-	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131507AbRC0Tjn>; Tue, 27 Mar 2001 14:39:43 -0500
-Message-ID: <20010327192539.30554.qmail@web13307.mail.yahoo.com>
-Date: Tue, 27 Mar 2001 11:25:39 -0800 (PST)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
+	id <S131507AbRC0TeB>; Tue, 27 Mar 2001 14:34:01 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:24455 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131503AbRC0Tdu>;
+	Tue, 27 Mar 2001 14:33:50 -0500
+Date: Tue, 27 Mar 2001 14:33:08 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: J Sloan <jjs@toyota.com>
+cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: "mount -o loop" lockup issue
-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3AC0E14A.782A91C9@toyota.com>
+Message-ID: <Pine.GSO.4.21.0103271404490.23356-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Konerding <dek_ml@konerding.com> wrote:
-
- > But the attitude that "many eyes make all bugs shallow" and "let the
- > users test the code for us" just don't hold up.  For the former,
- > clearly, many eyes didn't find a lot of basically obvious bugs, for the
- > latter, it's just impolite.
-
-You mentioned the CHECKER case as proof for your point that "many eyes
-make all bugs shallow" does not work. One might argue the other way
-around: The CHECKER people actually found the bugs, so it works.
-
-Regards
-  Joerg
 
 
-=====
--- 
-Regards
-       Joerg
+On Tue, 27 Mar 2001, J Sloan wrote:
 
+> "Mohammad A. Haque" wrote:
+> 
+> > David Konerding wrote:
+> >
+> > > And this is described in what release notes?  It worked just fine on Red Hat 7.0's 2.4
+> > > kernel.... oh wait, I see that they fixed it before they released it.
+> >
+> > And hmm..gee .. did they bother contributing back the code?
+> 
+> Based on their track record that's a silly question.
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/?.refer=text
+Especially since patches in question had been written by Jens Axboe (who
+has nothing to RH) and announced (many times) on l-k.
+
+I've fixed several races in Jens' patch and fed them back to him. His patch
++ these fixes were the only loop-related patches in RH tree[1]. Until fixes got
+merged into Jens' loop-6 which, in turn, was merged into -ac and into
+the main tree, that is.
+
+I don't give a flying fsck through the rolling doughnut for "their" track
+record (whatever "their" means), but I'm somewhat partial to mine. Care to
+grep through l-k archives, check your facts and STFU?
+								Al
+
+[1] there's also changeloop patch - adds an ioctl for switching the underlying
+file under opened /dev/loop; API is ugly and thing has so limited use that
+IMO it should die. Completely unrelated to the problems in question, anyway.
+

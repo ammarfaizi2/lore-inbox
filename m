@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbTHVA1N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 20:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTHVA1N
+	id S262971AbTHVAoo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 20:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTHVAoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 20:27:13 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:9480 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262945AbTHVA1L (ORCPT
+	Thu, 21 Aug 2003 20:44:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43394 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262971AbTHVAom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 20:27:11 -0400
-Date: Fri, 22 Aug 2003 02:27:09 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Jamie Lokier <jamie@shareable.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030822022709.A3640@pclin040.win.tue.nl>
-References: <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <16188.54799.675256.608570@gargle.gargle.HOWL> <20030815135248.GA7315@win.tue.nl> <20030815141328.GA16176@ucw.cz> <16189.58357.516036.664166@gargle.gargle.HOWL> <20030821003606.A3165@pclin040.win.tue.nl> <20030820225812.GB24639@mail.jlokier.co.uk> <20030821015258.A3180@pclin040.win.tue.nl> <20030821080145.GA11263@ucw.cz>
+	Thu, 21 Aug 2003 20:44:42 -0400
+Subject: [PATCH] libaio-0.3.96 fix io_queue_wait compatibility
+From: Daniel McNeil <daniel@osdl.org>
+To: "linux-aio@kvack.org" <linux-aio@kvack.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-b3awYQAAUe3In6Lf7rhk"
+Organization: 
+Message-Id: <1061513079.32556.5.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030821080145.GA11263@ucw.cz>; from vojtech@suse.cz on Thu, Aug 21, 2003 at 10:01:45AM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Aug 2003 17:44:39 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 10:01:45AM +0200, Vojtech Pavlik wrote:
 
-> > > UNLESS there are keys which do report UP when the key
-> > > is released (as opposed to immediately after the DOWN),
-> > > and also don't repeat.
-> > 
-> > And there are keyboards with such keys.
-> 
-> Are there?
+--=-b3awYQAAUe3In6Lf7rhk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I owe you an example. See, for example,
-	http://www.win.tue.nl/~aeb/linux/kbd/scancodes-5.html#ss5.29
+libaio-0.3.96 fixes the dynamic linking problem I was having with
+libaio-0.3.93, still it has broken backward compatibility with
+io_queue_wait().  Here's patch that fixes it.  I've tested binaries
+compiled with libaio-0.3.13 and run them on libaio-0.3.96+patch on
+2.6.0-test2-mm4.
 
-Abbreviated version:
-  Serge van den Boom reports that his LiteOn MediaTouch Keyboard has 18
-  additional keys: Suspend, Coffee, WWW, Calculator, Xfer, Switch window,
-  Close, |<<, >|, [], >>|, Record, Rewind, Menu, Eject, Mute, Volume +,
-  and Volume -. Of these, the keys |<<, >>|, Volume +, Volume - repeat.
-  The others do not, except for the rather special Switch window key.
-  Upon press it produces the LAlt-down, LShift-down, Tab-down, Tab-up sequence;
-  it repeats Tab-down; and upon release it produces the sequence Tab-up,
-  LAlt-up, LShift-up.
-(Up events are as usual for the other 17 keys.)
+Daniel
+
+
+--=-b3awYQAAUe3In6Lf7rhk
+Content-Disposition: attachment; filename=patch.libaio-0.3.96.compat.io_queue_wait
+Content-Type: text/x-patch; name=patch.libaio-0.3.96.compat.io_queue_wait; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -rupN -X /home/daniel/dontdiff libaio-0.3.96/src/compat-0_1.c libaio-0.3.96.fix/src/compat-0_1.c
+--- libaio-0.3.96/src/compat-0_1.c	2003-05-20 08:54:50.000000000 -0700
++++ libaio-0.3.96.fix/src/compat-0_1.c	2003-08-21 17:16:46.000000000 -0700
+@@ -38,9 +38,12 @@ int compat0_1_io_cancel(io_context_t ctx
+ }
+ 
+ SYMVER(compat0_1_io_queue_wait, io_queue_wait, 0.1);
+-int compat0_1_io_queue_wait(io_context_t ctx, struct iocb *iocb, const struct timespec *when)
++int compat0_1_io_queue_wait(io_context_t ctx, const struct timespec *when)
+ {
+-	return -ENOSYS;
++	struct timespec timeout;
++	if (when)
++		timeout = *when;
++	return io_getevents(ctx, 0, 0, NULL, when ? &timeout : NULL);
+ }
+ 
+ 
+
+--=-b3awYQAAUe3In6Lf7rhk--
 

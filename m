@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266159AbUAGO7e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 09:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUAGO7e
+	id S265539AbUAGPM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 10:12:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUAGPM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 09:59:34 -0500
-Received: from lmdeliver02.st1.spray.net ([212.78.202.115]:62412 "EHLO
-	lmdeliver02.st1.spray.net") by vger.kernel.org with ESMTP
-	id S266159AbUAGO7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 09:59:32 -0500
-From: Paolo Ornati <ornati@lycos.it>
-To: Ram Pai <linuxram@us.ibm.com>
-Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
-Date: Wed, 7 Jan 2004 15:59:16 +0100
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, gandalf@wlug.westbo.se,
-       linux-kernel@vger.kernel.org
-References: <200401021658.41384.ornati@lycos.it> <200401041530.24395.ornati@lycos.it> <1073344795.3088.19.camel@dyn319250.beaverton.ibm.com>
-In-Reply-To: <1073344795.3088.19.camel@dyn319250.beaverton.ibm.com>
+	Wed, 7 Jan 2004 10:12:59 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7028 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265539AbUAGPM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 10:12:57 -0500
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@colin2.muc.de>,
+       Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+References: <20040106040546.GA77287@colin2.muc.de>
+	<Pine.LNX.4.58.0401052100380.2653@home.osdl.org>
+	<20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi>
+	<20040106094442.GB44540@colin2.muc.de>
+	<Pine.LNX.4.58.0401060726450.2653@home.osdl.org>
+	<20040106153706.GA63471@colin2.muc.de>
+	<m1brpgn1c3.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.58.0401061554010.9166@home.osdl.org>
+	<m13casmk28.fsf@ebiederm.dsl.xmission.com>
+	<20040107093143.A29200@flint.arm.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Jan 2004 08:06:04 -0700
+In-Reply-To: <20040107093143.A29200@flint.arm.linux.org.uk>
+Message-ID: <m1wu83lrxf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401071559.16130.ornati@lycos.it>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 January 2004 00:19, you wrote:
-> Sorry I was on vacation and could not get back earlier.
->
-> I do not exactly know the reason why sequential reads on blockdevices
-> has regressed. One probable reason is that the same lazy-read
-> optimization which helps large random reads is regressing the sequential
-> read performance.
->
-> Note: the patch, waits till the last page in the current window is being
-> read, before triggering a new readahead. By the time the readahead
-> request is satisfied, the next sequential read may already have been
-> requested. Hence there is some loss of parallelism here. However given
-> that largesize random reads is the most common case; this patch attacks
-> that case.
->
-> If you revert back just the lazy-read optimization, you might see no
-> regression for sequential reads,
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-I have tried to revert it out:
+> On Tue, Jan 06, 2004 at 09:58:23PM -0700, Eric W. Biederman wrote:
+> > ffff0000-ffffffff : reserved
+> > 
+> > That last reserved region is 64K.  Which looking at the pci registers
+> > is technically correct at the moment.  Only 64K happen to be decoded.
+> 
+> We already have this distinction between in use (or busy) resources and
+> allocated resources.  Surely the BIOS ROM region should be an allocation
+> resource not a busy resource, so that the MTD driver can obtain a busy
+> resource against it?
 
---- mm/readahead.c.orig	2004-01-07 15:17:00.000000000 +0100
-+++ mm/readahead.c.my	2004-01-07 15:33:13.000000000 +0100
-@@ -480,7 +480,8 @@
- 		 * If we read in earlier we run the risk of wasting
- 		 * the ahead window.
- 		 */
--		if (ra->ahead_start == 0 && offset == (ra->start + ra->size -1)) {
-+		if (ra->ahead_start == 0) {
- 			ra->ahead_start = ra->start + ra->size;
- 			ra->ahead_size = ra->next_size;
+Nope the BIOS region is allocated as BUSY, at least as it comes
+out of the E820 map.
 
-but the sequential read performance is still the same !
+>From arch/i386/kernel/setup.c:legacy_init_iomem_resources
+....
+		res -> start = e820.map[i].addr;
+		res -> end = res->start + e820.map[i].size - 1;
+		res -> flags = IORESOURCE_MEM | IORESOURCE_BUSY;
+		request_resource(&iomem_resource, res);
 
-Reverting out the other part of the patch (that touches mm/filemap.c) the
-sequential read performance comes back like in 2.6.0.
+Eric
 
-I don't know why... but it does.
-
->
-> Let me see if I can verify this,
-> Ram Pai
->
-
-Bye
-
--- 
-	Paolo Ornati
-	Linux v2.4.23
 
 

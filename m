@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbULBNZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbULBNeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbULBNZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 08:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbULBNZF
+	id S261609AbULBNeo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 08:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbULBNen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 08:25:05 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:44466 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261618AbULBNYb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 08:24:31 -0500
-Subject: Re: 2.6.10-rc2-mm4
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>, Chris Mason <mason@suse.com>
-In-Reply-To: <20041201233203.GA22773@locomotive.unixthugs.org>
-References: <20041130095045.090de5ea.akpm@osdl.org>
-	 <1101842310.4401.111.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041130112903.C2357@build.pdx.osdl.net>
-	 <20041130194328.GA28126@infradead.org>
-	 <20041201233203.GA22773@locomotive.unixthugs.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1101993302.26015.5.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 2 Dec 2004 08:34:43 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:20119 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261609AbULBNem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 08:34:42 -0500
+Date: Thu, 2 Dec 2004 13:34:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: kuba@mareimbrium.org, greg@kroah.com, bryder@sgi.com,
+       linux-kernel@vger.kernel.org, edwin@harddisk-recovery.nl
+Subject: Re: FTDI SIO patch to allow custom vendor/product IDs.
+Message-ID: <20041202133437.GA27994@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>, kuba@mareimbrium.org,
+	greg@kroah.com, bryder@sgi.com, linux-kernel@vger.kernel.org,
+	edwin@harddisk-recovery.nl
+References: <20041202124831.GA31745@bitwizard.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Dec 2004 08:15:02 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041202124831.GA31745@bitwizard.nl>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-01 at 18:32, Jeffrey Mahoney wrote:
-> I took some more time to find a more optimal solution. Since ReiserFS is
-> currently the only filesystem that cares about this, it's far easier to keep
-> the whole mess internal to ReiserFS. The issue isn't about the treating of
-> "private" files in reiserfs, but rather just to avoid the looping of xattr
-> calls that selinux would create.
+On Thu, Dec 02, 2004 at 01:48:31PM +0100, Rogier Wolff wrote:
+> 
+> To prevent XP from hijacking devices that require a different driver,
+> some people flash a different Vendor/Product ID into their FTDI based
+> device. 
+> 
+> Also some "new" devices may come out which are perfectly valid to be
+> driven by the ftdi_sio driver, but happen to have a vendor/product
+> id which is not (yet) included in the driver.  I've built a patch
+> that allows you to tell the driver "vendor=... product=...." to 
+> make it accept such devices.
+> 
+> Does this patch make sense?
 
-No.  It is also about avoiding applying permission checks to these
-"private" inodes when reiserfs performs operations on them, e.g. when
-__get_xa_root() does a lookup_one_len(), there is ultimately a call to
-permission(inode, MAY_EXEC, nd), which triggers a security hook call,
-and SELinux will view this as an attempt by the current process to
-access the private directory.  Simply disabling getxattr/setxattr for
-the private inodes won't change this, and you can't assume that most
-processes have permission to access the default file context (in fact,
-in a strict policy, that won't be the case).
-
-Chris' suggestion of exporting this private flag via i_flags and having
-the VFS and/or security framework skip the security hook calls for such
-inodes is more reasonable, and should yield the same behavior as that
-current patchset (just without the extra security hook and the
-filesystem and SELinux-specific private flags).
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I think it would be much better to have something like the dynamic PCI IDs
+support to USB aswell.
 

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTEMQpD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTEMQpD
+	id S261568AbTEMQrn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbTEMQqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:45:03 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63758 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261710AbTEMQo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:44:59 -0400
-Date: Tue, 13 May 2003 09:57:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <openafs-devel@openafs.org>
-Subject: Re: [PATCH] in-core AFS multiplexor and PAG support
-In-Reply-To: <1052840663.463.64.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0305130950030.1678-100000@home.transmeta.com>
+	Tue, 13 May 2003 12:46:50 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:12220 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262275AbTEMQqh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 12:46:37 -0400
+Date: Tue, 13 May 2003 07:45:01 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 713] New: USB mouse freezes under X 
+Message-ID: <29800000.1052837101@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+           Summary: USB mouse freezes under X
+    Kernel Version: 2.5.6[89], 2.5.6[89]-mm
+            Status: NEW
+          Severity: normal
+             Owner: greg@kroah.com
+         Submitter: bos@serpentine.com
+                CC: rjwalsh@durables.org
 
-On 13 May 2003, Alan Cox wrote:
->
-> With something like SELinux a PAG may belong to a role not to a user
-> even though other limits like processes probably belong to the user as a
-> whole. 
 
-Hmm.. That doesn't make a lot of sense to me.
+Distribution: Red Hat 9
+Hardware Environment: Intel 82801DB hub, MS Intellimouse Explorer
+Software Environment: Vanilla RH9
+Problem Description:
 
-A "user" is by definition what the unix filesystem considers to be the
-"atom of security". In fact, a "user" has no other meaning - except for
-the notion of "root", which is obviously special and has meaning outside
-of the scope of filesystems (and even here capabilities have tried to
-separate out that meaning from the "user" definition).
+When using the mouse under X, it sometimes freezes up, responding to no further
+input.  This does not affect keyboard interactions (but I have a PS/2 kbd, not a
+USB one).  The problem can be "cured" by switching virtual terminals, or by
+killing and restarting X.
 
-But if we want to split up users into "roles", then sure, we can have a
-"role" that is shared across processes. But I think that for _usability_
-we really want that to be _shared_ by default, and anybody who wants to
-split it should have to work at it. Exactly so that when you log in, and
-use your private key to mount some encrypted volume, _all_ your processes
-should by default get access to it. Even if the other ones were
-independent logins (another window with another ssh session to that
-machine).
+Steps to reproduce:
 
-In other words: I really think usability should count very high on the 
-list of requirements. Much higher than SELinux.
+Start X, open a few windows, waggle the mouse with vigour, preferably while
+dragging a window around over other windows (though this is not necessary). 
+Within a few seconds, the mouse should freeze.
 
-		Linus
+The problem can take hours to manifest itself if the mouse isn't being used
+much, but it always happens.
 

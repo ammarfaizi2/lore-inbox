@@ -1,96 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTHWVnP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 17:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTHWVnP
+	id S263887AbTHWVrB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 17:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTHWVrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 17:43:15 -0400
-Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:35626 "HELO
-	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263499AbTHWVnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 17:43:08 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6] 2/3 Serio: possible race in handle_events
-Date: Sat, 23 Aug 2003 16:42:41 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-References: <200308230131.45474.dtor_core@ameritech.net> <200308230225.10308.dtor_core@ameritech.net> <20030823003447.24aa1efc.akpm@osdl.org>
-In-Reply-To: <20030823003447.24aa1efc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 23 Aug 2003 17:47:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26085 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263887AbTHWVqz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 17:46:55 -0400
+Date: Sat, 23 Aug 2003 14:49:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: piggin@cyberone.com.au, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH]O18.1int
+Message-Id: <20030823144907.6bcce289.akpm@osdl.org>
+In-Reply-To: <200308240258.33924.kernel@kolivas.org>
+References: <200308231555.24530.kernel@kolivas.org>
+	<20030823023231.6d0c8af3.akpm@osdl.org>
+	<3F4738BE.6060007@cyberone.com.au>
+	<200308240258.33924.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308231642.43888.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 23 August 2003 02:34 am, Andrew Morton wrote:
-> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > Do you think we should introduce allocate_serio/free_serio pair for
-> > dynamically allocated serios; free_serio would scan event_list and
-> > invalidate events that refer to freed serio?
+Con Kolivas <kernel@kolivas.org> wrote:
 >
-> I don't understand the subsystem well enough to say.  But if we are
-> receiving events which refer to an already-freed serio then something is
-> very broken.  We should be draining all those events before allowing the
-> original object to be freed up.
->
-> Let's wait for Vojtech's comments.
+> > >It might help if you or a buddy could get set up with volanomark on an
+>  > > OSDL 4-or-8-way so that you can more closely track the effect of your
+>  > > changes on such benchmarks.
+> 
+>  Ok here goes. 
+>  This is on 8way:
+> 
+>  Test4:
+>  Average throughput = 11145 messages per second
+> 
+>  Test4-O18.1:
+>  Average throughput = 9860 messages per second
+> 
+>  Test3-mm3:
+>  Average throughput = 9788 messages per second
+> 
+> 
+>  So I grabbed test3-mm3 and started peeling back the patches
+>  and found no change in throughput without _any_ of my Oxint patches applied, 
+>  and just Ingo's A3 patch:
+> 
+>  Test3-mm3-A3
+>  Average throughput = 9889 messages per second
+> 
+> 
+>  Then finally I removed that patch so there were no interactivity patches:
+>  Test3-mm3-ni
+>  Average throughput = 11052 messages per second
 
-I think the patch below should work. We invalidate serio events at the same
-time serio itself is unregistered.
+Well that was quick, thanks.
 
-The patch is on top of the 3 previous ones + synaptics, but if needed I can 
-rediff against vanilla kernel.
+Surely the only reason we see more idle time in this sort of workload is
+because of runqueue imbalance: some CPUs are idle while other CPUs have
+more than one runnable process.  That sounds like a bug more than a
+tuning/balancing thing: having no runnable tasks is a sort of binary
+do-something-right-now case.
+
+We should be going across and pullng a task off another CPU synchronously
+as soon as a runqueue is seen to be empty.  The code tries to do that so
+hrm.  
+
+Ingo just sent the below patch which is related, but doesn't look like it
+will fix it.  I'll include this in test4-mm1, RSN.
 
 
-diff -urN --exclude-from=/usr/src/exclude 2.6.0-test4/drivers/input/serio/serio.c linux-2.6.0-test4/drivers/input/serio/serio.c
---- 2.6.0-test4/drivers/input/serio/serio.c	2003-08-23 00:38:10.000000000 -0500
-+++ linux-2.6.0-test4/drivers/input/serio/serio.c	2003-08-23 16:28:28.000000000 -0500
-@@ -89,14 +89,13 @@
- static DECLARE_WAIT_QUEUE_HEAD(serio_wait);
- static DECLARE_COMPLETION(serio_exited);
- 
--static int is_known_serio(struct serio *serio)
-+static void serio_invalidate_pending_events(struct serio *serio)
- {
--	struct serio *s;
-+	struct serio_event *event;
- 	
--	list_for_each_entry(s, &serio_list, node)
--		if (s == serio)
--			return 1;
--	return 0;
-+	list_for_each_entry(event, &serio_event_list, node)
-+		if (event->serio == serio)
-+			event->serio = NULL;
+
+From: Ingo Molnar <mingo@elte.hu>
+
+the attached patch fixes the SMP balancing problem reported by David 
+Mosberger. (the 'yield-ing threads do not get spread out properly' bug).
+
+it turns out that we never really spread out tasks in the busy-rebalance
+case - contrary to my intention. The most likely incarnation of this
+balancing bug is via yield() - but in theory pipe users can be affected
+too.
+
+the patch balances more agressively with a slow frequency, on SMP (or
+within the same node on NUMA - not between nodes on NUMA).
+
+
+
+ kernel/sched.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN kernel/sched.c~sched-balance-fix-2.6.0-test3-mm3-A0 kernel/sched.c
+--- 25/kernel/sched.c~sched-balance-fix-2.6.0-test3-mm3-A0	2003-08-23 13:57:06.000000000 -0700
++++ 25-akpm/kernel/sched.c	2003-08-23 13:57:06.000000000 -0700
+@@ -1144,7 +1144,6 @@ static void rebalance_tick(runqueue_t *t
+ 			load_balance(this_rq, idle, cpu_to_node_mask(this_cpu));
+ 			spin_unlock(&this_rq->lock);
+ 		}
+-		return;
+ 	}
+ #ifdef CONFIG_NUMA
+ 	if (!(j % BUSY_NODE_REBALANCE_TICK))
+@@ -1152,7 +1151,7 @@ static void rebalance_tick(runqueue_t *t
+ #endif
+ 	if (!(j % BUSY_REBALANCE_TICK)) {
+ 		spin_lock(&this_rq->lock);
+-		load_balance(this_rq, idle, cpu_to_node_mask(this_cpu));
++		load_balance(this_rq, 0, cpu_to_node_mask(this_cpu));
+ 		spin_unlock(&this_rq->lock);
+ 	}
  }
- 
- void serio_handle_events(void)
-@@ -108,7 +107,7 @@
- 		event = container_of(node, struct serio_event, node);	
- 
- 		down(&serio_sem);
--		if (!is_known_serio(event->serio))
-+		if (event->serio == NULL)
- 			goto event_done;
- 		
- 		switch (event->type) {
-@@ -213,6 +212,7 @@
- void serio_unregister_port(struct serio *serio)
- {
- 	down(&serio_sem);
-+	serio_invalidate_pending_events(serio);
- 	list_del_init(&serio->node);
- 	if (serio->dev && serio->dev->disconnect)
- 		serio->dev->disconnect(serio);
-@@ -226,6 +226,7 @@
-  */
- void serio_unregister_slave_port(struct serio *serio)
- {
-+	serio_invalidate_pending_events(serio);
- 	list_del_init(&serio->node);
- 	if (serio->dev && serio->dev->disconnect)
- 		serio->dev->disconnect(serio);
+
+_
+

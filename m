@@ -1,44 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280987AbRKOSk1>; Thu, 15 Nov 2001 13:40:27 -0500
+	id <S280986AbRKOSkR>; Thu, 15 Nov 2001 13:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280985AbRKOSkS>; Thu, 15 Nov 2001 13:40:18 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:2544 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280987AbRKOSkC>;
-	Thu, 15 Nov 2001 13:40:02 -0500
-Date: Thu, 15 Nov 2001 11:39:53 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Jackie Meese <jackie.m@vt.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 32 Groups Maximum in 2.4
-Message-ID: <20011115113953.H5739@lynx.no>
-Mail-Followup-To: Jackie Meese <jackie.m@vt.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BF3DF31.4010707@vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3BF3DF31.4010707@vt.edu>; from jackie.m@vt.edu on Thu, Nov 15, 2001 at 10:28:49AM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S280985AbRKOSkH>; Thu, 15 Nov 2001 13:40:07 -0500
+Received: from [216.80.8.1] ([216.80.8.1]:16649 "HELO mercury.prairiegroup.com")
+	by vger.kernel.org with SMTP id <S280986AbRKOSjz>;
+	Thu, 15 Nov 2001 13:39:55 -0500
+Message-ID: <3BF40C03.4010509@prairiegroup.com>
+Date: Thu, 15 Nov 2001 12:40:03 -0600
+From: Martin McWhorter <m_mcwhorter@prairiegroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Bug: 2.4.14 USB Keyboard
+In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <3BF3D029.7070609@prairiegroup.com> <20011115090023.A10511@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15, 2001  10:28 -0500, Jackie Meese wrote:
-> I've been looking for some time on how to raise the maximum number of 
-> groups for the 2.4 kernel.  I've discovered how to do this kernel, with 
-> a discussion a few months ago on this 
-> list.http://www.cs.helsinki.fi/linux/linux-kernel/2001-13/0807.html
+Greg,
 
-Have you considered ACLs instead?  http://acl.bestbits.at/
-Also available for ext3 (I think reiserfs may also support ACLs, not sure).
-It might not suit your needs, but maybe it does, and it is a better long-term
-solution.
+Sorry I had a think-o. I sent you the info on the wrong kernel.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+/proc/bus/usb/devices for 2.4.14 VANILLA
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=146/900 us (16%), #Int=  3, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=d400
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 3
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=03f0 ProdID=010c Rev= 0.01
+S:  Manufacturer=HP
+S:  Product=Multimedia Keyboard Hub
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
+T:  Bus=01 Lev=02 Prnt=02 Port=00 Cnt=01 Dev#=  3 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=03f0 ProdID=020c Rev= 0.01
+S:  Manufacturer=HP
+S:  Product=Multimedia Keyboard Hub
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl= 10ms
+I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=hid
+E:  Ad=82(I) Atr=03(Int.) MxPS=   4 Ivl=255ms
+T:  Bus=01 Lev=02 Prnt=02 Port=02 Cnt=02 Dev#=  4 Spd=1.5 MxCh= 0
+D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=046d ProdID=c001 Rev=11.01
+S:  Manufacturer=Logitech
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 26mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl= 10ms
+
+/proc/bus/usb/drivers
+          usbdevfs
+          hub
+          hid
+          keyboard
+
+
+> 
+> What does the kernel log say when you plug in your keyboard?
+> 
+
+Nov 15 12:38:10 m_mcwhorter kernel: usb.c: USB disconnect on device 2
+Nov 15 12:38:10 m_mcwhorter kernel: usb.c: USB disconnect on device 3
+Nov 15 12:38:10 m_mcwhorter kernel: usb-uhci.c: interrupt, status 3, 
+frame# 1572
+Nov 15 12:38:10 m_mcwhorter kernel: usb.c: USB disconnect on device 4
+Nov 15 12:38:12 m_mcwhorter kernel: hub.c: USB new device connect on 
+bus1/1, assigned device number 5
+Nov 15 12:38:12 m_mcwhorter kernel: hub.c: USB hub found
+Nov 15 12:38:12 m_mcwhorter kernel: hub.c: 3 ports detected
+Nov 15 12:38:13 m_mcwhorter kernel: hub.c: USB new device connect on 
+bus1/1/1, assigned device number 6
+Nov 15 12:38:13 m_mcwhorter kernel: input0: USB HID v1.00 Keyboard [HP 
+Multimedia Keyboard Hub] on usb1:6.0
+Nov 15 12:38:13 m_mcwhorter kernel: : USB HID v1.00 Device [HP 
+Multimedia Keyboard Hub] on usb1:6.1
+Nov 15 12:38:13 m_mcwhorter /etc/hotplug/usb.agent: ... no drivers for 
+USB product 3f0/10c/1
+Nov 15 12:38:13 m_mcwhorter kernel: hub.c: USB new device connect on 
+bus1/1/3, assigned device number 7
+Nov 15 12:38:13 m_mcwhorter kernel: input1: USB HID v1.00 Mouse 
+[Logitech] on usb1:7.0
+
+
+Thanks again,
+Martin
 

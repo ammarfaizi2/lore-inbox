@@ -1,373 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbUCBSzy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 13:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUCBSzy
+	id S261741AbUCBTAS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 14:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUCBTAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 13:55:54 -0500
-Received: from smtp-out2.xs4all.nl ([194.109.24.12]:37134 "EHLO
-	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S261734AbUCBSzg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 13:55:36 -0500
-Date: Tue, 2 Mar 2004 19:55:18 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: groudier@free.fr, linux-kernel@vger.kernel.org
-Subject: 2.6.3-mm4 / 2.5 Gb memory / sym53c8xx_2 won't boot
-Message-ID: <20040302185518.GA2886@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
+	Tue, 2 Mar 2004 14:00:18 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:3743 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261741AbUCBTAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 14:00:11 -0500
+Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: hpa@zytor.com, cloos@jhcloos.com, root@chaos.analogic.com, nuno@itsari.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1078254284.2232.385.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 02 Mar 2004 14:04:44 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After upgrading my memory from 1 Gb to 2.5 Gb my 2.6.3-mm4 kernel
-wouldn't boot anymore.
+> As RBJ said, ptys are now recycled in pid-like fashion,
+> which means numbers won't be reused until wraparound
+> happens.  This is good for security/fault tolerance,
+> at least to some minor degree.
 
-It hang when detecting the scsi-chip.
-I had in my .config:
+Ouch. It's bad for display and bad for typing.
+What is easier to type?
 
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+ps -t pts/6
+ps -t pts/1014962
 
-the default value.
+(and yes, I really type these -- I don't have a
+third hand to operate the mouse simultaneously)
 
-The scsi bus kept resetting before detecting any devices. Interestingly,
-2.6.3-mm1 did boot with that .config setting. Once I recompiled
-2.6.3-mm4 with 
+What looks better?
 
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+UID        PID  PPID  C    SZ  RSS PSR STIME TTY          TIME CMD
+albert    3339  2114  0   771 1684   0 Feb26 pts/6    00:00:00 bash
+albert    3149  2514  0   771 1684   0 Feb26 pts/1004922 00:00:00 bash
+albert    3835  2164  0   771 1684   0 Feb26 pts/8    00:00:00 bash
+albert    4136  3114  0   771 1684   0 Feb26 pts/1013866 00:00:00 bash
+albert    4739  2119  0   771 1684   0 Feb26 pts/9    00:00:00 bash
 
-it booted (and worked) fine.
+Better way:
 
-So, something regressed in 2.6.3-mm4 versus 2.6.3-mm1, so the default
-setting didn't work correctly anymore.
+Have a soft limit, initially set at 99. When 2/3 of
+the ptys are in use, increase the soft limit to 999,
+then to 9999, 99999, and finally to 999999.
 
-If there is anything I can test, please let me know.
+This way, a plain 1-person desktop user would never
+have a pty name longer than pts/99 and an insanely
+busy server could go as high as needed.
 
-Kind regards,
-Jurriaan
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge
-00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic 53c860 (rev 13)
-00:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-00:0d.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
-00:0e.0 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
-00:0e.1 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 Audio Controller (rev 50)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
-
-00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic 53c860 (rev 13)
-	Subsystem: LSI Logic / Symbios Logic: Unknown device 1000
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min, 16000ns max), Cache Line Size: 0x10 (64 bytes)
-	Interrupt: pin A routed to IRQ 18
-	Region 0: I/O ports at a000 [size=256]
-	Region 1: Memory at de000000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [40] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-Linux version 2.6.3-mm4 (jurriaan@middle) (gcc version 3.3.3 (Debian)) #4 Tue Mar 2 19:32:33 CET 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009e800 (usable)
- BIOS-e820: 000000000009e800 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000009fff0000 (usable)
- BIOS-e820: 000000009fff0000 - 000000009fff3000 (ACPI NVS)
- BIOS-e820: 000000009fff3000 - 00000000a0000000 (ACPI data)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-1663MB HIGHMEM available.
-896MB LOWMEM available.
-found SMP MP-table at 000f5aa0
-<snip>
-sym0: <860> rev 0x13 at pci 0000:00:0a.0 irq 18
-sym0: No NVRAM, ID 7, Fast-20, SE, parity checking
-sym0: SCSI BUS has been reset.
-<here the kernel hang previously, ABORT timed out and it kept resetting>
-scsi0 : sym-2.1.18f
-  Vendor: TOSHIBA   Model: DVD-ROM SD-M1401  Rev: 1007
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: PLEXTOR   Model: CD-ROM PX-32TS    Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-st: Version 20040213, fixed bufsize 32768, s/g segs 256
-sym0:1: FAST-20 SCSI 20.0 MB/s ST (50.0 ns, offset 8)
-sr0: scsi3-mmc drive: 40x/40x cd/rw xa/form2 cdda tray
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 1, lun 0
-sym0:2: FAST-20 SCSI 20.0 MB/s ST (50.0 ns, offset 8)
-sr1: scsi-1 drive
-Attached scsi CD-ROM sr1 at scsi0, channel 0, id 2, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 1, lun 0,  type 5
-Attached scsi generic sg1 at scsi0, channel 0, id 2, lun 0,  type 5
-matroxfb_crtc2: secondary head of fb0 was registered as fb1
-
-.config
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_BROKEN=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_HIGHPTE=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_RELAXED_AML=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_8139CP=y
-CONFIG_8139TOO=y
-CONFIG_VIA_RHINE=y
-CONFIG_VIA_RHINE_MMIO=y
-# ISDN subsystem
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
-CONFIG_RAW_DRIVER=y
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ISA=m
-CONFIG_I2C_VIAPRO=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_EEPROM=m
-CONFIG_SENSORS_VIA686A=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_G450=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_SUN12x22=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_EMU10K1=y
-CONFIG_SND_CMIPCI=y
-CONFIG_SND_INTEL8X0=y
-CONFIG_SND_VIA82XX=y
-# Open Sound System
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_XFS_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
--- 
-That is the key to the desert. Nothing lasts. And nothing changes.
-	Michelle West - Sea of Sorrows
-Debian (Unstable) GNU/Linux 2.6.3-mm4 3940 bogomips 0.42 0.19

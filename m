@@ -1,46 +1,102 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316690AbSE0Q42>; Mon, 27 May 2002 12:56:28 -0400
+	id <S316500AbSE0RO0>; Mon, 27 May 2002 13:14:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316693AbSE0Q41>; Mon, 27 May 2002 12:56:27 -0400
-Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:21402 "EHLO
-	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S316690AbSE0Q40>; Mon, 27 May 2002 12:56:26 -0400
-Date: Mon, 27 May 2002 12:55:47 -0400
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1
-Message-ID: <20020527125547.A29216@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S316517AbSE0ROZ>; Mon, 27 May 2002 13:14:25 -0400
+Received: from www.stpibonline.soft.net ([164.164.128.17]:3816 "EHLO
+	cyclops.soft.net") by vger.kernel.org with ESMTP id <S316500AbSE0ROY>;
+	Mon, 27 May 2002 13:14:24 -0400
+Message-ID: <91A7E7FABAF3D511824900B0D0F95D10137099@BHISHMA>
+From: Abdij Bhat <Abdij.Bhat@kshema.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-mips-kernel@lists.sourceforge.net'" 
+	<linux-mips-kernel@lists.sourceforge.net>
+Cc: Abdij Bhat <Abdij.Bhat@kshema.com>, Prasad HA <prasad@kshema.com>,
+        Prakash P <Prakash@kshema.com>
+Subject: IP Forwarding Problem
+Date: Mon, 27 May 2002 22:42:50 +0530
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Adding CONFIG_XF86_USE_3DNOW=y
->> seems to help a little too.
+Hi,
+ I am trying to deploy IP Forwarding on an embedded system running on Linux
+[ Kernel > 2.4 ] with mips target.
+ I do a "echo "1" > /proc/sys/net/ipv4/ip_forward" to enable and "echo "0" >
+/proc/sys/net/ipv4/ip_forward" to disable the IP Forwarding feature.
 
-Mmm, maybe not.
+ The hardware setup i have is as below
 
-> Make sure you benchmark FPU intensive use when testing USE_3DNOW. I've
-> seen several situations where it looks marginally better until you
-> actually measure two things - memory bandwidth available to user
-> programs, and also FPU performance, especially of FPU heavy apps that
-> schedule a lot (eg Quake)
+1. Linux PC [ Ref PC A ] with eth0 IP Address say 192.168.100.5
+2. Linux PC [ Ref PC B ] with eth0 IP Address say 192.168.101.5
+3. The embedded target has 2 NIC's. eth0 IP Address is 192.168.100.6 and
+eth1 IP Address is 192.168.101.6.
+4. A hub connecting subnet 100 machines
+5. A hub connecting subnet 101 machines
 
-Thanks for helping me narrow the search.  On an allocate and write to 
-pages of memory test, USE_3DNOW increased test time by 15% (which is
-bad) on k6-2.  
+ I setup the default gateways on both the Reference PC's to reflect their
+own IP Address. Each of the Ref PC's can ping to the machines on their
+subnet.
+ But when i ping Ref PC A to Ref PC B; the give the error "Destination host
+is unreachable".
 
-Both kernels compiled with gcc-3.1.0 -march=k6-2.
+ I tried to resolve the problem and found a few info on the net. Based on
+that i found that
+1. there was no /etc/sysconfig directory on the target embedded system 
+2. there was no /etc/sysconfig/network-scripts directory
+3. no /etc/sysconfig/network-scripts/ifcfg-eth0, eth1, eth0:1 and eth1:0
+files 
+4. there was no /etc/sysconfig/network file
 
-mtest01 -w 50 executed 100 times 
+ I created all of the above [ i have pasted the contents of each file below
+]. Yet i get the same error. Can somebody tell what am i not doing or what
+am i doing wrong?
 
-CONFIG_X86_USE_3DNOW=n	745 seconds
-CONFIG_X86_USE_3DNOW=y	860 seconds
+Thanks and Regards,
+Abdij
 
--- 
-Randy Hron
+*******************************
+/etc/sysconfig/network-scripts/ifcfg-eth0
 
+DEVICE=eth0
+IPADDR=192.168.100.6
+NETWORK=192.168.100.0
+NETMASK=255.255.255.0
+BROADCAST=192.168.100.255
+ONBOOT=yes
+
+*******************************
+
+/etc/sysconfig/network-scripts/ifcfg-eth1
+
+DEVICE=eth1
+IPADDR=192.168.101.6
+NETWORK=192.168.101.0
+NETMASK=255.255.255.0
+BROADCAST=192.168.101.255
+ONBOOT=yes
+
+*******************************
+
+/etc/sysconfig/network-scripts/ifcfg-eth0:1
+
+IPADDR="192.168.100.0-255"
+
+*******************************
+
+/etc/sysconfig/network-scripts/ifcfg-eth1:0
+
+IPADDR="192.168.101.0-255"
+
+*******************************
+
+/etc/sysconfig/network
+
+NETWORKING=yes
+FORWARD_IPV4="yes"
+HOSTNAME=localhost.localdomain
+DOMAINNAME=mydomain.co
+GATEWAY=="192.168.100.254"
+GATEWAYDEV="eth0"

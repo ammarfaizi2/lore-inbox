@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132372AbRDPWgj>; Mon, 16 Apr 2001 18:36:39 -0400
+	id <S132373AbRDPWmu>; Mon, 16 Apr 2001 18:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132373AbRDPWga>; Mon, 16 Apr 2001 18:36:30 -0400
-Received: from albireo.ucw.cz ([62.168.0.14]:2052 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132372AbRDPWgU>;
-	Mon, 16 Apr 2001 18:36:20 -0400
-Date: Tue, 17 Apr 2001 00:35:58 +0200
-From: Martin Mares <mj@suse.cz>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.4.4.3: pci_enable/disable_device stuff
-Message-ID: <20010417003558.B270@albireo.ucw.cz>
-In-Reply-To: <3AD962D3.2E6E6DC1@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AD962D3.2E6E6DC1@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, Apr 15, 2001 at 04:58:59AM -0400
+	id <S132385AbRDPWmk>; Mon, 16 Apr 2001 18:42:40 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:21602 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S132373AbRDPWmW>; Mon, 16 Apr 2001 18:42:22 -0400
+Message-ID: <3ADB65F9.7020902@kalifornia.com>
+Date: Mon, 16 Apr 2001 14:36:57 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; 0.8.1)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <Pine.LNX.4.31.0104161427400.13558-100000@phobos.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Simon Richter wrote:
 
-> The attached patch does two things:
-> 
-> 1) Take PCI devices to D0 state before enabling them.  We both think
-> this is the right thing to do, but there is always the crazy chance this
-> change will break something.  So, think twice before applying, but IMHO
-> apply :)
+>On Fri, 13 Apr 2001, Pavel Machek wrote:
+>
+>>>Then a more general user space tool could be used that would do policy
+>>>appropriate stuff, ending with init 0.
+>>>
+>>init _is_ the tool which is right for defining policy on such issues.
+>>
+>>Take a look how UPS managment is handled.
+>>
+>
+>A power failure is a different thing from a power button press. There are
+>users (me for example) who want to have something different then "init 0"
+>mapped to the power button, for example a sleep state (since my box
+>doesn't have a dedicated sleep button). I doubt there are many people who
+>want something else than a shutdown if the power is out (although I think
+>there will be with suspend-to-disk working, so we might have to change UPS
+>handling here).
+>
+>My plan for power management was to have a special daemon that would
+>decide what to do based on system state (battery status, local time, ...)
+>and events (power/sleep button, last user logged out, ...) [I know that
+>from a programmer's POV, both are events]. This daemon could, for example,
+>make sure that no services are affected, for example by priming WOL and
+>entering a not-so-deep sleep state instead of doing a suspend-to-disk if
+>someone is still listening on a port after the "shutdown unimportant
+>services" scripts have been run.
+>
+>   Simon
+>
+(root@qwerty)-(02:32pm Mon Apr 16)-(root)
+# cat /etc/inittab | grep -1 CTRL
 
-I'm not able to cite the PCI PM specs by heart :) ... but looks OK to me.
+# Trap CTRL-ALT-DELETE
+ca::ctrlaltdel:/sbin/shutdown -t3 -r now 
 
-> 2) Adds pci_disable_device.  Right now is just disables busmastering. 
-> When suspending devices, the last task that should occur is to disable
-> busmastering, before ceding control to ACPI.  Also its a good idea in
-> general to disable busmastering when its not in use; it's friendlier to
-> the bus.
 
-OK.
+I believe that what is being referred to is similar.  In which case, you 
+can put whatever the bleep you want here and do anything from popup a 
+message saying, "Shutdown denied" to immediately poweroff.
 
-> When unloading drivers too, we should be more "green" about
-> disabling devices.
+-b
 
-Yes, but not before we're sure we can wake them up correctly. Probably
-also needs to handle wakeup of PCI-to-PCI bridges.
-
-> I wonder if we should disable IO and MEM decoding too, and I also like
-> to ack PCI_STATUS.  I didn't add those things because I'm not yet sure
-> we want to do that unconditionally.
-
-I'd rather prefer to avoid this. It brings nothing except for possible
-problems.
-
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-Compatible: Gracefully accepts erroneous data from any source.
+Three things are certain:
+Death, taxes, and lost data
+Guess which has occurred.
+- - - - - - - - - - - - - - - - - - - -
+Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+
+
+

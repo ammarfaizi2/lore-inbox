@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276097AbRJBSQa>; Tue, 2 Oct 2001 14:16:30 -0400
+	id <S276095AbRJBSTu>; Tue, 2 Oct 2001 14:19:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276095AbRJBSQU>; Tue, 2 Oct 2001 14:16:20 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:35724
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S276098AbRJBSQE>; Tue, 2 Oct 2001 14:16:04 -0400
-Date: Tue, 02 Oct 2001 14:16:28 -0400
-From: Chris Mason <mason@suse.com>
-To: Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which is currently the most stable 2.4 kernel?
-Message-ID: <306940000.1002046587@tiny>
-In-Reply-To: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
-In-Reply-To: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S276109AbRJBSTk>; Tue, 2 Oct 2001 14:19:40 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37129 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276103AbRJBSTY>; Tue, 2 Oct 2001 14:19:24 -0400
+Subject: Re: Huge console switching lags
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Tue, 2 Oct 2001 19:24:07 +0100 (BST)
+Cc: akpm@zip.com.au (Andrew Morton),
+        lenstra@tiscalinet.it (Lorenzo Allegrucci),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0110021408310.22872-100000@sweetums.bluetronic.net> from "Ricky Beam" at Oct 02, 2001 02:10:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E15oUD9-0005Ua-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> And what's the brilliant reason for this?  And don't give any BS about it
+> taking too long inside an interrupt context -- we're switching consoles not
+> start netscrape.
+
+A console switch has to wait until queued I/O to that console is complete,
+which in turn could take a measurable amount of time - so it has to block.
+Also a console switch on a frame buffer with no hardware banking can take
+a lot of time.
 
 
-On Tuesday, October 02, 2001 11:05:02 AM -0700 Chris Rankin
-<rankincj@yahoo.com> wrote:
-
-> All that the servers would be doing would be
-> connecting to the Internet periodically using PPPoE
-> and DSL (with NAT), forwarding emails and performing
-> various CPU-bound tasks. They should both have ample
-> available memory and should not need to swap much, if
-> at all.
-> 
-> Does anyone have any kernel recommendations /
-> counter-recommendations, please? One server is SMP,
-> the other is UP, and both are Intel architecture.
-
-PPP is not SMP safe in 2.4.x.  You'll run into problems on any kernel
-there.  Even on single processor systems, you need the ppp patch in
-2.4.9-ac16 or 2.4.11pre1.
-
-Other than that, 2.4.10 + andrea's vmtweaks patch does well.  2.4.9-ac18 is
-a good alternative.
-
--chris
-
+Alan

@@ -1,99 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSHBP7T>; Fri, 2 Aug 2002 11:59:19 -0400
+	id <S316106AbSHBPxq>; Fri, 2 Aug 2002 11:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316574AbSHBP7N>; Fri, 2 Aug 2002 11:59:13 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17579 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S316446AbSHBP56>; Fri, 2 Aug 2002 11:57:58 -0400
-Date: Fri, 2 Aug 2002 18:01:05 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-cc: <martin@dalecki.de>, Stephen Lord <lord@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A new ide warning message
-In-Reply-To: <20020802142037.GT3010@suse.de>
-Message-ID: <Pine.SOL.4.30.0208021625020.3612-100000@mion.elka.pw.edu.pl>
+	id <S316113AbSHBPxi>; Fri, 2 Aug 2002 11:53:38 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:61146 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S316106AbSHBPx1>; Fri, 2 Aug 2002 11:53:27 -0400
+Message-ID: <3D4AACDA.2010902@snapgear.com>
+Date: Sat, 03 Aug 2002 02:01:30 +1000
+From: gerg <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches
+References: <3D4A27FE.8030801@snapgear.com> <3007.1028299196@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
 
-On Fri, 2 Aug 2002, Jens Axboe wrote:
+David Woodhouse wrote:
+> gerg@snapgear.com said:
+> 
+>> I have coded a generic MTD map driver to replace the old crufty
+>>blkmem driver. The blkmem driver will be going away in future patches.
 
-> On Fri, Aug 02 2002, Bartlomiej Zolnierkiewicz wrote:
-> >
-> > On Fri, 2 Aug 2002, Jens Axboe wrote:
-> >
-> > > On Fri, Aug 02 2002, Jens Axboe wrote:
-> > > > On Fri, Aug 02 2002, Marcin Dalecki wrote:
-> > > > > U?ytkownik Stephen Lord napisa?:
-> > > > > >In 2.5.30 I started getting these warning messages out ide during
-> > > > > >the mount of an XFS filesystem:
-> > > > > >
-> > > > > >ide-dma: received 1 phys segments, build 2
-> > > > > >
-> > > > > >Can anyone translate that into English please.
-> > > > >
-> > > > > It can be found in pcidma.c.
-> > > > > It is repoting that we have one physical segment needed by
-> > > > > the request in question but the sctter gather list allocation
-> > > > > needed to break it up for mapping in two.
-> > > >
-> > > > You don't seem to realise that this is a BUG (somewhere, could even be
-> > > > in the generic mapping functions)! blk_rq_map_sg() must never map a
-> > > > request to more entries that rq->nr_segments, that's just very wrong.
-> > > >
-> > > > That's why I'm suspecting the recent pcidma changes. Just a feeling, I
-> > > > have not looked at them.
-> > >
-> > > I'll take that back. Having looked at Adam's changes there are perfectly
-> > > fine. I'm now putting my money on IDE breakage somewhere instead. It
-> >
-> > Look again Jens. Adam's changes made IDE queue handling inconsistent.
-> > hint: 2 * 127 != 255
-> >
-> > But noticed warning deals with design of ll_rw_blk.c. ;-)
-> > (right now max_segment_size have to be max bv->bv_len aligned)
->
-> Yeah that's true, actually was just saying that on linux-scsi
-> yesterday/today.
+Did you have a look at uclinux.c, that is the one I was referring
+to here?
 
-:-)
 
-> > Jens, please look at segment checking/counting code, it does it on
-> > bv->bv_len (4kb most likely) not sector granuality...
-> >
-> > So for not 4kb aligned max_segment_size we will get new segment...
-> >
-> > Best fix will be to make block layer count sectors not bv->bv_len...
->
-> Well I'm inclined to just make that page size granularity. It's like
-> that in 2.4 as well (no guarentees that we will honor anything less than
-> that granularity).
+> --- linux-2.5.30/drivers/mtd/maps/snapgear-uc.c	Thu Jan  1 10:00:00 1970
+> +++ linux-2.5.30uc0/drivers/mtd/maps/snapgear-uc.c	Mon Jul 15 21:29:25 2002
+> +#ifdef CONFIG_NFTL
+> +#include <linux/mtd/nftl.h>
+> +#endif
+> 
+> You shouldn't need that.
 
-Anyway it must be also something diffirent - __make_request() should have
-noticed that rq has 2 segments not 1... this puzzles me a bit.
+There is one board setup supported by this that uses DiskOnChip
+(the CONFIG_SH_SECUREEDGE5410 define). But your probably right,
+it wouldn't need nftl.h.
 
-This case also shows limits of BIO_MAX_SECTORS again (Adam worked on
-generic solution, but I don't know current state). There some devices
-which set q->max_sectors to 64, i.e. broken ide-floppy driver ;-)
 
-> > btw. I like Adam's patch but it was draft not to include in mainline (?).
->
-> The concept is sound, so it has a bug... I can say the same for other
-> stuff in the kernel as well :-)
+> +int flash_eraseconfig(void)
+> +{
+> 
+> This will cause an oops if it gets woken by a signal -- you leave and the 
+> the 'struct erase_info' on your stack frame, which you passed to the 
+> asynchronous erase call, goes bye bye.
 
-Yes. :-)
+OK, I'll get that fixed.
 
-> I probably just wanted more review (my 1 minute review surely wasn't
-> enough).
->
-> --
-> Jens Axboe
 
-Greets
---
-Bartlomiej
+> +		ROOT_DEV = MKDEV(NFTL_MAJOR, 1);
+> 
+> Oh, I see -- if we fail to find a file system we recognise on the NOR 
+> flash, try booting from DiskOnChip. Does this really live here?
+
+Well, it actually support for a completely different board - it
+doesn't have NOR flash at all.
+
+This code supports a wide variety of boards, with mixtures of
+NOR flash and/or DiskOnChip.
+
+
+> --- linux-2.5.30/drivers/mtd/mtdblock.c	Fri Aug  2 15:15:41 2002
+> +++ linux-2.5.30uc0/drivers/mtd/mtdblock.c	Fri Aug  2 16:00:13 2002
+> -		if (req->flags & REQ_CMD)
+> +		if (! (req->flags & REQ_CMD))
+> 
+> Yes.
+> 
+> +#ifdef MAGIC_ROM_PTR
+> +static int
+> +mtdblock_romptr(kdev_t dev, struct vm_area_struct * vma)
+> 
+> No, although the fix I'm happy with is going to take a while to get 
+> implemented so maybe in the short term. This is likely to get rejected on 
+> other grounds anyway; perhaps separate it and don't submit it for inclusion 
+> just now?
+
+Sounds good to me. The most important is the uclinux.c support.
+Since that means I can get rid of the blkmem driver all together
+from the uClinux patches.
+
+Thanks
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
 

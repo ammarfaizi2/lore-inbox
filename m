@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269340AbRHCH67>; Fri, 3 Aug 2001 03:58:59 -0400
+	id <S269331AbRHCINJ>; Fri, 3 Aug 2001 04:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269342AbRHCH6t>; Fri, 3 Aug 2001 03:58:49 -0400
-Received: from ns.caldera.de ([212.34.180.1]:8156 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S269340AbRHCH6h>;
-	Fri, 3 Aug 2001 03:58:37 -0400
-Date: Fri, 3 Aug 2001 09:56:40 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: Andries.Brouwer@cwi.nl
-Cc: alan@lxorguk.ukuu.org.uk, hch@caldera.de, torvalds@transmeta.com,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [semiPATCH] another vxfs fix
-Message-ID: <20010803095640.A9328@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
-	torvalds@transmeta.com, viro@math.psu.edu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200108030043.AAA103538@vlet.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108030043.AAA103538@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Aug 03, 2001 at 12:43:48AM +0000
+	id <S269345AbRHCINA>; Fri, 3 Aug 2001 04:13:00 -0400
+Received: from d122251.upc-d.chello.nl ([213.46.122.251]:3590 "EHLO
+	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
+	id <S269336AbRHCIMs>; Fri, 3 Aug 2001 04:12:48 -0400
+From: bvermeul@devel.blackstar.nl
+Date: Fri, 3 Aug 2001 10:15:41 +0200 (CEST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chris Vandomelen <chrisv@b0rked.dhs.org>,
+        Nerijus Baliunas <nerijus@users.sourceforge.net>,
+        Guest section DW <dwguest@win.tue.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: Re[2]: cannot copy files larger than 40 MB from CD
+In-Reply-To: <E15SKBL-0000qt-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108031011500.28108-100000@devel.blackstar.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 12:43:48AM +0000, Andries.Brouwer@cwi.nl wrote:
-> 
-> With the brelse() fix, a failed vxfs mount is OK.
-> But after a successful vxfs mount the umount still yields
->   VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day
-> (And today's [yesterday's] patch by Christoph makes no difference.)
-> 
-> The reason is that the routine vxfs_fake_inode() does
-> new_inode(), but this inode is never returned.
-> I fixed this but am not sure against which base source
-> the patch should be described.
-> A minimal version would be to change the six [1] calls of
-> 	vxfs_put_inode()
-> in vxfs_super.c into calls of
-> 	iput()
-> 
-> (In my source I turned vxfs_fake_inode() into vxfs_get_fake_inode()
-> and added vxfs_put_fake_inode() that just does iput().)
+On Thu, 2 Aug 2001, Alan Cox wrote:
 
-Sounds fine - just submit me any version and I'll rebase it against
-the latest Linus and Alan trees.
+> > > Tried vfat, ext2 and reiserfs.
+> > >
+> > > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
+> >                                ^^^^^^^^^^^
+> > > that matters.
+> >
+> > Have you tried compiling your kernel using kgcc?
+> >
+> > gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
+> > used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
+>
+> [x86 hat on]
+>
+> egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so is
+> just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right thing
 
-	Christoph
+egcs-1.1.3 *does* build 2.4.7, if you use the right binutils
+(2.10.91.0.2 worked for me). I'm running 2.4.7-ac3 with ext3 patches on an
+old dual P200. Haven't had a crash yet, been up 2 days and counting.
+
+Bas Vermeulen
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+"God, root, what is difference?"
+	-- Pitr, User Friendly
+
+"God is more forgiving."
+	-- Dave Aronson
+

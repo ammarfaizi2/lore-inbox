@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265206AbUF1VAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265205AbUF1U7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265206AbUF1VAE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 17:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUF1VAE
+	id S265205AbUF1U7s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 16:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUF1U7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 17:00:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50650 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265206AbUF1U74 (ORCPT
+	Mon, 28 Jun 2004 16:59:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7143 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265205AbUF1U7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 16:59:56 -0400
-Date: Mon, 28 Jun 2004 13:58:21 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Scott Wood <scott@timesys.com>
-Cc: scott@timesys.com, oliver@neukum.org, zaitcev@redhat.com, greg@kroah.com,
-       arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-       linux-kernel@vger.kernel.org, stern@rowland.harvard.edu,
-       mdharm-usb@one-eyed-alien.net, david-b@pacbell.net
-Subject: Re: drivers/block/ub.c
-Message-Id: <20040628135821.6b38e377.davem@redhat.com>
-In-Reply-To: <20040628204857.GA5321@yoda.timesys>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan>
-	<200406270631.41102.oliver@neukum.org>
-	<20040626233423.7d4c1189.davem@redhat.com>
-	<200406271242.22490.oliver@neukum.org>
-	<20040627142628.34b60c82.davem@redhat.com>
-	<20040628141517.GA4311@yoda.timesys>
-	<20040628132531.036281b0.davem@redhat.com>
-	<20040628204857.GA5321@yoda.timesys>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 28 Jun 2004 16:59:44 -0400
+Date: Mon, 28 Jun 2004 13:57:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: pfg@sgi.com, erikj@subway.americas.sgi.com, cw@f00f.org, hch@infradead.org,
+       jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-Id: <20040628135720.369676f4.akpm@osdl.org>
+In-Reply-To: <20040628204707.D9214@flint.arm.linux.org.uk>
+References: <Pine.SGI.4.53.0406280719080.581376@subway.americas.sgi.com>
+	<Pine.SGI.3.96.1040628140341.36430F-100000@fsgi900.americas.sgi.com>
+	<20040628121312.75ac9ed7.akpm@osdl.org>
+	<20040628204707.D9214@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jun 2004 16:48:57 -0400
-Scott Wood <scott@timesys.com> wrote:
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+> > It does sound to me like some work is needed in the generic serial layer to
+>  > teach it to get its sticky paws off the ttyS0 major/minor if there is no
+>  > corresponding hardware.
+> 
+>  It isn't that simple.
 
-> However, what if it were to be run on a machine that can't address
-> smaller quantities than 64-bit?  Such a machine sounds silly, but it
-> could happen (just as early Alphas couldn't directly load or store
-> smaller than 32-bit quantities),
+Is it ever?
 
-You are still hitting right at the heart of why I think all of
-this talk is madness and silly, you're staying in the realm of
-"what ifs".
+I realise now I don't understand the problem ;) The altix serial driver
+comes up, does register_console() and then stuff gets sent to /dev/console.
 
-Cross that bridge when we get there and no sooner, ok? :-)
-
-As a side note, even though early Alpha's could not address smaller
-than word quantities directly with loads and stores, the structure
-layout defined by the Alpha ABIs did not pad such elements inside
-of structures.  It simply emitted word sized loads, then extracted
-the byte or half-word using shifts and masks.
-
-So even if such a maniac machine as you described were created, it
-would likely shift+mask out from 64-bit loads the elements it needed
-instead of padding structures uselessly.  Structure padding eats memory
-which is why ABI designers avoid it like the plague.
-
+Who needs to know the driver's major/minor, and why?

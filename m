@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290643AbSAYL2v>; Fri, 25 Jan 2002 06:28:51 -0500
+	id <S290641AbSAYLav>; Fri, 25 Jan 2002 06:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290641AbSAYL2l>; Fri, 25 Jan 2002 06:28:41 -0500
-Received: from sushi.toad.net ([162.33.130.105]:53186 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S290643AbSAYL2c>;
-	Fri, 25 Jan 2002 06:28:32 -0500
-Subject: Re: RFC: booleans and the kernel
-From: Thomas Hood <jdthood@mail.com>
+	id <S290644AbSAYLab>; Fri, 25 Jan 2002 06:30:31 -0500
+Received: from [62.47.19.142] ([62.47.19.142]:44674 "HELO twinny.dyndns.org")
+	by vger.kernel.org with SMTP id <S290641AbSAYLaY>;
+	Fri, 25 Jan 2002 06:30:24 -0500
+Message-ID: <3C51416B.37BA635E@webit.com>
+Date: Fri, 25 Jan 2002 12:28:43 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+Subject: SiS DRM, sisfb
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 25 Jan 2002 06:28:37 -0500
-Message-Id: <1011958120.1219.2.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> A small issue...
 
-... bound therefore to generate the most discussion ...
+Enclosed you find links to
 
-> C99 introduced _Bool as a builtin type.  The gcc patch for
-> it went into cvs around Dec 2000.  Any objections to
-> propagating this type and usage of 'true' and 'false' around
-> the kernel?
+1) a patch for the SiS DRM module. Without this patch, only "root" is
+allowed to run DRI applications. The patch will be included in XFree86
+as well, but since the module is now also included in the kernel, would
+be good to sync these two.
 
-What concerns me is the question of casting.  Will truth always
-cast to integer value 1 and falsehood always cast to integer
-value 0, and vice versa?  If so then the bool type is a lot
-like a "bit" type would be if C had one, i.e., a very short
-integer variable limited to the values 0 and 1.  If the casts
-are not guaranteed then bool is a lot like an enumerated type
-where the compiler is free to choose whatever representations
-it wants for truth and falsehood.
+http://www.webit.at/~twinny/sis_drm_patch
 
-I assume the casts are guaranteed.  E.g., I take it that the
-result of a logical comparison is considered to be of type
-bool, but that the following will increment val by 1 if a > b
-    val += (a > b)
+2) At http://www.webit.com/tw/linuxsis630.shtml (in the "latest version"
+section) there is a revised framebuffer driver for SiS 630 chipset
+available. It contains some major improvements for using it on machines
+with LCD displays. 
 
-In that case, perhaps it would be more perspicuous to define
-a "bit" type rather than a "bool" type, and to use 0 and 1 as
-its values rather than 'true' and 'false'.  (A "bit" type 
-would have all the advantages mentioned earlier by Peter Anvin
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101191106124169&w=2 .)
+The code is based on the current 2.4.16/17/18 base; I had to include
+major new parts so it's not practical to release a patch file. Instead,
+the archive contains all files of the directory
+"/usr/src/linux/drivers/video/sis/" -  simply to replace the old code.
 
---
-Thomas Hood
+The improvements only affect machines with LVDS video bridges and LCD
+displays; the old driver did not work at all on such computers. (If no
+LVDS bridge is detected, the old code is used - so including it into the
+offical kernel is safe.)
 
+Both patches have been tested intensivly; sisfb still doesn't work on
+_all_ affected machines, but about 80%. (Which is 80% more than
+before.... for other machines there's a new parameter "mode=none" so
+that people could at least use DRI under X.)
+
+Would be nice if you'd apply/include them. Especially since my X driver
+is contained in X 4.2 now...
+
+Thomas
+
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:tw@webit.com              *** http://www.webit.com/tw

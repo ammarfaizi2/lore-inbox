@@ -1,115 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264963AbSKJRAs>; Sun, 10 Nov 2002 12:00:48 -0500
+	id <S264950AbSKJRGN>; Sun, 10 Nov 2002 12:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264965AbSKJRAs>; Sun, 10 Nov 2002 12:00:48 -0500
-Received: from adsl-66-124-76-105.dsl.sntc01.pacbell.net ([66.124.76.105]:29200
-	"EHLO www.baywinds.org") by vger.kernel.org with ESMTP
-	id <S264963AbSKJRAq>; Sun, 10 Nov 2002 12:00:46 -0500
-Message-ID: <3DCE929E.6010307@baywinds.org>
-Date: Sun, 10 Nov 2002 09:08:46 -0800
-From: Bruce Ferrell <bferrell@baywinds.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john slee <indigoid@higherplane.net>
-CC: Shlomi Fish <shlomif@vipe.stud.technion.ac.il>,
-       linux-kernel@vger.kernel.org
-Subject: Re: An Analysis of BitKeeper and BitMover's Strategy
-References: <Pine.LNX.4.33L2.0211091206500.30597-100000@vipe.technion.ac.il> <20021110004847.GB17478@higherplane.net>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050708080803020904010405"
+	id <S264954AbSKJRGN>; Sun, 10 Nov 2002 12:06:13 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:51863 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264950AbSKJRGM>;
+	Sun, 10 Nov 2002 12:06:12 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 10 Nov 2002 18:12:56 +0100 (MET)
+Message-Id: <UTC200211101712.gAAHCuZ14598.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, tmolina@cox.net
+Subject: Re: 2.5 Problem Report Status for 10 Nov
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+   open   11 Oct 2002 tcp packets lost
+  31. http://marc.theaimsgroup.com/?l=linux-kernel&m=103429736523667&w=2
 
---------------ms050708080803020904010405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This one is solved. I sent a patch to davem.
+See that it already is in Linus' current bk.
 
-While the posting wasn't directly linked to kernel development, I did 
-find the analysis to be thought provoking.  I think calling it spam 
-MIGHT be too strong.
-
-john slee wrote:
-> On Sat, Nov 09, 2002 at 12:18:24PM +0200, Shlomi Fish wrote:
-> 
->>As part of the "Better SCM" site (that is still under construction), I
->>wrote a few essays about BitKeeper:
-> 
-> 
-> please do not spam the list with this crap
-> 
-> j.
-> 
-
-
---------------ms050708080803020904010405
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJVDCC
-AwgwggJxoAMCAQICAwiT+DANBgkqhkiG9w0BAQQFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
-BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
-HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
-bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTAyODAxNTI0MFoXDTAzMTAyODAxNTI0MFowRzEf
-MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEkMCIGCSqGSIb3DQEJARYVYmZlcnJl
-bGxAYmF5d2luZHMub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy2inuSUZ
-p80wIOkP5WzcckQogjd4WulnexxU1zdTY9RLegX1fYYg2tSuMlCVpknZXMzl2EHD2xXS88eR
-KIGK569ZF4wKAd0XdmRoCrjdUc3+j6yion5oqoAmyZVxwEs3X9YEFORLzKW4gVIB5u2jFUQQ
-dQ5rqzGAUz5vfKpb8rbyH2/4474I2y9ne3cxlIImVBP2a34w3Ge4gP0l0Eun5i3jTMiGbkUG
-hKbCrdhEffklhkHObvArSFbxFTBEMbBRbFS+zyFihYw69YzHNg9qz1A0NefQZGVHzARhNZFQ
-1EMhqDHudIi3EntiPdN9ZeliTPOvdMPTkA8lqereV4VktQIDAQABozIwMDAgBgNVHREEGTAX
-gRViZmVycmVsbEBiYXl3aW5kcy5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOB
-gQC/iqmf5Flmqm7JlIpLbWh+R/gOZlTZlLCOHoXd1kiTdDuXVTTzPQWvmyZZ5QqoNOCFb7Ue
-lVosyF7XzJ+G6cR8Dj/BGeQlt+EXLRiZbJ8mOK1lm+9fUon7KixPQDkX60/SQgLDJUWNeCL5
-67HtIVoCpcOuIxJu43UzPQhT59MBjTCCAwgwggJxoAMCAQICAwiT+DANBgkqhkiG9w0BAQQF
-ADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2Fw
-ZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2Vz
-MSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTAyODAx
-NTI0MFoXDTAzMTAyODAxNTI0MFowRzEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJl
-cjEkMCIGCSqGSIb3DQEJARYVYmZlcnJlbGxAYmF5d2luZHMub3JnMIIBIjANBgkqhkiG9w0B
-AQEFAAOCAQ8AMIIBCgKCAQEAy2inuSUZp80wIOkP5WzcckQogjd4WulnexxU1zdTY9RLegX1
-fYYg2tSuMlCVpknZXMzl2EHD2xXS88eRKIGK569ZF4wKAd0XdmRoCrjdUc3+j6yion5oqoAm
-yZVxwEs3X9YEFORLzKW4gVIB5u2jFUQQdQ5rqzGAUz5vfKpb8rbyH2/4474I2y9ne3cxlIIm
-VBP2a34w3Ge4gP0l0Eun5i3jTMiGbkUGhKbCrdhEffklhkHObvArSFbxFTBEMbBRbFS+zyFi
-hYw69YzHNg9qz1A0NefQZGVHzARhNZFQ1EMhqDHudIi3EntiPdN9ZeliTPOvdMPTkA8lqere
-V4VktQIDAQABozIwMDAgBgNVHREEGTAXgRViZmVycmVsbEBiYXl3aW5kcy5vcmcwDAYDVR0T
-AQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQC/iqmf5Flmqm7JlIpLbWh+R/gOZlTZlLCOHoXd
-1kiTdDuXVTTzPQWvmyZZ5QqoNOCFb7UelVosyF7XzJ+G6cR8Dj/BGeQlt+EXLRiZbJ8mOK1l
-m+9fUon7KixPQDkX60/SQgLDJUWNeCL567HtIVoCpcOuIxJu43UzPQhT59MBjTCCAzgwggKh
-oAMCAQICEGZFcrfMdPXPY3ZFhNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpB
-MRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMR
-VGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2
-aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3
-DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0w
-NDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIw
-EAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
-dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAw
-gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40Qp
-imM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Y
-cvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGj
-TjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMB
-Af8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1
-U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXr
-okefbKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6l
-n+eE2MliYq0FxjGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2Vz
-dGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
-CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJT
-QSAyMDAwLjguMzACAwiT+DAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcN
-AQcBMBwGCSqGSIb3DQEJBTEPFw0wMjExMTAxNzA4NDZaMCMGCSqGSIb3DQEJBDEWBBTJjNQw
-N2/V6c31KAv/8sDE7mh7gTBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3
-DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBrQYLKoZI
-hvcNAQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUx
-EjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZp
-Y2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4z
-MAIDCJP4MA0GCSqGSIb3DQEBAQUABIIBAGtqa7AwEsxX6lD7Z6xQuJNjynkEdwvb9KG1etFV
-ezGrR3h0OiFRQbk3Hla2By8g8dW/ozDjlOBtlOwgXmnZAV45XX7XRSdCCFBonqyqv34/iBjf
-ee6LRM2MPI/SJAZ6+3oHMDRBXxBCVkxVF1zoLv8MZR97mW5uZDeHp4z2xxul8545USwuMUWn
-1vHQqpVzanOf+JWDbKS9jfQ40gtMhgTUnWb9Cw6Laz9djvnDkjlqGuSRW6cItEsCxZqviz8w
-qoZviFvtvd1+JVzOEsJemhKVe+b6HWZfp3ERqOAS1wKI9ugVN4TG21c7eKdDlUtfTK0ICpL1
-+bVTasm+MrGXlbcAAAAAAAA=
---------------ms050708080803020904010405--
-
+Andries

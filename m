@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274809AbRIUUK3>; Fri, 21 Sep 2001 16:10:29 -0400
+	id <S274813AbRIUUM3>; Fri, 21 Sep 2001 16:12:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274810AbRIUUKT>; Fri, 21 Sep 2001 16:10:19 -0400
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:50693 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S274809AbRIUUKH>;
-	Fri, 21 Sep 2001 16:10:07 -0400
-From: "Tony Hoyle" <tmh@nothing-on.tv>
-Subject: Reiserfs does not work from fstab in 2.4.9-ac12
-Date: Fri, 21 Sep 2001 21:10:51 +0100
-Organization: Magenta netLogic
-Message-ID: <9og6rk$vd$1@sisko.my.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: sisko.my.home 1001103028 1005 192.168.100.2 (21 Sep 2001 20:10:28 GMT)
-X-Complaints-To: abuse@cvsnt.org
-User-Agent: Pan/0.10.0.90 (Unix)
-X-Comment-To: ALL
-X-No-Productlinks: Yes
+	id <S274812AbRIUUMT>; Fri, 21 Sep 2001 16:12:19 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:4282 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S274810AbRIUUMF>;
+	Fri, 21 Sep 2001 16:12:05 -0400
+Date: Fri, 21 Sep 2001 22:12:25 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
 To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems, kupdated bugfixes
+Message-ID: <20010921221225.A22402@schmorp.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010920101544.A14526@turbolinux.com> <Pine.LNX.4.30.0109210015190.19847-100000@gamma.student.ljbc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0109210015190.19847-100000@gamma.student.ljbc>
+X-Operating-System: Linux version 2.4.8-ac9 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got caught by this on a box which had a reiserfs /usr partition...
+On Fri, Sep 21, 2001 at 12:22:59AM +0800, Beau Kuiper <kuib-kl@ljbc.wa.edu.au> wrote:
+> Also, it is nicer behaviour not to write out to disk before the time
+> indicated in the bdflush tuning structure. It allows sys admins to better
+> tune the overal performace of a system. (unless the kernel need s more
+> free memory)
 
-# mount /disk2
-reiserfs: kgetopt: there is not option
-<lots of mount failure stuff>
-
-The fstab that generated this (which has worked for every other version,
-so I believe it to be correct):
-/dev/hdb1      /disk2          reiserfs        defaults        0       0
-
-However
-# mount -t reiserfs /dev/hdb1 /disk2
-
-..works correctly.
-
-Tony
+A contiguous write doesn't cost anything much, so it could be major
+win if the kernel could flush dirty buffers that are behind and after
+the dirty block to be written. But this would nicely conflict with
+allocate-on-flush ;)
 
 -- 
-Microsoft - two out of three dead people who expressed a preference
-said their coffins preferred it.
-
-tmh@nothing-on.tv	http://www.nothing-on.tv
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269176AbRHTU17>; Mon, 20 Aug 2001 16:27:59 -0400
+	id <S269178AbRHTUct>; Mon, 20 Aug 2001 16:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269174AbRHTU1t>; Mon, 20 Aug 2001 16:27:49 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:2570 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S269158AbRHTU1m>;
-	Mon, 20 Aug 2001 16:27:42 -0400
-Message-Id: <200108202027.f7KKRnY41946@aslan.scsiguy.com>
-To: Cliff Albert <cliff@oisec.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo 
-In-Reply-To: Your message of "Mon, 20 Aug 2001 10:55:20 +0200."
-             <20010820105520.A22087@oisec.net> 
-Date: Mon, 20 Aug 2001 14:27:49 -0600
+	id <S269206AbRHTUc3>; Mon, 20 Aug 2001 16:32:29 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:6922 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S269178AbRHTUc0>; Mon, 20 Aug 2001 16:32:26 -0400
+Message-Id: <200108202032.f7KKWcY42028@aslan.scsiguy.com>
+To: A.J.Scott@casdn.neu.edu
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8 aic7xxx -- continuous bus resets 
+In-Reply-To: Your message of "Mon, 20 Aug 2001 11:12:27 EDT."
+             <3B80F09A.8507.A8DAED@localhost> 
+Date: Mon, 20 Aug 2001 14:32:38 -0600
 From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> 2.4.9 has the latest aic7xxx driver in it.  Can you see if that changes
+>> things for you?  If not, can you hook up a serial console to the machine
+>> and provide all of the messages from an aic7xxx=verbose boot?
 >
->I'm getting similair errors on 2.4.8-ac7 on my P2B-S motherboard using
->the NEW AIC7xxx driver, the old isn't experiencing these problems. Further
->i've been getting these errors since 2.4.3.
+>Ok, tried 2.4.9. With 1 ioapic the machine boots just fine. With the 
+>second ioapic enabled the behavior I previously described still 
+>occurs.
 >
->> booting with append="noapic", gives the same errors
+>attempting to Queue abort
+>aic7xxx_abort returns 8194
+>
+>These are the only error messages I copied down, I believe that there 
+>was another, will reboot and check later.
 
-Can you send me the full messages when you boot with "aic7xxx=verbose"?
-That should help indicate the source of your problems.  I also
-need to see the devices that are attached to the bus, so a full dmesg
-from a successful boot with the old driver would be helpful.
+Yup.  The driver is not seeing interrupts.
 
 --
 Justin

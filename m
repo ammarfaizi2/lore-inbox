@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVAVVIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVAVVSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbVAVVIc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 16:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVAVU7v
+	id S262757AbVAVVSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 16:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVAVVQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 15:59:51 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:5611 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S262733AbVAVUlg (ORCPT
+	Sat, 22 Jan 2005 16:16:42 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36553 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262734AbVAVVPP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 15:41:36 -0500
-From: Norbert van Nobelen <norbert-kernel@edusupport.nl>
-Organization: EduSupport BV
-To: linux-kernel@vger.kernel.org
-Subject: Re: negative diskspace usage
-Date: Sat, 22 Jan 2005 21:41:26 +0100
-User-Agent: KMail/1.6.2
-References: <200501220837.j0M8bgk22582@mailout.despammed.com> <20050122100933.GM7147@wiggy.net>
-In-Reply-To: <20050122100933.GM7147@wiggy.net>
+	Sat, 22 Jan 2005 16:15:15 -0500
+Date: Sat, 22 Jan 2005 13:15:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+cc: Martin Josefsson <gandalf@wlug.westbo.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11-rc2
+In-Reply-To: <20050122125759.7d597594@laptop.hypervisor.org>
+Message-ID: <Pine.LNX.4.58.0501221313511.4191@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
+ <20050121223247.65c544f8@laptop.hypervisor.org> <1106402669.20995.23.camel@tux.rsn.bth.se>
+ <20050122125759.7d597594@laptop.hypervisor.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501222141.26449.norbert-kernel@edusupport.nl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the 101% usage is the interesting point here
-You are using more diskspace than you have available. 
-I missed the first mail though, so what filesystem is this and which kernel 
-version?
 
-On Saturday 22 January 2005 11:09, Wichert Akkerman wrote:
-> Previously ndiamond@despammed.com wrote:
-> > Wichert Akkerman wrote:
-> > > After cleaning up a bit df suddenly showed interesting results:
-> > >
-> > > Filesystem            Size  Used Avail Use% Mounted on
-> > > /dev/md4             1019M  -64Z  1.1G 101% /tmp
-> > >
-> > > Filesystem           1K-blocks      Used Available Use% Mounted on
-> > > /dev/md4               1043168 -73786976294838127736   1068904 101%
-> > > /tmp
-> >
-> > It looks like Windows 95's FDISK
-> > command created the partitions.
->
-> There is no way you can see that from the output I gave, and it is also
-> incorrect.
->
-> > The partition boundaries still remain where Windows 95 put them, and
-> > you have overlapping partitions.
->
-> fdisk does not create overlapping partitions.
->
-> Wichert.
 
--- 
-<a href="http://www.edusupport.nl">EduSupport: Linux Desktop for schools and 
-small to medium business in The Netherlands and Belgium</a>
+On Sat, 22 Jan 2005, Udo A. Steinberg wrote:
+> 
+> Linus, please apply the following patch from Martin.
+
+Please go through Davem, he's quite responsive, but prefers things like 
+this to be sent to the netdev mailing list too if it hasn't been there 
+already (netdev@oss.sgi.com).
+
+		Linus

@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbSBRRf6>; Mon, 18 Feb 2002 12:35:58 -0500
+	id <S291174AbSBQWZm>; Sun, 17 Feb 2002 17:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293329AbSBRReE>; Mon, 18 Feb 2002 12:34:04 -0500
-Received: from web14907.mail.yahoo.com ([216.136.225.59]:9741 "HELO
-	web14907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S287676AbSBRRca>; Mon, 18 Feb 2002 12:32:30 -0500
-Message-ID: <20020218173229.47247.qmail@web14907.mail.yahoo.com>
-Date: Mon, 18 Feb 2002 12:32:29 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: Communication between two kernel modules
+	id <S291177AbSBQWZc>; Sun, 17 Feb 2002 17:25:32 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:3844
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S291174AbSBQWZ0>; Sun, 17 Feb 2002 17:25:26 -0500
+Date: Sun, 17 Feb 2002 17:26:34 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
 To: linux-kernel@vger.kernel.org
+Subject: ANNOUNCEMENT: 2.4.18-rc1-xfs-shawn6 released
+In-Reply-To: <Pine.LNX.4.40.0202170333030.28167-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.40.0202171726130.277-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, how can I call some kind of APIs from kernel mode,
-such as open, ioctl and close? Because I need to use
-some services of another kernel module from my kernel
-module and I have no source code of the module which
-provides the services. Now I can only access the
-module in user space using the open, ioctl and close
-APIs. Can I do the same thing in my kernel module?
-Thanks.
+xfs-2.4.18-rc1-shawn6   against 2.4.17 vanilla. (Feb 17th, 2002)
 
-Michael
+Contains:
 
-______________________________________________________________________ 
-Web-hosting solutions for home and business! http://website.yahoo.ca
+2.4.18-rc1                      (Marcelo Tosatti)
+rmap12f                         (Rik van Riel
+                                 William Lee Irwin III)
+Newest XFS from CVS-HEAD        (me)
+IDE taskfile IO patch           (Andre Hedrick)
+
+* NOTES:
+
+Removed -pre9-ac4 because Quotas seem to break hard with XFS/EXT2/3.
+- This hurts the merge of XFS into -mjc until we sort this out.
+
+Shawn.
+

@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271119AbTHHJau (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 05:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHHJau
+	id S271152AbTHHKLX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 06:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHHKLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 05:30:50 -0400
-Received: from pan.gwi.net ([207.5.128.165]:28681 "EHLO pan.gwi.net")
-	by vger.kernel.org with ESMTP id S271119AbTHHJas (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 05:30:48 -0400
-Message-ID: <3F3372A5.4000007@goingware.com>
-Date: Fri, 08 Aug 2003 05:51:33 -0400
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 8 Aug 2003 06:11:23 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:35044 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S271152AbTHHKLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 06:11:21 -0400
+Date: Sat, 09 Aug 2003 12:12:48 +0200
 To: linux-kernel@vger.kernel.org
-Subject: Let's Put SCO Behind Bars
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Readonly mounted ext2 filesystem partition changeable: Bug or Feature?
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+From: csg <chr@abelard.de>
+Organization: Abelard
+MIME-Version: 1.0
+Message-ID: <oprtmunmkc06yy9w@smtp.1und1.com>
+User-Agent: Opera7.11/Linux M2 build 406
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ladies and Gentlemen,
+[PLEASE copy any answer to this posting to
+    chr@abelard.de
+Thanks.]
 
-Please enjoy my new article, "Let's Put SCO Behind Bars", which you may find at:
+Hello,
 
-http://www.goingware.com/notes/prosecute-sco.html
+Short: I have seen changes made to a readonly mounted ext2 filesystem by
+communicating with /sbin/init via /dev/initctl. This strange behaviour
+goes away while moving /dev into RAM by using DEVFS.
 
-Here's the introduction:
+In my opinion this is a bug. Or is it a feature?
 
--------
+**********************
 
-While the lawsuits being defended by IBM and filed by Red Hat are likely to put 
-an end to The SCO Group's menace to the Free Software community, I don't think 
-simply putting the company out of business is likely to prevent us from being 
-threatened this way again by other companies who are enemies to our community. I 
-feel we need to send a stronger message.
+Szenario:
 
-If we all work together, we can put the executives of the SCO Group in prison 
-where they belong.
+System: Linux debian30 2.4.18-1-k6 #1 Fri Jun 6 23:55:12 EST 2003 i586 unknown
+        IDE disk
 
-If you live in the U.S., please write a letter to your state Attorney General. 
-If you live elsewhere, please write your national or provincial law enforcement 
-authorities. Please ask that the SCO Group be prosecuted for criminal fraud and 
-extortion.
+I have made 1 readonly ROOT-partition including /dev (and some symbolic links)
+and 1 read-write VAR-partition (without exec permission).
 
--------
+Then I created MD5SUM over the entire readonly partition, put the checksum
+along with a check-script on a (later) write-protected floppy. Now on every reboot the floppy will be mounted and the check-script compares the saved checksum with the one created on the fly over the current partition.
 
-If you agree with what I have to say, please copy it to your own website under 
-the terms of the legal notice at the end of the article.  It has a Creative 
-Commons license.  The page is deliberately designed to be easy to copy to other 
-websites: it is all in one file, with very simple, valid markup, and with no 
-external dependencies such as images or external stylesheets.  It even looks 
-good in lynx!
+After rebooting or calling something like "init <new runlevel>" the partition
+was found altered. "cmp" / "diff" in front to a reference pointed out the
+change was made in mid of data region of the ext2-filesystem.
+(Not in metedata, therefore no "mount-count"-problem; of course: no journal.)
 
-Thank you for your attention.
+The problem goes ahead if
 
-Mike
+ - I do remove /dev/initctl
+   (Of course, the system is now no longer able to shutdown correctly
+   or to change the runlevel)
+   or
+   - I do switch to DEVFS which moves /dev and /dev/initctl to RAM.
+
+I find this strange.
+The expected behaviour would be to output an error message like
+"Permission denied: Can not write to read-only filesystem".
+
+So I think, it is a bug. But I'm not sure: May be it is a feature?
+
+Thanks for your answer.
+
+Christian Schmidt-Guetter
+
+
+
 -- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com
-crawford@goingware.com
+Christian Schmidt-Guetter
+Email:   chr@abelard.de
 
-   Tilting at Windmills for a Better Tomorrow.
-
-     "I give you this one rule of conduct. Do what you will, but speak
-      out always. Be shunned, be hated, be ridiculed, be scared,
-      be in doubt, but don't be gagged."
-      -- John J. Chapman, "Make a Bonfire of Your Reputations"
-         http://www.goingware.com/reputation/
 

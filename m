@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129964AbRBEIlt>; Mon, 5 Feb 2001 03:41:49 -0500
+	id <S129638AbRBEJ1H>; Mon, 5 Feb 2001 04:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131576AbRBEIlj>; Mon, 5 Feb 2001 03:41:39 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:25790 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129964AbRBEIlX>;
-	Mon, 5 Feb 2001 03:41:23 -0500
-Date: Mon, 5 Feb 2001 09:41:19 +0100
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Robert Siemer <Robert.Siemer@gmx.de>
+	id <S131351AbRBEJ04>; Mon, 5 Feb 2001 04:26:56 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:2946 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129601AbRBEJ0q>; Mon, 5 Feb 2001 04:26:46 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3A7DF190.C0A3BE83@mail.com> 
+In-Reply-To: <3A7DF190.C0A3BE83@mail.com>  <393D1B6D.ECCE0721@mail.com> 
+To: Thomas Hood <jdthoodREMOVETHIS@mail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fix dependencies for radio-miropcm20
-Message-ID: <20010205094119.A28654@fenrus.demon.nl>
-In-Reply-To: <3A7C6949.3070705@netgem.com> <20010204033125C.siemer@panorama.hadiko.de>
+Subject: Re: [BUG] Shutting down PCMCIA driver in Linux 2.4.1, "Trying to free nonexistent resource <000003e0-000003e1>" 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010204033125C.siemer@panorama.hadiko.de>; from Robert.Siemer@gmx.de on Sun, Feb 04, 2001 at 03:31:25AM +0100
+Date: Mon, 05 Feb 2001 09:26:33 +0000
+Message-ID: <26472.981365193@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 04, 2001 at 03:31:25AM +0100, Robert Siemer wrote:
-> This was already discussed some days ago. Arjan said, that the
-> miropcm20 question comes before the aci question, so this is
-> useless. - Arjan, this is not true for 'make menuconfig' and 'make
-> xconfig', isn't it?
 
-make [x,menu]config are a bit smarter, but at least make menuconfig has the
-annoying behavior of hiding the question for the Miro card until you
-magically turn on the ACI mixer in the sound section. This confuses the hell
-out of peope when they go through make menuconfig "top bottom".
+jdthoodREMOVETHIS@mail.com said:
+> I get this message when shutting down Linux with 2.4.1 kernel, kernel
+> PCMCIA support compiled as a module.
 
-Greetings,
-   Arjan van de Ven
+> Trying to free nonexistent resource <000003e0-000003e1>
+
+It's harmless. You can ignore it. It'll be cleaned up, but there are far 
+more interesting bugs to squash first :)
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

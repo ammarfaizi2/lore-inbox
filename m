@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbQLaBoZ>; Sat, 30 Dec 2000 20:44:25 -0500
+	id <S132699AbQLaBrF>; Sat, 30 Dec 2000 20:47:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135627AbQLaBoP>; Sat, 30 Dec 2000 20:44:15 -0500
-Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:17419
-	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129436AbQLaBoD>; Sat, 30 Dec 2000 20:44:03 -0500
-Date: Sun, 31 Dec 2000 14:13:35 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Eric W. Biederman" <ebiederman@uswest.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-Message-ID: <20001231141335.B21365@metastasis.f00f.org>
-In-Reply-To: <Pine.LNX.4.10.10012301214210.1017-100000@penguin.transmeta.com> <m1u27lpo1g.fsf@frodo.biederman.org> <20001231020234.A15179@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001231020234.A15179@athlon.random>; from andrea@suse.de on Sun, Dec 31, 2000 at 02:02:34AM +0100
-X-No-Archive: Yes
+	id <S135610AbQLaBqz>; Sat, 30 Dec 2000 20:46:55 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:60876 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S132699AbQLaBqg>; Sat, 30 Dec 2000 20:46:36 -0500
+Date: Sun, 31 Dec 2000 01:16:04 +0000 (GMT)
+From: davej@suse.de
+To: Tony Spinillo <tspin@epix.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TEST13-PRE7 - Nvidia Kernel Module Compile Problem
+In-Reply-To: <20001231140527.A21365@metastasis.f00f.org>
+Message-ID: <Pine.LNX.4.21.0012310114510.13512-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2000 at 02:02:34AM +0100, Andrea Arcangeli wrote:
+On Sat, Dec 30, 2000 at 07:54:21PM +0000, Tony Spinillo wrote:
+>   The nvidia kernel module (from www.nvidia.com) has compiled and loaded
+>   correctly with all test13-pre series up to pre6. I just tried to
+>   compile and load under pre7.
+>   I got the following:
+>   nv.c:860:unknown field `unmap' specified in initializer
+>   nv.c:860:warning: initialization from incompatible pointer type
+>   make:*** [nv.o] Error 1
 
-    Yes, we need to add one field to the in-core superblock to do
-    this accounting.
+Delete the unmap: line somewhere near line 868 of nv.c
+Seems to be working fine here.
 
-How does this work for filesystems like reisefs which do tail merging
-and other filesystems which might do sub-clock allocation?
+regards,
 
-We either need more than one field (or a byte counter) + lock or
-perhaps a generic fields + callback to the fs itself.
-    
-    > estimate than just the data blocks it should not be hard to add
-    > an extra callback to the filesystem.
-    
-    Yes, I was thinking at this callback too. Such a callback is
-    nearly the only support we need from the filesystem to provide
-    allocate on flush.
+Davej.
 
-I think a callback is the way to go.
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 
-
-
-  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

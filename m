@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265351AbSKYUvI>; Mon, 25 Nov 2002 15:51:08 -0500
+	id <S265661AbSKYUyb>; Mon, 25 Nov 2002 15:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265650AbSKYUvI>; Mon, 25 Nov 2002 15:51:08 -0500
-Received: from va.cs.wm.edu ([128.239.2.31]:59654 "EHLO va.cs.wm.edu")
-	by vger.kernel.org with ESMTP id <S265351AbSKYUvH>;
-	Mon, 25 Nov 2002 15:51:07 -0500
-Date: Mon, 25 Nov 2002 15:58:18 -0500
-From: Bruce Lowekamp <lowekamp@CS.WM.EDU>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: enabling AMD_PM768 causes boot hang in 2.4.20-rc3
-Message-ID: <5410000.1038257898@chorus.cs.wm.edu>
-In-Reply-To: <1038183180.28491.14.camel@irongate.swansea.linux.org.uk>
-References: <6320000.1038078904@localhost.localdomain>
- <1038183180.28491.14.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/3.0.0a5 (Linux/x86)
+	id <S265667AbSKYUyb>; Mon, 25 Nov 2002 15:54:31 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S265661AbSKYUya>; Mon, 25 Nov 2002 15:54:30 -0500
+From: "Folkert van Heusden" <folkert@vanheusden.com>
+To: "=?us-ascii?B?J0Vyc2VrIExhc3psbyc=?=" <erseklaszlo@chello.hu>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] rbtree
+Date: Mon, 25 Nov 2002 22:01:37 +0100
+Message-ID: <005501c294c5$d8b1e300$3640a8c0@boemboem>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.LNX.4.44.0211242332310.90-100000@lacos>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Not trying to be negative and also really wondering this: won't
+the compiler produce the same code for:
+if (!variable)
+and
+if (variable == 0)
+?
+
+-----Oorspronkelijk bericht-----
+Van: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]Namens Ersek Laszlo
+Verzonden: zondag 24 november 2002 23:41
+Aan: linux-kernel@vger.kernel.org
+Onderwerp: [PATCH] rbtree
 
 
---On Monday, November 25, 2002 12:13:00 AM +0000 Alan Cox 
-<alan@lxorguk.ukuu.org.uk> wrote:
+Hi all,
 
-> On Sat, 2002-11-23 at 19:15, Bruce Lowekamp wrote:
->>
->> With a dual-processor A7M266-D MB (two AMD XP-MP 1900+), enabling
->> CONFIG_AMD_PM768 causes the machine to hang on boot.
->>
->> I don't think this is a major concern for the release because the
->> description of this parameter includes EXPERIMENTAL (although it is not
->> flagged to be selectable on when experimental options are enabled).
->>
->> A few details:  The kernel is booted with noapic (has always hung
->> otherwise).  It hangs right after listing the drives and ide interfaces,
->> and right before it prints out the geometry of the first drive.  This is
->> the output prior to hanging:
->
-> Does it work loaded as a module ?
->
+this patch tries to remove those checks for 0 from
+linux-2.4.19/lib/rbtree.c which are (I think) superfluous.
 
-Nope.  Got the prompt back and then it hung.
-
-I put my .config online (temporarily) at 
-http://www.cs.wm.edu/~lowekamp/amd_pm768-config if that helps diagnose 
-anything.
-
-Thanks,
-Bruce
+Laszlo Ersek
 
 
+--- linux-2.4.19/lib/rbtree.c	Sat Aug  3 02:39:46 2002
++++ linux/lib/rbtree.c	Sun Nov 24 22:59:38 2002
+@@ -159,17 +159,16 @@
+ 				if (!other->rb_right ||
+ 				    other->rb_right->rb_color == RB_BLACK)
+ 				{
+-					register rb_node_t * o_left;
+-					if ((o_left = other->rb_left))
+-						o_left->rb_color = RB_BLACK;
++					/* unneeded check-for-0 removed */
++					other->rb_left->rb_color = RB_BLACK;
+...

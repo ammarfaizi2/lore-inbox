@@ -1,94 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130089AbQKCWgs>; Fri, 3 Nov 2000 17:36:48 -0500
+	id <S130719AbQKCWiI>; Fri, 3 Nov 2000 17:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131099AbQKCWgi>; Fri, 3 Nov 2000 17:36:38 -0500
-Received: from inet-smtp3.oracle.com ([205.227.43.23]:22769 "EHLO
-	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
-	id <S130089AbQKCWgZ>; Fri, 3 Nov 2000 17:36:25 -0500
-Message-ID: <3A033DE6.F4CD60C1@oracle.com>
-Date: Fri, 03 Nov 2000 14:36:22 -0800
-From: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
-Organization: Linux Strategic Business Unit, Oracle Corporation
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: en,pdf
+	id <S131099AbQKCWh6>; Fri, 3 Nov 2000 17:37:58 -0500
+Received: from mail02.onetelnet.fr ([213.78.0.139]:59447 "EHLO
+	mail02.onetelnet.fr") by vger.kernel.org with ESMTP
+	id <S129559AbQKCWhr>; Fri, 3 Nov 2000 17:37:47 -0500
+Message-ID: <3A034BF6.F81B5952@onetelnet.fr>
+Date: Sat, 04 Nov 2000 00:36:22 +0100
+From: FORT David <epopo@onetelnet.fr>
+Organization: Derriere les rochers Networks
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
-In-Reply-To: <fa.d4dt9vv.1gm6abv@ifi.uio.no> <fa.ebii26v.1mgevrq@ifi.uio.no> <80snp8reck.fsf@orthanc.exbit-technology.com> <20001103214613.C17349@athlon.random>
-Content-Type: multipart/mixed;
- boundary="------------26C1F364FA1E656AEB3027F1"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.4.0test10 not booting on 486 laptop
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------26C1F364FA1E656AEB3027F1
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+When 2.4.0test10 bootup, i got the "Loading" message, then "Uncompressing
 
-Andrea,
+kernel...", i can see quickly "Booting.....", and it does it: it reboots.
 
-We will give it a try.
+My last kernel was 2.4.0test7, and was not exibiting the problem. I've
 
-How difficult would it be to move that patch to 2.4?
+recheck my .config, but it's the same as for 2.4.0test7.
 
-It would be great if it could be a kernel configuration time option.
+My gcc:
 
-Regards,
+[root@Djinn linux]# gcc -v
+Reading specs from /usr/lib/gcc-lib/i586-mandrake-linux/2.95.2/specs
+gcc version 2.95.2 19991024 (release)
+[root@Djinn linux]#
 
-Andrea Arcangeli wrote:
+according to Changes may be good.
 
-> On Fri, Nov 03, 2000 at 09:27:07PM +0100, Kai Harrekilde-Petersen wrote:
-> > Is this available as a patch, or preferably as a compilation option to
->
-> They're available here:
->
->         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.14/bigmem-large-mapping-1.bz2
->         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.14/bigmem-large-task-1.bz2
->
-> But they're against 2.2.x + bigmem. The first one is still valid (and it's
-> similar to the one discussed here). The second one doesn't apply to 2.4.x
-> and both vmlinux.lds and PAGE_OFFSET should be changed that way to
-> make it to work there.
->
-> Andrea
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+The laptop is a 486dx2@40 compaq contura 400cx, two thing that may be
+
+important: it has early cpuid support(many changes occured in this
+
+area recently), and it doesn't have any PCI bus(but kernel is compiled
+
+with it, in order to have Card drivers).
 
 --
-=======================================================================
-  Josue Emmanuel Amaro                         Josue.Amaro@oracle.com
-  Linux Products Manager                       Phone:   650.506.1239
-  Intel and Linux Technologies Group           Fax:     650.413.0167
-=======================================================================
+%-------------------------------------------------------------------------%
+% FORT David,                                                             %
+% 7 avenue de la morvandière                                   0240726275 %
+% 44470 Thouare, France                                epopo@onetelnet.fr %
+% ICU:78064991   AIM: enlighted popo             fort@irin.univ-nantes.fr %
+%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
+%  -datamining <-/                        |   .~.                         %
+%  -networking/flashed PHP3 coming soon   |   /V\        L  I  N  U  X    %
+%  -opensource                            |  // \\     >Fear the Penguin< %
+%  -GNOME/enlightenment/GIMP              | /(   )\                       %
+%           feel enlighted....            |  ^^-^^                        %
+%                           http://ibonneace.dnsalias.org/ when connected %
+%-------------------------------------------------------------------------%
 
 
---------------26C1F364FA1E656AEB3027F1
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Josue.Amaro.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Josue Emmanuel Amaro
-Content-Disposition: attachment;
- filename="Josue.Amaro.vcf"
-
-begin:vcard 
-n:Amaro;Josue Emmanuel
-tel;cell:650-245-5131
-tel;fax:650-413-0167
-tel;work:650-506-1239
-x-mozilla-html:FALSE
-url:http://www.oracle.com
-org:Intel and Linux Technologies
-version:2.1
-email;internet:Josue.Amaro@oracle.com
-title:Sr.Product Manager - Linux
-adr;quoted-printable:;;500 Oracle Parkway=0D=0AMS1ip4;Redwood Shores;CA;94065;United States
-fn:Josue Emmanuel Amaro
-end:vcard
-
---------------26C1F364FA1E656AEB3027F1--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265874AbUFYMsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265548AbUFYMsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265874AbUFYMsP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 08:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUFYMsP
+	id S265548AbUFYMsw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 08:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUFYMsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 08:48:15 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:4024 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265874AbUFYMsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 08:48:11 -0400
-Date: Fri, 25 Jun 2004 13:48:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Erik Jacobson <erikj@subway.americas.sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix serial driver
-Message-ID: <20040625124807.GA29937@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Erik Jacobson <erikj@subway.americas.sgi.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
-References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com> <20040623143801.74781235.akpm@osdl.org> <200406231754.56837.jbarnes@engr.sgi.com> <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com> <20040625083130.GA26557@infradead.org> <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com>
+	Fri, 25 Jun 2004 08:48:52 -0400
+Received: from roadrunner-base.egenera.com ([63.160.166.46]:56792 "EHLO
+	coyote.egenera.com") by vger.kernel.org with ESMTP id S265548AbUFYMsq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 08:48:46 -0400
+Date: Fri, 25 Jun 2004 08:48:36 -0400
+From: "Philip R. Auld" <pauld@egenera.com>
+To: David van Hoose <david.vanhoose@comcast.net>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Helge Hafting <helge.hafting@hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Collapse ext2 and 3 please
+Message-ID: <20040625084836.A2205@vienna.EGENERA.COM>
+References: <40DB605D.6000409@comcast.net> <40DBED77.6090704@hist.no> <40DC0CE0.6040509@comcast.net> <20040625114105.GA28892@infradead.org> <40DC1192.7030006@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40DC1192.7030006@comcast.net>; from david.vanhoose@comcast.net on Fri, Jun 25, 2004 at 07:50:42AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 25, 2004 at 07:46:28AM -0500, Erik Jacobson wrote:
-> We don't really have an option here.  None of the distros I know of will
-> currently work with dynamic minors for the console device.  If we only use
-> dynamic minors, our driver will simply not work with most of the
-> distributions.
+Rumor has it that on Fri, Jun 25, 2004 at 07:50:42AM -0400 David van Hoose said:
+> yeah.. Really. Here's what I do.
 > 
-> I don't want a driver that will break our console - I want one that will
-> make it work better.  Dynamic minors, at least today, will just break us.
+> I have ext3 partitions, so I decided if they are different partitions, 
+> then I can compile my kernel with ext2 as a module and ext3 builtin.
+> So I do it and reboot. Panic! Reason? Cannot find filesystem for the 
+> root partition.
+> The error is in the kernel itself either way. Pick your reason.
+> 1) ext3 is identified as ext2 on bootup.
+> 2) There is no fallback to ext3 if ext2 is not found.
 > 
-> Plus, as I said before, LANANA's web page states they don't accept
-> submissions for the 2.6 kernel.  What are we to do?
+> I'll check this again to be sure on a 2.6 kernel later today, but as far 
+> as 2.4 is concerned my kernel panics.
+> 
 
-Linus stance is there shouldn't be new static allocations for 2.6 (I disagree
-with him, btw).  I still wonder why you need your own major for 2.6 but not
-for 2.4.
+
+Make sure any initrd you are using is not ext2 based.
+
+Cheers,
+
+Phil
+
+
+> Regards,
+> David
+> 
+> PS. Shut up with the cheap insults. I have empirical evidence supporting 
+> my claim. Meaning there exists a bug somewhere.
+> 
+> Christoph Hellwig wrote:
+> > On Fri, Jun 25, 2004 at 07:30:40AM -0400, David van Hoose wrote:
+> > 
+> >>If ext2 and ext3 are different filesystems, why does my kernel panic if 
+> >>I include ext3 in the kernel make ext2 a module?
+> > 
+> > 
+> > My kernel doesn't, must be a problem in front of the computer.
+> > 
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Philip R. Auld, Ph.D.  	        	       Egenera, Inc.    
+Software Architect                            165 Forest St.
+(508) 858-2628                            Marlboro, MA 01752

@@ -1,86 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbUL1HZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbUL1HZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbUL1HZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 02:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbUL1HZZ
+	id S261770AbUL1HZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 02:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUL1HYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 02:25:25 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:47029 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262115AbUL1HFj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 02:05:39 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 27 Dec 2004 23:05:29 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Paul P Komkoff Jr <i@stingr.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to implement multithreaded event loop ?
-In-Reply-To: <20041227200509.GD1035@stingr.sgu.ru>
-Message-ID: <Pine.LNX.4.58.0412272206510.25362@bigblue.dev.mdolabs.com>
-References: <20041227200509.GD1035@stingr.sgu.ru>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Tue, 28 Dec 2004 02:24:43 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:22951 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262108AbUL1Gqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 01:46:34 -0500
+From: tabris <tabris@tabris.net>
+To: Vladimir Saveliev <vs@namesys.com>
+Subject: Re: kernel BUG at fs/inode.c:1116 with 2.6.10-rc{2-mm4,3-mm1}[repost]
+Date: Tue, 28 Dec 2004 01:46:19 -0500
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <200412231923.14444.tabris@tabris.net> <200412241032.02190.tabris@tabris.net> <1103903639.23776.50.camel@tribesman.namesys.com>
+In-Reply-To: <1103903639.23776.50.camel@tribesman.namesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart3050781.V5ZeAGbvfd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412280146.27438.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Dec 2004, Paul P Komkoff Jr wrote:
+--nextPart3050781.V5ZeAGbvfd
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> I am trying to implement a multithreaded event loop using epoll. So, I
-> have 2 kind of events. First, there are conditions on fds I have
-> (listener sockets, client connections, my connections to other
-> clients). Second, I need to have some kind of priority queue into
-> which I can push forthcoming timed events.
-> 
-> In case of single-threaded server, this is fairly trivial. I just need
-> to make heap queue and add its 1st (i.e. minimal) element as timeout
-> to each next epoll_wait call. When some condition breaks the wait, I
-> can always do find_min and wait again with new timeout.
-> 
-> Things become complicated when I need to scale. So, without this
-> timeout cruft, I can just add proper locking around my data structures
-> but main epoll_wait loop is multithread-aware, e.g. it will retrieve
-> different events for different waiting threads (to be absolutely fair
-> with you, I did not implemented this part yet, but I assume that some
-> combination of edge triggered + one shot epoll will do the trick).
-> But, if using heap priority queue to manage timed events, I need to
-> wake up each waiting thread when any event was added to the heap
-> before one that was minimal.
+On Friday 24 December 2004 10:54 am, Vladimir Saveliev wrote:
+> Hello
+>
+> On Fri, 2004-12-24 at 18:31, tabris wrote:
+> > On Friday 24 December 2004 3:09 am, Andrew Morton wrote:
+> > > tabris <tabris@tabris.net> wrote:
+> > > > 	Attached are the BUG reports for 2.6.10-rc2-mm4 (multiple BUG
+> > > > reports) and one from 2.6.10-rc3-mm1, plus dmesg from
+> > > > 2.6.10-rc3-mm1.
+> > >
+> > > Are you using quotas?
+> >
+> > 	Yes, I am using quotas.
+> >
+> > > What filesystem types are in use?
+> >
+> > 	I'm using reiserFS and XFS mostly, with one ext2 partition (/boot,
+> > mounted -o sync)
+>
+> Would you please try to reproduce this problem with:
+> http://marc.theaimsgroup.com/?l=3Dreiserfs&m=3D110381606727976&q=3Dp3
+	Using the patch mentioned above, 14 hours uptime and no BUG yet. more=20
+stress testing needed however before I can declare all is well.
 
-One solution (if you really cannot scale using multiple processes) is the 
-one that you're describing, where you have many threads doing epoll_wait. 
-You have to be careful to not fetch too many event on a single wait 
-(preferably one), otherwise you can end up with period of time with 
-pending events on a single thread, while others are free to spin. If the 
-timers that you are using are simply to timeout pending operations, the 
-timer resolution does not need to be that high, so you could use a 
-maximum timeout of a second or so for epoll_wait (and handle timers like 
-you planned). Another solution would be to have a single epoll_wait loop 
-thread that feeds your threads that are waiting on a mutex, protecting an 
-event queue from which threads pull events. This will make timeout 
-handling somehow easier, but delivering an event would mean a ctx switch 
-to wake the epoll_wait thread, plus another one waking a processing 
-thread.
+	On an unrelated note, enabling lapic (tho my board doesn't seem to have=20
+an IO-APIC) causes some prefm/mdkkdm to not start properly.
 
+	Also, w/ or w/o lapic, shutdown freezes on the stopping of CUPS.=20
+Everything is still alive, but CUPS never shuts down so I have to use=20
+SysRq-B to reboot.
 
+=2D-=20
+I thought my people would grow tired of killing.  But you were right,=20
+they see it is easier than trading.  And it has its pleasures.  I feel=20
+it myself.  Like the hunt, but with richer rewards.
+		-- Apella, "A Private Little War", stardate 4211.8
 
-> Another solution proposed by my poor brain is - to have alive thread
-> which will handle this priority queue, and have one fifo fd in my
-> epoll set dedicated to this purpose. Priority queue management thread
-> will write single char to that fd when some timed event needs to be
-> processed.
-> 
-> Doing some google search, I've found this message:
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.3/2416.html
-> Things can be much easier if there was timer kernel object (or its
-> equivalent). Can anyone give me some advice - how I should solve this
-> problem?
+--nextPart3050781.V5ZeAGbvfd
+Content-Type: application/pgp-signature
 
-Like lingering IRQs, nobody cared :-) Linus also proposed a "signal fd", 
-that could have been used for timers, but nobody showed interest either.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBB0QFDgbFCivvqDfQRApc6AJ9AlI6hOKibJFt67Htn7+mRUxQybQCdGFhM
+/jeDHunMXauxhNYOgU67+Cc=
+=eWci
+-----END PGP SIGNATURE-----
 
-- Davide
-
+--nextPart3050781.V5ZeAGbvfd--

@@ -1,34 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273881AbRI0Ubq>; Thu, 27 Sep 2001 16:31:46 -0400
+	id <S273883AbRI0Ui4>; Thu, 27 Sep 2001 16:38:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273883AbRI0UbZ>; Thu, 27 Sep 2001 16:31:25 -0400
-Received: from ns.suse.de ([213.95.15.193]:8709 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S273881AbRI0UbT>;
-	Thu, 27 Sep 2001 16:31:19 -0400
-To: John Kingman <kingman@VIEO.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: get_current()
-In-Reply-To: <Pine.LNX.4.21.0109271518350.12110-100000@Worf.VIEO.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Sep 2001 22:31:41 +0200
-In-Reply-To: John Kingman's message of "27 Sep 2001 22:22:33 +0200"
-Message-ID: <oupvgi49xzm.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S273894AbRI0Uir>; Thu, 27 Sep 2001 16:38:47 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:18694 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S273888AbRI0Uil>; Thu, 27 Sep 2001 16:38:41 -0400
+Message-ID: <3BB38DC9.39A0A9F6@osdlab.org>
+Date: Thu, 27 Sep 2001 13:36:25 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alex Cruise <acruise@infowave.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        jcb@jcb.yi.org, Alan <alan@lxorguk.ukuu.org.uk>, sfr@canb.auug.org.au
+Subject: Re: apm suspend broken in 2.4.10
+In-Reply-To: <6B90F0170040D41192B100508BD68CA1015A81A7@earth.infowave.com>
+Content-Type: multipart/mixed;
+ boundary="------------C95A95DEE71560DBD8E4C7B1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Kingman <kingman@VIEO.com> writes:
+This is a multi-part message in MIME format.
+--------------C95A95DEE71560DBD8E4C7B1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> I'm trying to write portable driver code.
+Alex Cruise wrote:
 > 
-> What is the status of get_current()?  I see that it is defined in
+> Mine displays a similar failure, except my strace shows:
+> 
+>   ioctl(3, APM_IOC_SUSPEND, 0 ) = -1 EAGAIN (Resource temporarily
+> unavailable)
+> 
+> I also noticed (as reported by a previous poster) that whether you pass
+> "apm=on" or "apm=off" to the kernel, apm gets disabled.  When you don't
+> specify a setting, it's enabled.  I had a look at the arch/i386/kernel/apm.c
+> in 2.4.10 though, and it seemed to make sense.
 
-You should always just use "current" from <linux/sched.h>.
-get_current() is an internal implementation detail of the architecture.
-Don't include <asm/current.h> directly. 
+Verified here.
+APM doesn't install if apm=on or apm=off is used in 2.4.10.
 
+Here's a small patch for it.  With this patch, apm thread,
+/proc/apm, misc apm_bios device etc. are created.
 
--Andi
+~Randy
+--------------C95A95DEE71560DBD8E4C7B1
+Content-Type: text/plain; charset=us-ascii;
+ name="apmonoff.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="apmonoff.patch"
+
+--- linux/arch/i386/kernel/apm.c.org	Mon Sep 17 22:52:35 2001
++++ linux/arch/i386/kernel/apm.c	Thu Sep 27 13:15:33 2001
+@@ -1672,7 +1672,7 @@
+ 		apm_info.realmode_power_off = 1;
+ 	/* User can override, but default is to trust DMI */
+ 	if (apm_disabled != -1)
+-		apm_info.disabled = 1;
++		apm_info.disabled = apm_disabled;
+ 
+ 	/*
+ 	 * Fix for the Compaq Contura 3/25c which reports BIOS version 0.1
+@@ -1699,8 +1699,7 @@
+ 	}
+ 
+ 	if (apm_info.disabled) {
+-		if(apm_disabled == 1)
+-			printk(KERN_NOTICE "apm: disabled on user request.\n");
++		printk(KERN_NOTICE "apm: disabled on user request.\n");
+ 		return -ENODEV;
+ 	}
+ 	if ((smp_num_cpus > 1) && !power_off) {
+
+--------------C95A95DEE71560DBD8E4C7B1--
+

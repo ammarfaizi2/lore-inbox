@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUEOO6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUEOO7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbUEOO6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 10:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUEOO6H
+	id S263093AbUEOO7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 10:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUEOO7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 10:58:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56459 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262768AbUEOO6D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 10:58:03 -0400
-Date: Sat, 15 May 2004 16:58:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniele Bernardini <db@sqbc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dma ripping
-Message-ID: <20040515145800.GE24600@suse.de>
-References: <1084548566.12022.57.camel@linux.site> <20040515101415.GA24600@suse.de> <1084610731.4666.8.camel@linux.site>
+	Sat, 15 May 2004 10:59:16 -0400
+Received: from bay18-f48.bay18.hotmail.com ([65.54.187.98]:11019 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263093AbUEOO7D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 10:59:03 -0400
+X-Originating-IP: [67.22.169.229]
+X-Originating-Email: [jpiszcz@hotmail.com]
+From: "Justin Piszcz" <jpiszcz@hotmail.com>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+Cc: apiszcz@solarrain.com
+Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
+Date: Sat, 15 May 2004 14:59:01 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1084610731.4666.8.camel@linux.site>
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY18-F48cZi71mrvoG000268af@hotmail.com>
+X-OriginalArrivalTime: 15 May 2004 14:59:01.0550 (UTC) FILETIME=[286194E0:01C43A8D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15 2004, Daniele Bernardini wrote:
-> 
-> On Sat, 2004-05-15 at 12:14, Jens Axboe wrote:
-> > On Fri, May 14 2004, Daniele Bernardini wrote:
-> > > Hi Folks, 
-> > > 
-> > > I am trying to get cd ripping to work on a freshly installed SuSE 9.1 on
-> > > IBM thinkpad R50 with dvdram drive. 
-> > > 
-> > > It works for a while and then hangs. At this point nothing short of a
-> > > reboot works. Ripping stop working when the message 
-> > > 	cdrom: dropping to single frame dma
-> > > comes up. The system feels slow for a couple of seconds and then is back
-> > > to normal, but no ripping until next reboot
-> > > 
-> > > I am running the 2.6.4 compiled by SuSE.
-> > 
-> > Can you retest with this small debug patch applied.
-> > 
-> > --- drivers/cdrom/cdrom.c~	2004-05-15 12:12:24.770228291 +0200
-> > +++ drivers/cdrom/cdrom.c	2004-05-15 12:13:25.101720866 +0200
-> > @@ -1987,6 +1987,7 @@
-> >  			struct request_sense *s = rq->sense;
-> >  			ret = -EIO;
-> >  			cdi->last_sense = s->sense_key;
-> > +			printk("rip failed, sense %x/%x/%x\n", s->sense_key, s->asc, s->ascq);
-> >  		}
-> >  
-> >  		if (blk_rq_unmap_user(rq, ubuf, bio, len))
-> 
-> I did it and started ripping a cd it froze after 9 tracks, though did
-> not see your message. I was looking at /var/log/messages (see below).
-> BTW the system got instable and then froze had to power down. It
-> happened before always after the ripping problem.
-> 
-> Should I aswitch on debug for the cdrom?
+ext2 on this box
 
-Just an idea - can you log vmstat 5 info while doing this burn? Maybe
-there's still a little leak in there, so watch the ram usage
-(used/free/swap/cache).
 
-Does your drive have dma enabled?
+>From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+>To: "Justin Piszcz" <jpiszcz@hotmail.com>, linux-kernel@vger.kernel.org
+>CC: apiszcz@solarrain.com
+>Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
+>Date: Sat, 15 May 2004 15:06:20 +0200
+>
+>On Saturday 15 of May 2004 14:20, Justin Piszcz wrote:
+> > The problem is the 2.6.6 kernel muxed my drive and when it fscked upon
+> > reboot it deleted /etc/mtab and lilo.conf!
+>
+>What fs are you using?
+>
+> > Luckily I restored them from a backup and now run 2.6.5 and it is 
+>working
+> > fine.
+> >
+> > Linux 2.6.6 is a nightmare.
+> >
+> > I am looking into the benchmark problem with 2.6.6 now.
+> >
+> > --- In linux-kernel@yahoogroups.com, "Justin Piszcz" <jpiszcz@h...> 
+>wrote:
+> > >Now whenever I reboot it says input/output errors when it tries to 
+>mount
+> > >the drive? I will look into this further.
+>
+>This errors are HARMLESS and CAN'T corrupt your data.
+>Please see http://bugme.osdl.org/show_bug.cgi?id=2672 for description+fix.
+>
+>Cheers,
+>Bartlomiej
+>
 
--- 
-Jens Axboe
+_________________________________________________________________
+MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
+download! http://toolbar.msn.click-url.com/go/onm00200413ave/direct/01/
 

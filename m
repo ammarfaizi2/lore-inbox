@@ -1,139 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbTLWL10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 06:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbTLWL1Z
+	id S265111AbTLWLwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 06:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTLWLwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 06:27:25 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:36370 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S265100AbTLWL1W (ORCPT
+	Tue, 23 Dec 2003 06:52:06 -0500
+Received: from stat0143.cruzio.com ([63.249.101.143]:50701 "EHLO O.Q.NET")
+	by vger.kernel.org with ESMTP id S265111AbTLWLwC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 06:27:22 -0500
-Message-ID: <3FE8268E.40605@xss.co.at>
-Date: Tue, 23 Dec 2003 12:27:10 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Build problems (Re: Linux 2.4.24-pre2)
-References: <Pine.LNX.4.58L.0312221753140.1384@logos.cnet>
-In-Reply-To: <Pine.LNX.4.58L.0312221753140.1384@logos.cnet>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 06:52:02 -0500
+RECEIVED: FROM ulmo BY O.Q.NET WITH local (Exim 4.22 #1 (Debian))
+	ID 1AYl4w-0007A5-R3; Tue, 23 Dec 2003 03:51:58 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Re:  DevFS vs. udev
+Cc: ulmo@q.net
+Message-Id: <E1AYl4w-0007A5-R3@O.Q.NET>
+From: "Bradley W. Allen" <ULMO@Q.NET>
+Date: Tue, 23 Dec 2003 03:51:58 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+DevFS was written by an articulate person who solved a lot of
+problems.  udev sounds more like a thug who's smug about winning,
+not explaining himself, saying things like "oh, the other guy
+disappeared, so who cares, you have to use my code, too bad it sucks".
 
-Hi!
+Just by what the udev people have said I have decided never to use it,
+and to return to DevFS.  Thank god for linux-kernel archives.
 
-Marcelo Tosatti wrote:
-> Hi,
->
-> Here goes 2.4.24-pre2. It contains MIPS/PPC64/SPARC updates, ACPI
-> bugfixes, USB update, XFS fixes, amongst others.
->
-I noticed some build problems.
+A few points:
 
-Compiler: gcc-2.95.3
-Compilation on x86 machine with CONFIG_M586TSC=y
-Trying to enable and compile as much drivers as modules
-as possible.
+*  User space is slow, causing all sorts of extra work for device
+   accesses.
+*  Another layer of filesystem for udev to have to interact with
+   is also slow, especially if it has to be disk based with all sorts
+   of extra caches, and also if it's with buggy tmpfs code and layers.
+*  Most of the interesting devices I have now are character devices,
+   and have multiple potential /dev entries per device.  I've heard
+   that udev can't even handle that requirement!
+   Udev has lots of other problems, like something called an anonymous
+   device, and it not being fully implemented, however, that's OK for
+   development.  We're in 2.6.0, now, so that's not OK!  DevFS has been
+   solid for over half a decade, so it belongs in stable kernels.
+*  Many times a broken record comes out with claims.  Here are a few:
+   "... there are still unfixable devfs bugs in the code." without
+   any examples, so I don't believe him (Greg K-H).  Others have looked
+   and not found that.
+*  Userspace is not the proper place for kernel device drivers or
+   anything they need to work.
+*  We do not need the same old maintainer for devfs.  We can create
+   new code, and maintain old code, as a group, ourselves.
+*  Greg K-H (what that dash is for I can't imagine) claims that DevFS
+   is experimental and proof of concept; well, it has been in production
+   use for over half a decade, which in the life of Linux is pretty long.
+   It's certainly not just some experiment any more.
+*  Greg K-H refers to "hahahaha" and "the OLS paper" and "sysfs",
+   things that most Linux kernel compilers, linux-kernel readers, and
+   DevFS users (including lots of admins) have probably never ever
+   heard of except the bad attitude of the hahaha part.
+*  Someone named viro said "the latter had stayed, period" refering to
+   udev, which means absolutely nothing, but expected it to mean
+   something.
+*  Viro also said that devfs had been "shoved" into the tree, and
+   that it "had stayed around for many months".  It's been stable for
+   many *YEARS*, for most of a *DECADE*.
 
-1.) cciss.c
-    (parse error already reported by Eyal Lebedinsky)
-
-2.) drivers/char/ds1742.c
-    Can be selected, but does not compile on x86 architecture
-
-3.) qlogic PCMCIA SCSI
-[...]
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.24-pre2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.24-pre2/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=qlogicfas -DPCMCIA -D__NO_VERSION__ -c -o qlogicfas.o ../qlogicfas.c
-../qlogicfas.c: In function `qlogicfas_detect':
-../qlogicfas.c:650: warning: passing arg 1 of `scsi_unregister_Rsmp_532576d5' from incompatible pointer type
-ld -m elf_i386 -r -o qlogic_cs.o qlogic_stub.o qlogicfas.o
-qlogicfas.o: In function `init_module':
-qlogicfas.o(.text+0xe78): multiple definition of `init_module'
-qlogic_stub.o(.text+0x76c): first defined here
-ld: Warning: size of symbol `init_module' changed from 81 to 59 in qlogicfas.o
-qlogicfas.o: In function `cleanup_module':
-qlogicfas.o(.text+0xeb4): multiple definition of `cleanup_module'
-qlogic_stub.o(.text+0x7c0): first defined here
-ld: Warning: size of symbol `cleanup_module' changed from 40 to 16 in qlogicfas.o
-make[3]: *** [qlogic_cs.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers/scsi/pcmcia'
-make[2]: *** [_modsubdir_pcmcia] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers'
-make: *** [_mod_drivers] Error 2
-[...]
-
-4.) fdomain PCMCIA SCSI
-[...]
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.24-pre2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.24-pre2/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=fdomain -DPCMCIA -D__NO_VERSION__ -c -o fdomain.o ../fdomain.c
-../fdomain.c:565: warning: `fdomain_setup' defined but not used
-ld -m elf_i386 -r -o fdomain_cs.o fdomain_stub.o fdomain.o
-fdomain.o: In function `init_module':
-fdomain.o(.text+0x1a0c): multiple definition of `init_module'
-fdomain_stub.o(.text+0x698): first defined here
-ld: Warning: size of symbol `init_module' changed from 75 to 58 in fdomain.o
-fdomain.o: In function `cleanup_module':
-fdomain.o(.text+0x1a48): multiple definition of `cleanup_module'
-fdomain_stub.o(.text+0x6e4): first defined here
-ld: Warning: size of symbol `cleanup_module' changed from 36 to 16 in fdomain.o
-make[3]: *** [fdomain_cs.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers/scsi/pcmcia'
-make[2]: *** [_modsubdir_pcmcia] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers'
-make: *** [_mod_drivers] Error 2
-[...]
-
-5.) aha152x PCMCIA SCSI
-[...]
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.24-pre2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.24-pre2/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=aha152x -DPCMCIA -D__NO_VERSION__ -DAHA152X_STAT -c -o aha152x.o ../aha152x.c
-../aha152x.c:853: warning: `do_setup' defined but not used
-ld -m elf_i386 -r -o aha152x_cs.o aha152x_stub.o aha152x.o
-aha152x.o: In function `init_module':
-aha152x.o(.text+0x5328): multiple definition of `init_module'
-aha152x_stub.o(.text+0x72c): first defined here
-ld: Warning: size of symbol `init_module' changed from 81 to 59 in aha152x.o
-aha152x.o: In function `cleanup_module':
-aha152x.o(.text+0x5364): multiple definition of `cleanup_module'
-aha152x_stub.o(.text+0x780): first defined here
-ld: Warning: size of symbol `cleanup_module' changed from 40 to 16 in aha152x.o
-make[3]: *** [aha152x_cs.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers/scsi/pcmcia'
-make[2]: *** [_modsubdir_pcmcia] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.24-pre2/drivers'
-make: *** [_mod_drivers] Error 2
-[...]
-
-HTH
-
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/6CaMxJmyeGcXPhERAt9FAJ9TFLFhQroocWgGDLcVyvr0zB8yQwCgrkzg
-xFFdByHrmHsdCv1+1l9e3IU=
-=Ff/x
------END PGP SIGNATURE-----
-
+I've spent two hours on this problem, and that's absurd; stable shouldn't
+be doing this sort of thing to us.  Yes, we know there are things that
+happen during transition from development to stable, but to have some
+terrorist hijack part of the kernel and destroy it right at the begin-
+ing of stable is simply criminal thinking.  Luckily, this is just
+software, so we can do what we want with it, but organizationally it
+is conceptually just as bad.

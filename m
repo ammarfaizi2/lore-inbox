@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbUC1UjE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 15:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUC1Uis
+	id S261924AbUC1Uh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 15:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUC1Uh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 15:38:48 -0500
-Received: from gprs214-54.eurotel.cz ([160.218.214.54]:56705 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262424AbUC1Ufj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 15:35:39 -0500
-Date: Sun, 28 Mar 2004 22:35:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ivan Godard <igodard@pacbell.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel support for peer-to-peer protection models...
-Message-ID: <20040328203529.GH406@elf.ucw.cz>
-References: <048e01c413b3_3c3cae60_fc82c23f@pc21> <20040327103401.GA589@openzaurus.ucw.cz> <066b01c41464$7e0ec9c0$fc82c23f@pc21> <20040328062422.GB307@elf.ucw.cz> <06ea01c4148e$67436c80$fc82c23f@pc21> <20040328185410.GE406@elf.ucw.cz> <07af01c414fe$d6836300$fc82c23f@pc21>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <07af01c414fe$d6836300$fc82c23f@pc21>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Mar 2004 15:37:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43232 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261924AbUC1Uhp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 15:37:45 -0500
+Message-ID: <4067378B.7070102@pobox.com>
+Date: Sun, 28 Mar 2004 15:37:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: silverbanana@gmx.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: usage of RealTek 8169 crashes my Linux system
+References: <40673495.3050500@gmx.de>
+In-Reply-To: <40673495.3050500@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > If most changes are in arch/, it should be acceptable...
-> > >
-> > > I fear that it might be more extensive than that :-)
-> >
-> > Well, make patch and lets see... That means that 2.8 needs to be your
-> > target. If impact outside of arch is not "total rewrite", you might
-> > have a chance. If it is "total rewrite".... well you just need to be
-> > very clever.
+Bernd Fuhrmann wrote:
+> Hi!
 > 
-> How badly would the average driver break if it did not have direct data
-> access to kernal data structures? Calls into the kernel and direct access by
-> the called functions are OK.
+> I'm using a RealTek 8169 1000MBit NIC. However, whenever larger amounts 
+> of data are being transfered (copying files through smb for instance) 
+> Linux crashes. It happens after 10MB-100MB transferred data so it's 
+> never as stable as it should be. The whole System runs fine as long as 
+> that Realtek 8169 NIC is not used (by transferring data through it). 
+> When it crashes there is no entry for that event in kern.log and the 
+> system just hangs.
+> 
+> I'm using:
+> Linux 2.6.4
+> gcc 3.3.3
+> 2X Athlon MP 2600 Mhz
+> Tyan Tiger S2466N-4M Dual / AMD760MPX
+> 2x 512MB ECC/REG Infineon DDR PC266 RAM
+> Debian (unstable)
+> 
+> Any idea how to fix it? Is that driver getting stable in the next months 
+> or are there obstacles that should make me buy a different NIC (like 
+> missing docs for that chipset and stuff like that)?
 
-Kernel likes to pass it pointers to internal data structures. And
-drivers will walk over pointers in those structures pretty
-often.
 
-Actually I'm not so sure. Perhaps for simple drivers something like
-that would be possible..
+Does Andrew Morton's -mm patches fix it for you?
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+	Jeff
+
+
+

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268139AbRGZPtp>; Thu, 26 Jul 2001 11:49:45 -0400
+	id <S268138AbRGZPxp>; Thu, 26 Jul 2001 11:53:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbRGZPth>; Thu, 26 Jul 2001 11:49:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:47744 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268139AbRGZPtU>; Thu, 26 Jul 2001 11:49:20 -0400
-Date: Thu, 26 Jul 2001 11:48:54 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: sentry21@cdslash.net
-cc: Dan Podeanu <pdan@spiral.extreme.ro>, linux-kernel@vger.kernel.org
-Subject: Re: Weird ext2fs immortal directory bug
-In-Reply-To: <Pine.LNX.4.30.0107261136400.18300-100000@spring.webconquest.com>
-Message-ID: <Pine.LNX.3.95.1010726114714.17653A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268134AbRGZPxg>; Thu, 26 Jul 2001 11:53:36 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14096 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268107AbRGZPxR>; Thu, 26 Jul 2001 11:53:17 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: ext3-2.4-0.9.4
+Date: Thu, 26 Jul 2001 15:51:35 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9jpea7$s25$1@penguin.transmeta.com>
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010726130809.D17244@emma1.emma.line.org> <3B60022D.C397D80E@zip.com.au> <20010726143002.E17244@emma1.emma.line.org>
+X-Trace: palladium.transmeta.com 996162793 14972 127.0.0.1 (26 Jul 2001 15:53:13 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 26 Jul 2001 15:53:13 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001 sentry21@cdslash.net wrote:
+In article <20010726143002.E17244@emma1.emma.line.org>,
+Matthias Andree  <matthias.andree@stud.uni-dortmund.de> wrote:
+>
+>However, the remaining problem is being synchronous with respect to open
+>(fixed for ext3 with your fsync() as I understand it), rename, link and
+>unlink. With ext2, and as you write it, with ext3 as well, there is
+>currently no way to tell when the link/rename has been committed to
+>disk, unless you set mount -o sync or chattr +S or call sync() (the
+>former is not an option because it's far too expensive).
 
-> > > sentry21@Petra:1:/$ sudo rm -rf lost+found/
-> > > rm: cannot unlink `lost+found/#3147': Operation not permitted
-> > > rm: cannot remove directory `lost+found': Directory not empty
-> >
-> > Perhaps:
-> >
-> > debugfs -w <your root filesystem>
-> > unlink /lost+found/#3147
-> 
-> root@Petra:0:~# debugfs -w /
-> debugfs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
-> /: Is a directory while opening filesystem
-> debugfs:  ^D
-> 
-> root@Petra:0:~# debugfs -w /dev/hda5
-> debugfs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
-> debugfs:  unlink /lost+found/#3147
-> debugfs:  ^D
-        ^^^^^^^^
-> 
-How about 'Q' so debugfs gets to write the modifications to the
-drive?
+Congratulations. You have been brainwashed by Dan Bernstein.
 
+Use fsync() on the directory. 
 
-Cheers,
-Dick Johnson
+Logical, isn't it?
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+		Linus

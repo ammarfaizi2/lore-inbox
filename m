@@ -1,41 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRLDCYW>; Mon, 3 Dec 2001 21:24:22 -0500
+	id <S284818AbRLDAMK>; Mon, 3 Dec 2001 19:12:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284823AbRLDAMx>; Mon, 3 Dec 2001 19:12:53 -0500
-Received: from 42-VALL-X13.libre.retevision.es ([62.83.208.42]:28680 "EHLO
-	ragnar-hojland.com") by vger.kernel.org with ESMTP
-	id <S285240AbRLCWPH>; Mon, 3 Dec 2001 17:15:07 -0500
-Date: Mon, 3 Dec 2001 19:34:54 +0100
-From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-Cc: kplug-list@kernel-panic.org, kplug-lpsg@kernel-panic.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-ID: <20011203193453.A6070@ragnar-hojland.com>
-In-Reply-To: <E169tj8-00055G-00@DervishD.viadomus.com> <3C07E967.5A931F41@randomlogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C07E967.5A931F41@randomlogic.com>; from pgallen@randomlogic.com on Fri, Nov 30, 2001 at 12:17:43PM -0800
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
+	id <S284731AbRLDAHm>; Mon, 3 Dec 2001 19:07:42 -0500
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:47550 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S284501AbRLCMR7>; Mon, 3 Dec 2001 07:17:59 -0500
+Message-ID: <3C0B6D00.DD403CB0@wanadoo.fr>
+Date: Mon, 03 Dec 2001 13:16:00 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre2-devfs i686)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr> <200112030633.fB36Xf617997@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 12:17:43PM -0800, Paul G. Allen wrote:
-> Actually it bloats the source (we all know C++ bloats the resulting code
-> ;), but what's wrong with that? At least a person can understand what's
-> going on and get to coding, instead of deciphering.
+Richard Gooch wrote:
 
-Yes, I do see the smiley, but since its not clear to me on whether its meant
-as a "j/k" or not, and being tried of listening the same shit for years,
-I'll have to add that C++ does not bloat code. 
+ 
+> @@ -3243,11 +3246,17 @@
+>      tlen = rpos - *ppos;
+>      if (done)
+>      {
+> +       devfs_handle_t parent;
+> +
+>         spin_lock (&fs_info->devfsd_buffer_lock);
+>         fs_info->devfsd_first_event = entry->next;
+>         if (entry->next == NULL) fs_info->devfsd_last_event = NULL;
+>         spin_unlock (&fs_info->devfsd_buffer_lock);
+> -       for (; de != NULL; de = de->parent) devfs_put (de);
+> +       for (; de != NULL; de = parent)
+> +       {
+> +           parent = de->parent;
+> +           devfs_put (de);
+> +       }
+>         kmem_cache_free (devfsd_buf_cache, entry);
+>         if (ival > 0) atomic_sub (ival, &fs_info->devfsd_overrun_count);
+>         *ppos = 0;
 
+I have just edited the fs/devfs/base.c in the 2.4.17-pre2 tree with the
+change in the above lines. 
+
+It boots and looks OK.
+
+I have to switch off devfs=dall it keeps repeating the same message
+endlessly. I'm going to be short in HD capacity.
+
+Regards 
+
+Pierre
+_________________________________________________________
+Dec  3 13:07:34 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:34 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:34 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:34 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:34 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:35 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:36 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:36 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
+Dec  3 13:07:36 milou kernel: devfs: d_delete(): dentry: cfd45484 
+inode: cfc13bf4  devfs_entry: cfc143ac 
+Dec  3 13:07:36 milou kernel: devfs: d_delete(): dentry: cd15bba4 
+inode: ccdb2d9c  devfs_entry: cfc14324 
 -- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."
+------------------------------------------------
+ Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------

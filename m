@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUCKMOM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 07:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbUCKMOM
+	id S261207AbUCKMRg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 07:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUCKMRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 07:14:12 -0500
-Received: from viefep19-int.chello.at ([213.46.255.28]:57639 "EHLO
-	viefep19-int.chello.at") by vger.kernel.org with ESMTP
-	id S261197AbUCKMOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 07:14:11 -0500
-Message-ID: <40505810.1070407@freemail.hu>
-Date: Thu, 11 Mar 2004 13:14:08 +0100
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu; rv:1.6) Gecko/20040115
-X-Accept-Language: hu, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: x86_64 IOMMU question
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 11 Mar 2004 07:17:36 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:20130 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261207AbUCKMRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 07:17:32 -0500
+Subject: Re: [PATCH] backing dev unplugging
+From: Christophe Saout <christophe@saout.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       thornber@redhat.com
+In-Reply-To: <20040310124507.GU4949@suse.de>
+References: <20040310124507.GU4949@suse.de>
+Content-Type: text/plain
+Message-Id: <1079007445.26633.4.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 13:17:25 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Mi, den 10.03.2004 schrieb Jens Axboe um 13:45:
 
-is it possible to use the IOMMU to help 32 bit devices
-that limit their capabilities with pci_set_dma_mask()?
-E.g. the emu10k1 limits itself under 256MB. Can the IOMMU
-pass the data to/from the card from/to above 256MB?
+> diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-rc2-mm1/drivers/md/dm-crypt.c linux-2.6.4-rc2-mm1-plug/drivers/md/dm-crypt.c
+> --- /opt/kernel/linux-2.6.4-rc2-mm1/drivers/md/dm-crypt.c	2004-03-09 13:08:48.000000000 +0100
+> +++ linux-2.6.4-rc2-mm1-plug/drivers/md/dm-crypt.c	2004-03-09 15:27:36.000000000 +0100
+> @@ -668,7 +668,7 @@
+>  
+>  		/* out of memory -> run queues */
+>  		if (remaining)
+> -			blk_run_queues();
+> +			blk_congestion_wait(bio_data_dir(clone), HZ/100);
 
--- 
-Best regards,
-Zoltán Böszörményi
+Why did you change this? It was the way I wanted it.
 
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
+If we were out of memory the buffers were allocated from a mempool and I
+want to get it out as soon as possible. If we are OOM the write will
+most likely be the VM trying to free some memory and it would be
+counterproductive to wait. It is not unlikely that we are the only
+writer to that disk so there's a chance that the queue is not congested.
+
+

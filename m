@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315628AbSHAQgb>; Thu, 1 Aug 2002 12:36:31 -0400
+	id <S315709AbSHAQhY>; Thu, 1 Aug 2002 12:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSHAQgb>; Thu, 1 Aug 2002 12:36:31 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:18147 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S315628AbSHAQga>;
-	Thu, 1 Aug 2002 12:36:30 -0400
-Date: Thu, 1 Aug 2002 18:39:47 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200208011639.SAA03245@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.19-rc5 IDE kernel option breakage
-Cc: andre@linux-ide.org
+	id <S315721AbSHAQhX>; Thu, 1 Aug 2002 12:37:23 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:2434 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S315709AbSHAQhV>; Thu, 1 Aug 2002 12:37:21 -0400
+Date: Thu, 1 Aug 2002 18:40:31 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
+       stas.orel@mailcity.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] vm86: Clear AC on INT
+In-Reply-To: <3D496019.88237C6@daimi.au.dk>
+Message-ID: <Pine.GSO.3.96.1020801183410.8256M-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When CONFIG_BLK_DEV_IDEPCI is disabled, using a kernel option
-to activate a non-PCI IDE chipset on x86 (e.g. via "ide0=qd65xx")
-fails with a "-- BAD OPTION" error from ide_setup().
+On Thu, 1 Aug 2002, Kasper Dupont wrote:
 
-This is because include/asm-i386/ide.h:ide_init_default_hwifs()
-passes a partially uninitialised variable "hw" to
-drivers/ide/ide.c:ide_register_hw(), which in turn copies it,
-including the unitialised fields, to a hwif. In particular,
-ide_init_default_hwifs() puts random junk in hwif->chipset.
-ide_setup() later believes that a chipset already has been selected
-(line 3434), so it rejects any chipset-selection kernel option.
+> Ehrm, that wasn't my point. My point was that if the feature exist
+> in virtual 86 mode but not in real mode, the kernel should prevent
+> it from being used in virtual 86 mode because it is supposed to
+> emulate real mode.
 
-This does not happen when CONFIG_BLK_DEV_IDEPCI=y because in that
-case ide_init_default_hwifs() doesn't call ide_register_hw(),
-and consequently doesn't put junk in hwif->chipset.
+ The mode is supposed to emulate an 8086 which doesn't have the flag. 
+Everything else that is available in the mode is a pure implementation
+property -- disabling the logic involved is simply not justified by any
+means.  Any "real mode" code that operates on the AC flag must have been
+created after i386 was released as it requires 32-bit instructions.  Hence
+it has to be prepared to deal with the vm86 mode. 
 
-A minimal fix (included below) is to clear hw before setting it
-up and passing it to ide_register_hw().
+ The AC flag doesn't work unless the AM flag is set in cr0 anyway, so
+full real mode compatibility may be implemented in software here if
+desired. 
 
-/Mikael
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
---- linux-2.4.19-rc5/include/asm-i386/ide.h.~1~	Thu Aug  1 14:49:03 2002
-+++ linux-2.4.19-rc5/include/asm-i386/ide.h	Thu Aug  1 15:05:20 2002
-@@ -79,6 +79,7 @@
- 	int index;
- 
- 	for(index = 0; index < MAX_HWIFS; index++) {
-+		memset(&hw, 0, sizeof hw);
- 		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
- 		hw.irq = ide_default_irq(ide_default_io_base(index));
- 		ide_register_hw(&hw, NULL);

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129736AbRCGAIJ>; Tue, 6 Mar 2001 19:08:09 -0500
+	id <S129733AbRCGAIT>; Tue, 6 Mar 2001 19:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRCGAHt>; Tue, 6 Mar 2001 19:07:49 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33553 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129733AbRCGAHl>; Tue, 6 Mar 2001 19:07:41 -0500
-Date: Tue, 6 Mar 2001 19:22:04 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
-In-Reply-To: <Pine.LNX.4.33.0103020610230.1297-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0103061917221.852-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129734AbRCGAIJ>; Tue, 6 Mar 2001 19:08:09 -0500
+Received: from jalon.able.es ([212.97.163.2]:31945 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129733AbRCGAH5>;
+	Tue, 6 Mar 2001 19:07:57 -0500
+Date: Wed, 7 Mar 2001 01:07:34 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Ying Chen <yingchenb@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: threads
+Message-ID: <20010307010734.C1132@werewolf.able.es>
+In-Reply-To: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>; from yingchenb@hotmail.com on Wed, Mar 07, 2001 at 00:55:55 +0100
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Fri, 2 Mar 2001, Mike Galbraith wrote:
-
-> On Thu, 1 Mar 2001, Rik van Riel wrote:
+On 03.07 Ying Chen wrote:
+> 2. We ran multi-threaded application using Linux pthread library on 2-way 
+> SMP and UP intel platforms (with both 2.2 and 2.4 kernels). We see 
+> significant increase in context switching when moving from UP to SMP, and 
+> high CPU usage with no performance gain in turns of actual work being done 
+> when moving to SMP, despite the fact the benchmark we are running is 
+> CPU-bound. The kernel profiler indicates that the a lot of kernel CPU ticks 
+> went to scheduling and signaling overheads. Has anyone seen something like 
+> this before with pthread applications running on SMP platforms? Any 
+> suggestions or pointers on this subject?
 > 
-> > > > The merging at the elevator level only works if the requests sent to
-> > > > it are right next to each other on disk. This means that randomly
-> > > > sending stuff to disk really DOES DESTROY PERFORMANCE and there's
-> > > > nothing the elevator could ever hope to do about that.
-> > >
-> > > True to some (very real) extent because of the limited buffering
-> > > of requests.  However, I can not find any useful information
-> > > that the vm is using to guarantee the IT does not destroy
-> > > performance by your own definition.
-> >
-> > Indeed. IMHO we should fix this by putting explicit IO
-> > clustering in the ->writepage() functions.
-> 
-> I notice there's a patch sitting in my mailbox.. think I'll go read
-> it and think (grunt grunt;) about this issue some more.
 
-Mike, 
+Too much contention ? How frequently do you create and destroy threads ?
+How much frequently do they access shared-writable-data ?
+How do you protect them ?
 
-One important information which is not being considered by
-page_launder() now the dirty buffers watermark. 
+It seems like your system spents more time creating and killing threads
+that doing real work.
 
-In general, it should not try to avoid writing dirty pages if we're above
-the dirty buffers watermark.
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.2-ac13 #3 SMP Wed Mar 7 00:09:17 CET 2001 i686
 

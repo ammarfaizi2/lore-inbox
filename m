@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132463AbQLQLJe>; Sun, 17 Dec 2000 06:09:34 -0500
+	id <S132478AbQLQLPG>; Sun, 17 Dec 2000 06:15:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132456AbQLQLJY>; Sun, 17 Dec 2000 06:09:24 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:12813 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131880AbQLQLJW>; Sun, 17 Dec 2000 06:09:22 -0500
-Date: Sun, 17 Dec 2000 04:38:45 -0600
-To: Tim Riker <Tim@Rikers.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loop device length
-Message-ID: <20001217043845.S3199@cadcamlab.org>
-In-Reply-To: <3A398E0A.A12F973E@Rikers.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A398E0A.A12F973E@Rikers.org>; from Tim@Rikers.org on Thu, Dec 14, 2000 at 08:20:42PM -0700
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S132456AbQLQLO5>; Sun, 17 Dec 2000 06:14:57 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:22788 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131880AbQLQLOr>; Sun, 17 Dec 2000 06:14:47 -0500
+Date: Sun, 17 Dec 2000 10:44:09 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Rasmus Andersen <rasmus@jaquet.dk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
+In-Reply-To: <1875.977049144@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.30.0012171039400.14423-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 17 Dec 2000, Keith Owens wrote:
 
-[Tim Riker]
-> losetup allows for setting a starting offset within a file for the
-> loop block device. There however is no length parameter to permit
-> setting the length. Adding a length parameter would allow for
-> multiple fs images in a single file (or device) and would correctly
-> handle programs like resize2fs.
+> Messing about with conditional compilation because the link order is
+> incorrect is the wrong fix.  The mtd/Makefile must link the objects in
+> the correct order.
 
-You don't need a length field for this, although it may be a good idea.
-Filesystems know how big they are.  You only need to force it at mkfs
-and resize time, and in both cases you can override the tool's
-knowledge.
+The conditional compilation is far more obvious to people than subtle
+issues with link order. So I prefer to avoid the latter at all costs.
 
-In other words, you *can* put multiple fs images on a single piece of
-backing store as long as you manage the lengths manually, which you
-have to do anyway since you're keeping track of the starting offsets.
+I have to have some conditional compilation in my tree to allow it to
+compile under 2.0 uClinux. Admittedly that doesn't have to get into 2.4,
+but I obviously prefer the code in 2.4 to be as close to my working copy
+as possible.
 
-All the length parameter buys is not having to specify the same length
-to losetup and mke2fs.  And a little protection from shooting yourself
-in the foot, but by the time you are messing with stuff like this you
-had better be careful anyway.
+I'll poke at it and try to come up with a cleaner solution. It may be that
+I can shift all the conditional stuff off into the compatmac.h and leave
+the 'real' code path in a cleaner state than the current one.
 
-Peter
+> 2.4.0-test13-pre2 almost does that, the only obvious problem is that
+> cfi_probe appears before cfi_cmdset.  Move cfi_probe to link after
+> cfi_cmdset, do you still get link order problems with the 2.4.0-test11
+> version of include/linux/mtd.h?
+
+I haven't had problems. But the possibility exists.
+
+-- 
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

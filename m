@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267810AbTBME4I>; Wed, 12 Feb 2003 23:56:08 -0500
+	id <S267958AbTBMFCu>; Thu, 13 Feb 2003 00:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267958AbTBME4H>; Wed, 12 Feb 2003 23:56:07 -0500
-Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1796
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S267810AbTBME4H>; Wed, 12 Feb 2003 23:56:07 -0500
-Date: Thu, 13 Feb 2003 00:06:54 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Paul Laufer <paul@laufernet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OSS Sound Blaster sb_card.c rewrite (PnP, module options, etc)
- - UPDATE
-In-Reply-To: <Pine.LNX.4.44.0302121043260.167-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.44.0302130004470.247-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267959AbTBMFCu>; Thu, 13 Feb 2003 00:02:50 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33909 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267958AbTBMFCt>; Thu, 13 Feb 2003 00:02:49 -0500
+Date: Thu, 13 Feb 2003 00:12:34 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200302130512.h1D5CY909638@devserv.devel.redhat.com>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What went wrong with LSM, was: Re: [BK PATCH] LSM changes for   2.5.59
+In-Reply-To: <mailman.1045110181.1643.linux-kernel2news@redhat.com>
+References: <Pine.LNX.4.44.0302131014010.2621-100000@blackbird.intercode.com.au> <mailman.1045110181.1643.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>And here we see _the_ problem with the LSM process.  LSM wasn't
+>>>developed as part of the broad kernel community (lkml) but on
+>>>a rather small, almost private list.
+>>>
+>>Many of the things that you are saying in this discussion are untrue.
+>>[...]
+>>The bulk of the development process was carried out for more than two
+>>years on the LSM development mailing list, which is fully public and open
+>>to anyone.  It is not "almost private", whatever that is supposed to mean.
 
-With Adam's new PnP changes, and the disabling of the OS PnP BIOS on the
-IBM. I can say that your sb_card.c/h changes (with some small
-modifications with the new PnP structure changes) works!
+This is a situation, descibed by Douglas Adams in the opening
+chapters of "Hitchiker's Guide to Galaxy". You put the vital info
+somewhere, and when someone (who has to suffer if he does not see it)
+fails to retrieve the info, it gets his own fault. It all was in
+the open, so what else is to be desired?
 
-I suppose, this weekend I could see if I can get the AWE itself detected
-on 2.5.60 now :-)
+I used to be super irritated by separate lists. Now I'm a member
+of linux-usb-devel, uml-devel, sparclinux, and god knows what else.
+Yes, they are unavoidable. Still, it is important to keep linux-kernel
+at least somewhat informed. IMHO.
 
-Shawn.
-
+-- Pete

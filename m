@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266360AbRGFKhd>; Fri, 6 Jul 2001 06:37:33 -0400
+	id <S266365AbRGFKpX>; Fri, 6 Jul 2001 06:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266361AbRGFKhX>; Fri, 6 Jul 2001 06:37:23 -0400
-Received: from vulcan.datanet.hu ([194.149.0.156]:63369 "EHLO relay.datanet.hu")
-	by vger.kernel.org with ESMTP id <S266360AbRGFKhL>;
-	Fri, 6 Jul 2001 06:37:11 -0400
-From: "Bakonyi Ferenc" <fero@drama.obuda.kando.hu>
-Organization: =?ISO-8859-2?Q?Datakart_Geodzia_KFT.?=
-To: Krzysztof Rusocki <kszysiu@braxis.co.uk>
-Date: Fri, 6 Jul 2001 12:36:18 +0200
+	id <S266366AbRGFKpN>; Fri, 6 Jul 2001 06:45:13 -0400
+Received: from borg.metroweb.co.za ([196.23.181.81]:56840 "EHLO
+	borg.metroweb.co.za") by vger.kernel.org with ESMTP
+	id <S266365AbRGFKpE>; Fri, 6 Jul 2001 06:45:04 -0400
+From: Henry <henry@borg.metroweb.co.za>
+To: Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
+Date: Fri, 6 Jul 2001 12:31:22 +0200
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01070516412506.06182@borg> <3B457835.F06E49CF@uow.edu.au>
+In-Reply-To: <3B457835.F06E49CF@uow.edu.au>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] hgafb.c as module (unresolved symbol) 2.4.6+
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3B45B0DD.18769.2855EA38@localhost>
-In-Reply-To: <20010706122520.A22693@main.braxis.co.uk>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Message-Id: <01070612450702.13482@borg>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Krzysztof Rusocki <kszysiu@braxis.co.uk> wrote:
-
-> As far as i noticed - since 2.4.6
-> there should be defined
 > 
-> #define INCLUDE_LINUX_LOGO_DATA
+> There does appear to be an SMP race in brw_page() which can cause
+> this - end_buffer_io_async() unlocks the page, try_to_free_buffers()
+> zaps the buffer_head ring and brw_page() gets a null pointer.  But
+> gee, it's unlikely unless you have super-fast disks and/or something
+> which has a super-slow interrupt routine.
 > 
-> instead of
+> Could you please provide a description of your hardware lineup?
 > 
-> #define INCLUDE_LINUX_LOGOBW
+> And could you please test 2.4.6 with this patch?
 > 
-> otherwise linux logos do not get included and unresolved symbol occures
-> patch against 2.4.7-pre{1,2,3} attached, which afaik also applies for 2.4.6
+> --- linux-2.4.6/fs/buffer.c	Wed Jul  4 18:21:31 2001
+> +++ lk-ext3/fs/buffer.c	Fri Jul  6 18:25:00 2001
+> @@ -2181,8 +2181,9 @@ int brw_page(int rw, struct page *page, 
+>  
+>  	/* Stage 2: start the IO */
+>  	do {
+> +		struct buffer_head *next = bh->b_this_page;
+>  		submit_bh(rw, bh);
+> -		bh = bh->b_this_page;
+> +		bh = next;
+>  	} while (bh != head);
+>  	return 0;
+>  }
 
-Your patch is right, it is already included in the ac-tree.
+Howzit Andrew,
 
-Best regards:
-	Ferenc Bakonyi
+OK, I'll give the patch a try.  I'll only be able to provide feedback
+after about 12-24 hours though, depending on when I can reboot.
 
+Hardware is pretty standard stuff:
+
+Dual CPU Pentium II 233Mhz.  128MB RAM, Gigabyte motherboard (circa
+1998), 20Gb IDE disks, realtek 8139 100Mb card.  Pretty std stuff. 
+What's weird though is that this oops doesn't occur on our several
+*very* busy clustered cache servers (running squid) - only one task
+though (ie, squid/diskd/dnsserver), whereas the problem machines run
+various apps.
+
+Cheers
+Henry

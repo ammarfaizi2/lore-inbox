@@ -1,70 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265988AbUAQC6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 21:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265989AbUAQC6Y
+	id S265971AbUAQDnu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 22:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUAQDnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 21:58:24 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37866 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265988AbUAQC5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 21:57:50 -0500
-Date: Sat, 17 Jan 2004 03:57:45 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: root@chaos.analogic.com, cliffw@osdl.org, piggin@cyberone.com.au,
-       mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: [1/4] better i386 CPU selection
-Message-ID: <20040117025745.GJ12027@fs.tum.de>
-References: <20040106054859.GA18208@waste.org> <3FFA56D6.6040808@cyberone.com.au> <20040106064607.GB18208@waste.org> <3FFA5ED3.6040000@cyberone.com.au> <20040110004625.GB25089@fs.tum.de> <20040110005232.GD25089@fs.tum.de> <20040116111501.70200cf3.cliffw@osdl.org> <Pine.LNX.4.53.0401161425110.31018@chaos> <20040116160133.5af17a6a.akpm@osdl.org>
+	Fri, 16 Jan 2004 22:43:50 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:9235 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S265971AbUAQDnr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 22:43:47 -0500
+Date: Fri, 16 Jan 2004 22:19:26 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: kernel 2.6.1 and cdrecord on ATAPI bus
+Message-ID: <20040117031925.GA26477@widomaker.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <20040116160133.5af17a6a.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 16, 2004 at 04:01:33PM -0800, Andrew Morton wrote:
->...
-> I must say that I'm a bit wobbly about Adrian's recent patches, simply
-> because of the overall intrusiveness and conceptual changes which they
-> introduce.
 
-The only patch where I'd say this really applies to is 
-better-i386-cpu-selection.patch .
 
-I'm really happy that you added it in the latest -mm and I'm even more
-happy that I haven't yet heard of any major breakage it has caused.
+Is CD burning supposed to work with kernel 2.6.1 using the ATAPI
+interface, or are bugs still being worked out?
 
-But it's your decision whether you like this patch or prefer to drop it.
+I have run cdrecord under kernel 2.4.2x and it worked great using the
+ATAPI interface like this:
 
-> Remind me again, what did they buy us?
+% cdrecord dev=ATAPI:bus,drive,lun
 
-The main effect is that better-i386-cpu-selection.patch makes it easier
-for people who configure kernels that should work on different CPU
-types. A user (= person compiling his own kernel) does no longer need
-any deeper knowledge when e.g. configuring a kernel that should run on
-both an Athlon and a Pentium 4 - he simply selects all CPUs he wants to
-support in his kernel.
+Instant disk information reads, never had to reload media, and burns
+were fast and reliable.  It worked fine with ide-scsi as well, but I
+wanted to get away from that as it is going away.  It worked with
+several versions of cdrecord equally well.
 
-As a side effect, this patch allows further optimizations based on the 
-fact that e.g. a kernel for an i386 no longer needs to support an Athlon 
-which can be used to omit support for non-selected CPUs [1].
+I'm now running kernel 2.6.1, and using cdrecord with ATAPI is
+problematic.
 
-cu
-Adrian
+First problem is that cdrecord now must reload media often, runs slowly,
+and burns slowly.  Reading CD/RW disks burned under 2.6.x is much slower
+than those burned under kernel 2.4 (same version of cdrecord in all
+cases).
 
-[1] e.g. there's no need to include arch/i386/kernel/cpu/amd.c in your
-    kernel if the kernel should only run on a 386;
-    I made two such example patches that are _way_ too ugly for merging
-    but show that this CPU selection scheme makes some more space 
-    savings possible
+-scanbus works fine:
+
+% cdrecord dev=ATAPI -scanbus
+scsidev: 'ATAPI'
+devname: 'ATAPI'
+scsibus: -2 target: -2 lun: -2
+Warning: Using ATA Packet interface.
+Warning: The related libscg interface code is in pre alpha.
+Warning: There may be fatal problems.
+Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Using libscg version 'schily-0.7'
+scsibus0:
+	0,0,0	  0) *
+	0,1,0	  1) 'OPTORITE' 'CD-RW CW5205    ' '180E' Removable CD-ROM
+[rest of output snipped]
+
+However, -msinfo doesn't work at all.
+
+With a previously recorded CD/R, I get this:
+
+% cdrecord dev=ATAPI:0,1,0 -msinfo
+cdrecord: No disk / Wrong disk!
+
+With a previously recorded CD/RW disc, I get this:
+
+% cdrecord dev=ATAPI:0,1,0 -msinfo
+cdrecord: Drive needs to reload the media to return to proper status.
+cdrecord: Input/output error. read track info: scsi sendcmd: no error
+CDB:  52 01 00 00 00 FF 00 00 1C 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 00 00 00
+Sense Key: 0x5 Illegal Request, Segment 0
+Sense Code: 0x24 Qual 0x00 (invalid field in cdb) Fru 0x0
+Sense flags: Blk 0 (not valid) 
+cmd finished after 0.000s timeout 240s
+cdrecord: Cannot read first writable address
+
+Both are successful and verified burns.
+
+Another problem is that in later 2.4 kernels and 2.6 kernels, I often
+have to reload a CD several times before the drive recognizes it.  At
+first I figured the kernel could not possibly cause this, but it does.
+This doesn't happen when using ide-scsi.
+
+It almost seems like cd burning worked in 2.6.0-mm2, but I no longer
+have that kernel to test.  I could possibly be convinced to rebuild it
+if anyone wants to confirm this.
+
+I've had better overall luck using ide-scsi, but since it is going away,
+I decided to quit building it.
+
+What should I do to continue debugging this problem?
+
+
+
+
+
+
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com

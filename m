@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUJELBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUJELKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268972AbUJELBo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 07:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUJELBo
+	id S268980AbUJELKh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 07:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268984AbUJELKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 07:01:44 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:37332 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268972AbUJELBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 07:01:41 -0400
-Date: Tue, 5 Oct 2004 13:03:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T0
-Message-ID: <20041005110316.GA19964@elte.hu>
-References: <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <Pine.LNX.4.58.0410050257400.5641@devserv.devel.redhat.com> <20041005131237.63378c53@mango.fruits.de>
+	Tue, 5 Oct 2004 07:10:37 -0400
+Received: from 115.N1.EF.nwx-server.de ([217.114.219.115]:48310 "EHLO
+	115.N1.EF.nwx-server.de") by vger.kernel.org with ESMTP
+	id S268981AbUJELK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 07:10:27 -0400
+Subject: kernel BUG at buffer.c:603
+From: Axel Waggershauser <awagger@web.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 05 Oct 2004 13:10:03 +0200
+Message-Id: <1096974603.1254.32.camel@sowas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041005131237.63378c53@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+I have a new machine with an  Adaptec AAC-RAID (rev 01) SATA raid
+controller (aacraid module) running a
 
-> On Tue, 5 Oct 2004 03:02:05 -0400 (EDT)
-> Ingo Molnar <mingo@redhat.com> wrote:
-> 
-> > i've released the -T0 VP patch:
-> 
-> >  - fix !4K stack compilation breakage (reported by Lee Revell)
-> 
-> I still need to enable 4k stacks to get it to build [see error below w/o 4k
-> stacks].
+Linux version 2.4.27-1-686-smp (joshk@trollwife) (gcc version 3.3.4
+(Debian 1:3.3.4-9)) #1 SMP Fri Sep 3 06:34:36 UTC 2004
 
-doh - chunk went MIA. Updated the patch, please re-download -T0.
+kernel. It keeps crashing (oops) after several hours of running bonnie.
+Most of the time I get a "kernel BUG at buffer.c:603" wich looks like
+this
 
-	Ingo
+    if (bh->b_prev_free || bh->b_next_free) BUG();
+
+in function
+
+    static void __insert_into_lru_list(struct buffer_head * bh, int
+blist)
+
+There has been an other oops as well: "unable to handle kernel paging
+request at virtual address 619139d0". This combined with several hints
+on the net suggests that faulty hardware might be the cause. I checked
+the 1G ram with memtest86+ - no problem...
+
+Google revealed several other buffer.c:xxx bugs but none in line 603 so
+I thouhgt, it might be worth to ask.
+
+
+Thanks, for any help (if someone happens to know _the_ ultimate mem- or
+harddisk-test, I'd be happy to stress this machine as long as it has
+to...)
+
+
+regards,
+  Axel
+

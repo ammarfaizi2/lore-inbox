@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266839AbSLDCYT>; Tue, 3 Dec 2002 21:24:19 -0500
+	id <S266841AbSLDCaF>; Tue, 3 Dec 2002 21:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266841AbSLDCYT>; Tue, 3 Dec 2002 21:24:19 -0500
-Received: from mail.inw.de ([217.6.75.131]:11482 "EHLO mail.internetwork-ag.de")
-	by vger.kernel.org with ESMTP id <S266839AbSLDCYT>;
-	Tue, 3 Dec 2002 21:24:19 -0500
-Message-ID: <3DED68FC.7780C0C@inw.de>
-Date: Tue, 03 Dec 2002 18:31:24 -0800
-From: Till Immanuel Patzschke <tip@inw.de>
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: MXT driver f. 2.4.19+ ?
-Content-Type: text/plain; charset=us-ascii
+	id <S266842AbSLDCaF>; Tue, 3 Dec 2002 21:30:05 -0500
+Received: from jstevenson.plus.com ([212.159.71.212]:47234 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id <S266841AbSLDCaE>;
+	Tue, 3 Dec 2002 21:30:04 -0500
+Subject: Re: Reserving physical memory at boot time
+From: James Stevenson <james@stev.org>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200212031303.16487.baldrick@wanadoo.fr>
+References: <200212031303.16487.baldrick@wanadoo.fr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 03 Dec 2002 23:23:21 +0000
+Message-Id: <1038957801.13490.5.camel@god.stev.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear List,
+On Tue, 2002-12-03 at 12:03, Duncan Sands wrote:
+> I would like to reserve a particular page of physical memory when
+> the kernel boots.  By reserving I mean that no one else gets to read
+> from it or write to it: it is mine.  Any suggestions for the best way
+> to go about this with a 2.5 kernel?
 
-is there any location where there is more recent driver for the IBM MXT hardware
-than on the IBM website (which hold patches for RedHat 7.2, kernel 2.4.9 or
-so).  I know that SuSE includes the MXT driver with their kernel, but I'd like
-to try it with 2.4.20...
-(Or does the 2.4.9 whatever patch apply easily to any newer version - which I
-doubt...)
-Thanks for the help
+try having a look for the linux badmem patches i belive they might do
+the same sort of thing.
 
-Immanuel
+	James
 
-P.S. What is the story w/ MXT and 2.5
-P.P.S. Please don't blame me for asking - just have the hardware around and want
-to try it out :-)
 

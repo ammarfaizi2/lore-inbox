@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279524AbRJXKsM>; Wed, 24 Oct 2001 06:48:12 -0400
+	id <S279528AbRJXK4o>; Wed, 24 Oct 2001 06:56:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279521AbRJXKsD>; Wed, 24 Oct 2001 06:48:03 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32005 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279534AbRJXKrv>; Wed, 24 Oct 2001 06:47:51 -0400
-Subject: Re: [RFC] New Driver Model for 2.5
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Wed, 24 Oct 2001 11:54:07 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
-        mochel@osdl.org (Patrick Mochel),
-        jlundell@pobox.com (Jonathan Lundell)
-In-Reply-To: <20011024103451.8099@smtp.adsl.oleane.com> from "Benjamin Herrenschmidt" at Oct 24, 2001 12:34:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S279529AbRJXK4e>; Wed, 24 Oct 2001 06:56:34 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:49040 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S279528AbRJXK4Z>;
+	Wed, 24 Oct 2001 06:56:25 -0400
+Date: Wed, 24 Oct 2001 12:56:53 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Andy Pevy <andy.pevy@nokia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.13..
+Message-ID: <20011024125653.B16710@se1.cogenit.fr>
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com> <E15wM1B-0001Ne-00@fa1ntd0754.europe.nokia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15wLfj-0001C8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15wM1B-0001Ne-00@fa1ntd0754.europe.nokia.com>; from andy.pevy@nokia.com on Wed, Oct 24, 2001 at 11:16:17AM +0000
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> case, there's not much left to the controller, it isn't supposed to
-> have any command in queue nor receive any new one once all it's child
-> drivers have suspended.
+Andy Pevy <andy.pevy@nokia.com> :
+[Compaq Fibre Channel failure]
 
-scsi devices are children of the scsi subststem (sd, sg, sr, st, osst) not
-of the controller. That is how the state flows anyway. Only sr/sd etc know
-what the state is for a given device on power off as they may issue 
-multiple requests per action true transaction. sg would have to simply
-refuse any suspend if open (think about cd-burning or even worse firmware
-download)
+Didn't build in -pre either. It compiles fine in -ac. 
 
-So the scsi devices hang off sd, sr etc which in turn hang off scsi and 
-the controllers hang off scsi (and or the bus layers)
-
-This one at least I think I do understand
+-- 
+Ueimor

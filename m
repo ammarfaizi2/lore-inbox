@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVB1RkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVB1RmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVB1RkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 12:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVB1RkZ
+	id S261708AbVB1RmA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 12:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVB1RmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 12:40:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:46511 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261705AbVB1RkR (ORCPT
+	Mon, 28 Feb 2005 12:42:00 -0500
+Received: from gprs214-130.eurotel.cz ([160.218.214.130]:53403 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261708AbVB1Rlp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 12:40:17 -0500
-Date: Mon, 28 Feb 2005 18:40:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dave Olien <dmo@osdl.org>
-Cc: Mark Haverkamp <markh@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, dm-devel@redhat.com
-Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
-Message-ID: <20050228174012.GL8868@suse.de>
-References: <1109351021.5014.10.camel@markh1.pdx.osdl.net> <20050225161947.5fd6d343.akpm@osdl.org> <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org> <20050226123934.GA1254@suse.de> <1109604737.30227.3.camel@markh1.pdx.osdl.net> <20050228155127.GI8868@suse.de> <20050228173542.GA16815@osdl.org>
+	Mon, 28 Feb 2005 12:41:45 -0500
+Date: Mon, 28 Feb 2005 18:40:15 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Michal Januszewski <spock@gentoo.org>, mls@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+Message-ID: <20050228174015.GB1349@elf.ucw.cz>
+References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050228173542.GA16815@osdl.org>
+In-Reply-To: <20050219011433.GA5954@spock.one.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28 2005, Dave Olien wrote:
-> 
-> Just trivial, I think you're missing the final "0" argument
-> in the __bio_for_each_segment().
+Hi!
 
-Yep indeed, was just a hasty edit...
-
+> > Just in case someone is interested, this is bootsplash for 2.6.11-rc4,
+> > taken from suse kernel. I'll probably try to modify it to work with
+> > radeonfb.
+> > 
+> > Any ideas why bootsplash needs to hack into vesafb? It only uses
+> > vesafb_ops to test against them before some kind of free...
 > 
-> On Mon, Feb 28, 2005 at 04:51:28PM +0100, Jens Axboe wrote:
-> > This should fix it.
-> > 
-> > Signed-off-by: Jens Axboe <axboe@suse.de>
-> > 
-> > 
-> > ===== mm/highmem.c 1.55 vs edited =====
-> > --- 1.55/mm/highmem.c	2005-01-08 06:44:13 +01:00
-> > +++ edited/mm/highmem.c	2005-02-28 16:50:59 +01:00
-> > @@ -425,7 +425,7 @@
-> >  	 * at least one page was bounced, fill in possible non-highmem
-> >  	 * pages
-> >  	 */
-> > -	bio_for_each_segment(from, *bio_orig, i) {
-> > +	__bio_for_each_segment(from, *bio_orig, i) {
-> >  		to = bio_iovec_idx(bio, i);
-> >  		if (!to->bv_page) {
-> >  			to->bv_page = from->bv_page;
-> > 
-> > -- 
-> > Jens Axboe
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+> It doesn't really need vesafb for anything. Back in the days of 2.6.7 
+> I used to release a version of bootsplash that had the dep. on vesafb 
+> removed. It worked fine with at least some other fb drivers.
 > 
+> You might also want to save yourself some work and try out an
+> alternative solution called fbsplash [1], which I designed after I got 
+> tired of fixing bootsplash and which I actively maintain. Fbsplash 
+> provides virtually the same functionality, and it has as much code as 
+> possible moved into userspace (no more JPEG decoders in the kernel).
 
+mls suggested that there were some problems with matroxfb in the
+past. Have you seen something like that?
+								Pavel
 -- 
-Jens Axboe
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

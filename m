@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265136AbUAaWPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 17:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUAaWPV
+	id S265162AbUAaWss (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 17:48:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUAaWss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 17:15:21 -0500
-Received: from mail48-s.fg.online.no ([148.122.161.48]:57231 "EHLO
-	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S265136AbUAaWPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 17:15:15 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Software Suspend 2.0
-References: <20040131071619.GD7245@digitasaru.net>
-	<1075534088.18161.61.camel@laptop-linux>
-	<20040131073848.GE7245@digitasaru.net>
-	<1075537924.17730.88.camel@laptop-linux> <401B6F7A.5030103@gmx.de>
-	<1075540107.17727.90.camel@laptop-linux> <401B7312.3060207@gmx.de>
-	<1075542685.25454.124.camel@laptop-linux> <401B86EB.50604@gmx.de>
-	<yw1xznc4tfle.fsf@kth.se> <20040131231134.GA6084@digitasaru.net>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Sat, 31 Jan 2004 23:15:12 +0100
-In-Reply-To: <20040131231134.GA6084@digitasaru.net> (Joseph Pingenot's
- message of "Sat, 31 Jan 2004 17:11:37 -0600")
-Message-ID: <yw1x8yjnsr2n.fsf@kth.se>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+	Sat, 31 Jan 2004 17:48:48 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:59302 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265162AbUAaWsq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 17:48:46 -0500
+Date: Sat, 31 Jan 2004 20:47:32 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+Cc: Andreas Metzler <lkml-2004-01@downhill.at.eu.org>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.25-pre4
+In-Reply-To: <1075475962.18944.0.camel@midux>
+Message-ID: <Pine.LNX.4.58L.0401312035080.4252@logos.cnet>
+References: <1b0nY-2vi-13@gated-at.bofh.it> <1b3OA-7FV-17@gated-at.bofh.it>
+  <1b4hG-8kh-21@gated-at.bofh.it>  <20040130135730.GB1215@balrog.logic.univie.ac.at>
+ <1075475962.18944.0.camel@midux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Pingenot <trelane@digitasaru.net> writes:
 
-> From Måns Rullgård on Saturday, 31 January, 2004:
->>"Prakash K. Cheemplavam" <PrakashKC@gmx.de> writes:
->>>> My error. My patch script has put kernel/power/swsusp2.c in the version
->>> No problem. I already tested it. After throwing out usb modules, it
->>> did suspend, though taking quite long at the kernel and processing
->>> (something like that) message. But upon restart, it didn't resume,
->>> ie. it didn't find its image, just normal swap space.
->>Try disabling write cache on the disk with hdparm -W0 /dev/hde.
->
-> When should this be done?
->
-> I have 2.6.1 + the 2.6.1-specific patches + core patches.  It suspends
->   without difficulty, but on boot, it says it couldn't read a part
->   of the resume data (a "chunk", iirc).  The status bar doesn't make
->   much progress.
->
-> I tried hdparm -W 0 right before the call to hibernate (in a script).
+On Fri, 30 Jan 2004, Markus Hästbacka wrote:
 
-That did the trick for me.  You must be having a different problem.
+> On Fri, 2004-01-30 at 15:57, Andreas Metzler wrote:
+> > Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> > > On Tue, 6 Jan 2004, Mike Fedyk wrote:
+> > >> On Tue, Jan 06, 2004 at 12:14:23PM -0200, Marcelo Tosatti wrote:
+> > >> > It contains an ext2/3 update (mostly forward compatibility related), the
+> > >>
+> > >> Do you plan to merge htree?
+> > >
+> > > Yes, in the next -pre.
+> >
+> > Hm. Afaict this has not happened yet (-pre8), is it still planned for
+> > .25?
+> I think he meant for the 2.4.26-pre tree.
 
->   But I still have the problem.
->
-> When should hdparm be called?
->
-> Thanks!
->
-> -Joseph
+And it wont happen anymore. After saying that I would merge it, I decided
+(based on input from sct and tytso) that we don't want htree in 2.4.x.
 
--- 
-Måns Rullgård
-mru@kth.se

@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289566AbSAJRa5>; Thu, 10 Jan 2002 12:30:57 -0500
+	id <S289568AbSAJRch>; Thu, 10 Jan 2002 12:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289567AbSAJRau>; Thu, 10 Jan 2002 12:30:50 -0500
-Received: from lila.inti.gov.ar ([200.10.161.32]:45259 "EHLO lila.inti.gov.ar")
-	by vger.kernel.org with ESMTP id <S289566AbSAJRad>;
-	Thu, 10 Jan 2002 12:30:33 -0500
-Message-ID: <3C3DD034.9B2C83BD@inti.gov.ar>
-Date: Thu, 10 Jan 2002 14:32:36 -0300
-From: salvador <salvador@inti.gov.ar>
-Reply-To: salvador@inti.gov.ar
-Organization: INTI
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: es-AR, en, es
+	id <S289570AbSAJRcb>; Thu, 10 Jan 2002 12:32:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9226 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289568AbSAJRcS>; Thu, 10 Jan 2002 12:32:18 -0500
+Message-ID: <3C3DD011.7010309@zytor.com>
+Date: Thu, 10 Jan 2002 09:32:01 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: William Robison <william-robison@uiowa.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFCA] Sound: adding /proc/driver/{vendor}/{dev_pci}/ac97 
- entry
-In-Reply-To: <3C3DB4A9.AADB16B0@uiowa.edu>
-Content-Type: text/plain; charset=us-ascii
+To: Dave Jones <davej@suse.de>
+CC: Giacomo Catenazzi <cate@debian.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+In-Reply-To: <Pine.LNX.4.33.0201101822020.21159-100000@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Robison wrote:
+Dave Jones wrote:
 
->   Alan mentioned that some cards make use of multiple codecs,
-> but also consider those of us that have multiple sound
-> cards when forming the '/proc' pathname.  As a quick&dirty
-> hack to allow two 1371 cards to co-exist in /proc, I added
-> the upper 8 bits of the address into the filename...
->
->   (One sound card dedicated to being used as a 1200 baud
->    modem for AX25 work, leaving one free for use as a
->    normal soundcard)
+> 
+> It's worse than you think.
+> Distinguishing between XP and MP athlon for example needs
+> capability bit testing.  (And some XP's _are_ now multiprocessor
+> capable, just to confuse the issue some more), so relying on
+> the cpuid identity string isn't foolproof.
+> (Also, some implementations allow for this string to be changed,
+>  some folks have it set to "PenguinPowered" and the likes 8-)
+> 
 
-My patch creates an entry that looks like it:
 
-/proc/drivers/es1371/00:03.00/ac97
+Sure, but if you do that you're *asking*, in a very literal way, for 
+your CPU to misidentified.  In fact, a major reason for making this 
+string modifiable is due to certain vendors who hard-code CPUID strings 
+in their code.
 
-Where 00:03.00 is PCI bus == 00, 03 is card 3 of the bus and the last 00 is
-feature/chip on the card == 00.
-This name is the unique name of the card created by the pci part of the
-kernel. Somebody pointed out that this will change to allow more than 256
-elements, in this case the id will change and the module will create a
-correct unique name.
-If you have 2 boards in the same PCI bus it will look like it:
+> 
+> Asides from the above issues, multiple CPUs have the same
+> cpuid sometimes, meaning you have to check things like
+> cache size as well (though most (all?) of these should
+> end up with the same CONFIG_ option iirc, so this shouldn't
+> be an issue -- you should check to be sure though)
+> 
 
-/proc/drivers/es1371/00:03.00/ac97
-/proc/drivers/es1371/00:04.00/ac97
 
-If you have a board with a chip that implements 2 ESS1371/CT5880/... will
-look like it:
+Why -- if it doesn't change anything, all you're doing is making it 
+confusing when the next derivative appears.  Remember that we *do* need, 
+  as much as possible, to be forward compatible with future CPUs.
 
-/proc/drivers/es1371/00:03.00/ac97
-/proc/drivers/es1371/00:03.01/ac97
 
-And if you have 2 boards in different PCI buses:
+> x86info's identify.c files should give you a fairly
+> comprehensive guide to the various types.
 
-/proc/drivers/es1371/00:03.00/ac97
-/proc/drivers/es1371/01:03.00/ac97
 
-These are just examples but I think you get the idea and understand that
-there is no problem. What Alan pointed out (and he is 100% right) is that the
-same DC97 chip (ESS1371 for example) can have attached more than one AC97
-codec (upto 4 according the spec) all using the AC-link communication. In
-this case the PCI bus, card number and feature number is the same for all the
-codecs. I'm resending a patch that will create it:
-
-/proc/drivers/es1371/00:03.00/ac97-0
-/proc/drivers/es1371/00:03.00/ac97-1
-
-SET
-
---
-Salvador Eduardo Tropea (SET). (Electronics Engineer)
-Visit my home page: http://welcome.to/SetSoft or
-http://www.geocities.com/SiliconValley/Vista/6552/
-Alternative e-mail: set@computer.org set@ieee.org
-Address: Curapaligue 2124, Caseros, 3 de Febrero
-Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
-
+	-hpa
 
 

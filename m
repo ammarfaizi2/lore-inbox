@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTIKOdB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTIKOdA
+	id S261320AbTIKOlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbTIKOif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:33:00 -0400
-Received: from ns.suse.de ([195.135.220.2]:60828 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261294AbTIKOcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:32:53 -0400
-Date: Thu, 11 Sep 2003 16:32:48 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, richard.brunner@amd.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-Id: <20030911163248.15aeaab6.ak@suse.de>
-In-Reply-To: <20030911142809.GB20434@redhat.com>
-References: <Pine.LNX.4.44.0309110650390.28410-100000@home.osdl.org>
-	<1063289641.2967.3.camel@dhcp23.swansea.linux.org.uk>
-	<20030911162421.419f4432.ak@suse.de>
-	<20030911142809.GB20434@redhat.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Sep 2003 10:38:35 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:13565 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261162AbTIKOhq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:37:46 -0400
+From: Andrew Theurer <habanero@us.ibm.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+Date: Thu, 11 Sep 2003 09:37:29 -0500
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200309102155.16407.habanero@us.ibm.com> <200309110805.02334.habanero@us.ibm.com> <3F607E4F.8070200@cyberone.com.au>
+In-Reply-To: <3F607E4F.8070200@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309110937.29165.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003 15:28:09 +0100
-Dave Jones <davej@redhat.com> wrote:
 
-> On Thu, Sep 11, 2003 at 04:24:21PM +0200, Andi Kleen wrote:
->  > I considered that when writing the patch, but: is_prefetch is a single byte 
->  > memory access for something already in cache. Checking for an Athlon
->  > CPU needs two memory accesses in boot_cpu_data at least (checking vendor
->  > and model) 
-> 
-> You only need to check it once when the path is first taken, and then
-> set a variable that makes you exit as soon as you enter it again.
+> >>>I see Nick's balance patch as somewhat harmless, at least combined with
+> >>> A3 patch.  However, one concern is that the "ping-pong" steal interval
+> >>> is not really 200ms, but 200ms/(nr_cpus-1), which without A3, could
+> >>> show up as a problem, especially on an 8 way box.  In addition, I do
+> >>> think there's a problem with num tasks we steal.  It should not be
+> >>> imbalance/2, it should be: max_load - (node_nr_running /
+> >>> num_cpus_node).  If we steal any more than this, which is quite
+> >>> possible with imbalance/2, then it's likely this_cpu now has too many
+> >>> tasks, and some other cpu will steal again. Using *imbalance/2 works
+> >>> fine on 2-way smp, but I'm pretty sure we "over steal" tasks on 4 way
+> >>> and up.  Anyway, I'm getting off topic here...
+> >>
+> >>IIRC max_load is supposed to be the number of tasks on the runqueue
+> >>being stolen from, isn't it?
+> >
+> >Yes, but I think I still got this wrong.  Ideally, once we finish
+> > stealing, the busiest runqueue should not have more than
+> > node_nr_runing/nr_cpus_node, but more importantly, this_cpu should not
+> > have more than
+> >node_nr_running/nr_cpus_node, so maybe it should be:
+> >
+> >min(a,b) where
+> >a = max_load - load_average	How much we are over the load_average
+> >b = load_average - this_load	How much we are under the load_average
+> >load_average = node_nr_runing / nr_cpus_node.
+> >node_nr_running can be summed as we look for the busiest queue, so it
+> > should not be too costly.
+> >if min(a,b) is neagtive (this_cpu's runqueue length was greater than
+> >load_average) we don't steal at all.
+>
+> Oh OK you're thinking about balancing across the entire NUMA. I was just
+> thinking it will eventually settle down, but you're right: its probably
+> better to overdampen the balancing than to underdampen it.
 
-Checking the variable also an memory access. 
+Actually this is really geared towards within the node.  The goal for each cpu 
+in the node (or just a non NUMA system) should be to steal just enough to 
+have rq->nr_running to be nr_running()/nr_cpus.  I'm still not sure how many 
+tasks we should really steal from internode balance.  
 
-is_prefetch does a few more instructions around the memory access, but these
-are completely left in the noise.
-
-The is_prefetch check is likely faster even than checking that variable because
-the chances that the EIP is already in cache are much higher than some rarely
-used variable.
-
--Andi

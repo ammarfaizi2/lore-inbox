@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287513AbSAHAv7>; Mon, 7 Jan 2002 19:51:59 -0500
+	id <S287518AbSAHA6m>; Mon, 7 Jan 2002 19:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287518AbSAHAvu>; Mon, 7 Jan 2002 19:51:50 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34827 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S287513AbSAHAvj>; Mon, 7 Jan 2002 19:51:39 -0500
-Date: Mon, 7 Jan 2002 21:38:17 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.18-pre2
-Message-ID: <Pine.LNX.4.21.0201072130170.18722-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287521AbSAHA6c>; Mon, 7 Jan 2002 19:58:32 -0500
+Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:39296 "HELO
+	ohdarn.net") by vger.kernel.org with SMTP id <S287518AbSAHA6N>;
+	Mon, 7 Jan 2002 19:58:13 -0500
+Subject: Re: USB Lockups
+From: Michael Cohen <lkml@ohdarn.net>
+To: linux-kernel@vger.kernel.org
+Cc: Johannes Erdfelt <johannes@erdfelt.com>
+In-Reply-To: <20020107193600.S10145@sventech.com>
+In-Reply-To: <1010449229.4069.6.camel@ohdarn.net> 
+	<20020107193600.S10145@sventech.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Jan 2002 19:58:12 -0500
+Message-Id: <1010451492.4127.8.camel@ohdarn.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Tried with UHCI and JE driver. JE doesn't recognize the USB controller
+> > half the time.  It seems to me that this is similar to the problem
+> > with a saturated PCI bus that someone posted a latency fix for.
+> > I'd appreciate any input.  A similar machine does this on windows as
+> > well, too.  BIOS is as late as it gets.
+> 
+> Doesn't recognize the USB controller half the time? This is something I
+> would expect to either work all of the time, or none of the time.
+> 
+> Do you get any error messages?
 
-Hi,
+The JE driver strangely seems to be an unstable beast on here.
+It more often does not work, though every once in a while it wakes up on
+boot.  I've stuck with the standard.  As for error messages, "No devices
+found" is the only one I get with the standard driver (when nothing is
+plugged in :).  Oh, it's SMP PIII.
 
-Here goes pre2.
+------
+Michael Cohen
 
 
-pre2: 
-
-- APIC LVTERR fixes				(Mikael Pettersson)
-- Fix ppdev ioctl oops and deadlock		(Tim Waugh)
-- parport fixes					(Tim Waugh)
-- orinoco wireless driver update		(David Gibson)
-- Fix oopsable race in binfmt_elf.c 		(Alexander Viro)
-- Small sx16 driver bugfix			(Heinz-Ado Arnolds)
-- sbp2 deadlock fix 				(Andrew Morton)
-- Fix JFFS2 write error handling		(David Woodhouse)
-- Intermezzo update				(Peter J. Braam)
-- Proper AGP support for Intel 830MP chipsets	(Nicolas Aspert)
-- Alpha fixes					(Jay Estabrook)
-- 53c700 SCSI driver update			(James Bottomley)
-- Fix coredump mmap_sem deadlock on IA64	(David Mosberger)
-- 3ware driver update				(Adam Radford)
-- Fix elevator insertion point on failed 
-  request merge					(Jens Axboe)
-- Remove bogus rpciod_tcp_dispatcher definition (David Woodhouse)
-- Reiserfs fixes				(Oleg Drokin)
-- de4x5 endianess fixes				(Kip Walker)
-- ISDN CAPI cleanup				(Kai Germaschewski)
-- Make refill_inactive() correctly account 
-  progress					(me)
-
-pre1:
-
-- S390 merge					(IBM)
-- SuperH merge					(SuperH team)
-- PPC merge					(Benjamin Herrenschmidt)
-- PCI DMA update				(David S. Miller)
-- radeonfb update 				(Ani Joshi)
-- aty128fb update				(Ani Joshi)
-- Add nVidia GeForce3 support to rivafb		(Ani Joshi)
-- Add PM support to opl3sa2			(Zwane Mwaikambo)
-- Basic ethtool support for 3com, starfire
-  and pcmcia net drivers			(Jeff Garzik)
-- Add MII ethtool interface			(Jeff Garzik)
-- starfire,sundance,dl2k,sis900,8139{too,cp},
-  natsemi driver updates			(Jeff Garzik)
-- ufs/minix: mark inodes as bad in case of read
-  failure					(Christoph Hellwig)
-- ReiserFS fixes				(Oleg Drokin)
-- sonypi update					(Stelian Pop)
-- n_hdlc update					(Paul Fulghum)
-- Fix compile error on aty_base.c		(Tobias Ringstrom)
-- Document cpu_to_xxxx() on kernel-hacking doc  (Rusty Russell)
-- USB update					(Greg KH)
-- Fix sysctl console loglevel bug on 
-  IA64 (and possibly other archs)		(Jesper Juhl) 
-- Update Athlon/VIA PCI quirks			(Calin A. Culianu)
-- blkmtd update					(Simon Evans)
-- boot protocol update (makes the highest 
-  possible initrd address available to the 
-  bootloader)					(H. Peter Anvin)
-- NFS fixes					(Trond Myklebust)
-
+> JE
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

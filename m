@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUJ3VJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUJ3VO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbUJ3VJi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUJ3VJi
+	id S261324AbUJ3VO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbUJ3VO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:09:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9677 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261321AbUJ3VJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:09:37 -0400
-Date: Sat, 30 Oct 2004 14:07:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: PG_zero
-Message-Id: <20041030140732.2ccc7d22.akpm@osdl.org>
-In-Reply-To: <20041030141059.GA16861@dualathlon.random>
-References: <20041030141059.GA16861@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 30 Oct 2004 17:14:56 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:10099 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261324AbUJ3VOu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:14:50 -0400
+Date: Sun, 31 Oct 2004 01:15:38 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 2.6.10-rc1] Include useful absolute symbols in kallsyms
+Message-ID: <20041030231538.GD9592@mars.ravnborg.org>
+Mail-Followup-To: Keith Owens <kaos@sgi.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <19397.1099042621@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <19397.1099042621@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@novell.com> wrote:
->
-> I think it's much better to have PG_zero in the main page allocator than
->  to put the ptes in the slab. This way we can share available zero pages with
->  all zero-page users and we have a central place where people can
->  generate zero pages and allocate them later efficiently.
+On Fri, Oct 29, 2004 at 07:37:01PM +1000, Keith Owens wrote:
+> Some absolute symbols are useful, they can even appear in back traces.
+> Tweak kallsyms to retain the useful absolute symbols.
+> 
+> Signed-off-by: Keith Owens <kaos@sgi.com>
+> 
+> ---
+> 
+> This list is from ia64, add absolute symbols from other architectures
+> as required.
 
-Yup.
+I've applied the following patch (clash with some arm changes):
+===== scripts/kallsyms.c 1.14 vs edited =====
+--- 1.14/scripts/kallsyms.c	2004-10-08 17:34:20 +02:00
++++ edited/scripts/kallsyms.c	2004-10-31 01:12:45 +02:00
+@@ -132,7 +132,17 @@
+ 		_sinittext = s->addr;
+ 	else if (strcmp(str, "_einittext") == 0)
+ 		_einittext = s->addr;
+-	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U' ||
++	else if (toupper(s->type) == 'A')
++	{
++		/* Keep these useful absolute symbols */
++		if (strcmp(str, "__kernel_syscall_via_break") &&
++		    strcmp(str, "__kernel_syscall_via_epc") &&
++		    strcmp(str, "__kernel_sigtramp") &&
++		    strcmp(str, "__gp"))
++			return -1;
++
++	}
++	else if (toupper(s->type) == 'U' ||
+ 		 is_arm_mapping_symbol(str))
+ 		return -1;
+ 
 
->  This gives a whole internal knowledge to the whole buddy system and
->  per-cpu subsystem of zero pages.
-
-Makes sense.  I had a go at this ages ago and wasn't able to demonstrate
-much benefit on a mixed workload.
-
-I wonder if it would help if the page zeroing in the idle thread was done
-with the CPU cache disabled.  It should be pretty easy to test - isn't it
-just a matter of setting the cache-disable bit in the kmap_atomic()
-operation?
-
-There are quite a few patches happening in this area - the
-make-kswapd-aware-of-higher-order-pages patches and the no-buddy-bitmap
-patches are queued in -mm.  It'll take some time to work through them
-all...

@@ -1,68 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266040AbTIETlt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266045AbTIETlt
+	id S265988AbTIETaf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265852AbTIETQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:41:49 -0400
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:50948 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S266040AbTIETlr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:41:47 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Russell King <rmk@arm.linux.org.uk>, Sven Dowideit <svenud@ozemail.com.au>
-Subject: Re: Problems with PCMCIA (Texas Instruments PCI1450)
-Date: Fri, 5 Sep 2003 21:40:27 +0200
-User-Agent: KMail/1.5.2
-References: <200308270056.33190.daniel.ritz@gmx.ch> <200309052019.30051.daniel.ritz@gmx.ch> <20030905193811.C14076@flint.arm.linux.org.uk>
-In-Reply-To: <20030905193811.C14076@flint.arm.linux.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Tom Marshall <tommy@home.tig-grr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 5 Sep 2003 15:16:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20369 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265771AbTIETKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 15:10:07 -0400
+Date: Fri, 5 Sep 2003 11:55:20 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: fsdev <linux-fsdevel@vger.kernel.org>
+Subject: [CFT] [5/15] autofs4 options parsing
+Message-Id: <20030905115520.1d8a9ea7.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309052140.27906.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri September 5 2003 20:38, Russell King wrote:
-> On Fri, Sep 05, 2003 at 08:19:28PM +0200, Daniel Ritz wrote:
-> > ok, now i can reproduce the problem on my ti1410 too. on boot detection
-> > works fine with an UP kernel and fails with an SMP kernel. thanx for the
-> > hint.
-> > 
-> > i go to look at the csets a bit and try to find out more....
-> > (i think i know which change...)
-> 
-> Care to provide a hint?
 
-yes. just tested. patch below makes on boot detection with a SMP kernel
-working again (for me). which is nice, but i don't see why it is better
-that way...
-
-
-===== cs.c 1.56 vs edited =====
---- 1.56/drivers/pcmcia/cs.c	Sun Aug  3 14:48:43 2003
-+++ edited/cs.c	Fri Sep  5 21:42:09 2003
-@@ -316,7 +316,6 @@
+diff -Naurp -X /home/rddunlap/doc/dontdiff-osdl linux-260-test4-pv/fs/autofs4/inode.c linux-260-test4-fs/fs/autofs4/inode.c
+--- linux-260-test4-pv/fs/autofs4/inode.c	2003-08-22 16:58:08.000000000 -0700
++++ linux-260-test4-fs/fs/autofs4/inode.c	2003-08-27 11:19:07.000000000 -0700
+@@ -14,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/file.h>
+ #include <linux/pagemap.h>
++#include <linux/parser.h>
+ #include <asm/bitops.h>
+ #include "autofs_i.h"
+ #include <linux/module.h>
+@@ -94,10 +95,23 @@ static struct super_operations autofs4_s
+ 	.statfs		= simple_statfs,
+ };
  
- 	wait_for_completion(&socket->thread_done);
- 	BUG_ON(!socket->thread);
--	pcmcia_parse_events(socket, SS_DETECT);
++enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto};
++
++static match_table_t tokens = {
++	{Opt_fd, "fd=%d"},
++	{Opt_uid, "uid=%d"},
++	{Opt_gid, "gid=%d"},
++	{Opt_pgrp, "pgrp=%d"},
++	{Opt_minproto, "minproto=%d"},
++	{Opt_maxproto, "maxproto=%d"},
++	{Opt_err, NULL}
++};
++
+ static int parse_options(char *options, int *pipefd, uid_t *uid, gid_t *gid,
+ 			 pid_t *pgrp, int *minproto, int *maxproto)
+ {
+-	char *this_char, *value;
++	char *p;
++	substring_t args[MAX_OPT_ARGS];
+ 	
+ 	*uid = current->uid;
+ 	*gid = current->gid;
+@@ -108,55 +122,37 @@ static int parse_options(char *options, 
  
- 	return 0;
+ 	*pipefd = -1;
+ 
+-	if ( !options ) return 1;
+-	while ((this_char = strsep(&options,",")) != NULL) {
+-		if (!*this_char)
++	if (!options)
++		return 1;
++
++	while ((p = strsep(&options, ",")) != NULL) {
++		int token;
++		if (!*p)
+ 			continue;
+-		if ((value = strchr(this_char,'=')) != NULL)
+-			*value++ = 0;
+-		if (!strcmp(this_char,"fd")) {
+-			if (!value || !*value)
+-				return 1;
+-			*pipefd = simple_strtoul(value,&value,0);
+-			if (*value)
+-				return 1;
+-		}
+-		else if (!strcmp(this_char,"uid")) {
+-			if (!value || !*value)
+-				return 1;
+-			*uid = simple_strtoul(value,&value,0);
+-			if (*value)
+-				return 1;
+-		}
+-		else if (!strcmp(this_char,"gid")) {
+-			if (!value || !*value)
+-				return 1;
+-			*gid = simple_strtoul(value,&value,0);
+-			if (*value)
+-				return 1;
+-		}
+-		else if (!strcmp(this_char,"pgrp")) {
+-			if (!value || !*value)
+-				return 1;
+-			*pgrp = simple_strtoul(value,&value,0);
+-			if (*value)
+-				return 1;
+-		}
+-		else if (!strcmp(this_char,"minproto")) {
+-			if (!value || !*value)
+-				return 1;
+-			*minproto = simple_strtoul(value,&value,0);
+-			if (*value)
+-				return 1;
+-		}
+-		else if (!strcmp(this_char,"maxproto")) {
+-			if (!value || !*value)
+-				return 1;
+-			*maxproto = simple_strtoul(value,&value,0);
+-			if (*value)
++
++		token = match_token(p, tokens, args);
++		switch (token) {
++			case Opt_fd:
++				*pipefd = match_int(args);
++				break;
++			case Opt_uid:
++				*uid = match_int(args);
++				break;
++			case Opt_gid:
++				*gid = match_int(args);
++				break;
++			case Opt_pgrp:
++				*pgrp = match_int(args);
++				break;
++			case Opt_minproto:
++				*minproto = match_int(args);
++				break;
++			case Opt_maxproto:
++				*maxproto = match_int(args);
++				break;
++			default:
+ 				return 1;
+ 		}
+-		else break;
+ 	}
+ 	return (*pipefd < 0);
  }
-@@ -1524,6 +1523,9 @@
-     if (client == NULL)
- 	return CS_OUT_OF_RESOURCE;
- 
-+    if (++s->real_clients == 1)
-+	pcmcia_parse_events(s, SS_DETECT);
-+    
-     *handle = client;
-     client->state &= ~CLIENT_UNBOUND;
-     client->Socket = s;
 
+
+--
+~Randy

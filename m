@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262843AbSIPSu7>; Mon, 16 Sep 2002 14:50:59 -0400
+	id <S263137AbSIPS7v>; Mon, 16 Sep 2002 14:59:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262856AbSIPSu6>; Mon, 16 Sep 2002 14:50:58 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11789 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262843AbSIPSu5>; Mon, 16 Sep 2002 14:50:57 -0400
-Date: Mon, 16 Sep 2002 14:48:35 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: 2.5.34-mm4
-In-Reply-To: <3D84D799.557653C7@digeo.com>
-Message-ID: <Pine.LNX.3.96.1020916143506.6180E-100000@gatekeeper.tmr.com>
+	id <S263141AbSIPS7v>; Mon, 16 Sep 2002 14:59:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:25746 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263137AbSIPS7u> convert rfc822-to-8bit; Mon, 16 Sep 2002 14:59:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Alan Cox <alan@redhat.com>, davej@suse.de (Dave Jones)
+Subject: Re: [PATCH] Summit patch for 2.5.34
+Date: Mon, 16 Sep 2002 12:03:21 -0700
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com,
+       torvalds@transmeta.com, alan@redhat.com, mingo@redhat.com
+References: <200209161615.g8GGFqx10004@devserv.devel.redhat.com>
+In-Reply-To: <200209161615.g8GGFqx10004@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209161203.21815.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, Andrew Morton wrote:
+On Monday 16 September 2002 09:15 am, Alan Cox wrote:
+> > - Is this the same summit code as is in 2.4-ac ?
+> >   (Ie, the one that boots on non summit systems too)
+>
+> Yes
 
-> Impressions are:
-> 
-> - 2.5 swaps a lot in response to heavy pagecache activity.
-> 
->   SEGQ didn't change that, actually.  And this is correct,
->   as-designed behaviour.  We'll need some "don't be irritating"
->   knob to prevent this.  Or speculative pagein when the load
->   has subsided, which would be a fair-sized project.
+It's the same, save for a few lines of code that use the local APIC's task 
+priority HW to try for some better dynamic interrupt balancing.
 
-It would be nice to have a knob in /proc/sys which could be tuned for
-response or throughput, Preferably not a boolean;-) I suspect that we
-would have lack of agreement on what that would do, but it sure would be
-nice!
- 
-> - In both -ac and 2.5 the scheduler is prone to starving interactive
->   applications (netscape 4, gkrellm, command-line gdb, others) when
->   there is a compilation happening.
-> 
->   This is very, very noticeable; and it afects applications which
->   do not use sched_yield().  Ingo has put some extra stuff in since
->   then and I need to retest.
-> 
-> - In -ac, there are noticeable stalls during heavy writeout.  This
->   may be an ext3 thing, but I can't think of any IO scheduling
->   differences in -ac ext3.  I'd be guessing that it is due to
->   bdflush/kupdate lumpiness.
+> > - I believe the way forward here is to work with James Bottomley,
+> >   who has a nice abstraction of the areas your patch touches for
+> >   his Voyager sub-architecture.
+>
+> For 2.5 maybe not for 2.4. Until Linus takes the subarch stuff the
+> if if if bits will just get uglier. As well as voyager there are at least
+> two more pending NUMA x86 platforms other than IBM summit
+> -
 
-I have the feeling that 2.5 is less good about noting that a file is open
-for write only and no seeks have been done. I haven't measured it, but it
-would seem that writes to such a file would be better on the disk and not
-taking buffers, since they're probably not going to be read.
-
-This is just based on running mkisofs on 2.4.19 and 2.5.34, a watching "no
-disk activity" followed by a heavy burst. I haven't made any careful
-measurement, so take this as you will, but I agree that heavy write bogs
-the system. Clearly with big memory I can/do get the whole ~700MB in
-memory if writes don't start quickly.
-
-Yes, that could be tuning, I know that.
- 
-> Overall I find Marcelo kernels to be the most comfortable, followed
-> by 2.5.  Alan's kernels I find to be the least comfortable in a
-> "developer's desktop" situation.
-
-On small memory machines I don't see as much to choose, and the -ck series
-has been very nice to me. I don't run 2.5 on any but test machines, and
-both are big memory (1+GB) machines.
+I'll have to read up on James Bottomley's x86 subarch code.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

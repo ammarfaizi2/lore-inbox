@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270656AbRHJWBf>; Fri, 10 Aug 2001 18:01:35 -0400
+	id <S270660AbRHJWBZ>; Fri, 10 Aug 2001 18:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270661AbRHJWB0>; Fri, 10 Aug 2001 18:01:26 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38148 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270656AbRHJWBM>; Fri, 10 Aug 2001 18:01:12 -0400
-Subject: Re: 2.4.7 & 2.4.8-pre8 fail to boot
-To: jlnance@intrex.net
-Date: Fri, 10 Aug 2001 23:03:35 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, jkern@numeritech.com
-In-Reply-To: <20010810152946.A6055@bessie.localdomain> from "jlnance@intrex.net" at Aug 10, 2001 03:29:46 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270661AbRHJWBQ>; Fri, 10 Aug 2001 18:01:16 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:14348 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270659AbRHJWBA>; Fri, 10 Aug 2001 18:01:00 -0400
+Message-ID: <3B745990.7040808@zytor.com>
+Date: Fri, 10 Aug 2001 15:00:48 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+In-Reply-To: <Pine.LNX.4.33.0108101445350.7596-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15VKNT-0001jW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello All,
->     I have some dual CPU P3 machines that I can not get to boot.  I am able
-> to get 2.4.5 to work.  Here is a description of what happens during boot:
+Linus Torvalds wrote:
+> 
+> These days, the vma's just have too much information, and the
+> page tables
+> can't be counted on to have enough bits.
+> 
 
-ASUS CUV series boards ? - if so get a newer BIOS (007 or 10 )
+Note that it isn't very hard to deal with *that* problem, *if you want 
+to*... you just need to maintain a shadow data structure in the same 
+format as the page tables and stuff your software bits in there.
 
+Whether or not that is a good idea is another issue entirely, however, 
+on some level it would make sense to separate protection from all the 
+other VM things...
+
+	-hpa
 

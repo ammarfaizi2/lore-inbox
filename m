@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261858AbREPJwY>; Wed, 16 May 2001 05:52:24 -0400
+	id <S261860AbREPKDt>; Wed, 16 May 2001 06:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261856AbREPJwO>; Wed, 16 May 2001 05:52:14 -0400
-Received: from ns.caldera.de ([212.34.180.1]:16595 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S261853AbREPJv5>;
-	Wed, 16 May 2001 05:51:57 -0400
-Date: Wed, 16 May 2001 11:48:42 +0200
+	id <S261862AbREPKDj>; Wed, 16 May 2001 06:03:39 -0400
+Received: from ns.caldera.de ([212.34.180.1]:20947 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S261860AbREPKDb>;
+	Wed, 16 May 2001 06:03:31 -0400
+Date: Wed, 16 May 2001 12:00:16 +0200
 From: Marcus Meissner <Marcus.Meissner@caldera.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: PATCH: NCR53c406 missing release_region
-Message-ID: <20010516114842.A30386@caldera.de>
+Subject: PATCH: missing release_region in qlogicfas.c
+Message-ID: <20010516120016.A31161@caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,25 +20,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-There was a missing release_region in NCR53c406a.c, which fscked up
-probing with 'modprobe NCR53c406' like one mode of our installer does.
-(Tested by checking the contents of /proc/ioports before and after. After
- modprobe it contained junk for the probed port range. It no longer does.)
+qlogicfas was missing a release_region in autoprobing too.
 
 Ciao, Marcus
 
-Index: drivers/scsi/NCR53c406a.c
+Index: drivers/scsi/qlogicfas.c
 ===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/scsi/NCR53c406a.c,v
-retrieving revision 1.6
-diff -u -r1.6 NCR53c406a.c
---- drivers/scsi/NCR53c406a.c	2001/05/03 13:03:53	1.6
-+++ drivers/scsi/NCR53c406a.c	2001/05/16 09:38:11
-@@ -508,6 +508,7 @@
-                     VDEB(printk("port_base=%x\n", port_base));
-                     break;
-                 }
-+                release_region(ports[i], 0x10);
-             }
-         }
-     }
+RCS file: /build/mm/work/repository/linux-mm/drivers/scsi/qlogicfas.c,v
+retrieving revision 1.13
+diff -u -r1.13 qlogicfas.c
+--- drivers/scsi/qlogicfas.c	2001/05/03 13:16:22	1.13
++++ drivers/scsi/qlogicfas.c	2001/05/16 09:59:04
+@@ -563,6 +563,7 @@
+ 			if ( ( (inb(qbase + 0xe) ^ inb(qbase + 0xe)) == 7 )
+ 			  && ( (inb(qbase + 0xe) ^ inb(qbase + 0xe)) == 7 ) )
+ 				break;
++			release_region(qbase, 0x10 );
+ 		}
+ 		if (qbase == 0x430)
+ 			return 0;

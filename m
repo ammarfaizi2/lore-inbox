@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310443AbSCKRbV>; Mon, 11 Mar 2002 12:31:21 -0500
+	id <S310520AbSCKRkV>; Mon, 11 Mar 2002 12:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310441AbSCKRbL>; Mon, 11 Mar 2002 12:31:11 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:10505 "EHLO
+	id <S310518AbSCKRkL>; Mon, 11 Mar 2002 12:40:11 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:14089 "EHLO
 	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S310443AbSCKRbC>; Mon, 11 Mar 2002 12:31:02 -0500
+	id <S310520AbSCKRkD>; Mon, 11 Mar 2002 12:40:03 -0500
 From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200203111730.SAA23375@green.mif.pg.gda.pl>
+Message-Id: <200203111739.SAA23452@green.mif.pg.gda.pl>
 Subject: Re: IDE on linux-2.4.18 (fwd)
-To: root@chaos.analogic.com
-Date: Mon, 11 Mar 2002 18:30:50 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200203111707.g2BH7wU14696@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Mar 11, 2002 06:08:05 PM
+To: ankry@pg.gda.pl (Andrzej Krzysztofowicz)
+Date: Mon, 11 Mar 2002 18:39:58 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <200203111736.g2BHavN17745@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Mar 11, 2002 06:36:59 PM
 X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,31 +20,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Mon, 11 Mar 2002, Alan Cox wrote:
 > 
-> I tried to install Linux-2.4.18 on a machine with IDE drives.
-> The machine ran fine with Linux-2.4.1. It won't mount the
-> root file-system because:
+> > > hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=1024/255/63, UDMA(33)
+> > > Partition check:
+> > >  hda: hda1 hda2 < hda5 hda6 >
+> > > hd: unable to get major 3 for hard disk
+> > 
+> > ^^^^^^^^^^^^^^^^^^
+> > 
+> > Case dismissed ;)
 > 
-> hda:	Cannot handle device with more than 16 heads giving up.
-> 
-> That's a real nice help. The device has 1024 cylinders, 255 heads
-> and 63 sectors. This is 6,422 MB. An attempt to set 16 heads in
-> the BIOS will allow access to only 528 MB, which is wrong.
+> I haven't a clue what you are saying. Every IDE option that is allowed
+> is enabled in .config. The IDE drive(s) are found, but you imply, no
+> state, that I did something wrong. You state that I haven't enabled
+> something? I enabled everything that 'make config` allowed me to
+> enable. Now what is it?
 
-Old hd.o driver supports:
-- 1 IDE channel
-- only CHS mode (no LBA)
+You are lucky that your IDE disk works. It should not as you choosed to use
+"Old driver on the first channel". 
 
-It can address disk up to 8 GB, but a kernel parameter hd=... is required
-if in is > 512 MB
-It can boot from 512 MB area at the disk beginning, i.e. the area that can
-be addressed by BIOS in this mode. 
-( /boot should be located there if using lilo )
-
-> So what is the magic incantation necessary to get the IDE
-> subsystem to work like it used to?
-
-Are you sure you need / want to use the old (ancient) driver ?
+RTFM.
 
 -- 
 =======================================================================

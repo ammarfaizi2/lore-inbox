@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135365AbRDLWUH>; Thu, 12 Apr 2001 18:20:07 -0400
+	id <S135364AbRDLWVr>; Thu, 12 Apr 2001 18:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135364AbRDLWT5>; Thu, 12 Apr 2001 18:19:57 -0400
-Received: from t2.redhat.com ([199.183.24.243]:43502 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135363AbRDLWTx>; Thu, 12 Apr 2001 18:19:53 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AD5F9FE.9A49374D@uow.edu.au> 
-In-Reply-To: <3AD5F9FE.9A49374D@uow.edu.au>  <Pine.LNX.4.33.0104121336040.31024-100000@dystopia.lab43.org> 
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Rod Stewart <stewart@dystopia.lab43.org>, linux-kernel@vger.kernel.org,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 8139too: defunct threads 
-Mime-Version: 1.0
+	id <S135366AbRDLWVm>; Thu, 12 Apr 2001 18:21:42 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:10918 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135364AbRDLWVF>; Thu, 12 Apr 2001 18:21:05 -0400
+Message-ID: <3AD62A18.8AC75605@mvista.com>
+Date: Thu, 12 Apr 2001 15:20:08 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bret Indrelee <bret@io.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: No 100 HZ timer!
+In-Reply-To: <Pine.LNX.4.21.0104121606360.10006-100000@fnord.io.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 12 Apr 2001 23:19:41 +0100
-Message-ID: <20905.987113981@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bret Indrelee wrote:
+> 
+> On Thu, 12 Apr 2001, george anzinger wrote:
+> > Bret Indrelee wrote:
+> > > Keep all timers in a sorted double-linked list. Do the insert
+> > > intelligently, adding it from the back or front of the list depending on
+> > > where it is in relation to existing entries.
+> >
+> > I think this is too slow, especially for a busy system, but there are
+> > solutions...
+> 
+> It is better than the current solution.
 
+Uh, where are we talking about.  The current time list insert is real
+close to O(1) and never more than O(5).
+> 
+> The insert takes the most time, having to scan through the list. If you
+> had to scan the whole list it would be O(n) with a simple linked list. If
+> you insert it from the end, it is almost always going to be less than
+> that.
 
-andrewm@uow.edu.au said:
->  ho-hum.  Jeff, I think the best fix here is to bite the bullet and
-> write kernel_daemon(), which will delegate thread creation to keventd,
-> which is the only thing we have which reaps zombies.  Any better
-> ideas?
+Right, but compared to the current O(5) max, this is just too long.
+> 
+> The time to remove is O(1).
+> 
+> Fetching the first element from the list is also O(1), but you may have to
+> fetch several items that have all expired. Here you could do something
+> clever. Just make sure it is O(1) to determine if the list is empty.
+> 
+I would hope to move expired timers to another list or just process
+them.  In any case they should not be a problem here.
 
-Yes. Let init do it, as God intended. Why reap threads in the kernel when 
-they could just reparent themselves as children of pid 1?
+One of the posts that started all this mentioned a tick less system (on
+a 360 I think) that used the current time list.  They had to scan
+forward in time to find the next event and easy 10 ms was a new list to
+look at.  Conclusion: The current list structure is NOT organized for
+tick less time keeping.
 
---
-dwmw2
-
-
+George

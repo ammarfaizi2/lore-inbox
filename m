@@ -1,51 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273534AbRJVPHh>; Mon, 22 Oct 2001 11:07:37 -0400
+	id <S274872AbRJVPNR>; Mon, 22 Oct 2001 11:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273996AbRJVPH1>; Mon, 22 Oct 2001 11:07:27 -0400
-Received: from opengraphics.com ([216.208.162.194]:56265 "EHLO
-	hurricane.opengraphics.com") by vger.kernel.org with ESMTP
-	id <S272636AbRJVPHK>; Mon, 22 Oct 2001 11:07:10 -0400
-Date: Mon, 22 Oct 2001 11:07:41 -0400
-To: Walter Harms <WHarms@bfs.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: possible bug in 2.4.x pc_keyb.c
-Message-ID: <20011022110741.A28643@concord.opengraphics.com>
-In-Reply-To: <vines.sxdD+tn1pvA@SZKOM.BFS.DE>
-Mime-Version: 1.0
+	id <S274774AbRJVPNH>; Mon, 22 Oct 2001 11:13:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8699 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S274174AbRJVPMv>; Mon, 22 Oct 2001 11:12:51 -0400
+Message-ID: <3BD43758.32646D49@mvista.com>
+Date: Mon, 22 Oct 2001 08:12:24 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: How should we do a 64-bit jiffies?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <vines.sxdD+tn1pvA@SZKOM.BFS.DE>
-User-Agent: Mutt/1.3.18i
-From: Len Sorensen <lsorense@opengraphics.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 04:36:25PM +0100, Walter Harms wrote:
-> hi list,
-> 
-> keyboard disappears with 2.4.x kernel on notebook (compaq amarda)
-> 
-> After some time the keyboard from my amarda notebook does not respond to anything. The only hint is that 
-> "keyboard: Timeout - AT keyboard not present?" appears
-> quit often in the syslog before the kbd stops working.
-> 
-> Comparing the 2.2.x code (no problems) with the 2.4.x code i found pckbd_leds() as prime suspect.
-> as you can see it sets kbd_exists = 0 (FALSE) after sending an ENABLE. I am not sure if this is my probleme (read: no time to check if this fix works) but i guess its wrong. 
-> 
-> Note: 
-> 1. the error isnt easy reproduceable but appears only with the 2.4.x 
-> 2. send_data returns 1 for  acknowledge  else 0 
-> 3. kann sombody please document kbd_exists ?
+I am working on POSIX timers where there is defined a CLOCK_MONOTONIC. 
+The most reasonable implementation of this clock is that it is "uptime"
+or jiffies.  The problem is that it is most definitely not MONOTONIC
+when it rolls back to 0 :(  Thus the need for 64-bits.
 
-I have seen this error on every 2.4 and 2.3.99 kernel I have used
-on every machine I use.  The machiens I have used it on are all IBM
-Intelistation or IBM PC300GL machines.  Whenever the keyboard interrupt
-it lost, I either loose the character I just typed (most common), or
-get a duplicate of the character.  If it happens when I hit shift, the
-shift can get stuck since the release is lost.  Same for ALT and CTRL.
-It never happened with any 2.2 kernel.  The keyboard always comes back
-after loosing the one character (although I think I have had it die for
-about 1 second a few times, although not lately).
+As it turns out, the only code that needs to know about the high order
+bits is the code that increments jiffies and the POSIX timer code. 
+Every thing else can continue to use the current definition with no
+problem.
 
-Len Sorensen
+The solution needs to account for the Endianess of the platform.  Here
+are the possible solutions I have come up with:
+
+1.) Define jiffies in the arch section of the code using asm.  Looks
+like this for x86:
+
+__asm__( ".global jiffies\n\t"
+         ".global jiffiesll\n"
+         ".global jiffiesh\n"
+         "jiffiesll:\n"
+         "jiffies: \n\t"
+
+         ".long 0\n"
+         "jiffiesh: \n\t"
+         ".long 0");
+
+The up side of this method is that none of the current using code needs
+to be aware of the change.  We just remove  "unsigned long volatile
+jiffies;" from timer.c.
+
+The down side of this method is that all platforms must do something
+similar.
+
+2.) Use a C structure that depends on ENDIAN defines:
+
+ #if defined(__LITTLE_ENDIAN)
+      union {
+        long long jiffiesll;
+        struct {
+        int jiffiesl
+        int jiffiesh
+        } jiffieparts;
+ }jiffiesu; 
+ #elif defined(__BIG_ENDIAN)
+     union {
+        long long jiffies64;
+        struct {
+        int jiffiesh
+        int jiffiesl
+        } jiffieparts;
+ }jiffiesu; 
+ #else
+ #error "I'm probably missing #include <asm/byteorder.h>"
+ #endif
+ #define jiffies jiffiesu.jiffieparts.jiffiesl
+ #define jiffiesll jiffiesu.jiffies64
+
+The down side with this method is that jiffies can not be used as a
+local or structure
+element, i.e. it is now a reserved name in the kernel.  
+
+3.)  Define jiffies as 64 bit and use C casts to get to the low order
+part:
+
+u64 jiffies_u64;
+
+#define jiffies (unsigned long volatile)jiffies_u64
+
+Here again the down side is  that jiffies can not be used as a local or
+structure
+element, i.e. it is now a reserved name in the kernel.  
+
+I am sure there are other ways to approach this and I would like to hear
+them.  
+
+Approach 1.) requires that all platforms be changed at the same time. 
+Approaches 2.) and 3.) require that we find all occurrences of jiffies
+should not be "defined" to something else.  The Ibm tick less patch
+found most of these, but I am sure there are more lurking in drivers.
+
+Comments?
+
+George

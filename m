@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUDCT6r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 14:58:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUDCT6r
+	id S261915AbUDCUCs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 15:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUDCUCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 14:58:47 -0500
-Received: from mail.gmx.de ([213.165.64.20]:6299 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261907AbUDCT6p (ORCPT
+	Sat, 3 Apr 2004 15:02:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64713 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261915AbUDCUCq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 14:58:45 -0500
-X-Authenticated: #294883
-Message-ID: <406F1771.9080109@gmx.de>
-Date: Sat, 03 Apr 2004 21:58:41 +0200
-From: Hans-Georg Esser <h.g.esser@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brian Jackson <brian@brianandsara.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 and 2.4.21, Firewire, 160 GB Harddisk, 134 GB barrier
-References: <406EC833.4080909@gmx.de> <200404031053.41975.brian@brianandsara.net>
-In-Reply-To: <200404031053.41975.brian@brianandsara.net>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 3 Apr 2004 15:02:46 -0500
+Date: Sat, 3 Apr 2004 12:02:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: hch@infradead.org, hugh@veritas.com, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap
+ complexity fix
+Message-Id: <20040403120227.398268aa.akpm@osdl.org>
+In-Reply-To: <20040403174043.GK2307@dualathlon.random>
+References: <20040402001535.GG18585@dualathlon.random>
+	<Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
+	<20040402011627.GK18585@dualathlon.random>
+	<20040401173649.22f734cd.akpm@osdl.org>
+	<20040402020022.GN18585@dualathlon.random>
+	<20040402104334.A871@infradead.org>
+	<20040402164634.GF21341@dualathlon.random>
+	<20040403174043.GK2307@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Jackson wrote:
->>>My drive (Western Digital WD1600BB-32DWA0) works well when directly
->>>connected to the IDE controller, but doesn't like using an external
->>>firewire connection ("Pyro 1394 Drive Kit" of Adstech.com). The firewire
-[...]
-> The more likely scenario is that the bridge chip in said box doesn't support 
-> the larger drive and is the limiting factor.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
 > 
-> --Brian Jackson
+>  I'm very convinced that the alloc_pages API should be the same for all
+>  archs w/o or w/ MMU, and I'm fine if we want to make the non-compound
+>  retval the default (and change __GFP_NO_COMP to __GFP_COMP) in the long
+>  run (to optimize all callers but hugetlbfs). For the short term
+>  __GFP_NO_COMP and compound being the default is the safest (for all
+>  archs).
 
-Ouch, yes. I tried it with an Apple Mac (with OS X), same problem. Sorry,
-I completely didn't suspect the hardware to cause the problem, the firewire
-drive kit is only four months old...
-
-Thanks,
-
-Hans-Georg
+This single patch which enables the compound page logic in
+get_page()/put_page():
 
 
--- 
-Hans-Georg Eßer  -  http://privat.hgesser.com  -  Tel. 089 99248380
-GPG Fingerprint: F319 10C0 76E2 DAAD DDFA  F017 4CAD BB99 A4A9 9E53
+--- 25/include/linux/mm.h~a	2004-04-03 11:50:56.900246584 -0800
++++ 25-akpm/include/linux/mm.h	2004-04-03 11:50:59.189898504 -0800
+@@ -236,7 +236,7 @@ struct page {
+ 
+ extern void FASTCALL(__page_cache_release(struct page *));
+ 
+-#ifdef CONFIG_HUGETLB_PAGE
++#ifndef CONFIG_HUGETLB_PAGE
+ 
+ static inline int page_count(struct page *p)
+ {
+
+
+Increases a 3.5MB vmlinux by 15kB, a lot of it fastpath.  We should retain
+this optimisation.
+
+It might be better to switch over to address masking in get_user_pages()
+and just dump all the compound page logic.  I don't immediately see how the
+get_user_pages() caller can subsequently do put_page() against the correct
+pageframe, but I assume you worked that out?
+

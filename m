@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUDGWq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 18:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUDGWq6
+	id S264197AbUDGWuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 18:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbUDGWuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 18:46:58 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:4278 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261197AbUDGWq4 (ORCPT
+	Wed, 7 Apr 2004 18:50:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22419 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264197AbUDGWuR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 18:46:56 -0400
-Date: Wed, 07 Apr 2004 15:58:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>
-cc: Eric Whiting <ewhiting@amis.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
-Message-ID: <12640000.1081378705@flay>
-In-Reply-To: <20040406192549.GA14869@elte.hu>
-References: <40718B2A.967D9467@amis.com> <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com> <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu> <20040406155925.GW2234@dualathlon.random> <20040406192549.GA14869@elte.hu>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Apr 2004 18:50:17 -0400
+Date: Wed, 7 Apr 2004 15:52:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: mbligh@aracnet.com, colpatch@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: NUMA API for Linux
+Message-Id: <20040407155225.14936e8a.akpm@osdl.org>
+In-Reply-To: <20040408003809.01fc979e.ak@suse.de>
+References: <1081373058.9061.16.camel@arrakis>
+	<20040407145130.4b1bdf3e.akpm@osdl.org>
+	<5840000.1081377504@flay>
+	<20040408003809.01fc979e.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> anyway, i can only repeat what i said last year in the announcement
-> email of the 4:4 feature:
+Andi Kleen <ak@suse.de> wrote:
+>
+> We can discuss changes when someone shows numbers that additional 
+> optimizations are needed. I haven't seen such numbers and I'm not convinced
+> sharing is even a good idea from a design standpoint.  For the first version 
+> I just aimed to get something working with straight forward code.
 > 
->    the typical cost of 4G/4G on typical x86 servers is +3 usecs of
->    syscall latency (this is in addition to the ~1 usec null syscall
->    latency). Depending on the workload this can cause a typical
->    measurable wall-clock overhead from 0% to 30%, for typical
->    application workloads (DB workload, networking workload, etc.).
->    Isolated microbenchmarks can show a bigger slowdown as well - due to
->    the syscall latency increase.
-> 
-> so it's not like there's a cat in the bag.
+> To put it all in perspective: a policy is 12 bytes on a 32bit machine
+> (assuming MAX_NUMNODES <= 32) and 16 bytes on a 64bit machine
+> (with MAX_NUMNODES <= 64)
 
-I don't see how you can go by the cost in syscall latency ... the real 
-cost is not the time take to flush the cache, it's the impact of doing
-so .... such microbenchmarks seems pointless. I'm not against 4/4G at all,
-I think it solves a real problem ... I just think latency numbers are a 
-bad way to justify it - we need to look at whole benchmark runs.
+sizeof(vm_area_struct) is a very sensitive thing on ia32.  If you expect
+that anyone is likely to actually use the numa API on 32-bit, sharing
+will be important.
 
-M.
+It should be useful for SMT, yes?
+

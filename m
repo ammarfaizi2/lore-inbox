@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSKMU4P>; Wed, 13 Nov 2002 15:56:15 -0500
+	id <S263491AbSKMU7O>; Wed, 13 Nov 2002 15:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263270AbSKMU4O>; Wed, 13 Nov 2002 15:56:14 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:47343 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S263228AbSKMU4M>; Wed, 13 Nov 2002 15:56:12 -0500
-Subject: Re: [PATCH][2.5.47]Add exported valid_kernel_address()
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <200211132013.gADKDhS01389@linux.intel.com>
-References: <200211132013.gADKDhS01389@linux.intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-BG6qFO44nQDQEsPIM2ja"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Nov 2002 21:46:45 +0100
-Message-Id: <1037220406.2889.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S263342AbSKMU7O>; Wed, 13 Nov 2002 15:59:14 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27405 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263491AbSKMU7N>;
+	Wed, 13 Nov 2002 15:59:13 -0500
+Message-ID: <3DD2BEBB.8040003@pobox.com>
+Date: Wed, 13 Nov 2002 16:06:03 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: rusty@rustcorp.com.au, kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Modules in 2.5.47-bk...
+References: <76A6C122742@vcnet.vc.cvut.cz>
+In-Reply-To: <76A6C122742@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Petr Vandrovec wrote:
 
---=-BG6qFO44nQDQEsPIM2ja
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2002-11-13 at 21:13, Rusty Lynch wrote:
-> The following is a small patch to the 2.5.47 kernel that adds an exported
-> function called valid_kernel_address() that allows kernel code to verify
-> a kernel-mapped address is valid.
->=20
-> valid_kernel_address just calls the static inline kernel_text_address()
-> function defined in arch/i386/kernel/traps.c=20
->=20
-it is customary that people who ask for an export explain why they need
-it.... would you mind explaining that ?
+> Hi Rusty,
+>   I'm probably missing something important, but do you have any plans
+> to integrate module-init-tools into modutils, or extend module-init-tools
+> functionality to make them usable? I tried module-init-tools 0.6
+> and I must say that I'm really surprised that it is possible to make
+> such change after feature freeze, without maintaining at least minimal
+> usability.
+>
+>   If there are modutils which can live with new module system, please
+> point me to them. But I did not found such.
 
 
---=-BG6qFO44nQDQEsPIM2ja
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I'm hoping that Rusty will work with Keith to integrate support for 
+2.5.x into the existing modutils package...  it's rather annoying to 
+have two totally different modutils when switching between 2.[024].x and 
+2.5.x kernels.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA90ro1xULwo51rQBIRAu9hAJsF5mt4QMu8TZyv/YzZmmO5E50FtQCcCLqb
-jyfZriNqr6xYh7toIb4F3wE=
-=RN/p
------END PGP SIGNATURE-----
-
---=-BG6qFO44nQDQEsPIM2ja--
+/me is building drivers into the kernel for now, which slows down 
+debugging, because modules are broken on ia32 and module support isn't 
+present on alpha at all anymore [AFAICS]...
 

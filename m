@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135902AbREDIKN>; Fri, 4 May 2001 04:10:13 -0400
+	id <S135912AbREDIRX>; Fri, 4 May 2001 04:17:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135912AbREDIKE>; Fri, 4 May 2001 04:10:04 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:5124 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S135902AbREDIJy>;
-	Fri, 4 May 2001 04:09:54 -0400
-Message-ID: <20010503235923.A11836@bug.ucw.cz>
-Date: Thu, 3 May 2001 23:59:23 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Brouwer <Andries.Brouwer@cwi.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: iso9660 endianness cleanup patch
-In-Reply-To: <3AEE4A06.3666F4BE@transmeta.com> <3AEFCAD0.BE2A5FA@evision-ventures.com>
+	id <S135913AbREDIRO>; Fri, 4 May 2001 04:17:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:29966 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135912AbREDIRC>;
+	Fri, 4 May 2001 04:17:02 -0400
+Date: Fri, 4 May 2001 10:16:51 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+        root@chaos.analogic.com, Torrey Hoffman <torrey.hoffman@myrio.com>,
+        "'Kenneth Johansson'" <ken@canit.se>,
+        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+Message-ID: <20010504101651.A20294@gruyere.muc.suse.de>
+In-Reply-To: <20010502163101.A7174@gruyere.muc.suse.de> <200105022217.QAA05053@lynx.turbolabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3AEFCAD0.BE2A5FA@evision-ventures.com>; from Martin Dalecki on Wed, May 02, 2001 at 10:52:32AM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200105022217.QAA05053@lynx.turbolabs.com>; from adilger@turbolinux.com on Wed, May 02, 2001 at 04:17:21PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I was looking over the iso9660 code, and noticed that it was doing
-> > endianness conversion via ad hoc *functions*, not even inlines; nor did
-> > it take any advantage of the fact that iso9660 is bi-endian (has "all"
-> > data in both bigendian and littleendian format.)
-> > 
-> > The attached patch fixes both.  It is against 2.4.4, but from the looks
-> > of it it should patch against -ac as well.
+On Wed, May 02, 2001 at 04:17:21PM -0600, Andreas Dilger wrote:
+> Andi Kleen writes:
+> > On Mon, Apr 30, 2001 at 12:07:44PM -0700, David S. Miller wrote:
+> > But something must have been not working with it for mmaps/shlibs 
+> > (not executables); at least historically.
+> > At least I remember that all hell broke lose when you tried to update
+> > libc by cp'ing a new one to /lib/libc.so in the 1.2 days. cp should create a 
+> > new inode (it uses O_CREAT) so in theory it should be coherent by the inode 
+> > reference; but somehow it didn't use to work and random already running 
+> > programs started to segfault. This was long ago. I wonder if old
+> > GNU cp used O_TRUNC instead of O_CREAT, or was there some other kernel bug 
+> > with mappings (hopefully long since fixed). Anybody remembers? 
 > 
-> Please beware: There is a can of worms you are openning up here, 
-> since there are many broken CD producer programms out there, which
-> only provide the little endian data and incorrect big endian
-> entries. I had some CD's of this form myself. So the endian neutrality
-> of the iso9660 is only in the theory present...
+> No, "cp" is still not a safe way to update libc, and I doubt it ever will be.
+> cp does _not_ create a new inode (unlike mv), so you are writing "garbage"
+> into the currently running executables.
 
-Hmm, perhaps there's time to fsck.iso9660?
-								Pavel
-PS: It might be funny to *deliberately* create different filesystems;
-one on little endian side and one on big endian side. That way windows
-users would see "macs suck" and mac users "PCs suck", and that with
-just one cd ;-).
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Ok, the bug is that executable shlibs mappings do not get EBUSY as when you try
+to write into a running executable and it's still not fixed.
+
+> NB: my open(2) says for O_CREAT "If the file does not exist it will be
+> created".  This is _not_ the same as O_EXCL, which will only mean that
+> open(2) will fail when it tries to create a new file.
+
+I assumed it would just create a new inode; but seems I was wrong.
+Thanks for the clarification.
+
+
+-Andi

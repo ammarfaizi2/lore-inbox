@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282112AbRLDAf3>; Mon, 3 Dec 2001 19:35:29 -0500
+	id <S284670AbRLDAfw>; Mon, 3 Dec 2001 19:35:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280790AbRLDAcl>; Mon, 3 Dec 2001 19:32:41 -0500
-Received: from t2.redhat.com ([199.183.24.243]:62452 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S281831AbRLDAcQ>; Mon, 3 Dec 2001 19:32:16 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011202230331.E30DA332@localhost.localdomain> 
-In-Reply-To: <20011202230331.E30DA332@localhost.localdomain> 
-To: WRohdewald@dplanet.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Flash ASUS Bios without Floppy? 
+	id <S280983AbRLDAfc>; Mon, 3 Dec 2001 19:35:32 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:54254 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S280838AbRLDAdT>; Mon, 3 Dec 2001 19:33:19 -0500
+Date: Tue, 4 Dec 2001 00:32:54 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Stephen Walton <swalton@sunspot.csun.edu>
+Cc: Andrew Morton <akpm@zip.com.au>, Steffen Persvold <sp@scali.no>,
+        lkml <linux-kernel@vger.kernel.org>,
+        nfs list <nfs@lists.sourceforge.net>, ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [NFS] Re: 2.4.9 kernel crash
+Message-ID: <20011204003254.K2857@redhat.com>
+In-Reply-To: <3C07E905.DF30E497@zip.com.au> <Pine.LNX.4.33.0112031108470.14786-100000@sunspot.csun.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 04 Dec 2001 00:32:13 +0000
-Message-ID: <4608.1007425933@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112031108470.14786-100000@sunspot.csun.edu>; from swalton@sunspot.csun.edu on Mon, Dec 03, 2001 at 11:10:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Mon, Dec 03, 2001 at 11:10:31AM -0800, Stephen Walton wrote:
+> [Sorry for the long list of CC's but I wasn't sure which to delete.]
+> 
+> > There was a bug in ext3 which was fixed around about the 2.4.9
+> > timeframe.  I don't know if the fix is present in that
+> > particular Red Hat kernel.  It was fixed in ext3 0.9.8.
+> 
+> According to /usr/include/linux/ext3_fs.h, the redhat 2.4.9-13 kernel is
+> running ext3 0.9.11.  I've had no trouble with my NFS-exported ext3 disks.
 
-WRohdewald@dplanet.ch said:
->  how can I update my Bios (Asus A7V266) if I don't have a floppy drive
-> for using the Asus DOS utility?
+It's 0.9.11 with a couple of critical back-ported fixes, and it
+definitely includes the NFS fix.
 
-> Is there any Linux utililty that can do this? 
-
-There are flash chip 'map' drivers which know how to enable WE lines, Vpp 
-etc for various northbridges. Only the L440GX one is in the kernel so far. 
-For the rest, ask on the LinuxBIOS list <linuxbios@lanl.gov>.
-
-Unless you fancy desoldering your flash chips to replace them when, this is
-firmly in the "don't try this at home, kids" category, though :)
-
---
-dwmw2
-
-
+Cheers,
+ Stephen

@@ -1,86 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264297AbRFGDbF>; Wed, 6 Jun 2001 23:31:05 -0400
+	id <S264295AbRFGD0Y>; Wed, 6 Jun 2001 23:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264298AbRFGDaz>; Wed, 6 Jun 2001 23:30:55 -0400
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:33547 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S264297AbRFGDas>; Wed, 6 Jun 2001 23:30:48 -0400
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-Subject: xircom_cb problems
-Message-ID: <991884643.3b1ef5637fca7@eargle.com>
-Date: Wed, 06 Jun 2001 23:30:43 -0400 (EDT)
-From: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org,
-        arjan@fenrus.demon.nl
-In-Reply-To: <200106062154.f56LsE115507@moisil.badula.org>
-In-Reply-To: <200106062154.f56LsE115507@moisil.badula.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
+	id <S264296AbRFGD0P>; Wed, 6 Jun 2001 23:26:15 -0400
+Received: from paperboy.noris.net ([62.128.1.27]:20948 "EHLO mail2.noris.net")
+	by vger.kernel.org with ESMTP id <S264295AbRFGDZ5>;
+	Wed, 6 Jun 2001 23:25:57 -0400
+Mime-Version: 1.0
+Message-Id: <p05100310b744a22f02a6@[192.109.102.42]>
+In-Reply-To: <E157kxf-0000UE-00@the-village.bc.nu>
+In-Reply-To: <E157kxf-0000UE-00@the-village.bc.nu>
+Date: Thu, 7 Jun 2001 05:25:30 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, thierry.lelegard@canal-plus.fr
+From: Matthias Urlichs <smurf@noris.de>
+Subject: Re: PROBLEM: I/O system call never returns if file desc is closed
+ in the
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 22:35 +0100 2001-06-06, Alan Cox wrote:
+>  > This report describes a problem in the usage of file descriptors across
+>>  multiple threads. When one thread closes a file descriptor, another
+>>  thread which waits for an I/O on that file descriptor is not notified
+>>  and blocks forever.
+>
+>THe I/O does not block forever, it blocks until completed.
 
-> The patch does only one thing: it instructs the card not to negotiate
-> full-duplex modes, because (for undocumented and yet unexplained
-> reasons)
-> full-duplex modes don't work well on this card.
-> 
-> If you had problems before, then their cause is most likely elsewhere.
-> 1-second ping time is definitely wrong.
+That's still "forever" if you don't specify a timeout in the select.
 
-Well, I compiled the driver from 2.4.4-ac11, 2.4.5-ac3, and 2.4.5-ac9 all with
-the exact same source from 2.4.5-ac9, and my problems are 100% repeatable on my
-hardware.
+>The actual final
+>closure of the object occurs when the last operation on it exits
 
-At home where I have a 10Mb half-duplex hub connection all of the drivers work
-properly.
+Select is defined as to return, with the appropriate bit set, if/when 
+a nonblocking read/write on the file descriptor won't block. You'd 
+get EBADF in this case, therefore causing the select to return would 
+be a Good Thing.
 
-At work where I have a 10/100Mb full-duplex switch connection the drivers work
-exactly as I described before:
+A related problem is that the second thread my be inside a blocking 
+read() instead of a select() call. It'd never continue.  :-(
 
-2.4.4-ac11 -- mostly works fine -- minor problems awaking from sleep
-
-2.4.5-ac3 -- seems to work but pings are >1 second (yes really a full second)
-
-2.4.5-ac9 -- keeps logging "Link is absent" then "Linux is 100 mbit" over and
-over when trying to pull an IP address via dhcp using pump or dhcpcd. 
-Interestingly manually setting an IP address seems to work fine with this driver.
-
-> The thing is, I don't really see any significant differences between
-> the
-> 2.4.4-ac11 driver and the 2.4.5-ac9 driver. I see lots of clean-ups,
-> some
-> power management stuff, and the half-duplex stuff. None of them should
-> affect the core functionality directly..
-
-I looked at this before posting, and generally agree, but the results are 100%
-reproducable on my machine as listed above, so they must be having some affect.
- My current working system is 2.4.5-ac9 with the driver source from 2.4.4-ac11
-recomiled for it and it's working great (minor resume problems aside).
-
-> Please do me a favor: comment out the call to set_half_duplex() (in
-> xircom_up), recompile and see if it makes a difference.
-
-I'll do this tomorrow morning when I get in and report back.  Thanks for the
-help, I'd really like to see this card get stable as we have it in a lot of our
-laptops here at work.
-
-> > One other note, the version in 2.4.4-ac11 is listed as 1.33 while
-> the
-> > version in 2.4.5-ac9 is 1.11, why did we go backwards?  Were there
-> > significant problems with the newer version?  The 1.33 sure seems to
-> work
-> > better for me.
-> 
-> The CVS version is almost irrelevant, I guess Arjan simply rebuild his
-> repository.
-
-And you would be correct as Arjan confirmed in a follow up messages, sorry about
-that, it just looked strange.
-
-Thanks for the help,
-Tom
-
+HOWEVER: IMHO it's bad design to distribute the responsibility for 
+file descriptors between threads.
+Therefore I think that this behavior is a bug, but it's not one that 
+needs to be fixed yesterday.
+-- 
+Matthias Urlichs

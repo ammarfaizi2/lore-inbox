@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262052AbTCVHiK>; Sat, 22 Mar 2003 02:38:10 -0500
+	id <S262053AbTCVIGh>; Sat, 22 Mar 2003 03:06:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262053AbTCVHiK>; Sat, 22 Mar 2003 02:38:10 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:5384 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262052AbTCVHiJ>; Sat, 22 Mar 2003 02:38:09 -0500
-Date: Sat, 22 Mar 2003 07:49:11 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: fix proc handling in sis, siimageand slc90e66
-Message-ID: <20030322074911.A24305@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-References: <200303211936.h2LJaCK7025824@hraefn.swansea.linux.org.uk>
+	id <S262054AbTCVIGh>; Sat, 22 Mar 2003 03:06:37 -0500
+Received: from calc.cheney.cx ([207.70.165.48]:26587 "EHLO calc.cheney.cx")
+	by vger.kernel.org with ESMTP id <S262053AbTCVIGh>;
+	Sat, 22 Mar 2003 03:06:37 -0500
+Date: Sat, 22 Mar 2003 02:17:40 -0600
+From: Chris Cheney <ccheney@cheney.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: KT400 / HPT372 Bug
+Message-ID: <20030322081740.GS13034@cheney.cx>
+References: <20030322073832.GR13034@cheney.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303211936.h2LJaCK7025824@hraefn.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 21, 2003 at 07:36:12PM +0000
+In-Reply-To: <20030322073832.GR13034@cheney.cx>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 07:36:12PM +0000, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/pci/siimage.c linux-2.5.65-ac2/drivers/ide/pci/siimage.c
-> --- linux-2.5.65/drivers/ide/pci/siimage.c	2003-03-03 19:20:09.000000000 +0000
-> +++ linux-2.5.65-ac2/drivers/ide/pci/siimage.c	2003-03-06 23:35:51.000000000 +0000
-> @@ -55,6 +55,7 @@
->  static int siimage_get_info (char *buffer, char **addr, off_t offset, int count)
->  {
->  	char *p = buffer;
-> +	int len;
->  	u16 i;
->  
->  	p += sprintf(p, "\n");
-> @@ -62,7 +63,11 @@
->  		struct pci_dev *dev	= siimage_devs[i];
->  		p = print_siimage_get_info(p, dev, i);
->  	}
-> -	return p-buffer;	/* => must be less than 4k! */
-> +	/* p - buffer must be less than 4k! */
-> +	len = (p - buffer) - offset;
-> +	*addr = buffer + offset;
-> +	
-> +	return len > count ? count : len;
+On Sat, Mar 22, 2003 at 01:38:32AM -0600, Chris Cheney wrote:
+> I recently aquired a Abit KD7-RAID motherboard which includes a HPT372
+> ide chip. I have tried kernel 2.4.21-pre5-ac3 and it does not work
+> correctly with the HPT372 included with my board.  I tried to use a
+> 2.5.65+ kernel but both refuse to boot for some unknown reason (only
+> loading kernel is displayed).
 
-Shouldn't this just move to the seq_file interface?  (probably the "simple"
-variant)
+I just realized that the error I am seeing on 2.4 is from partition
+detection code on my ls-120 drive. The bug I was seeing on 2.4.20 must
+have been fixed already. However I do think there is still a bug on
+2.5.65+ on the driver, I will look into it further once I can manage to
+boot a 2.5 kernel again.
 
+Thanks,
+
+Chris Cheney

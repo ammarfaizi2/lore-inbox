@@ -1,47 +1,125 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316364AbSE3Fej>; Thu, 30 May 2002 01:34:39 -0400
+	id <S316390AbSE3FsP>; Thu, 30 May 2002 01:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316367AbSE3Fei>; Thu, 30 May 2002 01:34:38 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:531 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S316364AbSE3Fei>; Thu, 30 May 2002 01:34:38 -0400
-Message-Id: <5.1.0.14.2.20020530073357.00cba7d8@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 30 May 2002 07:35:18 +0200
-To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: 2.5.19 - raid1 erros on compile
+	id <S316397AbSE3FsO>; Thu, 30 May 2002 01:48:14 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:5551 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316390AbSE3FsN>;
+	Thu, 30 May 2002 01:48:13 -0400
+Date: Thu, 30 May 2002 15:47:54 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] generic copy_siginfo_to_user cleanup
+Message-Id: <20020530154754.41f6595a.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-I have problems compiling kernel with raid1 support.
+This patch does two things:
+	- makes copy_siginfo_to_user always return either 0 or
+		-EFAULT (as all its callers either expect or don't
+		care about).
+	- explicitly copies the correct union of the siginfo structure.
 
-Any idea?
+Compiles on i386.  Obviously correct :-)
 
-thanks
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-make[2]: Entering directory `/usr/src/linux-2.5.19/drivers/md'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.19/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 
--march=i686    -DKBUILD_BASENAME=raid1  -c -o raid1.o raid1.c
-raid1.c: In function `device_barrier':
-raid1.c:412: `tq_disk' undeclared (first use in this function)
-raid1.c:412: (Each undeclared identifier is reported only once
-raid1.c:412: for each function it appears in.)
-raid1.c: In function `make_request':
-raid1.c:449: `tq_disk' undeclared (first use in this function)
-raid1.c: In function `close_sync':
-raid1.c:651: `tq_disk' undeclared (first use in this function)
-make[2]: *** [raid1.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.19/drivers/md'
-make[1]: *** [_subdir_md] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.19/drivers'
-make: *** [drivers] Error 2
-
-
-
+diff -ruN 2.5.19/kernel/signal.c 2.5.19-si.2/kernel/signal.c
+--- 2.5.19/kernel/signal.c	Thu May 30 09:44:39 2002
++++ 2.5.19-si.2/kernel/signal.c	Thu May 30 15:24:47 2002
+@@ -1043,37 +1043,58 @@
+ 
+ int copy_siginfo_to_user(siginfo_t *to, siginfo_t *from)
+ {
++	int err;
++
+ 	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
+ 		return -EFAULT;
+ 	if (from->si_code < 0)
+-		return __copy_to_user(to, from, sizeof(siginfo_t));
+-	else {
+-		int err;
+-
+-		/* If you change siginfo_t structure, please be sure
+-		   this code is fixed accordingly.
+-		   It should never copy any pad contained in the structure
+-		   to avoid security leaks, but must copy the generic
+-		   3 ints plus the relevant union member.  */
+-		err = __put_user(from->si_signo, &to->si_signo);
+-		err |= __put_user(from->si_errno, &to->si_errno);
+-		err |= __put_user((short)from->si_code, &to->si_code);
+-		/* First 32bits of unions are always present.  */
++		return __copy_to_user(to, from, sizeof(siginfo_t))
++			? -EFAULT : 0;
++	/*
++	 * If you change siginfo_t structure, please be sure
++	 * this code is fixed accordingly.
++	 * It should never copy any pad contained in the structure
++	 * to avoid security leaks, but must copy the generic
++	 * 3 ints plus the relevant union member.
++	 */
++	err = __put_user(from->si_signo, &to->si_signo);
++	err |= __put_user(from->si_errno, &to->si_errno);
++	err |= __put_user((short)from->si_code, &to->si_code);
++	switch (from->si_code && __SI_MASK) {
++	case __SI_KILL:
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		break;
++	case __SI_TIMER:
++		err |= __put_user(from->si_timer1, &to->si_timer1);
++		err |= __put_user(from->si_timer2, &to->si_timer2);
++		break;
++	case __SI_POLL:
++		err |= __put_user(from->si_band, &to->si_band);
++		err |= __put_user(from->si_fd, &to->si_fd);
++		break;
++	case __SI_FAULT:
++		err |= __put_user(from->si_addr, &to->si_addr);
++		break;
++	case __SI_CHLD:
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		err |= __put_user(from->si_status, &to->si_status);
++		err |= __put_user(from->si_utime, &to->si_utime);
++		err |= __put_user(from->si_stime, &to->si_stime);
++		break;
++	case __SI_RT: /* This is not generated by the kernel as of now. */
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		err |= __put_user(from->si_int, &to->si_int);
++		err |= __put_user(from->si_ptr, &to->si_ptr);
++		break;
++	default: /* this is just in case for now ... */
+ 		err |= __put_user(from->si_pid, &to->si_pid);
+-		switch (from->si_code >> 16) {
+-		case __SI_FAULT >> 16:
+-			break;
+-		case __SI_CHLD >> 16:
+-			err |= __put_user(from->si_utime, &to->si_utime);
+-			err |= __put_user(from->si_stime, &to->si_stime);
+-			err |= __put_user(from->si_status, &to->si_status);
+-		default:
+-			err |= __put_user(from->si_uid, &to->si_uid);
+-			break;
+-		/* case __SI_RT: This is not generated by the kernel as of now.  */
+-		}
+-		return err;
++		err |= __put_user(from->si_uid, &to->si_uid);
++		break;
+ 	}
++	return err;
+ }
+ 
+ #endif

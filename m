@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265518AbRFVVHF>; Fri, 22 Jun 2001 17:07:05 -0400
+	id <S265515AbRFVVGF>; Fri, 22 Jun 2001 17:06:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265520AbRFVVGs>; Fri, 22 Jun 2001 17:06:48 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:20235 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S265518AbRFVVGi>;
-	Fri, 22 Jun 2001 17:06:38 -0400
-Date: Fri, 22 Jun 2001 17:09:45 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Maintainers master list?
-Message-ID: <20010622170945.A16757@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	"Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010622160002.B16285@thyrsus.com> <Pine.LNX.4.33L.0106221753140.4442-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L.0106221753140.4442-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Jun 22, 2001 at 05:54:20PM -0300
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S265518AbRFVVFz>; Fri, 22 Jun 2001 17:05:55 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:27652 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S265515AbRFVVFr>; Fri, 22 Jun 2001 17:05:47 -0400
+Date: Fri, 22 Jun 2001 17:07:02 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@vesta.nine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ACPI + Promise IDE = disk corruption :-(((
+Message-ID: <Pine.LNX.4.33.0106221635230.1575-100000@vesta.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br>:
-> Look, when somebody stops maintaining something, they'll
-> stop sending patches. When this happens it's only natural
-> that the information you want to use to generate the
-> MAINTAINERS file is also out of date.
+Hello!
 
-True.  Distributed metadata won't solve this problem.  It won't make the
-problem any worse, either, so it's a wash on this issue.
- 
-> I fail to see how your idea would solve anything.
+It's just a word of warning for those who are trying ACPI with the latest
+kernels.
 
-What happens now when somebody takes over responsibility for a file
-or subsystem and the MAINTAINERS file doesn't get patched, either because
-that person forgets to send a MAINTAINERS update or Linus doesn't 
-happen to take the MAINTAINERS patch for a while?
+I enabled ACPI in 2.4.5-ac17 (2.4.5-ac16 works fine with the same config
+except ACPI). When I booted I saw a message
 
-What happens when I look at a file and it's not obvious which
-subsystem it belongs to?  Sure, I can grovel through MAINTAINERS.  But
-how do I know which verbal description matches the function of the
-cryptically-commented or uncommented code I have in front of me?
+ACPI: If experiencing system slowness, try adding "acpi=no-idle" to
+cmdline
 
-Distributed-information problems need distributed-information
-solutions.  Locality is your friend.  This crowd should know that
-if anybody should.
+and after that ...
+
+reiserfs: checking transaction log (device 21:04) ...
+
+Normally it takes few seconds before the system goes further, but that
+time it tool much longer (one minute maybe), and the next message was
+something like "hde: DMA timeout"
+
+I hit reset hoping to boot the system with "acpi=no-idle", but GRUB
+couldn't load stage2, which resides on the root partition (reiserfs).
+
+I had to install Linux on another drive and run reiserfsck. It found many
+errors, fixed them all, and now I'm happily running my old system.
+
+I also checked the same kernel with "acpi=no-idle" - it works. The ACPI
+messages are now:
+
+ACPI: Core Subsystem version [20010208]
+ACPI: Subsystem enabled
+ACPI: System firmware supports: C2 C3
+ACPI: plvl2lat=10 plvl3lat=20
+ACPI: C2 enter=143 C2 exit=35
+ACPI: C3 enter=858 C3 exit=71
+ACPI: Not using ACPI idle
+ACPI: System firmware supports: S0 S1 S5
+
+The config file is here: http://www.red-bean.com/~proski/linux/config
+dmesg output is here: http://www.red-bean.com/~proski/linux/dmesg
+
+Possibly important data:
+
+Kernel compiled with gcc-3.0
+Motherboard Micron SE440-BX2
+BIOS 4S4EB2X0.05A.0016.P15 (the latest)
+1 Intel Pentium III 550MHz
+Root filesystem is reiserfs
+Root filesystem is on Promise PDC20267 ide controller
+Local APIC (but not IO-APIC) is used.
+
+I can make more experiments (with other hard drives) if needed.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Regards,
+Pavel Roskin
 
-A human being should be able to change a diaper, plan an invasion,
-butcher a hog, conn a ship, design a building, write a sonnet, balance
-accounts, build a wall, set a bone, comfort the dying, take orders, give
-orders, cooperate, act alone, solve equations, analyze a new problem,
-pitch manure, program a computer, cook a tasty meal, fight efficiently,
-die gallantly. Specialization is for insects.
-	-- Robert A. Heinlein, "Time Enough for Love"

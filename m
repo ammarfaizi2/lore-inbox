@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbTJYVL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 17:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbTJYVL4
+	id S262973AbTJYVGr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 17:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbTJYVGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 17:11:56 -0400
-Received: from storm.he.net ([64.71.150.66]:4480 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S262989AbTJYVLx (ORCPT
+	Sat, 25 Oct 2003 17:06:42 -0400
+Received: from storm.he.net ([64.71.150.66]:33773 "HELO storm.he.net")
+	by vger.kernel.org with SMTP id S262982AbTJYVGe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 17:11:53 -0400
-Date: Sat, 25 Oct 2003 14:11:21 -0700
+	Sat, 25 Oct 2003 17:06:34 -0400
+Date: Sat, 25 Oct 2003 13:22:50 -0700
 From: Greg KH <greg@kroah.com>
-To: David Jez <dave.jez@seznam.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: diethotplug-0.4 utility patch
-Message-ID: <20031025211121.GA29379@kroah.com>
-References: <20031023184603.GA81234@stud.fit.vutbr.cz> <20031024054145.GA3233@kroah.com> <20031025120422.GB93355@stud.fit.vutbr.cz>
+To: "Moore, Eric Dean" <emoore@lsil.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
+Message-ID: <20031025202249.GA23437@kroah.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57035A94E6@exa-atlanta.se.lsil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031025120422.GB93355@stud.fit.vutbr.cz>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57035A94E6@exa-atlanta.se.lsil.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 02:04:25PM +0200, David Jez wrote:
-> On Thu, Oct 23, 2003 at 10:41:46PM -0700, Greg KH wrote:
-> > Hm, remove action will not work.  See the linux-hotplug-devel mailing
-> > list archives for why we can not do this.
->   OK, i'll see. But this realy helps me.
+On Fri, Oct 24, 2003 at 06:42:02PM -0400, Moore, Eric Dean wrote:
+> Here's a patch for 2.4.23-pre8 kernel for MPT Fusion driver, coming from LSI
+> Logic.  I posted this as a link to the patch earlier today.  
+> It's been recommended that I post the patch directly to this mailing list.
 
-But it's wrong.  You can't get this correct, and you will end up
-removing modules for devices that are currently in use.  The moment you
-have 2 devices that use the same module this will happen.  You will end
-up with some very unhappy users.
-
-> > > - adds pci.rc & usb.rc
-> > 
-> > Why do you need this?  What's wrong with a small shell script to do
-> > this?  Are you using this for a system?  I guess it could be useful for
-> > a system that has no shell.
->   Nothing wrong on shell script, but i use this on system without perl,
-> awk, if, ...etc... binaries.
-
-Ok, care to send these as a separate patch then too?
-
-thanks,
+The patch is line-wrapped and can not be applied :(
 
 greg k-h

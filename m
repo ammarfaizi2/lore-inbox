@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270267AbRHHCQp>; Tue, 7 Aug 2001 22:16:45 -0400
+	id <S270269AbRHHCTf>; Tue, 7 Aug 2001 22:19:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270269AbRHHCQf>; Tue, 7 Aug 2001 22:16:35 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:3812 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S270267AbRHHCQ0>;
-	Tue, 7 Aug 2001 22:16:26 -0400
-Message-ID: <3B70A0DA.DE33CB87@candelatech.com>
-Date: Tue, 07 Aug 2001 19:15:54 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S270270AbRHHCTZ>; Tue, 7 Aug 2001 22:19:25 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:26522 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S270269AbRHHCTK>; Tue, 7 Aug 2001 22:19:10 -0400
+Date: Tue, 7 Aug 2001 19:19:16 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: Thodoris Pitikaris <thodoris@cs.teiher.gr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: is this a bug?
+In-Reply-To: <3B6FD644.7020409@cs.teiher.gr>
+Message-ID: <Pine.LNX.4.33.0108071916100.23797-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: Stuart Duncan <sety@perth.wni.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ARP's frustrating behavior
-In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Duncan wrote:
-> 
-> Hi,
-> 
-> I'm noticing on a machine with dual NICs that they they all seem to answer
-> ARP queries, even if the request is not directed to their IP.  Here's an
-> example:
-> 
+On Tue, 7 Aug 2001, Thodoris Pitikaris wrote:
 
-Evidently, this is considered a feature.  However, to turn it off:
-echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+> As you will see in the attached file (it's a dmesg from the boot)
+> I have an 1Ghz athlon cpu with a VIA KT133 on a gigabyte GA-7ZX
+> motherboard with 100mhz SDRAM.When I compiled the kernel with
+> cputype=Athlon I continiusly experienced this crash.When I compiled with
+> cputype=i686 everything went smooth (OS is Redhat 7.1)
 
-Ben
+It's a bug in that screwed up compiler redhat shipped with 7.1. AFAIK, the
+only difference between an athlon-specific kernel and an i686-specific
+kernel are the options in the compiler command line when compiling the
+kernel.
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Is gcc 3.0 binary compatible with the stupid redhat compiler? If it is, I
+would upgrade to that. I haven't, myself, because I simply don't know (and
+can't find any information one way or the other) if binaries from the two
+compilers are compatible. Someone who knows better, could you shed some
+light on the subject?
+
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
+

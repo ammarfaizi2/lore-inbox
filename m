@@ -1,311 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261301AbTCGAKz>; Thu, 6 Mar 2003 19:10:55 -0500
+	id <S261316AbTCGAQF>; Thu, 6 Mar 2003 19:16:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261310AbTCGAKy>; Thu, 6 Mar 2003 19:10:54 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:48581 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261301AbTCGAKo>;
-	Thu, 6 Mar 2003 19:10:44 -0500
-Date: Thu, 06 Mar 2003 16:03:00 -0800 (PST)
-Message-Id: <20030306.160300.126216253.davem@redhat.com>
-To: rusty@linux.co.intel.com
-Cc: miyazawa@linux-ipv6.org, linux-kernel@vger.kernel.org
-Subject: Re: Latest bk build error in xfrm.h
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1046986725.4169.40.camel@vmhack>
-References: <1046980043.4170.31.camel@vmhack>
-	<1046986725.4169.40.camel@vmhack>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261319AbTCGAQF>; Thu, 6 Mar 2003 19:16:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:41996 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261316AbTCGAQD>;
+	Thu, 6 Mar 2003 19:16:03 -0500
+Date: Thu, 6 Mar 2003 22:28:45 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] work around gcc-3.x inlining bugs
+Message-ID: <20030306212845.GA2292@nbkurt>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@digeo.com>,
+	linux-kernel@vger.kernel.org
+References: <20030306032208.03f1b5e2.akpm@digeo.com.suse.lists.linux.kernel> <p73fzq067an.fsf@amdsimf.suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Content-Disposition: inline
+In-Reply-To: <p73fzq067an.fsf@amdsimf.suse.de>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-UL1 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Lynch <rusty@linux.co.intel.com>
-   Date: 06 Mar 2003 13:38:44 -0800
 
-   The problem is now the core networking has a dependency on the crypto
-   hmac code (CONFIG_CRYOTPO_HMAC) since the ipv4 ipsec code was added to
-   include/net/xfrm.h (which is included from all kinds of places.)
-   
-   The pretty much exhaust my networking/ipsec knowledge so no patch.
-   
-I just pushed the following patch to Linus, should fix the build for
-everyone.  It's also available at:
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	bk://kernel.bkbits.net/davem/netfix-2.5
+Hi Andi,
 
-Thanks.
+On Thu, Mar 06, 2003 at 12:52:48PM +0100, Andi Kleen wrote:
+> Andrew Morton <akpm@digeo.com> writes:
+>=20
+> > This patch:
+> [...]
+>=20
+> I experimented with -finline-limit=3D<huge number> to get it to obey inli=
+ne,=20
+> but that doesn't fully work. The only way to get it to work in 3.2 and 3.=
+3=20
+> is to specify various long and weird --param arguments. In 3.0 the only
+> way is to change the values in the compiler source and recompile.
 
-ChangeSet@1.1075.2.1, 2003-03-06 16:17:07-08:00, davem@nuts.ninka.net
-  [IPSEC]: Fix build when ipsec is disabled.
+--param max-inline-insns-single
+The fact that this parameter does not get initialized by using
+-finline-limit is a bug. A fix for this has already gone into CVS HEAD
+(3.4) and is pending for 3.3.
 
-diff -Nru a/include/net/ah.h b/include/net/ah.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/net/ah.h	Thu Mar  6 15:39:12 2003
-@@ -0,0 +1,35 @@
-+#ifndef _NET_AH_H
-+#define _NET_AH_H
-+
-+#include <net/xfrm.h>
-+
-+struct ah_data
-+{
-+	u8			*key;
-+	int			key_len;
-+	u8			*work_icv;
-+	int			icv_full_len;
-+	int			icv_trunc_len;
-+
-+	void			(*icv)(struct ah_data*,
-+	                               struct sk_buff *skb, u8 *icv);
-+
-+	struct crypto_tfm	*tfm;
-+};
-+
-+extern void skb_ah_walk(const struct sk_buff *skb,
-+                        struct crypto_tfm *tfm, icv_update_fn_t icv_update);
-+
-+static inline void
-+ah_hmac_digest(struct ah_data *ahp, struct sk_buff *skb, u8 *auth_data)
-+{
-+	struct crypto_tfm *tfm = ahp->tfm;
-+
-+	memset(auth_data, 0, ahp->icv_trunc_len);
-+	crypto_hmac_init(tfm, ahp->key, &ahp->key_len);
-+	skb_ah_walk(skb, tfm, crypto_hmac_update);
-+	crypto_hmac_final(tfm, ahp->key, &ahp->key_len, ahp->work_icv);
-+	memcpy(auth_data, ahp->work_icv, ahp->icv_trunc_len);
-+}
-+
-+#endif
-diff -Nru a/include/net/esp.h b/include/net/esp.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/net/esp.h	Thu Mar  6 15:39:12 2003
-@@ -0,0 +1,56 @@
-+#ifndef _NET_ESP_H
-+#define _NET_ESP_H
-+
-+#include <net/xfrm.h>
-+
-+struct esp_data
-+{
-+	/* Confidentiality */
-+	struct {
-+		u8			*key;		/* Key */
-+		int			key_len;	/* Key length */
-+		u8			*ivec;		/* ivec buffer */
-+		/* ivlen is offset from enc_data, where encrypted data start.
-+		 * It is logically different of crypto_tfm_alg_ivsize(tfm).
-+		 * We assume that it is either zero (no ivec), or
-+		 * >= crypto_tfm_alg_ivsize(tfm). */
-+		int			ivlen;
-+		int			padlen;		/* 0..255 */
-+		struct crypto_tfm	*tfm;		/* crypto handle */
-+	} conf;
-+
-+	/* Integrity. It is active when icv_full_len != 0 */
-+	struct {
-+		u8			*key;		/* Key */
-+		int			key_len;	/* Length of the key */
-+		u8			*work_icv;
-+		int			icv_full_len;
-+		int			icv_trunc_len;
-+		void			(*icv)(struct esp_data*,
-+		                               struct sk_buff *skb,
-+		                               int offset, int len, u8 *icv);
-+		struct crypto_tfm	*tfm;
-+	} auth;
-+};
-+
-+extern void skb_icv_walk(const struct sk_buff *skb, struct crypto_tfm *tfm,
-+			 int offset, int len, icv_update_fn_t icv_update);
-+extern int skb_to_sgvec(struct sk_buff *skb, struct scatterlist *sg, int offset, int len);
-+extern int skb_cow_data(struct sk_buff *skb, int tailbits, struct sk_buff **trailer);
-+extern void *pskb_put(struct sk_buff *skb, struct sk_buff *tail, int len);
-+
-+static inline void
-+esp_hmac_digest(struct esp_data *esp, struct sk_buff *skb, int offset,
-+                int len, u8 *auth_data)
-+{
-+	struct crypto_tfm *tfm = esp->auth.tfm;
-+	char *icv = esp->auth.work_icv;
-+
-+	memset(auth_data, 0, esp->auth.icv_trunc_len);
-+	crypto_hmac_init(tfm, esp->auth.key, &esp->auth.key_len);
-+	skb_icv_walk(skb, tfm, offset, len, crypto_hmac_update);
-+	crypto_hmac_final(tfm, esp->auth.key, &esp->auth.key_len, icv);
-+	memcpy(auth_data, icv, esp->auth.icv_trunc_len);
-+}
-+
-+#endif
-diff -Nru a/include/net/xfrm.h b/include/net/xfrm.h
---- a/include/net/xfrm.h	Thu Mar  6 15:39:12 2003
-+++ b/include/net/xfrm.h	Thu Mar  6 15:39:12 2003
-@@ -492,85 +492,8 @@
- extern int xfrm6_unregister_type(struct xfrm_type *type);
- extern struct xfrm_type *xfrm6_get_type(u8 proto);
- 
--struct ah_data
--{
--	u8			*key;
--	int			key_len;
--	u8			*work_icv;
--	int			icv_full_len;
--	int			icv_trunc_len;
--
--	void			(*icv)(struct ah_data*,
--	                               struct sk_buff *skb, u8 *icv);
--
--	struct crypto_tfm	*tfm;
--};
--
--struct esp_data
--{
--	/* Confidentiality */
--	struct {
--		u8			*key;		/* Key */
--		int			key_len;	/* Key length */
--		u8			*ivec;		/* ivec buffer */
--		/* ivlen is offset from enc_data, where encrypted data start.
--		 * It is logically different of crypto_tfm_alg_ivsize(tfm).
--		 * We assume that it is either zero (no ivec), or
--		 * >= crypto_tfm_alg_ivsize(tfm). */
--		int			ivlen;
--		int			padlen;		/* 0..255 */
--		struct crypto_tfm	*tfm;		/* crypto handle */
--	} conf;
--
--	/* Integrity. It is active when icv_full_len != 0 */
--	struct {
--		u8			*key;		/* Key */
--		int			key_len;	/* Length of the key */
--		u8			*work_icv;
--		int			icv_full_len;
--		int			icv_trunc_len;
--		void			(*icv)(struct esp_data*,
--		                               struct sk_buff *skb,
--		                               int offset, int len, u8 *icv);
--		struct crypto_tfm	*tfm;
--	} auth;
--};
--
-+struct crypto_tfm;
- typedef void (icv_update_fn_t)(struct crypto_tfm *, struct scatterlist *, unsigned int);
--extern void skb_ah_walk(const struct sk_buff *skb,
--                        struct crypto_tfm *tfm, icv_update_fn_t icv_update);
--extern void skb_icv_walk(const struct sk_buff *skb, struct crypto_tfm *tfm,
--			int offset, int len, icv_update_fn_t icv_update);
--extern int skb_to_sgvec(struct sk_buff *skb, struct scatterlist *sg, int offset, int len);
--extern int skb_cow_data(struct sk_buff *skb, int tailbits, struct sk_buff **trailer);
--extern void *pskb_put(struct sk_buff *skb, struct sk_buff *tail, int len);
--
--static inline void
--ah_hmac_digest(struct ah_data *ahp, struct sk_buff *skb, u8 *auth_data)
--{
--	struct crypto_tfm *tfm = ahp->tfm;
--
--	memset(auth_data, 0, ahp->icv_trunc_len);
--	crypto_hmac_init(tfm, ahp->key, &ahp->key_len);
--	skb_ah_walk(skb, tfm, crypto_hmac_update);
--	crypto_hmac_final(tfm, ahp->key, &ahp->key_len, ahp->work_icv);
--	memcpy(auth_data, ahp->work_icv, ahp->icv_trunc_len);
--}
--
--static inline void
--esp_hmac_digest(struct esp_data *esp, struct sk_buff *skb, int offset,
--                int len, u8 *auth_data)
--{
--	struct crypto_tfm *tfm = esp->auth.tfm;
--	char *icv = esp->auth.work_icv;
--
--	memset(auth_data, 0, esp->auth.icv_trunc_len);
--	crypto_hmac_init(tfm, esp->auth.key, &esp->auth.key_len);
--	skb_icv_walk(skb, tfm, offset, len, crypto_hmac_update);
--	crypto_hmac_final(tfm, esp->auth.key, &esp->auth.key_len, icv);
--	memcpy(auth_data, icv, esp->auth.icv_trunc_len);
--}
--
- 
- typedef int (xfrm_dst_lookup_t)(struct xfrm_dst **dst, struct flowi *fl);
- int xfrm_dst_lookup_register(xfrm_dst_lookup_t *dst_lookup, unsigned short family);
-diff -Nru a/net/ipv4/ah.c b/net/ipv4/ah.c
---- a/net/ipv4/ah.c	Thu Mar  6 15:39:12 2003
-+++ b/net/ipv4/ah.c	Thu Mar  6 15:39:12 2003
-@@ -2,6 +2,7 @@
- #include <linux/module.h>
- #include <net/ip.h>
- #include <net/xfrm.h>
-+#include <net/ah.h>
- #include <linux/crypto.h>
- #include <linux/pfkeyv2.h>
- #include <net/icmp.h>
-diff -Nru a/net/ipv4/esp.c b/net/ipv4/esp.c
---- a/net/ipv4/esp.c	Thu Mar  6 15:39:12 2003
-+++ b/net/ipv4/esp.c	Thu Mar  6 15:39:12 2003
-@@ -2,6 +2,7 @@
- #include <linux/module.h>
- #include <net/ip.h>
- #include <net/xfrm.h>
-+#include <net/esp.h>
- #include <asm/scatterlist.h>
- #include <linux/crypto.h>
- #include <linux/pfkeyv2.h>
-diff -Nru a/net/ipv4/xfrm_algo.c b/net/ipv4/xfrm_algo.c
---- a/net/ipv4/xfrm_algo.c	Thu Mar  6 15:39:12 2003
-+++ b/net/ipv4/xfrm_algo.c	Thu Mar  6 15:39:12 2003
-@@ -12,6 +12,12 @@
- #include <linux/kernel.h>
- #include <linux/pfkeyv2.h>
- #include <net/xfrm.h>
-+#if defined(CONFIG_INET_AH) || defined(CONFIG_INET_AH_MODULE) || defined(CONFIG_INET6_AH) || defined(CONFIG_INET6_AH_MODULE)
-+#include <net/ah.h>
-+#endif
-+#if defined(CONFIG_INET_ESP) || defined(CONFIG_INET_ESP_MODULE) || defined(CONFIG_INET6_ESP) || defined(CONFIG_INET6_ESP_MODULE)
-+#include <net/esp.h>
-+#endif
- #include <asm/scatterlist.h>
- 
- /*
-diff -Nru a/net/ipv6/ah6.c b/net/ipv6/ah6.c
---- a/net/ipv6/ah6.c	Thu Mar  6 15:39:12 2003
-+++ b/net/ipv6/ah6.c	Thu Mar  6 15:39:12 2003
-@@ -28,6 +28,7 @@
- #include <linux/module.h>
- #include <net/ip.h>
- #include <net/xfrm.h>
-+#include <net/ah.h>
- #include <linux/crypto.h>
- #include <linux/pfkeyv2.h>
- #include <net/icmp.h>
-diff -Nru a/net/ipv6/esp6.c b/net/ipv6/esp6.c
---- a/net/ipv6/esp6.c	Thu Mar  6 15:39:12 2003
-+++ b/net/ipv6/esp6.c	Thu Mar  6 15:39:12 2003
-@@ -28,6 +28,7 @@
- #include <linux/module.h>
- #include <net/ip.h>
- #include <net/xfrm.h>
-+#include <net/esp.h>
- #include <asm/scatterlist.h>
- #include <linux/crypto.h>
- #include <linux/pfkeyv2.h>
-diff -Nru a/net/netsyms.c b/net/netsyms.c
---- a/net/netsyms.c	Thu Mar  6 15:39:12 2003
-+++ b/net/netsyms.c	Thu Mar  6 15:39:12 2003
-@@ -54,6 +54,12 @@
- #include <linux/mroute.h>
- #include <linux/igmp.h>
- #include <net/xfrm.h>
-+#if defined(CONFIG_INET_AH) || defined(CONFIG_INET_AH_MODULE) || defined(CONFIG_INET6_AH) || defined(CONFIG_INET6_AH_MODULE)
-+#include <net/ah.h>
-+#endif
-+#if defined(CONFIG_INET_ESP) || defined(CONFIG_INET_ESP_MODULE) || defined(CONFIG_INET6_ESP) || defined(CONFIG_INET6_ESP_MODULE)
-+#include <net/esp.h>
-+#endif
- 
- extern struct net_proto_family inet_family_ops;
- 
+[...=A0]
+> I think it is the right thing to do. In kernel land when we say inline
+> we mean inline. Don't expect the compiler to second guess that,
+> especially since it doesn't seem to be very good at that.
 
+The compiler solely judges by the size of the function to be inlined,
+no magic involved.
+There are two reasons, why this may not be what you expect:
+- The allowable size can get smaller if in the function from that
+  you're calling and the one above and ... were already inlined.
+  At some moment this recursive inlining has to be stopped to
+  not results in excessive compile time resource requirements
+- When calculating the size of a function, the compiler counts
+  tree tokens, each estimated to yield 10 RTL instructions.
+  It does unfortunately not take into account code that will
+  be eliminated by optimization (constant propagation, dead
+  code elimination, ...) nor does it have a very good idea
+  about the size of inline assembly.
 
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers                        SuSE Labs
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQE+Z72MxmLh6hyYd04RAtJXAKCeuyoX2bWEeCNDFmaGye0anf8hRwCgkZXl
+g0gkTUIgAxCzbvKNtahiSUw=
+=gw0I
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--

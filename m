@@ -1,303 +1,454 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270866AbTGPOVV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270872AbTGPOVV
+	id S270865AbTGPOTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270866AbTGPOTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:21:21 -0400
-Received: from cmailm5.svr.pol.co.uk ([195.92.193.21]:38918 "EHLO
-	cmailm5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id S270866AbTGPOUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:20:50 -0400
-Message-Id: <5.1.0.14.0.20030716141023.02753380@212.67.194.181>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 16 Jul 2003 15:22:47 +0100
-To: linux-kernel@vger.kernel.org
-From: Michael Dransfield <mike@blueroot.net>
-Subject: PROBLEM: make xconfig segfaults, menuconfig fails
+	Wed, 16 Jul 2003 10:19:47 -0400
+Received: from hal-5.inet.it ([213.92.5.24]:47012 "EHLO hal-5.inet.it")
+	by vger.kernel.org with ESMTP id S270865AbTGPOTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:19:32 -0400
+Date: Wed, 16 Jul 2003 16:35:23 +0200
+From: Mattia Dongili <dongili@supereva.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: Oops when killing a kon launched from an xterm
+Message-ID: <20030716143523.GA632@inferi.kami.home>
+Reply-To: dongili@supereva.it
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_82056000==_"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_82056000==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+[1.] 
+Oops when killing a kon launched from an xterm
 
-Typing 'make xconfig' segfaults - core dump can be sent if you need
+[2.] 
+the same happens in 2.4.2[01] and 2.5.75. I tried adding some debug
+printk to check_tty_count but this makes the oops trigger at shutdown
+time (without being able to write it down - this laptop has no serial
+port).
 
-'make menuconfig' produces errors and fails (output attached)
+[3.] 
+tty, console, X
 
-I am attaching the output of ver_linux
+[5.] 
+ksymoops 2.4.8 on i686 2.6.0-test1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.0-test1/ (default)
+     -m /boot/System.map-2.6.0-test1 (default)
 
-I am using Mandrake 9.1
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-qt rpms installed
-
-libqt3-common-3.1.1-13mdk
-libqt3-3.1.1-13mdk
-libqt3-devel-3.1.1-13mdk
-
-
-Mike
---=====================_82056000==_
-Content-Type: text/plain; name="menuconfig.out";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="menuconfig.out"
-
-bWFrZVsxXTogYHNjcmlwdHMva2NvbmZpZy9tY29uZicgaXMgdXAgdG8gZGF0ZS4KICBIT1NUQ0Mg
-IHNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0Lm8KSW4gZmlsZSBpbmNsdWRlZCBmcm9tIHNjcmlw
-dHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MjQ6CnNjcmlwdHMvbHhkaWFsb2cvZGlhbG9nLmg6Mjk6
-MjA6IGN1cnNlcy5oOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5CkluIGZpbGUgaW5jbHVkZWQg
-ZnJvbSBzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjI0OgpzY3JpcHRzL2x4ZGlhbG9nL2Rp
-YWxvZy5oOjEyNzogcGFyc2UgZXJyb3IgYmVmb3JlICJ1c2VfY29sb3JzIgpzY3JpcHRzL2x4ZGlh
-bG9nL2RpYWxvZy5oOjEyNzogd2FybmluZzogdHlwZSBkZWZhdWx0cyB0byBgaW50JyBpbiBkZWNs
-YXJhdGlvbiBvZiBgdXNlX2NvbG9ycycKc2NyaXB0cy9seGRpYWxvZy9kaWFsb2cuaDoxMjc6IHdh
-cm5pbmc6IGRhdGEgZGVmaW5pdGlvbiBoYXMgbm8gdHlwZSBvciBzdG9yYWdlIGNsYXNzCnNjcmlw
-dHMvbHhkaWFsb2cvZGlhbG9nLmg6MTI4OiBwYXJzZSBlcnJvciBiZWZvcmUgInVzZV9zaGFkb3ci
-CnNjcmlwdHMvbHhkaWFsb2cvZGlhbG9nLmg6MTI4OiB3YXJuaW5nOiB0eXBlIGRlZmF1bHRzIHRv
-IGBpbnQnIGluIGRlY2xhcmF0aW9uIG9mIGB1c2Vfc2hhZG93JwpzY3JpcHRzL2x4ZGlhbG9nL2Rp
-YWxvZy5oOjEyODogd2FybmluZzogZGF0YSBkZWZpbml0aW9uIGhhcyBubyB0eXBlIG9yIHN0b3Jh
-Z2UgY2xhc3MKc2NyaXB0cy9seGRpYWxvZy9kaWFsb2cuaDoxMzA6IHBhcnNlIGVycm9yIGJlZm9y
-ZSAiYXR0cmlidXRlcyIKc2NyaXB0cy9seGRpYWxvZy9kaWFsb2cuaDoxMzA6IHdhcm5pbmc6IHR5
-cGUgZGVmYXVsdHMgdG8gYGludCcgaW4gZGVjbGFyYXRpb24gb2YgYGF0dHJpYnV0ZXMnCnNjcmlw
-dHMvbHhkaWFsb2cvZGlhbG9nLmg6MTMwOiB3YXJuaW5nOiBkYXRhIGRlZmluaXRpb24gaGFzIG5v
-IHR5cGUgb3Igc3RvcmFnZSBjbGFzcwpzY3JpcHRzL2x4ZGlhbG9nL2RpYWxvZy5oOjE0MzogcGFy
-c2UgZXJyb3IgYmVmb3JlICcqJyB0b2tlbgpzY3JpcHRzL2x4ZGlhbG9nL2RpYWxvZy5oOjE0Mzog
-d2FybmluZzogZnVuY3Rpb24gZGVjbGFyYXRpb24gaXNuJ3QgYSBwcm90b3R5cGUKc2NyaXB0cy9s
-eGRpYWxvZy9kaWFsb2cuaDoxNDY6IHBhcnNlIGVycm9yIGJlZm9yZSAnKicgdG9rZW4Kc2NyaXB0
-cy9seGRpYWxvZy9kaWFsb2cuaDoxNDY6IHdhcm5pbmc6IGZ1bmN0aW9uIGRlY2xhcmF0aW9uIGlz
-bid0IGEgcHJvdG90eXBlCnNjcmlwdHMvbHhkaWFsb2cvZGlhbG9nLmg6MTQ3OiBwYXJzZSBlcnJv
-ciBiZWZvcmUgJyonIHRva2VuCnNjcmlwdHMvbHhkaWFsb2cvZGlhbG9nLmg6MTQ3OiB3YXJuaW5n
-OiBmdW5jdGlvbiBkZWNsYXJhdGlvbiBpc24ndCBhIHByb3RvdHlwZQpzY3JpcHRzL2x4ZGlhbG9n
-L2RpYWxvZy5oOjE0ODogcGFyc2UgZXJyb3IgYmVmb3JlICcqJyB0b2tlbgpzY3JpcHRzL2x4ZGlh
-bG9nL2RpYWxvZy5oOjE0OTogd2FybmluZzogZnVuY3Rpb24gZGVjbGFyYXRpb24gaXNuJ3QgYSBw
-cm90b3R5cGUKc2NyaXB0cy9seGRpYWxvZy9kaWFsb2cuaDoxNTA6IHBhcnNlIGVycm9yIGJlZm9y
-ZSAnKicgdG9rZW4Kc2NyaXB0cy9seGRpYWxvZy9kaWFsb2cuaDoxNTA6IHdhcm5pbmc6IGZ1bmN0
-aW9uIGRlY2xhcmF0aW9uIGlzbid0IGEgcHJvdG90eXBlCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2ts
-aXN0LmM6MzI6IHBhcnNlIGVycm9yIGJlZm9yZSAnKicgdG9rZW4Kc2NyaXB0cy9seGRpYWxvZy9j
-aGVja2xpc3QuYzozNDogd2FybmluZzogZnVuY3Rpb24gZGVjbGFyYXRpb24gaXNuJ3QgYSBwcm90
-b3R5cGUKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzogSW4gZnVuY3Rpb24gYHByaW50X2l0
-ZW0nOgpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjM4OiB3YXJuaW5nOiBpbXBsaWNpdCBk
-ZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBgd2F0dHJzZXQnCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2ts
-aXN0LmM6Mzg6IGB3aW4nIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpz
-Y3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjM4OiAoRWFjaCB1bmRlY2xhcmVkIGlkZW50aWZp
-ZXIgaXMgcmVwb3J0ZWQgb25seSBvbmNlCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6Mzg6
-IGZvciBlYWNoIGZ1bmN0aW9uIGl0IGFwcGVhcnMgaW4uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNr
-bGlzdC5jOjM5OiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBgd21v
-dmUnCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6Mzk6IGBjaG9pY2UnIHVuZGVjbGFyZWQg
-KGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5j
-OjQxOiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBgd2FkZGNoJwpz
-Y3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjQ0OiBgc2VsZWN0ZWQnIHVuZGVjbGFyZWQgKGZp
-cnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjQ2
-OiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBgd3ByaW50dycKc2Ny
-aXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzo0NjogYHN0YXR1cycgdW5kZWNsYXJlZCAoZmlyc3Qg
-dXNlIGluIHRoaXMgZnVuY3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6NTE6IHdh
-cm5pbmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIGBtdndhZGRjaCcKc2NyaXB0
-cy9seGRpYWxvZy9jaGVja2xpc3QuYzo1MTogYGl0ZW0nIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBp
-biB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjUzOiB3YXJuaW5n
-OiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBgd2FkZHN0cicKc2NyaXB0cy9seGRp
-YWxvZy9jaGVja2xpc3QuYzo1Njogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVu
-Y3Rpb24gYHdyZWZyZXNoJwpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOiBBdCB0b3AgbGV2
-ZWw6CnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6NjQ6IHBhcnNlIGVycm9yIGJlZm9yZSAn
-KicgdG9rZW4Kc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzo2Njogd2FybmluZzogZnVuY3Rp
-b24gZGVjbGFyYXRpb24gaXNuJ3QgYSBwcm90b3R5cGUKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xp
-c3QuYzogSW4gZnVuY3Rpb24gYHByaW50X2Fycm93cyc6CnNjcmlwdHMvbHhkaWFsb2cvY2hlY2ts
-aXN0LmM6Njc6IGB3aW4nIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpz
-Y3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjY3OiBgeScgdW5kZWNsYXJlZCAoZmlyc3QgdXNl
-IGluIHRoaXMgZnVuY3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6Njc6IGB4JyB1
-bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlvbikKc2NyaXB0cy9seGRpYWxvZy9j
-aGVja2xpc3QuYzo2OTogYHNjcm9sbCcgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVu
-Y3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6ODI6IGBoZWlnaHQnIHVuZGVjbGFy
-ZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlz
-dC5jOjg1OiBgaXRlbV9ubycgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24p
-CnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6ODU6IGBjaG9pY2UnIHVuZGVjbGFyZWQgKGZp
-cnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOiBB
-dCB0b3AgbGV2ZWw6CnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MTAzOiBwYXJzZSBlcnJv
-ciBiZWZvcmUgJyonIHRva2VuCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MTA0OiB3YXJu
-aW5nOiBmdW5jdGlvbiBkZWNsYXJhdGlvbiBpc24ndCBhIHByb3RvdHlwZQpzY3JpcHRzL2x4ZGlh
-bG9nL2NoZWNrbGlzdC5jOiBJbiBmdW5jdGlvbiBgcHJpbnRfYnV0dG9ucyc6CnNjcmlwdHMvbHhk
-aWFsb2cvY2hlY2tsaXN0LmM6MTA1OiBgd2lkdGgnIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0
-aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjEwNjogYGhlaWdodCcg
-dW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cv
-Y2hlY2tsaXN0LmM6MTA4OiBgZGlhbG9nJyB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBm
-dW5jdGlvbikKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzoxMDg6IGBzZWxlY3RlZCcgdW5k
-ZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cvY2hl
-Y2tsaXN0LmM6IEluIGZ1bmN0aW9uIGBkaWFsb2dfY2hlY2tsaXN0JzoKc2NyaXB0cy9seGRpYWxv
-Zy9jaGVja2xpc3QuYzoxMjY6IGBXSU5ET1cnIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlz
-IGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjEyNjogYGRpYWxvZycgdW5k
-ZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cvY2hl
-Y2tsaXN0LmM6MTI2OiBgbGlzdCcgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rp
-b24pCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MTI2OiB3YXJuaW5nOiBsZWZ0LWhhbmQg
-b3BlcmFuZCBvZiBjb21tYSBleHByZXNzaW9uIGhhcyBubyBlZmZlY3QKc2NyaXB0cy9seGRpYWxv
-Zy9jaGVja2xpc3QuYzoxMzI6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0
-aW9uIGBlbmR3aW4nCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MTMzOiB3YXJuaW5nOiBp
-bXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiBgZnByaW50ZicKc2NyaXB0cy9seGRpYWxv
-Zy9jaGVja2xpc3QuYzoxMzM6IGBzdGRlcnInIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlz
-IGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjE0ODogYENPTFMnIHVuZGVj
-bGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNr
-bGlzdC5jOjE0OTogYExJTkVTJyB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlv
-bikKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzoxNTE6IGBzdGRzY3InIHVuZGVjbGFyZWQg
-KGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5j
-OjE1Mzogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24gYG5ld3dpbicK
-c2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzoxNTQ6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xh
-cmF0aW9uIG9mIGZ1bmN0aW9uIGBrZXlwYWQnCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6
-MTU0OiBgVFJVRScgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCnNjcmlw
-dHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MTg3OiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlv
-biBvZiBmdW5jdGlvbiBgc3Vid2luJwpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjIxOTog
-d2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24gYHdub3V0cmVmcmVzaCcK
-c2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzoyMjE6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xh
-cmF0aW9uIG9mIGZ1bmN0aW9uIGBkb3VwZGF0ZScKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3Qu
-YzoyMjQ6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIGB3Z2V0Y2gn
-CnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MjMxOiBgS0VZX1VQJyB1bmRlY2xhcmVkIChm
-aXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlvbikKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzoy
-MzE6IGBLRVlfRE9XTicgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCnNj
-cmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0LmM6MjQxOiBgRkFMU0UnIHVuZGVjbGFyZWQgKGZpcnN0
-IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjI0Mjog
-d2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24gYHNjcm9sbG9rJwpzY3Jp
-cHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjI0Mzogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRp
-b24gb2YgZnVuY3Rpb24gYHdzY3JsJwpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlzdC5jOjI3MDog
-Y2FsbGVkIG9iamVjdCBpcyBub3QgYSBmdW5jdGlvbgpzY3JpcHRzL2x4ZGlhbG9nL2NoZWNrbGlz
-dC5jOjMwNTogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24gYGRlbHdp
-bicKc2NyaXB0cy9seGRpYWxvZy9jaGVja2xpc3QuYzozMDk6IGBLRVlfTEVGVCcgdW5kZWNsYXJl
-ZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCnNjcmlwdHMvbHhkaWFsb2cvY2hlY2tsaXN0
-LmM6MzEwOiBgS0VZX1JJR0hUJyB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlv
-bikKL3Vzci9pbmNsdWRlL2JpdHMvc3RyaW5nMi5oOiBBdCB0b3AgbGV2ZWw6CnNjcmlwdHMvbHhk
-aWFsb2cvZGlhbG9nLmg6MTMwOiB3YXJuaW5nOiBhcnJheSBgYXR0cmlidXRlcycgYXNzdW1lZCB0
-byBoYXZlIG9uZSBlbGVtZW50Cm1ha2VbMV06ICoqKiBbc2NyaXB0cy9seGRpYWxvZy9jaGVja2xp
-c3Qub10gRXJyb3IgMQptYWtlOiAqKiogW21lbnVjb25maWddIEVycm9yIDIK
---=====================_82056000==_
-Content-Type: text/plain; name="ver_linux.out";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="ver_linux.out"
-
-SWYgc29tZSBmaWVsZHMgYXJlIGVtcHR5IG9yIGxvb2sgdW51c3VhbCB5b3UgbWF5IGhhdmUgYW4g
-b2xkIHZlcnNpb24uCkNvbXBhcmUgdG8gdGhlIGN1cnJlbnQgbWluaW1hbCByZXF1aXJlbWVudHMg
-aW4gRG9jdW1lbnRhdGlvbi9DaGFuZ2VzLgogCkxpbnV4IGxpbnV4MSAyLjQuMjEtMC4xM21kayAj
-MSBGcmkgTWFyIDE0IDE1OjA4OjA2IEVTVCAyMDAzIGk2ODYgdW5rbm93biB1bmtub3duIEdOVS9M
-aW51eAogCkdudSBDICAgICAgICAgICAgICAgICAgMy4yLjIKR251IG1ha2UgICAgICAgICAgICAg
-ICAzLjgwCnV0aWwtbGludXggICAgICAgICAgICAgMi4xMXgKbW91bnQgICAgICAgICAgICAgICAg
-ICAyLjExeAptb2R1bGUtaW5pdC10b29scyAgICAgIDIuNC4yMgplMmZzcHJvZ3MgICAgICAgICAg
-ICAgIDEuMzIKUFBQICAgICAgICAgICAgICAgICAgICAyLjQuMQpMaW51eCBDIExpYnJhcnkgICAg
-ICAgIDIuMy4xCkR5bmFtaWMgbGlua2VyIChsZGQpICAgMi4zLjEKUHJvY3BzICAgICAgICAgICAg
-ICAgICAzLjEuNgpOZXQtdG9vbHMgICAgICAgICAgICAgIDEuNjAKQ29uc29sZS10b29scyAgICAg
-ICAgICAwLjIuMwpTaC11dGlscyAgICAgICAgICAgICAgIDQuNS43Ck1vZHVsZXMgTG9hZGVkICAg
-ICAgICAgaXNvZnMgbmxzX2lzbzg4NTktMTUgcHBwX2RlZmxhdGUgemxpYl9pbmZsYXRlIHpsaWJf
-ZGVmbGF0ZSBic2RfY29tcCB1ZGYgYmluZm10X21pc2MgcGFycG9ydF9wYyBscCBwYXJwb3J0IHNn
-IHN0IHNyX21vZCBzZF9tb2Qgc2NzaV9tb2QgaXB0X1RPUyBpcHRfTUFTUVVFUkFERSBpcHRfTE9H
-IGlwdF9SRUpFQ1QgaXB0X3N0YXRlIGlwdGFibGVfbWFuZ2xlIGlwX25hdF9pcmMgaXBfbmF0X2Z0
-cCBpcHRhYmxlX25hdCBpcF9jb25udHJhY2tfaXJjIGlwX2Nvbm50cmFja19mdHAgaXBfY29ubnRy
-YWNrIGlwdGFibGVfZmlsdGVyIGlwX3RhYmxlcyBzbmQtc2VxLW1pZGkgc25kLXNlcS1vc3Mgc25k
-LXNlcS1taWRpLWV2ZW50IHNuZC1zZXEgc25kLXBjbS1vc3Mgc25kLW1peGVyLW9zcyBzbmQtY3M0
-Nnh4IHNuZC1hYzk3LWNvZGVjIHNuZC1yYXdtaWRpIHNuZC1zZXEtZGV2aWNlIHNuZC1wY20gc25k
-LXRpbWVyIGdhbWVwb3J0IHNuZC1wYWdlLWFsbG9jIHNuZCBzb3VuZGNvcmUgbmZzZCBwcHBfYXN5
-bmMgcHBwX2dlbmVyaWMgc2xoYyBhZl9wYWNrZXQgaWRlLWZsb3BweSBpZGUtdGFwZSBpZGUtY2Qg
-Y2Ryb20gZmxvcHB5IDNjNTl4IHN1cGVybW91bnQgcHJpbnRlciB1c2Itb2hjaSB1c2Jjb3JlIHJ0
-YyBleHQzIGpiZAo=
---=====================_82056000==_
-Content-Type: text/plain; name="xconfig.out";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="xconfig.out"
-
-ICBDSEsgICAgIGluY2x1ZGUvbGludXgvdmVyc2lvbi5oCiAgVVBEICAgICBpbmNsdWRlL2xpbnV4
-L3ZlcnNpb24uaAogIE1ha2luZyBhc20tPmFzbS1pMzg2IHN5bWxpbmsKICBDQyAgICAgIHNjcmlw
-dHMvZW1wdHkubwogIE1LRUxGICAgc2NyaXB0cy9lbGZjb25maWcuaAogIEhPU1RDQyAgc2NyaXB0
-cy9maWxlMmFsaWFzLm8KICBIT1NUQ0MgIHNjcmlwdHMvbW9kcG9zdC5vCiAgSE9TVExEICBzY3Jp
-cHRzL21vZHBvc3QKbWFrZVsxXTogYHNjcmlwdHMva2NvbmZpZy9jb25mJyBpcyB1cCB0byBkYXRl
-LgouL3NjcmlwdHMva2NvbmZpZy9jb25mIC1zIGFyY2gvaTM4Ni9LY29uZmlnCmJvb2xlYW4gc3lt
-Ym9sIEJJTkZNVF9aRkxBVCB0ZXN0ZWQgZm9yICdtJz8gdGVzdCBmb3JjZWQgdG8gJ24nCiMKIyB1
-c2luZyBkZWZhdWx0cyBmb3VuZCBpbiAuY29uZmlnCiMKICBTUExJVCAgIGluY2x1ZGUvbGludXgv
-YXV0b2NvbmYuaCAtPiBpbmNsdWRlL2NvbmZpZy8qCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVs
-L2FzbS1vZmZzZXRzLnMKICBDSEsgICAgIGluY2x1ZGUvYXNtLWkzODYvYXNtX29mZnNldHMuaAog
-IFVQRCAgICAgaW5jbHVkZS9hc20taTM4Ni9hc21fb2Zmc2V0cy5oCiAgQ0MgICAgICBpbml0L21h
-aW4ubwogIENISyAgICAgaW5jbHVkZS9saW51eC9jb21waWxlLmgKICBVUEQgICAgIGluY2x1ZGUv
-bGludXgvY29tcGlsZS5oCiAgQ0MgICAgICBpbml0L3ZlcnNpb24ubwogIENDICAgICAgaW5pdC9k
-b19tb3VudHMubwogIENDICAgICAgaW5pdC9kb19tb3VudHNfcmQubwogIENDICAgICAgaW5pdC9k
-b19tb3VudHNfaW5pdHJkLm8KICBDQyAgICAgIGluaXQvZG9fbW91bnRzX21kLm8KICBMRCAgICAg
-IGluaXQvbW91bnRzLm8KICBDQyAgICAgIGluaXQvaW5pdHJhbWZzLm8KICBMRCAgICAgIGluaXQv
-YnVpbHQtaW4ubwogIEhPU1RDQyAgdXNyL2dlbl9pbml0X2NwaW8KICBDUElPICAgIHVzci9pbml0
-cmFtZnNfZGF0YS5jcGlvCiAgR1pJUCAgICB1c3IvaW5pdHJhbWZzX2RhdGEuY3Bpby5negplY2hv
-ICIJLnNlY3Rpb24gLmluaXQucmFtZnMsXCJhXCIiID4gdXNyL2luaXRyYW1mc19kYXRhLlMKZWNo
-byAiLmluY2JpbiBcInVzci9pbml0cmFtZnNfZGF0YS5jcGlvLmd6XCIiID4+IHVzci9pbml0cmFt
-ZnNfZGF0YS5TCiAgQVMgICAgICB1c3IvaW5pdHJhbWZzX2RhdGEubwogIExEICAgICAgdXNyL2J1
-aWx0LWluLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvcHJvY2Vzcy5vCiAgQ0MgICAgICBh
-cmNoL2kzODYva2VybmVsL3NlbWFwaG9yZS5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL3Np
-Z25hbC5vCiAgQVMgICAgICBhcmNoL2kzODYva2VybmVsL2VudHJ5Lm8KICBDQyAgICAgIGFyY2gv
-aTM4Ni9rZXJuZWwvdHJhcHMubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9pcnEubwogIEND
-ICAgICAgYXJjaC9pMzg2L2tlcm5lbC92bTg2Lm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwv
-cHRyYWNlLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvaTgyNTkubwogIENDICAgICAgYXJj
-aC9pMzg2L2tlcm5lbC9pb3BvcnQubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9sZHQubwog
-IENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9zZXR1cC5vCiAgQ0MgICAgICBhcmNoL2kzODYva2Vy
-bmVsL3RpbWUubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9zeXNfaTM4Ni5vCiAgQ0MgICAg
-ICBhcmNoL2kzODYva2VybmVsL3BjaS1kbWEubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9p
-Mzg2X2tzeW1zLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvaTM4Ny5vCiAgQ0MgICAgICBh
-cmNoL2kzODYva2VybmVsL2RtaV9zY2FuLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvYm9v
-dGZsYWcubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9kb3VibGVmYXVsdC5vCiAgQ0MgICAg
-ICBhcmNoL2kzODYva2VybmVsL2FjcGkvYm9vdC5vCiAgTEQgICAgICBhcmNoL2kzODYva2VybmVs
-L2FjcGkvYnVpbHQtaW4ubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9jcHUvY29tbW9uLm8K
-ICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1L3Byb2MubwogIENDICAgICAgYXJjaC9pMzg2
-L2tlcm5lbC9jcHUvYW1kLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1L2N5cml4Lm8K
-ICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1L2NlbnRhdXIubwogIENDICAgICAgYXJjaC9p
-Mzg2L2tlcm5lbC9jcHUvdHJhbnNtZXRhLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1
-L2ludGVsLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1L3Jpc2UubwogIENDICAgICAg
-YXJjaC9pMzg2L2tlcm5lbC9jcHUvbmV4Z2VuLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwv
-Y3B1L3VtYy5vCiAgTEQgICAgICBhcmNoL2kzODYva2VybmVsL2NwdS9jcHVmcmVxL2J1aWx0LWlu
-Lm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1L21jaGVjay9tY2UubwogIENDICAgICAg
-YXJjaC9pMzg2L2tlcm5lbC9jcHUvbWNoZWNrL2s3Lm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJu
-ZWwvY3B1L21jaGVjay9wNC5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL2NwdS9tY2hlY2sv
-cDUubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9jcHUvbWNoZWNrL3A2Lm8KICBDQyAgICAg
-IGFyY2gvaTM4Ni9rZXJuZWwvY3B1L21jaGVjay93aW5jaGlwLm8KICBMRCAgICAgIGFyY2gvaTM4
-Ni9rZXJuZWwvY3B1L21jaGVjay9idWlsdC1pbi5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVs
-L2NwdS9tdHJyL21haW4ubwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC9jcHUvbXRyci9pZi5v
-CiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL2NwdS9tdHJyL2dlbmVyaWMubwogIENDICAgICAg
-YXJjaC9pMzg2L2tlcm5lbC9jcHUvbXRyci9zdGF0ZS5vCiAgQ0MgICAgICBhcmNoL2kzODYva2Vy
-bmVsL2NwdS9tdHJyL2FtZC5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL2NwdS9tdHJyL2N5
-cml4Lm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvY3B1L210cnIvY2VudGF1ci5vCiAgTEQg
-ICAgICBhcmNoL2kzODYva2VybmVsL2NwdS9tdHJyL2J1aWx0LWluLm8KICBMRCAgICAgIGFyY2gv
-aTM4Ni9rZXJuZWwvY3B1L2J1aWx0LWluLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvdGlt
-ZXJzL3RpbWVyLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvdGltZXJzL3RpbWVyX25vbmUu
-bwogIENDICAgICAgYXJjaC9pMzg2L2tlcm5lbC90aW1lcnMvdGltZXJfdHNjLm8KICBDQyAgICAg
-IGFyY2gvaTM4Ni9rZXJuZWwvdGltZXJzL3RpbWVyX3BpdC5vCiAgTEQgICAgICBhcmNoL2kzODYv
-a2VybmVsL3RpbWVycy9idWlsdC1pbi5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL3JlYm9v
-dC5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL21wcGFyc2UubwogIENDICAgICAgYXJjaC9p
-Mzg2L2tlcm5lbC9hcGljLm8KICBDQyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvbm1pLm8KICBDQyAg
-ICAgIGFyY2gvaTM4Ni9rZXJuZWwvaW9fYXBpYy5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVs
-L21vZHVsZS5vCiAgQ0MgICAgICBhcmNoL2kzODYva2VybmVsL3N5c2VudGVyLm8KICBBUyAgICAg
-IGFyY2gvaTM4Ni9rZXJuZWwvdnN5c2NhbGwtaW50ODAubwogIFNZU0NBTEwgYXJjaC9pMzg2L2tl
-cm5lbC92c3lzY2FsbC1pbnQ4MC5zbwogIEFTICAgICAgYXJjaC9pMzg2L2tlcm5lbC92c3lzY2Fs
-bC1zeXNlbnRlci5vCiAgU1lTQ0FMTCBhcmNoL2kzODYva2VybmVsL3ZzeXNjYWxsLXN5c2VudGVy
-LnNvCiAgQVMgICAgICBhcmNoL2kzODYva2VybmVsL3ZzeXNjYWxsLm8KICBTWVNDQUxMIGFyY2gv
-aTM4Ni9rZXJuZWwvdnN5c2NhbGwtc3ltcy5vCiAgTEQgICAgICBhcmNoL2kzODYva2VybmVsL2J1
-aWx0LWluLm8KICBBUyAgICAgIGFyY2gvaTM4Ni9rZXJuZWwvaGVhZC5vCiAgQ0MgICAgICBhcmNo
-L2kzODYva2VybmVsL2luaXRfdGFzay5vCiAgQ0MgICAgICBhcmNoL2kzODYvbW0vaW5pdC5vCiAg
-Q0MgICAgICBhcmNoL2kzODYvbW0vcGd0YWJsZS5vCiAgQ0MgICAgICBhcmNoL2kzODYvbW0vZmF1
-bHQubwogIENDICAgICAgc2NyaXB0cy9lbXB0eS5vCiAgTUtFTEYgICBzY3JpcHRzL2VsZmNvbmZp
-Zy5oCiAgSE9TVENDICBzY3JpcHRzL2ZpbGUyYWxpYXMubwogIENDICAgICAgYXJjaC9pMzg2L21t
-L2lvcmVtYXAubwogIEhPU1RDQyAgc2NyaXB0cy9tb2Rwb3N0Lm8KICBDQyAgICAgIGFyY2gvaTM4
-Ni9tbS9leHRhYmxlLm8KICBIT1NUTEQgIHNjcmlwdHMvbW9kcG9zdAptYWtlWzFdOiBgc2NyaXB0
-cy9rY29uZmlnL3Fjb25mJyBpcyB1cCB0byBkYXRlLgouL3NjcmlwdHMva2NvbmZpZy9xY29uZiBh
-cmNoL2kzODYvS2NvbmZpZwogIENDICAgICAgYXJjaC9pMzg2L21tL3BhZ2VhdHRyLm8KWGxpYjog
-IGV4dGVuc2lvbiAiR0xYIiBtaXNzaW5nIG9uIGRpc3BsYXkgIjoxLjAiLgpYbGliOiAgZXh0ZW5z
-aW9uICJHTFgiIG1pc3Npbmcgb24gZGlzcGxheSAiOjEuMCIuCiAgTEQgICAgICBhcmNoL2kzODYv
-bW0vYnVpbHQtaW4ubwogIENDICAgICAgYXJjaC9pMzg2L21hY2gtZGVmYXVsdC9zZXR1cC5vClhs
-aWI6ICBleHRlbnNpb24gIlJFTkRFUiIgbWlzc2luZyBvbiBkaXNwbGF5ICI6MS4wIi4KbWFrZTog
-KioqIFt4Y29uZmlnXSBTZWdtZW50YXRpb24gZmF1bHQgKGNvcmUgZHVtcGVkKQogIENDICAgICAg
-YXJjaC9pMzg2L21hY2gtZGVmYXVsdC90b3BvbG9neS5vCiAgTEQgICAgICBhcmNoL2kzODYvbWFj
-aC1kZWZhdWx0L2J1aWx0LWluLm8KICBDQyAgICAgIGtlcm5lbC9zY2hlZC5vCiAgQ0MgICAgICBr
-ZXJuZWwvZm9yay5vCiAgQ0MgICAgICBrZXJuZWwvZXhlY19kb21haW4ubwogIENDICAgICAga2Vy
-bmVsL3BhbmljLm8KICBDQyAgICAgIGtlcm5lbC9wcmludGsubwogIENDICAgICAga2VybmVsL3By
-b2ZpbGUubwogIENDICAgICAga2VybmVsL2V4aXQubwogIENDICAgICAga2VybmVsL2l0aW1lci5v
-CiAgQ0MgICAgICBrZXJuZWwvdGltZS5vCiAgQ0MgICAgICBrZXJuZWwvc29mdGlycS5vCiAgQ0Mg
-ICAgICBrZXJuZWwvcmVzb3VyY2UubwogIENDICAgICAga2VybmVsL3N5c2N0bC5vCiAgQ0MgICAg
-ICBrZXJuZWwvY2FwYWJpbGl0eS5vCiAgQ0MgICAgICBrZXJuZWwvcHRyYWNlLm8KICBDQyAgICAg
-IGtlcm5lbC90aW1lci5vCiAgQ0MgICAgICBrZXJuZWwvdXNlci5vCiAgQ0MgICAgICBrZXJuZWwv
-c2lnbmFsLm8KICBDQyAgICAgIGtlcm5lbC9zeXMubwogIENDICAgICAga2VybmVsL2ttb2Qubwo=
---=====================_82056000==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+ksymoops: No such file or directory
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+WARNING: USB Mass Storage data integrity not assured
+e100: selftest OK.
+e100: eth0: Intel(R) PRO/100 Network Connection
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f 0x3c0-0x3df 0x3f8-0x3ff 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+Unable to handle kernel paging request at virtual address 00100100
+c02016eb
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c02016eb>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: c7b6c000   ebx: 00000000   ecx: cda1d180   edx: 00100100
+esi: c9fbf000   edi: c9fbf000   ebp: c7b89980   esp: c7b6df2c
+ds: 007b   es: 007b   ss: 0068
+Stack: cda1d180 cf192980 cda1d180 c7b6c000 cf192980 c7b6c000 cf192980 c0201f12 
+       c9fbf000 c02cd6b3 cbaec480 00000000 00000000 c9fbf000 000009b0 00000001 
+       c7b89980 c020240d c9fbf000 00000000 c7b6c000 cff7ea80 00000000 00000001 
+Call Trace:
+ [<c0201f12>] do_tty_hangup+0x82/0x4f0
+ [<c020240d>] disassociate_ctty+0x4d/0x1c0
+ [<c0120ca0>] do_exit+0x2c0/0x430
+ [<c0120efb>] do_group_exit+0x7b/0xc0
+ [<c01093ab>] syscall_call+0x7/0xb
+Code: 8b 02 0f 18 00 90 8d 8e 6c 09 00 00 39 ca 74 12 90 8d 74 26 
 
 
---=====================_82056000==_--
+>>EIP; c02016eb <check_tty_count+1b/c0>   <=====
 
+>>eax; c7b6c000 <_end+77d6650/3fc68650>
+>>ecx; cda1d180 <_end+d6877d0/3fc68650>
+>>esi; c9fbf000 <_end+9c29650/3fc68650>
+>>edi; c9fbf000 <_end+9c29650/3fc68650>
+>>ebp; c7b89980 <_end+77f3fd0/3fc68650>
+>>esp; c7b6df2c <_end+77d857c/3fc68650>
+
+Trace; c0201f12 <do_tty_hangup+82/4f0>
+Trace; c020240d <disassociate_ctty+4d/1c0>
+Trace; c0120ca0 <do_exit+2c0/430>
+Trace; c0120efb <do_group_exit+7b/c0>
+Trace; c01093ab <syscall_call+7/b>
+
+Code;  c02016eb <check_tty_count+1b/c0>
+00000000 <_EIP>:
+Code;  c02016eb <check_tty_count+1b/c0>   <=====
+   0:   8b 02                     mov    (%edx),%eax   <=====
+Code;  c02016ed <check_tty_count+1d/c0>
+   2:   0f 18 00                  prefetchnta (%eax)
+Code;  c02016f0 <check_tty_count+20/c0>
+   5:   90                        nop    
+Code;  c02016f1 <check_tty_count+21/c0>
+   6:   8d 8e 6c 09 00 00         lea    0x96c(%esi),%ecx
+Code;  c02016f7 <check_tty_count+27/c0>
+   c:   39 ca                     cmp    %ecx,%edx
+Code;  c02016f9 <check_tty_count+29/c0>
+   e:   74 12                     je     22 <_EIP+0x22>
+Code;  c02016fb <check_tty_count+2b/c0>
+  10:   90                        nop    
+Code;  c02016fc <check_tty_count+2c/c0>
+  11:   8d 74 26 00               lea    0x0(%esi,1),%esi
+
+
+1 warning and 1 error issued.  Results may not be reliable.
+
+[6.] kon ; sleep 3 ; kill `pidof kon`
+
+[7.] debian testing on a sony vaio gr7/k a japanese model
+
+[7.1.]
+Linux inferi 2.6.0-test1 #1 Tue Jul 15 13:16:17 CEST 2003 i686 GNU/Linux
+ 
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+e2fsprogs              1.34-WIP
+pcmcia-cs              3.1.33
+PPP                    2.4.1
+Linux C Library        2.3.1
+Dynamic linker (ldd)   2.3.1
+Procps                 3.1.9
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.0
+Modules Loaded         speedstep_ich speedstep_lib parport_pc lp parport ds yenta_socket pcmcia_core e100 ipt_state ip_conntrack sd_mod iptable_filter ip_tables hid usb_storage scsi_mod snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore uhci_hcd usbcore rtc
+
+[7.2.]
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 11
+model name	: Intel(R) Pentium(R) III Mobile CPU      1000MHz
+stepping	: 1
+cpu MHz		: 729.129
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 1441.79
+
+[7.3.]
+speedstep_ich 3720 0 - Live 0xd0af1000
+speedstep_lib 2688 1 speedstep_ich, Live 0xd0bd0000
+parport_pc 21636 1 - Live 0xd0c10000
+lp 8288 0 - Live 0xd0beb000
+parport 23104 2 parport_pc,lp, Live 0xd0c18000
+ds 11392 4 - Live 0xd0be1000
+yenta_socket 11008 0 - Live 0xd0bdd000
+pcmcia_core 59776 2 ds,yenta_socket, Live 0xd0c00000
+e100 60548 0 - Live 0xd0bf0000
+ipt_state 1536 1 - Live 0xd0bcc000
+ip_conntrack 26004 1 ipt_state, Live 0xd0bd5000
+sd_mod 12192 0 - Live 0xd0bc8000
+iptable_filter 2304 1 - Live 0xd0baf000
+ip_tables 16512 2 ipt_state,iptable_filter, Live 0xd0bc2000
+hid 23680 0 - Live 0xd0b47000
+usb_storage 27648 0 - Live 0xd0bba000
+scsi_mod 64788 2 sd_mod,usb_storage, Live 0xd0b87000
+snd_seq_oss 32768 0 - Live 0xd0ba6000
+snd_seq_midi_event 6144 1 snd_seq_oss, Live 0xd0b09000
+snd_seq 53200 4 snd_seq_oss,snd_seq_midi_event, Live 0xd0b98000
+snd_pcm_oss 49924 0 - Live 0xd0b54000
+snd_mixer_oss 17408 2 snd_pcm_oss, Live 0xd0b4e000
+snd_intel8x0 27844 1 - Live 0xd0b2c000
+snd_ac97_codec 49284 1 snd_intel8x0, Live 0xd0b79000
+snd_pcm 88704 2 snd_pcm_oss,snd_intel8x0, Live 0xd0b62000
+snd_timer 22144 2 snd_seq,snd_pcm, Live 0xd0b40000
+snd_page_alloc 8196 2 snd_intel8x0,snd_pcm, Live 0xd0b05000
+snd_mpu401_uart 6400 1 snd_intel8x0, Live 0xd0b02000
+snd_rawmidi 20736 1 snd_mpu401_uart, Live 0xd0b25000
+snd_seq_device 6660 3 snd_seq_oss,snd_seq,snd_rawmidi, Live 0xd0af6000
+snd 44292 12 snd_seq_oss,snd_seq_midi_event,snd_seq,snd_pcm_oss,snd_mixer_oss,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device, Live 0xd0b34000
+soundcore 7232 2 snd, Live 0xd0af3000
+uhci_hcd 30088 0 - Live 0xd0af9000
+usbcore 97748 5 hid,usb_storage,uhci_hcd, Live 0xd0b0c000
+rtc 10916 0 - Live 0xd08df000
+
+[7.4.]
+0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+0cf8-0cff : PCI conf1
+1000-10ff : PCI CardBus #03
+1400-14ff : PCI CardBus #03
+1800-181f : Intel Corp. 82801CA/CAM USB (Hub
+  1800-181f : uhci-hcd
+1820-183f : Intel Corp. 82801CA/CAM USB (Hub
+  1820-183f : uhci-hcd
+1840-185f : Intel Corp. 82801CA/CAM USB (Hub
+  1840-185f : uhci-hcd
+1860-186f : Intel Corp. 82801CAM IDE U100
+  1860-1867 : ide0
+  1868-186f : ide1
+1880-189f : Intel Corp. 82801CA/CAM SMBus
+18c0-18ff : Intel Corp. 82801CA/CAM AC'97 Au
+  18c0-18ff : Intel 82801CA-ICH3 - Controller
+1c00-1cff : Intel Corp. 82801CA/CAM AC'97 Au
+  1c00-1cff : Intel 82801CA-ICH3 - AC'97
+2000-207f : Intel Corp. 82801CA/CAM AC'97 Mo
+2400-24ff : Intel Corp. 82801CA/CAM AC'97 Mo
+2800-28ff : PCI CardBus #07
+2c00-2cff : PCI CardBus #07
+3000-3fff : PCI Bus #01
+  3000-30ff : ATI Technologies Inc Radeon Mobility M6 L
+4000-403f : Intel Corp. 82801CAM (ICH3) PRO/
+  4000-403f : e100
+
+00000000-0009e7ff : System RAM
+0009e800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000d8000-000dffff : reserved
+000f0000-000fffff : System ROM
+00100000-0feeffff : System RAM
+  00100000-002ac006 : Kernel code
+  002ac007-003578ff : Kernel data
+0fef0000-0fefefff : ACPI Tables
+0feff000-0fefffff : ACPI Non-volatile Storage
+0ff00000-0ff7ffff : System RAM
+0ff80000-0fffffff : reserved
+10000000-10000fff : Ricoh Co Ltd RL5c476 II
+10001000-10001fff : Ricoh Co Ltd RL5c476 II (#2)
+10400000-107fffff : PCI CardBus #03
+10800000-10bfffff : PCI CardBus #03
+10c00000-10ffffff : PCI CardBus #07
+11000000-113fffff : PCI CardBus #07
+d0000000-d00003ff : Intel Corp. 82801CAM IDE U100
+d0100000-d01fffff : PCI Bus #01
+  d0100000-d010ffff : ATI Technologies Inc Radeon Mobility M6 L
+d0200000-d0203fff : Texas Instruments TSB43AA22 IEEE-1394 
+d0204000-d0204fff : Intel Corp. 82801CAM (ICH3) PRO/
+  d0204000-d0204fff : e100
+d0205000-d02057ff : Texas Instruments TSB43AA22 IEEE-1394 
+d8000000-dfffffff : PCI Bus #01
+  d8000000-dfffffff : ATI Technologies Inc Radeon Mobility M6 L
+e0000000-efffffff : Intel Corp. 82830 830 Chipset Ho
+ff800000-ffbfffff : reserved
+fffffc00-ffffffff : reserved
+
+[7.5.]
+00:00.0 Host bridge: Intel Corp. 82830 830 Chipset Host Bridge (rev 02)
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
+	Capabilities: [40] #09 [0105]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW+ Rate=x1
+
+00:01.0 PCI bridge: Intel Corp. 82830 830 Chipset AGP Bridge (rev 02) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 96
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 00003000-00003fff
+	Memory behind bridge: d0100000-d01fffff
+	Prefetchable memory behind bridge: d8000000-dfffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 01) (prog-if 00 [UHCI])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 9
+	Region 4: I/O ports at 1800 [size=32]
+
+00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 01) (prog-if 00 [UHCI])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 9
+	Region 4: I/O ports at 1820 [size=32]
+
+00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 01) (prog-if 00 [UHCI])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin C routed to IRQ 9
+	Region 4: I/O ports at 1840 [size=32]
+
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 41) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
+	I/O behind bridge: 00004000-00004fff
+	Memory behind bridge: d0200000-d02fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 01)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 01) (prog-if 8a [Master SecP PriP])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 255
+	Region 0: I/O ports at <ignored>
+	Region 1: I/O ports at <ignored>
+	Region 2: I/O ports at <ignored>
+	Region 3: I/O ports at <ignored>
+	Region 4: I/O ports at 1860 [size=16]
+	Region 5: Memory at d0000000 (32-bit, non-prefetchable) [size=1K]
+
+00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 01)
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 9
+	Region 4: I/O ports at 1880 [size=32]
+
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio (rev 01)
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 9
+	Region 0: I/O ports at 1c00 [size=256]
+	Region 1: I/O ports at 18c0 [size=64]
+
+00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem (rev 01) (prog-if 00 [Generic])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 9
+	Region 0: I/O ports at 2400 [disabled] [size=256]
+	Region 1: I/O ports at 2000 [disabled] [size=128]
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B+
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at d8000000 (32-bit, prefetchable) [size=128M]
+	Region 1: I/O ports at 3000 [size=256]
+	Region 2: Memory at d0100000 (32-bit, non-prefetchable) [size=64K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [58] AGP version 2.0
+		Status: RQ=48 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
+		Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP- GART64- 64bit- FW- Rate=<none>
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:02.0 FireWire (IEEE 1394): Texas Instruments TSB43AA22 IEEE-1394 Controller (PHY/Link Integrated) (rev 02) (prog-if 10 [OHCI])
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (750ns min, 1000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at d0205000 (32-bit, non-prefetchable) [size=2K]
+	Region 1: Memory at d0200000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: [44] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:05.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
+	Memory window 0: 10400000-107ff000 (prefetchable)
+	Memory window 1: 10800000-10bff000
+	I/O window 0: 00001000-000010ff
+	I/O window 1: 00001400-000014ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:05.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: Sony Corporation VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin B routed to IRQ 9
+	Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=07, subordinate=0a, sec-latency=176
+	Memory window 0: 10c00000-10fff000 (prefetchable)
+	Memory window 1: 11000000-113ff000
+	I/O window 0: 00002800-000028ff
+	I/O window 1: 00002c00-00002cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) PRO/100 VE (LOM) Ethernet Controller (rev 41)
+	Subsystem: Sony Corporation Vaio PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min, 14000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at d0204000 (32-bit, non-prefetchable) [size=4K]
+	Region 1: I/O ports at 4000 [size=64]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+[7.6.]
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: Sony     Model: MSC-U02          Rev: 1.00
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+
+-- 
+mattia
+:wq!

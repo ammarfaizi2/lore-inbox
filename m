@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319253AbSIKRzZ>; Wed, 11 Sep 2002 13:55:25 -0400
+	id <S319256AbSIKSAc>; Wed, 11 Sep 2002 14:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319254AbSIKRzZ>; Wed, 11 Sep 2002 13:55:25 -0400
-Received: from pC19F9AAB.dip.t-dialin.net ([193.159.154.171]:17156 "EHLO
-	router.abc") by vger.kernel.org with ESMTP id <S319253AbSIKRzY> convert rfc822-to-8bit;
-	Wed, 11 Sep 2002 13:55:24 -0400
-Message-ID: <3D7F83BC.5DF306A@baldauf.org>
-Date: Wed, 11 Sep 2002 19:56:12 +0200
-From: Xuan Baldauf <xuan--reiserfs@baldauf.org>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: de-DE,en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
-       Reiserfs List <reiserfs-list@namesys.com>
-Subject: Re: Heuristic readahead for filesystems
-References: <Pine.LNX.4.44L.0209111340060.1857-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S319255AbSIKSAb>; Wed, 11 Sep 2002 14:00:31 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:7613 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319256AbSIKSAb>;
+	Wed, 11 Sep 2002 14:00:31 -0400
+Date: Wed, 11 Sep 2002 20:05:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] highmem I/O for ide-pmac.c
+Message-ID: <20020911180502.GD1089@suse.de>
+References: <20020911130209.GL1089@suse.de> <20020911185315.530@192.168.4.1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020911185315.530@192.168.4.1>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 11 2002, Benjamin Herrenschmidt wrote:
+> >BTW, it would be ok to export that from ide-dma.c instead of duplicating
+> >it in ide-pmac.
+> 
+> It isn't. ide-pmac doesn't use the sg_table & other DMA related
+> fields in HWIF, but it's own copies in the "pmif" which is a
+> parallel data structure.
 
+The above refers to ide_toggle_bounce() export, pmac_* variant is
+exactly the same. Sorry if that wasn't clear.
 
-Rik van Riel wrote:
+> It sucks, I know, but I have to do that with the current IDE code
+> as the common code would make assumption about the format of these
+> things and it's right to dispose them in ide_unregister.
+> 
+> Also, Jens is right, Paul, you never call pmac_ide_toggle_bounce()
+> to actually enable high IOs. Add that to the ide_dma_on/check: case,
+> with an if (drive->using_dma) (as enabling DMA may have failed)
 
-> On Wed, 11 Sep 2002, Xuan Baldauf wrote:
->
-> > I wonder wether Linux implements a kind of heuristic
-> > readahead for filesystems:
->
-> > If an application did a stat()..open()..read() sequence on a
-> > file, it is likely that, after the next stat(), it will open
-> > and read the mentioned file. Thus, one could readahead the
-> > start of a file on stat() of that file.
->
-> > Example: See this diff strace:
->
-> Your observation is right, but I'm not sure how much it will
-> matter if we start reading the file at stat() time or at
-> read() time.
->
-> This is because one disk seek takes about 10 million CPU
-> cycles on modern systems and we'll have completed the stat(),
-> open() and started the read() before the disk arm has started
-> moving ;)
->
-> regards,
->
-> Rik
+Indeed
 
-The point here is not to optimize latency but to optimize throughput: If the
-filesystem is able to recognize that a whole tree is being read, it may issue
-read requests for all the blocks of that tree, which are (with a high
-probability) in such a close location to each other that all the read requests
-can result in a single, large, megabyte-big disk-read-burst, taking few
-seconds instead of minutes.
-
-In theory, this also could be implemented explicitly if the application could
-tell the kernel "I'm going to read these 100 files in the very near future,
-please make them ready for me". But wait, maybe the application can do this
-(for regular files, not for directory entries and stat() data): Could it be
-efficient if the application used open(file,O_NONBLOCK) for the next 100 files
-and subsequent read()s on each of the returned filedescriptors?
-
-Xuân.
-
+-- 
+Jens Axboe
 

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTJRTZW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 15:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJRTZW
+	id S261774AbTJRT1c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 15:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTJRT1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 15:25:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2690 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261807AbTJRTZS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 15:25:18 -0400
-Date: Sat, 18 Oct 2003 20:25:17 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Svetoslav Slavtchev <svetljo@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initrd and 2.6.0-test8
-Message-ID: <20031018192517.GD7665@parcelfarce.linux.theplanet.co.uk>
-References: <22900.1066504204@www30.gmx.net>
-Mime-Version: 1.0
+	Sat, 18 Oct 2003 15:27:32 -0400
+Received: from zork.zork.net ([64.81.246.102]:35205 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261774AbTJRT1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 15:27:31 -0400
+To: "Thomas Giese" <Thomas.Giese@gmx.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: X crashes under linux-2.6.0-test7-mm1
+References: <003b01c395a8$22dbf270$fb457dc0@tgasterix>
+	<6uy8viz7bs.fsf@zork.zork.net>
+	<006a01c395ab$4d3f34c0$fb457dc0@tgasterix>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: "Thomas Giese" <Thomas.Giese@gmx.de>,
+ <linux-kernel@vger.kernel.org>
+Date: Sat, 18 Oct 2003 20:27:27 +0100
+In-Reply-To: <006a01c395ab$4d3f34c0$fb457dc0@tgasterix> (Thomas Giese's
+ message of "Sat, 18 Oct 2003 21:09:06 +0200")
+Message-ID: <6uu166z6qo.fsf@zork.zork.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <22900.1066504204@www30.gmx.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 18, 2003 at 09:10:04PM +0200, Svetoslav Slavtchev wrote:
-> me had  the same problems,
-> with devfs enabled
-> 
-> could it be this (from Documentation/initrd)
-> 
-> Note that changing the root directory does not involve unmounting it.
->     the "normal" root file system is mounted. initrd data can be read
->   root=/dev/ram0   (without devfs)
->   root=/dev/rd/0   (with devfs)
->     initrd is mounted as root, and the normal boot procedure is followed,
->     with the RAM disk still mounted as root.
-> 
-> the patch doesn't mention anything about /dev/rd/0 , but does for /dev/ram0
+"Thomas Giese" <Thomas.Giese@gmx.de> writes:
 
-*Arrgh*
+> both are set to
+> CONFIG_AGP=m
+> CONFIG_AGP_INTEL=m
 
-Presense of devfs is, indeed, the problem.  /dev/rd/0 vs. /dev/ram0 is not
-an issue; visibility of /dev/initrd, OTOH, is - we have /dev of rootfs
-overmounted by devfs, so the thing becomes inaccessible.
+Were they loaded when you started X?  The message:
 
-OK, that's trivially fixable.  We need to put the sucker outside of /dev,
-that's all.  Patch in a few...
+(EE) Unable to open /dev/agpgart (No such device)
+
+suggests that they were not.
+

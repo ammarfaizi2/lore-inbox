@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272164AbTG3HWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272220AbTG3HWJ
+	id S272220AbTG3H1T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272382AbTG3H1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:22:09 -0400
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:640 "EHLO dust")
-	by vger.kernel.org with ESMTP id S272164AbTG3HWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:22:07 -0400
-Date: Wed, 30 Jul 2003 02:25:53 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Studying MTD <studying_mtd@yahoo.com>
-Cc: Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.0-test1 : modules not working
-In-Reply-To: <20030730065007.93696.qmail@web20501.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.56.0307300223300.4665@dust>
-References: <20030730065007.93696.qmail@web20501.mail.yahoo.com>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	Wed, 30 Jul 2003 03:27:19 -0400
+Received: from vtens.prov-liege.be ([193.190.122.60]:22858 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S272220AbTG3H1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 03:27:16 -0400
+Message-ID: <D9B4591FDBACD411B01E00508BB33C1B01BF8C47@mesadm.epl.prov-liege.be>
+From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: [PATCH repost] SHM to Sysfs
+Date: Wed, 30 Jul 2003 09:27:15 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003, Studying MTD wrote:
+Alan,
 
-> I tried hello world example from
-> http://lwn.net/Articles/21817/
-> 
-> but i am still getting :-
-> 
-> #insmod hello_module.o
-> No module found in object
-> Error inserting 'hello_module.o': -1 Invalid module
-> format
+The patch at the link below applies against 2.6.0.test2 and displays shm in
+sysfs.
 
-[Snip]
+http://fabian.unixtech.be/kernel/ipctosysfs.html
 
-'kay.  So modules are enabled and everything.  More specifically, I was 
-after information such as the gcc options and stuff you used to compile 
-hello_module.o
+Could you apply ?
 
-Check the second article at that URL, and try building your hello_module
-with the basic Makefile it gives.  That uses the best way for building
-external modules.  After building your kernel that way, try inserting the
-hello_module.ko.
-
--- 
-Alex Goddard
-agoddard@purdue.edu
+Regards,
+Fabian

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUJFCaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUJFCdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUJFCaT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 22:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUJFCaS
+	id S266753AbUJFCdA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 22:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUJFCdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 22:30:18 -0400
-Received: from mail.renesas.com ([202.234.163.13]:4345 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S266741AbUJFC3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 22:29:38 -0400
-Date: Wed, 06 Oct 2004 11:29:25 +0900 (JST)
-Message-Id: <20041006.112925.295395530.takata.hirokazu@renesas.com>
+	Tue, 5 Oct 2004 22:33:00 -0400
+Received: from mail.renesas.com ([202.234.163.13]:22443 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S266753AbUJFC34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 22:29:56 -0400
+Date: Wed, 06 Oct 2004 11:29:42 +0900 (JST)
+Message-Id: <20041006.112942.52160819.takata.hirokazu@renesas.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc3-mm2 1/5] [m32r] Remove arch/m32r/drivers
+Subject: [PATCH 2.6.9-rc3-mm2 2/5] [m32r] Remove arch/m32r/drivers/ds1302.c
 From: Hirokazu Takata <takata@linux-m32r.org>
 In-Reply-To: <20041006.112743.635726864.takata.hirokazu@renesas.com>
 References: <20041006.112743.635726864.takata.hirokazu@renesas.com>
@@ -24,7 +24,7 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2.6.9-rc3-mm2 1/5] [m32r] Remove arch/m32r/drivers
+[PATCH 2.6.9-rc3-mm2 2/5] [m32r] Remove arch/m32r/drivers/ds1302.c
 
 Please remove obsolete m32r-specific driver files,
 which are no longer used.
@@ -34,85 +34,446 @@ Thanks.
 Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 ---
 
- arch/m32r/Kconfig          |    2 --
- arch/m32r/Makefile         |    1 -
- arch/m32r/drivers/Kconfig  |   34 ----------------------------------
- arch/m32r/drivers/Makefile |    7 -------
- 4 files changed, 44 deletions(-)
+ arch/m32r/drivers/ds1302.c |  432 ---------------------------------------------
+ 1 files changed, 432 deletions(-)
 
 
-diff -ruNp a/arch/m32r/Kconfig b/arch/m32r/Kconfig
---- a/arch/m32r/Kconfig	2004-10-01 11:14:53.000000000 +0900
-+++ b/arch/m32r/Kconfig	2004-10-05 20:51:34.000000000 +0900
-@@ -253,8 +253,6 @@ config NUMA
- 	depends on SMP
- 	default n
- 
--source "arch/m32r/drivers/Kconfig"
+diff -ruNp a/arch/m32r/drivers/ds1302.c b/arch/m32r/drivers/ds1302.c
+--- a/arch/m32r/drivers/ds1302.c	2004-10-01 11:14:54.000000000 +0900
++++ b/arch/m32r/drivers/ds1302.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1,432 +0,0 @@
+-/*!***************************************************************************
+-*!
+-*! FILE NAME  : ds1302.c
+-*!
+-*! DESCRIPTION: Implements an interface for the DS1302 RTC through Etrax I/O
+-*!
+-*! Functions exported: ds1302_readreg, ds1302_writereg, ds1302_init, get_rtc_status
+-*!
+-*! $Log: ds1302.c,v $
+-*! Revision 1.2  2003/10/29 08:42:58  fujiwara
+-*! Set PLD_RTCBAUR from bus clock
+-*!
+-*! Revision 1.12  2002/04/10 15:35:25  johana
+-*! Moved probe function closer to init function and marked it __init.
+-*!
+-*! Revision 1.11  2001/06/14 12:35:52  jonashg
+-*! The ATA hack is back. It is unfortunately the only way to set g27 to output.
+-*!
+-*! Revision 1.9  2001/06/14 10:00:14  jonashg
+-*! No need for tempudelay to be inline anymore (had to adjust the usec to
+-*! loops conversion because of this to make it slow enough to be a udelay).
+-*!
+-*! Revision 1.8  2001/06/14 08:06:32  jonashg
+-*! Made tempudelay delay usecs (well, just a tad more).
+-*!
+-*! Revision 1.7  2001/06/13 14:18:11  jonashg
+-*! Only allow processes with SYS_TIME capability to set time and charge.
+-*!
+-*! Revision 1.6  2001/06/12 15:22:07  jonashg
+-*! * Made init function __init.
+-*! * Parameter to out_byte() is unsigned char.
+-*! * The magic number 42 has got a name.
+-*! * Removed comment about /proc (nothing is exported there).
+-*!
+-*! Revision 1.5  2001/06/12 14:35:13  jonashg
+-*! Gave the module a name and added it to printk's.
+-*!
+-*! Revision 1.4  2001/05/31 14:53:40  jonashg
+-*! Made tempudelay() inline so that the watchdog doesn't reset (see
+-*! function comment).
+-*!
+-*! Revision 1.3  2001/03/26 16:03:06  bjornw
+-*! Needs linux/config.h
+-*!
+-*! Revision 1.2  2001/03/20 19:42:00  bjornw
+-*! Use the ETRAX prefix on the DS1302 options
+-*!
+-*! Revision 1.1  2001/03/20 09:13:50  magnusmn
+-*! Linux 2.4 port
+-*!
+-*! Revision 1.10  2000/07/05 15:38:23  bjornw
+-*! Dont update kernel time when a RTC_SET_TIME is done
+-*!
+-*! Revision 1.9  2000/03/02 15:42:59  macce
+-*! * Hack to make RTC work on all 2100/2400
+-*!
+-*! Revision 1.8  2000/02/23 16:59:18  torbjore
+-*! added setup of R_GEN_CONFIG when RTC is connected to the generic port.
+-*!
+-*! Revision 1.7  2000/01/17 15:51:43  johana
+-*! Added RTC_SET_CHARGE ioctl to enable trickle charger.
+-*!
+-*! Revision 1.6  1999/10/27 13:19:47  bjornw
+-*! Added update_xtime_from_cmos which reads back the updated RTC into the kernel.
+-*! /dev/rtc calls it now.
+-*!
+-*! Revision 1.5  1999/10/27 12:39:37  bjornw
+-*! Disabled superuser check. Anyone can now set the time.
+-*!
+-*! Revision 1.4  1999/09/02 13:27:46  pkj
+-*! Added shadow for R_PORT_PB_CONFIG.
+-*! Renamed port_g_shadow to port_g_data_shadow.
+-*!
+-*! Revision 1.3  1999/09/02 08:28:06  pkj
+-*! Made it possible to select either port PB or the generic port for the RST
+-*! signal line to the DS1302 RTC.
+-*! Also make sure the RST bit is configured as output on Port PB (if used).
+-*!
+-*! Revision 1.2  1999/09/01 14:47:20  bjornw
+-*! Added support for /dev/rtc operations with ioctl RD_TIME and SET_TIME to read
+-*! and set the date. Register as major 121.
+-*!
+-*! Revision 1.1  1999/09/01 09:45:29  bjornw
+-*! Implemented a DS1302 RTC driver.
+-*!
+-*!
+-*! ---------------------------------------------------------------------------
+-*!
+-*! (C) Copyright 1999, 2000, 2001  Axis Communications AB, LUND, SWEDEN
+-*!
+-*! $Id: ds1302.c,v 1.2 2003/10/29 08:42:58 fujiwara Exp $
+-*!
+-*!***************************************************************************/
 -
- # turning this on wastes a bunch of space.
- # Summit needs it only when NUMA is on
- config BOOT_IOREMAP
-diff -ruNp a/arch/m32r/Makefile b/arch/m32r/Makefile
---- a/arch/m32r/Makefile	2004-10-01 11:14:53.000000000 +0900
-+++ b/arch/m32r/Makefile	2004-10-05 20:51:34.000000000 +0900
-@@ -36,7 +36,6 @@ core-y	+= arch/m32r/kernel/	\
- 	   arch/m32r/mm/	\
- 	   arch/m32r/boot/
- 
--drivers-y			+= arch/m32r/drivers/
- drivers-$(CONFIG_OPROFILE)	+= arch/m32r/oprofile/
- 
- boot := arch/m32r/boot
-diff -ruNp a/arch/m32r/drivers/Kconfig b/arch/m32r/drivers/Kconfig
---- a/arch/m32r/drivers/Kconfig	2004-10-01 11:14:54.000000000 +0900
-+++ b/arch/m32r/drivers/Kconfig	1970-01-01 09:00:00.000000000 +0900
-@@ -1,34 +0,0 @@
--#
--# For a description of the syntax of this configuration file,
--# see Documentation/kbuild/kconfig-language.txt.
--#
+-#include <linux/config.h>
 -
--menu "M32R drivers"
+-#include <linux/fs.h>
+-#include <linux/init.h>
+-#include <linux/mm.h>
+-#include <linux/module.h>
+-#include <linux/miscdevice.h>
+-#include <linux/delay.h>
+-#include <linux/bcd.h>
 -
--config M32RPCC
--	bool "M32R PCMCIA I/F"
--	depends on CHIP_M32700
+-#include <asm/uaccess.h>
+-#include <asm/system.h>
+-#include <asm/io.h>
+-#include <asm/rtc.h>
+-#include <asm/m32r.h>
 -
--config M32R_CFC
--	bool "CF I/F Controller"
--	depends on PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2 || PLAT_OPSPUT
+-#define RTC_MAJOR_NR 121 /* local major, change later */
 -
--config M32700UT_CFC
--	bool
--	depends on M32R_CFC
--	default y
+-static const char ds1302_name[] = "ds1302";
 -
--config CFC_NUM
--	int "CF I/F number"
--	depends on PLAT_USRV || PLAT_M32700UT
--	default "1" if PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2 || PLAT_OPSPUT
+-/* Send 8 bits. */
+-static void
+-out_byte_rtc(unsigned int reg_addr, unsigned char x)
+-{
+-	//RST H
+-	outw(0x0001,(unsigned long)PLD_RTCRSTODT);
+-	//write data
+-	outw(((x<<8)|(reg_addr&0xff)),(unsigned long)PLD_RTCWRDATA);
+-	//WE
+-	outw(0x0002,(unsigned long)PLD_RTCCR);
+-	//wait
+-	while(inw((unsigned long)PLD_RTCCR));
 -
--config MTD_M32R
--	bool "Flash device mapped on M32R"
--	depends on PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2
+-	//RST L
+-	outw(0x0000,(unsigned long)PLD_RTCRSTODT);
 -
--config M32700UT_DS1302
--	bool "DS1302 Real Time Clock support"
--	depends on PLAT_M32700UT || PLAT_OPSPUT
+-}
 -
--endmenu
-diff -ruNp a/arch/m32r/drivers/Makefile b/arch/m32r/drivers/Makefile
---- a/arch/m32r/drivers/Makefile	2004-10-01 11:14:54.000000000 +0900
-+++ b/arch/m32r/drivers/Makefile	1970-01-01 09:00:00.000000000 +0900
-@@ -1,7 +0,0 @@
--#
--# Makefile for the Linux/M32R driver
--#
+-static unsigned char
+-in_byte_rtc(unsigned int reg_addr)
+-{
+-	unsigned char retval;
 -
--obj-$(CONFIG_M32RPCC)		+= m32r_pcc.o
--obj-$(CONFIG_M32R_CFC)		+= m32r_cfc.o
--obj-$(CONFIG_M32700UT_DS1302)	+= ds1302.o
+-	//RST H
+-	outw(0x0001,(unsigned long)PLD_RTCRSTODT);
+-	//write data
+-	outw((reg_addr&0xff),(unsigned long)PLD_RTCRDDATA);
+-	//RE
+-	outw(0x0001,(unsigned long)PLD_RTCCR);
+-	//wait
+-	while(inw((unsigned long)PLD_RTCCR));
+-
+-	//read data
+-	retval=(inw((unsigned long)PLD_RTCRDDATA) & 0xff00)>>8;
+-
+-	//RST L
+-	outw(0x0000,(unsigned long)PLD_RTCRSTODT);
+-
+-	return retval;
+-}
+-
+-/* Enable writing. */
+-
+-static void
+-ds1302_wenable(void)
+-{
+-	out_byte_rtc(0x8e,0x00);
+-}
+-
+-/* Disable writing. */
+-
+-static void
+-ds1302_wdisable(void)
+-{
+-	out_byte_rtc(0x8e,0x80);
+-}
+-
+-
+-
+-/* Read a byte from the selected register in the DS1302. */
+-
+-unsigned char
+-ds1302_readreg(int reg)
+-{
+-	unsigned char x;
+-
+-	x=in_byte_rtc((0x81 | (reg << 1))); /* read register */
+-
+-	return x;
+-}
+-
+-/* Write a byte to the selected register. */
+-
+-void
+-ds1302_writereg(int reg, unsigned char val)
+-{
+-	ds1302_wenable();
+-	out_byte_rtc((0x80 | (reg << 1)),val);
+-	ds1302_wdisable();
+-}
+-
+-void
+-get_rtc_time(struct rtc_time *rtc_tm)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	local_irq_disable();
+-
+-	rtc_tm->tm_sec = CMOS_READ(RTC_SECONDS);
+-	rtc_tm->tm_min = CMOS_READ(RTC_MINUTES);
+-	rtc_tm->tm_hour = CMOS_READ(RTC_HOURS);
+-	rtc_tm->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
+-	rtc_tm->tm_mon = CMOS_READ(RTC_MONTH);
+-	rtc_tm->tm_year = CMOS_READ(RTC_YEAR);
+-
+-	local_irq_restore(flags);
+-
+-	BCD_TO_BIN(rtc_tm->tm_sec);
+-	BCD_TO_BIN(rtc_tm->tm_min);
+-	BCD_TO_BIN(rtc_tm->tm_hour);
+-	BCD_TO_BIN(rtc_tm->tm_mday);
+-	BCD_TO_BIN(rtc_tm->tm_mon);
+-	BCD_TO_BIN(rtc_tm->tm_year);
+-
+-	/*
+-	 * Account for differences between how the RTC uses the values
+-	 * and how they are defined in a struct rtc_time;
+-	 */
+-
+-	if (rtc_tm->tm_year <= 69)
+-		rtc_tm->tm_year += 100;
+-
+-	rtc_tm->tm_mon--;
+-}
+-
+-static unsigned char days_in_mo[] =
+-    {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+-
+-/* ioctl that supports RTC_RD_TIME and RTC_SET_TIME (read and set time/date). */
+-
+-static int
+-rtc_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
+-	  unsigned long arg)
+-{
+-        unsigned long flags;
+-
+-	switch(cmd) {
+-		case RTC_RD_TIME:	/* read the time/date from RTC	*/
+-		{
+-			struct rtc_time rtc_tm;
+-
+-			memset(&rtc_tm, 0, sizeof (struct rtc_time));
+-			get_rtc_time(&rtc_tm);
+-			if (copy_to_user((struct rtc_time*)arg, &rtc_tm, sizeof(struct rtc_time)))
+-				return -EFAULT;
+-			return 0;
+-		}
+-
+-		case RTC_SET_TIME:	/* set the RTC */
+-		{
+-			struct rtc_time rtc_tm;
+-			unsigned char mon, day, hrs, min, sec, leap_yr;
+-			unsigned int yrs;
+-
+-			if (!capable(CAP_SYS_TIME))
+-				return -EPERM;
+-
+-			if (copy_from_user(&rtc_tm, (struct rtc_time*)arg, sizeof(struct rtc_time)))
+-				return -EFAULT;
+-
+-			yrs = rtc_tm.tm_year + 1900;
+-			mon = rtc_tm.tm_mon + 1;   /* tm_mon starts at zero */
+-			day = rtc_tm.tm_mday;
+-			hrs = rtc_tm.tm_hour;
+-			min = rtc_tm.tm_min;
+-			sec = rtc_tm.tm_sec;
+-
+-
+-			if ((yrs < 1970) || (yrs > 2069))
+-				return -EINVAL;
+-
+-			leap_yr = ((!(yrs % 4) && (yrs % 100)) || !(yrs % 400));
+-
+-			if ((mon > 12) || (day == 0))
+-				return -EINVAL;
+-
+-			if (day > (days_in_mo[mon] + ((mon == 2) && leap_yr)))
+-				return -EINVAL;
+-
+-			if ((hrs >= 24) || (min >= 60) || (sec >= 60))
+-				return -EINVAL;
+-
+-			if (yrs >= 2000)
+-				yrs -= 2000;	/* RTC (0, 1, ... 69) */
+-			else
+-				yrs -= 1900;	/* RTC (70, 71, ... 99) */
+-
+-			BIN_TO_BCD(sec);
+-			BIN_TO_BCD(min);
+-			BIN_TO_BCD(hrs);
+-			BIN_TO_BCD(day);
+-			BIN_TO_BCD(mon);
+-			BIN_TO_BCD(yrs);
+-
+-			local_irq_save(flags);
+-			local_irq_disable();
+-			CMOS_WRITE(yrs, RTC_YEAR);
+-			CMOS_WRITE(mon, RTC_MONTH);
+-			CMOS_WRITE(day, RTC_DAY_OF_MONTH);
+-			CMOS_WRITE(hrs, RTC_HOURS);
+-			CMOS_WRITE(min, RTC_MINUTES);
+-			CMOS_WRITE(sec, RTC_SECONDS);
+-			local_irq_restore(flags);
+-
+-			/* Notice that at this point, the RTC is updated but
+-			 * the kernel is still running with the old time.
+-			 * You need to set that separately with settimeofday
+-			 * or adjtimex.
+-			 */
+-			return 0;
+-		}
+-
+-		case RTC_SET_CHARGE: /* set the RTC TRICKLE CHARGE register */
+-		{
+-			int tcs_val;
+-
+-			if (!capable(CAP_SYS_TIME))
+-				return -EPERM;
+-
+-			if(copy_from_user(&tcs_val, (int*)arg, sizeof(int)))
+-				return -EFAULT;
+-
+-			tcs_val = RTC_TCR_PATTERN | (tcs_val & 0x0F);
+-			ds1302_writereg(RTC_TRICKLECHARGER, tcs_val);
+-			return 0;
+-		}
+-		default:
+-			return -EINVAL;
+-	}
+-}
+-
+-int
+-get_rtc_status(char *buf)
+-{
+-	char *p;
+-	struct rtc_time tm;
+-
+-	p = buf;
+-
+-	get_rtc_time(&tm);
+-
+-	/*
+-	 * There is no way to tell if the luser has the RTC set for local
+-	 * time or for Universal Standard Time (GMT). Probably local though.
+-	 */
+-
+-	p += sprintf(p,
+-		"rtc_time\t: %02d:%02d:%02d\n"
+-		"rtc_date\t: %04d-%02d-%02d\n",
+-		tm.tm_hour, tm.tm_min, tm.tm_sec,
+-		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+-
+-	return  p - buf;
+-}
+-
+-
+-/* The various file operations we support. */
+-
+-static struct file_operations rtc_fops = {
+-	.owner          = THIS_MODULE,
+-	.ioctl          = rtc_ioctl,
+-};
+-
+-/* Probe for the chip by writing something to its RAM and try reading it back. */
+-
+-#define MAGIC_PATTERN 0x42
+-
+-static int __init
+-ds1302_probe(void)
+-{
+-	int retval, res, baur;
+-
+-	baur=(boot_cpu_data.bus_clock/(2*1000*1000));
+-
+-	printk("%s: Set PLD_RTCBAUR = %d\n", ds1302_name,baur);
+-
+-	outw(0x0000,(unsigned long)PLD_RTCCR);
+-	outw(0x0000,(unsigned long)PLD_RTCRSTODT);
+-	outw(baur,(unsigned long)PLD_RTCBAUR);
+-
+-	/* Try to talk to timekeeper. */
+-
+-	ds1302_wenable();
+-	/* write RAM byte 0 */
+-	/* write something magic */
+-	out_byte_rtc(0xc0,MAGIC_PATTERN);
+-
+-	/* read RAM byte 0 */
+-	if((res = in_byte_rtc(0xc1)) == MAGIC_PATTERN) {
+-		char buf[100];
+-		ds1302_wdisable();
+-		printk("%s: RTC found.\n", ds1302_name);
+-                get_rtc_status(buf);
+-                printk(buf);
+-		retval = 1;
+-	} else {
+-		printk("%s: RTC not found.\n", ds1302_name);
+-		retval = 0;
+-	}
+-
+-	return retval;
+-}
+-
+-
+-/* Just probe for the RTC and register the device to handle the ioctl needed. */
+-
+-int __init
+-ds1302_init(void)
+-{
+-	if (!ds1302_probe()) {
+-    		return -1;
+-  	}
+-	return 0;
+-}
+-
+-static int __init ds1302_register(void)
+-{
+-        ds1302_init();
+-	if (register_chrdev(RTC_MAJOR_NR, ds1302_name, &rtc_fops)) {
+-		printk(KERN_INFO "%s: unable to get major %d for rtc\n",
+-		       ds1302_name, RTC_MAJOR_NR);
+-		return -1;
+-	}
+-	return 0;
+-}
+-
+-module_init(ds1302_register);
 
 --
 Hirokazu Takata <takata@linux-m32r.org>

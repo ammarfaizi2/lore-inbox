@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268076AbTAJAo0>; Thu, 9 Jan 2003 19:44:26 -0500
+	id <S268083AbTAJAuS>; Thu, 9 Jan 2003 19:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268077AbTAJAo0>; Thu, 9 Jan 2003 19:44:26 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:51975 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S268076AbTAJAoZ>;
-	Thu, 9 Jan 2003 19:44:25 -0500
-Date: Thu, 9 Jan 2003 16:47:57 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [ramune@net-ronin.org: [PATCH] module-init-tools update]
-Message-ID: <20030110004757.GA19917@net-ronin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S268084AbTAJAuS>; Thu, 9 Jan 2003 19:50:18 -0500
+Received: from windsormachine.com ([206.48.122.28]:23051 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S268083AbTAJAuR>; Thu, 9 Jan 2003 19:50:17 -0500
+Date: Thu, 9 Jan 2003 19:58:46 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: John Bradford <john@grabjohn.com>
+cc: <jamesclv@us.ibm.com>, <lunz@falooley.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: detecting hyperthreading in linux 2.4.19
+In-Reply-To: <200301092154.h09Ls5SX005123@darkstar.example.net>
+Message-ID: <Pine.LNX.4.33.0301091956550.32077-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Resend, as I didn't see this one show up on l-k.
+On Thu, 9 Jan 2003, John Bradford wrote:
 
-	Here's a small patch for Documentation/Changes and scripts/ver_linux
-to use depmod instead of rmmod as per Rusty's suggestion.
+> If /proc/interrupts shows a processor is handling interrupts then it
+> is definitely a 'real' one.  If it isn't handling interrupts, it may
+> or may not be a 'real' one.  That's another unreliable and kludgey way
+> to tell the difference :-).
 
-	rmmod will exec the old version of the modutils depending on the
-command-line, whereas depmod will give its own version instead.
+What about something like lmsensors?  Wouldn't the motherboard normally
+report different temperatures for each cpu, since each has its own temp
+diode?
 
-	Please apply.
+(this originally was supposed to be a in-jest idea to run two threads and
+see if one cpu or two cpu's heat up, but then i realized you might as well
+just count the temperature diodes :D)
 
--- DN
-Daniel
+Mike
 
---- Documentation/Changes.old	Thu Jan  9 10:51:36 2003
-+++ Documentation/Changes	Thu Jan  9 11:27:54 2003
-@@ -52,7 +52,7 @@
- o  Gnu make               3.78                    # make --version
- o  binutils               2.9.5.0.25              # ld -v
- o  util-linux             2.10o                   # fdformat --version
--o  module-init-tools      0.9                     # rmmod -V
-+o  module-init-tools      0.9                     # depmod -V
- o  e2fsprogs              1.29                    # tune2fs
- o  jfsutils               1.0.14                  # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
---- scripts/ver_linux.old	Thu Jan  9 10:52:10 2003
-+++ scripts/ver_linux		Thu Jan  9 11:27:57 2003
-@@ -28,7 +28,7 @@
- 
- mount --version | awk -F\- '{print "mount                 ", $NF}'
- 
--rmmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
-+depmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
- 
- tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
- 'NR==1 {print "e2fsprogs             ", $2}'

@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271759AbRICRPQ>; Mon, 3 Sep 2001 13:15:16 -0400
+	id <S271757AbRICRUZ>; Mon, 3 Sep 2001 13:20:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271757AbRICRPH>; Mon, 3 Sep 2001 13:15:07 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:57358 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S271761AbRICROw>;
-	Mon, 3 Sep 2001 13:14:52 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109031714.VAA24484@ms2.inr.ac.ru>
-Subject: Re: Excessive TCP retransmits over lossless, high latency link
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Mon, 3 Sep 2001 21:14:47 +0400 (MSK DST)
-Cc: davem@redhat.com, ak@muc.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20010901210212.A3361@thefinal.cern.ch> from "Jamie Lokier" at Sep 1, 1 09:02:12 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S271758AbRICRUP>; Mon, 3 Sep 2001 13:20:15 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:27936 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271757AbRICRUB>; Mon, 3 Sep 2001 13:20:01 -0400
+Date: Mon, 3 Sep 2001 19:20:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: mmap-rb-7 [was Re: /proc/<n>/maps growing...]
+Message-ID: <20010903192036.W699@athlon.random>
+In-Reply-To: <000f01c1349b$263fb890$010411ac@local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000f01c1349b$263fb890$010411ac@local>; from manfred@colorfullife.com on Mon, Sep 03, 2001 at 07:09:03PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> I hate rebooting :-)
-
-Relax. Really, this will not change anything. After more careful look
-into the first tcpdump, I did not find any signs of false fast retransmits.
-
-All the problem is due to wrong rtt estimator at sender.
-
-
-> > Yes, on such links fast retransmit is not useful in any case.
+On Mon, Sep 03, 2001 at 07:09:03PM +0200, Manfred Spraul wrote:
+> > +/*
+> > + * vma->vm_start/vm_end cannot change under us because the caller is
+> required
+> > + * to hold the mmap_sem in write mode. We need to get the spinlock
+> only
+> > + * before relocating the vma range ourself.
+> > + */
 > 
-> Should I turn of /proc/sys/net/ipv4/tcp_fack then?
+> There is one exception to that rule: a growable stack grows with
+> mmap_sem only acquired in read mode. vm_start can change on platforms
 
-No. Defaults are defaults, because they are the best defaults. :-)
+expand_stack was broken. I fixed that, see the other patch posted to l-k
+today. growsup faults must grab the write semaphore too of course.
 
-
-> Yes, definitely.  Btw, I saw a ping round trip time of 162s just now.
-
-I do not understand, do you share this link with someone or
-ping over tcp connection?
-
-If the last is true, reduce window to 4K, maximum 8K. Default 64K, combined
-with misconfigured queues and/or with broken error correction is disaster.
-
-Actually, you dump shows that window is not open.
-
-
-> I saw very few retransmits in a single message download.  SACK appears
-> occasionally.  I don't really understand the local reaction to SACK, or
-> why a SACK option appears in one ACK sent locally and not the following
-> ACK, even though the SACK mentions data that does not arrive between the
-> two locally sent ACKs.
-
-But I do not see _any_ sacks in your tcpdumps.
-
-
-> The throughput difference was obvious: POP3 negotiation + 30k message +
-> headers took:
+> > - lock_vma_mappings(vma);
+> > - spin_lock(&vma->vm_mm->page_table_lock);
+> >  vma->vm_pgoff += (end - vma->vm_start) >> PAGE_SHIFT;
+> > + lock_vma_mappings(vma);
+> > + spin_lock(&mm->page_table_lock);
+> > vma->vm_start = end;
 > 
->         5 min 31 sec       downloading unknown OS   ->  Linux 2.4.7
->         2 min 15 sec       downloading Linux 2.4.2  ->  Linux 2.4.7
+> Could be wrong with concurrent stack faults.
 
-It is dominated by rtt, one rtt per segment. It is very strange
-that cwnd does not want to open. Maybe, it is worth to tcpdump at proxy.
+even if the growsdown faults would acquire only the read seamphore that
+change would still be obviously right because there (madvise) we hold
+the write semaphore, and even in the buggy 2.4.10pre4 the stack faults
+at least grab the read semaphore so they cannot race.
 
-Alexey
+Andrea

@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbUKXPXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbUKXPZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbUKXPXn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 10:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKXPX0
+	id S262746AbUKXPZk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 10:25:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKXPXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 10:23:26 -0500
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:51922 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S262725AbUKXPW2
+	Wed, 24 Nov 2004 10:23:43 -0500
+Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:17050
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S262749AbUKXPVO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 10:22:28 -0500
-Message-ID: <41A4A6E6.6010803@ttnet.net.tr>
-Date: Wed, 24 Nov 2004 17:21:10 +0200
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
-X-Accept-Language: tr, en-us, en
+	Wed, 24 Nov 2004 10:21:14 -0500
+Date: Wed, 24 Nov 2004 10:21:06 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Ian Campbell <icampbell@arcom.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: "deadlock" between smc91x driver and link_watch
+In-Reply-To: <1101290297.10841.15.camel@icampbell-debian>
+Message-ID: <Pine.LNX.4.61.0411241014160.8946@xanadu.home>
+References: <1101230194.14370.12.camel@icampbell-debian> 
+ <20041123153158.6f20a7d7.akpm@osdl.org>  <1101289309.10841.9.camel@icampbell-debian>
+  <20041124014650.47af8ae4.akpm@osdl.org> <1101290297.10841.15.camel@icampbell-debian>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: status of cdrom patches for 2.4 ?
-References: <41A3C391.8070609@ttnet.net.tr> <20041124074336.GB8718@logos.cnet> <20041124125319.GB13847@suse.de> <41A49DA5.9090900@ttnet.net.tr> <20041124150520.GG13847@suse.de> <41A4A3C4.3020004@ttnet.net.tr> <20041124151737.GH13847@suse.de>
-In-Reply-To: <20041124151737.GH13847@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Nov 24 2004, O.Sezer wrote:
-> 
->>Jens Axboe wrote:
->>
->>>You conveniently ignore that 2.4 is in bug fix mode, and a strict one
->>>now even. And then you want to add new features to a driver that is both
->>>used on almost every machine and also drives the most picky and buggy
->>>hardware out there? So please can the 'pre-recorded' message crap. You
->>>are not the one that will have to pick up the pieces if something
->>>breaks.
->>
->>My sincere apologies if I offended.
-> 
-> 
-> No worries. You seem to be capable of adding it yourself, so I don't see
+On Wed, 24 Nov 2004, Ian Campbell wrote:
 
-Yup.
+> Quite right. Fixed patch included.
 
-> why it's such a huge deal that 2.4-vanilla has to include it?
-> 
+Small question:
 
-It already had an attempt of merging while in 2.4.27 cycle, which isn't
-so far, and only because of that I asked why you don't give it another
-try. But yes, no worries.
+> + * smc_phy_configure_wq
+> + *
+> + * The net_device is referenced when the work was scheduled to avoid
+> + * the need for a flush_scheduled_work() in smc_close(). Drop the
+> + * reference and then do the configuration.
 
-Ozkan Sezer
+You probably want to invert the comment here too.
 
+> +static void smc_phy_configure_wq(void *data)
+> +{
+> +	struct net_device *dev = data;
+> +	smc_phy_configure(data);
+> +	dev_put(dev);
+> +}
+
+[...]
+
+> @@ -1536,10 +1553,8 @@
+>  	/* clear everything */
+>  	smc_shutdown(dev);
+>  
+> -	if (lp->phy_type != 0) {
+> -		flush_scheduled_work();
+> +	if (lp->phy_type != 0)
+>  		smc_phy_powerdown(dev, lp->mii.phy_id);
+
+
+How do you ensure that smc_phy_configure() can't end up being called 
+after smc_phy_powerdown() here?
+
+
+Nicolas

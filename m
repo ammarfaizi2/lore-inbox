@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVCTQjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVCTQsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVCTQjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 11:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVCTQjZ
+	id S261236AbVCTQsS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 11:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVCTQsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 11:39:25 -0500
-Received: from mail.dif.dk ([193.138.115.101]:31934 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261232AbVCTQjV (ORCPT
+	Sun, 20 Mar 2005 11:48:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:64943 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261236AbVCTQsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 11:39:21 -0500
-Date: Sun, 20 Mar 2005 17:41:01 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][trivial] matroxfb_maven remove pointless semicolons after
- label
-Message-ID: <Pine.LNX.4.62.0503201737250.2501@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Mar 2005 11:48:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=adxhV3pdBQ5Dgfp47w2UoHm/dqNRERksurSbOBfBzbF2uce+zd8iCZSnQJ+wW384ZBGGwh3TawxBYabUc8YKUemN4nO0NWU4GWFrSZ/nc51pWKBuoweVqeDUf6vomCDh4NXrbU1iWbOvXjrNTSJpaWookIrwcr0UJCJbwenV6CI=
+Message-ID: <aec7e5c305032008487f378246@mail.gmail.com>
+Date: Sun, 20 Mar 2005 17:48:13 +0100
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ide-xxx.c and KBUILD_MODNAME
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello again,
 
-Having a semicolon at the end as in  labelname:;  is pointless, remove.
+The KBUILD_MODNAME problem with af_unix.c is sort of also affecting
+the ide code, but with another twist. "unix" is not a problem, but
+KBUILD_MODNAME collides with constants defined in <linux/ide.h>:
 
+[snip]
+/*
+ * Now for the data we need to maintain per-drive:  ide_drive_t
+ */
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+#define ide_scsi	0x21
+#define ide_disk	0x20
+#define ide_optical	0x7
+#define ide_cdrom	0x5
+#define ide_tape	0x1
+#define ide_floppy	0x0
+[snip]
 
-diff -up linux-2.6.11-mm4-orig/drivers/video/matrox/matroxfb_maven.c linux-2.6.11-mm4/drivers/video/matrox/matroxfb_maven.c
---- linux-2.6.11-mm4-orig/drivers/video/matrox/matroxfb_maven.c	2005-03-02 08:37:30.000000000 +0100
-+++ linux-2.6.11-mm4/drivers/video/matrox/matroxfb_maven.c	2005-03-20 17:35:48.000000000 +0100
-@@ -1263,11 +1263,11 @@ static int maven_detect_client(struct i2
- 	if (err)
- 		goto ERROR4;
- 	return 0;
--ERROR4:;
-+ERROR4:
- 	i2c_detach_client(new_client);
--ERROR3:;
-+ERROR3:
- 	kfree(new_client);
--ERROR0:;
-+ERROR0:
- 	return err;
- }
- 
+this results in wierd KBUILD_MODNAME preprocessing:
+- KBUILD_MODNAME in ide-disk.c equals "0x20"
+- KBUILD_MODNAME in ide-tape.c equals "0x1"
+- KBUILD_MODNAME in ide-floppy.c equals "0x0"
 
+Why again are we using lowercase constants?
 
+/ magnus

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261813AbSJEBL3>; Fri, 4 Oct 2002 21:11:29 -0400
+	id <S261847AbSJEBOn>; Fri, 4 Oct 2002 21:14:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261815AbSJEBL3>; Fri, 4 Oct 2002 21:11:29 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:40779 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261813AbSJEBL2>; Fri, 4 Oct 2002 21:11:28 -0400
-Date: Fri, 4 Oct 2002 18:25:24 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.40: lkcd (4/9): additional kernel symbols
-In-Reply-To: <m3znttg2wz.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.44.0210041822120.10168-100000@nakedeye.aparity.com>
+	id <S261851AbSJEBOn>; Fri, 4 Oct 2002 21:14:43 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:32004 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S261847AbSJEBOm>; Fri, 4 Oct 2002 21:14:42 -0400
+Date: Sat, 5 Oct 2002 11:20:06 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: "David S. Miller" <davem@redhat.com>
+cc: greearb@candelatech.com, <linux-kernel@vger.kernel.org>
+Subject: Re: tg3 and Netgear GA302T x 2 locks machine
+In-Reply-To: <20021004.142428.101875902.davem@redhat.com>
+Message-ID: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Oct 2002, Andi Kleen wrote:
-|>"Matt D. Robinson" <yakker@aparity.com> writes:
-|>
-|>> diff -urN -X /home/bharata/dontdiff linux-2.5.40/arch/i386/kernel/i386_ksyms.c linux-2.5.40+lkcd/arch/i386/kernel/i386_ksyms.c
-|>> --- linux-2.5.40/arch/i386/kernel/i386_ksyms.c	Tue Oct  1 12:36:59 2002
-|>> +#if defined(CONFIG_X86) || defined(CONFIG_ALPHA)
-|>> +EXPORT_SYMBOL(page_is_ram);
-|>> +#endif
-|>
-|>This ifdef in i386_ksyms.c doesn't make much sense...
+On Fri, 4 Oct 2002, David S. Miller wrote:
 
-If the rest of the architectures used page_is_ram(), this
-wouldn't be a problem, but not all do.  And since we use
-it/need it, that's the reason for the addition.
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Thu, 03 Oct 2002 21:19:37 -0700
+> 
+>    Got my two new Netgear GA302t nics today.  They seem to use the
+>    tg3 driver....
+>    
+>    I put them into the 64/66 slots on my Tyan dual amd motherboard..
+>    Running kernel 2.4.20-pre8
+>    
+> You reported the other week problems with two Acenic's in
+> this same machine right?  The second Acenic wouldn't even probe
+> properly.  And the two Acenic's were identical.
+> 
 
-|>> +#ifdef CONFIG_SMP
-|>> +extern irq_desc_t irq_desc[];
-|>> +extern unsigned long irq_affinity[];
-|>> +EXPORT_SYMBOL(irq_affinity);
-|>> +EXPORT_SYMBOL(irq_desc);
-|>> +extern void dump_send_ipi(void);
-|>> +EXPORT_SYMBOL(dump_send_ipi);
-|>> +extern int (*dump_ipi_function_ptr)(struct pt_regs *);
-|>> +EXPORT_SYMBOL(dump_ipi_function_ptr);
-|>> +extern void (*dump_trace_ptr)(struct pt_regs *);
-|>> +EXPORT_SYMBOL(dump_trace_ptr);
-|>> +extern void show_this_cpu_state(int, struct pt_regs *, struct task_struct *);
-|>> +EXPORT_SYMBOL(show_this_cpu_state);
-|>
-|>Before adding all these ugly declarations I would just declare the file where
-|>whey are exported from as 'x-obj' and put them directly to where the 
-|>functions live.
+FWIW, my GA302T seems fine with the kernel he originally reported 
+(2.4.20-pre8).
 
-Okee, I'll start looking into doing this.  That'll break out this
-whole patch (assuming there's something else that can be done for
-the page_is_ram() mechanism).
 
-|>-Andi
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
---Matt
 

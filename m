@@ -1,57 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbSJQUo1>; Thu, 17 Oct 2002 16:44:27 -0400
+	id <S262076AbSJQU4Y>; Thu, 17 Oct 2002 16:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262202AbSJQUo1>; Thu, 17 Oct 2002 16:44:27 -0400
-Received: from [203.199.93.15] ([203.199.93.15]:26643 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S262201AbSJQUo0>; Thu, 17 Oct 2002 16:44:26 -0400
-From: "arun4linux" <arun4linux@indiatimes.com>
-Message-Id: <200210172025.BAA30795@WS0005.indiatimes.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "arun4linux" <arun4linux@indiatimes.com>
-Subject: event semaphore mechanism in Linux
-Date: Fri, 18 Oct 2002 01:49:40 +0530
-X-URL: http://indiatimes.com
+	id <S262070AbSJQU4Y>; Thu, 17 Oct 2002 16:56:24 -0400
+Received: from crack.them.org ([65.125.64.184]:54282 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262076AbSJQU4X>;
+	Thu, 17 Oct 2002 16:56:23 -0400
+Date: Thu, 17 Oct 2002 17:02:21 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: PATCH: fix task state reporting
+Message-ID: <20021017210221.GA18872@nevyn.them.org>
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20021017213812.D3326@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021017213812.D3326@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Thu, Oct 17, 2002 at 09:38:12PM +0100, Russell King wrote:
+> Hi,
+> 
+> While running a test here, I noticed that some threads kept entering
+> "T" state according to ps aux.  However, rather than stop, they'd
+> disappear on the next process listing, as though they weren't stopped.
+> 
+> Further investigation revealed the following when suspending processes:
+> 
+> root      1497  3.8  1.7  1472  544 ttyp1    Z    00:05   0:21 find / -name pro
+> 
+> Yes, 'Z' for suspended, 'T' for zombie.  Something smells fishy here.
+> 
+> #define TASK_RUNNING		0
+> #define TASK_INTERRUPTIBLE	1
+> #define TASK_UNINTERRUPTIBLE	2
+> #define TASK_STOPPED		4
+> #define TASK_ZOMBIE		8
+> #define TASK_DEAD		16
+> 
+> So that's R S D T Z W, but sched.c contains R S D Z T W (Z and T
+> reversed).  This patch corrects sched.c.  (Should we correct
+> the order of bits in sched.h instead?)
 
-  I'm involved in migrating an OS/2 system to Linux, which involves applications as well as drivers.
+fs/proc/array.c needs the same fix.  I sent this to Ingo but he must
+have lost my mail....
 
-  I have some doubts/questions on implementing asynchronous,
-repeated-interval timer mechanism with semaphore support.
-	I meant porting Event Semaphores available in OS/2 to Linux.
-(DosCreateEventSem,DosWaitEventSem,DosResetEventSem,DosPostEventSem)
+===== fs/proc/array.c 1.30 vs edited =====
+--- 1.30/fs/proc/array.c	Mon Sep 30 05:06:43 2002
++++ edited/fs/proc/array.c	Tue Oct  1 13:45:13 2002
+@@ -125,9 +125,9 @@
+ 	"R (running)",		/*  0 */
+ 	"S (sleeping)",		/*  1 */
+ 	"D (disk sleep)",	/*  2 */
+-	"Z (zombie)",		/*  4 */
+-	"T (stopped)",		/*  8 */
+-	"W (paging)"		/* 16 */
++	"T (stopped)",		/*  4 */
++	"Z (zombie)",		/*  8 */
++	"X (dead)"		/* 16 */
+ };
+ 
+ static inline const char * get_task_state(struct task_struct *tsk)
+@@ -135,8 +135,9 @@
+ 	unsigned int state = tsk->state & (TASK_RUNNING |
+ 					   TASK_INTERRUPTIBLE |
+ 					   TASK_UNINTERRUPTIBLE |
++					   TASK_STOPPED |
+ 					   TASK_ZOMBIE |
+-					   TASK_STOPPED);
++					   TASK_DEAD);
+ 	const char **p = &task_state_array[0];
+ 
+ 	while (state) {
 
-  My need is to have semaphores which will be signalled (posted)
-repeated-interval timer mechanis asynchronously.
-  In other words,
-                I need to implement asynchronous, repeated-interval
-timer mechanism with semaphore support.
+> 
+> --- orig/kernel/sched.c	Wed Oct 16 09:17:13 2002
+> +++ linux/kernel/sched.c	Thu Oct 17 21:32:42 2002
+> @@ -1798,7 +1798,7 @@
+>  	unsigned long free = 0;
+>  	task_t *relative;
+>  	int state;
+> -	static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
+> +	static const char * stat_nam[] = { "R", "S", "D", "T", "Z", "W" };
+>  
+>  	printk("%-13.13s ", p->comm);
+>  	state = p->state ? __ffs(p->state) + 1 : 0;
+> 
+> -- 
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-  We thought of using condition variable (pthread_cond_init, etc..)
-and mutex combination to achieve this.
-
-  But it seems pthread's mutex and condition variable synchronization
-calls are off limits.  pthread mutex-locking routines are not
-asynchronous signal safe.
-
-	It would be helpful, if I could get to know on how to achieve this
-event semaphore mechanism in Linux.
-
-	Have a nice time.
-  
-Warm Regards
-Arun
-
-
-
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
-
-Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

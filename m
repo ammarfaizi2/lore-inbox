@@ -1,42 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263285AbTJKNhI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 09:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263288AbTJKNhI
+	id S263305AbTJKN3R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 09:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263306AbTJKN3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 09:37:08 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:65233 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263285AbTJKNhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 09:37:06 -0400
-Date: Sat, 11 Oct 2003 09:31:14 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: John Mock <kd6pag@qsl.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: slab corruption of hpsb_packet from ohci1394 + sbp2 on 2.6.0-test7
-Message-ID: <20031011133114.GW552@phunnypharm.org>
-References: <E1A86t4-0001rj-00@penngrove.fdns.net> <Pine.LNX.4.53.0310102125580.15705@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0310102125580.15705@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.4i
+	Sat, 11 Oct 2003 09:29:17 -0400
+Received: from hades.mk.cvut.cz ([147.32.96.3]:27093 "EHLO hades.mk.cvut.cz")
+	by vger.kernel.org with ESMTP id S263305AbTJKN3N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 09:29:13 -0400
+Message-ID: <3F8805A7.6080306@kmlinux.fjfi.cvut.cz>
+Date: Sat, 11 Oct 2003 15:29:11 +0200
+From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030916
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [patch] sensors/w83781d.c creates useless sysfs entries
+Content-Type: multipart/mixed;
+ boundary="------------060605020901060807020408"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Any clues on how to track this problem down would be greatly appreciated!
-> > (Please CC: such replies, as i'm reading via WWW rather than subscribing.)
-> 
-> The state change synchronization is rather weird in that driver, then 
-> there is the whole double semaphore acquisition business which i'm not 
-> quite sure of. It looks better suited to a struct completion, but that is 
-> the source of your problem. This would be better handled by the 
-> maintainer.
+This is a multi-part message in MIME format.
+--------------060605020901060807020408
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-FYI, the semaphore is being removed and things are better handled now.
+Hello,
 
+here is a trivial fix for Winbond sensor driver, which currently creates 
+useless entries in sys/bus/i2c due to missing braces after if statements 
+- author probably forgot about the macro expansion.
+
+Regards,
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Jindrich Makovicka
+
+--------------060605020901060807020408
+Content-Type: text/plain;
+ name="w83781d.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="w83781d.c.patch"
+
+--- w83781d.c.orig	2003-10-02 08:17:20.000000000 +0200
++++ w83781d.c	2003-10-11 14:45:59.000000000 +0200
+@@ -1347,8 +1347,10 @@
+ 	}
+ 
+ 	device_create_file_in(new_client, 0);
+-	if (kind != w83783s && kind != w83697hf)
++	if (kind != w83783s && kind != w83697hf) {
+ 		device_create_file_in(new_client, 1);
++	}
++	
+ 	device_create_file_in(new_client, 2);
+ 	device_create_file_in(new_client, 3);
+ 	device_create_file_in(new_client, 4);
+@@ -1361,25 +1363,30 @@
+ 
+ 	device_create_file_fan(new_client, 1);
+ 	device_create_file_fan(new_client, 2);
+-	if (kind != w83697hf)
++	if (kind != w83697hf) {
+ 		device_create_file_fan(new_client, 3);
++	}
+ 
+ 	device_create_file_temp(new_client, 1);
+ 	device_create_file_temp(new_client, 2);
+-	if (kind != w83783s && kind != w83697hf)
++	if (kind != w83783s && kind != w83697hf) {
+ 		device_create_file_temp(new_client, 3);
+-
+-	if (kind != w83697hf)
++	}
++	
++	if (kind != w83697hf) {
+ 		device_create_file_vid(new_client);
+-
+-	if (kind != w83697hf)
++	}
++	
++	if (kind != w83697hf) {
+ 		device_create_file_vrm(new_client);
+-
++	}
++	
+ 	device_create_file_fan_div(new_client, 1);
+ 	device_create_file_fan_div(new_client, 2);
+-	if (kind != w83697hf)
++	if (kind != w83697hf) {
+ 		device_create_file_fan_div(new_client, 3);
+-
++	}
++	
+ 	device_create_file_alarms(new_client);
+ 
+ 	device_create_file_beep(new_client);
+
+--------------060605020901060807020408--
+

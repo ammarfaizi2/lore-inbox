@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbUKEO4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbUKEO7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbUKEO4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 09:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbUKEO4M
+	id S262707AbUKEO7d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 09:59:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbUKEO7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 09:56:12 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:37276 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S261645AbUKEO4C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 09:56:02 -0500
-Date: Fri, 5 Nov 2004 15:55:53 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Art Haas <ahaas@airmail.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel memory requirements and BK
-In-Reply-To: <20041105144621.GC7724@artsapartment.org>
-Message-ID: <Pine.LNX.4.60.0411051554290.3255@alpha.polcom.net>
-References: <20041105144621.GC7724@artsapartment.org>
+	Fri, 5 Nov 2004 09:59:33 -0500
+Received: from mail3.utc.com ([192.249.46.192]:5512 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S262707AbUKEO7J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 09:59:09 -0500
+Message-ID: <418B9527.4050100@cybsft.com>
+Date: Fri, 05 Nov 2004 08:58:47 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Amit Shah <amitshah@gmx.net>
+Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
+References: <200411051837.02083.amitshah@gmx.net> <20041105134639.GA14830@elte.hu> <200411051142.43394.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <200411051142.43394.norberto+linux-kernel@bensa.ath.cx>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Nov 2004, Art Haas wrote:
+Norberto Bensa wrote:
+> Ingo Molnar wrote:
+> 
+>>* Amit Shah <amitshah@gmx.net> wrote:
+>>
+>>>I'm trying out the RT preempt patch on a P4 HT machine, I get the
+>>>following message:
+>>>
+>>
+>>hm, does this happen with -V0.7.13 too? (note that it's against
+>>2.6.10-rc1-mm3, a newer -mm tree.)
+> 
+> 
+> But it doesn't -cleanly- apply. 
+> 
+> Hunk #2 FAILED at 1545.
+> 1 out of 2 hunks FAILED -- saving rejects to file mm/mmap.c.rej
+> 
+> Regards,
+> Norberto
 
-> Hi.
->
-> I've been having problems with 'bk pull' execution when using kernels
-> after the 2.6.8/2.6.8.1 releases. My machine has 192M of memory and 100M
-> of swap, so I believe that the memory requirements for using BK to keep
-> up with the kernel is sufficient, and when the machine is running with a
-> 2.6.8.1 kernel I can 'bk pull' even if X windows is running. With the
-> 2.6.9 and 2.6.10-rc kernels, BK bombs out with out-of-memory errors once
-> the repository checking begins. I've run the 'bk pull' under the newer
-> kernels without X running, as well as shutting down various daemons, and
-> still things fail with memory errors.
+It looks to me like this fails because it is already in -mm3. Probably 
+can safely ignore this.
 
-Maybe you have some kernel debuging options set? Some of them can eat your 
-RAM very fast with fs heavy load.
-
-
-Grzegorz Kulewski
-
+kr

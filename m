@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbTDHXyR (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbTDHXyR (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:54:17 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:39043 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262620AbTDHXyQ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 19:54:16 -0400
-Date: Tue, 8 Apr 2003 17:05:53 -0700
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@brodo.de>
-Subject: Re: [PATCHES 2.5.67] PCMCIA hotplugging, in-kernel-matching and depmod support
-Message-ID: <20030409000553.GA26454@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030408223111.GA25785@bougret.hpl.hp.com> <3E93538C.9010306@pobox.com>
+	id S262624AbTDIACe (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 20:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbTDIACe (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 20:02:34 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:57540 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262624AbTDIACc (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 20:02:32 -0400
+Date: Wed, 9 Apr 2003 01:13:51 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: akpm@digeo.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: convert_fxsr_from_user
+Message-ID: <20030409001344.GA20353@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, akpm@digeo.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E93538C.9010306@pobox.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 08, 2003 at 06:56:12PM -0400, Jeff Garzik wrote:
-> 
-> >	Example :
-> >	Lucent/Agere Orinoco wireless card :
-> >		manfid 0x0156,0x0002
-> >		possible drivers : wlan_cs ; orinoco_cs
-> >	Intersil PrismII and clones (Linksys, ...) :
-> >		manfid 0x0156,0x0002
-> >		possible drivers : prism2_cs ; hostap_cs
-> >
-> >	Please explain me in details how your stuff will cope with the
-> >above, and how to make sure the right driver is loaded in every case
-> >and how user can control this.
-> >	If your scheme can't cope with the simple real life example
-> >above (I've got those cards on my desk, and those drivers on my disk),
-> >then it's no good to me.
-> 
-> These cases already exist for PCI, so pcmcia behavior should follow what 
-> the kernel does when the PCI core sees such.
-> 
-> 	Jeff
+Andrew,
+ A while back you optimised this routine to not do lots of memory
+copies.  I've noticed it does no checking on the validity of the
+addresses it dereferences from userspace.
 
-	I've never heard of a case of PCI-ID collision between two
-different manufacturer, so I need to update myself ;-)
-	I was already burnt by this mess, as many IrDA users get
-confused when ir-usb loads instead of irda-usb, so my experience so
-far in handling those case has not been very positive.
-	But, I trust you now have things under control ;-)
+Looks like we need to...
 
-	Have fun...
+		Dave
 
-	Jean
+Unable to handle kernel paging request at virtual address 08048514
+ printing eip:
+c0114490
+*pde = 05ad8067
+*pte = 0586a025
+Oops: 0003 [#1]
+CPU:    0
+EIP:    0060:[<c0114490>]    Not tainted
+EFLAGS: 00010246
+EIP is at convert_fxsr_from_user+0xe0/0x150
+eax: e9000000   ebx: 08048514   ecx: c5be1d40   edx: 00000000
+esi: c56d4000   edi: 00000000   ebp: c56d5f1c   esp: c56d5ee4
+ds: 007b   es: 007b   ss: 0068
+Process a.out (pid: 638, threadinfo=c56d4000 task=c5be1980)
+Stack: c56d5ef0 080484f8 0000001c 83e58955 51e808ec e8000001 000001ac 0007cbe8 
+       00c3c900 90f435ff c6165d70 c5be1980 c5be1d20 080484f8 c56d5f3c c0114711 
+       c5be1d20 080484f8 00000200 080484f8 00000000 00000000 c56d5f54 c01147a0 
+Call Trace:
+ [<c0114711>] restore_i387_fxsave+0x81/0x90
+ [<c01147a0>] restore_i387+0x80/0x90
+ [<c01092b8>] restore_sigcontext+0x128/0x140
+ [<c010972c>] sys_rt_sigreturn+0x1bc/0x2e0
+ [<c016ba65>] sys_write+0x45/0x60
+ [<c010a457>] syscall_call+0x7/0xb
+
+Code: 89 03 85 d2 75 2e 8b 41 04 89 43 04 85 d2 75 24 66 8b 41 08
+

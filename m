@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311650AbSCXHBM>; Sun, 24 Mar 2002 02:01:12 -0500
+	id <S311664AbSCXHFw>; Sun, 24 Mar 2002 02:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311664AbSCXHAw>; Sun, 24 Mar 2002 02:00:52 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:43486 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S311650AbSCXHAo>;
-	Sun, 24 Mar 2002 02:00:44 -0500
-Message-ID: <3C9D799C.3070300@candelatech.com>
-Date: Sun, 24 Mar 2002 00:00:44 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: bk repository compile bug (zoran)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S311683AbSCXHFm>; Sun, 24 Mar 2002 02:05:42 -0500
+Received: from c17736.belrs2.nsw.optusnet.com.au ([211.28.31.90]:48769 "EHLO
+	bozar") by vger.kernel.org with ESMTP id <S311664AbSCXHFf>;
+	Sun, 24 Mar 2002 02:05:35 -0500
+Date: Sun, 24 Mar 2002 18:05:16 +1100
+From: Andre Pang <ozone@algorithm.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Steven Walter <srwalter@yahoo.com>,
+        Danijel Schiavuzzi <dschiavu@public.srce.hr>
+Subject: Re: Screen corruption in 2.4.18
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Steven Walter <srwalter@yahoo.com>,
+	Danijel Schiavuzzi <dschiavu@public.srce.hr>
+In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <200203222204.XAA01121@jagor.srce.hr> <20020322232304.GA19579@hapablap.dyn.dhs.org> <200203231526.QAA09302@jagor.srce.hr> <20020323160647.GA22958@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Message-Id: <1016953516.189201.5912.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just in case this has not been caught yet, from repository:
-  bk://linux.bkbits.net/linux-2.4
+On Sat, Mar 23, 2002 at 10:06:47AM -0600, Steven Walter wrote:
 
+> > Don't get it wrong. I *do have* an VT8365. VT8365 (ProSavage KM133) is 
+> > somewhat the same as VT8363 (KT133), except that 8365 has an integrated 
+> > Savage graphics card (which *I use*).
+> 
+> Aha... I see.  And in thinking about it, I realize that my motherboard
+> also has this integrated graphics card.  Perhaps this is the difference?
+> Unfortunately, it seems they both report the same PCI id, so I don't
+> really know of a way to differentiate them.
 
-gcc -D__KERNEL__ -I/home/greear/kernel/2.4/bk/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/bk/linux-2.4/include/linux/modversions.h  -DKBUILD_BASENAME=zr36067  -c -o zr36067.o zr36067.c
-zr36067.c: In function `zoran_open':
-zr36067.c:3268: structure has no member named `busy'
-zr36067.c: At top level:
-zr36067.c:4405: warning: initialization makes integer from pointer without a cast
-zr36067.c:4406: warning: initialization makes integer from pointer without a cast
-zr36067.c:4407: warning: initialization from incompatible pointer type
-zr36067.c:4408: warning: initialization from incompatible pointer type
-zr36067.c:4410: warning: initialization from incompatible pointer type
-zr36067.c:4411: warning: initialization from incompatible pointer type
-zr36067.c:4412: warning: initialization from incompatible pointer type
-make[3]: *** [zr36067.o] Error 1
-make[3]: Leaving directory `/home/greear/kernel/2.4/bk/linux-2.4/drivers/media/video'
+I can verify Danijel's report -- I have the same setup
+(VT8363+VT8353, a.k.a. ProSavage KM133), and I experience the
+same screen corruption.  Clearing only bit 7 of register 55 fixes
+the problem; clearing bits 5 and 6 causes the video to go all
+borky.  There's been another thread about it on lkml over the
+last week or so.
+
+> I looked at that datasheet, and the datasheet for the 8363.  Both said
+> not to program offset 55, and both said the bits we are clearing are
+> "reserved."  Perhaps we should contact VIA directly, tell them the
+> problem we're having with their current fix, tell them our theory, and
+> ask if we're right.
+
+Heh, a VIA contact who knows what the hell that register does
+would be nice :).
+
+In the meantime, I'd probably suggest a patch which looks for
+clears only bit 7 of Rx55 if an 8363 and an 8365 is found.  I'll
+whip one up later today.
+
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

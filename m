@@ -1,34 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264076AbUECWBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUECWBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264076AbUECWBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 18:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUECWBO
+	id S264085AbUECWBp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 18:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUECWBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 18:01:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37031 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264076AbUECWBN
+	Mon, 3 May 2004 18:01:45 -0400
+Received: from mailgate2.mysql.com ([213.136.52.47]:23515 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S264085AbUECWBm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 18:01:13 -0400
-Date: Mon, 3 May 2004 23:01:10 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       davidm@hpl.hp.com, bunk@fs.tum.de, eyal@eyal.emu.id.au,
-       linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
-Message-ID: <20040503220110.GJ17014@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0405011536300.18014@ppc970.osdl.org> <20040501161035.67205a1f.akpm@osdl.org> <Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org> <20040501175134.243b389c.akpm@osdl.org> <16534.35355.671554.321611@napali.hpl.hp.com> <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org> <20040503140251.274e1239.akpm@osdl.org> <20040503211607.GG17014@parcelfarce.linux.theplanet.co.uk> <20040503212450.GC31580@wohnheim.fh-wedel.de> <20040503215434.GI17014@parcelfarce.linux.theplanet.co.uk>
+	Mon, 3 May 2004 18:01:42 -0400
+Subject: Re: Random file I/O regressions in 2.6
+From: Peter Zaitsev <peter@mysql.com>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <1083621052.7949.53.camel@localhost.localdomain>
+References: <200405022357.59415.alexeyk@mysql.com>
+	 <409629A5.8070201@yahoo.com.au> <20040503110854.5abcdc7e.akpm@osdl.org>
+	 <1083615727.7949.40.camel@localhost.localdomain>
+	 <20040503135719.423ded06.akpm@osdl.org>
+	 <1083620245.23042.107.camel@abyss.local>
+	 <1083621052.7949.53.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1083621680.23040.120.camel@abyss.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040503215434.GI17014@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 03 May 2004 15:01:21 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 10:54:34PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 	b) systemcfg_init() in asm-ppc64/systemcfg.h (WTF is that about?)
+On Mon, 2004-05-03 at 14:50, Ram Pai wrote:
 
-... outside of __KERNEL__, so looks like a userland code that got there
-for fsck knows what reason.  Anyway, open() and close() in it are libc
-ones.
+> 
+> Looking at it the other way, without readahead code, all requests
+> satisfied through 4k i/os.  Readahead helps in generating larger size
+> i/os.
+
+Huh,  This is kind of really strange.
+
+
+If you speak about database world, Random IO is quite frequent and
+database page sizes are normally larger than OS page size.
+
+Furthermore even if it is split to 4K block sizes, why are they not
+submitted in parallel, being merged on lower level.
+
+Anyway we seems to all agree this is not very good behavior and it
+should be fixed :)
+
+
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+
+

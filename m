@@ -1,47 +1,293 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264445AbTLLXpb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 18:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTLLXpb
+	id S261796AbTLLXze (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 18:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTLLXze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 18:45:31 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:36227 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264445AbTLLXp1
+	Fri, 12 Dec 2003 18:55:34 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19863 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261796AbTLLXz0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 18:45:27 -0500
-Date: Fri, 12 Dec 2003 23:45:23 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Increasing HZ (patch for HZ > 1000)
-Message-ID: <20031212234523.GE15935@mail.shareable.org>
-References: <F760B14C9561B941B89469F59BA3A84702C931A4@orsmsx401.jf.intel.com> <20031212223128.GA15935@mail.shareable.org> <20031212225856.GA30751@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Dec 2003 18:55:26 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+Subject: [PATCH] Re: [2.6] Modular IDE - problem
+Date: Sat, 13 Dec 2003 00:57:45 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58L.0312121432190.11533@alpha.zarz.agh.edu.pl> <200312121431.56416.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200312121431.56416.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031212225856.GA30751@ucw.cz>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312130057.45799.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> > > I'd advocate lower HZ. Say, oh I dunno...100? This is better for power
-> > > management and also should make the sound go away.
-> > 
-> > Alas, the sound my Toshiba laptop makes when the CPU is busy is the
-> > same frequency whatever kernel, and by extension whatever the timer
-> > frequency.  I guess it must have another cause :/
+On Friday 12 of December 2003 14:31, Bartlomiej Zolnierkiewicz wrote:
+> Can you try this patch for 2.6.0-test11?
 >
-> If it's when the CPU is busy, then it's the CPU's DC/DC converter. There
-> is no way to get rid of the noise without mnodifying the notebook.
+> On Friday 12 of December 2003 14:38, Wojciech 'Sas' Cieciwa wrote:
+> > Hi,
+> > I try to build kernel 2.6.0-test11 + cset-20031209_2107 with modular IDE.
+> >
+> > But I got some wornings/errors and kernel doesn't works.
+> >
+> > Can anyone look at this and help me ?
+> >
+> > Thanx.
+> > 					Sas.
 
-It only does it when the CPU is busy in any low power mode.  In
-maximum power mode it never makes the noise.  It sounds like it's
-coming from the speakers (independent of volume control though), but
-it might not be.
+Corrected version.
+- ide-disk.o must be linked after ide.o (affects built-in case not modular)
+- move initialize=1 to ide_init_data() to fix generic IDE w/o PCI support
 
-Would the DC/DC converter noise be explained by a low quality
-capacitor used by the converter?
+ drivers/block/ll_rw_blk.c    |    2 ++
+ drivers/ide/Makefile         |   16 ++++++++--------
+ drivers/ide/ide-probe-mini.c |   23 +++++++++++++++++++++++
+ drivers/ide/ide-probe.c      |   20 +++++++++++++-------
+ drivers/ide/ide.c            |   35 ++++++++---------------------------
+ include/linux/ide.h          |    1 -
+ 6 files changed, 54 insertions(+), 43 deletions(-)
 
--- Jamie
+diff -puN drivers/block/ll_rw_blk.c~ide-modules drivers/block/ll_rw_blk.c
+--- linux-2.6.0-test11-bart1/drivers/block/ll_rw_blk.c~ide-modules	2003-12-12 23:49:03.361002480 +0100
++++ linux-2.6.0-test11-bart1-root/drivers/block/ll_rw_blk.c	2003-12-12 23:49:03.385998680 +0100
+@@ -145,6 +145,8 @@ void blk_queue_activity_fn(request_queue
+ 	q->activity_data = data;
+ }
+ 
++EXPORT_SYMBOL(blk_queue_activity_fn);
++
+ /**
+  * blk_queue_prep_rq - set a prepare_request function for queue
+  * @q:		queue
+diff -puN drivers/ide/ide.c~ide-modules drivers/ide/ide.c
+--- linux-2.6.0-test11-bart1/drivers/ide/ide.c~ide-modules	2003-12-12 23:49:03.373000656 +0100
++++ linux-2.6.0-test11-bart1-root/drivers/ide/ide.c	2003-12-12 23:50:10.433805864 +0100
+@@ -189,9 +189,6 @@ int noautodma = 1;
+ #endif
+ 
+ EXPORT_SYMBOL(noautodma);
+-EXPORT_SYMBOL(ide_bus_type);
+-
+-int (*ide_probe)(void);
+ 
+ /*
+  * This is declared extern in ide.h, for access by other IDE modules:
+@@ -313,6 +310,8 @@ static void __init init_ide_data (void)
+ 	for (index = 0; index < MAX_HWIFS; ++index)
+ 		init_hwif_data(index);
+ 
++	initializing = 1;
++
+ 	/* Add default hw interfaces */
+ 	ide_init_default_hwifs();
+ 
+@@ -443,21 +442,6 @@ u8 ide_dump_status (ide_drive_t *drive, 
+ 
+ EXPORT_SYMBOL(ide_dump_status);
+ 
+-
+-
+-void ide_probe_module (void)
+-{
+-	if (!ide_probe) {
+-#if defined(CONFIG_KMOD) && defined(CONFIG_BLK_DEV_IDE_MODULE)
+-		(void) request_module("ide-probe-mod");
+-#endif /* (CONFIG_KMOD) && (CONFIG_BLK_DEV_IDE_MODULE) */
+-	} else {
+-		(void)ide_probe();
+-	}
+-}
+-
+-EXPORT_SYMBOL(ide_probe_module);
+-
+ static int ide_open (struct inode * inode, struct file * filp)
+ {
+ 	return -ENXIO;
+@@ -585,8 +569,6 @@ control_region_busy:
+ 	return -EBUSY;
+ }
+ 
+-EXPORT_SYMBOL(ide_hwif_request_regions);
+-
+ /**
+  *	ide_hwif_release_regions - free IDE resources
+  *
+@@ -622,8 +604,6 @@ void ide_hwif_release_regions(ide_hwif_t
+ 	}
+ }
+ 
+-EXPORT_SYMBOL(ide_hwif_release_regions);
+-
+ extern void init_hwif_data(unsigned int index);
+ 
+ /**
+@@ -992,6 +972,8 @@ void ide_setup_ports (	hw_regs_t *hw,
+ 
+ EXPORT_SYMBOL(ide_setup_ports);
+ 
++extern int ideprobe_init_module(void);
++
+ /*
+  * Register an IDE interface, specifying exactly the registers etc
+  * Set init=1 iff calling before probes have taken place.
+@@ -1033,7 +1015,10 @@ found:
+ 	hwif->chipset = hw->chipset;
+ 
+ 	if (!initializing) {
+-		ide_probe_module();
++#ifdef MODULE
++		if (ideprobe_init_module() == -EBUSY)
++#endif
++			ideprobe_init();
+ #ifdef CONFIG_PROC_FS
+ 		create_proc_ide_interfaces();
+ #endif
+@@ -1517,8 +1502,6 @@ int ata_attach(ide_drive_t *drive)
+ 	return 1;
+ }
+ 
+-EXPORT_SYMBOL(ata_attach);
+-
+ static int generic_ide_suspend(struct device *dev, u32 state)
+ {
+ 	ide_drive_t *drive = dev->driver_data;
+@@ -2558,7 +2541,6 @@ EXPORT_SYMBOL(ide_fops);
+  */
+ 
+ EXPORT_SYMBOL(ide_lock);
+-EXPORT_SYMBOL(ide_probe);
+ 
+ struct bus_type ide_bus_type = {
+ 	.name		= "ide",
+@@ -2600,7 +2582,6 @@ int __init ide_init (void)
+ 		(void)qd65xx_init();
+ #endif
+ 
+-	initializing = 1;
+ 	ide_init_builtin_drivers();
+ 	initializing = 0;
+ 
+diff -puN drivers/ide/ide-probe.c~ide-modules drivers/ide/ide-probe.c
+--- linux-2.6.0-test11-bart1/drivers/ide/ide-probe.c~ide-modules	2003-12-12 23:49:03.376000200 +0100
++++ linux-2.6.0-test11-bart1-root/drivers/ide/ide-probe.c	2003-12-12 23:49:03.389998072 +0100
+@@ -1348,27 +1348,33 @@ int ideprobe_init (void)
+ 					ata_attach(&hwif->drives[unit]);
+ 		}
+ 	}
+-	if (!ide_probe)
+-		ide_probe = &ideprobe_init;
+ 	MOD_DEC_USE_COUNT;
+ 	return 0;
+ }
+ 
+ #ifdef MODULE
+-int init_module (void)
++static int ideprobe_done;
++
++int ideprobe_init_module(void)
+ {
+ 	unsigned int index;
+-	
++
++	if (ideprobe_done)
++		return -EBUSY;
++
+ 	for (index = 0; index < MAX_HWIFS; ++index)
+ 		ide_unregister(index);
+ 	ideprobe_init();
+ 	create_proc_ide_interfaces();
++	ideprobe_done = 1;
+ 	return 0;
+ }
+ 
+-void cleanup_module (void)
++EXPORT_SYMBOL_GPL(ideprobe_init_module);
++
++void ideprobe_cleanup_module(void)
+ {
+-	ide_probe = NULL;
+ }
+-MODULE_LICENSE("GPL");
++
++EXPORT_SYMBOL_GPL(ideprobe_cleanup_module);
+ #endif /* MODULE */
+diff -puN /dev/null drivers/ide/ide-probe-mini.c
+--- /dev/null	2003-01-30 11:24:37.000000000 +0100
++++ linux-2.6.0-test11-bart1-root/drivers/ide/ide-probe-mini.c	2003-12-12 23:49:03.389998072 +0100
+@@ -0,0 +1,23 @@
++/*
++ *  linux/drivers/ide/ide-probe-mini.c	Version 1
++ *
++ *  Copyright (C) 1994-1998  Linus Torvalds & authors (see below)
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/string.h>
++#include <linux/kernel.h>
++#include <linux/kmod.h>
++
++#ifdef MODULE
++extern int ideprobe_init_module(void);
++extern void ideprobe_cleanup_module(void);
++
++module_init(ideprobe_init_module);
++module_exit(ideprobe_cleanup_module);
++
++MODULE_LICENSE("GPL");
++#endif
+diff -puN drivers/ide/Makefile~ide-modules drivers/ide/Makefile
+--- linux-2.6.0-test11-bart1/drivers/ide/Makefile~ide-modules	2003-12-12 23:49:03.378999744 +0100
++++ linux-2.6.0-test11-bart1-root/drivers/ide/Makefile	2003-12-12 23:50:02.471016392 +0100
+@@ -10,22 +10,22 @@
+ # First come modules that register themselves with the core
+ obj-$(CONFIG_BLK_DEV_IDE)		+= pci/
+ 
++ide-core-objs	:= ide-io.o ide-probe.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-default.o
++
+ # Core IDE code - must come before legacy
++ide-core-$(CONFIG_BLK_DEV_IDEPCI)	+= setup-pci.o
++ide-core-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
++ide-core-$(CONFIG_BLK_DEV_IDE_TCQ)	+= ide-tcq.o
++ide-core-$(CONFIG_PROC_FS)		+= ide-proc.o
++
++obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o ide-probe-mini.o
+ 
+-obj-$(CONFIG_BLK_DEV_IDE)		+= ide-io.o ide-probe.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-default.o
+ obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
+ obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
+ obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
+ obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
+ 
+-obj-$(CONFIG_BLK_DEV_IDEPCI)		+= setup-pci.o
+-obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
+-obj-$(CONFIG_BLK_DEV_IDE_TCQ)		+= ide-tcq.o
+ obj-$(CONFIG_BLK_DEV_IDEPNP)		+= ide-pnp.o
+ 
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
+-obj-$(CONFIG_PROC_FS)			+= ide-proc.o
+-endif
+-
+ obj-$(CONFIG_BLK_DEV_IDE)		+= legacy/ ppc/ arm/
+ obj-$(CONFIG_BLK_DEV_HD)		+= legacy/
+diff -puN include/linux/ide.h~ide-modules include/linux/ide.h
+--- linux-2.6.0-test11-bart1/include/linux/ide.h~ide-modules	2003-12-12 23:49:03.381999288 +0100
++++ linux-2.6.0-test11-bart1-root/include/linux/ide.h	2003-12-12 23:49:03.391997768 +0100
+@@ -1231,7 +1231,6 @@ typedef struct ide_devices_s {
+  */
+ #ifndef _IDE_C
+ extern	ide_hwif_t	ide_hwifs[];		/* master data repository */
+-extern int (*ide_probe)(void);
+ 
+ extern ide_devices_t   *idedisk;
+ extern ide_devices_t   *idecd;
+
+_
 

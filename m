@@ -1,79 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131752AbQL0V17>; Wed, 27 Dec 2000 16:27:59 -0500
+	id <S131910AbQL0VzX>; Wed, 27 Dec 2000 16:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131834AbQL0V1s>; Wed, 27 Dec 2000 16:27:48 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:31204 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131763AbQL0V1f>;
-	Wed, 27 Dec 2000 16:27:35 -0500
-Date: Wed, 27 Dec 2000 21:57:03 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Christoph Rohland <cr@sap.com>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org, Dave Gilbert <gilbertd@treblig.org>
-Subject: Re: [Patch] shmmin behaviour back to 2.2 behaviour
-Message-ID: <20001227215703.A1302@veritas.com>
-In-Reply-To: <m3d7eeb1pa.fsf@linux.local> <Pine.LNX.4.21.0012271316020.11471-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0012271316020.11471-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Wed, Dec 27, 2000 at 01:16:44PM -0200
+	id <S131834AbQL0VzO>; Wed, 27 Dec 2000 16:55:14 -0500
+Received: from mailout1-1.nyroc.rr.com ([24.92.226.146]:52288 "EHLO
+	mailout1-1.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S131807AbQL0Vyx>; Wed, 27 Dec 2000 16:54:53 -0500
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+From: "Gnea" <gnea@rochester.rr.com>
+To: "LKML" <linux-kernel@vger.kernel.org>
+Subject: more VIA chipset weirdness...
+X-Mailer: Pronto v2.2.2
+Date: 27 Dec 2000 16:17:48 EST
+Reply-To: "Gnea" <gnea@rochester.rr.com>
+Message-ID: <20001227211334.AAA24006@mail2.nyroc.rr.com@celery>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2000 at 01:16:44PM -0200, Marcelo Tosatti wrote:
-> 
-> On 27 Dec 2000, Christoph Rohland wrote:
-> 
-> > Hi Linus,
-> > 
-> > The following patchlet bring the handling of shmget with size zero
-> > back to the 2.2 behaviour. There seem to be programs out, which
-> > (erroneously) rely on this.
-> 
-> Just curiosity: do you know if any specification (POSIX?) defines this
-> behaviour? 
+Hey Andre, you do an outstanding job and I hope you can help point me
+in the proper direction on this one...
 
-I happen to see this post, but have not followed earlier discussion.
-See a patch fragment
+the basic deal here is that i've got an ASUS A7V motherboard (with the
+dip switch to overclock too.. too bad it's not mine tho heh) with an
+AMD Duron 600 cpu and 128 megs of pc133 ram.. i've disconnected
+everything from ide0 and ide1 (only had that pesky toshiba cdrom
+attached to ide0/hda for awhile... seems to be really problematic with
+VIA chipsets... i'm about ready to toss the fucker against the cement
+wall here... but i won't) and so the only device connected would be the
+IBM-DJNA-371800 hard drive (sound familiar? it's the same one from last
+time) ata66 on the ata100 controller (kt133 iirc)... now, 2.2.17 won't
+detect anything off the bat... so i compiled a 240t11 kernel for it...
+worked GREAT! then i decided that it would be easier to share files in
+this dual-boot environment (i'm having it boot debian linux and
+win98se) by converting one of the non-volitale partitions to fat32...
+well, in attempting to do so, it appears i have hosed the partition
+table... now i can't even boot a rescue image to fix it!  what's even
+STRANGER is that, for some really odd reason, the kernel attempts to
+probe for hda-hdf when it boots and gets nothing for them because
+there's nothing there... it SEEMS to find hde just fine, then halfway
+through the fsck, i get the following now:
 
-	-#define SHMMIN 0    /* min shared seg size (bytes) */
-	+#define SHMMIN 1    /* min shared seg size (bytes) */
+/dev/hde6: Inode 373609 has illegal block(s).
 
-	+ if (size < SHMMIN || size > shm_ctlmax)
-	+   return -EINVAL;
+/dev/hde6: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.
+	(i.e., without -a or -p options)
+fsck.ext2: No such file or directory while trying to open /dev/hde7
+(null):
+The superblock could not be read or does not describe a correct ext2
+filesystem.  If the device is valid and it really contains an ext2
+filesystem (and no swap or ufs or something else), then the superblock
+is corrupt, and you might try running e2fsck with an alternate
+superblock:
+    e2fsck -b 8193 <device>
 
-My first reaction is that this patch is broken, since
-one usually specifies size 0 in shmget to get an existing
-bit of shared memory (with known key but unknown size).
+fsck failed.  Please repair manually.
 
-[Was this rehashed in earlier discussion? I wonder whether there
-are any reasons to forbid size 0. Forbidding size 0 is
-allowed by SUSv2 as I read it - it says
+and it tells me to do the ^D or root pw dilly...
 
-	The shmget() function will fail if: 
+so then i'll go ahead and attempt a e2fsck -y /dev/hde6... i've done
+this before so it's no real big deal for me.. but i got a lot of really
+interesting messages that i don't recall seeing before such as REALLY
+LARGE Inode bitmap differences tables.... literally pages and pages of
+them... possibly because it is an 18gig hard drive? i'm thinking that
+is the case... but also suppose the fact that the kernel DOES call it
+an ata(33) device while it is indeed an ata(66) device that is even
+connected to an ata(100) controller makes my head spin.. i've tried
+looking at docs and previous posts and i just can't find anything that
+pertains to this situation... maybe i didn't look hard enough?	if not,
+could someone else possibly point me to the proper post(s)?  i
+apologize ahead of time if this post seems foolish... i'm nearly ready
+to start a complete boycott of anything that has a VIA chipset on it,
+but I'm not THAT desperate or crazy ;)
 
-	[EINVAL]
-		The value of size is less than the system-imposed minimum
-		or greater than the system-imposed maximum,
-		or a shared memory identifier exists for the argument key
-		but the size of the segment associated with it is less
-		than size and size is not 0. 
+finally, fdisk -l /dev/hde just does not work at all anymore.  like i
+said, i can't even boot a rescue floppy for this sort of thing... even
+after fixing hde6, a reboot still causes it to mount things read-only,
+so things like /dev/urandom don't work and a boot is utterly
+impossible.. even win98 can't boot... i suppose the only thing left is
+a low-level format on the hd, but that is impossible since the promise
+chipset on there doesn't allow it.
 
-but is contrary to AIX, which says
 
-	EINVAL
-         A shared memory identifier does not exist and the Size
-	parameter is less than the system-imposed minimum or greater
-	than the system-imposed maximum.
-	EINVAL
-         A shared memory identifier exists for the Key parameter,
-	but the size of the segment associated with it is less than
-	the Size parameter, and the Size parameter is not equal to 0.
+-- 
+	.oO gnea at rochester dot rr dot com Oo.
+	    .oO url: http://garson.org/~gnea Oo.
 
-and is also contrary to the SysVR4 implementation.]
+"You can tune a filesystem, but you can't tuna fish" -unknown
 
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

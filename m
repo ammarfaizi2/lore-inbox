@@ -1,123 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265302AbUETV4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUETV5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265302AbUETV4z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 17:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265304AbUETV4z
+	id S265287AbUETV5i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 17:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUETV5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 17:56:55 -0400
-Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:9479 "HELO
+	Thu, 20 May 2004 17:57:37 -0400
+Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:10247 "HELO
 	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
-	id S265302AbUETV4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 17:56:44 -0400
-Date: Thu, 20 May 2004 14:59:02 -0700
+	id S265304AbUETV5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 17:57:19 -0400
+Date: Thu, 20 May 2004 14:59:56 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Alexey Kopytov <alexeyk@mysql.com>
-Cc: linuxram@us.ibm.com, nickpiggin@yahoo.com.au, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6 [patch+results]
-Message-Id: <20040520145902.27647dee.akpm@osdl.org>
-In-Reply-To: <200405200506.03006.alexeyk@mysql.com>
-References: <200405022357.59415.alexeyk@mysql.com>
-	<1084480888.22208.26.camel@dyn319386.beaverton.ibm.com>
-	<1084815010.13559.3.camel@localhost.localdomain>
-	<200405200506.03006.alexeyk@mysql.com>
+To: knobi@knobisoft.de
+Cc: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: 2.6.6-mm4: missing symbol __log_start_commit in ext3.o
+Message-Id: <20040520145956.749567cb.akpm@osdl.org>
+In-Reply-To: <20040519151913.47070.qmail@web13906.mail.yahoo.com>
+References: <20040519151913.47070.qmail@web13906.mail.yahoo.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 May 2004 21:56:22.0514 (UTC) FILETIME=[4A063520:01C43EB5]
+X-OriginalArrivalTime: 20 May 2004 21:57:16.0248 (UTC) FILETIME=[6A0D5D80:01C43EB5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-(Resend due to osdl<->vger smtp bunfight)
+(Resend due to MTA problems)
 
-Alexey Kopytov <alexeyk@mysql.com> wrote:
+Martin Knoblauch <knobi@knobisoft.de> wrote:
 >
-> Ram Pai wrote:
+> Hi,
 > 
-> >Attached the cleaned up patch and the performance results of the patch.
-> >
-> >Overall Observation:
-> >        1.Small improvement with iozone with the patch, and overall
-> >                        much better performance than 2.4
-> >        2.Small/neglegible improvement with DSS workload.
-> >        3.Negligible impact with sysbench, but results worser than
-> >                        2.4 kernels
+>  ext3 complains about a missing symbol in 2.6.6.-mm4:
 > 
-> Ram, can you clarify the status of this patch please?
+>   SPLIT   include/linux/autoconf.h -> include/config/*
+> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+>   CC [M]  fs/ext3/balloc.o
+>   LD [M]  fs/ext3/ext3.o
+>   Building modules, stage 2.
+>   MODPOST
+> *** Warning: "__log_start_commit" [fs/ext3/ext3.ko] undefined!
+> 
 
-Everything we have is now in Linus's tree.  And in 2.6.6-mm4.
+Ah, we forgot to export that symbol.
 
-> I ran the same sysbench test on my hardware with patched 2.6.6 and got 
-> 122.2348s execution time, i.e. almost the same results as in the original 
-> tests. Is this patch an intermediate step to improve the sysbench workload on 
-> 2.6, or it just addresses another problem?
+Actually that patch is being a bit naughty playing with JBD internals - it
+should be cast as a JBD entrypoint.
 
-The patches in Linus's tree improve sysbench significantly here.  It's a
-256MB 2-way with IDE disks, writeback caching enabled:
-
-
-sysbench --num-threads=16 --test=fileio --file-total-size=2G --file-test-mode=rndrw run
-
-2.4.27-pre2, ext2:
-
-	Time spent for test:  61.0240s
-		0.06s user 6.03s system 4% cpu 2:05.95 total
-	Time spent for test:  60.8456s
-		0.11s user 5.49s system 4% cpu 2:04.94 total
-
-2.6.6, CFQ, ext2:
-
-	Time spent for test:  85.6614s
-		0.05s user 5.66s system 3% cpu 2:26.75 total
-	Time spent for test:  85.2090s
-		0.06s user 5.32s system 3% cpu 2:24.75 total
-
-2.6.6-bk, CFQ, ext2:
-
-	Time spent for test:  66.7717s
-		0.04s user 5.54s system 4% cpu 2:06.19 total
-	Time spent for test:  67.5666s
-		0.04s user 5.10s system 4% cpu 2:06.72 total
+This isn't runtime-tested:
 
 
-2.6.6, as, ext2:
-
-	Time spent for test:  83.8358s
-		0.07s user 5.89s system 4% cpu 2:22.92 total
-	Time spent for test:  83.8068s
-		0.06s user 5.34s system 3% cpu 2:21.33 total
-
-2.6.6-bk, AS, ext2:
-
-	Time spent for test:  62.5316s
-		0.05s user 5.27s system 4% cpu 2:01.28 total
-	Time spent for test:  62.7401s
-		0.04s user 5.17s system 4% cpu 2:00.50 total
 
 
-2.6.6, deadline, ext2:
+---
 
-	Time spent for test: 103.0084s
-		0.06s user 5.76s system 3% cpu 2:40.74 total
-	Time spent for test: 101.9648s
-		0.07s user 5.35s system 3% cpu 2:38.83 total
+ 25-akpm/fs/ext3/balloc.c    |   28 ++--------------------------
+ 25-akpm/fs/jbd/journal.c    |   34 ++++++++++++++++++++++++++++++++++
+ 25-akpm/include/linux/jbd.h |    1 +
+ 3 files changed, 37 insertions(+), 26 deletions(-)
 
-2.6.6-bk, deadline, ext2:
+diff -puN fs/jbd/journal.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api fs/jbd/journal.c
+--- 25/fs/jbd/journal.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api	2004-05-20 00:04:58.390761800 -0700
++++ 25-akpm/fs/jbd/journal.c	2004-05-20 00:11:04.682077056 -0700
+@@ -73,6 +73,7 @@ EXPORT_SYMBOL(journal_ack_err);
+ EXPORT_SYMBOL(journal_clear_err);
+ EXPORT_SYMBOL(log_wait_commit);
+ EXPORT_SYMBOL(journal_start_commit);
++EXPORT_SYMBOL(journal_force_commit_nested);
+ EXPORT_SYMBOL(journal_wipe);
+ EXPORT_SYMBOL(journal_blocks_per_page);
+ EXPORT_SYMBOL(journal_invalidatepage);
+@@ -465,6 +466,39 @@ int log_start_commit(journal_t *journal,
+ }
+ 
+ /*
++ * Force and wait upon a commit if the calling process is not within
++ * transaction.  This is used for forcing out undo-protected data which contains
++ * bitmaps, when the fs is running out of space.
++ *
++ * We can only force the running transaction if we don't have an active handle;
++ * otherwise, we will deadlock.
++ *
++ * Returns true if a transaction was started.
++ */
++int journal_force_commit_nested(journal_t *journal)
++{
++	transaction_t *transaction = NULL;
++	tid_t tid;
++
++	spin_lock(&journal->j_state_lock);
++	if (journal->j_running_transaction && !current->journal_info) {
++		transaction = journal->j_running_transaction;
++		__log_start_commit(journal, transaction->t_tid);
++	} else if (journal->j_committing_transaction)
++		transaction = journal->j_committing_transaction;
++
++	if (!transaction) {
++		spin_unlock(&journal->j_state_lock);
++		return 0;	/* Nothing to retry */
++	}
++
++	tid = transaction->t_tid;
++	spin_unlock(&journal->j_state_lock);
++	log_wait_commit(journal, tid);
++	return 1;
++}
++
++/*
+  * Start a commit of the current running transaction (if any).  Returns true
+  * if a transaction was started, and fills its tid in at *ptid
+  */
+diff -puN fs/ext3/balloc.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api fs/ext3/balloc.c
+--- 25/fs/ext3/balloc.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api	2004-05-20 00:04:58.411758608 -0700
++++ 25-akpm/fs/ext3/balloc.c	2004-05-20 00:12:10.623052504 -0700
+@@ -977,43 +977,19 @@ static int ext3_has_free_blocks(struct e
+ }
+ 
+ /*
+- * Ext3_should_retry_alloc is called when ENOSPC is returned, and if
++ * ext3_should_retry_alloc() is called when ENOSPC is returned, and if
+  * it is profitable to retry the operation, this function will wait
+  * for the current or commiting transaction to complete, and then
+  * return TRUE.
+  */
+ int ext3_should_retry_alloc(struct super_block *sb, int *retries)
+ {
+-	transaction_t *transaction = NULL;
+-	journal_t *journal = EXT3_SB(sb)->s_journal;
+-	tid_t tid;
+-
+ 	if (!ext3_has_free_blocks(EXT3_SB(sb)) || (*retries)++ > 3)
+ 		return 0;
+ 
+ 	jbd_debug(1, "%s: retrying operation after ENOSPC\n", sb->s_id);
+ 
+-	/*
+-	 * We can only force the running transaction if we don't have
+-	 * an active handle; otherwise, we will deadlock.
+-	 */
+-	spin_lock(&journal->j_state_lock);
+-	if (journal->j_running_transaction && !current->journal_info) {
+-		transaction = journal->j_running_transaction;
+-		__log_start_commit(journal, transaction->t_tid);
+-	} else if (journal->j_committing_transaction)
+-		transaction = journal->j_committing_transaction;
+-
+-	if (!transaction) {
+-		spin_unlock(&journal->j_state_lock);
+-		return 0;	/* Nothing to retry */
+-	}
+-
+-	tid = transaction->t_tid;
+-	spin_unlock(&journal->j_state_lock);
+-	log_wait_commit(journal, tid);
+-
+-	return 1;
++	return journal_force_commit_nested(EXT3_SB(sb)->s_journal);
+ }
+ 
+ /*
+diff -puN include/linux/jbd.h~ext3-retry-allocation-after-transaction-commit-v2-jbd-api include/linux/jbd.h
+--- 25/include/linux/jbd.h~ext3-retry-allocation-after-transaction-commit-v2-jbd-api	2004-05-20 00:11:09.466349736 -0700
++++ 25-akpm/include/linux/jbd.h	2004-05-20 00:11:33.140750680 -0700
+@@ -1006,6 +1006,7 @@ int __log_space_left(journal_t *); /* Ca
+ int log_start_commit(journal_t *journal, tid_t tid);
+ int __log_start_commit(journal_t *journal, tid_t tid);
+ int journal_start_commit(journal_t *journal, tid_t *tid);
++int journal_force_commit_nested(journal_t *journal);
+ int log_wait_commit(journal_t *journal, tid_t tid);
+ int log_do_checkpoint(journal_t *journal);
+ 
 
-	Time spent for test:  63.3405s
-		0.03s user 5.49s system 4% cpu 2:01.05 total
-	Time spent for test:  63.5288s
-		0.03s user 5.05s system 4% cpu 2:00.78 total
+_
 
-
-There's still something wrong here.  2.6.6-bk+deadline is pretty equivalent
-to 2.4 from an IO scheduler point of view in this test.  Yet it's a couple
-of percent slower.
-
-I don't know why you're still seeing significant discrepancies.
-
-What sort of disk+controller system are you using?  If scsi, what is the
-tag queue depth set to?  Is writeback caching enabled on the disk?
 

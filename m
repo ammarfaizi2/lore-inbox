@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267868AbUHET3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267862AbUHETbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267868AbUHET3L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 15:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUHET2C
+	id S267862AbUHETbM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267884AbUHET3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 15:28:02 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:16515 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S267926AbUHETZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 15:25:56 -0400
-Date: Thu, 5 Aug 2004 21:25:56 +0200
-From: Sascha Wilde <wilde@sha-bang.de>
-To: "David N. Welton" <davidw@eidetix.com>
+	Thu, 5 Aug 2004 15:29:33 -0400
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:30213 "EHLO
+	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S267862AbUHET3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 15:29:04 -0400
+Subject: cciss update [1/6] fixes to 32/64-bit conversions
+From: mikem <mike.miller@hp.com>
+To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-Message-ID: <20040805192556.GA825@kenny.sha-bang.local>
-References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com>
+Content-Type: text/plain
+Message-Id: <1091734096.4826.2.camel@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41122C82.3020304@eidetix.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 05 Aug 2004 14:28:16 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 02:48:02PM +0200, David N. Welton wrote:
-> [ Please CC replies to me. ]
-> 
-> David N. Welton wrote:
+Patch 1 of 6
+This patch fixes our usage of copy_to_user. We were passing in the size
+of the address rather than the size of the struct.
+Patch applies to 2.6.8-rc3. Please apply in order.
 
-> drivers/input/serio.c:753
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burpN lx268-rc3.orig/drivers/block/cciss.c
+lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3.orig/drivers/block/cciss.c	2004-08-05 09:55:58.023683000
+-0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-05 10:22:43.290646176 -0500
+@@ -578,7 +578,7 @@ int cciss_ioctl32_passthru(unsigned int 
+ 	err = sys_ioctl(fd, CCISS_PASSTHRU, (unsigned long) p);
+ 	if (err)
+ 		return err;
+-	err |= copy_in_user(&arg32->error_info, &p->error_info,
+sizeof(&arg32->error_info));
++	err |= copy_in_user(&arg32->error_info, &p->error_info,
+sizeof(arg32->error_info));
+ 	if (err)
+ 		return -EFAULT;
+ 	return err;
+@@ -610,7 +610,7 @@ int cciss_ioctl32_big_passthru(unsigned 
+ 	err = sys_ioctl(fd, CCISS_BIG_PASSTHRU, (unsigned long) p);
+ 	if (err)
+ 		return err;
+-	err |= copy_in_user(&arg32->error_info, &p->error_info,
+sizeof(&arg32->error_info));
++	err |= copy_in_user(&arg32->error_info, &p->error_info,
+sizeof(arg32->error_info));
+ 	if (err)
+ 		return -EFAULT;
+ 	return err;
 
-drivers/input/serio/i8042.c
-right?
 
-> 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-> 		printk(KERN_ERR "i8042.c: Can't write CTR while initializing 
-> 		i8042.\n");
-> 		return -1;
-> 	}
-> 
-> If I do the reboot instructions before this, it reboots fine. 
-> Afterwards, and it just sits there, no reboot.
-
-This is quite interesting, as there is only one function/macro, which
-seems to be messing up things -- I don't know much (hardly anything)
-aboout that hardwarestuff, but I'll have a look at i8042_command as
-soon as I find the time.  At least it's a start...
-
-> Sascha, to see if your problem is the same as mine, you might try 
-> putting this bit of code before the above call:
-
-[reboot code]
-> 
-> It will cause your machine to reboot before it's even finished booting, 
-
-It works, so this seems to be the exactly same issue.  I only tested
-with the code before the point above, I'll do further testings at the
-weekend, but I'm quite optimistic, that you found the point of
-failure.  Thanks!
-
-> so don't do it with your only available kernel!
-
-don't worry, lots o'kernel here...  ;-)
-
-cheers
-sascha
--- 
-Sascha Wilde : "There are 10 types of people in the world. 
-             : Those who understand binary and those who don't."

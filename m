@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263713AbTCVRac>; Sat, 22 Mar 2003 12:30:32 -0500
+	id <S263772AbTCVR2p>; Sat, 22 Mar 2003 12:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263710AbTCVRaI>; Sat, 22 Mar 2003 12:30:08 -0500
-Received: from verein.lst.de ([212.34.181.86]:23046 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S263646AbTCVR31>;
-	Sat, 22 Mar 2003 12:29:27 -0500
-Date: Sat, 22 Mar 2003 18:40:29 +0100
+	id <S263776AbTCVR2p>; Sat, 22 Mar 2003 12:28:45 -0500
+Received: from verein.lst.de ([212.34.181.86]:20998 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S263772AbTCVR2g>;
+	Sat, 22 Mar 2003 12:28:36 -0500
+Date: Sat, 22 Mar 2003 18:39:38 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cleanup input_register_minor
-Message-ID: <20030322184029.F21623@lst.de>
+Subject: [PATCH] devfs_mk_symlink simplification
+Message-ID: <20030322183938.B21623@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,69 +21,231 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Always pass the input/ prefix to input_register_minor instead of using
-the first argument to devfs_register
+All devfs_mk_symlink arguments except the from and to strings are
+unused.  Bring the prototype in shape.
 
 
-diff -Nru a/drivers/input/evdev.c b/drivers/input/evdev.c
---- a/drivers/input/evdev.c	Sat Mar 22 17:03:17 2003
-+++ b/drivers/input/evdev.c	Sat Mar 22 17:03:17 2003
-@@ -397,7 +397,7 @@
- 	sprintf(evdev->name, "event%d", minor);
+diff -Nru a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+--- a/arch/um/drivers/line.c	Sat Mar 22 15:37:12 2003
++++ b/arch/um/drivers/line.c	Sat Mar 22 15:37:12 2003
+@@ -438,7 +438,7 @@
  
- 	evdev_table[minor] = evdev;
--	evdev->devfs = input_register_minor("event%d", minor, EVDEV_MINOR_BASE);
-+	evdev->devfs = input_register_minor("input/event%d", minor, EVDEV_MINOR_BASE);
+ 	from = line_driver->symlink_from;
+ 	to = line_driver->symlink_to;
+-	err = devfs_mk_symlink(NULL, from, 0, to, NULL, NULL);
++	err = devfs_mk_symlink(from, to);
+ 	if(err) printk("Symlink creation from /dev/%s to /dev/%s "
+ 		       "returned %d\n", from, to, err);
  
- 	return &evdev->handle;
+diff -Nru a/arch/um/drivers/mmapper_kern.c b/arch/um/drivers/mmapper_kern.c
+--- a/arch/um/drivers/mmapper_kern.c	Sat Mar 22 15:37:12 2003
++++ b/arch/um/drivers/mmapper_kern.c	Sat Mar 22 15:37:12 2003
+@@ -127,8 +127,7 @@
+ 	devfs_register (NULL, "mmapper", DEVFS_FL_DEFAULT, 
+ 			30, 0, S_IFCHR | S_IRUGO | S_IWUGO, 
+ 			&mmapper_fops, NULL); 
+-	devfs_mk_symlink(NULL, "mmapper0", DEVFS_FL_DEFAULT, "mmapper",
+-			 NULL, NULL);
++	devfs_mk_symlink("mmapper0", "mmapper");
+ 	return(0);
  }
-diff -Nru a/drivers/input/input.c b/drivers/input/input.c
---- a/drivers/input/input.c	Sat Mar 22 17:03:17 2003
-+++ b/drivers/input/input.c	Sat Mar 22 17:03:17 2003
-@@ -546,8 +546,11 @@
+ 
+diff -Nru a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
+--- a/drivers/md/dm-ioctl.c	Sat Mar 22 15:37:12 2003
++++ b/drivers/md/dm-ioctl.c	Sat Mar 22 15:37:12 2003
+@@ -1089,8 +1089,6 @@
+ 	.owner	 = THIS_MODULE,
+ };
+ 
+-static devfs_handle_t _ctl_handle;
+-
+ static struct miscdevice _dm_misc = {
+ 	.minor = MISC_DYNAMIC_MINOR,
+ 	.name  = DM_NAME,
+@@ -1115,8 +1113,7 @@
+ 		return r;
+ 	}
+ 
+-	r = devfs_mk_symlink(NULL, DM_DIR "/control", DEVFS_FL_DEFAULT,
+-			"../misc/" DM_NAME, &_ctl_handle, NULL);
++	r = devfs_mk_symlink(DM_DIR "/control", "../misc/" DM_NAME);
+ 	if (r) {
+ 		DMERR("devfs_mk_symlink failed for control device");
+ 		goto failed;
+diff -Nru a/drivers/media/radio/miropcm20-rds.c b/drivers/media/radio/miropcm20-rds.c
+--- a/drivers/media/radio/miropcm20-rds.c	Sat Mar 22 15:37:12 2003
++++ b/drivers/media/radio/miropcm20-rds.c	Sat Mar 22 15:37:12 2003
+@@ -125,8 +125,8 @@
+ 	if (error)
+ 		return error;
+ 
+-	error = devfs_mk_symlink(NULL, "v4l/rds/radiotext", 0,
+-				 "../misc/radiotext", NULL, NULL);
++	error = devfs_mk_symlink("v4l/rds/radiotext",
++				 "../misc/radiotext");
+ 	if (error)
+ 		misc_deregister(&rds_miscdev);
+ 
+diff -Nru a/fs/devfs/base.c b/fs/devfs/base.c
+--- a/fs/devfs/base.c	Sat Mar 22 15:37:12 2003
++++ b/fs/devfs/base.c	Sat Mar 22 15:37:12 2003
+@@ -1607,8 +1607,7 @@
+ }   /*  End Function devfs_unregister  */
+ 
+ static int devfs_do_symlink (devfs_handle_t dir, const char *name,
+-			     unsigned int flags, const char *link,
+-			     devfs_handle_t *handle, void *info)
++			     const char *link, devfs_handle_t *handle)
  {
- 	char devfs_name[16];
- 	sprintf(devfs_name, name, minor);
--	return devfs_register(input_devfs_handle, devfs_name, DEVFS_FL_DEFAULT, INPUT_MAJOR, minor + minor_base,
--		S_IFCHR | S_IRUGO | S_IWUSR, &input_fops, NULL);
+     int err;
+     unsigned int linklength;
+@@ -1638,7 +1637,7 @@
+ 	kfree (newlink);
+ 	return -ENOTDIR;
+     }
+-    de->info = info;
++    de->info = NULL;
+     de->u.symlink.linkname = newlink;
+     de->u.symlink.length = linklength;
+     if ( ( err = _devfs_append_entry (dir, de, NULL) ) != 0 )
+@@ -1660,32 +1659,25 @@
+ 
+ /**
+  *	devfs_mk_symlink Create a symbolic link in the devfs namespace.
+- *	@dir: The handle to the parent devfs directory entry. If this is %NULL the
+- *		new name is relative to the root of the devfs.
+- *	@name: The name of the entry.
+- *	@flags: A set of bitwise-ORed flags (DEVFS_FL_*).
+- *	@link: The destination name.
+- *	@handle: The handle to the symlink entry is written here. This may be %NULL.
+- *	@info: An arbitrary pointer which will be associated with the entry.
++ *	@from: The name of the entry.
++ *	@to: Name of the destination
+  *
+  *	Returns 0 on success, else a negative error code is returned.
+  */
+ 
+-int devfs_mk_symlink (devfs_handle_t dir, const char *name, unsigned int flags,
+-		      const char *link, devfs_handle_t *handle, void *info)
++int devfs_mk_symlink(const char *from, const char *to)
+ {
+-    int err;
+-    devfs_handle_t de;
++	devfs_handle_t de;
++	int err;
+ 
+-    if (handle != NULL) *handle = NULL;
+-    DPRINTK (DEBUG_REGISTER, "(%s)\n", name);
+-    err = devfs_do_symlink (dir, name, flags, link, &de, info);
+-    if (err) return err;
+-    if (handle == NULL) de->vfs_deletable = TRUE;
+-    else *handle = de;
+-    devfsd_notify (de, DEVFSD_NOTIFY_REGISTERED, flags & DEVFS_FL_WAIT);
+-    return 0;
+-}   /*  End Function devfs_mk_symlink  */
++	err = devfs_do_symlink(NULL, from, to, &de);
++	if (!err) {
++		de->vfs_deletable = TRUE;
++		devfsd_notify(de, DEVFSD_NOTIFY_REGISTERED, 0);
++	}
 +
-+	return devfs_register(NULL, devfs_name, 0,
-+			INPUT_MAJOR, minor + minor_base,
-+			S_IFCHR|S_IRUGO|S_IWUSR,
-+			&input_fops, NULL);
++	return err;
++}
+ 
+ 
+ /**
+@@ -2398,8 +2390,7 @@
+     /*  First try to get the devfs entry for this directory  */
+     parent = get_devfs_entry_from_vfs_inode (dir);
+     if (parent == NULL) return -ENOENT;
+-    err = devfs_do_symlink (parent, dentry->d_name.name, DEVFS_FL_NONE,
+-			    symname, &de, NULL);
++    err = devfs_do_symlink (parent, dentry->d_name.name, symname, &de);
+     DPRINTK (DEBUG_DISABLED, "(%s): errcode from <devfs_do_symlink>: %d\n",
+ 	     dentry->d_name.name, err);
+     if (err < 0) return err;
+diff -Nru a/fs/devfs/util.c b/fs/devfs/util.c
+--- a/fs/devfs/util.c	Sat Mar 22 15:37:12 2003
++++ b/fs/devfs/util.c	Sat Mar 22 15:37:12 2003
+@@ -87,7 +87,6 @@
+ int devfs_register_tape (devfs_handle_t de)
+ {
+     int pos;
+-    devfs_handle_t slave;
+     char name[32], dest[64];
+     static unsigned int tape_counter;
+     int n = tape_counter++;
+@@ -96,7 +95,7 @@
+     if (pos < 0) return -1;
+     strncpy (dest + pos, "../", 3);
+     sprintf (name, "tapes/tape%u", n);
+-    devfs_mk_symlink (NULL, name, DEVFS_FL_DEFAULT, dest + pos, &slave, NULL);
++    devfs_mk_symlink (name, dest + pos);
+     return n;
+ }   /*  End Function devfs_register_tape  */
+ EXPORT_SYMBOL(devfs_register_tape);
+diff -Nru a/fs/partitions/check.c b/fs/partitions/check.c
+--- a/fs/partitions/check.c	Sat Mar 22 15:37:12 2003
++++ b/fs/partitions/check.c	Sat Mar 22 15:37:12 2003
+@@ -185,7 +185,7 @@
+ {
+ #ifdef CONFIG_DEVFS_FS
+ 	int pos = 0;
+-	devfs_handle_t dir, slave;
++	devfs_handle_t dir;
+ 	char dirname[64], symlink[16];
+ 
+ 	if (dev->flags & GENHD_FL_DEVFS) {
+@@ -205,8 +205,7 @@
+ 	}
+ 	dev->number = devfs_alloc_unique_number (&disc_numspace);
+ 	sprintf(symlink, "discs/disc%d", dev->number);
+-	devfs_mk_symlink(NULL, symlink, DEVFS_FL_DEFAULT,
+-			  dirname + pos, &slave, NULL);
++	devfs_mk_symlink(symlink, dirname + pos);
+ 	dev->disk_de = devfs_register(dir, "disc", 0,
+ 			    dev->major, dev->first_minor,
+ 			    S_IFBLK | S_IRUSR | S_IWUSR, dev->fops, NULL);
+@@ -222,7 +221,6 @@
+ 	sprintf(vname, "cdroms/cdrom%d", dev->number);
+ 	if (dev->de) {
+ 		int pos;
+-		devfs_handle_t slave;
+ 		char rname[64];
+ 
+ 		dev->disk_de = devfs_register(dev->de, "cd", DEVFS_FL_DEFAULT,
+@@ -233,8 +231,7 @@
+ 		pos = devfs_generate_path(dev->disk_de, rname+3, sizeof(rname)-3);
+ 		if (pos >= 0) {
+ 			strncpy(rname + pos, "../", 3);
+-			devfs_mk_symlink(NULL, vname, DEVFS_FL_DEFAULT,
+-					 rname + pos, &slave, NULL);
++			devfs_mk_symlink(vname, rname + pos);
+ 		}
+ 	} else {
+ 		dev->disk_de = devfs_register (NULL, vname, DEVFS_FL_DEFAULT,
+diff -Nru a/include/linux/devfs_fs_kernel.h b/include/linux/devfs_fs_kernel.h
+--- a/include/linux/devfs_fs_kernel.h	Sat Mar 22 15:37:12 2003
++++ b/include/linux/devfs_fs_kernel.h	Sat Mar 22 15:37:12 2003
+@@ -41,9 +41,7 @@
+ 				      unsigned int major, unsigned int minor,
+ 				      umode_t mode, void *ops, void *info);
+ extern void devfs_unregister (devfs_handle_t de);
+-extern int devfs_mk_symlink (devfs_handle_t dir, const char *name,
+-			     unsigned int flags, const char *link,
+-			     devfs_handle_t *handle, void *info);
++extern int devfs_mk_symlink (const char *name, const char *link);
+ extern devfs_handle_t devfs_mk_dir (devfs_handle_t dir, const char *name,
+ 				    void *info);
+ extern int devfs_generate_path (devfs_handle_t de, char *path, int buflen);
+@@ -78,9 +76,7 @@
+ {
+     return;
  }
- 
- void input_unregister_minor(devfs_handle_t handle)
-diff -Nru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	Sat Mar 22 17:03:17 2003
-+++ b/drivers/input/mousedev.c	Sat Mar 22 17:03:17 2003
-@@ -425,7 +425,7 @@
- 		input_open_device(&mousedev->handle);
- 
- 	mousedev_table[minor] = mousedev;
--	mousedev->devfs = input_register_minor("mouse%d", minor, MOUSEDEV_MINOR_BASE);
-+	mousedev->devfs = input_register_minor("input/mouse%d", minor, MOUSEDEV_MINOR_BASE);
- 
- 	return &mousedev->handle;
+-static inline int devfs_mk_symlink (devfs_handle_t dir, const char *name,
+-				    unsigned int flags, const char *link,
+-				    devfs_handle_t *handle, void *info)
++static inline int devfs_mk_symlink (const char *name, const char *link)
+ {
+     return 0;
  }
-@@ -507,7 +507,7 @@
- 	mousedev_table[MOUSEDEV_MIX] = &mousedev_mix;
- 	mousedev_mix.exist = 1;
- 	mousedev_mix.minor = MOUSEDEV_MIX;
--	mousedev_mix.devfs = input_register_minor("mice", MOUSEDEV_MIX, MOUSEDEV_MINOR_BASE);
-+	mousedev_mix.devfs = input_register_minor("input/mice", MOUSEDEV_MIX, MOUSEDEV_MINOR_BASE);
- 
- #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
- 	if (!(mousedev_mix.misc = !misc_register(&psaux_mouse)))
-diff -Nru a/drivers/input/tsdev.c b/drivers/input/tsdev.c
---- a/drivers/input/tsdev.c	Sat Mar 22 17:03:17 2003
-+++ b/drivers/input/tsdev.c	Sat Mar 22 17:03:17 2003
-@@ -326,7 +326,7 @@
- 
- 	tsdev_table[minor] = tsdev;
- 	tsdev->devfs =
--	    input_register_minor("ts%d", minor, TSDEV_MINOR_BASE);
-+	    input_register_minor("input/ts%d", minor, TSDEV_MINOR_BASE);
- 
- 
- 	return &tsdev->handle;

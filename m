@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315480AbSFJQD1>; Mon, 10 Jun 2002 12:03:27 -0400
+	id <S315481AbSFJQI0>; Mon, 10 Jun 2002 12:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315481AbSFJQD0>; Mon, 10 Jun 2002 12:03:26 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:43550 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S315480AbSFJQD0>; Mon, 10 Jun 2002 12:03:26 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-In-Reply-To: <52lm9p9tdz.fsf@topspin.com>
-	<20020608.175325.63815788.davem@redhat.com>
-	<52d6v19r9n.fsf@topspin.com>
-	<20020608.222903.122223122.davem@redhat.com>
-	<528z5p9dtl.fsf@topspin.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 10 Jun 2002 09:03:22 -0700
-Message-ID: <52y9dn86k5.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S315483AbSFJQIZ>; Mon, 10 Jun 2002 12:08:25 -0400
+Received: from melchi.fuller.edu ([65.118.138.13]:55826 "EHLO
+	melchi.fuller.edu") by vger.kernel.org with ESMTP
+	id <S315481AbSFJQIY>; Mon, 10 Jun 2002 12:08:24 -0400
+Date: Mon, 10 Jun 2002 09:08:19 -0700 (PDT)
+From: <christoph@lameter.com>
+X-X-Sender: <christoph@melchi.fuller.edu>
+To: <joe.mathewson@btinternet.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+In-Reply-To: <TiM$20020610084203$1595@fusion.mathewson.int>
+Message-ID: <Pine.LNX.4.33.0206100906030.29218-100000@melchi.fuller.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Roland" == Roland Dreier <roland@topspin.com> writes:
+On Mon, 10 Jun 2002, Joseph Mathewson wrote:
 
-    David> For non-cacheline aligned chunks in the range "start" to
-    David> "end" you must perform a cache writeback and invalidate. To
-    David> preserve the data outside of the DMA range.
+> Does the proposed patch give full symlink support or does it just read
+> .lnk files?  Most source tarballs will not have .lnk files in them,
+> they will have symlinks.  Would tar create the .lnk files if it was
+> extracting to vfat?  If the patch gives symlink support in some other
+> way than .lnk files, why can't we just use that and not meddle with
+> reading the .lnk files to allow Linux to run in a vfat partition.
 
-    Roland> Doesn't this still have a problem if you touch data in the
-    Roland> same cache line as the DMA buffer after the pci_map but
-    Roland> before the DMA takes place?  The CPU will pull the cache
-    Roland> line back in and it might not see the data the DMA brought
-    Roland> in.
+Full symlink support. Yes, tar creates symlinks and the vfat fs makes .lnk
+files out of the symlinks. when ls displays the directory contents the
+vfat fs recognizes the .lnk files and tells the os that there is a
+symlink. Its fully transparent. The .lnk files are only visible
+under windoze.
 
-    Roland> It seems to me that to be totally safe, pci_unmap would
-    Roland> have to save the non-aligned part outside the buffer to
-    Roland> temporary storage, do an invalidate, and then copy back
-    Roland> the non-aligned part.
 
-Replying to myself....  Anyway, I realized that even my idea above is
-wrong.  I don't see _any_ safe way to share a cache line between a DMA
-buffer and other data.  Access to the cache line might pull the cache
-line back in and write it back at any time, which could corrupt the
-DMA'ed data.  I don't see a way to hide the existence of cache lines
-etc. from the driver.
-
-Best,
-  Roland

@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbULFMbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbULFM4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbULFMbc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 07:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbULFMbc
+	id S261513AbULFM4t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 07:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbULFM4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 07:31:32 -0500
-Received: from mail.gmx.de ([213.165.64.20]:21400 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261511AbULFMb3 (ORCPT
+	Mon, 6 Dec 2004 07:56:49 -0500
+Received: from ns1.enidan.ch ([217.8.216.11]:8925 "EHLO mail.local.net")
+	by vger.kernel.org with ESMTP id S261513AbULFM4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 07:31:29 -0500
-X-Authenticated: #4512188
-Message-ID: <41B45134.4040005@gmx.de>
-Date: Mon, 06 Dec 2004 13:31:48 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041203)
-X-Accept-Language: de-DE, de, en-us, en
+	Mon, 6 Dec 2004 07:56:47 -0500
+From: "Per Jessen" <per@computer.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Mon, 06 Dec 2004 13:28:54 +0100
+X-Mailer: PMMail 2000 Professional (2.20.2711) For Windows 2000 (5.0.2195;4)
+In-Reply-To: <20041206122003.3DFBE7D48D@mail.local.net>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Time sliced CFQ #2
-References: <20041204104921.GC10449@suse.de> <41B426D4.6080506@gmx.de> <20041206093517.GJ10498@suse.de>
-In-Reply-To: <20041206093517.GJ10498@suse.de>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7B1795286C3EB8E68617F26D"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Fwd: 2.4.28 - kswapd excessive cpu usage under heavy IO
+Message-Id: <20041206122938.D1E078E62F@mail.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7B1795286C3EB8E68617F26D
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 06 Dec 2004 13:20:03 +0100, Per Jessen wrote:
 
-Jens Axboe schrieb:
-> On Mon, Dec 06 2004, Prakash K. Cheemplavam wrote:
-> 
->>Hi,
->>
->>this one crapped out on me, while having heavy disk activity. (updating 
->> gentoo portage tree - rebuilding metadata of it). Unfortunately I 
->>couldn't save the oops, as I had no hd access anymore and X would freeze 
->>a little later...(and I don't want to risk my data a second time...)
-> 
-> 
-> Did you save anything at all? Just the function of the EIP would be
-> better than nothing.
+> (apologies if this is sent more than once)
+> I've found similar incidences in the archives, but none that indicates that a
+> solution was found. 
+> I'm seeing excessive cpu usage by kswapd on a 4way 500MHZ Xeon with 2GB RAM.  A
+> find in a directory containing perhaps 6-700,000 files makes the box almost
+> grind to a halt.  In 12days uptime, kswap has used 590:43.82, and during the
+> find-exercise usually runs with 90-100% util.
+> The file-system is 150GB with JFS117 on a software-RAID5 - not exactly optimal,
+> I agree, but reasonably workable.
 
-Nope, sorry. I hoped it would be in the logs, but it seems as new cfq 
-went havoc, hd access went dead. And I was a bit too nervous about my 
-data so that I didn't write it down by hand...
+Correction - this is on 2.4.26, *not* 2.4.28. 
 
-> Well hard to say anything qualified without an oops :/
-> 
-> I'll try with PREEMPT here.
+/Per
 
-If you are not able to reproduce, I will try it again on a spare 
-partition... Should access to zip drive stil be possible if hd's 
-io-scheduler is dead?
-
-Prakash
+-- 
+regards,
+Per Jessen, Zurich
+http://www.spamchek.com - let your spam stop here!
 
 
---------------enig7B1795286C3EB8E68617F26D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBtFE0xU2n/+9+t5gRAthvAKDlRszC0xEMG+o/SARKj+sVkRRhtwCfbdf4
-3B+HxBHIlzWTp4bT+LQ05+E=
-=w29E
------END PGP SIGNATURE-----
-
---------------enig7B1795286C3EB8E68617F26D--

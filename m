@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131515AbQKQMDY>; Fri, 17 Nov 2000 07:03:24 -0500
+	id <S130601AbQKQMEY>; Fri, 17 Nov 2000 07:04:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130601AbQKQMDO>; Fri, 17 Nov 2000 07:03:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37724 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129150AbQKQMDB>; Fri, 17 Nov 2000 07:03:01 -0500
-Subject: Re: [PATCH] ALS-110 opl3 and mpu401 under 2.4.0-test10
-To: mh15@st-andrews.ac.uk (Mark Hindley)
-Date: Fri, 17 Nov 2000 11:33:11 +0000 (GMT)
-Cc: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org,
-        tmolina@home.com (Thomas Molina)
-In-Reply-To: <l03130300b63ac27dc63a@[138.251.135.28]> from "Mark Hindley" at Nov 17, 2000 11:26:40 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S132055AbQKQMEO>; Fri, 17 Nov 2000 07:04:14 -0500
+Received: from p3EE3CBE2.dip.t-dialin.net ([62.227.203.226]:55301 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S130601AbQKQMED>; Fri, 17 Nov 2000 07:04:03 -0500
+Date: Fri, 17 Nov 2000 12:34:01 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre21
+Message-ID: <20001117123401.B24565@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001116171618.A25545@athlon.random> <20001116115249.A8115@wirex.com> <20001117003000.B2918@wire.cadcamlab.org> <8v2js0$qpr$1@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wjlY-0000YD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8v2js0$qpr$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Nov 16, 2000 at 22:40:00 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2) The other relates to the uart401 detection. If you build the sb driver
-> into the kernel and then pass the commandline uart401=1 this is interpreted
-> as the io parameter for the uart401 module not a command for the sb driver.
-> I have renamed the uart401 detection command to uart401probe. Obviously it
-> isn't a problem with a modular driver, but the change shouldn't matter.
+On Thu, 16 Nov 2000, H. Peter Anvin wrote:
 
-It changes the command line properties people already use. It also cannot be
-neccessary since 'uart401' is static.
+> BUG: you *MUST* chdir() into the chroot jail before it does you any
+> good at all!
+> 
+> I usually recommend:
 
+  #include <sysexits.h>
+  /* for EX_NOUSER */
+
+> mkdir("foo");
+> chdir("foo");
+> chroot(".");
+
+add this:
+
+  /* DO REPLACE 500 BY AN EXISTING USER ID */
+  /* DO NOT REPLACE IT BY 0! */
+  /* DO NOT USE OTHER FUNCTIONS THAN setuid() */
+  if(setuid(500)) { _exit(EX_NOUSER); }
+
+(For the records and search engines, most people should know that, but
+to have it all in one mail.)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

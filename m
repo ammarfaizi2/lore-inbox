@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbTI0B6b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 21:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTI0B6b
+	id S262037AbTI0CAi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 22:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTI0CAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 21:58:31 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:7071 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262034AbTI0B63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 21:58:29 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 8/8] Add BTN_TOUCH to Synaptics driver. Update mousedev.
-Date: Fri, 26 Sep 2003 20:58:21 -0500
-User-Agent: KMail/1.5.4
-Cc: Vojtech Pavlik <vojtech@suse.cz>, akpm@osdl.org, petero2@telia.com,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-References: <10645086121286@twilight.ucw.cz> <200309260224.54264.dtor_core@ameritech.net> <20030926075408.GA7330@ucw.cz>
-In-Reply-To: <20030926075408.GA7330@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 26 Sep 2003 22:00:38 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:35589 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262037AbTI0CAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 22:00:37 -0400
+Subject: Ejecting a CardBus device
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1064628015.1393.5.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 27 Sep 2003 04:00:16 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309262058.21860.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 September 2003 02:54 am, Vojtech Pavlik wrote:
-> On Fri, Sep 26, 2003 at 02:24:53AM -0500, Dmitry Torokhov wrote:
-> > On Thursday 25 September 2003 05:30 pm, Vojtech Pavlik wrote:
-> > > > BTW, any chance on including pass-through patches? Do you want me
-> > > > to re-diff them?
-> > >
-> > > Hmm, I thought I've merged them in already, but obviously I did
-> > > not. Please resend them (rediffed if possible). Thanks.
-> >
-> > I meant reconnect patches that Peter sent in his last mail, sorry for
-> > the confusion.
->
-> I don't think I'll apply those, sorry. We really should try to go the
-> driver-model way and not invent our own ways how to restore devices
-> hierarchically.
+Hi All!
 
-Reconnect patches are merely an extension of serio_rescan mechanism - the
-only difference is that reconnect tries to keep the same input device if
-the hardware didn't change. It does not care about any hierarchy, it just
-a way for someone to try to re-initialize driver (probably the driver 
-itself). I for example never suspend, but my docking station resets the
-touch pad back to relative mode. With reconnect it is possible to dock
-and undock with X and GPM running and it will not screw your input 
-devices (rescan would create brand new input devices while X and GPM still
-use old ones).
+How can I tell the CardBus subsystem to eject my CardBus NIC by software
+with 2.6.0 kernels? In 2.4 I could use "cardctl eject", but I don't know
+how to do the same on 2.6.0-test5-mm4.
 
-The pass-through support of all things implements device hierarchy in non 
-driver-model way and you just included it. The entire input subsystem is not 
-based on the driver model at the moment.. Are there plans to change it in 2.6
-timeframe? If not for 2.6 then I would ask you to reconsider, reconnect will
-make life of users much easier. If you have something in works could I have a
-peek so I could probably adjust my patches.
+I need to eject my CardBus NIC if I want to be able to suspend the
+machine using APM. Resuming from APM when the "yenta_socket" and
+"pcmcia_core" modules are loaded causes a deadlock in the kernel during
+resume, and the machine never comes back completely. Thus, before
+suspending, I need to rmmod "pcmcia_core" and "yenta_socket" (well, and
+uhci-hcd and the sound modules).
 
-BTW, is it possible with current driver model to reinitialize an arbitrary 
-device, not entire bus?
+Currently, I need to manually eject the card by pushing the eject button
+on the side of the laptop if I want to to rmmod "pcmcia_core" (not doing
+so, causes pcmcia_core to complain that it's busy). So, I wonder if
+there's a way to tell pcmcia_core to "eject" the CardBus NIC (without
+physically ejecting the card from the socket) in order to being able to
+rmmod it before trying to suspend.
 
-Dmitry
+Thanks!
+
+   Felipe Alfaro Solana
+
+

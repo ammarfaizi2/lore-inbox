@@ -1,59 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268450AbUIBQIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUIBQKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268450AbUIBQIh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 12:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUIBQIf
+	id S268089AbUIBQKT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 12:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268220AbUIBQKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 12:08:35 -0400
-Received: from ihemail2.lucent.com ([192.11.222.163]:55249 "EHLO
-	ihemail2.lucent.com") by vger.kernel.org with ESMTP id S268538AbUIBQHX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 12:07:23 -0400
+	Thu, 2 Sep 2004 12:10:19 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:8587 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S268089AbUIBQJl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 12:09:41 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] allow i8042 register location override
+Date: Thu, 2 Sep 2004 10:09:23 -0600
+User-Agent: KMail/1.6.2
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16695.17710.288331.906507@gargle.gargle.HOWL>
-Date: Thu, 2 Sep 2004 12:07:10 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: John Stoffel <stoffel@lucent.com>, Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-       Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Driver retries disk errors.
-In-Reply-To: <1094137165.5486.0.camel@localhost.localdomain>
-References: <20040830163931.GA4295@bitwizard.nl>
-	<1093952715.32684.12.camel@localhost.localdomain>
-	<20040831135403.GB2854@bitwizard.nl>
-	<1093961570.597.2.camel@localhost.localdomain>
-	<20040831155653.GD17261@harddisk-recovery.com>
-	<1093965233.599.8.camel@localhost.localdomain>
-	<20040831170016.GF17261@harddisk-recovery.com>
-	<1093968767.597.14.camel@localhost.localdomain>
-	<20040901152817.GA4375@pern.dea.icai.upco.es>
-	<1094049877.2787.1.camel@localhost.localdomain>
-	<20040901231434.GD28809@bitwizard.nl>
-	<1094117369.4852.15.camel@localhost.localdomain>
-	<16695.11922.71461.528204@gargle.gargle.HOWL>
-	<1094137165.5486.0.camel@localhost.localdomain>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Message-Id: <200409021009.23280.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Allow the default i8042 register locations to be changed at run-time.
+This is a prelude to adding discovery via the ACPI namespace.
 
-Alan> On Iau, 2004-09-02 at 15:30, John Stoffel wrote:
->> I really think that we need some way to keep such deadlocks from
->> happening.  I really dislike having a device lockup a user application
->> so hard that it can't be exited.  There's no real reason we should be
->> doing this any more.  If we have to, let the user kill it and just
->> have the kernel make it into a zombie, but at least let the user kill
->> it off.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-Alan> If you had to reboot file a bug, none of the block error
-Alan> recovery code or below should ever hang indefinitely.
-
-Once I can reproduce it reliably, I'll send a better report.  I've
-been holding off on my comments til now, but got caught up in the
-moment.  
-
-I also know now that it should timeout and come back to life.  I even
-had a back trace on the hung process, but didn't save it.  Mea cupla.
+diff -u -ur 2.6.9-rc1-mm2/drivers/input/serio/i8042-io.h 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042-io.h
+--- 2.6.9-rc1-mm2/drivers/input/serio/i8042-io.h	2004-09-02 09:49:05.000000000 -0600
++++ 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042-io.h	2004-09-02 09:50:26.000000000 -0600
+@@ -36,32 +36,36 @@
+ #endif
+ 
+ /*
+- * Register numbers.
++ * Register numbers (may be overridden)
+  */
+ 
+ #define I8042_COMMAND_REG	0x64	
+ #define I8042_STATUS_REG	0x64	
+ #define I8042_DATA_REG		0x60
+ 
++extern unsigned long i8042_command_reg;
++extern unsigned long i8042_status_reg;
++extern unsigned long i8042_data_reg;
++
+ static inline int i8042_read_data(void)
+ {
+-	return inb(I8042_DATA_REG);
++	return inb(i8042_data_reg);
+ }
+ 
+ static inline int i8042_read_status(void)
+ {
+-	return inb(I8042_STATUS_REG);
++	return inb(i8042_status_reg);
+ }
+ 
+ static inline void i8042_write_data(int val)
+ {
+-	outb(val, I8042_DATA_REG);
++	outb(val, i8042_data_reg);
+ 	return;
+ }
+ 
+ static inline void i8042_write_command(int val)
+ {
+-	outb(val, I8042_COMMAND_REG);
++	outb(val, i8042_command_reg);
+ 	return;
+ }
+ 
+diff -u -ur 2.6.9-rc1-mm2/drivers/input/serio/i8042.c 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042.c
+--- 2.6.9-rc1-mm2/drivers/input/serio/i8042.c	2004-09-02 09:49:05.000000000 -0600
++++ 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042.c	2004-09-02 09:49:50.000000000 -0600
+@@ -106,6 +106,10 @@
+ static struct timer_list i8042_timer;
+ static struct platform_device *i8042_platform_device;
+ 
++static unsigned long i8042_command_reg = I8042_COMMAND_REG;
++static unsigned long i8042_status_reg = I8042_STATUS_REG;
++static unsigned long i8042_data_reg = I8042_DATA_REG;
++
+ /*
+  * Shared IRQ's require a device pointer, but this driver doesn't support
+  * multiple devices
+@@ -650,10 +654,7 @@
+ 	}
+ 
+ 	printk(KERN_INFO "serio: i8042 %s port at %#lx,%#lx irq %d\n",
+-	       values->name,
+-	       (unsigned long) I8042_DATA_REG,
+-	       (unsigned long) I8042_COMMAND_REG,
+-	       values->irq);
++	       values->name, i8042_data_reg, i8042_command_reg, values->irq);
+ 
+ 	serio_register_port(port);
+ 

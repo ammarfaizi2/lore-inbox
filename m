@@ -1,69 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbSJVPyO>; Tue, 22 Oct 2002 11:54:14 -0400
+	id <S264756AbSJVP5t>; Tue, 22 Oct 2002 11:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbSJVPyO>; Tue, 22 Oct 2002 11:54:14 -0400
-Received: from va.cs.wm.edu ([128.239.2.31]:47364 "EHLO va.cs.wm.edu")
-	by vger.kernel.org with ESMTP id <S264001AbSJVPyM>;
-	Tue, 22 Oct 2002 11:54:12 -0400
-From: "Bruce B. Lowekamp" <lowekamp@CS.WM.EDU>
-Date: Tue, 22 Oct 2002 11:59:45 -0400
-Message-Id: <200210221559.g9MFxjf24244@in.cs.wm.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.20-pre11 fix pdc20265 to off_board
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, lowekamp@CS.WM.EDU
+	id <S261502AbSJVP5t>; Tue, 22 Oct 2002 11:57:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58158 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S264756AbSJVP5r>; Tue, 22 Oct 2002 11:57:47 -0400
+To: landley@trommello.org, Andy Pfiffer <andyp@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<m1ptu3t3ec.fsf@frodo.biederman.org>
+	<m1fzuyub3z.fsf@frodo.biederman.org>
+	<200210212257.40050.landley@trommello.org>
+	<m17kgattpw.fsf@frodo.biederman.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Oct 2002 10:02:03 -0600
+In-Reply-To: <m17kgattpw.fsf@frodo.biederman.org>
+Message-ID: <m11y6itqbo.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the bug with auxilliary on-MB pdc20265 RAID
-controllers erroneously receiving ide0 and ide1 that was introduced
-with 2.4.19.  This is a patch to 2.4.20-pre11 to change the PDC20265
-from ON_BOARD to OFF_BOARD.  It is needed for compatibility with
-kernels prior to 2.4.19 and compatibility with 2.5.x kernels.  If the
-2.5 ide merge in 2.4.20-pre10-ac2 is incorporated into 2.4.20, it is
-irrelevant.
+ebiederm@xmission.com (Eric W. Biederman) writes:
 
-There may be a very small number of motherboards that this patch
-causes problems for.  These MBs are, however, significantly fewer than
-the number for whom the current ON_BOARD config causes major problems.
-Among these is the ASUS A7v266-E and any other board with the 20265 on
-the MB as a RAID controller and appearing first in the bus scanning
-order.  Without this patch, hda drives appear as hde because ide0 and
-ide1 are swapped with ide2 and ide3.
+> Rob Landley <landley@trommello.org> writes:
+> 
+> > On Tuesday 22 October 2002 03:33, Eric W. Biederman wrote:
+> > 
+> > > j < Printed from the second callback in setup.S, just before the
+> > > kernel decompresser is run >
+> > >
+> > >
+> > > I have a very strange node that makes it all of the way to 'j' before
+> > > rebooting. The concept that something is dying in protected mode will all
+> > > of the interrupts disabled is so novel that I really don't know what to
+> > > make of it, yet.
+> > 
+> > It would almost have to be the MMU.  Any way to dump the page tables?
+> 
+> I don't know yet.  I need to find a way to install some additional hooks
+> at run time so I can narrow down where the failure is occuring.  I
+> will have to look, but I should be able to set up an interrupt
+> descriptor table and single step through the code.  
 
-For those MBs that this patch causes a problem for, using ide0=X and
-ide1=Y is a sure cure for this problem.  Identifying X and Y is,
-unfortunately, almost impossible with the current kernel messages, and
-for this reason I include a second patch that would make this task much
-easier by printing the addresses the devices are located at as part of
-the ide boot-up sequence.
+In the process of setting up hooks, I have run across a very interesting
+data point.  If I load %ds, %es, %ss in my hook the problem goes away.
+But I must load all 3.
 
-Bruce Lowekamp
+Given that the code sequence that is executed if my hook is not run is:
 
+	cld
+	cli
+	movl $(__KERNEL_DS),%eax
+	movl %eax,%ds
+	movl %eax,%es
+	movl %eax,%fs
+	movl %eax,%gs
 
+	lss stack_start,%esp
 
---- linux-2.4.20-pre11/drivers/ide/ide-pci.c	Tue Oct 22 10:36:12 2002
-+++ linux-2.4.20-pre11-pdc-ext/drivers/ide/ide-pci.c	Tue Oct 22 10:43:01 2002
-@@ -405,7 +405,7 @@
- #ifndef CONFIG_PDC202XX_FORCE
-         {DEVID_PDC20246,"PDC20246",	PCI_PDC202XX,	NULL,		INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	16 },
-         {DEVID_PDC20262,"PDC20262",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
--        {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	48 },
-+        {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
-         {DEVID_PDC20267,"PDC20267",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
- #else /* !CONFIG_PDC202XX_FORCE */
- 	{DEVID_PDC20246,"PDC20246",	PCI_PDC202XX,	NULL,		INIT_PDC202XX,	NULL,		{{0x50,0x02,0x02}, {0x50,0x04,0x04}}, 	OFF_BOARD,	16 },
+I am rather confused.  I am not changing the gdt or anything like that so it
+appears I may have found a way to tickle a processor errata.
 
+Anyway Andy if you have a second please try kexec-tools 1.3 and see what
+happens when you pass it the debug option.  I am really curious if your lockup
+is anywhere near mine.  I doubt it as I am running on a P4.  But it appears
+you never know what the problems will look like until you test them.
 
-
-adds message to help with ideN=X selection:
---- linux-2.4.20-pre11-pdc-ext/drivers/ide/ide-pci.c	Tue Oct 22 10:43:01 2002
-+++ linux-2.4.20-pre11-multi-message/drivers/ide/ide-pci.c	Tue Oct 22 10:45:31 2002
-@@ -764,6 +764,7 @@
- 			base = port ? 0x170 : 0x1f0;	/* use default value */
- 		if ((hwif = ide_match_hwif(base, d->bootable, d->name)) == NULL)
- 			continue;	/* no room in ide_hwifs[] */
-+		printk("    %s: located at 0x%04lx\n", hwif->name, base);
- 		if (hwif->io_ports[IDE_DATA_OFFSET] != base) {
- 			ide_init_hwif_ports(&hwif->hw, base, (ctl | 2), NULL);
- 			memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->io_ports));
+Eric

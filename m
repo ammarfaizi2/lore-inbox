@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271595AbTGQWLV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271596AbTGQWLU
+	id S271571AbTGQWOE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271600AbTGQWNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:11:20 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55707
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S271595AbTGQWLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:11:10 -0400
-Date: Fri, 18 Jul 2003 00:26:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>
-Subject: Re: 2.4.22pre6aa1
-Message-ID: <20030717222657.GW1855@dualathlon.random>
-References: <20030717102857.GA1855@dualathlon.random> <200307180013.38078.m.c.p@wolk-project.de>
+	Thu, 17 Jul 2003 18:13:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5095 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271596AbTGQWL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 18:11:59 -0400
+Date: Thu, 17 Jul 2003 15:16:47 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: ricardo.b@zmail.pt
+Cc: jgarzik@pobox.com, schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org
+Subject: Re: SET_MODULE_OWNER
+Message-Id: <20030717151647.01e790ea.davem@redhat.com>
+In-Reply-To: <1058480636.754.31.camel@ezquiel.nara.homeip.net>
+References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
+	<3F16C190.3080205@pobox.com>
+	<200307171756.19826.schlicht@uni-mannheim.de>
+	<3F16C83A.2010303@pobox.com>
+	<20030717125942.7fab1141.davem@redhat.com>
+	<1058477803.754.11.camel@ezquiel.nara.homeip.net>
+	<20030717144031.3bbacee5.davem@redhat.com>
+	<1058480636.754.31.camel@ezquiel.nara.homeip.net>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307180013.38078.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 12:13:38AM +0200, Marc-Christian Petersen wrote:
-> 2.4.22-pre[6|6aa1]: ~ 1 minute 02 seconds from: Start this virtual machine ...
-> 2.4.22-pre2       : ~          30 seconds from: Start this virtual machine ...
-> 
-> ... to start up Windows 2000 Professional completely.
+On 17 Jul 2003 23:23:57 +0100
+Ricardo Bugalho <ricardo.b@zmail.pt> wrote:
 
-can you check what's doing? reading or writing? I guess it's a kind of
-workload that would seek all over the place.  However throughput should
-be better with seeks now since I could grow the queue (if something only
-latency would be worse but the above is a throughput thing only, latency
-doesn't matter).
+> Netfilter no, IPv6 yes.
 
-Can you retry once more time with pre2 vs pre6 to be 100% sure it's
-reproducible?
+There are some heavy device leaks in 2.6.0-test1 as released,
+if you could test something more current it would be appreciated
+as we believe we have fixed this.
 
-thanks,
-
-Andrea
+Alternatively, you could test if ipv6 is the culprit by removing
+it from your setup somehow.

@@ -1,54 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbTBFBDf>; Wed, 5 Feb 2003 20:03:35 -0500
+	id <S261963AbTBFBqC>; Wed, 5 Feb 2003 20:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbTBFBDf>; Wed, 5 Feb 2003 20:03:35 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:644 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S261523AbTBFBDc>;
-	Wed, 5 Feb 2003 20:03:32 -0500
-Date: Thu, 6 Feb 2003 02:13:36 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: linux-raid@vger.kernel.org, Peter Chubb <peter@chubb.wattle.id.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 15 * 180gb in raid5 gives 299.49 GiB ?
-In-Reply-To: <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu>
-Message-ID: <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
- <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S262452AbTBFBqC>; Wed, 5 Feb 2003 20:46:02 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:62904 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261963AbTBFBqA>;
+	Wed, 5 Feb 2003 20:46:00 -0500
+Subject: [PATCH] linux-2.5.59_cyclone-fixes_A1
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044496432.19553.166.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 05 Feb 2003 17:53:52 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-argh :
+Linus, All,
 
-tried to compile with this patch
-tried on 2.4.20 , 2.4.21-pre1 and 2.4.21-pre4
+        This patch "fixes" the timer_cyclone code by having it
+initialize fast_gettimeoffset_quotient and cpu_khz in the same manner as
+timer_tsc. This is required for enabling the timer_cyclone code on the
+x440. 
 
-        /usr/src/linux-2.4.21-pre1/arch/i386/lib/lib.a
-/usr/src/linux-2.4.21-pre1/lib/lib.a
-/usr/src/linux-2.4.21-pre1/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/scsi/scsidrv.o: In function `ahc_linux_biosparam':
-drivers/scsi/scsidrv.o(.text+0xf9c4): undefined reference to `__udivdi3'
-drivers/scsi/scsidrv.o(.text+0xfa0c): undefined reference to `__udivdi3'
+Ideally fast_gettimeoffset_quotient would not be used outside timer_tsc
+and cpu_khz would be initialized generically outside the timer
+subsystem. I have patches to do this, but they touch quite a bit of
+generic code, and I'd rather not make the timer_cyclone enablement
+(patch to follow) depend on these larger changes. 
+
+Please apply.
+
+thanks
+-john
+
+
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Wed Feb  5 17:49:18 2003
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Wed Feb  5 17:49:18 2003
+@@ -17,6 +17,8 @@
+ #include <asm/fixmap.h>
+ 
+ extern spinlock_t i8253_lock;
++extern unsigned long fast_gettimeoffset_quotient;
++extern unsigned long calibrate_tsc(void);
+ 
+ /* Number of usecs that the last interrupt was delayed */
+ static int delay_at_last_interrupt;
+@@ -142,6 +144,28 @@
+ 			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
+ 			cyclone_timer = 0;
+ 			return -ENODEV;
++		}
++	}
++
++	/* init fast_gettimeoffset_quotent and cpu_khz.
++	 * XXX - This should really be done elsewhere, 
++	 * 		and in a more generic fashion. -johnstul@us.ibm.com
++	 */
++	if (cpu_has_tsc) {
++		unsigned long tsc_quotient = calibrate_tsc();
++		if (tsc_quotient) {
++			fast_gettimeoffset_quotient = tsc_quotient;
++			/* report CPU clock rate in Hz.
++			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
++			 * clock/second. Our precision is about 100 ppm.
++			 */
++			{	unsigned long eax=0, edx=1000;
++				__asm__("divl %2"
++		       		:"=a" (cpu_khz), "=d" (edx)
++        	       		:"r" (tsc_quotient),
++	                	"0" (eax), "1" (edx));
++				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
++			}
+ 		}
+ 	}
+ 
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Wed Feb  5 17:49:18 2003
++++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Feb  5 17:49:18 2003
+@@ -130,7 +130,7 @@
+ #define CALIBRATE_LATCH	(5 * LATCH)
+ #define CALIBRATE_TIME	(5 * 1000020/HZ)
+ 
+-static unsigned long __init calibrate_tsc(void)
++unsigned long __init calibrate_tsc(void)
+ {
+        /* Set the Gate high, disable speaker */
+ 	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
 
 
 
-
-
-On Thu, 6 Feb 2003, Stephan van Hienen wrote:
-
-> hmms found out after posting this msg :
->
-> http://www.gelato.unsw.edu.au/patches-index.html
->
->   ³ ³ [*] Support for discs bigger than 2TB?  ³ ³
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->

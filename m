@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUCaWUf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 17:20:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUCaWUf
+	id S261669AbUCaWSz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 17:18:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCaWSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 17:20:35 -0500
-Received: from fmr10.intel.com ([192.55.52.30]:40381 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262170AbUCaWU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 17:20:27 -0500
-Subject: Re: ACPI SCI IOAPIC bug (Re: Fixes for nforce2 hard lockup, apic,
-	io-apic, udma133 covered)
-From: Len Brown <len.brown@intel.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Ross Dickson <ross@datscreative.com.au>, linux-kernel@vger.kernel.org,
-       AMartin@nvidia.com, kernel@kolivas.org, Ian Kumlien <pomac@vapor.com>
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F0C10@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F0C10@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080771580.31359.32.camel@dhcppc4>
+	Wed, 31 Mar 2004 17:18:55 -0500
+Received: from mail.kroah.org ([65.200.24.183]:29654 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261669AbUCaWSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 17:18:52 -0500
+Date: Wed, 31 Mar 2004 14:18:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
+       David Brownell <david-b@pacbell.net>, viro@math.psu.edu,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
+Message-ID: <20040331221804.GA4729@kroah.com>
+References: <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org> <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com> <20040329132551.23e12144.akpm@osdl.org> <20040329231604.GA29494@kroah.com> <20040329153117.558c3263.akpm@osdl.org> <20040330055135.GA8448@in.ibm.com> <20040330230142.GA13571@kroah.com> <20040330235533.GA9018@kroah.com> <1080699090.1198.117.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 31 Mar 2004 17:19:40 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080699090.1198.117.camel@gaston>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-18 at 12:43, Maciej W. Rozycki wrote:
+On Wed, Mar 31, 2004 at 12:11:30PM +1000, Benjamin Herrenschmidt wrote:
+> On Wed, 2004-03-31 at 09:55, Greg KH wrote:
+> > Hi,
+> > 
+> > The patch below backs out Maneesh's sysfs patch that was recently added
+> > to the kernel.  In its defense, the original patch did solve some fixes
+> > that could be duplicated on SMP machines, but the side affect of the
+> > patch caused lots of problems.  Basically it caused kobjects to get
+> > their references incremented when files that are not present in the
+> > kobject are asked for (udev can easily trigger this when it looks for
+> > files call "dev" in directories that do not have that file).  This can
+> > cause easy oopses when the VFS later ages out those old dentries and the
+> > kobject has its reference finally released (usually after the module
+> > that the kobject lived in was removed.)
+> 
+> I think that the bug in the first place is to have an existing
+> kobject that didn't bump the module ref count.
+> 
+> If a kobject exists that have a pointer to the module code (the
+> release function), it _MUST_ have bumped the module ref count,
+> that's the whole point of the module reference count.
 
->  Note that if changing an I/O APIC input was indeed needed, the
-> replace_pin_at_irq() function could be used.
+But that is impossible as has already been pointed out by Alan Stern.
+If a module creates a kobject, how can the module_exit() function ever
+be called if that kobject incremented the module reference count?
 
-Why is it that all IRQs get their name from the
-IOAPIC pin number, but the timer connected to
-pin 2 is called IRQ0 instead of IRQ2?
-
-Are there other exceptions to this rule,
-or is all the code for re-naming IRQs & pins
-effectively just for the timer?
-
-I wonder if we should't be moving to at least a build option which
-deletes support for multiple pins at an IRQ, and deletes
-suport for non-identity pin->IRQ mapping.
-
->  I still wonder why these arrangements are made so late in a boot --
-> after 
-> all, ACPI IRQ configuration is table-driven and does not require any 
-> specific hardware initialization to work.  So it could be done at the 
-> stage MP-table parsing happens, couldn't it?
-
-While the ACPI table parsing is very early, the _PRT parsing
-can happen only after the ACPI interpreter is up, because
-the _PRT's are encoded in AML.
+So what we do is any reference to the kobject grabbed by userspace
+causes the module reference count to go up.  That fixes the issue for
+the most part (with the exception of the race that Maneesh has
+documented.)
 
 thanks,
--Len
 
-
+greg k-h

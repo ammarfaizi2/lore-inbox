@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbTILAWn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 20:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTILAWn
+	id S261667AbTILAXh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 20:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbTILAXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 20:22:43 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:48090 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261664AbTILAWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 20:22:18 -0400
-To: Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Status of fsync() wrt mail servers
-In-Reply-To: <20030911172509.GB18399@matchmail.com> (Mike Fedyk's message of
- "Thu, 11 Sep 2003 10:25:09 -0700")
-References: <20030910002953.C14172@unbeatenpath.net>
-	<20030910105102.GA535@rahul.net>
-	<1063192474.18154.355.camel@tiny.suse.com>
-	<20030910114103.GA26767@rahul.net>
-	<1063197048.18155.357.camel@tiny.suse.com>
-	<20030910101821.A15923@unbeatenpath.net>
-	<20030910213244.GD1461@matchmail.com>
-	<20030910173343.A16677@unbeatenpath.net>
-	<20030910234927.GE1461@matchmail.com>
-	<m3ekynbj3e.fsf@merlin.emma.line.org>
-	<20030911172509.GB18399@matchmail.com>
-From: Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
-Date: Fri, 12 Sep 2003 02:22:15 +0200
-Message-ID: <m3brtqrh3c.fsf@merlin.emma.line.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
+	Thu, 11 Sep 2003 20:23:37 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:14737 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261667AbTILAXe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 20:23:34 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 11 Sep 2003 17:18:19 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: =?iso-8859-15?q?Jo=E3o=20Seabra?= <seabra@aac.uc.pt>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Yet another query about sis963
+In-Reply-To: <200309120050.21630.seabra@aac.uc.pt>
+Message-ID: <Pine.LNX.4.56.0309111716140.1889@bigblue.dev.mdolabs.com>
+References: <200309120050.21630.seabra@aac.uc.pt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> writes:
+On Fri, 12 Sep 2003, [iso-8859-15] João Seabra wrote:
 
->> I recently helped one qmail user debug this; the symptom was that the
->> first mail in a burst of mails took 2 seconds to queue, subsequent mails
->> were queued much quicker (70 ms). He was using ext3fs, and had one huge
->> / (root) file system and so the "synch the whole file system" behaviour
->> made his qmail-queue synch *all* his dirty blocks to disk...
+> Hi
 >
-> Can you be sure the MTA wasn't calling sync() just to be sure (Many MTAs are
-> funny in that they think the spool is on a seperate disk and
-> filesystem).
+>  Could someone enlight me about the support of this chipset in 2.4 series?
+>  I've read some posts about it, dating from not long time ago and since im
+> planning to buy an asus l5800c with that chipset i would like to know if
+> linux is going to work in it or not.
+>  I have seen other problems with sis (such as graphics not (quite) working in
+> linux) and i think im going to buy other laptop that doesnt use sis....
+> (toshiba maybe...)
 
-For qmail and Postfix I can be. sync(8) isn't remotely useful, because
-it's allowed to return before completion.
+I don't know if Alan did actually fix the thing. Here you can find the IRQ
+routing patches :
 
-> fsync() shouldn't be flushing anything not relating to the file it was
-> called on (that includes directory entries related to the file also
-> IMHO).
+http://www.xmailserver.org/linux-patches/misc.html#SiSRt
 
-It "should", but current implementations on Linux do exactly that: flush
-everything. Maybe you've got better luck with BSD softupdates, but
-that's going to munch disk I/O big time next time you reboot after a
-crash: fsck needed. It runs niced in the background so the machine boots
-up, but the box won't satisfy higher I/O demands. Looks like a "ex
-duobus malis" game.
+This is for X :
 
-> Also, if the MTA wasn't running as root, it shouldn't be able to make sync()
-> affect the entire system.
+http://www.winischhofer.net/linuxsis630.shtml
 
-I'd like to see your plans that prevent DoS by local users...
 
-One machine's light load is another one's DoS attack.
 
-> Is there anything that says that sync() can't just flush the user's
-> buffers unless you're running as root or with some CAP_ capability?
+- Davide
 
-Does the kernel track "whose dirty buffer is this" (uid_t) at all?
-
--- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95

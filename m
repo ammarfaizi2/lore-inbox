@@ -1,54 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUKHS6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbUKHS7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbUKHS6N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUKHSzm
+	id S261201AbUKHS7a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUKHS6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:55:42 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19882 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261193AbUKHSyT (ORCPT
+	Mon, 8 Nov 2004 13:58:23 -0500
+Received: from fe05.axelero.hu ([195.228.240.93]:10514 "EHLO fe05.axelero.hu")
+	by vger.kernel.org with ESMTP id S261196AbUKHS5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:54:19 -0500
-Message-ID: <418FC082.8090706@engr.sgi.com>
-Date: Mon, 08 Nov 2004 10:52:50 -0800
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Mon, 8 Nov 2004 13:57:40 -0500
+From: pageexec@freemail.hu
+To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+Date: Mon, 08 Nov 2004 19:56:26 +0100
 MIME-Version: 1.0
-To: lse-tech <lse-tech@lists.sourceforge.net>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: [PATCH 2.6.9 0/2] new enhanced accounting data collection
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: RE: KSTK_EIP and KSTK_ESP
+Reply-to: pageexec@freemail.hu
+CC: <linux-kernel@vger.kernel.org>
+Message-ID: <418FCF6A.4368.2314122E@localhost>
+In-reply-to: <C863B68032DED14E8EBA9F71EB8FE4C20542D290@azsmsx406>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In earlier round of discussion, all partipants favored  a common
-layer of accounting data collection.
+> Shouldn't the ESP value pointed to by KSTK_ESP() point to the beginning of
+> the pt_regs structure for the user space application?
 
-This is intended to offer common data collection method for various
-accounting packages including BSD accounting, ELSA, CSA, and any other
-acct packages that use a common layer of data collection.
-
-This patchset consists of two parts: acct_io and acct_mm. Discussion
-identified that improved data collection in the area of I/O and Memory
-are useful to larger systems.
-
-acct_io:
-         collects per process data on charater read/written in bytes
-         and number of read/write syscalls made.
-
-acct_mm:
-         collects per process data on rss and vm total usage and
-         peak usage.
-
-Andrew, this new version incorporated feedback from your prior comment.
-
-
-Best Regards,
-
-Jay Lan - Linux System Software
-Silicon Graphics Inc., Mountain View, CA
+first of all, anything can be on the userland stack at the time the
+app issued a syscall. but you don't have to bother with the userland
+stack at all, pt_regs is created on the kernel stack, check out the
+SAVE_ALL macro (and its uses) in arch/i386/kernel/entry.S .
 

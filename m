@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284944AbRLFCdJ>; Wed, 5 Dec 2001 21:33:09 -0500
+	id <S284945AbRLFCnK>; Wed, 5 Dec 2001 21:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284948AbRLFCc7>; Wed, 5 Dec 2001 21:32:59 -0500
-Received: from ns.suse.de ([213.95.15.193]:40715 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284946AbRLFCcq>;
-	Wed, 5 Dec 2001 21:32:46 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0
-In-Reply-To: <3C0E9BFD.BC189E17@zip.com.au.suse.lists.linux.kernel> <E16Bo4c-00031f-00@wagner.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Dec 2001 03:32:38 +0100
-In-Reply-To: Rusty Russell's message of "6 Dec 2001 03:20:47 +0100"
-Message-ID: <p73wv016ptl.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S284946AbRLFCnA>; Wed, 5 Dec 2001 21:43:00 -0500
+Received: from zero.tech9.net ([209.61.188.187]:5 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284945AbRLFCmt>;
+	Wed, 5 Dec 2001 21:42:49 -0500
+Subject: Re: [RFC][PATCH] cpus_allowed/launch_policy patch, 2.4.16
+From: Robert Love <rml@tech9.net>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C0ED52E.B15F0ED7@us.ibm.com>
+In-Reply-To: <3C0ECBE0.F21464FA@us.ibm.com>
+	<Pine.LNX.4.40.0112051800400.1644-100000@blue1.dev.mcafeelabs.com> 
+	<3C0ED52E.B15F0ED7@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 05 Dec 2001 21:42:37 -0500
+Message-Id: <1007606568.814.15.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+On Wed, 2001-12-05 at 21:17, Matthew Dobson wrote:
 
-> The deadlock you're referring to is, I assume, del_timer_sync() called
-> inside the timer itself?  Can you think of any other dangerous cases?
+> but, as soon as one of them exec()'s their no longer going to be using your
+> functions.
 
-Common seems to be: 
+But cpus_allowed is inherited, so why does it matter?
 
+The only benefit I see to having it part of the fork operation as
+opposed to Ingo's or my own patch, is that the parent need not be given
+the same affinity.
 
-	CPU#0                CPU#1
+And honestly I don't see that as a need.  You could always change it
+back after the exec.  If that is unacceptable (you point out the cost of
+forcing a task on and off a certain CPU), you could just have a wrapper
+you exec that changes its affinity and then it execs the children.
 
-                             timer fires
-spinlock()                 
-                             spinlock() - spinning
-del_timer_sync() 
+	Robert Love
 
-
--> deadlock. 
-
--Andi

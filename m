@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266228AbTBKUpy>; Tue, 11 Feb 2003 15:45:54 -0500
+	id <S266091AbTBKUwJ>; Tue, 11 Feb 2003 15:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbTBKUpy>; Tue, 11 Feb 2003 15:45:54 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266228AbTBKUpx>; Tue, 11 Feb 2003 15:45:53 -0500
-Date: Tue, 11 Feb 2003 15:55:43 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Panic `cat /proc/ioports`
-Message-ID: <Pine.LNX.3.95.1030211155003.2868A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266095AbTBKUwJ>; Tue, 11 Feb 2003 15:52:09 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:57220 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266091AbTBKUwI>;
+	Tue, 11 Feb 2003 15:52:08 -0500
+Date: Tue, 11 Feb 2003 20:57:10 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: shaggy@austin.ibm.com
+Subject: jfs breakage in 2.5.60
+Message-ID: <20030211205710.GA3304@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, shaggy@austin.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux version 2.4.18, after it runs for a few days, will panic
-if I do `cat /proc/ioports`. Has this been reported/fixed in
-later versions?
+Running fsx & fsstress in parallel gets a load of oopsen in the
+logs, here's the first one..
 
-: Unable to handle kernel paging request at virtual address d48e2fa0 
-: c01d0ecb 
-: *pde = 13c22067 
-: Oops: 0000 
-: CPU:    0 
-: EIP:    0010:[3c59x:__insmod_3c59x_O/lib/modules/2.4.18/kernel/drivers/net/3c59+-342778165/84]    Not tainted 
-: EFLAGS: 00010297 
-: eax: d48e2fa0   ebx: ffffffff   ecx: d48e2fa0   edx: fffffffe 
-: esi: d22b70b9   edi: ffffffff   ebp: 00000000   esp: d0a41e90 
-: ds: 0018   es: 0018   ss: 0018 
-: Process cat (pid: 15481, stackpage=d0a41000) 
-: Stack: d22b70ad d2fce2c0 00000300 00000008 c01daa26 00000001 d32c19b0 c0123303  
-:        d0a2a6c0 d32c19b0 cfc97064 00000001 0000004e 00000000 ffffffff 0000000a  
-:        c01d118e d22b70ad 2dd48f53 c01daa26 d0a41f0c c01d11a8 d22b70ad c01daa17  
-: Call Trace: [3c59x:__insmod_3c59x_O/lib/modules/2.4.18/kernel/drivers/net/3c59+-343489789/84] [3c59x:__insmod_3c59x_O/lib/modules/2.4.18/kernel/drivers/net/3c59+-342777458/84] [3c59x:__insmod_3c59x_O/lib/modules/2.4.18/kernel
-/drivers/net/3c59+-342777432/84] [3c59x:__insmod_3c59x_O/lib/modules/2.4.18/kernel/drivers/net/3c59+-343526992/84] [3c59x:__insmod_3c59x_O/lib/modules/2.4.18/kernel/drivers/net/3c59+-343526874/84]  
-: Code: 80 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 89 c7 f7 c5 10 00  
+		Dave
 
-Code:  00000000 Before first symbol            00000000 <_IP>: <===
-Code:  00000000 Before first symbol               0:	80 38 00             	cmpb   $0x0,(%eax) <===
-Code:  00000003 Before first symbol               3:	74 07                	je      0000000c Before first symbol
-Code:  00000005 Before first symbol               5:	40                   	inc    %eax
-Code:  00000006 Before first symbol               6:	4a                   	dec    %edx
-Code:  00000007 Before first symbol               7:	83 fa ff             	cmp    $0xffffffff,%edx
-Code:  0000000a Before first symbol               a:	75 f4                	jne    0 <_IP>
-Code:  0000000c Before first symbol               c:	29 c8                	sub    %ecx,%eax
-Code:  0000000e Before first symbol               e:	89 c7                	mov    %eax,%edi
-Code:  00000010 Before first symbol              10:	f7 c5 10 00 00 00    	test   $0x10,%ebp
+Feb 12 04:30:16 mesh kernel: BUG at fs/jfs/jfs_logmgr.c:1438 assert(log->cqueue.head == NULL)
+Feb 12 04:30:16 mesh kernel: ------------[ cut here ]------------
+Feb 12 04:30:16 mesh kernel: kernel BUG at fs/jfs/jfs_logmgr.c:1438!
+Feb 12 04:30:16 mesh kernel: invalid operand: 0000
+Feb 12 04:30:16 mesh kernel: CPU:    0
+Feb 12 04:30:16 mesh kernel: EIP:    0060:[<c02963ee>]    Not tainted
+Feb 12 04:30:16 mesh kernel: EFLAGS: 00010296
+Feb 12 04:30:16 mesh kernel: EIP is at jfs_flush_journal+0x1de/0x2b0
+Feb 12 04:30:16 mesh kernel: eax: 00000044   ebx: 00000320   ecx: c3772680   edx: c0578678
+Feb 12 04:30:16 mesh kernel: esi: c3742000   edi: c72fea00   ebp: c3743f70   esp: c3743f44
+Feb 12 04:30:16 mesh kernel: ds: 007b   es: 007b   ss: 0068
+Feb 12 04:30:16 mesh kernel: Process fsstress (pid: 1427, threadinfo=c3742000 task=c3773980)
+Feb 12 04:30:16 mesh kernel: Stack: c0518308 c0518735 0000059e c0518764 c10bbeb8 c3742000 c1287994 c72feae4 
+Feb 12 04:30:16 mesh kernel:        c72fec40 c72fec00 00000001 c3743f80 c02774d5 c72fea00 00000001 c3743fb0 
+Feb 12 04:30:16 mesh kernel:        c017052e c72fec00 00000001 c1287994 c72fec00 4000988c c3743fb0 c0193125 
+Feb 12 04:30:16 mesh kernel: Call Trace:
+Feb 12 04:30:16 mesh kernel:  [<c02774d5>] jfs_sync_fs+0x25/0x30
+Feb 12 04:30:16 mesh kernel:  [<c017052e>] sync_filesystems+0x2fe/0x450
+Feb 12 04:30:16 mesh kernel:  [<c0193125>] sync_inodes+0x25/0xb0
+Feb 12 04:30:16 mesh kernel:  [<c01694fb>] sys_sync+0x3b/0x50
+Feb 12 04:30:16 mesh kernel:  [<c010a5f7>] syscall_call+0x7/0xb
+Feb 12 04:30:16 mesh kernel: 
+Feb 12 04:30:16 mesh kernel: Code: 0f 0b 9e 05 35 87 51 c0 eb 8c e8 93 8b e8 ff e9 15 ff ff ff
 
 
-25 warnings issued.  Results may not be reliable.
-
-`insmod` was not being executed even though the trace pretends
-that it was active.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

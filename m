@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263423AbTDXS3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTDXS3Q
+	id S263788AbTDXSb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTDXSb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:29:16 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:22013 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263423AbTDXS3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:29:10 -0400
-Date: Thu, 24 Apr 2003 11:36:15 -0700
-From: Chris Wright <chris@wirex.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
-       Stephen Tweedie <sct@redhat.com>, lsm <linux-security-module@wirex.com>,
-       Andreas Gruenbacher <a.gruenbacher@computer.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
-Message-ID: <20030424113615.F15094@figure1.int.wirex.com>
-Mail-Followup-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>, Ted Ts'o <tytso@mit.edu>,
-	Stephen Tweedie <sct@redhat.com>,
-	lsm <linux-security-module@wirex.com>,
-	Andreas Gruenbacher <a.gruenbacher@computer.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20030423191749.A4244@infradead.org> <20030423112548.B15094@figure1.int.wirex.com> <20030423194501.B5295@infradead.org> <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil> <20030423202614.A5890@infradead.org> <1051127534.14761.166.camel@moss-huskers.epoch.ncsc.mil> <20030423212004.A7383@infradead.org> <1051188945.14761.284.camel@moss-huskers.epoch.ncsc.mil> <20030424140358.A30888@infradead.org> <1051192166.14761.334.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1051192166.14761.334.camel@moss-huskers.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Thu, Apr 24, 2003 at 09:49:26AM -0400
+	Thu, 24 Apr 2003 14:31:59 -0400
+Received: from watch.techsource.com ([209.208.48.130]:3831 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263788AbTDXSb6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:31:58 -0400
+Message-ID: <3EA83447.1090808@techsource.com>
+Date: Thu, 24 Apr 2003 15:00:23 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+CC: root@chaos.analogic.com, Chuck Ebbert <76306.1226@compuserve.com>,
+       Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
+References: <200304241128_MC3-1-35DA-F3DA@compuserve.com> <Pine.LNX.4.53.0304241147420.32073@chaos> <3EA8114A.4020309@techsource.com> <Pine.LNX.4.53.0304241244430.32333@chaos> <3EA81BBB.3020709@techsource.com> <20030424182756.GA19290@alpha.home.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Thu, 2003-04-24 at 09:03, Christoph Hellwig wrote:
-> > Hmm, what would you think of changing the xattr_trusted security
-> > model to fit your needs?  It's so far unused outside XFS and there's
-> > maybe a chance changing it.
-> 
-> It would require removing the capable(CAP_SYS_ADMIN) checks from the
-> xattr_trusted.c handler and implementing them in the capabilities
-> security module (and corresponding superuser tests in the dummy security
-> module) via the inode_setxattr and inode_getxattr hook functions.  This
-> would then permit security modules to implement their own permission
-> checking logic for getxattr and setxattr calls for their attributes, and
-> it would allow security modules to internally call the getxattr and
-> setxattr inode operations without being subjected to these checks in
-> order to manage the attributes.
 
-Or perhaps introducing some of the CAP_MAC_* bits.  In either case, it'd
-be nice to reuse xattr_trusted if possible, IMHO.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Willy Tarreau wrote:
+
+>Hi !
+>
+>Well, although I usually don't like these endless coding-style threads, why
+>don't you simply use this common form ? :
+>
+>    return !!(foo & MASK);
+>
+>I found that the compilers like it much and easily emit conditionnal set
+>instructions. Eg, on x86, this should be something like :
+>
+>   testl MASK, foo
+>   setnz retcode
+>
+>  
+>
+>  
+>
+
+That was the first thing I'd suggested.
+
+Let's canonize (in the "add to the canon" sense) this.  :)
+
+
+

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131732AbRACBgz>; Tue, 2 Jan 2001 20:36:55 -0500
+	id <S130846AbRACBt6>; Tue, 2 Jan 2001 20:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbRACBgq>; Tue, 2 Jan 2001 20:36:46 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:59652 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131732AbRACBgc>; Tue, 2 Jan 2001 20:36:32 -0500
-Date: Tue, 2 Jan 2001 21:13:52 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: block_truncate_page() change in 2.4.0-prerelease
-Message-ID: <Pine.LNX.4.21.0101022102260.15419-100000@freak.distro.conectiva>
+	id <S131391AbRACBts>; Tue, 2 Jan 2001 20:49:48 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:4100 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S130846AbRACBta>; Tue, 2 Jan 2001 20:49:30 -0500
+Date: Wed, 3 Jan 2001 01:17:39 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Paul Gortmaker <p_gortmaker@yahoo.com>,
+        linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: start___kallsyms missing from i386 vmlinux.lds ? 
+In-Reply-To: <27530.978431433@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.30.0101030116440.1221-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Jan 2001, Keith Owens wrote:
 
-Linus,
+> Some sparc users have a slightly older version of gcc, built shortly
+> before 'weak' support was added, which required those symbols to be
+> defined.  Dave Miller thought the compiler problem was widespread
+> enough to justify changing the source to suit the compiler instead of
+> forcing sparc users to upgrade.  I suspect that super-h has the same
+> problem of old compilers, I noticed that somebody added the symbols to
+> sh/vmlinux.lds.
 
-In 2.4.0-prerelease, you've changed block_truncate_page() to call
-__mark_buffer_dirty instead of mark_buffer_dirty before unlocking the
-page, so there is no more possibility of it blocking in bdflush while
-holding the page locked, which is good.
+I played with weak symbols recently. Couldn't get them to work on SH or
+MIPS, and gave up.
 
-But now we don't do balancing anymore there. 
+-- 
+dwmw2
 
-The patch I sent you to change mark_buffer_dirty() return the old value of
-the dirty bit to know if we need to balance could fix that and with it we  
-can the ext2 superblock locking issue, which is horribly bad IMHO. 
-
-Do you want such a change now in 2.4.0-prerelease ?
-
-If so, I can send a patch with all the mark_buffer_dirty and ext2 changes.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264993AbTIJQTV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 12:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265109AbTIJQTV
+	id S265153AbTIJQ0r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 12:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbTIJQ0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 12:19:21 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:22255 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264993AbTIJQTT (ORCPT
+	Wed, 10 Sep 2003 12:26:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27085 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265153AbTIJQZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 12:19:19 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Sep 2003 12:25:50 -0400
+Date: Wed, 10 Sep 2003 09:20:01 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5-mm1 aha152x **still** doesn't work (fwd)
+Message-Id: <20030910092001.4c7908e7.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.3.96.1030910101202.21238F-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1030910101202.21238F-100000@gatekeeper.tmr.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16223.20183.242571.608500@gargle.gargle.HOWL>
-Date: Wed, 10 Sep 2003 18:18:31 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: mathieu.desnoyers@polymtl.ca, linux-kernel@vger.kernel.org,
-       mingo@redhat.com
-Subject: Re: PROBLEM: APIC on a Pentium Classic SMP, 2.4.21-pre2 and 2.4.21-pre3 ksymoops
-In-Reply-To: <Pine.GSO.3.96.1030910121939.5295A-100000@delta.ds2.pg.gda.pl>
-References: <200309092031.h89KVWIA027982@harpo.it.uu.se>
-	<Pine.GSO.3.96.1030910121939.5295A-100000@delta.ds2.pg.gda.pl>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki writes:
- > > Fixing the oops is easy (see below), but the real problem is
- > > that 2.4.21-pre2 apparently broke MP table parsing on your HW.
- > > I suggest you sprinkle tracing printk()s in setup/smpboot/mpparse
- > > and compare 2.4.20 (good) and later (bad) to see where things
- > > start to diverge.
- > 
- >  There is no need to -- the problem is already known.  Mikael, if you need
- > additional details on how default MP configurations work in our code, feel
+On Wed, 10 Sep 2003 10:14:37 -0400 (EDT) Bill Davidsen <davidsen@tmr.com> wrote:
 
-I think I nailed it.
+| 
+| oddball:root> modprobe aha152x aha152x=0x340,9,7,1,1,1
+| SCSI subsystem initialized
+| aha152x: invalid module params io=0x340, irq=8,scsiid=7,reconnect=1,parity=1,sync=1,delay=1000,exttrans=0
+| FATAL: Error inserting aha152x 
+| (/lib/modules/2.6.0-test5-mm1/kernel/drivers/scsi/aha152x.ko): No such 
+| device
+| 
+| 
+| It happily looks at the "9" in the init string and says "irq=8" doesn't 
+| work. Works with the 2.4.18 kernel from RH7.3, so ??? The IRQ jumpers are 
+| soldered on the board.
+| 
+| Clearly if I had the option of using another board I would, that's not
+| going to happen for various reasons (administrative and technical).
 
-First I found one very strange thing in Mathieu's boot log:
+Wow, looks odd alright.  What is CONFIG_PCMCIA?  (yes/no/module)
+What is CONFIG_ISAPNP?  Just send me your .config file, please.
 
---- mpbug-2.4.20	Wed Sep 10 17:19:05 2003
-+++ mpbug-2.4.23-pre3	Wed Sep 10 17:18:44 2003
-...
-+DMI not present.
- Intel MultiProcessor Specification v1.1
- Virtual Wire compatibility mode.
- Default MP configuration #6
-
-This means construct_default_ISA_mptable() still gets called.
-Ok so far.
-
-...
- ENABLING IO-APIC IRQs
- Setting 2 in the phys_id_present_map
- ...changing IO-APIC physical APIC ID to 2 ... ok.
-
-smp_found_config is true, we're now in setup_IO_APIC()
-and have completed setup_ioapic_ids_from_mpc(). Ok so far.
-
--init IO_APIC IRQs
--IO-APIC (apicid-pin) 2-0 not connected.
-
-THIS IS BAD. setup_IO_APIC() calls setup_IO_APIC_IRQs(),
-which starts by printk()ing the first line above.
-This line is missing from the 2.4.23-pre3 dmesg log, which
-seems like an impossibility.
-
-At this point I was thinking "memory corruption",
-and the following struck me:
-
-What used to be arrays (mp_irqs[] etc) are now pointers to
-memory which is sized and allocated by smp_read_mpc().
-In the case when construct_default_ISA_mptable() is called,
-smp_read_mpc() is _not_ called, the pointers never get initialised,
-and reads and writes of these arrays end up in la-la land.
-
-The fix would be to add allocation and initialisation of
-these pointers at the start of construct_default_ISA_mptable().
-
-I'll prepare a patch doing this sometime tomorrow.
-
-/Mikael
+--
+~Randy

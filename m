@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281199AbRKHHKc>; Thu, 8 Nov 2001 02:10:32 -0500
+	id <S278709AbRKHHJV>; Thu, 8 Nov 2001 02:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281255AbRKHHKW>; Thu, 8 Nov 2001 02:10:22 -0500
-Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:37057 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S281199AbRKHHKD>; Thu, 8 Nov 2001 02:10:03 -0500
-Date: Thu, 8 Nov 2001 12:39:32 +0530 (IST)
-From: Manik Raina <manik@cisco.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix for redefinition of jedec_probe_init
-Message-ID: <Pine.LNX.4.21.0111081237330.24010-100000@localhost.localdomain>
+	id <S281199AbRKHHJL>; Thu, 8 Nov 2001 02:09:11 -0500
+Received: from leeor.math.technion.ac.il ([132.68.115.2]:11171 "EHLO
+	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
+	id <S278709AbRKHHJA>; Thu, 8 Nov 2001 02:09:00 -0500
+Date: Thu, 8 Nov 2001 09:08:26 +0200 (IST)
+From: "Zvi Har'El" <rl@math.technion.ac.il>
+To: <arjan@fenrus.demon.nl>
+cc: <linux-kernel@vger.kernel.org>, "Nadav Har'El" <nyh@math.technion.ac.il>
+Subject: Re: ext3 vs resiserfs vs xfs
+In-Reply-To: <E161aYo-0000ch-00@fenrus.demon.nl>
+Message-ID: <Pine.GSO.4.33.0111080903360.28492-100000@leeor.math.technion.ac.il>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On inclusion of both these files (modules disabled) the build breaks.
-This is because jedec_probe_init () is defined in both these files.
+Hi all,
 
-I am sending a patch which makes them static. Of course, there
-is another option, since both these functions are doing the same
-thing, we could delete one of them. 
+Initrd did it! I was not using initrd. I generated the relevant initrd.img and
+added the line to my grub.conf configuration, and the problem is solved.
+System crashes are now easily recovered.
 
+The only mystery is, why RedHat has ext3fs compiled as a module?
 
-diff -u -r /home/manik/linux/orig/linux/drivers/mtd/chips/jedec.c ./drivers/mtd/chips/jedec.c
---- /home/manik/linux/orig/linux/drivers/mtd/chips/jedec.c	Fri Oct  5 03:44:59 2001
-+++ ./drivers/mtd/chips/jedec.c	Thu Nov  8 11:12:28 2001
-@@ -873,7 +873,7 @@
-    }
- }
- 
--int __init jedec_probe_init(void)
-+static int __init jedec_probe_init(void)
- {
- 	register_mtd_chip_driver(&jedec_chipdrv);
- 	return 0;
-diff -u -r /home/manik/linux/orig/linux/drivers/mtd/chips/jedec_probe.c ./drivers/mtd/chips/jedec_probe.c
---- /home/manik/linux/orig/linux/drivers/mtd/chips/jedec_probe.c	Fri Oct  5 03:44:59 2001
-+++ ./drivers/mtd/chips/jedec_probe.c	Thu Nov  8 11:12:31 2001
-@@ -422,7 +422,7 @@
- 	module: THIS_MODULE
- };
- 
--int __init jedec_probe_init(void)
-+static int __init jedec_probe_init(void)
- {
- 	register_mtd_chip_driver(&jedec_chipdrv);
- 	return 0;
+Lot of thanks,
+
+Zvi.
+
+On Wed, 7 Nov 2001 arjan@fenrus.demon.nl wrote:
+
+> In article <Pine.GSO.4.33.0111072302460.12525-100000@leeor.math.technion.ac.il> you wrote:
+> > On Wed, 7 Nov 2001, Andreas Dilger wrote:
+>
+> > /dev/root / ext2 rw 0 0
+>
+> ext2!
+>
+> > /dev/hda6 /home ext3 rw 0 0
+>
+> > How do  fix the situation at this stage? I am using Redhat 7.2 with kernel
+> > 2.4.9-13
+>
+> Be sure to use the initrd as used by default in when you install the kernel.
+> Are you using lilo ?   If so add
+>
+> initrd /boot/initrd-2.4.9-13.img
+>
+> to the lilo.conf in the relevant kernel section.
+>
+> Greetings,
+>   Arjan van de Ven
+>
+
+-- 
+Dr. Zvi Har'El     mailto:rl@math.technion.ac.il     Department of Mathematics
+tel:+972-54-227607                   Technion - Israel Institute of Technology
+fax:+972-4-8324654 http://www.math.technion.ac.il/~rl/     Haifa 32000, ISRAEL
+"If you can't say somethin' nice, don't say nothin' at all." -- Thumper (1942)
+                          Thursday, 22 Heshvan 5762,  8 November 2001,  9:03AM
 

@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266259AbUHKDl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267920AbUHKDmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266259AbUHKDl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 23:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUHKDl5
+	id S267920AbUHKDmX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 23:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUHKDmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 23:41:57 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23039 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266259AbUHKDlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 23:41:55 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Albert Cahalan <albert@users.sf.net>
-To: Jan Knutar <jk-lkml@sci.fi>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-       schilling@fokus.fraunhofer.de, axboe@suse.de
-In-Reply-To: <200408110159.57325.jk-lkml@sci.fi>
-References: <1092082920.5761.266.camel@cube>
-	 <cone.1092113232.42936.29067.502@pc.kolivas.org>
-	 <1092106283.5761.304.camel@cube>  <200408110159.57325.jk-lkml@sci.fi>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092186590.5759.665.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 10 Aug 2004 21:09:50 -0400
+	Tue, 10 Aug 2004 23:42:23 -0400
+Received: from out009pub.verizon.net ([206.46.170.131]:50385 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S267920AbUHKDmO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 23:42:14 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Date: Tue, 10 Aug 2004 23:42:12 -0400
+User-Agent: KMail/1.6.82
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040808113930.24ae0273.akpm@osdl.org> <200408100012.08945.gene.heskett@verizon.net>
+In-Reply-To: <200408100012.08945.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408102342.12792.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.9.122] at Tue, 10 Aug 2004 22:42:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 18:59, Jan Knutar wrote:
-> > Light web browsing makes my
-> > mp3 player skip.
-> 
-> What kind of machine is that? I've never needed to boost priority for the mp3
-> player on my P133, even when running opera and/or mozilla... 
+On Tuesday 10 August 2004 00:12, Gene Heskett wrote:
+>On Sunday 08 August 2004 14:39, Andrew Morton wrote:
+>>Gene Heskett <gene.heskett@verizon.net> wrote:
+>>> On Thursday 05 August 2004 23:24, Linus Torvalds wrote:
+>>>
+>>> [...]
+>>>
+>>> >I'll commit the obvious one-liner fix, since it might explain
+>>> > _some_ problems people have seen.
+>>> >
+>>> >		Linus
 
-Since the last time I tested this, things have
-improved dramatically. This is 2.6.8-rc1 now; I had
-been mostly using 2.6.0-test5 and 2.6.0-test11.
-Still, I do get problems from:
+Linus, I hate to be a killjoy on this, but I just had to reboot again, 
+it was killing processes, even first the shells I had open then kmail 
+and X this time, but with nothing in the logs, and when X had quit, a 
+top in the launching shell reported nearly 250 megs free with nothing 
+in the swap.
 
-1. resizing any window (oroborus wm + GNOME)
-2. switching out of X with Alt-Ctrl-F1
-3. switching into X with Alt-Ctrl-F7
+So I'm not getting any usefull data, the machine is dog slow:
+real    17m51.460s
+user    13m11.201s
+sys     1m34.718s
 
-I suppose this means that it is somewhat likely that
-burning a CD without CAP_SYS_RESOURCE would work.
-I doubt I'd like to risk my time and money on this,
-but at least it isn't looking like failure would
-be much more likely than success.
+That should have been 6 minutes maximum.
 
-It irritates me that I'd need to compile up a hacked
-cdrecord in order to attempt a dummy burn as a
-regular user. Those warnings are treated as errors.
-Grrr... If SuSE, OSDL, IBM, SGI, HP or Red Hat would
-put up the money, I'd gladly fix this POS. Anybody
-care enough?
+I got rc4 as the whole thing just now, maybe there was something wrong 
+with the 2.6.7 base I was using.  Thats rare since I quit getting 
+the .bz2's, switching to tar.gz's which seem to be the more 
+dependable format here.
 
-FWIW, my desktop machine is:
+>>> I had to reboot late last night, out of memory and things (like
+>>> mozilla (1.7.2) were dying, but nothing in the logs.
+>>
+>>Please wait for it to happen again, then send the contents of
+>>/proc/meminfo, /proc/slabinfo and then do
+>>
+>>	su
+>>	dmesg -c
+>>	echo m > /proc/sysrq-trigger
+>>	dmesg > foo
+>>
+>>and send foo as well.
 
-450 MHz Mac G4 Cube, 512 MB RAM, 1600x1024 32bpp,
-5400 rpm IDE, ext2, no swap, 2.6.8-rc1 kernel,
-USB audio, ATI Rage 128 PF/PRO AGP 4x TMDS video
+The above was not available (X wouldn't restart), and trying to print 
+from any kde app causes the app, and its launcher, to exit.  So I 
+don't have a paper copy and my memory isn't photographic, please 
+accept my apologies on this.  Maybe rc4 will also do it.  We'll find 
+out I guess.  Reboot time again.
 
-I run sound through esd, like this: mpg321 -o esd ...
+[...]
 
-Commonly, the X server grows to 300 MB and/or Mozilla
-grows to 200 MB before I restart them. An old GNOME
-is running with 8 desktops, Evolution and one or two
-dozen xterms.
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbTBTQIp>; Thu, 20 Feb 2003 11:08:45 -0500
+	id <S265791AbTBTQM2>; Thu, 20 Feb 2003 11:12:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTBTQIo>; Thu, 20 Feb 2003 11:08:44 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:59293 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S265670AbTBTQIm>;
-	Thu, 20 Feb 2003 11:08:42 -0500
-Date: Thu, 20 Feb 2003 17:17:49 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: kernel@ddx.a2000.nu
-cc: Mike Black <mblack@csi-inc.com>, Peter Chubb <peter@chubb.wattle.id.au>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
-Subject: what is the exact raid5 limit (2TB (can i use 12 or 13*180GB?))
-In-Reply-To: <Pine.LNX.4.53.0302171123480.2464@ddx.a2000.nu>
-Message-ID: <Pine.LNX.4.53.0302201717020.4479@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
- <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
- <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
- <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu> <044101c2d2a9$4fcdf980$f6de11cc@black>
- <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu> <Pine.LNX.4.53.0302171123480.2464@ddx.a2000.nu>
+	id <S265798AbTBTQM2>; Thu, 20 Feb 2003 11:12:28 -0500
+Received: from services.erkkila.org ([24.97.94.217]:32136 "EHLO erkkila.org")
+	by vger.kernel.org with ESMTP id <S265791AbTBTQM1>;
+	Thu, 20 Feb 2003 11:12:27 -0500
+Message-ID: <3E5500BF.2000706@erkkila.org>
+Date: Thu, 20 Feb 2003 16:22:23 +0000
+From: "Paul E. Erkkila" <pee@erkkila.org>
+Reply-To: pee@erkkila.org
+Organization: ErkkilaDotOrg
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030218
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>,
+       linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: vcdxrip , CDROM_SEND_PACKET, and 2.5.42->2.5.43 ide-cd changes
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Feb 2003, Stephan van Hienen wrote:
 
-> On Fri, 14 Feb 2003 kernel@ddx.a2000.nu wrote:
->
-> > On Wed, 12 Feb 2003, Mike Black wrote:
-> >
-> > > I did a 12x180G and as I recall was unable to do 13x180G as it overflowed during mke2fs.  This was a year ago though so I don't know
-> > > if that's been improved since then.
-> > >
-> >
-> > does anyone know for sure what is the limit for md raid5 ?
-> >
-> > can i use 13*180GB in raid5 ?
-> > or should i go for 12*180GB in raid5 ?
 
-I really want to create this raid this week
-so is there anyone with info what will be the limit ?
+Hi,
+
+  I often use vcdxrip to pull mpeg data off of
+old vcd's/svcds to archive to tape/dvd. This
+worked fine in the 2.5 kernel series up to
+2.5.42 where it worked after running the app
+more then once ( i assumed it was an initialization
+error someplace). After kernel 2.5.43 it no longer
+works. I've sent mail to the authors and they
+suggested switching it from using ioctl(CDROM_SEND_PACKET)
+to ioctl(CDROMREADMODE2) , which does work only
+a little slower.
+
+ I've traced it down to cdrom_queue_packet_command() in ide-cd.c
+returning a 0 error status from ide_do_drive_cmd(), and
+req.data_len is 0, and there doesn't appear to be any sense
+available.
+
+
+I'd appreciate any suggestions for tracking this further
+or ideas on possible causes.
+
+-pee
+
 

@@ -1,61 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318920AbSH1SbP>; Wed, 28 Aug 2002 14:31:15 -0400
+	id <S318473AbSH1S0J>; Wed, 28 Aug 2002 14:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318926AbSH1SbP>; Wed, 28 Aug 2002 14:31:15 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:43658 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318920AbSH1SbN>; Wed, 28 Aug 2002 14:31:13 -0400
-Date: Wed, 28 Aug 2002 11:28:46 -0700 (PDT)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: James Simmons <jsimmons@transvirtual.com>, <geert@linux-m68k.org>,
-       <linux-kernel@vger.kernel.org>, <trivial@rustcorp.com.au>
-Subject: Re: [PATCH] Makefile typo
-In-Reply-To: <20020828025328.CDF062C134@lists.samba.org>
-Message-ID: <Pine.LNX.4.33.0208281128320.1459-100000@maxwell.earthlink.net>
+	id <S318349AbSH1S0I>; Wed, 28 Aug 2002 14:26:08 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9742 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318284AbSH1S0F>; Wed, 28 Aug 2002 14:26:05 -0400
+Date: Wed, 28 Aug 2002 11:28:32 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: ide-2.4.20-pre4-ac2.patch
+In-Reply-To: <20020828182616.GA16018@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.10.10208281126560.24156-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Thanks. It is in the next set of changes for the fbdev layer.
+Big jump in clean up and debloating.
+If you try the patch and it repeats, you can re-LART me.
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+On Wed, 28 Aug 2002, Tomas Szepe wrote:
 
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+> > WHOA Tomas,
+> > 
+> > That is a major problem, are you using legacy patch or taskfile io?
+> > Ben H reported he was having problems with legacy path on PPC, but the new
+> > taskfile io worked fine.
+> 
+> Damn! Andre, I owe you **A BIG** apology -- it turns out the kernel that
+> caused the mess was actually a plain 2.4.20-pre4-ac2 _without_ your patch
+> applied -- dunno how far that is from what you have now. Nevertheless,
+> here's the corresponding 2.4.20-pre4-ac2 IDE config:
+> 
+> #
+> # IDE chipset support/bugfixes
+> #
+> # CONFIG_BLK_DEV_CMD640 is not set
+> # CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+> # CONFIG_BLK_DEV_ISAPNP is not set
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_BLK_DEV_GENERIC=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> # CONFIG_BLK_DEV_OFFBOARD is not set
+> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+> CONFIG_IDEDMA_PCI_AUTO=y
+> # CONFIG_IDEDMA_ONLYDISK is not set
+> CONFIG_BLK_DEV_IDEDMA=y
+> # CONFIG_IDEDMA_PCI_WIP is not set
+> # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+> CONFIG_BLK_DEV_ADMA=y
+> # CONFIG_BLK_DEV_AEC62XX is not set
+> # CONFIG_BLK_DEV_ALI15X3 is not set
+> # CONFIG_WDC_ALI15X3 is not set
+> # CONFIG_BLK_DEV_AMD74XX is not set
+> # CONFIG_AMD74XX_OVERRIDE is not set
+> # CONFIG_BLK_DEV_CMD64X is not set
+> # CONFIG_BLK_DEV_CY82C693 is not set
+> # CONFIG_BLK_DEV_CS5530 is not set
+> # CONFIG_BLK_DEV_HPT34X is not set
+> # CONFIG_HPT34X_AUTODMA is not set
+> # CONFIG_BLK_DEV_HPT366 is not set
+> CONFIG_BLK_DEV_PIIX=y
+> # CONFIG_BLK_DEV_NFORCE is not set
+> # CONFIG_BLK_DEV_NS87415 is not set
+> # CONFIG_BLK_DEV_OPTI621 is not set
+> # CONFIG_BLK_DEV_PDC202XX_OLD is not set
+> # CONFIG_PDC202XX_BURST is not set
+> CONFIG_BLK_DEV_PDC202XX_NEW=y
+> # CONFIG_PDC202XX_FORCE is not set
+> # CONFIG_BLK_DEV_RZ1000 is not set
+> # CONFIG_BLK_DEV_SVWKS is not set
+> # CONFIG_BLK_DEV_SIIMAGE is not set
+> # CONFIG_BLK_DEV_SIS5513 is not set
+> # CONFIG_BLK_DEV_SLC90E66 is not set
+> # CONFIG_BLK_DEV_TRM290 is not set
+> # CONFIG_BLK_DEV_VIA82CXXX is not set
+> # CONFIG_IDE_CHIPSETS is not set
+> CONFIG_IDEDMA_AUTO=y
+> # CONFIG_IDEDMA_IVB is not set
+> # CONFIG_DMA_NONPCI is not set
+> CONFIG_BLK_DEV_PDC202XX=y
+> CONFIG_BLK_DEV_IDE_MODES=y
+> # CONFIG_BLK_DEV_ATARAID is not set
+> # CONFIG_BLK_DEV_ATARAID_PDC is not set
+> # CONFIG_BLK_DEV_ATARAID_HPT is not set
+> 
+> 
+> > On Wed, 28 Aug 2002, Tomas Szepe wrote:
+> > 
+> > > > This is out and has been forwarded to AC for review.
+> > > 
+> > > Okay, I tested this the hard way -- the root of one of my machines
+> > > got trashed. The controller used was a PDC20268 (Ultra100TX2), the
+> > > disks (with two partitions of equal size on each forming a raid0)
+> > > are IBM and WD. Soon after the kernel came up, it started spitting
+> > > messages like 'DMA disabled' and 'No DRQ after WRITE has been issued',
+> > > after which the machine froze entirely. Rebooting w/ an alternate
+> > > kernel revealed massive fs corruption with the superblock completely
+> > > overwritten.
+> > > 
+> > >   *** Everybody please treat this patch with extreme care. ***
+> > > 
+> > > Reiserfs people, this unfortunate event also made me find out about
+> > > the inability of reiserfsck 3.6.3-pre1 to rebuild the node tree --
+> > > the program pretends to work just fine but the in-kernel fs code
+> > > barfs when it's to operate on a repaired fs. 3.x.1b was able to
+> > > get the job done for me, though.
+> > > 
+> > > T.
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > 
+> > Andre Hedrick
+> > LAD Storage Consulting Group
+> 
 
-On Wed, 28 Aug 2002, Rusty Russell wrote:
-
-> s/cfbimgblit/cfbimgblt/
->
-> Rusty.
->
-> --- working-2.5.32-hotcpu-cpudown-ppc/drivers/video/Makefile.~1~	2002-08-28 09:29:47.000000000 +1000
-> +++ working-2.5.32-hotcpu-cpudown-ppc/drivers/video/Makefile	2002-08-28 17:28:23.000000000 +1000
-> @@ -60,7 +60,7 @@
->  obj-$(CONFIG_FB_3DFX)             += tdfxfb.o
->  obj-$(CONFIG_FB_MAC)              += macfb.o macmodes.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
->  obj-$(CONFIG_FB_HP300)            += hpfb.o cfbfillrect.o cfbimgblt.o
-> -obj-$(CONFIG_FB_OF)               += offb.o cfbfillrect.o cfbimgblit.o cfbcopyarea.o
-> +obj-$(CONFIG_FB_OF)               += offb.o cfbfillrect.o cfbimgblt.o cfbcopyarea.o
->  obj-$(CONFIG_FB_IMSTT)            += imsttfb.o
->  obj-$(CONFIG_FB_RETINAZ3)         += retz3fb.o
->  obj-$(CONFIG_FB_CLGEN)            += clgenfb.o
->
-> --
->   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Andre Hedrick
+LAD Storage Consulting Group
 

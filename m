@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314799AbSD2FUO>; Mon, 29 Apr 2002 01:20:14 -0400
+	id <S314801AbSD2GAL>; Mon, 29 Apr 2002 02:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314800AbSD2FUN>; Mon, 29 Apr 2002 01:20:13 -0400
-Received: from mx2.ews.uiuc.edu ([130.126.161.238]:17859 "EHLO
-	mx2.ews.uiuc.edu") by vger.kernel.org with ESMTP id <S314799AbSD2FUM>;
-	Mon, 29 Apr 2002 01:20:12 -0400
-Message-ID: <001001c1ef3d$890a6d50$e6f7ae80@ad.uiuc.edu>
-From: "Wanghong Yuan" <wyuan1@ews.uiuc.edu>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020427.194302.02285733.davem@redhat.com><467685860.avixxmail@nexxnet.epcnet.de> <20020428.204911.63038910.davem@redhat.com>
-Subject: How to enable printk
-Date: Mon, 29 Apr 2002 00:20:11 -0500
+	id <S314802AbSD2GAK>; Mon, 29 Apr 2002 02:00:10 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:26083 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S314801AbSD2GAK>; Mon, 29 Apr 2002 02:00:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Ivan G." <ivangurdiev@linuxfreemail.com>
+Reply-To: ivangurdiev@linuxfreemail.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.5.11 framebuffer compilation error 
+Date: Sun, 28 Apr 2002 23:53:35 -0600
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Message-Id: <02042823533500.06684@cobra.linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'll know this kernel is ready for merger with the 2.4 when I can finally 
+compile it :) ... must have tried 6-7 versions by now ...
 
-It may be a simple question. But I cannot see the result of printk in
-console like the following. Do i need to enable it somewhere? Thanks
-
-/*-O2 -Wall -DMODULE -D__KERNEL__ -DLINUX -c testsys.c */
-
-#include <linux/sys.h>
-#include <linux/mm.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/sched.h>
-#include <sys/syscall.h>
-#include <asm/uaccess.h>
-
-
-/* The system call number we attempt to install ourselves as. */
-static int syscall_num = 165;
-
-asmlinkage int sys_test(int pid, int period, int cycles, int* ptr)
-
-{
-
- put_user(current->pid, ptr);
- return pid-10000;
-
-}
-
-extern int sys_call_table[];
-
-#ifdef MODULE
-int init_module(void)
-{
-  printk("yes\n");
-  sys_call_table[syscall_num] = (int)sys_test;
-  return 0;
-}
-
-void cleanup_module(void)
-{
-  sys_call_table[syscall_num] = 0;
-}
-
-#endif /* MODULE */
-
-
+Error:
+Note...this is something new that I haven't tried to compile before.
+Error might be caused by an earlier kernel.
+However, 2.5.11 does contain a lot of screen_base changes. 
+________________________________________________
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.11/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon 
+-DKBUILD_BASENAME=fbcon_cfb8  -DEXPORT_SYMTAB -c fbcon-cfb8.c
+fbcon-cfb8.c: In function `fbcon_cfb8_bmove':
+fbcon-cfb8.c:55: structure has no member named `screen_base'
+fbcon-cfb8.c:56: structure has no member named `screen_base'
+fbcon-cfb8.c:66: structure has no member named `screen_base'
+fbcon-cfb8.c:67: structure has no member named `screen_base'
+fbcon-cfb8.c:74: structure has no member named `screen_base'
+fbcon-cfb8.c:75: structure has no member named `screen_base'
+fbcon-cfb8.c:52: warning: `src' might be used uninitialized in this function
+fbcon-cfb8.c:52: warning: `dst' might be used uninitialized in this function
+fbcon-cfb8.c: In function `fbcon_cfb8_clear':
+fbcon-cfb8.c:100: structure has no member named `screen_base'
+fbcon-cfb8.c:96: warning: `dest' might be used uninitialized in this function
+fbcon-cfb8.c: In function `fbcon_cfb8_putc':
+fbcon-cfb8.c:118: structure has no member named `screen_base'
+fbcon-cfb8.c:114: warning: `dest' might be used uninitialized in this function
+fbcon-cfb8.c: In function `fbcon_cfb8_putcs':
+fbcon-cfb8.c:165: structure has no member named `screen_base'
+fbcon-cfb8.c:160: warning: `dest0' might be used uninitialized in this 
+function
+fbcon-cfb8.c: In function `fbcon_cfb8_revc':
+fbcon-cfb8.c:222: structure has no member named `screen_base'
+fbcon-cfb8.c:219: warning: `dest' might be used uninitialized in this function
+fbcon-cfb8.c: In function `fbcon_cfb8_clear_margins':
+fbcon-cfb8.c:247: structure has no member named `screen_base'
+fbcon-cfb8.c:250: structure has no member named `screen_base'
+make[3]: *** [fbcon-cfb8.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.11/drivers/video'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.11/drivers/video'
+make[1]: *** [_subdir_video] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.11/drivers'
+make: *** [_dir_drivers] Error 2

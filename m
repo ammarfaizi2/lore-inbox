@@ -1,87 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbTEEN1m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 09:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbTEEN1m
+	id S262191AbTEEN3E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTEEN3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 09:27:42 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:46828 "EHLO
-	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262189AbTEEN1k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 09:27:40 -0400
-Date: Mon, 5 May 2003 20:30:38 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: Arjan van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org
+	Mon, 5 May 2003 09:29:03 -0400
+Received: from elin.scali.no ([62.70.89.10]:42117 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id S262191AbTEEN3B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 09:29:01 -0400
 Subject: Re: The disappearing sys_call_table export.
-Message-ID: <Pine.SGI.4.10.10305051745290.8200163-100000@Sky.inp.nsk.su>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
+In-Reply-To: <20030505135211.A21658@infradead.org>
+References: <1052122784.2821.4.camel@pc-16.office.scali.no>
+	 <20030505092324.A13336@infradead.org>
+	 <1052127216.2821.51.camel@pc-16.office.scali.no>
+	 <20030505112531.B16914@infradead.org>
+	 <1052133798.2821.122.camel@pc-16.office.scali.no>
+	 <20030505135211.A21658@infradead.org>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1052142082.2821.169.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 May 2003 15:41:23 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+temper, temper
 
-On Mon, May 05, 2003 at 04:01:25PM +0700, Dmitry A. Fedorov wrote:
->> But why module should not have ability to call any function which is
->> available from user space?
+pls read my reply to alan carefully .
 
->> Almost all of my third-party drivers are broken by this.
->> What is worse, redhat "backported" this "feature" to their 2.4
->> patched kernels and now I should distinguish 2.4 and "redhat 2.4"
->> in my compatibility headers.
+Doing  own malloc(), free(), m[un]map(), is a possibility we've
+considered. Since we've got our own lib linked with the app, we probably
+wouldn't even need LD_PRELOAD. our main issue is that not everything is
+gcc/g77. 
 
-From: Arjan van de Ven <arjanv@redhat.com>
-> that's you you can just call sys_read() and co directly.
+Of all the approaches the syscall traps was the least intrusive and most
+portable of all, belive it or not. 
 
-Yes, for redhat kernels - almost all of sys_* functions are exported.
-And there is kernel.org's one with only few sys_* exported.
-And how I will distinguish redhat's kernel from other ones? - there is
-no something like #define REDHAT_PATCHED in headers.
-I don't want to have separate driver source version
-for each of incompatible kernel variant, I prefer to have single
-driver source which is adapted to user's environment at compilation
-time.
+BTW: this is all technical issues. 
 
-From: Christoph Hellwig <hch@infradead.org>
-> What about just fixing your drivers instead of moaning?  If you
-> submit a pointer to your driver source and explain what you want to
-> do someone might even help you..
+On Mon, 2003-05-05 at 14:52, Christoph Hellwig wrote:
 
-Of course, I will fix my drivers (permanent kernel changes
-provides us maintainence job forever :).
-
-For example:
-
-http://www.rtdusa.com/software/RTDFinland/ECAN_Linux.zip
-http://www.rtdusa.com/software/RTDFinland/UPS25_Linux.ZIP
-
-I use the following calls:
-
-sys_mknod
-sys_chown
-sys_umask
-sys_unlink
-
-for creating/deleting /dev entries dynamically on driver
-loading/unloading. It allows me to acquire dynamic major
-number without devfs and external utility of any kind.
-And there is no risk of intersection with statically assigned major
-numbers, as it is for many others third-party sources.
-
-It works long time for any kernels from 2.0 to 2.4 (except the last
-redhat's 2.4) and it should works with 2.6, I hope.
+> 
+> That only shows that you really don't want to use glibc's malloc and
+> sbrk implementations, but ones that are implemented as mmap in your
+> driver so you can keep track of it properly. LD_PRELOAD is your friend.
 
 
-I use sys_write to output loading/device detection/diagnostic
-messages to process's stderr when appropriate. Yes, it may look as
-"wrong thing" but it uses only legal kernel mechanisms and it saves
-lots of time with e-mail support:
-/sbin/insmod driver verbose=1 2>&1 | mail -s 'it does not works' me@
+> Who cares about your trace module?  That's the wrong approach to start
+> with.  And the removal of the sys_call_table export is not a political
+> issue but a technical one.   The interesting thing would be your memory
+> manager, but given the above hints you really should be able to fix it yourself
+> now..
+-- 
+_________________________________________________________________________
 
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-It would be nice if either sys_call_table left exported and placed in
-read-only data section to prevent modification (do you want just that?)
-or _all_ of sys_* function would be exported in original kernel.
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

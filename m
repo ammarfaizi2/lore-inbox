@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281158AbRKTQQf>; Tue, 20 Nov 2001 11:16:35 -0500
+	id <S281048AbRKTQVQ>; Tue, 20 Nov 2001 11:21:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281159AbRKTQQZ>; Tue, 20 Nov 2001 11:16:25 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:61590
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S281158AbRKTQQH>; Tue, 20 Nov 2001 11:16:07 -0500
-Date: Tue, 20 Nov 2001 09:16:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help missing entries list
-Message-ID: <20011120091607.C10819@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011120095018.A25289@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011120095018.A25289@thyrsus.com>
-User-Agent: Mutt/1.3.23i
+	id <S281017AbRKTQVG>; Tue, 20 Nov 2001 11:21:06 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:12675 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S281048AbRKTQU7>; Tue, 20 Nov 2001 11:20:59 -0500
+Date: Tue, 20 Nov 2001 11:20:53 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Wolfgang Rohdewald <wr6@uni.de>
+cc: "J.A. Magallon" <jamagallon@able.es>, James A Sutherland <jas88@cam.ac.uk>,
+        Remco Post <r.post@sara.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+In-Reply-To: <20011120160131.87644332@localhost.localdomain>
+Message-ID: <Pine.LNX.3.95.1011120111730.7650A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 09:50:18AM -0500, Eric S. Raymond wrote:
+On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
 
-> I2C_ALGO8XX
-> I2C_PPC405_ADAP
-> I2C_PPC405_ALGO
-> I2C_RPXLITE
+> On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > When a page is deleted for one executable (because we can re-read it from
+> > on-disk binary), it is discarded, not paged out.
+> 
+> What happens if the on-disk binary has changed since loading the program?
+> -
 
-Ignore these for now.  The code isn't in the tree yet anyhow.  I'll send
-in help entries when I send in the code too.
+It can't. That's the reason for `install` and other methods of changing
+execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
+The currently open, and possibly mapped file can be re-named, but it
+can't be overwritten.
 
-> UCODE_PATCH
 
-Motorola releases microcode updates for their 8xx CPM modules.  The
-microcode update file has updates for IIC, SMC and USB.  Currently only
-the USB update is available by default, if the MPC8xx USB option is
-enabled.  If in doubt, say 'N' here.
+Cheers,
+Dick Johnson
 
-And yes, the USB driver isn't in the tree yet either.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

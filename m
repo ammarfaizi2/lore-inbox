@@ -1,119 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272552AbTGZOlC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272527AbTGZOka
+	id S272541AbTGZOod (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272495AbTGZOml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:40:30 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:8247 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272528AbTGZOcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:51 -0400
-Date: Sat, 26 Jul 2003 16:51:54 +0200
-Message-Id: <200307261451.h6QEpsnQ002424@callisto.of.borg>
+	Sat, 26 Jul 2003 10:42:41 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:59667 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272539AbTGZOc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:58 -0400
+Date: Sat, 26 Jul 2003 16:52:01 +0200
+Message-Id: <200307261452.h6QEq1vc002502@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k RTC updates
+Subject: [PATCH] m68k FPU emulator
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Use genrtc on all m68k platforms
+M68k FPU emulator: Add fgetman, fgetexp and fsqrt (from Michael Müller and
+Roman Zippel)
 
---- linux-2.6.x/arch/m68k/Kconfig	Mon Jun 23 10:06:14 2003
-+++ linux-m68k-2.6.x/arch/m68k/Kconfig	Sat Jun 28 17:16:54 2003
-@@ -1151,37 +1151,8 @@
- 	  <file:Documentation/modules.txt>. The module will be called
- 	  softdog.
+--- linux-2.6.x/arch/m68k/math-emu/fp_emu.h	Mon Apr  1 13:00:29 2002
++++ linux-m68k-2.6.x/arch/m68k/math-emu/fp_emu.h	Wed Jul 23 22:15:29 2003
+@@ -115,6 +115,15 @@
+ 	__res;							\
+ })
  
--config RTC
--	bool "Enhanced Real Time Clock Support"
--	depends on ATARI
--	---help---
--	  If you say Y here and create a character special file /dev/rtc with
--	  major number 10 and minor number 135 using mknod ("man mknod"), you
--	  will get access to the real time clock (or hardware clock) built
--	  into your computer.
--
--	  Every PC has such a clock built in. It can be used to generate
--	  signals from as low as 1Hz up to 8192Hz, and can also be used
--	  as a 24 hour alarm. It reports status information via the file
--	  /proc/driver/rtc and its behaviour is set by various ioctls on
--	  /dev/rtc.
--
--	  If you run Linux on a multiprocessor machine and said Y to
--	  "Symmetric Multi Processing" above, you should say Y here to read
--	  and set the RTC in an SMP compatible fashion.
--
--	  If you think you have a use for such a device (such as periodic data
--	  sampling), then say Y here, and read <file:Documentation/rtc.txt>
--	  for details.
--
--	  This driver is also available as a module ( = code which can be
--	  inserted in and removed from the running kernel whenever you want).
--	  The module is called rtc. If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation" if !SUN3
--	depends on !ATARI
- 	default y if SUN3
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
---- linux-2.6.x/arch/m68k/atari/time.c	Tue May 27 19:02:32 2003
-+++ linux-m68k-2.6.x/arch/m68k/atari/time.c	Sat Jun 28 18:09:05 2003
-@@ -17,7 +17,7 @@
- #include <linux/rtc.h>
- #include <linux/bcd.h>
++#define fp_conv_long2ext(dest, src) ({				\
++	register struct fp_ext *__dest asm ("a0") = dest;	\
++	register int __src asm ("d0") = src;			\
++								\
++	asm volatile ("jsr fp_conv_ext2long"			\
++			: : "d" (__src), "a" (__dest)		\
++			: "a1", "d1", "d2", "memory");		\
++})
++
+ #else /* __ASSEMBLY__ */
  
--#include <asm/rtc.h>
-+#include <asm/atariints.h>
+ /*
+--- linux-2.6.x/arch/m68k/math-emu/fp_log.c	Sun Aug 15 20:47:29 1999
++++ linux-m68k-2.6.x/arch/m68k/math-emu/fp_log.c	Wed Jul 23 22:15:29 2003
+@@ -17,10 +17,22 @@
  
- void __init
- atari_sched_init(irqreturn_t (*timer_routine)(int, void *, struct pt_regs *))
---- linux-2.6.x/include/asm-m68k/mc146818rtc.h	Sat May 18 14:32:21 2002
-+++ linux-m68k-2.6.x/include/asm-m68k/mc146818rtc.h	Sat Jun 28 17:16:10 2003
-@@ -4,37 +4,12 @@
- #ifndef _ASM_MC146818RTC_H
- #define _ASM_MC146818RTC_H
+ #include "fp_emu.h"
  
--#include <linux/config.h>
--#include <asm/atarihw.h>
--
- #ifdef CONFIG_ATARI
- /* RTC in Atari machines */
++static const struct fp_ext fp_one =
++{
++	0, 0, 0x3fff, { 0 }
++};
++
++extern struct fp_ext *fp_fadd(struct fp_ext *dest, const struct fp_ext *src);
++extern struct fp_ext *fp_fdiv(struct fp_ext *dest, const struct fp_ext *src);
++extern struct fp_ext *fp_fmul(struct fp_ext *dest, const struct fp_ext *src);
++
+ struct fp_ext *
+ fp_fsqrt(struct fp_ext *dest, struct fp_ext *src)
+ {
+-	uprint("fsqrt\n");
++	struct fp_ext tmp, src2;
++	int i, exp;
++
++	dprint(PINSTR, "fsqrt\n");
  
- #include <asm/atarihw.h>
--#include <asm/atariints.h>
--#include <asm/io.h>
--#define RTC_HAS_IRQ	(ATARIHW_PRESENT(TT_MFP))
--#define RTC_IRQ 	IRQ_TT_MFP_RTC
--#define RTC_IRQ_FLAGS	IRQ_TYPE_FAST
--#define RTC_PORT(x)	(TT_RTC_BAS + 2*(x))
--#define RTC_ALWAYS_BCD	0	/* TOS uses binary mode, Linux should be able
--				 * to deal with both modes */
+ 	fp_monadic_check(dest, src);
  
--#define RTC_CHECK_DRIVER_INIT() (MACH_IS_ATARI && ATARIHW_PRESENT(TT_CLK))
--#define RTC_MACH_INIT()							\
--    do {								\
--	epoch = atari_rtc_year_offset + 1900;				\
--	if (RTC_HAS_IRQ)						\
--	    /* select RTC int on H->L edge */				\
--	    tt_mfp.active_edge &= ~0x40;				\
--    } while(0)
--#define RTC_MACH_EXIT()
--
--/* On Atari, the year was stored with base 1970 in old TOS versions (before
-- * 3.06). Later, Atari recognized that this broke leap year recognition, and
-- * changed the base to 1968. Medusa and Hades always use the new version. */
--#define RTC_CENTURY_SWITCH	-1	/* no century switch */
--#define RTC_MINYEAR		epoch
-+#define RTC_PORT(x)	(TT_RTC_BAS + 2*(x))
+@@ -34,6 +46,56 @@
+ 	if (IS_INF(dest))
+ 		return dest;
  
- #define CMOS_READ(addr) ({ \
- atari_outb_p((addr),RTC_PORT(0)); \
++	/*
++	 *		 sqrt(m) * 2^(p)	, if e = 2*p
++	 * sqrt(m*2^e) = 
++	 *		 sqrt(2*m) * 2^(p)	, if e = 2*p + 1
++	 *
++	 * So we use the last bit of the exponent to decide wether to
++	 * use the m or 2*m.
++	 *
++	 * Since only the fractional part of the mantissa is stored and
++	 * the integer part is assumed to be one, we place a 1 or 2 into
++	 * the fixed point representation.
++	 */
++	exp = dest->exp;
++	dest->exp = 0x3FFF;
++	if (!(exp & 1))		/* lowest bit of exponent is set */
++		dest->exp++;
++	fp_copy_ext(&src2, dest);
++
++	/*
++	 * The taylor row arround a for sqrt(x) is:
++	 *	sqrt(x) = sqrt(a) + 1/(2*sqrt(a))*(x-a) + R
++	 * With a=1 this gives:
++	 *	sqrt(x) = 1 + 1/2*(x-1)
++	 *		= 1/2*(1+x)
++	 */
++	fp_fadd(dest, &fp_one);
++	dest->exp--;		/* * 1/2 */
++
++	/*
++	 * We now apply the newton rule to the function
++	 *	f(x) := x^2 - r
++	 * which has a null point on x = sqrt(r).
++	 *
++	 * It gives:
++	 * 	x' := x - f(x)/f'(x)
++	 *	    = x - (x^2 -r)/(2*x)
++	 *	    = x - (x - r/x)/2
++	 *          = (2*x - x + r/x)/2
++	 *	    = (x + r/x)/2
++	 */
++	for (i = 0; i < 9; i++) {
++		fp_copy_ext(&tmp, &src2);
++
++		fp_fdiv(&tmp, dest);
++		fp_fadd(dest, &tmp);
++		dest->exp--;
++	}
++
++	dest->exp += (exp - 0x3FFF) / 2;
++
+ 	return dest;
+ }
+ 
+@@ -123,19 +185,38 @@
+ struct fp_ext *
+ fp_fgetexp(struct fp_ext *dest, struct fp_ext *src)
+ {
+-	uprint("fgetexp\n");
++	dprint(PINSTR, "fgetexp\n");
+ 
+ 	fp_monadic_check(dest, src);
+ 
++	if (IS_INF(dest)) {
++		fp_set_nan(dest);
++		return dest;
++	}
++	if (IS_ZERO(dest))
++		return dest;
++
++	fp_conv_long2ext(dest, (int)dest->exp - 0x3FFF);
++
++	fp_normalize_ext(dest);
++
+ 	return dest;
+ }
+ 
+ struct fp_ext *
+ fp_fgetman(struct fp_ext *dest, struct fp_ext *src)
+ {
+-	uprint("fgetman\n");
++	dprint(PINSTR, "fgetman\n");
+ 
+ 	fp_monadic_check(dest, src);
++
++	if (IS_ZERO(dest))
++		return dest;
++
++	if (IS_INF(dest))
++		return dest;
++
++	dest->exp = 0x3FFF;
+ 
+ 	return dest;
+ }
 
 Gr{oetje,eeting}s,
 

@@ -1,49 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144416AbRA1Wug>; Sun, 28 Jan 2001 17:50:36 -0500
+	id <S144390AbRA1Wx1>; Sun, 28 Jan 2001 17:53:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144431AbRA1Wu1>; Sun, 28 Jan 2001 17:50:27 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:13759 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S144416AbRA1WuW>;
-	Sun, 28 Jan 2001 17:50:22 -0500
-Date: Sun, 28 Jan 2001 17:50:20 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Alec Smith <alec@shadowstar.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Moving from kernel 2.2 to 2.4
-In-Reply-To: <5.0.2.1.2.20010128172921.01f735c0@bugs.home.shadowstar.net>
-Message-ID: <Pine.SGI.4.31L.02.0101281745060.746028-100000@irix2.gl.umbc.edu>
+	id <S144431AbRA1WxR>; Sun, 28 Jan 2001 17:53:17 -0500
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:18429
+	"EHLO champ.drew.net") by vger.kernel.org with ESMTP
+	id <S144390AbRA1WxI> convert rfc822-to-8bit; Sun, 28 Jan 2001 17:53:08 -0500
+From: Drew Bertola <drew@drewb.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <14964.41681.126496.746739@champ.drew.net>
+Date: Sun, 28 Jan 2001 22:53:05 +0000 ()
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Dieter Nützel <Dieter.Nuetzel@hamburg.de>,
+        Andrew Grover <andrew.grover@intel.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.1-pre11
+In-Reply-To: <3A7494B1.70799C19@mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
+	<3A7494B1.70799C19@mandrakesoft.com>
+X-Mailer: VM 6.75 under Emacs 19.34.1
+Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001, Alec Smith wrote:
+Andrew's latest ACPI fixes (acpica-linux-20000125 patched against
+2.4.0) compile fine here and don't hang on my Vaio after loading
+tables.
 
-> I understand a large portion of the kernel 2.4 networking code was updated
-> and/or completely replaced. Under 2.2 I have ipchains configured to do
-> basic masquerading for my local LAN. Is there a straightforward guide which
-> describes how to do masquerading and firewalling with 2.4 after moving up
-> from 2.2?
+That's a start.  I'll play around some more.
 
-http://netfilter.kernelnotes.org/unreliable-guides/
+Jeff Garzik writes:
+> Linus Torvalds wrote:
+> > On Sun, 28 Jan 2001, Dieter Nützel wrote:
+> > > > I just uploaded it to kernel.org, and I expect that I'll do the final
+> > > > 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
+> > > > pre-kernel works for you..
+> > >
+> > > Hello Linus,
+> > >
+> > > can we please see Andrew's latest ACPI fixes ([Acpi] ACPI source release
+> > > updated: 1-25-2001)  in 2.4.1 final?
+> > 
+> > Does it fix stuff? Andrew?
+> 
+> I'm running it here..  No problems yet on my Toshiba test laptop, which
+> is the same behavior (for me) on 2.4.0-pre10 vanilla.
+> 
+> ACPI changelog, from
+> http://developer.intel.com/technology/IAPC/acpi/index.htm follows...
+> 
+> 
+> > Summary of changes for this label: 01_25_01
+> > 
+> > Core ACPI CA Subsystem:
+> > Restructured the implementation of object store support within the 
+> > interpreter.  This includes support for the Store operator as well
+> > as any ASL operators that include a target operand.
+> > 
+> > Partially implemented support for Implicit Result-to-Target conversion.
+> > This is when a result object is converted on the fly to the type of
+> > an existing target object.  Completion of this support is pending
+> > further analysis of the ACPI specification concerning this matter.
+> > 
+> > CPU-specific code has been removed from the subsystem (hardware directory).
+> > 
+> > New Power Management Timer functions added
+> > 
+> > Linux OS Services Layer (OSL):
+> > Moved system state transition code to the core, fixed it, and modified
+> > Linux OSL accordingly.
+> > 
+> > Fixed C2 and C3 latency calculations.
+> > 
+> > We no longer use the compilation date for the version message on
+> > initialization, but retrieve the version from AcpiGetSystemInfo().
+> > 
+> > Incorporated for fix Sony VAIO machines.
+> > 
+> > Documentation:
+> > The Programmer Reference has been updated and reformatted.
+> > 
+> > ASL Compiler:
+> > Version X2013:
+> > Fixed a problem where the line numbering and error reporting could get out
+> > of sync in the presence of multiple include files.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-In general, you _have to_ upgrade modutils to at least a 2.3.x revision.
-
-If you use devfs, you almost have to install devfsd, and you really need
-to upgrade util-linux (there's a bug in older versions of /bin/login that
-barf on the new tty scheme).
-
-I usually do it by compiling and installing a 2.4 kernel; compiling,
-installing devfsd (and adding an entry very early in rc.sysinit for it);
-installing modutils; and installing util-linux -- then rebooting to test
-the new kernel.
-
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+-- 
+Drew Bertola  | Send a text message to my pager or cell ... 
+              |   http://jpager.com/Drew
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264874AbUBRX1U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266944AbUBRXZV
+	id S267091AbUBRW64 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 17:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267068AbUBRW6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:25:21 -0500
-Received: from mail.kroah.org ([65.200.24.183]:9377 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266681AbUBRXZE (ORCPT
+	Wed, 18 Feb 2004 17:58:55 -0500
+Received: from hera.kernel.org ([63.209.29.2]:27572 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S267001AbUBRW6D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:25:04 -0500
-Date: Wed, 18 Feb 2004 15:24:50 -0800
-From: Greg KH <greg@kroah.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move CONFIG_HOTPLUG to kernel/Kconfig.hotplug
-Message-ID: <20040218232450.GA6521@kroah.com>
-References: <200402150157.05808.bzolnier@elka.pw.edu.pl> <20040216233911.GB23911@kroah.com> <200402170230.38839.bzolnier@elka.pw.edu.pl>
+	Wed, 18 Feb 2004 17:58:03 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [PATCH] Intel x86-64 support merge
+Date: Wed, 18 Feb 2004 22:57:31 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c10qkr$gdu$1@terminus.zytor.com>
+References: <200402182006.i1IK6CsS022562@hera.kernel.org> <1077139308.4479.8.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402170230.38839.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1077145051 16831 63.209.29.3 (18 Feb 2004 22:57:31 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 18 Feb 2004 22:57:31 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 02:30:38AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> On Tuesday 17 of February 2004 00:39, Greg KH wrote:
-> > On Sun, Feb 15, 2004 at 01:57:05AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > I've also noticed that some archs (cris, h8300, m68k and sparc) don't
-> > > have HOTPLUG in their Kconfig files, shame on you - no udev for you 8).
-> > >
-> > > BTW maybe HOTPLUG should be moved from "Bus options" to "General setup"?
-> >
-> > I agree, it should go there, as it affects so much more these days than
-> > "bus options".
-> >
-> > Care to make that change instead?
+Followup to:  <1077139308.4479.8.camel@laptop.fenrus.com>
+By author:    Arjan van de Ven <arjan@fenrus.demon.nl>
+In newsgroup: linux.dev.kernel
+>
+> On Wed, 2004-02-18 at 20:44, Linux Kernel Mailing List wrote:
 > 
-> Done.  I put HOTPLUG between SYSCTL and IKCONFIG.
+> > 	The ugliest part is probably the swiotlb code.  In fact the code for
+> > 	that is not even included, but just reused from IA64.  swiotlb
+> > 	implements the PCI DMA API using bounce buffering.  I don't like this at
+> > 	all, but there was no other way to support non DAC capable hardware
+> > 	(like IDE or USB) on machines with >3GB.  Please redirect all flames for
+> > 	that to the Intel chipset designers.
 > 
-> --bart
+> ehm... so why on earth did Intel cripple this new platform?????
 > 
-> 
-> [PATCH] move CONFIG_HOTPLUG to init/Kconfig
-> 
-> As a bonus: cris, h8300, m68k and sparc can use CONFIG_HOTPLUG now.
 
-Looks good, I've applied this, thanks.
+Because they were caught by surprise and just hacked the chips they
+had in the pipeline, presumably.
 
-greg k-h
+	-hpa

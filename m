@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSLCNPi>; Tue, 3 Dec 2002 08:15:38 -0500
+	id <S261401AbSLCNNK>; Tue, 3 Dec 2002 08:13:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSLCNPh>; Tue, 3 Dec 2002 08:15:37 -0500
-Received: from johanna5.ux.his.no ([152.94.1.25]:26540 "EHLO
-	johanna5.ux.his.no") by vger.kernel.org with ESMTP
-	id <S261333AbSLCNPg>; Tue, 3 Dec 2002 08:15:36 -0500
-Date: Tue, 3 Dec 2002 14:22:51 +0100
-From: Erlend Aasland <erlend-a@ux.his.no>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, Niibe Yutaka <gniibe@m17n.org>,
-       linux-sh@m17n.org
-Subject: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (sh)
-Message-ID: <20021203132251.GK2417@johanna5.ux.his.no>
-References: <20021203125120.GA2417@johanna5.ux.his.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021203125120.GA2417@johanna5.ux.his.no>
-User-Agent: Mutt/1.4i
+	id <S261416AbSLCNNK>; Tue, 3 Dec 2002 08:13:10 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9221 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261401AbSLCNND>; Tue, 3 Dec 2002 08:13:03 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: bincancels in linux.kernel
+Date: 3 Dec 2002 13:19:13 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <asib0h$51r$1@gatekeeper.tmr.com>
+References: <fa.fv5l6nv.1am209b@ifi.uio.no> <fa.jsbpciv.t2snp4@ifi.uio.no> <ylr8czu4hi.fsf@windlord.stanford.edu>
+X-Trace: gatekeeper.tmr.com 1038921553 5179 192.168.12.62 (3 Dec 2002 13:19:13 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused CONFIG_UDF_RW from sh defconfig
+In article <ylr8czu4hi.fsf@windlord.stanford.edu>,
+Russ Allbery  <rra@stanford.edu> wrote:
+| Andrew Gierth <andrew@erlenstar.demon.co.uk> writes:
 
-Regards,
-	Erlend Aasland
+| > I don't personally consider that the fact that a group is gatewayed
+| > from a mailing list to be significant when deciding how to apply Usenet
+| > policies to it.
+| 
+| Maybe think of the mailing list as a moderator that's permitted to approve
+| binaries and only cancel binaries that were posted directly to the group
+| rather than going through the list?  That would seem to avoid any problems
+| with deleting legitimate traffic.
+| 
+| If people start flooding the list with binaries, I'm sure that will be
+| dealt with quite promptly, before Usenet even notices.
 
-diff -urN linux-2.5.50/arch/sh/defconfig linux-2.5.50-eaa/arch/sh/defconfig
---- linux-2.5.50/arch/sh/defconfig	Mon Sep  2 15:57:00 2002
-+++ linux-2.5.50-eaa/arch/sh/defconfig	Tue Dec  3 00:48:05 2002
-@@ -170,7 +170,6 @@
- # CONFIG_SYSV_FS is not set
- # CONFIG_SYSV_FS_WRITE is not set
- # CONFIG_UDF_FS is not set
--# CONFIG_UDF_RW is not set
- # CONFIG_UFS_FS is not set
- # CONFIG_UFS_FS_WRITE is not set
- # CONFIG_NCPFS_NLS is not set
+Agreed. I gateway the list to an internal group just because the news
+tools seem to be better than the mail tools for this. The filters in the
+m/l should keep out problems.
+
+I have no idea what the news2mail gateway is on the open net, I have
+marked it moderated and ship everything back to the list address.
+
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

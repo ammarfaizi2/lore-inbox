@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267240AbUBSVdC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 16:33:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267573AbUBSVdC
+	id S267343AbUBSVbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 16:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUBSVbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 16:33:02 -0500
-Received: from a213-22-30-111.netcabo.pt ([213.22.30.111]:31971 "EHLO
-	r3pek.homelinux.org") by vger.kernel.org with ESMTP id S267240AbUBSVcw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 16:32:52 -0500
-Message-ID: <37833.62.229.71.110.1077226354.squirrel@webmail.r3pek.homelinux.org>
-In-Reply-To: <20040219130808.0eab897e.rddunlap@osdl.org>
-References: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org>
-    <20040219130808.0eab897e.rddunlap@osdl.org>
-Date: Thu, 19 Feb 2004 21:32:34 -0000 (WET)
-Subject: Re: Hot kernel change
-From: "Carlos Silva" <r3pek@r3pek.homelinux.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Thu, 19 Feb 2004 16:31:16 -0500
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:17024 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S267343AbUBSVav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 16:30:51 -0500
+Date: Thu, 19 Feb 2004 16:30:41 -0500
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: sysconf - exposing constants to userspace
+In-reply-to: <20040219204820.GC9155@sun.com>
+To: thockin@sun.com, Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <200402191630.47047.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.4
+References: <20040219204820.GC9155@sun.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 19 Feb 2004 13:33:43 -0000 (WET) "Carlos Silva"
-> <r3pek@r3pek.homelinux.org> wrote:
->
-> | hi,
-> |
-> | i would like to know if isn't it possible to implement a hot kernel
-> | change, i mean, without reboot. i would do it myself if i had the
-> knoledge
-> | to do it but i'm starting with kernel-level programing now. i think it
-> | would be possible if we make something like M$'s OS do when it
-> hibernates,
-> | copy all the memory, registers, etc to the disc and then put all back
-> | again.
-> |
-> | am i dreaming or this is possible? :)
->
-> The kexec patch is basically "linux reboots linux".
-> It bypasses the firmware/BIOS to do the reboot.
->
-> Patches for 2.6.0 and 2.6.1 are here (I haven't updated for
-> 2.6.2 or 2.6.3 yet):
->   http://developer.osdl.org/rddunlap/kexec/
->
-> Patches for some 2.5.x kernels are here:
->   http://www.xmission.com/~ebiederm/files/kexec/
->
-> kexec does reduce reboot time quite a bit on some machines, but
-> there is still a noticeable pause.
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-well, what can i say? this is nice, really nice :) but still reboots the
-machine... :D
-but it's a thing that i will test when a patch for the 2.6.3 kernel gets out.
+On Thursday 19 February 2004 15:48, Tim Hockin wrote:
+> What is the preferred way to expose "constants" to userland?  I
+> quoty-finger "constants" because they may be defined as constants to any
+> given kernel, they are not necessarily constant over time.
+>
+> There are things which can be changed as constants which would currently
+> require a libc recompile.  For example NGROUPS_MAX :).  Since it just got
+> merged, anyone who wants to use it will have to recompile their libc to get
+> the new value of NGROUPS_MAX.
+>
+> I found an old old patch to do this via read-only sysctl() entries.  Should
+> I resurrect that patch?  Or maybe just do a sys_sysconf() entry?  Or should
+> I just shut up and tell users to cope with recompiling libc?
+
+I think that making something in /sys would make the most sense, with one 
+constant per file. We could dump the consts files to for example /sys/consts, 
+or make a logical directory structure to make navigation easier.
+
+Jeff.
+
+- -- 
+UNIX is user-friendly ... it's just selective about who it's friends are
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFANSsEwFP0+seVj/4RAgiaAJ9ka5sUjXEE+xNazblPO73/ovnsrACgpZPX
+kGZV3gEplJpx24eL62AuQqA=
+=3HMU
+-----END PGP SIGNATURE-----
+

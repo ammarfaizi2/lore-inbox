@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131341AbRA2SJt>; Mon, 29 Jan 2001 13:09:49 -0500
+	id <S131507AbRA2SKT>; Mon, 29 Jan 2001 13:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131507AbRA2SJk>; Mon, 29 Jan 2001 13:09:40 -0500
-Received: from bom3.vsnl.net.in ([202.54.4.24]:49159 "HELO bom3.vsnl.net.in")
-	by vger.kernel.org with SMTP id <S131341AbRA2SJf>;
-	Mon, 29 Jan 2001 13:09:35 -0500
-Message-ID: <009001c08a1e$43694bc0$6d5d36ca@s1n9c1>
-From: "Linux Admin" <linuxadmin@softhome.net>
-To: "Romain Kang" <romain@kzsu.stanford.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <200101290227.SAA70251@kzsu.stanford.edu>
-Subject: Re: [META] proposal to set up digestifier for linux-kernel
-Date: Mon, 29 Jan 2001 23:36:41 +0530
+	id <S131940AbRA2SKD>; Mon, 29 Jan 2001 13:10:03 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:38670 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S131934AbRA2SJ5> convert rfc822-to-8bit; Mon, 29 Jan 2001 13:09:57 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE5F6@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Linus Torvalds'" <torvalds@transmeta.com>,
+        Dieter Nützel 
+	<Dieter.Nuetzel@hamburg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.1-pre11
+Date: Mon, 29 Jan 2001 10:07:55 -0800
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Romain
+> On Sun, 28 Jan 2001, Dieter Nützel wrote:
+> 
+> > > I just uploaded it to kernel.org, and I expect that I'll 
+> do the final
+> > > 2.4.1 tomorrow, before leaving for NY and LinuxWorld. 
+> Please test that the
+> > > pre-kernel works for you..
+> > 
+> > Hello Linus,
+> > 
+> > can we please see Andrew's latest ACPI fixes ([Acpi] ACPI 
+> source release 
+> > updated: 1-25-2001)  in 2.4.1 final?
+> 
+> Does it fix stuff? Andrew?
 
-yes, i wuld love to help you out, in anyways if you require any help just
-mail me.
+This fixes VAIO and power down. I've sent the patch separately, so please
+apply it when you get the chance.
 
-regards,
-
-parag mehta
------ Original Message -----
-From: "Romain Kang" <romain@kzsu.stanford.edu>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, January 29, 2001 7:57 AM
-Subject: [META] proposal to set up digestifier for linux-kernel
-
-
-After a hiatus from linux-kernel, I find that the lack of a digest on
-the new server is a nuisance.  I'm thinking of setting up a Majordomo
-digestifier, with the caveat that non-plaintext messages may have some
-displaced bits.
-
-Would there be an interest in this?
-
-Romain Kang                             Disclaimer: I speak for myself
-alone,
-romain@kzsu.stanford.edu                except when indicated otherwise.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
+Thanks -- Regards -- Andy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,117 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUD0Vxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264369AbUD0V7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUD0Vxf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 17:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUD0VxW
+	id S264369AbUD0V7i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 17:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUD0V7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 17:53:22 -0400
-Received: from gprs214-199.eurotel.cz ([160.218.214.199]:24448 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264371AbUD0VxG (ORCPT
+	Tue, 27 Apr 2004 17:59:37 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:16521 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S264369AbUD0V7f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 17:53:06 -0400
-Date: Tue, 27 Apr 2004 23:52:36 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@zip.com.au>
-Cc: seife@suse.de, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nigel Cunningham <ncunningham@linuxmail.com>,
-       Roland Stigge <stigge@antcom.de>, 234976@bugs.debian.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-Message-ID: <20040427215236.GA469@elf.ucw.cz>
-References: <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426131152.GN2595@openzaurus.ucw.cz> <1083048985.12517.21.camel@gaston> <20040427102127.GB10593@elf.ucw.cz> <20040427102344.GA24313@gondor.apana.org.au> <20040427124837.GK10593@elf.ucw.cz> <20040427125402.GA16740@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040427125402.GA16740@gondor.apana.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 27 Apr 2004 17:59:35 -0400
+Date: Tue, 27 Apr 2004 23:59:26 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
+In-Reply-To: <20040427213549.GC17014@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0404272342150.13077@alpha.polcom.net>
+References: <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org>
+ <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com>
+ <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net>
+ <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk>
+ <20040427200459.GJ14129@stingr.net> <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404272232030.9618@alpha.polcom.net>
+ <20040427213549.GC17014@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > --- tmp/linux/arch/i386/power/cpu.c	2003-09-28 22:05:30.000000000 +0200
-> > +++ linux/arch/i386/power/cpu.c	2004-04-27 14:44:03.000000000 +0200
-> > @@ -35,6 +35,9 @@
-> >  unsigned long saved_context_esi, saved_context_edi;
-> >  unsigned long saved_context_eflags;
-> >  
-> > +/* Special page directory for resume */
-> > +char swsusp_pg_dir[PAGE_SIZE];
-> > +
+On Tue, 27 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Tue, Apr 27, 2004 at 10:39:09PM +0200, Grzegorz Kulewski wrote:
+> > > 	c) nobody sane should put that as default.  Oh, wait, it's gentoo
+> > > we are talking about?  Nevermind, then.
+> > 
+> > But what default? Gentoo just calls evms_activate before mounting 
+> > filesystems to check if there are evms volumes (because filesystems can 
+> > reside on it). And, according to man page, this is the right usage of 
+> > evms_activate.
 > 
-> You forgot to mark this as nosave.
+> And that usage of evms_activate takes over all normally partitioned devices
+> and shoves equivalents of partitions under /dev/evms, right?  So in which
+> universe would that be the right thing to do without a big fat warning and
+> update of /etc/fstab?
 
-More importantly, I forgot to mark it as aligned on PAGE_SIZE. Oops
-(er... double fault). Here's fixed patch, and this one should work.
 
-Andrew, the crashes with intel-agp were not driver fault after
-all. swsusp assumed 4MB pages, and intel-agp driver broke 4MB page
-down, resulting in nasty crash.
+>From evms_activate man page:
 
-Herbert's solution was to copy memory backwards, and avoid the crash
-by luck (But thanks a lot for explaining me the problem!).
-
-Non-PSE cpus are still not supported; but it should be easier when we
-are running in pagedir with identity-mapped pages.
-
-This solution copies page table at boot, where it is "known good",
-still 4MB. Could you apply it?
-
-								Pavel
-
---- tmp/linux/arch/i386/mm/init.c	2004-04-05 10:45:11.000000000 +0200
-+++ linux/arch/i386/mm/init.c	2004-04-27 23:39:07.000000000 +0200
-@@ -331,6 +331,13 @@
- void zap_low_mappings (void)
- {
- 	int i;
-+
-+#ifdef CONFIG_SOFTWARE_SUSPEND
-+	{
-+		extern char swsusp_pg_dir[PAGE_SIZE];
-+		memcpy(swsusp_pg_dir, swapper_pg_dir, PAGE_SIZE);
-+	}
-+#endif
- 	/*
- 	 * Zap initial low-memory mappings.
- 	 *
---- tmp/linux/arch/i386/power/cpu.c	2003-09-28 22:05:30.000000000 +0200
-+++ linux/arch/i386/power/cpu.c	2004-04-27 23:41:01.000000000 +0200
-@@ -35,6 +35,10 @@
- unsigned long saved_context_esi, saved_context_edi;
- unsigned long saved_context_eflags;
+DESCRIPTION
+       The  evms_activate  command  discovers  all EVMS volumes and 
+activates kernel devices for all volumes
+       that are not yet active. The command should be run at boot time so 
+the file systems  that  reside  on
+       the volumes can be mounted. If EVMS volumes are listed in the 
+/etc/fstab, evms_activate should be run
+       before /etc/fstab is processed (which is distribution specific). If 
+the root file  system  is  on  an
+       EVMS volume, evms_activate should be run from the init-ramdisk.
  
-+/* Special page directory for resume */
-+char __nosavedata swsusp_pg_dir[PAGE_SIZE]
-+                  __attribute__ ((aligned (PAGE_SIZE)));
-+
- extern void enable_sep_cpu(void *);
- 
- void save_processor_state(void)
---- tmp/linux/arch/i386/power/swsusp.S	2003-09-28 22:05:30.000000000 +0200
-+++ linux/arch/i386/power/swsusp.S	2004-04-27 14:41:54.000000000 +0200
-@@ -29,7 +38,7 @@
- 	jmp .L1449
- 	.p2align 4,,7
- .L1450:
--	movl $swapper_pg_dir-__PAGE_OFFSET,%ecx
-+	movl $swsusp_pg_dir-__PAGE_OFFSET,%ecx
- 	movl %ecx,%cr3
- 
- 	call do_magic_resume_1
---- tmp/linux/include/asm-i386/suspend.h	2003-09-28 22:06:36.000000000 +0200
-+++ linux/include/asm-i386/suspend.h	2004-04-27 23:10:24.000000000 +0200
-@@ -9,6 +9,9 @@
- static inline int
- arch_prepare_suspend(void)
- {
-+	/* If you want to make non-PSE machine work, turn off paging
-+           in do_magic. swsusp_pg_dir should have identity mapping, so
-+           it could work...  */
- 	if (!cpu_has_pse)
- 		return -EPERM;
- 	return 0;
 
--- 
-934a471f20d6580d5aad759bf0d97ddc
+And where is the big fat warning that you can not use your normal devices 
+anymore?
+
+And I still do not understand why my old device names that every script / 
+program on the Eartch uses cannot be used anymore... And if I really can 
+not use them why their device files in dev do not disappear? (I am using 
+udev.)
+
+And can I use fdisk to modify and then reload partition table in this new 
+approach? And will mount that is searching for filesystem with specified 
+label find it on new device? And should not the kernel warn in case 
+someone is touching the old device?
+
+
+Grzegorz Kulewski
+

@@ -1,72 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288614AbSATOXi>; Sun, 20 Jan 2002 09:23:38 -0500
+	id <S288623AbSATOZS>; Sun, 20 Jan 2002 09:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288623AbSATOX3>; Sun, 20 Jan 2002 09:23:29 -0500
-Received: from i1582.vwr.wanadoo.nl ([194.134.214.53]:29316 "HELO
-	localhost.localnet") by vger.kernel.org with SMTP
-	id <S288614AbSATOXK>; Sun, 20 Jan 2002 09:23:10 -0500
-Date: Sun, 20 Jan 2002 15:23:59 +0100
-From: Remi Turk <remi@abcweb.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: rm-ing files with open file descriptors
-Message-ID: <20020120152359.B326@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com> <a2afsg$73g$2@ncc1701.cistron.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <a2afsg$73g$2@ncc1701.cistron.net>; from miquels@cistron.nl on Sat, Jan 19, 2002 at 12:50:24AM +0000
+	id <S288639AbSATOZI>; Sun, 20 Jan 2002 09:25:08 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:263 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S288623AbSATOY4>;
+	Sun, 20 Jan 2002 09:24:56 -0500
+Message-ID: <3C4AD24D.4050206@namesys.com>
+Date: Sun, 20 Jan 2002 17:21:01 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Shawn <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33L.0201201155380.32617-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Write clustering is one thing it achieves.   When we flush a slum, the 
+cost of the seek so far outweighs the transfer cost that we should 
+transfer FLUSH_SIZE (where flush size is imagined to be something like 
+64 or 16 or at least 8) adjacent (in the tree order) nodes at the same 
+time to disk.  There are many ways in which LRU is only an approximation 
+to optimum.  This is one of many.
 
---qcHopEYAB45HaUaB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Flushing everything involved in a transaction so that (the buffers being 
+pinned in RAM (so that they don't have to be reread from disk when the 
+transaction commits) until the transaction commits) can be unpinned is 
+another thing.  
 
-On Sat, Jan 19, 2002 at 12:50:24AM +0000, Miquel van Smoorenburg wrote:
-> There is no way to recreate a file with a nlink count of 0,
-> well that is until someone adds flink(fd, newpath) to the kernel.
-Which I actually posted a patch for in 2.4.0-test1 time :)
+Hans
 
-% ll -i old
-32619 -rw-r--r--   1 remi     users          14 Jul 31 15:44 old
-% exec 5<old
-% rm old
-% ~/src/flink/flink 5 new
-% ll -i new
-32619 -rw-r--r--   1 remi     users          14 Jul 31 15:44 new
-
-The more interesting part - open(O_ANONYMOUS) or something like
-that looked much harder to do. (IOW, I gave up ;) )
-
-Happy hacking
-
-	Remi
-
---=20
-See the light and feel my warm desire,
-Run through your veins like the evening sun
-It will live but no eyes will see it,
-I'll bless your name before I die.
-
-Key fingerprint =3D CC90 A1BA CF6D 891C 5B88  C543 6C5F C469 8F20 70F4
-
---qcHopEYAB45HaUaB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8StL/bF/EaY8gcPQRAkFBAJ9CAO05J+sVLkjw/A+NFXHOPE0VqwCePVJC
-hgpr9ATESkMHB4Lih38OE5g=
-=3Byt
------END PGP SIGNATURE-----
-
---qcHopEYAB45HaUaB--

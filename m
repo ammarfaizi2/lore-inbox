@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUCHXOT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUCHXOT
+	id S261185AbUCHXT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbUCHXT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:14:19 -0500
-Received: from smtp04.web.de ([217.72.192.208]:34590 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261184AbUCHXOF (ORCPT
+	Mon, 8 Mar 2004 18:19:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8098 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261185AbUCHXT0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:14:05 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.4-rc2] bogus semicolon behind if()
-Date: Tue, 9 Mar 2004 00:14:01 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 8 Mar 2004 18:19:26 -0500
+Date: Mon, 8 Mar 2004 15:21:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in
+ <=16G machines)
+Message-Id: <20040308152126.54f4f681.akpm@osdl.org>
+In-Reply-To: <20040308230247.GC12612@dualathlon.random>
+References: <20040308202433.GA12612@dualathlon.random>
+	<Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org>
+	<20040308132305.3c35e90a.akpm@osdl.org>
+	<20040308230247.GC12612@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403090014.03282.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> > Other issues are how it will play with remap_file_pages(), and how it
+> > impacts Ingo's work to permit remap_file_pages() to set page permissions on
+> > a per-page basis.  This change provides large performance improvements to
+> 
+> in the current form it should be using pte_chains still for nonlinear
+> vmas, see the function that pretends to convert the page to be like
+> anonymous memory (which simply means to use pte_chains for the reverse
+> mappings).  I admit I didn't focus much on that part though, I trust
+> Dave on that ;), since I want to drop it.
+> 
+> What I want to do with the nonlinear vmas is to scan all the ptes in
+> every nonlinear vma, so I don't have to allocate the pte_chain and the
+> swapping procedure will simply be more cpu hungry under nonlinear vmas.
+> I'm not interested to provide optimal performance in swapping nonlinear
+> vmas, I prefer the fast path to be as fast as possible and without
+> memory overhead.
 
-recently I found a bogus semicolon an if statement. So I was searching for 
-other possible problems with following command:
+OK.  There was talk some months ago about making the non-linear vma's
+effectively mlocked and unswappable.  That would reduce their usefulness
+significantly.  It looks like that's off the table now, which is good.
 
-find linux-2.6.4-rc2 -name "*.c" -exec grep -Hn "\<if[[:space:]]*(\([^()]\|
-([^()]*)\)*)[[:space:]]*;" {} \;
-
-That found following possible problems:
-
-linux-2.6.4-rc2/arch/um/kernel/tt/tracer.c:257:		if(WIFEXITED(status)) ;
-linux-2.6.4-rc2/arch/i386/kernel/io_apic.c:2200:				if (check_nmi_watchdog() < 
-0);
-linux-2.6.4-rc2/arch/i386/kernel/io_apic.c:2224:				if (check_nmi_watchdog() < 
-0);
-linux-2.6.4-rc2/drivers/atm/iphase.c:155:     if (!desc1) ;
-linux-2.6.4-rc2/drivers/net/wan/pc300_drv.c:3664:			if (card->chan[i].d.dev);
-linux-2.6.4-rc2/drivers/net/tokenring/ibmtr.c:613:	else if 
-(ti->shared_ram_paging == 0xf);  /* No paging in adapter */
-linux-2.6.4-rc2/drivers/usb/misc/speedtch.c:92:#define DEBUG_ON(x)	do { if 
-(x); } while (0)
-linux-2.6.4-rc2/drivers/usb/media/w9968cf.c:3374:		if (tuner.tuner != 0);
-linux-2.6.4-rc2/drivers/isdn/capi/capiutil.c:438:	else if (c <= 0x0f);
-linux-2.6.4-rc2/drivers/isdn/hisax/hfc_sx.c:385:	if (Read_hfc(cs, 
-HFCSX_INT_S1));
-linux-2.6.4-rc2/drivers/isdn/hisax/hfc_sx.c:415:	if (Read_hfc(cs, 
-HFCSX_INT_S2));
-linux-2.6.4-rc2/drivers/isdn/hisax/hfc_sx.c:1290:						if (Read_hfc(cs, 
-HFCSX_INT_S1));
-linux-2.6.4-rc2/drivers/isdn/hisax/hfc_pci.c:131:	if (Read_hfc(cs, 
-HFCPCI_INT_S1));
-linux-2.6.4-rc2/drivers/isdn/hisax/hfc_pci.c:161:	if (Read_hfc(cs, 
-HFCPCI_INT_S1));
-linux-2.6.4-rc2/drivers/isdn/hisax/hfc_pci.c:1543:						if (Read_hfc(cs, 
-HFCPCI_INT_S1));
-linux-2.6.4-rc2/drivers/s390/scsi/zfcp_erp.c:2057:		if (status == 
-ZFCP_ERP_SUCCEEDED) ;	/* no further action */
-linux-2.6.4-rc2/drivers/scsi/sg.c:356:	if (ppos != &filp->f_pos) ;	/* FIXME: 
-Hmm.  Seek to the right place, or fail?  */
-linux-2.6.4-rc2/drivers/scsi/sg.c:514:	if (ppos != &filp->f_pos) ;	/* FIXME: 
-Hmm.  Seek to the right place, or fail?  */
-
-Best regards
-   Thomas Schlichter
-
-P.S.: Wouldn't it be nice if gcc complained about these mistakes?
-
+btw, mincore() has always been broken with nonlinear vma's.  If you could
+fix that up some time using that pagetable walker it would be nice.  It's
+not very important though.

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129100AbQKHQha>; Wed, 8 Nov 2000 11:37:30 -0500
+	id <S129193AbQKHQqM>; Wed, 8 Nov 2000 11:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129111AbQKHQhU>; Wed, 8 Nov 2000 11:37:20 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:15123 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129102AbQKHQhB>; Wed, 8 Nov 2000 11:37:01 -0500
-Date: Wed, 8 Nov 2000 17:36:40 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Szabolcs Szakacsits <szaka@f-secure.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
-        Ingo Molnar <mingo@elte.hu>
-Subject: Re: Looking for better VM
-In-Reply-To: <Pine.LNX.4.05.10011081450320.3666-100000@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.3.96.1001108172338.7153A-100000@artax.karlin.mff.cuni.cz>
+	id <S129248AbQKHQqC>; Wed, 8 Nov 2000 11:46:02 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:6407 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129193AbQKHQp5>;
+	Wed, 8 Nov 2000 11:45:57 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011081645.TAA17955@ms2.inr.ac.ru>
+Subject: Re: [patch] NE2000
+To: morton@nortelnetworks.com (Andrew Morton)
+Date: Wed, 8 Nov 2000 19:45:26 +0300 (MSK)
+Cc: andrewm@uow.edu.au, linux-kernel@vger.kernel.org
+In-Reply-To: <3A07319B.7E2BD403@asiapacificm01.nt.com> from "Andrew Morton" at Nov 6, 0 10:32:59 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hello!
 
-> > I also didn't say non-overcommit should be used as default and a
-> > patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
-> > developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
-> > ignored completely, implemented it this way. 
+> > In any case, Andrew, where is the race, when we enter in sleeping state?
+> > Wakeup is not lost, it is just not required when we are not going
+> > to schedule and force task to running state.
 > 
-> OK. This is a lot more reasonable. I'm actually looking
-> into putting non-overcommit as a configurable option in
-> the kernel.
+> 	set_current_state(TASK_INTERRUPTIBLE);
+> 	add_wait_queue(...);
+> 	/* window here */
+> 	set_current_state(TASK_INTERRUPTIBLE);
+> 	schedule();
 > 
-> However, this does not save you from the fact that the
-> system is essentially deadlocked when nothing can get
-> more memory and nothing goes away. Non-overcommit won't
-> give you any extra reliability unless your applications
-> are very well behaved ... in which case you don't need
-> non-overcommit.
+> If there's a wakeup by another CPU (or this CPU in an interrupt) in
+> that window, current->state will get switched to TASK_RUNNING.
+> 
+> Then it's immediately overwritten and we go to sleep.  Lost wakeup.
 
-BTW. Why does your OOM killer in 2.4 try to kill process that mmaped most
-memory? mmap is hamrless. mmap on files can't eat memory and swap.
+Look into code yet. It looks sort of different. Again:
 
-Imagine a case: you have database server that mmaps the whole 2G file but
-doesn't have too much anonymous memory. You have an offending process that
-does while (1) malloc(1000) and fills up 512M swap. Your OOM killer would
-kill the server first...
+> > Wakeup is not lost, it is just not required when we are not going
+> > to schedule and force task to running state.
 
-Mikulas
+So that it is right not depening on anything.
 
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbTA2OPs>; Wed, 29 Jan 2003 09:15:48 -0500
+	id <S266064AbTA2Olr>; Wed, 29 Jan 2003 09:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266064AbTA2OPs>; Wed, 29 Jan 2003 09:15:48 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:6053 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S266041AbTA2OPs>;
-	Wed, 29 Jan 2003 09:15:48 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200301291424.RAA32107@sex.inr.ac.ru>
-Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
-To: lkernel2003@tuxers.net (David C Niemi)
-Date: Wed, 29 Jan 2003 17:24:52 +0300 (MSK)
-Cc: davem@redhat.com, benoit-lists@fb12.de, dada1@cosmosbay.com,
-       cgf@redhat.com, andersg@0x63.nu, lkernel2003@tuxers.net,
-       linux-kernel@vger.kernel.org, tobi@tobi.nu
-In-Reply-To: <Pine.LNX.4.44.0301290904060.7848-100000@harappa.oldtrail.reston.va.us> from "David C Niemi" at Jan 29, 3 09:12:54 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S266069AbTA2Olr>; Wed, 29 Jan 2003 09:41:47 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:9356 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266064AbTA2Olq>; Wed, 29 Jan 2003 09:41:46 -0500
+Date: Wed, 29 Jan 2003 15:51:06 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Scaring the non-geeks (was Bootscreen)
+Message-ID: <20030129145106.GF30307@louise.pinerecords.com>
+References: <200301281440.h0SEeBS8001126@darkstar.example.net> <200301291409.57213.roy@karlsbakk.net> <1043846348.11513.2.camel@oubop4.bursar.vt.edu> <1043848700.11095.2.camel@localhost> <20030129141203.GA1202@Master.Wizards>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030129141203.GA1202@Master.Wizards>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> [murrayr@brain.org]
+> 
+> Seems to me the best place to do the graphical thing is at the distro.
+> Mandrake has been messing with GUI bootscreens for a few versions, now, and
+> while I haven't been excited by the results I think it's the right place.
 
-> Odd, then, that it I was unable to reproduce the SSH hangs under 2.4.18
+"Don't worry, Mr B., I have a cunning plan to solve the problem."
 
-The bug is there, but it cannot be triggered with ssh.
-In 2.4 it can happen only on sockets which use sendfile().
+"Yes Baldrick, let us not forget that you tried to solve the problem
+of your mother's low ceiling by cutting off her head."
 
-Alexey
+"But this is a really good one. You become a dashing highwayman, then
+you can pay all your bills and, on top of that, everyone'll want to
+sleep with you."
 
+
+Okay, anyone else has found Mandrake resemble Baldrick?  Maybe it's not
+so ugly-looking but their ideas are clearly of the same philosophy.
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263380AbUEaKvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUEaLKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbUEaKvt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 06:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEaKvt
+	id S263370AbUEaLKV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 07:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUEaLKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 06:51:49 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:9121 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263366AbUEaKve
+	Mon, 31 May 2004 07:10:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27299 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263370AbUEaLKT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 06:51:34 -0400
-Date: Mon, 31 May 2004 12:51:32 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Martin Mares <mj@ucw.cz>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] pciutils/linux: Support for the HyperTransport capability
-In-Reply-To: <20040528114017.GA3708@ucw.cz>
-Message-ID: <Pine.LNX.4.55.0405311241170.18445@jurand.ds.pg.gda.pl>
-References: <Pine.LNX.4.55.0404201720290.28193@jurand.ds.pg.gda.pl>
- <20040528114017.GA3708@ucw.cz>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 May 2004 07:10:19 -0400
+Date: Mon, 31 May 2004 08:11:15 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>
+Cc: mikpe@csd.uu.se, davem@redhat.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH][2.4.27-pre4] tcp_input.c compile-time error
+Message-ID: <20040531111114.GA19839@logos.cnet>
+References: <40BAF132.5010907@ribosome.natur.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40BAF132.5010907@ribosome.natur.cuni.cz>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 May 2004, Martin Mares wrote:
+On Mon, May 31, 2004 at 10:47:46AM +0200, Martin MOKREJ? wrote:
+> This patch has helped to me to compile teh kernel at least. Thanks.
+> 
+> 
+> net/ipv4/tcp_input.c in 2.4.27-pre4 fails to compile:
+> 
+> tcp_input.c: In function `tcp_rcv_space_adjust':
+> tcp_input.c:479: error: structure has no member named `sk_rcvbuf'
+> tcp_input.c:480: error: structure has no member named `sk_rcvbuf'
+> make[3]: *** [tcp_input.o] Error 1
+> 
+> The patch below appears to fix this problem, although some netdev
+> person should probably check it.
 
-> I've applied it, but I tried to simplify the code, because it seemed
-> unnecessarily hairy to me.  I hope I didn't break anything.
+Just pulled davem's tree with a fix. -BK is fixed now.
 
- It looks OK to me.  Thanks.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Thanks!

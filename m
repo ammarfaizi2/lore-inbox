@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316545AbSHNLKY>; Wed, 14 Aug 2002 07:10:24 -0400
+	id <S316573AbSHNLPT>; Wed, 14 Aug 2002 07:15:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSHNLKY>; Wed, 14 Aug 2002 07:10:24 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:17924 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316545AbSHNLKX>; Wed, 14 Aug 2002 07:10:23 -0400
-Message-Id: <200208141109.g7EB9hp15788@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: stas.orel@mailcity.com, Stas Sergeev <stssppnn@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-Date: Wed, 14 Aug 2002 14:06:38 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <3D450B0F.4090901@yahoo.com>
-In-Reply-To: <3D450B0F.4090901@yahoo.com>
+	id <S316588AbSHNLPT>; Wed, 14 Aug 2002 07:15:19 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:57049 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S316573AbSHNLPS>; Wed, 14 Aug 2002 07:15:18 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Jos Hulzink <josh@stack.nl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Matt Dobson <colpatch@us.ibm.com>
+Date: Wed, 14 Aug 2002 04:12:18 -0700 (PDT)
+Subject: Re: [PATCH] NUMA-Q disable irqbalance
+In-Reply-To: <20020814115944.Q22573-100000@toad.stack.nl>
+Message-ID: <Pine.LNX.4.44.0208140409320.14642-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 July 2002 07:29, Stas Sergeev wrote:
-> For all those people who still
-> don't have a sound card I want to
-> introduce a pc-speaker driver.
-> There were some other pc-speaker
-> drivers floating over the net, but
-> AFAIK no one is really finished and
-> usable.
-> My driver is originally based on
-> Michael Beck and David Woodhouse
-> driver, but it is havily reworked
-> and pretends to be 100% OSS compatible
-> producing nearly the best sound
-> one can ever get from pc-speaker.
-> Well, there is (currently) no
-> intention to get it into the mainstream
-> kernel so don't treat it too seriously.
-> However any comments or bugreports are
-> appreciated.
->
-> The latest patch for 2.4.18 kernel
-> is available here:
-> http://www.geocities.com/stssppnn/pcsp.html
+while we're tweaking config options how about one that will turn on all
+the features that fall into the catagory of 'if you have this it will
+speed up your system, if you don't there's no performance penalty'
 
-Tested. Works for playing MP3s.
---
-vda
+I definantly understand why some people will want to turn those off to
+save memory, but it would be nice to have one thing to do to turn them all
+on at once when memory isn't that tight.
+
+David Lang
+
+On Wed, 14 Aug 2002, Jos Hulzink wrote:
+
+> Date: Wed, 14 Aug 2002 12:10:34 +0200 (CEST)
+> From: Jos Hulzink <josh@stack.nl>
+> To: Linus Torvalds <torvalds@transmeta.com>
+> Cc: Martin J. Bligh <Martin.Bligh@us.ibm.com>,
+>      linux-kernel <linux-kernel@vger.kernel.org>,
+>      Matt Dobson <colpatch@us.ibm.com>
+> Subject: Re: [PATCH] NUMA-Q disable irqbalance
+>
+> On Tue, 13 Aug 2002, Linus Torvalds wrote:
+>
+> > There are tons of reasons to run the same kernel on a multitude of
+> > machines, even ignoring the issue of things like installers etc.
+> >
+> > We had this CONFIG_xxxx disease when it came to SSE, we had it when it
+> > came to TSC, etc. And in every case it ended up being bad, simply because
+> > it's not the right interface for _users_.
+>
+> True, but the nice thing about the linux kernel is that every little
+> detail can be modified as you like. I think it is very important to answer
+> the question what skills a person that wants to compile a kernel needs. If
+> you want to lower the threshold, this sure is an config option that
+> shouldn't be there.
+>
+> Maybe the config system should provide an expert-mode to tweak stuff like
+> this, and enable / disable the irq balancing by default according to the
+> processor type selected.
+>
+> Jos
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

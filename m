@@ -1,61 +1,543 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTKGX3K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 18:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTKGX3I
+	id S263119AbTKGXpo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTKGWPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 18:29:08 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59368
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261892AbTKGX2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 18:28:51 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Date: Fri, 7 Nov 2003 17:25:31 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.96.1031107091607.20991C-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1031107091607.20991C-100000@gatekeeper.tmr.com>
+	Fri, 7 Nov 2003 17:15:48 -0500
+Received: from mail.gmx.de ([213.165.64.20]:4783 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264120AbTKGMvP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 07:51:15 -0500
+X-Authenticated: #4512188
+Message-ID: <3FAB95B9.3020601@gmx.de>
+Date: Fri, 07 Nov 2003 13:53:13 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, torvalds@osdl.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+References: <20031106130030.GC1145@suse.de> <3FAA4737.3060906@cyberone.com.au> <20031106130553.GD1145@suse.de> <3FAA4880.8090600@cyberone.com.au> <20031106131141.GE1145@suse.de> <3FAA4D48.6040709@gmx.de> <20031106133136.GA477@suse.de> <3FAA5043.8060907@gmx.de> <20031106134713.GA798@suse.de> <3FAA5397.6010702@gmx.de> <20031106135134.GA1194@suse.de> <3FAA5CCB.5030902@gmx.de> <3FAB0754.2040209@cyberone.com.au> <3FAB7F94.7050504@gmx.de> <3FAB82A2.4070907@cyberone.com.au> <3FAB8428.7090307@gmx.de> <3FAB870D.1050003@cyberone.com.au>
+In-Reply-To: <3FAB870D.1050003@cyberone.com.au>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311071725.32271.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 November 2003 08:21, Bill Davidsen wrote:
-> On Fri, 7 Nov 2003, Rob Landley wrote:
-> > Note this still doesn't mean you can scroll large X windows for two or
-> > three seconds at a time without burning a coaster.
-> >
-> > I had high hopes with the new scheduler, but no.  (Maybe if I niced the
-> > heck out of cdrecord...)
->
-> Wow, is the new scheduler that broken? cdrecord run as a realtime process
-> and should definitely keep going pretty much in spite of what you do.  It's
-> realtime priority and locked in core IIRC. The only problem I've had is
-> running out of data burning from NFS mounted data, if I get a load of SPAM
-> the network gets slow. My fault for not spending the time to copy the data
-> twice or buy a burnfree device.
+Nick Piggin wrote:
+> 
+> 
+> Prakash K. Cheemplavam wrote:
+> 
+>> Nick Piggin wrote:
+>>
+>>>
+>>>
+>>> Prakash K. Cheemplavam wrote:
+>>>
+>>>> Nick Piggin wrote:
+>>>>
+>>>>>
+>>>>>
+>>>>> Prakash K. Cheemplavam wrote:
+>>>>>
+>>>>>> Ok, I found the bugger: It *IS* the sheduler. I tried 
+>>>>>> elevator=deadline and all stuttering went away. Before I was using 
+>>>>>> as. mm1 used default sheduler (as I think) and ther eno probs. So 
+>>>>>> the (updated?) as sheduler in mm2 has a problem...
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> Weird. I have a few new AS patches in mm2 so its probably them. I 
+>>>>> can't
+>>>>> see why they'd be causing you to lose interrupts though. Could you try
+>>>>> this patch please.
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> So i tried the patch, but it didn't help. I cannot feel any 
+>>>> difference. Here are the vstats. First for dealine and second fro 
+>>>> patched as. Please keep in mind that (at the end of the stat) I 
+>>>> fiddled a bit around with the kernel sources while doing the burn. 
+>>>> Intersting would be the start of the erasing and start of burning. 
+>>>> There as gives serious stuttering.
+>>>
+>>>
+>>>
+>>>
+>>>
+>>>
+>>> OK thanks. Please try this patch then. Thank you.
+>>>
+>>
+>> Should I first revert the other patch or just use this over the 
+>> patched file?
+> 
+> 
+> 
+> Yeah revert the other I sent you.
 
-I dunno what I did.  This was -test9, using dev=/dev/hdc.  It was also 
-something like a week ago.  Halfway through the burn it died because the 
-buffer had run dry, and I made a second coaster to confirm that it was 
-scrolling a konqueror window that had done it.
+Yes, with this patch, it seems to be like in mm1 again, no more 
+stuttering (or at least I can't notice it anymore, as since 2 daysI have 
+an LCD), but also the bad stuttering at erase and burn start are gone 
+again. So do you have an idea what causes the problem?
 
-I probably forgot to run it as root.  (I don't remember it complaining, but I 
-was in the middle of about four other things at the time.  It did _start_ the 
-burn, and made it about halfway through.)  My laptop was also on battery 
-power, which may have had something to do with it, although I have a vague 
-recollection of that working previously, and the battery wasn't anywhere near 
-dead...
+vmstat:
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 773064  13936 134680    0    0  1504    34 1850  1046 12 
+16 48 24
+  0  0      0 772984  13936 134680    0    0     0    27 1170   248  1 
+2 97  0
+  0  0      0 772984  13936 134680    0    0     0     0 1440   690  0 
+0 100  0
+  0  0      0 772856  13936 134680    0    0     0     0 1269  1063  8 
+2 90  0
+  0  0      0 772872  13936 134680    0    0     0     0 1391   602  2 
+0 98  0
+  0  0      0 772704  13936 134684    0    0     4    24 1130   328  2 
+0 97  1
+  0  0      0 772608  13936 134688    0    0     4     0 1207   449  1 
+2 96  1
+  0  0      0 772608  13936 134688    0    0     0     0 1333   539  2 
+0 98  0
+  2  0      0 762304  13944 139472    0    0  4792     0 2392  2849 26 
+8 23 43
+  0  1      0 737984  13944 163712    0    0 24240     0 7145  7058 37 
+26  0 36
+  0  1      0 712640  13944 189056    0    0 25344    17 7416  7348 35 
+25  0 41
+  0  0      0 693824  13952 207780    0    0 18732     0 5892  5574 28 
+17 25 30
+  0  0      0 693864  13952 207780    0    0     0     0 1223   337  0 
+0 100  0
+  0  0      0 693864  13952 207780    0    0     0     0 1229   296  1 
+1 98  0
+  0  0      0 693864  13952 207780    0    0     0     0 1370   427  0 
+0 100  0
+  0  0      0 693848  13952 207780    0    0     0    67 1285   607  1 
+2 97  0
+  0  0      0 693880  13952 207780    0    0     0    13 1258   425  1 
+0 99  0
+  0  0      0 693520  13972 207844    0    0    84     0 1349  1620 10 
+4 83  3
+  0  0      0 689232  13972 211944    0    0     0     0 1485  1122  5 
+2 93  0
+  0  0      0 689232  13972 211944    0    0     0     0 1452   551  1 
+1 98  0
+  0  0      0 689232  13972 211944    0    0     0    18 1461   586  1 
+0 99  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 689232  13972 211944    0    0     0     0 1464   609  1 
+2 97  0
+  0  0      0 689232  13972 211944    0    0     0     0 1384   486  1 
+1 98  0
+  0  0      0 689232  13972 211944    0    0     0     0 1486   647  2 
+0 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1450   594  1 
+1 98  0
+  0  0      0 689264  13972 211944    0    0     0     4 1403   539  1 
+1 98  0
+  0  0      0 689264  13972 211944    0    0     0     0 1459   631  1 
+2 97  0
+  0  0      0 689264  13972 211944    0    0     0     0 1456   607  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1458   632  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1460   640  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0    19 1467   618  2 
+1 97  0
+  0  0      0 689280  13972 211944    0    0     0     0 1448   587  1 
+1 98  0
+  0  0      0 689288  13972 211944    0    0     0     0 1461   593  1 
+0 99  0
+  0  0      0 689288  13972 211944    0    0     0     0 1478   595  1 
+2 97  0
+  0  0      0 689288  13972 211944    0    0     0     0 1464   605  2 
+1 97  0
+  0  0      0 689280  13972 211944    0    0     0     4 1454   615  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1462   597  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1446   573  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1426   544  1 
+1 98  0
+  0  0      0 689280  13972 211944    0    0     0     0 1359   465  1 
+0 99  0
+  0  0      0 689280  13972 211944    0    0     0     3 1432   549  0 
+1 99  0
+  0  0      0 689280  13972 211944    0    0     0     0 1464   550  1 
+1 98  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 689280  13972 211944    0    0     0     0 1462   580  1 
+1 98  0
+  1  0      0 693376  13972 207844    0    0     0     0 1475   637  1 
+1 98  0
+  0  0      0 693392  13972 207844    0    0     0     0 1458   577  1 
+1 98  0
+  0  0      0 693384  13972 207844    0    0     0     0 1475   682  2 
+0 98  0
+  0  0      0 693384  13972 207848    0    0     0     0 1479   586  1 
+2 97  0
+  0  0      0 693384  13972 207848    0    0     0     0 1447   540  0 
+0 100  0
+  0  0      0 693448  13972 207848    0    0     0     0 1450   738  3 
+2 95  0
+  0  0      0 693448  13972 207848    0    0     0     0 1460   673  1 
+0 99  0
+  0  0      0 693448  13972 207848    0    0     0    28 1454   681  0 
+2 98  0
+  0  0      0 693448  13972 207848    0    0     0     0 1459   655  1 
+0 99  0
+  0  0      0 693456  13972 207848    0    0     0     0 1454   668  1 
+2 97  0
+  0  0      0 693456  13972 207848    0    0     0     0 1451   636  1 
+1 98  0
+  0  0      0 693456  13972 207848    0    0     0     0 1450   595  0 
+1 99  0
+  0  0      0 693448  13972 207848    0    0     0     0 1460   636  1 
+1 98  0
+  0  0      0 686608  13996 208004    0    0   176     0 1550  1461 17 
+5 71  7
+  0  0      0 686608  13996 208004    0    0     0     0 1447   809  1 
+2 97  0
+  0  0      0 686608  13996 208004    0    0     0     0 1455   786  1 
+0 99  0
+  0  0      0 686608  13996 208004    0    0     0     0 1458   763  1 
+0 99  0
+  0  0      0 686624  13996 208004    0    0     0    24 1463   776  1 
+2 97  0
+  0  0      0 686624  13996 208004    0    0     0    16 1454   813  1 
+2 97  0
+  0  0      0 686624  13996 208004    0    0     0     0 1448   836  1 
+0 99  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 686624  13996 208004    0    0     0     0 1448   796  0 
+1 99  0
+  0  0      0 686656  13996 208004    0    0     0     0 1449   793  1 
+1 98  0
+  0  0      0 686648  13996 208004    0    0     0     0 1466   770  1 
+1 98  0
+  0  0      0 686648  13996 208004    0    0     0     0 1450   744  1 
+1 98  0
+  0  0      0 686648  13996 208004    0    0     0     0 1465   781  1 
+1 98  0
+  0  0      0 686648  13996 208004    0    0     0     0 1467   786  1 
+1 98  0
+  0  0      0 686584  13996 208004    0    0     0     0 1496  1263  4 
+1 95  0
+  0  0      0 686584  13996 208004    0    0     0    16 1470   802  1 
+3 96  0
+  0  0      0 686576  13996 208004    0    0     0    33 1476   864  1 
+1 98  0
+  0  0      0 686576  13996 208004    0    0     0     0 1452   797  1 
+1 98  0
+  0  0      0 686576  13996 208004    0    0     0     0 1460   805  0 
+1 99  0
+  0  0      0 686576  13996 208004    0    0     0     0 1446   833  1 
+1 98  0
+  0  0      0 686384  13996 208004    0    0     0     6 1347  1741  9 
+4 87  0
+  0  0      0 686384  13996 208004    0    0     0     0 1450   771  3 
+0 97  0
+  0  0      0 686384  13996 208004    0    0     0     0 1447   775  2 
+2 96  0
+  0  0      0 686368  13996 208004    0    0     0     0 1440  1330 23 
+3 74  0
+  0  0      0 686368  13996 208024    0    0    20     0 1493  1236 18 
+3 79  0
+  1  0      0 686368  13996 208024    0    0     0     0 1400  1194  7 
+1 92  0
+  0  0      0 686368  13996 208024    0    0     0     0 1489  1108  2 
+3 95  0
+  0  0      0 686304  13996 208024    0    0     0     0 1419  1753 30 
+3 67  0
+  0  0      0 686304  13996 208024    0    0     0     0 1408   774  5 
+2 93  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 686336  13996 208024    0    0     0     0 1485   728  3 
+2 95  0
+  3  0      0 685736  13996 208024    0    0     0     0 1433  1137 12 
+2 86  0
+  0  0      0 686312  13996 208024    0    0     0     0 1413  2277 29 
+7 64  0
+  0  0      0 686312  13996 208024    0    0     0    17 1304  1081  5 
+1 94  0
+  0  0      0 686312  13996 208024    0    0     0     0 1404  1166  7 
+4 89  0
+  0  0      0 686376  13996 208024    0    0     0     0 1273   994  4 
+0 96  0
+  1  1      0 683584  14004 208636    0    0   620    24 1272  1758 58 
+5 28  9
+  0  0      0 681296  14012 209616    0    0   984    11 1638  1523 24 
+5 56 15
+  0  0      0 681296  14012 209616    0    0     0     0 1324  1117 15 
+1 84  0
+  0  0      0 681296  14012 209616    0    0     0     0 1158   885  5 
+1 94  0
+  0  0      0 681296  14012 209620    0    0     0     0 1257   823  2 
+2 96  0
+  0  0      0 681296  14012 209652    0    0    27     1 1453  1027 10 
+1 87  2
+  0  0      0 681336  14012 209652    0    0     0     0 1114   903  5 
+2 93  0
+  0  0      0 681336  14012 209652    0    0     0     0 1124  1039 10 
+1 89  0
+  2  0      0 681336  14012 209652    0    0     0     0 1109   819  2 
+1 97  0
+  0  0      0 681336  14012 209652    0    0     0     0 1108   826  3 
+1 96  0
+  0  0      0 681352  14012 209652    0    0     0     0 1115   999  9 
+2 89  0
+  0  0      0 681352  14012 209652    0    0     0     0 1120   927  5 
+1 94  0
+  0  0      0 681352  14012 209652    0    0     0     0 1118  1040 11 
+1 88  0
+  1  0      0 681352  14012 209652    0    0     0     0 1115   945  9 
+1 90  0
+  0  0      0 681360  14012 209652    0    0     0    28 1135  1167 13 
+1 86  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 681352  14012 209652    0    0     0    17 1203  1032  5 
+3 92  0
+  0  0      0 681352  14012 209652    0    0     0     0 1132   824  4 
+0 96  0
+  0  0      0 681352  14012 209652    0    0     0     0 1112   847  2 
+1 97  0
+  0  0      0 681352  14012 209652    0    0     0     0 1116   901  5 
+2 93  0
+  0  0      0 681288  14012 209652    0    0     0     2 1142   865  6 
+2 92  0
+  0  0      0 680840  14012 209744    0    0    92     0 1376  1255 16 
+1 82  1
+  0  0      0 680840  14012 209744    0    0     0     0 1308  1065 10 
+2 88  0
+  0  0      0 678840  14016 210288    0    0   262     0 1264  1935 38 
+5 53  4
+  0  0      0 678840  14016 210288    0    0     0     0 1440  1208  6 
+2 92  0
+  0  0      0 678840  14016 210288    0    0     0     0 1348  1656 19 
+3 78  0
+  0  0      0 678840  14016 210288    0    0     0     0 1156   903  5 
+1 94  0
+  0  0      0 678856  14016 210292    0    0     0     0 1121   860 10 
+2 88  0
+  0  0      0 678856  14016 210292    0    0     0     0 1136   934  2 
+1 97  0
+  0  0      0 678856  14016 210292    0    0     0     0 1112   814  2 
+0 98  0
+  0  0      0 678856  14016 210292    0    0     0     0 1124   929  8 
+1 91  0
+  0  0      0 678872  14016 210292    0    0     0     8 1127   925  7 
+2 91  0
+  0  0      0 678872  14016 210292    0    0     0     0 1121   903  8 
+1 91  0
+  0  0      0 678872  14016 210292    0    0     0     0 1119   872  5 
+1 94  0
+  0  0      0 678872  14016 210292    0    0     0     0 1130   902  7 
+2 91  0
+  0  0      0 678880  14016 210292    0    0     0   216 1157   881  7 
+0 93  0
+  0  0      0 678872  14016 210292    0    0     0     0 1121   901  8 
+1 91  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 678872  14016 210292    0    0     0     0 1117   860  7 
+1 92  0
+  0  0      0 678872  14016 210292    0    0     0     0 1120   902  8 
+2 90  0
+  0  0      0 678872  14016 210292    0    0     0     0 1123   947  8 
+1 91  0
+  0  0      0 678872  14016 210292    0    0     0     0 1120   921  8 
+1 91  0
+  0  0      0 678872  14016 210292    0    0     0     0 1143   770  7 
+2 91  0
+  0  0      0 678872  14016 210292    0    0     0     0 1514  1090  7 
+3 90  0
+  0  0      0 678888  14016 210292    0    0     0     0 1473   761  3 
+2 95  0
+  0  0      0 678888  14016 210292    0    0     0     0 1467   587  5 
+2 93  0
+  0  0      0 678696  14016 210292    0    0     0     0 1455   230  5 
+0 95  0
+  0  0      0 678496  14016 210292    0    0     0     0 1458   265  6 
+1 93  0
+  0  0      0 678368  14016 210292    0    0     0     0 1456   278  6 
+2 92  0
+  0  0      0 678368  14016 210292    0    0     0     0 1450   225  1 
+1 98  0
+  0  0      0 678240  14016 210292    0    0     0    23 3710   468  4 
+2 94  0
+  0  0      0 678112  14016 210292    0    0     0    17 3805   268  5 
+2 93  0
+  0  0      0 677920  14016 210292    0    0     0     0 2048   272  6 
+2 92  0
+  0  0      0 677792  14016 210292    0    0     0     0 1461   327  6 
+1 93  0
+  0  0      0 677664  14016 210296    0    0     0     0 1458   288 11 
+1 88  0
+  0  0      0 677664  14016 210296    0    0     0     0 3543   172  1 
+2 97  0
+  0  0      0 677672  14016 210296    0    0     0     8 1858   224  3 
+1 96  0
+  0  0      0 677664  14016 210296    0    0     0     0 1456   248  4 
+1 95  0
+  0  0      0 682400  14016 210296    0    0     0     0 1470   378  6 
+1 93  0
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 682400  14016 210296    0    0     0     0 1456   255  6 
+0 94  0
+  0  0      0 682400  14016 210296    0    0     0     0 1457   247  5 
+2 93  0
+  0  0      0 682712  14016 210300    0    0     4    43 1493   493  5 
+0 94  1
+  3  0      0 682712  14016 210300    0    0     0     0 1458   421 29 
+6 65  0
+  2  0      0 682712  14016 210300    0    0     0     8 1451  2945 89 
+11  0  0
+  2  0      0 682712  14016 210300    0    0     0     0 1449 15514 83 
+17  0  0
+  0  0      0 682712  14016 210300    0    0     0     0 1459  9377 53 
+11 36  0
+  0  0      0 682648  14016 210300    0    0     0     0 1456   212  3 
+1 96  0
+  0  1      0 682520  14080 210300    0    0    64     0 1476   288  7 
+1 82 10
+  0  1      0 682400  14208 210300    0    0   128     0 1455   192  4 
+1  0 95
+  1  1      0 682016  14592 210300    0    0   384     0 1457   226  3 
+1  0 96
+  0  1      0 679776  16768 210300    0    0  2176     0 1467   993  9 
+2  0 89
+  0  1      0 677472  19072 210300    0    0  2304     0 1464   942  7 
+2  0 91
+  0  1      0 675040  21504 210300    0    0  2432     0 1468   935  7 
+2  0 91
+  0  1      0 672608  23936 210300    0    0  2432     0 1468  1053 10 
+2  0 88
+  0  1      0 670112  26368 210300    0    0  2432     0 1470   947  9 
+2  0 89
+  0  1      0 667616  28800 210300    0    0  2432     0 1473   979 10 
+3  0 87
+  0  1      0 665072  31104 210300    0    0  2304    21 1474   898  8 
+3  0 89
+  0  1      0 662568  33536 210300    0    0  2432     0 1481  1085 14 
+3  0 83
+  0  1      0 660072  35968 210300    0    0  2432     0 1477  1072 14 
+2  0 84
+  0  1      0 657576  38400 210300    0    0  2432     0 1497  1099 14 
+3  0 83
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  1      0 655080  40832 210300    0    0  2432     0 1475  1015 12 
+3  0 85
+  0  1      0 652584  43264 210300    0    0  2432     2 1477  1000 14 
+1  0 85
+  0  1      0 650152  45568 210300    0    0  2304     0 1472   918 11 
+3  0 86
+  0  1      0 647656  48000 210300    0    0  2432     0 1481  1070 14 
+2  0 84
+  0  1      0 645160  50432 210300    0    0  2432     0 1473  1017 14 
+2  0 84
+  0  1      0 642664  52864 210300    0    0  2432     0 1479  1086 18 
+2  0 80
+  0  1      0 640168  55296 210300    0    0  2432    16 1500  1010 15 
+3  0 82
+  0  1      0 637672  57728 210300    0    0  2432     0 1479  1152 16 
+2  0 82
+  0  1      0 635304  60032 210300    0    0  2304     0 1469  1044 11 
+3  0 86
+  0  1      0 632872  62464 210300    0    0  2432     0 1479  1130 13 
+3  0 84
+  1  1      0 630248  64896 210300    0    0  2432     0 1476  1005 12 
+2  0 86
+  0  1      0 627744  67328 210300    0    0  2432    12 1481  1028 12 
+2  0 86
+  1  1      0 625248  69760 210300    0    0  2432     0 1480  1014 13 
+3  0 84
+  0  1      0 622880  72064 210300    0    0  2304     1 1481  1085 14 
+2  0 84
+  0  1      0 620384  74496 210300    0    0  2432     0 1475   995 13 
+2  0 85
+  0  1      0 617888  76928 210300    0    0  2432     0 1472  1017 13 
+3  0 84
+  0  1      0 615400  79360 210300    0    0  2432     3 1476  1074 10 
+3  0 87
+  1  1      0 612896  81792 210300    0    0  2432     0 1477  1005 13 
+2  0 85
+  0  1      0 610464  84096 210300    0    0  2304     0 1473   967 11 
+2  0 87
+  0  1      0 607968  86528 210300    0    0  2432     0 1481  1120 15 
+3  0 82
+  0  0      0 682448  14024 210348    0    0   582     0 1481   503  5 
+4 67 24
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+sy id wa
+  0  0      0 682320  14024 210356    0    0     4     0 1460   223  4 
+1 95  0
+  0  0      0 682448  14024 210356    0    0     0     0 1459   260  5 
+0 95  0
+  0  0      0 682448  14024 210356    0    0     0     0 1449   213  0 
+1 99  0
+  0  0      0 682480  14024 210356    0    0     0     0 1458   356  7 
+1 92  0
+  0  0      0 682480  14024 210356    0    0     0     0 1455   229  3 
+1 96  0
+  0  0      0 682480  14024 210356    0    0     0     0 1310   341  4 
+0 96  0
+  0  0      0 682472  14024 210356    0    0     0     8 1097   287  5 
+2 93  0
+  0  0      0 682472  14024 210356    0    0     0     0 1084   250  3 
+0 97  0
+  0  0      0 682472  14024 210356    0    0     0     0 1087   240  4 
+0 96  0
+  0  0      0 682472  14024 210356    0    0     0     0 1082   183  2 
+0 98  0
+  0  0      0 682472  14024 210356    0    0     0     0 1322   605  4 
+1 95  0
+  0  0      0 682472  14024 210356    0    0     0     0 1250   590  0 
+1 99  0
+  0  0      0 682456  14024 210356    0    0     0     0 1266  1138  8 
+1 91  0
 
-It's not something I've really followed up on.  It works if I leave it alone 
-while it burns, and I haven't had to burn that many cds recently.  (I was 
-burning a knoppix cd for a friend.)  I mostly back up through the network...
 
-Rob
+Prakash
+

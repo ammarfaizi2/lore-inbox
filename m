@@ -1,100 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbUK2NVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbUK2N1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbUK2NVh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 08:21:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbUK2NVh
+	id S261399AbUK2N1v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 08:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbUK2N1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 08:21:37 -0500
-Received: from smtp.terra.es ([213.4.129.129]:53114 "EHLO tfdsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id S261303AbUK2NVP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 08:21:15 -0500
-From: MNGOMENI <MNGOMENI@terra.es>
-Reply-To: mngomeni@operamail.com
-Message-ID: <fd8be10174b.10174bfd8be@teleline.es>
-Date: Mon, 29 Nov 2004 14:21:06 +0100
-X-Mailer: Netscape Webmail
+	Mon, 29 Nov 2004 08:27:51 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:34755 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261293AbUK2N1m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 08:27:42 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Language: es
-Subject: Please,Your last Notice!!!
-X-Accept-Language: es
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] remove bouncing email address of Deanna Bonds
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Mon, 29 Nov 2004 08:27:39 -0500
+Message-ID: <60807403EABEB443939A5A7AA8A7458B7661DC@otce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] remove bouncing email address of Deanna Bonds
+Thread-Index: AcTSqlVndHXr4M7ORCuBPWqkh9N8bgDbL20g
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Adrian Bunk" <bunk@stusta.de>, <James.Bottomley@SteelEye.com>,
+       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am Mngomeni James, Corporate Finance Manager,
-Standard Bank of South Africa. On December 18,2000 one
-Mr. Benard Clark, an American National, a consultant
-with a leading conglomerate here in Johannesburg, made a numbered time 
-(Fixed) Deposit, valued at 4.9 million dollars for twelve calendar 
-months in my Bank Branch.
+That address should instead become aacraid@adaptec.com to capture
+engineers at Adaptec.
 
-Upon Maturity, we sent a routine notification to his
-forwarding address but got no reply, after a month,
-we sent a reminder and finally we discovered from his
-contract employers that Mr. Benard Clark died
-from an automobile accident. On further investigation,
-it was discovered that he died without making a Will
-and all attempts to trace his next of kin was
-fruitless.
+Sincerely -- Mark Salyzyn
 
-More investigations revealed that Late Benard Clark
-did not declare any next of kin or relations in all
-his official documents,including his Bank Deposit
-paper work here at the Bank. The total sums 4.9
-million dollars still in my bank and the interest is
-being rolled over with the principal sum at the end of
-each year.
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Adrian Bunk
+Sent: Wednesday, November 24, 2004 1:47 PM
+To: James.Bottomley@SteelEye.com; Marcelo Tosatti
+Cc: linux-scsi@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: [patch] remove bouncing email address of Deanna Bonds
 
-No one will ever come forward to claim it. In
-accordance with the Banking Federal Laws and
-constitution,at the expiration of 4 (four) years, the
-money will revert to the ownership of the Government if
-nobody applies as the next of Kin to claim the funds.
-
-Consequently, I shall present you as a foreign partner
-to stand in as the next of kin to late Mr. Benrad
-Clark so that you and I can benefit from it to enhance humanitarian 
-Organisation Worldwide. Upon acceptance of this proposal, I shall send 
-to you a copy of the Next of Kin Payment Application Form as well as 
-detailed information on how this deal would be transacted.
-
-We shall employ the services of a solicitor for the
-drafting of the LAST WILL & TESTAMENT of Late Mr.
-Benard Clark and to obtain all other relevant papers
-in your name for the necessary documentation for
-payment approval in my bank headquarters in your
-favour.The money will be shared in the ratio of Sixty
-percent for me, thirty five percent for you and
-five percent for any arising contingencies
-during the course of this business.
-
-I guarantee that this will be executed under
-legitimate arrangement that will protect you from any
-breach of the law as I will use my position as the
-Bank's corporate Finance Manager to secure approvals
-and guarantee the successful execution of this
-transaction and it will take between 7-10 working days
-to conclude this transaction.
-
-Please be informed that your utmost confidentiality is Required. If 
-these interest you, please reply me Immediately via my private email 
-address mngomeni@operamail.com  and please include your private phone 
-number for voice contact and fax number so I can provide you with more 
-details and relevant documents that will help you understand the 
-transaction.
-
-An early response will be appreciated.
-
-Thanks.
-
-Your faithfully,
-
-Mngomeni James
+The patch below (applies against both 2.4 and 2.6) removes the bouncing 
+email address of Deanna Bonds (I didn't find a nmore recent address).
 
 
+diffstat output:
+ drivers/scsi/aacraid/README   |    2 +-
+ drivers/scsi/dpt/dpti_ioctl.h |    1 -
+ drivers/scsi/dpt_i2o.c        |    1 -
+ drivers/scsi/dpti.h           |    1 -
+ 4 files changed, 1 insertion(+), 4 deletions(-)
 
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm3-full/drivers/scsi/dpti.h.old	2004-11-24
+19:23:47.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/scsi/dpti.h	2004-11-24
+19:23:56.000000000 +0100
+@@ -3,7 +3,6 @@
+                              -------------------
+     begin                : Thu Sep 7 2000
+     copyright            : (C) 2001 by Adaptec
+-    email                : deanna_bonds@adaptec.com
+ 
+     See Documentation/scsi/dpti.txt for history, notes, license info
+     and credits
+--- linux-2.6.10-rc2-mm3-full/drivers/scsi/aacraid/README.old
+2004-11-24 19:24:05.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/scsi/aacraid/README
+2004-11-24 19:24:16.000000000 +0100
+@@ -42,7 +42,7 @@
+ Christoph Hellwig <hch@infradead.org>	(updates for new-style PCI
+probing and SCSI host registration,
+ 					 small cleanups/fixes)
+ Matt Domsch <matt_domsch@dell.com>	(revision ioctl, adapter
+messages)
+-Deanna Bonds <deanna_bonds@adaptec.com> (non-DASD support, PAE fibs and
+64 bit, added new adaptec controllers
++Deanna Bonds                            (non-DASD support, PAE fibs and
+64 bit, added new adaptec controllers
+ 					 added new ioctls, changed scsi
+interface to use new error handler,
+ 					 increased the number of fibs
+and outstanding commands to a container)
+ 
+--- linux-2.6.10-rc2-mm3-full/drivers/scsi/dpt/dpti_ioctl.h.old
+2004-11-24 19:24:24.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/scsi/dpt/dpti_ioctl.h
+2004-11-24 19:24:27.000000000 +0100
+@@ -3,7 +3,6 @@
+                              -------------------
+     begin                : Thu Sep 7 2000
+     copyright            : (C) 2001 by Adaptec
+-    email                : deanna_bonds@adaptec.com
+ 
+     See Documentation/scsi/dpti.txt for history, notes, license info
+     and credits
+--- linux-2.6.10-rc2-mm3-full/drivers/scsi/dpt_i2o.c.old
+2004-11-24 19:24:34.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/scsi/dpt_i2o.c	2004-11-24
+19:24:37.000000000 +0100
+@@ -3,7 +3,6 @@
+                              -------------------
+     begin                : Thu Sep 7 2000
+     copyright            : (C) 2000 by Adaptec
+-    email                : deanna_bonds@adaptec.com
+ 
+ 			   July 30, 2001 First version being submitted
+ 			   for inclusion in the kernel.  V2.4
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

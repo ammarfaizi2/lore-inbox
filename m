@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135719AbRDSVfP>; Thu, 19 Apr 2001 17:35:15 -0400
+	id <S135716AbRDSVg1>; Thu, 19 Apr 2001 17:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135721AbRDSVfG>; Thu, 19 Apr 2001 17:35:06 -0400
-Received: from t2.redhat.com ([199.183.24.243]:29181 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135716AbRDSVez>; Thu, 19 Apr 2001 17:34:55 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <B704C0AA.4239%jeff.galloway@rundog.com> 
-In-Reply-To: <B704C0AA.4239%jeff.galloway@rundog.com> 
-To: Jeff Galloway <jeff.galloway@rundog.com>
+	id <S135721AbRDSVgR>; Thu, 19 Apr 2001 17:36:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14096 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135716AbRDSVgB>; Thu, 19 Apr 2001 17:36:01 -0400
+Subject: Re: FW: Linux 2.4.3 Compile Errors - Power Mac
+To: jeff.galloway@rundog.com (Jeff Galloway)
+Date: Thu, 19 Apr 2001 22:37:12 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: FW: Linux 2.4.3 Compile Errors - Power Mac 
-Mime-Version: 1.0
+In-Reply-To: <B704C0AA.4239%jeff.galloway@rundog.com> from "Jeff Galloway" at Apr 19, 2001 04:19:54 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 19 Apr 2001 22:34:36 +0100
-Message-ID: <22514.987716076@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14qM73-00088z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I sent this report to the people indicated below, whose names I got from the
+> MAINTAINERS file in the 2.4.3 distribution, but the email address for Mr.
+> MacKerras is no longer good and Mr. Chastain wrote me back that he is not
+> following 2.4 issues.
 
-jeff.galloway@rundog.com said:
->  I have not yet heard from Mr. Owens.
+Well Keith is on holiday I believe and Paul is moving from Linuxcare.
 
-This does not surprise me, given the content of your email.
+> Any suggestions on the solution to my problem?
 
-> The compiler error message along with the menuconfig-generated
-> configuration file are set out in the attached MS Word document.
-
-I have to assume that you're just winding us up here, rather than genuinely
-in need of assistance. Word documents are not an appropriate form in which
-to exchange such information across security domains; especially in public
-fora - and I won't insult your intelligence by assuming that you believe
-otherwise.
-
-cf. http://www.infradead.org/fileexchange.html
-
---
-dwmw2
-
-
+Build PPC from the linuxppc trees not the base one - it isnt yet all nicely
+merged in 2.4

@@ -1,65 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSDDPVl>; Thu, 4 Apr 2002 10:21:41 -0500
+	id <S313194AbSDDPXV>; Thu, 4 Apr 2002 10:23:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313194AbSDDPVb>; Thu, 4 Apr 2002 10:21:31 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6665 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S313190AbSDDPVQ>;
-	Thu, 4 Apr 2002 10:21:16 -0500
-Date: Thu, 4 Apr 2002 12:21:00 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-        Stelian Pop <stelian.pop@fr.alcove.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <Pine.LNX.4.44.0204040747260.25330-100000@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44L.0204041217290.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313196AbSDDPXM>; Thu, 4 Apr 2002 10:23:12 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:40387 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S313194AbSDDPW5>;
+	Thu, 4 Apr 2002 10:22:57 -0500
+Date: Thu, 4 Apr 2002 17:22:38 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.7-dj3 - BUG & PATCH
+Message-Id: <20020404172238.62bf1d41.sebastian.droege@gmx.de>
+In-Reply-To: <20020404054923.A28437@suse.de>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.D(iwzHM_L01(62"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Apr 2002, Ingo Molnar wrote:
+--=.D(iwzHM_L01(62
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> I consider 'abuse' for example a kernel derivative with a 'modified'
-> scheduler. The day it will be possible to put a binary-only sched.o into
-> the kernel i'll stop doing Linux. I am not here to develop some 'lite'
-> version of the OS, where all the interesting stuff happens behind closed
-> doors. I'm not here either to see the quality of the OS degrade due to
-> sloppy programming in widely used binary-only modules, without being able
-> to fix it.
+Hi,
+I have a problem in 2.5.7-dj3 which doesn't exist in 2.5.8-pre1...
+My USB keyboard and mouse are detected properly but aren't usable
+I get the same behaviour when unsetting CONFIG_USB_HIDINPUT in 2.5.8-pre1
+grepping for CONFIG_USB_HIDINPUT in 2.5.7-dj3 finds something but the option doesn't show in old/menuconfig
+When setting CONFIG_USB_HIDINPUT=y by hand in 2.5.7-dj3 I get a compile error:
 
-Absolutely agreed.  I've already seen it happen a few times that
-a user needed _2_ binary-only modules, modules which weren't even
-available for the same kernel version.
+make[3]: Entering directory `/usr/src/linux-2.5.7/drivers/usb'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.7/include -Wall -Wstrict-prototypes -Wno-trigraphs -O6 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=hid_input  -c -o hid-input.o hid-input.c
+hid-input.c:335: redefinition of `hidinput_hid_event'
+hid.h:411: `hidinput_hid_event' previously defined here
+hid-input.c:413: redefinition of `hidinput_connect'
+hid.h:412: `hidinput_connect' previously defined here
+hid-input.c:458: redefinition of `hidinput_disconnect'
+hid.h:413: `hidinput_disconnect' previously defined here
+make[3]: *** [hid-input.o] Fehler 1
 
-As it stands right now it is IMPOSSIBLE to support binary only
-drivers and I can only see two ways out of this situation:
+I don't see any differences between 2.5.7-dj3 and 2.5.8-pre1 which can cause such error but the patch at the bottom solves it ;)
+Maybe someone can explain me why 2.5.8-pre1 compiles without the #ifdefs  (with CONFIG_USB_HIDINPUT set and unset) and not in 2.5.7-dj3
 
-(1) don't allow binary only modules at all
+With this patch my mouse and keyboard work again
 
-(2) have a stable ABI for binary only modules and don't allow
-    these binary only modules to use other symbols, so people
-    in need of binary only modules won't be locked to one
-    particular version of the kernel (or have two binary only
-    modules locked to _different_ versions of the kernel)
+Bye
 
+diff -Nur linux-2.5.7/drivers/usb/Config.in linux-2.5.7-2/drivers/usb/Config.in
+--- linux-2.5.7/drivers/usb/Config.in   Thu Apr  4 17:17:57 2002
++++ linux-2.5.7-2/drivers/usb/Config.in Thu Apr  4 17:15:38 2002
+@@ -53,6 +53,7 @@
+       comment '  Input core support is needed for USB HID'
+    else
+       dep_tristate '  USB Human Interface Device (full HID) support' CONFIG_USB_HID $CONFIG_USB $CONFIG_INPUT
++        dep_mbool '    HID input layer support' CONFIG_USB_HIDINPUT $CONFIG_INPUT $CONFIG_USB_HID
+          dep_mbool '    /dev/hiddev raw HID device support (EXPERIMENTAL)' CONFIG_USB_HIDDEV $CONFIG_USB_HID
+       if [ "$CONFIG_USB_HID" != "y" ]; then
+          dep_tristate '  USB HIDBP Keyboard (basic) support' CONFIG_USB_KBD $CONFIG_USB $CONFIG_INPUT
+diff -Nur linux-2.5.7/drivers/usb/hid-input.c linux-2.5.7-2/drivers/usb/hid-input.c
+--- linux-2.5.7/drivers/usb/hid-input.c Mon Mar 18 21:37:13 2002
++++ linux-2.5.7-2/drivers/usb/hid-input.c       Thu Apr  4 17:20:55 2002
+@@ -331,6 +331,7 @@
+        }
+ }
+ 
++#ifdef CONFIG_USB_HIDINPUT
+ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)
+ {
+        struct input_dev *input = &hid->input;
+@@ -373,6 +374,7 @@
+        if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
+                input_event(input, usage->type, usage->code, 0);
+ }
++#endif
+ 
+ static int hidinput_input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+ {
+@@ -403,6 +405,7 @@
+        hid_close(hid);
+ }
+ 
++#ifdef CONFIG_USB_HIDINPUT
+ /*
+  * Register the input device; print a message.
+  * Configure the input layer interface
+@@ -458,3 +461,4 @@
+ {
+        input_unregister_device(&hid->input);
+ }
++#endif
 
+--=.D(iwzHM_L01(62
+Content-Type: application/pgp-signature
 
-kind regards,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+iD8DBQE8rG/Fe9FFpVVDScsRAqdiAKDbLES36z3veiKFk2d+e5ys5o4FfgCgmuSx
+WA5Od00v8hdKLR8+gmn29v8=
+=ctxF
+-----END PGP SIGNATURE-----
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--=.D(iwzHM_L01(62--
 

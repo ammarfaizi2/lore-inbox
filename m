@@ -1,90 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319191AbSHNEGi>; Wed, 14 Aug 2002 00:06:38 -0400
+	id <S319195AbSHNEBz>; Wed, 14 Aug 2002 00:01:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319192AbSHNEGi>; Wed, 14 Aug 2002 00:06:38 -0400
-Received: from mail20.bigmailbox.com ([209.132.220.51]:2249 "EHLO
-	mail20.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S319191AbSHNEGh>; Wed, 14 Aug 2002 00:06:37 -0400
-Date: Tue, 13 Aug 2002 21:09:09 -0700
-Message-Id: <200208140409.g7E499320183@mail20.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
+	id <S319196AbSHNEBz>; Wed, 14 Aug 2002 00:01:55 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:56824 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S319195AbSHNEBy>; Wed, 14 Aug 2002 00:01:54 -0400
+Date: Wed, 14 Aug 2002 00:05:46 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] printk from userspace
+Message-ID: <20020814000546.B15947@redhat.com>
+References: <3D59CBFA.9CFC9FEE@zip.com.au> <20020813235803.A15947@redhat.com> <3D59D5E6.1010608@zytor.com>
 Mime-Version: 1.0
-X-Originating-Ip: [128.97.184.97]
-From: "Peter Plantagenet" <plantagenet@music.com>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.20-pre2] CPiA kernel panic
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D59D5E6.1010608@zytor.com>; from hpa@zytor.com on Tue, Aug 13, 2002 at 09:00:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 13, 2002 at 09:00:38PM -0700, H. Peter Anvin wrote:
+> First of all, only CAP_SYS_ADMIN.  As far as spamming the ring buffer, 
+> that's trivial to do today by just sending a bunch of bad network 
+> packets,
 
-I just built the new 2.4.20-pre2. 
+Not true, network logging is rate limited.
 
-Under Multimedia devices / Video for Linux I included:
-        * CPiA Video for Linux 
-        * CPiA USB lowlevel support
+> or attaching a USB CD-ROM without a disc in the drive (yes, 
+> really... on my wife's laptop it was so bad that unless she unplugged 
+> the CD-ROM syslogd was eating her system alive), or...
 
-When booting, I got this:
+Well, that's more of a bug and requires console access anyways.
 
-V4L-Driver for Vision CPiA based cameras v0.7.4
-usb.c: registered new driver cpia
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000 printing eip:
-c0119e3c
-* pde=00000000
-Oops: 0002
-EIP: 0010: [<c0119e3c>] Not tainted
-EFLAGS 00010002
-
-After this there was additional failure information (eax, ebx, ecx, edx,
-esi, edi, ebp, esp), ds: 0018 es: 0018 ss: 0018, Process swapper (pid: 1,
-stackpage=C12d7000), Stack, Call trace, Code, and finally,
-
-<o> Kernel panic: Attempted to kill init!
-
-No error log appears to have been written; I copied this down.
-
-I then rebuilt the kernel without the CPiA driver and the USB low-level support and the system works fine.
-
-I had the same experience in the fall, building with 2.4.16 for an i586.
-I tried to get something useful from Oops but failed.
-
-Cheers,
-Peter
-
-bash /usr/src/linux/scripts/ver_linux
-Linux 2.4.20-pre2 #2 Tue Aug 13 20:06:56 PDT 2002 i686 unknown
-
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.11.90.0.29
-util-linux             2.11i
-mount                  2.11i
-modutils               2.4.8
-e2fsprogs              1.27
-reiserfsprogs          3.x.0k-pre9
-PPP                    2.4.1
-Linux C Library        x    1  1384040 Dec 18  2001 /lib/libc.so.6
-Dynamic linker (ldd)   2.2.4
-Linux C++ Library      2.9.
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.04
-Sh-utils               2.0
-Modules Loaded         (none)
-
-
-
-------------------------------------------------------------
-Get YourName.Music.com- http://www.music.com/myband_main.html
-Reserve your .Music.com address and reach thousands of fans!
-
-
----------------------------------------------------------------------
-Express yourself with a super cool email address from BigMailBox.com.
-Hundreds of choices. It's free!
-http://www.bigmailbox.com
----------------------------------------------------------------------
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

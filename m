@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUF2HBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUF2HBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUF2HBR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 03:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUF2HBR
+	id S265521AbUF2HBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 03:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUF2HBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 03:01:17 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:32729 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265672AbUF2HA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 03:00:56 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 29 Jun 2004 00:00:50 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       mingo@redhat.com, cagney@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
-In-Reply-To: <200406290437.i5T4bYPI022901@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0406282146470.24039@bigblue.dev.mdolabs.com>
-References: <200406290437.i5T4bYPI022901@magilla.sf.frob.com>
+	Tue, 29 Jun 2004 03:01:43 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:64650 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265531AbUF2HBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 03:01:31 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/19] New set of input patches
+Date: Tue, 29 Jun 2004 02:01:28 -0500
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20040628145454.9403.qmail@web81305.mail.yahoo.com> <20040628150736.GA1059@ucw.cz>
+In-Reply-To: <20040628150736.GA1059@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406290201.28433.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jun 2004, Roland McGrath wrote:
-
-> > Davide's patch (which has been in -mm for 6-7 weeks) doesn't add
-> > fastpath overhead.
+On Monday 28 June 2004 10:07 am, Vojtech Pavlik wrote:
+> On Mon, Jun 28, 2004 at 07:54:53AM -0700, Dmitry Torokhov wrote:
+> > 
+> > Sysfs changes should be useable even without platform device changes
+> > and I would like start syncing with you. Would you take patches 2 
+> > through 10 (I will drop the legacy_position stuff)?
+>  
+> Yes.
 > 
-> I am also dubious about exactly what it does.  That patch seems a bizarre
-> obfuscation of the code to me.  TIF_SINGLESTEP is really there to handle
-> the lazy TF clearing for sysenter entry, and that's all.  I don't think
-> that patch handles user-mode setting TF properly, unusual though that case
-> is.  How does that patch interact with PT_TRACESYSGOOD?  It appears to me
-> that PTRACE_SINGLESTEP will now generate a syscall trap instead of a
-> single-step trap, which is an undesireable change in behavior I would say.
-> 
-> I don't really care about user-mode setting of TF before executing int
-> $0x80.  If poeple have programs that use TF in user mode, they have never
-> complained about the issue before.  For PTRACE_SINGLESTEP, Davide's
-> approach of setting the kernel-work flag directly when PTRACE_SINGLESTEP
-> sets TF in the user flags word is the obvious way to avoid the test in the
-> fast path.  I am inclined to combine that approeach with what my patch
-> does, i.e. just take out the system call fast-path test and set
-> TIF_SINGLESTEP_TRAP in PTRACE_SINGLESTEP.  I think the way Davide's patch
-> uses TIF_SINGLESTEP is pretty questionable.
 
-Roland, I don't think (pretty sure actually ;) we can handle the case 
-where TF is set from userspace and, at the same time, the user uses 
-PTRACE_SINGLESTEP. The ptrace infrastructure uses the hw TF flag to work. 
-The PTRACE_SINGLESTEP gives you the SYSGOOD behaviour, if you set it. And 
-sends a SIGTRAP notification to the ptrace'ing parent process.
+Vojtech,
 
+As we discussed I dropped the legacy_position sysfs attribute and moved
+patches 2 through 10 to my repository on bkbits.net. I also moved patch
+#14 because sa1111ps2, gscps2, ambakmi and pcips2 have already been 
+integrated with sysfs so linking their serio ports to their devices
+are simple one-liners not depending on anything I sent to Greg.
 
-- Davide
+Please do:
 
+	bk pull bk://dtor.bkbits.net/input
+
+-- 
+Dmitry

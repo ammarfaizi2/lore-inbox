@@ -1,102 +1,381 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUJKEzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268701AbUJKFEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbUJKEzm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 00:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268693AbUJKEzm
+	id S268701AbUJKFEd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 01:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268697AbUJKFEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 00:55:42 -0400
-Received: from gate.crashing.org ([63.228.1.57]:41659 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268685AbUJKEzi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 00:55:38 -0400
-Subject: Re: Totally broken PCI PM calls
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>
-In-Reply-To: <Pine.LNX.4.58.0410102126220.3897@ppc970.osdl.org>
-References: <1097455528.25489.9.camel@gaston>
-	 <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
-	 <1097466354.3539.14.camel@gaston>
-	 <Pine.LNX.4.58.0410102104530.3897@ppc970.osdl.org>
-	 <1097468590.3249.2.camel@gaston>
-	 <Pine.LNX.4.58.0410102126220.3897@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1097470524.3249.34.camel@gaston>
+	Mon, 11 Oct 2004 01:04:24 -0400
+Received: from FW-30-241.go.retevision.es ([62.174.241.30]:15452 "EHLO
+	mayhem.ghetto") by vger.kernel.org with ESMTP id S268693AbUJKFDi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 01:03:38 -0400
+Date: Mon, 11 Oct 2004 07:03:20 +0200
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [BUG] 2.6.9-rc2 scsi and elevator oops when I/O error
+Message-ID: <20041011050320.GA28703@larroy.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 11 Oct 2004 14:55:24 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: piotr@larroy.com (Pedro Larroy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 14:32, Linus Torvalds wrote:
-> On Mon, 11 Oct 2004, Benjamin Herrenschmidt wrote:
-> > 
-> > But radeonfb ends up suspending the display at a wrong time and you miss
-> > half of the output, which makes any kind of debugging near to
-> > impossible.
-> 
-> Agreed.
-> 
-> But notice? It _works_. It's suspendign too damn eagerly, and it's hard to
-> debug, but it's a "safe" solution to the confusion that does exist. Which
-> is why I did it.
 
-Well... it doesn't work on paul's laptop, but anyway, ok, let's go for
-the struct thing and forget about this for 2.6.9.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Now paul and I are trying to figure out what to put in that struct and
-what kind of information actually make any sense. It's not trivial. We
-have to deal with several things.
+I've been observing this bug in other kernel versions and other hardware
+configurations, so I think it's easily reproductible.
 
-We have the system state (cause of the request if you prefer), that is
-"idle" (we mostly don't implement that one yet but it's useful to make
-"room" for it, handhelds wants that badly), "suspend to ram" and
-"suspend to disk".
+Happens when I/O error on external ide <-> usb drives. Can be reproduced
+by unplugging the usb cable while accessing the drive, or with a faulty
+drive.
 
-But what about user /sysfs originated requests ? (that is random numbers
-the user whacks in /sys/devices/...../power) what are their semantics ?
+I don't think my real u2w scsi controllers would like the real scsi disks
+being hot swapped, so I haven't tried there.
 
-Also, do we carry around a "suggested" D state for what it means ? it's
-really an obscure PCI concept. However, as you can see with the hacks
-in drivers like radeonfb, we would be happy to be able to tell the
-driver wether the chip will be leaved alone, powered off, unclocked,
-etc... so the driver can take the right decision vs. what it supports.
+Regards.
 
-That would mean, at least for PCI, a kind of platform hook that provides
-that information, and in what form ? a D state ? I would vote for a
-simple PCI specific pci_* (no good name comes to mind at the moment)
-that would provide the platform suggested D state based on the pci_dev
-and the struct we pass.
+-- 
+Pedro Larroy Tovar | Linux & Network consultant |  pedro%larroy.com 
 
-> And please do realize that I'd love to solve the confusion, and remove the
-> hack. It's a hack, I admit it.  But it's better than just saying "be
-> confused, be broken, I don't care".
+Las patentes de programación son nocivas para la innovación
+	http://proinnova.hispalinux.es/
 
-Ok, ok ... well, it's broken with your "fix" for paul's box, but it's
-ok, the ppc suspend-to-disk code isn't upstream yet anyway.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="oops.txt"
 
-> If the hack ends up motivating somebody (hint hint) to solve the problem 
-> properly, I'll be really happy. Paul suggested one solution (don't call 
-> down to suspend at all - which is also a hack, but I suspect it might be 
-> about as good a hack as the current one). I suggested another: using type 
-> checking to make sure drivers _aren't_ confused. 
+sda, sector 10888871
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888872
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888873
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888874
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888875
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888876
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888877
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888878
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888879
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888880
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888881
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888882
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888883
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888884
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888885
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888886
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888887
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888888
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888889
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888890
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888891
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888892
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888893
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888894
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888895
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888896
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888897
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888898
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888899
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888900
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888901
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888902
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888903
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888904
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888905
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888906
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888907
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888908
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888909
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888910
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888911
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888912
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888913
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888914
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888915
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888916
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888917
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888918
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888919
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888920
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888921
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888922
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888923
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888924
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888925
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888926
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888927
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888928
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888929
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888930
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888931
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888932
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888933
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888934
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888935
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888936
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888937
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888938
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888939
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888940
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888941
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888942
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888943
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888944
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888945
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888946
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888947
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888948
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888949
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888950
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888951
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888952
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888953
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888954
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 2907
+FAT: bread(block 2844) in fat_access failed
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888955
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888956
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888957
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888958
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888959
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888960
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888961
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888962
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888963
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888964
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888965
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888966
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888967
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888968
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888969
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888970
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888971
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888972
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888973
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888974
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888975
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888976
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888977
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888978
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888979
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888980
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888981
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888982
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888983
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888984
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888985
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888986
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888987
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888988
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888989
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888990
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888991
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888992
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888993
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888994
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888995
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888996
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888997
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888998
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10888999
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889000
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889001
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889002
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889003
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889004
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889005
+usb 4-1: USB disconnect, address 2
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889006
+scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+sd 0:0:0:0: Illegal state transition cancel->offline
+Badness in scsi_device_set_state at drivers/scsi/scsi_lib.c:1688
+ [<c023a230>] scsi_device_set_state+0xbc/0x10a
+ [<c0238605>] scsi_eh_offline_sdevs+0x5a/0x73
+ [<c02389f4>] scsi_unjam_host+0xa7/0xa9
+ [<c0238a8e>] scsi_error_handler+0x98/0xb7
+ [<c02389f6>] scsi_error_handler+0x0/0xb7
+ [<c0104249>] kernel_thread_helper+0x5/0xb
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 10889007
+printk: 157 messages suppressed.
+Buffer I/O error on device sda1, logical block 10888944
+lost page write due to I/O error on sda1
+------------[ cut here ]------------
+kernel BUG at drivers/block/as-iosched.c:1853!
+invalid operand: 0000 [#1]
+Modules linked in: hostap usbnet nfs nls_iso8859_1 nls_cp437 vfat fat nfsd exportfs lockd sunrpc parport_pc lp parport cls_fw sch_sfq sch_htb ipt_REJECT ipt_state iptable_filter iptable_nat ipt_helper ip_conntrack ipt_tos ipt_MARK iptable_mangle ip_tables ide_cd cdrom
+CPU:    0
+EIP:    0060:[<c02176f0>]    Not tainted VLI
+EFLAGS: 00010283   (2.6.9-rc2) 
+EIP is at as_exit+0x44/0x58
+eax: dedab58c   ebx: dedab580   ecx: db995aa0   edx: db963ebc
+esi: ded301b4   edi: 00000286   ebp: dec174b4   esp: db963ef4
+ds: 007b   es: 007b   ss: 0068
+Process scsi_eh_0 (pid: 1550, threadinfo=db962000 task=db995aa0)
+Stack: ded30128 c020fc40 c021179b db911824 db911800 c023ba5b db9119a8 c03963a8 
+       c03963c0 dec174d8 c020c371 c0116abe 00000000 c0380a80 c1627d00 c019af91 
+       db9119c0 c019af93 00000000 db911800 c019b263 00000000 c030eabc 00000000 
+Call Trace:
+ [<c020fc40>] elevator_exit+0xd/0xf
+ [<c021179b>] blk_cleanup_queue+0x31/0x78
+ [<c023ba5b>] scsi_device_dev_release+0xc6/0xd5
+ [<c020c371>] device_release+0x53/0x57
+ [<c0116abe>] recalc_task_prio+0x8f/0x183
+ [<c019af91>] kobject_cleanup+0x8c/0x8e
+ [<c019af93>] kobject_release+0x0/0x8
+ [<c019b263>] kref_put+0x34/0x8d
+ [<c030eabc>] __up_wakeup+0x8/0xc
+ [<c0235a3e>] scsi_done+0x0/0x16
+ [<c0235e63>] __scsi_iterate_devices+0x47/0x51
+ [<c023821f>] scsi_eh_stu+0x80/0xd8
+ [<c023887c>] scsi_eh_ready_devs+0x19/0x6e
+ [<c02389f4>] scsi_unjam_host+0xa7/0xa9
+ [<c0238a8e>] scsi_error_handler+0x98/0xb7
+ [<c02389f6>] scsi_error_handler+0x0/0xb7
+ [<c0104249>] kernel_thread_helper+0x5/0xb
+Code: 8d 43 0c 39 43 0c 75 23 8b 43 70 e8 fa ab f1 ff 8b 83 cc 00 00 00 e8 ae ba ff ff 8b 43 30 e8 51 f9 f1 ff 89 d8 5b e9 49 f9 f1 ff <0f> 0b 3d 07 f8 9b 33 c0 eb d3 0f 0b 3c 07 f8 9b 33 c0 eb c1 55 
+ 
 
-Paul and I would love do the right thing, it's just difficult to define
-what the right thing is at this point. Actually, I have a pretty good
-idea for a lot but what happens via /sysfs...
-
-> The more the merrier. Care to come up with a solution of your own?
-> 
-> And no, I'm not interested in the type "let's fix one driver" kind of 
-> thing. That's what we've had for the last year or more, and the fact is, 
-> my laptop _never_ suspended during that time. So I really think it needs a 
-> _proper_ solution.
-
-Agreed.
-
-Ben.
-
-
+--azLHFNyN32YCQGCU--

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318708AbSG0Hoz>; Sat, 27 Jul 2002 03:44:55 -0400
+	id <S318710AbSG0HxO>; Sat, 27 Jul 2002 03:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318710AbSG0Hoz>; Sat, 27 Jul 2002 03:44:55 -0400
-Received: from dns1.arrancar.com ([209.92.187.33]:183 "EHLO core.arrancar.com")
-	by vger.kernel.org with ESMTP id <S318708AbSG0Hoy>;
-	Sat, 27 Jul 2002 03:44:54 -0400
-Subject: Re: Funding GPL projects or funding the GPL?
-From: Federico Ferreres <fferreres@ojf.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0207270214570.23484-100000@weyl.math.psu.edu>
-References: <Pine.GSO.4.21.0207270214570.23484-100000@weyl.math.psu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 27 Jul 2002 04:44:23 -0300
-Message-Id: <1027755867.2525.70.camel@fede>
-Mime-Version: 1.0
+	id <S318711AbSG0HxO>; Sat, 27 Jul 2002 03:53:14 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:61667 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318710AbSG0HxO>;
+	Sat, 27 Jul 2002 03:53:14 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.29 
+In-reply-to: Your message of "Fri, 26 Jul 2002 23:52:44 MST."
+             <3D42433C.C3BB8F4D@zip.com.au> 
+Date: Sat, 27 Jul 2002 17:12:47 +1000
+Message-Id: <20020727075743.37594417F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-27 at 03:29, Alexander Viro wrote:
-> Sigh...  That stops working at the same point where pyramid does - when
-> number of recepients becomes a sufficiently large fraction of all potential
-> participants.  It is not sustainable.
+In message <3D42433C.C3BB8F4D@zip.com.au> you write:
+> While you're there, this register_cpu_notifier() call
+> generates a compile warning on UP:
+> 
+> softirq.c: In function `spawn_ksoftirqd':
+> softirq.c:416: warning: statement with no effect
 
-I forgot to answer that one. It doesn't matter how many people want to
-join a project. It's up to the copyright owners to decide how much stuff
-they need, who to "work with", "how much folks are needed" and how is
-the line of comand structured. At some point, contributors will have to
-send free patches as they are doing now. That may or may not earn them
-into the "core team".
+Thanks Andrew...
 
-Users will decide how much money to put in such projects. If not enough
-funds are pointed in your direction (based on how much the developer
-requested), you'll just have to do with less (which is better than
-nothing). And the asked funds will probably make sense, because if they
-don't there will be an incentive to branchthe project (except for the
-core apps as already pointed out).
+Name: Hot-plug CPU notifier warning fix
+Author: Rusty Russell
+Status: Trivial
 
-In the Debian scheme, people can't choose where the money goes, and
-there's no strict limit to the number of developers, and it's not a big
-enough user base (though big). As you point out, the ships sinks, as
-it's a classical example of the Fishermen dylema: the more you capture,
-the better of you are off, but you can't prevents others from doing the
-same. After some time there's so much fishermen that nobody capture
-enough to make a living from it. 
+D: As pointed out by Andrew Morton, this fixes:
+D:	softirq.c: In function `spawn_ksoftirqd':
+D:	softirq.c:416: warning: statement with no effect
 
-And that's why fGPL should allow people to choose their funded projects
-(except the core systems) and why lead developers should be able to
-manage the funds as they see fit.
+This patch alters the boot sequence to "plug in" each CPU, one at a
 
-Federico
-
+diff -urpN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.29/include/linux/smp.h working-2.5.29-register-cpu-fix/include/linux/smp.h
+--- linux-2.5.29/include/linux/smp.h	Sat Jul 27 15:24:39 2002
++++ working-2.5.29-register-cpu-fix/include/linux/smp.h	Sat Jul 27 17:10:04 2002
+@@ -101,9 +101,13 @@ static inline void smp_send_reschedule_a
+ #define this_cpu(var)				var
+ 
+ /* Need to know about CPUs going up/down? */
+-#define register_cpu_notifier(nb) 0
+-#define unregister_cpu_notifier(nb) do { } while(0)
+-
++static inline int register_cpu_notifier(struct notifier_block *nb)
++{
++	return 0;
++}
++static inline void unregister_cpu_notifier(struct notifier_block *nb)
++{
++}
+ #endif /* !SMP */
+ 
+ #define get_cpu()		({ preempt_disable(); smp_processor_id(); })
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

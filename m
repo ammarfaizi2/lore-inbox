@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVCRLX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVCRLbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVCRLX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 06:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVCRLX1
+	id S261581AbVCRLbd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 06:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVCRLbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 06:23:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:14776 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261577AbVCRLXY (ORCPT
+	Fri, 18 Mar 2005 06:31:33 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:18136 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261581AbVCRLbb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 06:23:24 -0500
-Date: Fri, 18 Mar 2005 03:22:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Waitz <tali@admingilde.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] docbook: fix escaping of kernel-doc
-Message-Id: <20050318032255.6423144e.akpm@osdl.org>
-In-Reply-To: <20050318111658.GM8617@admingilde.org>
-References: <200503112034.j2BKYMli008385@shell0.pdx.osdl.net>
-	<20050314081319.GD8617@admingilde.org>
-	<20050314004712.4746f2cf.akpm@osdl.org>
-	<20050318111658.GM8617@admingilde.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 18 Mar 2005 06:31:31 -0500
+Date: Fri, 18 Mar 2005 12:30:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: dipankar@in.ibm.com, shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
+       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
+       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050318113053.GA18905@elte.hu>
+References: <20050318002026.GA2693@us.ibm.com> <20050318100339.GA15386@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318100339.GA15386@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz <tali@admingilde.org> wrote:
->
->  ... and I really have to redo my bitkeeper repository as it
->  is full of merge artifacts as BK did not note the fact that
->  the patches were applied using normal patches.
 
-Normally bk would handle that, but I have an irritating habit of stripping
-off all the trailing whitespace which people keep trying to add to the
-kernel.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
->  I guess I have to use one complete tree per patch and recreate
->  the public repo as a combination of the individual ones.
->  Alternatives?
+> [...] How about something like:
+> 
+>         void
+>         rcu_read_lock(void)
+>         {
+>                 preempt_disable();
+>                 if (current->rcu_read_lock_nesting++ == 0) {
+>                         current->rcu_read_lock_ptr =
+>                                 &__get_cpu_var(rcu_data).lock;
+>                         preempt_enable();
+>                         read_lock(current->rcu_read_lock_ptr);
+>                 } else
+>                         preempt_enable();
+>         }
+> 
+> this would still make it 'statistically scalable' - but is it correct?
 
-Export all the csets as unified diffs, reapply them.
+thinking some more about it, i believe it's correct, because it picks
+one particular CPU's lock and correctly releases that lock.
+
+(read_unlock() is atomic even on PREEMPT_RT, so rcu_read_unlock() is
+fine.)
+
+	Ingo

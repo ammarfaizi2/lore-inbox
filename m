@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbULVImW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbULVIql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbULVImW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 03:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbULVImV
+	id S261907AbULVIql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 03:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbULVIql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 03:42:21 -0500
-Received: from unthought.net ([212.97.129.88]:14825 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S261934AbULVImD (ORCPT
+	Wed, 22 Dec 2004 03:46:41 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:52907 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261907AbULVIqj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 03:42:03 -0500
-Date: Wed, 22 Dec 2004 09:41:58 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       kruty@fi.muni.cz
-Subject: Re: XFS: inode with st_mode == 0
-Message-ID: <20041222084158.GG347@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Jan Kasprzak <kas@fi.muni.cz>, Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041221184304.GF16913@fi.muni.cz>
-User-Agent: Mutt/1.3.28i
+	Wed, 22 Dec 2004 03:46:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Date: Wed, 22 Dec 2004 16:45:49 +0800
+Message-ID: <894E37DECA393E4D9374E0ACBBE7427013CA39@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Thread-Index: AcTmpdicxpBLC3IRTBCKS0ihIXBLDwBXEsBA
+From: "Zou, Nanhai" <nanhai.zou@intel.com>
+To: "Rik van Riel" <riel@redhat.com>
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andrew Morton" <akpm@osdl.org>,
+       <lista4@comhem.se>, <linux-kernel@vger.kernel.org>, <mr@ramendik.ru>,
+       <kernel@kolivas.org>
+X-OriginalArrivalTime: 22 Dec 2004 08:45:50.0368 (UTC) FILETIME=[A37D1A00:01C4E802]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 07:43:04PM +0100, Jan Kasprzak wrote:
-...
-> : 
-> : No, the problem I've fixed was related to XFS getting the inode version
-> : number wrong - or at least different than NFSD expects.
-> : 
-> 	We have applied these two patches to 2.6.10-rc2, but this
-> does not help. A few minutes ago I've got the "?----------" file
-> again from my test script. This time it took >4 hours (it was
-> about an hour or so without this patch).
+> -----Original Message-----
+> From: Rik van Riel [mailto:riel@redhat.com]
+> Sent: Monday, December 20, 2004 11:08 PM
+> To: Zou, Nanhai
+> Cc: Nick Piggin; Andrew Morton; lista4@comhem.se;
+> linux-kernel@vger.kernel.org; mr@ramendik.ru; kernel@kolivas.org
 
-I run the patch on 2.6.9 - it solved the problem in the common case.
-Before the patch, I was unable to complete a "cvs checkout" of a
-moderately large tree - would end up with undeletable directories and
-lots of other weird things...  After the patch, I can run cvs checkout.
+Rik van Riel wrote:
 
-However, we still see the problem - so the patch does not solve this
-completely, as you have observed as well.
+> That's Marcelo's vm-pageout-throttling.patch, which is one
+> of the essential ingredients in avoiding false OOM kills.
+> 
+> I'm waiting on some test results for another two patches
+> that I suspect are also needed ...
+> 
+> --
+Seems that vmscan-ignore-swap-token-when-in-trouble.patch +
+vm-pageout-throttling.patch dose not fix the problem, 
+I ran stress test for 2.6.9 + these 2 patches.
+OOM killer was still triggered.
 
-Our most common situation is that a new file gets created as a symlink
-pointing to itself, instead of as a regular file.
-
-It also happens regularly, that a command (be it cvs, etags, ld or
-something else) reports EINVAL when attempting to create/write a file.
-
-So, status on my side is;  things still suck, but they suck less than on
-vanilla 2.6.9
-
--- 
-
- / jakob
-
+Zou Nan hai

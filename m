@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261729AbSJEAUU>; Fri, 4 Oct 2002 20:20:20 -0400
+	id <S261792AbSJEAEV>; Fri, 4 Oct 2002 20:04:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261790AbSJEAUU>; Fri, 4 Oct 2002 20:20:20 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:51188 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261729AbSJEAUT>;
-	Fri, 4 Oct 2002 20:20:19 -0400
-Date: Fri, 04 Oct 2002 17:21:42 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] 2.6 not 3.0 - (NUMA)
-Message-ID: <515070000.1033777302@flay>
-In-Reply-To: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261811AbSJEAEV>; Fri, 4 Oct 2002 20:04:21 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56324 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261792AbSJEAEQ>; Fri, 4 Oct 2002 20:04:16 -0400
+Date: Fri, 4 Oct 2002 17:11:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, Janet Morgan <janetmor@us.ibm.com>,
+       Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS List <nfs@lists.sourceforge.net>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] direct-IO API change
+In-Reply-To: <200210042356.g94NujG24693@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210041704110.2993-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The main thing that I think is lacking is any relevance to any significant 
-> user base, thanks to lack of interesting hardware. So even if Linux itself 
-> was doing everything perfectly, as long as there is no wide hw base and 
-> users, it's all pretty much academic, the same way SMP was during the 
-> early 1.x days.
+
+On Fri, 4 Oct 2002, Badari Pulavarty wrote:
 > 
-> And I'm not trying to put you or any of the Linux NuMA work down here, I'm 
-> just saying that what makes it not important as a "3.0 feature" is just 
-> that deployment doesn't merit it yet.
+> Only issue would be the alignment restriction on blockdev versus raw device.
 
-Fair enough, I appreciate it's not a wide market segment right now.
-It's not a quick and easy project though, so there's a long-ish ramp up time.
-It would be nice to have it all working and in place by the time Hammer arrives 
-and makes this much more widespread ;-) 
+Hmm.. We might want to revert the stuff that made the default block device 
+alignment be the maximal possible, and instead make the default be the 
+minimum possible.
 
-Just an order of magnitude figure for you ... number of seconds spent in kernel
-space across all CPUs during a kernel compile on a 16-way NUMA-Q ... 
+The offending code is the "while"-loop in bd_set_size(). Just removing 
+that should make the default size be the minimal one (ie hardsect_size).
 
-2.4 with every patch I had (including O(1) sched + NUMA mods) ... 120s. 
-On 2.5.40-mm1 with one small NUMA scheduler patch ... 38s. 
+It _used_ to make sense to try to maximize the block-size, since it had a
+noticeable impact on performance whether we did 8 512-byte requests or
+just 1 4kB request. However, all the bio changes have likely made that a
+non-issue, since Andrew's code ends up doing things directly one page at a
+time _anyway_.
 
-Personally, I think that's pretty impressive - lots of very good things have been
-happening, from Andrew in particular, the NUMA people, and VM people in general.
-IMHO, the NUMA code is also much more readable and less buggy ;-)
+Of course, mounting a filesystem on the device will override the default 
+anyway, so this by no means will guarantee that direct access will always 
+have the minimal alignment restrictions, but once you've mounted a 4kB 
+blocksize filesystem on that device I think you might as well do 4kB 
+chunks even if you open it through the device interface, no?
 
-M.
+			Linus
 

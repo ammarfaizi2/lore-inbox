@@ -1,81 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSKTQSH>; Wed, 20 Nov 2002 11:18:07 -0500
+	id <S261356AbSKTQT7>; Wed, 20 Nov 2002 11:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbSKTQSH>; Wed, 20 Nov 2002 11:18:07 -0500
-Received: from graze.net ([65.207.24.2]:2962 "EHLO graze.net")
-	by vger.kernel.org with ESMTP id <S261205AbSKTQSG>;
-	Wed, 20 Nov 2002 11:18:06 -0500
-Date: Wed, 20 Nov 2002 11:25:11 -0500 (EST)
-From: "Brian C. Huffman" <sheep@graze.net>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: i810 audio (AD1981A)
-Message-ID: <Pine.LNX.4.44.0211201109030.20057-100000@graze.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261365AbSKTQT6>; Wed, 20 Nov 2002 11:19:58 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:34434 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261356AbSKTQT5>; Wed, 20 Nov 2002 11:19:57 -0500
+Subject: RE: [BUG?] Xeon with HyperThreading and linux-2.4.20-rc2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steffen Persvold <sp@scali.com>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211201657300.13800-100000@sp-laptop.isdn.scali.no>
+References: <Pine.LNX.4.44.0211201657300.13800-100000@sp-laptop.isdn.scali.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Nov 2002 16:55:24 +0000
+Message-Id: <1037811324.3241.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anyone?  Bueller...Bueller...
-
-TIA,
-Brian
-
----------- Forwarded message ----------
-Date: Tue, 19 Nov 2002 11:09:33 -0500 (EST)
-From: Brian C. Huffman <sheep@graze.net>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Peter Kundrat <kundrat@kundrat.sk>
-Subject: Re: i810 audio (AD1981A)
-
-Ok - so I have got this figured out a little more.  The Intel 845 board 
-uses the AD1981A (AC97 compatible) BUT they attach the headphone out (of 
-the codec) to the lineout on the motherboard...apparently b/c there's a 
-headphone amp in the chip and this way you can just plug the headphones 
-into the back of the computer.  :-(  Now looking at the latest drivers 
-from OSS and ALSA, this looks to be common, however the register setup for 
-the AD1981A is different from the others: AD1980, and AD1886...  
-Therefore, the patches in ALSA to disable the headphone out don't work.  
-
-If I can't find a way to write to the registers to make this work 
-properly, I'd be happy just swapping what the mixer thinks the 
-registers are for Main Volume w/ Headphone out.  Unfortunately, I tried 
-this (with the kernel OSS) in linux/drivers/sound/ac97.h:
-
-#define  AC97_RESET              0x0000      //
-// #define  AC97_MASTER_VOL_STEREO  0x0002      // Line Out
-#define  AC97_MASTER_VOL_STEREO  0x0004      // Line Out
-//#define  AC97_HEADPHONE_VOL      0x0004      //
-#define  AC97_HEADPHONE_VOL      0x0002      //
-
-This still doesn't work, though!?  Can anyone direct me to what I might be 
-doing wrong?
-
-Thanks in advance!
-Brian
-
-> On Tue, 2002-11-12 at 19:43, Alan Cox wrote:
+On Wed, 2002-11-20 at 16:00, Steffen Persvold wrote:
+> On Wed, 20 Nov 2002, Nakajima, Jun wrote:
 > 
-> > The kernel knows which AC'97 chip is attached so it could be given a
-> > table to specify chips where "volume" should either not be presented or
-> > should be remapped. Do you know what AC97 chip is on your board (Linux
-> > will print the info in the i810 load, windows and the manual probably
-> > claim that you have that as your sound chip (typically "Analog
-> > something" or "Crystal something").
-> > 
+> > As Hugh pointed out, the MPS table should report the physical processors
+> > only even if HT is enabled. The major reason is to support legacy OSes that
+> > don't support HT well. If the BIOS has an option for you to enable/disable
+> > HT, then please use it. 
 > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> But since my BIOS reports 4 CPU's in the MPS table (with HT enabled), I 
+> guess the BIOS is doing something wrong ? Should I report this to the 
+> vendor ?
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Im not sure about "wrong". Unusual perhaps. Nothing in the MPS spec
+prohibits this that I can see
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbUCCFs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 00:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbUCCFs7
+	id S262382AbUCCFvf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 00:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUCCFvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 00:48:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59825 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262396AbUCCFs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 00:48:56 -0500
-Date: Wed, 3 Mar 2004 00:49:27 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Glen Nakamura <glen@imodulo.com>
-cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Mysterious string truncation in 2.4.25 kernel
-In-Reply-To: <20040303053547.GA3160@modulo.internal>
-Message-ID: <Xine.LNX.4.44.0403030043380.32045-100000@thoron.boston.redhat.com>
+	Wed, 3 Mar 2004 00:51:35 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:43204 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262382AbUCCFvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 00:51:33 -0500
+Date: Wed, 3 Mar 2004 00:51:26 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] kpatchup 0.02 kernel patching script
+In-Reply-To: <20040303022444.GA3883@waste.org>
+Message-ID: <Pine.LNX.4.58.0403030050340.29087@montezuma.fsmlabs.com>
+References: <20040303022444.GA3883@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004, Glen Nakamura wrote:
+On Tue, 2 Mar 2004, Matt Mackall wrote:
 
-> Of course, perhaps 0 should passed instead of "" for data_page?
-> 
-> -    err = do_mount ("none", "/dev", "devfs", 0, "");
-> +    err = do_mount ("none", "/dev", "devfs", 0, 0);
+> This is the first release of kpatchup, a script for managing switching
+> between kernel releases via patches with some smarts:
 >
-> Comments?
+>  - understands -pre and -rc version numbering
+>  - aware of various external trees
+>  - automatically patch between any tree in an x.y release
+>  - automatically download and cache patches on demand
+>  - automatically determine the latest patch in various series
+>  - optionally print version strings or URLs for patches
+>
+> Currently it knows about 2.4, 2.4-pre, 2.6, 2.6-pre, 2.6-bk, 2.6-mm,
+> and 2.6-tiny.
 
-Yes, the devfs fix above is needed if the data_page patch has been 
-applied.  
+Oh i definitely owe you one now, this is replacing the ugly shell script i
+had before, i'm mostly using this now to download and patch up trees
+before cvs import'ing them.
 
-This is the case in 2.6, but not 2.4.25.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Thanks!
 

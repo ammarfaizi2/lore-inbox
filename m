@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265691AbSKASnp>; Fri, 1 Nov 2002 13:43:45 -0500
+	id <S265692AbSKASsa>; Fri, 1 Nov 2002 13:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265692AbSKASnp>; Fri, 1 Nov 2002 13:43:45 -0500
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:58340 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S265691AbSKASnp>; Fri, 1 Nov 2002 13:43:45 -0500
-Date: Fri, 1 Nov 2002 18:46:30 +0000
-From: Malcolm Beattie <mbeattie@clueful.co.uk>
-To: Ed Vance <EdV@macrolink.com>
-Cc: "'Richard B. Johnson'" <root@chaos.analogic.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  October 30, 2002
-Message-ID: <20021101184630.A10355@clueful.co.uk>
-References: <11E89240C407D311958800A0C9ACF7D1A33C8D@EXCHANGE>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33C8D@EXCHANGE>; from EdV@macrolink.com on Fri, Nov 01, 2002 at 10:17:45AM -0800
+	id <S265699AbSKASsa>; Fri, 1 Nov 2002 13:48:30 -0500
+Received: from technicolor.pl ([62.21.19.63]:47890 "EHLO wilnet.info")
+	by vger.kernel.org with ESMTP id <S265692AbSKASs3>;
+	Fri, 1 Nov 2002 13:48:29 -0500
+Date: Fri, 1 Nov 2002 19:54:54 +0100 (CET)
+From: Pawel Bernadowski <pbern@wilnet.info>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.45 (vanilla & mcp1)  build error
+Message-ID: <Pine.LNX.4.44L.0211011948160.7070-100000@farma.wilnet.info>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Vance writes:
->                                                           Some mainframe
-> memory systems do the whole ECC scrub/correction operation in hardware,
-> simultaneously in each bank. 
 
-For those interested in the gory details of how the z900 mainframe
-does memory scrubbing, see the section on "Memory" in
-"RAS design for the IBM eServer z900" by L. C. Alves et al
-in the z900 issue of IBM Journal of Research and Development.
-HTML version at
-    http://www.research.ibm.com/journal/rd/464/alves.html
-PDF version at
-    http://www.research.ibm.com/journal/rd/464/alves.pdf
-Web page for whole issue at
-    http://www.research.ibm.com/journal/rd46-45.html
+on both version ( linux-2.5.45 and linux-2.5.45-mcp1):
+i have this problem:
 
---Malcolm
+  gcc -Wp,-MD,net/ipv4/.ipmr.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=ipmr   -c -o net/ipv4/ipmr.o net/ipv4/ipmr.c
+net/ipv4/ipmr.c: In function `ipmr_forward_finish':
+net/ipv4/ipmr.c:1114: structure has no member named `pmtu'
+net/ipv4/ipmr.c: In function `ipmr_queue_xmit':
+net/ipv4/ipmr.c:1170: structure has no member named `pmtu'
+net/ipv4/ipmr.c: At top level:
+net/ipv4/ipmr.c:111: warning: `pim_protocol' defined but not used
+make[2]: *** [net/ipv4/ipmr.o] Error 1
+make[1]: *** [net/ipv4] Error 2
+make: *** [net] Error 2
+error: Bad exit status from /var/tmp/rpm-tmp.3879 (%build)
+
+
+Pawel Bernadowski
+GG: 3377
+

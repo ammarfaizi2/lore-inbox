@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbTIMAWv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 20:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTIMAWv
+	id S261959AbTIMASh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 20:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTIMASh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 20:22:51 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:46030 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S261972AbTIMAWt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 20:22:49 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Subject: Re: [PATCH] new ioctl type checking causes gcc warning
-Date: Sat, 13 Sep 2003 02:22:43 +0200
-User-Agent: KMail/1.5.1
-Cc: Andreas Schwab <schwab@suse.de>, LKML <linux-kernel@vger.kernel.org>
-References: <3F621AC4.4070507@cox.net> <200309121453.07111.arnd@arndb.de> <3F625A26.7050305@cox.net>
-In-Reply-To: <3F625A26.7050305@cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 20:18:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57059 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261959AbTIMASf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 20:18:35 -0400
+Date: Fri, 12 Sep 2003 17:18:33 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] 2.6.0-test5-bk update credits
+Message-ID: <20030912171833.A8718@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309130222.43612.arnd@arndb.de>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 September 2003 01:43, Kevin P. Fleming wrote:
+ Update CREDITS with new contact info.
 
-> After working on this some more this afternoon, I realize now that
-> it's much better to have the typechecking in place than not, even for
-> userspace. Maybe the best solution is to still leave the typechecking
-> (don't wrap it in #ifdef __KERNEL__), and just
->
-> #ifdef size_t
+ CREDITS |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-This doesn't work, because size_t is a typedef, not a macro.
+--- 2.6.0-test5-bk/CREDITS.credit	Tue Sep  2 11:40:27 2003
++++ 2.6.0-test5-bk/CREDITS	Fri Sep 12 15:30:15 2003
+@@ -3460,11 +3460,11 @@
+ S: England
+ 
+ N: Chris Wright
+-E: chris@wirex.com
++E: chrisw@osdl.org
+ D: hacking on LSM framework and security modules.
+-S: c/o WireX
+-S: 920 SW 3rd, Ste. 100
+-S: Portland, OR 97204
++S: c/o OSDL
++S: 12725 SW Millikan Way, Suite 400
++S: Beaverton, OR 97005
+ S: USA
+ 
+ N: Frank Xia
 
-> extern size_t __invalid_size_argument_for_IOC;
-> #else
-> extern unsigned int __invalid_size_argument_for_IOC;
-> #endif
->
-> Would the type specification of this non-existent variable ever
-> actually effect the generated code? If not, then even putting this
-> #ifdef in is overkill.
-
-No, but as Andreas pointed out earlier, doing non-optimized builds
-with the _IOC_TYPECHECK macro in place always results in link
-errors, even for correct code. Since we know that the kernel
-is always built with -O2, '#ifdef __KERNEL__' is sufficient
-here.
-
-The type checking this in user space is not necessary, because 
-the point of the check is only to keep people from adding *new*
-invalid ioctl numbers and doing the check for the kernel does that.
-However, the old numbers need to be kept for a long time and there
-is no point in breaking user applications that use established
-interfaces.
-
-	Arnd <><

@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbUKYCEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbUKYCMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbUKYCEj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 21:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUKYCEj
+	id S262913AbUKYCMI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 21:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbUKYCMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 21:04:39 -0500
-Received: from mail.dif.dk ([193.138.115.101]:8080 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261458AbUKYCEd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 21:04:33 -0500
-Date: Thu, 25 Nov 2004 00:59:53 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Bob Picco <robert.picco@hp.com>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [patch] fix unusual placement of inline keyword in hpet ...
-Message-ID: <Pine.LNX.4.61.0411250052290.3447@dragon.hygekrogen.localhost>
+	Wed, 24 Nov 2004 21:12:07 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:55671 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262913AbUKYCME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 21:12:04 -0500
+To: linux-kernel@vger.kernel.org
+Cc: openib-general@openib.org
+X-Message-Flag: Warning: May contain useful information
+References: <20041123814.p0AnYzTlx42JeVes@topspin.com>
+	<20041123814.rXLIXw020elfd6Da@topspin.com>
+	<20041123195345.GC8367@mars.ravnborg.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 24 Nov 2004 11:39:27 -0800
+In-Reply-To: <20041123195345.GC8367@mars.ravnborg.org> (Sam Ravnborg's
+ message of "Tue, 23 Nov 2004 20:53:45 +0100")
+Message-ID: <52brdnyr2o.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH][RFC/v2][1/21] Add core InfiniBand support (public
+ headers)
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 24 Nov 2004 19:39:32.0774 (UTC) FILETIME=[524C4C60:01C4D25D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Sam> After giving it a second thought my vote goes for:
+    Sam> include/linux/infiniband
 
-Trivial path to get rid of 
-drivers/char/hpet.c:102: warning: `inline' is not at beginning of declaration
-drivers/char/hpet.c:109: warning: `inline' is not at beginning of declaration
-when building with gcc -W
+Could you share the reasoning that led to that preference?
 
-Patch makes no actual code changes, just reduces the number of warnings 
-peole have to sift through when using -W to look for trouble spots.
-Please apply.
+Unfortunately we don't seem to be converging on one choice of location.
 
+On one side there is the fact that the .h files are not used outside
+of drivers/infiniband -- hence they should stay under drivers/infiniband.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+On the other side is the fact that moving the includes under include/
+gets rid of some CFLAGS lines in the Makefile.
 
-diff -up linux-2.6.10-rc2-bk9-orig/drivers/char/hpet.c linux-2.6.10-rc2-bk9/drivers/char/hpet.c
---- linux-2.6.10-rc2-bk9-orig/drivers/char/hpet.c	2004-11-17 01:19:33.000000000 +0100
-+++ linux-2.6.10-rc2-bk9/drivers/char/hpet.c	2004-11-25 00:51:20.000000000 +0100
-@@ -99,14 +99,14 @@ static struct hpets *hpets;
- #endif
- 
- #ifndef readq
--static unsigned long long __inline readq(void __iomem *addr)
-+static __inline unsigned long long readq(void __iomem *addr)
- {
- 	return readl(addr) | (((unsigned long long)readl(addr + 4)) << 32LL);
- }
- #endif
- 
- #ifndef writeq
--static void __inline writeq(unsigned long long v, void __iomem *addr)
-+static __inline void writeq(unsigned long long v, void __iomem *addr)
- {
- 	writel(v & 0xffffffff, addr);
- 	writel(v >> 32, addr + 4);
+I don't see a conclusive reason to choose any particular place.
+Perhaps Linus or Andrew can simply hand down an authoritative answer?
 
-
-
+Thanks,
+  Roland

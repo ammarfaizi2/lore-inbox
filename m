@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUD2Chn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUD2Cgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbUD2Chn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 22:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUD2Chm
+	id S262422AbUD2Cgr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 22:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUD2Cgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 22:37:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26545 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262434AbUD2Chi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 22:37:38 -0400
-Date: Wed, 28 Apr 2004 19:35:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marc Singer <elf@buici.com>
-Cc: riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040428193541.1e2cf489.akpm@osdl.org>
-In-Reply-To: <20040429022944.GA24000@buici.com>
-References: <20040428180038.73a38683.akpm@osdl.org>
-	<Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com>
-	<20040428185720.07a3da4d.akpm@osdl.org>
-	<20040429022944.GA24000@buici.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Apr 2004 22:36:47 -0400
+Received: from ptb-relay02.plus.net ([212.159.14.213]:6670 "EHLO
+	ptb-relay02.plus.net") by vger.kernel.org with ESMTP
+	id S262422AbUD2Cgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 22:36:46 -0400
+Message-ID: <40906A35.3090004@mauve.plus.com>
+Date: Thu, 29 Apr 2004 03:36:37 +0100
+From: Ian Stirling <ian.stirling@mauve.plus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc Boucher <marc@linuxant.com>
+CC: Rik van Riel <riel@redhat.com>, Timothy Miller <miller@techsource.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <4150E18A-9985-11D8-85DF-000A95BCAC26@linuxant.com>
+In-Reply-To: <4150E18A-9985-11D8-85DF-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Singer <elf@buici.com> wrote:
->
-> On Wed, Apr 28, 2004 at 06:57:20PM -0700, Andrew Morton wrote:
-> > Rik van Riel <riel@redhat.com> wrote:
-> > >
-> > >  IMHO, the VM on a desktop system really should be optimised to
-> > >  have the best interactive behaviour, meaning decent latency
-> > >  when switching applications.
-> > 
-> > I'm gonna stick my fingers in my ears and sing "la la la" until people tell
-> > me "I set swappiness to zero and it didn't do what I wanted it to do".
+Marc Boucher wrote:
 > 
-> It does, but it's a bit too coarse of a solution.  It just means that
-> the page cache always loses.
+> Hi Rik,
+> 
+> Your new proposed message sounds much clearer to the ordinary mortal and 
+> would imho be a significant improvement. Perhaps printing repetitive 
+> warnings for identical $MODULE_VENDOR strings could also be avoided, 
+> taking care of the redundancy/volume problem as well..
 
-That's what people have been asking for.  What are you suggesting should
-happen instead?
+Is this worth 100 or 200 bytes of code though?
+I'd have to say no.
 

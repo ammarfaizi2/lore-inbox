@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270926AbTG0S0G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 14:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270928AbTG0S0G
+	id S270927AbTG0SbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 14:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270928AbTG0SbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 14:26:06 -0400
-Received: from dp.samba.org ([66.70.73.150]:14521 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S270926AbTG0S0D (ORCPT
+	Sun, 27 Jul 2003 14:31:17 -0400
+Received: from oak.sktc.net ([64.71.97.14]:62957 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id S270927AbTG0SbQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 14:26:03 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: davem@redhat.com, arjanv@redhat.com, torvalds@transmeta.com,
-       greg@kroah.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Remove module reference counting. 
-In-reply-to: Your message of "25 Jul 2003 23:43:16 +0100."
-             <1059172995.16255.6.camel@sherbert> 
-Date: Sun, 27 Jul 2003 06:18:05 +1000
-Message-Id: <20030727184118.3D7872C003@lists.samba.org>
+	Sun, 27 Jul 2003 14:31:16 -0400
+Message-ID: <3F241DC0.7080408@sktc.net>
+Date: Sun, 27 Jul 2003 13:45:20 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: time for some drivers to be removed?
+References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>	 <20030727153118.GP22218@fs.tum.de>  <3F23F6EB.7070502@sktc.net> <1059324018.13442.0.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1059324018.13442.0.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1059172995.16255.6.camel@sherbert> you write:
-> Wasn't the idea once banded about of a 2-stage unload that went
-> something like:
-> 
-> 1. ->cleanup() - unregister IRQ handlers, timers, etc.
-> 2. Quiesce the system
-> 3. Safe to unload
-> 
-> surely if nothing is registered and all CPUs do a voluntary schedule()
-> then there can be no chance of calling back in to the module.
+Alan Cox wrote:
+> We've had one for years. Its CONFIG_OBSOLETE, its even used in 2.6test
 
-Yes, I implemented this, even.  The problem is that the desired module
-semantics are "unload if it'll work, otherwise do nothing and fail".
-This means that you either get halfway through the cleanup function
-and back out (which leaves the race where some interfaces to your
-module is MIA for a while), or you hang forever if things are in use.
+I would disagree - OBSOLETE to me means just that - that module is 
+obsolete. Minix FS, OSS (as opposed to ALSA), and the old non-SCSI, 
+non-IDE HD interfaces would be OBSOLETE.
 
-It's this "atomically check refcount and deregister" that
-try_module_get() gives us, by effectively unregistering all the
-modules' interfaces at once.
+Besides, I have seen cases where Firewire modules wouldn't build for 
+some period of time - would you deem them OBSOLETE?
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

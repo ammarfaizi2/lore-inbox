@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317674AbSFLI0w>; Wed, 12 Jun 2002 04:26:52 -0400
+	id <S313638AbSFLIgX>; Wed, 12 Jun 2002 04:36:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317673AbSFLI0v>; Wed, 12 Jun 2002 04:26:51 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:52888 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S317674AbSFLI0r>;
-	Wed, 12 Jun 2002 04:26:47 -0400
-Date: Wed, 12 Jun 2002 11:26:45 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Alan <alan@clueserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Status of FAT CVF?
-Message-ID: <20020612112645.A19520@mea-ext.zmailer.org>
-In-Reply-To: <1023856708.2934.9.camel@summanulla.clueserver.org>
-Mime-Version: 1.0
+	id <S316492AbSFLIgW>; Wed, 12 Jun 2002 04:36:22 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:14603 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S313638AbSFLIgW>; Wed, 12 Jun 2002 04:36:22 -0400
+Message-ID: <3D0707FB.3816C7A4@aitel.hist.no>
+Date: Wed, 12 Jun 2002 10:36:11 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.20-dj3 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+In-Reply-To: Your message of "Tue, 11 Jun 2002 00:42:32 MST."
+		             <3D05A9E8.FF0DA223@zip.com.au> <E17Hheq-0007r7-00@wagner.rustcorp.com.au> <3D05C27D.186DC066@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 09:38:27PM -0700, Alan wrote:
-> What is the status of fat_cvf in 2.4.x?  Is the code abandoned?
-> Supported? Working? Not working? Pining for the fnords?
+Andrew Morton wrote:
+> 
+> Rusty Russell wrote:
+> >
+> > ...
+> > Let's not perpetuate the myth that everything in the kernel needs to
+> > be tuned to the last cycle at all costs, hm?
+> 
+> I was more concerned about the RAM use, actually.
+> 
+> This patch is an additional reason for CONFIG_NR_CPUS, but I've rather
+> gone cold on that idea because the "proper fix" is to make all those
+> huge per-cpu arrays dynamically allocated.   So you can run a 64p kernel
+> on 2p without losing hundreds of k of memory and kernel address space.
+> 
+> But it looks like all those dynamically-allocated structures would
+> have to be allocated out to NR_CPUS anyway, to support hotplug, yes?
+> 
+> In which case, CONFIG_NR_CPUS is the only way to get the memory
+> back...
 
-  Over about past week there has been some talk with that topic.
-  The conclusion appeared to be "kernel driver is abandoned, future
-  support belongs into  mtools".
+Re-allocation of tables when adding CPUs is another
+option.  That means the data moves - so others have to store
+array indices instead of direct pointers to stuff they use.
+Dynamic allocation not merely at boottime, but everytime.
 
-  Thread Subject was something like  "fat/msdos/...".
-  Go see the archives.
+Adding a CPU becomes more expensive, but that won't
+happen hundreds of times a second anyway.  
 
-  (And having word "fat" in message subject does cause several
-   sites to consider even this message to be spam...)
-
-> Thanks!
-
-/Matti Aarnio
+Helge Hafting

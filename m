@@ -1,69 +1,100 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314232AbSEITc7>; Thu, 9 May 2002 15:32:59 -0400
+	id <S314241AbSEITjB>; Thu, 9 May 2002 15:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314238AbSEITc6>; Thu, 9 May 2002 15:32:58 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:265 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S314232AbSEITc4>; Thu, 9 May 2002 15:32:56 -0400
-Date: Thu, 9 May 2002 20:32:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Patricia Gaughen <gone@us.ibm.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] discontigmem support for ia32 NUMA box against 2.4.19pre8
-Message-ID: <20020509203202.A27148@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patricia Gaughen <gone@us.ibm.com>, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <hch@infradead.org> <200205091840.g49Ie3C02733@w-gaughen.des.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S314242AbSEITjB>; Thu, 9 May 2002 15:39:01 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:11249 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314241AbSEITjA>;
+	Thu, 9 May 2002 15:39:00 -0400
+Message-ID: <3CDAD03F.45DC911C@vnet.ibm.com>
+Date: Thu, 09 May 2002 14:38:39 -0500
+From: Dave Engebretsen <engebret@vnet.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory Barrier Definitions
+In-Reply-To: <3CDA5EA4.E565F1D7@colorfullife.com>
+X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/09/2002 02:38:43 PM,
+	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/09/2002 02:38:45 PM,
+	Serialize complete at 05/09/2002 02:38:45 PM
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 11:40:03AM -0700, Patricia Gaughen wrote:
->   > Urgg, sourceforge seems to have turned these nice links into some download
->   > selector crap.  I think it's really time to stop using it as it gets worse
->   > all time..
->   > Any chance you could post links directly to one of the mirrors next time?
+Manfred Spraul wrote:
 > 
-> Do you want something like this:
 > 
-> http://prdownloads.sourceforge.net/lse/x86_discontigmem-2.4.19pre8.patch?use_mi
-> rror=unc
-
-Seems to have the same problems. The following seems to work nicely for me:
-
-	http://belnet.dl.sourceforge.net/sourceforge/lse/x86_discontigmem-2.4.19pre8.patch
-
+> Content-Type: text/plain; charset=us-ascii
+> Content-Transfer-Encoding: 7bit
 > 
-> oh man, and I just added that in to core_ibmnumaq.c :-)
+> >
+> > An example of where these primitives get us into trouble is the use of
+> > wmb() to order two stores which are only to system memory (where a
+> > lwsync would do for ppc64) and for a store to system memory followed by
+> > a store to I/O (many examples in drivers).
+> >
+> 2 questions:
 > 
-> you're right, the naming was based on alpha's naming scheme, will change it.
-
-Btw, please also do a s/ibmnumaq/numaq/.  Everyone actually reading
-the code should know it's from IBM and given that the design actually
-originated at Sequent..
-
->   > Okay, this comes to the next issue, you seem to use CONFIG_DISCONTIGMEM
->   > and CONFIG_X86_DISCONTIGMEM interchangable in arch/i386/* and numa.c in
->   > fact has a big #ifdef CONFIG_X86_DISCONTIGMEM around all of the code.
->   > AFAICS CONFIG_X86_DISCONTIGMEM is really the selector for the bootmem
->   > workarounds and I think it shouldn't be used anywhere else, or even better
->   > replaced by and HAVE_ARCH_BOOTMEM_NODE #define in asm/pgtable.h.
+> 1) Does that only affect memory barriers, or both memory barriers and
+> spinlocks?
 > 
-> yes, I agree and that was my intention with CONFIG_X86_DISCONTIGMEM.  I'll fix 
-> them.
+> example (from drivers/net/natsemi.c)
 > 
-> Let me make sure I understand what you mean, you're thing that 
-> HAVE_ARCH_BOOTMEM_NODE should be turned on in asm/pgtable.h when 
-> CONFIG_DISCONTIGMEM is defined?  If that's so, I'll make the change.
+> cpu0:
+>         spin_lock(&lock);
+>         writew(1, ioaddr+PGSEL);
+>         ...
+>         writew(0, ioaddr+PGSEL);
+>         spin_unlock(&lock);
+> 
+> cpu1:
+>         spin_lock(&lock);
+>         readw(ioaddr+whatever); // assumes that the register window is 0.
+> 
+> writew(1, ioaddr+PGSEL) selects a register window of the NIC. Are writew
+> and the spinlock synchonized on ppc64?
 
-For i386, yes.  It looks to me (please correct me that I'm wrong), that
-the ifdefs in bootmem.h are to allow architecture-specific versions
-of the *_node functions.  This could also be needed by other architectures
-and really isn't a config options.  I think because of this such a
-feature-define looks more apropinquate to me then a CONFIG_ option.
+This is an interesting example.  As the implementation stands today, for
+this specific example, we are ok because the spin_lock/unlock pair
+provides ordering within system memory access pairs OR i/o space pairs. 
+Not across the types (we do not use the heavy weight sync).  So if there
+are examples where the spin lock is meant to protect system memory
+access to i/o space, we are in trouble.
 
+> 2) when you write "system memory", is that memory allocated with
+> kmalloc/gfp, or also memory allocated with pci_alloc_consistent()?
+> 
+> I've always assumed that
+>         pci_alloc_consistent_ptr->data=0;
+>         writew(0, ioaddr+TRIGGER);
+> 
+> is ordered, i.e. the memory write happens before the writew. Is that
+> guaranteed?
+> 
+
+It is not guaranteed on all systems (PowerPC being an example). 
+pci_alloc_consistent allocted storage is just normal system memory that
+happens to be mapped to a PCI bus for DMA access.
+
+Your example would fail, and in fact is basically what has been observed
+to fail on Power4.  
+
+What is needed is:
+
+pci_alloc_consistent_ptr->data = 0;
+wmb();
+writew(0, ioaddr+TRIGGER);
+
+This code also was observed to fail, when wmb() = eieio, which does not
+order system memory accesses to I/O space accesses.
+
+At present, we have worked around this by doing a heavy 'sync' before
+and after writew and its ilk.  The point of my initial questions though
+is that this fix is not exactly optimal :(
+
+Dave.

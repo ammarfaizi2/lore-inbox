@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263202AbTDRQOz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 12:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTDRQOV
+	id S263125AbTDRQeS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 12:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263139AbTDRQeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 12:14:21 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:19681 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263161AbTDRQNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 12:13:38 -0400
-Date: Fri, 18 Apr 2003 09:24:54 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.67-mm4 devfs don't compile
-Message-Id: <20030418092454.6b9aa705.rddunlap@osdl.org>
-In-Reply-To: <20030418161732.GA14198@hh.idb.hist.no>
-References: <20030418014536.79d16076.akpm@digeo.com>
-	<20030418161732.GA14198@hh.idb.hist.no>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Apr 2003 12:34:18 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:37126 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263125AbTDRQeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 12:34:17 -0400
+Date: Fri, 18 Apr 2003 12:32:35 -0400 (EDT)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: davidsen@tmr.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RedHat 9 and 2.5.x support
+In-Reply-To: <Pine.LNX.4.10.10304181142200.13892-100000@clements.sc.steeleye.com>
+Message-ID: <Pine.LNX.4.10.10304181221030.13892-100000@clements.sc.steeleye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Apr 2003 18:17:32 +0200 Helge Hafting <helgehaf@aitel.hist.no> wrote:
+On Fri, 18 Apr 2003, Paul Clements wrote:
+> On Fri, 18 Apr 2003, Bill Davidsen wrote:
+> > The last I looked modprobe.conf was a seriously deficient subset of
+> > modules.conf, but I haven't d/l the latest version, so some of the
+> > omissions may have been addressed. The major feature missing is (or was)
+> > the lack of probe capability (and probeall). 
+> 
+> I think you can achieve the same outcome with a carefully crafted "install"
+> command in modprobe.conf (granted it will be much more verbose than the
+> equivalent "probe"). 
 
-| I'd like to try mm4 and see how AS runs on scsi, but
-| I got a compile error in devfs:
-| 
-|   gcc -Wp,-MD,fs/devfs/.base.o.d -D__KERNEL__ -Iinclude -Wall 
-| -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
-| -mpreferred-stack-boundary=2 -march=pentium2 -Iinclude/asm-i386/mach-default 
-| -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=base 
-| -DKBUILD_MODNAME=devfs -c -o fs/devfs/base.o fs/devfs/base.c
-| fs/devfs/base.c: In function `devfsd_notify':
-| fs/devfs/base.c:1426: too many arguments to function `devfsd_notify_de'
-| fs/devfs/base.c: In function `devfs_register':
-| fs/devfs/base.c:1460: warning: too few arguments for format
-| fs/devfs/base.c:1460: warning: too few arguments for format
-| make[2]: *** [fs/devfs/base.o] Error 1
-| make[1]: *** [fs/devfs] Error 2
-| make: *** [fs] Error 2
+Actually, it's even easier than that...Rusty's included a script:
 
-Hi,
+/sbin/generate-modprobe.conf
 
-Please look at today's email archives.  I've seen at least 2 patches
-posted to fix this.
+in the new modutils package that will convert modules.conf to modprobe.conf
+automagically...
 
 --
-~Randy
+Paul
+

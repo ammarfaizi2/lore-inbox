@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290919AbSBVBXu>; Thu, 21 Feb 2002 20:23:50 -0500
+	id <S290946AbSBVBYK>; Thu, 21 Feb 2002 20:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290878AbSBVBXm>; Thu, 21 Feb 2002 20:23:42 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:22028 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S290827AbSBVBXd>; Thu, 21 Feb 2002 20:23:33 -0500
-Date: Fri, 22 Feb 2002 02:23:29 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dave Jones <davej@suse.de>, Benjamin Pharr <ben@benpharr.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.5-dj1 - Bug Reports
-Message-ID: <20020222022329.A3533@suse.cz>
-In-Reply-To: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu> <20020222022149.N5583@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020222022149.N5583@suse.de>; from davej@suse.de on Fri, Feb 22, 2002 at 02:21:49AM +0100
+	id <S290878AbSBVBXw>; Thu, 21 Feb 2002 20:23:52 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:7081 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S290827AbSBVBXs> convert rfc822-to-8bit;
+	Thu, 21 Feb 2002 20:23:48 -0500
+Date: Fri, 22 Feb 2002 02:23:28 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: =?gb2312?q?hanhbkernel?= <hanhbkernel@yahoo.com.cn>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: boot messeage
+In-Reply-To: <20020222011800.95965.qmail@web15003.mail.bjs.yahoo.com>
+Message-ID: <Pine.GSO.4.30.0202220222420.11273-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 02:21:49AM +0100, Dave Jones wrote:
->  > It compiled fine. When I booted up everything looked normal with the
->  > exception of a 
->  > eth1: going OOM 
->  > message that kept scrolling down the screen. My eth1 is a natsemi card.
-> 
->  That's interesting. Probably moreso for Manfred. I'll double check
->  I didn't goof merging the oom-handling patch tomorrow.
-> 
->  > Eventually that stopped and gdm came up. For some reason my keyboard and
->  > mouse wouldn't work.
-> 
->  -dj includes a different input layer to Linus' tree, which requires
->  some extra options enabled.  Vojtech, this is quite a frequent
->  'bug report', and I think if you merged that with Linus, the number
->  of reports would climb. Is there a possibility of simplifying the
->  config.in somewhat? Or at least changing the defaults to give the
->  element of least surprise..
 
-The defaults are changed :(. However people coying their .configs over
-don't use the defaults. The help files say what to do in case of doubt.
-I'm not sure what more I can do.
+I think you should use the append="quiet" option. This way use get only
+errors shown.
 
-I'll try to think about that.
+On Fri, 22 Feb 2002, [gb2312] hanhbkernel wrote:
 
->  > It got to check.c in fs/partitions before stopping with an error.
-> 
->  That one I've not got an answer for. Can you give me more information
->  about your disk layout, partitions, number of disks, scsi?/ide?/lvm?
->  
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
+> When booting Linux, the kernel messages are shown on
+> screen.
+> I don't like to show these messages, so  "Support for
+> console on virtual terminal" and "Support for console
+> on serial port" are not chose when compiling kernel.
+> But using the new kernel, computer can't boot. If one
+> of "Support for console on virtual terminal" and
+> "Support for console on serial port" is chose,
+> Computer can be booted. If I don’t like the booting
+> messages shown through terminal or HyperTerminal on
+> screen.
+> the following is my lilo.conf
+> boot=/dev/hda
+> map=/boot/map
+> install=/boot/boot.b
+> prompt
+> timeout=50
+> message=/boot/message
+> linear
+> default=linux-2.4.17
+> image=/boot/linux2417
+> 	label=linux-2.4.17
+> 	initrd=/root/initrd
+> 	append="root=/dev/ram0 init=linuxrc rw"
+> I using append="console=quiet  root=/dev/ram0
+> init=linuxrc rw" and
+> append="console=/dev/null root=/dev/ram0 init=linuxrc
+> rw" but computer can not be booted.
+> Would you like to tell me how could I do?
+>
+>
+>
+> _________________________________________________________
+> Do You Yahoo!?
+> 到世界杯主题公园玩一玩，赢取世界杯门票乐一乐。
+> http://cn.worldcup.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+pozsy
+

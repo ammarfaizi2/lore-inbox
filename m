@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVCDAOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVCDATU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVCDAOy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVCDANq
+	id S262819AbVCDATU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVCDARp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:13:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:25299 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262683AbVCDAJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:09:02 -0500
-Date: Thu, 3 Mar 2005 16:08:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
-       scalability@gelato.org
-Subject: Re: [PATCH] Fixing address space lock contention in 2.6.11
-Message-Id: <20050303160849.0b80be76.akpm@osdl.org>
-In-Reply-To: <20050302184653.3ea8e29d.akpm@osdl.org>
-References: <16934.28560.325928.858464@berry.gelato.unsw.EDU.AU>
-	<20050302184653.3ea8e29d.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Mar 2005 19:17:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56509 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262810AbVCDAIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 19:08:04 -0500
+Message-ID: <4227A6CF.6080805@pobox.com>
+Date: Thu, 03 Mar 2005 19:07:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <roland@topspin.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][26/26] IB: MAD cancel callbacks from thread
+References: <2005331520.zA1xypugai2bUq7X@topspin.com>
+In-Reply-To: <2005331520.zA1xypugai2bUq7X@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
-> >
-> > 
-> > Hi,
-> > 	As part of the Gelato scalability focus group, we've been running
-> > OSDL's Re-AIM7 benchmark with an I/O intensive load with varying
-> > numbers of processors.  The current kernel shows severe contention on
-> > the tree_lock in the address space structure when running on tmpfs or
-> > ext2 on a RAM disk.
-> > 
-> 
-> Yup.
-> 
-> Problem is, an rwlock is a little bit slower than a spinlock on a P4 due to
-> the buslocked unlock, and a lot of people have p4's.
-> 
-> Could you do some testing on a 2-way p4?
+Roland Dreier wrote:
+> +void cancel_sends(void *data)
+> +{
+> +	struct ib_mad_agent_private *mad_agent_priv;
+> +	struct ib_mad_send_wr_private *mad_send_wr;
+> +	struct ib_mad_send_wc mad_send_wc;
+> +	unsigned long flags;
+> +
+> +	mad_agent_priv = (struct ib_mad_agent_private *)data;
 
-hm, turns out I did some P4 testing ages ago:
-
-with:
-
-dd if=/dev/zero of=foo bs=1 count=2M  0.80s user 4.15s system 99% cpu 4.961 total
-dd if=/dev/zero of=foo bs=1 count=2M  0.73s user 4.26s system 100% cpu 4.987 total
-dd if=/dev/zero of=foo bs=1 count=2M  0.79s user 4.25s system 100% cpu 5.034 total
-
-dd if=foo of=/dev/null bs=1  0.80s user 3.12s system 99% cpu 3.928 total
-dd if=foo of=/dev/null bs=1  0.77s user 3.15s system 100% cpu 3.914 total
-dd if=foo of=/dev/null bs=1  0.92s user 3.02s system 100% cpu 3.935 total
-
-(3.926: 1.87 usecs)
-
-without:
-
-dd if=/dev/zero of=foo bs=1 count=2M  0.85s user 3.92s system 99% cpu 4.780 total
-dd if=/dev/zero of=foo bs=1 count=2M  0.78s user 4.02s system 100% cpu 4.789 total
-dd if=/dev/zero of=foo bs=1 count=2M  0.82s user 3.94s system 99% cpu 4.763 total
-dd if=/dev/zero of=foo bs=1 count=2M  0.71s user 4.10s system 99% cpu 4.810 tota
-
-dd if=foo of=/dev/null bs=1  0.76s user 2.68s system 100% cpu 3.438 total
-dd if=foo of=/dev/null bs=1  0.74s user 2.72s system 99% cpu 3.465 total
-dd if=foo of=/dev/null bs=1  0.67s user 2.82s system 100% cpu 3.489 total
-dd if=foo of=/dev/null bs=1  0.70s user 2.62s system 99% cpu 3.326 total
-
-(3.430: 1.635 usecs)
+don't add casts to a void pointer, that's silly.
 
 
-So the spinlock->rwlock conversion costs us 240 nsecs on a one-byte-write.
+
+> +	mad_send_wc.status = IB_WC_WR_FLUSH_ERR;
+> +	mad_send_wc.vendor_err = 0;
+> +
+> +	spin_lock_irqsave(&mad_agent_priv->lock, flags);
+> +	while (!list_empty(&mad_agent_priv->canceled_list)) {
+> +		mad_send_wr = list_entry(mad_agent_priv->canceled_list.next,
+> +					 struct ib_mad_send_wr_private,
+> +					 agent_list);
+> +
+> +		list_del(&mad_send_wr->agent_list);
+> +		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+> +
+> +		mad_send_wc.wr_id = mad_send_wr->wr_id;
+> +		mad_agent_priv->agent.send_handler(&mad_agent_priv->agent,
+> +						   &mad_send_wc);
+> +
+> +		kfree(mad_send_wr);
+> +		if (atomic_dec_and_test(&mad_agent_priv->refcount))
+> +			wake_up(&mad_agent_priv->wait);
+> +		spin_lock_irqsave(&mad_agent_priv->lock, flags);
+> +	}
+> +	spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+
+dumb question... why is the lock dropped?  is it just for the 
+send_handler(), or also for wr_id assigned, kfree, and wake_up() ?
+

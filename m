@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267620AbUIOV5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUIOV5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267620AbUIOV5m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUIOV4o
+	id S267607AbUIOV5l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267632AbUIOV4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:56:44 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:23761 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267646AbUIOVzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:55:31 -0400
-Date: Wed, 15 Sep 2004 17:55:30 +0000 (UTC)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
-In-Reply-To: <20040915144523.0fec2070.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0409151751140.19505@musoma.fsmlabs.com>
-References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com>
- <20040915144523.0fec2070.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Sep 2004 17:56:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7357 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267607AbUIOVyq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 17:54:46 -0400
+Date: Wed, 15 Sep 2004 14:54:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Robert Love <rml@novell.com>, Kay Sievers <kay.sievers@vrfy.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+Message-ID: <20040915215412.GA26308@kroah.com>
+References: <20040915203133.GA18812@hockin.org> <1095280414.23385.108.camel@betsy.boston.ximian.com> <20040915204754.GA19625@hockin.org> <1095281358.23385.109.camel@betsy.boston.ximian.com> <20040915205643.GA19875@hockin.org> <20040915212322.GB25840@kroah.com> <1095283589.23385.117.camel@betsy.boston.ximian.com> <1095284330.3508.11.camel@localhost.localdomain> <1095284369.23385.125.camel@betsy.boston.ximian.com> <20040915214919.GC22361@hockin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915214919.GC22361@hockin.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, Andrew Morton wrote:
-
-> Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
-> >
-> > William spotted this stray bit, LOCK_SECTION isn't used anymore on x86_64. 
+On Wed, Sep 15, 2004 at 02:49:19PM -0700, Tim Hockin wrote:
 > 
-> btw, Ingo and I were scratching heads over an x86_64 oops in curent -linus
-> trees.
-> 
-> If you enable profiling and frame pointers, profile_pc() goes splat
-> dereferencing the `regs' argument when it decides that the pc refers to a
-> lock section.  Ingo said `regs' had a value of 0x2, iirc.  Consider this a
-> bug report ;)
+> What worries me more is that only some mount/umount calls get events, and
+> not all of them.
 
-Yeah profile_pc on x86_64 is just broken, i'll have a look.
+That should be fixed, and I think Robert has already said they will fix
+that.
 
-Thanks,
-	Zwane
+thanks,
 
+greg k-h
+
+
+-- 

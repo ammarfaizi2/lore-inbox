@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269151AbUIHVKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269162AbUIHVLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269151AbUIHVKm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 17:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269153AbUIHVKl
+	id S269162AbUIHVLm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 17:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269154AbUIHVLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 17:10:41 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:14486 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269151AbUIHVKj (ORCPT
+	Wed, 8 Sep 2004 17:11:42 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:22208 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269153AbUIHVLf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 17:10:39 -0400
-Subject: [ANNOUNCE] Sept LTP Release now available
-To: linux-kernel@vger.kernel.org, ltp-lists@lists.sourceforge.net,
-       ltp-announce@projects.sourceforge.net
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF92FFE664.CC10D58B-ON85256F09.00740AD6-86256F09.00744FC7@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Wed, 8 Sep 2004 16:10:27 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.0.2CF2 HFB2|August 27, 2004) at
- 09/08/2004 17:10:29
+	Wed, 8 Sep 2004 17:11:35 -0400
+Date: Wed, 08 Sep 2004 14:10:32 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Diego Calleja <diegocg@teleline.es>, Rik van Riel <riel@redhat.com>
+cc: raybry@sgi.com, marcelo.tosatti@cyclades.com, kernel@kolivas.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       piggin@cyberone.com.au
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-ID: <36100000.1094677832@flay>
+In-Reply-To: <20040908215008.10a56e2b.diegocg@teleline.es>
+References: <5860000.1094664673@flay><Pine.LNX.4.44.0409081403500.23362-100000@chimarrao.boston.redhat.com> <20040908215008.10a56e2b.diegocg@teleline.es>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> > For HPC, maybe. For a fileserver, it might be far too little. That's the
+>> > trouble ... it's all dependant on the workload. Personally, I'd prefer
+>> > to get rid of manual tweakables (which are a pain in the ass in the field
+>> > anyway), and try to have the kernel react to what the customer is doing.
+>> 
+>> Agreed.  Many of these things should be self-tunable pretty
+>> easily, too...
+> 
+> I know this has been discussed before, but could a userspace daemon which
+> autotunes the tweakables do a better job wrt. to adapting the kernel
+> behaviour depending on the workload? Just like these days we have
+> irqbalance instead of a in-kernel "irq balancer". It's a alternative
+> worth of look at?
 
+I really don't see any point in pushing the self-tuning of the kernel out
+into userspace. What are you hoping to achieve?
 
+M.
 
-
-The Sept. release of LTP is now on SourceForge.net, changes include:
-
-LTP-20040908
-- Modified runalltests.sh to call runltp.sh. runalltests.sh is now
-deprecated and will be removed early next year.
-- Modified tst_tmpdir to ensure 777 permissions on test directory.
-- Changes to ltp-aiodio.part3 for testcase run parameters
-- Changes for 2.6.X so only delete modules is run, query and create are
-obsolete
-- Updated runtest scenario with the latest SCTP tests.
-- uncommented swapon() tests.
-- added new paging tests, mincore and madvise
-- Change to fix aio-stress problem will io errors on a short read during
-the random read portion
-- Change to only print out a pass/fail instead of # of iterations pass/fail
-- Added IA64 specific code for shmt09.
-- Change to not do /dev/ptmx group write on arm arch.
-- Applied patch from Ling, Xiaofeng to allow the test to use TDIRECTORY
-correctly.
-- Corrected test 1 to show EPERM error pointed out by Ling, Xiaofeng.
-- Change to close fileHandle prior to cleanup to correct testcase failure
-in NFS filesystems
-- Change sleep time from 1 second to 10 seconds to allow system to pass
-- Change to define RUSAGE_BOTH if not defined, RH removed from user space
-and other distros still support.
-- Add arm arch to the ALIGNED typedefs
-- Changes from Ihno for llseek01.c to check TEST_RETURN vs TEST_ERRNO
-- use ltp functions in f00f test for better output parsing
-- Fix Makefile to link open_files into the bin directory
-- Get rid of extra = of "must be Root user" check
-- Change the awk $4 to an $NF to support debian only returning 3 terms
-- Change to tcpdump to check IFNAME define
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
 

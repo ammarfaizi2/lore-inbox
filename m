@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317572AbSG2Rpv>; Mon, 29 Jul 2002 13:45:51 -0400
+	id <S317571AbSG2Rpu>; Mon, 29 Jul 2002 13:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317570AbSG2Roq>; Mon, 29 Jul 2002 13:44:46 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:15232 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317566AbSG2Rns>;
-	Mon, 29 Jul 2002 13:43:48 -0400
-Date: Mon, 29 Jul 2002 18:39:38 +0000
+	id <S317566AbSG2Rou>; Mon, 29 Jul 2002 13:44:50 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:14208 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317567AbSG2Rnl>;
+	Mon, 29 Jul 2002 13:43:41 -0400
+Date: Mon, 29 Jul 2002 17:49:12 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Christoph Hellwig <hch@infradead.org>,
-       Dave Kleikamp <shaggy@austin.ibm.com>, axel@hh59.org,
-       linux-kernel@vger.kernel.org, jfs-discussion@oss.software.ibm.com
-Subject: Re: [Jfs-discussion] Re: 2.5.27: Software Suspend failure / JFS errors
-Message-ID: <20020729183937.D38@toy.ucw.cz>
-References: <20020721122932.GA23552@neon.hh59.org> <20020721144212.GA23767@neon.hh59.org> <200207230954.36039.shaggy@austin.ibm.com> <20020723160657.A23708@infradead.org>
+To: Andrew Rodland <arodland@noln.com>
+Cc: "David D. Hagood" <wowbagger@sktc.net>, linux-kernel@vger.kernel.org
+Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
+Message-ID: <20020729174912.C38@toy.ucw.cz>
+References: <20020727000005.54da5431.arodland@noln.com> <200207270526.g6R5Qw942780@saturn.cs.uml.edu> <20020727015703.21f47a37.arodland@noln.com> <3D4298C6.9080103@sktc.net> <20020727114509.0a1eee2a.arodland@noln.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020723160657.A23708@infradead.org>; from hch@infradead.org on Tue, Jul 23, 2002 at 04:06:57PM +0100
+In-Reply-To: <20020727114509.0a1eee2a.arodland@noln.com>; from arodland@noln.com on Sat, Jul 27, 2002 at 11:45:09AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > This oops occurred during build of gcc..
-> > > Kernel 2.4.19-rc2-ac2.
-> > > About the same happens with 2.5.27. I will post an oops of jfsCommit
-> > > of 2.5.27 as soon as I get one.
+> > I don't understand the direction this discussion is taking.
 > > 
-> > I just built gcc on 2.4.19-rc3 + latest JFS and didn't have a problem.  
-> > I'll repeat it on 2.4.19-rc2-ac2, but there shouldn't be more than a 
-> > comsmetic difference in the JFS code.  I haven't tried 2.5.27 yet.
+> > Either you are trying to output the panic information with minimal 
+> > hardware, and in a form a human might be able to decode, in which case
+> > the Morse option seems to me to be the best, or you are trying to
+> > panic in a machine readable format - in which case just dump the data
+> > out /dev/ttyS0 and be done with it!
+> > 
+> > To my way of thinking, the idea of the Morse option is that if an oops
+> > 
+> > happens when you are not expecting it, and you haven't set up any 
+> > equipment to help you, you still have a shot at getting the data.
 > 
-> As I read 'Software Suspend' in the subject I guess it's swsusp fault.
-> Swsusp needs magic flags for kernel threads which no one has added to
-> JFS yet.
+> 
+> To my way of thinking, this is still 'minimal' -- it's just a different
+> minimum.
+> 
+> It's the 'minimum' way to get the panic message out digitally, in such
+> a way that I might be able to recover it using a tape recorder or a
+> telephone. Actually, morse is probably that, but morse loses data and
+> doesn't have any redundancy.
 
-Hehe. Really someone should add if (current->flags & PF_FREEZE) refrigerator(); 
-at the right place of JFS threads. I don't have JFS installed so it is hard
-for me to do that, sorry.
+You might even add FSK checksum at each end of morse line ;-), if you realy
+want checksum. Plus it will sound cool. You should also play special melody
+at each start of repeat, to be more decoder-friendly [and it will also
+sound cool].
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268758AbUIGW4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268752AbUIGW70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268758AbUIGW4k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268752AbUIGWze
+	id S268752AbUIGW70 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268753AbUIGW7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:55:34 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:19122 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268751AbUIGWzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:55:12 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org, rncbc@rnbnc.org
-In-Reply-To: <20040905140249.GA23502@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de>
-	 <20040904195141.GA6208@elte.hu>  <20040905140249.GA23502@elte.hu>
-Content-Type: text/plain
-Message-Id: <1094597710.16954.207.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 07 Sep 2004 18:55:10 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 18:59:15 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:32956 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S268752AbUIGW5a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:57:30 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Christer Weinigel <christer@weinigel.se>
+Cc: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
+       Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Date: Tue, 7 Sep 2004 15:56:08 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <m3isapitmr.fsf@zoo.weinigel.se>
+Message-ID: <Pine.LNX.4.60.0409071552070.10789@dlang.diginsite.com>
+References: <200409070206.i8726vrG006493@localhost.localdomain><413D4C18.6090501@slaphack.com>
+ <m3d60yjnt7.fsf@zoo.weinigel.se><413DFF33.9090607@namesys.com>
+ <m3vfepiv7r.fsf@zoo.weinigel.se><Pine.LNX.4.60.0409071528200.10789@dlang.diginsite.com>
+ <m3isapitmr.fsf@zoo.weinigel.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-05 at 10:02, Ingo Molnar wrote:
-> i've released -R5:
->  
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk12-R5
+On Tue, 8 Sep 2004, Christer Weinigel wrote:
 
-Ingo, here is a report from a user (Rui) of a problem that seems to have
-been introduced in Q5.  The symptoms look very similar to the SMP/HT
-problems that were thought to be fixed.  I have already requested more
-info as to what happens if soft/hardirq preemption are enabled.
+> Subject: Re: silent semantic changes with reiser4
+> 
+> David Lang <david.lang@digitalinsight.com> writes:
+>
+>> so far the best answer that I've seen is a slight varient of what Hans
+>> is proposing for the 'file-as-a-directory'
+>>
+>> make the base file itself be a serialized version of all the streams
+>> and if you want the 'main' stream open file/. (or some similar
+>> varient)
+>
+>> in fact it may make sense to just open file/file to get at the 'main'
+>> stream of the file (there may be cases where the concept of a single
+>> main stream may not make sense)
+>
+> So what happens if I have a text file foo.txt and add an author
+> attribute to it?  When I read foo.txt the next time it's supposed to
+> give me a serialized version with both the contents of foo.txt _and_
+> the author attribute?
+>
+> That would definitely confuse me.
+>
+> Or did I misunderstand something?
+>
 
----
+good point. under my scheme you would need to access foo.txt/foo.txt or 
+foo.txt/. instead of just foo.txt
 
-I'm having some trouble with latest VP patches on my P4 HT/SMP box. The
-trouble is that since Q5 that I can't get my machine to boot reliably,
-if at all. It goes almost all through the init scripts to drop dead on
-the beach, so to speak. It just freezes completely somewhere before the
-login prompts.
+I guess my way would work if there is a way to know that a file has been 
+extended (or if you just make it a habit of opening the file/file instead 
+of just file) but not for random additions of streams to otherwise normal 
+files.
 
-This only happens if the kernel is configured for SMP/SMT
-(HyperThreading). The very same kernel configured and built for UP boots
-and runs fine. As I said before this was introduced on the Q5 patch, and
-the same showstopper is present on latest R6. Only with Q3 I'm still
-happy, altought only with softirq-preempt=0 AND hardirq-preempt=0.
+Oh well, it seemed like a easy fix (and turned out to be to easy to be 
+practical)
 
-The "offending" box is a SUSE 9.1 based one, P4 2.80C HT on a ASUS
-P4P800 mobo, 1GB DDR.
+David Lang
 
----
+>  /Christer
+>
+> --
+> "Just how much can I get away with and still go to heaven?"
+>
+> Freelance consultant specializing in device driver programming for Linux
+> Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+>
 
-Lee
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,115 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267635AbTBEAyP>; Tue, 4 Feb 2003 19:54:15 -0500
+	id <S267644AbTBEA62>; Tue, 4 Feb 2003 19:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267636AbTBEAyP>; Tue, 4 Feb 2003 19:54:15 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:2743 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP
-	id <S267635AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
-Date: Wed, 5 Feb 2003 01:03:44 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: gcc 2.95 vs 3.21 performance
-Message-ID: <20030205010344.GG1200@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <1044385759.1861.46.camel@localhost.localdomain> <200302041935.h14JZ69G002675@darkstar.example.net> <b1pbt8$2ll$1@penguin.transmeta.com> <20030204232101.GA9034@work.bitmover.com> <20030204235112.GB17244@unthought.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PyMzGVE0NRonI6bs"
-Content-Disposition: inline
-In-Reply-To: <20030204235112.GB17244@unthought.net>
-User-Agent: Mutt/1.4i
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
+	id <S267645AbTBEA62>; Tue, 4 Feb 2003 19:58:28 -0500
+Received: from 4-088.ctame701-1.telepar.net.br ([200.193.162.88]:18601 "EHLO
+	4-088.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267644AbTBEA60>; Tue, 4 Feb 2003 19:58:26 -0500
+Date: Tue, 4 Feb 2003 23:07:54 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, "" <tytso@thunk.org>, "" <rddunlap@osdl.org>
+Subject: Re: [PATCH][RESEND 3] disassociate_ctty SMP fix
+In-Reply-To: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.50L.0302042306230.32328-100000@imladris.surriel.com>
+References: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Feb 2003, Rik van Riel wrote:
 
---PyMzGVE0NRonI6bs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> the following patch, against today's BK tree, fixes a small
+> SMP race in disassociate_ctty.  This function gets called
+> from do_exit, without the BKL held.
 
-On Wed, Feb 05, 2003 at 12:51:12AM +0100, Jakob Oestergaard wrote:
-> On Tue, Feb 04, 2003 at 03:21:01PM -0800, Larry McVoy wrote:
-> > I can't offer any immediate help with this but I want the same thing.  At
-> > some point, we're planning on funding some extensions into GCC or whatever
-> > reasonable C compiler is around:
-> > 
-> >     - regular expressions
-> > 
-> >       {
-> >       	  char	*foo = "blech";
-> > 
-> > 	  if (foo =~ /regex are nice/) {
-> > 	  	printf("Well isn't that special?\n");
-> > 	  }
-> >       }
-> 
-> Ok, I can't help you with that.
+Here's a better one, this one does the same fix not only
+in disassociate_ctty() but also in do_tty_hangup()
 
-   I wanted something like that a while ago, so I wrote a couple of
-classes in C++ to handle regexps. Some of the test code looks like
-this:
+If we're lucky it might fix:
+http://bugme.osdl.org/show_bug.cgi?id=54
 
-        string str = "fum foo";
-	rejex exp("f(o*)");
-	// Search for a regex
-	if( s/exp )
-		cout << "Found it!" << endl;
-	// Count matches
-	cout << s/exp << " matches" << endl;
+Please apply. Thank you,
 
-	replace rep("g$0");
+Rik
 
-	// Search & replace
-	str/exp/rep;
-	cout << s << endl;
+===== drivers/char/tty_io.c 1.55 vs edited =====
+--- 1.55/drivers/char/tty_io.c	Tue Jan 14 23:37:20 2003
++++ edited/drivers/char/tty_io.c	Tue Feb  4 23:02:52 2003
+@@ -425,19 +425,21 @@
+  */
+ void do_tty_hangup(void *data)
+ {
+-	struct tty_struct *tty = (struct tty_struct *) data;
++	struct tty_struct *tty;
+ 	struct file * cons_filp = NULL;
+ 	struct task_struct *p;
+ 	struct list_head *l;
+ 	struct pid *pid;
+ 	int    closecount = 0, n;
 
-	// All in one
-	"foo bar"/rejex("ba")/replace();
+-	if (!tty)
+-		return;
+-
+ 	/* inuse_filps is protected by the single kernel lock */
+ 	lock_kernel();
+-
++	tty = (struct tty_struct *) data;
++	if (!tty) {
++		unlock_kernel();
++		return;
++	}
++
+ 	check_tty_count(tty, "do_tty_hangup");
+ 	file_list_lock();
+ 	for (l = tty->tty_files.next; l != &tty->tty_files; l = l->next) {
+@@ -571,7 +573,7 @@
+  */
+ void disassociate_ctty(int on_exit)
+ {
+-	struct tty_struct *tty = current->tty;
++	struct tty_struct *tty;
+ 	struct task_struct *p;
+ 	struct list_head *l;
+ 	struct pid *pid;
+@@ -579,6 +581,7 @@
 
-   It's not perfect by any stretch of the imagination, but it works.
-I've not released it, because I haven't had a chance to get it into a
-releasable form yet. Actually, looking at it, I should probably play a
-couple of tricks with overloading operators to give you instead
+ 	lock_kernel();
 
-   str =~ search/replace;
-
-or even
-
-   "str" =~ "search"/"replace";
-
-> You have probably seen a Perl program before... Now imagine a two
-> million line Perl program... That is why the above is not a good idea ;)
-> 
-> It's still your right to want it of course...
-
-   That's a good point, but I've always felt that the main problem
-with perl isn't the regexes, but the rest of the language(*).
-
-   Hugo.
-
-(*) Some may feel that, coming from a C++ programmer, this is a case
-of the pot calling the kettle black. :)
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-   --- Our so-called leaders speak/with words they try to jail ya/ ---   
-        They subjugate the meek/but it's the rhetoric of failure.        
-                                                                         
-
---PyMzGVE0NRonI6bs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+QGLwssJ7whwzWGARAo4KAKCjutuCnjF5sK0tWLI/6WF3zX53+gCgjLt9
-76hxwxh8qXaDNe/lskMB1pU=
-=tZtj
------END PGP SIGNATURE-----
-
---PyMzGVE0NRonI6bs--
++	tty = current->tty;
+ 	if (tty) {
+ 		tty_pgrp = tty->pgrp;
+ 		if (on_exit && tty->driver.type != TTY_DRIVER_TYPE_PTY)

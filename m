@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267236AbTBDKvL>; Tue, 4 Feb 2003 05:51:11 -0500
+	id <S267217AbTBDKst>; Tue, 4 Feb 2003 05:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267238AbTBDKvL>; Tue, 4 Feb 2003 05:51:11 -0500
-Received: from dux1.tcd.ie ([134.226.1.23]:47333 "HELO dux1.tcd.ie")
-	by vger.kernel.org with SMTP id <S267236AbTBDKvJ>;
-	Tue, 4 Feb 2003 05:51:09 -0500
-Subject: Re: CPU throttling??
-From: Seamus <assembly@gofree.indigo.ie>
-To: John Bradford <john@grabjohn.com>
-Cc: andrew.grover@intel.com, davej@codemonkey.org.uk, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200302041031.h14AVYcv000642@darkstar.example.net>
-References: <200302041031.h14AVYcv000642@darkstar.example.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044356481.17362.49.camel@taherias.sre.tcd.ie>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1- 
-Date: 04 Feb 2003 11:01:21 +0000
+	id <S267224AbTBDKst>; Tue, 4 Feb 2003 05:48:49 -0500
+Received: from mail.bmlv.gv.at ([193.171.152.37]:59276 "HELO mail.bmlv.gv.at")
+	by vger.kernel.org with SMTP id <S267217AbTBDKss>;
+	Tue, 4 Feb 2003 05:48:48 -0500
+From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
+To: alexander.riesen@synopsys.COM
+Subject: Re: [PATCHes available] printk() without KERN_ prefixes? (in 2.5.59) (again)
+Date: Tue, 4 Feb 2003 11:58:20 +0100
+User-Agent: KMail/1.5
+References: <200302031656.h13Gu7lV029203@napali.hpl.hp.com> <200302040836.04151.philipp.marek@bmlv.gv.at> <20030204104017.GL5239@riesen-pc.gr05.synopsys.com>
+In-Reply-To: <20030204104017.GL5239@riesen-pc.gr05.synopsys.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302041158.20607.philipp.marek@bmlv.gv.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-04 at 10:31, John Bradford wrote:
-> > Hmmm, it seems most of these apply to mobile processors.
-> > I'm using AMD 1.4 Athlon Thunderbird on a desktop, as you know my
-> > processor was the one before release low power AMD XP processors.
-> > It uses a savage amount of power, and operates well into 60 and 70
-> > degrees celcius.
-> 
-> Is that the temperature when it's halted, or when it's in use?  I have
-> never observed the Duron 650 machine that's here get above 30 degrees
-> C, and the MMX-200 doesn't have a temperature sensor, but I'd estimate
-> that it never goes above 40.
-> 
+> > 	#ifdef LITTLE_ENDIAN
+> >                            (wptr[(((win + 1)*4)^4)/4] != 0)) {
+> > 	#else
+> >                            (wptr[win + 1] != 0)) {
+> > 	#endif /* LITTLE_ENDIAN */
+> > (the braces { and } don't add up in the file).
+>
+> they do, but your script doesn't use c preprocessor with right flags,
+> which it probably should.
+>
+> The two braces above should be counted as one depending on LITTLE_ENDIAN
+> defined.
+# wc change_printk.pl
+    141     268    2361 change_printk.pl
+I don't use the preprocessor - after all, which -D should I give? all? none? a 
+part? So my script just reads the files.
 
-OK, this is the full story.
-I have an AMD 1.4GHz Athlon Thunderbird on ASUS motherboard.
-While computer must be up 24/7 there are times that it may not be in use
-(at all) for periods as long as 12 hours. 
-I'd like to minimize power consumption at those times.
-So far achieving it by monitor powering off and hard-disk suspending.
+I know that my script could parse the #if's also - but that's a lot of work 
+with little use.
 
-I don't know how much I can save on CPU, but when it's completely idle
-(normal mode, not halted though) its at 59-61 degrees celcius, when its
-at 100% use, it easily reaches 74+. Aparently its normal with AMD Athlon
-Thunderbird CPUs !
+How about that?
 
-Now, I want to put CPU into *lowest* power consumption mode (whether
-that be CPU C state, halt state, lower freq or lower voltage) at times
-when I don't need it (but as you know, at all times there are processes
-running, no matter how infrequent and low cpu usage they have, so I can
-hardly see ideal "Halt" mode possible), so whats the best action ?
+	#if defined(FORCE_ERRORS)
+	        if (0) {
+	#elif !DEBUG
+	        if (kdebug) {
+	#endif
+	...
+	#if !DEBUG || defined(FORCE_ERRORS)
+	        }
+	#endif
+(seen in arch/ia64/sn/io/sn2/pcibr/pcibr_error.c: pcibr_pioerror() )
 
-Seamus
+It's just too complex to look on the #if's and gives not enough advantages.
+
+
+Regards,
+
+Phil
+
 

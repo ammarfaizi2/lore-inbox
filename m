@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268386AbTBYW13>; Tue, 25 Feb 2003 17:27:29 -0500
+	id <S268255AbTBYWgQ>; Tue, 25 Feb 2003 17:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268388AbTBYW13>; Tue, 25 Feb 2003 17:27:29 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:7320 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S268386AbTBYW11>;
-	Tue, 25 Feb 2003 17:27:27 -0500
-Date: Tue, 25 Feb 2003 14:37:43 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225223743.GA22579@f00f.org>
-References: <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1046093309.1246.6.camel@irongate.swansea.linux.org.uk> <20030225051956.GA18302@f00f.org> <20030225052602.GW10411@holomorphy.com> <20030225212115.GB21870@f00f.org> <20030225212134.GD10411@holomorphy.com> <20030225220811.GA9317@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268298AbTBYWgQ>; Tue, 25 Feb 2003 17:36:16 -0500
+Received: from mail.williamewood.com ([63.98.123.93]:1453 "EHLO
+	mail.williamewood.com") by vger.kernel.org with ESMTP
+	id <S268255AbTBYWgP>; Tue, 25 Feb 2003 17:36:15 -0500
+From: Emmett Pate <emmett@epate.com>
+Organization: EPate & Associates, Inc.
+To: linux-kernel@vger.kernel.org
+Subject: Re: rootfs on nfs : oops 2.5.63
+Date: Tue, 25 Feb 2003 17:46:30 -0500
+User-Agent: KMail/1.5
+References: <20030225151337.358a6ee6.bert@ovh.net> <200302251622.55217.emmett@epate.com> <20030225141134.3778b199.akpm@digeo.com>
+In-Reply-To: <20030225141134.3778b199.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030225220811.GA9317@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+Message-Id: <200302251746.30912.emmett@epate.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 02:08:11PM -0800, Larry McVoy wrote:
+Works like a champ!  I really appreciate your help.
 
-> Without doing something about the page coloring problem (and he
-> might be) the numbers will be fairly meaningless.
-
-page coloring problem?
-
-i was under the impression on anything 8-way-associative or better the
-page coloring improvements were negligible for real-world benchmarks
-(ie. kernel compiles)
-
-... or is this more an artifact that even though the improvements for
-real-world are negligible, micro-benchmarks are susceptible to these
-variations this making things like the std. dev. larger than it would
-otherwise be?
+Emmett Pate
 
 
+On Tuesday 25 February 2003 05:11 pm, Andrew Morton wrote:
+> Emmett Pate <emmett@epate.com> wrote:
+> > I'm having the same problem.
+> >
+> > On my notebook (wireless PCMCIA, D-Link DWL650), 2.5.63 oopses
+> > immediately on trying to mount an NFS filesystem.
+>
+> Trond quietly sent out the below patch a while back.  Could you please see
+> if this fixes things up?
+>
+>
+> --- 25/net/sunrpc/clnt.c~rpc_rmdir-fix	Mon Feb 24 15:47:53 2003
+> +++ 25-akpm/net/sunrpc/clnt.c	Mon Feb 24 15:47:53 2003
+> @@ -208,7 +208,8 @@ rpc_destroy_client(struct rpc_clnt *clnt
+>  		rpcauth_destroy(clnt->cl_auth);
+>  		clnt->cl_auth = NULL;
+>  	}
+> -	rpc_rmdir(clnt->cl_pathname);
+> +	if (clnt->cl_pathname[0])
+> +		rpc_rmdir(clnt->cl_pathname);
+>  	if (clnt->cl_xprt) {
+>  		xprt_destroy(clnt->cl_xprt);
+>  		clnt->cl_xprt = NULL;
+>
+> _
 
-  --cw
+-- 
+Emmett M. Pate, Jr.
+EPate & Associates, Inc.
+emmett@epate.com
 

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261946AbSJVBjT>; Mon, 21 Oct 2002 21:39:19 -0400
+	id <S262023AbSJVBum>; Mon, 21 Oct 2002 21:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbSJVBjT>; Mon, 21 Oct 2002 21:39:19 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:11219 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261946AbSJVBjS>; Mon, 21 Oct 2002 21:39:18 -0400
-Date: Mon, 21 Oct 2002 18:43:22 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Rik van Riel <riel@conectiva.com.br>, Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Yay, bug tracking! (was Re: Bug tracking in the run up from 2.5 to 2.6)
-Message-ID: <2614308576.1035225800@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.4.44L.0210212339190.22993-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0210212339190.22993-100000@imladris.surriel.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S262033AbSJVBum>; Mon, 21 Oct 2002 21:50:42 -0400
+Received: from realityfailure.org ([209.150.103.212]:10430 "EHLO
+	mail.realityfailure.org") by vger.kernel.org with ESMTP
+	id <S262023AbSJVBum>; Mon, 21 Oct 2002 21:50:42 -0400
+Date: Mon, 21 Oct 2002 21:56:51 -0400 (EDT)
+From: John Jasen <jjasen@realityfailure.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Listmaster request: Blacklist rms@gnu.org
+In-Reply-To: <20021022014015.GB23958@Master.Wizards>
+Message-ID: <Pine.LNX.4.44.0210212154380.3088-100000@geisha.realityfailure.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Count me in as a participant.  One thing that would be nice is
-> a mailing list where the bugs (and the changes to bugs) get
-> mailed, so we can get updates by email.
 
-Bugzilla has email triggers, so this should be dead easy to do.
-Not sure if we need a list - bugzilla should be able to keep
-each people's "watching" criteria itself. If it turns out lists
-are easier, that should be easy to fix.
- 
-> I'll help track down, fix and admin bugs.
+I think Richard Stallman and Larry McVoy, bitkeeper, the fsf, and just 
+about everything else that could have been dragged into this former 
+Yugoslavia of software development has been beaten to death and beyond.
 
-Thanks (to both of you ;-))!
+Break out the wet/dry vac, clean it up, and lets move on to the next 
+flame-fest, shall we?
 
-M.
+
+-- 
+-- John E. Jasen (jjasen@realityfailure.org)
+-- User Error #2361: Please insert coffee and try again.
+
 

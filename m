@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262977AbSJOOGB>; Tue, 15 Oct 2002 10:06:01 -0400
+	id <S262692AbSJOOSc>; Tue, 15 Oct 2002 10:18:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263135AbSJOOGA>; Tue, 15 Oct 2002 10:06:00 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:39100 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262977AbSJOOF6>;
-	Tue, 15 Oct 2002 10:05:58 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S262697AbSJOOSc>; Tue, 15 Oct 2002 10:18:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52679 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262692AbSJOOSb>; Tue, 15 Oct 2002 10:18:31 -0400
+Date: Tue, 15 Oct 2002 16:24:16 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux kernel conf 0.9
+In-Reply-To: <Pine.LNX.4.44.0210151556570.338-100000@serv>
+Message-ID: <Pine.NEB.4.44.0210151617150.20607-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15788.8728.734070.225906@kim.it.uu.se>
-Date: Tue, 15 Oct 2002 16:11:36 +0200
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Chris Wedgwood <cw@f00f.org>, Daniele Lugli <genlogic@inrete.it>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: unhappy with current.h
-In-Reply-To: <Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com>
-References: <20021014202404.GA10777@tapu.f00f.org>
-	<Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
- > On Mon, 14 Oct 2002, Chris Wedgwood wrote:
- > > On Mon, Oct 14, 2002 at 09:46:08PM +0200, Daniele Lugli wrote:
- > >
- > > > I recently wrote a kernel module which gave me some mysterious
- > > > problems. After too many days spent in blood, sweat and tears, I found the cause:
- > >
- > > > *** one of my data structures has a field named 'current'. ***
- > >
- > > gcc -Wshadow
- > 
- > Would it be a good idea to add -Wshadow to the kernel
- > compile options by default ?
+On Tue, 15 Oct 2002, Roman Zippel wrote:
 
-While I'm not defending macro abuse, please note that Daniele's problem
-appears to have been caused by using g++ instead of gcc or gcc -x c to
-compile a kernel module. Daniele's later example throws a syntax error
-in gcc, since the cpp output isn't legal C ...
+> Hi,
 
-Hence I fail to see the utility of hacking in kludges for something
-that's not supposed to work anyway.
+Hi Roman,
+
+> On Tue, 15 Oct 2002, Adrian Bunk wrote:
+>
+> > $ cd /tmp/
+> > $ tar xzf lkc-0.9.tar.gz
+> > $ cd lkc-0.9
+> > $ make
+> > ...
+> > $ cd ~/linux/kernel-2.5
+> > $ tar xzf linux-2.5.42.tar.gz
+> > $ cd linux-2.5.42
+> > $ bzcat /tmp/lkc-0.9-2.5.42.diff.bz2 |patch -p1
+> > ...
+> > $ /tmp/lkc-0.9/lkcc i386
+>
+> Umm, now I see the problem, the patch already contains everything, so you
+> don't need to convert anything after applying it. If you want to convert
+> your kernel tree, it's best to use 'make install KERNELSRC=...' target in
+> lkc.
+
+ah thanks, that's it. This is the way it's described in lkc.html, I was
+only looking at lkc-0.9/README where I didn't find this information...
+
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
+
+

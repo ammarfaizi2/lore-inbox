@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbUDSUjN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 16:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUDSUjM
+	id S262029AbUDSUim (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 16:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUDSUim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 16:39:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58347 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262031AbUDSUjH (ORCPT
+	Mon, 19 Apr 2004 16:38:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5578 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262029AbUDSUik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 16:39:07 -0400
-Subject: [RFT] Ext3 online resize for 2.6.6-rc1
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Stephen Tweedie <sct@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1082407133.2237.87.camel@sisko.scot.redhat.com>
+	Mon, 19 Apr 2004 16:38:40 -0400
+Date: Mon, 19 Apr 2004 13:38:32 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Ken Ashcraft <ken@coverity.com>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, dm@uk.sistina.com
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+Message-ID: <20040419133832.J22989@build.pdx.osdl.net>
+References: <1082134916.19301.7.camel@dns.coverity.int>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Apr 2004 21:38:53 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1082134916.19301.7.camel@dns.coverity.int>; from ken@coverity.com on Fri, Apr 16, 2004 at 10:01:57AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> [BUG] minor
+> /home/kash/linux/linux-2.6.5/drivers/md/dm-ioctl.c:1180:copy_params:
+> ERROR:TAINT: 1174:1180:Passing unbounded user value "(tmp).data_size" as
+> arg 0 to function "vmalloc", which uses it unsafely in model
+> [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)]
+> [SINK_MODEL=(lib,vmalloc,user,trustingsink)] [BOUNDS= Lower bound on
+> line 1177] [MINOR]  [PATH=] 
+> 
+> static int copy_params(struct dm_ioctl *user, struct dm_ioctl **param)
+> {
+> 	struct dm_ioctl tmp, *dmi;
+> 
+> Start --->
+> 	if (copy_from_user(&tmp, user, sizeof(tmp)))
+> 		return -EFAULT;
+> 
+> 	if (tmp.data_size < sizeof(tmp))
+> 		return -EINVAL;
+> 
+> Error --->
+> 	dmi = (struct dm_ioctl *) vmalloc(tmp.data_size);
+> 	if (!dmi)
+> 		return -ENOMEM;
+> 
 
-Just to add to the recent storm of ext3 patches: the patch below is
-essentially just Arjan's last port of Andreas's last ext3-online-resize
-patch to 2.6.6-rc1.  I've cleaned up only a couple of error cases
-(brelse in the wrong place on an error path, EPERM instead of EACCES on
-!capable(CAP_SYS_RESOURCE).)
+Looks like dm_ioctl() has a free form untyped buffer at the end of the
+dm_ioctl struct, which makes it rough to figure the appropriate max for
+data_size, esp, those that can be a list.  It's protected by capable(),
+not clear if there's a good fix, and I don't see an overflow just a way
+to vmalloc() a large bit of memory.  Perhaps there's a case where one
+could rename to a name larger than DM_NAME_LEN, then no longer be able to
+lookup based on ->name (only ->uuid).
 
-The bigger job was e2fsprogs --- the resize diffs conflict with the
-recent metadata-group work, but there's a merged patch against
-e2fsprogs-1.35 now under "patches" at
-http://sourceforge.net/projects/ext2resize/
-
-direct link:
-http://sourceforge.net/tracker/download.php?group_id=3834&atid=303834&file_id=84253&aid=937934
-
-Note that ext2prepare still doesn't deal with the new reserved-space
-format: you need to create a new filesystem with "mke2fs -O
-resize_inode" in order to test the patch.  Getting the ext2resize user
-space tools updated for that is the next job.
-
-I'll do a proper 1.1.19 release of sourceforge ext2resize once I work
-out just how the sourceforge CVS tree needs to be put together. 
-Andreas, is it really deliberate that you've got both the input and
-output autoconf files (eg. Makefile and Makefile.in) under CVS control
-for ext2resize?
-
-I've been giving this moderate testing so far and it has been surviving
-fine doing resizes under load and fscking after.  The patched e2fsprogs
-knows enough about the EXT2_RESIZE_INO reserved growth inode to avoid
-complaining about it during a fsck, but doesn't yet know enough to fully
-verify the contents of that inode or to repair it.  Other than that, the
-only problem I've seen so far under testing is that occasionally a fsck
-shows a minor refcount/block-bitmap inconsistency after a resize if we
-encountered ENOSPC during the test, but I can reproduce that even
-without resize so it seems like a core error-handling problem --- I'm
-currently chasing that.  (Seems to be related either to xattr or 1k
-blocksize.)
-
-Cheers,
- Stephen
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbULPXow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbULPXqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbULPXow (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbULPXnN
+	id S262204AbULPXqt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbULPXpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:43:13 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:6692 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262202AbULPXlc
+	Thu, 16 Dec 2004 18:45:04 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:52692 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262196AbULPXnr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:41:32 -0500
-Date: Fri, 17 Dec 2004 00:41:53 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christian Bj??levik <nafallo@magicalforest.se>, rusty@rustcorp.com.au
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Debian-Kernel <debian-kernel@lists.debian.org>
-Subject: Re: PROBLEM: Cross-compiling fails (patch included)
-Message-ID: <20041216234153.GA15485@mars.ravnborg.org>
-Mail-Followup-To: Christian Bj??levik <nafallo@magicalforest.se>,
-	rusty@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>,
-	Debian-Kernel <debian-kernel@lists.debian.org>
-References: <41C1D4A5.3080503@magicalforest.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C1D4A5.3080503@magicalforest.se>
-User-Agent: Mutt/1.5.6i
+	Thu, 16 Dec 2004 18:43:47 -0500
+Message-ID: <41C21DC7.4070007@verizon.net>
+Date: Thu, 16 Dec 2004 18:44:07 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] computone: remove unnecessary files from drivers/char/ip2
+References: <20041216225431.4074.80006.90928@localhost.localdomain> <20041216231007.GW12937@stusta.de>
+In-Reply-To: <20041216231007.GW12937@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.220.243] at Thu, 16 Dec 2004 17:43:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 07:32:05PM +0100, Christian Bj??levik wrote:
->  Hi there!
+Adrian Bunk wrote:
+> On Thu, Dec 16, 2004 at 04:54:10PM -0600, james4765@verizon.net wrote:
 > 
-> When using kernel-package (Debian specific kernel-management) to 
-> cross-compile a kernel in a i386-chroot on my x86_64 laptop 
-> modules_install fails when trying to depmod things. Since we should not 
-> depmod those things if the arch being built isn't the same as 'uname -m' 
-> I wrote a patch for the Makefile to test those conditions.
+> 
+>>Let me try that one again - this time with the right file (oops :)
+>>
+>>Remove a makefile and three programs from drivers/char/ip2 - they should not be in the kernel.
+>>...
+> 
+> 
+> Why did I think I've seen such a patch before?  ;-)
+> 
+> I sent the same patch some time ago and it's already in -mm.
+> 
+> You better send patches against -mm which is already over 17 MB away 
+> from -rc3.
+> 
+> cu
+> Adrian
+> 
 
-Similar versions has been posted before.
-But the right fix is to fix module-init-tools - therefore they have not
-been applied.
+Okay.  I thought I'd remembered seeing that patch a while ago, but couldn't be 
+sure.  Guess it's time to go to the bleeding edge - start working off of -mm.
 
-Rusty - any progress in this?
+Thanks,
 
-	Sam
+Jim

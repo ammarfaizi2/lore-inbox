@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbTIOWUe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTIOWUe
+	id S261667AbTIOWQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbTIOWQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:20:34 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:31907 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261656AbTIOWUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:20:34 -0400
-Subject: Re: SII SATA request size limit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: casino_e@terra.es,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030915153255.GB3412@suse.de>
-References: <d95d2d93f8.d93f8d95d2@teleline.es>
-	 <20030915153255.GB3412@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063664346.8257.10.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Mon, 15 Sep 2003 23:19:06 +0100
+	Mon, 15 Sep 2003 18:16:08 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:32730 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S261667AbTIOWQF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:16:05 -0400
+Date: Mon, 15 Sep 2003 23:59:37 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23-pre4-pac1 ALSA+preemptible kernel
+Message-ID: <Pine.LNX.4.56.0309152354580.20178@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-15 at 16:32, Jens Axboe wrote:
-> But basically I don't understand why the work-around was _ever_ in
-> sectors, if that is the bug in the hardware dma engine. 
+I've ported some popular patches to the -pac branch [they are not 
+currently in -pac, and I have no immediate plans to add them directly to 
+-pac]:
 
-It is not a bug in the DMA engine. You will have to sign an SI NDA to
-find out more.
+preempt-kernel-2.4.23-pre4-pac1 -- preemptible kernel patch
+alsa-0.9.6-2.4.23 -- patch for ALSA 0.9.6 drivers to build [and work] with
+                     2.4.23-pre4-pac1
 
+both can be found in
+
+/pub/linux/kernel/people/bero/2.4/extra/
+
+on your favourite kernel.org mirror.
+
+LLaP
+bero
+
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php

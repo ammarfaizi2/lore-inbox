@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132131AbRAHUAV>; Mon, 8 Jan 2001 15:00:21 -0500
+	id <S131148AbRAHUFD>; Mon, 8 Jan 2001 15:05:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132265AbRAHUAL>; Mon, 8 Jan 2001 15:00:11 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:11782 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S132131AbRAHT77>; Mon, 8 Jan 2001 14:59:59 -0500
-Date: Mon, 8 Jan 2001 20:50:01 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: richbaum@acm.org
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] More compile warning fixes for 2.4.0
-Message-ID: <20010108205001.S3472@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3A5790E3.18256.963C79@localhost>
+	id <S130580AbRAHUEn>; Mon, 8 Jan 2001 15:04:43 -0500
+Received: from f175.law8.hotmail.com ([216.33.241.175]:27148 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S131148AbRAHUEa>;
+	Mon, 8 Jan 2001 15:04:30 -0500
+X-Originating-IP: [170.148.65.7]
+From: "Jason Perlow" <perlow@hotmail.com>
+To: ilh@sls.lcs.mit.edu
+Cc: redhat-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 19160 Problems
+Date: Mon, 08 Jan 2001 20:04:24 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5790E3.18256.963C79@localhost>; from baumr1@coral.indstate.edu on Sat, Jan 06, 2001 at 09:40:51PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Type: text/plain; format=flowed
+Message-ID: <F1757dcLdZs3JcXu98s00012935@hotmail.com>
+X-OriginalArrivalTime: 08 Jan 2001 20:04:24.0294 (UTC) FILETIME=[32623060:01C079AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2001 at 09:40:51PM -0500, Rich Baum wrote:
-> Here's a patch that fixes more of the compile warnings with gcc 
-> 2.97.
+So you are saying this was fixed in 2.2.18? Which distro uses that by 
+default now?
 
-> -    case FORE200E_STATE_BLANK:
-> +    case FORE200E_STATE_BLANK:;
+We need to get the distros to come up with boot floppy images for this then 
+because 19160 is a very popular host adapter. Its not like its weirdo 
+hardware. Waiting for an updated distro is a real pain in the ass if this 
+can be fixed easily by just updating the boot disk images.
 
-Is this really a kernel bug? This is common idiom in C, so gcc
-shouldn't warn about it. If it does, it is a bug in gcc IMHO.
+Jason
 
 
-Erik
-(compiling a GCC CVS snapshot to see if it really breaks)
+From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+To: Jason Perlow <perlow@hotmail.com>
+Subject: Re: Adaptec 19160 Problems
+Date: Mon, 08 Jan 2001 14:45:26 -0500
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Well, 2.2.18 is newer than what Red Hat 6.2 installer uses.
+
+You could use Ghost or Drive Image to copy things over, or if you can
+mount both simultaneously (booted from IDE), you can just make your SCSI
+partition and cp -a everything over.  That is, everything except for
+/lost+found, /proc, and any other mount points.
+
+I agree this is ugly, but what can you do when the Red Hat (or
+otherwise) install kernel doesn't really support your hardware?
+I suppose it is possible to update the install kernel or specific
+modules, and I think I once succeeded in doing this, but it is even
+uglier!
+
+--Lee
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

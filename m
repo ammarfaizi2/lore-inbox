@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277576AbRJRDZr>; Wed, 17 Oct 2001 23:25:47 -0400
+	id <S277573AbRJRDZH>; Wed, 17 Oct 2001 23:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277578AbRJRDZi>; Wed, 17 Oct 2001 23:25:38 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14867 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277576AbRJRDZf>; Wed, 17 Oct 2001 23:25:35 -0400
-Message-ID: <3BCE4BB5.8060603@zytor.com>
-Date: Wed, 17 Oct 2001 20:25:41 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en, sv
+	id <S277576AbRJRDYx>; Wed, 17 Oct 2001 23:24:53 -0400
+Received: from patan.Sun.COM ([192.18.98.43]:14064 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S277573AbRJRDYK>;
+	Wed, 17 Oct 2001 23:24:10 -0400
+Message-ID: <3BCE4AA7.EBF134DC@sun.com>
+Date: Wed, 17 Oct 2001 20:21:11 -0700
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: paulus@samba.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libz, libbz2, ramfs and cramfs
-In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com>	<3BCBE29D.CFEC1F05@alacritech.com>	<9qjfki$ob5$1@cesium.transmeta.com> <15310.18125.367838.562789@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        andre@linux-ide.org
+Subject: Re: [PATCH] IDE initialization fix
+In-Reply-To: <Pine.LNX.4.10.10110162223350.2087-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
+Andre Hedrick wrote:
 
-> 
-> PPP uses a variant of zlib with some extensions.  I believe that I
-> didn't break zlib for normal use when I added the extensions but I
-> would have to check that to be 100% sure.  The PPP zlib.c is based on
-> zlib-1.0.4, which is no longer the most recent version.
-> 
+> > for chipsets does not get called.  I'll speak specifically about the CSB5.
+> > The CSB5 in non-native mode has a PCI irqline register forced to 0.  The
+> > PCI probe then skips it's PCI init and it never gets called.
 
 
-What kind of extensions?
+OK!  This is what I have learned.  The ide-pci init code has one case that
+isn't caught.  Perhaps you can clarify what it means, for me.
+
+* If an IDE controller has a PCI IRQ and has class code bit 0x5 set, it is
+100% native.
+
+* CSB5 _CAN_NOT_ have a PCI IRQ assigned (RO register).
+
+* CSB5 spec clearly indicates that you can turn on class code bits 0x5 for
+native mode operation.
+
+* My system has the native mode bits turned on, but not an IRQ.  The driver
+incorrectly drops this case into teh "bad irq" case.
+
+* Solution: cleanup probe to something like:
+
+if ((is_storage_ide || is_storage_other) && native_bits && pciirq) {
+        /* 100% native mode */
+        init_chipset();
+} else if ((is_storage_ide || is_storage_other) && native_bits) {
+        /* native mode */
+        init_chipset();
+} else if (is_storage_ide || is_storage_other) {
+        /* non-native mode */
+        init_chipset();
+} else {
+        /* what here ?!?! */
+}
+
+or simpler:
+
+if (is_storage_ide || is_storage_other) {
+	if (native_bits && pciirq) {
+		/* 100% native mode */
+	} else if (native_bits) {
+		/* plain-old native mode */
+	} else {
+		/* non-native mode */
+	}
+	init_chipset();
+} else {
+	/* what here?!? */
+}
 
 
-> I think it would be possible to make PPP use the standard zlib but
-> with decreased performance.  It's a long time since I looked at that
-> stuff though.
+What do you think of this case?  The other alternative is to turn OFF
+native bits on any CSB5, since it can't have a PCI IRQ assigned.
 
- >
+Please let me know, and I'll work up and test a patch.
 
->>A major problem is that the module name "deflate" is used by PPP,
->>despite it being a nonstandard format...
->>
-> 
-> No, the module name is "ppp_deflate".
-> 
-
-
-Oh.  Well, then ...
-
-	-hpa
-
-
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com

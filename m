@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVCFWua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVCFWp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVCFWua (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 17:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFWqO
+	id S261599AbVCFWp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 17:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFWpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 17:46:14 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37255 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261588AbVCFWna (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:43:30 -0500
-Date: Sun, 6 Mar 2005 23:43:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@infradead.org>, Neil Brown <neilb@cse.unsw.edu.au>,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050306224317.GB3890@elf.ucw.cz>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org> <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net> <20050303011151.GJ10124@redhat.com> <20050302172049.72a0037f.akpm@osdl.org> <16934.28536.137910.735002@cse.unsw.edu.au> <20050303031047.GA30423@infradead.org> <1109893184.21781.62.camel@localhost.localdomain>
+	Sun, 6 Mar 2005 17:45:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14757 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261585AbVCFWoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 17:44:21 -0500
+Date: Sun, 6 Mar 2005 22:44:18 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23/29] FAT: Remove the multiple MSDOS_SB() call
+Message-ID: <20050306224418.GB5827@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <87wtsmorii.fsf_-_@devron.myhome.or.jp> <87sm3aorho.fsf_-_@devron.myhome.or.jp> <87oedyorgu.fsf_-_@devron.myhome.or.jp> <87k6olq60a.fsf_-_@devron.myhome.or.jp> <87fyz9q5z7.fsf_-_@devron.myhome.or.jp> <87br9xq5y8.fsf_-_@devron.myhome.or.jp> <877jklq5x7.fsf_-_@devron.myhome.or.jp> <873bv9q5vx.fsf_-_@devron.myhome.or.jp> <87y8d1orah.fsf_-_@devron.myhome.or.jp> <87u0npor9o.fsf_-_@devron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1109893184.21781.62.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <87u0npor9o.fsf_-_@devron.myhome.or.jp>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > The point is that it's happening anyway.  See Andres' -as tree which
-> > is the basis for the Debian vendor kernel.  Getting that up to an
-> > official status as 2.6.x.y would be very nice (and having it on
-> > linux.bkbits.net)
+On Sun, Mar 06, 2005 at 03:56:51AM +0900, OGAWA Hirofumi wrote:
 > 
-> IMHO it is nowhere near conservative enough (or at times complete
-> enough) to be a 2.6.x.y kernel. In some respects -ac is closer but it
-> also isn't as conservative as a real 2.6.x.y should be.
-> 
-> 2.6.x.y needs several people to keep it tight and to ensure there is
-> always cover on a security fix. 
+> Since MSDOS_SB() is inline function, it increases text size at each calls.
+> I don't know whether there is __attribute__ for avoiding this.
 
-Eh?
+If you mark it pure the compile should be smart enough to optimize way
+multiple invocations - heck for an inline it should be smart enough without
+annotaitons..
 
-Like you add security fix and then some formatting change to hide it?
+Anyway, your new version looks much more readable.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313704AbSDHRGX>; Mon, 8 Apr 2002 13:06:23 -0400
+	id <S313698AbSDHRCS>; Mon, 8 Apr 2002 13:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313705AbSDHRGW>; Mon, 8 Apr 2002 13:06:22 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19874 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313704AbSDHRGV>; Mon, 8 Apr 2002 13:06:21 -0400
-Date: Mon, 8 Apr 2002 11:06:02 -0600
-Message-Id: <200204081706.g38H62N14879@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: nahshon@actcom.co.il, Pavel Machek <pavel@suse.cz>,
-        Benjamin LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-        joeja@mindspring.com, linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-In-Reply-To: <16uSEQ-1XziYCC@fmrl04.sul.t-online.com>
+	id <S313704AbSDHRCR>; Mon, 8 Apr 2002 13:02:17 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:14556 "EHLO lazy")
+	by vger.kernel.org with ESMTP id <S313698AbSDHRCP>;
+	Mon, 8 Apr 2002 13:02:15 -0400
+Date: Mon, 8 Apr 2002 10:35:15 -0500 (CDT)
+From: Manoj Iyer <manjo@austin.ibm.com>
+X-X-Sender: <manjo@lazy>
+To: kernelmailinglist <linux-kernel@vger.kernel.org>
+cc: <torvalds@transmeta.com>, ltp <ltp-list@lists.sourceforge.net>
+Subject: [ANNOUNCE] Linux Test Project (LTP)  - April 2002 Release.
+Message-ID: <Pine.LNX.4.33.0204081029440.6167-100000@lazy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum writes:
-> 
-> > > and spin-up on any operation that writes to the disk (and block that
-> > > operation).
-> >
-> > Absolutely not! I don't want my writes to spin up the drive.
-> 
-> Even if you sync ?
 
-I'm undecided. I think it's good to have a way to let the user force a
-flush, but I don't like the same mechanism being used by applications
-which think they know better. So flushing on sync(2) or f*sync(2) is
-perhaps undesirable. Maybe the way to deal with this is to have:
+The Linux Test Project test suite LTP-20020408.tgz has been released.
+We are also announcing our improved, user friendly website
+http://ltp.sourceforge.net. Thanks to Lisa Sarabia, Jennifer Jobst for
+website design and implementation and Shadi Alagheband for the website
+logo. Visit our website to download the latest version of the test suite,
+and, for information on test results on pre release, release candidate
+and stable releases of the kernel. There is also a list of test cases that are
+expected to fail, please find the list at
+http://ltp.sourceforge.net/expected-errors.php
 
-- tunable flush time (i.e. how long to wait after a write(2) before
-  flushing, if the drive is currently unspun)
+The highlights of this release are:
+- LTP Automation scripts that are intended to completely automate the
+updating, running, and reporting of an LTP test run.  The scripts and
+related documentation can be found under ltp/tools/ in the tar-zip file.
+- IPV6 port and new features added to NetPIPE, an opensource protocol
+independent network performance tool.
+- More patches from Andi, Andreas and Ihno that fix test case related
+problems on 64 bit platform, and removes compile time warning messages.
 
-- tunable dirty pages limit (i.e. how many dirty pages allowed before
-  flushing)
+We encourage the community to post results, patches or new tests on our
+mailing list and use the CVS bug tracking facility to report problems that
+you might encounter with the test suite.
 
-- tunable "ignore *sync(2)" option. Default value is 0 (don't
-  ignore). When set to 1, ignore all calls to *sync(2).
 
-So then on my 256 MiB laptop, I'd probably set the flush time to 3
-hours, the dirty page limit to 64 MiB, and ignore *sync(2). I'd write
-a suid-root programme which did:
-	enable_sync ();
-	sync ();
-	disable_sync ();
+Change Log
+~~~~~~~~~~
+* New Additions
+  - Scripts to automate LTP test suite execution.   ( William Jay Huie )
+  - IPV6 port of NetPIPE, network stress tool.      ( Robert Williamson )
 
-				Regards,
+* Fixes
+  - Numerous 64-bit updates, remove warnings
+    and errors.                                     ( Andi Kleen )
+  - 64-bit patches to memory and IPC tests.         ( Ihno Krumreich )
+  - 64-bit IA64 port related patches.               ( Jacky Malcles )
+  - patches to remove warnings and bugs.            ( Andreas Jaeger )
+  - mmstress bug: deletes /dev/zero.                ( Sachin Vyas )
+  - sem02: make test remove semids it created.      ( Robert Williamson )
+  - Report missing groups and users in IDcheck.sh   ( Robert Williamson )
+  - expected error modified in mprotect and
+    msync tests.                                    ( Paul Larson )
+  - make testcases work without a controlling tty.  ( Paul Larson )
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+CVS Bugs closed.
+~~~~~~~~~~~~~~~~
+ #536483 sem02 does not clean up /tmp directory   (Robert Willamson
+
+--
+Manoj Iyer
+
+*******************************************************************************
+		The greatest risk is not taking one.
+*******************************************************************************
+

@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266626AbUIEM6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUIENC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266626AbUIEM6K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 08:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUIEM6K
+	id S266616AbUIENC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 09:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUIENC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 08:58:10 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:11419 "EHLO
+	Sun, 5 Sep 2004 09:02:56 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:14491 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266622AbUIEM6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 08:58:05 -0400
-Subject: Re: Intel ICH - sound/pci/intel8x0.c
+	id S266616AbUIENCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 09:02:55 -0400
+Subject: Re: New proposed DRM interface design
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Jaroslav Kysela <perex@suse.cz>
-In-Reply-To: <9e4733910409041943490b9587@mail.gmail.com>
-References: <9e4733910409041943490b9587@mail.gmail.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0409042304200.24528@skynet>
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+	 <Pine.LNX.4.58.0409040145240.25475@skynet>
+	 <20040904102914.B13149@infradead.org>
+	 <41398EBD.2040900@tungstengraphics.com>
+	 <20040904104834.B13362@infradead.org>
+	 <413997A7.9060406@tungstengraphics.com>
+	 <20040904112535.A13750@infradead.org>
+	 <4139995E.5030505@tungstengraphics.com>
+	 <20040904120352.B14037@infradead.org>
+	 <Pine.LNX.4.58.0409041207060.25475@skynet>
+	 <20040904114243.GC2785@redhat.com>
+	 <1094333738.6575.393.camel@krustophenia.net>
+	 <Pine.LNX.4.58.0409042304200.24528@skynet>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094385318.1099.23.camel@localhost.localdomain>
+Message-Id: <1094385611.1081.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 05 Sep 2004 12:55:27 +0100
+Date: Sun, 05 Sep 2004 13:00:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-09-05 at 03:43, Jon Smirl wrote:
-> The joystick PCI ID table in intel8x0.c is not correct. Joysticks and
-> MIDI ports are ISA devices and need be located by manual probing. This
-> ID table needs to be removed. Joystick and MIDI ports do not have PCI
-> IDs.
+On Sad, 2004-09-04 at 23:06, Dave Airlie wrote:
+> we also have out of kernel DRM drivers for mach64 and savage that would
+> pose security issues if shipped, so we can't develop them in-kernel....
+> (another reason for the CVS tree)...
 
-It isn't that simple. The LPC bridge also contains the controls for the
-joystick ports. You also need them for hotplug handling of the bridge
-should someone stick one in a laptop docking station. The ID table also
-ensures the driver is loaded. It's probably true that it will need
-splitting up a bit if another driver also needs ownership of the LPC
-bridge but for now that hasn't happened.
+I still think this is actually a bad decision. You can develop them in
+kernel providing you put
 
-Also a lot of other vendors Midi and joystick ports do have PCI ids.
+	if(!capable(CAP_SYS_RAWIO))
+		return -EPERM
+
+in the client side open for these devices. At that point root can use it
+happily but nobody else can. You can test it, you can share it upstream
+and you can motivate people to fix it.
 
 Alan
 

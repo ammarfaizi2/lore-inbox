@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269067AbRHLK4h>; Sun, 12 Aug 2001 06:56:37 -0400
+	id <S269068AbRHLLGT>; Sun, 12 Aug 2001 07:06:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269076AbRHLK41>; Sun, 12 Aug 2001 06:56:27 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:11858 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S269067AbRHLK4U>; Sun, 12 Aug 2001 06:56:20 -0400
-Date: Sun, 12 Aug 2001 11:44:16 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: alloc_area_pte: page already exists
-In-Reply-To: <Pine.LNX.3.96.1010809234824.9949A-100000@medusa.sparta.lu.se>
-Message-ID: <Pine.LNX.3.96.1010812113845.1163A-100000@medusa.sparta.lu.se>
+	id <S269081AbRHLLGI>; Sun, 12 Aug 2001 07:06:08 -0400
+Received: from web10407.mail.yahoo.com ([216.136.130.99]:63246 "HELO
+	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269068AbRHLLGF>; Sun, 12 Aug 2001 07:06:05 -0400
+Message-ID: <20010812110617.34113.qmail@web10407.mail.yahoo.com>
+Date: Sun, 12 Aug 2001 21:06:17 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Performance 2.4.8 is worse than 2.4.x<8
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108120754020.593-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Aug 2001, Bjorn Wesen wrote:
-> > vfree as usual walks the pgd/pmd to reach the pte. It knows the
-> > pgd/pmd/pte cannot go away and it serlializes against vmalloc with the
-> > vmlist_lock, it sounds ok.
+ --- Mike Galbraith <mikeg@wen-online.de> wrote: > On
+Sun, 12 Aug 2001, Steve Kieu wrote:
 > 
-> So what happens when the kernel accesses the non-existant pte's or when
-> the vmalloc space runs out ?
+> > Anyone noticed that?
+> 
+> Details?
 
-Just for the record, let me answer myself:
+VM is very much improved but it seems to take
+resources  to free cached pages.
+> Here, disk write throughput seems to want some
+> tweaking, and Bonnie
 
-When the delayed vmalloc pagetable copying activates during such a
-pagefault, the individual PTE's are not copied, but just the pointer to
-the PTE container page is inserted into the pgd (or pmd, for 3-level). 
+that is what I see
 
-So any pointers from the pgd in non-init processes are simply to the
-corresponding pmd and pte container in the init_mm, thus vfree can
-remove the PTE's, flush the tlb and bob's your uncle. Too bad there are
-not any comments at all in the code to mention design issues like this.
+ doing it's rewrite test triggers a very large and
+> persistant inactive
+> shortage which shouldn't be there (imho).
+> 
+> page_launder() is definitely working better than
+> some of the pre8
+> kernels in that it is no longer laundering the
+> entire dirty list in
+> one huge gulp.  It is also no longer laundering some
+> random amount.
+> 
+> Under FWIW:  I can find no reason for the existance
+> of either the
+> launder_loop nor doing synchronous IO.  Here, I
+> remove both regularly
+> and detect nothing but benefit both in responsivness
+> and throughput.
+> 
+>  -Mike
+>  
 
-Back to another theory on why my vmalloc pgtables screw up :)
+=====
+S.KIEU
 
-/Bjorn
-
-
+_____________________________________________________________________________
+http://shopping.yahoo.com.au - Father's Day Shopping
+- Find the perfect gift for your Dad for Father's Day

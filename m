@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266917AbRHAMdc>; Wed, 1 Aug 2001 08:33:32 -0400
+	id <S266977AbRHANLo>; Wed, 1 Aug 2001 09:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266919AbRHAMdV>; Wed, 1 Aug 2001 08:33:21 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:58577 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S266917AbRHAMdJ>; Wed, 1 Aug 2001 08:33:09 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Roger Abrahamsson <hyperion@gnyrf.net>
-Date: Wed, 1 Aug 2001 22:33:04 +1000 (EST)
+	id <S266974AbRHANLf>; Wed, 1 Aug 2001 09:11:35 -0400
+Received: from matrix.fr.professo.net ([213.11.43.1]:32778 "EHLO
+	fr.professo.net") by vger.kernel.org with ESMTP id <S266970AbRHANLV>;
+	Wed, 1 Aug 2001 09:11:21 -0400
+Message-ID: <023c01c11a8b$79a1aea0$c200a8c0@professo.lan>
+From: "Ghozlane Toumi" <gtoumi@messel.emse.fr>
+To: "lkml" <linux-kernel@vger.kernel.org>,
+        "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: released FB driver for 3Dfx Voodoo1/2
+Date: Wed, 1 Aug 2001 15:11:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15207.63232.611617.37794@notabene.cse.unsw.edu.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: resizing of raid5?
-In-Reply-To: message from Roger Abrahamsson on Wednesday August 1
-In-Reply-To: <996657922.3b67cb02ba717@stargate.gnyrf.net>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday August 1, hyperion@gnyrf.net wrote:
-> Hello.
-> 
-> Just figured if anyone could give some information about resizing of software
-> raid5 systems (2.4.x kernels)? I've been looking all over for information about
-> if this is possible or not currently, and if not, how this system of raid
-> cluster blocks work in conjunction with ext2. The code is a bit tricky and not
-> too many comments to help one try and get a hold of how it works.
-> Any pointers for this would be nice.
+Hi,
+At last I took time to release a more or less working version of sstfb,
+a driver for the old/dead but once famous 3Dfx 3D "only" chips, namely
+the voodoo graphics and the voodoo2 .
 
-The only way to resize a raid5 array is to back up, rebuild, and
-re-load.  Any attempt to re-organise the data, or the linkage, to
-avoid this would be more trouble that it is worth.
+A small problem (basicaly awfully outdated an unmaitained machine , my
+fault) did'nt allow me to test it myself with 2.4 kernels , but i have a
+very
+good tester, and it seems that the driver works more or less with 2.4, with
+some issues: when using X fbdev 4 (on linux2.4), killing X may oops, and
+lives the console with strange palette (in addition to strange colors in
+windows border colors).
+(a reminder that this driver is still experimental) .
 
-NeilBrown
+On 2.2.19 everything looks ok, even with X.
+(Well, at least an X from the 3.3.x awfully old fame).
+
+I'm trying to investigate the problems, but as I'm unable to reproduce
+myself, it's not that easy. The next step is rebuilding my machine with
+an up-to-date distribution and take a look at the 2.4 / X4 issues.
+
+Meanwhile, the latest "kinda stable" (read no oops/crash on my box)
+version is avaiable for 2.2.19, 2.4.7 and 2.4.7-ac3 on sourceforge :
+http://prdownloads.sourceforge.net/sstfb/sstfb-20010801.tgz .
+for the patches only , look at the download page directly :
+http://sourceforge.net/projects/sstfb/files .
+
+I'm looking for good willing people to take a look at the driver and flame
+me at sight, and if i'm lucky, I'd like to increase a little bit the testing
+base for the thing (3 testers + me so far)
+Thank you very much ,
+
+ghoz
+
+PS please CC me on eventual replies as I may not be able to follow the
+lists in the folowing days
+

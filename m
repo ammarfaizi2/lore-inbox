@@ -1,28 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316827AbSFVBq6>; Fri, 21 Jun 2002 21:46:58 -0400
+	id <S315946AbSFUXJe>; Fri, 21 Jun 2002 19:09:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316828AbSFVBq5>; Fri, 21 Jun 2002 21:46:57 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33802 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316827AbSFVBq5>; Fri, 21 Jun 2002 21:46:57 -0400
-Subject: Re: NM256: Sound playback pointer invalid!
-To: devilkin-lkml@blindguardian.org (DevilKin)
-Date: Sat, 22 Jun 2002 03:09:25 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200206131119.26862.devilkin-lkml@blindguardian.org> from "DevilKin" at Jun 13, 2002 11:19:26 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316051AbSFUXJd>; Fri, 21 Jun 2002 19:09:33 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:17734 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S315946AbSFUXJc>;
+	Fri, 21 Jun 2002 19:09:32 -0400
+Date: Sat, 22 Jun 2002 01:09:29 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tillman@viewcast.com (Scott Tillman),
+       dalecki@evision-ventures.com (Martin Dalecki),
+       B.Zolnierkiewicz@elka.pw.edu.pl (Bartlomiej Zolnierkiewicz),
+       arcolin@arcoide.com (Garet Cammer), linux-kernel@vger.kernel.org
+Subject: Re: Need IDE Taskfile Access
+Message-ID: <20020621230929.GA18045@win.tue.nl>
+References: <CBELJEJGBEIGHCIMEDHNCEPBCIAA.tillman@viewcast.com> <E17LX56-0001nL-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17LaL7-00024A-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E17LX56-0001nL-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since upgrading to 2.4.18 (tested with later kernels too, running 
-> 2.4.19-pre10-ac2 right now) I have the following problem: every time my 
-> soundchip is activated for the first time, it makes a horrible screetching 
-> noise. Just plain horrible. After that, playback is perfect.
+On Fri, Jun 21, 2002 at 11:40:40PM +0100, Alan Cox wrote:
 
-I'll follow this up later when I get some time - I have some ideas
+> > I'm working with a group of people in an effort to get Linux running on the
+> > XBox.  The XBox uses a set of security PIO commands to restrict access to
+> > the IDE drive, requiring a 32 byte password to be delivered before sector
+> > access is allowed.  As far as I can tell from my investigations and from
+> > earlier discussions with Andre there is currently no way to issue this
+> > command.  If I'm wrong in my estimation just let me know how, otherwise I
+> > simply wish add my voice to the (albeit small) outcry for supporting the
+> > entire ATA spec.
+> 
+> That would I suspect be something for the kerneli patch.
+
+No. Don't be misled by the "password". Translated into driver language
+the question just is: I have a vendor-unique command that must transport
+data to the disk. How? And if it doesnt work today the possibility must
+be added.
+
+(Long ago I had various small programs that did vendor-unique things
+to ata floppies, zip drives, large ide drives and the like.
+Commands for doorlocking, for switching between removable disk / big floppy
+mode, for reading and setting the native max address, etc.
+Unfortunately some random patch that accompanied one of these programs
+got into the official tree, so that we now have the HDIO_DRIVE_CMD ioctl.
+It does do_cmd_ioctl(). But that was special purpose for setmax,
+not general purpose, and it does not transport data to the disk.
+We need a slightly more general interface. Maybe we do have it already,
+I have not watched this closely.)
+
+Andries

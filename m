@@ -1,83 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbTFUAdO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 20:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTFUAdO
+	id S265062AbTFUA6N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 20:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTFUA6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 20:33:14 -0400
-Received: from mithra.wirex.com ([65.102.14.2]:35854 "EHLO mail.wirex.com")
-	by vger.kernel.org with ESMTP id S265060AbTFUAdE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 20:33:04 -0400
-Message-ID: <3EF3AB03.20500@immunix.com>
-Date: Fri, 20 Jun 2003 17:46:59 -0700
-From: Crispin Cowan <crispin@immunix.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Bastian Blank <bastian@waldi.eu.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] builtin stack support
-References: <20030620195051.GA28020@wavehammer.waldi.eu.org> <20030620233606.GA14869@kroah.com>
-In-Reply-To: <20030620233606.GA14869@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jun 2003 20:58:13 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10490 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265062AbTFUA6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 20:58:11 -0400
+Date: Sat, 21 Jun 2003 03:12:11 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Fabio Bracci <fabio@hoendiep.ath.cx>, perex@suse.cz
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: 2.5: wrong CONFIG_SND_SEQUENCER logic in several drivers
+Message-ID: <20030621011210.GS29247@fs.tum.de>
+References: <Pine.LNX.4.53.0305302318530.31546@hoendiep.ath.cx> <20030530222701.GC2536@fs.tum.de> <1056143086.6808.12.camel@bolidino.hoendiep.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056143086.6808.12.camel@bolidino.hoendiep.ath.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Fri, Jun 20, 2003 at 11:04:47PM +0200, Fabio Bracci wrote:
 
->On Fri, Jun 20, 2003 at 09:50:51PM +0200, Bastian Blank wrote:
->  
->
->>hi folks
->>    
->>
->I'd suggest CC: the lsm mailing list, they might have some comments
->about this.
->
-FYI, Chris Wright (one of the main LSM developers) left for a week's 
-vacation today. This patch appears to be a major change in how LSM 
-works, and I suspect Chris will want some time to consider it. So don't 
-be terribly surprised if not much happens until June 30.
+> Hi
+> 	Hereby I have attached the requested .conf file ("config.2.5.70").
+> I tried again to compile a kernel, but now using the 2.5.72 one. But
+> again something went wrong while compiling the sound subsystem. That's
+> why I attacched also the new .conf file ("config.2.5.70").
+> I now got the following messages:
+> ...
+>...
+>   LD      vmlinux
+> sound/built-in.o(.text+0x1b6ea): In function `snd_rawmidi_dev_register':
+> : undefined reference to `snd_seq_device_new'
+> sound/built-in.o(.text+0x22fb8): In function `snd_card_emu10k1_probe':
+> : undefined reference to `snd_seq_device_new'
+> make: *** [vmlinux] Error 1
+> 
+> 
+> Hopefully this will help.
 
-However, Chris also told me that he took his laptop with him. He might 
-choose to take some of his vacation time to look at this.
+Yup, thanks a lot!
 
->>- if the modules don't define a function, the call always travers
->>  through the stack until it hits the dummy module
->>- more pointer needs to be dereferences, more parameter
->>    
->>
->How does the performance of this work out, if you only have 1 security
->module?  In my opinion, preformance should not drop, unless you want to
->stack modules.
->
-I agree with Greg. We deliberately did not design in explicit support. 
-The priority scheme was:
+> Greetings,
+> 	Fabio ...
+>...
+> #
+> # Advanced Linux Sound Architecture
+> #
+> CONFIG_SND=y
+> CONFIG_SND_SEQUENCER=m
+> CONFIG_SND_SEQ_DUMMY=m
+> # CONFIG_SND_OSSEMUL is not set
+> CONFIG_SND_RTCTIMER=m
+> CONFIG_SND_VERBOSE_PRINTK=y
+> # CONFIG_SND_DEBUG is not set
+>...
+> CONFIG_SND_EMU10K1=y
+>...
 
-   1. Have the least impact possible on kernels not using modules.
-   2. Have the best performance possible for a single module.
-   3. Push work for stacking modules onto module writers who want to stack.
 
+This is a bug in several ALSA drivers.
 
->And did you see the previous stacker lsm module?  What advantage does
->this patch over that one?
->
-The problem with module composition is that it is sometimes straight 
-forward, but often problematic, and in some cases impossible. You 
-*cannot* provide support for module composition in the general case; at 
-best it will work sometimes. Wheeler's existing Stacker module 
-encapsulates the logistics for supporting module composition in the 
-simple cases, and module writers *need* to hack it themselves in the 
-harder cases.
+@Fabio:
+As a workaround, compile "Sequencer support" statically (non-modular).
 
-Crispin
+@Jaroslav:
+Several drivers have a wrong logic for CONFIG_SND_SEQUENCER. The correct 
+solution is something like the following:
+
+--- sound/pci/emu10k1/emu10k1.c.old	2003-06-21 03:02:04.000000000 +0200
++++ sound/pci/emu10k1/emu10k1.c	2003-06-21 03:02:31.000000000 +0200
+@@ -35,7 +35,7 @@
+ MODULE_DEVICES("{{Creative Labs,SB Live!/PCI512/E-mu APS},"
+ 	       "{Creative Labs,SB Audigy}}");
+ 
+-#if defined(CONFIG_SND_SEQUENCER) || defined(CONFIG_SND_SEQUENCER_MODULE)
++#if defined(CONFIG_SND_SEQUENCER) || (defined (MODULE) && defined(CONFIG_SND_SEQUENCER_MODULE))
+ #define ENABLE_SYNTH
+ #include <sound/emu10k1_synth.h>
+ #endif
+
+If you comfirm this is correct I'll send a fix for all affected drivers.
+
+cu
+Adrian
 
 -- 
-Crispin Cowan, Ph.D.           http://immunix.com/~crispin/
-Chief Scientist, Immunix       http://immunix.com
-            http://www.immunix.com/shop/
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

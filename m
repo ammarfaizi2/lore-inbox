@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263586AbTH0QlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTH0QlN
+	id S263716AbTH0QRf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbTH0QHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:41:13 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:41694 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S263586AbTH0QlM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:41:12 -0400
-Date: Wed, 27 Aug 2003 18:41:10 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mlord@pobox.com,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 2.6][TRIVIAL] Update ide.txt documentation to current
- ide.c
-In-Reply-To: <1061998172.22825.51.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.51.0308271839110.32333@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0308211225120.23765@dns.toxicfilms.tv>
- <1061998172.22825.51.camel@dhcp23.swansea.linux.org.uk>
+	Wed, 27 Aug 2003 12:07:41 -0400
+Received: from dns10.mail.yahoo.co.jp ([210.81.151.143]:38035 "HELO
+	dns10.mail.yahoo.co.jp") by vger.kernel.org with SMTP
+	id S263610AbTH0QCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:02:51 -0400
+X-Apparently-From: <yoshiyaeto@ybb.ne.jp>
+Message-ID: <003101c36cb4$a785e930$0b01a8c0@CELERON>
+From: "YoshiyaETO" <yoshiyaeto@ybb.ne.jp>
+To: <linux-kernel@vger.kernel.org>
+References: <000801c36cb1$454d4950$1001a8c0@etofmv650>
+Subject: Re: cache limit
+Date: Thu, 28 Aug 2003 01:02:45 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   "hdx=slow"		: insert a huge pause after each access to the data
-> >  			  port. Should be used only as a last resort.
+> On Wed, 27 Aug 2003 02:45:12 -0700, William Lee Irwin III wrote:
+> >> How do you know it would be effective? Have you written a patch to
+> >> limit it in some way and tried running it?
 >
-> Should go - isnt supported any more
-So drivers/ide/ide.c should be updated too.
-
-> > + "ide=reverse"		: formerly called to pci sub-system, but now local.
-> > +
+> On Wed, Aug 27, 2003 at 08:14:12PM +0900, Takao Indoh wrote:
+> > It's just my guess. You mean that "index cache" is on the pagecache?
+> > "index cache" is allocated in the user space by malloc,
+> > so I think it is not on the pagecache.
 >
-> Better if it said what it did ?
-drivers/ide/ide.c says only this.
+> That will be in the pagecache.
 
-Maciej
+    No. DBMS usually uses DIRECTIO that bypass the pagecache.
+So, "index caches" in the DBMS user space will not be in pagecache.
+

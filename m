@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317422AbSGTPGr>; Sat, 20 Jul 2002 11:06:47 -0400
+	id <S317426AbSGTPLv>; Sat, 20 Jul 2002 11:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317426AbSGTPGr>; Sat, 20 Jul 2002 11:06:47 -0400
-Received: from crisium.vnl.com ([194.46.8.33]:3594 "EHLO crisium.vnl.com")
-	by vger.kernel.org with ESMTP id <S317422AbSGTPGr>;
-	Sat, 20 Jul 2002 11:06:47 -0400
-Date: Sat, 20 Jul 2002 16:14:05 +0100
-From: Dale Amon <amon@vnl.com>
+	id <S317427AbSGTPLv>; Sat, 20 Jul 2002 11:11:51 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:56664 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317426AbSGTPLu>; Sat, 20 Jul 2002 11:11:50 -0400
+Date: Sat, 20 Jul 2002 17:16:00 +0200
+From: Heinz Diehl <hd@cavy.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.26 : drivers/scsi/BusLogic.c
-Message-ID: <20020720151405.GE23183@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-References: <200207181700.g6IH03U02415@localhost.localdomain> <20020718192413.A28163@redhat.com>
+Cc: sct@redhat.com
+Subject: [2.5.26] ext3 from Dec. 2001?
+Message-ID: <20020720151600.GA268@chiara.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, sct@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020718192413.A28163@redhat.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux, the choice of a GNU generation
+Organization: private site in Mannheim/Germany
+X-PGP-Key: Use PGP! Get my key at http://www.cavy.de/hd.key
+User-Agent: Mutt/1.5.1i (Linux 2.5.26 i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug:  Found your patch. I was waiting on the wrong thread. Compiling 
-as we speak, will give it a good thrashing with a kernel build or some
-such when it's done and will let you know the result.
+Hi!
 
+Just a short question: is there a patch for 2.5.26 to update ext3 to 
+ext3-0.9.18? There's still ext3-0.9.16 from Dec. 2001 present in 2.5.26.
+At ../people/sct on ftp.kernel.org there are only updates for kernel
+2.2 and 2.4.
 
+Greetings, Heinz.
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEWJOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUEWJPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbUEWJOX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 05:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUEWJOX
+	id S262425AbUEWJPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 05:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUEWJPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 05:14:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55204 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262434AbUEWJOH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 05:14:07 -0400
-Date: Sun, 23 May 2004 11:13:56 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: i486 emu in mainline?
-Message-ID: <20040523091356.GD5889@devserv.devel.redhat.com>
-References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RYJh/3oyKhIjGcML"
-Content-Disposition: inline
-In-Reply-To: <20040523084415.GB16071@alpha.home.local>
-User-Agent: Mutt/1.4.1i
+	Sun, 23 May 2004 05:15:09 -0400
+Received: from marvin.harmless.hu ([195.70.51.173]:27879 "EHLO
+	marvin.harmless.hu") by vger.kernel.org with ESMTP id S262425AbUEWJPE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 05:15:04 -0400
+Date: Sun, 23 May 2004 11:16:17 +0200 (CEST)
+From: Gergely Czuczy <phoemix@harmless.hu>
+X-X-Sender: phoemix@localhost
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4 VS 2.6 fork VS thread creation time test, test source
+ updated
+Message-ID: <Pine.LNX.4.60.0405231114210.10947@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HD-Virus-Scanned: by amavisd-new-20030616-p7 at harmless.hu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've updated the test code source.
 
---RYJh/3oyKhIjGcML
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Now it shows the difference between the totals and the successive totals.
+Totals includes the calls which returned an error while the successive
+totals excludes them.
 
-On Sun, May 23, 2004 at 10:44:15AM +0200, Willy Tarreau wrote:
-> Hi Arjan,
-> 
-> On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
-> > on first look it seems to be missing a bunch of get_user() calls and
-> > does direct access instead....
-> 
-> It was intentional for speed purpose. The areas are checked once with
-> verify_area() when we need to access memory, then data is copied directly
-> from/to memory. I don't think there's any risk, but I can be wrong.
+the code is accessable at:
+http://phoemix.harmless.hu/pttest.cc
 
-it's an oopsable offence; nothing is making sure the memory is actually
-present for example.
 
---RYJh/3oyKhIjGcML
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Bye,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Gergely Czuczy
+mailto: phoemix@harmless.hu
+PGP: http://phoemix.harmless.hu/phoemix.pgp
 
-iD8DBQFAsGtUxULwo51rQBIRAvg/AJ47wL3Tg9qQ+wdqN0y8EMNoP1g6kgCfdQ8D
-Wy9Sy4g9yzttsfTeqsQH1XU=
-=wN48
------END PGP SIGNATURE-----
-
---RYJh/3oyKhIjGcML--
+"Wish a god, a star, to believe in,
+With the realm of king of fantasy..."

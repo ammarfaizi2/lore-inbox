@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310208AbSCKQxV>; Mon, 11 Mar 2002 11:53:21 -0500
+	id <S310217AbSCKQ5B>; Mon, 11 Mar 2002 11:57:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310209AbSCKQxL>; Mon, 11 Mar 2002 11:53:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20491 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310208AbSCKQxH>; Mon, 11 Mar 2002 11:53:07 -0500
-Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal instructions"
-To: tepperly@llnl.gov (Tom Epperly)
-Date: Mon, 11 Mar 2002 17:08:14 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3C8CD629.5090003@llnl.gov> from "Tom Epperly" at Mar 11, 2002 08:07:05 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310230AbSCKQ4w>; Mon, 11 Mar 2002 11:56:52 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:54289 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S310217AbSCKQ4o>; Mon, 11 Mar 2002 11:56:44 -0500
+Message-ID: <3C8CE1C7.6060501@namesys.com>
+Date: Mon, 11 Mar 2002 19:56:39 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: yodaiken@fsmlabs.com
+CC: Alexander Viro <viro@math.psu.edu>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Itai Nahshon <itai@siftology.com>, Larry McVoy <lm@bitmover.com>,
+        Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.GSO.4.21.0203110051500.9713-100000@weyl.math.psu.edu> <3C8C4B8A.2070508@namesys.com> <20020311061341.A14809@hq.fsmlabs.com> <3C8CD274.1010603@namesys.com> <20020311090845.A17785@hq.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16kTHS-00016E-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> FYI when I upgraded to the 2.4.18-1smp kernel, the failure rate went 
-> from 20% to 100%. I have tried running the nightly build & regression on 
-> roughly 6 different dual processors Pentium III or better machines 
-> (cylcing it over and over), and they all have intermittent failures of 
-> one kind or another. All these machines are made by Dell, but they 
-> provide some evidence that it is not a hardware problem.
+yodaiken@fsmlabs.com wrote:
 
-It does sound like either a bad compiler (eg gcc 3) which is unlikely but
-possible or your workload triggers something important and unusual which is
-buggy. Do you know which bit of the workload is the trigger - is it practical
-to find out ?
+>>>
+>>>
+>>>Look at the Plan9 backup plan. That was much better thought out.
+>>>
+>>Also not enough said to be informative., but could be an introduction to 
+>>an informative statement.
+>>
+>
+>If you can't spend 10 seconds looking it up on Google, you must not 
+>be interested.
+>
+>>
+>
+Look at the way some of Windows and Macintosh were implemented.  Much 
+better thought out.
 
-Alan
+

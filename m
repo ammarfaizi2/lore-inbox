@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbRBNPnL>; Wed, 14 Feb 2001 10:43:11 -0500
+	id <S129381AbRBNPoa>; Wed, 14 Feb 2001 10:44:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbRBNPnA>; Wed, 14 Feb 2001 10:43:00 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:24083 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129069AbRBNPmr>;
-	Wed, 14 Feb 2001 10:42:47 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-Cc: Gérard Roudier <groudier@club-internet.fr>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Donald Becker <becker@scyld.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.3.96.1010213070337.31857F-100000@mandrakesoft.mandrakesoft.com>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 14 Feb 2001 16:39:39 +0100
-In-Reply-To: Jeff Garzik's message of "Tue, 13 Feb 2001 07:06:44 -0600 (CST)"
-Message-ID: <d3ofw55l50.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129091AbRBNPoU>; Wed, 14 Feb 2001 10:44:20 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:34696 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129055AbRBNPoJ>;
+	Wed, 14 Feb 2001 10:44:09 -0500
+Date: Wed, 14 Feb 2001 16:43:59 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200102141543.QAA79054.aeb@vlet.cwi.nl>
+To: michael_e_brown@dell.com
+Subject: Re: block ioctl to read/write last sector
+Cc: Matt_Domsch@exchange.dell.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com> writes:
+> My patch has nothing to do with partitioning.
 
-Jeff> On 12 Feb 2001, Jes Sorensen wrote:
->> 3) The acenic/gbit performance anomalies have been cured by
->> reverting the PCI mem_inval tweaks.
+Yes, you already said that, and I understand you very well.
+My suggestion, and I have not checked the code to make sure,
+but off-hand it seems to me that it should work,
+is to use a partition.
 
-Jeff> Just to be clear, acenic should or should not use MWI?
+> Disk with 1001 blocks. Hardware 512-byte sector size.
+> The block layer uses 1024-byte soft blocksize.
+> This means that, at the _end_ of the disk there is a single sector
+> that represents half of a software sector.
 
-Jeff> And can a general rule be applied here?  Newer Tulip hardware
-Jeff> also has the ability to enable/disable MWI usage, IIRC.
+Maybe. I think that you'll find that these blocks are
+relative to the start of the partition, not relative
+to the start of the disk.
 
-AceNIC always used to do this until the ZC patches appeared. It's a
-recommendation from the hardware designers so I figure it's a bug in
-the AceNIC hardware. I can probably go dig up the details on this, but
-it's hidden somewhere deep down, ie. it's been ages since I looked at
-it last.
+So if you add a 1-block partition that contains the last
+sector of the disk, all should be fine.
 
-Jes
+Andries
+
+

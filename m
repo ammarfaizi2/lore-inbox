@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267758AbUHRVhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267746AbUHRVko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267758AbUHRVhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 17:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUHRVhT
+	id S267746AbUHRVko (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 17:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267796AbUHRVko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 17:37:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:49026 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267758AbUHRVgo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 17:36:44 -0400
-Date: Wed, 18 Aug 2004 17:36:13 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: "David S. Miller" <davem@redhat.com>, pj@sgi.com,
-       linux-kernel@vger.kernel.org
+	Wed, 18 Aug 2004 17:40:44 -0400
+Received: from holomorphy.com ([207.189.100.168]:55993 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267746AbUHRVk3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 17:40:29 -0400
+Date: Wed, 18 Aug 2004 14:40:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org
 Subject: Re: Does io_remap_page_range() take 5 or 6 args?
-In-Reply-To: <20040818210503.GG11200@holomorphy.com>
-Message-ID: <Pine.LNX.4.53.0408181731220.17296@chaos>
-References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com>
- <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040818214026.GL11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com> <20040818143029.23db8740.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040818143029.23db8740.davem@redhat.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004, William Lee Irwin III wrote:
+On Wed, 18 Aug 2004 14:05:03 -0700 William Lee Irwin III wrote:
+>> We should pass 64-bit values to remap_page_range() also, then. Or
+>> perhaps passing pfn's to both suffices, as it all has to be page
+>> aligned anyway.
 
-> On Wed, 18 Aug 2004 13:53:38 -0700 William Lee Irwin III wrote:
-> >> Once it's decided how many it really takes, I'll fix up sparc32 as-needed.
->
-> On Wed, Aug 18, 2004 at 01:56:38PM -0700, David S. Miller wrote:
-> > (sorry for the emply reply previously)
-> > It needs 6 unless we start passing in a 64-bit value to
-> > io_remap_page_range()
-> > for the 'offset' parameter.
-> > Physical I/O addresses are 36-bits or so on sparc32 systems, which is
-> > why we need to pass in "offset" and "space".
->
+On Wed, Aug 18, 2004 at 02:30:29PM -0700, David S. Miller wrote:
+> Does not work on a system who has more physical address bits
+> than 32 + PAGE_SHIFT
+> Sparc32 does not fall into this category... but some other
+> might.
 
-Maybe a pointer?
-
-> We should pass 64-bit values to remap_page_range() also, then. Or
-> perhaps passing pfn's to both suffices, as it all has to be page
-> aligned anyway.
->
->
-> -- wli
-
-With a pointer to some kind of descriptor (structure), the arch-dependent
-pointer size is handled by the compiler/linker and the arch-dependent
-content is handled with the arch-dependent header defining the
-structure. You get to keep both pieces and they don't break when
-porting to a new box.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+All extant systems of this category I'm aware of are 32-bit kernels on
+64-bit machines, which we don't really support. Also, the assumption
+that physical addresses are bounded by 1ULL << (BITS_PER_LONG + PAGE_SHIFT)
+is made broadly elsewhere, particularly in pfn_to_page() and the like.
+Making this assumption in remap_page_range() and io_remap_page_range()
+would save the overhead of passing additional arguments and/or passing
+64-bit arguments on 32-bit machines. Using pgoff_t for pfn's may prove
+useful for such systems, but it's highly doubtful the kernel will ever
+be made clean for such or that they'll ever be brought to a usable state.
 
 
+-- wli

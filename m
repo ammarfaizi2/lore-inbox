@@ -1,162 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbTBPDvQ>; Sat, 15 Feb 2003 22:51:16 -0500
+	id <S265777AbTBPD7S>; Sat, 15 Feb 2003 22:59:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbTBPDvQ>; Sat, 15 Feb 2003 22:51:16 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:10376 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265773AbTBPDvO>; Sat, 15 Feb 2003 22:51:14 -0500
-Date: Sat, 15 Feb 2003 20:00:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: 2.5.61 oops running SDET
-Message-ID: <11830000.1045368054@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302151820200.25000-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302151820200.25000-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265791AbTBPD7R>; Sat, 15 Feb 2003 22:59:17 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:11460
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265777AbTBPD7Q>; Sat, 15 Feb 2003 22:59:16 -0500
+Date: Sat, 15 Feb 2003 23:08:58 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Larry McVoy <lm@bitmover.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+In-Reply-To: <20030215205446.GA11988@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0302151836370.13273-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Close, but you also need
-> 
-> -	buffer = task_sig(task, buffer);
-> +	if (task->sighand)
-> +		buffer = task_sig(task, buffer);
-> 
-> to actually check whether signals exist or not. Otherwise you'll just get 
-> the same oops anyway (well, keeping the task locked may change timings 
-> enough that it doesn't happen, but the bug will continue to be there.
-> 
-> I would also say that since you explicitly take the task lock, there's no 
-> real reason to use "get_task_mm()" at all any more, so instead of doing 
-> that (and then doing the mmput()), just get rid of the mm variable 
-> entirely, and do
-> 
-> 	if (task->mm)
-> 		buffer = task_mem(task->mm, buffer)
-> 
-> too. There's really no downside to just holding on to the task lock over
-> the whole operation instead of incrementing and decrementing the mm
-> counts and dropping the lock early.
-> 
-> (There are a few valid reasons for using the "get_task_mm()" function:
-> 
->  - you need to block and thus drop the task lock
-> 
->  - the original code just used "task->mm" directly, and using 
->    "get_task_mm()" made the original conversion to mm safe handling 
->    easier.
-> 
-> Neither reason is really valid any more in this function at least).
+On Sat, 15 Feb 2003, Larry McVoy wrote:
 
-OK, I did the following, which is what I think you wanted, plus Zwane's
-observation that task_state acquires the task_struct lock (we're the only 
-caller, so I just removed it), but I still get the same panic and this time
-the box hung. No doubt I've just done something stupid in the patch ...
-(task_state takes the tasklist_lock ... is that safe to do inside task_lock?)
+> On Sat, Feb 15, 2003 at 08:44:59PM +0000, Alan Cox wrote:
+> > On Sat, 2003-02-15 at 18:12, Larry McVoy wrote:
+> > > All of this sounds great and is exactly what is already the plan.
+> > > There is one missing item.  A consensus in the community that if we
+> > > provide BK, the CVS mirror, bkbits hosting, in return the community
+> > > agrees to leave off using BK to copy BK.
+> > 
+> > The community is an amorphous thing so thats tricky to define
+> 
+> You're right, I thought of that after I posted.  What would probably
+> work best is if someone who was not particularly BK friendly but
+> is acknowledged as a Linux leader were to step forward and agree to
+> represent the community interests.
 
-diff -urpN -X /home/fletch/.diff.exclude virgin/fs/proc/array.c sdet/fs/proc/array.c
---- virgin/fs/proc/array.c	Sat Feb 15 16:11:45 2003
-+++ sdet/fs/proc/array.c	Sat Feb 15 19:28:34 2003
-@@ -166,12 +166,10 @@ static inline char * task_state(struct t
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
- 	read_unlock(&tasklist_lock);	
--	task_lock(p);
- 	buffer += sprintf(buffer,
- 		"FDSize:\t%d\n"
- 		"Groups:\t",
- 		p->files ? p->files->max_fds : 0);
--	task_unlock(p);
- 
- 	for (g = 0; g < p->ngroups; g++)
- 		buffer += sprintf(buffer, "%d ", p->groups[g]);
-@@ -243,20 +241,20 @@ extern char *task_mem(struct mm_struct *
- int proc_pid_status(struct task_struct *task, char * buffer)
- {
- 	char * orig = buffer;
--	struct mm_struct *mm = get_task_mm(task);
- 
-+	task_lock(task);
- 	buffer = task_name(task, buffer);
- 	buffer = task_state(task, buffer);
-  
--	if (mm) {
--		buffer = task_mem(mm, buffer);
--		mmput(mm);
--	}
--	buffer = task_sig(task, buffer);
-+	if (task->mm)
-+		buffer = task_mem(task->mm, buffer);
-+	if (task->sighand)
-+		buffer = task_sig(task, buffer);
- 	buffer = task_cap(task, buffer);
- #if defined(CONFIG_ARCH_S390)
- 	buffer = task_show_regs(task, buffer);
- #endif
-+	task_unlock(task);
- 	return buffer - orig;
- }
- 
+Larry, what you ask is impossible.
+
+This community isn't hierarchized and is unlikely to form a single opinion
+on anything like corporate politics.  No one can be authoritative of 
+everybody else's opinion.
+
+It doesn't work in a pull model either where you ask for things.  Rather,
+you must push things and see how it goes, how people react.
+
+> It's clear from the fuss this causes about every three weeks that people
+> don't feel safe, on either side.  You're scared that we're going to do
+> some evil thing and we're scared that you are going to do evil thing.
+
+That might be true, but I think the BK opponents from the community are more
+concerned by preserving their "freedom" (or ability) to access the
+up-to-the-minute changes that appeared in the official kernel reference
+repository, and without being forced to use a proprietary tool with a
+proprietary protocol and with restrictive license terms.  I really think it
+has nothing to do with BK itself beside the fact that it's BK that is used
+to handle the data they cherish so much and no "free" path currently exists
+to that data.  Even if hourly snapshots do exist, that still makes those
+people sort of second class citizens.  They want the changes available to
+them in real time but in the most purist free way too.  The best answer is a
+CVS gateway IMHO, and then the true believers, or those who simply can't
+comply with your license for all sort of good and legitimate reasons, won't
+have anything against you from that moment since they won't see BK as an
+obstacle in the way.
+
+If a real time CVS gateway exists, and bkbits.net is pushing CVS commits to
+kernel.org and linux.org.uk just to name those few obvious examples among
+others, then individuals within this community will have the choice between
+many tools according to their respective characteristics and not based on the
+quality of service with regards to the kernel repository.
+
+Only then people won't be able to invoke the BitMover lock-in argument
+against the Linux community (regardless if that was your intention or not),
+and only then will you be able to consider those who try to reverse-engineer
+your "technology" as bad people, since invoking fair use will then be much
+harder to legitimate.
+
+In other words, if people can have real time change sets to the reference
+kernel and have the possibility of ignoring you and BK entirely at the same
+time, only then the issue will be closed.
+
+> Maybe it's not possible, but it would be nice if we could, operating in
+> good faith, work out some sort of agreement that made sense.  Yeah, I
+> know it isn't binding, that the best you could do on the community side is
+> have a bunch of people stand up and say "hey, leave BitMover alone, they
+> are doing a good service" but I'd take that over the current mess any day.
+
+You are doing the best you can in the terms you chose, and a lot of people
+including myself are extremely grateful.  Your terms are just totally
+incompatible with the view of some people.  And many of those people just
+don't like what you do and they _never_ will, that's a simple fact of life.
+Your only way out is to provide a mechanism that will allow them to totally
+ignore you without impairing their access to the kernel development data.  
+BK might be way ahead at what it does, but real-time access to the kernel
+repository must _not_ be among the advantages of BK against competitor
+products/solutions.
 
 
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000014
- printing eip:
-c0118b13
-*pde = 2d4bf001
-*pte = 00000000
-Oops: 0000
-CPU:    6
-EIP:    0060:[<c0118b13>]    Not tainted
-EFLAGS: 00010207
-EIP is at render_sigset_t+0x17/0x7c
-eax: 00000010   ebx: ed3d909f   ecx: ed3d9097   edx: eda60100
-esi: 0000003c   edi: 00000010   ebp: ed49bf04   esp: ed49bef8
-ds: 007b   es: 007b   ss: 0068
-Process ps (pid: 3339, threadinfo=ed49a000 task=ee32cd20)
-Stack: ed3d907d 00000002 ed3d909f 00000006 c016d85f 00000010 ed3d909f ed3d9097 
-       c0233f38 eda606bc ed3d9086 ed3d907e c0233f2f ee1d7b70 eda60100 eeb4d0c0 
-       ed3d9000 ee1d7b70 00000000 ed3d9000 000000d0 eeb4d0c0 c01300f6 c17119e8 
-Call Trace:
- [<c016d85f>] proc_pid_status+0x26f/0x334
- [<c01300f6>] __get_free_pages+0x4e/0x54
- [<c016b517>] proc_info_read+0x53/0x130
- [<c0145295>] vfs_read+0xa5/0x128
- [<c0145522>] sys_read+0x2a/0x3c
- [<c0108b3f>] syscall_call+0x7/0xb
-
-Code: 0f a3 37 19 d2 b8 01 00 00 00 31 c9 85 d2 0f 45 c8 8d 56 01 
- <1>Unable to handle kernel NULL pointer dereference at virtual address 00000014
- printing eip:
-c0118b13
-*pde = 2d512001
-*pte = 00000000
-Oops: 0000
-CPU:    2
-EIP:    0060:[<c0118b13>]    Not tainted
-EFLAGS: 00010207
-EIP is at render_sigset_t+0x17/0x7c
-eax: 00000010   ebx: ee34b0a0   ecx: ee34b098   edx: ed3ea7a0
-esi: 0000003c   edi: 00000010   ebp: ed54ff04   esp: ed54fef8
-ds: 007b   es: 007b   ss: 0068
-Process ps (pid: 14710, threadinfo=ed54e000 task=ee430d40)
-Stack: ee34b07e 00000002 ee34b0a0 00000006 c016d85f 00000010 ee34b0a0 ee34b098 
-       c0233f38 ed3ead5c ee34b087 ee34b07f c0233f2f ee4960d0 ed3ea7a0 eec66ca0 
-       ee34b000 ee4960d0 00000000 ee34b000 000000d0 eec66ca0 c01300f6 c17383b8 
-Call Trace:
- [<c016d85f>] proc_pid_status+0x26f/0x334
- [<c01300f6>] __get_free_pages+0x4e/0x54
- [<c016b517>] proc_info_read+0x53/0x130
- [<c0145295>] vfs_read+0xa5/0x128
- [<c0145522>] sys_read+0x2a/0x3c
- [<c0108b3f>] syscall_call+0x7/0xb
-
-Code: 0f a3 37 19 d2 b8 01 00 00 00 31 c9 85 d2 0f 45 c8 8d 56 01 
+Nicolas
 

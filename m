@@ -1,100 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131231AbRCTWcr>; Tue, 20 Mar 2001 17:32:47 -0500
+	id <S131227AbRCTWbR>; Tue, 20 Mar 2001 17:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131232AbRCTWci>; Tue, 20 Mar 2001 17:32:38 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:8275 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S131231AbRCTWcZ>; Tue, 20 Mar 2001 17:32:25 -0500
-Message-ID: <3AB7D949.FC508065@mvista.com>
-Date: Tue, 20 Mar 2001 14:27:21 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S131228AbRCTWbH>; Tue, 20 Mar 2001 17:31:07 -0500
+Received: from saarinen.org ([203.79.82.14]:23978 "EHLO vimfuego.saarinen.org")
+	by vger.kernel.org with ESMTP id <S131227AbRCTWa5>;
+	Tue, 20 Mar 2001 17:30:57 -0500
+From: "Juha Saarinen" <juha@saarinen.org>
+To: "Rik van Riel" <riel@conectiva.com.br>, "Josh Grebe" <squash@primary.net>
+Cc: "Jan Harkes" <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: RE: Question about memory usage in 2.4 vs 2.2
+Date: Wed, 21 Mar 2001 10:29:31 +1200
+Message-ID: <LNBBIBDBFFCDPLBLLLHFEEAIJIAA.juha@saarinen.org>
 MIME-Version: 1.0
-To: nigel@nrg.org
-CC: Roger Larsson <roger.larsson@norran.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <Pine.LNX.4.05.10103201333590.26772-100000@cosmic.nrg.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.21.0103201857170.3750-100000@imladris.rielhome.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Gamble wrote:
-> 
-> On Tue, 20 Mar 2001, Roger Larsson wrote:
-> > One little readability thing I found.
-> > The prev->state TASK_ value is mostly used as a plain value
-> > but the new TASK_PREEMPTED is or:ed together with whatever was there.
-> > Later when we switch to check the state it is checked against TASK_PREEMPTED
-> > only. Since TASK_RUNNING is 0 it works OK but...
-> 
-> Yes, you're right.  I had forgotten that TASK_RUNNING is 0 and I think I
-> was assuming that there could be (rare) cases where a task was preempted
-> while prev->state was in transition such that no other flags were set.
-> This is, of course, impossible given that TASK_RUNNING is 0.  So your
-> change makes the common case more obvious (to me, at least!)
-> 
-> > --- sched.c.nigel       Tue Mar 20 18:52:43 2001
-> > +++ sched.c.roger       Tue Mar 20 19:03:28 2001
-> > @@ -553,7 +553,7 @@
-> >  #endif
-> >                         del_from_runqueue(prev);
-> >  #ifdef CONFIG_PREEMPT
-> > -               case TASK_PREEMPTED:
-> > +               case TASK_RUNNING | TASK_PREEMPTED:
-> >  #endif
-> >                 case TASK_RUNNING:
-> >         }
-> >
-> >
-> > We could add all/(other common) combinations as cases
-> >
-> >       switch (prev->state) {
-> >               case TASK_INTERRUPTIBLE:
-> >                       if (signal_pending(prev)) {
-> >                               prev->state = TASK_RUNNING;
-> >                               break;
-> >                       }
-> >               default:
-> > #ifdef CONFIG_PREEMPT
-> >                       if (prev->state & TASK_PREEMPTED)
-> >                               break;
-> > #endif
-> >                       del_from_runqueue(prev);
-> > #ifdef CONFIG_PREEMPT
-> >               case TASK_RUNNING               | TASK_PREEMPTED:
-> >               case TASK_INTERRUPTIBLE | TASK_PREEMPTED:
-> >               case TASK_UNINTERRUPTIBLE       | TASK_PREEMPTED:
-> > #endif
-> >               case TASK_RUNNING:
-> >       }
-> >
-> >
-> > Then the break in default case could almost be replaced with a BUG()...
-> > (I have not checked the generated code)
-> 
-> The other cases are not very common, as they only happen if a task is
-> preempted during the short time that it is running while in the process
-> of changing state while going to sleep or waking up, so the default case
-> is probably OK for them; and I'd be happier to leave the default case
-> for reliability reasons anyway.
+:: > And can this behavior be tuned so that it uses less of the overall
+:: > memory?
+::
+:: This isn't currently possible. Also, I suspect what we really want
+:: for most situations is a way to better balance between the different
+:: uses of memory.  Again, patches are welcome (I haven't figured out a
+:: way to take care of this balancing yet ... maybe we DO want some way
+:: of limiting memory usage of each subsystem??).
 
-Especially since he forgot:
+man ulimit? ;-)
 
-TASK_ZOMBIE
-TASK_STOPPED
-TASK_SWAPPING
+On a more serious note, is there a way to find out what has been paged out
+to disk, and also limit what can be paged out?
 
-I don't know about the last two but TASK_ZOMBIE must be handled
-correctly or the task will never clear.
+I could be wrong, but for instance I leave X running for a while (not sure
+about the timing here but let's say several hours), and come back and log in
+again, it is very slow to "come alive". The screen redraws slowly, and
+there's quite a bit of disk access. This only happens if the system is left
+alone for a long period of time (no, I don't have APM running on it).
 
-In general, a task must run till it gets to schedule() before the actual
-state is "real" so the need for the TASK_PREEMPT.  
+Squid behaves the same -- the first access after a long period of inactivity
+causes a lot of disk grinding, but successive accesses are fine.
 
-The actual code generated with what you propose should be the same (even
-if TASK_RUNNING != 0, except for the constant).
+Don't see this behaviour with the 2.2.x kernels.
 
-George
+
+-- Juha
+

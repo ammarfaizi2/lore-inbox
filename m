@@ -1,38 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319051AbSIJGjh>; Tue, 10 Sep 2002 02:39:37 -0400
+	id <S319053AbSIJGkl>; Tue, 10 Sep 2002 02:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319053AbSIJGjg>; Tue, 10 Sep 2002 02:39:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10711 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S319051AbSIJGjf>;
-	Tue, 10 Sep 2002 02:39:35 -0400
-Date: Tue, 10 Sep 2002 08:43:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@digeo.com>, Jesse Barnes <jbarnes@sgi.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "'David S. Miller'" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Calculating kernel logical address ..
-Message-ID: <20020910064354.GM8719@suse.de>
-References: <019f01c25826$c553f310$9e10a8c0@IMRANPC> <E17oTES-0006qj-00@starship> <3D7CF93A.972FCC8D@digeo.com> <E17oVLe-0006uT-00@starship>
+	id <S319055AbSIJGkl>; Tue, 10 Sep 2002 02:40:41 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:5204 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S319053AbSIJGki>; Tue, 10 Sep 2002 02:40:38 -0400
+Date: Tue, 10 Sep 2002 08:45:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: ltp directio test causes oops on 2.4.20pre5aa2
+Message-ID: <20020910064536.GE17868@dualathlon.random>
+References: <20020909210236.GA3023@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17oVLe-0006uT-00@starship>
+In-Reply-To: <20020909210236.GA3023@rushmore>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 09 2002, Daniel Phillips wrote:
-> On Monday 09 September 2002 21:40, Andrew Morton wrote:
-> > We need a general-purpose "read or write these pages to this blockdev"
-> > library function.
-> 
-> I thought bio was supposed to be that.  In what way does it not suffice?
-> Simply because of not having a suitable wrapper?
+while merging the new nfs stuff with nfs-o_direct this bit was left out:
 
-a bio _can_ hold a number of pages, it's just that noone has written the
-bio_rw_pages() yet. Not that it would be hard...
+> diff -u --recursive --new-file linux-2.4.18-pathconf/mm/filemap.c linux-2.4.18-odirect/mm/filemap.c
+> --- linux-2.4.18-pathconf/mm/filemap.c	Wed Feb 20 17:14:28 2002
+> +++ linux-2.4.18-odirect/mm/filemap.c	Wed Feb 20 17:17:19 2002
+> @@ -1515,7 +1515,7 @@
+594a592,606
+> --- 2.4.19pre3aa1/fs/reiserfs/inode.c.~1~	Tue Mar 12 00:07:18 2002
+> +++ 2.4.19pre3aa1/fs/reiserfs/inode.c	Tue Mar 12 01:24:21 2002
+> @@ -2161,10 +2161,11 @@
+>  	}
+>  }
+>  
+> -static int reiserfs_direct_io(int rw, struct inode *inode, 
+> +static int reiserfs_direct_io(int rw, struct file * filp,
+>                                struct kiobuf *iobuf, unsigned long blocknr,
+>  			      int blocksize) 
+>  {
+> +    struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
+>      return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
+>                               reiserfs_get_block_direct_io) ;
+>  }
 
--- 
-Jens Axboe
+Trond could you include the reiserfs part in your nfs-o_direct too?
+(ext3 has o_direct in -aa only so you don't need it) I'll keep them in
+separate files so they won't be forgotten again.  In the meantime you
+can test with this incremental fix:
 
+--- 2.4.19pre3aa1/fs/reiserfs/inode.c.~1~	Tue Mar 12 00:07:18 2002
++++ 2.4.19pre3aa1/fs/reiserfs/inode.c	Tue Mar 12 01:24:21 2002
+@@ -2161,10 +2161,11 @@
+ 	}
+ }
+ 
+-static int reiserfs_direct_io(int rw, struct inode *inode, 
++static int reiserfs_direct_io(int rw, struct file * filp,
+                               struct kiobuf *iobuf, unsigned long blocknr,
+ 			      int blocksize) 
+ {
++    struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
+     return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
+                              reiserfs_get_block_direct_io) ;
+ }
+--- 2.4.20pre5aa2/fs/ext3/inode.c.~1~	Mon Sep  9 02:38:08 2002
++++ 2.4.20pre5aa2/fs/ext3/inode.c	Tue Sep 10 05:22:18 2002
+@@ -1385,9 +1385,10 @@ static int ext3_releasepage(struct page 
+ }
+ 
+ static int
+-ext3_direct_IO(int rw, struct inode *inode, struct kiobuf *iobuf,
++ext3_direct_IO(int rw, struct file * filp, struct kiobuf *iobuf,
+ 		unsigned long blocknr, int blocksize)
+ {
++	struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
+ 	handle_t *handle = NULL;
+ 	int ret;
+
+thanks for the as usual accurate report,
+
+Andrea
+
+PS. Later I'll make sure the new sched can't introduce starvation, then
+    I'll upload a new -aa with these few bits.

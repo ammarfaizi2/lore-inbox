@@ -1,93 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267662AbRG3TjY>; Mon, 30 Jul 2001 15:39:24 -0400
+	id <S267632AbRG3Tjo>; Mon, 30 Jul 2001 15:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbRG3TjO>; Mon, 30 Jul 2001 15:39:14 -0400
-Received: from atlrel7.hp.com ([192.151.27.9]:55310 "HELO atlrel7.hp.com")
-	by vger.kernel.org with SMTP id <S267632AbRG3TjA>;
-	Mon, 30 Jul 2001 15:39:00 -0400
-Message-ID: <3B65B7EC.42245D62@fc.hp.com>
-Date: Mon, 30 Jul 2001 13:39:24 -0600
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S267650AbRG3Tjf>; Mon, 30 Jul 2001 15:39:35 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:61198 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S267632AbRG3TjU>; Mon, 30 Jul 2001 15:39:20 -0400
+Date: Mon, 30 Jul 2001 15:09:22 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        lkml <linux-kernel@vger.kernel.org>, Ben LaHaise <bcrl@redhat.com>,
+        Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <3B5E554E.86FDA41F@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0107301501510.7432-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Support for serial console on legacy free machines
-In-Reply-To: <Pine.LNX.4.33L.0107301520040.5582-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Rik van Riel wrote:
+
+
+On Wed, 25 Jul 2001, Andrew Morton wrote:
+
+> Marcelo Tosatti wrote:
+> > 
+> > Daniel's patch adds "drop behind" (that is, adding swapcache
+> > pages to the inactive dirty) behaviour to swapcache pages.
 > 
-> On Thu, 26 Jul 2001, Khalid Aziz wrote:
+> In some *brief* testing here, it appears that the use-once changes
+> make an improvement for light-medium workloads.  With swap-intensive
+> workloads, the (possibly accidental) changes to swapcache aging
+> in fact improve things a lot, and use-once makes things a little worse.
 > 
-> > serial console. The bummer is this table was designed by Microsoft and
-> > Microsoft owns the copyright on it. Microsoft primarily designed this
+> This is a modified Galbraith test: 64 megs of RAM, `make -j12
+> bzImage', dual CPU:
 > 
-> Microsoft owns the copyright on that particular document.
+> 2.4.7:			6:54
+> 2.4.7+Daniel's patch	6:06
+> 2.4.7+the below patch	5:56
 > 
-> If I were to give you an mp3 with descriptions of what
-> various bits to poke at you'd be free to do whatever you
-> want with that info ;)
+> --- mm/swap.c	2001/01/23 08:37:48	1.3
+> +++ mm/swap.c	2001/07/25 04:08:59
+> @@ -234,8 +234,8 @@
+>  	DEBUG_ADD_PAGE
+>  	add_page_to_active_list(page);
+>  	/* This should be relatively rare */
+> -	if (!page->age)
+> -		deactivate_page_nolock(page);
+> +	deactivate_page_nolock(page);
+> +	page->age = 0;
+>  	spin_unlock(&pagemap_lru_lock);
+>  }
 > 
-> In fact, I suspect you're already free to do whatever
-> you want with the info contained in the document...
-> 
+> This change to lru_cache_add() is the only change made to 2.4.7,
+> and it provides the 17% speedup for this swap-intensive load.
 
-You are possibly right. It would be better to use SPCR as opposed to
-another equivalent table since every vendor is extremely likely to
-include SPCR in their ACPI implementation in the firmware since
-Microsoft would require it, which may not be the case with another
-table. If everyone feels there is no problem with using SPCR as it is,
-then I can release the code I have already done to support it. One thing
-I should point out is since Microsoft owns the definition for SPCR (same
-applies to DBGP which defines a Debug serial port), they can easily
-change the defitnition of the table and Linux will have to play catch
-up, although that situation would be nothing new. 
+After some thoughs I think this is due to swapin readahead.
 
-Here is an excerpt from the disclaimer in the table description document
-for anyone interested:
+We add "drop behind" behaviour to swap readahead, so we have less impact
+on the system due to swap readahead "misses". 
 
-"Disclaimer: The information contained in this document represents the
-current view of Microsoft Corporation on the issues discussed as of  the
-date of publication. Because Microsoft must respond to changing market
-conditions, it should not be interpreted to be a commitment on  the part
-of Microsoft, and Microsoft cannot guarantee the accuracy of any
-information presented. This document is for informational purposes only.
-MICROSOFT MAKES NO WARRANTIES, EXPRESS OR IMPLIED, IN THIS DOCUMENT.
+That is nice but dangerous under swap IO intensive loads: 
 
-Microsoft Corporation may have patents or pending patent applications,
-trademarks, copyrights, or other intellectual property rights covering
-subject matter in this document. The furnishing of this document does
-not give you any license to the patents, trademarks,  copyrights, or
-other intellectual property rights except as expressly provided in any
-written license agreement from Microsoft Corporation.  
+We start swapin readahead, bring the first page of the "cluster" in
+memory, block on the next swap page's IO (the one's we are doing
+readahead) and in the meantime the first page we read is reclaimed by
+someone else.
 
-Microsoft does not make any representation or warranty regarding
-specifications in this document or any product or item developed based
-on these specifications. Microsoft disclaims all express and implied
-warranties, including but not  limited to the implied warranties or
-merchantability, fitness for a particular purpose and freedom from
-infringement. Without limiting the generality of the foregoing,
-Microsoft  does not make any warranty of any kind that any item
-developed based on these  specifications, or any portion of a
-specification, will not  infringe any copyright, patent, trade secret or
-other intellectual property right of any person or entity in any
-country. It is your responsibility  to seek licenses for such
-intellectual property  rights where appropriate. Microsoft shall not be
-liable for any damages arising out of or in  connection with the use of
-these specifications, including liability for lost profit, business
-interruption, or any other damages whatsoever."
+Then we'll have to reread the first page at at the direct
+read_swap_cache_async() called by do_swap_page().
 
+I really want to confirm if this is happening right now. Hope to do it
+soon.
 
-
--- 
-====================================================================
-Khalid Aziz                              Linux Systems Operation R&D
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO

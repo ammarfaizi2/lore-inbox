@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288585AbSADK3d>; Fri, 4 Jan 2002 05:29:33 -0500
+	id <S288583AbSADK3D>; Fri, 4 Jan 2002 05:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288586AbSADK3Y>; Fri, 4 Jan 2002 05:29:24 -0500
-Received: from fest.stud.fee.vutbr.cz ([147.229.9.16]:6675 "EHLO
-	fest.stud.fee.vutbr.cz") by vger.kernel.org with ESMTP
-	id <S288585AbSADK3H>; Fri, 4 Jan 2002 05:29:07 -0500
-Date: Fri, 4 Jan 2002 11:29:05 +0100
-From: David Jez <dave.jez@seznam.cz>
-To: linux-kernel@vger.kernel.org
-Subject: annotation: PCSP driver for new kernels
-Message-ID: <20020104112905.A69879@stud.fee.vutbr.cz>
+	id <S288585AbSADK2n>; Fri, 4 Jan 2002 05:28:43 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:38663 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S288583AbSADK2h>; Fri, 4 Jan 2002 05:28:37 -0500
+Date: Fri, 4 Jan 2002 11:28:34 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dmitri Pogosyan <pogosyan@phys.ualberta.ca>, linux-kernel@vger.kernel.org
+Subject: Re: ASUS KT266A/VT8233 board and UDMA setting
+Message-ID: <20020104112834.A20724@suse.cz>
+In-Reply-To: <20020104102507.A20412@suse.cz> <E16MRhE-0003Rx-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16MRhE-0003Rx-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 04, 2002 at 10:35:32AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi all,
+On Fri, Jan 04, 2002 at 10:35:32AM +0000, Alan Cox wrote:
 
-  i fixed some bugs and ported this driver for all latest kernels:
-2.2.20, 2.4.17, 2.5.1. You can find this patches:
-  http://www.stud.fee.vutbr.cz/~xjezda00
+> > Some RH kernels (may include yours) deliberately disable UDMA3, 4 and 5
+> > on any VIA IDE controller. I don't know why. Unpatch your kernel and
+> > it'll likely work.
+> 
+> RH 2.4.2-x. That was before we had the official VIA solution to the chipset
+> bug. It was better to be safe than sorry for an end user distro.
 
-  Best regards,
+But ... did this (limiting UDMA to 2) stop the bug from being manifested?
+
 -- 
--------------------------------------------------------
-  David "Dave" Jez                Brno, CZ, Europe
- E-mail: dave.jez@seznam.cz
-PGP key: finger xjezda00@fest.stud.fee.vutbr.cz
----------=[ ~EOF ]=------------------------------------
+Vojtech Pavlik
+SuSE Labs

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265641AbRGFA0H>; Thu, 5 Jul 2001 20:26:07 -0400
+	id <S265635AbRGFAX4>; Thu, 5 Jul 2001 20:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265640AbRGFAZ5>; Thu, 5 Jul 2001 20:25:57 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:56382 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S265646AbRGFAZm>;
-	Thu, 5 Jul 2001 20:25:42 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT please; Sybase 12.5 
-In-Reply-To: Your message of "Fri, 06 Jul 2001 01:06:53 +1000."
-             <3B44828D.C220CAE@uow.edu.au> 
-Mime-Version: 1.0
+	id <S265640AbRGFAXr>; Thu, 5 Jul 2001 20:23:47 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:21054 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S265635AbRGFAXh>;
+	Thu, 5 Jul 2001 20:23:37 -0400
+Message-ID: <3B4504FA.A9DF3682@melbourne.sgi.com>
+Date: Fri, 06 Jul 2001 10:23:22 +1000
+From: Tony Kavadias <tonza@melbourne.sgi.com>
+Organization: SGI Australia, Pty. Ltd.
+X-Mailer: Mozilla 4.77C-SGI [en] (X11; I; IRIX 6.5-ALPHA-1287440220 IP32)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: asun@cobaltnet.com
+CC: linux-kernel@vger.kernel.org
+Subject: Support for HFS Plus?
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 06 Jul 2001 10:25:27 +1000
-Message-ID: <4726.994379127@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Jul 2001 01:06:53 +1000, 
-Andrew Morton <andrewm@uow.edu.au> wrote:
->Ordered data mode is really nice.  It's not magical though - for example,
->if you reset the machine during a kernel build, a subsequent `make' will
->fail because you have a number of .o files which have zero length.
+Hello,
 
-FYI, that particular problem will disappear with the 2.5 Makefiles.
-The zero length .o files will still exist but the post-compile
-dependency data (.o.d) will not exist so a subsequent make kernel will
-rebuild the incomplete objects.  This is a general workaround for
-incomplete kernel objects, independent of the file system type.
+I don't know whether this is the right place to send this question,
+but do you have any software for Linux which allows me to mount
+HFS Plus file systems on a Linux 2.4.x kernel?
 
+I am particularly interested in mounting file systems which have
+been created under Mac OS 9.1 or Mac OS X.
+
+Thanks.
+
+-- 
+------------------------------------------------------------------------
+    Tony Kavadias,                           E-mail: tonza@sgi.com
+    SGI Australia, Pty. Ltd.                  Phone: +61 3 9834 8200x234
+    357 Camberwell Road, Camberwell, VIC, 3124.

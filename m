@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVANMDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVANMSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVANMDO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 07:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVANMDO
+	id S261964AbVANMSx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 07:18:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVANMSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 07:03:14 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:51389 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261963AbVANMDC (ORCPT
+	Fri, 14 Jan 2005 07:18:53 -0500
+Received: from tornado.reub.net ([60.234.136.108]:41936 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S261964AbVANMSt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 07:03:02 -0500
-Date: Fri, 14 Jan 2005 13:02:28 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andi Kleen <ak@muc.de>
-cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       nickpiggin@yahoo.com.au, torvalds@osdl.org, hugh@veritas.com,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-In-Reply-To: <20050114041421.GA41559@muc.de>
-Message-ID: <Pine.LNX.4.61.0501141255130.30794@scrub.home>
-References: <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
- <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
- <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org>
- <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
- <20050112104326.69b99298.akpm@osdl.org> <Pine.LNX.4.58.0501121055490.11169@schroedinger.engr.sgi.com>
- <41E73EE4.50200@linux-m68k.org> <20050114041421.GA41559@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Jan 2005 07:18:49 -0500
+Message-Id: <6.2.0.14.2.20050115011704.01da8ec8@tornado.reub.net>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.0.14
+Date: Sat, 15 Jan 2005 01:18:46 +1300
+To: Andrew Morton <akpm@osdl.org>
+From: Reuben Farrelly <reuben-lkml@reub.net>
+Subject: Re: Breakage with raid in 2.6.11-rc1-mm1 [Regression in mm]
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
+In-Reply-To: <20050114035852.3b5ff1a3.akpm@osdl.org>
+References: <6.2.0.14.2.20050114233439.01cbb8d8@tornado.reub.net>
+ <20050114035852.3b5ff1a3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 12:58 a.m. 15/01/2005, Andrew Morton wrote:
+>Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >
+> > Something seems to have broken with 2.6.11-rc1-mm1, which worked ok with
+> > 2.6.10-mm3.
+> >
+> > NET: Registered protocol family 17
+> > Starting balanced_irq
+> > BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
+> > md: Autodetecting RAID arrays.
+> > md: autorun ...
+> > md: ... autorun DONE.
+> > VFS: Waiting 19sec for root device...
+> > VFS: Waiting 18sec for root device...
+> > VFS: Waiting 17sec for root device...
+> > VFS: Waiting 16sec for root device...
+> > VFS: Waiting 15sec for root device...
+> > VFS: Waiting 14sec for root device...
+> > VFS: Waiting 13sec for root device...
+> > VFS: Waiting 12sec for root device...
+> > VFS: Waiting 11sec for root device...
+> > VFS: Waiting 10sec for root device...
+> > VFS: Waiting 9sec for root device...
+> > VFS: Waiting 8sec for root device...
+> > VFS: Waiting 7sec for root device...
+> > VFS: Waiting 6sec for root device...
+> > VFS: Waiting 5sec for root device...
+> > VFS: Waiting 4sec for root device...
+> > VFS: Waiting 3sec for root device...
+> > VFS: Waiting 2sec for root device...
+> > VFS: Waiting 1sec for root device...
+> > VFS: Cannot open root device "md2" or unknown-block(0,0)
+> > Please append a correct "root=" boot option
+> > Kernel panic - not syncing: VFS: Unable to mount root fs on 
+> unknown-block(0,0)
+> >
+> > The system is running 5 RAID-1 partitions, and md2 is the root as per
+> > grub.conf.  Problem seems to be that raid autodetection finds no raid
+> > partitions :(
+> >
+> > The two ST380013AS SATA drives are detected earlier in the boot, so I 
+> don't
+> > think that's the problem..
+>
+>hm, the only raidy thing we have in there is the below.  Maybe you could
+>try reverting that?
+>
+>
+>--- 25/drivers/md/raid5.c~raid5-overlapping-read-hack   2005-01-09 
+>22:20:40.211246912 -0800
+>+++ 25-akpm/drivers/md/raid5.c  2005-01-09 22:20:40.216246152 -0800
+>@@ -232,6 +232,7 @@ static struct stripe_head *__find_stripe
+>  }
+>
+>  static void unplug_slaves(mddev_t *mddev);
+>+static void raid5_unplug_device(request_queue_t *q);
+>
+>  static struct stripe_head *get_active_stripe(raid5_conf_t *conf, 
+> sector_t sector,
+>                                              int pd_idx, int noblock)
 
-On Fri, 14 Jan 2005, Andi Kleen wrote:
+It's not that patch...with it reverted as above, it I'm still seeing the 
+same problem.  I'll give a generic 2.6.11-rc1 a try and see if the problem 
+is in there also.
 
-> > But there might be a loss in the UP case. Spinlocks are optimized away, 
-> > but your cmpxchg emulation enables/disables interrupts with every access.
-> 
-> Only for 386s and STI/CLI is quite cheap there.
+Reuben
 
-But it's still not free and what about other archs? Why not just check 
-__HAVE_ARCH_CMPXCHG and provide a replacement, which is guaranteed cheaper 
-if no interrupt synchronisation is needed. 
-
-bye, Roman

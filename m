@@ -1,71 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTKGWmY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTKGW0p
+	id S262051AbTKGWmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTKGW0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:26:45 -0500
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:42980 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S264446AbTKGQNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 11:13:14 -0500
-Date: Fri, 7 Nov 2003 17:12:02 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ptrace + EFLAGS_RF
-Message-Id: <20031107171202.02ac8a41.us15@os.inf.tu-dresden.de>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8"
+	Fri, 7 Nov 2003 17:26:24 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:19922 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264095AbTKGL5G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 06:57:06 -0500
+Date: Fri, 7 Nov 2003 12:57:01 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6] Don't disable IOAPIC with nosmp
+In-Reply-To: <Pine.LNX.4.53.0311051856320.6825@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.32.0311071237410.5945-100000@jurand.ds.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Wed, 5 Nov 2003, Zwane Mwaikambo wrote:
 
+> This patch addresses bugzilla bug#1487
+> http://bugme.osdl.org/show_bug.cgi?id=1487
+>
+> We're disabling the IOAPIC when someone boots with the nosmp kernel
+> parameter, this happens to break interrupt routing for some folks.
 
-Hi,
+ I object -- that's a feature.  Use "maxcpus=1" instead of "nosmp" or
+"maxcpus=0" (which is an equivalent) to keep APICs enabled with a single
+CPU running.
 
-In arch/i386/kernel/ptrace.c the kernel defines which bits of the eflags
-register user programs have access to using ptrace (PTRACE_SETREGS). Among
-the "forbidden" bits is the resume flag (0x10000), i.e. the kernel masks
-it out if userland sets it.
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-/* determines which flags the user has access to. */
-/* 1 = access 0 = no access */
-#define FLAG_MASK 0x00044dd5
-
-When using hardware-assisted breakpoints via the debug registers (DR0...7),
-it would be helpful if the debugger could set the resume flag in order not
-to immediately hit the same breakpoint again at PTRACE_CONT/SYSCALL.
-
-What is the motivation for disallowing user programs to set the RF flag?
-I see no obvious reason how setting it could possibly screw the kernel.
-Am I overlooking something?
-
-Alternatively - what is the suggested approach to skip over breakpointed
-instructions? Resetting the breakpoint, doing a singlestep and setting it
-again doesn't seem very convenient to me.
-
-Regards,
--Udo.
-
---Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/q8RWnhRzXSM7nSkRAkrkAJ9onIgmENioB7NXkBQV1s99hBxIHwCfWYCk
-PELrnS08LF3aoo11/4wT+d4=
-=uSYO
------END PGP SIGNATURE-----
-
---Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8--

@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTHaGFY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 02:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTHaGFY
+	id S262529AbTHaGa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 02:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbTHaGa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 02:05:24 -0400
-Received: from mx13.sac.fedex.com ([199.81.197.53]:38669 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S262254AbTHaGFR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 02:05:17 -0400
-Date: Sun, 31 Aug 2003 12:24:29 +0800 (SGT)
-From: Jeff Chua <jeff89@silk.corp.fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG] hda:end_request: I/O error, dev 03:00 (hda), sector 0
-Message-ID: <Pine.LNX.4.42.0308311221430.17575-100000@silk.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/31/2003
- 12:26:00 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/31/2003
- 02:05:14 PM,
-	Serialize complete at 08/31/2003 02:05:14 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Aug 2003 02:30:27 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:44209 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262529AbTHaGa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 02:30:26 -0400
+Date: Sun, 31 Aug 2003 08:30:20 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030831063020.GA30196@wohnheim.fh-wedel.de>
+References: <q2SH.AA.3@gated-at.bofh.it> <qfwI.15D.27@gated-at.bofh.it> <qgCn.2y4.11@gated-at.bofh.it> <E19tEfx-0002vL-00@neptune.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E19tEfx-0002vL-00@neptune.local>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 31 August 2003 00:58:33 +0200, Pascal Schmidt wrote:
+> 
+> All you have to do is drop the incoming packets if they exceed
+> a certain bandwidth. That will stop the corresponding ack automatically
+> since your TCP stack won't even see the packet.
 
-What do I need to get rid of these errors ...
+You've cut away the part where I explained that you don't want to
+throw away the incoming packet.  Yes, the stupid approach works, but
+it is still stupid.
 
-dmesg after boot up ...
+> I'm doing this on my ISDN line to limit the rest of the house to one
+> third of the bandwidth even if they're all busy downloading tons of
+> warez. I'm paying, I want the bandwidth when I need it. They can get
+> it all when there's no traffic for my machine.
+> 
+> No problem with the HTB queueing discipline.
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ICH3M: IDE controller at PCI slot 00:1f.1
-PCI: Enabling device 00:1f.1 (0005 -> 0007)
-PCI: Found IRQ 11 for device 00:1f.1
-PCI: Sharing IRQ 11 with 00:1d.2
-PCI: Sharing IRQ 11 with 01:00.2
-PCI: Sharing IRQ 11 with 01:02.0
-ICH3M: chipset revision 2
-ICH3M: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:pio, hdd:pio
-hda: IC25N040ATCS05-0, ATA DISK drive
-blk: queue c02a99c0, I/O limit 4095Mb (mask 0xffffffff)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Partition check:
- hda:end_request: I/O error, dev 03:00 (hda), sector 0
-end_request: I/O error, dev 03:00 (hda), sector 2
-end_request: I/O error, dev 03:00 (hda), sector 4
-end_request: I/O error, dev 03:00 (hda), sector 6
-end_request: I/O error, dev 03:00 (hda), sector 0
-end_request: I/O error, dev 03:00 (hda), sector 2
-end_request: I/O error, dev 03:00 (hda), sector 4
-end_request: I/O error, dev 03:00 (hda), sector 6
- unable to read partition table
+But latency just went boom.  On your side, your packets will come out
+quickly because the queue is short.  But on your ISP's side, there is
+a single queue for both your and the warez' traffic.  Your packets
+will get thrown away just as much, as theirs.
 
+> Yes, latency is a problem if you want to saturate your bandwidth. It is
+> easy to guarantee some bandwith for latency critical stuff - just
+> don't give out that piece of bandwith to something else. Of course,
+> then most of the time that piece is wasted...
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+This works if your latency requirements are moderate or the pipe is
+big.  Assume 5ms and ISDN and you have a window of 400 Bytes roughly.
+Each time you happen to receive 400 Bytes of packets at the same time,
+you hear a pause.  A single large packet is more than that.  Oops!
 
+For Larry's T1 line, the numbers naturally go up, but it still doesn't
+take a huge amount of packets.
 
+> and it doesn't help with problems somewhere along the net.
+
+Compared to ISDN or T1, the net usually has big pipes and people tend
+to care about low latency, so that problem doesn't even exist compared
+with the receiving end.
+
+Jörn
+
+-- 
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra

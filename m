@@ -1,128 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUGBLGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGBLKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbUGBLGc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 07:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUGBLEZ
+	id S262114AbUGBLKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 07:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUGBLHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 07:04:25 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:31442 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262114AbUGBKy2 (ORCPT
+	Fri, 2 Jul 2004 07:07:49 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:32664 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262114AbUGBLEr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 06:54:28 -0400
-Date: Fri, 2 Jul 2004 03:53:42 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
-       Jesse Barnes <jbarnes@sgi.com>, Paul Jackson <pj@sgi.com>,
-       Dan Higgins <djh@sgi.com>, Matthew Dobson <colpatch@us.ibm.com>,
-       Andi Kleen <ak@suse.de>, Sylvain <sylvain.jeaugey@bull.net>,
-       Simon <Simon.Derr@bull.net>, Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <20040702105345.15684.90623.21358@sam.engr.sgi.com>
-In-Reply-To: <20040702105147.15684.22242.27912@sam.engr.sgi.com>
-References: <20040702105147.15684.22242.27912@sam.engr.sgi.com>
-Subject: [patch 8/8] cpusets v4 - One more hook, for /proc/<pid>/cpuset.
+	Fri, 2 Jul 2004 07:04:47 -0400
+Date: Fri, 2 Jul 2004 13:04:46 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: perfctr questions
+Message-ID: <20040702110446.GA5954@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+References: <200407021021.i62ALBD9015819@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407021021.i62ALBD9015819@harpo.it.uu.se>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add cpuset links to /proc, from each task to its cpuset.
+On Fri, Jul 02, 2004 at 12:21:11PM +0200, Mikael Pettersson wrote:
 
-Index: 2.6.7-mm5/fs/proc/base.c
-===================================================================
---- 2.6.7-mm5.orig/fs/proc/base.c	2004-07-01 19:30:10.000000000 -0700
-+++ 2.6.7-mm5/fs/proc/base.c	2004-07-01 19:30:24.000000000 -0700
-@@ -32,6 +32,7 @@
- #include <linux/mount.h>
- #include <linux/security.h>
- #include <linux/ptrace.h>
-+#include <linux/cpuset.h>
- 
- /*
-  * For hysterical raisins we keep the same inumbers as in the old procfs.
-@@ -60,6 +61,9 @@ enum pid_directory_inos {
- 	PROC_TGID_MAPS,
- 	PROC_TGID_MOUNTS,
- 	PROC_TGID_WCHAN,
-+#ifdef CONFIG_CPUSETS
-+	PROC_TGID_CPUSET,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TGID_ATTR,
- 	PROC_TGID_ATTR_CURRENT,
-@@ -83,6 +87,9 @@ enum pid_directory_inos {
- 	PROC_TID_MAPS,
- 	PROC_TID_MOUNTS,
- 	PROC_TID_WCHAN,
-+#ifdef CONFIG_CPUSETS
-+	PROC_TID_CPUSET,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TID_ATTR,
- 	PROC_TID_ATTR_CURRENT,
-@@ -123,6 +130,9 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_KALLSYMS
- 	E(PROC_TGID_WCHAN,     "wchan",   S_IFREG|S_IRUGO),
- #endif
-+#ifdef CONFIG_CPUSETS
-+	E(PROC_TGID_CPUSET,    "cpuset", S_IFREG|S_IRUGO),
-+#endif
- 	{0,0,NULL,0}
- };
- static struct pid_entry tid_base_stuff[] = {
-@@ -145,6 +155,9 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_KALLSYMS
- 	E(PROC_TID_WCHAN,      "wchan",   S_IFREG|S_IRUGO),
- #endif
-+#ifdef CONFIG_CPUSETS
-+	E(PROC_TID_CPUSET,     "cpuset", S_IFREG|S_IRUGO),
-+#endif
- 	{0,0,NULL,0}
- };
- 
-@@ -767,6 +780,14 @@ static struct inode_operations proc_pid_
- 	.follow_link	= proc_pid_follow_link
- };
- 
-+
-+#ifdef CONFIG_CPUSETS
-+static int proc_pid_cpuset(struct task_struct *task, char *buffer)
-+{
-+	return proc_pid_cspath(task, buffer, PAGE_SIZE);
-+}
-+#endif /* CONFIG_CPUSETS */
-+
- static int pid_alive(struct task_struct *p)
- {
- 	BUG_ON(p->pids[PIDTYPE_PID].pidptr != &p->pids[PIDTYPE_PID].pid);
-@@ -1375,6 +1396,13 @@ static struct dentry *proc_pident_lookup
- 			ei->op.proc_read = proc_pid_wchan;
- 			break;
- #endif
-+#ifdef CONFIG_CPUSETS
-+		case PROC_TID_CPUSET:
-+		case PROC_TGID_CPUSET:
-+			inode->i_fop = &proc_info_file_operations;
-+			ei->op.proc_read = proc_pid_cpuset;
-+			break;
-+#endif
- 		default:
- 			printk("procfs: impossible type (%d)",p->type);
- 			iput(inode);
-Index: 2.6.7-mm5/fs/proc/root.c
-===================================================================
---- 2.6.7-mm5.orig/fs/proc/root.c	2004-07-01 19:30:10.000000000 -0700
-+++ 2.6.7-mm5/fs/proc/root.c	2004-07-01 19:30:24.000000000 -0700
-@@ -75,6 +75,9 @@ void __init proc_root_init(void)
- 	proc_device_tree_init();
- #endif
- 	proc_bus = proc_mkdir("bus", 0);
-+#ifdef CONFIG_CPUSETS
-+	proc_mkdir("cpusets", 0);
-+#endif
- }
- 
- static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
+> Should the kernel driver directly support some user-friendly
+> model of the counters? No it should not, for several reasons:
+
+We are in violent agreement - however, I do find that for a product to be
+properly evaluated and to receive testing coverage, it is vital that the
+learning curve not be this steep.
+
+Right now, PAPI does not build for perfctr 2.7.3 (at least for me), nor do
+Bryan's modifications. Furthermore, I had to reverse engineer a lot of
+details to get my own things working.
+
+I also read the AMD documentation and it is worthless and spends all of
+three pages on the performance counters.
+
+The good news however is that things do appear to work. What I'll do is whip
+up a very small bootstrapping document. I'm sure PAPI is fine but for
+many/my purposes it is overkill, I'd like for people to be able to
+understand enough of perfctrs so they can start using them. 
+
+Like this:
+
+  CacheMeter cm;
+  for(unsigned int n=0;n<iterations;++n) {
+    c=area[(n*64)%limit];
+    total+=c; // force gcc to actually look at it
+  }
+  cm.print();
+
+Will do 100000000 reads over range of 10000000 bytes
+Data cache accesses:	100109359
+Data cache misses:	99977036
+L2 hit, L1 miss:	26395
+L2 miss, L1 miss:	1540114
+
+Will do 100000000 reads over range of 1000 bytes
+Data cache accesses:	100047618
+Data cache misses:	8523
+L2 hit, L1 miss:	0
+L2 miss, L1 miss:	664
+
+Code on htp://ds9a.nl/tmp/cmeter.cc - will only work on AMD and is in C++.
+
+People with AMD knowledge are kindly invited to elaborate on the meaning of
+'cache miss' v 'l2 and l2 miss' :-)
+
+Mikael, thanks, this stuff is powerful and it will enable people to write
+better code!
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

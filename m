@@ -1,244 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131538AbRBJTj1>; Sat, 10 Feb 2001 14:39:27 -0500
+	id <S130043AbRBJUUP>; Sat, 10 Feb 2001 15:20:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131641AbRBJTjR>; Sat, 10 Feb 2001 14:39:17 -0500
-Received: from ns.caldera.de ([212.34.180.1]:51464 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131538AbRBJTi5>;
-	Sat, 10 Feb 2001 14:38:57 -0500
-Date: Sat, 10 Feb 2001 20:38:18 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix config.in bugs
-Message-ID: <20010210203818.B8973@caldera.de>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S129667AbRBJUUF>; Sat, 10 Feb 2001 15:20:05 -0500
+Received: from saloma.stu.rpi.edu ([128.113.199.230]:44293 "HELO
+	incandescent.mp3revolution.net") by vger.kernel.org with SMTP
+	id <S129626AbRBJUT4>; Sat, 10 Feb 2001 15:19:56 -0500
+From: dilinger@mp3revolution.net
+Date: Sat, 10 Feb 2001 15:19:53 -0500
+To: linux-kernel@vger.kernel.org
+Subject: processes drop into uninterruptible sleeps during heavy i/o on 2.4.2-pre3
+Message-ID: <20010210151953.A4782@incandescent.mp3revolution.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-Operating-System: Linux incandescent 2.4.2-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+As the subject states, w/ 2.4.2-pre3, whenever something starts doing
+heavy i/o (most notably mozilla during startup, diff, recursive greps,
+etc), it drops into 'D' state:
 
-this patch fixes a bunch of wrong uses of the config language.
-Remaining problems are:
+  343 ?        S      0:00 /bin/sh /usr/local/src/mozilla/dist/bin/run-mozilla.sh /usr/local/src/mozilla/dist/bin/mozilla-bin
+  348 ?        D      0:00 /usr/local/src/mozilla/dist/bin/mozilla-bin
 
-  - cris uses a 'hwaddr' symbol (MAC address?) that is not supported
-    by any interpreter
-  - a few symbols do not yet have the CONFIG_ prefix (also mostly cris)
-  - ppc does some strange stuff with define_bool and choices.
+Uninterruptable sleeps are rather annoying, as one cannot kill the process
+until it's done w/ it's i/o.  This did not happen w/ pre2.
 
-Please consisder applying for 2.4.2.
+In case it might be in any way hardware/driver related:
 
-	Christoph
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 32
+        Region 0: Memory at f4000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: <available only to root>
+
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 03) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+        I/O behind bridge: 0000e000-0000efff
+        Memory behind bridge: fc000000-feffffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B+
+
+00:03.0 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+        Subsystem: Dell Computer Corporation: Unknown device 00bc
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=00, secondary=02, subordinate=02, sec-latency=176
+        Memory window 0: 10400000-107ff000 (prefetchable)
+        Memory window 1: 10800000-10bff000
+        I/O window 0: 00001000-000010ff
+        I/O window 1: 00001400-000014ff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+        16-bit legacy interface ports at 0001
+
+00:03.1 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+        Subsystem: Dell Computer Corporation: Unknown device 00bc
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=00, secondary=06, subordinate=06, sec-latency=176
+        Memory window 0: 10c00000-10fff000 (prefetchable)
+        Memory window 1: 11000000-113ff000
+        I/O window 0: 00001800-000018ff
+        I/O window 1: 00001c00-00001cff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+        16-bit legacy interface ports at 0001
+
+00:07.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 4: I/O ports at 0860 [size=16]
+
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin D routed to IRQ 11
+        Region 4: I/O ports at dce0 [size=32]
+
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 03)
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:08.0 Multimedia audio controller: ESS Technology ES1983S Maestro-3i PCI Audio Accelerator (rev 10)
+        Subsystem: Dell Computer Corporation: Unknown device 00bb
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (500ns min, 6000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at d800 [size=256]
+        Region 1: Memory at faffe000 (32-bit, non-prefetchable) [size=8K]
+        Capabilities: <available only to root>
+
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage P/M Mobility AGP 2x (rev 64) (prog-if 00 [VGA])
+        Subsystem: Dell Computer Corporation: Unknown device 00bc
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+        Region 1: I/O ports at ec00 [size=256]
+        Region 2: Memory at fcfff000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: <available only to root>
 
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
-
-
-diff -uNr linux-2.4.2-pre3/arch/cris/config.in linux/arch/cris/config.in
---- linux-2.4.2-pre3/arch/cris/config.in	Sat Feb 10 20:03:13 2001
-+++ linux/arch/cris/config.in	Sat Feb 10 20:08:07 2001
-@@ -14,21 +14,21 @@
- mainmenu_option next_comment
- comment 'General setup'
- 
--bool 'Networking support' CONFIG_NET y
--bool 'System V IPC' CONFIG_SYSVIPC y
-+bool 'Networking support' CONFIG_NET
-+bool 'System V IPC' CONFIG_SYSVIPC
- 
--tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF y
-+tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-   tristate 'Kernel support for JAVA binaries' CONFIG_BINFMT_JAVA
- fi
- 
--bool 'Use kernel gdb debugger' CONFIG_KGDB n
-+bool 'Use kernel gdb debugger' CONFIG_KGDB
- 
--bool 'Enable Etrax100 watchdog' CONFIG_ETRAX_WATCHDOG y
-+bool 'Enable Etrax100 watchdog' CONFIG_ETRAX_WATCHDOG
- 
--bool 'Use serial console (on the debug port)' CONFIG_USE_SERIAL_CONSOLE y
-+bool 'Use serial console (on the debug port)' CONFIG_USE_SERIAL_CONSOLE
- 
--bool 'Use in-kernel ifconfig/route setup' CONFIG_KERNEL_IFCONFIG n
-+bool 'Use in-kernel ifconfig/route setup' CONFIG_KERNEL_IFCONFIG
- 
- endmenu
- 
-diff -uNr linux-2.4.2-pre3/arch/ia64/config.in linux/arch/ia64/config.in
---- linux-2.4.2-pre3/arch/ia64/config.in	Thu Jan  4 21:50:17 2001
-+++ linux/arch/ia64/config.in	Sat Feb 10 20:08:53 2001
-@@ -70,7 +70,7 @@
- 	if [ "$CONFIG_ITANIUM_BSTEP_SPECIFIC" = "y" ]; then
- 	  bool '    Enable Itanium B0-step specific code' CONFIG_ITANIUM_B0_SPECIFIC
- 	fi
--	bool '  Enable SGI Medusa Simulator Support' CONFIG_IA64_SGI_SN1_SIM n
-+	bool '  Enable SGI Medusa Simulator Support' CONFIG_IA64_SGI_SN1_SIM
- 	define_bool CONFIG_DEVFS_DEBUG y
- 	define_bool CONFIG_DEVFS_FS y
- 	define_bool CONFIG_IA64_BRL_EMU y
-@@ -79,8 +79,8 @@
- 	define_bool CONFIG_SGI_IOC3_ETH y
- 	define_bool CONFIG_PERCPU_IRQ y
- 	define_int  CONFIG_CACHE_LINE_SHIFT 7
--	bool '  Enable DISCONTIGMEM support' CONFIG_DISCONTIGMEM y
--	bool '	Enable NUMA support' CONFIG_NUMA y
-+	bool '  Enable DISCONTIGMEM support' CONFIG_DISCONTIGMEM
-+	bool '	Enable NUMA support' CONFIG_NUMA
- fi
- 
- define_bool CONFIG_KCORE_ELF y	# On IA-64, we always want an ELF /proc/kcore.
-diff -uNr linux-2.4.2-pre3/arch/m68k/config.in linux/arch/m68k/config.in
---- linux-2.4.2-pre3/arch/m68k/config.in	Thu Jan  4 22:00:55 2001
-+++ linux/arch/m68k/config.in	Sat Feb 10 20:11:25 2001
-@@ -487,8 +487,10 @@
-    fi
- fi
- if [ "$CONFIG_APOLLO" = "y" ]; then
--   bool 'Support for DN serial port (dummy)' CONFIG_SERIAL
-+   bool 'Support for DN serial port (dummy)' CONFIG_DN_SERIAL
-    bool 'Support for serial port console' CONFIG_SERIAL_CONSOLE
-+
-+   define_tristate CONFIG_SERIAL $CONFIG_DN_SERIAL
- fi 
- bool 'Support for user serial device modules' CONFIG_USERIAL
- bool 'Watchdog Timer Support'	CONFIG_WATCHDOG
-diff -uNr linux-2.4.2-pre3/arch/mips/config.in linux/arch/mips/config.in
---- linux-2.4.2-pre3/arch/mips/config.in	Thu Nov 16 21:51:28 2000
-+++ linux/arch/mips/config.in	Sat Feb 10 20:12:01 2001
-@@ -329,7 +329,10 @@
- #   if [ "$CONFIG_ACCESSBUS" = "y" ]; then
- #      bool 'MAXINE Access.Bus mouse (VSXXX-BB/GB) support' CONFIG_DTOP_MOUSE
- #   fi
--   bool 'Enhanced Real Time Clock Support' CONFIG_RTC
-+   bool 'Enhanced Real Time Clock Support' CONFIG_MIPS_RTC
-+
-+   define_tristate CONFIG_RTC $CONFIG_MIPS_RTC
-+
-    endmenu
- fi
- 
-diff -uNr linux-2.4.2-pre3/arch/parisc/config.in linux/arch/parisc/config.in
---- linux-2.4.2-pre3/arch/parisc/config.in	Tue Dec  5 21:29:39 2000
-+++ linux/arch/parisc/config.in	Sat Feb 10 20:09:22 2001
-@@ -25,14 +25,14 @@
- # bool 'GSC/Gecko bus support' CONFIG_GSC y
- define_bool CONFIG_GSC y
- 
--bool 'U2/Uturn I/O MMU' CONFIG_IOMMU_CCIO y
--bool 'LASI I/O support' CONFIG_GSC_LASI y
-+bool 'U2/Uturn I/O MMU' CONFIG_IOMMU_CCIO
-+bool 'LASI I/O support' CONFIG_GSC_LASI
- 
--bool 'PCI bus support' CONFIG_PCI y
-+bool 'PCI bus support' CONFIG_PCI
- 
- if [ "$CONFIG_PCI" = "y" ]; then
--	bool 'GSCtoPCI/DINO PCI support' CONFIG_GSC_DINO y
--	bool 'LBA/Elroy PCI support' CONFIG_PCI_LBA n
-+	bool 'GSCtoPCI/DINO PCI support' CONFIG_GSC_DINO
-+	bool 'LBA/Elroy PCI support' CONFIG_PCI_LBA
- fi 
- 
- if [ "$CONFIG_PCI_LBA" = "y" ]; then
-diff -uNr linux-2.4.2-pre3/arch/sparc/config.in linux/arch/sparc/config.in
---- linux-2.4.2-pre3/arch/sparc/config.in	Sat Feb  3 14:51:11 2001
-+++ linux/arch/sparc/config.in	Sat Feb 10 20:09:50 2001
-@@ -183,8 +183,8 @@
-    mainmenu_option next_comment
-    comment 'SCSI low-level drivers'
- 
--   tristate 'Sparc ESP Scsi Driver' CONFIG_SCSI_SUNESP $CONFIG_SCSI
--   tristate 'PTI Qlogic,ISP Driver' CONFIG_SCSI_QLOGICPTI $CONFIG_SCSI
-+   dep_tristate 'Sparc ESP Scsi Driver' CONFIG_SCSI_SUNESP $CONFIG_SCSI
-+   dep_tristate 'PTI Qlogic,ISP Driver' CONFIG_SCSI_QLOGICPTI $CONFIG_SCSI
-    endmenu
- fi
- endmenu
-diff -uNr linux-2.4.2-pre3/arch/sparc64/config.in linux/arch/sparc64/config.in
---- linux-2.4.2-pre3/arch/sparc64/config.in	Sat Feb  3 14:51:11 2001
-+++ linux/arch/sparc64/config.in	Sat Feb 10 20:10:26 2001
-@@ -161,15 +161,15 @@
-    mainmenu_option next_comment
-    comment 'SCSI low-level drivers'
- 
--   tristate 'Sparc ESP Scsi Driver' CONFIG_SCSI_SUNESP $CONFIG_SCSI
--   tristate 'PTI Qlogic, ISP Driver' CONFIG_SCSI_QLOGICPTI $CONFIG_SCSI
-+   dep_tristate 'Sparc ESP Scsi Driver' CONFIG_SCSI_SUNESP $CONFIG_SCSI
-+   dep_tristate 'PTI Qlogic, ISP Driver' CONFIG_SCSI_QLOGICPTI $CONFIG_SCSI
- 
-    if [ "$CONFIG_PCI" != "n" ]; then
-       dep_tristate 'Adaptec AIC7xxx support' CONFIG_SCSI_AIC7XXX $CONFIG_SCSI
-       if [ "$CONFIG_SCSI_AIC7XXX" != "n" ]; then
- 	 bool '  Enable tagged command queueing (TCQ) by default' CONFIG_AIC7XXX_TAGGED_QUEUEING
- 	 int  '  Maximum number of TCQ commands per device' CONFIG_AIC7XXX_CMDS_PER_DEVICE 8
--  	 bool '  Collect statistics to report in /proc' CONFIG_AIC7XXX_PROC_STATS N
-+  	 bool '  Collect statistics to report in /proc' CONFIG_AIC7XXX_PROC_STATS
- 	 int  '  Delay in seconds after SCSI bus reset' CONFIG_AIC7XXX_RESET_DELAY 5
-       fi
-       dep_tristate 'NCR53C8XX SCSI support' CONFIG_SCSI_NCR53C8XX $CONFIG_SCSI
-diff -uNr linux-2.4.2-pre3/drivers/atm/Config.in linux/drivers/atm/Config.in
---- linux-2.4.2-pre3/drivers/atm/Config.in	Fri Dec 29 23:35:47 2000
-+++ linux/drivers/atm/Config.in	Sat Feb 10 20:06:10 2001
-@@ -56,7 +56,7 @@
-   tristate 'FORE Systems 200E-series' CONFIG_ATM_FORE200E_MAYBE
-   if [ "$CONFIG_ATM_FORE200E_MAYBE" != "n" ]; then
-     if [ "$CONFIG_PCI" = "y" ]; then
--      bool '  PCA-200E support' CONFIG_ATM_FORE200E_PCA y
-+      bool '  PCA-200E support' CONFIG_ATM_FORE200E_PCA
-       if [ "$CONFIG_ATM_FORE200E_PCA" = "y" ]; then
- 	bool '   Use default PCA-200E firmware (normally enabled)' CONFIG_ATM_FORE200E_PCA_DEFAULT_FW
-         if [ "$CONFIG_ATM_FORE200E_PCA_DEFAULT_FW" = "n" ]; then
-@@ -65,7 +65,7 @@
-       fi
-     fi
-     if [ "$CONFIG_SBUS" = "y" ]; then
--      bool '  SBA-200E support' CONFIG_ATM_FORE200E_SBA y
-+      bool '  SBA-200E support' CONFIG_ATM_FORE200E_SBA
-       if [ "$CONFIG_ATM_FORE200E_SBA" = "y" ]; then
-         bool '   Use default SBA-200E firmware (normally enabled)' CONFIG_ATM_FORE200E_SBA_DEFAULT_FW
-         if [ "$CONFIG_ATM_FORE200E_SBA_DEFAULT_FW" = "n" ]; then
-diff -uNr linux-2.4.2-pre3/drivers/char/Config.in linux/drivers/char/Config.in
---- linux-2.4.2-pre3/drivers/char/Config.in	Fri Dec 29 23:07:21 2000
-+++ linux/drivers/char/Config.in	Sat Feb 10 20:06:21 2001
-@@ -176,7 +176,7 @@
- fi
- endmenu
- 
--tristate '/dev/agpgart (AGP Support)' CONFIG_AGP $CONFIG_DRM_AGP
-+dep_tristate '/dev/agpgart (AGP Support)' CONFIG_AGP $CONFIG_DRM_AGP
- if [ "$CONFIG_AGP" != "n" ]; then
-    bool '  Intel 440LX/BX/GX and I815/I840/I850 support' CONFIG_AGP_INTEL
-    bool '  Intel I810/I815 (on-board) support' CONFIG_AGP_I810
-diff -uNr linux-2.4.2-pre3/drivers/media/video/Config.in linux/drivers/media/video/Config.in
---- linux-2.4.2-pre3/drivers/media/video/Config.in	Wed Aug 23 23:59:55 2000
-+++ linux/drivers/media/video/Config.in	Sat Feb 10 20:06:41 2001
-@@ -23,7 +23,7 @@
- fi
- dep_tristate '  CPiA Video For Linux' CONFIG_VIDEO_CPIA $CONFIG_VIDEO_DEV
- if [ "$CONFIG_VIDEO_CPIA" != "n" ]; then
--  if [ "CONFIG_PARPORT_1284" != "n" ]; then
-+  if [ "$CONFIG_PARPORT_1284" != "n" ]; then
-     dep_tristate '    CPiA Parallel Port Lowlevel Support' CONFIG_VIDEO_CPIA_PP $CONFIG_VIDEO_CPIA $CONFIG_PARPORT
-   fi
-   if [ "$CONFIG_USB" != "n" ]; then
-diff -uNr linux-2.4.2-pre3/drivers/usb/serial/Config.in linux/drivers/usb/serial/Config.in
---- linux-2.4.2-pre3/drivers/usb/serial/Config.in	Sat Feb  3 14:51:13 2001
-+++ linux/drivers/usb/serial/Config.in	Sat Feb 10 20:06:58 2001
-@@ -4,7 +4,7 @@
- mainmenu_option next_comment
- comment 'USB Serial Converter support'
- 
--tristate 'USB Serial Converter support' CONFIG_USB_SERIAL $CONFIG_USB
-+dep_tristate 'USB Serial Converter support' CONFIG_USB_SERIAL $CONFIG_USB
- if [ "$CONFIG_USB_SERIAL" != "n" ]; then
-   bool '  USB Serial Converter verbose debug' CONFIG_USB_SERIAL_DEBUG
-   bool '  USB Generic Serial Driver' CONFIG_USB_SERIAL_GENERIC
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+        -- found in the .sig of Rob Riggs, rriggs@tesser.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

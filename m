@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130899AbQKLOb3>; Sun, 12 Nov 2000 09:31:29 -0500
+	id <S129105AbQKLPJd>; Sun, 12 Nov 2000 10:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130903AbQKLObU>; Sun, 12 Nov 2000 09:31:20 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28176 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130745AbQKLObD>;
-	Sun, 12 Nov 2000 09:31:03 -0500
-Date: Sun, 12 Nov 2000 09:30:59 -0500
-Message-Id: <200011121430.JAA22978@havoc.gtf.org>
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: viro@math.psu.edu, Rasmus Andersen <rasmus@jaquet.dk>,
-        linux-kernel@vger.kernel.org
-Subject: PATCH 2.4.0.11.3: sysctl.h fixes
+	id <S129237AbQKLPJO>; Sun, 12 Nov 2000 10:09:14 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:24368 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129105AbQKLPJE>; Sun, 12 Nov 2000 10:09:04 -0500
+Date: Sun, 12 Nov 2000 17:16:49 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: lav@yars.free.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sound problems caused by masking irq for too long
+In-Reply-To: <20001112165609.A1006@long.yar.ru>
+Message-ID: <Pine.LNX.4.21.0011121715140.9477-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen wrote:
-> I tried to include <linux/types.h> in md.c and had to include 
-> <linux/blkdev.h> also. Otherwise I got the following:
+On Sun, 12 Nov 2000, Alexander V. Lukyanov wrote:
 
-Here is the solution I prefer...  md builds fine with this, core kernel builds fine with this, and
-I'm about 3/4 of the way through a "build everything" build with this.
+> Hi!
+> 
+> In some cases sound gets interrupted for a moment, this happens in two
+> occasions. When unmaskirq flag is off on ide cdrom and it is accessed,
+> and when tdfxfb console (800x600) flashes (tput flash, or `set bell-style
+> visible' in .inputrc).
+> 
+> It seems the problem is caused by masking irq for too long, and then
+> the sound dma buffer underruns. This is fixed by unmasking irq for ide
+> cdrom by `hdparm -u1 /dev/cdrom', and by changing spin_(un)lock_irq
+> in console.c to spin_(un)lock_bh.
+> 
+> This was observed on 2.4.0-pre10, the problem with ide also exists on
+> 2.2.17, the console.c in 2.2.17 only disables CONSOLE_BH.
 
-I tried to avoid including fs.h, but I do prefer updating sysctl.h, because it fixes potential
-breakage similar to md's as well.
+The above story also explains why my sound 'hickups' when I switch from
+console to X (yes, and I do that a lot).
 
-	Jeff
+Is this a recent change from 2.2.15 -> >= 2.2.16 or so ?
+
+> The audio card is old awe32 (isa), sound driver is modular.
+
+This is a SB16 PnP
 
 
 
+	Igmar
 
-Index: include/linux/sysctl.h
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/include/linux/sysctl.h,v
-retrieving revision 1.1.1.8
-diff -u -r1.1.1.8 sysctl.h
---- include/linux/sysctl.h	2000/10/31 21:19:40	1.1.1.8
-+++ include/linux/sysctl.h	2000/11/12 14:28:04
-@@ -24,7 +24,11 @@
- #ifndef _LINUX_SYSCTL_H
- #define _LINUX_SYSCTL_H
- 
-+#include <linux/kernel.h>
-+#include <linux/types.h>
- #include <linux/list.h>
-+
-+struct file;
- 
- #define CTL_MAXNAME 10
- 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

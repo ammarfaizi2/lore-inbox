@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265185AbSJaDwq>; Wed, 30 Oct 2002 22:52:46 -0500
+	id <S265187AbSJaDzI>; Wed, 30 Oct 2002 22:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265186AbSJaDwp>; Wed, 30 Oct 2002 22:52:45 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:30168 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S265185AbSJaDwo>; Wed, 30 Oct 2002 22:52:44 -0500
-Date: Wed, 30 Oct 2002 14:24:43 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Denis Oliver Kropp <dok@directfb.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.44 - neofb-0.4
-Message-ID: <20021030172443.GI12628@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Denis Oliver Kropp <dok@directfb.org>, linux-kernel@vger.kernel.org
-References: <20021030165621.GA28352@skunk.convergence.de>
+	id <S265189AbSJaDzI>; Wed, 30 Oct 2002 22:55:08 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:63481 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S265187AbSJaDzH>; Wed, 30 Oct 2002 22:55:07 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 30 Oct 2002 20:59:02 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+Message-ID: <20021031035902.GD28982@clusterfs.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <20021031020836.E576E2C09F@lists.samba.org> <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021030165621.GA28352@skunk.convergence.de>
+In-Reply-To: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
 User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Oct 30, 2002 at 05:56:21PM +0100, Denis Oliver Kropp escreveu:
-> diff -Naur linux-2.4.20-rc1/drivers/video/neofb.c linux-2.4.20-rc1-neofb-0.4/drivers/video/neofb.c
-> --- linux-2.4.20-rc1/drivers/video/neofb.c	2002-10-30 15:20:39.000000000 +0100
-> +++ linux-2.4.20-rc1-neofb-0.4/drivers/video/neofb.c	2002-10-30 15:49:30.000000000 +0100
->  static int disabled   = 0;
->  static int internal   = 0;
->  static int external   = 0;
-> +static int libretto   = 0;
->  static int nostretch  = 0;
->  static int nopciburst = 0;
+On Oct 30, 2002  18:31 -0800, Linus Torvalds wrote:
+> On Thu, 31 Oct 2002, Rusty Russell wrote:
+> > ext2/ext3 ACLs and Extended Attributes
+> 
+> I don't know why people still want ACL's. There were noises about them for 
+> samba, but I've not heard anything since. Are vendors using this?
 
-Could you just leave those globas uninitialized? That way it goes to the .bss
-that will get zeroed anyway and the image will be slightly smaller.
+I don't really care about ACLs so much one way or the other, but we
+DEFINITELY use EAs with Lustre, so at the minimum if we could have
+that part of the changes I'd be happy.
 
-> +static struct fb_var_screeninfo __devinitdata neofb_var800x480x8 = {
-> +	accel_flags:	FB_ACCELF_TEXT,
-> +	xres:		800,
-> +	yres:		480,
-> +	xres_virtual:   800,
-> +	yres_virtual:   30000,
-> +	bits_per_pixel: 8,
-> +	pixclock:	25000,
-> +	left_margin:	88,
-> +	right_margin:	40,
-> +	upper_margin:	23,
-> +	lower_margin:	1,
-> +	hsync_len:	128,
-> +	vsync_len:	4,
-> +	sync:		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
-> +	vmode:		FB_VMODE_NONINTERLACED
-> +};
-
-Please use ANSI C designated elements style, also supported by gcc and
-that was the reason for massive conversion all over the kernel, it should
-look like this:
-
-static struct fb_var_screeninfo __devinitdata neofb_var800x480x8 = {
-	.accel_flags	= FB_ACCELF_TEXT,
-	.xres		= 800,
-	.yres		= 480,
-<snip>
-
->  static struct fb_var_screeninfo __devinitdata neofb_var1024x768x8 = {
->  	accel_flags:	FB_ACCELF_TEXT,
->  	xres:		1024,
-
-ditto
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

@@ -1,29 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263887AbRFTWFg>; Wed, 20 Jun 2001 18:05:36 -0400
+	id <S264638AbRFTWGh>; Wed, 20 Jun 2001 18:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264638AbRFTWF0>; Wed, 20 Jun 2001 18:05:26 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14348 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263887AbRFTWFK>; Wed, 20 Jun 2001 18:05:10 -0400
-Subject: Re: [PATCH] remove null register_disk
-To: Andries.Brouwer@cwi.nl
-Date: Wed, 20 Jun 2001 23:03:21 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <UTC200106201958.VAA343451.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Jun 20, 2001 09:58:24 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264637AbRFTWG1>; Wed, 20 Jun 2001 18:06:27 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:1286 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S263080AbRFTWGS>;
+	Wed, 20 Jun 2001 18:06:18 -0400
+Date: Thu, 21 Jun 2001 00:06:12 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Ted Gervais <ve1drg@ve1drg.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ip_tables/ipchains
+In-Reply-To: <Pine.LNX.4.21.0106201408460.3517-100000@ve1drg.com>
+Message-ID: <Pine.LNX.4.33.0106210004390.12617-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Cq4H-0000Bm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> showing that register_disk is void when its first argument is NULL.
-> This allows one to remove some dead code.
-> Can be applied to 2.4. No behaviour is changed.
+try to delete those two modules, and repit
+depmod -a
+then try to load the modules.
 
-Is it worth keeping these so we can build things like nice /proc files or
-use them later ?
+ipchain and ipfwadm modules do have symbols inside that are confusing
+depmode/modprobe dor dependency of actual netfilter modules.
+
+
+On Wed, 20 Jun 2001, Ted Gervais wrote:
+
+> On Wed, 20 Jun 2001, Luigi Genoni wrote:
+>
+> > Have you also compiled modules for ipchains and ipfwadm support??
+>
+>
+> Yes.  Is this a mistake??
+>
+> >
+> >
+> > On Wed, 20 Jun 2001, Ted Gervais wrote:
+> >
+> > > Wondering something..
+> > > I ran insmod to bring up ip_tables.o and I received the following error:
+> > >
+> > > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
+> > > symbol nf_unregister_sockopt
+> > > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
+> > > symbol nf_register_sockopt
+> > >
+> > > This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
+> > > Does anyone know what these unresolved symbols are about??
+> > >
+> > > ---
+> > > Doubt is not a pleasant condition, but certainty is absurd.
+> > >                 -- Voltaire
+> > >
+> > > Ted Gervais <ve1drg@ve1drg.com>
+> > > 44.135.34.201 linux.ve1drg.ampr.org
+> > >
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> >
+>
+> ---
+> Doubt is not a pleasant condition, but certainty is absurd.
+>                 -- Voltaire
+>
+> Ted Gervais <ve1drg@ve1drg.com>
+> 44.135.34.201 linux.ve1drg.ampr.org
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,68 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUFCG6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbUFCG7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUFCG6I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 02:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUFCG6I
+	id S261418AbUFCG7l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 02:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUFCG7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 02:58:08 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:46799 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261389AbUFCG4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 02:56:06 -0400
-Date: Thu, 3 Jun 2004 08:55:21 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040603065521.GA20977@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <Pine.LNX.4.58.0406020724040.22204@bigblue.dev.mdolabs.com> <20040602182019.GC30427@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406021124310.22742@bigblue.dev.mdolabs.com> <20040602185832.GA2874@wohnheim.fh-wedel.de> <20040602193720.GQ12308@parcelfarce.linux.theplanet.co.uk> <20040602194515.GA4477@wohnheim.fh-wedel.de> <20040602195944.GR12308@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 3 Jun 2004 02:59:34 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:17781 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261418AbUFCG6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 02:58:48 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Subject: Re: [PATCH] serio.c: dynamically control serio ports bindings via procfs (Was: [RFC/RFT] Raw access to serio ports)
+Date: Thu, 3 Jun 2004 01:58:42 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Tuukka Toivonen <tuukkat@ee.oulu.fi>,
+       Andries Brouwer <aeb@cwi.nl>, Vojtech Pavlik <vojtech@suse.cz>
+References: <20040602190927.79289.qmail@web81306.mail.yahoo.com> <200406030116.49431.dtor_core@ameritech.net> <xb7hdtt3zs4.fsf@savona.informatik.uni-freiburg.de>
+In-Reply-To: <xb7hdtt3zs4.fsf@savona.informatik.uni-freiburg.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040602195944.GR12308@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain;
+  charset="big5"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406030158.42703.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 June 2004 20:59:44 +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > Ok.  Would it be ok to use the following then?
-> > 
-> > b1. Function pointer are passed as arguments to functions and
-> > b2. those pointer are called directly from the function, they are
-> >     passed to.
+On Thursday 03 June 2004 01:45 am, Sau Dan Lee wrote:
+> >>>>> "Dmitry" == Dmitry Torokhov <dtor_core@ameritech.net> writes:
 > 
-> Again not guaranteed to be true - they can be (and often are) passed further.
-
-Hmm.  If that happens, I'm out of ideas for now.  Cannot do more than
-give a warning.
-
-> Moreover, they are also stored untyped in structures.  Common pattern
-> is
-> 	foo.callback = f;
-> 	foo.argument = p;
-> 	iterate_over_blah(blah, &foo);
+>     Dmitry> So we have several options - if we adopt procfs based
+>     Dmitry> solution now we will have to maintain it for very long
+>     Dmitry> time, along with competing sysfs implementation. Dropping
+>     Dmitry> one kernel parameter which will never be widely used is
+>     Dmitry> much easier, IMO.
 > 
-> Note that here f is the only thing that will see the value of p _and_ the
-> only thing that cares about type of p.  iterator itself doesn't care and
-> can be used for different types.
+>     >>  It's not just the matter of dropping one kernel parameter.
+>     >> The procfs support, _already implemented_, allows one to
+>     >> fine-tune the binding between serio ports and devices, which is
+>     >> a new and useful feature that your kernel parameter doesn't
+>     >> provide.
+> 
+>     Dmitry> What I was trying to say is serio and input system will
+>     Dmitry> have sysfs support, 
+> 
+> Then, why are you saying "dropping one kernel parameter"?
 
-Those cases I should already catch.  If foo is of type "struct bar",
-"bar.callback" will be the function name for a pseudo-function.  That
-function is called by iterate_over_blah and calls f.  Unnamed struct
-get a name made up from the components of the struct, like
-____FAKE.Name.Chip.stat.Regi.LILP.Opti.high.lowe->ProcessIMQEntry.
-Doesn't look pretty, but works.
+I am referring to possibly dropping i0842.raw once sysfs is implemeted
+as then user will be able to rebind another driver to a port, like
+your procfs patch does. 
 
-Jörn
+> 
+> 
+> 
+>     >>  Can you unbind the keyboard port?  Can you bind/unbind any of
+>     >> the AUX ports *dynamically* without reloading the i8042 module?
+>     >> These
+> 
+>     Dmitry> No, and I was not trying to. It is just a stop-gap measure
+>     Dmitry> to help end users to get their PS/2 devices working until
+>     Dmitry> we have proper infrastructure in place.
+> 
+> I think  direct access to PS/2  devices must stay there  for the whole
+> 2.6.x.  It's  unreasonable to assume  that all existing  _and working_
+> drivers will be kernelized.
+> 
+> 
+> 
+>     >>  sysfs looks good for simple parameters: integers, strings.
+>     >> For anything more complicated (sets, graphs), I don't see it
+>     >> fit (yet).  Unfortunately, the serio port<-->device relation is
+>     >> already a graph (1 to n).
+>     >> 
+>     >> I'd like to see how you implement the device<-->handler binding
+>     >> in input.c using sysfs.
+> 
+>     Dmitry> Sysfs provides all the same features as procfs (I mean you
+>     Dmitry> write read/write methods and have them do whatever you
+>     Dmitry> please) but it also has benefits of your stuff integrating
+>     Dmitry> with the rest of devices into a hierarchy.
+> 
+> It's  different.  Procfs is  more versatile.   I can  stuff in  my own
+> struct file_operations to do more than just read() and write().  I can
+> even stuff in my own struct inode_operations if I want more.
+> 
+> Another problem with sysfs is  the "social" discipline as mentioned in
+> Documentation/filesystems/sysfs.txt:
+> 
+>         Attributes should be ASCII text files, preferably with only
+>         one value per file. It is noted that it may not be efficient
+>         to contain only value per file, so it is socially acceptable
+>         to express an array of values of the same type.
+> 
+>         Mixing types, expressing multiple lines of data, and doing
+>         fancy formatting of data is heavily frowned upon. Doing these
+>         things may get you publically humiliated and your code
+>         rewritten without notice.
+> 
+> It is  common in procfs  to format the  output nicely, and  to display
+> screenfuls  of information.   This is  to  be frowned  upon in  sysfs.
+> Currently  implementations  of sysfs  interface  do  follow this  rule
+> nicely.
+> 
+> Unfortunately, the  connection between devices and  drivers (either in
+> the serio.c interface or in the  input.c interface) is a graph.  It is
+> more complicated than an array.  Yes, you can represent a graph with a
+> matrix or an  adjacency list, both representable as  arrays in one way
+> or another.  Nothing in a digital computer cannot be represented by an
+> array of  bits anyway!   But useability of  the interface must  not be
+> ignored.
+>
+
+I am not sure where you see the problem - consider a PCI bus and all PCI
+devices and all drivers tyhat currently present in kernel. They are using
+the new driver model and sysfs and they come together quite nicely.
 
 -- 
-Time? What's that? Time is only worth what you do with it.
--- Theo de Raadt
+Dmitry

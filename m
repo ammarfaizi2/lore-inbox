@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUBDS6h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 13:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUBDS6h
+	id S264305AbUBDTSc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbUBDTSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 13:58:37 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:7942 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263625AbUBDS6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 13:58:35 -0500
-Date: Wed, 4 Feb 2004 18:58:31 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andrew Morton <akpm@osdl.org>, <torvalds@transmeta.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: fb.h header fix.
-In-Reply-To: <1075867994.1747.1.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0402041857210.20659-100000@phoenix.infradead.org>
+	Wed, 4 Feb 2004 14:18:32 -0500
+Received: from web9704.mail.yahoo.com ([216.136.129.140]:64310 "HELO
+	web9704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264305AbUBDTSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 14:18:30 -0500
+Message-ID: <20040204191829.57468.qmail@web9704.mail.yahoo.com>
+Date: Wed, 4 Feb 2004 11:18:29 -0800 (PST)
+From: Alok Mooley <rangdi@yahoo.com>
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+To: root@chaos.analogic.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Dave Hansen <haveblue@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.53.0402041402310.2722@chaos>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > The XFree86 fbdev server build breaks with the current fb.h. This patch 
-> > >  fixes that.
-> > 
-> > The previous version of this patch caused the ppc64 build to fail.  Did
-> > that get addressed?
+--- "Richard B. Johnson" <root@chaos.analogic.com> >
+If this is an Intel x86 machine, it is impossible
+> for pages
+> to get fragmented in the first place. The hardware
+> allows any
+> page, from anywhere in memory, to be concatenated
+> into linear
+> virtual address space. Even the kernel address space
+> is virtual.
+> The only time you need physically-adjacent pages is
+> if you
+> are doing DMA that is more than a page-length at a
+> time. The
+> kernel keeps a bunch of those pages around for just
+> that
+> purpose.
 > 
-> Not yet, it's a ppc64 bug, I haven't had time to fix it, for some
-> reason, ppc64 doesn't have readq/writeq nor __raw_ IO accessors.
+> So, if you are making a "memory defragmenter", it is
+> a CPU time-sink.
+> That's all.
 
-This means more than the fbdev layer will break on the ppc64.
-Ben you you post a patch for the ppc64 so the fbdev patch can go in?
+What if the external fragmentation increases so much
+that it is not possible to find a large sized block?
+Then, is it not better to defragment rather than swap
+or fail?
 
+-Alok
 
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free web site building tool. Try it!
+http://webhosting.yahoo.com/ps/sb/

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292888AbSCJIzz>; Sun, 10 Mar 2002 03:55:55 -0500
+	id <S292917AbSCJJO5>; Sun, 10 Mar 2002 04:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292915AbSCJIzp>; Sun, 10 Mar 2002 03:55:45 -0500
-Received: from mail.scram.de ([195.226.127.117]:37099 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S292888AbSCJIzk>;
-	Sun, 10 Mar 2002 03:55:40 -0500
-Date: Sun, 10 Mar 2002 09:55:29 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@alpha.bocc.de
-To: Kai Engert <kai.engert@gmx.de>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] Missing module for ISDN / AVM PCMCIA card
-In-Reply-To: <21752.1015727511@www61.gmx.net>
-Message-ID: <Pine.LNX.4.43.0203100949470.14532-100000@alpha.bocc.de>
+	id <S292924AbSCJJOh>; Sun, 10 Mar 2002 04:14:37 -0500
+Received: from 99dyn73.com21.casema.net ([62.234.30.73]:57768 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S292917AbSCJJOc>; Sun, 10 Mar 2002 04:14:32 -0500
+Message-Id: <200203100914.KAA14394@cave.bitwizard.nl>
+Subject: RAID magics gone... 
+To: linux-kernel@vger.kernel.org
+Date: Sun, 10 Mar 2002 10:14:30 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-notice1: This Email contains my Email address. This grants you the right
+X-notice2: to communicate with me using this address, related to the subject
+X-notice3: in this message. Unsollicitated mass-mailings are explictly 
+X-notice4: forbidden here, and by Dutch law. 
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kai,
 
-> The patch was attached to a message available at:
->   http://uwsg.iu.edu/hypermail/linux/kernel/0103.1/0957.html
-> 
-> I think, this patch is based on a work described at:
->   http://www.wimmer-net.de/avm-pcmcia/
-> (looks outdated, patches there did not help me)
-> 
-> Cheers,
-> Kai
-> 
-> (Please note that Red Hat seems to have modified that patch a little, the
-> file included in their kernel 2.4.9-31 has 3 lines changed.
+Hi,
 
-This might be the bug fix Kai Germaschewski added to my patch:
+I have a machine with 4 160G disks in a raid-0 configuration. Now
+after upgrading the hardware, all of a sudden raidstart can't find the
+raid-superblocks anymore. Invalid magic. 
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0106.1/0805.html
+I'm suspecting that it might be that the superblock was overwritten
+with data or something like that. Does anybody know of a bug like
+this?
 
-For current 2.4.x kernels, you also need to add the line:
+We're running kernel-2.4.16 with andre's IDE patches for the large
+disks.
 
-MODULE_LICENSE("GPL");
+I'll see if I can find the "magic" anywhere on the disk....
 
-Cheers,
-Jochen
-
-
+				Roger. 
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

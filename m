@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293495AbSCEQ5l>; Tue, 5 Mar 2002 11:57:41 -0500
+	id <S293496AbSCEQ5b>; Tue, 5 Mar 2002 11:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293483AbSCEQ5c>; Tue, 5 Mar 2002 11:57:32 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:62725 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S293495AbSCEQ50>; Tue, 5 Mar 2002 11:57:26 -0500
-Date: Tue, 5 Mar 2002 13:57:13 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: arjan@fenrus.demon.nl, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020305161032.F20606@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203051354590.1413-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293486AbSCEQ5W>; Tue, 5 Mar 2002 11:57:22 -0500
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:21120
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S293483AbSCEQ5J>; Tue, 5 Mar 2002 11:57:09 -0500
+Date: Tue, 5 Mar 2002 08:56:24 -0800
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200203051656.g25GuO808431@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: "H. Peter Anvin" <hpa@zytor.com>, Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C84F449.8090404@zytor.com>
+In-Reply-To: <200203051443.JAA02111@ccure.karaya.com> <3C84F449.8090404@zytor.com>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+H. Peter Avin wrote:
 
-> > Suppose that (1) we are low on memory in ZONE_NORMAL and
-> > (2) we have enough free memory in ZONE_HIGHMEM and (3) the
-> > memory in ZONE_NORMAL is for a large part taken by buffer
-> > heads belonging to pages in ZONE_HIGHMEM.
-> >
-> > In that case, none of the VMs will bother freeing the buffer
-> > heads associated with the highmem pages and kswapd will have
+> Jeff Dike wrote:
 >
-> wrong, classzone will do that, both for NORMAL and HIGHMEM allocations.
+> > You think that UML refusing to run if it can't get every bit of memory it
+> > might ever need is preferable to UML running fine in somewhat less memory?
+> 
+> Actually, yes, esp. since the only case you have been able to bring up is 
+> one of the sysadmin being a moron.
 
-Let me explain it to you again:
+I could easily imagine it being useful to run multiple UMLs on one
+machine (to simulate a network, say), and that one's application
+causes each UML to occasionally spike in its memory requirements.
+Then it would be disappointing for the number of UMLs one could run to
+be determined by this maximum memory requirement, rather than by the
+average memory requirement (minus some leeway for a few spiking UMLs).
 
-1) ZONE_NORMAL + ZONE_DMA is low on free memory
+The hook Jeff asks for seems harmless enough.  If there is some
+disagreement about how UML interacts with the host kernel on memory
+allocation, the two different modes could be a configuration option of
+UML.  The "touch it all at startup" option could be the default, as it
+does make alot of sense for the single UML case.
 
-2) the memory is taken by buffer heads, these
-   buffer heads belong to pagecache pages that
-   live in highmem
-
-3) the highmem zone has enough free memory
-
-
-As you probably know, shrink_caches() has the following line
-of code to make sure it won't try to free highmem pages:
-
-                if (!memclass(page->zone, classzone))
-                        continue;
-
-Of course, this line of code also means it will not take
-away the buffer heads from highmem pages, so the ZONE_NORMAL
-and ZONE_DMA memory USED BY THE BUFFER HEADS will not be
-freed.
-
-regards,
-
-Rik
--- 
-Will hack the VM for food.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Cheers,
+Wayne

@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319027AbSIDDQ4>; Tue, 3 Sep 2002 23:16:56 -0400
+	id <S319029AbSIDDdP>; Tue, 3 Sep 2002 23:33:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319029AbSIDDQz>; Tue, 3 Sep 2002 23:16:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28943 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319027AbSIDDQz>;
-	Tue, 3 Sep 2002 23:16:55 -0400
-Message-ID: <3D757F11.B72BB708@zip.com.au>
-Date: Tue, 03 Sep 2002 20:33:37 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
+	id <S319033AbSIDDdP>; Tue, 3 Sep 2002 23:33:15 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:56193 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S319029AbSIDDdO>;
+	Tue, 3 Sep 2002 23:33:14 -0400
+Date: Tue, 3 Sep 2002 22:26:01 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 Problem Report Status
+Message-ID: <Pine.LNX.4.44.0209032223110.2336-100000@dad.molina>
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.33-mm1
-References: <200209032251.54795.tomlins@cam.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> 
-> On September 3, 2002 09:13 pm, Andrew Morton wrote:
-> 
-> > ext3_inode_cache     959   2430    448  264  270    1
-> >
-> > That's 264 pages in use, 270 total.  If there's a persistent gap between
-> > these then there is a problem - could well be that slablru is not locating
-> > the pages which were liberated by the pruning sufficiently quickly.
-> 
-> Sufficiently quickly is a relative thing.
+The latest version of the followng problem report status page can be found 
+at: http://members.cox.net/tmolina/kernprobs/status.html
 
-Those pages are useless!  It's silly having slab hanging onto them
-while we go and reclaim useful pagecache instead.
+   Notes:
+     * Off-list  email sent to me regarding these reports is much 
+appreciated. Relevant comments to a problem report will
+       be added to the discussion thread unless specifically requested not 
+to. If you do send me a comment, please CC the
+       list.
+     * Great  progress has been made in forward porting IDE driver code 
+from 2.4 to 2.5. Several people have tried 2.5.33
+       without disaster. Updates continue to be added to the -ac kernels 
+and the 2.5 bitkeeper kernels.
+     * Floppy  support  is  currently  semi-broken/semi-fixed  in  2.5.  
+The  driver currently works (as of 2.5.33-bk) on
+       filesystems  with  512-byte  blocks  (e.g. vfat/msdos) but has 
+produced corruption on filesystems with other block
+       sizes  such as ext2, minix, etc. Update: Several fixes to the 
+floppy driver itself and the bio layer have improved
+       things. This needs more testing and confirmation that the fix is 
+in.
+     * Support for __FUNCTION__ pasting is being phased out of gcc. This 
+has broken compiling in numerous places. Defines
+       of the form:
+       #define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " 
+__FUNCTION__ "\n")
+       need to be changed to the form:
+       #define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", 
+__FUNCTION__)
+     * Items  marked with "No further discussion" have not had any 
+additional comments posted to the mailing list for one
+       or more development point releases. These items will be archived 
+when Linus issues the next point release.
 
-I *really* think we need to throw away those pages instantly.
+               2.5 Kernel Problem Reports as of 04 Sep
+   Problem Title                  Status                Discussion
+   schedule() with irqs disabled! open                  03 Sep 2002
+   schedule in interrupt          No further discussion 2.5.31
+   JFS oops                       No further discussion 2.5.31
+   unmount oops                   No further discussion 2.5.31
+   usb problem                    No further discussion 2.5.31
+   pte.chain BUG                  No further discussion 2.5.31
+   cciss broken                   proposed fix          2.5.31
+   qlogicisp oops                 open                  01 Sep 2002
+   qlogic error                   No further discussion 2.5.31
+   kmap_atomic oops               No further discussion 2.5.31
+   swap problem                   No further discussion 2.5.31
+   oops in gpm.c                  No further discussion 2.5.31
+   page allocation failure        No further discussion 2.5.31
+   driverfs oops                  No further discussion 2.5.31
+   2.5.32 reboot oops             open                  30 Aug 2002
+   ext2 umount oops               open                  30 Aug 2002
+   DEBUG_SLAB oops                open                  30 Aug 2002
+   2.5.32-mm1 problems            open                  30 Aug 2002
+   soft suspend problem           open                  30 Aug 2002
 
-The only possible reason for hanging onto them is because they're
-cache-warm.  And we need a global-scope cpu-local hot pages queue
-anyway.
 
-And once we have that, slab _must_ release its warm pages into it.
-It's counterproductive for slab to hang onto warm pages when, say,
-a pagefault needs one.
-
->  It could also be that by the time the
-> pages are reclaimed another <n> have been cleaned.  IMO its no worst than
-> have freeable pages on lru from any other source.  If we get close to oom
-> we will call kmem_cache_reap, otherwise we let the lru find the pages.
-
-As I say, by not releasing those (useless to slab) pages, we're causing
-other (useful) stuff to be reclaimed.

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266338AbTGJL7n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269226AbTGJL7n
+	id S269236AbTGJMIN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 08:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbTGJMIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:59:43 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:24047 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S266338AbTGJL7m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:59:42 -0400
-Message-ID: <3F0D583E.8070307@intel.com>
-Date: Thu, 10 Jul 2003 15:12:46 +0300
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: PATCH: seq_file interface to provide large data chunks
-References: <3F0D217B.4040900@intel.com> <1057835373.8028.0.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1057835373.8028.0.camel@dhcp22.swansea.linux.org.uk>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 10 Jul 2003 08:08:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64436
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S269236AbTGJMIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 08:08:09 -0400
+Subject: Re: hptraid.o -- No array found?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: seth.chromick@earthlink.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057810183.12513.5.camel@pasture.gentoo.box>
+References: <20030708223548.791247f5.akpm@osdl.org>
+	 <200307091106.00781.schlicht@uni-mannheim.de>
+	 <20030709021849.31eb3aec.akpm@osdl.org>
+	 <1057815890.22772.19.camel@www.piet.net>
+	 <20030710060841.GQ15452@holomorphy.com>
+	 <20030710071035.GR15452@holomorphy.com>
+	 <20030710001853.5a3597b7.akpm@osdl.org>
+	 <20030710075927.GS15452@holomorphy.com>
+	 <1057810183.12513.5.camel@pasture.gentoo.box>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057839609.8005.16.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Jul 2003 13:20:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-I analyzed 2 latest patches from www.kernel.org:
-patch-2.4.22-pre4 and patch-2.4.22-pre3-ac1.
+On Iau, 2003-07-10 at 05:09, Seth Chromick wrote:
+> I have XP and Gentoo linux installed. In XP, my IDE RAID0 config can be
+> seen and used flawlessly (highpoint). In linux, modprobe ataraid works
+> fine, but modprobing hptraid gives me "Raid array not found" a few times
+> and stops. Any ideas? I've googled around to no avail...
 
--pre4 do not touch seq_file;
+hptraid only understands a small subset of the disk layouts so not all
+forms are known. Wilfried has done some really good work on this so more
+formats are known by the later drivers.
 
--pre3-ac1 corrects spelling and adds single_xxx functions. There is no 
-conflict between this patch and my one. I verified, they do apply in any 
-order (with some offset).
-
-Vladimir.
-
-Alan Cox wrote:
-
->On Iau, 2003-07-10 at 09:19, Vladimir Kondratiev wrote:
->  
->
->>seq_file interface, as it exist in last official kernel, never provides 
->>more then one page for each 'read' call. Old read_proc_t did loop to 
->>fill more than one page.
->>    
->>
->
->There is a merge of Al's additional seq_file stuff to 2.4 floating
->around (its in -ac for one) that may be a better thing to merge instead
->if we want it 
->
->Al ?
->
->  
->
-
+Unfortunately HPT don't seem keen to document their disk layout.
 

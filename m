@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbUJXLug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUJXLyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbUJXLug (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 07:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUJXLug
+	id S261451AbUJXLyN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 07:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbUJXLyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 07:50:36 -0400
-Received: from out004pub.verizon.net ([206.46.170.142]:8660 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S261444AbUJXLub
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 07:50:31 -0400
-Message-ID: <417B9705.7060807@verizon.net>
-Date: Sun, 24 Oct 2004 07:50:29 -0400
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sun, 24 Oct 2004 07:54:13 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:22477 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261451AbUJXLyI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 07:54:08 -0400
+Date: Sun, 24 Oct 2004 13:53:59 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: XFS strangeness, xfs_db out of memory
+In-Reply-To: <200410240857.31893.robin.rosenberg.lists@dewire.com>
+Message-ID: <Pine.LNX.4.53.0410241349270.23661@yvahk01.tjqt.qr>
+References: <200410240857.31893.robin.rosenberg.lists@dewire.com>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>  <417550FB.8020404@drdos.com>  <35fb2e590410221714205fe526@mail.gmail.com>  <41799BEE.1030104@drdos.com> <35fb2e59041022175758ece5f9@mail.gmail.com> <4179E136.1090201@drdos.com> <Pine.LNX.4.58.0410230923540.2101@ppc970.osdl.org> <417B397D.2070106@drdos.com>
-In-Reply-To: <417B397D.2070106@drdos.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [209.158.211.53] at Sun, 24 Oct 2004 06:50:30 -0500
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<removing Linus from CC>
-
-Jeff V. Merkey wrote:
-
-<snip rambling nonsense>
-
-> GrokSmear has posted the ruling everyone knows this as well. And guess 
+>I was testing a tiny script on top of xfs_fsr to show fragmentation and the
+>resultss of defragmentation.  As a result of fine tuning the output I ran the
+>script repeatedly and suddenly got error from find (unknown error 999 if my
+>memory serves me. It scrolled off the screen).
 >
+>The logs show this.
+>Oct 24 08:06:50 xine kernel: hda: dma_timer_expiry: dma status == 0x21
+>Oct 24 08:07:00 xine kernel: hda: DMA timeout error
+>Oct 24 08:07:00 xine kernel: hda: dma timeout error: status=0xd0 { Busy }
+>Oct 24 08:07:00 xine kernel:
+>Oct 24 08:07:00 xine kernel: hda: DMA disabled
+>Oct 24 08:07:00 xine kernel: ide0: reset: success
 
-<snip more rambling nonsense>
+Hi,
 
-If you wish to be taken seriously, perhaps you might not want to use insults when 
-you are obviously trying to act as SCO's representative.
+That looks to me like your HD is going to die sometime in the future...
 
-How much are they paying you?
+>How bad is that for XFS?... The error isn't permanent it seems.
 
-God knows, I wouldn't be a self-righteous, obnoxious prick at another's behalf 
-unless I was paid for it.  Lawyers are much better at both being a prick and 
-documenting their case - and SCO has more than enough (lawyers, that is) to go around.
+Usually nothing. Expect <any fs> to struggle when such IO/DMA errors happen.
 
-But, I can be rude and insulting, since I am not trying to be taken seriously.
+>After that xfs_db -r /dev-with-home -c "frag -v" gives me an out-of-memory
+>error after a while, consistently.
 
-Jim
+XFS has probably picked up a malicious value due to the disk error, and as such
+allocates that much. Probably more than you got.
+
+>I ran the script repeatedly and suddenly got error from find (unknown error
+>999 if my
+
+If you reboot, and restart this repeated test, does it always error out at the
+same time and spot (and with the same error 0x21/0x90), e.g. the 100'th
+instance of xfs_db?
+
+Please also try a badblocks -vv /dev/hdXY (or appropriate) repeatedly. If it
+finds something there after a lot of runs (at least as much as you needed to
+find out the fragmentation), there's definitely something wrong with the HD,
+not XFS.
+
+
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280448AbRKSXTk>; Mon, 19 Nov 2001 18:19:40 -0500
+	id <S280751AbRKSXXa>; Mon, 19 Nov 2001 18:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280751AbRKSXTa>; Mon, 19 Nov 2001 18:19:30 -0500
-Received: from stephenc.theiqgroup.com ([216.81.249.18]:47761 "EHLO
-	owns.warpcore.org") by vger.kernel.org with ESMTP
-	id <S280448AbRKSXTQ>; Mon, 19 Nov 2001 18:19:16 -0500
-Date: Mon, 19 Nov 2001 17:19:12 -0600
-From: Stephen Clouse <stephenc@theiqgroup.com>
-To: Alex Buell <alex.buell@tahallah.demon.co.uk>
-Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 3Com 3c905c invalid checksum?
-Message-ID: <20011119171912.B4048@owns.warpcore.org>
-Mail-Followup-To: Alex Buell <alex.buell@tahallah.demon.co.uk>,
-	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0111192234340.9417-100000@tahallah.demon.co.uk>
+	id <S280762AbRKSXXV>; Mon, 19 Nov 2001 18:23:21 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26616
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280751AbRKSXXQ>; Mon, 19 Nov 2001 18:23:16 -0500
+Date: Mon, 19 Nov 2001 15:23:10 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.15-pre6 Changelog
+Message-ID: <20011119152310.B11351@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Disposition: inline; filename="msg.pgp"
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111192234340.9417-100000@tahallah.demon.co.uk>; from alex.buell@tahallah.demon.co.uk on Mon, Nov 19, 2001 at 10:37:45PM +0000
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+2.4.15-pre6:
 
-On Mon, Nov 19, 2001 at 10:37:45PM +0000, Alex Buell wrote:
-> The network card in the docking station I plug my Inspirion 8100 in, is a
-> 3Com 3c905C Tornado but apparently at boot time when it is identified, it
-> prints "***INVALID CHECKSUM 00e0**. I can't ping other boxes on the
-> network, nor can I ping other boxes from the laptop. I've double checked
-> and triple checked, and the configuration is indeed correct.
-> 
-> What does the error message INVALID CHECKSUM means?
+pre6:
+ - Russell King: /proc/cpuinfo for ARM
+ - Paul Mackerras: PPC update (cpuinfo etc)
+ - Nicolas Aspert: fix Intel 8xx agptlb flush
+ - Marko Myllynen: "Lindent" doesn't really need bash ;)
+ - Alexander Viro: /proc/cpuinfo for s390/s390x/sh, /proc/pci cleanup
+ - Alexander Viro: make lseek work on seqfiles
 
-The driver predates the 905c, which means you're probably running an older 
-kernel.  Get the latest 2.4 kernel, or optionally, just the latest 3c90x driver:
+pre5:
+ - Greg KH: enable hotplug driver support
+ - Andrea Arcangeli: remove bogus sanity check
+ - David Mosberger: /proc/cpuinfo and scsi scatter-gather for ia64
+ - David Hinds: 16-bit pcmcia network driver updates/cleanups
+ - Hugh Dickins: remove some stale code from VM
+ - David Miller: /proc/cpuinfo for sparc, sparc fork bug fix, network
+   fixes, warning fixes
+ - Peter Braam: intermezzo update
+ - Greg KH: USB updates
+ - Ivan Kokshaysky: /proc/cpuinfo for alpha
+ - David Woodhouse: jffs2 - remove dead code, remove gcc3 warning
+ - Hugh Dickins: fix kiobuf page allocation/deallocation
 
-http://www.scyld.com/network/vortex.html
+pre4:
+ - Mikael Pettersson: make proc_misc happy without modules
+ - Arjan van de Ven: clean up acpitable implementation ("micro-acpi")
+ - Anton Altaparmakov: LDM partition code update
+ - Alan Cox: final (yeah, sure) small missing pieces
+ - Andrey Savochkin/Andrew Morton: eepro100 config space save/restore over suspend
+ - Arjan van de Ven: remove power from pcmcia socket on card remove
+ - Greg KH: USB updates
+ - Neil Brown: multipath updates
+ - Martin Dalecki: fix up some "asmlinkage" routine markings
 
-- -- 
-Stephen Clouse <stephenc@theiqgroup.com>
-Senior Programmer, IQ Coordinator Project Lead
-The IQ Group, Inc. <http://www.theiqgroup.com/>
+pre3:
+ - Alan Cox: more driver merging
+ - Al Viro: make ext2 group allocation more readable
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
+pre2:
+ - Ivan Kokshaysky: fix alpha dec_and_lock with modules, for alpha config entry
+ - Kai Germaschewski: ISDN updates
+ - Jeff Garzik: network driver updates, sysv fs update
+ - Kai Mäkisara: SCSI tape update
+ - Alan Cox: large drivers merge
+ - Nikita Danilov: reiserfs procfs information
+ - Andrew Morton: ext3 merge
+ - Christoph Hellwig: vxfs livelock fix
+ - Trond Myklebust: NFS updates
+ - Jens Axboe: cpqarray + cciss dequeue fix
+ - Tim Waugh: parport_serial base_baud setting
+ - Matthew Dharm: usb-storage Freecom driver fixes
+ - Dave McCracken: wait4() thread group race fix
 
-iQA/AwUBO/mTbwOGqGs0PadnEQLSJwCeIdfNKkVNf7FAyr/RwxX/SoyzBIkAnRcE
-rhsTW7A5ZCHSQxl4tuVNRg2m
-=DKSy
------END PGP SIGNATURE-----
+pre1:
+ - me: fix page flags race condition Andrea found
+ - David Miller: sparc and network updates
+ - various: fix loop driver that thought it was part of the VM system
+ - me: teach DRM about VM_RESERVED
+ - Alan Cox: more merging

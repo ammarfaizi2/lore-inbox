@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292895AbSB0UbU>; Wed, 27 Feb 2002 15:31:20 -0500
+	id <S292941AbSB0Ugp>; Wed, 27 Feb 2002 15:36:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292939AbSB0UbE>; Wed, 27 Feb 2002 15:31:04 -0500
-Received: from ns.suse.de ([213.95.15.193]:64528 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292936AbSB0U2X>;
-	Wed, 27 Feb 2002 15:28:23 -0500
-To: Artiom Morozov <artiom@phreaker.net>
-Cc: linux-kernel@vger.kernel.org, Kiretchko Serguei <spk@csp.org.by>
-Subject: Re: select() call corrupts stack
-In-Reply-To: <20020227214056.A6740@cyan.csp.org.by>
-X-Yow: My BIOLOGICAL ALARM CLOCK just went off..  It has noiseless
- DOZE FUNCTION and full kitchen!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Wed, 27 Feb 2002 21:28:07 +0100
-In-Reply-To: <20020227214056.A6740@cyan.csp.org.by> (Artiom Morozov's
- message of "Wed, 27 Feb 2002 21:40:56 +0200")
-Message-ID: <jek7sypt48.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S292940AbSB0UfD>; Wed, 27 Feb 2002 15:35:03 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:55725 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S292938AbSB0Uec>;
+	Wed, 27 Feb 2002 15:34:32 -0500
+Date: Wed, 27 Feb 2002 22:34:26 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Barubary <barubary@cox.net>
+Cc: linux-kernel@vger.kernel.org, Rick Stevens <rstevens@vitalstream.com>
+Subject: Re: Big file support
+Message-ID: <20020227223426.N23151@mea-ext.zmailer.org>
+In-Reply-To: <3C7D3587.8080609@vitalstream.com> <006301c1bfc9$a5c6de90$a7eb0544@CX535256D>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <006301c1bfc9$a5c6de90$a7eb0544@CX535256D>; from barubary@cox.net on Wed, Feb 27, 2002 at 12:02:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Artiom Morozov <artiom@phreaker.net> writes:
+On Wed, Feb 27, 2002 at 12:02:12PM -0800, Barubary wrote:
+> A lot of the kernel supports big files already.  The real problem is the
+> fact that the primary Linux file system, ext3, does not.  If you use some
+> file system besides ext3, big files should work.
 
-|> Hello,
-|> 
-|> 	Here's a sample program. Try running it and open about 2k of
-|> 	connections to port 5222 (you'll need ulimit -n 10000 or like
-|> 	that). It will segfault. Simple asm like this
-|>    __asm__(
-|> 	"pushl %eax \n\t" 	"movl  0(%ebp), %eax \n\t"
-|> 	"cmp   $65535, %eax \n\t"
-|> 	"ja isok \n\t"
-|> 	"xor  %eax, %eax \n\t"
-|> 	"movl  %eax, 0(%eax) \n\t"	 	"isok: \n\t"
-|> 	"popl  %eax \n\t"
-|>    );
-|> after each subroutine call will show you that after select() [ebp] have
-|> weird value. While this is unlikely to be a security flaw, i think this is
-|> a bug.
-|> 
-|> ps: it's okay for 1k of connections or so
+  Bullshit.   EXT2/EXT3 does support large files.  Has done so since
+kernel 1.2 in fact, altough formely only at 64 bit machines.
 
-/* Number of descriptors that can fit in an `fd_set'.  */
-#define __FD_SETSIZE	1024
+Since 2.4 the kernel has been changed internally so that it supports
+large files also at measly 32 bit thingies including i386...
 
-Use poll(3) instead.
+There are several filesystems which are 64-bit/large-file supporting,
+but also some which are inherently incapable to exceed 2G or 4G.
 
-Andreas.
+It looks like the LOOP driver lands in between -- it should be LFS
+capable, but it isn't.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+> Linux already has API calls to read big files.
+
+Those were done for 2.4 kernel too.
+
+> -- Barubary
+> 
+> ----- Original Message -----
+> From: "Rick Stevens" <rstevens@vitalstream.com>
+> To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+> Sent: Wednesday, February 27, 2002 11:37 AM
+> Subject: Big file support
+> 
+> 
+> > I'm not certain if this is the right place, but are there plans to
+> > have big file support (files >2GB) anytime soon?  I ask, as we use
+> > Linux to serve LOTS of streaming media and the logs for popular sites
+> > often exceed 2GB.  I'd like to see the ability to handle at least 16GB
+> > files, possibly more.
+> >
+> > Please cc: me on any replies if possible.  I've been REALLY busy and
+> > am finding it hard to keep up with l-k traffic.
+> >
+> > Thanks!
+> > ----------------------------------------------------------------------
+> > - Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
+> > - 949-743-2010 (Voice)                    http://www.vitalstream.com -
+> > -                                                                    -
+> > -              Never eat anything larger than your head              -
+> > ----------------------------------------------------------------------
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

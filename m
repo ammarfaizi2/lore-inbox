@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265662AbUAMWBM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 17:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUAMWBM
+	id S265780AbUAMWJy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 17:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUAMWJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 17:01:12 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:23765 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265662AbUAMWBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 17:01:10 -0500
-Date: Tue, 13 Jan 2004 21:59:18 +0000
-From: Dave Jones <davej@redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: cpufreq@www.linux.org.uk, linux@brodo.de,
-       kernel list <linux-kernel@vger.kernel.org>, paul.devriendt@amd.com
-Subject: Re: Cleanups for powernow-k8
-Message-ID: <20040113215918.GK14674@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Pavel Machek <pavel@ucw.cz>, cpufreq@www.linux.org.uk,
-	linux@brodo.de, kernel list <linux-kernel@vger.kernel.org>,
-	paul.devriendt@amd.com
-References: <20040113215149.GA236@elf.ucw.cz>
+	Tue, 13 Jan 2004 17:09:54 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:46469 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S265780AbUAMWJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 17:09:51 -0500
+Date: Tue, 13 Jan 2004 17:09:51 -0500
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What is codaauth? Why is Linux polling it?
+Message-ID: <20040113220950.GA12308@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0401082135560.1311@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040113215149.GA236@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.53.0401082135560.1311@chaos>
+User-Agent: Mutt/1.5.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 10:51:49PM +0100, Pavel Machek wrote:
+On Fri, Jan 09, 2004 at 07:33:49AM -0500, Richard B. Johnson wrote:
+> I have a RH System at home, no mods, right out of the box.
+> It keeps sending UDP packets to 63.240.115.23.codaauth, so fast
+> it's killing my PPP bandwidth.
 
- > powernow-k8 uses strange kind of comments
+Codaauth2 is the IANA port for the Coda authentication daemon.
 
-comments part I kinda agree with, though its not critical..
+In any normal Coda environment, only the 'clog' command sends any data
+to this port. It is started by the user when that user wants to get a
+new token for the next 25 hours, and gives up after couple of retries
+(about 30 seconds?) when it doesn't get a reply.
 
- > and is way too verbose.
+Network impact should be pretty much insignificant, here is a tcpdump of
+a successful connection,
 
-I agree that something like that output belongs more in x86info,
-or a standalone tool, but I think Paul wanted to keep debugging stuff
-there for the time being. Maybe silence it, and have it enabled
-with a 'debug' module param ? Paul ?
- 
- > Also powernow-k7 should just shut up when it is monolithic
- > kernel and cpu is not k7.
+    16:58:19.226110 client.34702 > server.codaauth2: udp 301 (DF)
+    16:58:19.249315 server.codaauth2 > client.34702: udp 80
+    16:58:19.249530 client.34702 > server.codaauth2: udp 76 (DF)
+    16:58:19.250009 server.codaauth2 > client.34702: udp 84
+    16:58:19.250300 client.34702 > server.codaauth2: udp 60 (DF)
+    16:58:19.250855 server.codaauth2 > client.34702: udp 140
+    16:58:19.251073 client.34702 > server.codaauth2: udp 60 (DF)
+    16:58:19.251503 server.codaauth2 > client.34702: udp 60
 
-Agreed, applied.
+And here is a tcpdump of a failing handshake (i.e. no replies from the
+codauth2 server).
 
- > @@ -637,6 +629,7 @@
- >  		}
- >  
- >  		if ((numps <= 1) || (batps <= 1)) {
- > +			/* FIXME: Is this right? I can see one state on battery, two states total as an usefull config */
- >  			printk(KERN_ERR PFX "only 1 p-state to transition\n");
- >  			return -ENODEV;
- >  		}
- > the test probably should be numps <= 1 only, but it does not matter as
- > we force numps = batps]
+    17:00:54.047567 client.34703 > server.codaauth2: udp 301 (DF)
+    17:00:54.348124 client.34703 > server.codaauth2: udp 301 (DF)
+    17:00:54.649048 client.34703 > server.codaauth2: udp 301 (DF)
+    17:00:55.121980 client.34703 > server.codaauth2: udp 301 (DF)
+    17:00:56.067797 client.34703 > server.codaauth2: udp 301 (DF)
+    17:00:57.958431 client.34703 > server.codaauth2: udp 301 (DF)
+    17:01:01.738718 client.34703 > server.codaauth2: udp 301 (DF)
 
-1 state on battery sounds odd. Buggy BIOS ?
+As you can see, we never retransmit withing 300ms and are backing off on
+each successive try. If something is hogging your PPP connection, I
+don't think it is Coda related. I run Coda over dialup pretty often
+myself.
 
-		Dave
+Jan
 

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131806AbQKUX5i>; Tue, 21 Nov 2000 18:57:38 -0500
+	id <S131827AbQKVAAi>; Tue, 21 Nov 2000 19:00:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131828AbQKUX52>; Tue, 21 Nov 2000 18:57:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64082 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131806AbQKUX5P>; Tue, 21 Nov 2000 18:57:15 -0500
-Subject: Re: Linux 2.4.0test11-ac1
-To: scole@lanl.gov
-Date: Tue, 21 Nov 2000 23:27:45 +0000 (GMT)
+	id <S131826AbQKVAAS>; Tue, 21 Nov 2000 19:00:18 -0500
+Received: from jalon.able.es ([212.97.163.2]:9974 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131825AbQKVAAM>;
+	Tue, 21 Nov 2000 19:00:12 -0500
+Date: Wed, 22 Nov 2000 00:30:02 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Tigran Aivazian <tigran@veritas.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00112112071001.00924@spc.esa.lanl.gov> from "Steven Cole" at Nov 21, 2000 12:07:10 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13yMpH-0005LI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+Message-ID: <20001122003002.C1356@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <20001122001813.A1356@werewolf.able.es> <Pine.LNX.4.21.0011212323450.950-100000@penguin.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0011212323450.950-100000@penguin.homenet>; from tigran@veritas.com on Wed, Nov 22, 2000 at 00:26:23 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I tried to compile 2.4.0-test11-ac1, and here is where the compile bombed out:
-> 
-> /usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
-> -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686    -c -o 
-> sched.o sched.c
-> irq.c:182: conflicting types for `global_irq_lock'
-> /usr/src/linux/include/asm/hardirq.h:45: previous declaration of 
-> `global_irq_lock'
 
-I'll check this. I take it you tried an SMP build ?
+On Wed, 22 Nov 2000 00:26:23 Tigran Aivazian wrote:
+> On Wed, 22 Nov 2000, J . A . Magallon wrote:
+> 
+> In the case of kernel, we have to do many things manually, can't rely on
+> some compiler (sometimes :). So, the code I pointed you at
+> arch/i386/kernel/head.S (look for "Clear BSS") is in fact what clears the
+> BSS; without it you will end up with uninitialized garbage in what you
+> think "ANSI C compiler arranged" for you.
+> 
+
+Thanks, that makes everything clear...I'm very suspicious on compilers.
+Last thing I saw was VisualC++ skipping constructors...but that is
+off-topic, we talked about 'compilers'...
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux 2.2.18-pre22-vm #7 SMP Sun Nov 19 03:29:20 CET 2000 i686 unknown
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

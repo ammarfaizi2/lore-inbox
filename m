@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUGBMRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264228AbUGBMXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbUGBMRc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 08:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUGBMRc
+	id S264228AbUGBMXu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 08:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUGBMXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 08:17:32 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21431 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264265AbUGBMR3 (ORCPT
+	Fri, 2 Jul 2004 08:23:50 -0400
+Received: from gprs214-141.eurotel.cz ([160.218.214.141]:49036 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S264228AbUGBMXr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 08:17:29 -0400
-Date: Fri, 2 Jul 2004 09:15:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Do x86 NX and AMD prefetch check cause page fault infinite loop?
-Message-ID: <20040702071512.GA11709@elte.hu>
-References: <20040630013824.GA24665@mail.shareable.org> <20040630055041.GA16320@elte.hu> <20040630143850.GF29285@mail.shareable.org> <20040701014818.GE32560@mail.shareable.org> <20040701063237.GA16166@elte.hu> <20040701150430.GB5114@mail.shareable.org>
+	Fri, 2 Jul 2004 08:23:47 -0400
+Date: Fri, 2 Jul 2004 14:20:04 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide-taskfile.c fixups/cleanups part #2 [1/9]
+Message-ID: <20040702122004.GC12889@elf.ucw.cz>
+References: <200406301724.05862.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040701150430.GB5114@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <200406301724.05862.bzolnier@elka.pw.edu.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Jamie Lokier <jamie@shareable.org> wrote:
+> diff -puN drivers/ide/ide-taskfile.c~ide_tf_pio_out_fixes drivers/ide/ide-taskfile.c
+> --- linux-2.6.7-bk11/drivers/ide/ide-taskfile.c~ide_tf_pio_out_fixes	2004-06-28 21:15:54.030210376 +0200
+> +++ linux-2.6.7-bk11-bzolnier/drivers/ide/ide-taskfile.c	2004-06-28 21:15:54.035209616 +0200
+> @@ -409,6 +409,10 @@ ide_startstop_t task_out_intr (ide_drive
+>  	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG), DRIVE_READY, drive->bad_wstat)) {
+>  		return DRIVER(drive)->error(drive, "task_out_intr", stat);
+>  	}
+> +
+> +	if (((stat & DRQ_STAT) == 0) ^ !rq->current_nr_sectors)
+> +		return DRIVER(drive)->error(drive, __FUNCTION__, stat);
+> +
 
-> > -			if (pmd_val(*pmd) & _PAGE_NX)
-> > -				printk(KERN_CRIT "kernel tried to access NX-protected page - exploit attempt? (uid: %d)\n", current->uid);
-> > -		}
-> > -	}
-> > -#endif
-> > +	if (nx_enabled && (error_code & 16))
-> > +		printk(KERN_CRIT "kernel tried to execute NX-protected page - exploit attempt? (uid: %d)\n", current->uid);
-> 
-> According to AMD's manual, bit 4 of error_code means the fault was due
-> to an instruction fetch.  It doesn't imply that it's an NX-protected
-> page: it might be a page not present fault instead.  (The manual
-> doesn't spell that out, it just says the bit is set when it's an
-> instruction fetch).
-
-you are right, it doesnt say it's an NX related fault.
-
-I'll test this out and send a delta patch.
-
-	Ingo
+Looks pretty close to obfuscated c code contents... Can't you use !=
+or kill ! in second clause and use == or something?
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

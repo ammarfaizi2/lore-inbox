@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUIMJk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUIMKUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUIMJk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 05:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266487AbUIMJk0
+	id S266490AbUIMKUm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 06:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUIMKUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 05:40:26 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55951 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266485AbUIMJkZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 05:40:25 -0400
-Date: Mon, 13 Sep 2004 02:39:19 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: derrs@openx3.frec.bull.fr, simon.derr@bull.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpusets: alternative fix for possible race in
- cpuset_tasks_read()
-Message-Id: <20040913023919.62eb772c.pj@sgi.com>
-In-Reply-To: <20040913022524.6d3b711e.pj@sgi.com>
-References: <Pine.LNX.4.58.0409101632100.2891@daphne.frec.bull.fr>
-	<20040911010120.572595e3.pj@sgi.com>
-	<Pine.LNX.4.61.0409131012010.18437@openx3.frec.bull.fr>
-	<20040913022524.6d3b711e.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 13 Sep 2004 06:20:42 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:22538 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266490AbUIMKUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 06:20:41 -0400
+Date: Mon, 13 Sep 2004 11:20:37 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5
+Message-ID: <20040913112037.A25118@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040913015003.5406abae.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>; from akpm@osdl.org on Mon, Sep 13, 2004 at 01:50:03AM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aha - Andrew beat me to the mm5 draw.
+> +lockmeter.patch
+> 
+>  Repaired lockmeter patch
 
-I will send this patch again, shortly, against mm5, reversing the
-affects of:
+This one is still needlessly messing around in procfs internals.
 
-  cpusets-fix-possible-race-in-cpuset_tasks_read.patch
-
-and applying this alternative instead.
-
-==> Ignore the patch I sent 15 minutes ago, with
-    Message-Id: <20040913022524.6d3b711e.pj@sgi.com>
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

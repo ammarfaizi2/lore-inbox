@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTJAN6I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 09:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTJAN6I
+	id S262117AbTJAOFR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 10:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTJAOFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 09:58:08 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:10506 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262101AbTJAN6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 09:58:05 -0400
-Subject: Re: File Permissions are incorrect. Security flaw in Linux
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: "Lisa R. Nelson" <lisanels@cableone.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1065012013.4078.2.camel@lisaserver>
-References: <1065012013.4078.2.camel@lisaserver>
-Content-Type: text/plain
-Message-Id: <1065016679.2445.5.camel@teapot.felipe-alfaro.com>
+	Wed, 1 Oct 2003 10:05:17 -0400
+Received: from h80ad24ae.async.vt.edu ([128.173.36.174]:6034 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262117AbTJAOFL (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 10:05:11 -0400
+Message-Id: <200310011405.h91E55cG008853@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification for binaries 
+In-Reply-To: Your message of "Wed, 01 Oct 2003 12:26:31 +0200."
+             <20031001102631.GC398@elf.ucw.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F733FD3.60502@ericsson.ca>
+            <20031001102631.GC398@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 01 Oct 2003 15:58:00 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_1482376194P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Oct 2003 10:05:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-01 at 14:40, Lisa R. Nelson wrote:
+--==_Exmh_1482376194P
+Content-Type: text/plain; charset=us-ascii
 
-> [1.] One line summary of the problem:    
-> A low level user can delete a file owned by root and belonging to group
-> root even if the files permissions are 744.  This is not in agreement
-> with Unix, and is a major security issue.
+On Wed, 01 Oct 2003 12:26:31 +0200, Pavel Machek said:
 
-Don't know which Unix you are referring to, but on Solaris and Linux,
-the delete (unlink) and create file operations are subject to directory
-permissions. Thus, deleting a file requires write permission on the
-directory. The write permission on a file allows to modify its contents
-and has nothing to do with being able to delete it.
+> > Instead of writing a long detailed explication, I rather give you an 
+> > example of how you can use it.
+> 
+> Can you also add example *why* one would want to use it?
+> 
+> AFAICS if I want to exec something, I can avoid exec() syscall and do
+> mmaps by hand...
 
-Thus, what you are seeing is completely normal:
+The idea isn't to stop you from calling exec*().
 
-1. mkdir /mydir
-2. cd /mydir
-3. chmod 777 .
-4. touch myfile
-5. chmod 444 myfile
-
-Anyone will be able to delete "myfile" since the directory where it
-belongs (mydir) has full write privileges for anyone.
-
-I recommend you using the sticky bit on shared directories, like /tmp.
-If a directory has the sticky bit enabled, a file can only be deleted by
-its owner (and root, of course):
-
-1. mkdir /mydir
-2. cd /mydir
-3. chmod 1777 .
-4. touch myfile
-
-Now, "myfile" can only be deleted by its owner (or root), since the
-directory where it belongs is marked with the sticky bit.
-
-HTH
+The idea is to ensure that if you do execve("/usr/bin/foobar",...) that the
+foobar binary hasn't been tampered with and you're not about to launch a binary
+differing from what you expected.   Note that on a properly administered
+system, this is a *high* level of paranoia, as the file permissions should have
+prevented writing to the binary in the first place.  It's also a maintenance
+nightmare waiting to happen, as you get to re-sign all the binaries every time
+you install a patch, and it won't help prevent trojaned shared libraries...
 
 
+--==_Exmh_1482376194P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/et8OcC3lWbTT17ARAttpAJ4tH1UJ/qUlrkFIw6IYVJW0esCsqwCg09r6
++v1R4rMyWBbg3wJoNMwD3CE=
+=n954
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1482376194P--

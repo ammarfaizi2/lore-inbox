@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVCARQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVCARTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVCARQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 12:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVCARQj
+	id S261984AbVCARTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 12:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVCARTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 12:16:39 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:57869 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261983AbVCARQg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 12:16:36 -0500
-Date: Wed, 02 Mar 2005 02:18:02 +0900 (JST)
-Message-Id: <20050302.021802.71004233.yoshfuji@linux-ipv6.org>
-To: lm@bitmover.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net down?
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20050301165415.GA1990@bitmover.com>
-References: <20050302.010010.132894644.yoshfuji@linux-ipv6.org>
-	<20050301165415.GA1990@bitmover.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 12:19:16 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45950 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261984AbVCARTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 12:19:13 -0500
+Date: Tue, 1 Mar 2005 17:17:36 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Prakash Bhurke <prakash_bhurke@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: memory mapping of vmalloc
+In-Reply-To: <20050301130803.34688.qmail@web54610.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0503011713470.31799@goblin.wat.veritas.com>
+References: <20050301130803.34688.qmail@web54610.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050301165415.GA1990@bitmover.com> (at Tue, 1 Mar 2005 08:54:15 -0800), lm@bitmover.com (Larry McVoy) says:
+On Tue, 1 Mar 2005, Prakash Bhurke wrote:
+>   I am trying to map a vmalloc kernel buffer to user
+> space using remap_page_range(). In my module, this
+> function returns success if we call mmap() from user
+> space, but i can not access content of vmalloc buffer
+> from user space. Pointer returned by mmap() syscall
+> seems pointing to other memory page which contains
+> zeros. I am using linux 2.6.10 kernel on Pentium 4
+> system.
 
-> No, sorry.  We're working on the tarball+patch server we talked about about
-> a couple years back and I screwed up the http server.  The bk:// urls work,
-> please use them until I fix this, should be quick.
+Look for "rvmalloc" in various drivers in the kernel source tree:
+you must SetPageReserved before remap_pfn_range (or remap_page_range)
+agrees to map the page, and ClearPageReserved before freeing after.
 
-Okay, thanks. But bk:// urls does not seem to work, unfortunately.
-
-|% bk pull
-|Pull bk://linux.bkbits.net:8080/linux-2.5
-|  -> file://home2/yoshfuji/BitKeeper/linux-2.6
-|% 
-
-No message like "nothing to pull."
-
-Anyway, it's time to sleep for me. ZZZzzz...
-
-> 
-> On Wed, Mar 02, 2005 at 01:00:10AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> > Hello.
-> > 
-> > *.bkbits.net (port 8080) seems to reply with no data.
-> > And "bk pull" on linux-2.5 also fails.
-> > Is this scheduled?
-> > 
-> > Thank you.
-> > 
-> > --yoshfuji
-> 
-> -- 
-> ---
-> Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Hugh

@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbRGDORg>; Wed, 4 Jul 2001 10:17:36 -0400
+	id <S265748AbRGDOWG>; Wed, 4 Jul 2001 10:22:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265723AbRGDORZ>; Wed, 4 Jul 2001 10:17:25 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6672 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265705AbRGDORJ>; Wed, 4 Jul 2001 10:17:09 -0400
-Subject: Re: Intel SRCU3-1 RAID (I2O) and 2.4.5-ac18
-To: pt@procomnet2.prograine.net
-Date: Wed, 4 Jul 2001 15:16:02 +0100 (BST)
+	id <S265802AbRGDOV4>; Wed, 4 Jul 2001 10:21:56 -0400
+Received: from pulsar.zoreil.com ([212.43.230.120]:4360 "EHLO
+	pulsar.zoreil.com") by vger.kernel.org with ESMTP
+	id <S265748AbRGDOVt>; Wed, 4 Jul 2001 10:21:49 -0400
+Date: Wed, 4 Jul 2001 16:18:45 +0200
+From: =?iso-8859-1?Q?Fran=E7ois_romieu?= <romieu@zoreil.com>
+To: "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0107041550300.23057-100000@procomnet2.prograine.net> from "pt@procomnet2.prograine.net" at Jul 04, 2001 04:11:54 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Subject: Re: New FarSync T-Series driver
+Message-ID: <20010704161845.A27070@zoreil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15HnRi-0000xd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010703182803.A13853@xyzzy.clara.co.uk>
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Function: Media Unlock
-> Error Code: Access Violation
-> User Info: 00000000
-> Disk Serial No is not set, just no data in the table field
-> Timestamps are somewhat strange - three erroror logs one after
-> another then about 3-4 minutes delay and again three messages
+The Tue, Jul 03, 2001 at 06:28:03PM +0100, Robert J.Dunlop wrote :
+[...]
+> Sorry for the big post, but I posted URLs for an earlier version of this
+> a couple of months back and got very little feedback.  I know sync card
+> drivers ain't sexy.
 
-What that means in the intel log I dont know. Media unlock is a command we
-issue when you unmount an array. It allows volume removal if the volume can
-be removed or errors otherwise (an error we happily ignore in that case)
+Just my HO:
+* error_1, error_2... error_n labels are ugly;
+* ioremap may fail;
+* mix of spin_lock and FST_LOCK isn't nice (kill the latter ?);
+* 
++                offset = BUF_OFFSET ( rxBuffer[pi][i]);
+[...]
++                                card->mem + BUF_OFFSET ( rxBuffer[pi][rxp][0]),
 
+A bit of a macro abuse imho.
 
+*
++        if ( ++port->txpos >= NUM_TX_BUFFER )
++                port->txpos = 0;
+
+Why not:
+port->txpos++;
+foo = port->txpos%NUM_TX_BUFFER;
+
+--
+Ueimor

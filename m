@@ -1,133 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265951AbUBKQt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 11:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBKQt5
+	id S265941AbUBKQwG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 11:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbUBKQwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 11:49:57 -0500
-Received: from math.ut.ee ([193.40.5.125]:44453 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S265951AbUBKQtj (ORCPT
+	Wed, 11 Feb 2004 11:52:06 -0500
+Received: from scrye.com ([216.17.180.1]:27060 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S265941AbUBKQuD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 11:49:39 -0500
-Date: Wed, 11 Feb 2004 18:49:36 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Takashi Iwai <tiwai@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-rc1: snd_intel8x0 still too fast
-In-Reply-To: <s5hwu6ta7oh.wl@alsa2.suse.de>
-Message-ID: <Pine.GSO.4.44.0402111845200.19304-100000@math.ut.ee>
+	Wed, 11 Feb 2004 11:50:03 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Wed, 11 Feb 2004 09:49:57 -0700
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bad Drive or JFS bug? (2.4.25-pre8)
+X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Message-Id: <20040211164958.BEC80CB32C@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hmm, please show /proc/asound/card0/codec97#0/ac97#0-0 and
-> ac97#0-0+regs files again?
 
-0-0/0: Analog Devices AD1885
+Greetings. 
 
-Capabilities     : -headphone out-
-DAC resolution   : 16-bit
-ADC resolution   : 16-bit
-3D enhancement   : Analog Devices Phat Stereo
+It's unclear to me if this is a jfs error, or if my drive is simply
+dying. There are no other indications of errors with the drive, but in
+the logs: 
 
-Current setup
-Mic gain         : +0dB [+0dB]
-POP path         : pre 3D
-Sim. stereo      : off
-3D enhancement   : off
-Loudness         : off
-Mono output      : MIX
-Mic select       : Mic1
-ADC/DAC loopback : off
-Extended ID      : codec=0 rev=0 DSA=0 VRA
-Extended status  : VRA
-PCM front DAC    : 18901Hz
-PCM ADC          : 48000Hz
+Feb 11 04:04:59 voldemort kernel: blkno = 6d2e74726f, nblocks = 65646c
+Feb 11 04:04:59 voldemort kernel: ERROR: (device ide0(3,3)): dbFree: block to be freed is outside the map
+Feb 11 04:04:59 voldemort kernel: blkno = 3000003831, nblocks = 392e6d
+Feb 11 04:04:59 voldemort kernel: ERROR: (device ide0(3,3)): dbFree: block to be freed is outside the map
+Feb 11 04:04:59 voldemort kernel: BUG at jfs_dmap.c:2764 assert(newval == leaf[buddy])
+Feb 11 04:04:59 voldemort kernel: kernel BUG at jfs_dmap.c:2764!
+Feb 11 04:04:59 voldemort kernel: invalid operand: 0000
+Feb 11 04:04:59 voldemort kernel: CPU:    0
+Feb 11 04:04:59 voldemort kernel: EIP:    0010:[<c01d23dd>]    Tainted: G Z
+Feb 11 04:04:59 voldemort kernel: EFLAGS: 00010286
+Feb 11 04:04:59 voldemort kernel: eax: 00000038   ebx: 0000000c   ecx: e0e08000   edx: f615bf64
+Feb 11 04:04:59 voldemort kernel: esi: 00000000   edi: e8c6c010   ebp: 00000080   esp: e0e09cb0
+Feb 11 04:04:59 voldemort kernel: ds: 0018   es: 0018   ss: 0018
+Feb 11 04:04:59 voldemort kernel: Process tmpwatch (pid: 31705, stackpage=e0e09000)
+Feb 11 04:04:59 voldemort kernel: Stack: c032d102 c032d308 00000acc c032d3fd e8c6c076 00000080 00000040 00
+0000c0
+Feb 11 04:04:59 voldemort kernel:        0000000b 00000fe0 c01d1c95 e8c6c010 000000c0 0000000b c0140de6 f7
+fe7bb4
+Feb 11 04:04:59 voldemort kernel:        e8c6c010 00000fe0 00001020 00049013 00000000 0000000d 00049013 00
+000000
+Feb 11 04:05:00 voldemort kernel: Call Trace:    [<c01d1c95>] [<c0140de6>] [<c01d18b3>] [<c01cf75f>] [<c01
+e144a>]
+Feb 11 04:05:00 voldemort kernel:   [<c01d41b8>] [<c01ca426>] [<c01dfbbd>] [<c01e00bb>] [<c01c13c0>] [<c01
+c286b>]
+Feb 11 04:05:00 voldemort kernel:   [<c01c234e>] [<c01c13c0>] [<c01c13f8>] [<c01692f0>] [<c015e5f2>] [<c01
+5e852>]
+Feb 11 04:05:00 voldemort kernel:   [<c010950f>]
+Feb 11 04:05:00 voldemort kernel:
+Feb 11 04:05:00 voldemort kernel: Code: 0f 0b cc 0a 08 d3 32 c0 39 74 24 14 7d 45 89 74 24 04 b8 ff
 
+kernel version is 2.4.25-pre8. 
 
+decoded oops is: 
 
-AD18XX configuration
-Unchained        : 0x1000,0x0000,0x0000
-Chained          : 0x0000,0x0000,0x0000
+ksymoops 2.4.9 on i686 2.4.25-pre8_2.0.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.25-pre8_2.0/ (default)
+     -m /boot/System.map-2.4.25-pre8_2.0 (specified)
 
-(this is after playing it 22 KHz)
-
-0:00 = 0410
-0:02 = bf3f
-0:04 = 1010
-0:06 = 801f
-0:08 = 0000
-0:0a = 801e
-0:0c = 801f
-0:0e = 801f
-0:10 = 9f1f
-0:12 = 9f1f
-0:14 = 9f1f
-0:16 = 9f1f
-0:18 = 0909
-0:1a = 0000
-0:1c = 0000
-0:1e = 0000
-0:20 = 0000
-0:22 = 0000
-0:24 = 0000
-0:26 = 000f
-0:28 = 0001
-0:2a = 0001
-0:2c = 49d5
-0:2e = 0000
-0:30 = 0000
-0:32 = bb80
-0:34 = 0000
-0:36 = 0000
-0:38 = 0000
-0:3a = 0000
-0:3c = 0000
-0:3e = 0000
-0:40 = 0000
-0:42 = 0000
-0:44 = 0000
-0:46 = 0000
-0:48 = 0000
-0:4a = 0000
-0:4c = 0000
-0:4e = 0000
-0:50 = 0000
-0:52 = 0000
-0:54 = 0000
-0:56 = 0000
-0:58 = 0000
-0:5a = 0000
-0:5c = 0000
-0:5e = 0000
-0:60 = 0000
-0:62 = 0000
-0:64 = 0000
-0:66 = 0000
-0:68 = 0000
-0:6a = 0000
-0:6c = 0000
-0:6e = 0000
-0:70 = 2000
-0:72 = 0300
-0:74 = 1000
-0:76 = 0000
-0:78 = bb80
-0:7a = 49d5
-0:7c = 4144
-0:7e = 5360
+ invalid operand: 0000
+ CPU:    0
+ EIP:    0010:[<c01d23dd>]    Tainted: G Z
+Using defaults from ksymoops -t elf32-i386 -a i386
+ EFLAGS: 00010286
+ eax: 00000038   ebx: 0000000c   ecx: e0e08000   edx: f615bf64
+ esi: 00000000   edi: e8c6c010   ebp: 00000080   esp: e0e09cb0
+ ds: 0018   es: 0018   ss: 0018
+ Process tmpwatch (pid: 31705, stackpage=e0e09000)
+ Stack: c032d102 c032d308 00000acc c032d3fd e8c6c076 00000080 00000040 000000c0
+        0000000b 00000fe0 c01d1c95 e8c6c010 000000c0 0000000b c0140de6 f7fe7bb4
+        e8c6c010 00000fe0 00001020 00049013 00000000 0000000d 00049013 00000000
+ Call Trace:    [<c01d1c95>] [<c0140de6>] [<c01d18b3>] [<c01cf75f>] [<c01e144a>]
+   [<c01d41b8>] [<c01ca426>] [<c01dfbbd>] [<c01e00bb>] [<c01c13c0>] [<c01c286b>]
+   [<c01c234e>] [<c01c13c0>] [<c01c13f8>] [<c01692f0>] [<c015e5f2>] [<c015e852>]
+   [<c010950f>]
+ Code: 0f 0b cc 0a 08 d3 32 c0 39 74 24 14 7d 45 89 74 24 04 b8 ff
 
 
-And after playing a 48 KHz sound, it changes to
-PCM front DAC    : 41147Hz
-PCM ADC          : 48000Hz
+>>EIP; c01d23dd <dbJoin+7d/f0>   <=====
 
-and regs changes to
-0:2c = a0bb
-0:7a = 49d5
+>>ecx; e0e08000 <_end+209eb828/3848b888>
+>>edx; f615bf64 <_end+35d3f78c/3848b888>
+>>edi; e8c6c010 <_end+2884f838/3848b888>
+>>esp; e0e09cb0 <_end+209ed4d8/3848b888>
 
+Trace; c01d1c95 <dbFreeBits+f5/2c0>
+Trace; c0140de6 <read_cache_page+46/b0>
+Trace; c01d18b3 <dbFreeDmap+43/e0>
+Trace; c01cf75f <dbFree+17f/2b0>
+Trace; c01e144a <txFreeMap+9a/310>
+Trace; c01d41b8 <read_index_page+98/a0>
+Trace; c01ca426 <xtTruncate+a96/d70>
+Trace; c01dfbbd <txUnlock+fd/240>
+Trace; c01e00bb <txCommit+2ab/2f0>
+Trace; c01c13c0 <jfs_delete_inode+0/40>
+Trace; c01c286b <freeZeroLink+ab/1c0>
+Trace; c01c234e <jfs_unlink+13e/440>
+Trace; c01c13c0 <jfs_delete_inode+0/40>
+Trace; c01c13f8 <jfs_delete_inode+38/40>
+Trace; c01692f0 <iput+130/2b0>
+Trace; c015e5f2 <vfs_unlink+f2/1c0>
+Trace; c015e852 <sys_unlink+192/2f0>
+Trace; c010950f <system_call+33/38>
 
--- 
-Meelis Roos (mroos@linux.ee)
+Code;  c01d23dd <dbJoin+7d/f0>
+00000000 <_EIP>:
+Code;  c01d23dd <dbJoin+7d/f0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01d23df <dbJoin+7f/f0>
+   2:   cc                        int3
+Code;  c01d23e0 <dbJoin+80/f0>
+   3:   0a 08                     or     (%eax),%cl
+Code;  c01d23e2 <dbJoin+82/f0>
+   5:   d3                        (bad)
+Code;  c01d23e3 <dbJoin+83/f0>
+   6:   32 c0                     xor    %al,%al
+Code;  c01d23e5 <dbJoin+85/f0>
+   8:   39 74 24 14               cmp    %esi,0x14(%esp,1)
+Code;  c01d23e9 <dbJoin+89/f0>
+   c:   7d 45                     jge    53 <_EIP+0x53>
+Code;  c01d23eb <dbJoin+8b/f0>
+   e:   89 74 24 04               mov    %esi,0x4(%esp,1)
+Code;  c01d23ef <dbJoin+8f/f0>
+  12:   b8 ff 00 00 00            mov    $0xff,%eax
 
+Happy to provide any further information...
+
+kevin

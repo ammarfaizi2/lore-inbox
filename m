@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135809AbRDTFiU>; Fri, 20 Apr 2001 01:38:20 -0400
+	id <S135810AbRDTFtn>; Fri, 20 Apr 2001 01:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135810AbRDTFiL>; Fri, 20 Apr 2001 01:38:11 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:23790 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S135809AbRDTFhw>; Fri, 20 Apr 2001 01:37:52 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200104200535.f3K5Ze82017093@webber.adilger.int>
-Subject: Re: [Ext2-devel] ext2 inode size (on-disk)
-In-Reply-To: <Pine.GSO.4.21.0104192213060.19860-100000@weyl.math.psu.edu>
- "from Alexander Viro at Apr 19, 2001 10:23:39 pm"
-To: Alexander Viro <viro@math.psu.edu>
-Date: Thu, 19 Apr 2001 23:35:40 -0600 (MDT)
-CC: tytso@valinux.com, linux-kernel@vger.kernel.org,
-        Andreas Dilger <adilger@turbolinux.com>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S135811AbRDTFtZ>; Fri, 20 Apr 2001 01:49:25 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:17865 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S135810AbRDTFtE>;
+	Fri, 20 Apr 2001 01:49:04 -0400
+Date: Thu, 19 Apr 2001 22:48:55 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Roberto Nibali <ratz@tac.ch>
+cc: <linux-kernel@vger.kernel.org>, Donald Becker <becker@scyld.com>,
+        Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
+In-Reply-To: <3ADEE2D7.B17C3BF8@tac.ch>
+Message-ID: <Pine.LNX.4.33.0104192241060.4771-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al writes:
-> I don't think that it's needed - old kernels (up to -CURRENT ;-) will
-> simply refuse to mount if ->s_inode_size != 128. Old utilites may be
-> trickier, though...
+On Thu, 19 Apr 2001, Roberto Nibali wrote:
 
-Probably would need an incompat flag for changing the inode size anyways,
-so old utilities wouldn't set that anyways.
+> A 2.2.x UP-APIC patch would maybe improve things here while under
+> heavy load. I'm using such boxes as packetfilters. All quadboards
+> get IRQ 11 which is rather nasty considering a possible throughput
+> of 40Mbit/s per NIC.
 
-> I'm somewhat concerned about the following: last block of inode table
-> fragment may have less inodes than the rest. Reason: number of inodes
-> per group should be a multiple of 8 and with inodes bigger than 128
-> bytes it may give such effect. Comments?
+The UP-APIC wouldn't help much since there really aren't other processors 
+available to share the load.
 
-I don't _think_ that there is a requirement for a multiple-of-8 inodes
-per group.  OK, looking into mke2fs (actually lib/ext2fs/initialize.c)
-it _does_ show that it needs to be a multiple of 8, but I'm not sure
-exactly what the "bitmap splicing code" mentioned in the comment is.
+On the other hand, this is not as bad as it looks. In fact, it will
+function rather well and with relatively little overhead if all configured
+interfaces are seeing traffic on a regular basis. The IRQ dispatcher will
+simply call all registered interrupt routines, and most of them will end
+up doing something useful.
 
-In the end, it doesn't really matter much - if we go with multiple-of-2
-inode sizes, all it means is that we may need to have multiple-of-2 (or
-possibly 4 for 512-byte inodes in a 1k block filesystem) inode table
-blocks in each group.  Not a big deal.  The code already handles this.
+> Would be nice if I could fix the "early initialization ..." problem
+> too. I'm still checking the Space.c code:
+[snip]
 
-> I would really, really like to end up with accurate description of
-> inode table layout somewhere in Documentation/filesystems. Heck, I
-> volunteer to write it down and submit into the tree ;-)
+Well.. Space.c is a dinozaur. However, this is the 2.2 series and no more 
+surgery will happen on this kernel, at least normally.
 
-I can write a few words as well.
+Have you tried loading the drivers as modules? You might have more luck 
+with that approach. Space.c was designed at a time when having 4 NIC's in 
+a PC was "pushing the limits"...
 
-Cheers, Andreas
+> Why isn't it possible to put the "probed" counter into the Space.c for all
+> network drivers? So people would not need to care about and the driver
+> code would yet be more generic (at least a little bit).
+
+Because, again, this is legacy code. It works, it does the job, that's it. 
+All this crap is gone in 2.4.
+
+> Any pointers, sources are welcome and in hope for some further wisdom,
+
+Like I said, try the modules approach. If that doesn't work, I'll take a
+closer look (and maybe borrow a few quads from work so I can actually test
+the code...)
+
+Ion
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

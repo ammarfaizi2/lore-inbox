@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290735AbSARQkv>; Fri, 18 Jan 2002 11:40:51 -0500
+	id <S290749AbSARQyb>; Fri, 18 Jan 2002 11:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290737AbSARQka>; Fri, 18 Jan 2002 11:40:30 -0500
-Received: from server1.symplicity.com ([209.61.154.230]:32004 "HELO
-	mail2.symplicity.com") by vger.kernel.org with SMTP
-	id <S290735AbSARQkV>; Fri, 18 Jan 2002 11:40:21 -0500
-From: "Alok K. Dhir" <alok@dhir.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Autostart RAID 1+0 (root)
-Date: Fri, 18 Jan 2002 11:40:55 -0500
-Message-ID: <001201c1a03e$e654acd0$9865fea9@pcsn630778>
+	id <S290739AbSARQyH>; Fri, 18 Jan 2002 11:54:07 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:47015 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S290749AbSARQxd>; Fri, 18 Jan 2002 11:53:33 -0500
+Message-ID: <3C4852F9.C6797478@sap.com>
+Date: Fri, 18 Jan 2002 17:53:13 +0100
+From: Willi =?iso-8859-1?Q?N=FC=DFer?= <wilhelm.nuesser@sap.com>
+Organization: SAP AG
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-12SAP.lfs i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: clarification about redhat and vm
+In-Reply-To: <E16RFE9-00042W-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > "If redhat doesn't use the -aa VM " was a short form of "if redhat
+> > cannot see the goodness of all the bugfixing work that happened between
+> > the 2.4.9 VM and any current branch 2.4, and so if they keep shipping
+> > 2.4.9 VM as the best one for DBMS and critical VM apps like the SAP
+> > benchmark".
+> 
+> The RH VM is totally unrelated to the crap in 2.4.9 vanilla. The SAP comment
+> begs a question. 2.4.10 seems to have problems remembering to actually
+> do fsync()'s. How much of your SAP benchmark is from fsync's that dont
+> happen ? Do you get the same values with 2.4.18-aa ?
 
-Hey all - I may be trying to do the impossible here, but here goes:
 
-I want to test using a software RAID 1+0 partition as root: md0 and md1
-set up as mirrors between two disks each, and md2 set up as a stripe
-between md0 and md1.  However, the RedHat 7.2 installer doesn't allow
-creating nested RAID partitions.
+Well, basically we checked the thing many times with quite different
+kernels.
+Our current tests - which show exactly the same results as
+2.4.[10,14,15] - run
+on the new "official" SuSE kernel 2.4.16.  Again, we  observe a
+performance increase
+in high swap situations of about a factor of ten compared to 2.4.[7,9].
+ 
+IMO, this shows that errors like fsync etc. are _not_ responsible for
+the improved
+performance.  
 
-Being stubborn, I installed the OS onto a separate 4 gig disk, installed
-all the latest patches+fixes to the OS, including the RH2.4.9-13 kernel,
-then created md0, md1, and md2.  I formatted md2 with reiserfs.  No
-problem so far.
+But of course, we will check the newer kernels as well.  I think we
+could live 
+with another factor of ten ...
 
-Next, I copied the entire contents of the root partition onto md2,
-changed the relevant line of /boot/grub/grub.conf from:
 
-	kernel /vmlinuz-2.4.9-13 ro root=/dev/sda2
 
-To:
+-- 
+Best regards
+Willi
 
-	kernel /vmlinuz-2.4.9-13 ro root=/dev/md2
-
-Changed fstab so "/" points to /dev/md2 as well, crossed my fingers, and
-rebooted.
-
-No luck.  I get a "cannot mount root" error.
-
-Attempting to speed read the boot messages before I get the panic, it
-appears that md0 and md1 are autostarted, but it doesn't look like md2
-is.
-
-Does the kernel support autostarting nested RAID partitions?
-
-Is doing software 1+0 a bad idea anyway due to performance issues?
-
-Any ideas?
-
-Thanks!
-
+-----------------------------------
+Willi Nuesser
+SAP Linuxlab

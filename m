@@ -1,58 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291771AbSBAOk7>; Fri, 1 Feb 2002 09:40:59 -0500
+	id <S291775AbSBAOoj>; Fri, 1 Feb 2002 09:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291772AbSBAOkt>; Fri, 1 Feb 2002 09:40:49 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:42169 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S291771AbSBAOkp>;
-	Fri, 1 Feb 2002 09:40:45 -0500
-Date: Fri, 1 Feb 2002 15:40:34 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd in 2.5.3 does not work, and can cause severe damage when read-write
-Message-ID: <20020201144034.GA5982@vana.vc.cvut.cz>
-In-Reply-To: <20020131132446.GA23990@vana.vc.cvut.cz> <20020131212157.GA516@elf.ucw.cz>
+	id <S291777AbSBAOo3>; Fri, 1 Feb 2002 09:44:29 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:23328 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S291775AbSBAOoP>; Fri, 1 Feb 2002 09:44:15 -0500
+Date: Fri, 1 Feb 2002 15:44:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Momchil Velikov <velco@fadata.bg>, John Stoffel <stoffel@casc.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020201154433.C9904@athlon.random>
+In-Reply-To: <20020131231242.GA4138@krispykreme> <Pine.LNX.4.33.0202010958220.2111-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020131212157.GA516@elf.ucw.cz>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33.0202010958220.2111-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Feb 01, 2002 at 10:04:50AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 10:21:57PM +0100, Pavel Machek wrote:
-> >     to 20 is needed, as otherwise nbd server commits suicide. Maximum request size
-> >     should be handshaked during nbd initialization, but currently just use
-> >     hardwired 20 sectors, so it will behave like it did in the past.
+On Fri, Feb 01, 2002 at 10:04:50AM +0100, Ingo Molnar wrote:
 > 
-> But please do not apply this one. Nbd servers should be fixed, and I
-> already have fix in cvs. (Besides, its trivial). Just make buffer in
-> server 1MB big.
+> On Fri, 1 Feb 2002, Anton Blanchard wrote:
 > 
-> I do not like idea of handshake.
+> > There were a few solutions (from davem and ingo) to allocate a larger
+> > hash but with the radix patch we no longer have to worry about this.
+> 
+> there is one big issue we forgot to consider.
+> 
+> in the case of radix trees it's not only search depth that gets worse with
+> big files. The thing i'm worried about is the 'big pagecache lock' being
+> reintroduced again. If eg. a database application puts lots of data into a
+> single file (multiple gigabytes - why not), then the
+> mapping->i_shared_lock becomes a 'big pagecache lock' again, causing
+> serious SMP contention for even the read() case. Benchmarks show that it's
+> the distribution of locks that matters on big boxes.
 
-I do not like breaking backward compatibility when there is no
-need for that, but as you will be the target of the complaints...
+exactly, this is the same thing I mentioned in some past email. It's not
+that having per-inode data structures solves the locking completly, DBMS
+are used to store stuff in a single file. And of course with a structure
+like radix tree it would be a pain to have it scale within the same
+file, unlike with the hashtable where each bucket is indipendent from
+the others.
 
-Linus, this reverts limit for request size from 10KB to unlimited.
-Although no released nbd version supports it, it is certainly better to
-add support to servers than cripple clients if incompatibility does
-not matter.
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+> 
+> dbench hides this issue, because it uses many temporary files, so the
 
- 
-diff -urdN linux/drivers/block/nbd.c linux/drivers/block/nbd.c
---- linux/drivers/block/nbd.c	Thu Jan 31 19:00:00 2002
-+++ linux/drivers/block/nbd.c	Thu Jan 10 18:15:38 2002
-@@ -518,7 +518,6 @@
- 	blksize_size[MAJOR_NR] = nbd_blksizes;
- 	blk_size[MAJOR_NR] = nbd_sizes;
- 	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_nbd_request, &nbd_lock);
--	blk_queue_max_sectors(BLK_DEFAULT_QUEUE(MAJOR_NR), 20);
- 	for (i = 0; i < MAX_NBD; i++) {
- 		nbd_dev[i].refcnt = 0;
- 		nbd_dev[i].file = NULL;
+Indeed, a lot of workloads would benefit from the separate data
+structure and locking, but not all, some important one not.
 
+> locking overhead is distributed. Would you be willing to run benchmarks
+> that measure the scalability of reading from one bigger file, from
+> multiple CPUs?
+
+Agreed, also with DaveM patch applied, sizing the hash properly so it
+has a mean distribution of 1 entry per bucket or so, will decrease the
+window for the spinlock collisions as well btw.
+
+> 
+> with hash based locking, the locking overhead is *always* distributed.
+> 
+> with radix trees the locking overhead is distributed only if multiple
+> files are used. With one big file (or a few big files), the i_shared_lock
+> will always bounce between CPUs wildly in read() workloads, degrading
+> scalability just as much as it is degraded with the pagecache_lock now.
+> 
+> 	Ingo
+
+
+Andrea

@@ -1,57 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbTENPQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbTENPOh
+	id S262568AbTENPYY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTENPYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:14:37 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:60867 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S262437AbTENPMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:12:51 -0400
-Date: Wed, 14 May 2003 10:25:26 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@digeo.com>, mika.penttila@kolumbus.fi,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-ID: <51020000.1052925926@baldur.austin.ibm.com>
-In-Reply-To: <20030514150653.GM8978@holomorphy.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
- <20030513181018.4cbff906.akpm@digeo.com>
- <18240000.1052924530@baldur.austin.ibm.com>
- <20030514150653.GM8978@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 14 May 2003 11:24:24 -0400
+Received: from ceniai.net.cu ([169.158.128.142]:57361 "EHLO
+	mail1.ceniai.inf.cu") by vger.kernel.org with ESMTP id S262568AbTENPYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 11:24:23 -0400
+Message-ID: <022301c31a48$7b8272e0$848e9ea9@vh>
+From: "dirf" <dirf@ciget.granma.inf.cu>
+To: <linux-kernel@vger.kernel.org>
+Date: Wed, 14 May 2003 11:41:49 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Server: VPOP3 V1.3.0b - Registered to: The GodFader
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
+My questions, for a moment, are very simple. I hope that you can help me.
 
---On Wednesday, May 14, 2003 08:06:53 -0700 William Lee Irwin III
-<wli@holomorphy.com> wrote:
-
->> Which the application thinks is still part of the file, and will expect
->> its changes to be written back.  Granted, if the page fault occurred
->> just after the truncate it'd get SIGBUS, so it's clearly not a robust
->> assumption, but it will result in unexpected behavior.  Note that if the
->> application later extends the file to include this page it could result
->> in a corrupted file, since all the pages around it will be written
->> properly.
-> 
-> Well, for this one I'd say the app loses; it was its own failure to
-> synchronize truncation vs. access, at least given that the kernel
-> doesn't oops.
-
-I think allowing a race condition that can randomly leave corrupted files
-is a really bad idea, even if the app is doing something stupid.  We know
-what the race is.  We should be able to prevent it.
-
-Dave
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+- Where I can find a list of RFCs?
+- Where I can find a cdfs format ( cd file system format)?

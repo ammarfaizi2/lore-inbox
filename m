@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTDXJAv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 05:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbTDXJAv
+	id S261970AbTDXJC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 05:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbTDXJC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 05:00:51 -0400
-Received: from holomorphy.com ([66.224.33.161]:16552 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261921AbTDXJAu (ORCPT
+	Thu, 24 Apr 2003 05:02:56 -0400
+Received: from holomorphy.com ([66.224.33.161]:18856 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261970AbTDXJCu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 05:00:50 -0400
-Date: Thu, 24 Apr 2003 02:12:50 -0700
+	Thu, 24 Apr 2003 05:02:50 -0400
+Date: Thu, 24 Apr 2003 02:14:54 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] desc.c -- dump the i386 descriptor tables
-Message-ID: <20030424091250.GO8978@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, rml@tech9.net
+Subject: Re: 2.5.68-mm2
+Message-ID: <20030424091454.GP8978@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200304240509_MC3-1-35CF-A2DD@compuserve.com>
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, rml@tech9.net
+References: <20030423012046.0535e4fd.akpm@digeo.com> <20030423095926.GJ8931@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304240509_MC3-1-35CF-A2DD@compuserve.com>
+In-Reply-To: <20030423095926.GJ8931@holomorphy.com>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wli wrote:
->> Spiffy; this should help debug various things.
+On Wed, Apr 23, 2003 at 02:59:26AM -0700, William Lee Irwin III wrote:
+> rml and I coordinated to put together a small patch (combining both
+> our own) for properly locking the static variables in out_of_memory().
+> There's not any evidence things are going wrong here now, but it at
+> least addresses the visible lack of locking in out_of_memory().
+> Applies cleanly to 2.5.68-mm2.
 
-On Thu, Apr 24, 2003 at 05:06:58AM -0400, Chuck Ebbert wrote:
->   I forgot to mention: try comparing 2.2, 2.4 and 2.5.
->   Also, this is what I've been using to look at interrupt entry
-> point alignment.  On 2.4 for sure, and probably on 2.5 you have
-> a 1-in-8 chance of getting a pathologically badly aligned timer
-> handler on 32-byte cacheline machines every time you compile
-> (IRQ 0 entry address & 0x1f == 0x1c.)  OTOH the pagefault handler
-> has come up 8-byte aligned every time but I didn't look at the
-> source to see if it's coded that way.
-
-I had more in mind using it to verify the correctness of per-node IDT
-stuff than checking optimality in general, but it does look very handy.
+Improved OOM killer behavior verified on 64GB i386.
 
 
 -- wli

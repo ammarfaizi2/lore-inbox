@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbTHYTgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 15:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbTHYTgc
+	id S262160AbTHYTho (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 15:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTHYTho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 15:36:32 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:3717 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S262193AbTHYTg1 (ORCPT
+	Mon, 25 Aug 2003 15:37:44 -0400
+Received: from fed1mtao02.cox.net ([68.6.19.243]:1159 "EHLO fed1mtao02.cox.net")
+	by vger.kernel.org with ESMTP id S262160AbTHYThU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 15:36:27 -0400
-Date: Mon, 25 Aug 2003 20:36:00 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andries Brouwer <aebr@win.tue.nl>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030825193600.GA24233@mail.jlokier.co.uk>
-References: <20030815141328.GA16176@ucw.cz> <16189.58357.516036.664166@gargle.gargle.HOWL> <20030821003606.A3165@pclin040.win.tue.nl> <20030820225812.GB24639@mail.jlokier.co.uk> <20030821015258.A3180@pclin040.win.tue.nl> <20030821080145.GA11263@ucw.cz> <20030822022709.A3640@pclin040.win.tue.nl> <20030822073328.GA7473@ucw.cz> <20030825042235.GB20529@mail.jlokier.co.uk> <20030825082248.GA3341@ucw.cz>
+	Mon, 25 Aug 2003 15:37:20 -0400
+Date: Mon, 25 Aug 2003 12:37:17 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
+Message-ID: <20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
+References: <20030824171318.4acf1182.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030825082248.GA3341@ucw.cz>
+In-Reply-To: <20030824171318.4acf1182.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> > That works well for typing, but if someone tries to use these keys in
-> > an action game, they will disappointed with the forced-up code - the
-> > game will see the key pressed and released, even when the user holds
-> > the key down for a long time.
-> 
-> Indeed. Are you expecting a game to be able to use the WWW or Calculator
-> keys for anything useful?
+I'm really short on time right now, so this bug report might be vague,
+but it's important enough for me to try:
 
-Of course.  It's not unusual for a game to have a "define keys"
-option, where you press a key for each action, to set the key
-bindings.  Sometimes you pick mnemonic keys; other times, you pick
-keys because of how their position feels, like making a custom joypad.
+I have an NFS fileserver (running 2.6.0-test4-mm1) exporting stuff from
+three filesystems: ReiserFS, ext3, and XFS. I'm seeing no problems with
+my ReiserFS and ext3 filesystems. XFS is a different story.
 
-On my Microsoft multimedia keyboard there are about 20 keys that I
-could see being useful for that, especially as mnemonic keys.
+My client machine is running 2.4.21bkn1 (my own kernel, not released to
+the public; the differences from vanilla 2.4.21 are XFS and Win4Lin). 
 
-> > There is only one solution which works well that I can see: do the
-> > forced-up thing by default, but as soon as you see a real UP event
-> > from a key, disabled forced-up _for that key_ in future.
-> 
-> Won't work. There are keyboards that forget to send a key up event
-> sometimes. They usually send it, but from time to time they don't.
-> We need to cover these keyboards, too. It's actually the main reason for
-> the whole forced up thingy.
+If I use my client machine to sign RPM packages (rpm --addsign ...),
+using rpm-4.2-16mdk, and the packages are on the XFS partition on the
+NFS server, about half of the packages are truncated by a couple hundred
+bytes afterwards (and GPG sig verification fails on those packages).
 
-:(  That's a shame, and a peculiar bug too.  Then I agree that
-forced-up is needed all the time, if we do not know what triggers the
-keyboard to forget to send one or have any way to detect it.
+It's always the same packages that get truncated by the same amounts of
+data. This is 100% reproducible. It doesn't matter whether I compile the
+kernel with gcc 2.95.3 or 3.1.1. If I perform the operation on my non-XFS
+filesystem the problem doesn't happen. If I run 2.6.0-test4-bk2 instead of
+test4-mm1 on the NFS server, the problem goes away. (I have never run
+any previous -mm kernels on this server.)
 
-It is not so bad, because even the multimedia keys will be fine on
-good quality keyboards.
+Hmmm... If I sign the packages on the NFS server itself, even with
+test4-mm1 on the XFS partition, I can't reproduce the problem.
+*However*, that's a different version of RPM (4.0.4).
 
-> I'll give you a kernel/module option to disable the forced up effect if
-> you have a perfect keyboard. You can then also enable the untranslated
-> mode and set 3. But the default will be translated set 2 with forced
-> keyups if a key is not repeating.
+Is this enough information to help find the cause of the bug? If not,
+it might be several days (if I'm unlucky, maybe even a week or two)
+before I have time to do anything more...
 
-Fair enough, I agree.
-
--- Jamie
+-Barry K. Nathan <barryn@pobox.com>

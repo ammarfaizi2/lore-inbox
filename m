@@ -1,30 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313544AbSDEUj7>; Fri, 5 Apr 2002 15:39:59 -0500
+	id <S313760AbSDEXrX>; Fri, 5 Apr 2002 18:47:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313545AbSDEUjt>; Fri, 5 Apr 2002 15:39:49 -0500
-Received: from cannabis.daphnes.RO ([194.105.18.252]:3853 "HELO
-	cannabis.daphnes.ro") by vger.kernel.org with SMTP
-	id <S313544AbSDEUje>; Fri, 5 Apr 2002 15:39:34 -0500
-Date: Fri, 5 Apr 2002 23:38:37 +0300 (EEST)
-From: halfdead <halfdead@daphnes.ro>
-X-X-Sender: <halfdead@daphnes.ro>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: weird IDT issue
-In-Reply-To: <Pine.LNX.3.95.1020405150455.1257A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0204052332440.19204-100000@daphnes.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313761AbSDEXrM>; Fri, 5 Apr 2002 18:47:12 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:37028 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S313760AbSDEXrF>; Fri, 5 Apr 2002 18:47:05 -0500
+Message-Id: <5.1.0.14.2.20020405154615.0aa676f0@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 05 Apr 2002 15:46:24 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: [PATCH] Bluetooth subsystem sync up
+Cc: alan@lxorguk.ukuu.org.uk, davem@redhat.com, torvalds@transmeta.com,
+        Marcel Holtmann <marcel@rvs.uni-bielefeld.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-first of all, i get the correct idt base. the problem is i cannot
-dereference it, to get the interrupt entry i`m interrested in. second, i
-have tried to get the right segment by pushl %ss / popl %ds . it has the
-same behaviour. i would apreciate if you`d be more clear .. thanks in
-advance for your help.
+Hi Marcelo,
 
-- halfdead
+It's time to sync up our Bluetooth subsystem.
+This patch updates:
+         Documentation/Configure.help
+         include/net/bluetooth
+         net/bluetooth
+         drivers/bluetooth
+and removes EXPERIMENTAL status of the Bluetooth support.
 
+Patch against 2.4.19-pre6 is available at
+         http://bluez.sf.net/patches/bluez-2.0-patch-2.4.19-pre6.gz
+
+Please apply.
+
+ChangeLog:
+         BlueZ Core:
+                 New generic HCI connection manager.
+                 Complete role switch and link policy support.
+                 Security mode 1 and 3 support.
+                 L2CAP service level security support.
+                 HCI filter support.
+                 HCI frame time-stamps.
+                 SCO (voice links) support.
+                 Improved HCI device unregistration (device destructors).
+                 Support for L2CAP signalling frame fragmentation.
+                 Improved L2CAP timeout handling.
+                 New HCI ioctls for changing ACL and SCO MTU.
+                 Killed HCI_MAX_DEV limit.
+                 Security fixes.
+
+         New HCI USB driver:
+                 Performance improvements.
+                 Firmware loading support.
+                 Stability fixes. URB and disconnect handling rewrite.
+
+         New HCI UART driver:
+                 Support for multiple UART protocols.
+
+         New HCI PCMCIA driver:
+                 DTL1 driver for Nokia Bluetooth PC Cards.
+
+Thanks
+
+Max
+
+http://bluez.sf.net
+http://vtun.sf.net
 

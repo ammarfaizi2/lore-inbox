@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129809AbQKDIir>; Sat, 4 Nov 2000 03:38:47 -0500
+	id <S131653AbQKDIkH>; Sat, 4 Nov 2000 03:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131714AbQKDIii>; Sat, 4 Nov 2000 03:38:38 -0500
-Received: from ares.ssi.bg ([195.138.149.70]:6916 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S131653AbQKDIiU>;
-	Sat, 4 Nov 2000 03:38:20 -0500
-Date: Sat, 4 Nov 2000 10:37:54 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
-In-Reply-To: <20001104015110.A32767@athlon.random>
-Message-ID: <Pine.LNX.4.04.10011040953230.511-100000@u>
+	id <S131714AbQKDIj5>; Sat, 4 Nov 2000 03:39:57 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:12556 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131653AbQKDIjr>;
+	Sat, 4 Nov 2000 03:39:47 -0500
+Message-ID: <3A03CB4B.20183FED@mandrakesoft.com>
+Date: Sat, 04 Nov 2000 03:39:39 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Hammerton <dhammerton@labyrinth.net.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4-test10: new wrapper.h brakes drivers
+In-Reply-To: <200011040827.TAA14095@mr14.vic-remote.bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Hammerton wrote:
+> 
+> Hi,
+> 
+> i just installed the latest kernel (2.4-test10).
+> 
+> On recompilation of my "Nvidia" kernel drivers (for geforce 2 3d video support
+> in linux), it failed linking to "mem_map_inc_count" (and dec_count).
+> 
+> Im not much of a programmer, but to get it working all i had to do was to add
+> to '/usr/src/linux/include/linux/wrapper.h':
+> /*the patch*/
+> #define mem_map_inc_count(p)    atomic_inc(&(p->count))
+> #define mem_map_dec_count(p)    atomic_dec(&(p->count))
+> /*end patch*/
+> 
+> yes, you'll notice i ripped this out of the older kernels..
+> 
+> good luck in finding an alternative, or just leave it in, or whatever.
 
-	Hello,
+if the nvidia kernel shell needs to support multiple kernel versions,
+they should add
 
-On Sat, 4 Nov 2000, Andrea Arcangeli wrote:
+#ifndef mem_map_inc_count
+...compat code...
+#endif
 
-> On Sat, Nov 04, 2000 at 01:09:42AM +0000, Julian Anastasov wrote:
-> > 	Something like the attached old patch for 2.2. It is very
->
-> It's not ok for 64bit archs.
-
-	Agreed. I see very different definitions for TASK_UNMAPPED_BASE
-and ELF_ET_DYN_BASE in all archs and I'm not a guru to make this patch
-for all archs but everyone can see the idea. May be the signed int max
-value is not suitable for users that need large brk allocations with
-more than 2GB on 32bit, i.e. cur_task_unmapped_base is enough. Using
-machines with this RAM size and more are already a common practice but
-I'm not sure if this feature is so useful compared to the difficulties
-to implement it for all archs.
-
-> Andrea
-
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

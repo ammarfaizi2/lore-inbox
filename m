@@ -1,170 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263285AbVBDQ41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVBDRB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263285AbVBDQ41 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 11:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbVBDQ41
+	id S261596AbVBDRB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbVBDRBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 11:56:27 -0500
-Received: from moutng.kundenserver.de ([212.227.126.190]:57855 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263285AbVBDQzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 11:55:52 -0500
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: Shane Hathaway <shane@hathawaymix.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Configure MTU via kernel DHCP
-Date: Fri, 4 Feb 2005 17:55:41 +0100
-User-Agent: KMail/1.5.4
-References: <200502022148.00045.shane@hathawaymix.org>
-In-Reply-To: <200502022148.00045.shane@hathawaymix.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 12:01:55 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:50314 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261596AbVBDRBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 12:01:35 -0500
+Date: Fri, 4 Feb 2005 18:03:07 +0100
+From: Stelian Pop <stelian@popies.net>
+To: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050204170306.GB3467@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502041755.41288.hpj@urpla.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
+In-Reply-To: <20050204160631.GB26748@bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Shane,
+[Taking hpa out of CC:, I don't think he is interested anymore]
 
-On Thursday 03 February 2005 05:47, Shane Hathaway wrote:
-> The attached patch enhances the kernel's DHCP client support (in
-> net/ipv4/ipconfig.c) to set the interface MTU if provided by the
-> DHCP server. Without this patch, it's difficult to netboot on a
-> network that uses jumbo frames.  The patch is based on 2.6.10, but
-> I'll update it to the latest testing kernel if that would expedite
-> its inclusion in the kernel.
+On Fri, Feb 04, 2005 at 08:06:31AM -0800, Larry McVoy wrote:
 
-Well, I've been there before, and asked for exact the same back in 
-June 2003, but had much less luck, nobody of kernel fame even 
-responded:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105624464918574&w=4
+> You need to rethink your math, you are way off.  I'll explain it so that
+> the rest of the people can see this is just pure FUD.  
 
-Only Ken Yap of etherboot fame told me:
-> I have a feeling you will not get much sympathy for 2.[56] because
-> there ipconfig in the kernel is deprecated in favour of userspace
-> config from the initrd.
+There is no FUD in all what I said, for the simple reasons that we
+are saying exactly the same thing: 
+	* the data is there
+	* the metadata is there
+	* all that is missing is some metadata boundaries.
 
-Well that's life. 
+> My good friend Stelian would have you believe that you are missing 50%
+> of your data when in fact you are missing NONE of your data, you have 
+> ALL of your data in an almost the identical form.
 
-For what is worth it, I ported my patch to current 2.6, which raised 
-some comments compared to yours:
+My good friend Larry would have you believe that I said something
+I just never did. Go back and read the archives.
 
- - Is it really necessary to protect the dev_set_mtu call, since it is
-   just setting up the device?
- - I prefer to call dev_set_mtu only, if a change mtu request is
-   sent.. 
- - Are you sure, you got the endianess right? 
+> What Stelian is complaining about is the patch set which is easily 
+> extractable from CVS is at a coarser granularity than the patch set
+> extractable from BK.  That's true [...]
 
-Here's the "cost": ipconfig.o without my patch on x86:
+Exactly. You see, you understood exactly what I did say. And I'm pretty
+sure all the audience did.
 
-  3 .init.data    0000005a  00000000  00000000  00000220  2**2
-                  CONTENTS, ALLOC, LOAD, RELOC, DATA
-  4 .rodata.str1.1 000001a2  00000000  00000000  0000027a  2**0
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA
-  5 .rodata.str1.4 000003ad  00000000  00000000  0000041c  2**2
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA
-  6 .init.text    00001a45  00000000  00000000  000007d0  2**4
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+> [...] but so what?  Before BK you only
+> a handful of patches between releases, now you have thousands.
 
-With patch:
+I'm not interested in ranting. I already did say that BK was good
+for the kernel development, what more would you like me to say ?
 
-  3 .init.data    0000005e  00000000  00000000  00000220  2**2
-                  CONTENTS, ALLOC, LOAD, RELOC, DATA
-  4 .rodata.str1.1 000001ab  00000000  00000000  0000027e  2**0
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA
-  5 .rodata.str1.4 000003e5  00000000  00000000  0000042c  2**2
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA
-  6 .init.text    00001ab5  00000000  00000000  00000820  2**4
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+> 
+> I suppose what we could do is stick the BK changeset key into the 
+> delta history so that if you really wanted to get the BK level
+> granularity you could.
 
-Difference: 181 Bytes (padding ignored)
+This would be nice indeed and I think it would end up all whinning
+since using that, one could be able to get the full history from the
+bkcvs repository. But would you do that ?
 
-The whole module takes about 9K, compared to dhcp in initrd, which 
-takes a few hundred K! Hmm.
+> > [describes violating the license]
+> > But you may consider this contrary to the 'non competitor' clause of
+> > the BKL (clause 3d), that's why I need some authorization from you
+> > before starting.
+> 
+> And you most certainly do not have it, as you are aware it is a
+> violation of the license.
 
-> Incidentally, ipconfig.c doesn't appear to do enough bounds
-> checking on byte 1 of DHCP/BOOTP extension fields (the length
-> field).  It looks like a malicious DHCP server could mess with
-> kernel memory that way.  I could try to fix the hole, but maybe
-> someone more experienced with this code would like to verify
-> there's a problem first.
+I was merely proposing my help to do something you said you don't
+wanna do because it would consume too much resources. Does this
+proposal deserves such a rude answer ? 
 
-That's an interesting question. Please keep me informed on any new 
-perceptions in this respect.
+Moreover, I said "you may consider...", not "I am aware it is...".
+Using BK to write a script which helps extracting the metadata is not
+clearly a violation, since the script itself does not "compete with
+the BitKeeper Software.". This part a clarification, and this is
+what I asked for.
 
-May the linux gods indulge on this topic one day or remove the 
-ipconfig module completely.
+The distribution of the metadata is clearly a violation, but you
+didn't quote that part of the proposal...
 
---- linux-2.6/net/ipv4/ipconfig.c.orig	2005-02-04 15:59:42.430518242 +0100
-+++ linux-2.6/net/ipv4/ipconfig.c	2005-02-04 17:07:14.526384702 +0100
-@@ -29,6 +29,10 @@
-  *
-  *  Multiple Nameservers in /proc/net/pnp
-  *              --  Josef Siemes <jsiemes@web.de>, Aug 2002
-+ *
-+ *  Support for MTU selection via DHCP
-+ *              -- Hans-Peter Jansen <hpj@urpla.net>, June 2003
-+ *                              redone for 2.6 in February 2005
-  */
- 
- #include <linux/config.h>
-@@ -151,6 +155,9 @@
- /* Protocols supported by available interfaces */
- static int ic_proto_have_if __initdata = 0;
- 
-+/* MTU of device (if requested) */
-+static int ic_dev_mtu __initdata = 0;
-+
- #ifdef IPCONFIG_DYNAMIC
- static DEFINE_SPINLOCK(ic_recv_lock);
- static volatile int ic_got_reply __initdata = 0;    /* Proto(s) that replied */
-@@ -322,6 +329,12 @@
- 		printk(KERN_ERR "IP-Config: Unable to set interface broadcast address (%d).\n", err);
- 		return -1;
- 	}
-+	if (ic_dev_mtu) {
-+		if ((err = dev_set_mtu(ic_dev, ic_dev_mtu)) < 0)
-+			printk(KERN_ERR "IP-Config: Unable to set interface mtu to %d (%d).\n", 
-+				ic_dev_mtu, err);
-+			/* Don't error out because set mtu failure, just notice the operator */
-+	}
- 	return 0;
- }
- 
-@@ -609,6 +622,7 @@
- 			12,	/* Host name */
- 			15,	/* Domain name */
- 			17,	/* Boot path */
-+			26,	/* MTU */
- 			40,	/* NIS domain name */
- 		};
- 
-@@ -812,6 +826,9 @@
- 			if (!root_server_path[0])
- 				ic_bootp_string(root_server_path, ext+1, *ext, sizeof(root_server_path));
- 			break;
-+		case 26:	/* MTU */
-+			ic_dev_mtu = ntohs(*(u16 *)(ext+1));
-+			break;
- 		case 40:	/* NIS Domain name (_not_ DNS) */
- 			ic_bootp_string(system_utsname.domainname, ext+1, *ext, __NEW_UTS_LEN);
- 			break;
-@@ -1363,6 +1380,8 @@
- 	 */
- 	printk("IP-Config: Complete:");
- 	printk("\n      device=%s", ic_dev->name);
-+	if (ic_dev_mtu)
-+		printk(", mtu=%d", ic_dev_mtu);
- 	printk(", addr=%u.%u.%u.%u", NIPQUAD(ic_myaddr));
- 	printk(", mask=%u.%u.%u.%u", NIPQUAD(ic_netmask));
- 	printk(", gw=%u.%u.%u.%u", NIPQUAD(ic_gateway));
+> Asking for an exception is about as polite as
+> me asking for an exception from the GPL's requirements.
 
+I don't see what 'polite' has to do with it. If one of us tends to
+be rude I would say that's you...
 
-Compile tested. Any takers?
+Anyway, it is perfectly valid to ask the author(s) for an exception 
+to the distribution license. The author is free to reject the demand,
+or to accept it if there is some interest in doing so.
 
-Cheers,
-Pete
-
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

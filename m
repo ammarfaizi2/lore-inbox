@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265412AbRF2Cdb>; Thu, 28 Jun 2001 22:33:31 -0400
+	id <S265290AbRF2CwO>; Thu, 28 Jun 2001 22:52:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265418AbRF2CdW>; Thu, 28 Jun 2001 22:33:22 -0400
-Received: from quechua.inka.de ([212.227.14.2]:14394 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S265412AbRF2CdE>;
-	Thu, 28 Jun 2001 22:33:04 -0400
-From: Bernd Eckenfels <W1012@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux and system area networks
-In-Reply-To: <52d77o46ra.fsf@love-boat.topspincom.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E15Fo5g-0006n4-00@sites.inka.de>
-Date: Fri, 29 Jun 2001 04:33:04 +0200
+	id <S265436AbRF2CwE>; Thu, 28 Jun 2001 22:52:04 -0400
+Received: from ip-33-237-104-152.anlai.com ([152.104.237.33]:23567 "EHLO
+	exchsh01.viatech.com.cn") by vger.kernel.org with ESMTP
+	id <S265290AbRF2Cvw> convert rfc822-to-8bit; Thu, 28 Jun 2001 22:51:52 -0400
+Message-ID: <61F2703C314FD5118C0300010250D52E0580C0@exchsh01.viatech.com.cn>
+From: =?utf-8?B?RnJhbmsgWmh1IChTaGFuZ2hhaSk=?= <FrankZhu@viatech.com.cn>
+To: =?utf-8?B?J0FsYW4gQ294Jw==?= <alan@lxorguk.ukuu.org.uk>, mikpe@csd.uu.se
+Cc: bernds@redhat.com,
+        =?utf-8?B?RnJhbmsgWmh1IChTaGFuZ2hhaSk=?= <FrankZhu@viatech.com.cn>,
+        linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+Subject: =?utf-8?B?UkU6IFBST0JMRU06SWxsZWdhbCBpbnN0cnVjdGlvbiB3aGVuIG1v?=
+	=?utf-8?B?dW50IG5mcyBmaWxlIHN5c3RlbXMgdXNpbmc=?=
+Date: Fri, 29 Jun 2001 10:52:45 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <52d77o46ra.fsf@love-boat.topspincom.com> you wrote:
-> We seem to have come full circle.  My original question was about
-> providing a better way for sockets applications to take advantage of
-> SAN hardware.  W2K Datacenter introduces "Winsock Direct," which will
-> bypass the protocol stack when appropriate.  The Infiniband people are
-> working on a "Sockets Direct" standard, which is a similar idea.  No
-> one seems to care about this for Linux.
+ok.
+i just do another test.maybe meaningful.
+1)no matter i select -march=i686 or -march=i386 the result are the same. 
+2)the server 192.168.0.254 (netboot) ,client 192.168.0.3
+there are /usr ,/usr/local/ ,/home, /lib, /bin ....... on the server
+on the client
+A: mount -t nfs netboot:/usr  /usr
+    mount -t nfs netboot:/lib /lib
+    mount -t nfs netboot:/bin /bin
+    mount -t nfs netboot:/sbin /sbin
+Illegal instruction (core dumped)
 
-Well, there is some work done by the zero-copy folks and the sendfile()
-function. Realy much more than a mmaped network socket is not needed.
+B:mount  -t nfs netboot:/usr /1
+    mount -t nfs netboot:/lib /2
+    mount -t nfs netboot:/bin /3
+    mount -t nfs netboot:/sbin /4
+    mount ...................
+ok
 
-Besides it looks like SAN will go all the way in the IP Direction sooner or
-later anyway :)
+it seems that mount on the  same mount point(/usr----/usr....) error occurs
+but on the different mount point(/usr------/1......) seems ok
+then i install a machine with (lower version distribution kernel
+2.2.13)Bluepoint 1.0. there are no mount problems above.
 
-There are some interesting Features like accessing MS SQL 7.0 Server via VIA
-architecture interfaces over SAN, I am not sure o how open VIA is.
+  
 
-Greetings
-Bernd
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: 2001年6月29日 7:12
+To: mikpe@csd.uu.se
+Cc: alan@lxorguk.ukuu.org.uk; bernds@redhat.com; FrankZhu@viatech.com.cn;
+linux-kernel@vger.kernel.org; mikpe@csd.uu.se
+Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using
+
+
+> Here I have to disagree with you Alan. When you pass "-march=i686" to
+> gcc, you are _not_ saying "generate code for a CPUID family 6 CPU".
+> "-march=i686" actually means "target an Intel P6 family chip, given
+> what we currently know about them". The gcc info pages don't talk
+
+Which is fine. The Pentium Pro manual explicitly states that cmov may go
+away. So it is not based on what we know about the CPU, its based on not
+reading the documentation. 
+
+It's a bug. -march=i6868 does not 'target an Intel P6 family chip, ...'
+It happens to work because the error in reading the docs was never triggered
+by intel removing cmov from a cpu as the reserved the right to do
+
+Alan

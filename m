@@ -1,83 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318188AbSHZSDa>; Mon, 26 Aug 2002 14:03:30 -0400
+	id <S318196AbSHZSG3>; Mon, 26 Aug 2002 14:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318190AbSHZSD3>; Mon, 26 Aug 2002 14:03:29 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:11273 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318188AbSHZSD2>;
-	Mon, 26 Aug 2002 14:03:28 -0400
-Date: Mon, 26 Aug 2002 11:07:30 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Linux-usb-users@lists.sourceforge.net
-Subject: [ANNOUNCE] 2002-08-26 release of hotplug scripts
-Message-ID: <20020826180730.GA18536@kroah.com>
+	id <S318205AbSHZSG3>; Mon, 26 Aug 2002 14:06:29 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:5091 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318196AbSHZSG2>;
+	Mon, 26 Aug 2002 14:06:28 -0400
+Date: Mon, 26 Aug 2002 11:07:49 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <andrewm@uow.edu.eu>
+Cc: irda-users@lists.sourceforge.net
+Subject: [BUG/PATCH] : bug in tty_default_put_char()
+Message-ID: <20020826180749.GA8630@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi,
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	Bug : tty_default_put_char() doesn't check the return value of
+tty->driver.write(). However, the later may fail if buffers are full.
 
-I've just packaged up the latest Linux hotplug scripts into a release,
-which can be found at:
- 	http://sourceforge.net/project/showfiles.php?group_id=3D17679
+	Solution : It's not obvious what should be done. The attached
+patch is certainly wrong, but gives you an idea of what the problem
+is.
 
-Or from your favorite kernel.org mirror at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08-26.tar.gz
+	Long story :
+	User weant to do PPP over IrCOMM. "chat" opens ircomm device
+in non blocking mode and write char by char. I suspect that it's using
+the above call, but can't verify (because it doesn't happen to me). As
+IrCOMM has not finished its initialisation (the open was
+non-blocking), it refuses the write and returns 0.
+	Character dropped, user unhappy, bugs me about it.
+	I'll try to workaround that in IrCOMM.
 
-I've also packaged up a Red Hat 7.3 based rpm:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08-26-1.noarch.rpm
-=20
-The source rpm is available if you want to rebuild it for other distros
-at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08_26-1.src.rpm
+	Regards,
 
-The main web site for the linux-hotplug project can be found at:
-	http://linux-hotplug.sf.net/
-which contains lots of documentation on the whole linux-hotplug
-process.  There are also links to kernel patches, not currently in the
-main kernel tree, that provide hotplug functionality to new subsystems
-(like CPU, SCSI, Memory, etc.)
-=20
-The main changes in this release are the following:
-	- fix for USB hotplugging to search /etc/hotplug/usb/*.usermap
+	Jean
 
-Here's the changes (and who made them) from the last release:
-    Changes from David Brownell
-        - load_drivers(): variables are local, and doesn't try
-          usbmodules unless the $DEVICE file exists (it'd fail)
-        - update hotplug.8 manpage to mention Max'patch
-        - patch from Max Krasnyanskiy, now  usb hotplugging also
-          searches /etc/hotplug/usb/*.usermap
-
-   Changes from Fumitoshi UKAI
-        - etc/hotplug/hotplug.functions: grep -q redirect to /dev/null=20
-          closes: debian Bug#145484
-
-thanks,
-
-greg k-h
-
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9am5hMUfUDdst+ykRAnJsAJ9ka5AdXSBq+uapJzMkdXsI/H16lwCfTvpi
-lL/C0u4kP6Ne5/WzcCIjLGA=
-=NUrR
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--
+-----------------------------------------------
+diff -u -p linux/drivers/char/tty_io.t1.c linux/drivers/char/tty_io.c
+--- linux/drivers/char/tty_io.t1.c      Mon Aug 26 10:55:33 2002
++++ linux/drivers/char/tty_io.c Mon Aug 26 10:58:34 2002
+@@ -2021,7 +2021,11 @@ static void initialize_tty_struct(struct
+  */
+ void tty_default_put_char(struct tty_struct *tty, unsigned char ch)
+ {
+-       tty->driver.write(tty, 0, &ch, 1);
++       int ret = tty->driver.write(tty, 0, &ch, 1);
++       /* This might fail if the lower layer is already full - Jean II */
++       if (ret == 0)
++               printk(KERN_WARNING "Warning: dev (%s) put_char failed\n",
++                      kdevname(tty->device));
+ }
+ 
+ /*

@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269395AbRHGUD3>; Tue, 7 Aug 2001 16:03:29 -0400
+	id <S269392AbRHGUD3>; Tue, 7 Aug 2001 16:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269393AbRHGUDU>; Tue, 7 Aug 2001 16:03:20 -0400
-Received: from [208.134.143.150] ([208.134.143.150]:56969 "EHLO
-	mail.playnet.com") by vger.kernel.org with ESMTP id <S269392AbRHGUDE>;
-	Tue, 7 Aug 2001 16:03:04 -0400
-Message-ID: <031901c11f7c$2185b0e0$0b32a8c0@playnet.com>
-From: "Marty Poulin" <mpoulin@playnet.com>
-To: "Dan Podeanu" <pdan@spiral.extreme.ro>,
-        "Torrey Hoffman" <torrey.hoffman@myrio.com>
-Cc: "'David Maynor'" <david.maynor@oit.gatech.edu>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L2.0108072212590.18776-100000@spiral.extreme.ro>
+	id <S269395AbRHGUDT>; Tue, 7 Aug 2001 16:03:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33808 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269393AbRHGUDM>; Tue, 7 Aug 2001 16:03:12 -0400
 Subject: Re: encrypted swap
-Date: Tue, 7 Aug 2001 15:04:13 -0500
+To: justin@soze.net (Justin Guyett)
+Date: Tue, 7 Aug 2001 21:05:18 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108071223100.17919-100000@kobayashi.soze.net> from "Justin Guyett" at Aug 07, 2001 12:48:34 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-Id: <E15UD6N-0003tX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Dan Podeanu" <pdan@spiral.extreme.ro>
-> /proc/kcore & the likes). If its going to be stolen while its offline, you
-> can have your shutdown scripts blank the swap partition and the boot
-> scripts call mkswap on it.
+> And of course, "tamper-resistant", not "tamper-proof".  I wouldn't bet
+> very much money against the NSA being able to get at least some data out
+> of the ibm card.
 
-Assuming that the notebook was shutdown correctly is a big assumption.  The
-notebook could run out of power or freeze-up and if the user is not able to
-immediately able to restart the computer the swap is all laid out with a
-ribbon.
+Im sure they can. In fact in some cases you have to ask the NSA to let you
+posess one. No lock is secure against sufficient force. Once it gets to the
+point its more efficient to blow up your building in a mysterious accident
+than steal your data you've kind of lost anyway
 
-No I have to agree that a more elegant solution to this is encrypt
-everything and require the user to input the password whenever the system
-boots or returns from suspend.
-
-Marty Poulin
-vandal@playnet.com
-Lead Programmer
-Host/Client Communications
-Playnet Inc./Cornered Rat Software
-
+Alan

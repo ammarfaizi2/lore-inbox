@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281075AbRKYVeK>; Sun, 25 Nov 2001 16:34:10 -0500
+	id <S281072AbRKYVdk>; Sun, 25 Nov 2001 16:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281077AbRKYVeC>; Sun, 25 Nov 2001 16:34:02 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:6929 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S281075AbRKYVdw>;
-	Sun, 25 Nov 2001 16:33:52 -0500
-Message-ID: <XFMail.20011125223206.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
+	id <S281075AbRKYVdb>; Sun, 25 Nov 2001 16:33:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31241 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S281072AbRKYVdU>;
+	Sun, 25 Nov 2001 16:33:20 -0500
+Date: Sun, 25 Nov 2001 21:33:16 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Dominik Kubla <kubla@sciobyte.de>
+Cc: Sven.Riedel@tu-clausthal.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux and RS/6000 250
+Message-ID: <20011125213316.J7455@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Dominik Kubla <kubla@sciobyte.de>, Sven.Riedel@tu-clausthal.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011125024652.B26191@moog.heim1.tu-clausthal.de> <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de> <20011125144038.C5506@duron.intern.kubla.de> <20011125174742.A5789@moog.heim1.tu-clausthal.de> <20011125181051.D5506@duron.intern.kubla.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <006701c175f1$d9b10630$0f00a8c0@minniemouse>
-Date: Sun, 25 Nov 2001 22:32:06 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Jon <marsaro@interearth.com>
-Subject: Re: i815 Card ...Machine Freezes
-Cc: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011125181051.D5506@duron.intern.kubla.de>; from kubla@sciobyte.de on Sun, Nov 25, 2001 at 06:10:51PM +0100
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can reproduce this (2.4.15aa1).
-MSI-6215 Booksize, Kernel APM (monolithic kernel, i.e. no modules), no BIOS
-power management, no X11, no framebuffer, just plain 80x25.
-Symptoms: Console blanks but no DPMS blanking (monitor goes not to powersaving
-mode). The system is online (Internet, ISDN, ppp). Then scanning the system
-using Nessus locks up the system solid. Nothing happens when there's no
-ISDN/PPP activity. Didn't try this with LAN activity. No problems with a kernel
-without any power management support.
+On Sun, Nov 25, 2001 at 06:10:51PM +0100, Dominik Kubla wrote:
+> On Sun, Nov 25, 2001 at 05:47:42PM +0100, Sven.Riedel@tu-clausthal.de wrote:
+> > On Sun, Nov 25, 2001 at 02:40:38PM +0100, Dominik Kubla wrote:
+> > > Add a 350 from me.  But the problem is not just the PPC/MCA combination,
+> > > but also the CPU. It's Power, not PowerPC!
+> > 
+> > Really? The IBM website says the following:
+> > 
+> > <quote>
+> > The IBM* RS/6000 Model 250 is flexible and powerful, and performs well
+> > as either a graphics workstation or a server. Driven by a 66MHz PowerPC
+> > 601* microprocessor,[...]
+> > </quote>
+> ...
+> > Marketing strikes again, eh? :/
+> 
+> No, i screwed up. The 250 and the 43P user PowerPC...
 
-On 25-Nov-2001 Jon wrote:
-> Power Management in the BIOS on or compiled into your Kernel?
-> 
-> Regards,
-> 
-> Jon
-> ----- Original Message -----
-> From: "Sid Carter" <sidcarter@symonds.net>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Sunday, November 25, 2001 1:32 AM
-> Subject: i815 Card ...Machine Freezes
-> 
-> 
->> Hi,
->>
->> My Machine with a Intel i815 card hangs if it is not used for
->> sometime. The monitor goes blank and after sometime if I don't use the
->> machine , the system hangs. I can't even use the power switch to
->> poweroff the machine. I have to pull out the power cable from the back
->> of the machine. Kernel am using is 2.4.14 with SGi's XFS Patch.
->>
->> And when I am using X, If I switch from X to console and vice-versa
->> more than once, my machine hangs. Is this a known problem ? The logs
->> show no errors at all. Let me know if more info is required.
->>
->> The relevant output of lspci below:
->>
->> 00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory
-> Controller Hub (rev 02)
->> 00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics
-> Controller] (rev 02)
->>
->> TIA
->> Regards
->>         Carter
->> --
->> The only difference between your girlfriend and a barracuda is the
-> nailpolish.
->>
->> Sid Carter                                                   Debian
-> GNU/Linux.
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+The 7011-250 uses a PowerPC 601, which may or may not be happy with
+arch/ppc.  The 7248 (PReP-based 43P) uses a PowerPC 604 and should run
+fine.  The 7043 (CHRP-based 43P) uses a PowerPC 604e and should also run
+fine.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Joel
+
+
+-- 
+
+"But all my words come back to me
+ In shades of mediocrity.
+ Like emptiness in harmony
+ I need someone to comfort me."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

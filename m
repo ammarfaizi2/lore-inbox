@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbSKPGYf>; Sat, 16 Nov 2002 01:24:35 -0500
+	id <S267236AbSKPGgp>; Sat, 16 Nov 2002 01:36:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbSKPGYe>; Sat, 16 Nov 2002 01:24:34 -0500
-Received: from dp.samba.org ([66.70.73.150]:2189 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267228AbSKPGYe>;
-	Sat, 16 Nov 2002 01:24:34 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Henderson <rth@twiddle.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: in-kernel linking issues 
-In-reply-to: Your message of "Fri, 15 Nov 2002 15:47:47 -0800."
-             <20021115154747.B25789@twiddle.net> 
-Date: Sat, 16 Nov 2002 17:19:49 +1100
-Message-Id: <20021116063131.982452C0FC@lists.samba.org>
+	id <S267237AbSKPGgp>; Sat, 16 Nov 2002 01:36:45 -0500
+Received: from holomorphy.com ([66.224.33.161]:54227 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267236AbSKPGgp>;
+	Sat, 16 Nov 2002 01:36:45 -0500
+Date: Fri, 15 Nov 2002 22:41:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] 2.5.47: strdup()
+Message-ID: <20021116064105.GF23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+References: <87d6p63ui2.fsf@goat.bogus.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87d6p63ui2.fsf@goat.bogus.local>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021115154747.B25789@twiddle.net> you write:
-> On Sat, Nov 16, 2002 at 09:45:21AM +1100, Rusty Russell wrote:
-> > Hmm, OK, I guess this is where I say "patch welcome"?
-> 
-> I guess this is where I say "patch for what"?  Do I have some
-> amount of buy-in for the shared library approach, or do I start
-> adding lots of code to your .o linker?
-> 
-> I guess I could work up a proof-of-concept patch for the former
-> and see what people think...
+On Sat, Nov 16, 2002 at 07:21:09AM +0100, Olaf Dietsche wrote:
++	char *p = kmalloc(strlen(s) + 1, GFP_KERNEL);
 
-The former.  Just hack up a patch for x86 and alpha (skip dropping
-init for now) and we can see what it looks like.  I can do ppc32, and
-when I get back home, ppc64 and Itanium (which IMHO is the real test:
-ia64 seems to have one of everything).
+I'm very concerned the implicit allocation will be abused and OOM
+highmem boxen. Can you at least optionally highmem-allocate the buffers?
 
-It will probably take a week, since I return to .au in two days, and
-that always hurts.  Sorry 8(
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Thanks,
+Bill

@@ -1,258 +1,478 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269267AbUIYHyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269272AbUIYH4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269267AbUIYHyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 03:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269270AbUIYHyJ
+	id S269272AbUIYH4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 03:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269270AbUIYH4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 03:54:09 -0400
-Received: from holomorphy.com ([207.189.100.168]:742 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269267AbUIYHxd (ORCPT
+	Sat, 25 Sep 2004 03:56:43 -0400
+Received: from holomorphy.com ([207.189.100.168]:1766 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269272AbUIYHzb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 03:53:33 -0400
-Date: Sat, 25 Sep 2004 00:53:28 -0700
+	Sat, 25 Sep 2004 03:55:31 -0400
+Date: Sat, 25 Sep 2004 00:55:24 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [vm 4/6] convert users of remap_page_range() under include/asm-*/ to use remap_pfn_range()
-Message-ID: <20040925075328.GH9106@holomorphy.com>
-References: <20040925074445.GD9106@holomorphy.com> <20040925074712.GE9106@holomorphy.com> <20040925074915.GF9106@holomorphy.com> <20040925075102.GG9106@holomorphy.com>
+Subject: [vm 5/6] convert users of remap_page_range() under sound/ to use remap_pfn_range()
+Message-ID: <20040925075524.GI9106@holomorphy.com>
+References: <20040925074445.GD9106@holomorphy.com> <20040925074712.GE9106@holomorphy.com> <20040925074915.GF9106@holomorphy.com> <20040925075102.GG9106@holomorphy.com> <20040925075328.GH9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040925075102.GG9106@holomorphy.com>
+In-Reply-To: <20040925075328.GH9106@holomorphy.com>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 25, 2004 at 12:51:02AM -0700, William Lee Irwin III wrote:
-> This patch converts all callers of remap_page_range() under arch/ and
-> net/ to use remap_pfn_range() instead.
+On Sat, Sep 25, 2004 at 12:53:28AM -0700, William Lee Irwin III wrote:
+> This patch converts uses of remap_page_range() via io_remap_page_range()
+> in include/asm-*/ to use remap_pfn_range(). io_remap_page_range() has a
+> similar physical address overflow issue that needs to be addressed later.
 
-This patch converts uses of remap_page_range() via io_remap_page_range()
-in include/asm-*/ to use remap_pfn_range(). io_remap_page_range() has a
-similar physical address overflow issue that needs to be addressed later.
+This patch converts all users of remap_page_range() under sound/ to use
+remap_pfn_range(), with the exception of maestro3 changelogs, which are
+likely expected to be preserved intact apart from additions (as most
+changelogs are), regardless of API changes.
 
 
-Index: mm3-2.6.9-rc2/include/asm-alpha/pgtable.h
+Index: mm3-2.6.9-rc2/sound/oss/ali5455.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-alpha/pgtable.h	2004-09-25 00:15:52.645769136 -0700
-+++ mm3-2.6.9-rc2/include/asm-alpha/pgtable.h	2004-09-25 00:24:00.869547840 -0700
-@@ -328,7 +328,7 @@
- #endif
+--- mm3-2.6.9-rc2.orig/sound/oss/ali5455.c	2004-09-25 00:15:53.713606800 -0700
++++ mm3-2.6.9-rc2/sound/oss/ali5455.c	2004-09-25 00:28:42.280766832 -0700
+@@ -934,7 +934,7 @@
+ 	dmabuf->rawbuf = rawbuf;
+ 	dmabuf->buforder = order;
  
- #define io_remap_page_range(vma, start, busaddr, size, prot) \
--    remap_page_range(vma, start, virt_to_phys((void *)__ioremap(busaddr, size)), size, prot)
-+    remap_pfn_range(vma, start, virt_to_phys((void *)__ioremap(busaddr, size)) >> PAGE_SHIFT, size, prot)
- 
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %016lx.\n", __FILE__, __LINE__, pte_val(e))
-Index: mm3-2.6.9-rc2/include/asm-arm/pgtable.h
+-	/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++	/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 	pend = virt_to_page(rawbuf + (PAGE_SIZE << order) - 1);
+ 	for (page = virt_to_page(rawbuf); page <= pend; page++)
+ 		SetPageReserved(page);
+@@ -1955,7 +1955,9 @@
+ 	if (size > (PAGE_SIZE << dmabuf->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(dmabuf->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot))
+ 		goto out;
+ 	dmabuf->mapped = 1;
+ 	dmabuf->trigger = 0;
+Index: mm3-2.6.9-rc2/sound/oss/au1000.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-arm/pgtable.h	2004-09-25 00:15:53.175688576 -0700
-+++ mm3-2.6.9-rc2/include/asm-arm/pgtable.h	2004-09-25 00:24:08.254425168 -0700
-@@ -412,7 +412,7 @@
-  * into virtual address `from'
-  */
- #define io_remap_page_range(vma,from,phys,size,prot) \
--		remap_page_range(vma,from,phys,size,prot)
-+		remap_pfn_range(vma, from, (phys) >> PAGE_SHIFT, size, prot)
- 
- #define pgtable_cache_init() do { } while (0)
- 
-Index: mm3-2.6.9-rc2/include/asm-arm26/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/au1000.c	2004-09-25 00:15:53.961569104 -0700
++++ mm3-2.6.9-rc2/sound/oss/au1000.c	2004-09-25 00:28:45.779234984 -0700
+@@ -629,7 +629,7 @@
+ 			return -ENOMEM;
+ 		db->buforder = order;
+ 		/* now mark the pages as reserved;
+-		   otherwise remap_page_range doesn't do what we want */
++		   otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf +
+ 				    (PAGE_SIZE << db->buforder) - 1);
+ 		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
+@@ -1338,7 +1338,8 @@
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (remap_page_range(vma->vm_start, virt_to_phys(db->rawbuf),
++	if (remap_pfn_range(vma->vm_start,
++			     virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
+ 			     size, vma->vm_page_prot)) {
+ 		ret = -EAGAIN;
+ 		goto out;
+Index: mm3-2.6.9-rc2/sound/oss/cmpci.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-arm26/pgtable.h	2004-09-25 00:15:52.418803640 -0700
-+++ mm3-2.6.9-rc2/include/asm-arm26/pgtable.h	2004-09-25 00:24:05.602828272 -0700
-@@ -288,7 +288,7 @@
-  * into virtual address `from'
-  */
- #define io_remap_page_range(vma,from,phys,size,prot) \
--		remap_page_range(vma,from,phys,size,prot)
-+		remap_pfn_range(vma, from, (phys) >> PAGE_SHIFT, size, prot)
- 
- #endif /* !__ASSEMBLY__ */
- 
-Index: mm3-2.6.9-rc2/include/asm-h8300/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/cmpci.c	2004-09-25 00:15:54.083550560 -0700
++++ mm3-2.6.9-rc2/sound/oss/cmpci.c	2004-09-25 00:28:49.412682616 -0700
+@@ -1393,7 +1393,7 @@
+ 		if (!db->rawbuf || !db->dmaaddr)
+ 			return -ENOMEM;
+ 		db->buforder = order;
+-		/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++		/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
+ 		for (pstart = virt_to_page(db->rawbuf); pstart <= pend; pstart++)
+ 			SetPageReserved(pstart);
+@@ -2301,7 +2301,9 @@
+ 	if (size > (PAGE_SIZE << db->buforder))
+ 		goto out;
+ 	ret = -EINVAL;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot))
+ 		goto out;
+ 	db->mapped = 1;
+ 	ret = 0;
+Index: mm3-2.6.9-rc2/sound/oss/cs4281/cs4281m.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-h8300/pgtable.h	2004-09-25 00:15:52.500791176 -0700
-+++ mm3-2.6.9-rc2/include/asm-h8300/pgtable.h	2004-09-25 00:24:11.947863680 -0700
-@@ -50,7 +50,8 @@
-  * No page table caches to initialise
-  */
- #define pgtable_cache_init()   do { } while (0)
--#define io_remap_page_range	remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+--- mm3-2.6.9-rc2.orig/sound/oss/cs4281/cs4281m.c	2004-09-25 00:15:54.478490520 -0700
++++ mm3-2.6.9-rc2/sound/oss/cs4281/cs4281m.c	2004-09-25 00:28:55.532752224 -0700
+@@ -1755,7 +1755,7 @@
+ 		}
+ 		db->buforder = order;
+ 		// Now mark the pages as reserved; otherwise the 
+-		// remap_page_range() in cs4281_mmap doesn't work.
++		// remap_pfn_range() in cs4281_mmap doesn't work.
+ 		// 1. get index to last page in mem_map array for rawbuf.
+ 		mapend = virt_to_page(db->rawbuf + 
+ 			(PAGE_SIZE << db->buforder) - 1);
+@@ -1778,7 +1778,7 @@
+ 		}
+ 		s->buforder_tmpbuff = order;
+ 		// Now mark the pages as reserved; otherwise the 
+-		// remap_page_range() in cs4281_mmap doesn't work.
++		// remap_pfn_range() in cs4281_mmap doesn't work.
+ 		// 1. get index to last page in mem_map array for rawbuf.
+ 		mapend = virt_to_page(s->tmpbuff + 
+ 				(PAGE_SIZE << s->buforder_tmpbuff) - 1);
+@@ -3135,9 +3135,10 @@
+ 	size = vma->vm_end - vma->vm_start;
+ 	if (size > (PAGE_SIZE << db->buforder))
+ 		return -EINVAL;
+-	if (remap_page_range
+-	    (vma, vma->vm_start, virt_to_phys(db->rawbuf), size,
+-	     vma->vm_page_prot)) return -EAGAIN;
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot))
++		return -EAGAIN;
+ 	db->mapped = 1;
  
- /*
-  * All 32bit addresses are effectively valid for vmalloc...
-Index: mm3-2.6.9-rc2/include/asm-i386/pgtable.h
+ 	CS_DBGOUT(CS_FUNCTION | CS_PARMS | CS_OPEN, 4,
+Index: mm3-2.6.9-rc2/sound/oss/cs46xx.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-i386/pgtable.h	2004-09-25 00:15:52.570780536 -0700
-+++ mm3-2.6.9-rc2/include/asm-i386/pgtable.h	2004-09-25 00:24:15.331349312 -0700
-@@ -404,7 +404,8 @@
- #define kern_addr_valid(addr)	(1)
- #endif /* !CONFIG_DISCONTIGMEM */
- 
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
-Index: mm3-2.6.9-rc2/include/asm-ia64/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/cs46xx.c	2004-09-25 00:15:54.542480792 -0700
++++ mm3-2.6.9-rc2/sound/oss/cs46xx.c	2004-09-25 00:28:58.340325408 -0700
+@@ -1190,7 +1190,7 @@
+ 	dmabuf->buforder = order;
+ 	dmabuf->rawbuf = rawbuf;
+ 	// Now mark the pages as reserved; otherwise the 
+-	// remap_page_range() in cs46xx_mmap doesn't work.
++	// remap_pfn_range() in cs46xx_mmap doesn't work.
+ 	// 1. get index to last page in mem_map array for rawbuf.
+ 	mapend = virt_to_page(dmabuf->rawbuf + 
+ 		(PAGE_SIZE << dmabuf->buforder) - 1);
+@@ -1227,7 +1227,7 @@
+ 	dmabuf->buforder_tmpbuff = order;
+ 	
+ 	// Now mark the pages as reserved; otherwise the 
+-	// remap_page_range() in cs46xx_mmap doesn't work.
++	// remap_pfn_range() in cs46xx_mmap doesn't work.
+ 	// 1. get index to last page in mem_map array for rawbuf.
+ 	mapend = virt_to_page(dmabuf->tmpbuff + 
+ 		(PAGE_SIZE << dmabuf->buforder_tmpbuff) - 1);
+@@ -2452,7 +2452,8 @@
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
++	if (remap_pfn_range(vma, vma->vm_start,
++			     virt_to_phys(dmabuf->rawbuf) >> PAGE_SHIFT,
+ 			     size, vma->vm_page_prot))
+ 	{
+ 		ret = -EAGAIN;
+Index: mm3-2.6.9-rc2/sound/oss/es1370.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-ia64/pgtable.h	2004-09-25 00:15:53.354661368 -0700
-+++ mm3-2.6.9-rc2/include/asm-ia64/pgtable.h	2004-09-25 00:26:25.331586272 -0700
-@@ -452,7 +452,9 @@
- #define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 3)
- #define pgoff_to_pte(off)		((pte_t) { ((off) << 2) | _PAGE_FILE })
- 
--#define io_remap_page_range remap_page_range	/* XXX is this right? */
-+/* XXX is this right? */
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- /*
-  * ZERO_PAGE is a global shared page that is always zero: used
-Index: mm3-2.6.9-rc2/include/asm-m32r/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/es1370.c	2004-09-25 00:15:53.525635376 -0700
++++ mm3-2.6.9-rc2/sound/oss/es1370.c	2004-09-25 00:29:05.662212312 -0700
+@@ -573,7 +573,7 @@
+ 		if (!db->rawbuf)
+ 			return -ENOMEM;
+ 		db->buforder = order;
+-		/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++		/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
+ 		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
+ 			SetPageReserved(page);
+@@ -1364,7 +1364,9 @@
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot)) {
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot)) {
+ 		ret = -EAGAIN;
+ 		goto out;
+ 	}
+@@ -1940,7 +1942,9 @@
+ 	if (size > (PAGE_SIZE << s->dma_dac1.buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(s->dma_dac1.rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++			virt_to_phys(s->dma_dac1.rawbuf) >> PAGE_SHIFT,
++			size, vma->vm_page_prot))
+ 		goto out;
+ 	s->dma_dac1.mapped = 1;
+ 	ret = 0;
+Index: mm3-2.6.9-rc2/sound/oss/es1371.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-m32r/pgtable.h	2004-09-25 00:15:52.258827960 -0700
-+++ mm3-2.6.9-rc2/include/asm-m32r/pgtable.h	2004-09-25 00:26:29.748914736 -0700
-@@ -408,7 +408,8 @@
- /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
- #define kern_addr_valid(addr)	(1)
- 
--#define io_remap_page_range	remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
-Index: mm3-2.6.9-rc2/include/asm-m68k/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/es1371.c	2004-09-25 00:15:53.887580352 -0700
++++ mm3-2.6.9-rc2/sound/oss/es1371.c	2004-09-25 00:29:08.231821672 -0700
+@@ -910,7 +910,7 @@
+ 		if (!db->rawbuf)
+ 			return -ENOMEM;
+ 		db->buforder = order;
+-		/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++		/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
+ 		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
+ 			SetPageReserved(page);
+@@ -1555,7 +1555,9 @@
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot)) {
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot)) {
+ 		ret = -EAGAIN;
+ 		goto out;
+ 	}
+@@ -2128,7 +2130,9 @@
+ 	if (size > (PAGE_SIZE << s->dma_dac1.buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(s->dma_dac1.rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++			virt_to_phys(s->dma_dac1.rawbuf) >> PAGE_SHIFT,
++			size, vma->vm_page_prot))
+ 		goto out;
+ 	s->dma_dac1.mapped = 1;
+ 	ret = 0;
+Index: mm3-2.6.9-rc2/sound/oss/esssolo1.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-m68k/pgtable.h	2004-09-25 00:15:52.948723080 -0700
-+++ mm3-2.6.9-rc2/include/asm-m68k/pgtable.h	2004-09-25 00:26:38.698554184 -0700
-@@ -138,7 +138,8 @@
- 
- #define kern_addr_valid(addr)	(1)
- 
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- /* MMU-specific headers */
- 
-Index: mm3-2.6.9-rc2/include/asm-m68knommu/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/esssolo1.c	2004-09-25 00:15:54.389504048 -0700
++++ mm3-2.6.9-rc2/sound/oss/esssolo1.c	2004-09-25 00:29:11.880267024 -0700
+@@ -445,7 +445,7 @@
+ 		if (!db->rawbuf)
+ 			return -ENOMEM;
+ 		db->buforder = order;
+-		/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++		/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
+ 		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
+ 			SetPageReserved(page);
+@@ -1242,7 +1242,9 @@
+ 	if (size > (PAGE_SIZE << db->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot))
+ 		goto out;
+ 	db->mapped = 1;
+ 	ret = 0;
+Index: mm3-2.6.9-rc2/sound/oss/forte.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-m68knommu/pgtable.h	2004-09-25 00:15:52.805744816 -0700
-+++ mm3-2.6.9-rc2/include/asm-m68knommu/pgtable.h	2004-09-25 00:26:33.911281960 -0700
-@@ -54,7 +54,8 @@
-  * No page table caches to initialise.
-  */
- #define pgtable_cache_init()	do { } while (0)
--#define io_remap_page_range	remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+--- mm3-2.6.9-rc2.orig/sound/oss/forte.c	2004-09-25 00:15:54.271521984 -0700
++++ mm3-2.6.9-rc2/sound/oss/forte.c	2004-09-25 00:29:15.041786400 -0700
+@@ -1409,7 +1409,8 @@
+                 goto out;
+ 	}
  
- /*
-  * All 32bit addresses are effectively valid for vmalloc...
-Index: mm3-2.6.9-rc2/include/asm-mips/pgtable.h
+-        if (remap_page_range (vma, vma->vm_start, virt_to_phys (channel->buf),
++        if (remap_pfn_range(vma, vma->vm_start,
++			      virt_to_phys(channel->buf) >> PAGE_SHIFT,
+ 			      size, vma->vm_page_prot)) {
+ 		DPRINTK ("%s: remap el a no worko\n", __FUNCTION__);
+ 		ret = -EAGAIN;
+Index: mm3-2.6.9-rc2/sound/oss/i810_audio.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-mips/pgtable.h	2004-09-25 00:15:53.022711832 -0700
-+++ mm3-2.6.9-rc2/include/asm-mips/pgtable.h	2004-09-25 00:26:43.204869120 -0700
-@@ -245,7 +245,8 @@
-  */
- #define HAVE_ARCH_UNMAPPED_AREA
- 
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- /*
-  * No page table caches to initialise
-Index: mm3-2.6.9-rc2/include/asm-parisc/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/i810_audio.c	2004-09-25 00:15:53.830589016 -0700
++++ mm3-2.6.9-rc2/sound/oss/i810_audio.c	2004-09-25 00:29:18.347283888 -0700
+@@ -917,7 +917,7 @@
+ 	dmabuf->rawbuf = rawbuf;
+ 	dmabuf->buforder = order;
+ 	
+-	/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++	/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 	pend = virt_to_page(rawbuf + (PAGE_SIZE << order) - 1);
+ 	for (page = virt_to_page(rawbuf); page <= pend; page++)
+ 		SetPageReserved(page);
+@@ -1750,7 +1750,8 @@
+ 	if (size > (PAGE_SIZE << dmabuf->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
++	if (remap_pfn_range(vma, vma->vm_start,
++			     virt_to_phys(dmabuf->rawbuf) >> PAGE_SHIFT,
+ 			     size, vma->vm_page_prot))
+ 		goto out;
+ 	dmabuf->mapped = 1;
+Index: mm3-2.6.9-rc2/sound/oss/ite8172.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-parisc/pgtable.h	2004-09-25 00:15:53.233679760 -0700
-+++ mm3-2.6.9-rc2/include/asm-parisc/pgtable.h	2004-09-25 00:26:46.632348064 -0700
-@@ -505,7 +505,8 @@
- 
- #endif /* !__ASSEMBLY__ */
- 
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- /* We provide our own get_unmapped_area to provide cache coherency */
- 
-Index: mm3-2.6.9-rc2/include/asm-ppc/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/ite8172.c	2004-09-25 00:15:54.330513016 -0700
++++ mm3-2.6.9-rc2/sound/oss/ite8172.c	2004-09-25 00:29:22.860597760 -0700
+@@ -693,7 +693,7 @@
+ 			return -ENOMEM;
+ 		db->buforder = order;
+ 		/* now mark the pages as reserved;
+-		   otherwise remap_page_range doesn't do what we want */
++		   otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf +
+ 				    (PAGE_SIZE << db->buforder) - 1);
+ 		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
+@@ -1311,7 +1311,8 @@
+ 		unlock_kernel();
+ 		return -EINVAL;
+ 	}
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf),
++	if (remap_pfn_range(vma, vma->vm_start,
++			     virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
+ 			     size, vma->vm_page_prot)) {
+ 		unlock_kernel();
+ 		return -EAGAIN;
+Index: mm3-2.6.9-rc2/sound/oss/maestro.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-ppc/pgtable.h	2004-09-25 00:15:52.878733720 -0700
-+++ mm3-2.6.9-rc2/include/asm-ppc/pgtable.h	2004-09-25 00:26:56.175897224 -0700
-@@ -714,7 +714,8 @@
- /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
- #define kern_addr_valid(addr)	(1)
+--- mm3-2.6.9-rc2.orig/sound/oss/maestro.c	2004-09-25 00:15:53.596624584 -0700
++++ mm3-2.6.9-rc2/sound/oss/maestro.c	2004-09-25 00:29:32.279165920 -0700
+@@ -2520,7 +2520,9 @@
+ 	if (size > (PAGE_SIZE << db->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++			virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++			size, vma->vm_page_prot))
+ 		goto out;
+ 	db->mapped = 1;
+ 	ret = 0;
+@@ -2953,7 +2955,7 @@
  
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 	}
  
- /*
-  * No page table caches to initialise
-Index: mm3-2.6.9-rc2/include/asm-ppc64/pgtable.h
+-	/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++	/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 	pend = virt_to_page(rawbuf + (PAGE_SIZE << order) - 1);
+ 	for (page = virt_to_page(rawbuf); page <= pend; page++)
+ 		SetPageReserved(page);
+Index: mm3-2.6.9-rc2/sound/oss/maestro3.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-ppc64/pgtable.h	2004-09-25 00:15:53.290671096 -0700
-+++ mm3-2.6.9-rc2/include/asm-ppc64/pgtable.h	2004-09-25 00:26:52.666430744 -0700
-@@ -492,7 +492,8 @@
-  */
- #define kern_addr_valid(addr)	(1)
+--- mm3-2.6.9-rc2.orig/sound/oss/maestro3.c	2004-09-25 00:15:53.651616224 -0700
++++ mm3-2.6.9-rc2/sound/oss/maestro3.c	2004-09-25 00:29:30.275470528 -0700
+@@ -1557,7 +1557,9 @@
+      * ask Jeff what the hell I'm doing wrong.
+      */
+     ret = -EAGAIN;
+-    if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
++    if (remap_pfn_range(vma, vma->vm_start,
++			virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++			size, vma->vm_page_prot))
+         goto out;
  
--#define io_remap_page_range remap_page_range 
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- void pgtable_cache_init(void);
- 
-Index: mm3-2.6.9-rc2/include/asm-sh/pgtable.h
+     db->mapped = 1;
+Index: mm3-2.6.9-rc2/sound/oss/rme96xx.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-sh/pgtable.h	2004-09-25 00:15:52.336816104 -0700
-+++ mm3-2.6.9-rc2/include/asm-sh/pgtable.h	2004-09-25 00:27:27.159187048 -0700
-@@ -274,7 +274,8 @@
+--- mm3-2.6.9-rc2.orig/sound/oss/rme96xx.c	2004-09-25 00:15:54.230528216 -0700
++++ mm3-2.6.9-rc2/sound/oss/rme96xx.c	2004-09-25 00:29:36.517521592 -0700
+@@ -1685,14 +1685,14 @@
+ 	if (vma->vm_flags & VM_WRITE) {
+ 		if (!s->started) rme96xx_startcard(s,1);
  
- #define kern_addr_valid(addr)	(1)
- 
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- /*
-  * No page table caches to initialise
-Index: mm3-2.6.9-rc2/include/asm-sh64/pgtable.h
+-		if (remap_page_range(vma, vma->vm_start, virt_to_phys(s->playbuf + dma->outoffset*RME96xx_DMA_MAX_SIZE), size, vma->vm_page_prot)) {
++		if (remap_pfn_range(vma, vma->vm_start, virt_to_phys(s->playbuf + dma->outoffset*RME96xx_DMA_MAX_SIZE) >> PAGE_SHIFT, size, vma->vm_page_prot)) {
+ 			unlock_kernel();
+ 			return -EAGAIN;
+ 		}
+ 	} 
+ 	else if (vma->vm_flags & VM_READ) {
+ 		if (!s->started) rme96xx_startcard(s,1);
+-		if (remap_page_range(vma, vma->vm_start, virt_to_phys(s->playbuf + dma->inoffset*RME96xx_DMA_MAX_SIZE), size, vma->vm_page_prot)) {
++		if (remap_pfn_range(vma, vma->vm_start, virt_to_phys(s->playbuf + dma->inoffset*RME96xx_DMA_MAX_SIZE) >> PAGE_SHIFT, size, vma->vm_page_prot)) {
+ 			unlock_kernel();
+ 			return -EAGAIN;
+ 		}
+Index: mm3-2.6.9-rc2/sound/oss/sonicvibes.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-sh64/pgtable.h	2004-09-25 00:15:52.732755912 -0700
-+++ mm3-2.6.9-rc2/include/asm-sh64/pgtable.h	2004-09-25 00:27:00.543233288 -0700
-@@ -479,7 +479,8 @@
- #define PageSkip(page)		(0)
- #define kern_addr_valid(addr)	(1)
- 
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- #endif /* !__ASSEMBLY__ */
- 
- /*
-Index: mm3-2.6.9-rc2/include/asm-x86_64/pgtable.h
+--- mm3-2.6.9-rc2.orig/sound/oss/sonicvibes.c	2004-09-25 00:15:54.181535664 -0700
++++ mm3-2.6.9-rc2/sound/oss/sonicvibes.c	2004-09-25 00:29:39.798022880 -0700
+@@ -756,7 +756,7 @@
+ 		if ((virt_to_bus(db->rawbuf) + (PAGE_SIZE << db->buforder) - 1) & ~0xffffff)
+ 			printk(KERN_DEBUG "sv: DMA buffer beyond 16MB: busaddr 0x%lx  size %ld\n", 
+ 			       virt_to_bus(db->rawbuf), PAGE_SIZE << db->buforder);
+-		/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++		/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 		pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
+ 		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
+ 			SetPageReserved(page);
+@@ -1549,7 +1549,9 @@
+ 	if (size > (PAGE_SIZE << db->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
++	if (remap_pfn_range(vma, vma->vm_start,
++				virt_to_phys(db->rawbuf) >> PAGE_SHIFT,
++				size, vma->vm_page_prot))
+ 		goto out;
+ 	db->mapped = 1;
+ 	ret = 0;
+Index: mm3-2.6.9-rc2/sound/oss/soundcard.c
 ===================================================================
---- mm3-2.6.9-rc2.orig/include/asm-x86_64/pgtable.h	2004-09-25 00:15:53.098700280 -0700
-+++ mm3-2.6.9-rc2/include/asm-x86_64/pgtable.h	2004-09-25 00:27:52.830284448 -0700
-@@ -421,7 +421,8 @@
+--- mm3-2.6.9-rc2.orig/sound/oss/soundcard.c	2004-09-25 00:15:54.126544024 -0700
++++ mm3-2.6.9-rc2/sound/oss/soundcard.c	2004-09-25 00:29:44.236348152 -0700
+@@ -463,9 +463,9 @@
+ 	if (size != dmap->bytes_in_use) {
+ 		printk(KERN_WARNING "Sound: mmap() size = %ld. Should be %d\n", size, dmap->bytes_in_use);
+ 	}
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmap->raw_buf),
+-		vma->vm_end - vma->vm_start,
+-		vma->vm_page_prot)) {
++	if (remap_pfn_range(vma, vma->vm_start,
++			virt_to_phys(dmap->raw_buf) >> PAGE_SHIFT,
++			vma->vm_end - vma->vm_start, vma->vm_page_prot)) {
+ 		unlock_kernel();
+ 		return -EAGAIN;
+ 	}
+Index: mm3-2.6.9-rc2/sound/oss/trident.c
+===================================================================
+--- mm3-2.6.9-rc2.orig/sound/oss/trident.c	2004-09-25 00:15:53.769598288 -0700
++++ mm3-2.6.9-rc2/sound/oss/trident.c	2004-09-25 00:29:47.652828768 -0700
+@@ -1281,7 +1281,7 @@
+ 	dmabuf->buforder = order;
  
- extern int kern_addr_valid(unsigned long addr); 
+ 	/* now mark the pages as reserved; otherwise */ 
+-	/* remap_page_range doesn't do what we want */
++	/* remap_pfn_range doesn't do what we want */
+ 	pend = virt_to_page(rawbuf + (PAGE_SIZE << order) - 1);
+ 	for (page = virt_to_page(rawbuf); page <= pend; page++)
+ 		SetPageReserved(page);
+@@ -2223,7 +2223,8 @@
+ 	if (size > (PAGE_SIZE << dmabuf->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf), 
++	if (remap_pfn_range(vma, vma->vm_start,
++			     virt_to_phys(dmabuf->rawbuf) >> PAGE_SHIFT,
+ 			     size, vma->vm_page_prot))
+ 		goto out;
+ 	dmabuf->mapped = 1;
+Index: mm3-2.6.9-rc2/sound/oss/ymfpci.c
+===================================================================
+--- mm3-2.6.9-rc2.orig/sound/oss/ymfpci.c	2004-09-25 00:15:54.029558768 -0700
++++ mm3-2.6.9-rc2/sound/oss/ymfpci.c	2004-09-25 00:29:52.098152976 -0700
+@@ -334,7 +334,7 @@
+ 	dmabuf->dma_addr = dma_addr;
+ 	dmabuf->buforder = order;
  
--#define io_remap_page_range remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- #define HAVE_ARCH_UNMAPPED_AREA
- 
+-	/* now mark the pages as reserved; otherwise remap_page_range doesn't do what we want */
++	/* now mark the pages as reserved; otherwise remap_pfn_range doesn't do what we want */
+ 	mapend = virt_to_page(rawbuf + (PAGE_SIZE << order) - 1);
+ 	for (map = virt_to_page(rawbuf); map <= mapend; map++)
+ 		set_bit(PG_reserved, &map->flags);
+@@ -1545,7 +1545,8 @@
+ 	size = vma->vm_end - vma->vm_start;
+ 	if (size > (PAGE_SIZE << dmabuf->buforder))
+ 		return -EINVAL;
+-	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
++	if (remap_pfn_range(vma, vma->vm_start,
++			     virt_to_phys(dmabuf->rawbuf) >> PAGE_SHIFT,
+ 			     size, vma->vm_page_prot))
+ 		return -EAGAIN;
+ 	dmabuf->mapped = 1;

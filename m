@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268108AbUHFIl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268106AbUHFImy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268108AbUHFIl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 04:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbUHFIl5
+	id S268106AbUHFImy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 04:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbUHFImJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 04:41:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10469 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268115AbUHFIlh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 04:41:37 -0400
-Date: Fri, 6 Aug 2004 01:41:18 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: James Morris <jmorris@redhat.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, clemens@endorphin.org
-Subject: Re: [PATCH] Re-implemented i586 asm AES
-Message-Id: <20040806014118.095308e7.davem@redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0408060411340.21666-100000@dhcp83-76.boston.redhat.com>
-References: <Xine.LNX.4.44.0408060411340.21666-100000@dhcp83-76.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Aug 2004 04:42:09 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:57607 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S268110AbUHFIk1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 04:40:27 -0400
+Message-ID: <411343F9.1080301@arcom.com>
+Date: Fri, 06 Aug 2004 09:40:25 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hollis Blanchard <hollisb@us.ibm.com>
+CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: cross-depmod?
+References: <1091742716.28466.27.camel@localhost>
+In-Reply-To: <1091742716.28466.27.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Aug 2004 08:42:42.0234 (UTC) FILETIME=[5658A1A0:01C47B91]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004 04:24:08 -0400 (EDT)
-James Morris <jmorris@redhat.com> wrote:
-
-> This code is a rework of the original Gladman AES code, and does not
-> include any supposed BSD licensed work by Jari Ruusu.
+Hollis Blanchard wrote:
 > 
-> Linus converted the Intel asm to Gas format, and made some minor 
-> alterations.
-> 
-> Fruhwirth's glue module has also been retained, although I rebased the
-> table generation and key scheduling back to Gladman's code.  I've tested
-> this code with some standard FIPS test vectors, and large FTP transfers
-> over IPSec (both locally and over the wire to a system running the generic
-> AES implementation).
-> 
-> Please review.
+> My problem is that I cross-build my kernels, and 'make rpm' is very
+> unhappy when it can't use depmod. I know that I can do 'make
+> DEPMOD=/bin/true rpm', but can't we figure that out automatically?
 
-Looks good.  Linus, please apply unless you see some
-problem with it.
+I'd suggest not running depmod when building an RPM but instead run it 
+as part of the RPMs post-installation script.
 
-Thanks James.
+David Vrabel
+-- 
+David Vrabel, Design Engineer
+
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

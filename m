@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVAZQ6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVAZRD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbVAZQ6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 11:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVAZQ5W
+	id S262351AbVAZRD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 12:03:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVAZRCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 11:57:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:23437 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262351AbVAZQzI (ORCPT
+	Wed, 26 Jan 2005 12:02:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:20972 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262351AbVAZQ5b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 11:55:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=XUXrJzwhOBop+0KQR9f6a0qAJPL8T8SQhxckvaaJgaSMIVIpEwZ+JjMR10mHQnZ3K5FD/TVJ7y6vx3go42GHNn27Q7Gs4Yz9x47Aa/n+qQE16CLPvR4K1+Lv5FN3YFoGhJ7It0eYpzFrNJhSJyRG2cQsaY/NRuw9EMSnjGUBNBA=
-Message-ID: <d4b385205012608272e300b1b@mail.gmail.com>
-Date: Wed, 26 Jan 2005 17:27:46 +0100
-From: Mikkel Krautz <krautz@gmail.com>
-Reply-To: Mikkel Krautz <krautz@gmail.com>
-To: linux-kernel@vger.kernel.org
+	Wed, 26 Jan 2005 11:57:31 -0500
+Date: Wed, 26 Jan 2005 08:57:07 -0800
+From: Greg KH <greg@kroah.com>
+To: Mikkel Krautz <krautz@gmail.com>
+Cc: linux-kernel@vger.kernel.org, roms@lpg.ticalc.org, jb@technologeek.org
 Subject: Re: [PATCH 0/3] TIGLUSB Cleanups
-Cc: greg@kroah.com, roms@lpg.ticalc.org, jb@technologeek.org
-In-Reply-To: <41F7BF8D.70205@gmail.com>
+Message-ID: <20050126165707.GA3684@kroah.com>
+References: <41F7C9D3.3030307@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41F7BF8D.70205@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F7C9D3.3030307@gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005 17:04:29 +0100, Mikkel Krautz <krautz@gmail.com> wrote:
-> Hello!
+On Wed, Jan 26, 2005 at 05:48:19PM +0100, Mikkel Krautz wrote:
+> On Wed, 26 Jan 2005 08:40:10 -0800, Greg KH <greg@kroah.com> wrote:
+> >
+> > Use a different email client, or attach the patches as plain text.
+> >
+> > Good luck,
+> >
+> > greg k-h
+> >
 > 
-> The tiglusb-driver was removed in 2.6.11-rc1.
-> 
-> Since then, references to it in other files have been kept, namely the
-> following files:
-> 
->     Documentation/usb/silverlink.txt,
->     Documentation/kernel-parameters.txt
->     MAINTAINERS
-> 
-> This series of patches removes the silverlink.txt-documentation, and
-> tiglusb-references in MAINTAINERS and kernel-parameters.txt.
-> 
-> The patches are diffed against 2.6.11-rc2-bk4.
-> 
-> Thanks,
-> Mikkel Krautz
-> 
+> Alright, they're attached this time.
+> I hope this'll do for now. :-)
 
-Hurrah!
+Nope, please break them out into the three pieces, in three different
+emails like you did before so I can apply them all properly.
 
-All the patches were word-wrapped by Thunderbird, even though I disabled it.
+thanks,
 
-I'm sorry, but this is all I can do for now. Sigh.
-
-Thanks,
-Mikkel Krautz
+greg k-h

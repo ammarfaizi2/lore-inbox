@@ -1,78 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUHPW3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267982AbUHPWaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267979AbUHPW3m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267982AbUHPW3m
+	id S267982AbUHPWaa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUHPWa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:29:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13195 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267979AbUHPW3j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:29:39 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Mon, 16 Aug 2004 18:30:28 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42911 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267982AbUHPWaJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 18:30:09 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Date: Mon, 16 Aug 2004 23:43:35 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815151346.GA13761@devserv.devel.redhat.com>
+In-Reply-To: <20040815151346.GA13761@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16673.13536.765055.152488@segfault.boston.redhat.com>
-Date: Mon, 16 Aug 2004 18:27:44 -0400
-To: mpm@selenic.com
-CC: linux-kernel@vger.kernel.org
-Subject: [patch] allow netpoll_poll to be called recursively
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Message-Id: <200408162343.35588.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Matt,
 
-This should fix the recursive netpoll_poll deadlock that can happen with
-the newly introduced netpoll_poll_lock.
+> +/**
+> + *	ide_hwif_restore	-	restore hwif to template
+> + *	@hwif: hwif to update
+> + *	@tmp_hwif: template
+> + *
+> + *	Restore hwif to a default state by copying most settngs
 
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
+it restores hwif to previous state not the default one
 
---- linux-2.6.7/net/core/netpoll.c.getcpu	2004-08-16 15:50:47.275980584 -0400
-+++ linux-2.6.7/net/core/netpoll.c	2004-08-16 15:46:53.328546000 -0400
-@@ -72,7 +72,9 @@ void netpoll_poll(struct netpoll *np)
- 	 * timeouts.  Thus, we set our budget to a more reasonable value.
- 	 */
- 	int budget = 16;
-+	static int poll_owner = -1;
- 	unsigned long flags;
-+	int netpoll_rx_flag = NETPOLL_RX_DROP;
- 
- 	if(!np->dev || !netif_running(np->dev) || !np->dev->poll_controller)
- 		return;
-@@ -81,17 +83,27 @@ void netpoll_poll(struct netpoll *np)
- 	np->dev->poll_controller(np->dev);
- 
- 	/* If scheduling is stopped, tickle NAPI bits */
--	spin_lock_irqsave(&netpoll_poll_lock, flags);
-+	local_irq_save(flags);
-+	if (!spin_trylock(&netpoll_poll_lock)) {
-+		/* allow recursive calls on this cpu */
-+		if (smp_processor_id() != poll_owner)
-+			spin_lock(&netpoll_poll_lock);
-+		else
-+			netpoll_rx_flag = 0;
-+	}
-+	poll_owner = smp_processor_id();
-+
- 	if (np->dev->poll &&
- 	    test_bit(__LINK_STATE_RX_SCHED, &np->dev->state)) {
--		np->dev->netpoll_rx |= NETPOLL_RX_DROP;
-+		np->dev->netpoll_rx |= netpoll_rx_flag;
- 		atomic_inc(&trapped);
- 
- 		np->dev->poll(np->dev, &budget);
- 
- 		atomic_dec(&trapped);
--		np->dev->netpoll_rx &= ~NETPOLL_RX_DROP;
-+		np->dev->netpoll_rx &= ~netpoll_rx_flag;
- 	}
-+	poll_owner = -1;
- 	spin_unlock_irqrestore(&netpoll_poll_lock, flags);
- 
- 	zap_completion_queue();
+> +/**
+> + *	ide_add_generic_settings	-	generic /proc settings
+> + *	@drive: drive being configured
+> + *
+> + *	Add the generic parts of the system settings to the /proc files
+> + *	for this IDE device. The caller must not be holding the settings_sem
+> + *	.lock
+> + */
+
+ide settings are not limited to /proc, remember about ioctls
+
+> +/**
+> + *	system_bus_clock	-	clock guess
+> + *
+> + *	External version of the bus clock guess used by old old IDE drivers
+
+old old?
+
+> +/**
+> + *	ata_attach		-	attach an ATA/ATAPI device
+> + *	@drive: drive to attach
+> + *
+> + *	Takes a drive that is as yet not assigned to any midlayer IDE
+> + *	module and figures out which driver would like to own it. If
+
+drive maybe assinged to midlayer ide-default driver
+
+> + *	nobody claims the driver then it is automatically attached
+
+the drive
+
+> +/**
+> + *	ide_unregister_subdriver	-	disconnect drive from driver
+> + *	@drive: drive to unplug
+> + *
+> + *	Disconnect a drive from the driver it was attached to and then
+> + *	clean up the various proc files and other objects attached to it.
+> + *	Takes ide_sem, ide_lock, and drive_lock. Caller must hold none of
+> + *	the locks.
+> + *
+> + *	No locking versus subdriver unload because we are moving to the
+> + *	default driver anyway. Wants double checking.
+
+yep, locking needs checking  (removing hwif vs removing driver)
+
+> +/**
+> + *	ide_register_driver	-	new driver loaded
+> + *	@driver: the IDE driver module
+
+driver doesn't have to be a module
+
+IDE device driver
+
+> +/**
+> + *	ide_unregister_driver	-	IDE module unload
+> + *	@driver: IDE driver module
+> + *
+> + *	Unload a driver module and reattach any devices to whatever
+
+it doesn't unload given IDE device driver

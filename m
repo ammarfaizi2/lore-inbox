@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135977AbREJBWU>; Wed, 9 May 2001 21:22:20 -0400
+	id <S135978AbREJB1c>; Wed, 9 May 2001 21:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135978AbREJBWK>; Wed, 9 May 2001 21:22:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6797 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135977AbREJBV7>;
-	Wed, 9 May 2001 21:21:59 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S135981AbREJB1Y>; Wed, 9 May 2001 21:27:24 -0400
+Received: from mfo01.iij.ad.jp ([202.232.2.118]:38917 "EHLO mfo01.iij.ad.jp")
+	by vger.kernel.org with ESMTP id <S135978AbREJB1M>;
+	Wed, 9 May 2001 21:27:12 -0400
+Date: Thu, 10 May 2001 10:23:48 +0900 (JST)
+Message-Id: <20010510.102348.59467080.okuyamak@dd.iij4u.or.jp>
+To: atheurer@austin.ibm.com
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        samba-technical@samba.org
+Subject: Re: Linux 2.4 Scalability, Samba, and Netbench
+From: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+In-Reply-To: <3AF97062.42465A53@austin.ibm.com>
+In-Reply-To: <3AF97062.42465A53@austin.ibm.com>
+X-Mailer: Mew version 1.95b91 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15097.60691.888764.916294@pizda.ninka.net>
-Date: Wed, 9 May 2001 18:21:23 -0700 (PDT)
-To: "Svenning Soerensen" <svenning@post5.tele.dk>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ipsec@freeswan.org>
-Subject: RE: Problem with PMTU discovery on ICMP packets
-In-Reply-To: <016e01c0d68b$51da19a0$1400a8c0@sss.intermate.com>
-In-Reply-To: <15092.31381.395563.889405@pizda.ninka.net>
-	<016e01c0d68b$51da19a0$1400a8c0@sss.intermate.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "AMT" == Andrew M Theurer <atheurer@austin.ibm.com> writes:
+AMT> I would like to help improve SMP scalability on this workload.  If you
+AMT> have questions or comments about the above results, or if you are
+AMT> conducting similar tests, please send email to
+AMT> lse-tech@lists.sourceforge.net.  I have some ideas on my next steps,
+AMT> but would like to discuss first.
 
-Svenning Soerensen writes:
- > I've done a bit more testing. The behaviour doesn't change across reboots.
- > Instead, it seems to be the case that:
- > If the packet fits within the MTU of the outgoing interface, DF is set.
- > If the packet doesn't fit, and thus gets fragmented, DF is clear on all
- > fragments.
- > Does this make sense?
 
-Yes.  I've put the following patch into my tree.
-Thanks for doing the detective work.
+Did you check vmstat result of each benchmarks?
 
---- net/ipv4/icmp.c.~1~	Sun Apr 29 21:40:40 2001
-+++ net/ipv4/icmp.c	Wed May  9 18:20:58 2001
-@@ -3,7 +3,7 @@
-  *	
-  *		Alan Cox, <alan@redhat.com>
-  *
-- *	Version: $Id: icmp.c,v 1.75 2001/04/30 04:40:40 davem Exp $
-+ *	Version: $Id: icmp.c,v 1.76 2001/05/10 01:20:58 davem Exp $
-  *
-  *	This program is free software; you can redistribute it and/or
-  *	modify it under the terms of the GNU General Public License
-@@ -1006,6 +1006,7 @@
- 	icmp_socket->sk->allocation=GFP_ATOMIC;
- 	icmp_socket->sk->sndbuf = SK_WMEM_MAX*2;
- 	icmp_socket->sk->protinfo.af_inet.ttl = MAXTTL;
-+	icmp_socket->sk->protinfo.af_inet.pmtudisc = IP_PMTUDISC_DONT;
+Most of the problems are caused due to kernel. If you look at result
+of vmstat, more than 80% CPU time are used in kernel.
+
+It's true that heavy kernel overhead is due to Samba, and is due to
+Samba generating lot's and lot's of request against kernels ( not
+only disk IO, but it requires many signal handling etc ).
+
+So, there's really two things we need to do.
+
+1) make Linux more scalable.
+   ( This sometimes seems as if it's tuning, but it's really bug
+     fix. So, don't ask performance team to tune. Let them FIX. )
  
- 	/* Unhash it so that IP input processing does not even
- 	 * see it, we do not wish this socket to see incoming
+2) make Samba work in less signals.
+   This means, don't call useless system calls, use shared memory
+   more effectively, divide Samba source into OS dependent part
+   and independent part so that you can do tuning for specific OS
+   and still have wide userland, etc.
+---- 
+Kenichi Okuyama.

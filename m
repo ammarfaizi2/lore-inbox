@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDFCBS>; Thu, 5 Apr 2001 22:01:18 -0400
+	id <S130552AbRDFCBH>; Thu, 5 Apr 2001 22:01:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbRDFCBI>; Thu, 5 Apr 2001 22:01:08 -0400
-Received: from [209.250.53.73] ([209.250.53.73]:17931 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S130768AbRDFCAw>; Thu, 5 Apr 2001 22:00:52 -0400
-Date: Thu, 5 Apr 2001 20:59:22 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: tytso@mit.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Problems with serial driver 5.05, kernel 2.4.3
-Message-ID: <20010405205922.A16574@hapablap.dyn.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 8:08pm  up 2 days, 23:25,  3 users,  load average: 2.79, 2.80, 2.62
+	id <S130791AbRDFCA5>; Thu, 5 Apr 2001 22:00:57 -0400
+Received: from sm10.texas.rr.com ([24.93.35.222]:10150 "EHLO sm10.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S130552AbRDFCAs>;
+	Thu, 5 Apr 2001 22:00:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marvin Justice <mjustice@austin.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.2-ac18 Severworks AGP
+Date: Thu, 5 Apr 2001 20:02:29 -0500
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01040520022900.00762@bozo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting some interesting behavior with the 2.4.3 serial driver and
-agetty.
+I have a Tyan S1867 (Server Set III HE) for which I'd like to have AGP 
+support.  Here's the relevant output of lspci -v :
 
-This system uses the onboard serial port (ttyS0) for a serial console
-(console=ttyS0,38400) along with the VGA port.  If I try to start an
-agetty on this line (agetty -L ttyS0 38400), it gets as far as
-outputting "Debian GNU/Linux", etc, before freezing in ioctl(0,
-SNDCTL_STOP...), this according to strace.  According to "ps -eo wchan",
-it's hanging in tty_wait_until_sent.  fd 0 is /dev/ttyS0.
-This happens if the port is connected via null-modem cable to another
-computer, a null-modem cable connected to no other computer, or no cable
-at all.
+00:00.0 Host bridge: ServerWorks CNB20HE (rev 22)
+	Flags: fast devsel
+	Memory at fa000000 (32-bit, prefetchable) [disabled] [size=32M]
+	Memory at feafb000 (32-bit, non-prefetchable) [disabled] [size=4K]
 
-This seems to be a kernel problem to me, since its hanging in kernel
-space.  However, the problem can be worked around somewhat by starting
-agetty as "agetty -n -L ttyS0 38400".  In this mode of operation, the
-login prompt gets printed (though the banner doesn't), and I can log in.
-It seems to work well, except that large sustained transfers seem to
-lock the program on this end.  For example, "dmesg" will print out a
-considerable amount of text, and then simply stop.  Ctrl+C returns me to
-a bash prompt.  It stops at the same spot every time, unless I start
-typing between "dmesg" and stoppage.  It never varies by more than a few
-(10-15) characters.  Interestingly enough, characters are still echoed
-between stoppage and return to bash.
+00:00.1 PCI bridge: ServerWorks CNB20HE (rev 01) (prog-if 00 [Normal decode])
+	Flags: bus master, 66Mhz, medium devsel, latency 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	Memory behind bridge: fd000000-fdffffff
+	Prefetchable memory behind bridge: f0000000-f7ffffff
+	Capabilities: [80] AGP version 2.0
+    ...
+    ...
+    ...
+01:00.0 VGA compatible controller: nVidia Corporation NV15 Bladerunner 
+(Geforce2 GTS) (rev a4) (prog-if 00 [VGA])
+	Subsystem: Elsa AG: Unknown device 0c56
+	Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 17
+	Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+	Memory at f0000000 (32-bit, prefetchable) [size=128M]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [60] Power Management version 1
+	Capabilities: [44] AGP version 2.0
 
-I wouldn't blame the cable or the remote computer, though, as I've tried
-using an entirely different computer complete with different OS as the
-terminal, with precisely the same behavior.  I've also used the cable
-between the two other computers, in which it works correctly.  (The
-kernel used in which it works correctly is 2.2.14 on an RH 5.2 system.)
+The first thing to be noted is that the Capabilities Pointer for this chipset 
+is on the AGP bridge not on the Host bridge like it is for currently 
+supported chips. If I change the line
 
-I hope I've given you enough information to make a useful evaluation,
-and hopefully a fix.  If I've left something out, please ask, and I'll be
-happy to give you whatever I can.  I'm also willing to try out possible
-fixes.
+	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) == NULL)
 
-Thanks
--- 
--Steven
-Freedom is the freedom to say that two plus two equals four.
+to
+	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_PCI << 8, NULL)) == NULL)
+
+in the agp_find_supported_device routine then I am able to load the patched 
+agpgart module. But, unfortunately, it is clear that the intel_generic setup 
+routines won't work.  Eg, intel_fetch_size returns 256 MB no matter what I 
+have the aperture set to in the BIOS.
+
+Just poking around I notice that the byte at 0x8c changes from 
+1,3,5,7,9,11,13 as I change the aperture to 32,64,128,.256,512,1G,2G.
+
+Does anyone have the relevant documentation for the ServerWorks AGP 
+configuration registers?
+
+Thanks,
+Marvin

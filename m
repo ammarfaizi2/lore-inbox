@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269473AbUI3UVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUI3UV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269473AbUI3UVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269470AbUI3UVB
+	id S269470AbUI3UV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3UV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:21:01 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:57762 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269475AbUI3UUp (ORCPT
+	Thu, 30 Sep 2004 16:21:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14520 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269470AbUI3UVV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:20:45 -0400
-Subject: Re: [RFC PATCH] sched_domains: Make SD_NODE_INIT per-arch
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>
-In-Reply-To: <20040930122312.3f09ed73.akpm@osdl.org>
-References: <1096420339.15060.139.camel@arrakis>
-	 <415BC0BC.6040902@yahoo.com.au> <1096569412.20097.13.camel@arrakis>
-	 <20040930122312.3f09ed73.akpm@osdl.org>
+	Thu, 30 Sep 2004 16:21:21 -0400
+Subject: Re: [PATCH/RFC] Simplified Readahead
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Stephen Tweedie <sct@redhat.com>, Steven Pratt <slpratt@austin.ibm.com>,
+       Ram Pai <linuxram@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040929231327.GM2061@schnapps.adilger.int>
+References: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
+	 <415B3845.3010005@austin.ibm.com>
+	 <20040929231327.GM2061@schnapps.adilger.int>
 Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1096575625.20097.25.camel@arrakis>
+Organization: 
+Message-Id: <1096575644.1977.463.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 30 Sep 2004 13:20:25 -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Sep 2004 21:20:44 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-30 at 12:23, Andrew Morton wrote:
-> Matthew Dobson <colpatch@us.ibm.com> wrote:
-> >
-> > I would like to try to get this in before then, unless this will really
-> >  make things difficult for you.
-> 
-> It's about three weeks late for 2.6.9.  I already have a string of CPU
-> scheduler patches awaiting the 2.6.10 stream and once we're at -rc2 we
-> really should only be looking at bugfixes.
+Hi,
 
-Yeah, that's entirely my fault for slacking on sending this out...  I
-should have sent this a while ago.  It is a small portion of some larger
-sched_domains changes that I am working on, but at some point I realized
-my larger changeset will be far more controversial and have a much
-larger impact than some of the smaller bits, as well as not being ready
-for prime time yet.  Plus, like I said earlier, this allows
-arch-specific tweaking with minimal intrusiveness from the application
-of this patch forward.
+On Thu, 2004-09-30 at 00:13, Andreas Dilger wrote:
+> On a readahead-related note, I'm wondering how hard it would be to have
+> some tunables and/or hooks from the readahead state manchine made
+> available to the filesystem?  With the 2.4 readahead code it was basically
+> impossible for the filesystem to disable the readahead, I haven't looked
+> at the 2.6 readahead enough to determine whether we need that or not.
 
+Well, readahead is still done internally by filemap.c without consulting
+the individual fs.
 
-> Grumble, mutter..  it looks like one of those "if it compiled, it works"
-> things.  Problem is, any time anyone touches that particular piece of the
-> kernel, half the architectures stop compiing.
+> The real issue (reason for turning off RA in 2.4) is that within Lustre
+> there can be many DLM extent locks for a single file, so client A can
+> be writing to one part of the file, and client B can be reading from
+> another part of the same file.  With the stock readahead it wouldn't
+> stay within the lock extent boundaries, and we couldn't turn it off
+> easily.  Having some sort of FS method that says "don't do RA beyond
+> this offset" would be useful here.
 
-It *should* be.  I'd be quite happy if you just picked it up in -mm to
-assure it far wider testing.  I've compiled and booted it on x86, x86_64
-& ppc64.  I've got no access to ia64 right now, or I'd test it there. 
-But the patch *will* spit out #errors for any arch that doesn't have
-SD_NODE_INIT defined if they also have NUMA defined.  I'm don't know of
-anyone else (ie: *not* x86, x86_64, ppc64 & ia64) that is building NUMA
-kernels, but if they are, it's a trivial patch to their
-include/asm/topology.h to make the arch build.
+Do you really want that, though?  I'd have thought that grabbing a DLM
+lock was potentially a high-latency operation, so you might actually
+_benefit_ from notification that you want to start acquiring it early. 
+If it's going to be prohibitively expensive to acquire, though, you'd
+still want the option of not doing so.
 
-Of course, the ultimate decision is yours, Andrew...
+But there's not really any way for the fs to tell right now whether a
+read is for readahead or not.  It can _nearly_ do so: if you implement
+a_ops->readpages(), then that only gets called for readahead.  
 
--Matt
+Trouble is, that same readahead code is also used to kick off early
+reads when the user actually requested a single large read.  If the app
+reads 100k at once, then do_generic_mapping_read() first kicks off
+readahead, then does individual page-sized read_page()s to get the
+data.  And the readahead code doesn't really know about this at all; it
+can't tell what amount of sequential data the user is guaranteed to
+want.
+
+ext3 could make use of this sort of information too, btw.  Currently,
+mpage_readpages() ends up calling the fs get_block() to map all the
+pages for reading, before submitting the IO request; and even though
+the final IO is async, the get_block() is still fully synchronous.  If
+ext3 knew it was a readahead, it could potentially queue the read for
+the indirect block and return EAGAIN, stopping the readahead at the
+point where we don't yet have mapping information in cache.
+
+But you don't want ext3_get_block() returning EAGAIN for synchronous
+reads. :-)
+
+> The other problem that Lustre had was that the stock readahead would
+> send out page reads in small chunks as the window grew instead of
+> sending out large requests that could be turned into large, efficient
+> network RPCs.  So the desire would be to have some sort of tunable in
+> the readahead state (per fs or per file) that says "don't submit
+> another readahead until the window is growing by X pages".
+
+Does the current 2.6 ahead-window readahead still show that problem?
+
+--Stephen
+
 

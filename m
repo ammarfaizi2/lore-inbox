@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263509AbTCNViI>; Fri, 14 Mar 2003 16:38:08 -0500
+	id <S262638AbTCNVpA>; Fri, 14 Mar 2003 16:45:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263510AbTCNViI>; Fri, 14 Mar 2003 16:38:08 -0500
-Received: from cygnus-ext.enyo.de ([212.9.189.162]:10501 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id <S263509AbTCNViH>;
-	Fri, 14 Mar 2003 16:38:07 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 14 Mar 2003 22:48:55 +0100
-In-Reply-To: <20030314184009$69b1@gated-at.bofh.it> (Jeff Garzik's message
- of "Fri, 14 Mar 2003 19:40:09 +0100")
-Message-ID: <873clpbovs.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
-References: <20030314184009$1b0a@gated-at.bofh.it>
-	<20030314184009$54f5@gated-at.bofh.it>
-	<20030314184009$6d9e@gated-at.bofh.it>
-	<20030314184009$548a@gated-at.bofh.it>
-	<20030314184009$69b1@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263515AbTCNVpA>; Fri, 14 Mar 2003 16:45:00 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:39042 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262638AbTCNVo7>; Fri, 14 Mar 2003 16:44:59 -0500
+Subject: Re: [Ext2-devel] Filesystem write priorities, (Was: Re: [RFC]
+	Improved inode number allocation for HTree)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: John Bradford <john@grabjohn.com>
+Cc: Andreas Schwab <schwab@suse.de>, phillips@arcor.de,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger@clusterfs.com>,
+       chrisl@vmware.com, bzzz@tmi.comex.ru, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <200303102150.h2ALoVME001043@81-2-122-30.bradfords.org.uk>
+References: <200303102150.h2ALoVME001043@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047678942.2566.613.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 14 Mar 2003 21:55:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+Hi,
 
-> Thus, even to have an open source BK export tool requires that key
-> BK algorithms be open sourced.
+On Mon, 2003-03-10 at 21:50, John Bradford wrote:
 
-You can't "open source" algorithms.  Unpatented algorithms are always
-free to use.
+> Well, yes, I use noatime by default, but I was thinking that there
+> might be users who wanted to gain most of the performance that using
+> noatime would, who still wanted access times available generally, but
+> who were not bothered about loosing them on an unclean shutdown.
 
-It's sufficient if somebody looks at the algorithms employed by BK and
-documents them in plain English at a very abstract level.  (Reading
-your properly licensed copy of the BK source code and writing down
-your thoughts can't be illegal, can it?)  Somebody else can go ahead
-and implement them, unencumbered by the BK copyright and BK license.
+I've got new inode-flushing code which somewhat does that already.  The
+code in 
 
-(This is not legal advice, it's just the way it is done in the
-industry if you have to reverse-engineer the product of a competitor
-for interoperability reasons.)
+http://people.redhat.com/sct/patches/ext3-2.4/dev-20030314/40-iflush-sct/
+
+allows us to defer inode writes, primarily to eliminate redundant
+copy-to-buffer-cache operations in mark_inode_dirty; but it has the
+side-effect of allowing us to defer atime updates quite safely.
+
+I'm currently integrating all the latest bits and pieces of orlov and
+htree work into that set of patches to provide a stable base, and the
+next order of business is to get ACL and O_DIRECT diffs in for 2.4
+too.   But beyond that, I need to get down to some serious performance
+work with ext3, and the inode flush code is a major part of that.
+
+--Stephen
+

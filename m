@@ -1,141 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264582AbUGAL5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUGAMFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264582AbUGAL5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 07:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGAL5y
+	id S264774AbUGAMFp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 08:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUGAMFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 07:57:54 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:57239 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S264582AbUGAL5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 07:57:50 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF08F42FBC@whq-msgusr-02.pit.comms.marconi.com>
-From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'rml@tech9.net'" <rml@tech9.net>,
-       "'akpm@osdl.org'" <akpm@osdl.org>, "'Con Kolivas'" <kernel@kolivas.org>,
+	Thu, 1 Jul 2004 08:05:45 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:13960 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264774AbUGAMFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 08:05:43 -0400
+Date: Thu, 1 Jul 2004 14:06:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'rml@tech9.net'" <rml@tech9.net>, "'akpm@osdl.org'" <akpm@osdl.org>,
+       "'Con Kolivas'" <kernel@kolivas.org>,
        "'Kevin P. Dankwardt'" <k@kcomputing.com>,
        "'Oliver Neukum'" <oliver@neukum.org>,
        "'Felipe Alfaro Solana'" <felipe_alfaro@linuxmail.org>,
        "'Tigran Aivazian'" <tigran@veritas.com>,
        "'corbet@lwn.net'" <corbet@lwn.net>
-Subject: Linux scheduler (scheduling) questions vs threads 
-Date: Thu, 1 Jul 2004 07:56:02 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: Linux scheduler (scheduling) questions vs threads
+Message-ID: <20040701120624.GA24295@elte.hu>
+References: <313680C9A886D511A06000204840E1CF08F42FBC@whq-msgusr-02.pit.comms.marconi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FBC@whq-msgusr-02.pit.comms.marconi.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for bothering and annoying everyone on this list again with additional
-questions ...
 
-Let assume there is one (and only one) application (user space ) process
-running on the Linux 2.6 - with multiple threads within it, created via
-"clone" (this happens, I presume, for example, if one uses Monta Vista
-library for porting PSOS to Linux).
+* Povolotsky, Alexander <Alexander.Povolotsky@marconi.com> wrote:
 
-What scheduling policies those threads (within the same process) will be
-governed by (if any )?
+> Sorry for bothering and annoying everyone on this list again with additional
+> questions ...
+> 
+> Let assume there is one (and only one) application (user space ) process
+> running on the Linux 2.6 - with multiple threads within it, created via
+> "clone" (this happens, I presume, for example, if one uses Monta Vista
+> library for porting PSOS to Linux).
+> 
+> What scheduling policies those threads (within the same process) will be
+> governed by (if any )?
 
-Or is it user's responsibility to arrange threads scheduling via some means
-of inter-process synchronization (such as signals, etc ) ?
+in Linux there's no difference between the scheduling of 'threads' and
+'processes'. Both are internally a 'task'. If two tasks share the same
+MM (this is possible via the use of clone()) then they are called
+threads. If a task has its own MM (normally created via fork()) then
+it's called a process - but the scheduler doesnt care.
 
-Thanks,
-Best Regards,
-Alex Povolotsky
+so the normal Linux scheduling policy applies to 'threads' too. Fully
+preemptable, SCHED_NORMAL by default, or SCHED_FIFO/SCHED_RR if you set
+it. The priority (or rt_priority) can be set per-task as well. Newly
+created threads/processes may inherit (or not) the policy of the parent,
+this largely depends on the library implementation.
 
------Original Message-----
-From: Con Kolivas [mailto:kernel@kolivas.org]
-Sent: Tuesday, June 29, 2004 6:53 PM
-To: Povolotsky, Alexander
-Cc: 'linux-kernel@vger.kernel.org'; 'andrebalsa@altern.org'; 'Richard E.
-Gooch'; 'Ingo Molnar'; 'rml@tech9.net'; 'akpm@osdl.org'
-Subject: Re: Linux scheduler (scheduling) questions
-
-
-Povolotsky, Alexander writes:
-
-> I  have "general"  Linux  OS scheduling  questions, especially with
-regards
-> as those apply to the (latest) Linux  2.6  scheduler features (would
-really
-> appreciate if whether/when/while answering those questions listed  below,
-> you could pinpoint differences between Linux 2.6 and Linux 2.4 !): 
- 
-> 0.  I was told that the Linux kernel could be configured with one of the 3
-> (? ) different scheduling policies - could someone describe       
->      those to me in details ?
-> 2.  Linux 2.6 (I was told it is the same for Linux 2.4.21-15) has
-priorities
-> 0-99 for RT priorities and 100-139 for normal (SCHED_NORMAL) tasks.
-
-> I presume that priorities 0-99 are "recommended" (or enforced ?) for
-> Linux kernel "native" tasks ... and "out or reach" for application
-> tasks (unless one dares to merge application into the Linux kernel,
-> masquerading it as a "system level command" - did anyone tried this ? -
-> I presume it is not recommended ...  )  ?
-
-Three different policies are currently supported:
-SCHED_NORMAL (also known as SCHED_OTHER) has a soft priority mechanism 
-over the 'nice' range of -20 to +19 (static priority of 100-139) which 
-decides according to the priority which task goes first, and how much 
-timeslice it gets. This system dynamically alters the priority to allow 
-interactive tasks to go first, and is designed to prevent starvation of 
-lower priority tasks with an expiration policy. 
-
-SCHED_RR is a fixed real time policy over the static range of 0-99 where a 
-lower number (higher priority) task will repeatedly go ahead of _any_ tasks 
-lower priority than itself. It is called RR because if multiple tasks are at
-
-the same priority it will Round Robin between those tasks. 
-
-SCHED_FIFO is a fixed real time policy the static range of 0-99 where a
-lower number (higher priority) task will repeatedly go ahead of _any_ tasks
-with lower priority than itself. Unlike RR, if a task does not give up the
-cpu it 
-will run indefinitely even if other tasks are the same static priority as 
-itself.
-
-Unprivileged users are not allowed to set SCHED_RR or SCHED_FIFO because of 
-the real risk of these tasks causing starvation.
-
-> 1.   How rescheduling is "induced" in above scheduling policies ?
->      Does at least one of above mentioned scheduling policies uses "clock
->      tick" as a scheduling event ?
-
-Preemption is built into this mechanism where any higher priority task will 
-preempt the current running task at any time. SCHED_NORMAL tasks have a 
-timeout policy based on scheduler_tick that allows other tasks of the same 
-priority to run and considers that task for expiration. SCHED_RR tasks have 
-a timeout policy also based on scheduler tick that allows tasks of the same 
-priority to run. SCHED_FIFO tasks never time out.
-
-> Under what priority the OS system calls are executed ?
-
-The kernel threads run at different priorities dependent on what they do. 
-Run 'top -b -n 1' and you'll see a list of different tasks with the name k* 
-that are kernel threads. On SMP systems, the migration thread is SCHED_FIFO 
-priority 0 which means it always goes ahead of everything else. The rest of 
-the kernel threads vary between SCHED_NORMAL 'nice' -20 to +19 (static 
-priority 100-139).
-
-> 3.  Is  priority inversion and its prevention (priority inheritance or
-> priority ceilings) applicable to Linux ) for application/user-space tasks
-(
-> with priorities in the range 100-139) ?
-
-There is no intrinsic mechanism in the kernel to prevent priority inversion.
-
-Generic anti-starvation mechanims minimise the harm that priority inversion 
-can do but there can be a lot of wasted cpu cycles for poorly coded 
-applications. This is more true of 2.6 than 2.4 because the cpu scheduler 
-does far more 'out of order' scheduling where a task can run many many times
-
-dependent on priority before another task will ever run.
-
-Hope this helps,
-Cheers,
-Con
-
+	Ingo

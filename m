@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312426AbSDCWYu>; Wed, 3 Apr 2002 17:24:50 -0500
+	id <S312418AbSDCWZa>; Wed, 3 Apr 2002 17:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312425AbSDCWYk>; Wed, 3 Apr 2002 17:24:40 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:7183 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S312418AbSDCWY2>;
-	Wed, 3 Apr 2002 17:24:28 -0500
-Date: Wed, 3 Apr 2002 19:24:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Gerd Knorr <kraxel@bytesex.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <Pine.LNX.3.95.1020403171242.12859A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44L.0204031922570.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S312425AbSDCWZV>; Wed, 3 Apr 2002 17:25:21 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:59397 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S312418AbSDCWZP>; Wed, 3 Apr 2002 17:25:15 -0500
+Message-ID: <3CAB8133.1AAF5338@didntduck.org>
+Date: Wed, 03 Apr 2002 17:24:51 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Warn users about machines with non-working WP bit
+In-Reply-To: <20020403215457.GA1050@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Richard B. Johnson wrote:
+Pavel Machek wrote:
+> 
+> Hi!
+> 
+> This might be good idea, as those machines are not safe for multiuser
+> systems.
+> 
+> --- clean.2.5/arch/i386/mm/init.c       Sun Mar 10 20:06:31 2002
+> +++ linux/arch/i386/mm/init.c   Mon Mar 11 21:49:14 2002
+> @@ -383,7 +383,7 @@
+>         local_flush_tlb();
+> 
+>         if (!boot_cpu_data.wp_works_ok) {
+> -               printk("No.\n");
+> +               printk("No (that's security hole).\n");
+>  #ifdef CONFIG_X86_WP_WORKS_OK
+>                 panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
+>  #endif
+> 
+>                                                                         Pavel
 
-> Well, you can't have it both ways. If you want the world to use
-> Linux, then the companies that spend their money making programs
-> and drivers that work with Linux are going to have to be able
-> to keep their own hard-earned code from their competitors, or the
-> companies that hire the Engineers that write the code will soon
-> be out-of-business, their work having been stolen by others.
+The "bug" is really the lack of a feature present on 486+ cpus.  A 386
+will allow the kernel to write to a write-protected user page (but not a
+write-protected kernel page).  In user mode, write protect works as it
+should.  The kernel works around this by doing extra checks when writing
+to user pages (check the *_user() functions).  It is not a security
+hole, because if the kernel wasn't compiled with the workaround, it
+refuses to boot on those cpus.
 
-That's the perfect argument for making some symbols GPL-only,
-after all Redhat, SuSE, Conectiva, etc. wouldn't want to have
-vmware and Veritas use their work without giving anything back ...
+--
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+				Brian Gerst

@@ -1,94 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSH0WDL>; Tue, 27 Aug 2002 18:03:11 -0400
+	id <S317299AbSH0WEt>; Tue, 27 Aug 2002 18:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317298AbSH0WDL>; Tue, 27 Aug 2002 18:03:11 -0400
-Received: from ppp-217-133-221-79.dialup.tiscali.it ([217.133.221.79]:24253
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S317282AbSH0WDK>; Tue, 27 Aug 2002 18:03:10 -0400
-Subject: [PATCH] 2.5.32: is_smp() and can_be_smp()
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-EWTpbCKaG5R3rG9sj+YY"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 28 Aug 2002 00:07:27 +0200
-Message-Id: <1030486047.6203.8.camel@ldb>
-Mime-Version: 1.0
+	id <S317302AbSH0WEs>; Tue, 27 Aug 2002 18:04:48 -0400
+Received: from pat.uio.no ([129.240.130.16]:62159 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317299AbSH0WEr>;
+	Tue, 27 Aug 2002 18:04:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: problems with changing UID/GID
+Date: Wed, 28 Aug 2002 00:09:03 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208260855480.3234-100000@hawkeye.luckynet.adm> <shsvg5wqemp.fsf@charged.uio.no> <20020827200110.GB8985@tapu.f00f.org>
+In-Reply-To: <20020827200110.GB8985@tapu.f00f.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208280009.03090.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 27 August 2002 22:01, Chris Wedgwood wrote:
+> On Tue, Aug 27, 2002 at 09:35:10PM +0200, Trond Myklebust wrote:
+>
+>     Locking does absolutely nothing for the problem of checking file
+>     access with one set of credentials, and then doing the subsequent file
+>     operation with another set of credentials.
+>
+> Can we not lock creds at the syscall level? Ick... shoot me for saying
+> this :)
 
---=-EWTpbCKaG5R3rG9sj+YY
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Ick indeed... That sounds pretty nasty now that we have SMP and preemptive 
+kernels.
 
-Will be used by another patch that I'll post in the very near future.
-For i386 cpucount is used rather than computing the hweight of
-cpu_online_map since it's faster and already there.
-Ideally the same should be done for all architectures in both these
-macros and num_online_cpus and num_possible_cpus.
+I've restarted work on the alternative: putting basic BSD ucreds + VFS changes 
+in first. It's a lot of work, but I think it will be worth it.
 
+FYI a BSD ucred is basically a structure of the form
 
-diff --exclude-from=/home/ldb/src/linux-exclude -urNdp linux-2.5.32/include/asm-i386/smp.h linux-2.5.32_smp/include/asm-i386/smp.h
---- linux-2.5.32/include/asm-i386/smp.h	2002-08-27 21:26:32.000000000 +0200
-+++ linux-2.5.32_smp/include/asm-i386/smp.h	2002-08-27 23:25:09.000000000 +0200
-@@ -94,6 +94,10 @@ extern inline unsigned int num_online_cp
- 	return hweight32(cpu_online_map);
- }
- 
-+extern int cpucount;
-+#define is_smp() (cpucount)
-+#define can_be_smp() (cpucount)
-+
- extern inline int any_online_cpu(unsigned int mask)
- {
- 	if (mask & cpu_online_map)
-diff --exclude-from=/home/ldb/src/linux-exclude -urNdp linux-2.5.32/include/linux/smp.h linux-2.5.32_smp/include/linux/smp.h
---- linux-2.5.32/include/linux/smp.h	2002-08-27 21:26:43.000000000 +0200
-+++ linux-2.5.32_smp/include/linux/smp.h	2002-08-27 23:25:47.000000000 +0200
-@@ -78,6 +78,19 @@ extern int register_cpu_notifier(struct 
- extern void unregister_cpu_notifier(struct notifier_block *nb);
- 
- int cpu_up(unsigned int cpu);
-+
-+#ifndef is_smp
-+#define is_smp() (num_online_cpus() > 1)
-+#endif
-+
-+#ifndef can_be_smp
-+#ifdef num_possible_cpus
-+#define can_be_smp() (num_possible_cpus() > 1)
-+#else
-+#define can_be_smp() is_smp()
-+#endif
-+#endif
-+
- #else /* !SMP */
- 
- /*
-@@ -96,6 +109,8 @@ static inline void smp_send_reschedule_a
- #define cpu_online_map				1
- #define cpu_online(cpu)				({ cpu; 1; })
- #define num_online_cpus()			1
-+#define is_smp()				0
-+#define can_be_smp()				0
- #define num_booting_cpus()			1
- 
- struct notifier_block;
+struct ucred {
+	int	counter;		/* Reference counter */
+	uid_t	uid;			/* task->fsuid */
+	gid_t	gid;			/* task->fsgid */
+	int	ngroups;		/* task->ngroups */
+	gid_t	*groups;		/* task->groups */
+};
 
+The reference counter + the copy-on-write rule allows you to share it around 
+to other parts of the kernel (struct file, low level filesystems, ...). By 
+copy-on-write I mean that once it has been shared, nobody is allowed to 
+change the values of the data structures (except the reference counter).
 
---=-EWTpbCKaG5R3rG9sj+YY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Means that you don't need any form of locking for this structure apart from 
+perhaps in those rare CLONE_CRED instances when you are actually changing the 
+shared ucred in the task_struct for all the threads.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9a/gfdjkty3ft5+cRAioRAKDFhxWIdvwFr6VnIkfcWLNSgzXxxwCfTx/U
-J2CVOTemxjhQjhpDJLTMhm0=
-=8dMK
------END PGP SIGNATURE-----
-
---=-EWTpbCKaG5R3rG9sj+YY--
+Cheers,
+  Trond

@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSKXXXv>; Sun, 24 Nov 2002 18:23:51 -0500
+	id <S261950AbSKXXf1>; Sun, 24 Nov 2002 18:35:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbSKXXXv>; Sun, 24 Nov 2002 18:23:51 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:59264 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S261894AbSKXXXv>; Sun, 24 Nov 2002 18:23:51 -0500
-Date: Sun, 24 Nov 2002 18:30:45 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc3 keyboard & mouse lost in X
-Message-ID: <20021124233045.GA1747@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021124214007.GB1597@Master.Wizards> <200211242211.gAOMBSUU000706@darkstar.example.net>
+	id <S261963AbSKXXf1>; Sun, 24 Nov 2002 18:35:27 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:62879 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S261950AbSKXXf0>;
+	Sun, 24 Nov 2002 18:35:26 -0500
+Date: Mon, 25 Nov 2002 00:42:31 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, KELEMEN Peter <fuji@elte.hu>
+Subject: Re: NFS performance ...
+Message-ID: <20021124234231.GE12212@dualathlon.random>
+References: <200211241521.09981.m.c.p@wolk-project.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211242211.gAOMBSUU000706@darkstar.example.net>
+In-Reply-To: <200211241521.09981.m.c.p@wolk-project.de>
 User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 24, 2002 at 10:11:28PM +0000, John Bradford wrote:
-> > > > I've mentioned it before many times, (since 2.4.20-pre8) so I'll just
-> > > > mention - it still happens.
-> > > > Going to X mouse and keyboard stop responding.
-> > > > 
-> > > > Not a good thing, since most users like using X.
-> > > 
-> > > Are you sure it isn't an XF86Config problem?  Does 2.4.19 work?
-> > 
-> > 2.4.19 works - every 2.4.x works up to 2.4.20pre8. pre8 with ac3
-> > works (what I'm using now). If you look back you'll see I've reported
-> > this for many versions (most of 2.5.4x has the same problem).
+On Sun, Nov 24, 2002 at 03:23:01PM +0100, Marc-Christian Petersen wrote:
+> Hi Peter,
 > 
-> Try disabling the local APIC, if it is enabled.
+> > I have a very simple NFS setup over a siwtched 100Mbit/s network.
+> > client is Celeron 400MHz/256M RAM, using XFS
+> > server is dual Pentium Pro 200MHz/1G RAM, using XFS
+> > server is running Linux 2.4.19-pre8aa3.
+> >
+> > Network bandwith can be utilized, because ICMP flooding the
+> > server results in ~20000 kbit/s network traffic (as of
+> > iptraf), but NFS (v3,udp) write performance is unacceptably
+> > slow (around 300 KiB/sec), same results with the following
+> > kernels:
+> > Linux 2.4.18-WOLK3.1
+> > Linux 2.4.18-wolk3.7.1
+> > Linux 2.4.20-pre8aa2
+> > However, with 2.4.19-rmap14b-xfs the very same NFS
+> > performance tops out at 2.54 MiB/sec.  What's the catch?
+> I think Andrea and me have something in our kernels that may cause it. For me 
+> I don't know what that can be. I even have no idea what it can be :(
+> 
+> Andrea, you?
 
-This caused the keyboard to work in X. Mouse still not responsive.
-I do get an error message in syslog after starting X now:
-
-Nov 24 17:59:12 Master kernel: keyboard: Timeout - AT keyboard not present?(00)
-
-but the keyboard works.
+nfs runs at 10mbyte/sec both directions for me, not on xfs if that
+matters. can you try if you can reproduce with ext2 on both sides just
+in case, also please try with 2.4.20rc2aa1 (the elevator-lowlatency will
+make the system slower in some workload like dbench compared to rc1aa1,
+but it doesn't matter for you since your bottleneck must be in the
+network/fs layer not the blkdev layer).
 
 > 
-> > The ONLY difference between working and not working is the kernel
-> > version.
+> Peter, have you also tested v3 over tcp?
 > 
-> 2.4.x and 2.5.x have very different input layers, so it is suprising
-> that the same problem is occuring with both trees.
+> ciao, Marc
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Very surprising. I can't test 2.5.49, though, as it won't boot from my
-reiserfs v3.6 HD.
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
-
+Andrea

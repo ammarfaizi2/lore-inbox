@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSHIPet>; Fri, 9 Aug 2002 11:34:49 -0400
+	id <S314077AbSHIPct>; Fri, 9 Aug 2002 11:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314403AbSHIPet>; Fri, 9 Aug 2002 11:34:49 -0400
-Received: from ns.suse.de ([213.95.15.193]:55310 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S314396AbSHIPes>;
-	Fri, 9 Aug 2002 11:34:48 -0400
-To: Greg Banks <gnb@alphalink.com.au>
-Cc: Peter Samuelson <peter@cadcamlab.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] [patch] config language dep_* enhancements
-References: <20020808151432.GD380@cadcamlab.org>
-	<Pine.LNX.4.44.0208081142390.23063-100000@chaos.physics.uiowa.edu>
-	<20020808164742.GA5780@cadcamlab.org>
-	<20020809041543.GA4818@cadcamlab.org>
-	<3D53D50D.7FA48644@alphalink.com.au>
-X-Yow: Yes, but will I see the EASTER BUNNY in skintight leather
- at an IRON MAIDEN concert?
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 09 Aug 2002 17:38:30 +0200
-In-Reply-To: <3D53D50D.7FA48644@alphalink.com.au> (Greg Banks's message of
- "Sat, 10 Aug 2002 00:43:25 +1000")
-Message-ID: <jey9bg2gax.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S314080AbSHIPct>; Fri, 9 Aug 2002 11:32:49 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:9299 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S314077AbSHIPcs>;
+	Fri, 9 Aug 2002 11:32:48 -0400
+Date: Fri, 9 Aug 2002 17:36:15 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       Paul Larson <plars@austin.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       andrea@suse.de, gh@us.ibm.com
+Subject: Re: Analysis for Linux-2.5 fix/improve get_pid(), comparing various approaches
+Message-ID: <20020809153615.GA1062@win.tue.nl>
+References: <1028757835.22405.300.camel@plars.austin.ibm.com> <3D51A7DD.A4F7C5E4@zip.com.au> <20020808002419.GA528@win.tue.nl> <200208090722.08223.frankeh@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208090722.08223.frankeh@watson.ibm.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Banks <gnb@alphalink.com.au> writes:
+On Fri, Aug 09, 2002 at 07:22:08AM -0400, Hubertus Franke wrote:
 
-|> > --- 2.4.20pre1/scripts/Configure        2001-07-02 15:56:40.000000000 -0500
-|> > +++ 2.4.20pre1p/scripts/Configure       2002-08-08 22:31:49.000000000 -0500
-|> > @@ -232,6 +241,28 @@
-|> >  }
-|> > 
-|> >  #
-|> > +# dep_calc reduces a dependency line down to a single char [ymn]
-|> > +#
-|> > +function dep_calc () {
-|> > +       local neg arg
-|> > +       cur_dep=y       # return value
-|> > +       for arg; do
-|> > +         neg=;
-|> > +         case "$arg" in
-|> > +           !*) neg=N; arg=${arg#?} ;;
-|> > +         esac
-|> > +         case "$arg" in
-|> > +           y|m|n) ;;
-|> > +           *) arg=$(eval echo \$$arg) ;;
-|> 
-|> Don't you want to check at this point that arg starts with CONFIG_?
-|> Also, how about quoting \$$arg  ?
+> Particulary for large number of tasks, this can lead to frequent exercise of
+> the repeat resulting in a O(N^2) algorithm. We call this : <algo-0>.
 
-The Right Way to write that is like this, assuming that $arg has already
-been verified to be a valid identifier:
+Your math is flawed. The O(N^2) happens only when the name space for pid's
+has the same order of magnitude as the number N of processes.
+Now consider N=100000 with 31-bit name space. In a series of
+2.10^9 forks you have to do the loop fewer than N times and
+N^2 / 2.10^9 = 5. You see that on average for each fork there
+are 5 comparisons.
+For N=1000000 you rearrange the task list as I described yesterday
+so that each loop takes time sqrt(N), and altogether N.sqrt(N)
+comparisons are needed in a series of 2.10^9 forks.
+That is 0.5 comparisons per fork.
 
-          eval arg=\$$arg
+You see that thanks to the large pid space things get really
+efficient. Ugly constructions are only needed when a large fraction
+of all possible pids is actually in use, or when you need hard
+real time guarantees.
 
-No need for further quoting.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Andries

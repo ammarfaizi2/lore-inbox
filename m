@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSK0RyH>; Wed, 27 Nov 2002 12:54:07 -0500
+	id <S261900AbSK0SAu>; Wed, 27 Nov 2002 13:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbSK0RyG>; Wed, 27 Nov 2002 12:54:06 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:51644 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S261353AbSK0RyF>; Wed, 27 Nov 2002 12:54:05 -0500
-Date: Wed, 27 Nov 2002 19:01:14 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Dennis Grant <trog@wincom.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A Kernel Configuration Tale of Woe
-Message-ID: <20021127180114.GB20066@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-References: <3de507c7.1c64.0@wincom.net>
-Mime-Version: 1.0
+	id <S261963AbSK0SAt>; Wed, 27 Nov 2002 13:00:49 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:62470 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261900AbSK0SAs>; Wed, 27 Nov 2002 13:00:48 -0500
+Message-ID: <3DE50A1D.856A8706@aitel.hist.no>
+Date: Wed, 27 Nov 2002 19:08:29 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.49 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: James Simmons <jsimmons@infradead.org>
+CC: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Fbdev 2.5.49 BK fixes.
+References: <Pine.LNX.4.44.0211271747510.30951-100000@phoenix.infradead.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3de507c7.1c64.0@wincom.net>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 27, 2002 at 12:52:45PM -0500, Dennis Grant wrote:
-> >> Agreed - so then the association between "board" 
-> >> and "chipset" must be capable of being multi-valued,
-> >> and when there is a mult-valued match there must be 
-> >> some means of further interrogating the user (or user agent)
-> >> for more information.
-> > Much simpler to just include "modular everything" and let
-> > user space sort it out. Guess why every vendor takes this path
-> So I think there's still a need for the hardware->kernel version+config database.
+James Simmons wrote:
+> 
+> > I tried this patch, but it crashed during boot.
+> 
+> Any oops info?
+No.  The machine froze solid. No oops, no sysrq.
+The reset button worked.
+> 
+> > I have a
+> > 01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP
+> > 1X/2X (rev 5c)
+> >
+> > and use this in lilo.conf:
+> > image=/boot/2.5.49fb
+> >         label=2.5.49fb
+> >         append="video=atyfb:1280x1024-16@85"
+> 
+> Hm. Are you using a PPC or ix86 box? I will test this tonight.
+i386.  Specifically, a pentium II, compiled for pentium II.
 
-The kernel source pretty close resembles what the kernel supports
-(except the broken drivers). Make the source your database. Propose
-source code formatting rules, and let the userspace parse it (assuming
-the proposal find the way into source). Make the hardware descriptions
-readable in the object code, so the userspace can pick up new modules
-and activate them if a new pci-id is seen. Etc...
+> > This got me a 160x64 framebuffer with yellow text on
+> > blue background.  Nice, but only got about 10 lines before
+> > the kernel hung. The disk light got stuck on and there were
+> > no response to things like sysrq.
+> > The few lines displayed was about the fb, drm, and finally
+> > the 3com network adapter.  Then nothing more.
+> 
+> Sounds like panning flipped put.
+> 
+Perhaps. It didn't look like it ended at the bottom of the
+screen, but then it might have been panning at the wrong moment.
 
-It's already of such use for some of us, who are about to get a new
-hardware and trying to figure out if it can be useful:
+> > 2.5.49 without this patch works.  I use devfs & preempt,
+> > the machine is UP and I use gcc-2.95.4 for compiling.
 
-egrep -rn 'vendor|cardname' .
-
--alex
-
+Helge Hafting

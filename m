@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264112AbUDGGwt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 02:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbUDGGwt
+	id S264117AbUDGHEc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 03:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbUDGHEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 02:52:49 -0400
-Received: from macvin.cri2000.ens-lyon.fr ([140.77.13.138]:37772 "EHLO
-	macvin.cri2000.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S264112AbUDGGv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 02:51:58 -0400
-Date: Wed, 7 Apr 2004 08:51:55 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm2
-Message-ID: <20040407065154.GG1139@ens-lyon.fr>
-References: <20040406223321.704682ed.akpm@osdl.org>
+	Wed, 7 Apr 2004 03:04:32 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:20152 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S264117AbUDGHEG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 03:04:06 -0400
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: [2.4] bttv and sparc64
+Date: 07 Apr 2004 09:12:20 +0200
+Organization: SuSE Labs, Berlin
+Message-ID: <873c7gl0rv.fsf@bytesex.org>
+References: <pan.2004.04.06.23.39.42.565881@triplehelix.org>
+NNTP-Posting-Host: localhost
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040406223321.704682ed.akpm@osdl.org>
-X-Operating-System: Linux 2.6.5 i686
-Organization: Ecole Normale Superieure de Lyon
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=us-ascii
+X-Trace: bytesex.org 1081321940 12084 127.0.0.1 (7 Apr 2004 07:12:20 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/04/2004-07:40, Andrew Morton wrote:
+Joshua Kwan <joshk@triplehelix.org> writes:
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm2/
-> 
-> 
-> - Merged up Ian Kent's autofs4 patches
-> 
-> - Various fixes and speedups.
+> Many modules on sparc64 seem to require I2C support to
+> compile correctly. Why do they not depend on CONFIG_I2C?
 
+In my source tree bttv (correctly) depends on CONFIG_I2C_ALGOBIT ...
 
-Hi Andrew,
+eskarina kraxel ~# grep BT848 /work/bk/2.4/linux-2.4.23/drivers/media/video/Config.in
+dep_tristate '  BT848 Video For Linux' CONFIG_VIDEO_BT848 $CONFIG_VIDEO_DEV $CONFIG_PCI $CONFIG_I2C_ALGOBIT $CONFIG_SOUND
 
-When building on my Compaq EvoN600c, I get this compile error :
+  Gerd
 
-CC [M]  drivers/scsi/sr.o
-	    drivers/scsi/sr.c: In function scsi_cd_get':
-	    drivers/scsi/sr.c:128: error: structure has no member named kobj'
-	    drivers/scsi/sr.c: In function scsi_cd_put':
-	    drivers/scsi/sr.c:135: error: structure has no member named kobj'
-	    drivers/scsi/sr.c: In function sr_probe':
-	    drivers/scsi/sr.c:554: error: structure has no member named kobj'
-	    drivers/scsi/sr.c:555: error: structure has no member named kobj'
-	    drivers/scsi/sr.c: In function sr_kobject_release':
-	    drivers/scsi/sr.c:904: error: structure has no member named kobj'
-	    drivers/scsi/sr.c:904: warning: type defaults to int' in
-declaration of __mptr'
-drivers/scsi/sr.c:904: warning: initialization from incompatible pointer type
-drivers/scsi/sr.c:904: error: structure has no member named kobj'
-make[2]: *** [drivers/scsi/sr.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
-
-2.6.5-mm1 and previous compiled without any problem.
-.config attached.
-
-Best Regards
---
-Brice Goglin
-================================================
-Ph.D Student
-Laboratoire de l'Informatique et du Parallélisme
-CNRS-ENS Lyon-INRIA-UCB Lyon
-France
+-- 
+http://bigendian.bytesex.org

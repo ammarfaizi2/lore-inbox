@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129466AbRCZWL7>; Mon, 26 Mar 2001 17:11:59 -0500
+	id <S129464AbRCZWL7>; Mon, 26 Mar 2001 17:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbRCZWLu>; Mon, 26 Mar 2001 17:11:50 -0500
-Received: from [213.96.224.204] ([213.96.224.204]:28932 "HELO man.beta.es")
-	by vger.kernel.org with SMTP id <S129466AbRCZWKB>;
-	Mon, 26 Mar 2001 17:10:01 -0500
-Date: Tue, 27 Mar 2001 00:08:43 +0200
-From: Santiago Garcia Mantinan <manty@udc.es>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Wake on LAN
-Message-ID: <20010327000843.A2230@manty.net>
-In-Reply-To: <20010326210846.A1182@manty.net> <3ABF95F8.84508E68@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S129408AbRCZWLu>; Mon, 26 Mar 2001 17:11:50 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:16414 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129464AbRCZWJg>;
+	Mon, 26 Mar 2001 17:09:36 -0500
+Message-ID: <3ABFBD89.6ECCCC2D@sgi.com>
+Date: Mon, 26 Mar 2001 14:07:05 -0800
+From: LA Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, en-US, en-GB, fr
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit block sizes on 32-bit systems
+In-Reply-To: <009201c0b61e$c83f7550$5517fea9@local> <3ABF9B40.6B93ECA2@sgi.com> <00c701c0b63f$2d4fe720$5517fea9@local>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3ABF95F8.84508E68@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 26, 2001 at 02:18:16PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you using Becker's ftp://www.scyld.com/pub/diag/ether-wake.c ?
+Manfred Spraul wrote:
+> Which field do you access? bh->b_blocknr instead of bh->r_sector?
+---
+	Yes.
+> 
+> There were plans to split the buffer_head into 2 structures: buffer
+> cache data and the block io data.
+> b_blocknr is buffer cache only, no driver should access them.
+---
+	My 'device' only lives in the buffer cache.  I write
+to the device 95% only from kernel space and then it is read
+out in large 256K reads by a user-land daemon to copy to a file.
+The user-land daemon may also use 'sendfile' to pull the
+data out of the device and copy it to a file which should, as I
+understand it, result in a kernel only copy from the device
+to the output file buffers -- meaning no copy of the data
+to user space would be needed.  My primary 'dig' in all this is the 
+32-bit block_nr's in the buffer cache.
 
-Yes.
+-l
 
-> Did you turn on the enable_wol module option?  Note that might be a new
-> option in the 2.4.3-preXX series...
-
-Well, it is indeed a 2.4.3-pre feature, as I had looked for it on 2.4.2, it
-was not there, but it is at least on pre8.
-
-This new driver allows me to WOL, but only if I don't choose ACPI, if I
-choose ACPI then I have the same problem as with 2.4.2. APM works ok though.
-
-Thanks for your help, now I'm gonna ask the ACPI guys about this.
-
-Regards...
 -- 
-Manty/BestiaTester -> http://manty.net
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338

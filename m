@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317638AbSGZJ6u>; Fri, 26 Jul 2002 05:58:50 -0400
+	id <S317406AbSGZJzm>; Fri, 26 Jul 2002 05:55:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSGZJ6u>; Fri, 26 Jul 2002 05:58:50 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:15112 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317638AbSGZJ57>; Fri, 26 Jul 2002 05:57:59 -0400
-Message-ID: <3D411CB0.9000206@evision.ag>
-Date: Fri, 26 Jul 2002 11:56:00 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: martin@dalecki.de, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE 104
-References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>		<3D40F8F9.1050507@evision.ag>	<1027678411.13428.3.camel@irongate.swansea.linux.org.uk> 	<3D411134.60904@evision.ag> <1027680390.13428.33.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317432AbSGZJzm>; Fri, 26 Jul 2002 05:55:42 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:8320 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317406AbSGZJzl>;
+	Fri, 26 Jul 2002 05:55:41 -0400
+Date: Fri, 26 Jul 2002 11:57:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix compile warnings in suspend.c, 2.5.28
+Message-ID: <20020726095721.GA220@elf.ucw.cz>
+References: <20020725215312.GA489@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0207251501320.18430-100000@loke.as.arizona.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207251501320.18430-100000@loke.as.arizona.edu>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Fri, 2002-07-26 at 10:07, Marcin Dalecki wrote:
-> 
->>The only thing which is really 'external API' there is the declaration
->>of the HDIO_XXX ioctl and among them in reality only HDIO_GETGEO 
->>      is really used outside the scope of the dreddy hdparm application. 
->>And
->>99% of times its usage is bogous anyway. Or do you know any better
->>examples I'm not aware of?
-> 
-> 
-> The struct hd_geometry is used by ioctl HDIO_GETGEO. 
-> The struct hd_driveid is used by ioctl HDIO_GETIDENTITY
-> 
-> 
->>The remainings will be moved away from there soon becouse it doesn't
->>make any sense to include this at every single place out there where
->>HDIO_GETGEO is the needed declaration. If some application needs ATA 
-> 
-> 
-> This would be great, right now lots of drivers suck in the file for the 
-> GETGEO stuff even though they are nothing to do with st506 or ide.
+Hi!
 
-:-). That's the intention indeed behind the above game.
-Please look at IDE patch nr 105. There is a change to the IDE parts to
-include hdparm.h explicitely. The next change will be to let them
-include a new header containing the definitions of ATA commands. This
-time I will remove the ATA stuff from hdparm.h In hdparm only the
-declarations of the ioctl stuff will with the two structures will
-remain. At this point I will throw the double underscores in front of
-the uXX-es to suite you.
+> > Does it work for you? I get reboot after S4 on 2.5.28. Can you mail me
+> > diff between clean and your tree?
+> 
+> Isn't the 'reboot after S4' due to #define TEST_SWSUSP 1?   I set it 
+> to 0 and it shuts down properly for me.  I'm not sure why rebooting should 
+> be the default behavior, actually -- it seems a bit strange.
 
-OK?
+Actually, I get two reboots. One expected after suspend and one
+unexpected after resume.
 
+TEST_SWSUSP is one so I can test it properly. I want to be Linus's
+swsusp same as mine for 2.5. TEST_SWSUSP is going to be 0 at 2.6.
 
+> My laptop's at home, but I applied the following patches from:
+> 	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.28/
+> 
+> I applied the 2 rmap-related patches in order, then the remaining patches 
+> (which are trivial cleanups and compile-fixes) in no special order.  
+> 2.5.28-swsusp is the patch in this thread.  This won't change the "reboot 
+> after S4" behavior without the additional change to TEST_SWSUSP,
+> above. 
 
+Can you do multiple S4 enters/leaves? Good test is to make bzImage
+while doing while true; do echo 4 > /proc/acpi/sleep; sleep 30; done.
+
+> Side note:
+> The only change to suspend.c that I made which isn't covered by 
+> the patch in this thread, is the try_to_free_pages() line -- 
+> but this is specific to the "full rmap-VM for 2.5".  The big rmap patch 
+> (2.5.28-rmap-1-rmap13b) makes this single alteration.
+
+Okay.
+
+> Second side note:
+> For the vanilla 2.5 classzone VM, I don't honestly understand why we're 
+> only looking at &contig_page_data.node_zones[ZONE_HIGHMEM] in
+> try_to_free_pages().  On the other hand, I don't see how it would break
+> swsusp.
+
+I don't understand that line, either. Andrea told me to write it like
+that, IIRC ;-).
+
+> And a note of appreciation: :)
+> This was the very first time I tried ACPI and swsusp! I had been using 
+> APM before, but had no hibernation capability (my BIOS only worked 
+> properly with suspend to RAM in Linux).  This is really a nice feature!
+> 
+> But now I have to figure out how to teach acpid to do useful stuff, like 
+> throttle the CPU and try to S4 on lid close and such. :)
+
+Throttling the CPU should be pretty easy [see
+/proc/acpi/processor/0/*], and it should already enter sleep modes for
+you.
+
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267580AbUHPM2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267575AbUHPMhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267580AbUHPM2p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUHPM2o
+	id S267575AbUHPMhd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUHPMhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:28:44 -0400
-Received: from imap.gmx.net ([213.165.64.20]:9901 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267580AbUHPM1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:27:37 -0400
-X-Authenticated: #1725425
-Date: Mon, 16 Aug 2004 14:38:17 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: John Wendel <jwendel10@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Message-Id: <20040816143817.0de30197.Ballarin.Marc@gmx.de>
-In-Reply-To: <411FD919.9030702@comcast.net>
-References: <411FD919.9030702@comcast.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Aug 2004 08:37:32 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:27141 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267575AbUHPMhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:37:31 -0400
+Date: Mon, 16 Aug 2004 13:37:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+Message-ID: <20040816133728.A10686@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@linux.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org> <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org> <Pine.LNX.4.58.0408161019040.21177@skynet> <20040816105014.A9367@infradead.org> <1092654719.20523.18.camel@localhost.localdomain> <20040816132022.A10567@infradead.org> <Pine.LNX.4.58.0408161323300.32584@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0408161323300.32584@skynet>; from airlied@linux.ie on Mon, Aug 16, 2004 at 01:24:30PM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Aug 2004 14:43:53 -0700
-John Wendel <jwendel10@comcast.net> wrote:
-
-> K3B detects my Lite-on LTR-52327S CDRW as a CDROM when run with 2.6.8.1.
+On Mon, Aug 16, 2004 at 01:24:30PM +0100, Dave Airlie wrote:
+> >
+> > Works fine on all my pmacs here.  In fact X works only on fbdev for
+> > full features.
 > 
-> Booting back into 2.6.7 corrects the problem. I've attached the (totally
-> 
-> uninteresting parts of) dmesg.  Any clues  appreciated.
-> ...
+> I think Alan would classify that as luck rathar than design... and I would
 
-Due to the newly added command filtering, you now need to run cdrecord as
-root. Since cdrecord will drop root privileges before accessing the drive,
-setuid root won't help.
+All the fbdev handling code in X is also an accident?
 
-This means you will have to run cdrecord *and* k3b as root!
+Really, why do you even push for this change if the better fix isn't that
+far away.  Send the i915 driver and the other misc cleanups to Linus now
+and get a proper graphics stub driver done, it's not that much work.  I'll
+hack up the fbdev side once I'll get a little time, but the drm code is
+far to disgusting to touch, sorry.
 
-IMHO it is more secure to simply disable filtering, and run the software as non-root.
-
-This patch restores the behaviour of previous kernels, security issues included:
-
---- linux-2.6.8/drivers/block/scsi_ioctl.c~	2004-08-16 14:16:57.000000000 +0200
-+++ linux-2.6.8/drivers/block/scsi_ioctl.c	2004-08-16 14:36:22.562908552 +0200
-@@ -196 +196 @@
--	if (verify_command(file, cmd))
-+/*	if (verify_command(file, cmd))
-@@ -198 +198 @@
--
-+*/

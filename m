@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264805AbUDWMsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264790AbUDWMrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264805AbUDWMsY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 08:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264803AbUDWMsX
+	id S264790AbUDWMrF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 08:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264803AbUDWMrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 08:48:23 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:24038 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264791AbUDWMsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 08:48:21 -0400
-Date: Fri, 23 Apr 2004 14:48:20 +0200
-From: Jan Kara <jack@suse.cz>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: holding a reference on an inode?
-Message-ID: <20040423124820.GI15248@atrey.karlin.mff.cuni.cz>
-References: <1082507296.3133.4.camel@vertex>
+	Fri, 23 Apr 2004 08:47:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56808 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264790AbUDWMrC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 08:47:02 -0400
+Date: Fri, 23 Apr 2004 13:47:01 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Greg KH <greg@kroah.com>, lhms-devel@lists.sourceforge.net,
+       linux-hotplug-devel@lists.sourceforge.net,
+       pcihpd-discuss@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       acpi-largesys-devel@lists.sourceforge.net
+Subject: Re: [Pcihpd-discuss] [RFC] New sysfs tree for hotplug
+Message-ID: <20040423124701.GG22558@parcelfarce.linux.theplanet.co.uk>
+References: <20040415170939.0ff62618.tokunaga.keiich@jp.fujitsu.com> <20040416223436.GB21701@kroah.com> <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1082507296.3133.4.camel@vertex>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Fri, Apr 23, 2004 at 09:18:16PM +0900, Keiichiro Tokunaga wrote:
 
-> I am writing a kernel module, and I would like to allow user space to
-> hand me a FILE, and then for my kernel module to keep a reference on its
-> inode regardless what the user space program does with the FILE. 
-> 
-> 1) Is this good practice?
-  Generally passing a file is not a problem - a lot of other syscalls
-does that... The question is what would you like to do with the file
-(you must be rather careful because you should not trust the contents of
-the file, the contents can change etc...).
-
-> 2) How do I get notified when the filesystem the inode is on is being   
-> unmounted so I can release my reference? So that I don't block the
-> unmount.
-  The umount calls a filesystem callback umount_begin() which you could
-probably use...
-
-								Honza
+It is EXTREMELY rude to crosspost between closed and open lists.  Take
+the lhcs-devel list off the cc list in all further posts.  Thank you.
 
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

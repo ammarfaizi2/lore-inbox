@@ -1,45 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVBGVT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVBGVUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVBGVT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 16:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVBGVT4
+	id S261328AbVBGVUe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 16:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVBGVUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 16:19:56 -0500
-Received: from agminet03.oracle.com ([141.146.126.230]:42666 "EHLO
-	agminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S261317AbVBGVTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 16:19:54 -0500
-Message-ID: <4207DB68.2050406@oracle.com>
-Date: Mon, 07 Feb 2005 13:19:36 -0800
+	Mon, 7 Feb 2005 16:20:34 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:18660 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S261328AbVBGVUR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 16:20:17 -0500
 From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] invalidate range of pages after direct IO write
-References: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net>	<20050203161927.0090655c.akpm@osdl.org>	<4202D55E.5030900@oracle.com>	<20050203182854.0b36fb4d.akpm@osdl.org>	<42040176.1030703@oracle.com> <20050204153530.0409744b.akpm@osdl.org>
-In-Reply-To: <20050204153530.0409744b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: Zach Brown <zach.brown@oracle.com>
+Message-Id: <20050207212016.10913.6867.90598@volauvent.pdx.zabbo.net>
+Subject: [Patch] write and wait on range before direct io read
+Date: Mon,  7 Feb 2005 13:20:16 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> But this won't happen if next
->>started as 0 and we didn't update it.  I don't know if retrying is the
->>intended behaviour or if we care that the start == 0 case doesn't do it.
-> 
-> 
-> Good point.  Let's make it explicit?
 
-Looks great.  I briefly had visions of some bitfield to pack the three
-boolean ints we have and then quickly came to my senses. :)
+This adds filemap_write_and_wait_range(mapping, lstart, lend) which starts
+writeback and waits on a range of pages.  We call this from __blkdev_direct_IO
+with just the range that is going to be read by the direct_IO read.  It was
+lightly tested with fsx and ext3 and passed.
 
-I threw together those other two patches that work with ranges around
-direct IO.  (unmaping before r/w and writing and waiting before reads).
- rc3-mm1 is angry with my test machine so they're actually against
-current -bk with this first invalidation patch applied.  I hope that
-doesn't make life harder than it needs to be.  I'll send them under
-seperate cover.
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
 
-- z
+---
+
+ fs/direct-io.c     |    7 +++++--
+ include/linux/fs.h |    2 ++
+ mm/filemap.c       |   16 ++++++++++++++++
+ 3 files changed, 23 insertions(+), 2 deletions(-)
+
+Index: 2.6-bk-odirinv/fs/direct-io.c
+===================================================================
+--- 2.6-bk-odirinv.orig/fs/direct-io.c	2005-02-07 11:19:40.000000000 -0800
++++ 2.6-bk-odirinv/fs/direct-io.c	2005-02-07 12:43:09.572259133 -0800
+@@ -1206,7 +1206,8 @@
+ 	 */
+ 	dio->lock_type = dio_lock_type;
+ 	if (dio_lock_type != DIO_NO_LOCKING) {
+-		if (rw == READ) {
++		/* watch out for a 0 len io from a tricksy fs */
++		if (rw == READ && end > offset) {
+ 			struct address_space *mapping;
+ 
+ 			mapping = iocb->ki_filp->f_mapping;
+@@ -1214,7 +1215,9 @@
+ 				down(&inode->i_sem);
+ 				reader_with_isem = 1;
+ 			}
+-			retval = filemap_write_and_wait(mapping);
++
++			retval = filemap_write_and_wait_range(mapping, offset,
++							      end - 1);
+ 			if (retval) {
+ 				kfree(dio);
+ 				goto out;
+Index: 2.6-bk-odirinv/include/linux/fs.h
+===================================================================
+--- 2.6-bk-odirinv.orig/include/linux/fs.h	2005-02-07 11:26:23.000000000 -0800
++++ 2.6-bk-odirinv/include/linux/fs.h	2005-02-07 12:26:43.030749241 -0800
+@@ -1359,6 +1359,8 @@
+ extern int filemap_flush(struct address_space *);
+ extern int filemap_fdatawait(struct address_space *);
+ extern int filemap_write_and_wait(struct address_space *mapping);
++extern int filemap_write_and_wait_range(struct address_space *mapping,
++				        loff_t lstart, loff_t lend);
+ extern void sync_supers(void);
+ extern void sync_filesystems(int wait);
+ extern void emergency_sync(void);
+Index: 2.6-bk-odirinv/mm/filemap.c
+===================================================================
+--- 2.6-bk-odirinv.orig/mm/filemap.c	2005-02-07 11:26:23.000000000 -0800
++++ 2.6-bk-odirinv/mm/filemap.c	2005-02-07 13:00:29.723440763 -0800
+@@ -336,6 +336,22 @@
+ 	return retval;
+ }
+ 
++int filemap_write_and_wait_range(struct address_space *mapping,
++				 loff_t lstart, loff_t lend)
++{
++	int retval = 0;
++
++	if (mapping->nrpages) {
++		retval = __filemap_fdatawrite_range(mapping, lstart, lend,
++						    WB_SYNC_ALL);
++		if (retval == 0)
++			retval = wait_on_page_writeback_range(mapping,
++						    lstart >> PAGE_CACHE_SHIFT,
++						    lend >> PAGE_CACHE_SHIFT);
++	}
++	return retval;
++}
++
+ /*
+  * This function is used to add newly allocated pagecache pages:
+  * the page is new, so we can just run SetPageLocked() against it.

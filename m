@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271717AbTHHRGp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 13:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271718AbTHHRGp
+	id S271713AbTHHREX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 13:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271714AbTHHREX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 13:06:45 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:54532 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S271717AbTHHRGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 13:06:43 -0400
-Message-ID: <3F33D840.2B9CDB03@SteelEye.com>
-Date: Fri, 08 Aug 2003 13:05:04 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
+	Fri, 8 Aug 2003 13:04:23 -0400
+Received: from mail44-s.fg.online.no ([148.122.161.44]:8882 "EHLO
+	mail44.fg.online.no") by vger.kernel.org with ESMTP id S271713AbTHHRES convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 13:04:18 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
+To: Adrian Bunk <bunk@fs.tum.de>, Jens Axboe <axboe@suse.de>
+Subject: Re: [OT] Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+Date: Fri, 8 Aug 2003 18:58:27 +0200
+User-Agent: KMail/1.5.2
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Jasper Spaans <jasper@vs19.net>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20030807180032.GA16957@spaans.vs19.net> <20030808071530.GD18823@suse.de> <20030808110411.GQ16091@fs.tum.de>
+In-Reply-To: <20030808110411.GQ16091@fs.tum.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ldl@aros.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
-References: <3F2FE078.6020305@aros.net>
-		<3F300760.8F703814@SteelEye.com>
-		<3F303430.1080908@aros.net>
-		<3F30510A.E918924B@SteelEye.com>
-		<3F30AF81.4070308@aros.net>
-		<3F332ED7.712DFE5D@SteelEye.com> <20030807222718.5ef37049.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308081858.47849.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Paul Clements <Paul.Clements@SteelEye.com> wrote:
-> >
-> > Here's the patch to fix up several race conditions in nbd. It requires
-> >  reverting the already included (but admittedly incomplete)
-> >  nbd-race-fix.patch that's in -mm5.
-> >
-> >  Andrew, please apply.
-> 
-> Sure.  Could I please have a summary of what races were fixed, and how?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I outlined the other races in the mail I just sent. In addition, the
-updated patch will fix an Oops where lo->sock gets set to NULL (by
-NBD_CLEAR_SOCK) before NBD_DO_IT completes. This can happen when
-"nbd-client -d" is called to disconnect the nbd socket.
+fredag 8. august 2003, 13:04, skrev Adrian Bunk:
+> On Fri, Aug 08, 2003 at 09:15:30AM +0200, Jens Axboe wrote:
+> > On Fri, Aug 08 2003, Zwane Mwaikambo wrote:
+> > > I know it wasn't purely cosmetic but i just wish we could use the
+> > > proper spelling instead of US English. No i'm not trolling.
+> >
+> > You might want to be, but you are ;)
+> >
+> > US English is clearly more optimized.
+>
+> E.g. you need less than 1/1000 of the money you need for one billion
+> (UK English) English pounds for one billion (US English) dollars.
+>
+> OTOH, it sounds funny that the USA are indebted with several trillion
+> (US English) dollars.
 
---
-Paul
+How so?
+
+In Norwegian you'd be right; we have "Million - Milliard - Billion - Billiard" 
+and so forth.
+
+But UK English? How does that work?
+I'm having difficulties imagining you saying "one milliard pounds".
+
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/M9a+9OlFkai3rMARAtCSAJ9W7VU3QAgu7gRaJGzq7tJujDsqswCdHsDX
+6Fpxi808OjdFCW18MQ+L4K8=
+=buHC
+-----END PGP SIGNATURE-----
+

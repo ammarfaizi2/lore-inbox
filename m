@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVCOM44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVCOM6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVCOM44 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 07:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVCOM44
+	id S261208AbVCOM6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 07:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVCOM6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 07:56:56 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:52713 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261203AbVCOM4y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 07:56:54 -0500
-Date: Tue, 15 Mar 2005 13:56:58 +0100
-From: maximilian attems <janitor@sternwelten.at>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: lmkl <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: [patch trivial] as-iosched fix path to Documentation
-Message-ID: <20050315125658.GB6680@sputnik.stro.at>
-References: <20041208174401.GC2237@stro.at> <20041209190721.GA15918@ai.wu-wien.ac.at> <20050309234223.GD10685@sputnik.stro.at> <20050315011546.GG3207@stusta.de>
-Mime-Version: 1.0
+	Tue, 15 Mar 2005 07:58:13 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:6327 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261208AbVCOM6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 07:58:03 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315011546.GG3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16950.56275.509686.163514@alkaid.it.uu.se>
+Date: Tue, 15 Mar 2005 13:57:55 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: enabling IOAPIC on C3 processor? (how to investigate hangs without nmi watchdog)
+In-Reply-To: <5a2cf1f605031504527979cef4@mail.gmail.com>
+References: <5a2cf1f6050315040956a512a6@mail.gmail.com>
+	<16950.54895.527127.21123@alkaid.it.uu.se>
+	<5a2cf1f605031504527979cef4@mail.gmail.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005, Adrian Bunk wrote:
+jerome lacoste writes:
+ > So if I don't have APIC, that means I cannot use nmi_watchdog to
+ > investigate the problem, right?
 
-> On Thu, Mar 10, 2005 at 12:42:23AM +0100, maximilian attems wrote:
-> 
-> > From: Klaus Ita <klaus@worstofall.com>
-> > 
-> > subject says all, patch still applies.
-> >...
-> 
-> Fix is already in -mm for some time.
-> 
-> cu
-> Adrian
+Correct.
 
-yup saw it lately. great.
-thanks for your mail.
+ > Do I have any alternative to investigate this hang or should I just
+ > give up and smash my board?
 
---
-maks
-
+I can't help you with that one.

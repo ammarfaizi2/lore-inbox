@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314008AbSDKGu6>; Thu, 11 Apr 2002 02:50:58 -0400
+	id <S314009AbSDKGzi>; Thu, 11 Apr 2002 02:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314009AbSDKGu5>; Thu, 11 Apr 2002 02:50:57 -0400
-Received: from [202.54.124.179] ([202.54.124.179]:41416 "HELO
-	mailFA10.rediffmail.com") by vger.kernel.org with SMTP
-	id <S314008AbSDKGu4>; Thu, 11 Apr 2002 02:50:56 -0400
-Date: 11 Apr 2002 06:46:30 -0000
-Message-ID: <20020411064630.16853.qmail@mailFA10.rediffmail.com>
-MIME-Version: 1.0
-From: "lavanya  natarajan" <lavanya_nl@rediffmail.com>
-Reply-To: "lavanya  natarajan" <lavanya_nl@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Posting message to kernel
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+	id <S314010AbSDKGzh>; Thu, 11 Apr 2002 02:55:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:29906 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314009AbSDKGzh>;
+	Thu, 11 Apr 2002 02:55:37 -0400
+Date: Wed, 10 Apr 2002 23:48:21 -0700 (PDT)
+Message-Id: <20020410.234821.122842406.davem@redhat.com>
+To: taka@valinux.co.jp
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020411.154651.51706443.taka@valinux.co.jp>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Is it possible for a user process to post a message to kernel or 
-any task running inside the kernel using message queues.
-If so how to get the ID of the kernel's message queue.
-Is there any way that a kernel can share its message queue with 
-user process.
+   From: Hirokazu Takahashi <taka@valinux.co.jp>
+   Date: Thu, 11 Apr 2002 15:46:51 +0900 (JST)
 
-I request that the answer or response be personally CC'd to me at 
-the id lavanya_nl@rediffmail.com.
+   Please consider a knfsd sends data of File A by useing sendmsg().
+     1. The knfsd copies the data of File A into sk_buff.
+     2. File A may be truncated after step.1
+     3. NFS clients receives the packets of File A which is already truncated.
+   
+   Next please consider the knfsd sends data of File A by useing sendpage().
+     1. The knfsd grabs pages of File A. (page_cache_get)
+     2. File A may be truncated after step.1
+     3. The knfsd send the pages.
+     4. NFS clients receives the packets of File A which is already truncated.
+   
+   Is there any differences between them ?
+   This behavior is invisible to NFS Clients, I think.
 
-Thanx in advance
-regards
-N.Lavanya
+Consider truncate() to 1 byte left in that page.  To handle mmap()'s
+of this file the kernel will memset() rest of the page to zero.
 
+Now, in the sendfile() case the NFS client sees some page filled
+mostly of zeros instead of file contents.
+
+In sendmsg() knfd case, client sees something reasonable.  He will
+see something that was actually in the file at some point in time.
+The sendfile() case sees pure garbage, contents that never were in
+the file at any point in time.
+
+We could make knfsd take the write semaphore on the inode until client
+is known to get the packet but that is the kind of overhead we'd like
+to avoid.

@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276282AbRI1UGB>; Fri, 28 Sep 2001 16:06:01 -0400
+	id <S276278AbRI1UPB>; Fri, 28 Sep 2001 16:15:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276281AbRI1UFw>; Fri, 28 Sep 2001 16:05:52 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:52751 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S276283AbRI1UFn>;
-	Fri, 28 Sep 2001 16:05:43 -0400
-Date: Fri, 28 Sep 2001 22:03:46 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <bcrl@redhat.com>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-In-Reply-To: <200109281939.XAA05297@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.33.0109282149020.11179-100000@localhost.localdomain>
+	id <S276288AbRI1UOw>; Fri, 28 Sep 2001 16:14:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14091 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S276278AbRI1UOo>; Fri, 28 Sep 2001 16:14:44 -0400
+Date: Fri, 28 Sep 2001 17:14:44 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 does not set accessed bit for readahead pages
+In-Reply-To: <Pine.LNX.4.21.0109281506430.3230-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0109281708550.26495-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 28 Sep 2001, Marcelo Tosatti wrote:
 
-On Fri, 28 Sep 2001 kuznet@ms2.inr.ac.ru wrote:
+> NOTE: I'm saying that it is _bad_ to throw away readahead pages
+> easily because I've seen it in practice. I'll try to test this
+> in real practice again soon (not this week) to make sure.
+>
+> Comments ?
 
-> Why skbs?
+Setting the referenced bit on not (yet) used readahead
+pages could have the damaging side effect of swapping
+out pages from the working set in preference to the
+readahead pages.
 
-because i did not mean to queue 'softirq bits'. the current bitmap is
-perfectly okay and equivalent to any queued scheme. (i'd say queueing
-those bits is pretty stupid and only adds overhead. It might make sense
-once there are more softirqs, but that can wait.)
+OTOH, without some special trick for linear access the
+VM will prefer to swap out the pages we're about to use
+(the readahead pages) instead of the pages we just used
+-- the absolute worst thing for sequential IO.
 
-what i really meant to queue is something much more finegrained: to queue
-softirq *events*. The ones that get queued by netif_rx into
-softnet_data[this_cpu]'s input_pkt_queue. We basically have the skb as the
-'event context', and we have a number of queues that are used by hardirqs
-to queue work towards softirq processing.
+One simple solution which achieves both the effect of
+dropping the right pages in a sequential IO stream and
+making sure that not-used readahead pages aren't pushing
+out the working set would be drop-behind.
 
-do you see the whole scope of this approach? It has a number of
-disadvantages (some of which i outlined in the previous mail), but it also
-has a number of (i think important) advantages. It's also in fact simpler,
-once implemented.
+I know drop-behind isn't the prettiest thing, but it's
+simple and it works.
 
-but this means that some of the queueing, that is softnet_data & skb
-pointers now, has to be generalized. netif_rx would use this generic
-interface to push work towards softirq processing, and the generic softirq
-engine would use a callback in the event data structure to do actual
-processing of the event.
+regards,
 
-eg. a fastroute packet could set its event handler to be a function that
-does dev_queue_xmit. Other packets could set their event handlers based on
-their ->dev. The current demultiplexing done in net_rx_action could be
-done in a more natural way, and eg. fastrouting would not add runtime
-overhead.
+Rik
+--
+IA64: a worthy successor to the i860.
 
-another effect: i think it might be useful to preserve micro-ordering of
-rx and tx events. It's certainly the best way to get the most out of
-existing cache footprint, but the downside is that it has a higher
-'environment' cache footprint, due to rx and tx functions being called at
-high frequencies and being intermixed randomly.
-
-> Only "skbs" scares me. :-)
-
-well :)
-
-	Ingo
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

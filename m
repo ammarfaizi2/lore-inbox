@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVCGXi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVCGX51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVCGXi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVCGXfU
+	id S261278AbVCGX51 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCGXz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:35:20 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:47759 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261899AbVCGWz6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 17:55:58 -0500
-Date: Mon, 7 Mar 2005 14:55:45 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>
-Subject: Re: [CHECKER] crash after fsync causing serious FS corruptions (ext2,
- 2.6.11)
-In-Reply-To: <20050307104513.GD8071@suse.de>
-Message-ID: <Pine.GSO.4.44.0503071433490.7287-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Mar 2005 18:55:28 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:29090 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261278AbVCGXjr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 18:39:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=AROV1CxrINjwuq7AJ6FpqDjD6Vher1IpIUpjR78x+wctPrjfXSpt7Q/4fyYXIrnyfDybawbXKAEjvufkFCzbTsHUqZnChXo2f19C95ReF6JuhebMGlMo2pZ73BU2FB5TQQSMBUr0hQmGVDdMt7lODXQWFXWB4aBBErqwtIcs89k=
+Message-ID: <9e47339105030715395b7bc61e@mail.gmail.com>
+Date: Mon, 7 Mar 2005 18:39:42 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Adam Belay <abelay@novell.com>
+Subject: Re: [RFC][PATCH] PCI bridge driver rewrite (rev 02)
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Jesse Barnes <jbarnes@sgi.com>
+In-Reply-To: <1110234742.2456.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1110234742.2456.37.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> fsync on ext2 only really guarantees that the data has reached
-> the disk, what the disk does it outside the realm of the fs.
-> If the ide drive has write back caching enabled, the data just
-> might only be in cache. If the power is removed right after fsync
-> returns, the drive might not get a chance to actually commit the
-> write to platter.
+How is sys/bus/platform/* going to work for IA64 machine line SGI SVN?
+SVN supports multiple simultaneously active legacy spaces, that means
+that there can be multiple floppy, serial, ps/2, etc controllers.
+Should these devices be hung off from the bridge they are on?
 
-Hi Jens,
-
-Thanks for the reply.  I tried your patch, and also setting hdparm -W0.
-The warning is still there.  This warning and the previous ones I reported
-should be irrelevant to IDE drivers, as FiSC (our FS checker) doesn't
-actually crash the machine but simulates a crash using a ramdisk.
-
-It appears to me that this warning can be triggered by the following steps:
-
-1. create a file A with several data blocks. fsync(A) to disk
-
-2. truncate A to a smaller size, causing a few blocks to be freed.
-However, they are only freed in memory.  The corresponding changes in
-bitmaps haven't yet hit the disk.
-
-3. create a file B with several data blocks.  ext2 will re-use the freed
-blocks from step 2.
-
-4. fsync(B).  Once fsync returns, crash.
-
-At this moment, the truncate in step 2 hasn't reached the disk yet, so the
-file A on disk still contains pointers to the freed blocks.  However, the
-fsync(B) in step 4 flushes B's inode and other metadata to disk.  Now we
-end up with a file system where a block is shared by two files.
-
-I'm not sure how the invalid block number warning is triggered.
-
--Junfeng
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,65 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291520AbSBNMUa>; Thu, 14 Feb 2002 07:20:30 -0500
+	id <S291547AbSBNMXW>; Thu, 14 Feb 2002 07:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291549AbSBNMUK>; Thu, 14 Feb 2002 07:20:10 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:52241 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S291519AbSBNMT6>; Thu, 14 Feb 2002 07:19:58 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: RFC: /proc key naming consistency
-Date: Thu, 14 Feb 2002 12:19:57 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <a4ga1d$jov$1@ncc1701.cistron.net>
-In-Reply-To: <Pine.LNX.4.33.0202141020140.5260-100000@dbsydn2001.aus.deuba.com>
-Content-Type: text/plain; charset=iso8859-15
-X-Trace: ncc1701.cistron.net 1013689197 20255 195.64.65.67 (14 Feb 2002 12:19:57 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S291549AbSBNMXM>; Thu, 14 Feb 2002 07:23:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11794 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291547AbSBNMXB>; Thu, 14 Feb 2002 07:23:01 -0500
+Subject: Re: Linux 2.4.18-pre9-mjc2
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Thu, 14 Feb 2002 12:36:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020214114335.GA4058@merlin.emma.line.org> from "Matthias Andree" at Feb 14, 2002 12:43:35 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16bL89-0008Jl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0202141020140.5260-100000@dbsydn2001.aus.deuba.com>,
-Luke Burton  <luke.burton@db.com> wrote:
->A compatibility mode might be useful. Either a straight config option, or
->perhaps something more sophisticated. Idea: perhaps proc functions
->installed with create_proc_read_entry could, rather than just write
->strings to buffers, return a list of key/value pairs which is rendered in
->some configurable format by a new function, like "proc_render_values".
->proc_render_values could use a column format like it does now, or a shell
->parseable foo=blah\n format.
+> > lm_sensors				(lm_sensors team)
+> 
+> Hum, the last time I merged that stuff into my own kernel, the
+> patch-generator that they ship did not include all of the drivers I
+> needed. Also, I'm missing i2c from your patch list. Is that intentional
+> or is the i2c patch not needed? Which lm_sensors version did you merge?
 
-Why not one value per file, as has been proposed often here.
-
-You could have /proc/sys/cpu/0/processor
-               /proc/sys/cpu/0/vendor_id
-               /proc/sys/cpu/0/family
-
-... and a /proc/sys/cpu/0/.table that when read produces
-
-processor=0
-vendor_id=GenuineIntel
-family=6
-
-.. so you have the best of both worlds. And you could support a
-sysctl() system call that reads out the same value *in binary*
-so you don't need the printf() -> sscanf() conversion.
-
-The current sysctl_args struct does need an extra "oldtype" and "newtype"
-value in there, which could be set to SYSCTL_TYPE_IP, SYSCTL_TYPE_INT4,
-SYSCTL_TYPE_STRING, etc and which could be ORed with SYSCTL_FMT_ASCII
-or SYSCTL_FMT_BINARY
-
-sysctl also needs a way to get an entire tree (the .table entry)
-in just one call.
-
-So I advocate having /proc and sysctl() being just 2 ways to access
-the same namespace, having one value per file, and having a way
-to read a entire tree or directory at once.
-
-Mike.
--- 
-Computers are useless, they only give answers. --Pablo Picasso
-
+Be very careful merging lm_sensors. Incorrect use of it is a wonderful
+way to do things like totally destroy (back to factory) an ibm thinkpad.
+Thats why I've always stayed clear of it

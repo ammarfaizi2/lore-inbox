@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262623AbTCIU60>; Sun, 9 Mar 2003 15:58:26 -0500
+	id <S262625AbTCIVEq>; Sun, 9 Mar 2003 16:04:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262624AbTCIU60>; Sun, 9 Mar 2003 15:58:26 -0500
-Received: from [63.246.199.14] ([63.246.199.14]:24720 "EHLO ns.briggsmedia.com")
-	by vger.kernel.org with ESMTP id <S262623AbTCIU6Z> convert rfc822-to-8bit;
-	Sun, 9 Mar 2003 15:58:25 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: joe briggs <jbriggs@briggsmedia.com>
-Organization: BMS
-To: linux-kernel@vger.kernel.org
-Subject: patching the kernel
-Date: Sun, 9 Mar 2003 17:11:21 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303091711.21652.jbriggs@briggsmedia.com>
+	id <S262626AbTCIVEq>; Sun, 9 Mar 2003 16:04:46 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:54167 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262625AbTCIVEp>;
+	Sun, 9 Mar 2003 16:04:45 -0500
+Date: Mon, 10 Mar 2003 00:14:34 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: alan@redhat.com, linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: Memleak in ircomm_core
+Message-ID: <20030309211434.GA31791@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My apologies for this question that is so basic to all of you, but can any of 
-you please point me toward a howto or instructions for exactly how to 'patch 
-a kernel'?  For example, at kernel.org, the latest stable kernel is 2.4.20, 
-and is actually a patch.  I currently use 2.4.19 under Debian and routinely 
-rebuild & install it no problem.  If I download a kernel 'patch', do I apply 
-it to the entire directory, or the compiled kernel, etc.?  Thanks so much.
+Hello!
 
-Joe
+   There seems to be a memleak on error exit path. The same patch should apply
+   to 2.5 and 2.4
+
+   Found with help of smatch + enhanced unfree script.
+
+Bye,
+    Oleg
+
+===== net/irda/ircomm/ircomm_core.c 1.5 vs edited =====
+--- 1.5/net/irda/ircomm/ircomm_core.c	Tue Aug  6 22:23:24 2002
++++ edited/net/irda/ircomm/ircomm_core.c	Mon Mar 10 00:10:10 2003
+@@ -121,8 +121,10 @@
+ 	} else
+ 		ret = ircomm_open_tsap(self);
+ 
+-	if (ret < 0)
++	if (ret < 0) {
++		kfree(self);
+ 		return NULL;
++	}
+ 
+ 	self->service_type = service_type;
+ 	self->line = line;

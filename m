@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263534AbTJBWim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 18:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTJBWim
+	id S263518AbTJBWgX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 18:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTJBWgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 18:38:42 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:38669 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S263534AbTJBWij (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 18:38:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
+	Thu, 2 Oct 2003 18:36:23 -0400
+Received: from daffy.hulpsystems.net ([64.246.21.252]:8097 "EHLO
+	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S263518AbTJBWgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 18:36:21 -0400
+Subject: Re: Serial ATA on Dell Dimension 8300 (Was: Re: Serial ATA support
+	in	2.4.22)
+From: Martin List-Petersen <martin@list-petersen.se>
 To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Minutes from 10/1 LSE Call
-Date: Fri, 3 Oct 2003 01:38:34 +0300
-X-Mailer: KMail [version 1.4]
-Cc: Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@osdl.org>,
-       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <37940000.1065035945@w-hlinder> <200310022156.49678.insecure@mail.od.ua> <3F7C780C.9040001@pobox.com>
-In-Reply-To: <3F7C780C.9040001@pobox.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200310030138.34430.insecure@mail.od.ua>
+Cc: Andrew Marold <andrew.marold@wlm.edial.com>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bernhard Rosenkraenzer <bero@arklinux.org>
+In-Reply-To: <3F7C9FE7.3070400@pobox.com>
+References: <C67EF1F46A97534FADC870220F3AC8B79D4FDD@exchange.edial.office>
+	 <3F7AEF15.1070301@pobox.com>  <3F7B0209.7070509@pobox.com>
+	 <1065130970.5842.193.camel@loke>  <3F7C9CFF.8090002@pobox.com>
+	 <1065131571.5842.196.camel@loke>  <3F7C9FE7.3070400@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hV/207keLHcfwycXexTG"
+Message-Id: <1065134159.5842.208.camel@loke>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 03 Oct 2003 00:35:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 October 2003 22:10, Jeff Garzik wrote:
-> insecure wrote:
-> > That sounds reasonable, but today's RAM throughput is on the order
-> > of 1GB/s, not 100Mb/s. 'Out of L1' theory can't explain 100Mb/s ceiling
-> > it seems.
->
-> cp(1) data, at least, will never ever be in L1.  Copying data you need
-> to look at the ends of the pipeline -- hard drive throughput, PCI bus
-> bandwidth, FSB bandwidth, speed at which ext2/3 allocates blocks, and
-> similar things are likely bottlenecks.
 
-Hmm.
+--=-hV/207keLHcfwycXexTG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Wednesday 01 October 2003 22:19, Hanna Linder wrote:
-> We got about 100 mb/sec using the bonie benchmark for block io writes,
-> for writes we hit a ceiling around 100-120 mb/sec. Stopped scaling
-> after about 3 spindles.
->
-> Tried to focus on the block io part of it. Have not tried
-> direct or raw io yet.  With block IO we got about 133 mb/sec
-> doing a simple dd to dev/null from multiple spindles. This
-> was on the 2.6 test 3.
-> ....
-> Odirect on large block sizes has low cpu utilization ( 3-5% ).
-> However with buffered IO we can easily get to 100% cpu utilization.
-> If you look at the profile most of that is in the copy_to_user function.
+On Fri, 2003-10-03 at 00:00, Jeff Garzik wrote:
+> does ide0=3Dnoprobe do anything?
 
-So:
-* we hit a ceiling of ~133 Mb/s, no matter how many disks
-* CPU utilization is 100%, spent mostly in copy_to_user
-* RAM bandwidth is >1Gb/s
+No, that does not change anything, however, you just figured
+(unknowingly) my problem for the the ac4 kernel out.
+Lilo updated the wrong sata harddisc in my system. My system came with 2
+sata discs on a Promise S150 TX2plus, since i couldn't get that to work
+at first, i tried to go for the onboard ICH5 SATA controller and moved
+one disk there, however even though i told lilo that /dev/sda should be
+bios=3D0x80, it kept on writing to the harddisk on the promise.
 
-These can't be true at once.
-At least one of these three statements must be false (imho).
--- 
-vda
+So status is now:
+ac1 does not book - binfmt error
+ac4 does boot
+bk25+sata - reiserfs is broken
+
+I will try bk28 tomorrow and see, where it get's me.
+
+Thanks for the response.
+
+Regards,
+Martin List-Petersen
+martin at list-petersen dot se
+--
+How much does it cost to entice a dope-smoking UNIX system guru to
+Dayton?
+-- Brian Boyle, UNIX/WORLD's First Annual Salary Survey
+
+--=-hV/207keLHcfwycXexTG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/fKhPzAGaxP8W1ugRAtUUAJ9Kh/eUEqwdtxuTEa1cEo+/va7rZgCgpN8K
+BGOCeNnc1w7SXnj/k/diJcE=
+=Qh/P
+-----END PGP SIGNATURE-----
+
+--=-hV/207keLHcfwycXexTG--
+

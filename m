@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314264AbSD0Pd4>; Sat, 27 Apr 2002 11:33:56 -0400
+	id <S314265AbSD0Pgu>; Sat, 27 Apr 2002 11:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314265AbSD0Pdz>; Sat, 27 Apr 2002 11:33:55 -0400
-Received: from freedom.icomedias.com ([193.154.7.22]:55119 "EHLO
-	freedom.icomedias.com") by vger.kernel.org with ESMTP
-	id <S314264AbSD0Pdy> convert rfc822-to-8bit; Sat, 27 Apr 2002 11:33:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: AW: 48-bit IDE [Re: 160gb disk showing up as 137gb]
-Date: Sat, 27 Apr 2002 17:33:46 +0200
-Message-ID: <D143FBF049570C4BB99D962DC25FC2D2159B40@freedom.icomedias.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 48-bit IDE [Re: 160gb disk showing up as 137gb]
-Thread-Index: AcHt81vdINzRZwnfSWK24vOMxefKowADUAlg
-From: "Martin Bene" <martin.bene@icomedias.com>
-To: "Kevin Krieser" <kkrieser_list@footballmail.com>,
-        <linux-kernel@vger.kernel.org>
+	id <S314266AbSD0Pgt>; Sat, 27 Apr 2002 11:36:49 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:61035 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314265AbSD0Pgt>; Sat, 27 Apr 2002 11:36:49 -0400
+Date: Sat, 27 Apr 2002 17:36:59 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: hgchewml@optusnet.com.au,
+        "'Linux kernel mailing list'" <linux-kernel@vger.kernel.org>,
+        riel@conectiva.com.br
+Subject: Re: File corruption when running VMware.
+Message-ID: <20020427173659.A1631@dualathlon.random>
+In-Reply-To: <37A7BD60863@vcnet.vc.cvut.cz> <20020427010134.M19278@dualathlon.random> <20020427015623.P19278@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kevin,
+On Sat, Apr 27, 2002 at 01:56:23AM +0200, Andrea Arcangeli wrote:
+> enabled of course). If I'll find any instability of the host OS I'll let
+> you know, so far it looks solid.
 
-> You need an IDE controller that supports ATA133.  For most existing
-> computers, that is going to require a new card.
+The instability appears only during the poweron/resume, I left it running
+for a long time and it was solid, but only after I now restarted/stopped
+it a few times it showed stability problems still. If the poweron
+doesn't reboot the machine then it is solid (that's why I couldn't
+notice it yesterday). Also correcting the #if 0 in the patch or adapting
+the lower part doesn't help. The big question is: are them the only two
+places touching the pagetables? I also wonder why you're using cr3
+instead of using the pointer in current->mm, I assume they're different
+and that you swap the cr3 internally to the vmware module during ctx
+switches of tasks?
 
-That actually turns out not to be the case.
+thanks,
 
-While you do need a new controller if you want to use ATA133, the LBA48 addressing scheme in no way depends on ATA133. Running a 160GB disk on your old ATA100 (or ATA66 or ATA33) controller works just fine.
-
-Bye, Martin
-
------Original  Message-----
-> 
-> 
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ville Herva
-> Sent: Saturday, April 27, 2002 7:56 AM
-> To: Martin Bene; linux-kernel@vger.kernel.org
-> Subject: 48-bit IDE [Re: 160gb disk showing up as 137gb]
-> 
-> 
-> On Sat, Apr 27, 2002 at 12:16:06PM +0200, you [Martin Bene] wrote:
-> >
-> > IDE: The kernel IDE driver needs to support 48-bit 
-> addresseing to support
-> > 160GB.
-> >
-> > (...) however, you can do something about the linux ATA driver: code
-> > is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
-> 
-> But which IDE controllers support 48-bit addressing? Not all 
-> of them? Does
-> linux IDE driver support 48-bit for all of them? Do they require BIOS
-> upgrade in order to operate 48-bit?
-> 
-> Or can I just grab a 160GB Maxtor and 2.4.19-preX, stick them 
-> into whatever
-> box I have and be done with it?
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Andrea

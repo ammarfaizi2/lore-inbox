@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263025AbRE1KWY>; Mon, 28 May 2001 06:22:24 -0400
+	id <S263023AbRE1KFm>; Mon, 28 May 2001 06:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263026AbRE1KWN>; Mon, 28 May 2001 06:22:13 -0400
-Received: from unthought.net ([212.97.129.24]:63890 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S263025AbRE1KWF>;
-	Mon, 28 May 2001 06:22:05 -0400
-Date: Mon, 28 May 2001 12:22:03 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dual Athlon Performance
-Message-ID: <20010528122203.B29962@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	"Antwerpen, Oliver" <Antwerpen@netsquare.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <9DD550E9A9B0D411A16700D0B7E38BA438385A@mail.degrp.org>
+	id <S263025AbRE1KFc>; Mon, 28 May 2001 06:05:32 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:40785 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S263023AbRE1KFT>; Mon, 28 May 2001 06:05:19 -0400
+Date: Mon, 28 May 2001 13:05:07 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Masaru Kawashima <masaruk@gol.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        go@turbolinux.co.jp
+Subject: Re: initrd oops with 2.4.5ac2: FIXED by Kawashima (the other oops may remain)
+Message-ID: <20010528130507.P11981@niksula.cs.hut.fi>
+In-Reply-To: <20010526225825.A31713@lightning.swansea.linux.org.uk> <20010527192650.H11981@niksula.cs.hut.fi> <20010528001220.M11981@niksula.cs.hut.fi> <20010528102551.N11981@niksula.cs.hut.fi> <20010528180254.380908d8.masaruk@gol.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <9DD550E9A9B0D411A16700D0B7E38BA438385A@mail.degrp.org>; from Antwerpen@netsquare.org on Mon, May 28, 2001 at 08:44:22AM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010528180254.380908d8.masaruk@gol.com>; from masaruk@gol.com on Mon, May 28, 2001 at 06:02:54PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 08:44:22AM +0200, Antwerpen, Oliver wrote:
-> Moin,
+On Mon, May 28, 2001 at 06:02:54PM +0900, you [Masaru Kawashima] claimed:
+> On Mon, 28 May 2001 10:25:51 +0300
+> Ville Herva <vherva@mail.niksula.cs.hut.fi> wrote:
+> > The oops call trace seems to be the same as in 
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=99079948404775&w=2
+> > 
+> > Any ideas?
 > 
-> I have a DualAthlon System here (2xAthlon 1.2GHz, 256MB RAM, icp-vortex
-> 6513RS/128MB, 3*9.1GB/10k HD, Dual 3com980 NIC) which runs really fine with
-> kernel 2.4.4 and as far as I can see now with 2.4.5.
-> Now I am interested in comparing this system's performance to others. Can
-> someone here give me a hand on how to do this best?
+> Did you try the patch posted by Go Taniguchi <go@turbolinux.co.jp>?
+> Following is the copy of his message and the patch itself.
 > 
-> And, if there are any special things (compilers, tools, ?) that I should
-> use, please point me to...
+> --- linux/fs/block_dev.c.orig	Mon May 28 12:40:12 2001
+> +++ linux/fs/block_dev.c	Mon May 28 12:40:12 2001
+> @@ -602,6 +602,7 @@
+>  	if (!bdev->bd_op->ioctl)
+>  		return -EINVAL;
+>  	inode_fake.i_rdev=rdev;
+> +	inode_fake.i_bdev=bdev;
+>  	init_waitqueue_head(&inode_fake.i_wait);
+>  	set_fs(KERNEL_DS);
+>  	res = bdev->bd_op->ioctl(&inode_fake, NULL, cmd, arg);
 
-Please see the Beowulf mailing list (www.beowulf.org) - a dual athlon system
-was tested there about a month ago, and various tests were collected and run.
+Yes, I actually spotted the patch on l-k just a while ago and tried it.
 
-That system was not a final release, and AMD later expressed that they were
-unhappy about the results being publicized, since they would most likely not
-reflect the actual performance of dual athlons once released in a "final"
-version.
+It does fix the initrd case; I haven't tried the grub case, but I suspect it
+still remains. Will try that as well asap.
 
-It would be very interesting to see your results if you can re-run the tests
-done by Robert G. Brown on the Beowulf mailing list.
+Thanks,
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+-- v --
+
+v@iki.fi

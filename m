@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261521AbTC3TtN>; Sun, 30 Mar 2003 14:49:13 -0500
+	id <S261537AbTC3Txz>; Sun, 30 Mar 2003 14:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261528AbTC3TtN>; Sun, 30 Mar 2003 14:49:13 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:26063 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S261521AbTC3TtL>; Sun, 30 Mar 2003 14:49:11 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: NFS/ReiserFS problems 2.5.64-mbj1
-Date: Sun, 30 Mar 2003 21:52:06 +0200
-User-Agent: KMail/1.5
-Cc: Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org,
-       Bill Huey <billh@gnuppy.monkey.org>
-References: <20030327092207.GA1248@gnuppy.monkey.org> <200303281157.51743.schlicht@uni-mannheim.de> <16005.11608.478233.424677@notabene.cse.unsw.edu.au>
-In-Reply-To: <16005.11608.478233.424677@notabene.cse.unsw.edu.au>
+	id <S261542AbTC3Txz>; Sun, 30 Mar 2003 14:53:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27408 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261537AbTC3Txy>; Sun, 30 Mar 2003 14:53:54 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 64-bit kdev_t - just for playing
+Date: 30 Mar 2003 12:05:11 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b67iln$2nc$1@cesium.transmeta.com>
+References: <UTC200303281110.h2SBA1L24473.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303281219350.5042-100000@serv>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_or0h+K05R9s3aT7";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200303302152.08197.schlicht@uni-mannheim.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <Pine.LNX.4.44.0303281219350.5042-100000@serv>
+By author:    Roman Zippel <zippel@linux-m68k.org>
+In newsgroup: linux.dev.kernel
+> 
+> The size of dev_t doesn't matter at all,
+> 
 
---Boundary-02=_or0h+K05R9s3aT7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+Bullshit.
 
-On March 29, Neil Brown wrote:
-> One possibility is that you are using the new nfs-utils 1.0.3, but you
-> reported the bug before I announced it (though it was in CVS and on
-> kernel.org by then so maybe...)!
-
-You are right, I am using the nfs-utils 1.0.3 as I downloaded them as soon =
-as=20
-I saw them on kernel.org... ;-)
-
-> The new code uses a different path to export filesystems which didn't
-> include the setting of find_exported_dentry.
-> The following patch should fix that.
-
-Thank you!
-I'll try it tonight and write you my results...
-
-> If you aren't using 1.0.3, then I am at a loss.  A filesystem can only
-> be exported via call to exp_export, and that does set
->   sb->s_export_op->find_exported_dentry
->=20
-> NeilBrown
-
-Thomas Schlichter
---Boundary-02=_or0h+K05R9s3aT7
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+h0roYAiN+WRIZzQRAk3BAKCDq3V5SCa6n3e+e64eT6i9+qAlpQCfcdia
-C1nJlAZeSkwJdIuyOMDhKqU=
-=JGL2
------END PGP SIGNATURE-----
-
---Boundary-02=_or0h+K05R9s3aT7--
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

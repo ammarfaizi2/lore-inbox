@@ -1,76 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269106AbUI2XDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269109AbUI2XNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269106AbUI2XDG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 19:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUI2XDG
+	id S269109AbUI2XNx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 19:13:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbUI2XNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 19:03:06 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45734 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269120AbUI2XC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 19:02:26 -0400
-Message-ID: <415B3EC5.5030606@engr.sgi.com>
-Date: Wed, 29 Sep 2004 16:01:25 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.9-rc2 1/2] enhanced I/O accounting data collection
-References: <20040928152123.GD2385@suse.de>
-In-Reply-To: <20040928152123.GD2385@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Sep 2004 19:13:53 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:3784 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S269109AbUI2XNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 19:13:50 -0400
+Date: Wed, 29 Sep 2004 17:13:27 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: linuxram@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Simplified Readahead
+Message-ID: <20040929231327.GM2061@schnapps.adilger.int>
+Mail-Followup-To: Steven Pratt <slpratt@austin.ibm.com>,
+	linuxram@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain> <415B3845.3010005@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KIbT1ud6duwZIwNL"
+Content-Disposition: inline
+In-Reply-To: <415B3845.3010005@austin.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You are right, Jens. In our earlier posting, we also included block
-device read/write counters. The block read/write counts are not very
-accurate but it fits our customers' needs since they used that
-information sort of for performance analysis than for accounting
-purpose.
 
-Thus the block read/write counters were removed from our patch so
-that we can concentrate on the accounting needs. This bwtime (block
-wait time) should have been pulled together with block read/write
-counters.
+--KIbT1ud6duwZIwNL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Regards,
-  - jay
+On a readahead-related note, I'm wondering how hard it would be to have
+some tunables and/or hooks from the readahead state manchine made
+available to the filesystem?  With the 2.4 readahead code it was basically
+impossible for the filesystem to disable the readahead, I haven't looked
+at the 2.6 readahead enough to determine whether we need that or not.
+
+The real issue (reason for turning off RA in 2.4) is that within Lustre
+there can be many DLM extent locks for a single file, so client A can
+be writing to one part of the file, and client B can be reading from
+another part of the same file.  With the stock readahead it wouldn't
+stay within the lock extent boundaries, and we couldn't turn it off
+easily.  Having some sort of FS method that says "don't do RA beyond
+this offset" would be useful here.
+
+The other problem that Lustre had was that the stock readahead would
+send out page reads in small chunks as the window grew instead of
+sending out large requests that could be turned into large, efficient
+network RPCs.  So the desire would be to have some sort of tunable in
+the readahead state (per fs or per file) that says "don't submit
+another readahead until the window is growing by X pages".
+
+As it is we've basically had to implement our own readahead code within
+the filesystem in order to get correct behaviour and good performance.
+This is of course not optimal from a code duplication point of view and
+also we don't get any benefits from the algorithm improvements being
+done here.
 
 
-Jens Axboe wrote:
-> Hi,
-> 
-> 
->>Index: linux/drivers/block/ll_rw_blk.c
->>===================================================================
->>--- linux.orig/drivers/block/ll_rw_blk.c	2004-09-12 22:31:31.000000000 -0700
->>+++ linux/drivers/block/ll_rw_blk.c	2004-09-27 12:37:04.374234677 -0700
->>@@ -1741,6 +1741,7 @@
->>{
->>	DEFINE_WAIT(wait);
->>	struct request *rq;
->>+	unsigned long start_wait = jiffies;
->>
->>	generic_unplug_device(q);
->>	do {
->>@@ -1769,6 +1770,7 @@
->>		finish_wait(&rl->wait[rw], &wait);
->>	} while (!rq);
->>
->>+	current->bwtime += (unsigned long) jiffies - start_wait;
->>	return rq;
->>}
-> 
-> 
-> What is the purpose of this hunk alone as block io accounting? It
-> doesn't make any sense to me - you are accounting the time a process
-> spends sleeping on a congested queue, it has nothing to do with the
-> bandwidth time it used. Which, btw, isn't so easy to account on queueing
-> hardware.
-> 
-> Just curious on what you are trying to achieve here.
->  
+The other question is whether the new readahead code takes the latency
+of completing read requests into account when determining the size of
+the readahead window?  Lustre generally runs with very fast disk and
+network systems so the size of the readahead window has to be very large
+in order to keep the pipeline full to avoid stalling on the client.
 
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+
+
+--KIbT1ud6duwZIwNL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFBW0GWpIg59Q01vtYRAlqyAKC9R5VNJT9KXCAkShwe4COtZWnsSQCfQ641
+uemyYi7Q88DjpfnodqVv85A=
+=fCsc
+-----END PGP SIGNATURE-----
+
+--KIbT1ud6duwZIwNL--

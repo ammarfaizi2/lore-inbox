@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVBZDFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVBZDRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbVBZDFN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 22:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVBZDFN
+	id S261181AbVBZDRW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 22:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVBZDRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 22:05:13 -0500
-Received: from 218-184-170-208.cm.dynamic.apol.com.tw ([218.184.170.208]:3084
-	"HELO 218-184-170-208.cm.dynamic.apol.com.tw") by vger.kernel.org
-	with SMTP id S261178AbVBZDFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 22:05:08 -0500
-Message-Id: <4A0B4A08-DAF9-11D6-8A1D-4880E4C59064@apple20.mhpcc.edu>
-Date: Fri, 25 Feb 2005 20:04:14 -0600
-From: "Hershel Ricks" <Shari.Decker@lenderz.net>
-To: kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-kernel-announce@vger.kernel.org
-Subject: Loan User - 177
-X-Original-Date: Sat, 26 Feb 2005 05:09:14 +0300
+	Fri, 25 Feb 2005 22:17:22 -0500
+Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:16810 "HELO
+	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261181AbVBZDRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 22:17:19 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Johan Braennlund <johan_brn@yahoo.com>
+Subject: Re: ALPS touchpad not seen by 2.6.11 kernels
+Date: Fri, 25 Feb 2005 22:17:15 -0500
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050225222022.77009.qmail@web50203.mail.yahoo.com>
+In-Reply-To: <20050225222022.77009.qmail@web50203.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502252217.16410.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your attention.
+On Friday 25 February 2005 17:20, Johan Braennlund wrote:
+> 
+> --- Dmitry Torokhov wrote:
+> 
+> > Does i8042 detect presence of an AUX port (check dmesg)? 
+> 
+> No.
+> 
+> > If not try booting with i8042.noacpi kernel boot option.
+> 
+> Yes, that helped - everything's working now. Thank you.
+> 
 
-You have been pre-approved for a new home loan.
-This offer is unconditional and your credit is in no way a factor.
+Could you please send me contents of your DSDT
+(cat /proc/acpi/dsdt > dsdt.hex)
 
-Please find all details below:
+Thanks!
 
-_______SUMMARY_______
-Interest: 3.95
-Term: 360 months
-Max Price: $350,000
-Closing Date: 30 days
-
-
-Please follow this link for your instant activation: 
-http://www.m0rtgagesource.com/index2.php?refid=phade
-
+-- 
+Dmitry

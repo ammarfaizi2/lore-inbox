@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131393AbRCSKgg>; Mon, 19 Mar 2001 05:36:36 -0500
+	id <S131411AbRCSL0L>; Mon, 19 Mar 2001 06:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131408AbRCSKg1>; Mon, 19 Mar 2001 05:36:27 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:10308 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S131395AbRCSKgM>; Mon, 19 Mar 2001 05:36:12 -0500
-Date: Mon, 19 Mar 2001 12:35:19 +0200
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: kees <kees@schoen.nl>
-Cc: Aaron Lunansky <alunansky@rim.net>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'kees@shoen.nl'" <kees@shoen.nl>
-Subject: Re: [OT] how to catch HW fault
-Message-ID: <20010319123519.E5316@niksula.cs.hut.fi>
-In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8104D4AA30@xch01ykf.rim.net> <Pine.LNX.4.21.0103182107460.20316-100000@schoen3.schoen.nl>
+	id <S131450AbRCSLZw>; Mon, 19 Mar 2001 06:25:52 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37643 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131411AbRCSLZt>;
+	Mon, 19 Mar 2001 06:25:49 -0500
+Date: Mon, 19 Mar 2001 12:24:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: David Mansfield <lkml@dm.ultramaster.com>
+Cc: Pierre Etchemaite <petchema@concept-micro.com>,
+        Jani Jaakkola <jjaakkol@cs.Helsinki.FI>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix a bug in ioctl(CDROMREADAUDIO) in cdrom.c in 2.2
+Message-ID: <20010319122436.Q29105@suse.de>
+In-Reply-To: <XFMail.20010315140400.petchema@concept-micro.com> <3AB264F2.7D19842F@dm.ultramaster.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0103182107460.20316-100000@schoen3.schoen.nl>; from kees@schoen.nl on Sun, Mar 18, 2001 at 09:11:46PM +0100
+In-Reply-To: <3AB264F2.7D19842F@dm.ultramaster.com>; from lkml@dm.ultramaster.com on Fri, Mar 16, 2001 at 02:09:38PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 18, 2001 at 09:11:46PM +0100, you [kees] claimed:
-> Hi,
+On Fri, Mar 16 2001, David Mansfield wrote:
+> > Same thing for 2.4.2.
+> > 
+> > Is my allocation loop "over engineering", or just plain bad thing to do ?
+> > 
 > 
-> I tried memtest86 for 24 hours also and that didn't gave a clue. When bad
-> ram was really involved I'd expected to find things like:
-> failing fsck's, failing kernel compiles and such. But none of them
-> the system runs perfect if it doesn't freeze(lockup).
+> I've been running this (or close: my version tries 8 frames, then jumps
+> immediately to 1, without trying 4 and 2 in between if the kmalloc
+> fails) since it was changed.  Without such a patch, my CDDA read speed
+> drops to 25% the original rate.  You also have the fix that started the
+> thread!
 > 
-> So yes, only the CPU's and the mobo are at question. What I was looking
-> for was a tool like memtest86 but now for motherboards.....
+> Jens (cdrom maintainer) said he was working on a more elegant solution,
+> but to me, such a simple fix as yours should go in the kernel in the
+> meantime.  Jens?
 
-You really cannot say that bad memory is involved ONLY when fsck's fail and
-kernel compiled fail. No way. 
+I haven't integrated it yet, because of the vm printing memory
+allocations errors. Which sort of destroys the idea of doing "clever"
+allocations like this.
 
-Think about it: that failing bit can well be in a place that kernel never
-touches, and gcc usually does not touch. Moreover the bit flip usually does
-not happen every time; you have to stress the memory for hours and sometimes
-use a specific bit pattern to trigger the problem.
+-- 
+Jens Axboe
 
-I had one machine that compiled kernel just fine, and ran pretty smoothly
-overall, but experienced weird hickups like dying apps, failing oracle
-install etc. Not too much though, I was attributing them to buggy software.
-Then I tried to take a large backup. Bzip failed (internal error) one third
-of the time, and once produced a different result. I quickly hacked up an
-user space memory tester, and sure enough it reported an error after five
-hours. (The machine was already in production, so I couldn't just take it
-down and launch memtest86.) I verified the problem with memtest86 during the
-next night, and applied the marvellous badmem patch to the kernel. After
-marking the problematic place unuable, all problem disappeared. I just lost
-2MB out of 256.
-
-What I learned is that spotting meory error can be difficult, and the
-symptoms can be stealthy.
-
-
--- v --
-
-v@iki.fi

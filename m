@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261457AbSIZTdq>; Thu, 26 Sep 2002 15:33:46 -0400
+	id <S261329AbSIZThs>; Thu, 26 Sep 2002 15:37:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261459AbSIZTdq>; Thu, 26 Sep 2002 15:33:46 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:20700 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261457AbSIZTdp>; Thu, 26 Sep 2002 15:33:45 -0400
-Date: Thu, 26 Sep 2002 16:38:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Larry Kessler <kessler@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       Rusty Russell <rusty@rustcorp.com.au>, Hien Nguyen <hien@us.ibm.com>,
-       James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>
-Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
-In-Reply-To: <3D935862.2133DEA2@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0209261636340.1837-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261335AbSIZThr>; Thu, 26 Sep 2002 15:37:47 -0400
+Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:37096 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S261329AbSIZThr>; Thu, 26 Sep 2002 15:37:47 -0400
+Date: Thu, 26 Sep 2002 13:43:41 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated
+ v2
+In-Reply-To: <Pine.LNX.4.44L.0209261628490.1837-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.44.0209261337290.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Larry Kessler wrote:
+Hi,
 
-> Distros could be motivated to provide translations, etc. for the kernel
-> versions that they base new releases on.
+On Thu, 26 Sep 2002, Rik van Riel wrote:
+> On Thu, 26 Sep 2002, Thunder from the hill wrote:
+> In the case of slist_del() you HAVE to know it.
+> 
+> Think about removing a single entry from the middle of
+> the list ... the entries before and after need to stay
+> on the list.
 
-Unlikely.  It's hard enough already when somebody who doesn't
-speak the language submits a bugreport by email or through
-bugzilla.
+2 solutions without list head:
 
-I don't want to imagine receiving a bug report from eg. Japan
-that has a cut'n'pasted kernel error in Japanese. It's not just
-that I can't read Japanese ... I don't even have the FONT to
-display it.
+1.
+#define slist_del_next(_entry_in)			\
+do {							\
+	typeof(_entry_in) _entry = (_entry_in),		\
+			  _next  = (_entry)->next;	\
+	_entry->next = _next->next;			\
+	_next->next = NULL;				\
+} while (0)
 
-regards,
+2.	The previous entry points to the address that _entry has. If we 
+	copy _entry somewhere else and overwrite the old _entry with 
+	_entry->next, we made it without knowing the list topology. The 
+	previous->next still points to the new _entry, things are fine.
 
-Rik
+My problem is just: where to put the old _entry? Anyway, since we're 
+talking about list entry deletion, we could copy it nowhere and just 
+overwrite it with _entry->next...
+
+Details, details...
+
+			Thunder
 -- 
-A: No.
-Q: Should I include quotations after my reply?
-
-http://www.surriel.com/		http://distro.conectiva.com/
+assert(typeof((fool)->next) == typeof(fool));	/* wrong */
 

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277832AbRJLTnd>; Fri, 12 Oct 2001 15:43:33 -0400
+	id <S277836AbRJLTun>; Fri, 12 Oct 2001 15:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277849AbRJLTnU>; Fri, 12 Oct 2001 15:43:20 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:65293 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277847AbRJLTnB>;
-	Fri, 12 Oct 2001 15:43:01 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110121943.XAA13273@ms2.inr.ac.ru>
-Subject: Re: Really slow netstat and /proc/net/tcp in 2.4
-To: sim@netnation.com (Simon Kirby)
-Date: Fri, 12 Oct 2001 23:43:17 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011012123619.E26630@netnation.com> from "Simon Kirby" at Oct 12, 1 12:36:19 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S277842AbRJLTud>; Fri, 12 Oct 2001 15:50:33 -0400
+Received: from tomts9.bellnexxia.net ([209.226.175.53]:50100 "EHLO
+	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S277836AbRJLTuQ>; Fri, 12 Oct 2001 15:50:16 -0400
+From: "Al Dunsmuir" <al.dunsmuir@sympatico.ca>
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Fri, 12 Oct 2001 15:50:00 -0400 (EDT)
+Reply-To: "Al Dunsmuir" <al.dunsmuir@sympatico.ca>
+X-Mailer: PMMail 2.20.2380 for OS/2 Warp 4.5
+In-Reply-To: <Pine.LNX.4.33.0110120919130.31677-100000@penguin.transmeta.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-Id: <20011012195041.SVDK19094.tomts9-srv.bellnexxia.net@adunsmui>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 12 Oct 2001 09:28:07 -0700 (PDT), Linus Torvalds wrote:
+>I'm sure that having programmed PPC assembly language, you find it very
+>natural (IBM motto: "We found five vowels hiding in a corner, and we used
+>them _all_ for the 'eieio' instruction so that we wouldn't have to use
+>them anywhere else").
 
-> If it involves changing the TCP stack locking stuff
+More likely a bad pun on the children's song "Old McDonald had a farm".
 
-No. It even does not touch the kernel except for exporting 4 new
-not exported symbols.
+I have no insider knowledge, but I've worked for IBM (on S/390) for 22 years,
+_am_ dyslexic, and enjoy bad puns <GRIN>
 
-> and testing load on the server.  Is there an easier way to accomplish
-> this than parsing /proc/net/tcp?  We could attempt to bind to the ports
-> we want to check, but that would race with daemons trying to start up.
-
-To syn-flood with single syn using packet socket.
-
-Alexey
+Al Dunsmuir
 

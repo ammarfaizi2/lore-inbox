@@ -1,38 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265084AbSJWPst>; Wed, 23 Oct 2002 11:48:49 -0400
+	id <S265093AbSJWPvg>; Wed, 23 Oct 2002 11:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265085AbSJWPst>; Wed, 23 Oct 2002 11:48:49 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49599 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265084AbSJWPss>; Wed, 23 Oct 2002 11:48:48 -0400
-Subject: Re: feature request - why not make netif_rx() a pointer?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hps@intermeta.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <ap6egj$ck$1@forge.intermeta.de>
-References: <00b201c27a0e$3f82c220$800a140a@SLNW2K>
-	<1035326559.16085.18.camel@rth.ninka.net>  <ap6egj$ck$1@forge.intermeta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 23 Oct 2002 17:11:34 +0100
-Message-Id: <1035389494.3968.63.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265094AbSJWPvg>; Wed, 23 Oct 2002 11:51:36 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:16312 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S265093AbSJWPve>;
+	Wed, 23 Oct 2002 11:51:34 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: linux-kernel@vger.kernel.org
+Date: Wed, 23 Oct 2002 17:57:24 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.5.44: Strange oopses triggered by pipe_write?
+X-mailer: Pegasus Mail v3.50
+Message-ID: <56FC167058F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 16:16, Henning P. Schmiedehausen wrote:
-> You will never understand, that <insert evil vendor here> can simply
-> add this modification to the kernel source ("vendor tree"), give this
-> source away under GPL license and then ship its binary kernel modules
-> with the source tree.
+Hi,
+  I just left my 2.5.44 box unattended for hour and half, and when
+I came back, I saw very strange things on screen:
 
-Thats what lawyers are for. 
+Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
+Call Trace:
+  [<c011a0f3>] __might_sleep+0x43/0x47
+  [..........] pipe_write+0x7f/0x230
+  ...........  vfs_write+0xc1/0x160
+  ...........  sys_write+0x2a/0x3c
+  [<c0107437>] syscall_call+0x7/0xb
+ 
+bad: scheduling while atomic!
+  [<c0117ea2>] schedule+0x2e/0x480
+  ............ sys_write+0x33/0x3c
+  [<c010745e>] work_resched+0x5/0x16
+  
+Unable to handle kernel paging request at virtual address 401202b8
+ printing eip:
+4004cb65
+*pde = 10f6a067
+*pte = 00000000
+Oops: 0004
+parport_pc parport tvaudio bttv tuner video-buf videodev i810_audio
+ ac97_codec soundcore af_packet nls_cp852 nls_iso8859-2 ipx p8022 psnap llc
+ e100
+CPU: 0
+EIP: 0023:[<4004cb65>]   Not tainted
+EFLAGS: 00010246
+eax: 00000004  ebx: 40131704  ecx: 4012d54c  edx: 401320a8
+esi: 00001000  edi: 00000000  ebp: bffffc88  esp: bffffc70
+ds: 002b  es: 002b  ss: 002b
+Process cat (pid: 26569, threadinfo=c586c000, task=da9ac100)
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
-> Not putting an export into the source or exporting GPL_ONLY symbols
-> won't hinder anyone. Because putting the hooks into a GPL source and
-> then releasing the result (code + hooks) under GPL is perfectly legal.
 
-Not according to lawyers
+It looks to me like that system first complained a bit about some
+spinlock being held, panicked in schedule, and then it printed
+very strange oopses: they look like userspace CPU context.
 
+Kernel is 2.5.44, compiled for SMP, running on machine with 1 CPU.
+Before this incident machine was up for about 60 hours.
+After reboot fsck found 31 deleted inodes with zero dtime.
+                                                Thanks,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
+                                                    

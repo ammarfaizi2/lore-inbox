@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbRE1Wo2>; Mon, 28 May 2001 18:44:28 -0400
+	id <S261190AbRE1Wls>; Mon, 28 May 2001 18:41:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261387AbRE1WoS>; Mon, 28 May 2001 18:44:18 -0400
-Received: from rbfux.rbfnet.com ([167.132.252.228]:268 "EHLO rbfux.rbfnet.com")
-	by vger.kernel.org with ESMTP id <S261309AbRE1WoN>;
-	Mon, 28 May 2001 18:44:13 -0400
-Message-Id: <200105282244.RAA19619@rbfux.rbfnet.com>
-Subject: Re: Potenitial security hole in the kernel
-To: vlebedev@aplio.fr (Vadim Lebedev)
-Date: Mon, 28 May 2001 17:44:08 -0500 (CDT)
-From: "Brett Frankenberger" <rbf@rbfnet.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP> from "Vadim Lebedev" at May 28, 2001 11:43:38 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S261309AbRE1Wli>; Mon, 28 May 2001 18:41:38 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:57057 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261268AbRE1WlU>;
+	Mon, 28 May 2001 18:41:20 -0400
+From: james@spunkysoftware.com
+Message-ID: <004601c0e811$f8c93d80$c1a5fea9@spunky>
+Reply-To: <james@spunkysoftware.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E154VOJ-0003cy-00@the-village.bc.nu>
+Subject: Re: Creative 4-speed CDROM driver
+Date: Tue, 29 May 2001 08:35:37 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Hi folks,
-> 
-> Please correct me if i'm wrong but it seems to me that i've stumbled on
-> really BIG security hole in the signal handling code.
-> The problem IMO is that the signal handling code stores a processor context
-> on the user-mode stack frame which is active while
-> the signal handler is running. Then sys_sigreturn restores back the context
-> from user mode stack...
-> Suppose the signal handler modifies this context frame for example by
-> storing into the PC slot address of the panic routine
-> then when handler will exit  panic will be called with obvious results.
-> 
-> 
-> Please CC your comments to me directly as i'm not subscibed to this list
-> 
-> Vadim Lebedev
-> 
+Where do I get this basic info on ATAPI? Will I benefit from the IDE
+standards document? Where can I get that?
+
+Thanks for your help
+
+
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: <james@spunkysoftware.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; <linux-kernel@vger.kernel.org>
+Sent: Monday, May 28, 2001 11:21 PM
+Subject: Re: Creative 4-speed CDROM driver
+
+
+> > Unfortunately, I simply do not understand the code for device drivers
+that
+> > hackers have written. I don't know where to start and how to make sense
+of
+> > the code, to read it line by line and understand what it is doing.
+>
+> I think the minix book would be a good starting point. From the questions
+you
+> are asking you are rather out of your depth. Also some basic info on ATAPI
+> which is the protocol the CD-ROM devices use.
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>
+>
 

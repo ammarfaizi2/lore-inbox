@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261750AbSJNOiM>; Mon, 14 Oct 2002 10:38:12 -0400
+	id <S261717AbSJNOfX>; Mon, 14 Oct 2002 10:35:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261757AbSJNOiM>; Mon, 14 Oct 2002 10:38:12 -0400
-Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:55734 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261750AbSJNOiL>; Mon, 14 Oct 2002 10:38:11 -0400
-Date: Mon, 14 Oct 2002 09:42:55 -0500
-From: Shawn <core@enodev.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Michael Clark <michael@metaparadigm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: Linux v2.5.42
-Message-ID: <20021014094255.B27417@q.mn.rr.com>
-References: <3DA99CEC.8040208@metaparadigm.com> <Pine.GSO.4.21.0210131243480.9247-100000@steklov.math.psu.edu>
+	id <S261728AbSJNOfX>; Mon, 14 Oct 2002 10:35:23 -0400
+Received: from ginsberg.uol.com.br ([200.221.4.48]:11137 "EHLO
+	ginsberg.uol.com.br") by vger.kernel.org with ESMTP
+	id <S261717AbSJNOfW>; Mon, 14 Oct 2002 10:35:22 -0400
+Date: Mon, 14 Oct 2002 11:42:01 -0200
+From: Andre Costa <brblueser@uol.com.br>
+To: DervishD <raul@pleyades.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Known 'issues' about 2.4.19...
+Message-Id: <20021014114201.493c812a.brblueser@uol.com.br>
+In-Reply-To: <20021013184052.GC46@DervishD>
+References: <20021013184052.GC46@DervishD>
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0210131243480.9247-100000@steklov.math.psu.edu>; from viro@math.psu.edu on Sun, Oct 13, 2002 at 01:10:49PM -0400
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/13, Alexander Viro said something like:
-> 	Mostly those who won't have to clean up the mess afterwards.
-> For the record, my vote is "not ready".
+Hi Raúl,
 
-Oh shit! This is the "Al Viro stink test" Linus spoke of.
+I've been using 2.4.19 for a couple of months already. Generally
+speaking, I've had no probls with it. I recently found out its IDE
+subsystem doesn't get along too well with VIA chipsets (replaced my old
+mobo for a VT8233 based recently and probls started surfacing).
+Basically, I am unable to rip audio tracks from my cds
+(/var/log/messages logs a lot of timeouts).
 
-Now, if no LVM type ifrastructure is included in 2.6, all (all who use an
-LVM of some type) will all have to
+This is a real PITA, but kernel folks are already aware of it and and
+it's going through major reimplementation on 2.5.x branch, AFAIK. Also,
+I've seen increasing activity on VIA's Linux forums (this issue has
+surfaced a couple of times there as well), so there's hope VIA might
+start working closer to the Linux community.
 
-1. update to the latest mainline
-2. download the latest dm or evms patch
-3. fix all the patch rejects themselves (big problem to overcome when
-trying to get people to test with the latest kernel)
+Aside from this, I've been using it daily at home, for all sorts of
+things.
 
-I'm NOT saying this is some kind of argument toward inclusion. I guess
-I'm just lamenting. I really hoped I'd have one less 3rd party patch to
-maintain in my own personal tree.
+HTH,
 
---
-Shawn Leas
-core@enodev.com
+Andre
 
-I was in the first submarine.  Instead of a periscope, they had
-a kaleidoscope.  "We're surrounded."
-						-- Stephen Wright
+On Sun, 13 Oct 2002 20:40:52 +0200
+DervishD <raul@pleyades.net> wrote:
+
+>     Hi all :))
+> 
+>     Is there any known bug or other issues about 2.4.19 that prevents
+> it from being used in a production machine? I mean, I don't worry if
+> the sound is broken or things like those, I mean if the IDE driver
+> does 'things' and the like ;))
+> 
+>     I'm thinking about going to 2.4.19 or the latest -ac for 2.4.20.
+> 
+>     Thanks a lot :)
+>     Raúl
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+Andre Oliveira da Costa

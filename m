@@ -1,67 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319559AbSIHCjK>; Sat, 7 Sep 2002 22:39:10 -0400
+	id <S319560AbSIHDB1>; Sat, 7 Sep 2002 23:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319560AbSIHCjK>; Sat, 7 Sep 2002 22:39:10 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11392 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S319559AbSIHCjJ>;
-	Sat, 7 Sep 2002 22:39:09 -0400
-Date: Sat, 7 Sep 2002 22:43:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Daniel Phillips <phillips@arcor.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about pseudo filesystems
-In-Reply-To: <20020908032121.A23455@kushida.apsleyroad.org>
-Message-ID: <Pine.GSO.4.21.0209072232500.23664-100000@weyl.math.psu.edu>
+	id <S319561AbSIHDB1>; Sat, 7 Sep 2002 23:01:27 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:14136 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S319560AbSIHDB0>;
+	Sat, 7 Sep 2002 23:01:26 -0400
+From: <Hell.Surfers@cwctv.net>
+To: andre@linux-ide.org, drf5n@mug.sys.virginia.edu, jbradford@dial.pipex.com,
+       alan@lxorguk.ukuu.org.uk, degger@fhm.edu, linux-kernel@vger.kernel.org
+Date: Sun, 8 Sep 2002 04:03:21 +0100
+Subject: RE:Re: ide drive dying?
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1031454201717"
+Message-ID: <0763c0802030892DTVMAIL2@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--1031454201717
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Sun, 8 Sep 2002, Jamie Lokier wrote:
+I simply wondered why ibm moaned about supporting linux loads, yet don't have a decent linux flash update for their drives. If their stuff is written in C# why don't they port it to Ximian Mono?
 
-> Alexander Viro wrote:
-> > It is neither safe nor needed.  Please, look at the previous posting again -
-> > neither variant calls mntput() in ->release().
-> > 
-> > Now, __fput() _does_ call mntput() - always.  And yes, if that happens to
-> > be the final reference - it's OK.
+Thanks. Regards, Dean McEwan. OpenModemTalk creator.
+
+On 	Sat, 7 Sep 2002 17:17:25 -0700 (PDT) 	Andre Hedrick <andre@linux-ide.org> wrote:
+
+--1031454201717
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Sun, 8 Sep 2002 01:20:29 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S319548AbSIHAOl>; Sat, 7 Sep 2002 20:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S319549AbSIHAOl>; Sat, 7 Sep 2002 20:14:41 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51209
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319548AbSIHAOk>; Sat, 7 Sep 2002 20:14:40 -0400
+Received: from localhost (andre@localhost)
+	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id RAA17437;
+	Sat, 7 Sep 2002 17:17:25 -0700
+Date: Sat, 7 Sep 2002 17:17:25 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Hell.Surfers@cwctv.net
+cc: drf5n@mug.sys.virginia.edu, jbradford@dial.pipex.com,
+	alan@lxorguk.ukuu.org.uk, degger@fhm.edu,
+	linux-kernel@vger.kernel.org
+Subject: RE:Re: ide drive dying?
+In-Reply-To: <00d2a2451230792DTVMAIL3@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.10.10209071712060.16589-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+
+Hell.Surfers,
+
+Because when I was booted out of 2.5, effectively, the API for DFT was
+deleted.  So you take away the means to make it work, and they stop moving
+that direction.  Now that -AC series has the API, and 2.5 will see a full
+return of it, I now have to restart the process to motivate them again.
+However since Hitachi may end up buying out IBM's disk manufacturing
+business and their product lines, I now have to go an try an court (old
+dating term for the post 70's crowd) Hitachi.
+
+Now, what do you want?
+
+On Sun, 8 Sep 2002 Hell.Surfers@cwctv.net wrote:
+
+> Why don't IBM do a Linux version? Don't they have a linux firmware utility? I thought IBM had a campaign to support linux...
 > 
-> Thanks, that's really nice.
+> Thanks. Regards, Dean McEwan. OpenModemTalk creator.
 > 
-> I'd assumed `kern_mount' was similar to mounting a normal filesystem,
-> but in a non-existent namespace.  Traditionally in unix you can't
-> unmount a filesystem when its in use, and mounts don't disappear when
-> the last file being used on them disappears.
+> On 	Sat, 7 Sep 2002 19:19:21 -0400 (EDT) 	David Forrest <drf5n@mug.sys.virginia.edu> wrote:
 > 
-> But you've rather cutely arranged that these kinds of mount _do_
-> disappear when the last file being used on them disappears.  Clever, if
-> a bit disturbing.
 
-Normal mount _is_ do_kern_mount() + pinning down the resulting vfsmount +
-attaching it to mountpoint.
+Andre Hedrick
+LAD Storage Consulting Group
 
-The second part is what keeps them alive until fs is unmounted.  Moreover,
-umount itself is just
-	check refcount, return -EBUSY if the thing is busy and MNT_DETACH is
-not given.
-	detach from mountpoint
-	drop the reference
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1031454201717--
 
-Notice that umount _with_ MNT_DETACH will happily skip that check - and
-that will simply detach filesystem from mountpoint with fs shutdown
-postponed until it stops being busy.
-
-IOW, filesystem shutdown is _always_ a garbage collection - there's nothing
-special about vfsmounts that are not mounted somewhere.  Check for fs
-being busy in umount(2) is just a compatibility code - kernel is perfectly
-happy with dissolving mountpoints, busy or not.  If stuff mounted is not
-busy it will be shut down immediately, if not - when it stops being busy.
-
-It's actually very similar to relation between open(), unlink() and close() -
-you can unlink opened files and their contents will be there until the
-final close(); then it will be killed.
 

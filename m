@@ -1,82 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbUD1ULw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUD1ULw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUD1ULw (ORCPT <rfc822;willy@w.ods.org>);
+	id S261981AbUD1ULw (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 28 Apr 2004 16:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUD1UKM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUD1UKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:10:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52202 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261867AbUD1Ts2 (ORCPT
+	Wed, 28 Apr 2004 16:10:35 -0400
+Received: from mail.dsvr.co.uk ([212.69.192.8]:36289 "EHLO mail.dsvr.co.uk")
+	by vger.kernel.org with ESMTP id S261981AbUD1TzV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:48:28 -0400
-Date: Wed, 28 Apr 2004 12:48:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: busterbcook@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-Message-Id: <20040428124809.418e005d.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
-	<20040427230203.1e4693ac.akpm@osdl.org>
-	<Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 28 Apr 2004 15:55:21 -0400
+Date: Wed, 28 Apr 2004 20:54:34 +0100
+From: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       David Hinds <dhinds@sonic.net>, daniel.ritz@gmx.ch,
+       linux-kernel@vger.kernel.org
+Subject: Re: REMINDER: 2.4.25 and 2.6.x yenta detection issue
+Message-ID: <20040428195434.GA27783@jsambrook>
+Reply-To: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>
+References: <Pine.LNX.4.44.0403191509280.2227-100000@dmt.cyclades> <20040319210720.J14431@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+In-Reply-To: <20040319210720.J14431@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brent Cook <busterbcook@yahoo.com> wrote:
->
-> On Tue, 27 Apr 2004, Andrew Morton wrote:
-> 
-> > Brent Cook <busterbcook@yahoo.com> wrote:
-> > >
-> > >   Running any kernel from the 2.6.6-rc* series (and a few previous
-> > >  -mm*'s),
-> >
-> > It's a shame this wasn't reported earlier.
-> 
-> Since it was a pretty big deal on my system, I just assumed it was for
-> other people's too, and that someone else would have reported it by
-> now. I only got concerned when it persisted between rc's.
 
-I think three people have reported it now.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > > the pdflush process starts using near 100% CPU indefinitely after
-> > >  a few minutes of initial NFS traffic, as far as I can tell.
-> >
-> > Please confirm that the problem is observed on the NFS client and not the
-> > NFS server?  I'll assume the client.
-> 
-> Yes, both affected machines had the issue when connecting as a client to a
-> 2.4.25-based NFS server.
-> 
-> > What other filesystems are in use on the client?
-> 
-> One uses Reiser on /, the other uses ext3 on /. Here is the mount table
-> for one machine:
+At 21:07 on Fri 19/03/04, rmk+lkml@arm.linux.org.uk masquerading as 'Russel=
+l King' wrote:
+> On Fri, Mar 19, 2004 at 03:14:54PM -0300, Marcelo Tosatti wrote:
+> > It seems the problem reported by Silla Rizzoli is still present in 2.6.x
+> > and 2.4.25 (both include the voltage interrogation patch by rmk).
+> >=20
+> > Daniel Ritz made some efforts to fix it, but did not seem to get it rig=
+ht.=20
+>=20
+> And that effort is still going on.  Daniel and Pavel have been trying
+> to find a good algorithm for detecting and fixing misconfigured TI
+> interrupt routing, and this effort is still on-going.
+>=20
+> What would be useful is if Silla could test some of Daniel's patches
+> and provide feedback.
+>=20
+> The latest 2.6 patch from Daniel is at:
 
-Both machines are exhibiting the problem?
+Any movement on 2.4.x w.r.t this?
+Even a patch to get back 2.4.23 functionality whihc worked fine here
+would be good (need > 2.4.25 for XFS).
 
-> About 10 minutes into the process, pdflush starts taking over:
-> 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
->     7 root      25   0     0    0     0 RW   34.4  0.0   3:05   0 pdflush
-> 17856 busterb   25   0 69400  65M  5140 R    34.4 26.1   0:31   0 cc1plus
-> 19466 busterb   25   0 43732  39M  5140 R    26.3 15.5   0:03   0 cc1plus
-> ...
-> The network light will flash continually on each machine once pdflush
-> gets into this state, which makes me think NFS. Each machine has
-> 512-256 MB of ram and a single CPU.
+Regards,
+Jonathan
+>=20
+> 	http://ritz.dnsalias.org/linux/pcmcia-ti-routing-9.patch
+>=20
+> and I'll ask that feedback is sent to linux-pcmcia and not as a reply
+> to this message (I'm just monitoring what's going on at present.)
+>=20
+> Essentially, this patch needs to be well tested before it goes into
+> mainline.
+>=20
+> --=20
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+>                  2.6 Serial core
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-ok..  I spent a couple of hours yesterday trying to get this to happen.  No
-joy.  Can't make it happen with your .config either.  I'll set up a 2.4.25
-server later on.
+--=20
+                  =20
+ Jonathan Sambrook=20
+Software  Developer=20
+ Designer  Servers
 
-What version of gcc are you using?
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Could you please capture the contents of /proc/meminfo and /proc/vmstats
-when it's happening?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Thanks.
+iD8DBQFAkAv6SUOTbbpGXDwRAgmkAJ0WTe+XJMNBXdJnIy20L3nO70L9LQCfbTKt
+QL/QgQYwBB1k0fiVu1OfFPk=
+=Ng3J
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

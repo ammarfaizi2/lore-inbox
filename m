@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274451AbRITM0M>; Thu, 20 Sep 2001 08:26:12 -0400
+	id <S274454AbRITMZw>; Thu, 20 Sep 2001 08:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274448AbRITM0D>; Thu, 20 Sep 2001 08:26:03 -0400
-Received: from fe100.worldonline.dk ([212.54.64.211]:53520 "HELO
-	fe100.worldonline.dk") by vger.kernel.org with SMTP
-	id <S274453AbRITMZs>; Thu, 20 Sep 2001 08:25:48 -0400
-Date: Thu, 20 Sep 2001 14:25:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-Cc: "steve j. kondik" <shade@chemlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: encrypted swap on loop in 2.4.10-pre12?
-Message-ID: <20010920142555.B588@suse.de>
-In-Reply-To: <1000912739.17522.2.camel@discord> <3BA907F6.3586811C@pp.inet.fi> <20010920081353.H588@suse.de> <3BA9DC30.DA46A008@pp.inet.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BA9DC30.DA46A008@pp.inet.fi>
+	id <S274451AbRITMZf>; Thu, 20 Sep 2001 08:25:35 -0400
+Received: from [24.254.60.16] ([24.254.60.16]:62116 "EHLO
+	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274448AbRITMZa>; Thu, 20 Sep 2001 08:25:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Adrian Cox <adrian@humboldt.co.uk>, tegeran@home.com
+Subject: Re: via82cxxx_audio locking problems
+Date: Thu, 20 Sep 2001 05:24:38 -0700
+X-Mailer: KMail [version 1.2]
+Cc: t.sailer@alumni.ethz.ch, Thomas Sailer <sailer@scs.ch>,
+        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BA9AB43.C26366BF@scs.ch> <01092004333500.00182@c779218-a> <3BA9DBED.9020401@humboldt.co.uk>
+In-Reply-To: <3BA9DBED.9020401@humboldt.co.uk>
+MIME-Version: 1.0
+Message-Id: <01092005243800.01369@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20 2001, Jari Ruusu wrote:
-> Jens Axboe wrote:
-> > On Thu, Sep 20 2001, Jari Ruusu wrote:
-> > > Cryptoapi can't be used to encrypt swap. It has nasties like sleeping in
-> > > make_request_fn() and potential memory allocation deadlock.
-> > 
-> > sleeping in make_request_fn is not a nasty in itself, btw. in fact loop
-> > just needs an emergency page pool for swap to be perfectly safe.
-> 
-> loop-AES provides emergency page pool for device backed loop. Take a look.
+On Thursday 20 September 2001 05:07 am, Adrian Cox wrote:
+> Nicholas Knight wrote:
+> > thankyouthankyouthankyouthankyouthankyou
+> > Adrian Cox was working on this after I raised the issue on the list,
+> > but nobody got anywhere. All we knew was that there were temporary
+> > lockups appearing when anything was using the mixer.
+>
+> This is the right answer. The reason some of us didn't see a problem
+> may actually be quite simple: we were using very small buffers in xmms.
+> Once I increased the xmms buffer size the problem became visible.
 
-Then sleeping in make_request_fn is not a nasty at all. In fact the
-kernel does it all the time anyways.
-
--- 
-Jens Axboe
-
+Interesting, I just experimented with it, bringing down the buffers to 
+200ms (low as they'll go) and pre-buffer % to 0, does seem to have an 
+effect, but it doesn't "fix" the problem for me... Should I just conclude 
+that the tolerance for this is higher on some boards/chips than on 
+others, and that once THIS problem is fixed, it'll go away and I can 
+happily use my volume control again?

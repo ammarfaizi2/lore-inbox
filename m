@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUHQAt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268050AbUHQAwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUHQAt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 20:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUHQAt5
+	id S268050AbUHQAwt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 20:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUHQAwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 20:49:57 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:22418 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S268054AbUHQAtw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 20:49:52 -0400
-Subject: Re: boot time, process start time, and NOW time
-From: john stultz <johnstul@us.ibm.com>
-To: george anzinger <george@mvista.com>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Andrew Morton <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       david+powerix@blue-labs.org
-In-Reply-To: <41215334.7050203@mvista.com>
-References: <1087948634.9831.1154.camel@cube>
-	 <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>
-	 <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
-	 <1092702077.2429.88.camel@cog.beaverton.ibm.com>
-	 <41215334.7050203@mvista.com>
-Content-Type: text/plain
-Message-Id: <1092703747.2429.111.camel@cog.beaverton.ibm.com>
+	Mon, 16 Aug 2004 20:52:49 -0400
+Received: from tim.plush.org ([168.150.236.223]:28633 "EHLO tim.plush.org")
+	by vger.kernel.org with ESMTP id S268050AbUHQAwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 20:52:22 -0400
+Date: Mon, 16 Aug 2004 17:52:18 -0700
+From: Gabriel Rosa <grosa@plush.org>
+To: linux-kernel@vger.kernel.org
+Subject: ich6r/ich6w and ata_piix, hidden drive
+Message-ID: <20040817005218.GA22778@foo.plush.org>
+Mail-Followup-To: Gabriel Rosa <grosa@plush.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 16 Aug 2004 17:49:08 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-16 at 17:37, George Anzinger wrote:
-> john stultz wrote:
-> > On Mon, 2004-08-16 at 16:08, Tim Schmielau wrote:
-> >>Simple fix: revert the patch below.
-> >>Complicated fix: correct process start times in fork.c (no patch provided, 
-> >>too complicated for me to do).
-> > 
-> > Hmm. While that patch fixed the uptime proc entry, I thought the issue
-> > was with process start times. I'm looking at fixing the start_time
-> > assignment in proc_pid_stat(). My suspicion is that we need to use ACTHZ
-> > in jiffies64_to_clock_t().
-> 
-> I really don't see how the start_time that proc_pid_stat() is producing could be 
-> anything but a constant.  The complaint is that it moves, not that it is 
-> incorrect, right?
 
-My impression was that it was both. 
+Greetings,
 
-Regardless, your point stands, it would just be a constant. Good catch.
-I'll have to think about this some more. 
+I have an interesting situation with a Dell XPS system (actually 6 of them)
+with Intel ICH6 SATA controllers running kernel 2.6.7.
 
-Let me look at procps to see how exactly it comes up w/ STIME. 
+the setup is as follows (as seen by the bios):
 
-thanks
--john
+sata-0 250gb drive
+sata-1 empty
+sata-2 250gb drive
+sata-3 empty
+pata-0 cdrom
+pata-1 empty
 
+this particular bios has 4 settings:
 
+AHCI, SATA, Raid (bios software raid), Combination (SATA/PATA)
+
+in AHCI or Raid mode, no drives are detected. This is unusual, because I
+thought the ata_piix driver was supposed to handle AHCI (ie, enhanced) mode
+fully.
+
+in SATA mode, only sata-0 is detected.
+
+in SATA/PATA mode, both drives are handled by the ide subsystem, with abysmal
+performance (~6.0 MB/sec with hdparm -t)
+
+I am particularly interested in making AHCI mode work, but would be fairly
+happy with SATA mode (excellent performance, now if only the second drive 
+showed up). Any ideas?
+
+here are some relevant lines:
+
+lspci:
+0000:00:1f.2 IDE interface: Intel Corp. 82801FR/FRW (ICH6R/ICH6RW) SATA Controller (rev 03)
+
+dmesg:
+SCSI subsystem initialized
+libata version 1.02 loaded.
+ata_piix version 1.02
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0xFE00 ctl 0xFE12 bmdma 0xFEA0 irq 20
+ata2: SATA max UDMA/133 cmd 0xFE20 ctl 0xFE32 bmdma 0xFEA8 irq 20
+ata1: dev 0 cfg 49:2f00 82:3469 83:7f61 84:4003 85:3469 86:3e41 87:4003 88:207f
+ata1: dev 0 ATA, max UDMA/133, 488281250 sectors: lba48
+ata1: dev 0 configured for UDMA/133
+scsi0 : ata_piix
+ata2: SATA port has no device.
+scsi1 : ata_piix
+Using anticipatory io scheduler
+  Vendor: ATA       Model: WDC WD2500JD-75H  Rev: 08.0
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 488281250 512-byte hdwr sectors (250000 MB)
+SCSI device sda: drive cache: write back
+ /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
+
+I'd be happy to provide more details.
+
+thanks,
+-Gabe

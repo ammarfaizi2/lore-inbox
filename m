@@ -1,100 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265838AbUA0UoR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUA0UoR
+	id S265922AbUA0Uxw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUA0Uxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:44:17 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:4324 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265838AbUA0UoN (ORCPT
+	Tue, 27 Jan 2004 15:53:52 -0500
+Received: from sputnik.senv.net ([213.157.66.5]:1028 "EHLO sputnik.senv.net")
+	by vger.kernel.org with ESMTP id S265922AbUA0Uxs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:44:13 -0500
-Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Florian Huber <florian.huber@mnet-online.de>
-Cc: JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1075232395.11203.94.camel@suprafluid>
-References: <1075230933.11207.84.camel@suprafluid>
-	 <1075231718.21763.28.camel@shaggy.austin.ibm.com>
-	 <1075232395.11203.94.camel@suprafluid>
-Content-Type: text/plain
-Message-Id: <1075236185.21763.89.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 27 Jan 2004 14:43:05 -0600
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 15:53:48 -0500
+Date: Tue, 27 Jan 2004 22:53:46 +0200 (EET)
+From: Jussi Hamalainen <count@theblah.fi>
+X-X-Sender: count@mir.senv.net
+To: linux-kernel@vger.kernel.org
+Subject: NFS: giant filename in readdir
+Message-ID: <Pine.LNX.4.58.0401272233490.10626@mir.senv.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-27 at 13:39, Florian Huber wrote:
-> On Tue, 2004-01-27 at 20:28, Dave Kleikamp wrote:
-> > I wonder if JFS is having trouble getting the partition size.  Can you
-> > run jfs_fsck with the -v flag to see what part of the superblock it
-> > doesn't like?
-> 
-> The current device is:  /dev/md2
-> Open(...READ/WRITE EXCLUSIVE...) returned rc = 0
-> Incorrect jlog length detected in the superblock (P).
-> Incorrect jlog length detected in the superblock (S).
-> Superblock is corrupt and cannot be repaired 
-> since both primary and secondary copies are corrupt.  
+I'm getting these errors after about 15d of uptime:
 
-My guess is that software raid is stealing a few blocks from the end of
-the partition, and JFS doesn't like that, since it's journal goes all
-the way to the end.  I've created a patch that will shorten the journal
-if it can safely be done.  It was built against the latest jfsutils cvs
-tree, but applies to version 1.1.4:
-http://www10.software.ibm.com/developer/opensource/jfs/project/pub/jfsutils-1.1.4.tar.gz
+Jan 27 17:43:18 mir kernel: NFS: giant filename in readdir (len 955ae5)!
+Jan 27 21:06:14 mir kernel: NFS: giant filename in readdir (len 74000000)!
 
-Please let me know if this fixes it.  (lkml: Yeah, I know the code is
-indented too far.  It's outside the kernel, so give me a break.)
+And doing an ls (ie. readdir()) inside an NFS-mount always produces
+an empty directory listing. I can still access files and
+subdirectories OK, though.
 
-Index: jfsutils/fsck/fsckmeta.c
-===================================================================
-RCS file: /usr/cvs/jfs/jfsutils/fsck/fsckmeta.c,v
-retrieving revision 1.18
-diff -u -p -r1.18 fsckmeta.c
---- jfsutils/fsck/fsckmeta.c	17 Dec 2003 20:28:47 -0000	1.18
-+++ jfsutils/fsck/fsckmeta.c	27 Jan 2004 20:27:56 -0000
-@@ -2124,9 +2124,34 @@ int validate_super(int which_super)
- 				}
- 				agg_blks_in_aggreg += jlog_length_from_pxd;
- 				if (agg_blks_in_aggreg > agg_blks_on_device) {
-+					int64_t short_blocks;
-+					uint32_t new_jlog_size;
- 					/* log length is bad */
- 					vs_rc = FSCK_BADSBFJLL;
--					fsck_send_msg(fsck_BADSBFJLL, fsck_ref_msg(which_super));
-+					/* Let's try to fix it.  :^) */
-+					short_blocks = agg_blks_in_aggreg -
-+						agg_blks_on_device;
-+					new_jlog_size = (jlog_length_from_pxd -
-+							 short_blocks) *
-+						sb_ptr->s_bsize;
-+					/* logform likes multiples of 16K */
-+					new_jlog_size &= 0xfffffC000;
-+					/* Don't let it go below 1/2 MB */
-+					if (new_jlog_size > (1 << 19)) {
-+						printf("The volume seems to have shrunk by %Ld blocks.\n"
-+						       "Will attempt to fix.\n",
-+						       short_blocks);
-+						jlog_length_from_pxd = 
-+							new_jlog_size /
-+							sb_ptr->s_bsize;
-+						PXDlength(&(sb_ptr->s_logpxd),
-+							  jlog_length_from_pxd);
-+						vs_rc = ujfs_put_superblk(
-+							 Dev_IOPort, sb_ptr, 1);
-+					}
-+					if (vs_rc)
-+						fsck_send_msg(fsck_BADSBFJLL,
-+							      fsck_ref_msg(which_super));
- 				}
- 			}
- 		}
+This seems to be a problem on the client side and only occurs when
+using NFSv3. When I unmount and then remount using NFSv3, the problem
+persists, but goes away once I remount with nfsvers=2. Also I tried
+downgrading the other server's kernel to 2.4.21 and the problem still
+persisted until I remounted with NFSv2.
+
+I'll wait and see wether the downgrade helped on the client side, but
+that might take a few days.
+
+Both boxes have an almost identical setup of Slackware 9.1 and were
+running 2.4.23-pac1+security bugfixes. The boxes are connected to the
+same switch and VLAN. They mount filesystems from each other (yeah, I
+know cross-mounting with NFS is a bad idea...) and the problem
+occurred on both servers simultaineously.
+
+The mounts look like this:
+
+mir:/home on /home type nfs
+(rw,rsize=8192,wsize=8192,hard,intr,lock,addr=XXX)
+mir:/archive on /archive type nfs
+(rw,rsize=8192,wsize=8192,soft,intr,addr=XXX)
+
+sputnik:/var/spool/mail on /var/spool/mail type nfs
+(rw,rsize=8192,wsize=8192,hard,intr,lock,nfsvers=2,addr=XXX)
+sputnik:/files on /files type nfs
+(rw,rsize=8192,wsize=8192,soft,intr,nfsvers=2,addr=XXX)
+
+I tried searching with Google but couldn't find a resolution to this
+problem. I did find references of it occurring as far back as 2002.
+Any ideas, folks?
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+-=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.fi ]=-

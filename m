@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRAXUZO>; Wed, 24 Jan 2001 15:25:14 -0500
+	id <S129445AbRAXU1o>; Wed, 24 Jan 2001 15:27:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRAXUYy>; Wed, 24 Jan 2001 15:24:54 -0500
-Received: from [192.203.80.144] ([192.203.80.144]:29445 "HELO kaiser.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129413AbRAXUYv>;
-	Wed, 24 Jan 2001 15:24:51 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101242003.XAA21040@ms2.inr.ac.ru>
-Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-To: manfred@colorfullife.COM (Manfred Spraul)
-Date: Wed, 24 Jan 2001 23:03:34 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A6E02E6.B3261E1@colorfullife.com> from "Manfred Spraul" at Jan 24, 1 11:15:01 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129444AbRAXU1e>; Wed, 24 Jan 2001 15:27:34 -0500
+Received: from ns2.us.dell.com ([143.166.82.252]:12815 "EHLO ns2.us.dell.com")
+	by vger.kernel.org with ESMTP id <S129632AbRAXU1T>;
+	Wed, 24 Jan 2001 15:27:19 -0500
+Date: Wed, 24 Jan 2001 14:27:08 -0600 (CST)
+From: Matt Domsch <Matt_Domsch@dell.com>
+Reply-To: Matt Domsch <Matt_Domsch@dell.com>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+cc: <mjacob@feral.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: No SCSI Ultra 160 with Adaptec Controller
+In-Reply-To: <004901c08641$54d86d40$1a040a0a@zeusinc.com>
+Message-ID: <Pine.LNX.4.30.0101241423101.16045-100000@localhost.localdomain>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 24 Jan 2001, Tom Sightler wrote:
 
-> I read through the tcpdump, and it seems that Linux completely ignores
-> packets with out-of-window sequence numbers:
+> I temporarily disabled that code and the
+> increase in IO's per second is measurable, though not earth shattering, but
+> I was afraid to leave it that way because fast corrupted data is worth much
+> less that only slightly slower good data.
 
-Yes, Linux is __very__ not right doing this. RFC requires to accept
-ACK, URG and RST on any segment adjacent to window, even if window
-is zero.
+I don't believe the problem is data corruption, but that there could be
+some CRC data residual from an I/O which causes the driver to issue a
+SCSI bus reset.  As bus resets really kill performance, Doug thought it
+better to slow the drive to 80 rather than run at 160 and have occasional
+bus resets.
 
-Solaris also does thing, formally wrong, but it would work if linux
-would be formally correct.
+-- 
+Matt Domsch
+Dell Linux Systems Group
+Linux OS Development
+www.dell.com/linux
 
-O-ho-ho... It is difficult bug.
 
-Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

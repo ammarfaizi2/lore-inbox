@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263131AbSJFAqd>; Sat, 5 Oct 2002 20:46:33 -0400
+	id <S263116AbSJFAnA>; Sat, 5 Oct 2002 20:43:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263136AbSJFAqd>; Sat, 5 Oct 2002 20:46:33 -0400
+	id <S263120AbSJFAnA>; Sat, 5 Oct 2002 20:43:00 -0400
 Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:19925 "EHLO
 	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263131AbSJFAqc>; Sat, 5 Oct 2002 20:46:32 -0400
-Date: Sat, 5 Oct 2002 21:51:58 -0300 (BRT)
+	id <S263116AbSJFAm6>; Sat, 5 Oct 2002 20:42:58 -0400
+Date: Sat, 5 Oct 2002 21:48:25 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Larry McVoy <lm@bitmover.com>
+To: "Murray J. Root" <murrayr@brain.org>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: New BK License Problem?
-In-Reply-To: <20021005173057.J12580@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44L.0210052150480.22735-100000@imladris.surriel.com>
+In-Reply-To: <20021005225310.GA10667@Master.Wizards>
+Message-ID: <Pine.LNX.4.44L.0210052147150.22735-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,26 +21,17 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Larry McVoy wrote:
-> On Sat, Oct 05, 2002 at 09:19:41PM -0300, Rik van Riel wrote:
+On Sat, 5 Oct 2002, Murray J. Root wrote:
+> On Sat, Oct 05, 2002 at 05:10:33PM +0400, Hans Reiser wrote:
 
-> > The main complaint I've heard now is "if I develop a product
-> > that competes with bitkeeper, won't I be able to grab <free
-> > software project available in BK> any more ??"
-> >
-> > A fix for this would be "make patches available from bkbits.net".
->
-> bkbits.net is a free service.  [snip good arguments]
+> > Seems like a pretty straightforward violation of the anti-trust laws,
 
-> But as I said to someone else, why doesn't someone register
-> "nobkbits.net" and use BK to mirror the repos and then provide the
-> tarballs/patches as you see fit.
+> Worse - it's also illegal to refuse to do business with someone
+> based on who their employer is, in most states.
 
-I can do this on NL.linux.org.   I'm already doing it for the
-2.4 and 2.5 Linux kernel trees and am willing to run the script
-for other bitkeeper trees too.
-
-If people want it, just let me know.
+Bitkeeper isn't refusing business. They just refuse to give away
+their product for free to competitors, but these competitors can
+still ask Bitkeeper for the normal commercial license ...
 
 regards,
 

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315375AbSE2OOK>; Wed, 29 May 2002 10:14:10 -0400
+	id <S315406AbSE2OUc>; Wed, 29 May 2002 10:20:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315379AbSE2OOJ>; Wed, 29 May 2002 10:14:09 -0400
-Received: from zeke.inet.com ([199.171.211.198]:28812 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S315375AbSE2OOH>;
-	Wed, 29 May 2002 10:14:07 -0400
-Message-ID: <3CF4E22B.4010404@inet.com>
-Date: Wed, 29 May 2002 09:14:03 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Centenary Reached By Trivial Patch Monkey
-In-Reply-To: <E17CuIW-0006BC-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S315410AbSE2OUb>; Wed, 29 May 2002 10:20:31 -0400
+Received: from sprocket.loran.com ([209.167.240.9]:48883 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S315406AbSE2OU3>; Wed, 29 May 2002 10:20:29 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+In-Reply-To: <1022685475.4124.229.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 May 2002 10:20:29 -0400
+Message-Id: <1022682030.9044.8.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Hi All,
+On Wed, 2002-05-29 at 11:17, Alan Cox wrote:
+> On Wed, 2002-05-29 at 14:54, Dana Lacoste wrote:
+> > This would be retarded.  I mean, seriously, making the linux kernel
+> > require anybody who's doing any commercial real-time stuff pay Victor
 > 
-> 	With the recent flurry of inclusions, the trivial@
-> rustcorp.com.au Trivial Patch Monkey has passed 100 patches which have
-> filtered into the various kernels: 5 into 2.2, 55 into 2.4 and 71 into
-> 2.5.  Linus and Marcelo now seem well trained to take the patches
-> (although the bogus attribution is a problem).
-> 
-> 	With this surprising success (I thought the damn thing would
-> die after a few days), I will be continuing to provide the service,
-> which only takes me about an hour a week.
+> proprietary, not commercial. 
 
-Cool!  As one who watched the whole fla^H^H^Hdiscussion about a 'patch 
-penguin' with great interest, I'm very happy to hear of the success of 
-your trivial patch monkey.  :)
+Which brings us back to Larry's comments on business models.
 
-I've not used it yet, but I'll remember it when I have one-liners. :)
+It's becoming increasingly difficult to operate a non-proprietary
+commercial software business these days.
 
-Thanks for doing this!
+I wish it weren't so, but it IS.  If RedHat is filing patents, then
+it's fairly apparent that RedHat thinks so too, isn't it?
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Dana Lacoste
+Ottawa, Canada
 

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313827AbSDZLhu>; Fri, 26 Apr 2002 07:37:50 -0400
+	id <S313854AbSDZLku>; Fri, 26 Apr 2002 07:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313854AbSDZLht>; Fri, 26 Apr 2002 07:37:49 -0400
-Received: from gra-vd1.iram.es ([150.214.224.250]:24252 "EHLO gra-vd1.iram.es")
-	by vger.kernel.org with ESMTP id <S313827AbSDZLht>;
-	Fri, 26 Apr 2002 07:37:49 -0400
-Message-ID: <3CC93C0A.1030500@iram.es>
-Date: Fri, 26 Apr 2002 13:37:46 +0200
-From: Gabriel Paubert <paubert@iram.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.5) Gecko/20011016
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Mark Zealey <mark@zealos.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Assembly question
-In-Reply-To: <20020425083225.GA30247@webvilag.com> <20020425235240.GA28851@itsolve.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313862AbSDZLkt>; Fri, 26 Apr 2002 07:40:49 -0400
+Received: from uisge.3dlabs.com ([193.133.230.45]:9415 "EHLO uisge.3dlabs.com")
+	by vger.kernel.org with ESMTP id <S313854AbSDZLks>;
+	Fri, 26 Apr 2002 07:40:48 -0400
+Date: Fri, 26 Apr 2002 12:34:59 +0100
+From: Paul Sargent <Paul.Sargent@3dlabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Machine not freeing Cached Memory?
+Message-ID: <20020426113459.GH9968@3dlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Zealey wrote:
+Hi There,
 
- > On Thu, Apr 25, 2002 at 10:32:25AM +0200, Szekeres Istvan wrote:
- >
- >
- >> void p_memset_dword( void *d, int b, int l ) { __asm__ ("rep\n\t" 
-"stosl\n\t"
- >>
+I'm having some VM problems. I wonder if anybody can help.
 
- >> : : "D" (d), "a" (b), "c" (l) : "memory","edi", "eax", "ecx"
- >>
- >
- > An input or output operand is implicitly clobbered, so it should be
-      ^^^^^
-I had expected gcc specialists to jump on that one: if you don't
-explicitly tell gcc that an input is clobbered, it may reuse it later if
-it needs the same value. So the clobbers are necessary...
+I've got a box here that currently reports....
 
-Your statement about output operands is also incorrect, since clobbered
-means that the register has an unknown value, which can not be used for
-_anything_, while outputs are results from the statement and they'll
-likely be used later (if none of the outputs is ever used and the asm 
-statement is not marked volatile, gcc will not even bother to emit it).
+holly:~/linux-2.4.14# free -tm
+             total       used       free     shared    buffers     cached
+Mem:          3021       1041       1980          0          4        885
+-/+ buffers/cache:        151       2870
+Swap:         3905        126       3779
+Total:        6927       1167       5759
+	     
+As you can see, it's a 3G physical RAM box. Currently it's sitting there
+with 885MB of Memory labeled as Cache, but if I run a process which requires
+lots of memory, then the system seems to prefer swapping, rather than
+freeing up the cache memory. For example...
 
-	Regards,
-	Gabriel.
+             total       used       free     shared    buffers     cached
+Mem:          3021       3019          2          0          1        845
+-/+ buffers/cache:       2172        849
+Swap:         3905        488       3417
+Total:        6927       3508       3419
+	     
+Yes, some 40MB of cache gets freed, but it's mainly (300MB) of swap that
+gets used. This tends to slow down processes before they need to because the
+machine is thrashing  (and I mean really hammering) swap.
 
+Anyone got any ideas?
+
+Kernel is 2.4.14, and it's a debian woody installation.
+
+Is a later version of 2.4 likly to help me here?
+
+Cheers
+
+Paul
+-- 
+Paul Sargent
+mailto: Paul.Sargent@3Dlabs.com

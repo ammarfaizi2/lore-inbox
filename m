@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270947AbRHTAFT>; Sun, 19 Aug 2001 20:05:19 -0400
+	id <S270948AbRHTAIt>; Sun, 19 Aug 2001 20:08:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270948AbRHTAFJ>; Sun, 19 Aug 2001 20:05:09 -0400
-Received: from ch-12-44-139-249.lcisp.com ([12.44.139.249]:27008 "HELO
-	dual.lcisp.com") by vger.kernel.org with SMTP id <S270947AbRHTAE7>;
-	Sun, 19 Aug 2001 20:04:59 -0400
-From: "Kevin Krieser" <kkrieser_list@footballmail.com>
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: RE: Swap size for a machine with 2GB of memory
-Date: Sun, 19 Aug 2001 19:05:08 -0500
-Message-ID: <NDBBLFLJADKDMBPPNBALEEKBFCAA.kkrieser_list@footballmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <m11ym7ojvw.fsf@frodo.biederman.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S270953AbRHTAIj>; Sun, 19 Aug 2001 20:08:39 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:29369 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S270948AbRHTAIg>;
+	Sun, 19 Aug 2001 20:08:36 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 20 Aug 2001 00:08:40 GMT
+Message-Id: <200108200008.AAA157827@vlet.cwi.nl>
+To: ebiederm@xmission.com, esr@thyrsus.com, sct@redhat.com
+Subject: Re: Swap size for a machine with 2GB of memory
+Cc: gars@lanm-pc.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was just experimenting on my personal Linux computer this weekend, which
-has 512MB of RAM and 700MB of swap.  I also have an unpatched 2.4.8 kernel
-installed.
+    From: ebiederm@xmission.com (Eric W. Biederman)
+    Date:     19 Aug 2001 14:49:23 -0600
 
-I wrote a program that allocated 700MB of RAM and touched every page, then
-read it back in.  When finished, there remained 250+ meg of swap in use, but
-no corresponding free space in RAM, compared to before running my test
-program.  The expected behavior of the 2.4 kernels seemed to be followed,
-where many programs retained space in both RAM and swap.
+    "Eric S. Raymond" <esr@thyrsus.com> writes:
 
-However, since my normal behavior is for swap to not be used, I will wait a
-little bit for some of the VM updates to be tested.
+    > The Red Hat installation manual claims that the size of the
+    > swap partition should be twice the size of physical memory,
+    > but no more than 128MB.
+    > 
+    > Should I believe the above formula?
 
-I don't have 2X RAM because when I installed my system, I only had 256MB of
-RAM.
+You give two statements. The 128 MB bound was claimed by Microsoft
+and we screamed loudly that that was a lie - now it is claimed
+by both SuSE and RedHat. Funny.
+No, the bound is not 128 MB. See mkswap(8).
 
+    With respect to swap partitions the current limit is about 64Gig.
+    You can actually make a larger swap partition but the kernel on x86
+    only uses 24 offset bits into that partition.  The 128MB partition
+    existed but was removed long ago.
 
+Long ago I wrote in mkswap(8) that the max on i386 is about 2 GiB.
+I seem to recall that at some point in time the swap size in
+bytes had to fit in a signed long, and indeed, 2.1.117 has
+        if (p->max >= 0x7fffffffL/PAGE_SIZE ...
+2.2.0pre9 changed this into
+        if (p->max >= SWP_OFFSET(SWP_ENTRY(0,~0UL)))
+deleting this restriction.
+If it is no longer there, I suppose I should change mkswap.c.
+Stephen, can you confirm?
 
+Andries

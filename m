@@ -1,89 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVBCWgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVBCWfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVBCWgT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbVBCWb0
+	id S261514AbVBCWfc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVBCWbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:31:26 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:17059 "EHLO
-	postbox.bitmover.com") by vger.kernel.org with ESMTP
-	id S263135AbVBCW3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:29:02 -0500
-Date: Thu, 3 Feb 2005 14:28:54 -0800
-To: Stelian Pop <stelian@popies.net>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050203222854.GC20914@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050203220059.GD5028@deep-space-9.dsnet>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+	Thu, 3 Feb 2005 17:31:46 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:6638 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S261898AbVBCWUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 17:20:20 -0500
+Message-ID: <4202A39E.8020004@home-tj.org>
+Date: Fri, 04 Feb 2005 07:20:14 +0900
+From: Tejun Heo <tj@home-tj.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 11/29] ide: add ide_drive_t.sleeping
+References: <20050202024017.GA621@htj.dyndns.org>	 <20050202025448.GL621@htj.dyndns.org>	 <58cb370e05020216476a8f403c@mail.gmail.com>	 <20050203113710.GV5710@suse.de>	 <58cb370e05020305304e5d504@mail.gmail.com>	 <20050203133228.GA2816@suse.de> <58cb370e05020305354cbb16ee@mail.gmail.com>
+In-Reply-To: <58cb370e05020305354cbb16ee@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I really don't want to start a new BK flamewar. You asked what could
-> you do and I said what would be nice to have. End of story.
+Bartlomiej Zolnierkiewicz wrote:
+> On Thu, 3 Feb 2005 14:32:29 +0100, Jens Axboe <axboe@suse.de> wrote:
 > 
-> >     - The idea that the granularity in CVS is unreasonable is pure
+>>On Thu, Feb 03 2005, Bartlomiej Zolnierkiewicz wrote:
+>>
+>>>On Thu, 3 Feb 2005 12:37:10 +0100, Jens Axboe <axboe@suse.de> wrote:
+>>>
+>>>>On Thu, Feb 03 2005, Bartlomiej Zolnierkiewicz wrote:
+>>>>
+>>>>>On Wed, 2 Feb 2005 11:54:48 +0900, Tejun Heo <tj@home-tj.org> wrote:
+>>>>>
+>>>>>>>11_ide_drive_sleeping_fix.patch
+>>>>>>>
+>>>>>>>      ide_drive_t.sleeping field added.  0 in sleep field used to
+>>>>>>>      indicate inactive sleeping but because 0 is a valid jiffy
+>>>>>>>      value, though slim, there's a chance that something can go
+>>>>>>>      weird.  And while at it, explicit jiffy comparisons are
+>>>>>>>      converted to use time_{after|before} macros.
+>>>>>
+>>>>>Same question as for "add ide_hwgroup_t.polling" patch.
+>>>>>AFAICS drive->sleep is either '0' or 'timeout + jiffies' (always > 0)
+>>>>
+>>>>Hmm, what if jiffies + timeout == 0?
+>>>
+>>>Hm, jiffies is unsigned and timeout is always > 0
+>>>but this is still possible if jiffies + timeout wraps, right?
+>>
+>>Precisely, if jiffies is exactly 'timeout' away from wrapping to 0 it
+>>could happen. So I think the fix looks sane.
 > 
-> I didn't say it was unreasonable, I said it could be better.
-
-Sure, everything can always be better.  Reasonable is reasonable.  If
-you want more than reasonable then use BK.
-
-> > 		CVS		BitKeeper [*]
-> > 	Deltas	235,956		280,212
 > 
-> Indeed, for now the differences are rather small. But with more and
-> more BK trees and more merges between them the proportion will raise.
+> agreed
 
-Actually that's not been the case to date, it's held pretty constant
-and in fact the ratio has gotten better.  The last time we visited 
-these numbers it wasn't as good as it is today in CVS>
+Actually, jiffies is initialized to INITIAL_JIFFIES which is defined in 
+such a way that it overflows after 5 min after boot to help finding bugs 
+related to jiffies wrap.  So, the chance of something weird happening in 
+the bugs fixed in patches 11 and 12 isn't that exteremely slim.  :-)
 
-> If Andrew were to start using BK today we could immediately lose
-> (on the CVS side) a big part of the history.
-
-"A big part"?  What big part?  You are fixated on something that doesn't
-have any value.  You're complaining about losing information that CVS
-wouldn't have recorded if you were using CVS.  The CVS export tree has
-MORE information than you would have if all the development had been 
-done under CVS.  Explain to me why this information is suddenly so 
-valuable to you?  Explain to me why all the people using all the CVS
-maintained projects in the world aren't whining about all the lost 
-information.
-
-> It is a bit difficult to get it right wrt renames, deletes etc, and
-> it can take quite a while to execute, but 3 man month work is a bit
-> extreme.
-
-I stand by the 3 month number.
-
-> I thought the competition was between the tools not the data inside...
-> Why is that every time someone wants the full history of the kernel
-> you think it wants to compete with you ? That history is not even a
-> secret, everybody can get it from BK/web or by running the free
-> edition of BK (if allowed).
-
-Right but people agree to not use BK to compete with us.  It's a form
-of payment for the product, we give it to you for no money and you agree
-not to copy the product and take away our business.
-
-I realize you hate this, it curtails your freedom, there are a thousand
-reasons not to like it, I wouldn't like it if I were in your shoes.
-I get it, it's a miserable arrangement.  However, we took a huge risk
-handing you and everyone else our product for free.  It works better, you
-can see that, and you are just the sort to try and reverse engineer it.
-As a business strategy it was foolish.  But it wasn't a business decision,
-it was a choice that I made because I wanted to help Linus.
-
-And it worked.  That ought to have some value in your eyes.  Maybe
-enough to respect our terms.
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+tejun
+

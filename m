@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261625AbSJYV77>; Fri, 25 Oct 2002 17:59:59 -0400
+	id <S261624AbSJYWAN>; Fri, 25 Oct 2002 18:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261626AbSJYV77>; Fri, 25 Oct 2002 17:59:59 -0400
-Received: from dsl-213-023-039-129.arcor-ip.net ([213.23.39.129]:21163 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261625AbSJYV76>;
-	Fri, 25 Oct 2002 17:59:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
-Date: Sat, 26 Oct 2002 00:06:43 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Robert Love <rml@tech9.net>, "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-References: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com> <1035584076.13032.96.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1035584076.13032.96.camel@irongate.swansea.linux.org.uk>
+	id <S261626AbSJYWAN>; Fri, 25 Oct 2002 18:00:13 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:12046 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S261624AbSJYWAL> convert rfc822-to-8bit; Fri, 25 Oct 2002 18:00:11 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E185CbL-0008R5-00@starship>
+Subject: RE: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
+Date: Fri, 25 Oct 2002 17:06:21 -0500
+Message-ID: <45B36A38D959B44CB032DA427A6E1064045132C1@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
+Thread-Index: AcJ8bf87bIWj4pfOT86MgX0/ye55pAAACPpg
+From: "Cameron, Steve" <Steve.Cameron@hp.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Oct 2002 22:06:21.0949 (UTC) FILETIME=[C09DFAD0:01C27C72]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 October 2002 00:14, Alan Cox wrote:
-> Im just wondering what we would then use to describe a true multiple cpu
-> on a die x86. Im curious what the powerpc people think since they have
-> this kind of stuff - is there a generic terminology they prefer ?
+> 
+> On Fri, Oct 25 2002, Jens Axboe wrote:
+[...] 
+> of course, and likewise for the cluster check. I'll cut a 
+> clean version
+> tomorrow, I'm out for today..
+> 
+Ok, Thanks. I'm out 'til Monday.
 
-MIPS also has it, for N=2.
+What originally drove me down this road was not wanting to 
+have:
 
--- 
-Daniel
+	struct scatterlist tmpsg[XXX]; /* 8 kbytes */
+
+on the stack for every command when XXX might be 512, which 
+was what I was expecting when I started writing this patch.  
+Once I got it working, empirically I saw the most I ever 
+get is 64 SGs.  I don't know if that's a kernel limit, or 
+if I just haven't beat on the system hard enough.
+
+In hindsight, perhaps it would have been better for me to just put
+it on the stack like before, only moreso, and just change the 
+driver to use more SGs, and only later tackle the stack problem, 
+if necessary.  As you noted, it's not clear that the overhead of 
+the function call per scatter gather element isn't worse than 
+just reformatting the entire scatter gather list in a separate 
+pass, as is currently done (before my patch).  
+
+Have a good weekend.
+
+-- steve
+ 

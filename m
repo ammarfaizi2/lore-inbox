@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286621AbRLVCP0>; Fri, 21 Dec 2001 21:15:26 -0500
+	id <S286635AbRLVCmZ>; Fri, 21 Dec 2001 21:42:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286632AbRLVCPP>; Fri, 21 Dec 2001 21:15:15 -0500
-Received: from svr3.applink.net ([206.50.88.3]:8978 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S286621AbRLVCPG>;
-	Fri, 21 Dec 2001 21:15:06 -0500
-Message-Id: <200112220214.fBM2EsSr022402@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: "Per Jessen" <per@computer.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
-Date: Fri, 21 Dec 2001 20:11:11 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> (added by     postmaster@bluewin.ch)
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch>
-Cc: timothy.covell@ashavan.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S286646AbRLVCmP>; Fri, 21 Dec 2001 21:42:15 -0500
+Received: from sushi.toad.net ([162.33.130.105]:37867 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S286635AbRLVCly>;
+	Fri, 21 Dec 2001 21:41:54 -0500
+Subject: Re: Configure.help editorial policy
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 21 Dec 2001 21:42:02 -0500
+Message-Id: <1008988924.803.0.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 13:55, Per Jessen wrote:
-> On Fri, 21 Dec 2001 11:43:40 -0600, Bob Glamm wrote:
-> >On Fri, Dec 21, 2001 at 03:48:22PM +0000, Mike Jagdis wrote:
->
-> [snip]
->
-[snip]
-> looked back. AFAIK (please correct me), the US never went metric. Don't
-> they still use Fahrenheit and all that weird stuff ?
-> Oh, and btw - those non-metric units are not "English units", but "Imperial
-> units", if you want to picky :-)
+I favor switching to the use of KiB for 1024 bytes, etc.,
+because I favor precision.  Precise speech aids precise
+thought.
+
+One argument against was that 'KB' has been used ambiguously
+in the past, so we should continue to use it ambiguously
+in the future (for backward compatibility).  However, I
+don't think that our descendents brought up with "KiB"
+will have trouble reading their grandparents' computer
+manuals written with "KB".  "KiB" was chosen because of its
+similarity to "KB".  They'll be able to say: "Hey, no wonder
+computers used to crash back in the twentieth century.  They
+didn't know the difference between a kilobyte and a kibibyte!"
+And they wouldn't be entirely wrong, either.
+
+The other argument against the new terminology was that
+when you speak the long forms, they sound funny.  So
+all you people think that "kilobyte" and "megabyte" don't
+sound funny?  A priori, "kibi" is no more ridiculous than
+"kilo".
+
+I think that the folks that thought of these prefixes were
+rather clever, choosing names similar to the decimal prefixes,
+yet easy to distinguish and still faily easy to pronounce.
+
+The only thing wanting is a set of nouns for describing powers
+of 2^10.  I suggest:
+   one thousband = 1,024
+   one milbion   = 1,048,576
+   one bilbion   = 1,073,741,824
+   one trilbion  = 1,099,511,627,776
+   etc.
+
+Now what was the name of Fat Albert's friend who always said
+"Haybee manbee, passbee mebee the ballbee!" ?
 
 
-As concerns the use of Traditional Units being weird, I would say that the
-motivation made a lot of since.   The units were based on commonly
-available natural units of measure, eg.
-
-one inch = 1 thumb = 1 pouce 
-one foot  = size of a foot = 1 pied 
-
-Also, as is very appropriate to this discussion, the English Units
-made use of powers of two and three. Eg.  
-
-1 inch, 1/2 inch, 1/4 inch, 1/8 inch
-
-3 feet equals a yard.
-
-So, the English units were more attuned to nature.  The only thing
-natural about base ten is that the majority of us have 10 fingers and
-10 toes.
-
-Finally, Farhenheit units are smaller so that they make more convenient
-divisions: Eg.
-
-10-20 is downright frigid
-20-30 degrees is Freezing!
-30-40 is very cold
-40-50 is cold
-50-60 is blustery
-60-70 is brisk
-70-80 is confortable
-80-90 is warm
-90-100 is very hot
-100+ is Texas in summertime, WAY too hot !!!  ;-)
-
-
-Finally, for those in Switzerland:
-
-1. Why is it CH when only 30% speak French
-
-2.  The French think that "octante" for 80 and "nanante" for 90
-is downright goofy.
-
-
--- 
-timothy.covell@ashavan.org.

@@ -1,84 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263137AbSKDX6I>; Mon, 4 Nov 2002 18:58:08 -0500
+	id <S263256AbSKEAEo>; Mon, 4 Nov 2002 19:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263143AbSKDX6I>; Mon, 4 Nov 2002 18:58:08 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:48581 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263137AbSKDX6F>;
-	Mon, 4 Nov 2002 18:58:05 -0500
-Subject: [RFC][PATCH] linux-2.5.46_timer-tsc-cleanups_A0.patch
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Nov 2002 16:03:33 -0800
-Message-Id: <1036454614.6099.16.camel@cog>
+	id <S263252AbSKEAEW>; Mon, 4 Nov 2002 19:04:22 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15343 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263246AbSKEAED>; Mon, 4 Nov 2002 19:04:03 -0500
+Date: Tue, 5 Nov 2002 01:10:31 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Dave Kleikamp <shaggy@shaggy.austin.ibm.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.46
+Message-ID: <20021105001031.GA3348@fs.tum.de>
+References: <Pine.LNX.4.44.0211041508020.1832-100000@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211041508020.1832-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All, 
-	Here's a small patch to cleanup timer_tsc.c. It removes an unused
-variable and makes fast_gettimeoffset_quotient static. 
+On Mon, Nov 04, 2002 at 03:13:04PM -0800, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.45 to v2.5.46
+> ============================================
+>...
+> Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
+>...
+>   o JFS: add posix acls
+>...
 
-Would someone please double check my smpboot.c change, as I'm replacing
-fast_gettimeoffset_quotient w/ cpu_khz. I believe my change is doing the
-right thing, but would like a second opinion. 
+It seems that at least one file is missing:
 
-thanks
--john
+<--  snip  -->
 
+...
+  gcc -Wp,-MD,fs/jfs/.super.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+-D_JFS_4K  -DKBUILD_BASENAME=super   -c -o fs/jfs/super.o fs/jfs/super.c
+fs/jfs/super.c:31: jfs_acl.h: No such file or directory
+...
+make[2]: *** [fs/jfs/super.o] Error 1
 
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Mon Nov  4 15:42:17 2002
-+++ b/arch/i386/kernel/smpboot.c	Mon Nov  4 15:42:17 2002
-@@ -181,8 +181,6 @@
- 
- #define NR_LOOPS 5
- 
--extern unsigned long fast_gettimeoffset_quotient;
--
- /*
-  * accurate 64-bit/32-bit division, expanded to 32-bit divisions and 64-bit
-  * multiplication. Not terribly optimized but we need it at boot time only
-@@ -222,7 +220,8 @@
- 
- 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
- 
--	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
-+	/* convert from kcyc/sec to cyc/usec */
-+	one_usec = cpu_khz / 1000;
- 
- 	atomic_set(&tsc_start_flag, 1);
- 	wmb();
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Mon Nov  4 15:42:17 2002
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Mon Nov  4 15:42:17 2002
-@@ -15,7 +15,6 @@
- extern int x86_udelay_tsc;
- extern spinlock_t i8253_lock;
- 
--static int use_tsc;
- /* Number of usecs that the last interrupt was delayed */
- static int delay_at_last_interrupt;
- 
-@@ -26,7 +25,7 @@
-  * Equal to 2^32 * (1 / (clocks per usec) ).
-  * Initialized in time_init.
-  */
--unsigned long fast_gettimeoffset_quotient;
-+static unsigned long fast_gettimeoffset_quotient;
- 
- static unsigned long get_offset_tsc(void)
- {
-@@ -244,7 +243,6 @@
- 		unsigned long tsc_quotient = calibrate_tsc();
- 		if (tsc_quotient) {
- 			fast_gettimeoffset_quotient = tsc_quotient;
--			use_tsc = 1;
- 			/*
- 			 *	We could be more selective here I suspect
- 			 *	and just enable this for the next intel chips ?
+<--  snip  -->
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

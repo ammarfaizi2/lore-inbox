@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265432AbRF0WPL>; Wed, 27 Jun 2001 18:15:11 -0400
+	id <S265433AbRF0WTB>; Wed, 27 Jun 2001 18:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265429AbRF0WPB>; Wed, 27 Jun 2001 18:15:01 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:10695 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265432AbRF0WOt>;
-	Wed, 27 Jun 2001 18:14:49 -0400
-Message-ID: <3B3A5B00.9FF387C9@mandrakesoft.com>
-Date: Wed, 27 Jun 2001 18:15:28 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: tom_gall@vnet.ibm.com
+	id <S265435AbRF0WSz>; Wed, 27 Jun 2001 18:18:55 -0400
+Received: from 24-25-197-107.san.rr.com ([24.25.197.107]:2835 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S265433AbRF0WSf>;
+	Wed, 27 Jun 2001 18:18:35 -0400
+Date: Wed, 27 Jun 2001 15:18:29 -0700
+From: andrew may <acmay@acmay.homeip.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes for PCI
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
+Subject: Re: What is the best way for multiple net_devices
+Message-ID: <20010627151829.B23834@ecam.san.rr.com>
+In-Reply-To: <20010627145201.A23834@ecam.san.rr.com> <3B3A5852.AAEF9531@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3B3A5852.AAEF9531@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Gall wrote:
->   The first part changes number, primary, and secondary to unsigned ints from
-> chars. What we do is encode the PCI "domain" aka PCI Primary Host Bridge, aka
-> pci controller in with the bus number. In our case we do it like this:
+On Wed, Jun 27, 2001 at 06:04:02PM -0400, Jeff Garzik wrote:
+> andrew may wrote:
+> > 
+> > Is there a standard way to make multiple copies of a network device?
+> > 
+> > For things like the bonding/ipip/ip_gre and others they seem to expect
+> > insmod -o copy1 module.o
+> > insmod -o copy2 module.o
 > 
-> pci_controller=dev->bus->number>>8) &0xFF0000
-> bus_number= dev->bus->number&0x0000FF),
-> 
->   Is this reasonable for everyone?
+> The network driver should provide the capability to add new devices.
 
-Why not use sysdata like the other arches?
+I am planning to write or patch some drivers to do this as well as other
+things. 
 
-Changing the meaning of dev->bus->number globally seems pointless.  If
-you are going to do that, just do it the right way and introduce another
-struct member, pci_domain or somesuch.
+I would want to add things at run time after the module is alreaded loaded.
+So options to the module won't work.
 
-	Jeff
+I don't know how to use ifconfig to create a new device.
 
-
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+Any examples of drivers and apps that do this cleanly. The ones I have
+seen are not.

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131097AbQLKWgz>; Mon, 11 Dec 2000 17:36:55 -0500
+	id <S129383AbQLKWnI>; Mon, 11 Dec 2000 17:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131095AbQLKWgp>; Mon, 11 Dec 2000 17:36:45 -0500
-Received: from mail11.verio.de ([213.198.0.60]:37954 "HELO mail11.verio.de")
-	by vger.kernel.org with SMTP id <S131010AbQLKWgm>;
-	Mon, 11 Dec 2000 17:36:42 -0500
-From: Michael Meding <Michael@Meding.net>
-Reply-To: Michael@Meding.net
+	id <S130462AbQLKWm6>; Mon, 11 Dec 2000 17:42:58 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:30480 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S131010AbQLKWmx>; Mon, 11 Dec 2000 17:42:53 -0500
+Date: Mon, 11 Dec 2000 23:12:21 +0100
 To: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx version status for 2.4.0test ? -- ignore last post
-Date: Tue, 12 Dec 2000 00:01:26 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-In-Reply-To: <00121123403208.00322@Hal>
-In-Reply-To: <00121123403208.00322@Hal>
-MIME-Version: 1.0
-Message-Id: <0012120001260B.00322@Hal>
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+Message-ID: <20001211231221.C30911@vega.digitel2002.hu>
+In-Reply-To: <m2k896rfg4.fsf@localhost.yi.org.> <Pine.LNX.4.21.0012111636040.4808-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Loop-Detect: 1
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012111636040.4808-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Dec 11, 2000 at 04:38:11PM -0200
+X-Operating-System: vega Linux 2.2.18pre24 i686
+From: Gabor Lenart <lgb@vega.digitel2002.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Dec 11, 2000 at 04:38:11PM -0200, Rik van Riel wrote:
+> On 11 Dec 2000, John Fremlin wrote:
+> 
+> > Two points: 		[snipped]
+> 
+> 
+> Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
+> for the VM doesn't make any sense since it doesn't really excercise
+> the VM in any way...
 
-sorry, next time I should at least do sanity checks on my own email.
+Also, you should view the result of some hdd benchmarks because
+it's possible to get different values for 2.4 and 2.2 which is major
+point for a fair test (maybe 2.4 and 2.2 have got different default values
+and so on. try hdparm -tT /dev/hd? if you have got IDE disks).
 
-Of course 5.2.1 as in latest-test is newer than 5.1.something.
-
-Just did a quick look in the source and on Dougs site and mixed the version 
-numbers up. Stupid me!
-
-Greetings,
-
-Michael Meding
+-- 
+ ---[ Gábor Lénárt ]----[ Vivendi Telecom Hungary ]---[ lgb@supervisor.hu ]---
+ U have 8 bit computer or chip of them and it's unused or to be sold? Call me!
+ -------[ +36 30 2270823 ]--------> LGB <-------[ Linux/UNIX/8bit 4ever ]-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

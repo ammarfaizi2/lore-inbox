@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318218AbSG3G3y>; Tue, 30 Jul 2002 02:29:54 -0400
+	id <S318219AbSG3GjT>; Tue, 30 Jul 2002 02:39:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318219AbSG3G3y>; Tue, 30 Jul 2002 02:29:54 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14465 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318218AbSG3G3x>;
-	Tue, 30 Jul 2002 02:29:53 -0400
-Date: Tue, 30 Jul 2002 08:33:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Eric Altendorf <EricAltendorf@orst.edu>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: What patch to get stable IDE in 2.5?
-Message-ID: <20020730083323.F4445@suse.de>
-References: <200207292145.28411.EricAltendorf@orst.edu> <Pine.LNX.4.10.10207292301540.17634-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10207292301540.17634-100000@master.linux-ide.org>
+	id <S318220AbSG3GjT>; Tue, 30 Jul 2002 02:39:19 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:58780 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S318219AbSG3GjS>; Tue, 30 Jul 2002 02:39:18 -0400
+Date: Mon, 29 Jul 2002 21:52:46 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Scorpion <scorpionlab@ieg.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IO-APIC in SMP dual Athlon XP1800
+In-Reply-To: <200207291612.38473.scorpionlab@ieg.com.br>
+Message-ID: <Pine.LNX.4.44.0207292151420.20701-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29 2002, Andre Hedrick wrote:
-> 
-> There are no problems if you get the patch for LAD and not K dot O.
+On Mon, 29 Jul 2002, Scorpion wrote:
 
-Sorry, but this sort of statement can't help but piss me off. I do all
-the work forward porting 2.4 IDE to 2.5, then you slap a LAD label on it
-(why?! To sprinkle it with "LAD Storage Consulting Group" [1] pee?) and
-claim the foundation on which you stand is _broken_?
+> I'm getting in troubles with a A7M266-D motherboard with two
+> Athlon XP 1800 cpus (yes, XP not MP!).
 
-Feel free to point out where I'm wrong.
+Which kernel version ?
 
-[1] 'group' meant more than 1, last I checked.
+	Zwane
 
 -- 
-Jens Axboe
+function.linuxpower.ca
 

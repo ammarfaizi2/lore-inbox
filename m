@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266545AbUBRNfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUBRNfW
+	id S267427AbUBRO2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267428AbUBRO1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:35:22 -0500
-Received: from mx.eastlink.ca ([24.222.0.20]:27406 "EHLO mx.eastlink.ca")
-	by vger.kernel.org with ESMTP id S266545AbUBRNfN (ORCPT
+	Wed, 18 Feb 2004 09:27:42 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:41889 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S267427AbUBRO0g convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:35:13 -0500
-Date: Wed, 18 Feb 2004 09:30:11 -0400 (AST)
-From: Steve Bromwich <kernel@fop.ns.ca>
-Subject: Re: harddisk or kernel problem?
-In-reply-to: <20040215233441.GJ1881@schottelius.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>
+	Wed, 18 Feb 2004 09:26:36 -0500
+To: Ian Hastie <ianh@iahastie.clara.net>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.58.0402180921120.7046@brain.fop.ns.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20040213075403.GC1881@schottelius.org>
- <20040213081104.GD1881@schottelius.org>
- <20040213095223.GE1881@schottelius.org>
- <200402131717.34917.bzolnier@elka.pw.edu.pl>
- <20040215233441.GJ1881@schottelius.org>
+Subject: Re: Linux 2.6.3
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org>
+	<yw1xad3gd7l5.fsf@ford.guide>
+	<200402181417.06553.ianh@iahastie.local.net>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 18 Feb 2004 15:26:27 +0100
+In-Reply-To: <200402181417.06553.ianh@iahastie.local.net> (Ian Hastie's
+ message: 17:05 +0000")
+Message-ID: <yw1x1xoscvl8.fsf@ford.guide>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004, Nico Schottelius wrote:
+Ian Hastie <ianh@iahastie.clara.net> writes:
 
-> Bartlomiej Zolnierkiewicz [Fri, Feb 13, 2004 at 05:17:34PM +0100]:
-> I'm really down as this is the second disk
-> dyeing within two month (and the second 2.5" hd even, I begin to think
-> notebooks don't like me :/).
+> On Wednesday 18 Feb 2004 10:07, Måns Rullgård wrote:
+>> Linus Torvalds <torvalds@osdl.org> writes:
+>> > Ok, it's out.
+>> >
+>> > There were some minimal changes relative to the last -rc4, mostly some
+>> > configuration and build fixes, but a few important one-liners too.
+>>
+>> What?  No new code name?
 >
-> I currently collect all data I get / find out to
->
-> http://schotteli.us/~nico/hd-problem.02/
+> I suppose that'll come with the first 2.6.4-rc#.
 
-194 Temperature_Celsius     0x0022   100   050   000    Old_age   Always
--       48 (Lifetime Min/Max 14/65)
+That's not logical.  2.6.2 was "Feisty Dunnart", so 2.6.3 should have
+a new name.
 
-If I'm reading this correctly, you've been running the drive when it's
-extremely cold and extremely hot (Min/Max 14/65, I'm guessing that's
-either Fahrenheit or a raw unconverted reading from the thermistor). I
-managed to completely hork a notebook drive after leaving my laptop in the
-boot of my car for several hours (~-25C), taking it into a warm apartment
-(~19C), booting it up and lifting the notebook off my lap sideways whilst
-I shifted to get comfortable and putting it back on my lap. The hard drive
-had a head crash (I think) on the sectors it was reading while I moved and
-the partition was effectively toast - this was my Debian partition, and
-wouldn't boot any more, but I could boot off the RedHat partition and
-/home was (thankfully) still readable. I pulled all the data off in
-preparation for the drive failing before I could get a new one (I was down
-in Boston at the time), but the bad sectors slowly spread through the
-entire drive over the course of a couple of days and I couldn't read any
-data at all.
-
-Lessons learned:
-
-* Let laptops settle to room temperature after being exposed to sub-zero
-temperatures for a while (this is probably in the manual, but I don't have
-one)
-
-* Laptop notebooks may be somewhat ruggedised but they still don't like
-being moved when they're reading off the drive.
-
-Running drives really hot is also a good way to toast them, too!
-
-Cheers, Steve
+-- 
+Måns Rullgård
+mru@kth.se

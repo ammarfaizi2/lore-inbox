@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317772AbSHGK1j>; Wed, 7 Aug 2002 06:27:39 -0400
+	id <S318210AbSHGKha>; Wed, 7 Aug 2002 06:37:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317790AbSHGK1j>; Wed, 7 Aug 2002 06:27:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:7161 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317772AbSHGK1i>; Wed, 7 Aug 2002 06:27:38 -0400
-Subject: Re: Linux 2.4.20-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <p73vg6nhtsb.fsf@oldwotan.suse.de>
-References: <200208062329.g76NTqP30962@devserv.devel.redhat.com.suse.lists.linux.kernel>
-	  <p73vg6nhtsb.fsf@oldwotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 12:50:43 +0100
-Message-Id: <1028721043.18478.265.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318160AbSHGKha>; Wed, 7 Aug 2002 06:37:30 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:45574 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S318210AbSHGKh3>; Wed, 7 Aug 2002 06:37:29 -0400
+Date: Wed, 7 Aug 2002 12:40:22 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] automatic module_init ordering 
+In-Reply-To: <20020807020259.4CAED417A@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0208071208210.28515-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 11:01, Andi Kleen wrote:
-> Can you explain this further. How else do you propose to get rid of 
-> unmaintained-and-absolutely-hopeless-on-64bit drivers in the configuration? 
-> I definitely do not want to get bug reports about these not working on x86-64.
+Hi,
 
-I don't want a tree where every driver has seventeen lines of if IBM and
-not 64bit || parisc || x86 || !x86_64 || ia64) && (!wednesdayafternoon)
+On Wed, 7 Aug 2002, Rusty Russell wrote:
 
-Its *unmaintainable*.
+> > I'm not sure we should go this way. My main problem is that it only solves
+> > a single ordering problem - boot time ordering. What about suspend/wakeup?
+> > We have more of these ordering problems and driverfs is supposed to help
+> > with them, so I'd rather first would like to see how much we can fix this
+> > way.
+>
+> suspend/wakeup is a device issue, solved well by devicefs.  This is
+> completely independent from the subtleties of initialization order in
+> the core kernel code: devices are not the problem.
 
-The sparc64 people don't do it, the mips people don't do it, the ia64
-people don't do it, wtf should you get to fill config.in with crap
+If you see the pci code as a bus device driver, it becomes a problem. I
+looked at the remaining initcalls in my kernel and most of them are for
+pci. I think pci is rather abusing the initcall system.
+I have that idea that pci (like other buses) could become a "normal"
+driver module (one will probably never compile it as a module, but one
+could at least manage it like one).
+So if we integrate the bus initalizations into the device initializations,
+there isn't much left of the current initcalls.
 
-The _ISA stuff makes sense, thats sensible, but the rest - when people
-moan we tell em to fix the drivers.
+> Look at how many places have explicit initializers with #ifdef
+> CONFIG_XXX around them, because initialization order problems were too
+> hard before.  These can now be fixed as desired.
+>
+> I really want *one* place where you can see what order things are
+> initalized.  If that means one big file with #ifdef's, fine.  But the
+> current approach of using link order, initializer levels and explicit
+> initializers is really hard to debug and modify.
+
+I agree that it's currently a mess, maybe your solution is the better in
+the short term to make the dependencies explicit, I'm not sure about that.
+My idea is to handle as much as possible over the module/driver
+initialization mechanisms and leave initcalls as special cases.
+
+bye, Roman
 

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319620AbSH2X1I>; Thu, 29 Aug 2002 19:27:08 -0400
+	id <S319621AbSH2X22>; Thu, 29 Aug 2002 19:28:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319621AbSH2X1H>; Thu, 29 Aug 2002 19:27:07 -0400
-Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:23497 "HELO
-	the-grudge.myip.org") by vger.kernel.org with SMTP
-	id <S319620AbSH2X1E>; Thu, 29 Aug 2002 19:27:04 -0400
-Message-ID: <1030663887.3d6eaecf51397@webmail.kingsmeadefarm.com>
-Date: Thu, 29 Aug 2002 19:31:27 -0400
-From: Joe Kellner <jdk@kingsmeadefarm.com>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: e1000 strangeness in a dell poweredge 1650
-References: <288F9BF66CD9D5118DF400508B68C4460283E54D@orsmsx113.jf.intel.com>
-In-Reply-To: <288F9BF66CD9D5118DF400508B68C4460283E54D@orsmsx113.jf.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 64.156.25.3
+	id <S319624AbSH2X22>; Thu, 29 Aug 2002 19:28:28 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:41213
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319621AbSH2X21>; Thu, 29 Aug 2002 19:28:27 -0400
+Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <1030663772.1491.107.camel@ldb>
+References: <1030506106.1489.27.camel@ldb>  <20020828121129.A35@toy.ucw.cz>
+	<1030663192.1326.20.camel@irongate.swansea.linux.org.uk> 
+	<1030663772.1491.107.camel@ldb>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 30 Aug 2002 00:32:35 +0100
+Message-Id: <1030663955.1327.27.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott,
+On Fri, 2002-08-30 at 00:29, Luca Barbieri wrote:
+> Worked around by making sure all other processors are stopped (iret is
+> serializing) sending IPIs if they are not already spinning on the fixup
+> lock. See patch #2.
 
-We resolved the issue with a reinstall of Redhat 7.3, and have not had the 
-issue pop back up again.
-
-
-Thanks,
--Joe Kellner
-
+what happens we you do a fixup and the fixup occurs in an IPI handler
+(eg a cross CPU tlb flush).
 
 
+> > For the other fixups though you -have- to do them before you
+> > run the code. That isnt hard (eg sparc btfixup). You generate a list of
+> > the addresses in a segment, patch them all and let the init freeup blow 
+> > the table away
+> Is doing them at runtime with the aforementioned workaround fine?
 
-Quoting "Feldman, Scott" <scott.feldman@intel.com>:
+Is doing them all in the beginning not somewhat saner and more
+debuggable. The only reason to do it at runtime is hotplugging a less
+capable CPU. I have a suggestion for that case which is that we don't
+bother about it 8)
 
-> Joe, have you tried going to linux.nics@intel.com?  The support folks
-> should
-> be able to help you.  You might want to give them more information about
-> the
-> switch used, and if you've tried another switch.  I'm not aware of any
-> issues operating e1000 at 100Mbps.
-> -scott
-> 
-
-
--------------------------------------------------
-sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271945AbRIILGd>; Sun, 9 Sep 2001 07:06:33 -0400
+	id <S271941AbRIILFd>; Sun, 9 Sep 2001 07:05:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271947AbRIILGX>; Sun, 9 Sep 2001 07:06:23 -0400
-Received: from colorfullife.com ([216.156.138.34]:39435 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S271945AbRIILGS>;
-	Sun, 9 Sep 2001 07:06:18 -0400
-Message-ID: <3B9B4CFE.E09D6743@colorfullife.com>
-Date: Sun, 09 Sep 2001 13:05:34 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-ac1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        torvalds@transmeta.com, andrea@suse.de
-Subject: Purpose of the mm/slab.c changes
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271943AbRIILFO>; Sun, 9 Sep 2001 07:05:14 -0400
+Received: from warande3094.warande.uu.nl ([131.211.123.94]:57930 "EHLO
+	warande3094.warande.uu.nl") by vger.kernel.org with ESMTP
+	id <S271941AbRIILFD>; Sun, 9 Sep 2001 07:05:03 -0400
+Date: Sun, 9 Sep 2001 13:05:23 +0200
+From: Guus Sliepen <guus@warande3094.warande.uu.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AMD 760 (761?) AGP
+Message-ID: <20010909130523.B7635@sliepen.warande.net>
+Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B97D334.E27BDA25@pp.htv.fi> <3B998088.6070206@zianet.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
+Content-Disposition: inline
+In-Reply-To: <3B998088.6070206@zianet.com>
+User-Agent: Mutt/1.3.20i
+X-oi: oi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What's the purpose of the mm/slab.c changes?
 
-Linus, Alan, could you please drop them. Switching from 1 list to 3
-lists is just a slowdown.
+--H+4ONPRPur6+Ovig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-		2.4.9	2.4.9-ac9
-km(1)		0x87	0x89
-kf(1)		0xa9	0xa8
-kf(cachep, 1)	0xad	0xad
-km(4096)	0x7B	0x87	(+24% without overhead!)
-kf(4096)	0xcB	0xd1
-kf(cachep,4096)	0xcc	0xd3
+On Fri, Sep 07, 2001 at 08:20:56PM -0600, Steven Spence wrote:
 
-(cpu ticks on a Duron 700, UP kernel, 100 calls in a tight loop, loop
-overhead (0x49) not removed)
+> If you have it as a module try loading it with  agp_try_unsupported=3D1.
+> If its not a module try appending it to lilo.  I have that chipset and=20
+> everything
+> works fine with those options.  I have a GF2U however not a Radeon.  I can
+> get 4x working with side band addressing and fast write.
 
-Benchmarking with SMP kernel is meaningless, since the actual list
-changes are outside of the hot path - I did it, and the differences are
-negligable (+-1 cpu tick)
+I have an Asus A7M266 with a AMD 761 chipset. I can get agpgart to work with
+agp_try_unsupported=3D1, and it works fine, but I only get AGP 1x support.
 
-And this is a benchmark with 100 calls in a tight loop - Andrea's patch
-adds several additional branches, in real-world there would be an even
-larger slowdown.
+--=20
+Met vriendelijke groet / with kind regards,
+  Guus Sliepen <guus@sliepen.warande.net>
 
-If there are real performance problems with the slab, then the not-yet
-optimized parts should get changed:
+--H+4ONPRPur6+Ovig
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-* kmalloc(): the loop to find the correct slab is too slow. (the numbers
-in the table are without the loop, i.e.
-kmem_cache_alloc(kmem_find_general_cache(4096, SLAB_KERNEL),
-SLAB_KERNEL);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-* finetune the size of the per-cpu caches
-* finetune the amount of pages freed during kmem_cache_reap()
-* replace the division in kmem_cache_free_one() with a multiplication.
-(UP only, on SMP outside of the hot path)
-* enable OPTIMIZE - could help on platforms without a fast
-virt_addr->struct page lookup.
+iD8DBQE7m0zzAxLow12M2nsRAqDpAJ9AC4z03+twK4iI4gkfty/2mkyp6ACfU9JB
+udgPM5y9kgx+fYVYLTEBO4s=
+=8ZOQ
+-----END PGP SIGNATURE-----
 
-I have a patch with some optimization, but I tought that would be 2.5
-stuff.
-
---
-	Manfred
-
+--H+4ONPRPur6+Ovig--

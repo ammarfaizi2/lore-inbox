@@ -1,62 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263566AbTH3NUe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 09:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTH3NUe
+	id S263679AbTH3NZN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 09:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTH3NZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 09:20:34 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:46604 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263566AbTH3NUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 09:20:33 -0400
-From: Matt Gibson <gothick@gothick.org.uk>
-Organization: The Wardrobe Happy Cow Emporium
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
-Date: Sat, 30 Aug 2003 13:44:56 +0100
-User-Agent: KMail/1.5.3
-References: <200308281548.44803.tomasz_czaus@go2.pl> <20030828151708.0b13dd82.rddunlap@osdl.org> <200308301149.19944.gothick@gothick.org.uk>
-In-Reply-To: <200308301149.19944.gothick@gothick.org.uk>
-X-Pointless-MIME-Header: yes
-X-Archive: encrypt
+	Sat, 30 Aug 2003 09:25:13 -0400
+Received: from dyn-ctb-210-9-241-196.webone.com.au ([210.9.241.196]:4612 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S263679AbTH3NZB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 09:25:01 -0400
+Message-ID: <3F50A5A2.8070107@cyberone.com.au>
+Date: Sat, 30 Aug 2003 23:24:50 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Gabor MICSKO <gmicsko@szintezis.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [FS Benchmark] reiser4 vs. reiserfs (3.6)
+References: <1062233153.499.15.camel@sunshine>
+In-Reply-To: <1062233153.499.15.camel@sunshine>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200308301344.56545.gothick@gothick.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 Aug 2003 11:49, Matt Gibson wrote:
-> On Thursday 28 Aug 2003 23:17, Randy.Dunlap wrote:
-> > Yes, the kernel has decided that your processor only has 1 Bank of
-> > MCE register data to report.  I don't know how/why.  Sorry.
+
+Gabor MICSKO wrote:
+
+>Kernel: 2.6.0-test4 SMP
 >
-> Could it be something to do with this (in
-> arch/i386/kernel/cpu/mcheck/k7.c)?
 >
-> 	if (l & (1<<8))	/* Control register present ? */
-> 		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
-> 	nr_mce_banks = l & 0xff;
->
-> 	for (i=1; i<nr_mce_banks; i++) {
->
-> Check out the "for".  Or am I reading this wrong?
+Hi Gabor,
+Just a suggestion, comparisons like this are often nicer to read if they
+are in a patch format. It also saves you having to do anything by hand.
 
-Having checked back, this was changed between test-2 and test-3.  The 
-checking code in k7_machine_check() still loops from 0 rather than 1.  I 
-think this may be leading to false reporting of problems, which may be why I 
-and Tomasz are seeing these MCE messages on our Athlons.
+--- ReiserFS3   2003-08-30 23:15:35.000000000 +1000
++++ ReiserFS4   2003-08-30 23:15:52.000000000 +1000
+@@ -1,57 +1,57 @@
+-1062096658
++1062095831
+                                                                                                                                                            
 
-Anyone who knows more about this stuff care to comment?  Is someone looking 
-after MCE at the moment?  I couldn't find out much info on it.
+ ## Create files
+                                                                                                                                                            
 
-Thanks,
+-Total create files: 19491
+-00004c6f: No space left on device
++Total create files: 18858
++000049f3: No space left on device
+ Create files
+                                                                                                                                                            
 
-Matt
+-real 1m11.586s
+-user 0m0.085s
+-sys 0m6.181s
++real 1m7.309s
++user 0m0.141s
++sys 0m9.571s
+                                                                                                                                                            
 
--- 
-"It's the small gaps between the rain that count,
- and learning how to live amongst them."
-	      -- Jeff Noon
+ ## tar all
+                                                                                                                                                            
+
+ ## Change owner
+                                                                                                                                                            
+
+-real 0m1.583s
+-user 0m0.010s
+-sys 0m0.145s
++real 0m1.597s
++user 0m0.021s
++sys 0m0.209s
+                                                                                                                                                            
+
+ ## random access
+-Success: 19477
+-Fail: 90
++Success: 18858
++Fail: 72
+                                                                                                                                                            
+
+-real 5m56.516s
+-user 0m0.230s
+-sys 0m4.311s
++real 4m27.653s
++user 0m0.292s
++sys 0m6.247s
+                                                                                                                                                            
+
+ ## Change mode
+                                                                                                                                                            
+
+-real 0m0.820s
+-user 0m0.019s
+-sys 0m0.227s
++real 0m4.103s
++user 0m0.033s
++sys 0m0.436s
+                                                                                                                                                            
+
+ ## Random delete and create
+-Total create files: 8612
+-Total delete files: 8700
+-Total error : 2255
+-
+-real 1m33.936s
+-user 0m0.085s
+-sys 0m4.342s
++Total create files: 8271
++Total delete files: 8393
++Total error : 2266
++
++real 2m7.920s
++user 0m0.123s
++sys 0m6.025s
+                                                                                                                                                            
+
+ ## Change mode again
+                                                                                                                                                            
+
+-real 0m0.229s
+-user 0m0.010s
+-sys 0m0.136s
++real 0m0.438s
++user 0m0.026s
++sys 0m0.243s
+                                                                                                                                                            
+
+ ## Remove all files and directories
+                                                                                                                                                            
+
+-real 0m21.887s
+-user 0m0.014s
+-sys 0m1.251s
++real 0m1.299s
++user 0m0.029s
++sys 0m1.178s
+                                                                                                                                                            
+
+ ## Finish test
+-1062097334
++1062096367
+
+

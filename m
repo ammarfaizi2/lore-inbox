@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbRH0Tzi>; Mon, 27 Aug 2001 15:55:38 -0400
+	id <S268100AbRH0UCU>; Mon, 27 Aug 2001 16:02:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267534AbRH0Tz2>; Mon, 27 Aug 2001 15:55:28 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:50348 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S267520AbRH0TzV>; Mon, 27 Aug 2001 15:55:21 -0400
-Date: Mon, 27 Aug 2001 13:55:44 -0600
-Message-Id: <200108271955.f7RJtia19506@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010827185803Z16034-32384+632@humbolt.nl.linux.org>
-In-Reply-To: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva>
-	<20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
-	<200108271848.UAA20391@ns.cablesurf.de>
-	<20010827185803Z16034-32384+632@humbolt.nl.linux.org>
+	id <S268071AbRH0UCD>; Mon, 27 Aug 2001 16:02:03 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:64785 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S267997AbRH0UBq>;
+	Mon, 27 Aug 2001 16:01:46 -0400
+Message-Id: <200108272001.f7RK1qe22448@thor.mesatop.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] 2.4.9-ac2 fix make xconfig problem
+Date: Mon, 27 Aug 2001 14:00:46 -0400
+X-Mailer: KMail [version 1.2.3]
+Cc: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> The quesion is, how do you know you're streaming?  Some files are
-> read/written many times and some files are accessed randomly.  I'm
-> trying to avoid penalizing these admittedly rarer, but still
-> important cases.
+I found and fixed what was causing make xconfig to fail.
+It looks like someone got a little too happy with the "-o"s
+when modifying drivers/video/Config.in.
 
-I wonder if we're trying to do the impossible: an algorithm that works
-great for very different workloads, without hints from the process.
+Here is the patch, including my necessary but not sufficient
+first patch for this file.
 
-Shouldn't we encourage use of madvise(2) more? And if needed, add
-O_DROPBEHIND and similar flags for open(2).
+Steven
 
-The application knows how it's going to use data/memory. It should
-tell the kernel so the kernel can choose the best algorithm.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+--- linux/drivers/video/Config.in.ac2	Mon Aug 27 12:18:00 2001
++++ linux/drivers/video/Config.in	Mon Aug 27 13:53:59 2001
+@@ -292,10 +292,10 @@
+ 	      "$CONFIG_FB_P9100" = "m" -o "$CONFIG_FB_ATY128" = "m" -o \
+ 	      "$CONFIG_FB_RIVA" = "m" -o "$CONFIG_FB_3DFX" = "m" -o \
+ 	      "$CONFIG_FB_SGIVW" = "m" -o "$CONFIG_FB_CYBER2000" = "m" -o \
+-	      "$CONFIG_FB_PMAG_BA" = "m" -o "CONFIG_FB_PMAGB_B" = "m" -o \
++	      "$CONFIG_FB_PMAG_BA" = "m" -o "$CONFIG_FB_PMAGB_B" = "m" -o \
+ 	      "$CONFIG_FB_MAXINE" = "m" -o "$CONFIG_FB_RADEON" = "m" -o \
+ 	      "$CONFIG_FB_SA1100" = "m" -o "$CONFIG_FB_SIS" = "m" -o \
+-	      "$CONFIG_FB_TX3912" = "m" -o ]; then
++	      "$CONFIG_FB_TX3912" = "m" ]; then
+ 	    define_tristate CONFIG_FBCON_CFB8 m
+ 	 fi
+       fi

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbUCAJty (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUCAJty
+	id S261186AbUCAJtk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUCAJtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:49:54 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:39158 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261195AbUCAJtu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:49:50 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Keith Owens <kaos@ocs.com.au>
-Subject: Re: finding unused globals in the kernel
-Date: Mon, 1 Mar 2004 10:42:09 +0100
-User-Agent: KMail/1.6.1
-Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-References: <5138.1078121472@kao2.melbourne.sgi.com>
-In-Reply-To: <5138.1078121472@kao2.melbourne.sgi.com>
+	Mon, 1 Mar 2004 04:49:40 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:21773 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id S261186AbUCAJti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 04:49:38 -0500
+Date: Mon, 1 Mar 2004 10:48:51 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.local
+To: James Morris <jmorris@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [SELINUX] Handle fuse binary mount data.
+In-Reply-To: <Xine.LNX.4.44.0402291938140.22392-100000@thoron.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0403011007300.6156-100000@cola.local>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403011042.10099.arnd@arndb.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 March 2004 07:11, Keith Owens wrote:
-> It is a bit harder than a simple compare.  EXPORT_SYMBOL(foo) generates
-> a reference to foo even if nothing uses it, which hides unused
-> variables.  Certain symbols appear as unused but are really used by the
-> 2.4 version of insmod.  Your script does not handle modules at all.
-> 
-> namespace.pl below handles all the special cases on kernels from 2.0
-> through 2.4.  It needs updating for 2.6 kernels, enjoy.
+On Sun, 29 Feb 2004, James Morris wrote:
 
-Well, your script is about a related, but still different question.
-namespace.pl apparently gives a list of symbols that could/should have 
-been marked static because they are not referenced outside of their
-files. I have another script that does this as well, though yours
-is a lot better at it.
+> It seems more like a property of the filesystem type: perhaps add 
+> FS_BINARY_MOUNTDATA to fs_flags for such filesystems, per the patch below.
+...
+> diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/smbfs/inode.c linux-2.6.3-mm4.w/fs/smbfs/inode.c
+> --- linux-2.6.3-mm4.o/fs/smbfs/inode.c	2003-10-15 08:53:19.000000000 -0400
+> +++ linux-2.6.3-mm4.w/fs/smbfs/inode.c	2004-02-29 19:50:58.172037088 -0500
+> @@ -778,6 +778,7 @@
+>  	.name		= "smbfs",
+>  	.get_sb		= smb_get_sb,
+>  	.kill_sb	= kill_anon_super,
+> +	.fs_flags	= FS_BINARY_MOUNTDATA,
+>  };
+>  
+>  static int __init init_smb_fs(void)
 
-The question that my checkunused.sh is trying to answer is which symbols 
-are never referenced at all and therefore could be removed from the 
-kernel binary. I intentionally kept the references from EXPORT_SYMBOL,
-because I didn't want to think about whether there might be modules
-using them.
+smbfs does not have a binary mountdata, unless the smbmount used is really
+old (samba 2.0). If that means that it should get a FS_BINARY_MOUNTDATA
+flag or not, I don't know.
 
-Finding exported symbols that no module in the tree uses is yet
-another problem. Your namespace.pl does this on object files, but
-using cscope at source level could perhaps do this better.
+/Urban
 
-	Arnd <><

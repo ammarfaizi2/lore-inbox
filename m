@@ -1,63 +1,111 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSHXIh1>; Sat, 24 Aug 2002 04:37:27 -0400
+	id <S316258AbSHXORd>; Sat, 24 Aug 2002 10:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315419AbSHXIh1>; Sat, 24 Aug 2002 04:37:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6664 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315416AbSHXIh0>; Sat, 24 Aug 2002 04:37:26 -0400
-Date: Sat, 24 Aug 2002 09:41:25 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Andre Hedrick <andre@linux-ide.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-        "'Padraig Brady'" <padraig.brady@corvil.com>,
-        "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-flash device and hard disk on same controller
-Message-ID: <20020824094125.A30109@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.10.10208222014450.13077-100000@master.linux-ide.org> <20020823114433.10784@192.168.4.1> <3D66E944.9080507@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316339AbSHXORd>; Sat, 24 Aug 2002 10:17:33 -0400
+Received: from host-66-133-58-205.verestar.net ([66.133.58.205]:6161 "HELO
+	helimore2737.com") by vger.kernel.org with SMTP id <S316258AbSHXORc> convert rfc822-to-8bit;
+	Sat, 24 Aug 2002 10:17:32 -0400
+From: "Ben Ngombo" <benngombo@netscape.net>
+Reply-To: benngombo@netscape.net
+To: linux-kernel@vger.kernel.org
+Date: Sat, 24 Aug 2002 16:13:57 -0700
+Subject: CONFIDENTIAL/URGENT
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20020824141732Z316258-685+36424@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 10:02:44PM -0400, Jeff Garzik wrote:
-> Basically think about the consequences of trying to handle a completely 
-> unknown state -- if you are going to attempt to handle this you would 
-> need to check for data, not just the BSY bit.  And read the data into a 
-> throwaway buffer, if there is data to be read, or write the data it's 
-> expecting.
-> 
-> So it's not just the busy bit :)
+From:Ben Ngombo 
+Email:benngombo@netscape.net         
 
-I notice everyone decided to miss replying to my mail about PCMCIA
-IDE devices, which will trip you up here.  Could it be because I've
-identified a real problem here?
+           STRICTLY PRIVATE & CONFIDENTIAL
 
-- You plug the IDE device in.
-- Power gets applied.
-- cardmgr loads ide_cs.
-- cardmgr binds ide_cs, which registers with the IDE layer.
+It is my great pleasure to write you this letter on
+behalf of my colleagues. Your information were given
+to me by a member of the South African Export
+Promotion Council (SAEPC) who was with the Black
+Economic Empowerment Commission (Government)
+delegation on a trip to the United States during a
+bilateral conference talk to encourage foreign
+investors. I have decided to seek a confidential
+co-operation with you in execution of a deal hereunder
+for the benefit of all parties, and hope you will keep
+it confidential because of the nature of this
+business.
 
-The above happens in 10s of milliseconds, well before the hard drive
-platters have been spun up.  Meanwhile, as defined by the T13 specs,
-the BSY bit can be set for up to 31 seconds.
+Within the Department of Mining Resources where I work
+as the Director of Project Implementation, with
+co-operation of four other top officials, we have in
+our possession, an overdue payment in US funds.
 
-You're saying "completely unknown state".  I say "T13 defines this
-state extremely well, and defines what happens from the drives point
-of view at the end of the power on reset sequence extremely well."
+The said funds represent certain percentage of the
+contract value executed on behalf of my Ministry by a
+foreign contracting firm, which we the officials
+over-invoiced to the amount of US$29,600,000.00
+(Twenty Nine Million Six Hundred Thousand United
+States Dollars). Though the actual contract cost has
+been paid to the original contractor, leaving the
+excess balance unclaimed.
 
-I also say that your implementation above is, in andrespeak, a "bad
-host" because it doesn't follow the T13 power on reset sequence
-properly.
+The Government of the Republic of South Africa believe
+that private investment in general, and foreign direct
+investment in particular, are the real engines for
+sustainable economic development, for which reason it
+has continued to encouraged investment in the key
+growth -oriented sector of Mining with sincere
+determined to pay foreign contractors all debts owed
+to them, so as to continue to enjoy close
+relationship, and a mutually beneficial co-operation
+with foreign governments and non-governmental
+financial agencies. As a result we included ours bills
+for approvals with the co-operation of some officials
+at the Department of Finance and the Reserve Bank of
+South Africa (RBSA). We are seeking your assistance as
+the beneficiary of the unclaimed funds, since we are
+not allowed to operate a foreign account. Details and
+changing of beneficiary information and other forms of
+documentation upon application for claim to reflect
+the payment and approvals will be secured on behalf of
+your company or your good self.
 
-And yes, people _do_ use PCMCIA IDE drives with Linux.
+I have the authority of my colleagues involved to
+propose that, should you be willing to assist us in
+this transaction your share as compensation will be
+25% while my colleagues and I shall receive 70%, and
+the balance of 5% shall be use to reimburse or
+expenditures, taxes and miscellaneous expenses so
+incurred.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+It does not matter whether or not your company does
+contract projects of the nature described here. The
+assumption is that your company won the major contract
+and subcontracted it to other companies. More often
+than not, big trading companies and firms of unrelated
+fields wins major contracts and subcontract same to
+more specialized firms for execution.
+
+This business itself is 100% safe, provided you treat
+it with utmost confidentiality. Also your
+specialization is not a hindrance to the successful
+execution of this mutual beneficiary transaction. I
+have reposed my confidence in you and hope that you
+will not disappoint us.
+
+Kindly notify me by fax or through my email address for further
+details, upon your acceptance of this proposal.
+
+
+Regards,
+
+Ben Ngombo
+
+
+
+
+
+
 

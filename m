@@ -1,97 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267223AbUIEVCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267230AbUIEVDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267223AbUIEVCm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 17:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267230AbUIEVCm
+	id S267230AbUIEVDH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 17:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUIEVDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 17:02:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11667 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267223AbUIEVCi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 17:02:38 -0400
-Date: Sun, 5 Sep 2004 14:00:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q about pagecache data never written to disk
-Message-Id: <20040905140040.58a5fcdc.akpm@osdl.org>
-In-Reply-To: <20040905154336.B9202@castle.nmd.msu.ru>
-References: <20040905120147.A9202@castle.nmd.msu.ru>
-	<20040905035233.6a6b5823.akpm@osdl.org>
-	<20040905154336.B9202@castle.nmd.msu.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 5 Sep 2004 17:03:07 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31114 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267230AbUIEVDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 17:03:00 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+In-Reply-To: <20040905191227.GA29797@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
+	 <1094408203.4445.5.camel@krustophenia.net> <20040905191227.GA29797@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094418192.4445.58.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 05 Sep 2004 17:03:12 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin <saw@saw.sw.com.sg> wrote:
->
-> Hi Andrew,
+On Sun, 2004-09-05 at 15:12, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> On Sun, Sep 05, 2004 at 03:52:33AM -0700, Andrew Morton wrote:
-> > Andrey Savochkin <saw@saw.sw.com.sg> wrote:
-> > >
-> > > Let's suppose an mmap'ed (SHARED, RW) file has a hole.
-> > >  AFAICS, we allow to dirty the file pages without allocating the space for the
-> > >  hole - filemap_nopage just "reads" the page filling it with zeroes, and
-> > >  nothing is done about the on-disk data until writepage.
-> > > 
-> > >  So, if the page can't be written to disk (no space), the dirty data just
-> > >  stays in the pagecache.  The data can be read or seen via mmap, but it isn't
-> > >  and never be on disk.  The pagecache stays unsynchronized with the on-disk
-> > >  content forever.
+> > Ok, first new one in a while.  This was with -R0, but I haven't seen
+> > anyone else report it.  Let me know if you need the complete trace.
 > > 
-> > The kernel will make one attampt to write the data to disk.  If that write
-> > hits ENOSPC, the page is not redirtied (ie: the data can be lost).
-> > 
-> > When that write hits ENOSPC an error flag is set in the address_space and
-> > that will be returned from a subsequent msync().  The application will then
-> > need to do something about it.
-> > 
-> > If your application doesn't msync() the memory then it doesn't care about
-> > its data anyway.  If your application _does_ msync the pages then we
-> > reliably report errors.
+> > preemption latency trace v1.0.2
+> > -------------------------------
+> >  latency: 511 us, entries: 951 (951)
+> >     -----------------
+> >     | task: dbench/4810, uid:1000 nice:0 policy:0 rt_prio:0
+> >     -----------------
+> >  => started at: kill_pg_info+0x10/0x50
+> >  => ended at:   kill_pg_info+0x2e/0x50
+> > =======>
+> > 00000001 0.000ms (+0.000ms): kill_pg_info (sys_kill)
+> > 00000001 0.000ms (+0.000ms): __kill_pg_info (kill_pg_info)
+> > 00000001 0.000ms (+0.000ms): find_pid (__kill_pg_info)
 > 
-> This question came to my mind when I was thinking about journal_start in
-> ext3_prepare_write and copy_from_user issue...
-> Did you follow that discussion?
-
-Yup.  Chris and I have been admiring the problem for a few months now.
-
-> In the considered scenario not only the application is not
-> guaranteed anything till msync(), but all other programs doing regular read()
-> may also be fooled about the file content, and this idea surprised me.
-> On the other hand, after a write() other programs also see the new content
-> without a guarantee that this content corresponds with what is on the disk...
-
-No, read() will see the modified pagecache data immediately, apart from CPU
-cache coherency effects.
-
-> > 
-> > >  Is it the intended behavior?
-> > >  Shouldn't we call the filesystem to fill the hole at the moment of the first
-> > >  write access?
-> > 
-> > That would be a retrograde step - it would be nice to move in the other
-> > direction: perform disk allocation at writeback time rather than at write()
-> > time, even for regular write() data.  To do that we (probably) need space
-> > reservation APIs.  And yes, we perhaps could reserve space in the
-> > filesystem when that page is first written to.
-> > 
-> > But then what would we do if there's no space?  SIGBUS?  SIGSEGV? 
-> > Inappropriate.  SIGENOSPC?
+> this is quite hard to fix - lots of processes were SIGKILL-ed (or
+> SIGTERM-ed) and the signal semantics require us to deliver signals
+> atomically. The only fix would be to turn the signal locks into
+> semaphores but that's quite hard. (it's also a bit problematic for
+> interrupt-delivered signals.)
 > 
-> Should the space be allocated on close()?
+> 	Ingo
+> 
 
-What effect are you trying to achieve?
+Here is a histogram I generated using realfeel2.  This should provide
+better data than my jackd histograms because the latter are dependent on
+the ALSA driver, jackd's design, etc.
 
-> Who will get the signal if nobody accesses the file anymore?
+I had to modify the amlat utilities to use usecs instead of msecs, this
+is a very good sign. ;-)
 
-Nobody.  That's the point.  Plus there _is_ no signal defined for this. 
-Neither in Linux nor in POSIX.
+http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-R0#/var/www/2.6.9-rc1-R0/foo.hist
 
-> I'm also thinking about various shell scripts with redirects to files...
+I find the two smaller spikes to either side of the central spike really
+odd.  These showed up in my jackd tests too, I had attributed them to
+some measurement artifact, but they seem real.  Maybe a rounding bug, or
+some kind of weird cache effect?
 
-?  I doubt that they're writing files via MAP_SHARED.
+Lee
+
+

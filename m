@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279170AbRJWFCq>; Tue, 23 Oct 2001 01:02:46 -0400
+	id <S279240AbRJWFHz>; Tue, 23 Oct 2001 01:07:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279239AbRJWFCf>; Tue, 23 Oct 2001 01:02:35 -0400
-Received: from mail12.speakeasy.net ([216.254.0.212]:14852 "EHLO
-	mail12.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S279170AbRJWFCY>; Tue, 23 Oct 2001 01:02:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: time tells all about kernel VM's
-Date: Tue, 23 Oct 2001 01:02:52 -0400
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011023030353Z279218-17408+3723@vger.kernel.org>
-In-Reply-To: <20011023030353Z279218-17408+3723@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011023050227Z279170-17408+3746@vger.kernel.org>
+	id <S279241AbRJWFHp>; Tue, 23 Oct 2001 01:07:45 -0400
+Received: from virtucon.warpcore.org ([216.81.249.22]:62339 "EHLO virtucon")
+	by vger.kernel.org with ESMTP id <S279240AbRJWFHa>;
+	Tue, 23 Oct 2001 01:07:30 -0400
+Date: Tue, 23 Oct 2001 00:08:26 -0500
+From: drevil@warpcore.org
+To: linux-kernel@vger.kernel.org
+Cc: tegeran@home.com
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+Message-ID: <20011023000826.A22123@virtucon.warpcore.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org, tegeran@home.com
+In-Reply-To: <20011022172742.B445@virtucon.warpcore.org> <E15vnuN-0003jW-00@the-village.bc.nu> <20011022203159.A20411@virtucon.warpcore.org> <20011022214324.A18888@alcove.wittsend.com> <20011022211622.B20411@virtucon.warpcore.org> <003801c15b7d$6e2e4410$01c510ac@c779218a>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003801c15b7d$6e2e4410$01c510ac@c779218a>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 October 2001 23:04, safemode wrote:
-> We've all seen benchmarks and "load tests" and "real world runthroughs" on
-> the rik and aa kernel VM's.  But time does tell all.  I've had
-> 2.4.12-ac3-hogstop up and running for over 5 days.   The first hiccup i
-> found was a day or so ago when trying out defragging an ext2 fs on a hdd
-> just for the hell of it.  I have 770MB of ram and 128MB of swap (since my
-> other 128MB of swap was on the drive i was defragging and i had swapoff'd
-> it).   First the kernel created about 600MB of buffer in addition to the
-> application specified 128MB of buffer i had it using (e2defrag -p 16384).  
-> This brought the system to a crawl.  So in some twisted reality that may be
-> considered normal kernel behavior, so i let it pass.  Then i created an
-> insanely large ps and tried loading it in ghostview, magnified it a couple
-> times in kghostview and what happens?  I wish i could tell you but i cant
-> because the system immediately went unresponsive and started swapping at a
-> turtles pace. I can tell what didn't happen though.
->
-> A.  OOM did not kick in and kill kghostview.  Why you may ask?  Read on to
-> B. B.  The VM has this need to redistribute cache and buffer so that an OOM
-> situation doesn't take place until all the ram is basically being used. 
-> The problem is that currently the VM will swap out stuff it isn't using and
-> without buffer it must read from the drive (which is being used to swap)
-> which takes more cpu which isn't there because the app is locking the
-> kernel up trying to allocate memory (see why dbench causes mp3 skips).  So
-> what happens is that the kernel cant swap because the hdd io is being
-> strangled by the process that's going out of control (kghostview) which
-> means that the VM is stuck doing this redistribution at a snails pace and
-> the OOM situation never occurs (or occurs many days later when you've died
-> of starvation). Leaving you deadlocked on a kernel with a VM that is
-> supposed to conquer this situation and make it a thing of the past.
->
-> So what happens after a few days of uptime is that we see where the VM has
-> slight weaknesses that magnify over time and aren't aparent on the normal
-> run of tests done on each new release to decide if it's good or not.
-> Perhaps if i had not had any swap loaded at all this situation would have
-> been avoided.
-> I see this as a pretty serious bug
+On Mon, Oct 22, 2001 at 09:44:41PM -0700, Nicholas Knight wrote:
+> look buddy, you don't get it
+> without access to nvidia's source, we can't know what it does, where it does
+> it, and what we can break by doing what to the kernel
+> WE CAN NOT KNOW SO WE CAN NOT PREVENT IT
+> it is THAT simple
+> complain to nvidia, not the people that CAN NOT DO ANYTHING ABOUT IT
 
-I've reproduced this quite a number of times (unfortunately) by running 
-graphviz and creating huge (9500x11500) postscript files that fill the hdd 
-(perhaps due to a bug) and basically leave no room for anything, this wreaks 
-havoc on the VM which has to keep everything in buffer because it cant write 
-to disk.  no error was displayed about running out of disk space. This seems 
-to be a serious problem for rik's vm (at least his) and i would think would 
-keep it from being chosen as the standard 2.4vm.   This seems to be able to 
-show a bug in which running out of disk space is never reported, and the vm 
-deadlocks the kernel by trying to make room for the process which 
-consequently makes the OOM handler useless. 
+Thanks for the all caps, I love being deafened. However, I do "get it buddy."
+Secondly, I don't believe for a second that it isn't possible to trace things
+down even in a 'binary-only' driver. I trace things down in a 'binary-only'
+program every day practically when dealing with software, many times having the
+source to a program doesn't even help me. Often I find myself using strace or
+some other program to trace the execution flow of a program because it is often
+more informative then the poorly written source.
+
+I'm not complaining about the NVidia driver here. I'm simply stating that IMHO,
+I find it odd that for years microsoft has not only retained binary
+compatability within a release of windows but API compatability. There should
+not be a change to the kernel that would require changes in the driver in a
+"stable development" release tree, it's really that simple in my perhaps
+somewhat limited view. Admittedly, this breakage (which is still in doubt) that
+might have happened did happen with a "pre" version, but I feel this response
+would have been no different even if that was not the case.
+
+And as I've mentioned before, I know of specific cases (which I'm not allowed to
+divulge) where microsoft did not have access to the vendor's source to a
+specific driver, but they collected information that was then forwarded on to
+the vendor to handle the request. Nowhere during this entire 'discussion' did I
+see an offer to help the user possibly collect that information in a manner that
+would be helpful to the vendor, nor an offer of somewhat more information
+than "go cry to your vendor, you poor sap" effectively. That is what, if
+anything, I'm complaining about.
+
+I deal with issues often day during the course of developing software for my
+company that are often caused by other vendor's software, but does that mean I
+can tell all my customers "I'm sorry, a change I made or a bug in your vendor's
+software prevents this from functioning properly, and I can't help you at all."
+My customers wouldn't accept that answer for a minute, they demand something
+more than "sorry, it's not my fault." Often times we spend a good amount of time
+researching and finding a way to work around the issues with that vendor's
+product, which sometimes even involve "fixes" to our own product that exist for
+no other reason than because of that vendor's issues. And guess what, we still
+have customers :) And considering we're a somewhat small business in a dismal
+economy I attribute part of our success to that very thing...
+

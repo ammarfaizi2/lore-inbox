@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbUAYLL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 06:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUAYLL0
+	id S263963AbUAYLIv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 06:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUAYLIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 06:11:26 -0500
-Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:3979 "EHLO
-	cambrant.com") by vger.kernel.org with ESMTP id S264132AbUAYLLY
+	Sun, 25 Jan 2004 06:08:51 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:26284 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S263963AbUAYLIt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 06:11:24 -0500
-Date: Sun, 25 Jan 2004 12:11:29 +0100
-From: Tim Cambrant <tim@cambrant.com>
-To: Bryan Whitehead <driver@megahappy.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.2-rc1-mm3] fs/xfs/xfs_log_recover.c
-Message-ID: <20040125111129.GA29501@cambrant.com>
-References: <20040125044859.8A67F13A354@mrhankey.megahappy.net>
+	Sun, 25 Jan 2004 06:08:49 -0500
+Date: Sun, 25 Jan 2004 13:08:47 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1: process start times by procps
+Message-ID: <20040125110847.GA10824@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040123194714.GA22315@elektroni.ee.tut.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040125044859.8A67F13A354@mrhankey.megahappy.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040123194714.GA22315@elektroni.ee.tut.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 23, 2004 at 09:47:14PM +0200, I wrote:
+> I'm very sorry if this is already reported. In 2.6.1 (and earlier) ps does
+> not report the process start times correctly.
+...
+> For example, I started this bash process really at 21:24 (date showed 21:24
+> then):
+> 
+> kaukasoi 22108  0.0  0.2  4452 1532 pts/4    R    21:28   0:00 /bin/bash
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+OK, I would like to make my bug report more accurate: the problem seems to
+be that the value of btime in /proc/stat is not correct. procps uses that to
+calculate the start time of a process.
 
-On Sat, Jan 24, 2004 at 08:48:59PM -0800, Bryan Whitehead wrote:
-> This patch keeps the same functionality but removes the warning the compiler generates.
+date +%s ; cat /proc/uptime ; grep btime /proc/stat
+1075028140
+1393207.63 1379643.46
+btime 1073634689
 
-I sent you a patch exactly like this a few days ago, but I don't know
-if you got it. This way is a lot more simple than the approach you went
-for in your last patch, but it really shouldn't matter at all. All it
-does is to clear a warning. One tip though, in SubmittingPatches you
-can read that the best way to create patches is by making them apply
-with the -p1 flag. This is done by including the actual kernel source
-directory when making the diff, such as this:
+Time now (1075028140) minus uptime (1393207.63) is 1073634932 (the correct
+bootup time). btime differs from that by 243 seconds, so that's the error of
+four minutes in ps output. Just to check, a line from syslog:
 
-diff -up linux/fs/xfs/xfs_log_recover.c.orig linux/fs/xfs/xfs_log_recover.c
+Jan  9 09:55:41 elektroni kernel: Linux version 2.6.1 (kaukasoi@elektroni) (gcc version 2.95.3 20010315 (release)) #1 Fri Jan 9 09:54:37 EET 2004
 
-It doesn't matter what you named your kernel directory, since the -p1 flag
-ignores that name. Using this command will improve your chances of getting
-your patches included.
+and from that
 
+date +%s --date='Jan  9 09:55:41'
+1073634941
 
-                Tim Cambrant
+ok, syslogd seems to have started 9 seconds after bootup.
 
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAE6Rg+p4C2FlRhwIRAva6AKCwJnQuC1zPFFie2OoKaH7ZM4AYXwCfVCB7
-xIQjGfE+jlLKX0vmkC51WmI=
-=WXrs
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
+This is athlon tb 1400 and I run ntpd.

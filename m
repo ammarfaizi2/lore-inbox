@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbULNB7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbULNCII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbULNB7I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 20:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbULNB7I
+	id S261364AbULNCII (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 21:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbULNCII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 20:59:08 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:26758 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261309AbULNB7C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 20:59:02 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, sboyce@blueyonder.co.uk
-Subject: Re: 2.6.10-rc3 vs clock
-Date: Mon, 13 Dec 2004 20:59:00 -0500
-User-Agent: KMail/1.7
-References: <41BE2616.2080709@blueyonder.co.uk>
-In-Reply-To: <41BE2616.2080709@blueyonder.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Dec 2004 21:08:08 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:23777 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261364AbULNCIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 21:08:04 -0500
+Date: Tue, 14 Dec 2004 03:04:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic-hz
+Message-ID: <20041214020425.GS16322@dualathlon.random>
+References: <20041212234331.GO16322@dualathlon.random> <cone.1102897095.171542.10669.502@pc.kolivas.org> <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <1102970039.1281.415.camel@cog.beaverton.ibm.com> <20041213204933.GA4693@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412132059.01101.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.42.94] at Mon, 13 Dec 2004 19:59:01 -0600
+In-Reply-To: <20041213204933.GA4693@elf.ucw.cz>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 December 2004 18:30, Sid Boyce wrote:
->I'm seeing uptime 11:26pm  up 1 day 13:30 and my clock is around 190
->secs fast, I don't know if this happened only at 2.6.10-rc3, but
-> that's when I noticed it on this XP3000+. On the x86_64 laptop also
-> with 2.6.10-rc3, it's bang on time in uptime 5 days 2:11.
->Regards
->Sid.
+On Mon, Dec 13, 2004 at 09:49:33PM +0100, Pavel Machek wrote:
+> Yes, it was supposed to be simple, so that Andrea understands that
+> there's nothing inherently broken with single-shot timers.
 
-I've been playng with the tickadj command, and am currently set
-at 9926, default is 10,000.  And I'm keeping pretty good time now.
-Running ntpdate in slew the clock mode, once per hour, I'm
-logging this now:
-Dec 13 12:35:03 coyote ntpdate[26529]: adjust time server
-140.142.16.34 offset 0.043227 sec
-Dec 13 13:35:01 coyote ntpdate[27572]: adjust time server
-18.145.0.30 offset 0.248119 sec
-Dec 13 14:35:05 coyote ntpdate[28624]: adjust time server
-204.123.2.72 offset 0.156707 sec
-Dec 13 15:35:03 coyote ntpdate[29486]: adjust time server
-198.30.92.2 offset 0.245309 sec
-Dec 13 16:35:04 coyote ntpdate[30400]: adjust time server
-164.67.62.194 offset 0.105258 sec
-Dec 13 17:35:01 coyote ntpdate[31320]: adjust time server
-130.207.244.240 offset 0.036849 sec
-Dec 13 18:35:01 coyote ntpdate[32229]: adjust time server
-18.145.0.30 offset 0.254626 sec
-Dec 13 19:35:10 coyote ntpdate[741]: adjust time server
-198.30.92.2 offset 0.276145 sec
-Dec 13 20:35:02 coyote ntpdate[1858]: adjust time server
-128.252.19.1 offset 0.151181 sec
+Single shot timer is unusable for system time accounting, at least as
+long as you want to allow nmi. This is a tangible fact, no matter how
+simple the example is.
 
-So while its not perfect, its adequate.
+Even the lost tick compensation is not working at all, and it has the
+same issues that the one-shot timer has in keeping the system time
+accurate.
 
-As to whats doing it, I have NDI.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-
+Pavel, write a program to do iopl(2) cli() wait 3msec; sti() wait 3msec
+cli() wait 3msec in a loop. Then watch your system time go in the future
+at a rate of a few minutes per hour, then fix it. After you fixed it
+we'll get my attention about one-shot timer again ;). I already tried to
+fix it and failed so far since I can't see bugs in the current code.
+(actually I fixed it by breaking the code, and dropping some ticks
+somewhere)

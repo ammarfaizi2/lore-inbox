@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264886AbUGIOlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264910AbUGIOte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264886AbUGIOlP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 10:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264906AbUGIOlP
+	id S264910AbUGIOte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 10:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbUGIOte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 10:41:15 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:49924 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264886AbUGIOlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 10:41:12 -0400
-Subject: Re: 2.6.7-mm7
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1089369159.3198.4.camel@paragon.slim>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-	 <1089369159.3198.4.camel@paragon.slim>
-Content-Type: text/plain
-Date: Fri, 09 Jul 2004 16:40:59 +0200
-Message-Id: <1089384059.1742.3.camel@teapot.felipe-alfaro.com>
+	Fri, 9 Jul 2004 10:49:34 -0400
+Received: from khepri.openbios.org ([80.190.231.112]:28292 "EHLO
+	khepri.openbios.org") by vger.kernel.org with ESMTP id S264910AbUGIOtc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 10:49:32 -0400
+Date: Fri, 9 Jul 2004 16:48:59 +0200
+From: Stefan Reinauer <stepan@openbios.org>
+To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@suse.cz>,
+       Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-ID: <20040709144859.GA18243@openbios.org>
+References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040708210403.GA18049@infradead.org>
+X-Operating-System: Linux 2.6.5-12.7-smp on an x86_64
+User-Agent: Mutt/1.5.5.1i
+X-Duff: Orig. Duff, Duff Lite, Duff Dry, Duff Dark,
+	Raspberry Duff, Lady Duff, Red Duff, Tartar Control Duff, ( =?ISO-8859-1?Q?D=FCff?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you tried reverting bk-usb? 2.6.7-mm7 won't work for me without
-reverting it.
+* Christoph Hellwig <hch@infradead.org> [040708 23:04]:
+> No.  This stuff has no business in the kernel, paint your fancy graphics
+> ontop of fbdev.  And the SuSE bootsplash patch is utter crap, I mean what
+> do you have to smoke to put a jpeg decoder into the kernel?
 
-On Fri, 2004-07-09 at 12:32 +0200, Jurgen Kramer wrote:
-> On Fri, 2004-07-09 at 08:50, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/
-> > 
-> My EHCI controller still won't come back to life. I have tried 
-> various boot options to no avail. I still gives:
+Christoph, don't assume drugs just because you lack a little fantasy ;) 
+
+I agee with kernel 2.6 one could do a lot better due to proper initramfs
+handling, but in kernel 2.4 there was no decent way of placing userspace
+code early enough to be executed before framebuffer initialization. 
+
+On the other hand, the jpeg decoder is 8k object size - less than the
+dozens of gzip/gunzip algorithms in the kernel, so complaining sounds a
+little foolish to me. If you just want to bitch, go and critizise that
+with 1024x768 the bootsplash patch eats 1.5MB of memory permanently.
+THAT would make sense, if anything.
+
+Whether one wants retro text messages or a graphical bootup mechanism is
+sure a philosophical thing. IMHO starting X that early is not an option.
+
+
+Stefan
+
+
+
+
 

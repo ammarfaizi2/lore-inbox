@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUCALrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 06:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUCALrZ
+	id S261236AbUCALup (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUCALup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 06:47:25 -0500
-Received: from mail.tpgi.com.au ([203.12.160.100]:18387 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S261242AbUCALqz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 06:46:55 -0500
-Subject: Re: Dropping CONFIG_PM_DISK?
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <20040229124052.GB283@elf.ucw.cz>
-References: <20040228230039.GA246@elf.ucw.cz>
-	 <1078012320.906.9.camel@gaston> <20040229072959.GB209@elf.ucw.cz>
-	 <1078039327.904.36.camel@gaston>  <20040229124052.GB283@elf.ucw.cz>
+	Mon, 1 Mar 2004 06:50:45 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16576 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261236AbUCALug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:50:36 -0500
+Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Micha Feigin <michf@post.tau.ac.il>,
+       Software suspend <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <opr36ljbsu4evsfm@smtp.pacific.net.th>
+References: <1ulUA-33w-3@gated-at.bofh.it>
+	 <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz>
+	 <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th>
+	 <20040229213302.GA23719@luna.mooo.com>
+	 <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston>
+	 <opr36ljbsu4evsfm@smtp.pacific.net.th>
 Content-Type: text/plain
-Message-Id: <1078124567.3883.1.camel@laptop-linux.wpcb.org.au>
+Message-Id: <1078141191.28288.83.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Mon, 01 Mar 2004 22:46:08 +1300
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 01 Mar 2004 22:39:52 +1100
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to work on patching it into suspend2. I'm being real slow at
-the moment because I'm not working on suspend much at all, but that
-doesn't mean I don't want to do anything :>
 
-Regards,
-
-Nigel
-
-On Mon, 2004-03-01 at 01:40, Pavel Machek wrote:
-> Hi!
+> >> - that 2.4 style PM got depreciated and let die before the
+> >>    "new-driver-model" PM is workin
+> >
+> > Except that it never worked
 > 
-> > > > Except that pmdisk code is +/- readable, swsusp is not...
-> > > 
-> > > Would you be willing to either maintain pmdisk or (preffered) split it
-> > > up and submit me pieces?
-> > 
-> > Heh, if I had time ... :)
+> It is actively used for ide, network, serial drivers with swsusp2.
+
+Without any proper ordering guarantee, IDE could take requests
+after beeing suspended, which could be fatal (and cause data loss)
+etc... 
+
+Moving to the new model is easy. I don't see why we should have had
+such a "compatibility" path on a major kernel version, that makes
+no sense, just help fixing the drivers that need more fixing instead.
+
+> >
+> >> - that perfectly good drivers were rewritten from scratch,
+> >>    but without functioning PM support
+> >
+> > Please, give names.
+> >
 > 
-> Well, unless someone steps up, I guess I'll just let it bitrot, and
-> when its broken enough, I'll attempt removal. I really do not have
-> time to maintain two implementations...
-> 								Pavel
+> A few I tested:
+> 
+> AGP (sis, savage)
+> trident (Ali153x)
+> Serial (82x50)
+> Yenta (Toshiba Topic95)
+> 
+> Regards
+> Michael
 -- 
-My work on Software Suspend was graciously brought to you between
-October and January by LinuxFund.org.
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

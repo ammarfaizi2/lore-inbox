@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263140AbSJHVzL>; Tue, 8 Oct 2002 17:55:11 -0400
+	id <S263456AbSJHV63>; Tue, 8 Oct 2002 17:58:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263153AbSJHVzL>; Tue, 8 Oct 2002 17:55:11 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:62345 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S263140AbSJHVyM>; Tue, 8 Oct 2002 17:54:12 -0400
-Date: Tue, 08 Oct 2002 16:59:38 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.41] New version of shared page tables
-Message-ID: <223810000.1034114378@baldur.austin.ibm.com>
-In-Reply-To: <181170000.1034109448@baldur.austin.ibm.com>
-References: <181170000.1034109448@baldur.austin.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1070740887=========="
+	id <S263479AbSJHV62>; Tue, 8 Oct 2002 17:58:28 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:20725 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S263456AbSJHV6I>; Tue, 8 Oct 2002 17:58:08 -0400
+Date: Tue, 8 Oct 2002 18:03:50 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: mingo@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] silence an unnescessary raid5 debugging message
+Message-ID: <20021008180350.A15858@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1070740887==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hello Ingo,
 
+LVM manages to trigger the "raid5: switching cache buffer size" printk 
+quiet voluminously when using a snapshot device.  The following patch 
+disables it by placing it under the debugging PRINTK macro.
 
-Ok, Bill Irwin found another bug.  Here's the 2 lines of change.
+		-ben
+-- 
+"Do you seek knowledge in time travel?"
 
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
---==========1070740887==========
-Content-Type: text/plain; charset=us-ascii; name="shpte-tweak.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="shpte-tweak.diff"; size=541
-
---- a/fs/exec.c	8 Oct 2002 17:32:52 -0000	1.2
-+++ b/fs/exec.c	8 Oct 2002 21:46:04 -0000
-@@ -46,6 +46,7 @@
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
- #include <asm/mmu_context.h>
-+#include <asm/rmap.h>
+diff -urN linux.orig/drivers/md/raid5.c linux/drivers/md/raid5.c
+--- linux.orig/drivers/md/raid5.c	Mon Feb 25 14:37:58 2002
++++ linux/drivers/md/raid5.c	Tue Oct  8 17:56:43 2002
+@@ -282,7 +282,7 @@
+ 				}
  
- #ifdef CONFIG_KMOD
- #include <linux/kmod.h>
-@@ -308,7 +309,7 @@
- 	flush_page_to_ram(page);
- 	set_pte(pte, pte_mkdirty(pte_mkwrite(mk_pte(page, PAGE_COPY))));
- 	page_add_rmap(page, pte);
--	increment_rss(virt_to_page(pte));
-+	increment_rss(kmap_atomic_to_page(pte));
- 	pte_unmap(pte);
- 	spin_unlock(&tsk->mm->page_table_lock);
- 
-
---==========1070740887==========--
-
+ 				if (conf->buffer_size != size) {
+-					printk("raid5: switching cache buffer size, %d --> %d\n", oldsize, size);
++					PRINTK("raid5: switching cache buffer size, %d --> %d\n", oldsize, size);
+ 					shrink_stripe_cache(conf);
+ 					if (size==0) BUG();
+ 					conf->buffer_size = size;

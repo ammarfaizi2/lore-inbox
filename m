@@ -1,75 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131878AbRA2I0n>; Mon, 29 Jan 2001 03:26:43 -0500
+	id <S132014AbRA2I0o>; Mon, 29 Jan 2001 03:26:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132014AbRA2I0e>; Mon, 29 Jan 2001 03:26:34 -0500
-Received: from smtp4.mail.yahoo.com ([128.11.69.101]:13574 "HELO
-	smtp4.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131878AbRA2I0X>; Mon, 29 Jan 2001 03:26:23 -0500
+	id <S132372AbRA2I0d>; Mon, 29 Jan 2001 03:26:33 -0500
+Received: from smtp5.mail.yahoo.com ([128.11.69.102]:41223 "HELO
+	smtp5.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S132014AbRA2I00>; Mon, 29 Jan 2001 03:26:26 -0500
 X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A74D703.59578FA8@yahoo.com>
-Date: Sun, 28 Jan 2001 21:35:47 -0500
+Message-ID: <3A74D9E8.112A101B@yahoo.com>
+Date: Sun, 28 Jan 2001 21:48:08 -0500
 From: Paul Gortmaker <p_gortmaker@yahoo.com>
 X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.1-pre8 i486)
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@transmeta.com>
-CC: root@chaos.analogic.com, Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <Pine.LNX.3.95.1010126085110.265A-100000@chaos.analogic.com> <3A71A3AE.DE587EEE@transmeta.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Stefani Seibold <stefani@seibold.net>, linux-kernel@vger.kernel.org
+Subject: Re: patch for 2.4.0 disable printk
+In-Reply-To: <01012723313500.01190@deepthought.seibold.net> <3A736B76.214D4193@uow.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually, what you need to do is change it and then try it on something
-> like 300 different systems.  Since noone has direct access to that kind
-> of system, you have to get people to help you out trying it.
+Andrew Morton wrote:
 > 
-> A better idea might be to find out what port, if any, Windows uses.  If
-> Windows does it, it is usually safe.
+> Stefani Seibold wrote:
+> >
+> > Second, i had change the macro so it calls now a inline funciton
+> > printk_inline which always return 0. So it should be now compatibel to the
+> > standard printk funciton.
+> 
+> A #define is better.
+> 
+> You see, even if printk is a null inline function,
+> 
+>         printk("foo");
+> 
+> will still cause "foo" to appear in your output. Apparently
+> very recent versions of gcc have fixed this.
 
-In the FWIW category, the collection of DOS packet drivers from Russ Nelson
-(and the many commercial ones based on them) use a read of the NMI status
-port to create a similar delay.  This code got used on lots of hardware
-(although probably not much on current hw - mostly 386/486 type vintage
-stuff I'd guess...)
+I missed earlier parts of this, so maybe I'm not even on the same page...
 
-I'm not advocating we move off 0x80 either - but people wanting to use
-POST cards have at least a couple of options.  And if they have a POST
-card, it is probably a safe bet that they can manage to apply one of
-the patches and rebuild the kernel.
+Here is part of an old patch I made to replace panic messages with
+a simple EIP that you could still look up in System.map to cut down on 
+the text in the image for small kernels.  One could use the same macro
+trickery for printk() which is what I think Andrew is recommending.
 
 Paul.
 
-[Booted old 486-66 with 8390 based card (uses inb_p/outb_p) & works fine]
-
-
---- include/asm-i386/io.h~	Thu May 11 15:19:27 2000
-+++ include/asm-i386/io.h	Sun Jan 28 21:10:22 2001
-@@ -23,6 +23,11 @@
-  * I feel a bit unsafe about using 0x80 (should be safe, though)
-  *
-  *		Linus
-+ *
-+ * Some people get upset since they can't use their POST cards
-+ * for diagnostics once linux boots and hammers 0x80 with garbage.
-+ * DOS packet drivers do a dummy read of the NMI status port to
-+ * obtain a similar delay.			Paul G.
-  */
+--- /mnt2/linux/include/linux/kernel.h	Wed Feb 12 14:17:00 1997
++++ linux/include/linux/kernel.h	Wed Feb 12 13:57:47 1997
+@@ -34,8 +34,16 @@
+ # define NORET_AND     noreturn,
  
-  /*
-@@ -32,7 +37,11 @@
- #ifdef SLOW_IO_BY_JUMPING
- #define __SLOW_DOWN_IO "\njmp 1f\n1:\tjmp 1f\n1:"
- #else
-+#ifdef HAVE_POST_CARD
-+#define __SLOW_DOWN_IO "\n\tpushl %%eax\n\tinb $0x61,%%al\n\tpopl %%eax"
-+#else
- #define __SLOW_DOWN_IO "\noutb %%al,$0x80"
-+#endif
- #endif
+ extern void math_error(void);
+-NORET_TYPE void panic(const char * fmt, ...)
+-	__attribute__ ((NORET_AND format (printf, 1, 2)));
++
++NORET_TYPE void panic_at(const void *location)
++	ATTRIB_NORET;
++
++#define panic(fmt,arg...)	\
++({ __label__ whoops;		\
++whoops:				\
++	panic_at(&&whoops);	\
++})
++ 
+ NORET_TYPE void do_exit(long error_code)
+ 	ATTRIB_NORET;
+ extern unsigned long simple_strtoul(const char *,char **,unsigned int);
+--- /mnt2/linux/kernel/panic.c	Wed Feb 12 14:17:00 1997
++++ linux/kernel/panic.c	Wed Feb 12 14:23:06 1997
+@@ -19,50 +19,18 @@
+ extern void do_unblank_screen(void);
+ extern int C_A_D;
  
- #ifdef REALLY_SLOW_IO
-
+-NORET_TYPE void panic(const char * fmt, ...)
++NORET_TYPE void panic_at(const void *location)
+ {
+-	static char buf[1024];
+-	va_list args;
+-	int i;
+-
+-	va_start(args, fmt);
+-	vsprintf(buf, fmt, args);
+-	va_end(args);
+-	printk(KERN_EMERG "Kernel panic: %s\n",buf);
++	printk(KERN_EMERG "Kernel panic at: %p\n",location);
+ 	if (current == task[0])
+ 		printk(KERN_EMERG "In swapper task - not syncing\n");
+ 	else
 
 
 

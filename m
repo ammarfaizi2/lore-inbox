@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267443AbTBXSXa>; Mon, 24 Feb 2003 13:23:30 -0500
+	id <S267540AbTBXSbg>; Mon, 24 Feb 2003 13:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267485AbTBXSWH>; Mon, 24 Feb 2003 13:22:07 -0500
-Received: from clavin.cs.tamu.edu ([128.194.130.106]:7093 "EHLO cs.tamu.edu")
-	by vger.kernel.org with ESMTP id <S267443AbTBXSRZ>;
-	Mon, 24 Feb 2003 13:17:25 -0500
-Date: Mon, 24 Feb 2003 12:27:31 -0600 (CST)
-From: Xinwen Fu <xinwenfu@cs.tamu.edu>
-To: Paul Rolland <rol@as2917.net>
-cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: how to force 10/100 speeds in Linux if both ethtool and mii-tool
- don't work
-In-Reply-To: <002101c2dbd5$6fabc400$3f00a8c0@witbe>
-Message-ID: <Pine.SOL.4.10.10302241218050.2913-100000@dogbert>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267500AbTBXSaK>; Mon, 24 Feb 2003 13:30:10 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:25615 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267454AbTBXS3n>; Mon, 24 Feb 2003 13:29:43 -0500
+Date: Mon, 24 Feb 2003 19:39:55 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ducrot Bruno <ducrot@poupinou.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Robert Woerle <robert@paceblade.com>
+Subject: Re: [ACPI] PaceBlade broken acpi/memory map
+Message-ID: <20030224183955.GC517@atrey.karlin.mff.cuni.cz>
+References: <20030220172144.GA15016@elf.ucw.cz> <20030224164209.GD13404@poup.poupinou.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030224164209.GD13404@poup.poupinou.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-	For one of my machines, both ethtool and mii-tool don't work. Here
-are the error messages:
+Hi!
 
-(mii-tool)
-SIOCGMIIPHY on 'eth0' failed: invalid argument
-.............................................
-SIOCGMIIPHY on 'eth7' failed: invalid argument
-no MII interfaces found
-
-(ethtool eth0)
-setting for eth0:
-no data available
-
-I tried some other parameters and go similar results.
-
-What else can we do to force the speed?
-
-
-Xinwen Fu
-
-
-On Mon, 24 Feb 2003, Paul Rolland wrote:
-
-> > 	How can I force the speeds of the two cards at 10Mbps 
-> > or 100Mbps? Where can I find the parameter list to do such forcing?
-> > 
-> Have a look at :
->  - mii-tool
->  - ethtool
-> depending on your card.
+> > I have PaceBlade here, and its memory map is wrong, which leads to
+> > ACPI refusing to load. [It does not mention "ACPI data" in the memory
+> > map at all!]
 > 
-> Regards,
-> Paul
-> 
-> 
-> 
+> I have made those patches to workaround that.  I have no time
 
+Yes, I have seen those... I also made a patch that enables you to do
+that workaround from mem= options at kernel command line.
+
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

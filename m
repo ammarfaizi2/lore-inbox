@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261254AbRFMNKG>; Wed, 13 Jun 2001 09:10:06 -0400
+	id <S262076AbRFMNWI>; Wed, 13 Jun 2001 09:22:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262076AbRFMNJ4>; Wed, 13 Jun 2001 09:09:56 -0400
-Received: from cmr2.ash.ops.us.uu.net ([198.5.241.40]:61133 "EHLO
-	cmr2.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
-	id <S261254AbRFMNJp>; Wed, 13 Jun 2001 09:09:45 -0400
-Message-ID: <3B276615.7B175F72@uu.net>
-Date: Wed, 13 Jun 2001 09:09:41 -0400
-From: Alex Deucher <adeucher@UU.NET>
-Organization: UUNET
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+	id <S262168AbRFMNVs>; Wed, 13 Jun 2001 09:21:48 -0400
+Received: from t2.redhat.com ([199.183.24.243]:3574 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S262076AbRFMNVi>; Wed, 13 Jun 2001 09:21:38 -0400
+Message-ID: <3B2768E1.2B7E064C@redhat.com>
+Date: Wed, 13 Jun 2001 14:21:37 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-11.3smp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
-In-Reply-To: <Pine.LNX.4.31.0106121549130.4477-100000@penguin.transmeta.com>
+To: Sven Geggus <geg@iitb.fhg.de>, linux-kernel@vger.kernel.org
+Subject: Re: Changing CPU Speed while running Linux
+In-Reply-To: <20010613143536.A1323@iitb.fhg.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I actually heard from one of the xfree developers last night that the
-merge of the the YUV stuff at least is in progress.  As I recall I think
-XvMC was for general media controls, but I could be wrong, it's been a
-while.
+Sven Geggus wrote:
+> 
+> Hi there,
+> 
+> on my Elan410 based System it is very easy to change the CPU clock speed by
+> means od two outb commands.
+> 
+> I was wondering, if it does some harm to the Kernel if the CPU is
+> reprogrammed using a different CPU clock speed, while the system is up and
+> running.
 
-Alex
+I have a module for the K6 PowerNow which allows you to do
 
-Linus Torvalds wrote:
-> 
-> On Tue, 12 Jun 2001, Alex Deucher wrote:
-> >
-> > As far as I know they have not been integrated into the Xfree tree.  I
-> > believe there were some disagreements about extending the Xv API since
-> > GATOS added some extentions to support the AIW video capture cards.  I
-> > suppose someone could try and submit a patch again and see if they'll
-> > take it.
-> 
-> I got just the YUV code from Gatos, and a few months ago it took less than
-> an hour to merge just that part (and most of that was compiling and
-> testing).
-> 
-> The rest of Gatos is obviously more experimental, but the YUV code looks
-> quite sane.
-> 
-> > Also there is some work on a new XvMC interface that would allow for
-> > extended DVD acceleration.
-> 
-> Yes. Although I hope it's going to be XvMPG2 or something - some cards
-> literally do all of the mpeg2 stuff, not just parts of it, and limiting
-> yourself to just the motion comp is limiting the protocol quite badly.
-> 
->                 Linus
+echo 450 > /proc/sys/cpu/0/frequency
+
+and does the right thing wrt udelay / bogomips etc..
+I can dig it out if you want.. sounds like this should be a more generic
+thing.
+
+Greetings,
+  Arjan van de Ven

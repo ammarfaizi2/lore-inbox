@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268401AbTAMXFN>; Mon, 13 Jan 2003 18:05:13 -0500
+	id <S268383AbTAMXEB>; Mon, 13 Jan 2003 18:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268403AbTAMXFM>; Mon, 13 Jan 2003 18:05:12 -0500
-Received: from ip68-0-152-218.tc.ph.cox.net ([68.0.152.218]:18050 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S268401AbTAMXEg>; Mon, 13 Jan 2003 18:04:36 -0500
-Date: Mon, 13 Jan 2003 16:13:25 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][RESEND x 5] Don't ask about "Enhanced Real Time Clock Support" on some archs
-Message-ID: <20030113231325.GA764@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S268388AbTAMXEB>; Mon, 13 Jan 2003 18:04:01 -0500
+Received: from h-64-105-35-9.SNVACAID.covad.net ([64.105.35.9]:62097 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S268383AbTAMXEA>; Mon, 13 Jan 2003 18:04:00 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 13 Jan 2003 15:12:37 -0800
+Message-Id: <200301132312.PAA31291@baldur.yggdrasil.com>
+To: jgarzik@pobox.com, perex@suse.cz
+Subject: Re: 2.5.57 missing isapnp_card_protocol
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch adds an explicit no list of arches who do not want
-to have the "Enhanced Real Time Clock Support" RTC driver asked.  This
-adds PPC32 (who for a long time had their own 'generic' RTC driver, and
-then have adopted the genrtc driver) and PARISC (who have always used
-the genrtc driver).  Per request of Peter Chubb, IA64 is on this list as
-well.
+Mon, 13 Jan 2003, Jeff Garzik wrote:
+>On Mon, Jan 13, 2003 at 02:09:49PM -0800, Adam J. Richter wrote:
+>> 	Linux-2.5.57 deletes the definition of isapnp_card_protocol
+>> and then adds some references to it.  So, the kernel does not link
+>> if you have enabled ISA PnP support.  I'm not sure whether
+>> isapnp_card_protocol is supposed to be removed or not.
 
-The problem is that on some archs there is no hope of this driver
-working, and having it compiled into the kernel can cause many different
-problems.  On the other hand, there are some arches for whom that driver
-does work, on some platforms.  So having an explicit yes list would
-result in some rather ugly statements.
+>That's the fault of some random driver that hasn't been updated to the
+>new isapnp API yet...
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+	A random driver like linux-2.5.57/drivers/isapnp/core.c, line
+1128, which was changed _from_ referencing isapnp_protocol _to_
+referencing isapnp_card_protocol?  Also, if isapnp_card_protocol is
+supposed to be deleted, then presumably so should its extern
+declaration at line 106 of the same file.
 
-===== drivers/char/Kconfig 1.1 vs edited =====
---- 1.1/drivers/char/Kconfig	Tue Oct 29 18:16:55 2002
-+++ edited/drivers/char/Kconfig	Wed Nov 13 07:56:39 2002
-@@ -1053,6 +1053,7 @@
+	Come to think of it, core.c is the only file that references
+isapnp_card_protocol in 2.5.57.  _If_ isapnp_card_protocol really
+should be deleted, then here is a patch for it.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+--- linux-2.5.57/drivers/pnp/isapnp/core.c	2003-01-13 10:17:35.000000000 -0800
++++ linux/drivers/pnp/isapnp/core.c	2003-01-13 15:04:17.000000000 -0800
+@@ -102,7 +102,6 @@
+ /* some prototypes */
  
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
-+	depends on !PPC32 && !PARISC && !IA64
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+ static int isapnp_config_prepare(struct pnp_dev *dev);
+-extern struct pnp_protocol isapnp_card_protocol;
+ extern struct pnp_protocol isapnp_protocol;
+ 
+ static inline void write_data(unsigned char x)
+@@ -1125,7 +1124,7 @@
+ 	isapnp_build_device_list();
+ 	cards = 0;
+ 
+-	protocol_for_each_card(&isapnp_card_protocol,card) {
++	protocol_for_each_card(&isapnp_protocol,card) {
+ 		cards++;
+ 		if (isapnp_verbose) {
+ 			printk(KERN_INFO "isapnp: Card '%s'\n", card->name[0]?card->name:"Unknown");

@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUHWPeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUHWQjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265148AbUHWPeG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 11:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHWPbe
+	id S265792AbUHWQjM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 12:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUHWQhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 11:31:34 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:41642 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S265060AbUHWP2c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 11:28:32 -0400
-Subject: radeonfb problems (console blanking & acpi suspend)
-From: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
-Reply-To: Alexander.Rauth@promotion-ie.de
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Pro/Motion Industrie-Elektronik GmbH
-Message-Id: <1093274970.9973.12.camel@pro30.local.promotion-ie.de>
+	Mon, 23 Aug 2004 12:37:06 -0400
+Received: from holomorphy.com ([207.189.100.168]:54404 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265805AbUHWQeP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 12:34:15 -0400
+Date: Mon, 23 Aug 2004 09:27:35 -0700
+From: wli@holomorphy.com
+To: davidm@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+Message-ID: <20040823162735.GB4418@holomorphy.com>
+Mail-Followup-To: wli@holomorphy.com, davidm@hpl.hp.com,
+	Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org> <200408201144.49522.jbarnes@engr.sgi.com> <200408201257.42064.jbarnes@engr.sgi.com> <20040820115541.3e68c5be.akpm@osdl.org> <20040820200248.GJ11200@holomorphy.com> <16681.45746.300292.961415@napali.hpl.hp.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 23 Aug 2004 17:29:30 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16681.45746.300292.961415@napali.hpl.hp.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the following problems with my Radeon FireGL Mobility T2 (IBM
-Thinkpad R50p):
-1) there is no console blanking nor backlight off powersaving with
-fbconsole (no X running nor started since boot)
-2) after an acpi suspend the backlight goes back on but there is no data
-displayed on the screen (no X running nor started since boot)
+On Fri, 20 Aug 2004 13:02:48 -0700, William Lee Irwin III said:
+William> I suppose another way to answer the question of what's
+William> going on is to fiddle with ia64's implementation of
+William> profile_pc(). I suspect something like this may reveal the
+William> offending codepaths.
 
-If more information is needed for diagnosis then please email me.
+On Mon, Aug 23, 2004 at 02:02:42AM -0700, David Mosberger wrote:
+> You do realize that q-syscollect [1] can do this better for you
+> without touching the kernel at all?
+> [1] http://www.hpl.hp.com/research/linux/q-tools/
 
-used kernel versions: 2.6.6  2.6.7  2.6.8.1  2.6.8.1-mm3
+Never heard of it. Unfortunately, the issue I run into far more
+frequently than tools not existing is users being unwilling or unable
+to use them. In fact, it's even a relatively large hassle to get users
+to boot with /proc/profile enabled regardless of its simplicity. For an
+issue this common I would prefer that the most basic tools available
+(i.e. the very few that are near-universal, e.g. readprofile(1) etc.)
+report callers to spinlock contention by default.
 
-lspci -v
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc M10 NT
-[FireGL Mobility T2] (rev 80) (prog-if 00 [VGA])
-        Subsystem: IBM: Unknown device 054f
-        Flags: bus master, fast Back2Back, 66Mhz, medium devsel, latency
-255, IRQ 11
-        Memory at e0000000 (32-bit, prefetchable)
-        I/O ports at 3000 [size=256]
-        Memory at c0100000 (32-bit, non-prefetchable) [size=64K]
-        Capabilities: [58] AGP version 2.0
-        Capabilities: [50] Power Management version 2
+That said, should other concerns override mine, and the decision is to
+report the precise program counter for /proc/profile at all times for
+all architectures, that decision would eliminate profile_pc() in favor
+of instruction_pointer(), further consolidating /proc/profile code.
 
-dmesg:
 
-....
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
-ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-radeonfb: Retreived PLL infos from BIOS
-radeonfb: Reference=27.00 MHz (RefDiv=6) Memory=320.00 Mhz,
-System=202.00 MHz
-Non-DDC laptop panel detected
-radeonfb: Monitor 1 type LCD found
-radeonfb: Monitor 2 type no found
-radeonfb: panel ID string: 1600x1200
-radeonfb: detected LVDS panel size from BIOS: 1600x1200
-radeondb: BIOS provided dividers will be used
-radeonfb: Power Management enabled for Mobility chipsets
-radeonfb: ATI Radeon NT  SDR SGRAM 128 MB
-....
-
+-- wli

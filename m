@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbRG2Bxm>; Sat, 28 Jul 2001 21:53:42 -0400
+	id <S267452AbRG2ByZ>; Sat, 28 Jul 2001 21:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbRG2Bxd>; Sat, 28 Jul 2001 21:53:33 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:5138 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S267449AbRG2Bx0>; Sat, 28 Jul 2001 21:53:26 -0400
-Message-ID: <3B636E09.40F12A6@zip.com.au>
-Date: Sun, 29 Jul 2001 11:59:37 +1000
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S267458AbRG2Bxx>; Sat, 28 Jul 2001 21:53:53 -0400
+Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:60905 "EHLO
+	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S267452AbRG2Bxo>; Sat, 28 Jul 2001 21:53:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steve Snyder <swsnyder@home.com>
+Reply-To: swsnyder@home.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: What does "Neighbour table overflow" message indicate?
+Date: Sat, 28 Jul 2001 20:53:48 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01072820231401.01125@mercury.snydernet.lan> <20010729133848.A3254@weta.f00f.org>
+In-Reply-To: <20010729133848.A3254@weta.f00f.org>
+Cc: Chris Wedgwood <cw@f00f.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <s5gsnfh80hw.fsf@egghead.curl.com> from "Patrick J. LoPresti" at Jul 28, 2001 12:46:51 PM <E15QZNB-00082q-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01072820534802.01125@mercury.snydernet.lan>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
-> 
->...
-> > If you have metadata journalling, all you need for this algorithm to
-> > work is to have rename() write to the journal before returning.  Is
-> > this true for any of the current journalling file systems on Linux?
-> 
-> Ext3 I believe so, Reiserfs I would assume so but Hans can answer
-> definitively
+No, and no errors are shown for it either:
 
-For ext3: this is true if something forces a commit.  Apart from data in
-`-o data=writeback' mode, a commit syncs the entire filesystem.
-Things which force a commit include:
+# ifconfig lo
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:196907 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:196907 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
 
-- completing a write() on an O_SYNC file.
-- Performing any metadata operation on a `chattr +S' object
-- Performing any metadata operation on an object on a `mount -o sync'
-  filesystem.
+All *seems* well.  Just that 30-second period of messages and then silence.
 
-In `data=journal' or `data=ordered' mode, any of these things will
-commit everything to non-volatile storage.
+Thanks for the response.
 
--
+
+On Saturday 28 July 2001 08:38 pm, you wrote:
+> is lo down?
+>
+>   --cw
+>
+> On Sat, Jul 28, 2001 at 08:23:14PM -0500, Steve Snyder wrote:
+>     I just got this sequence of messages in my system log:
+>
+>     Jul 28 19:47:44 sunburn kernel: Neighbour table overflow.
+>     Jul 28 19:47:44 sunburn last message repeated 9 times
+>     Jul 28 19:47:49 sunburn kernel: NET: 53 messages suppressed.
+>     Jul 28 19:47:49 sunburn kernel: Neighbour table overflow.
+>     Jul 28 19:48:07 sunburn kernel: NET: 21 messages suppressed.
+>     Jul 28 19:48:07 sunburn kernel: Neighbour table overflow.
+>     Jul 28 19:48:09 sunburn last message repeated 3 times
+>     Jul 28 19:48:14 sunburn kernel: NET: 4 messages suppressed.
+>     Jul 28 19:48:14 sunburn kernel: Neighbour table overflow.
+>
+>     This is on a RedHat v7.1 + SMP kernel v2.4.7 system.  What is the
+> kernel trying to tell me here?
+>
+>     Please cc me as I am not a subscriber to this list.
+>
+>     Thanks.
+>     -
+>     To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>     More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>     Please read the FAQ at  http://www.tux.org/lkml/

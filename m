@@ -1,153 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbUJWNrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUJWNsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbUJWNrp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 09:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUJWNrp
+	id S261184AbUJWNsi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 09:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUJWNsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 09:47:45 -0400
-Received: from smtp1.netcabo.pt ([212.113.174.28]:26845 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261183AbUJWNrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 09:47:39 -0400
-Message-ID: <32989.192.168.1.5.1098539101.squirrel@192.168.1.5>
-In-Reply-To: <20041023125104.GA10883@elte.hu>
-References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
-    <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
-    <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
-    <20041022175633.GA1864@elte.hu>
-    <32871.192.168.1.5.1098491242.squirrel@192.168.1.5>
-    <20041023102909.GD30270@elte.hu>
-    <32880.192.168.1.5.1098534617.squirrel@192.168.1.5>
-    <20041023125104.GA10883@elte.hu>
-Date: Sat, 23 Oct 2004 14:45:01 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Alexander Batyrshin" <abatyrshin@ru.mvista.com>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Sat, 23 Oct 2004 09:48:38 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:12169 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S261184AbUJWNsJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 09:48:09 -0400
+Message-ID: <417A6118.4080805@rtr.ca>
+Date: Sat, 23 Oct 2004 09:48:08 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 23 Oct 2004 13:47:37.0865 (UTC) FILETIME=[DB9CDF90:01C4B906]
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RESEND PATCH 2.4.28] delkin_cb  new driver for Delkin Cardbus CF
+ Adapter
+References: <20041022185953.GA4886@logos.cnet> <Pine.LNX.4.53.0410230013100.17442@yvahk01.tjqt.qr> <20041023104327.GB7638@logos.cnet>
+In-Reply-To: <20041023104327.GB7638@logos.cnet>
+Content-Type: multipart/mixed;
+ boundary="------------040500090901040402070207"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> Rui Nuno Capela wrote:
->
->> > does the patch below help?
->
->> Nope. Same result:
->
->> SysRq : <3>BUG: sleeping function called from invalid context IRQ 1(776)
->> at kernel/mutex.c:37
->> in_atomic():0 [00000000], irqs_disabled():1
->
-> interrupts are disabled. You used a -RT-U10.2/3 kernel, and have
-> CONFIG_REALTIME enabled, right? Do you have this in
-> drivers/net/netconsole.c, line 77:
->
->  #ifdef PREEMPT_REALTIME
->          /*
->           * A bit hairy. Netconsole uses mutexes (indirectly) and
->           * thus must have interrupts enabled:
->           */
->          local_irq_enable();
->  #endif
->
-> correct? Could you do this a few lines below:
->
->                 WARN_ON_RT(irqs_disabled());
->                 netpoll_send_udp(&np, msg, frag);
->                 WARN_ON_RT(irqs_disabled());
->
-> to figure out who disables interrupts. Also, could you add the same two
-> lines to net/core/netpoll.c, line 83:
->
->         WARN_ON_RT(irqs_disabled());
->         np->dev->poll_controller(np->dev);
->         WARN_ON_RT(irqs_disabled());
->
-> and send me either the full bootlog, or the _first_ such BUG message
-> you'll be getting. Which network controller is this?
->
+This is a multi-part message in MIME format.
+--------------040500090901040402070207
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-OK. All affirmative. NIC is natsemi.
+Marcelo,
 
-Here it is:
+This new driver is also ready to go into 2.4.xx.
+It is completely stand-alone, with no code impact
+to any existing drivers, and so should be pretty safe.
 
-SysRq : IRQ 1/776: BUG in write_msg at drivers/net/netconsole.c:87
- [<c0104ee4>] dump_stack+0x1e/0x20 (20)
- [<e00ef0ab>] write_msg+0xab/0xf4 [netconsole] (52)
- [<c0117804>] __call_console_drivers+0x51/0x60 (32)
- [<c0117910>] call_console_drivers+0x6d/0x147 (40)
- [<c0117caf>] release_console_sem+0x48/0x100 (36)
- [<c0117bd5>] vprintk+0x127/0x174 (36)
- [<c0117aac>] printk+0x18/0x1a (16)
- [<c01f4835>] __handle_sysrq+0x38/0xed (40)
- [<c01ee426>] kbd_event+0xeb/0xfa (40)
- [<c025f694>] input_event+0x160/0x3d4 (44)
- [<c02620a2>] atkbd_report_key+0x3b/0x95 (32)
- [<c0262358>] atkbd_interrupt+0x25c/0x590 (60)
- [<c01f6fbe>] serio_interrupt+0x4f/0xa5 (44)
- [<c01f78b7>] i8042_interrupt+0xb8/0x1b8 (40)
- [<c0131dbc>] handle_IRQ_event+0x48/0x79 (32)
- [<c01325dd>] do_hardirq+0x86/0x123 (40)
- [<c0132712>] do_irqd+0x98/0xc9 (36)
- [<c012b7d7>] kthread+0x9c/0xc9 (48)
- [<c0102305>] kernel_thread_helper+0x5/0xb (548454420)
-preempt count: 00000001
-. 1-level deep critical section nesting:
-.. entry 1: print_traces+0x16/0x48 [<c0104ee4>] / (dump_stack+0x1e/0x20
-[<c0104ee4>])
-
-BUG: sleeping function called from invalid context IRQ 1(776) at
-kernel/mutex.c:37
-in_atomic():0 [00000000], irqs_disabled():1
- [<c0104ee4>] dump_stack+0x1e/0x20 (20)
- [<c0114a23>] __might_sleep+0xb2/0xc7 (36)
- [<c012c0f2>] _mutex_lock+0x39/0x5e (28)
- [<c012c13a>] _mutex_lock_irqsave+0x11/0x15 (12)
- [<c027f9bc>] refill_skbs+0x13/0x6d (20)
- [<c027fae1>] find_skb+0x5d/0x9d (24)
- [<c027fc09>] netpoll_send_udp+0x3b/0x298 (48)
- [<e00ef050>] write_msg+0x50/0xf4 [netconsole] (52)
- [<c0117804>] __call_console_drivers+0x51/0x60 (32)
- [<c0117910>] call_console_drivers+0x6d/0x147 (40)
- [<c0117caf>] release_console_sem+0x48/0x100 (36)
- [<c0117bd5>] vprintk+0x127/0x174 (36)
- [<c0117aac>] printk+0x18/0x1a (16)
- [<c01f4835>] __handle_sysrq+0x38/0xed (40)
- [<c01ee426>] kbd_event+0xeb/0xfa (40)
- [<c025f694>] input_event+0x160/0x3d4 (44)
- [<c02620a2>] atkbd_report_key+0x3b/0x95 (32)
- [<c0262358>] atkbd_interrupt+0x25c/0x590 (60)
- [<c01f6fbe>] serio_interrupt+0x4f/0xa5 (44)
- [<c01f78b7>] i8042_interrupt+0xb8/0x1b8 (40)
- [<c0131dbc>] handle_IRQ_event+0x48/0x79 (32)
- [<c01325dd>] do_hardirq+0x86/0x123 (40)
- [<c0132712>] do_irqd+0x98/0xc9 (36)
- [<c012b7d7>] kthread+0x9c/0xc9 (48)
- [<c0102305>] kernel_thread_helper+0x5/0xb (548454420)
-preempt count: 00000001
-. 1-level deep critical section nesting:
-.. entry 1: print_traces+0x16/0x48 [<c0104ee4>] / (dump_stack+0x1e/0x20
-[<c0104ee4>])
-
-
-Bye.
+Signed-off-by:  Mark Lord <mlord@pobox.com>
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")
 
+--------------040500090901040402070207
+Content-Type: text/plain;
+ name="delkin_cb-2.4.28-bk4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="delkin_cb-2.4.28-bk4.patch"
+
+diff -u --recursive --new-file --exclude='.*' linux-2.4.28-pre4-bk6/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.28-pre4-bk6/Documentation/Configure.help	2004-10-21 11:02:17.000000000 -0400
++++ linux/Documentation/Configure.help	2004-10-21 19:38:35.000000000 -0400
+@@ -781,6 +781,13 @@
+   <file:Documentation/modules.txt>. The module will be called
+   ide-cs.o
+ 
++Cardbus IDE support (Delkin/ASKA/Workbit)
++CONFIG_BLK_DEV_DELKIN
++  Support for Delkin/ASKA/Workbit cardbus CompactFlash Adapters.
++  This may also work for similar SD and XD adapters.  If you want
++  to be able to use one of these, then say M here.  The module will
++  be called delkin_cb.o
++
+ Include IDE/ATAPI CD-ROM support
+ CONFIG_BLK_DEV_IDECD
+   If you have a CD-ROM drive using the ATAPI protocol, say Y. ATAPI is
+diff -u --recursive --new-file --exclude='.*' linux-2.4.28-pre4-bk6/drivers/ide/Config.in linux/drivers/ide/Config.in
+--- linux-2.4.28-pre4-bk6/drivers/ide/Config.in	2004-10-21 11:02:18.000000000 -0400
++++ linux/drivers/ide/Config.in	2004-10-21 11:46:05.000000000 -0400
+@@ -18,6 +18,7 @@
+    dep_mbool '    Auto-Geometry Resizing support' CONFIG_IDEDISK_STROKE $CONFIG_BLK_DEV_IDEDISK
+ 
+    dep_tristate '  PCMCIA IDE support' CONFIG_BLK_DEV_IDECS $CONFIG_BLK_DEV_IDE $CONFIG_PCMCIA
++   dep_tristate '  Cardbus IDE support (Delkin/ASKA/Workbit)' CONFIG_BLK_DEV_DELKIN $CONFIG_BLK_DEV_IDE $CONFIG_PCMCIA $CONFIG_PCI
+    dep_tristate '  Include IDE/ATAPI CDROM support' CONFIG_BLK_DEV_IDECD $CONFIG_BLK_DEV_IDE
+    dep_tristate '  Include IDE/ATAPI TAPE support' CONFIG_BLK_DEV_IDETAPE $CONFIG_BLK_DEV_IDE
+    dep_tristate '  Include IDE/ATAPI FLOPPY support' CONFIG_BLK_DEV_IDEFLOPPY $CONFIG_BLK_DEV_IDE
+diff -u --recursive --new-file --exclude='.*' linux-2.4.28-pre4-bk6/drivers/ide/pci/delkin_cb.c linux/drivers/ide/pci/delkin_cb.c
+--- linux-2.4.28-pre4-bk6/drivers/ide/pci/delkin_cb.c	1969-12-31 19:00:00.000000000 -0500
++++ linux/drivers/ide/pci/delkin_cb.c	2004-10-21 17:47:33.000000000 -0400
+@@ -0,0 +1,149 @@
++/*
++ *  linux/drivers/ide/pci/delkin_cb.c
++ *
++ *  Created 21 Oct 2004 by Mark Lord
++ *
++ *  Basic support for Delkin/ASKA/Workbit Cardbus CompactFlash adapter
++ *
++ *  Modeled after the 16-bit PCMCIA driver: ide-cs.c
++ *
++ *  This is slightly peculiar, in that it is a PCI driver,
++ *  but is NOT an IDE PCI driver -- the IDE layer does not directly
++ *  support hot insertion/removal of PCI interfaces, so this driver
++ *  is unable to use the IDE PCI interfaces.  Instead, it uses the
++ *  same interfaces as the ide-cs (PCMCIA) driver uses.
++ *  On the plus side, the driver is also smaller/simpler this way.
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License.  See the file COPYING in the main directory of this archive for
++ *  more details.
++ */
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/mm.h>
++#include <linux/blkdev.h>
++#include <linux/hdreg.h>
++#include <linux/ide.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <asm/io.h>
++
++/*
++ * No chip documentation has yet been found,
++ * so these configuration values were pulled from
++ * a running Win98 system using "debug".
++ * This gives around 3MByte/second read performance,
++ * which is about 2/3 of what the chip is capable of.
++ *
++ * There is also a 4KByte mmio region on the card,
++ * but its purpose has yet to be reverse-engineered.
++ */
++static const u8 setup[] = {
++	0x00, 0x05, 0xbe, 0x01, 0x20, 0x8f, 0x00, 0x00,
++	0xa4, 0x1f, 0xb3, 0x1b, 0x00, 0x00, 0x00, 0x80,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0xa4, 0x83, 0x02, 0x13,
++};
++
++static int __devinit
++delkin_cb_probe (struct pci_dev *dev, const struct pci_device_id *id)
++{
++	unsigned long base;
++	hw_regs_t hw;
++	ide_hwif_t *hwif = NULL;
++	ide_drive_t *drive;
++	int i, rc;
++
++	MOD_INC_USE_COUNT;
++	rc = pci_enable_device(dev);
++	if (rc) {
++		printk(KERN_ERR "delkin_cb: pci_enable_device failed (%d)\n", rc);
++		return rc;
++	}
++	rc = pci_request_regions(dev, "delkin_cb");
++	if (rc) {
++		printk(KERN_ERR "delkin_cb: pci_request_regions failed (%d)\n", rc);
++		pci_disable_device(dev);
++		return rc;
++	}
++	base = pci_resource_start(dev, 0);
++	outb(0x02, base + 0x1e);	/* set nIEN to block interrupts */
++	inb(base + 0x17);		/* read status to clear interrupts */
++	for (i = 0; i < sizeof(setup); ++i) {
++		if (setup[i])
++			outb(setup[i], base + i);
++	}
++	pci_release_regions(dev);	/* IDE layer handles regions itself */
++
++	memset(&hw, 0, sizeof(hw));
++	ide_init_hwif_ports(&hw, (ide_ioreg_t)(base + 0x10),
++				 (ide_ioreg_t)(base + 0x1e), NULL);
++	hw.irq = dev->irq;
++	hw.chipset = ide_pci;		/* this enables IRQ sharing */
++
++	rc = ide_register_hw(&hw, &hwif);
++	if (rc < 0)	/* ide_register_hw likes to be invoked twice (buggy) */
++		rc = ide_register_hw(&hw, &hwif);
++	if (rc < 0) {
++		printk(KERN_ERR "delkin_cb: ide_register_hw failed (%d)\n", rc);
++		MOD_DEC_USE_COUNT;
++		return -ENODEV;
++	}
++	pci_set_drvdata(dev, hwif);
++	hwif->pci_dev = dev;
++	drive = &hwif->drives[0];
++	if (drive->present) {
++		drive->id->csfo = 0; /* workaround for idedisk_open bug */
++		drive->io_32bit = 1;
++		drive->unmask   = 1;
++	}
++	return 0;
++}
++
++static void
++delkin_cb_remove (struct pci_dev *dev)
++{
++	ide_hwif_t *hwif = pci_get_drvdata(dev);
++
++	if (hwif) {
++		ide_unregister(hwif->index);
++		MOD_DEC_USE_COUNT;
++	}
++	pci_disable_device(dev);
++}
++
++static struct pci_device_id delkin_cb_pci_tbl[] __devinitdata = {
++	{ PCI_VENDOR_ID_WORKBIT, PCI_DEVICE_ID_WORKBIT_CB, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
++	{ 0, },
++};
++MODULE_DEVICE_TABLE(pci, delkin_cb_pci_tbl);
++
++static struct pci_driver driver = {
++	.name		= "Delkin/ASKA/Workbit Cardbus IDE",
++	.id_table	= delkin_cb_pci_tbl,
++	.probe		= delkin_cb_probe,
++	.remove		= delkin_cb_remove,
++};
++
++static int
++delkin_cb_init (void)
++{
++	return pci_module_init(&driver);
++}
++
++static void
++delkin_cb_exit (void)
++{
++	pci_unregister_driver(&driver);
++}
++
++module_init(delkin_cb_init);
++module_exit(delkin_cb_exit);
++
++MODULE_AUTHOR("Mark Lord");
++MODULE_DESCRIPTION("Basic support for Delkin/ASKA/Workbit Cardbus IDE");
++MODULE_LICENSE("GPL");
++
++EXPORT_NO_SYMBOLS;
++
+diff -u --recursive --new-file --exclude='.*' linux-2.4.28-pre4-bk6/drivers/ide/pci/Makefile linux/drivers/ide/pci/Makefile
+--- linux-2.4.28-pre4-bk6/drivers/ide/pci/Makefile	2004-04-14 09:05:29.000000000 -0400
++++ linux/drivers/ide/pci/Makefile	2004-10-21 11:46:20.000000000 -0400
+@@ -34,6 +34,7 @@
+ obj-$(CONFIG_BLK_DEV_TRM290)		+= trm290.o
+ obj-$(CONFIG_BLK_DEV_VIA82CXXX)		+= via82cxxx.o
+ obj-$(CONFIG_BLK_DEV_TRIFLEX)		+= triflex.o
++obj-$(CONFIG_BLK_DEV_DELKIN)		+= delkin_cb.o
+ 
+ # Must appear at the end of the block
+ obj-$(CONFIG_BLK_DEV_GENERIC)		+= generic.o
+diff -u --recursive --new-file --exclude='.*' linux-2.4.28-pre4-bk6/drivers/scsi/nsp32.h linux/drivers/scsi/nsp32.h
+--- linux-2.4.28-pre4-bk6/drivers/scsi/nsp32.h	2003-11-28 13:26:20.000000000 -0500
++++ linux/drivers/scsi/nsp32.h	2004-10-21 11:31:03.000000000 -0400
+@@ -22,7 +22,6 @@
+  * VENDOR/DEVICE ID
+  */
+ #define PCI_VENDOR_ID_IODATA  0x10fc
+-#define PCI_VENDOR_ID_WORKBIT 0x1145
+ 
+ #define PCI_DEVICE_ID_NINJASCSI_32BI_CBSC_II   0x0005
+ #define PCI_DEVICE_ID_NINJASCSI_32BI_KME       0xf007
+diff -u --recursive --new-file --exclude='.*' linux-2.4.28-pre4-bk6/include/linux/pci_ids.h linux/include/linux/pci_ids.h
+--- linux-2.4.28-pre4-bk6/include/linux/pci_ids.h	2004-10-21 11:02:21.000000000 -0400
++++ linux/include/linux/pci_ids.h	2004-10-21 11:16:32.000000000 -0400
+@@ -2057,3 +2057,6 @@
+ #define PCI_DEVICE_ID_MICROGATE_USC	0x0010
+ #define PCI_DEVICE_ID_MICROGATE_SCC	0x0020
+ #define PCI_DEVICE_ID_MICROGATE_SCA	0x0030
++
++#define PCI_VENDOR_ID_WORKBIT		0x1145
++#define PCI_DEVICE_ID_WORKBIT_CB	0xf021
+
+--------------040500090901040402070207--

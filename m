@@ -1,98 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUGOUzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266322AbUGOU4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUGOUzS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 16:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266322AbUGOUzR
+	id S266322AbUGOU4L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 16:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUGOU4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 16:55:17 -0400
-Received: from scrye.com ([216.17.180.1]:6375 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S266304AbUGOUzD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 16:55:03 -0400
-MIME-Version: 1.0
+	Thu, 15 Jul 2004 16:56:11 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28383 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266322AbUGOUzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 16:55:49 -0400
+Date: Thu, 15 Jul 2004 22:55:29 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/rrunner.c: fix inline compile error
+Message-ID: <20040715205529.GJ25633@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Thu, 15 Jul 2004 14:54:55 -0600
-From: Kevin Fenzi <kevin-kernel@scrye.com>
-To: linux-kernel@vger.kernel.org
-Subject: psmouse as module with suspend/resume
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Message-Id: <20040715205459.197177253D@voldemort.scrye.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Trying to compile drivers/net/rrunner.c in 2.6.8-rc1-mm1 using gcc 3.4 
+results in the following compile error:
+
+<--  snip  -->
+
+...
+  CC      drivers/net/rrunner.o
+drivers/net/rrunner.c: In function `rr_timer':
+drivers/net/rrunner.h:846: sorry, unimplemented: inlining failed in call 
+to 'rr_raz_tx': function body not available
+drivers/net/rrunner.c:1155: sorry, unimplemented: called from here
+drivers/net/rrunner.h:847: sorry, unimplemented: inlining failed in call 
+to 'rr_raz_rx': function body not available
+drivers/net/rrunner.c:1156: sorry, unimplemented: called from here
+make[2]: *** [drivers/net/rrunner.o] Error 1
+
+<--  snip  -->
 
 
-Greetings. 
+The patch below moves some inlined functions above the place where they
+are called the first time.
 
-I am having a bit of an issue with psmouse and suspend/resume. 
-I am using the swsusp2, which is working great... (Thanks Nigel!)
+An alternative approach would be to remove the inlines.
 
-However: 
 
-If I compile psmouse as a module and leave it in and suspend/resume
-when the laptop comes back the mouse doesn't work at all. 
+diffstat output:
+ drivers/net/rrunner.c |   86 +++++++++++++++++++++---------------------
+ 1 files changed, 43 insertions(+), 43 deletions(-)
 
-If I compile psmouse as a module and unload before suspend, and reload
-after resume, the mouse works for simple movement, but all the
-advanced synaptics features no longer work. No tap for mouse button,
-no scolling, etc. 
 
-If I compile psmouse in everything works after a suspend/resume cycle.
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-I would like to be able to compile psmouse as a module. Does anyone
-see any reason the synaptics stuff wouldn't work after a
-unload/reload? 
-
-Before a suspend/resume: 
-
-kernel: Synaptics Touchpad, model: 1
-kernel:  Firmware: 5.9
-kernel:  Sensor: 51
-kernel:  new absolute packet format
-kernel:  Touchpad has extended capability bits
-kernel:  -> 4 multi-buttons, i.e. besides standard buttons
-kernel:  -> multifinger detection
-kernel:  -> palm detection
-kernel: input: SynPS/2 Synaptics TouchPad on isa0060/serio4
-
-Afer a unload and reload:
-
-kernel: Synaptics Touchpad, model: 1
-kernel:  Firmware: 5.9
-kernel:  Sensor: 51
-kernel:  new absolute packet format
-kernel:  Touchpad has extended capability bits
-kernel:  -> 4 multi-buttons, i.e. besides standard buttons
-kernel:  -> multifinger detection
-kernel:  -> palm detection
-kernel: input: SynPS/2 Synaptics TouchPad on isa0060/serio4
-
-So, it all looks the same there. 
-I wonder if it's not something with the input layer not reconnecting
-right on reload with what the synaptics driver in X is expecting... 
-
-In the X log after a resume/reload: 
-
-(II) DevInputMice: ps2EnableDataReporting: succeeded
-Synaptics DeviceOn called
-(EE) xf86OpenSerial: Cannot open device /dev/input/event2
-        No such device.
-(WW) Mouse0: cannot open input device
-
-Any ideas?
-Happy to provde more information on versions, etc...
-
-thanks,
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQFA9u8i3imCezTjY0ERAmWnAJ9uKMauJAfSMKgz9VBB6Z5o7/66vACffKg5
-8Imj27a19cu4OtVuhaszXOM=
-=6i7m
------END PGP SIGNATURE-----
+--- linux-2.6.7-mm6-full-gcc3.4/drivers/net/rrunner.c.old	2004-07-09 01:05:03.000000000 +0200
++++ linux-2.6.7-mm6-full-gcc3.4/drivers/net/rrunner.c	2004-07-09 01:05:46.000000000 +0200
+@@ -1138,6 +1138,49 @@
+ 	return IRQ_HANDLED;
+ }
+ 
++static inline void rr_raz_tx(struct rr_private *rrpriv, 
++			     struct net_device *dev)
++{
++	int i;
++
++	for (i = 0; i < TX_RING_ENTRIES; i++) {
++		struct sk_buff *skb = rrpriv->tx_skbuff[i];
++
++		if (skb) {
++			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
++
++	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
++				skb->len, PCI_DMA_TODEVICE);
++			desc->size = 0;
++			set_rraddr(&desc->addr, 0);
++			dev_kfree_skb(skb);
++			rrpriv->tx_skbuff[i] = NULL;
++		}
++	}
++}
++
++
++static inline void rr_raz_rx(struct rr_private *rrpriv, 
++			     struct net_device *dev)
++{
++	int i;
++
++	for (i = 0; i < RX_RING_ENTRIES; i++) {
++		struct sk_buff *skb = rrpriv->rx_skbuff[i];
++
++		if (skb) {
++			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
++
++	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
++				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
++			desc->size = 0;
++			set_rraddr(&desc->addr, 0);
++			dev_kfree_skb(skb);
++			rrpriv->rx_skbuff[i] = NULL;
++		}
++	}
++}
++
+ static void rr_timer(unsigned long data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
+@@ -1253,49 +1296,6 @@
+ }
+ 
+ 
+-static inline void rr_raz_tx(struct rr_private *rrpriv, 
+-			     struct net_device *dev)
+-{
+-	int i;
+-
+-	for (i = 0; i < TX_RING_ENTRIES; i++) {
+-		struct sk_buff *skb = rrpriv->tx_skbuff[i];
+-
+-		if (skb) {
+-			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
+-
+-	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
+-				skb->len, PCI_DMA_TODEVICE);
+-			desc->size = 0;
+-			set_rraddr(&desc->addr, 0);
+-			dev_kfree_skb(skb);
+-			rrpriv->tx_skbuff[i] = NULL;
+-		}
+-	}
+-}
+-
+-
+-static inline void rr_raz_rx(struct rr_private *rrpriv, 
+-			     struct net_device *dev)
+-{
+-	int i;
+-
+-	for (i = 0; i < RX_RING_ENTRIES; i++) {
+-		struct sk_buff *skb = rrpriv->rx_skbuff[i];
+-
+-		if (skb) {
+-			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
+-
+-	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
+-				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
+-			desc->size = 0;
+-			set_rraddr(&desc->addr, 0);
+-			dev_kfree_skb(skb);
+-			rrpriv->rx_skbuff[i] = NULL;
+-		}
+-	}
+-}
+-
+ static void rr_dump(struct net_device *dev)
+ {
+ 	struct rr_private *rrpriv;

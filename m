@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUDJOJl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 10:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUDJOJk
+	id S262027AbUDJOSO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 10:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUDJOSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 10:09:40 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:47830 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262041AbUDJOJi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 10:09:38 -0400
-Date: Sat, 10 Apr 2004 15:09:36 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [Dri-devel] Re: [patch] Trying to get DRM up to date in 2.6
-In-Reply-To: <Pine.LNX.4.58.0404100847500.4138@skynet>
-Message-ID: <Pine.LNX.4.58.0404101504530.4138@skynet>
-References: <Pine.LNX.4.58.0404090838000.30863@skynet> <20040409120106.69e78838.akpm@osdl.org>
- <Pine.LNX.4.58.0404100847500.4138@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Apr 2004 10:18:14 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:59908 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262027AbUDJOSN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 10:18:13 -0400
+Date: Sat, 10 Apr 2004 16:24:01 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Force build error on undefined symbols
+Message-ID: <20040410142401.GA2439@mars.ravnborg.org>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20040410131028.A4221@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040410131028.A4221@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> Therefore, I propose the following patch to detect undefined symbols
+> in the final image and force an error if this is the case.
+> 
+> Comments?
 
->
-> I'd say let it be checked out in Andrews tree for a while and then I'll
-> ask Andrew to push it all onto Linus...
->
+Do we really want to do this for all architectures?
+You could use something like the attached to restrict it to arm.
 
-I'm finished mostly, all major difference between the DRM CVS and 2.6 are
-in the bk tree http://freedesktop.org:1234/drm-2.6, I'll move it onto
-bkbits when it arrives back on the scene, Andrew you should be able to
-submit Arjans patch to Linus with this bunch and I'll do a follow up later
-to make it use whatever we decide with respect to the __user, a simple
-#ifndef/define might be enough...
+	Sam
 
-I'm going to bed and tomorrow am taking a well deserved drinking session
-:-)
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+--- v2.6/arch/arm/Makefile	2004-04-05 23:23:54.000000000 +0200
++++ mm4/arch/arm/Makefile	2004-04-10 16:21:29.000000000 +0200
+@@ -140,14 +143,19 @@
+ maketools: include/asm-arm/constants.h include/linux/version.h FORCE
+ 	$(Q)$(MAKE) $(build)=arch/arm/tools include/asm-arm/mach-types.h
+ 
++check-undefsyms = $(NM) $^ | egrep -q '^ +U ' && { echo "Link failed: undefined symbols found in $^:"; $(NM) $^ | egrep '^ +U '; rm -f $^; exit 1; } || : endef
++
+ # Convert bzImage to zImage
+ bzImage: vmlinux
++	$(check-undefsyms)
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/zImage
+ 
+ zImage Image bootpImage uImage: vmlinux
++	$(check-undefsyms)
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+ 
+ zinstall install: vmlinux
++	$(check-undefsyms)
+ 	$(Q)$(MAKE) $(build)=$(boot) $@
+ 
+ CLEAN_FILES += include/asm-arm/constants.h* include/asm-arm/mach-types.h \

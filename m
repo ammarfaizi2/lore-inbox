@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSKKVoV>; Mon, 11 Nov 2002 16:44:21 -0500
+	id <S261418AbSKKVwU>; Mon, 11 Nov 2002 16:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261412AbSKKVoV>; Mon, 11 Nov 2002 16:44:21 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:640 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S261370AbSKKVoU>; Mon, 11 Nov 2002 16:44:20 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: how to export a symbol so that I can use it in a module
-Date: Mon, 11 Nov 2002 22:54:23 +0100
-Message-ID: <002c01c289cc$e6468470$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261427AbSKKVwT>; Mon, 11 Nov 2002 16:52:19 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:53986 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261418AbSKKVwT>; Mon, 11 Nov 2002 16:52:19 -0500
+Subject: Re: Voyager subarchitecture for 2.5.46
+From: john stultz <johnstul@us.ibm.com>
+To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211112057.gABKvS620539@localhost.localdomain>
+References: <200211112057.gABKvS620539@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Nov 2002 13:58:44 -0800
+Message-Id: <1037051926.3844.4.camel@cornchips>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2002-11-11 at 12:57, J.E.J. Bottomley wrote:
+> As a beginning, what about the attached patch?  It eliminates the compile time 
+> TSC options (and thus hopefully the sources of confusion).  I've exported 
+> tsc_disable, so it can be set by the subarchs if desired (voyager does this) 
+> and moved the notsc option into the timer_tsc code (which is where it looks 
+> like it belongs).
 
-I've added a function "create_tcp_port_number" to net/core/utils.c
-like this:
+Looks good to me.
 
-int create_tcp_port_number(void)
-{
-/* blah blah */
-}
-EXPORT_SYMBOL(create_tcp_port_number);
+We'd still need to go back and yank out the #ifdef CONFIG_X86_TSC'ed 
+macros in profile.h and pksched.h or replace them w/ inlines that wrap
+the rdtsc calls w/ if(cpu_has_tsc && !tsc_disable) or some such line. 
 
-in include/linux/net.h I added:
-extern int create_tcp_port_number(void);
+But yea, its a start, assuming no one screams about not being able to
+optimize out the timer_pit code.
 
-So, now in net/ipv6/tcp_ipv6.c I used this 'create_tcp_port_number'
-function. I'm compiling the kernel with ipv6 as a module. And that's
-where I get the problem. In the last stage, the makefile does a
-depmod and then I get:
-depmod: *** Unresolved symbols in /lib/modules/2.4.19/kernel/net/ipv6/ipv6.o
-depmod:         create_tcp_port_number
-
-I'm really out of ideas what can be the cause of this. It must be
-something trivial, but I cannot find the solution. Anyone who can
-help me?
-
-Thank you.
-
-
-Folkert van Heusden
+thanks
+-john
 

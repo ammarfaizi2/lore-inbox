@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265164AbTLCUVg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265167AbTLCUVg
+	id S265162AbTLCUTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbTLCUTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:21:36 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64010 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265164AbTLCUV1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:21:27 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: XFS for 2.4
-Date: 3 Dec 2003 20:10:17 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bqlfv9$j9h$1@gatekeeper.tmr.com>
-References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com> <20031202175957.GA1990@gtf.org>
-X-Trace: gatekeeper.tmr.com 1070482217 19761 192.168.12.62 (3 Dec 2003 20:10:17 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 3 Dec 2003 15:19:41 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:45733 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265162AbTLCUTj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 15:19:39 -0500
+Message-ID: <3FCE453D.9080701@colorfullife.com>
+Date: Wed, 03 Dec 2003 21:19:09 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Raj <raju@mailandnews.com>, linux-kernel@vger.kernel.org,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: kernel BUG at kernel/exit.c:792!
+References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com> <20031203182319.D14999@in.ibm.com> <Pine.LNX.4.58.0312032059040.4438@earth> <Pine.LNX.4.58.0312031203430.7406@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312031203430.7406@home.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031202175957.GA1990@gtf.org>,
-Jeff Garzik  <jgarzik@pobox.com> wrote:
+Linus Torvalds wrote:
 
-| It's _very_ wise to hold off on a patch if
-| (a) the code is difficult to read, and therefore difficult to review and
-|     fix (read: style)
-| (b) the maintainer is not assured of patch reliability (read: "I'm not
-|     sure the patch won't break things")
-| 
-| Both (a) and (b) are vaild concerns for long term maintenance costs.
-| 
-| Particularly (b).  If Marcelo is not assured of patch reliability, then
-| he absolutely --should not-- merge XFS into 2.4.  That's just the way
-| the system works.  And it's a good system.
+>So as far as I can tell, the patch from Ingo and Srivatsa just paper over
+>the _real_ bug. And the real fix is to get rid of the debugging helper
+>completely, since it no longer serves any purpose, and it is WRONG!
+>
+>So tell me why it isn't wrong?
+>  
+>
+It's wrong, because next_thread() relies on
 
-Given that hundreds of people have used it for several years, I find it
-hard to believe that there are hidden bugs both so subtle that they
-have not been seen and so bad that they cause major problems. I find "I
-don't like the coding style" far easier to believe.
+    task->pids[PIDTYPE_TGID].pid_chain.next
 
-As you say, that's the way the system works, guess the patch will
-continue, because it's more reliable than 2.6 at the moment.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+That pointer is not valid after detach_pid(task, PIDTYPE_TGID), and 
+that's called within __unhash_process.  Thus next_thread() fails if it's 
+called on a dead task. Srivatsa's second patch is the right change: If 
+pid_alive() is wrong, then break from the loop without calling 
+next_thread().
+
+--
+    Manfred
+

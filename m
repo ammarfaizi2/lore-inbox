@@ -1,123 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbTD3IA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 04:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD3IAz
+	id S261308AbTD3IAg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 04:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD3IAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 04:00:55 -0400
-Received: from f47.law10.hotmail.com ([64.4.15.47]:53265 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262134AbTD3IAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 04:00:51 -0400
-X-Originating-IP: [12.210.22.14]
-X-Originating-Email: [bobbysingh22@hotmail.com]
-From: "Bobby Singh" <bobbysingh22@hotmail.com>
-To: slpratt@austin.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: Having problem with io_getevents with o_direct flag
-Date: Wed, 30 Apr 2003 01:13:05 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law10-F474xOjIL2jpW00002a3c@hotmail.com>
-X-OriginalArrivalTime: 30 Apr 2003 08:13:06.0042 (UTC) FILETIME=[53FB3DA0:01C30EF0]
+	Wed, 30 Apr 2003 04:00:36 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:48846 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261308AbTD3IAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 04:00:34 -0400
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= <linux@borntraeger.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show all net devices
+Date: Wed, 30 Apr 2003 10:12:39 +0200
+User-Agent: KMail/1.5.1
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+References: <200304291434.18272.linux@borntraeger.net> <20030429092857.4ebffcc9.rddunlap@osdl.org> <20030429130742.2c38b5f3.rddunlap@osdl.org>
+In-Reply-To: <20030429130742.2c38b5f3.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304301012.39121.linux@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 29 April 2003 22:07, Randy.Dunlap wrote:
+> Oh well, I don't think that works.
 
-Steve .. The problem was requesting min requests as 0. I changed to 1 and 
-now its working fine.
+Well, it fails differently. Now i get all devices but several times.
 
-Thanks,
-Bobby
-P.S.: I was passing struct event * , wrote it wrong here while stating the 
-problem;-)
-
-
->From: Steven Pratt <slpratt@austin.ibm.com>
->To: Bobby Singh <bobbysingh22@hotmail.com>
->CC: linux-kernel@vger.kernel.org, linux-aio@kvack.org
->Subject: Re: Having problem with io_getevents with o_direct flag
->Date: Tue, 29 Apr 2003 08:09:00 -0500
->
->Well a couple of possibilities.  First, are you opening a block device 
->(like /dev/sdb) ?  If you are, this is still broken in 2.5.67. A patch for 
->this has been submitted to the aio list and is also available in the 2.5 
->bugtraker (http://bugme.osdl.org) attached to bug 626.
->
->Also, as far as your code goes, the res from io_get_events only tells you 
->that the io_get_events succeeded.  To see if the IO actually succeeded you 
->always need to check event.res.  Be careful for event.res as there is a bug 
->in libaio where event.res is defined as unsigned but it is really signed 
->(negative=error, positive=bytesread/written).
->
->Also I see that you are setting the minimum number of events requested to 
->0, not sure what this will do.  Might want to set that to 1.
->
->Hmm, also see that you are passing in just a struct event where the API 
->calls for a struct event * (actually an array of event structs).  Not sure 
->why this ever works.
->
->Hope this helps,
->Steve
->
->Bobby Singh wrote:
->
->>Hi,
->>
->>  I am having problems with using io_getevents ? Is the o_direct aio 
->>support stable in 2.5.67? Following is the scenario:
->>
->>Machine: Dell 500SC 1.13Gz
->>Original Kernel : 2.4.18-3 ( redhat 7.3)
->>Downloaded kernel 2.5.67 and compiled it.
->>Installed libaio-0.3.92 aio library.
->>
->>I am writing an io intensive application and want to leverage the o_direct 
->>aio support. I am using in following way (borrowed from testcase in 
->>libaio)
->>
->>struct iocb **pAiocb;
->>struct io_event event;
->>if(io_submit(io_ctx,numAiocb, pAiocb) <0)
->>{
->>    perror("Error in io_submit");
->>    return(-1);
->>}
->>for(i=0;i<numAiocb;i++)
->>{
->>    if((res=io_getevents(io_ctx,0,1,event,NULL)) && (res != 1))
->>    {
->>        perror("Error in getevents");
->>        return(-1);
->>    }
->>    printf("%d\n",event.res);
->>}
->>
->>
->>PROBLEM is : THe code doesn't print an ERROR but in "event.res" the amount 
->>of data  read is not same as requested. Sometimes the return size is ZERO 
->>and event is returned.
->>
->>THE CODE WORKS fine if the file is opened WITHOUT O_DIRECT.
->>
->>Thanks,
->>Bobby
->>
->>_________________________________________________________________
->>Protect your PC - get McAfee.com VirusScan Online  
->>http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
->>
->>--
->>To unsubscribe, send a message with 'unsubscribe linux-aio' in
->>the body to majordomo@kvack.org.  For more info on Linux AIO,
->>see: http://www.kvack.org/aio/
->>Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
->
->
->
-
-
-_________________________________________________________________
-The new MSN 8: smart spam protection and 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
+[root@tel22fe root]# cat /proc/net/dev
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    
+packets errs drop fifo colls carrier compressed
+    lo:     784      10    0    0    0     0          0         0      784      
+dummy0:       0       0    0    0    0     0          0         0        0       
+ tunl0:       0       0    0    0    0     0          0         0        0       
+  gre0:       0       0    0    0    0     0          0         0        0       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0:   13356     148    0    0    0     0          0         0    27388     
+  eth1:     805       3    0    0    0     0          0         0      264       
+dummy0:       0       0    0    0    0     0          0         0        0       
+ tunl0:       0       0    0    0    0     0          0         0        0       
+  gre0:       0       0    0    0    0     0          0         0        0       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0:   13356     148    0    0    0     0          0         0    27388     
+  eth1:     805       3    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+ tunl0:       0       0    0    0    0     0          0         0        0       
+  gre0:       0       0    0    0    0     0          0         0        0       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0:   13356     148    0    0    0     0          0         0    27388     
+  eth1:     805       3    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+  gre0:       0       0    0    0    0     0          0         0        0       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0:   13356     148    0    0    0     0          0         0    28544     
+  eth1:     805       3    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0:   13356     148    0    0    0     0          0         0    28544     
+  eth1:     805       3    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+  eth0:   13356     148    0    0    0     0          0         0    29700     
+  eth1:     805       3    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+  eth1:     805       3    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+  eth2:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
+  hsi0:       0       0    0    0    0     0          0         0      264       
 

@@ -1,225 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264665AbSLRQdx>; Wed, 18 Dec 2002 11:33:53 -0500
+	id <S264679AbSLRQkw>; Wed, 18 Dec 2002 11:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264666AbSLRQdx>; Wed, 18 Dec 2002 11:33:53 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:18077 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264665AbSLRQdu>; Wed, 18 Dec 2002 11:33:50 -0500
-Message-Id: <4.3.2.7.2.20021218171353.00b54970@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 18 Dec 2002 17:42:16 +0100
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: 2.5.52 take 1
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S264688AbSLRQkv>; Wed, 18 Dec 2002 11:40:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46092 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264679AbSLRQkv>; Wed, 18 Dec 2002 11:40:51 -0500
+Date: Wed, 18 Dec 2002 08:49:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@digeo.com>
+Subject: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+In-Reply-To: <20021218164119.GC27695@suse.de>
+Message-ID: <Pine.LNX.4.44.0212180844550.29852-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hurrah - Got a 2.5 kernel to boot.
-No DEVFS, everything compiled in.
-Compiling in USB oopses on boot. No serial terminal so will
-copy by hand later.
-Snips from boot and log below.
-Comments on the "<---***" lines and log ?
-(config attached at end)
 
 
--- snip --
-<5>Intel(R) PRO/100 Network Driver - version 2.1.24-k2
-<5>Copyright (c) 2002 Intel Corporation
-<5>
-<7>e100: selftest OK.
-<3>Freeing alive device dfc24800, eth%%d                        <------ 
-********
-<5>e100: eth0: Intel(R) PRO/100 VE Network Connection
-<5>  Mem:0xff9fb000  IRQ:14  Speed:0 Mbps  Dx:N/A
-<5>  Hardware receive checksums enabled
-<5>
-<4>scsi HBA driver <NULL> didn't set max_sectors, please fix the 
-template  <------ *******
-<6>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-<4>        <Adaptec 3960D Ultra160 SCSI adapter>
-<4>        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-<4>
-<4>(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-<5>  Vendor: FUJITSU   Model: MAN3184MP         Rev: 0108
-<5>  Type:   Direct-Access                      ANSI SCSI revision: 03
-<4>(scsi0:A:1): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-<5>  Vendor: FUJITSU   Model: MAN3184MP         Rev: 0108
-<5>  Type:   Direct-Access                      ANSI SCSI revision: 03
--- end snip --
+On Wed, 18 Dec 2002, Dave Jones wrote:
+> On Wed, Dec 18, 2002 at 10:40:24AM -0300, Horst von Brand wrote:
+>  > [Extremely interesting new syscall mechanism tread elided]
+>  >
+>  > What happened to "feature freeze"?
+>
+> *bites lip* it's fairly low impact *duck*.
 
--- snip --
-Dec 18 16:58:11 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
-error
-Dec 18 16:58:11 margit last message repeated 9 times
-Dec 18 16:58:11 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
-error
-Dec 18 16:58:11 margit last message repeated 9 times
--- end snip --
+However, it's a fair question.
 
--- config stripped --
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_MCE=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=64000
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=16
-CONFIG_AIC7XXX_RESET_DELAY_MS=2000
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-CONFIG_INTEL_RNG=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=y
-CONFIG_RAW_DRIVER=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=y
-CONFIG_UFS_FS=y
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_DUMMY=y
-CONFIG_SND_VIRMIDI=y
-CONFIG_SND_MTPAV=y
-CONFIG_SND_SERIAL_U16550=y
-CONFIG_SND_MPU401=y
-CONFIG_SND_INTEL8X0=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_BIOS_REBOOT=y
--- end config --
+I've been wondering how to formalize patch acceptance at code freeze, but
+it might be a good idea to start talking about some way to maybe put
+brakes on patches earlier, ie some kind of "required approval process".
 
-Margit 
+I think the system call thing is very localized and thus not a big issue,
+but in general we do need to have something in place.
+
+I just don't know what that "something" should be. Any ideas? I thought
+about the code freeze require buy-in from three of four people (me, Alan,
+Dave and Andrew come to mind) for a patch to go in, but that's probably
+too draconian for now. Or is it (maybe start with "needs approval by two"
+and switch it to three when going into code freeze)?
+
+			Linus
 

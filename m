@@ -1,67 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUI1VXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUI1V1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUI1VXV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUI1VW0
+	id S267971AbUI1V1w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 17:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268025AbUI1V12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:22:26 -0400
-Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:35833 "EHLO
-	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S268037AbUI1VVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:21:16 -0400
-Subject: Re: [RFC][PATCH] inotify 0.10.0
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
-       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
-In-Reply-To: <1096405848.5177.15.camel@issola.madrabbit.org>
-References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
-	 <1096350328.26742.52.camel@orca.madrabbit.org>
-	 <1096403167.30123.5.camel@vertex>
-	 <1096405848.5177.15.camel@issola.madrabbit.org>
-Content-Type: text/plain
+	Tue, 28 Sep 2004 17:27:28 -0400
+Received: from eth1023.nsw.adsl.internode.on.net ([150.101.206.254]:5205 "EHLO
+	naya.ABOOSPLANET.COM") by vger.kernel.org with ESMTP
+	id S267971AbUI1V0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 17:26:13 -0400
+From: "Aboo Valappil" <aboo@aboosplanet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Switch back to Real mode and then boot strap
+Date: Wed, 29 Sep 2004 07:26:08 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1096406467.30123.42.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 28 Sep 2004 17:21:07 -0400
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.28.2
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcSlPCbAQLoATotIQPmiGy8T1r1kWwAAPl+wABklHWA=
+In-Reply-To: <NAYASmLAztxc1o8yfog00000008@naya.ABOOSPLANET.COM>
+Message-ID: <NAYAswFCHOzyfyz5b6K0000000a@naya.ABOOSPLANET.COM>
+X-OriginalArrivalTime: 28 Sep 2004 21:26:11.0652 (UTC) FILETIME=[C6C7D840:01C4A5A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-28 at 17:10, Ray Lee wrote:
-> On Tue, 2004-09-28 at 16:26 -0400, John McCutchan wrote:
-> > On Tue, 2004-09-28 at 01:45, Ray Lee wrote:
-> > > The current way pads out the structure unnecessarily, and still doesn't
-> > > handle the really long filenames, by your admission. It incurs extra
-> > > syscalls, as few filenames are really 256 characters in length. It makes
-> > > userspace double-check whether the filename extends all the way to the
-> > > boundary of the structure, and if so, then go back to the disk to try to
-> > > guess what the kernel really meant to say.
-> > 
-> > I thought that filenames where limited to 256 characters? That was the
-> > idea behind the 256 character limit.
-> 
-> I thought so too, as linux/limits.h claims:
-> 
-> #define NAME_MAX         255    /* # chars in a file name */
-> 
-> But Robert earlier said:
-> 
-> > Technically speaking, a single filename can be as large as PATH_MAX-1.
-> > The comment is just a warning, though, to explain the dreary
-> > theoretical side of the world.
-> 
-> ...where PATH_MAX is 4096.
-> 
-> So, got me. I believe there is some minor confusion going on.
+Hi All,
 
-A quick test of 'echo "" > XXXX...XXX' the filename seems to be limited
-to 256.
+I am new to this mailing list ... Need some help, PLEASE :)
 
-John
+I am running redhat Linux with kernel 2.4.21-4.EL.
+
+Basically I have a requirement of re-booting ( Without really rebooting )
+the OS from the hard disk ( even if a floppy is present or a bootable CD-ROM
+is present).  Update CMOS to change the boot sequence is not an option for
+my requirement.
+
+My idea is to read the MBR off the hard disk and then jump to the memory
+location of the MBR after switching to real mode. The thing I do not want to
+do is to jump to real address FFFF:0000 because it is going to select the
+boot device ( Where this selection, I do not have any control when I
+rebooted )
+
+I found a function in process.c ( arch/i386/kernel/ ) called
+machine_real_restart(code,length) where you could give the address of a real
+mode routine. If I call this function (ofcource from a kernel module) with
+address pointed to a piece of code which has ljmp $0xffff,$0x0, the system
+reboots fine. I WAS VERY EXCITED TO SEE THIS.
+
+Proceeding to my next step, I generated an array of machine code (.code16),
+where I use INT 13h to read the first sector off the hard drive to
+0000:7c00, and then ljmp to 0000:7c000. I used the above kernel function to
+call this. I am was so disappointed to see the SYSTEM JUST HANGS :( .
+
+Here is the routine I am using ...
+
+.code16
+xorw %ax,%ax
+movw %ax,%ds
+movw %ax,%ss
+movw %ax,%es
+movw $0xffff, %sp
+movw $0x201,%ax
+movw $0x01,%cx
+movw $0x7c00, %bx
+movw $0x80,%dx
+int $0x13
+movb $0x0e,%ah
+movb $0x5A,%al
+int $0x10
+ljmp $0x0000,$0x7c00
+
+Here the code for device IOCTL for my character device.
+
+int device_ioctl( struct inode *inode, struct file *file, unsigned int i_n,
+unsigned long i_p )
+{
+
+   static unsigned char jbios [] =    {
+
+ 0x31 ,0xc0 ,0x8e ,0xd8 ,0x8e ,0xd0 ,0x8e ,0xc0 ,0xbc ,0xff ,0xff ,0xb8
+,0x01 ,0x02 ,0xb9 ,0x01 ,0x00 ,0xbb ,0x00 ,0x7c ,0xba ,0x80 ,0x00 ,0xcd
+,0x13 ,0xb4 ,0x0e ,0xb0 ,0x5a ,0xcd ,0x10 ,0xea ,0x00 ,0x7c ,0x00 ,0x00 };
+
+ if (  i_n == 999 ) {
+     machine_real_restart(jbios,36);
+ }
+}
+
+
+When I call the ioctl, it just hangs. If I replace the code with only a ljmp
+$0xffff,0x0 instruction it reboots the computer as it should.
+
+Any ideas, what I am doing wrong here ?
+
+Thanks
+
+Aboo
+
+
+
+

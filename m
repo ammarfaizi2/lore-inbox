@@ -1,79 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVAIQG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVAIQ0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVAIQG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 11:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVAIQG6
+	id S261582AbVAIQ0J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 11:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVAIQ0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 11:06:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:47117 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261502AbVAIQGy (ORCPT
+	Sun, 9 Jan 2005 11:26:09 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:23985 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261582AbVAIQZ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 11:06:54 -0500
+	Sun, 9 Jan 2005 11:25:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ih871t20hIpnqE7PKKIYBbEDzPcc/XVlrCgUi7y9OgAcAVb9FSK4t8QwcnxNKfGt7AmZnGlikuYLSPYpLdilsHXmVYEdrGlSwF1Eis9UKeY0DV4pSZpWCbWdUIG4yoY7x5YmHOWxiWKZ1oNFXFI1BbS7ZrduEnL9kLeabSw6BZk=
-Message-ID: <d91f4d0c050109080638cf0987@mail.gmail.com>
-Date: Sun, 9 Jan 2005 11:06:54 -0500
-From: George Georgalis <georgalis@gmail.com>
-Reply-To: George Georgalis <georgalis@gmail.com>
-To: linux-kernel@vger.kernel.org, michal@feix.cz
-Subject: Re: Conflicts in kernel 2.6 headers and {glibc,Xorg}
-In-Reply-To: <20050109110805.GA8688@irc.pl>
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=hjmKn5QFnZDiyEg3wsD5GuS2H52NqQD48JOkZx+i0b8W55IP0o1hIc3FKW8WuQukyQPhLw6vddco+u7cGMkNR0pRrvx56gik5FaL0PQo1s3g6Aorjl+nykskHzIHgNfWL7ELcwlhSfX9sYJH3jC/4HOnnOR0qFZ1Q8hxgyNzsaQ=
+Message-ID: <884a349a050109082516b0740e@mail.gmail.com>
+Date: Sun, 9 Jan 2005 17:25:55 +0100
+From: mama Smurf <roseline.bonchamp@gmail.com>
+Reply-To: mama Smurf <roseline.bonchamp@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: remove Attach another file remove Attach another file remove Attach another file USB mass storage not always detecting my 1GB PQI intelligent stick
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41E0F76D.7080805@feix.cz> <20050109110805.GA8688@irc.pl>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_660_18947150.1105287955801"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jan 2005 12:08:05 +0100, Tomasz Torcz <zdzichu@irc.pl> wrote:
-> On Sun, Jan 09, 2005 at 10:20:45AM +0100, Michal Feix wrote:
-> > Hello evereyone!
-> >
-> > First, I'm not on kernel mailing list so please CC any replies to me.
-> > Thank you.
-> >
-> > Yesterday I was recompiling my Linux from Scratch distribution for the
-> > first time with Linux kernel 2.6.10 headers as a base for glibc. I've
-> > found, that glibc (and XOrg later on too) won't compile, as there is a
-> > conflict in certain functions or macros that glibc and Kernel headers
-> > both define.
-> 
->  Are you using proper kernel headers - from
-> http://ep09.pld-linux.org/~mmazur/linux-libc-headers/ ?
+------=_Part_660_18947150.1105287955801
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Hello,
 
-I with 2.6.10 a problem came up that had me looking into this too.
+my 1 GB PQI Intelligent Stick is often not beeing used by mass storage
+driver when I plug it.
 
-Using gcc 3.3.3, my xfree86 is built from cvs release xf-4_4-branch.
-When I tried 2.6.10, it built with no problems.
+>From a  fresh reboot it works, I see:
+Jan  9 16:54:43 parachute kernel: usb 1-3: new high speed USB device
+using ehci_hcd and address 2
+Jan  9 16:54:43 parachute kernel: scsi0 : SCSI emulation for USB Mass
+Storage devices
+Jan  9 16:54:48 parachute kernel:   Vendor: I-Stick2  Model:
+IntelligentStick  Rev: 2.00
+Jan  9 16:54:48 parachute kernel:   Type:   Direct-Access             
+        ANSI SCSI revision: 02
+Jan  9 16:54:49 parachute kernel: sda: Unit Not Ready, sense:
 
-To the best of my knolege, xfree86 is not including any kernel
-headers, my source is not where any package would know to look and
-there don't seem to be any distro (woody) kernel header packages
-installed. I could be wrong, but I don't know where they might be
-found, or that I ever needed them for this xfree86 build.
+then a lot of other stuff, and I can use it.
 
-The problem is running X, my display is littered with flashing bits,
-as if the card is rendering some cpu register or bus in 2% of the
-display.
+But if I unplug/replug it, it's not longer detected as mass storage
+device. I can see 3 new USB devices detected when I plug it:
+kernel: usb 1-3: new high speed USB device using ehci_hcd and address 6
+kernel: usb 3-1: new full speed USB device using uhci_hcd and address 4
+kernel: usb 3-1: new full speed USB device using uhci_hcd and address 5
 
-02:00.0 VGA compatible controller: nVidia Corporation: Unknown device
-01f0 (rev a3) (prog-if 00 [VGA])
-        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 16
-        Memory at ea000000 (32-bit, non-prefetchable) [size=16M]
-        Memory at e0000000 (32-bit, prefetchable) [size=64M]
-        Memory at e4000000 (32-bit, prefetchable) [size=512K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [60] Power Management version 2
-        Capabilities: [44] AGP version 2.0
+But it's no longer beeing detected as mass storage.
 
-Is this due to namespace collision? Do I have to take extra
-precautions with 2.6.10?
+I have other USB 2.0 keys which are working perfectly. Moreover this
+USB key seems to work properly on some other machines/OSes
 
-// George
+In the attached file, full log and result of lspci.
 
--- 
-George Georgalis, systems architect, administrator Linux BSD IXOYE
-http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org
+Roseline
+
+------=_Part_660_18947150.1105287955801
+Content-Type: application/octet-stream; name="kern.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="kern.log"
+
+SmFuICA5IDE2OjU0OjQzIHBhcmFjaHV0ZSBrZXJuZWw6IHVzYiAxLTM6IG5ldyBoaWdoIHNwZWVk
+IFVTQiBkZXZpY2UgdXNpbmcgZWhjaV9oY2QgYW5kIGFkZHJlc3MgMgpKYW4gIDkgMTY6NTQ6NDMg
+cGFyYWNodXRlIGtlcm5lbDogc2NzaTAgOiBTQ1NJIGVtdWxhdGlvbiBmb3IgVVNCIE1hc3MgU3Rv
+cmFnZSBkZXZpY2VzCkphbiAgOSAxNjo1NDo0OCBwYXJhY2h1dGUga2VybmVsOiAgIFZlbmRvcjog
+SS1TdGljazIgIE1vZGVsOiBJbnRlbGxpZ2VudFN0aWNrICBSZXY6IDIuMDAKSmFuICA5IDE2OjU0
+OjQ4IHBhcmFjaHV0ZSBrZXJuZWw6ICAgVHlwZTogICBEaXJlY3QtQWNjZXNzICAgICAgICAgICAg
+ICAgICAgICAgIEFOU0kgU0NTSSByZXZpc2lvbjogMDIKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0
+ZSBrZXJuZWw6IHNkYTogVW5pdCBOb3QgUmVhZHksIHNlbnNlOgpKYW4gIDkgMTY6NTQ6NDkgcGFy
+YWNodXRlIGtlcm5lbDogQ3VycmVudCA6IHNlbnNlID0gNzAgIDYKSmFuICA5IDE2OjU0OjQ5IHBh
+cmFjaHV0ZSBrZXJuZWw6IEFTQz0yOCBBU0NRPSAwCkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1dGUg
+a2VybmVsOiBSYXcgc2Vuc2UgZGF0YToweDcwIDB4MDAgMHgwNiAweDAwIDB4MDAgMHgwMCAweDAw
+IDB4MGEgMHgwMCAweDAwIDB4MDAgMHgwMCAweDI4IDB4MDAgMHgwMCAweDAwIDB4MDAgMHgwMCAK
+SmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IHNkYSA6IFJFQUQgQ0FQQUNJVFkgZmFp
+bGVkLgpKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogc2RhIDogc3RhdHVzPTEsIG1l
+c3NhZ2U9MDAsIGhvc3Q9MCwgZHJpdmVyPTA4IApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtl
+cm5lbDogQ3VycmVudCBzZDogc2Vuc2UgPSA3MCAgNgpKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRl
+IGtlcm5lbDogQVNDPTI4IEFTQ1E9IDAKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6
+IFJhdyBzZW5zZSBkYXRhOjB4NzAgMHgwMCAweDA2IDB4MDAgMHgwMCAweDAwIDB4MDAgMHgwYSAw
+eDAwIDB4MDAgMHgwMCAweDAwIDB4MjggMHgwMCAweDAwIDB4MDAgMHgwMCAweDAwIApKYW4gIDkg
+MTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogc2RhOiBhc3N1bWluZyBXcml0ZSBFbmFibGVkCkph
+biAgOSAxNjo1NDo0OSBwYXJhY2h1dGUga2VybmVsOiBzZGE6IFVuaXQgTm90IFJlYWR5LCBzZW5z
+ZToKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IEN1cnJlbnQgOiBzZW5zZSA9IDcw
+ICA2CkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1dGUga2VybmVsOiBBU0M9MjggQVNDUT0gMApKYW4g
+IDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogUmF3IHNlbnNlIGRhdGE6MHg3MCAweDAwIDB4
+MDYgMHgwMCAweDAwIDB4MDAgMHgwMCAweDBhIDB4MDAgMHgwMCAweDAwIDB4MDAgMHgyOCAweDAw
+IDB4MDAgMHgwMCAweDAwIDB4MDAgCkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1dGUga2VybmVsOiBz
+ZGEgOiBSRUFEIENBUEFDSVRZIGZhaWxlZC4KSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJu
+ZWw6IHNkYSA6IHN0YXR1cz0xLCBtZXNzYWdlPTAwLCBob3N0PTAsIGRyaXZlcj0wOCAKSmFuICA5
+IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IEN1cnJlbnQgc2Q6IHNlbnNlID0gNzAgIDYKSmFu
+ICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IEFTQz0yOCBBU0NRPSAwCkphbiAgOSAxNjo1
+NDo0OSBwYXJhY2h1dGUga2VybmVsOiBSYXcgc2Vuc2UgZGF0YToweDcwIDB4MDAgMHgwNiAweDAw
+IDB4MDAgMHgwMCAweDAwIDB4MGEgMHgwMCAweDAwIDB4MDAgMHgwMCAweDI4IDB4MDAgMHgwMCAw
+eDAwIDB4MDAgMHgwMCAKSmFuICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IHNkYTogYXNz
+dW1pbmcgV3JpdGUgRW5hYmxlZApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogU0NT
+SSBkZXZpY2Ugc2RhOiAyMDQ3NDg4IDUxMi1ieXRlIGhkd3Igc2VjdG9ycyAoMTA0OCBNQikKSmFu
+ICA5IDE2OjU0OjQ5IHBhcmFjaHV0ZSBrZXJuZWw6IHNkYTogYXNzdW1pbmcgV3JpdGUgRW5hYmxl
+ZApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogIC9kZXYvc2NzaS9ob3N0MC9idXMw
+L3RhcmdldDAvbHVuMDo8Nz51c2Itc3RvcmFnZTogcXVldWVjb21tYW5kIGNhbGxlZApKYW4gIDkg
+MTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogIHAxIHAyCkphbiAgOSAxNjo1NDo0OSBwYXJhY2h1
+dGUga2VybmVsOiBBdHRhY2hlZCBzY3NpIHJlbW92YWJsZSBkaXNrIHNkYSBhdCBzY3NpMCwgY2hh
+bm5lbCAwLCBpZCAwLCBsdW4gMApKYW4gIDkgMTY6NTQ6NDkgcGFyYWNodXRlIGtlcm5lbDogQXR0
+YWNoZWQgc2NzaSBnZW5lcmljIHNnMCBhdCBzY3NpMCwgY2hhbm5lbCAwLCBpZCAwLCBsdW4gMCwg
+IHR5cGUgMApKYW4gIDkgMTY6NTU6MTkgcGFyYWNodXRlIGtlcm5lbDogdXNiIDEtMzogVVNCIGRp
+c2Nvbm5lY3QsIGFkZHJlc3MgMgoKPCBJIHVucGx1Zy9yZXBsdWcgPgoKSmFuICA5IDE3OjA3OjE3
+IHBhcmFjaHV0ZSBrZXJuZWw6IHVzYiAxLTM6IG5ldyBoaWdoIHNwZWVkIFVTQiBkZXZpY2UgdXNp
+bmcgZWhjaV9oY2QgYW5kIGFkZHJlc3MgNgpKYW4gIDkgMTc6MDc6MTcgcGFyYWNodXRlIGtlcm5l
+bDogdXNiIDMtMTogbmV3IGZ1bGwgc3BlZWQgVVNCIGRldmljZSB1c2luZyB1aGNpX2hjZCBhbmQg
+YWRkcmVzcyA0CkphbiAgOSAxNzowNzoxOCBwYXJhY2h1dGUga2VybmVsOiB1c2IgMy0xOiBuZXcg
+ZnVsbCBzcGVlZCBVU0IgZGV2aWNlIHVzaW5nIHVoY2lfaGNkIGFuZCBhZGRyZXNzIDUKCjwgSSB1
+bnBsdWcvcmVwbHVnID4KCkphbiAgOSAxNzoxMDoyMSBwYXJhY2h1dGUga2VybmVsOiB1c2IgMS0z
+OiBuZXcgaGlnaCBzcGVlZCBVU0IgZGV2aWNlIHVzaW5nIGVoY2lfaGNkIGFuZCBhZGRyZXNzIDcK
+SmFuICA5IDE3OjEwOjIxIHBhcmFjaHV0ZSBrZXJuZWw6IHVzYiAzLTE6IG5ldyBmdWxsIHNwZWVk
+IFVTQiBkZXZpY2UgdXNpbmcgdWhjaV9oY2QgYW5kIGFkZHJlc3MgNgpKYW4gIDkgMTc6MTA6MjIg
+cGFyYWNodXRlIGtlcm5lbDogdXNiIDMtMTogbmV3IGZ1bGwgc3BlZWQgVVNCIGRldmljZSB1c2lu
+ZyB1aGNpX2hjZCBhbmQgYWRkcmVzcyA3CgotLS0tLS0tLS0tLS0tLQoKcmVzdWx0IG9mIGxzcGNp
+OgoKMDAwMDowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3JwLiA4Mjg0NUcvR0xbQnJvb2tk
+YWxlLUddL0dFL1BFIERSQU0gQ29udHJvbGxlci9Ib3N0LUh1YiBJbnRlcmZhY2UgKHJldiAwMikK
+MDAwMDowMDowMS4wIFBDSSBicmlkZ2U6IEludGVsIENvcnAuIDgyODQ1Ry9HTFtCcm9va2RhbGUt
+R10vR0UvUEUgSG9zdC10by1BR1AgQnJpZGdlIChyZXYgMDIpCjAwMDA6MDA6MWQuMCBVU0IgQ29u
+dHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFEQi9EQkwvREJNIChJQ0g0L0lDSDQtTC9JQ0g0LU0p
+IFVTQiBVSENJIENvbnRyb2xsZXIgIzEgKHJldiAwMikKMDAwMDowMDoxZC4xIFVTQiBDb250cm9s
+bGVyOiBJbnRlbCBDb3JwLiA4MjgwMURCL0RCTC9EQk0gKElDSDQvSUNINC1ML0lDSDQtTSkgVVNC
+IFVIQ0kgQ29udHJvbGxlciAjMiAocmV2IDAyKQowMDAwOjAwOjFkLjIgVVNCIENvbnRyb2xsZXI6
+IEludGVsIENvcnAuIDgyODAxREIvREJML0RCTSAoSUNINC9JQ0g0LUwvSUNINC1NKSBVU0IgVUhD
+SSBDb250cm9sbGVyICMzIChyZXYgMDIpCjAwMDA6MDA6MWQuNyBVU0IgQ29udHJvbGxlcjogSW50
+ZWwgQ29ycC4gODI4MDFEQi9EQk0gKElDSDQvSUNINC1NKSBVU0IgMi4wIEVIQ0kgQ29udHJvbGxl
+ciAocmV2IDAyKQowMDAwOjAwOjFlLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4MDEgUENJ
+IEJyaWRnZSAocmV2IDgyKQowMDAwOjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4
+MDFEQi9EQkwgKElDSDQvSUNINC1MKSBMUEMgQnJpZGdlIChyZXYgMDIpCg==
+------=_Part_660_18947150.1105287955801--

@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbSLCM5j>; Tue, 3 Dec 2002 07:57:39 -0500
+	id <S261354AbSLCM4k>; Tue, 3 Dec 2002 07:56:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSLCM5i>; Tue, 3 Dec 2002 07:57:38 -0500
-Received: from johanna5.ux.his.no ([152.94.1.25]:6060 "EHLO johanna5.ux.his.no")
-	by vger.kernel.org with ESMTP id <S261364AbSLCM5h>;
-	Tue, 3 Dec 2002 07:57:37 -0500
-Date: Tue, 3 Dec 2002 14:04:53 +0100
-From: Erlend Aasland <erlend-a@ux.his.no>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@trained-monkey.org>,
-       linux-m68k@lists.linux-m68k.org
-Subject: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (m68knommu)
-Message-ID: <20021203130453.GE2417@johanna5.ux.his.no>
-References: <20021203125120.GA2417@johanna5.ux.his.no>
+	id <S261356AbSLCM4k>; Tue, 3 Dec 2002 07:56:40 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:17672 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S261354AbSLCM4j>; Tue, 3 Dec 2002 07:56:39 -0500
+Subject: Kernel Test tools
+From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 03 Dec 2002 08:04:10 -0500
+Message-Id: <1038920650.972.33.camel@oubop4.bursar.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021203125120.GA2417@johanna5.ux.his.no>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove CONFIG_UDF_RW from defconfig, (it's not used anymore)
+Where can one find programs to comparison test or stress test beta
+kernels?
 
-Regards,
-	Erlend Aasland
+Thanks,
 
-diff -urN linux-2.5.50/arch/m68knommu/defconfig linux-2.5.50-eaa/arch/m68knommu/defconfig
---- linux-2.5.50/arch/m68knommu/defconfig	Fri Nov 15 12:41:45 2002
-+++ linux-2.5.50-eaa/arch/m68knommu/defconfig	Tue Dec  3 00:48:05 2002
-@@ -459,7 +459,6 @@
- CONFIG_EXT2_FS=y
- # CONFIG_SYSV_FS is not set
- # CONFIG_UDF_FS is not set
--# CONFIG_UDF_RW is not set
- # CONFIG_UFS_FS is not set
- # CONFIG_UFS_FS_WRITE is not set
- # CONFIG_XFS_FS is not set
+Brad
+
+

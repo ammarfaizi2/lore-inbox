@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274866AbRIUXNi>; Fri, 21 Sep 2001 19:13:38 -0400
+	id <S274870AbRIUX3o>; Fri, 21 Sep 2001 19:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274868AbRIUXN3>; Fri, 21 Sep 2001 19:13:29 -0400
-Received: from [24.254.60.25] ([24.254.60.25]:41899 "EHLO
-	femail35.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S274866AbRIUXNU>; Fri, 21 Sep 2001 19:13:20 -0400
-Date: Fri, 21 Sep 2001 19:12:58 -0400 (EDT)
-From: Garett Spencley <gspen@home.com>
-X-X-Sender: <gspen@localhost.localdomain>
-To: Tony Hoyle <tmh@nothing-on.tv>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Reiserfs does not work from fstab in 2.4.9-ac12
-In-Reply-To: <9og6rk$vd$1@sisko.my.home>
-Message-ID: <Pine.LNX.4.33L2.0109211906280.997-100000@localhost.localdomain>
+	id <S274871AbRIUX3e>; Fri, 21 Sep 2001 19:29:34 -0400
+Received: from web10407.mail.yahoo.com ([216.136.130.99]:46855 "HELO
+	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S274870AbRIUX3V>; Fri, 21 Sep 2001 19:29:21 -0400
+Message-ID: <20010921232946.98044.qmail@web10407.mail.yahoo.com>
+Date: Sat, 22 Sep 2001 09:29:46 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Huge disk performance degradation in 2.4.9
+To: Wolly <wwolly@gmx.net>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just experienced the same problem upgrading from 2.4.9-ac7 to
-2.4.9-ac13. I was just about to start an investigation when I saw your
-e-mail.
+> 
+> Anyone reproducing this? Reiserfs issue or
+> cache/buffer/flush issue? 
 
-What happened in my case is that all my filesystems are reiserfs. The
-root filesystem was mounted succesfully for some reason but when it tried
-to mount the others it gave "wrong fs type or bad superblock"
-for every reiserfs partition (which includes /usr, /var, /tmp etc. So I
-had to reboot back into -ac7).
+I can not reproduced it witn ext2 2.4.10pre12aa1
 
-I'll post a "bug report" after I investigate and find out what the
-problem is. I just wanted to post this e-mail to say that you're not the
-only one who's had a problem.
+I noticed the performance is much improved (to 2.4.9
+and < )
 
--- 
-Garett Spencley
+I am gonna try it with ext3 later...
 
-I encourage you to encrypt e-mail sent to me using PGP
-Public key at http://www.geocities.com/gspencley/public_key.txt
-Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
+Cheers,
 
-On Fri, 21 Sep 2001, Tony Hoyle wrote:
+ 
+> Regards, 
+> Wolly
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/ 
 
-> I just got caught by this on a box which had a reiserfs /usr partition...
->
-> # mount /disk2
-> reiserfs: kgetopt: there is not option
-> <lots of mount failure stuff>
->
-> The fstab that generated this (which has worked for every other version,
-> so I believe it to be correct):
-> /dev/hdb1      /disk2          reiserfs        defaults        0       0
->
-> However
-> # mount -t reiserfs /dev/hdb1 /disk2
->
-> ..works correctly.
->
-> Tony
->
->
+=====
+S.KIEU
 
-
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

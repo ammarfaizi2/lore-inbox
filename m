@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263502AbREYCza>; Thu, 24 May 2001 22:55:30 -0400
+	id <S263496AbREYDAu>; Thu, 24 May 2001 23:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263501AbREYCzU>; Thu, 24 May 2001 22:55:20 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:1758 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S263500AbREYCzE>;
-	Thu, 24 May 2001 22:55:04 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200105250254.TAA00857@csl.Stanford.EDU>
-Subject: Re: [CHECKER] error path memory leaks in 2.4.4 and 2.4.4-ac8
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 24 May 2001 19:54:56 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1534C7-0005lu-00@the-village.bc.nu> from "Alan Cox" at May 25, 2001 12:07:03 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S263499AbREYDAk>; Thu, 24 May 2001 23:00:40 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33529 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263496AbREYDA1>;
+	Thu, 24 May 2001 23:00:27 -0400
+Date: Thu, 24 May 2001 23:00:23 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
+In-Reply-To: <200105250248.TAA00836@csl.Stanford.EDU>
+Message-ID: <Pine.GSO.4.21.0105242257280.24864-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Disagree
+
+
+On Thu, 24 May 2001, Dawson Engler wrote:
+
+> > check_nmi_watchdog() is __init and we know exactly when it's called.
+> > The interesting cases (SMP kernel, since for UP NR_CPUS==1) are:
 > 
-> > 	ahc = ahc_alloc(NULL, name);
-> 
-> ahc_alloc frees name on error
+> Ah, nice --- I keep meaning to tell the checker to demote its warning
+> about NULL bugs or large stack vars in __init routines and/or routines
+> that have the substring "init" in them ;-)
 
-Wow.  That would have been a really nasty "fix."  Sorry about that -- the
-name "ahc_alloc" is a little counter-intuitive ;-)
+Please, don't. These functions are often used from/as init_module(),
+so they must handle the case when allocation fails. They can be
+called long after the boot.
 
-Thanks for the quick feedback.
-
-Dawson

@@ -1,103 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319774AbSIMUiC>; Fri, 13 Sep 2002 16:38:02 -0400
+	id <S319779AbSIMUsp>; Fri, 13 Sep 2002 16:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319778AbSIMUiC>; Fri, 13 Sep 2002 16:38:02 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:20794 "EHLO tsmtp9.mail.isp")
-	by vger.kernel.org with ESMTP id <S319774AbSIMUiA>;
-	Fri, 13 Sep 2002 16:38:00 -0400
-Date: Fri, 13 Sep 2002 22:41:39 +0200
-From: Arador <diegocg@teleline.es>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.34-mm2 kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y
-Message-Id: <20020913224139.72df14ba.diegocg@teleline.es>
-In-Reply-To: <1031840041.1990.378.camel@spc9.esa.lanl.gov>
-References: <1031840041.1990.378.camel@spc9.esa.lanl.gov>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S319781AbSIMUsp>; Fri, 13 Sep 2002 16:48:45 -0400
+Received: from pD952AD04.dip.t-dialin.net ([217.82.173.4]:48001 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319779AbSIMUso>; Fri, 13 Sep 2002 16:48:44 -0400
+Date: Fri, 13 Sep 2002 14:53:45 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Andreas Steinmetz <ast@domdv.de>
+cc: Neil Booth <neil@daikokuya.co.uk>,
+       Thunder from the hill <thunder@lightweight.ods.org>, <dag@brattli.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.34: IR __FUNCTION__ breakage
+In-Reply-To: <3D824AD8.8050501@domdv.de>
+Message-ID: <Pine.LNX.4.44.0209131453320.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Sep 2002 08:14:01 -0600
-Steven Cole <elenstev@mesatop.com> escribió:
+Hi,
 
-> I got the following BUG at sched.c:944! with 2.5.34-mm2 and PREEMPT on.
-> This was repeatable. 
+On Fri, 13 Sep 2002, Andreas Steinmetz wrote:
+> Yes, I just verified it does work this way on gcc 2.95.3 though in my 
+> opinion it is very prone to errors (typos, ...). Furthermore I don't 
+> have any older compilers around for testing this which might still be in 
+> use.
 
-Same for me:
-POSIX conformance testing by UNIFIX
-Kernel BUG at sched.c:944!
+gcc 2.92 accepts it.
 
-preempt, no smp, HUGETLB_PAGE
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 
-a cyrix 6x86MX 233+ with 32 MB of ram...
-
-> 
-> With no PREEMPT, 2.5.34-mm2 booted and is running fine.  Some other
-> options used: SMP, HUGETLB_PAGE, HIGHPTE, HIGHMEM4G. 
-> 
-> System is dual p3, scsi, 1GB.
-> 
-> Steven
-> 
-> ksymoops 2.4.4 on i686 2.5.34.  Options used
->      -v vmlinux (specified)
->      -K (specified)
->      -L (specified)
->      -O (specified)
->      -m System.map (specified)
-> 
-> kernel BUG at sched.c:944!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0060:[<c01176ff>]  Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010206
-> eax: c02d4000   ebx: c02d4000     ecx: 00000000       edx: 00000000
-> esi: 0009b800   edi: c0105000     ebp: c02d5c8        esp: c02d5fa8
-> ds: 068         es: 0068       ss: 0068
-> Stack:  c01072c4 00000060 00000286 00000000 00000000 c02d4000 0009b800 c0105000
->         c02d5fd4 c0117ad6 00000000 0008e000 c010504b c02d68c2 c02ba3a0 00000000
->         c027e980 0003fff0 0003fff0 c033e660 00000002 c01001b1
-> Call Trace: [<c01072c4>] [<c0105000>] [<c0117ad6>] [<c010504b>]
-> Code: 0f 0b b0 03 5f 52 28 c0 b9 00 e0 ff ff 21 e1 ff 41 10 9b 01
-> 
-> >>EIP; c01176ff <schedule+1f/3c0>   <=====
-> Trace; c01072c4 <kernel_thread_helper+0/c>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c0117ad6 <preempt_schedule+36/50>
-> Trace; c010504b <rest_init+4b/50>
-> Code;  c01176ff <schedule+1f/3c0>
-> 00000000 <_EIP>:
-> Code;  c01176ff <schedule+1f/3c0>   <=====
->    0:   0f 0b                     ud2a      <=====
-> Code;  c0117701 <schedule+21/3c0>
->    2:   b0 03                     mov    $0x3,%al
-> Code;  c0117703 <schedule+23/3c0>
->    4:   5f                        pop    %edi
-> Code;  c0117704 <schedule+24/3c0>
->    5:   52                        push   %edx
-> Code;  c0117705 <schedule+25/3c0>
->    6:   28 c0                     sub    %al,%al
-> Code;  c0117707 <schedule+27/3c0>
->    8:   b9 00 e0 ff ff            mov    $0xffffe000,%ecx
-> Code;  c011770c <schedule+2c/3c0>
->    d:   21 e1                     and    %esp,%ecx
-> Code;  c011770e <schedule+2e/3c0>
->    f:   ff 41 10                  incl   0x10(%ecx)
-> Code;  c0117711 <schedule+31/3c0>
->   12:   9b                        fwait
-> Code;  c0117712 <schedule+32/3c0>
->   13:   01 00                     add    %eax,(%eax)
-> 
->  <0>Kernel panic: Attempted to kill the idle task!
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

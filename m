@@ -1,284 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132958AbRDJIA3>; Tue, 10 Apr 2001 04:00:29 -0400
+	id <S132961AbRDJJIp>; Tue, 10 Apr 2001 05:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132959AbRDJIAU>; Tue, 10 Apr 2001 04:00:20 -0400
-Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:18442 "EHLO
-	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S132958AbRDJIAH>; Tue, 10 Apr 2001 04:00:07 -0400
-Date: Tue, 10 Apr 2001 09:59:01 +0200
-From: Axel Thimm <Axel.Thimm+linux-kernel@physik.fu-berlin.de>
-To: linux-kernel@vger.kernel.org
-Cc: Michel Bouissou <michel@bouissou.net>,
-        Jens Dreger <Jens.Dreger@physik.fu-berlin.de>,
-        David Hansen <David.Hansen@physik.fu-berlin.de>
-Subject: Still IRQ routing problems with VIA (was: VIA KT133 chipset PCI crazyness...)
-Message-ID: <20010410095901.A28833@pua.domain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132967AbRDJJIf>; Tue, 10 Apr 2001 05:08:35 -0400
+Received: from alpham.uni-mb.si ([164.8.1.101]:54792 "EHLO alpham.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S132961AbRDJJIU>;
+	Tue, 10 Apr 2001 05:08:20 -0400
+Date: Tue, 10 Apr 2001 11:07:24 +0200
+From: Igor Mozetic <igor.mozetic@uni-mb.si>
+Subject: Re: aic7xxx and 2.4.3 failures
+To: jim@federated.com, linux-kernel@vger.kernel.org
+Message-id: <3AD2CD4C.EF8E7292@uni-mb.si>
+Organization: CAMTP
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+For me 2.4.3 + aic7xxx-6.1.10 work fine. I just changed the default
+bus settle delay from 15000ms to 5000m, and enabled APIC:
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The machine boots, devices are properly detected (unlike 6.1.8),
+CDRW reads and burns fine, CDROM works (IDE-SCSI).
 
-Several weeks ago there had been a thread on the pirq assignments of newer VIA
-and SiS chipsets ending with everybody happy.
+Intel C440GX+ UP, Adaptec AIC-7896/7, 2GB RAM, CDRW Sony CDU948 4x/8x
 
-Everybody? Not everybody - there is a small village of chipsets resisting the
-advent of 2.4.x :(
-
-The system is a KT133A (MSI's K7T Turbo MS-6330 board)/Duron 700
-system. Kernel 2.4.x have IRQ routing problems and USB failures (the latter
-will most probably be due to IRQ mismatches, I believe).
-
-2.2 kernel = 2.2.17 RH-kernel
-2.4 kernel = 2.4.3 kernel with 'yes ""|make config' (I also tried configuring
-             and -ac3 patches to no avail.)
-
-I attached dmesg, lspci -vvvxxx (under both 2.2 and 2.4), and dump_irq (which
-is the same for both kernels)
-
-As far as I could follow the discussion back in January a problem seem to be
-that different chipset vendors may arbitrary map pirq to links ('A' vs 1
-etc.). On my board I see that there is a rather strange mapping. Maybe this
-confuses 2.4.3?
-
-Most prominent difference in the lspci -vvvxxx output (to me) is the interrupt
-with the unknown pin:
-
-> @@ -162,6 +162,7 @@
->  00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
->         Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> +       Interrupt: pin ? routed to IRQ 11
->         Capabilities: [68] Power Management version 2
->                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-Maybe it is a KT133A != KT133 issue. Note that the analysis above is the best
-I can provide, which has nothing to do with a good analysis.
-
-Any help mostly appreciated! My board wants to run 2.4.x!!!
-
-BTW kernel 2.2.x does not give any irq related messages in its logs. Does this
-mean that 2.2.x works well, or that the errors are just not displayed?
-
-Thanks, Axel.
--- 
-Axel.Thimm@physik.fu-berlin.de
-
---vtzGhvizbBRQ85DL
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="dmesg.2.4.3.log.gz"
-Content-Transfer-Encoding: base64
-
-H4sICKF50ToAA2RtZXNnLjIuNC4zLmxvZwDtWXtz2lYW/1+f4sy0uwuzIPRAvHa9U7CdhCbY
-rLEz7XQ6not0BVqEpOphm376/Z0rCXDipE7azm6ncSYgpPN+n6s3QVQ80J1MsyCOyNK7uk2N
-NI7zb5JCpMEm1pP1Lgs2ul+0lzINg0j3ZJMaK9c9whr2yDLw17dNalxJj16JnN4o0n3daDbp
-qz4tiojGSUoDsqyRY4wci07PF9eMaGqT6eWinaTxXeABW7F0RUhX4xltRTLSSAHIgWWMyHjn
-j9rHt4a+i1uNIhPLUDY/hFhCPUIUilYjlZlM76T3QVT/PZ6m8RxUH3+PUc29Br/I1XxP05ra
-xzUFlP0YsWZKjfHpfEqeyMWHcZ9gah9wL94umtrCFREtZnPy03hLbk3dj1MyDatLy10uM/19
-sNIDvwjm76n1HMfuPYNc1xjuwS4jimJPkkF5nIswESuZjZiSZWg/x5FsGM1RiaAe6eVNEzd7
-ZhdSHd+1cNeo7yAoEwTqeD49BWli30plGMPsdru4amqvZRrJkNx4uxWRR8gcOSJRAHpyeXl9
-O52NX56flAmXxsQpd2IbvfLhi+mb85POEvc6d1tgFj+3S8gsiFah1KZRkAciDH7GTzqd33xl
-aGcyl24OmXrDod4bWjR79TMho1yZZXGqa6dxlMUhRHDjMC5Sevty/HcaGA+Wo52C0jIVORPz
-ZCh2FMZxous6mfbQ0YcmTeJVPJvOF9pMbuN0NyLLcbqD7qZj9SxjYGxI3Ikg5DikxnA42NCm
-Vt6TLWKYDdUh3iJ7YG5U4LXIMq0NBdCmRaCyDlbrrdw2oUyUp7u2K9y1pLXI1pQr4nw7YBfa
-Vr83oEacejKFs0CoZ8Hypd+b2qSAP9KP4Js9e9Dd43dbx9HV1OZw8keQS9gPMp9yyD2bt9OC
-lU2jb9Xob18sRnQWZJufCsRstq+yHv++7SEMDGUx5X/paXD/iCYSoS8BG3lIgdKgrkjAzTAH
-tj/0fXJNt68u6mRu1eAnZJVU3pg0pVMWHGp1X1OjVynV4ehttuiMSrWeeFhRsD6CX4KM/Vym
-nybp/uKYwkpGMg3cT8Y+RULCnJ/Kc3ZGZ0UaR41826R5nVeU5TJJOHHQxM4jOJqvfZHl9GJ+
-Q5m4k8TZj+DP4SDOKQ/FBOm4lu6GYf+2DvO/wQ5ZnhZuDkczzOVrXZtfLqbfIYMieBYVxJUE
-Q6ocXe7o5mL6Yvqdts1ThNCdqdt9anAHNk1j2KSrwF2L1KOXceyu0VxW/P2NyCNfd7MgjXVR
-NCtcry4b/JPyXQLXTaNchtr8dDoifKjeAAXugqrZm4aK5R2hxxsP/tJyEEohq7wsshOzRLzh
-SqWkD1YF1xagMnWqnsOCS4ZgBizrvUhl+WRSZOj5Gbt4HiSSIwfcfyqgPHmBanaedhNtovg+
-omUaeCt+nqGmwUToXyLLii2TzlMRZQnoRvmxTNOrf6PaFkz/7XRMP8BkvY7RG/R+VAoZIwMj
-iwZGSZSMiBtNpHwKZ8+jBHGTehl8tIe4iGkeFiv6K75QOj0YCoL4cRF5WjkCXZxfc9IyhfIG
-ark2ERmsXiSwy+IegkpBN1Ggkj3fcZAmSsRF7AYSN0DD1g17+Lj0X11TJHOYaENZ7G5kri1y
-kaog2WT3IvE4NgZakquS3WMOD8MB4Xe29w2suQyBPCLYuIBMGQIiTtkJD50wvke9Gvad/mbS
-cXrOwNlMWuSYFmVhnGeUQESFBo8EHKg0K8I8aMMUufp53p6enZOXsmZ0VQURqoNumxpmPSRW
-7S7b5o6V7eD5LUcSZYmENMru00vaoqhm/6AYdOBzSfdBviZccMw9PGhv57dghNgFN2iWp3EY
-giOsyxHG5JDS8A3BhDWsuw6STOaH2O7tH0VxjrnE+AtFCF3kMHMfgWcYck9dSgrSnzIEPVz0
-u6jBkXmXDywXcbnk8fAOY0pTaXdzNhtDtHe0TNygDF1TI/yBIlJhMmsDuMzTIapDW331W2VK
-Q3WOFFTBtSdGAGzhYjlKgrgmYb5HYlCS8J8g4dYkPEVifnZqGVbPeYZL+oMyP19wzqj8NMts
-qXKJFfORk3Xm1pUlDNwclZMSOKNqsu9g9XWnJH2NppWJrVTUi6xyyBGkB/oHkd+LDOvo4afE
-xgGrcdNkQ06KFHVsEuR0fjGevDk/QyUMtgLVdDZeXJ9f0Yzn1YWEft47d/XaLdZjt7gD5Vl8
-PeVZyd5gt/jKLexqmokHZDgNMfkObjC/jK/HdDZdvC7zVGNf0pvri65hv1EPMeufnnXO3p61
-ry5nFRBHWMnf9Jm96fdbxoPt99jB7BCzyzBmBdNXMH0F0z/AOKVA0KBrW5gW6trTYNEww06a
-dN+xjO7gdTApJ4sWnb5anHTxtIMhtNOzWyojGrbdLAUv5e0a30Hmg7yYsixjs6exR6nL1jHs
-caGydRO+55qqWpjLbRvrqJIaHyb9k78c/ujxR5/+xV8Wf9jaAhMK1tiKaj3JObrhlO26bVpt
-026WVWA2vvj+dn55db2gxavx1fktx+ri/Go6fnPLGTNdjOcXc/TesgXm+W5hVC4wbB/TMFv0
-hLpNCjISKNuOY4xLsMoLhnUAsx+DSYnYRVTr7ggtwxj+p53TsGMNO8MhncWRCD3MmOgwKa3z
-PBl1Oph/0I31Vea7eiQyoa/iOx7ziodOqW7W2dNc59vwmAN9fTAwZpcefa2ODzqm2TH7HOuB
-HyBFMeeMIy+VO3qr00LcYYjByET/zMT9N/ivZ/c6tis9W/1LzVhxvgbX90qJ+W6qy88sJdZn
-YdmazNdGNVShr6dJXI1DA8Rvn344Z7HRxXkk4rryY4sxx8bodDg6dUaD4chEyy1V4RJwJV2p
-wombdrtIUElXJB+CDO243S7DgwW8j9NNW6RsCEabxDwRYjiS22W4o16vbw2QkwZ2n3l93AKd
-oioBE17XonxEV992HaDXVSqAGqkvoB7XSApYCYfmr76nr5R0L3kqB6lMhn6bB9YRVmYwVTJU
-6ZAVy3bVIJ8EY1OlCDmU31XAg2D2NBwnrEpItN73IbCLP3SHrhADr9d80nBsodJAJDB636Fi
-g245oolVskLWH+l7Z+jIhYbbpG8l9oRXeIqxPNIqSFVVgy0k2QqExFYtynw2gG6jogJw1V3M
-YoY9OyDuV/e3gaBxgjYZq2B4fW3adt2LDuDjl3MSGLxyzG6cw73ujL5Bdnv1wvKDl25/VGBK
-ZIQajxMV4ZLoMTwTmFRI08NiSbnnPyA9DYyu6nBvaA2YFqYcPo2xfys2qfAkcPeMTPxzjhhZ
-WpEtuWjU0QCcSN7XRRUPkW9+9nGodbH85cLwuSn+uYXheZMJl6ti7Qas3M1iQjev0AtQzqed
-S57JurzIM66zh9rvdBah2OR707A9mAKPXgcztbgoBKuICy4eRMV2CYOZihp6XIxx5Wh6q06U
-CONrnOrYOrYob2opFR4WuSRB/nsfwF2LkDOM++CO4Wu5NluBkHFp+oJc37e6XRcqQY7AZzEO
-sldGwaZcDjczPz0BJFLFw+p8YrWqAnOhVDjZ47LOFW6tHX77ApsKxrRoVQiskNMzbpBaRexg
-6jaEpqsYM98rxNAxgxEPUIaG0KqZ4LJa/KqblQP2HqnvZzkalghjrLYcmdXdFWTh0+/4HiJm
-mAlctuz+aRgvURN5c2i7RcprLXuDCaOb1FAlMi/bcXWN5R+5HGwxo1rbrIZjUY9cUxPkRTtI
-5VaVfmM7PpBN+eE2vlPBDPnzAh64uqoB4D8IV4le7uIoTcy7hojix7LzhFsOVWXzquH2DWyv
-iuDJ+jiQWfgqsd1QQDXvuC9VIVQDQ67wFkUpcHckPE9FFgIArRISvVjQTubPKQ32H680DH6f
-0mA9O73/ZxWkN/ijVJDBlwry/1lBEEKfUkH4jG9UHe9dn8470zlPNCphy+M/DXcQGnnsxiH0
-np7O5ryG4gPgSNOXszlARoda8e77g9gnXoSRiXzQl2Gh7b1Wh+saCIwwj9aQx0d71MBEzNbI
-1vhRvnlYBlF12ayGXYi25WM7lw9xq7NRTGM9SkKk/Xw6ay9mlYZ8gkherGbc8sgxY0U76l3c
-/oCzVFkv32XMEM9ccvgVF+R5yC3yA4ipNoAmYkJ4cRTudO1FKiWrXkSq2FXvkPYzM78q8gHi
-7asZU2yzK6cX1/yiLQmRJWWomSPqDoS6tEbkiKV64TSi3qN4NOuVp9ztOXseP2+VYaOClZez
-VgVFNh8o0GzZyR4hWL9A0HpE0DbMRwR1p6T4PP2cI/1wWetXI2dFhlLq3a7dZ9trcLDX8D16
-v0qYT+DsVMjWr+P8Mavbe6sbR1Y/KsNHvaLyJ1cR9ECzYx01xcct4bkC/x7afuH8hfMXzr81
-57HncT9a3IsEtHqOYRgb4vdq7SzhQaGRpEGc8vu6ttn8U1roT8k5W95Wg29nWYSb2222Gqn5
-GJPTUxsDxh7hujJRcx23FgyRKVagEwvjEG9BJ23TND4jgPrPa/v3YiOLpL7ze29kf6ymbf85
-Q/gL5y+cv3D+wvmPzPk3a8P2r2zDjjD3Kj0+XSjf1Vd9q0WHc4Tfrk1+2hGG/c4Rxjtt9LPO
-MJ6m+FwFD1bE5dMKPm1F+3ByWon9Ybj/Ar5byiDmMAAA
-
---vtzGhvizbBRQ85DL
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="dump_pirq.2.2.17.log.gz"
-Content-Transfer-Encoding: base64
-
-H4sICIu10joAA2R1bXBfcGlycS4yLjIuMTcubG9nAO2WPW/bMBCGd/+KG1OAMUjZkm1t+uig
-oUW+kCXIIInnlIgspiRlGPn1pRqFspoggKWhQzIS7728u+dIglltUKnmyYCSjRH1A5i8qBC2
-sqk55AZyzhVqDfSw5QWn4QzgFpUWsgY2pwS0eEYrUlpQK2WD7VCB0MBxL0obQ0O6mrdBF0kG
-eCirRos9gnCWXa4fw3Yv9Cjc+WRDGCWM3VtLIndPuRFtZS8bh7DHmktlwxmjgUtyoP4mmM3S
-Pud6TuFMV9IA+xZCW+PPmyiEStSPbbhHQKjff3PbJcdiDXcLsiQ+Wb0WQJhH2JIw//7FHffu
-xenupHf7p7vT3s1Och8j2Tgk3ntIRjQVT2oqGdvUv0hOG+YxktwhWbyHZERT8aSmkkknNB07
-zGMkpUOytEh+NJURO+Qih73gKKGUtVGyqlB93SlLiztavqVl36tdU4vSvln2ofwA1We8a+hQ
-BRbVd/MLVY3mI0qf8fptHaWVpXQVZSkUjf46S0NKzFGillL7syiU4A/4Bs6IAuNJhyCZNJh0
-7GCO4awGcLLraADnfxX45o9of5ldtSHcZhGsvSRYB+0wz408H5R9kV1dRnDmhmrbalP7nRT3
-ktdJm05KemnRSYx2Wtpr/qvGZn8Al11Y9RsLAAA=
-
---vtzGhvizbBRQ85DL
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="lspci.2.2.17.log.gz"
-Content-Transfer-Encoding: base64
-
-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
-0u87LWFjGIu+ZeV4Dv7jX+g//gfl7kbHyU8AAA==
-
---vtzGhvizbBRQ85DL
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="lspci.2.4.3-pure.log.gz"
-Content-Transfer-Encoding: base64
-
-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
-BW9RAAA=
-
---vtzGhvizbBRQ85DL--
+-Igor Mozetic

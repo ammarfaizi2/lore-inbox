@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUKHTYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbUKHRBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbUKHTYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 14:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUKHTXn
+	id S261915AbUKHRBF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUKHQ6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 14:23:43 -0500
-Received: from cantor.suse.de ([195.135.220.2]:17857 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261189AbUKHTVR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 14:21:17 -0500
-Date: Mon, 8 Nov 2004 20:01:30 +0100
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kill IN_STRING_C
-Message-ID: <20041108190130.GA2564@wotan.suse.de>
-References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de> <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <20041108175120.GB27525@wotan.suse.de> <20041108183449.GC15077@stusta.de>
+	Mon, 8 Nov 2004 11:58:31 -0500
+Received: from nwd2mail2.analog.com ([137.71.25.51]:13494 "EHLO
+	nwd2mail2.analog.com") by vger.kernel.org with ESMTP
+	id S261915AbUKHPtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 10:49:15 -0500
+Message-Id: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Mon, 08 Nov 2004 07:49:09 -0800
+To: linux-kernel@vger.kernel.org
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: USB-Serial fails with USB 2.0 Hub
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108183449.GC15077@stusta.de>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 07:34:49PM +0100, Adrian Bunk wrote:
-> On Mon, Nov 08, 2004 at 06:51:20PM +0100, Andi Kleen wrote:
-> > On Mon, Nov 08, 2004 at 05:31:01PM +0100, Adrian Bunk wrote:
-> > > On Mon, Nov 08, 2004 at 05:19:35PM +0100, Andi Kleen wrote:
-> > > > > Rethinking it, I don't even understand the sprintf example in your 
-> > > > > changelog entry - shouldn't an inclusion of kernel.h always get it 
-> > > > > right?
-> > > > 
-> > > > Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
-> > > 
-> > > Which gcc is "Newer"?
-> > 
-> > I saw it with 3.3-hammer, which had additional optimizations in this 
-> > area at some point. Note that 3.3-hammer is widely used. I don't 
-> > know if 3.4 does it in the same way.
-> 
-> Is this a -hammer specific problem?
+Hi.
 
-No, I just checked a 4.0 mainline gcc and it does it too.
+Two problems with kernel 2.6.4 (SuSe 9.1):
 
-Note I saw it on x86-64, don't know if it occurs on i386 too.
+1) When I use a Belkin F5U409 usb-serial converter:
+     - when plugged directly into chipset (Intel ICH5), works great.
+     - when plugged in through a USB 1.0 hub, works great
+     - when plugged in throught USB 2.0 Hub (Belkin F5U237), fails.
+       Failure mechanism is: Tx works, Rx does not.
 
--Andi
+Any further info someone needs, or thoughts?
+
+Thanks
+

@@ -1,75 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270720AbUJUPvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270715AbUJUPvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270720AbUJUPvG (ORCPT <rfc822;willy@w.ods.org>);
+	id S270715AbUJUPvG (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 11:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUJUPq7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbUJUPqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:46:59 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55171 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270779AbUJUPlx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:41:53 -0400
-Date: Thu, 21 Oct 2004 17:41:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: readcd hangs in blk_execute_rq
-Message-ID: <20041021154122.GC32465@suse.de>
-References: <Pine.GSO.4.44.0410211805010.25972-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0410211805010.25972-100000@math.ut.ee>
+	Thu, 21 Oct 2004 11:46:33 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:7561 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S270780AbUJUPmh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:42:37 -0400
+Message-ID: <4177DA11.4090902@ru.mvista.com>
+Date: Thu, 21 Oct 2004 19:47:29 +0400
+From: "Eugeny S. Mints" <emints@ru.mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john cooper <john.cooper@timesys.com>
+CC: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Jens Axboe <axboe@suse.de>,
+       Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com>
+In-Reply-To: <4177CD3C.9020201@timesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21 2004, Meelis Roos wrote:
-> I'm trying to readcd a cd, in 2.6.9+todays BK snapshot.
+john cooper wrote:
+> Esben Nielsen wrote:
 > 
-> I got an error the first time so I started it (readcd dev=/dev/hdc)
-> the second time and chose c2scan. This resulted in the messages
-> ...
-> end:    328460
-> C2 in sector: 1864 first at byte: 2256 (0xF0) total:   72 errors
-> C2 in sector: 1865 first at byte:   12 (0x0F) total: 2335 errors
-> addr:     2499 cnt: 49
+>> On Thu, 21 Oct 2004, john cooper wrote:
+>>
+>>> Mutexes layered on existing semaphores seems convenient
+>>> at the moment. However a more native mutex mechanism
+>>> which tracks ownership would provide a basis for PI as
+>>> well as further instrumentation. This may not be an
+>>> issue at the present but I don't think it is too far
+>>> off.
+>>>
+>>> -john
+>>>
+>>>
+>>
+>> Actually you need to have another kind of semaphore based on a new 
+>> kind of
+>> wait-queue: Priority based. I.e. the task with the highest priority get
+>> woken up first. Then on top of that you build your mutex.
+>>
+> That more/less falls out of the PI mechanism. Though it
+> appears conserving per-mutex data footprint and O(1)
+> behavior are going to be at odds.
 > 
-> And here it hangs. ps shows readcd is in D state, in blk_execute_rq.
-> dmesg shows lines of
+>> I was planning to start to look at it and try to see if I could get
+>> anything to work, but I must admit I haven't got much further than
+>> just getting Igno's -U8.1 up running.
+>>
+> I myself wonder whether Ingo is 1 or N people.
 > 
-> hdc: lost interrupt
-> 
-> every no and then.
-> 
-> This a IDE CD on Intel ICH2 ide controller:
-> 
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> ICH2: IDE controller at PCI slot 0000:00:1f.1
-> ICH2: chipset revision 2
-> ICH2: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> 
-> hdc: CDU5211, ATAPI CD/DVD-ROM drive
-> hdc: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
-> 
-> And after every boot it gets DMA timeout on first read and switches to
-> PIO mode and works fine there reading data cd-s (even browsing the same
-> CD):
-> 
-> ide-cd: cmd 0x28 timed out
-> hdc: DMA interrupt recovery
-> hdc: lost interrupt
-> hdc: status timeout: status=0xd0 { Busy }
-> hdc: status timeout: error=0x00
-> hdc: DMA disabled
-> hdc: drive not ready for command
-> hdc: ATAPI reset complete
+>> To get a mutex with priority inheritance add an element pointing to the
+>> current owner and a field where you store the owners original priority
+>> which it has to be set back to when it relases the mutex (I am not sure
+>> how this will work out if someone holds several mutexes!)
+>>
+> A task holding several mutexes shouldn't be an issue.
+> Though per task an ownership list needs to be maintained
+> in descending priority order such that the effective PI
+> can be resolved from all task owned mutexes.
 
-Did it previously work reliably with dma (which kernel)? Does it now
-work reliably without dma now? Do send your entire dmesg after a boot
-too, btw.
+Seems it is too coplex model at least for the first step. The one of 
+possible trade-offs coming on mind is to trace the number of resources 
+(mutexes) held by a process and to restore original priority only when 
+resource count reaches 0. This is one of the sollutions accepted by RTOS 
+guys.
 
--- 
-Jens Axboe
+The other concern with PI is that most likely PI should be prohibited 
+for utilization with locks which are used in the way similar to "waiting 
+completition" - i.e. if PI is employed on a mutex it is prohibited to 
+release it if a process is not the owner of the mutex.
+
+> 
+> Also a multiple ownership model is needed for the case of
+> shared-reader locks. This results in a list of owners
+> where the list element can maintain per-mutex task ownership
+> as well as per-task mutex ownerships.
+> It is tempting to re-implement the wheel here but existing
+> works are well on their way:
+> 
+> http://developer.osdl.org/dev/robustmutexes
+
+It is definitly non-trivial work to adapt this approach - there are a 
+lot of issues.
+
+				Eugeny
+> -john
+> 
+
 

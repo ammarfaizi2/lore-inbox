@@ -1,142 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317746AbSGPDNs>; Mon, 15 Jul 2002 23:13:48 -0400
+	id <S317729AbSGPBSh>; Mon, 15 Jul 2002 21:18:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317747AbSGPDNq>; Mon, 15 Jul 2002 23:13:46 -0400
-Received: from msb.ruf.uni-freiburg.de ([132.230.2.2]:63207 "EHLO
-	uni-freiburg.de") by vger.kernel.org with ESMTP id <S317746AbSGPDNm>;
-	Mon, 15 Jul 2002 23:13:42 -0400
-From: Richard@vger.kernel.org, Sembera@vger.kernel.org
-Subject: 2.4.x kernels cause random launch of xscreensaver?
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro Web Mailer v.3.5.9
-Date: Tue, 16 Jul 2002 05:16:37 +0200
-Message-ID: <web-8496430@uni-freiburg.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S317728AbSGPBSg>; Mon, 15 Jul 2002 21:18:36 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:42513 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S317726AbSGPBSg>;
+	Mon, 15 Jul 2002 21:18:36 -0400
+Date: Tue, 16 Jul 2002 9:23:45 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Re: how to improve the throughput of linux network
+X-mailer: FoxMail 3.11 Release [cn]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207160926819.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I asked around in the Slackware NG about this problem last
-week and got 
-redirected here. I hope someone can help. I'm not
-subscribed to the mailing 
-list so please cc me copies of your replies.
+>> we use linux as our router. i just tested the performance of the router with smartbits, and i found that the throughput of 64byte frame is only 25%, about 35kpps. 
+>> someone mentioned that the throughput of 64byte frame could reach 70kpps.so i wish i could improve the performance of our router,but i don't know how to do that.
 
-On Slackware 8.0, when I try to install the 2.4.5 kernel, I
-get a problem 
-with X, namely, xscreensaver starts up at random intervals.
-Sometimes the 
-problem shows up immedately, sometimes it takes longer (the
-longest period so 
-far has been 2 days). While I'm working, xscreensaver will
-suddenly go off, 
-complain about not being able to grab the mose pointer, and
-launch a random 
-screen saver. After typing in my password to unlock the
-screen, xscreensaver 
-launches again after an interval of about 2-10 seconds.
+>you will probably need to provide a lot more details,
+>such as what the host CPU is, whether you've done any
+>kernel profiling, which kernel you're using, etc.
 
-If I disable xscreensaver in my .xinitrc file (or try fvwm2
-instead of my 
-standard xfce), then instead of xscreensaver I just get a
-blank screen, as if 
-there were no video signal. Moving the mouse gets me a
-normal display, but at 
-2-5 second intervals the screen will simply black out as
-described.
+the CPU is PIII800, 256M ram. 
+kernel 2.4.19-pre1
+i just add some patches of netfilter to the kernel,such as the time patch. btw,i compiled all the netfilter options into the kernel,not as modules. will that affect the performance?
+thanks.
 
-I've tried installing the 2.4.18 kernel but got the same
-problem. The 2.2.19 
-kernel works just fine, however. I've also experienced the
-same problem with 
-SuSE 7.1 and a 2.4.0 kernel.
+chuanbo zheng
 
-It was suggested in the Slackware NG that it might be a
-clock problem. I do 
-have the "clock timer configuration lost--probably a
-VIA686" message coming 
-up intermittently at boot time and during shutdown,
-although I don't have a 
-VIA chipset (in fact, this is why I switched to Slack,
-which by default 
-doesn't log or display kernel messages).
-
-I hope someone can offer suggestions or advice. I'm
-including as much 
-trechnical information as seems relevant, though I'm just a
-hobbyist, so 
-please ask if something's not quite clear.
-
-Thanks in advance,
-
-Richard Sembera.
-
-Technical Info:
-
-Monitor: old 14" el cheapo non-PnP
-
-Graphics Card: (SuperProbe output):
-        First video: Super-VGA
-        Chipset: S3 ViRGE/DX (PCI Probed)
-        Memory:  4096 Kbytes
-        RAMDAC:  Generic 8-bit pseudo-color DAC
-                 (with 6-bit wide lookup tables (or in
-6-bit mode))
-
-Mouse: standard serial mouse on ttyS0
-
-CPU: Intel Pentium MMX 166 MHz
-
-Motherboard: AOpenAP57
-Chipset: SiS 5571 PCIset
-(I recall that there is an issue with these boards, they
-were supposed to be 
-USB-enabled, but the company goofed something up and they
-were sold as 
-non-USB boards. See below:)
-
-lspci -v output:
-
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 5571
-        Flags: bus master, medium devsel, latency 255
-
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS]
-85C503/5513 (rev 01)
-        Flags: bus master, medium devsel, latency 0
-
-00:01.1 IDE interface: Silicon Integrated Systems [SiS]
-5513 [IDE] (rev c0) 
-(prog-if 8a [Master SecP PriP])
-        Subsystem: Unknown device 0058:0000
-        Flags: bus master, fast devsel, latency 64, IRQ 14
-        I/O ports at 01f0
-        I/O ports at 03f4
-        I/O ports at 0170
-        I/O ports at 0374
-        I/O ports at 4000
-
-00:01.2 USB Controller: Silicon Integrated Systems [SiS]
-7001 (rev b0) 
-(prog-if 10 [OHCI])
-        Flags: bus master, medium devsel, latency 64, IRQ
-10
-        Memory at e4000000 (32-bit, non-prefetchable)
-        I/O ports at 6000
-
-00:0c.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX
-(rev 01) (prog-if 
-00 [VGA])
-        Subsystem: S3 Inc. ViRGE/DX
-        Flags: bus master, medium devsel, latency 64, IRQ
-11
-        Memory at e0000000 (32-bit, non-prefetchable)
-
--- 
-Richard Sembera
-es034@ncf.carleton.ca
-http://ncf.carleton.ca/~es034
 

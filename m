@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S274648AbVBFK3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S274853AbVBFKf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274648AbVBFK3J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 05:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274980AbVBFK3I
+	id S274853AbVBFKf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 05:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275133AbVBFKf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 05:29:08 -0500
-Received: from gprs214-7.eurotel.cz ([160.218.214.7]:44206 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S274648AbVBFKZd (ORCPT
+	Sun, 6 Feb 2005 05:35:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62596 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S275687AbVBFKfp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 05:25:33 -0500
-Date: Sun, 6 Feb 2005 11:25:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Tony Lindgren <tony@atomide.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-Message-ID: <20050206102503.GA1089@elf.ucw.cz>
-References: <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <20050205230017.GA1070@elf.ucw.cz> <20050206023344.GA15853@atomide.com> <20050206081137.GA994@elf.ucw.cz> <1107679990.3532.37.camel@krustophenia.net>
+	Sun, 6 Feb 2005 05:35:45 -0500
+Subject: Re: 2.6.11-rc3-mm1
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3d5vengs2.fsf@telia.com>
+References: <20050204103350.241a907a.akpm@osdl.org>
+	 <m3d5vengs2.fsf@telia.com>
+Content-Type: text/plain
+Date: Sun, 06 Feb 2005 21:33:44 +1100
+Message-Id: <1107686024.30303.52.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107679990.3532.37.camel@krustophenia.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I do have CONFIG_X86_PM_TIMER enabled, but it seems by board does not
-> > have such piece of hardware:
-> > 
-> > pavel@amd:/usr/src/linux-mm$ dmesg | grep -i "time\|tick\|apic"
-> > PCI: Setting latency timer of device 0000:00:11.5 to 64
-> > pavel@amd:/usr/src/linux-mm$ 
+On Sun, 2005-02-06 at 11:07 +0100, Peter Osterlund wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> If you are sure that machine supports ACPI, maybe this is your problem
-> (from the POSIX high res timer patch):
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm1/
 > 
->           If you enable the ACPI pm timer and it cannot be found, it is
->           possible that your BIOS is not producing the ACPI table or
->           that your machine does not support ACPI.  In the former case,
->           see "Default ACPI pm timer address".  If the timer is not
->           found the boot will fail when trying to calibrate the 'delay'
->           loop.
+> It gives me a kernel panic at boot if I have CONFIG_FB_RADEON
+> enabled. If I also have CONFIG_FRAMEBUFFER_CONSOLE enabled, I get this
+> output:
+> 
+>         Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>         ...
+>         PREEMPT
+>         ...
+>         EIP is a strncpy_from_user+0x33/0x47
+>         ...
+>         Call Trace:
+>          getname+0x69/0xa5
+>          sys_open+0x12/0xc6
+>          sysenter_past_esp+0x52/0x75
+>         ...
+>         Kernel panic - not syncing: Attempted to kill init!
+> 
+> If I don't have CONFIG_FRAMEBUFFER_CONSOLE enabled, I get a screen
+> with random junk and some blinking colored boxes, and the machine
+> hangs.
 
-Well, but how do I get the address? I'll try looking at BIOS
-options...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+That's very strange... I don't see what in radeonfb could cause this.
+Just in case, can you try commenting out the call to radeon_pm_init() in
+radeon_base.c, see if it makes any difference (though I don't think so).
+
+Ben.
+
+

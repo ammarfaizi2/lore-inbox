@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135498AbRDSBCS>; Wed, 18 Apr 2001 21:02:18 -0400
+	id <S135499AbRDSBMU>; Wed, 18 Apr 2001 21:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135499AbRDSBB6>; Wed, 18 Apr 2001 21:01:58 -0400
-Received: from fjordland.nl.linux.org ([131.211.28.101]:17670 "EHLO
-	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S135498AbRDSBBi>; Wed, 18 Apr 2001 21:01:38 -0400
-From: Daniel Phillips <phillips@nl.linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][CFT] ext2 directories in pagecache
-Cc: viro@math.psu.edu
-Message-Id: <20010419010122Z92249-1659+6@humbolt.nl.linux.org>
-Date: Thu, 19 Apr 2001 03:01:12 +0200
+	id <S135501AbRDSBMK>; Wed, 18 Apr 2001 21:12:10 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:54157 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S135499AbRDSBLy>; Wed, 18 Apr 2001 21:11:54 -0400
+Date: Wed, 18 Apr 2001 21:11:40 -0400
+To: Daniel Phillips <phillips@nl.linux.org>
+Cc: linux-kernel@vger.kernel.org, adilger@turbolinux.com,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: Ext2 Directory Index - Delete Performance
+Message-ID: <20010418211139.A11833@cs.cmu.edu>
+Mail-Followup-To: Daniel Phillips <phillips@nl.linux.org>,
+	linux-kernel@vger.kernel.org, adilger@turbolinux.com,
+	ext2-devel@lists.sourceforge.net
+In-Reply-To: <20010419002757Z92249-1659+3@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010419002757Z92249-1659+3@humbolt.nl.linux.org>; from phillips@nl.linux.org on Thu, Apr 19, 2001 at 02:27:48AM +0200
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> Folks, IMO ext2-dir-patch got to the stable stage. Currently
-> it's against 2.4.4-pre2, but it should apply to anything starting with
-> 2.4.2 or so.
-> 
-> 	Ted, could you review it for potential inclusion into 2.4 once
-> it gets enough testing? It's ext2-only (the only change outside of
-> ext2 is exporting waitfor_one_page()), it doesn't change fs layout,
-> it seriously simplifies ext2/dir.c and ext2/namei.c and it gives better
-> VM behaviour.
-> 
-> 	Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch.gz
-> 
-> 	Folks, please give it a good beating - it works here, but I'd
-> really like it to get wide testing. Help would be very welcome.
+On Thu, Apr 19, 2001 at 02:27:48AM +0200, Daniel Phillips wrote:
+> more memory.  If you have enough memory, the inode cache won't thrash,
+> and even when it does, it does so gracefully - performance falls off
+> nice and slowly.  For example, 250 Meg of inode cache will handle 2
+> million inodes with no thrashing at all.
 
-I'm pretty familiar with this code since I hacked on it pretty extensively
-last  month and it does what it tries to do pretty well.  However it relies
-heavily on the assumption that directory blocks can be grouped into page-sized
-units.  This assumption doesn't hold in my directory indexing code, and I
-don't see any clean way to extend the approach you use in this patch to my
-index design.
+What inode cache are you talking about? According to the slabinfo output
+on my machine every inode takes up 480 bytes in the inode_cache slab. So
+250MB is only able to hold about half a million inodes in memory.
 
-On the other hand, there is an alternative approach, suggested to me by
-Stephen Tweedie, that will run just as fast as this code and have a lot less
-cruft in it, namely - perform buffer operations on the underlying buffers in
-the page cache.  Now perhaps we should discuss that idea and see if it goes
-anywhere.
+Jan
 
-Aside from the part that's tied to the page cache, your patch is generally a
-whole lot nicer to read that the original, and I have already incorporated
-parts of it in my directory index patch.
-
---
-Daniel

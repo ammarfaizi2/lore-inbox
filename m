@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266531AbRGTEJC>; Fri, 20 Jul 2001 00:09:02 -0400
+	id <S266536AbRGTETE>; Fri, 20 Jul 2001 00:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266536AbRGTEIw>; Fri, 20 Jul 2001 00:08:52 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60336 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266531AbRGTEIo>;
-	Fri, 20 Jul 2001 00:08:44 -0400
-Date: Fri, 20 Jul 2001 00:08:48 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] nfsroot uses bogus mountd version for NFSv2
-Message-ID: <Pine.GSO.4.21.0107192353170.10544-100000@weyl.math.psu.edu>
+	id <S266546AbRGTESz>; Fri, 20 Jul 2001 00:18:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:59915 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266536AbRGTESp>; Fri, 20 Jul 2001 00:18:45 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: bitops.h ifdef __KERNEL__ cleanup.
+Date: 19 Jul 2001 21:18:41 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9j8bf1$1at$1@cesium.transmeta.com>
+In-Reply-To: <917E9842025@vcnet.vc.cvut.cz> <11472.995579612@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-	nfsroot uses bogus protocol version when it asks portmapper on
-server for mountd port. Fix is obvious:
+Followup to:  <11472.995579612@redhat.com>
+By author:    David Woodhouse <dwmw2@infradead.org>
+In newsgroup: linux.dev.kernel
+> 
+> It has been stated many times that kernel headers should not be used in
+> apps. Renaming or moving them should not be necessary - and people would
+> probably only start to use them again anyway. We'd see autoconf checks to 
+> find whether it's linux/private.h or xunil/private.h :)
+> 
+> In the absence of any expectation that userspace developers will ever obey
+> the simple and oft-repeated rule that you don't use kernel headers from
+> userspace, the #ifdef __KERNEL__ approach would seem to be the best on
+> offer.
+> 
 
---- linux/fs/nfs/nfsroot.c    Fri Feb 16 18:56:03 2001
-+++ linux/fs/nfs/nfsroot.c.new      Thu Jul 19 23:55:09 2001
-@@ -418,7 +418,7 @@
-                        "as nfsd port\n", port);
-        }
- 
--       if ((port = root_nfs_getport(NFS_MNT_PROGRAM, nfsd_ver, proto)) < 0) {
-+       if ((port = root_nfs_getport(NFS_MNT_PROGRAM, mountd_ver, proto)) < 0) {
-                printk(KERN_ERR "Root-NFS: Unable to get mountd port "
-                                "number from server, using default\n");
-                port = mountd_port;
+Note that the rule is at least in part theoretical; even glibc include
+kernel headers or -derivatives.
 
-Notice that for NFSv3 both nfsd and mountd are using version 3, so it both
-nfsd_ver == mountd_ver. However, for NFSv2 we end up asking for mountd
-version 2, which doesn't exist - mountd version for NFSv2 was 1.
+I think the idea with <asm/bitops.h> is that they are protected by
+#ifdef __KERNEL__ if they are kernel-only; however, if they work in
+user space then there is no #ifdef and autoconf can detect their
+presence.
 
-Looks like this typo got into the tree in 2.3.99-4-pre3 when NFSv3 had
-been merged into the tree - until then we had (correctly) asked for
-version 1. Corresponding code in 2.2 is using mountd_ver, so it's also
-OK.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

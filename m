@@ -1,82 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318389AbSHUQso>; Wed, 21 Aug 2002 12:48:44 -0400
+	id <S318432AbSHUQ5t>; Wed, 21 Aug 2002 12:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318428AbSHUQso>; Wed, 21 Aug 2002 12:48:44 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:36331 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S318389AbSHUQsn>;
-	Wed, 21 Aug 2002 12:48:43 -0400
-Message-ID: <3D63C533.90706@acm.org>
-Date: Wed, 21 Aug 2002 11:52:03 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
+	id <S318460AbSHUQ5t>; Wed, 21 Aug 2002 12:57:49 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:57051 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318432AbSHUQ5r>; Wed, 21 Aug 2002 12:57:47 -0400
+Subject: Re: (RFC): SKB Initialization 
+To: alan@lxorguk.ukuu.org.uk, davem@redhat.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Cc: "Bill Hartner" <bhartner@us.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF9AEE9308.79FD144F-ON87256C1C.004716B7@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Wed, 21 Aug 2002 11:59:44 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/21/2002 10:59:44 AM
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] IPMI driver for Linux
-References: <3D63B612.8020706@acm.org> <1029945764.26845.93.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Here is a 2.5.25 patch that improves the skb header initialization
+on SMP systems [for netperf].  The patch removes the constructor
+for the skbuff_head_cache and moves the initialization of the skb
+header from __free_skb to alloc_skb.
 
->On Wed, 2002-08-21 at 16:47, Corey Minyard wrote:
->  
->
->>I have been working on an IPMI driver for Linux for MontaVista, and I 
->>think it's ready to see the light of day :-).  I would like to see this 
->>included in the mainstream kernel eventually.   You can get it at 
->>http://home.attbi.com/~minyard.  It should work on any kernel version, 
->>although you will have to fix up the Config.in and Makefile, and the 
->>Configure.help stuff may not work (it's currently in the 2.4 location).
->>
->>The web page has documentation on the driver, and documentation is 
->>included in the patch, too.  This is a fairly full-featured driver with 
->>a watchdog, panic event generation, full kernel and userland access to 
->>the driver, multi-user/multi-interface support, and emulators for other 
->>IPMI device drivers.
->>    
->>
->
->Comments in general.
->
->It touches user space with spinlocks held -> bad idea
->
-Oops, thanks.  I've uploaded a version that fixes this.  I only found 
-one instance of this, but it's pretty bad.
+Since skbs freed on one CPU may end up being allocated on another cpu,
+and often are, the initialization on the free side may not be the
+right choice for SMP particularily if the free slab is then allocated
+on another CPU.
 
->It doesnt check copy_*_user returns instead commenting that some other
->driver didnt so it wont - bad idea too
->
-This was only in the emulation code.  I debated about this, but it's 
-quite possible that doing the check will break the current users of this 
-code.  I'm afraid if I add the checks it will cause other broken code to 
-not work.  I could pull out the emulation code and supply it separately; 
-I would probably choose to not put that part into the mainstream kernel, 
-anyway.
+I measured the cycles spent in initializing skb in the stock kernel
+versus with the patch. I collected the cycles at the end of running
+tcp_stream netperf test using 4KB message size, 64KB socket buffer
+size, 2 adapter test on a 2-way system.
 
->It seems to be allocating a major - can you have > 1 ipmi per host, can
->it use misc devices, can it get one registered properly with lanana
->
-Yes, you can have multiple IPMI interfaces on a host (I have a board 
-that has 3!).  There are serial-port interfaces planned that could also 
-easily have multiple instances as well as an on-board KCS.  If there's 
-an easy way to do this with a minor device, I'm all ears, but I'd prefer 
-to have a separate device for each interface.  This is one of the things 
-I wanted discussion about.  Once that gets settled, I'll go to lanana. 
- Right now it's just being auto-assigned.
+Two 996MHz Pentium III systems with 2 gigabit ethernet cards in each
+one of them are used. The cycles are collected at the server
+end.
 
->Otherwise its way way way nicer than the hideous thing a certain chip
->vendor sent me.
->  
->
-I know what you mean.
+The patch reduces the numer of cylces by 25%
 
-Thank you for your response and suggestions.
+Baseline on Linux 2.5.25 kernel:
+-------------------------------
 
--Corey
-minyard@acm.org
+                                CPU 0                 CPU 1
+                               ------                 ------
+Avg cycles in alloc_skb:        64.05                 203.39
+Avg cycles in __kfree_skb:     127.54                 228.95
+                               ------                 -------
+Total Avg Cycles               191.59                 432.34
+                               ------                 -------
+
+# of times alloc_skb called:      235,478            2,060,422
+# of times __kfree_skb called:  2,063,276              232,359
+
+
+Linux 2.5.25+Skbinit Patch:
+--------------------------
+                              CPU 0                   CPU 1
+                              -----                   -----
+ Avg cycles in alloc skb:     237.21                  230.91
+
+ # of times alloc_skb called: 1,226,594             1,213,327
+
+
+
+I also will collect the cycles of this init code in Specweb99 workload
+and will post it later.
+
+
+
+diff -Naur linux2.5.25/net/core/skbuff.c linux-525skb/net/core/skbuff.c
+--- linux2.5.25/net/core/skbuff.c   Tue Aug 20 08:50:58 2002
++++ linux-525skb/net/core/skbuff.c  Wed Aug 21 08:51:52 2002
+@@ -195,18 +195,37 @@
+            goto nodata;
+
+      /* XXX: does not include slab overhead */
++     skb->next     = skb->prev = NULL;
++     skb->list     = NULL;
++     skb->sk             = NULL;
++     skb->stamp.tv_sec = 0;  /* No idea about time */
++     skb->dev      = NULL;
++     skb->dst      = NULL;
++     memset(skb->cb, 0, sizeof(skb->cb));
++     skb->len      = 0;
++     skb->data_len = 0;
++     skb->csum = 0;
++     skb->cloned   = 0;
++     skb->pkt_type       = PACKET_HOST;  /* Default type */
++     skb->ip_summed      = 0;
++     skb->priority       = 0;
++     skb->security       = 0;      /* By default packets are insecure */
+      skb->truesize = size + sizeof(struct sk_buff);
+-
+      /* Load the data pointers. */
+      skb->head = skb->data = skb->tail = data;
+      skb->end  = data + size;
+-
+-     /* Set up other state */
+-     skb->len      = 0;
+-     skb->cloned   = 0;
+-     skb->data_len = 0;
+-
+      atomic_set(&skb->users, 1);
++     skb->destructor     = NULL;
++#ifdef CONFIG_NETFILTER
++     skb->nfmark   = skb->nfcache = 0;
++     skb->nfct     = NULL;
++#ifdef CONFIG_NETFILTER_DEBUG
++     skb->nf_debug       = 0;
++#endif
++#endif
++#ifdef CONFIG_NET_SCHED
++     skb->tc_index       = 0;
++#endif
+      atomic_set(&(skb_shinfo(skb)->dataref), 1);
+      skb_shinfo(skb)->nr_frags  = 0;
+      skb_shinfo(skb)->frag_list = NULL;
+@@ -326,7 +345,7 @@
+ #ifdef CONFIG_NETFILTER
+      nf_conntrack_put(skb->nfct);
+ #endif
+-     skb_headerinit(skb, NULL, 0);  /* clean state */
++     /* skb_headerinit(skb, NULL, 0);   clean state */
+      kfree_skbmem(skb);
+ }
+
+@@ -1191,7 +1210,7 @@
+                                    sizeof(struct sk_buff),
+                                    0,
+                                    SLAB_HWCACHE_ALIGN,
+-                                   skb_headerinit, NULL);
++                                   NULL, NULL);
+      if (!skbuff_head_cache)
+            panic("cannot create skbuff cache");
+
+
+
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.comdeveloperworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
 

@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTFPWAO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTFPWAO
+	id S264380AbTFPWAt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:00:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTFPWAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:00:14 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:54538 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264377AbTFPWAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:00:11 -0400
-Date: Mon, 16 Jun 2003 23:14:03 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Tony Lill <ajlill@tardis.ajlc.waterloo.on.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: help with 2.5.70 on Dell inspiron - no display
-In-Reply-To: <200306151839.h5FIdBFL006301@spider.ajlc.waterloo.on.ca>
-Message-ID: <Pine.LNX.4.44.0306162254530.26878-100000@phoenix.infradead.org>
+	Mon, 16 Jun 2003 18:00:48 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:8860 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264380AbTFPWAq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 18:00:46 -0400
+Message-ID: <3EEE40F1.4030107@us.ibm.com>
+Date: Mon, 16 Jun 2003 15:13:05 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Janice M Girouard <janiceg@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, stekloff@us.ibm.com,
+       girouard@us.ibm.com, lkessler@us.ibm.com, kenistonj@us.ibm.com,
+       Jeff Garzik <jgarzik@pobox.com>, davem@redhat.com
+Subject: Re: patch for common networking error messages
+References: <3EEE28DE.6040808@us.ibm.com>
+In-Reply-To: <3EEE28DE.6040808@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Janice M Girouard wrote:
 
-> I've been playing wiht 2.5.70 on my laptop, but I can't get any screen
-> output. The Inspiron uses a
-> VGA compatible controller: ATI Technologies Inc Rage Mobility P/M AGP 2x (rev 100).
-> according to /proc/pci. I started wiht a working .config from my 2.4
-> kernel and did make oldconfig, and I've been playing wiht the
-> framebuffer and console options, but the best I've been able to do is
-> get the cursor to appear, but no text. I know the box is booting
-> beacuse the cursor moves like it's writin output.
+> Below is a patch that demonstrates standard messages for ethernet device 
+> drivers.  I would like your feedback on the concept of standard network 
+> messages, and any suggestions for messages to include. 
 
-You have to many fbd4ev drivers selected. You need to pick one.
+Very useful!  I'd like to see a short note on this in Documentation/
+networking..Or perhaps if there is already a RAS best practices
+kind of doc or something, add to that? (sorry, havent checked)
+But it would be handy for people who wanted to contribute
+patches for other drivers.
 
-> # CONFIG_FB_RIVA is not set
-> # CONFIG_FB_MATROX is not set
-> CONFIG_FB_RADEON=y
-> CONFIG_FB_ATY128=y
-> CONFIG_FB_ATY=y
-> CONFIG_FB_ATY_CT=y
-> CONFIG_FB_ATY_GX=y
-> CONFIG_FB_ATY_XL_INIT=y
-> # CONFIG_FB_SIS is not set
-> # CONFIG_FB_NEOMAGIC is not set
-> # CONFIG_FB_3DFX is not set
-> # CONFIG_FB_VOODOO1 is not set
-> # CONFIG_FB_TRIDENT is not set
-> # CONFIG_FB_PM3 is not set
-> # CONFIG_FB_VIRTUAL is not set
-> 
-> #
-> # Console display driver support
-> #
-> CONFIG_VGA_CONSOLE=y
-> # CONFIG_MDA_CONSOLE is not set
-> CONFIG_DUMMY_CONSOLE=y
-> CONFIG_FRAMEBUFFER_CONSOLE=m
+Essentially, things like some guidelines on classifying some
+of those messages, when creating new messages. eg when is
+something a state change and when is it a performance event?
+I notice some slight ambiguity in your defs..(sorry, very
+minor nitpick :)).
 
-?? You are booting into VGA text mode and framebuffer console as a 
-modules. I bet you have vga=0x7XX which makes the hardware switch to 
-graphics mode. Not good with vgacon.
+I'd certainly like to see messages from the driver when the
+card enters/leaves promiscuous mode, as an example of things
+we'd like to add...
 
+thanks,
+Nivedita
+
+
+> The intent of the standard message change is to:
+> 1) Ensure key events are communicated to user space in a predictable 
+> way, enabling automated diagnostic systems or error log analysis,
+> 2) Reduce the number of puzzling messages that are logged -- in this 
+> case, by replacing them with standard messages, and/or
+> 3) Identify the device (or driver name) that is responsible for the error.
 

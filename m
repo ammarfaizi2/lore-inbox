@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbTHZTz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 15:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTHZTz6
+	id S262738AbTHZUKS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 16:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbTHZUKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 15:55:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50631 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262591AbTHZTz4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 15:55:56 -0400
-Date: Tue, 26 Aug 2003 11:55:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: venkatesh.pallipadi@intel.com, vojtech@suse.cz, ak@suse.de,
-       haveblue@us.ibm.com, mikpe@csd.uu.se, jun.nakajima@intel.com,
-       suresh.b.siddha@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
-Message-Id: <20030826115553.7f8b3285.akpm@osdl.org>
-In-Reply-To: <20030826115129.509c4161.akpm@osdl.org>
-References: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F8@fmsmsx405.fm.intel.com>
-	<20030826115129.509c4161.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Aug 2003 16:10:18 -0400
+Received: from k-kdom.nishanet.com ([65.125.12.2]:19473 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S262738AbTHZUKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 16:10:12 -0400
+Message-ID: <3F4BBBB3.2080100@boxho.com>
+Date: Tue, 26 Aug 2003 15:57:39 -0400
+From: Resident Boxholder <resid@boxho.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: how to log reiser and raid0 crash? 2.6.0-t4
+References: <20030826102233.GA14647@namesys.com>	 <1061922037.1670.3.camel@spc9.esa.lanl.gov>	 <20030826182609.GO5448@backtop.namesys.com> <1061926566.1076.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1061926566.1076.2.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> I doubt if we really need the timer running that early, apart from for
->  calibrate_delay().
-> 
->  You can probably move the time_init() and calibrate_delay() so they occur
->  after mem_init().  A close review would be needed to see if that is likely
->  to break anything.  If it is, then consider creating a new late_time_init()
->  thing, and call that and calibrate_delay() after mem_init().
-> 
+2.6.0-test4 amd xp 3000+ msi mbo nforce2  four Maxtor 60G 8mbcache raid0
 
-Actually, I think some platforms (ppc64) will explode if we do the
-local_irq_enable() prior to time_init().
+I cause a lock up by doing a cp -aR /usr/src /mnt/usr which moves data 
+larger
+than total hard buffer cache, to raid0 reiserfs or ext2 ( NOT reiser4!) 
+Copy ops
+smaller than buffer cache(8mb x 4 = 32mb) don't fail. Nothing fails on a 
+single
+drive, compiles or copies, just copy to a mounted raid0 device. What 
+should I
+try, test, or dump?
 
-So I suggest you look at the latter option:
+No irq error storm. No cd drives installed. Smaller copy ops work. Turning
+swap off first slows things down enough to work, but swap itself is probably
+OK. I have bios turn apic off, then linux turns it on, which is good 
+until the
+turn apic off before turn apic on patch gets into test5 or whatever.
 
-- change time_init() so that it doesn't actually touch the HPET hardware
-  in the HPET timer case.
+hdparm sets all four drives the same, udma6 but have tried down to udma4
+and pio4 and dma turned off, unmask on or off.
 
-- add late_time_init() after mem_init().
+If two drives are on the mboard controller and two on a promise pci card,
+does /proc/ide/amd74xx refer to the two drives on the motherboard only?
+It seems to mention four drives but the two slow ones might just be a
+ref to unoccupied slave drive positions.
 
-- then do calibrate_delay().
+I'm wondering what to send in. Maybe I could send a log from successful
+copy with swap off, showing reiser logging, and config, in case a stress
+condition or misconfig shows up even when catastrophic failure doesn't
+occur. With swap on the fail is sudden and no error logging is coming
+through.
 
-Or whatever.  The bottom line is that init/main.c is fragile, but not
-inviolable ;)
+I could incrementally copy /usr/src to one raid, then do a copy from that
+raid to another raid. All that would do is test copying from one balanced
+set of four drives/partitions to another balanced set, versus copying from
+one drive's /usr/src to that and three other drives' raid set, which is
+unbalanced, dragging on one drive.
 
+-Bob
 

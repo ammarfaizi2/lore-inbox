@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbUAMRTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 12:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbUAMRTo
+	id S264586AbUAMR2I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 12:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUAMR2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 12:19:44 -0500
-Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:31880
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S264459AbUAMRTn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 12:19:43 -0500
-Subject: Re: [NFS][2.4][ReiserFS] NFS and `nohide' vs. reiserfs
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87eku3u6pq.wl@canopus.ns.zel.ru>
-References: <87eku3u6pq.wl@canopus.ns.zel.ru>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1074014378.1526.53.camel@nidelv.trondhjem.org>
+	Tue, 13 Jan 2004 12:28:07 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58344 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264586AbUAMR17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 12:27:59 -0500
+Date: Tue, 13 Jan 2004 18:27:51 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix DECSTATION depends
+Message-ID: <20040113172751.GN9677@fs.tum.de>
+References: <20040113015202.GE9677@fs.tum.de> <20040113022826.GC1646@linux-mips.org> <Pine.LNX.4.55.0401131401300.21962@jurand.ds.pg.gda.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 13 Jan 2004 12:19:38 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0401131401300.21962@jurand.ds.pg.gda.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På ty , 13/01/2004 klokka 11:57, skreiv Samium Gromoff:
-> Participants:
+On Tue, Jan 13, 2004 at 02:07:54PM +0100, Maciej W. Rozycki wrote:
+> On Tue, 13 Jan 2004, Ralf Baechle wrote:
 > 
-> - a 2.4.18 server exporting with a `nohide' option a reiserfs filesystem A
-> with a reiserfs filesystem B mounted in it.
+> > > it seems the following is required in Linus' tree to get correct depends 
+> > > for DECSTATION:
+> > 
+> > Thanks,  applied.
 > 
+>  The dependency was intentional: stable for 32-bit, experimental for
+> 64-bit.  I'm reverting the change immediately.  Please always contact me
+> before applying non-obvious changes for the DECstation.
+> 
+>  If there's anything wrong with the depends, it should be fixed elsewhere.  
+> Details, please.
 
-Mind showing us your /etc/exports? I'll bet you have the "nohide" option
-set on the wrong entry.
+Does -mabi=64 really work on any DECstation?
 
-"nohide" should set be on the /etc/exports entry for "B" if the latter
-is mounted inside "A". It does not have to be set on the entry for "A".
+AFAIK none of the R2000, R3x00 and the R4x00 do support the 64bit ABI.
 
-Cheers,
-  Trond
+>   Maciej
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbTAJRTv>; Fri, 10 Jan 2003 12:19:51 -0500
+	id <S265484AbTAJRQz>; Fri, 10 Jan 2003 12:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbTAJRTv>; Fri, 10 Jan 2003 12:19:51 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61074
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265587AbTAJRTu>; Fri, 10 Jan 2003 12:19:50 -0500
-Subject: Re: BLKBSZSET still not working on 2.4.18 ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: ludovic.drolez@freealter.com,
+	id <S265541AbTAJRQz>; Fri, 10 Jan 2003 12:16:55 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:23508 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S265484AbTAJRQy>;
+	Fri, 10 Jan 2003 12:16:54 -0500
+Date: Fri, 10 Jan 2003 12:25:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200301101708.h0AH8nUS013550@darkstar.example.net>
-References: <200301101708.h0AH8nUS013550@darkstar.example.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042222490.32175.5.camel@irongate.swansea.linux.org.uk>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030110172535.GA25565@gtf.org>
+References: <20030110161012.GD2041@holomorphy.com> <1042219147.31848.65.camel@irongate.swansea.linux.org.uk> <20030110170625.GE23375@codemonkey.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 18:14:51 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030110170625.GE23375@codemonkey.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 17:08, John Bradford wrote:
-> Didn't some really obscure IBM drives use it for something internally,
-> and shortly after everybody else had to stop using it incase they
-> overwrote the custom data at the end of an IBM disk, or am I thinking
-> of something else?
+On Fri, Jan 10, 2003 at 05:06:25PM +0000, Dave Jones wrote:
+> On Fri, Jan 10, 2003 at 05:19:08PM +0000, Alan Cox wrote:
+> What's happening with the OSS drivers ?
+> I'm still carrying a few hundred KB of changes from 2.4 for those.
+> I'm not going to spent a day splitting them up, commenting them and pushing
+> to Linus if we're going to be dropping various drivers.
 
-Something else - EFI uses the last sector for partitioning as one example.
-Drives do have protected private areas but they are shielded from normal
-use for obvious reasons
+I've been updating the via audio every now and again.
+
+If sound/oss is staying for 2.6.0, we might as well merge the 2.4.x
+changes.
+
+	Jeff
+
+
+

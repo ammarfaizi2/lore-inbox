@@ -1,55 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264454AbUBEB3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 20:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbUBEB3Y
+	id S264981AbUBEBkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 20:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUBEBkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 20:29:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15264 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264454AbUBEB3N (ORCPT
+	Wed, 4 Feb 2004 20:40:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22953 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264981AbUBEBkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 20:29:13 -0500
-Date: Wed, 4 Feb 2004 17:29:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Wed, 4 Feb 2004 20:40:13 -0500
+Subject: [PATCH 2.6.2-rc3-mm1] DIO read race fix
+From: Daniel McNeil <daniel@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
-cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       kmannth@us.ibm.com
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
- X  (fwd)
-In-Reply-To: <20040204165620.3d608798.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402041719300.2086@home.osdl.org>
-References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org>
- <60330000.1075939958@flay> <64260000.1075941399@flay>
- <Pine.LNX.4.58.0402041639420.2086@home.osdl.org> <20040204165620.3d608798.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Janet Morgan <janetmor@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <20040109035510.GA3279@in.ibm.com>
+References: <3FCD4B66.8090905@us.ibm.com>
+	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
+	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
+	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
+	 <20031230045334.GA3484@in.ibm.com>
+	 <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
+	 <20031231060956.GB3285@in.ibm.com>
+	 <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
+	 <20040109035510.GA3279@in.ibm.com>
+Content-Type: multipart/mixed; boundary="=-NEHzzdBIvhWJ8IUPPqjo"
+Organization: 
+Message-Id: <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Feb 2004 17:39:58 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-NEHzzdBIvhWJ8IUPPqjo
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Wed, 4 Feb 2004, Andrew Morton wrote:
-> 
-> pfn_valid() could become quite expensive indeed, and it lies on super-duper
-> hotpaths.
+I have found (finally) the problem causing DIO reads racing with
+buffered writes to see uninitialized data on ext3 file systems 
+(which is what I have been testing on).
 
-Yes. However, sometimes it is the only choice. 
+The problem is caused by the changes to __block_write_page_full()
+and a race with journaling:
 
-So it does need to be fixed, and if it ends up being a noticeable
-perofmance problem, then we can look at the hot-paths one by one and see
-if we can avoid using it. We probably can, most of the time.
+journal_commit_transaction() -> ll_rw_block() -> submit_bh()
+	
+ll_rw_block() locks the buffer, clears buffer dirty and calls
+submit_bh()
 
-> An alternative which is less conceptually clean but should work in this
-> case is to mark all vma's which were created by /dev/mem mappings as VM_IO,
-> and test that in remap_page_range().
+A racing __block_write_full_page() (from ext3_ordered_writepage())
 
-Hmm.. Grepping for "pfn_valid()", I'm starting to suspect that yes, with a
-VM_IO approach and a fixed virt_addr_valid(), there really aren't any
-other uses.
+	would see that buffer_dirty() is not set because the i/o
+        is still in flight, so it would not do a bh_submit()
 
-(virt_addr_valid() is useful for debugging and for validation of untrusted
-pointers, but pfn_valid() just isn't very good for it. Never really was:  
-it started out as an ugly hack, and it never got cleaned up. It should be
-easily fixable with something _proper_).
+	It would SetPageWriteback() and unlock_page() and then
+	see that no i/o was submitted and call end_page_writeback()
+	(with the i/o still in flight).
 
-			Linus
+This would allow the DIO code to issue the DIO read while buffer writes
+are still in flight.  The i/o can be reordered by i/o scheduling and
+the DIO can complete BEFORE the writebacks complete.  Thus the DIO
+sees the old uninitialized data.
+
+Here is a quick hack that fixes it, but I am not sure if this the
+proper long term fix.
+
+Thoughts?
+
+Daniel
+
+
+
+--=-NEHzzdBIvhWJ8IUPPqjo
+Content-Disposition: attachment; filename=2.6.2-rc3-mm1.DIO-read_race.patch
+Content-Type: text/plain; name=2.6.2-rc3-mm1.DIO-read_race.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.2-rc3-mm1/fs/buffer.c	2004-02-04 17:12:43.823525259 -0800
++++ linux-2.6.2-rc3-mm1.patch/fs/buffer.c	2004-02-04 17:16:43.033252068 -0800
+@@ -1810,6 +1810,7 @@ static int __block_write_full_page(struc
+ 
+ 	do {
+ 		get_bh(bh);
++		wait_on_buffer(bh);
+ 		if (buffer_mapped(bh) && buffer_dirty(bh)) {
+ 			if (wbc->sync_mode != WB_SYNC_NONE) {
+ 				lock_buffer(bh);
+
+--=-NEHzzdBIvhWJ8IUPPqjo--
+

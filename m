@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVCOTrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVCOTvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVCOTrh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:47:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVCOTiu
+	id S261816AbVCOTvI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVCOTsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:38:50 -0500
-Received: from simmts8.bellnexxia.net ([206.47.199.166]:30434 "EHLO
-	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261803AbVCOTg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:36:57 -0500
-Message-ID: <4110.10.10.10.24.1110915247.squirrel@linux1>
-In-Reply-To: <20050315190847.GA1870@isilmar.linta.de>
-References: <20050315170834.GA25475@kroah.com>
-    <20050315190847.GA1870@isilmar.linta.de>
-Date: Tue, 15 Mar 2005 14:34:07 -0500 (EST)
-Subject: Re: [RFC] Changes to the driver model class code.
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Dominik Brodowski" <linux@dominikbrodowski.net>
-Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       "Kay Sievers" <kay.sievers@vrfy.org>
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 15 Mar 2005 14:48:05 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:23498 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261793AbVCOToI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:44:08 -0500
+Subject: Re: x86: spin_unlock(), spin_unlock_irq() & others are out of line
+	?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org, vda@port.imtp.ilyichevsk.odessa.ua
+In-Reply-To: <4236BD87.6000408@cosmosbay.com>
+References: <42348474.7040808@aknet.ru>	<20050313201020.GB8231@elf.ucw.cz>
+	 <4234A8DD.9080305@aknet.ru>
+	 <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
+	 <4234B96C.9080901@aknet.ru>
+	 <20050314192943.GG18826@devserv.devel.redhat.com>
+	 <4235ED35.1000405@aknet.ru> <20050314193447.47ca6754.akpm@osdl.org>
+	 <4236BD87.6000408@cosmosbay.com>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 14:44:02 -0500
+Message-Id: <1110915842.17931.15.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, March 15, 2005 2:08 pm, Dominik Brodowski said:
+On Tue, 2005-03-15 at 11:48 +0100, Eric Dumazet wrote:
+> Is it a regression, or is it needed ?
+> 
 
-> For example, temperature sensors could be exported
-> using /sys/class/temp_sensors/... -- then userspace wouldn't need to know
-> whether the temperature was determined using an ACPI BIOS call or by
-> accessing an i2c device. Such "abstractions", and other kernel code whcih
-> uses these "abstractions" (a.k.a. class interfaces) are a great feature
-> to have, and one too less used by now.
+Please see the "Completely out of line spinlocks" thread from about a
+month ago.
 
-That really sounds like a job for user space, why complicate the kernel?  
-A simple user space library could handle returning temperatures without
-the caller knowing from where the value was obtained.   Isn't this the
-exact type of thing that just bloats a kernel needlessly?
-
-Sean
-
+Lee
 

@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263568AbUJ2Uwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263564AbUJ2VEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbUJ2Uwg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUJ2UuP
+	id S263564AbUJ2VEx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbUJ2VEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:50:15 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58016 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263509AbUJ2U3c (ORCPT
+	Fri, 29 Oct 2004 17:04:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17851 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263573AbUJ2VDY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:29:32 -0400
-Date: Fri, 29 Oct 2004 22:30:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: John Gilbert <jgilbert@biomail.ucsd.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
-Message-ID: <20041029203031.GB5186@elte.hu>
-References: <OFDD5E88CA.56DEE781-ON86256F3C.0059C080-86256F3C.0059C0A2@raytheon.com> <20041029162622.GA8016@elte.hu> <41828348.4000700@biomail.ucsd.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41828348.4000700@biomail.ucsd.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 29 Oct 2004 17:03:24 -0400
+Date: Fri, 29 Oct 2004 14:03:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux-os@analogic.com
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+In-Reply-To: <Pine.LNX.4.58.0410291217460.28839@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0410291355460.28839@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
+ <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
+  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
+ <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
+ <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
+ <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
+ <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410291316470.3945@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291217460.28839@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* John Gilbert <jgilbert@biomail.ucsd.edu> wrote:
 
-> Hello all, Ingo,
-> Here's a few bugs on boot with V0.5.2, and a question: what's needed to 
-> get back to the verbose latency messages of previous preempt patches 
-> (see the terse second log)?
+On Fri, 29 Oct 2004, Linus Torvalds wrote:
+> 
+> Here's a totally untested patch to make the semaphores use "fastcall" 
+> instead of "asmlinkage"
 
-> (ksoftirqd/0/2/CPU#0): new 1003 us maximum-latency wakeup.
+Ok, I tested it, looked through the assembly code, and did a general size 
+comparison. Everything looks good, and it should fix the problem that 
+caused this discussion. Checked in.
 
-if you have LATENCY_TRACING enabled then the wakeup trace of the last 
-wakeup will be in /proc/latency_trace.
+The patch actually improves code generation by moving the failure case
+argument generation _into_ the failure case: this makes the inline asm one
+instruction longer, but it means that the fastpath is often one
+instruction shorter. In fact, the fastpath is usually improved even _more_
+than that, because gcc does sucketh at generating code that uses fixed
+registers (ie the old code often caused gcc to first generate the value
+into another register, and then _move_ it into %eax, rather than just
+generating it into %eax in the first place).
 
-the reason that the messages are less verbose is that by default we are
-not measuring critical sections anymore, but 'wakeup latency'. Wakeup 
-latency is measured from the point of wakeup to the point where the task 
-runs - so it makes no sense to dump the stack (which is why the previous 
-tracing output was more verbose) - a stackdump would always show the 
-scheduler codepath where we stop measuring.
+My test-kernel shrunk by a whopping 2kB in size from this change.
 
-you can switch back to critical section timing though, via:
-
-	echo 0 > /proc/sys/kernel/preempt_wakeup_timing
-
-this will also turn the stackdumps back on. (those make sense in this
-case because we measure 'start of critical section' to 'end of critical
-section', in which case both a stackdump and the symbolic printout of
-the start and end address is useful - because it's variable.
-
-	Ingo
+		Linus

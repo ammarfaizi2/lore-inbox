@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265734AbUADRfl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 12:35:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265740AbUADRfk
+	id S265740AbUADR7K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 12:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265765AbUADR7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 12:35:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48023 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265734AbUADRff (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 12:35:35 -0500
-Date: Sun, 4 Jan 2004 17:35:18 +0000
-From: Dave Jones <davej@redhat.com>
-To: Troels Walsted Hansen <troels@thule.no>
+	Sun, 4 Jan 2004 12:59:10 -0500
+Received: from cpc3-hitc2-5-0-cust116.lutn.cable.ntl.com ([81.99.82.116]:55976
+	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
+	id S265740AbUADR7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 12:59:06 -0500
+Message-ID: <3FF8558A.2080308@reactivated.net>
+Date: Sun, 04 Jan 2004 18:03:54 +0000
+From: Daniel Drake <dan@reactivated.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herve Fache <herve.fache@europemail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Pentium M config option for 2.6
-Message-ID: <20040104173518.GA1730@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Troels Walsted Hansen <troels@thule.no>,
-	linux-kernel@vger.kernel.org
-References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur> <20040104162516.GB31585@redhat.com> <1073233988.5225.9.camel@fur> <20040104165028.GC31585@redhat.com> <3FF84773.5060801@thule.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FF84773.5060801@thule.no>
-User-Agent: Mutt/1.5.4i
+Subject: Re: Linux hangs on nVidia nForce2 400 Ultra
+References: <20040104173624.19046.qmail@iname.com>
+In-Reply-To: <20040104173624.19046.qmail@iname.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 06:03:47PM +0100, Troels Walsted Hansen wrote:
+Hi,
 
- > >FWIW, I agree with it too on the grounds that its non obvious the optimal
- > >setting is CONFIG_MPENTIUMIII. This seems cleaner IMO than changing the
- > >helptext to read...
- > >
- > >"Pentium II"
- > >"Pentium III / Pentium 4M"
- > >"Pentium 4"
- > >
- > Especially since Pentium M != Pentium 4M :-)
+Theres been some work done on this issue lately. Originally, my system only 
+hung when I had IO-APIC and local APIC support compiled into the kernel. But I 
+think other people had hanging problems even without this.
 
-Indeed. Colour me confused 8-)
+You could first try using a 2.6-mm series kernel, as these include some 
+patches which fix nforce2 problems for most people (but not me).
 
-		Dave
+The other option is to try Ross Dickinson's patches:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107199838022614&w=2
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+If you use Ross's patches, as well as the -mm fixes, you should revert out the 
+nforce-disconnect-quirk patch to avoid your CPU getting needlessly hot.
+
+Personally, I have stability running 2.6.1-rc1-mm1 with the disconnect-quirk 
+reverted out, Ross's patches, booting with parameter apic_tack=2. I have 
+APIC/IOAPIC compiled in and working.
+
+Daniel.
+
+Herve Fache wrote:
+> Hi chaps!  
+>   
+> My system hangs (no oops, nothing) on disk access using either 2.4.23 or 2.6.0. A rather reliable way for me to  
+> crash it is to, for example, copy the sources of the Linux kernel.  
+>   
+> It hanged once on CD-ROM access, which could lead to a more IDE-level problem. Also, the only time it did it in  
+> another operating system (humm...) was after it crashed in Linux and I pressed reset (no shut down), which  
+> makes me think it could the IDE controller [driver]'s fault...  
+>   
+> It seems I'm the only one on Earth to have this problem (according to Google), but if there was a way to track it 
+> down I'd be happy to try.  
+>   
+> I have attached my 2.6.0 kernel config for info.  
+>   
+> Thanks!  
+> Hervé.  

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291460AbSCOXy3>; Fri, 15 Mar 2002 18:54:29 -0500
+	id <S293432AbSCOX5T>; Fri, 15 Mar 2002 18:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291340AbSCOXyK>; Fri, 15 Mar 2002 18:54:10 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:54005 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S291333AbSCOXxy> convert rfc822-to-8bit; Fri, 15 Mar 2002 18:53:54 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>
-CC: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (1003) - Registered Version
-Date: Fri, 15 Mar 2002 15:53:51 -0800
-In-Reply-To: <E16m1bl-000554-00@the-village.bc.nu>
+	id <S293447AbSCOX5J>; Fri, 15 Mar 2002 18:57:09 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2579 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293432AbSCOX5E>; Fri, 15 Mar 2002 18:57:04 -0500
 Subject: Re: RFC2385 (MD5 signature in TCP packets) support
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020315235352.AAA221@shell.webmaster.com@whenever>
+To: davem@redhat.com (David S. Miller)
+Date: Sat, 16 Mar 2002 00:12:48 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, davids@webmaster.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020315.154527.98068496.davem@redhat.com> from "David S. Miller" at Mar 15, 2002 03:45:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16m1oW-00057N-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Errors in logic in TCP need to be dealt with by breaking the
+> connection and spitting a RST out, and it must be done in a
+> way that is as easy to verify as possible.
 
->I'm not saying the RFC is a good idea (tho its a needed patch to use Linux
->for backbone routing sanely with most vendors BGP kit). Your argument about
->the RST frame is however pure horseshit
->
->Alan
+The two are no different. Someone at cisco stuffed an IP authentication
+header in the TCP frame. Its stupid, but the RST argument is not a real one
 
-	I don't think it's a good idea either, and I'm sorry this turned into an 
-argument over the merits of RFC2385. I don't like it, and that's one of the 
-reasons I didn't suggest a thorough implementation. I just want enough to 
-solve the particular problem that I have, which is that Zebra on Linux can't 
-interoperate with Cisco BGP implementations using MD5 authentication.
+> IPSEC getting the signature wrong is more akin to getting bitstream
+> corruptions from your networking card for a certain sequence of bytes.
 
-	There is some merit to the argument that one shouldn't crap up a network 
-stack just because someone else did. The question is, is interoperability 
-worth this small piece of crap. I personally think it is, but I'm prejudiced 
-since I happen to need it.
+Ditto the TCP bad MD5 sum and a tcp checksum error.
 
-	I'm trying to decide if I need it badly enough to make it worth the effort 
-it would take to implement it. One factor that would go into that decision is 
-whether the patch would have a chance at being accepted into the kernel or 
-whether at least kernel hooks to allow it to be implemented as a module might 
-be accepted.
+I've actually got a more constructive suggestion for the zebra folks. 
+Route the BGP crap through a netlink tap device, mangle and unmangle the
+tcp frames in luserspace. Saves doing TCP in userspace, saves screwing up
+Dave's nice networking stack.
 
-	DS
-
+You'll still need to kill SACK support to make it fit
 

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266573AbUGKL4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266575AbUGKMJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266573AbUGKL4w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 07:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUGKL4w
+	id S266575AbUGKMJO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 08:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUGKMJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 07:56:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10117 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266573AbUGKL4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 07:56:51 -0400
-Date: Sun, 11 Jul 2004 07:56:10 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <m31xjiam9q.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.58.0407110754280.26194@devserv.devel.redhat.com>
-References: <2giKE-67F-1@gated-at.bofh.it> <2gIc8-6pd-29@gated-at.bofh.it>
- <2gJ8a-72b-11@gated-at.bofh.it> <2gJhY-776-21@gated-at.bofh.it>
- <m31xjiam9q.fsf@averell.firstfloor.org>
+	Sun, 11 Jul 2004 08:09:13 -0400
+Received: from astro.futurequest.net ([69.5.28.104]:36055 "HELO
+	astro.futurequest.net") by vger.kernel.org with SMTP
+	id S266575AbUGKMJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 08:09:11 -0400
+From: Daniel Schmitt <pnambic@unu.nu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.7] Ehci controller interrupts like crazy on nforce2
+Date: Sun, 11 Jul 2004 14:09:09 +0200
+User-Agent: KMail/1.6.2
+References: <40EDF209.70707@yahoo.ca>
+In-Reply-To: <40EDF209.70707@yahoo.ca>
+Cc: Jonathan Filiatrault <lintuxicated@yahoo.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407111409.09405.pnambic@unu.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 09 July 2004 03:16, Jonathan Filiatrault wrote:
+> Here it is: another nforce2 hardware bug. The ehci controller seems to
+> send a massive number of interrupts to the kernel (264379 per second).
+> This uses about 5 to 10% of the cpu. This shows up in top in the
+> "hi"(hard interrupts) indicator. Nothing unusual shows up in the kernel
+> log. My system has an Asus A7N8X Nforce2 Board with an Athlon XP 2800+
+> mounted on it.
 
-On Sun, 11 Jul 2004, Andi Kleen wrote:
+I've seen this problem on my board (Epox 8RDA3+) as well. The root cause seems 
+to be interrupt link devices enabled without regard for the actual device 
+status. A recent patch that delayed IRQ assignment to device activiation time 
+fixed this for me; you might want to try a fresh -mm or -bk kernel.
 
-> > +#ifdef __i386__
-> 
-> Won't do on x86-64.
+Hope that helps,
 
-well on x86-64 'non-executable' really means non-executable, and always
-did, right? (and this is completely separate from the issue of whether the
-process stack is executable or not. This is about x86 that didnt enforce
-the vma's protection bit.)
-
-	Ingo
+Daniel.

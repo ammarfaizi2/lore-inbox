@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268410AbUH3BnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268420AbUH3BoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268410AbUH3BnX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 21:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268415AbUH3BnX
+	id S268420AbUH3BoH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268415AbUH3BoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 21:43:23 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:58761 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S268410AbUH3BnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 21:43:20 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Date: Mon, 30 Aug 2004 11:43:05 +1000
-MIME-Version: 1.0
+	Sun, 29 Aug 2004 21:44:07 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:55395 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S268420AbUH3Bn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 21:43:59 -0400
+Date: Sun, 29 Aug 2004 17:43:23 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Jim Houston <jim.houston@comcast.net>
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jack Steiner <steiner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       rusty@rustcorp.com
+Subject: Re: [RFC&PATCH] Alternative RCU implementation
+Message-ID: <20040830004322.GA2060@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <m3brgwgi30.fsf@new.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16690.34345.865445.560298@cse.unsw.edu.au>
-Cc: Grzegorz Kulewski <kangur@polcom.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: message from Linus Torvalds on Sunday August 29
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
-	<412F7D63.4000109@namesys.com>
-	<20040827230857.69340aec.pj@sgi.com>
-	<20040829150231.GE9471@alias>
-	<4132205A.9080505@namesys.com>
-	<20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
-	<20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
-	<41323751.5000607@namesys.com>
-	<20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
-	<Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
-	<Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <m3brgwgi30.fsf@new.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday August 29, torvalds@osdl.org wrote:
+On Fri, Aug 27, 2004 at 09:35:47PM -0400, Jim Houston wrote:
 > 
-> Also, while the VFS layer no longer cares (to it, ".." is purely virtual,
-> and it never uses it), the NFS export routines still do actually want to
-> get the on-disk parent. A filesystem that can't do that may be unable to
-> be exported with full semantics (ie you might get ESTALE errors after
-> server reboots, although you'd have to ask somebody with more kNFSd
-> knowledge than me on exactly why that is the case ;)
+> The attached patch against linux-2.6.8.1-mm4 is an experimental
+> implementation of RCU.
 > 
+> It uses an active synchronization between the rcu_read_lock(),
+> rcu_read_unlock(), and the code which starts a new RCU batch.  A RCU
+> batch can be started at an arbitrary point, and it will complete without
+> waiting for a timer driven poll.  This should help avoid large batches
+> and their adverse cache and latency effects.
+> 
+> I did this work because Concurrent encourages its customers to 
+> isolate critical realtime processes to their own cpu and shield
+> them from other processes and interrupts.  This includes disabling
+> the local timer interrupt.  The current RCU code relies on the local
+> timer to recognize quiescent states.  If it is disabled on any cpu,
+> RCU callbacks are never called and the system bleeds memory and hangs
+> on calls to synchronize_kernel().
 
-The VFS requires all directories to have full paths from the
-filesystem root in the dcache.  This is needed for loop detection when
-renaming directories.
+Are these critical realtime processes user-mode only, or do they
+also execute kernel code?  If they are user-mode only, a much more
+straightforward approach might be to have RCU pretend that they do
+not exist.
 
-suppose and NFS client: (UPPERCASE words refer to file handles)
- Says "lookup ROOT 'a'" and gets A  (file handle for /a)
- Says "lookup A 'b'" and gets B     (file handle for /a/b)
- waits for /a and /a/b to be flushed from the dcache
- Says "RENAME ROOT 'a' to B 'z'"    (i.e. asks for /a to be moved to /a/b/c)
+This approach would have the added benefit of keeping rcu_read_unlock()
+atomic-instruction free.  In some cases, the overhead of the atomic
+exchange would overwhelm that of the read-side RCU critical section.
 
-how can the VFS detect that that is not allowed?  It needs to know
-that B is a subdirectory of /a.  The complete path cannot fit in
-filehandle, so to needs to be computed by repeated lookup of "..",
-which must be on disk.
+Taking this further, if the realtime CPUs are not allowed to execute in
+the kernel at all, you can avoid overhead from smp_call_function() and
+the like -- and avoid confusing those parts of the kernel that expect to
+be able to send IPIs and the like to the realtime CPU (or do you leave
+IPIs enabled on the realtime CPU?).
 
+							Thanx, Paul
 
-Even without that, storing ".." on disk makes lots of sense for
-fsck-like tools.
-
-NeilBrown
+[ . . . ]

@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318666AbSHAItr>; Thu, 1 Aug 2002 04:49:47 -0400
+	id <S318669AbSHAIvt>; Thu, 1 Aug 2002 04:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318669AbSHAItr>; Thu, 1 Aug 2002 04:49:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30468 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318666AbSHAItq>;
-	Thu, 1 Aug 2002 04:49:46 -0400
-Message-ID: <3D48F915.3FADA08F@zip.com.au>
-Date: Thu, 01 Aug 2002 02:02:13 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19-rc5
-References: <20020801074953.GJ1644@suse.de> <Pine.LNX.4.44.0208010406230.1728-100000@freak.distro.conectiva> <20020801081010.GA1096@suse.de>
+	id <S318670AbSHAIvt>; Thu, 1 Aug 2002 04:51:49 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20352 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318669AbSHAIvs>;
+	Thu, 1 Aug 2002 04:51:48 -0400
+Date: Thu, 1 Aug 2002 10:51:52 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
+Message-ID: <20020801085152.GC1096@suse.de>
+References: <20020726120248.GI14839@suse.de> <Pine.LNX.3.96.1020730132645.4849B-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1020730132645.4849B-100000@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Tue, Jul 30 2002, Bill Davidsen wrote:
+> On Fri, 26 Jul 2002, Jens Axboe wrote:
+> > Finally, I've done some testing on it. No testing on whether this really
+> > works well in real life (that's what I want testers to do), and no
+> > testing on benchmark performance changes etc. What I have done is
+> > beat-up testing, making sure it works without corrupting your data. I'm
+> > fairly confident that does. Most testing was on SCSI (naturally),
+> > however IDE has also been tested briefly.
 > 
-> ...
-> > Anyway, lets wait for the numbers.
-> 
-> It just 'feels' like the sort of change that might have odd side
-> effects.
+> First, great job on the explanation, it went right in my folder for "when
+> the docs are clear" explanations.
 
-It's almost impossible to get READA to do anything.  For example, in
-current 2.5, if a READA attempt is actually aborted, end_buffer_io_sync
-reports a "buffer I/O error".  Every time. And nobody has reported this.
+Thanks :-)
 
-It _is_ possible to hit this in 2.5, because of ext2_preread_inode().
+> Now a request, if someone is running a database app and tests this I'd
+> love to see the results. I expect things like LMbench to show more threads
+> ending at the same time, but will it help a reall app?
 
-Probably, also it's possible to hit it in 2.4 with hundreds of processes
-all issuing ext3 directory readahead.  But it's pretty remote.
+Note that the deadline i/o scheduler only considers deadlines on
+individual requests so far, so there's no real guarentee that process X,
+Y, and Z will receive equal share of the bandwidth. This is something
+I'm thinking about, though.
+
+My testing does seem to indicate that the deadline scheduler is fairer
+than the linus scheduler, but ymmv.
+
+> I bet it was tested briefly on IDE, my last use of IDE a week or so ago
+> lasted until I did "make dep" and the output went all over every attached
+> drive :-( Still, nice to know it will work if IDE makes it into 2.5.
+
+:/
+
+I'll say that 2.5.29 IDE did work fine for the testing I did with the
+deadline scheduler, at least it survived a dbench 64 (that's about the
+testing it got).
+
+-- 
+Jens Axboe
+

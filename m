@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262084AbREXPMQ>; Thu, 24 May 2001 11:12:16 -0400
+	id <S262099AbREXPSR>; Thu, 24 May 2001 11:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262085AbREXPL5>; Thu, 24 May 2001 11:11:57 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:33548 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S262084AbREXPL4>; Thu, 24 May 2001 11:11:56 -0400
-From: rjd@xyzzy.clara.co.uk
-Message-Id: <200105241511.f4OFBnC27735@xyzzy.clara.co.uk>
-Subject: SyncPPP IPCP/LCP loop problem and patch. Take 2
-To: paulkf@microgate.com (Paul Fulghum)
-Date: Thu, 24 May 2001 16:11:49 +0100 (BST)
-Cc: rjd@xyzzy.clara.co.uk, paulus@samba.org, linux-kernel@vger.kernel.org
-In-Reply-To: <00bf01c0e2d9$de15b8c0$0c00a8c0@diemos> from "Paul Fulghum" at May 22, 2001 04:27:19 
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262094AbREXPSH>; Thu, 24 May 2001 11:18:07 -0400
+Received: from www.inreko.ee ([195.222.18.2]:952 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S262088AbREXPR6>;
+	Thu, 24 May 2001 11:17:58 -0400
+Date: Thu, 24 May 2001 17:20:27 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Edgar Toernig <froese@gmx.de>, Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: CHR/BLK needed?   was: Re: Why side-effects on open...
+Message-ID: <20010524172026.A6731@l-t.ee>
+In-Reply-To: <20010524094717.A23722@l-t.ee> <Pine.LNX.4.30.0105240937490.16271-100000@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0105240937490.16271-100000@waste.org>; from oxymoron@waste.org on Thu, May 24, 2001 at 09:39:35AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum wrote:
-> > 
-> > Thanks but I've already tried that. You get a slightly different pattern
-> > to the loop but it still loops.
+On Thu, May 24, 2001 at 09:39:35AM -0500, Oliver Xymoron wrote:
+> On Thu, 24 May 2001, Marko Kreen wrote:
+> > IMHO the CHR/BLK is not needed.  Think of /proc.  In the future,
+> > the backup tools will be told to ignore /dev, that's all.
 > 
-> What does the loop look like when the cfg-req is sent 1st?
+> The /dev dir should not be special. At least not to the kernel. I have
+> device files in places other than /dev, and you probably do too (hint:
+> anonymous FTP).
 
-Thanks for making me go back and look at it again guys. The reordering of
-REQ and ACK does work to break the loop. Provided you apply the patch to
-both ends of the link.
+So?  Do you allow downloading from/to /dev in your chrooted ftp?
 
-This is a much smaller patch, remains RFC1661 conformant and works against
-all the platforms I've been able to test. Against an unpatched Linux it
-still loops but no worse than before.
+Ofcourse this is not hard-wired or something.  You tell devfsd
+to put dev's somewhere.  Next moment you edit backup config
+and tell it to igrore that /somewhere.  As I said: like /proc
+currently is.  Or should current /proc converted to CHR devices?
 
-
---- syncppp.c-orig	Mon May 21 10:35:59 2001
-+++ syncppp.c	Thu May 24 15:55:55 2001
-@@ -517,8 +517,10 @@
- 		}
- 		/* Send Configure-Ack packet. */
- 		sp->pp_loopcnt = 0;
--		sppp_cp_send (sp, PPP_LCP, LCP_CONF_ACK,
--				h->ident, len-4, h+1);
-+		if (sp->lcp.state != LCP_STATE_OPENED) {
-+			sppp_cp_send (sp, PPP_LCP, LCP_CONF_ACK,
-+					h->ident, len-4, h+1);
-+		}
- 		/* Change the state. */
- 		switch (sp->lcp.state) {
- 		case LCP_STATE_CLOSED:
-@@ -534,7 +536,9 @@
- 			sp->ipcp.state = IPCP_STATE_CLOSED;
- 			/* Initiate renegotiation. */
- 			sppp_lcp_open (sp);
--			/* An ACK has already been sent. */
-+			/* Send ACK after our REQ in attempt to break loop */
-+			sppp_cp_send (sp, PPP_LCP, LCP_CONF_ACK,
-+					h->ident, len-4, h+1);
- 			sp->lcp.state = LCP_STATE_ACK_SENT;
- 			break;
- 		}
+My idea is (well, 'devfs2' - I have the core almost working now)
+that the 'devices' will be VFS only objects - they live
+only in inode cache (on ramfs).  So the CHR/BLK flags are only
+backwards compatibility for supporting major:minors for /dev on
+eg ext2.  Currently I think exposing device inodes as ordinary
+files (or dirs if needed), so they look like any file to
+programs.  Will this break too much?  Another variant would be
+to expose them as S_IFDEV - which probably breaks even more.
 
 
-
-
-A colleage has suggested that we should apply the same ordering in the NAK
-path and for similar code in the stopped state.  Since I've not seen loops in
-these areas I'm loath to make changes without the ability to test.
 -- 
-        Bob Dunlop                      FarSite Communications
-        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
-        www.xyzzy.clara.co.uk           www.farsite.co.uk
+marko
+

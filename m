@@ -1,26 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263437AbRFSC4u>; Mon, 18 Jun 2001 22:56:50 -0400
+	id <S263442AbRFSC6k>; Mon, 18 Jun 2001 22:58:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263442AbRFSC4k>; Mon, 18 Jun 2001 22:56:40 -0400
-Received: from smarty.smart.net ([207.176.80.102]:32525 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S263437AbRFSC4U>;
-	Mon, 18 Jun 2001 22:56:20 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200106190306.XAA07694@smarty.smart.net>
-Subject: Re: gnu asm help...
-To: linux-kernel@vger.kernel.org
-Date: Mon, 18 Jun 2001 23:06:21 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263443AbRFSC6a>; Mon, 18 Jun 2001 22:58:30 -0400
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:772 "HELO sh0n.net")
+	by vger.kernel.org with SMTP id <S263442AbRFSC6O>;
+	Mon, 18 Jun 2001 22:58:14 -0400
+Date: Mon, 18 Jun 2001 22:58:57 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
+In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>
+Message-ID: <Pine.LNX.4.30.0106182257220.123-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The C-names-in-asms stuff is explained in (g?)as.info. The explanation is
-a bit strained, but after the third or fourth read it becomes fairly
-sensible.
 
+When diffing 2.4.6-pre2 & pre3 I noticed some reiserfs code was changed.
+This seems to cause VFS to panic via reiserfs.
 
-Rick Hohensee
+Anyone else notice this?
+
+Shawn.
+

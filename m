@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQKOVVv>; Wed, 15 Nov 2000 16:21:51 -0500
+	id <S129379AbQKOVWv>; Wed, 15 Nov 2000 16:22:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129501AbQKOVVl>; Wed, 15 Nov 2000 16:21:41 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56075 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129387AbQKOVVZ>; Wed, 15 Nov 2000 16:21:25 -0500
-Message-ID: <3A12F72E.44C44FE2@transmeta.com>
-Date: Wed, 15 Nov 2000 12:50:54 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11-pre5 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129523AbQKOVWl>; Wed, 15 Nov 2000 16:22:41 -0500
+Received: from mail-03-real.cdsnet.net ([63.163.68.110]:37647 "HELO
+	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
+	id <S129501AbQKOVW1>; Wed, 15 Nov 2000 16:22:27 -0500
+Message-ID: <3A12F852.E578E6CE@mvista.com>
+Date: Wed, 15 Nov 2000 12:55:46 -0800
+From: George Anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Michel LESPINASSE <walken@zoy.org>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: test11-pre5 breaks vmware
-In-Reply-To: <CF021B54DF0@vcnet.vc.cvut.cz> <Pine.LNX.4.21.0011151454590.10690-100000@godzilla.spiteful.org> <8uuqmv$el4$1@cesium.transmeta.com> <20001115124931.B28499@windriver.com>
+To: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
+Subject: In line ASM magic?  What is this?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michel LESPINASSE wrote:
-> 
-> On Wed, Nov 15, 2000 at 12:12:15PM -0800, H. Peter Anvin wrote:
-> > Also, if a piece of software needs raw CPUID information (unlike the
-> > "cooked" one provided by recent kernels) it should use
-> > /dev/cpu/*/cpuid.
-> 
-> Is it also OK to use the cpuid opcode in userspace ? (after checking
-> for its presence with the 0x200000 eflags bit)
-> 
+I am trying to understand what is going on in the following code.  The
+reference for %2, i.e. "m"(*__xg(ptr)) seems like magic (from
+.../include/i386/system.h).  At the same time, the code "m" (*mem) from
+the second __asm__ below (my code) seems to generate the required asm
+code.  Before I go with the simple version, could someone tell me why? 
+Inquiring minds want to know.
 
-Only on single-CPU systems.  What /dev/cpu/*/cpuid gives you is the
-ability to direct the CPUID request to a particular CPU.
+struct __xchg_dummy { unsigned long a[100]; };
+#define __xg(x) ((struct __xchg_dummy *)(x))
 
-	-hpa
+		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %b1,%2"
+				     : "=a"(prev)
+				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
+				     : "memory");
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+	__asm__ __volatile__(
+                             LOCK "cmpxchgl %1,%2\n\t"
+                             :"=a" (result)
+                             :"r" (new),
+                              "m" (*mem),
+                              "a0" (test)
+                             : "memory");
+
+
+George
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

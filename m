@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSJ1PLb>; Mon, 28 Oct 2002 10:11:31 -0500
+	id <S261299AbSJ1PJb>; Mon, 28 Oct 2002 10:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbSJ1PLa>; Mon, 28 Oct 2002 10:11:30 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:63141 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261300AbSJ1PL3>;
-	Mon, 28 Oct 2002 10:11:29 -0500
-Date: Mon, 28 Oct 2002 15:17:47 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: eggert@twinsun.com, linux-kernel@vger.kernel.org
-Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
-Message-ID: <20021028151747.GC16546@bjl1.asuk.net>
-References: <20021027153651.GB26297@pimlott.net.suse.lists.linux.kernel> <200210280947.g9S9l9H01162@sic.twinsun.com.suse.lists.linux.kernel> <20021028102809.GA16062@bjl1.asuk.net.suse.lists.linux.kernel> <p73r8eastwo.fsf@oldwotan.suse.de> <20021028125652.GA16329@bjl1.asuk.net> <20021028151533.D18441@wotan.suse.de>
+	id <S261300AbSJ1PJa>; Mon, 28 Oct 2002 10:09:30 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:29194 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S261299AbSJ1PJD>; Mon, 28 Oct 2002 10:09:03 -0500
+Message-Id: <200210281515.g9SFFJo02790@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org
+Subject: Re: Drivers - 2.5 side project - Do you fix random ancient drivers for
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021028151533.D18441@wotan.suse.de>
-User-Agent: Mutt/1.4i
+Date: Mon, 28 Oct 2002 09:15:19 -0600
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> > So I propose: add a field to struct stat indicating the resolution of
-> > the timestamps in it.  It can go on the end.
-> It's impossible. There is no space left in struct stat64
-> And adding a new syscall just for that would be severe overkill.
+> One thing that is obvious is that there are going to be a reasonable
+> number of broken drivers for weird, ancient or otherwise unsupportable
+> pieces of hardware.
 
-There's the 4 bytes following dev_t in Glibc's definition (call __pad1
-in Glibc) which isn't used by Glibc or anything else.  That's still
-free even when the kernel changes to 64-bit dev_t.
+As the possessor of a number of pieces of wierd and obsolete hardware, I do 
+this for what I have.
 
-And if you don't like that to do that, i.e you want to guarantee that
-the unused word continues to be zero for older programs (though I
-can't think of any reason why it would matter), that's what the
-(currently unused) flags argument to stat64() is for.
+> As a little side project I'd like to compile a list of people who
+> actually do commercial support for such random weird devices so when
+> people actually want to pay to fix some strange 8bit ISA device they
+> know where to go, and then stick it on the web referenced by such
+> drivers.
 
-> But what you could do if you really wanted that: implement kernel
-> POSIX pathconf()/fpathconf() and implement it as a parameter to
-> that.
+You can put me down for most things MCA related (although most of my MCA cards 
+tend to be voyager specific).
 
-Ugh.
+James
 
-> I personally have no plans to implement it [pathconf], however,
-> because it looks like kernel bloat to me :-)
 
-Given the choice of using fpathconf, I'd rather accept that the
-nanoseconds field is not reliable, hence I must ignore it.  It does
-seem a waste though - sometimes you are returning good information I
-can use, other times you're not, and I can't tell the difference :-(
-
-I'd much rather do this right.  What do you think of storing the
-resolution in the unused word called __pad1 in Glibc?
-
-(Btw, it wouldn't bloat the in-core kernel inode, because only a
-couple of flag bits are needed there to distinguish known resolution
-values).
-
--- Jamie

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273918AbRJEVIU>; Fri, 5 Oct 2001 17:08:20 -0400
+	id <S274035AbRJEVLK>; Fri, 5 Oct 2001 17:11:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273881AbRJEVIL>; Fri, 5 Oct 2001 17:08:11 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:12436 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S273619AbRJEVH6>; Fri, 5 Oct 2001 17:07:58 -0400
-Date: Fri, 5 Oct 2001 17:08:22 -0400 (EDT)
-From: Alex Larsson <alexl@redhat.com>
-X-X-Sender: <alexl@devserv.devel.redhat.com>
-To: Pavel Machek <pavel@Elf.ucw.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Directory notification problem
-In-Reply-To: <20011005211810.B1272@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0110051708060.19315-100000@devserv.devel.redhat.com>
+	id <S274041AbRJEVLA>; Fri, 5 Oct 2001 17:11:00 -0400
+Received: from mccammon.ucsd.edu ([132.239.16.211]:25744 "EHLO
+	mccammon.ucsd.edu") by vger.kernel.org with ESMTP
+	id <S274035AbRJEVKw>; Fri, 5 Oct 2001 17:10:52 -0400
+Date: Fri, 5 Oct 2001 14:11:51 -0700 (PDT)
+From: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
+X-X-Sender: <apodtele@chemcca18.ucsd.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: VM: more numbers
+Message-ID: <Pine.LNX.4.33.0110051357350.1927-100000@chemcca18.ucsd.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Pavel Machek wrote:
+I think this is an important observation. Something in Rik's scheme
+gets confused big time and does an awful lot of unnecessary job.
+Could it be read-ahead?
 
-> Hi!
-> 
-> > I discovered a problem with the dnotify API while fixing a FAM bug today.
-> > 
-> > The problem occurs when you want to watch a file in a directory, and that 
-> > file is changed several times in the same second. When I get the directory 
-> 
-> Does this mean that we have notification API in Linus' tree?
+Alexei
 
-Yes. since a 2.3.xx somewhere.
 
-/ Alex
+
 
 

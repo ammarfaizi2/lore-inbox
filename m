@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbULOX3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbULOXiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262535AbULOX3J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 18:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbULOX3J
+	id S262536AbULOXiS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 18:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbULOXhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 18:29:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16093 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262535AbULOX0n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 18:26:43 -0500
-Date: Wed, 15 Dec 2004 15:26:39 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Properly split capset_check+capset_set
-Message-ID: <20041215152639.W469@build.pdx.osdl.net>
-References: <20041215194812.GA3080@IBM-BWN8ZTBWA01.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041215194812.GA3080@IBM-BWN8ZTBWA01.austin.ibm.com>; from serue@us.ibm.com on Wed, Dec 15, 2004 at 01:48:12PM -0600
+	Wed, 15 Dec 2004 18:37:42 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:55769 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262509AbULOXhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 18:37:33 -0500
+Date: Wed, 15 Dec 2004 17:37:10 -0600
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+cc: Andi Kleen <ak@suse.de>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, jrsantos@austin.ibm.com
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+In-Reply-To: <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
+Message-ID: <Pine.SGI.4.61.0412151725040.24052@kzerza.americas.sgi.com>
+References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
+ <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de>
+ <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Serge E. Hallyn (serue@us.ibm.com) wrote:
-> As Stephen Smalley pointed out, the cap_capset_check code is redundant
-> with what is hardcoded in kernel/capability.c:sys_capset().  On the
-> other hand, because the security_capset_set hook is responsible for
-> doing both an authorization check and doing the actual change,
-> (particularly, in the case of a cap_set_all or cap_set_pg), when
-> stacking security modules, the first module may complete the
-> capset_set before the second module refuses permission.
+On Thu, 16 Dec 2004, Anton Blanchard wrote:
 
-The problem is that the module was (theoretically) allowed to manage
-capability bits all on its own.  I think it's a bit of a braindamaged
-idea though, and the bits should just stay in the ->cap_* fields.
+> Id like to see a benchmark that has a large footprint in the hash. A few
+> connection netperf run isnt going to stress the hash is it?
 
-> The attached patch (against 2.6.10-rc3-mm1 w/ ioctl patch) removes the
-> redundant cap_capset_check hook and moves the security_capset_check
-> call to just before security_capset_set.  The selinux_capset_set hook
-> now simply sets the capability (through its secondary), while
-> selinux_capset_check checks the authorization permission.
+Not as well as I'd like, I'll admit.  I really couldn't find any
+standard benchmark that would push the TCP hashes hard.
 
-I think Stephen mentioned this already, but you lose an error now,
-where you continue in cap_set_all().
+> Also what page size were the runs done with? On x86-64 and ppc64 the 4kB page
+> size may make a difference to Brents runs.
 
-thanks,
--chris
+16K pages on IA64.  As the patch currently stands x86-64 and ppc64
+would not be a concern, as we still use the old behavior by default
+for those architectures.  Only IA64 NUMA kernel configurations will
+have this on by default.  Additionally, this only affects NUMA machines,
+and I'm not aware of any x86-64 architectures of that nature (please
+educate me if I'm mistaken).
+
+> specSFS (an NFS server benchmarmk) has been very sensitive to TLB issues
+> for us, it uses all the memory as pagecache and you end up with 10
+> million+ dentries. Something similar that pounds on the dcache would be
+> interesting.
+
+I'll look into running that, but have my doubts as to whether I
+can scare up appropriate quantities/types of hardware.
+
+Brent
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

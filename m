@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281504AbRLWM3j>; Sun, 23 Dec 2001 07:29:39 -0500
+	id <S281360AbRLWMgT>; Sun, 23 Dec 2001 07:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286877AbRLWM33>; Sun, 23 Dec 2001 07:29:29 -0500
-Received: from ns.caldera.de ([212.34.180.1]:26078 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S281504AbRLWM3J>;
-	Sun, 23 Dec 2001 07:29:09 -0500
-Date: Sun, 23 Dec 2001 13:28:24 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DRM 4.0 support for kernel 2.4.17
-Message-ID: <20011223132824.A23866@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011222203602.A15825@caldera.de> <17474.1009064916@ocs3.intra.ocs.com.au>
+	id <S286885AbRLWMgK>; Sun, 23 Dec 2001 07:36:10 -0500
+Received: from uucp.gnuu.de ([151.189.0.84]:24838 "EHLO uucp.gnuu.de")
+	by vger.kernel.org with ESMTP id <S286883AbRLWMgE>;
+	Sun, 23 Dec 2001 07:36:04 -0500
+Date: Sun, 23 Dec 2001 13:33:20 +0100
+From: Stefan Frank <sfr@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17rc1: KERNEL: assertion failed at tcp.c(1520):tcp_recvmsg ?
+Message-ID: <20011223123320.GA1034@obelix.gallien.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011222083457.GA666@asterix> <20011222.155713.84363957.davem@redhat.com> <20011223112953.GA7856@obelix.gallien.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <17474.1009064916@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Dec 23, 2001 at 10:48:36AM +1100
+In-Reply-To: <20011223112953.GA7856@obelix.gallien.de>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 23, 2001 at 10:48:36AM +1100, Keith Owens wrote:
-> Only if the new version cleans up the horrible drm 4.0 Makefile.
 
-I am more than happy to do so.  In fact I already did in 2.4.0-test times
-and got flamed by the drm crew..
+Hi,
 
-	Christoph
+ok, here's a followup on my own mail. I just replaced 
+all the memory with the one from my workstation (256MB + 128MB)
+and htdig's cron job still locks up the machine, so although
+the 512MB module might have a bit-error it's NOT the cause of the 
+problem here. My workstation is running about a year now with this
+memory and NEVER locked up like this. 
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+So IMHO the problem lies somewhere else. 
+
+Any suggestions? I'm happy to provide more information if it helps.
+
+TIA for your effort!
+
+    Bye, Stefan
+
+PS: the filesystems are all ext3, in case it matters

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276761AbRKDAmJ>; Sat, 3 Nov 2001 19:42:09 -0500
+	id <S276894AbRKDAqI>; Sat, 3 Nov 2001 19:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276894AbRKDAl6>; Sat, 3 Nov 2001 19:41:58 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:14863 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S276761AbRKDAlk>; Sat, 3 Nov 2001 19:41:40 -0500
-Date: Sun, 4 Nov 2001 01:41:37 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: "Roach, Mark R." <mrroach@uhg.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: asus P5A-B psaux problem
-Message-ID: <20011104014137.A25505@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20011103180815.C27210@tncorpmrr001.uhg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011103180815.C27210@tncorpmrr001.uhg>; from mrroach@uhg.net on Sat, Nov 03, 2001 at 06:08:15PM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S276956AbRKDAp7>; Sat, 3 Nov 2001 19:45:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3081 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276894AbRKDApw>; Sat, 3 Nov 2001 19:45:52 -0500
+Date: Sat, 3 Nov 2001 16:43:07 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Henderson <rth@twiddle.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Juergen Doelle <jdoelle@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Pls apply this spinlock patch to the kernel
+In-Reply-To: <20011103130156.D5984@twiddle.net>
+Message-ID: <Pine.LNX.4.33.0111031640350.2283-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 06:08:15PM -0600, Roach, Mark R. wrote:
-> I have had no luck with ps/2 mouse on an Asus P5A-B mobo with newer
-> kernel versions, I have tried 2.4.12 and 2.4.13 with no luck. It works
-> fine with 2.2.19, though.
-> 
-> With 2.4.12 & 13 I get "Detected PS/2 Mouse Port." in dmesg only when
-> the mouse is not plugged in. Plug it in, no message of ps/2.
 
-No problems over here. Asus P5A, BIOS revision 1003, Logitech Cordless
-Mouseman wheel, linux-2.4.13-ac5.
+On Sat, 3 Nov 2001, Richard Henderson wrote:
+>
+> On Sat, Nov 03, 2001 at 12:20:53PM -0800, Linus Torvalds wrote:
+> > If you have a 4-byte entry that is aligned to 128 bytes, you have 124
+> > bytes of stuff that the linker _will_ fill up with other things.
+>
+> If you put the alignment on the type, not the variable, e.g.
 
+That doesn't work.
 
-Erik
+The whole _point_ here is to make the thing variable-specific, so that we
+can say _this_ spinlock needs a cache-line of its own, without blowing up
+all spinlocks to 128 bytes.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+There's no way we want 128-byte spinlocks in general. We want to mark 4-5
+spinlocks as being so critical that they can have a cacheline of their
+own. But I do _not_ want to have special operations for those spinlocks,
+so I don't want those spinlocks to have any special types (ie the actual
+_user_ should not need to care, so that you can play around with testing
+the different spinlocks one by one without having to edit all the users of
+any specific spinlock).
+
+		Linus
+

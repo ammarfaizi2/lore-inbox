@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261853AbSJNP2t>; Mon, 14 Oct 2002 11:28:49 -0400
+	id <S261866AbSJNPh5>; Mon, 14 Oct 2002 11:37:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbSJNP2t>; Mon, 14 Oct 2002 11:28:49 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:24837 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S261853AbSJNP2s>; Mon, 14 Oct 2002 11:28:48 -0400
-Date: Mon, 14 Oct 2002 09:30:47 -0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: [PATCH] 2.5.42 cciss partition problem
-Message-ID: <20021014093047.A1094@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261870AbSJNPh4>; Mon, 14 Oct 2002 11:37:56 -0400
+Received: from ns1.baby-dragons.com ([199.33.245.254]:42701 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S261866AbSJNPhz>; Mon, 14 Oct 2002 11:37:55 -0400
+Date: Mon, 14 Oct 2002 11:43:37 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Andreas Steinmetz <ast@domdv.de>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: NFS root on 2.4.18-14
+In-Reply-To: <3DAADE5E.2070903@domdv.de>
+Message-ID: <Pine.LNX.4.44.0210141141330.20248-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hmm, this patch didn't seem to make it into 2.5.42.  Without it, or 
-something like it, the cciss driver is pretty badly broken.  Without it, 
-only partitions on the first disk can be accessed.  If there's something 
-wrong with this patch and this problem needs to be fixed in a different way, 
-let me know.
+	Hello Andreas & All , I have to third that request that directly
+	bootable kernel floppies not go the way of staticly built kernels
+	and the dodo bird .  JimL
 
--- steve
+On Mon, 14 Oct 2002, Andreas Steinmetz wrote:
+> Wakko Warner wrote:
+> > I hope it doesn't.  I use it quite frequently at work.  It's jsut so much
+> > easier to use than installing a bootloader onto a floppy, mounting, copying
+> > the kernel and so forth.
+> Me too.
+> Oh, originally I posted my patch to lkml on Tue, 23 Oct 2001 13:20:50.
+> --
+> Andreas Steinmetz
+> D.O.M. Datenverarbeitung GmbH
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-diff -urN linux-2.5.42/drivers/block/cciss.c linux-2.5.42-a/drivers/block/cciss.c
---- linux-2.5.42/drivers/block/cciss.c	Mon Oct 14 07:54:28 2002
-+++ linux-2.5.42-a/drivers/block/cciss.c	Mon Oct 14 08:09:03 2002
-@@ -352,7 +352,7 @@
- 	 * but I'm already using way to many device nodes to claim another one
- 	 * for "raw controller".
- 	 */
--	if (inode->i_bdev->bd_inode->i_size == 0) {
-+	if (hba[ctlr]->drv[dsk].nr_blocks == 0) {
- 		if (minor(inode->i_rdev) != 0)
- 			return -ENXIO;
- 		if (!capable(CAP_SYS_ADMIN))
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

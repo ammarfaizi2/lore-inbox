@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVAXXdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVAXXdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVAXXdI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:33:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVAXXcj
+	id S261636AbVAXXdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVAXXc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:32:39 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:60891 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261664AbVAXX33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:29:29 -0500
-Date: Mon, 24 Jan 2005 15:29:01 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [RFC][PATCH] new timeofday arch specific timesources (v. A2)
-In-Reply-To: <1106607215.30884.14.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0501241525020.17986@schroedinger.engr.sgi.com>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com> 
- <1106607153.30884.12.camel@cog.beaverton.ibm.com>
- <1106607215.30884.14.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 Jan 2005 18:32:26 -0500
+Received: from waste.org ([216.27.176.166]:2776 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261636AbVAXXaf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 18:30:35 -0500
+Date: Mon, 24 Jan 2005 15:30:07 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       trond.myklebust@fys.uio.no, okir@suse.de, Andries.Brouwer@cwi.nl,
+       agruen@suse.de
+Subject: Re: [PATCH] lib/qsort
+Message-ID: <20050124233007.GH12076@waste.org>
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de> <20050124201527.GZ12076@waste.org> <20050124150940.26945fe3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124150940.26945fe3.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005, john stultz wrote:
+On Mon, Jan 24, 2005 at 03:09:40PM -0800, Andrew Morton wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> >
+> > This patch introduces an implementation of qsort to lib/.
+> 
+> It screws me over right proper.  Can we stick with Andreas's known-working
+> patch for now, and do the sorting stuff as a separate, later activity?
+> 
+> It would involve:
+> 
+> - Removal of the old sort code
+> 
+> - Introduction of the new sort code
+> 
+> - Migration of the NFS ACL code, XFS and group code over to the new
+>   implementation.
 
-> +/* helper macro to atomically read both cyclone counter registers */
-> +#define read_cyclone_counter(low,high) \
-> +	do{ \
-> +		high = cyclone_timer[1]; low = cyclone_timer[0]; \
-> +	} while (high != cyclone_timer[1]);
+Ok, will do after mm++.
 
-This is only necessary on 32 bit platforms. On ia64 an atomic read would
-do the job. Maybe that logic needs to go into the custom defined readq for
-32 bit? Then you could avoid repeating the code for drivers that read 64
-bit clocks on 32bit processors.
+FYI, I'm going to submit a heapsort variant instead with similar
+performance. It gets rid of the potentially exploitable worst-case
+behavior of qsort as well as the extra stack space (and the resultant
+need for error handling).
+
+Apparently the glibc folks wanted this to be EXPORT_SYMBOL_GPL the
+last time around, btw.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

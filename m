@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263087AbSJHC7N>; Mon, 7 Oct 2002 22:59:13 -0400
+	id <S262778AbSJHC4w>; Mon, 7 Oct 2002 22:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263138AbSJHC7N>; Mon, 7 Oct 2002 22:59:13 -0400
-Received: from dsl-213-023-043-140.arcor-ip.net ([213.23.43.140]:2990 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S263087AbSJHC7M>;
-	Mon, 7 Oct 2002 22:59:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Simon Kirby <sim@netnation.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
-Date: Tue, 8 Oct 2002 04:47:03 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <3DA1E250.1C5F7220@digeo.com> <20021008023654.GA29076@netnation.com>
-In-Reply-To: <20021008023654.GA29076@netnation.com>
+	id <S262932AbSJHC4w>; Mon, 7 Oct 2002 22:56:52 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:3200 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262778AbSJHC4u>;
+	Mon, 7 Oct 2002 22:56:50 -0400
+Date: Mon, 7 Oct 2002 22:02:28 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: linux-kernel@vger.kernel.org
+Subject: problems removing ide-scsi modules
+Message-ID: <Pine.LNX.4.44.0210072152540.1002-100000@dad.molina>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ykOl-0003zM-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 October 2002 04:36, Simon Kirby wrote:
-> Being able to defragment online would be very useful.  I've seen some
-> people talk about this every so often.  How far away is it?
+In another thread beginning with:
 
-The vfs consistency semantics are a little complex and fragile at the
-moment, which is the only thing that makes it hard.  Think about how
-many months of truncate bugs we had, then consider how the situation
-looks when all the bits of filesystem are moving around while its being
-accessed.  That's not to say it won't happen, but it's unlikely to ever
-be solid until the vfs semantics mature a little more.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103388771007676&w=2
 
--- 
-Daniel
+a problem is reported with loading ide-scsi modules.  In addition to the 
+problems noted in loading those modules, I've noted problems removing the 
+modules since at least 2.5.38.  Following is an example of the oops I get 
+when this happens.  This doesn't lock up the kernel, but I do get a freeze 
+during a subsequent reboot which I've documented at
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103351991417181&w=2
+
+Unable to handle kernel paging request at virtual address 5a5a5a62
+ printing eip:
+c01a79ac
+*pde = 00000000
+Oops: 0000
+sr_mod cdrom sg ide-scsi scsi_mod ymfpci soundcore ac97_codec parport_pc 
+lp parport rtc
+CPU:    0
+EIP:    0060:[<c01a79ac>]    Not tainted
+EFLAGS: 00010206
+EIP is at devclass_remove_device+0xc/0x40
+eax: 5a5a5a5a   ebx: 5a5a5a5a   ecx: d90ab268   edx: d7118820
+esi: d7118820   edi: 00000000   ebp: d90ab268   esp: d5c3df50
+ds: 0068   es: 0068   ss: 0068
+Process rmmod (pid: 951, threadinfo=d5c3c000 task=d65026c0)
+Stack: 5a5a5a5a d7118820 c01a6d16 d7118820 d7118820 d7118838 c01a6dce 
+d7118820
+       d90ab268 00000000 00000000 d5d0a000 c01a780b d90ab268 d90a8000 
+d90a8ff3
+       d90ab268 c01193de d90a8000 00000000 fffffff0 c01188b7 d90a8000 
+00000000
+Call Trace:
+ [<c01a6d16>] device_detach+0x16/0x30
+ [<c01a6dce>] driver_detach+0x3e/0x60
+ [<d90ab268>] sr_template+0x48/0xa0 [sr_mod]
+ [<c01a780b>] __remove_driver+0xb/0x30
+ [<d90ab268>] sr_template+0x48/0xa0 [sr_mod]
+ [<d90a8ff3>] exit_sr+0x43/0x50 [sr_mod]
+ [<d90ab268>] sr_template+0x48/0xa0 [sr_mod]
+ [<c01193de>] free_module+0x1e/0xb0
+ [<c01188b7>] sys_delete_module+0xe7/0x1c0
+ [<c0108adf>] syscall_call+0x7/0xb
+
+Code: 8b 58 08 85 db 74 1c 56 53 e8 96 01 00 00 56 53 e8 7f ff ff
+ Segmentation fault
+
+
+

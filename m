@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbTIVMCI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 08:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbTIVMCI
+	id S263120AbTIVMFa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 08:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbTIVMFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 08:02:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47887 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263117AbTIVMCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 08:02:06 -0400
-Date: Mon, 22 Sep 2003 13:02:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andreas Happe <andreashappe@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: various problems with usb2.0 pcmcia adaptor
-Message-ID: <20030922130202.B31823@flint.arm.linux.org.uk>
-Mail-Followup-To: Andreas Happe <andreashappe@gmx.net>,
-	linux-kernel@vger.kernel.org
-References: <slrnbmtuo7.1ab.andreashappe@flatline.ath.cx>
-Mime-Version: 1.0
+	Mon, 22 Sep 2003 08:05:30 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:56026 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263120AbTIVMF0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 08:05:26 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <slrnbmtuo7.1ab.andreashappe@flatline.ath.cx>; from andreashappe@gmx.net on Mon, Sep 22, 2003 at 03:37:11PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
+Message-ID: <16238.58754.128179.710670@gargle.gargle.HOWL>
+Date: Mon, 22 Sep 2003 14:05:22 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: rob@landley.net
+Cc: azarah@gentoo.org, linux-kernel@vger.kernel.org, rddunlap@osdl.org,
+       rusty@rustcorp.com.au
+Subject: Re: Make modules_install doesn't create /lib/modules/$version
+In-Reply-To: <200309220655.43275.rob@landley.net>
+References: <200309192139.h8JLdaXf012418@harpo.it.uu.se>
+	<200309220655.43275.rob@landley.net>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 03:37:11PM +0200, Andreas Happe wrote:
-> Kernel Version: 2.6.0-test5-bk8
+Rob Landley writes:
+ > > depmod does not create any directories, 'make modules_install' does.
+ > 
+ > Although make install dies on a red hat 9 system trying to look at the modules 
+ > directory if modules_install isn't done first.  Maybe it's an RH 9 bug.  I 
 
-I tried to send you a response, but your mail system seems broken:
+RH9's /sbin/installkernel tries to run /sbin/new-kernel-pkg in order to
+build a new initrd. This will almost certainly fail if your modules
+directory isn't already populated at this point.
 
-  andreashappe@gmx.net
-    SMTP error from remote mailer after RCPT TO:<andreashappe@gmx.net>:
-    host mx0.gmx.net [213.165.64.100]: 552 {mx008} The users mailbox is full
+make modules_install; make install
+in that order solves the problem.
 
-Please ensure that your mailbox isn't full before asking questions which
-will solicit more mail into your mailbox.
+If you don't like RH's installkernel then you can always write
+your own and put it in ~/bin. That's what I did a long time ago
+to make it lilo-friendly. (RH prefers that POS grub.)
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+ > install" now, yet make install doesn't install modules.  Is there a reason 
+ > make install does NOT install modules for a modular kernel?
+
+It hasn't before. I doubt very many people have a major problem with it.

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271326AbRIDPDB>; Tue, 4 Sep 2001 11:03:01 -0400
+	id <S271276AbRIDPCw>; Tue, 4 Sep 2001 11:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269796AbRIDPCw>; Tue, 4 Sep 2001 11:02:52 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:15372 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S269756AbRIDPCo>; Tue, 4 Sep 2001 11:02:44 -0400
-Message-ID: <3B94ECB2.6634FE9E@t-online.de>
-Date: Tue, 04 Sep 2001 17:01:06 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S269796AbRIDPCl>; Tue, 4 Sep 2001 11:02:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:38018 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S269756AbRIDPCg>; Tue, 4 Sep 2001 11:02:36 -0400
+Date: Tue, 4 Sep 2001 11:02:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+cc: Jeff Mahoney <jeffm@suse.com>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc architecture
+In-Reply-To: <OF263FB8E3.75D4DAB3-ONC1256ABD.004F349C@de.ibm.com>
+Message-ID: <Pine.LNX.3.95.1010904105643.22082A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Patrick Allaire <pallaire@gameloft.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Failure to mount root fs ...
-In-Reply-To: <9A1957CB9FC45A4FA6F35961093ABB84043F1D0E@srvmail-mtl.ubisoft.qc.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Allaire schrieb:
+On Tue, 4 Sep 2001, Ulrich Weigand wrote:
+[SNIPPED...]
+
 > 
-> Hi all,
+> If these instructions really *need* to be atomic, then reiserfs should
+> ensure they are performed on properly aligned data, or else there might
+> be subtle bugs even on Intel, because the operations will not actually
+> be atomic (even though they don't trap).
+>
+
+Regardless of alignment, locked instructions in Intel machines are
+atomic. Any "hidden" read/modify/write operations are performed
+by the hardware, under the lock, preventing access by any other
+CPUs or DMA.
+ 
+> If you say that reiserfs doesn't really need these operations to be
+> atomic because they run under other locks anyway, then they should not
+> be using atomic operations in the first place; this will only cause
+> unnecessary slowdown even on Intel.
 > 
-> I am currently trying to boot for a DiscOnChip with mtd drivers. When I boot
-> the system stop with the following message : "Kernel panic: VFS: Unable to
-> mount root fs on 03:05" !
-> 
-> I know that o3:05 mean : /dev/hda5. HTis is where I did compile my kernel
-> ... but now the kernel is on /dev/nftla1 ... but the lilo.conf on this
-> device is configured to nftla1 and I did run lilo??? so I dont know where
-> the kernel take this information about boot ing on /dev/hda5 ??? I 
 
-The Kernel gets this info at compile-time, it is only overridable by a
-kernel-argument ("root=..."), this is what lilo does.
+Agreed that there are many "atomic_t" types on some drivers, and
+"atomic" operations that don't need to be there. Unless a DMA operation
+is in progress, anything executing under a spin-lock doesn't need
+to be an "atomic" operation to make it, truly, atomic.
 
-If you want to change this so called "root-device" inside the kernel,
-you should take a look at the tool "rdev" and its man-page.
+Cheers,
+Dick Johnson
 
-I had the same problem some time ago as i wanted to build a
-boot-diskette without any loader like lilo or loadlin, etc.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-As the kernel contains an i386 bootsector, it should be able to boot
-itself if it is copied on a diskette and the bios jumps to its
-begin...but then you cannot say the kernel, where the root-filesystem
-is, so you have to change the root-device inside the compiled kernel,
-and this does "rdev". 
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-Unfortunately, it did not work for me, so i switched back to
-loadlin...:-((...but i tried it only one time, perhaps *i* made a
-mistake and not the tool...:-)
 
-Solong..
-Frank.
-
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-

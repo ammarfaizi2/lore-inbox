@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263709AbSITU7g>; Fri, 20 Sep 2002 16:59:36 -0400
+	id <S263570AbSITVEM>; Fri, 20 Sep 2002 17:04:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263632AbSITU6I>; Fri, 20 Sep 2002 16:58:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:6026 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263634AbSITU6B>;
-	Fri, 20 Sep 2002 16:58:01 -0400
-Date: Fri, 20 Sep 2002 13:56:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Bond, Andrew" <Andrew.Bond@hp.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: TPC-C benchmark used standard RH kernel
-Message-ID: <20020920205653.GM3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Bond, Andrew" <Andrew.Bond@hp.com>,
-	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <45B36A38D959B44CB032DA427A6E106402D09E43@cceexc18.americas.cpqcorp.net>
+	id <S263579AbSITVEM>; Fri, 20 Sep 2002 17:04:12 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:46296 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S263570AbSITVEL>; Fri, 20 Sep 2002 17:04:11 -0400
+Subject: 2.5.37 lockup with dbench 36 and make -j3 bzImage and PREEMPT=y.
+From: Steven Cole <elenstev@mesatop.com>
+To: Robert Love <rml@tech9.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 20 Sep 2002 15:05:32 -0600
+Message-Id: <1032555932.14946.225.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <45B36A38D959B44CB032DA427A6E106402D09E43@cceexc18.americas.cpqcorp.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 02:27:22PM -0500, Bond, Andrew wrote:
-> This isn't as recent as I would like, but it will give you an idea.
-> Top 75 from readprofile.  This run was not using bigpages though.
-> Andy
+While running 2.5.37 with 36 dbench clients and doing a kernel compile
+with make -j3 bzImage, my test machine locked up.  Repeating the test,
+the box ran up to 80 dbench clients and was doing make clean on a kernel
+tree when the freeze occurred.  (My dbench ramp-up test runs dbench with
+1,2,3,4,6,8,10,12,16,20,24,28,32,36,40,44,48,52,56,64,80,96,112, and 128
+clients). When the box froze, it did not even respond to SYSRQ-H (tested
+OK before lockup).  Each time, I gave the system a few minutes to come
+out of its coma, but it didn't.
 
-> 00000000 total                                      7872   0.0066
-> c0105400 default_idle                               1367  21.3594
-> c012ea20 find_vma_prev                               462   2.2212
-> c0142840 create_bounce                               378   1.1250
-> c0142540 bounce_end_io_read                          332   0.9881
-> c0197740 __make_request                              256   0.1290
-> c012af20 zap_page_range                              231   0.1739
-> c012e9a0 find_vma                                    214   1.6719
-> c012e780 avl_rebalance                               160   0.4762
+I also saw this with 2.5.36-bk3, patched with Robert's preempt-fix,
+under similar circumstances (dbench 40 and parallel make). 
 
-Looks like you're doing a lot of mmapping or faulting requiring VMA
-lookups, or the number of VMA's associated with a task makes the
-various VMA manipulations extremely expensive.
+Without doing a kernel compile at the same time, the text box was able
+to run up to 128 dbench clients successfully with 2.5.37 and PREEMPT.
 
-Can you dump /proc/pid/maps on some of these processes?
+The 2.5.37 kernel was patched with this fix for PREEMPT:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103255294016473&w=2
+and this fix for eepro100:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103253526526144&w=2
 
-Thanks,
-Bill
+Both of those kernels were configured with SMP and PREEMPT.
+
+The test box is dual PIII, 1GB, scsi, ext3 fs.  The dbench runs and
+kernel compiles were both run from the same disk.
+
+I have been unable so far to repeat this failure with plain 2.5.37 and
+no PREEMPT.  Plain vanilla 2.5.37 no preempt has run up to 112 dbench
+clients while doing make -j3 bzImage.  At one point, the box appeared to
+have frozen, with  vmstat -n 1 3600 output stopped printing for a while,
+but the system is still responsive to SYSRQ-H, P, T, just slow with
+dbench 128 running.
+
+Steven
+
+
+

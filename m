@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVBLUwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVBLUvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVBLUwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 15:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVBLUwZ
+	id S261200AbVBLUvd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 15:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVBLUvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 15:52:25 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44958 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261171AbVBLUwQ (ORCPT
+	Sat, 12 Feb 2005 15:51:33 -0500
+Received: from bender.bawue.de ([193.7.176.20]:57227 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S261200AbVBLUvS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 15:52:16 -0500
-Date: Sat, 12 Feb 2005 12:51:51 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: arjan@infradead.org, raybry@sgi.com, taka@valinux.co.jp, hugh@veritas.com,
-       akpm@osdl.org, haveblue@us.ibm.com, marcello@cyclades.com,
-       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
- sys_page_migrate
-Message-Id: <20050212125151.57033c06.pj@sgi.com>
-In-Reply-To: <20050212144835.GC16075@wotan.suse.de>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-	<1108211672.4056.10.camel@localhost.localdomain>
-	<20050212144835.GC16075@wotan.suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Feb 2005 15:51:18 -0500
+Date: Sat, 12 Feb 2005 21:51:11 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+Message-Id: <200502122051.j1CKpBds020978@bear.sommrey.de>
+To: jgarzik@pobox.com, jr@xor.at, linux-kernel@vger.kernel.org
+Subject: Re: Problem on SATA-disk with Promise SATAII 150 TX4 ("DriveReady SeekComplete Error")
+References: <3w4M1-61S-27@gated-at.bofh.it> <3wS5k-5H5-13@gated-at.bofh.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> They're already exposed through mbind/set_mempolicy/get_mempolicy and sysfs
-> of course.
+Jeff Garzik wrote::
+>Johannes Resch wrote:
+>> Hi,
+>> 
+>> [please CC me on replies]
+>> 
+>> I've got a box running 2.6.10 (with the patch[0] needed to support the 
+>> Promise SATAII 150 TX4 controller).
+>> This box has three software raid1 partitions mirrored on a SATA disk on 
+>> the Promise controller and a disk on the mainboard IDE controller (VIA 
+>> vt8235).
+>> 
+>> Within 4 days running the raid1, I got those three errors pasted below, 
+>> each marking the SATA-raidmember as faulty. After "raidhotremove" and 
+>> "raidhotadd" the SATA-raidmember syncs again fine and works at least a 
+>> day until it is marked as faulty again.
+>> 
+>> Any pointers where I could look at to resolve this problem?
+>> The SATA drive is a new Seagate ST3250823AS.
 
-And soon I hope through cpusets ;).
+>I would change out your cables, and also make sure you are running 
+>2.6.11-rc3-bk-latest, which includes all the SATAII patches and other fixes.
 
+I don't believe it has anything to do with cabling.  2.6.10-ac9 introduced
+some sata patches.  I didn't check -ac9 and -ac10, but -ac11 and -ac12 are
+not usable on my box with exactly the same symptoms.
+
+-jo
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+-rw-r--r--  1 jo users 63 2005-02-12 18:43 /home/jo/.signature

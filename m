@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132655AbRANNRb>; Sun, 14 Jan 2001 08:17:31 -0500
+	id <S132807AbRANNSV>; Sun, 14 Jan 2001 08:18:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132807AbRANNRM>; Sun, 14 Jan 2001 08:17:12 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:19572
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S132655AbRANNRI>; Sun, 14 Jan 2001 08:17:08 -0500
-Date: Sun, 14 Jan 2001 14:16:55 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] limit mmap_cache nulling (2.2.19-7)
-Message-ID: <20010114141655.C604@jaquet.dk>
-Mime-Version: 1.0
+	id <S132838AbRANNSH>; Sun, 14 Jan 2001 08:18:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60571 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132807AbRANNRs>;
+	Sun, 14 Jan 2001 08:17:48 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <14945.42701.15601.803051@pizda.ninka.net>
+Date: Sun, 14 Jan 2001 05:17:01 -0800 (PST)
+To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+Cc: Andi Kleen <ak@suse.de>, Harald Welte <laforge@gnumonks.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 + iproute2
+In-Reply-To: <Pine.LNX.4.30.0101141313470.16758-100000@jdi.jdimedia.nl>
+In-Reply-To: <14945.38406.478723.657639@pizda.ninka.net>
+	<Pine.LNX.4.30.0101141313470.16758-100000@jdi.jdimedia.nl>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-The following patch against 2.2.19-7 adds checks in do_munmap and 
-merge_segments to limit the nulling of mmap_cache to the cases where
-the cached vma is in the affected area.
+Igmar Palsenberg writes:
+ > > People must be really suffering right now, and we ought to get
+ > > /proc/errno_strings implemented as soon as possible... :-)
 
-Comments?
+ > First the help describing large tables should be changed.
 
+I agree, someone feel free to propose a patch.
 
---- linux-2.2.19-7/mm/mmap.c~	Sun Jan 14 13:43:50 2001
-+++ linux-2.2.19-7/mm/mmap.c	Sun Jan 14 14:02:04 2001
-@@ -689,8 +689,11 @@
- 		kmem_cache_free(vm_area_cachep, extra);
- 
- 	free_pgtables(mm, prev, addr, addr+len);
-+		
-+	if (mm->mmap_cache && mm->mmap_cache->vm_start < addr+len 
-+	    && mm->mmap_cache->vm_end > addr)
-+		mm->mmap_cache = NULL;	/* Kill the cache. */
- 
--	mm->mmap_cache = NULL;	/* Kill the cache. */
- 	return 0;
- }
- 
-@@ -867,7 +870,9 @@
- 		kmem_cache_free(vm_area_cachep, mpnt);
- 		mpnt = prev;
- 	}
--	mm->mmap_cache = NULL;		/* Kill the cache. */
-+       if (mm->mmap_cache && mm->mmap_cache->vm_start < end_addr 
-+           && mm->mmap_cache->vm_end > start_addr)
-+	       mm->mmap_cache = NULL;		/* Kill the cache. */
- }
- 
- void __init vma_init(void)
+ > String errors don't belong in kernel space IMHO.
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+Thus the smiley in my original email.  I did not mean kernel errno
+strings to be taken seriously at all.
 
-Are they taking DDT?
-                -- Vice President Dan Quayle asking doctors at a Manhattan
-                   AIDS clinic about their treatments of choice, 4/30/92
-                   (reported in Esquire, 8/92, and NY Post early May 92)
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131269AbRDBUS4>; Mon, 2 Apr 2001 16:18:56 -0400
+	id <S131305AbRDBUPQ>; Mon, 2 Apr 2001 16:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131309AbRDBUSq>; Mon, 2 Apr 2001 16:18:46 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:47554 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131269AbRDBUSb>;
-	Mon, 2 Apr 2001 16:18:31 -0400
-Date: Mon, 2 Apr 2001 22:17:02 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200104022017.WAA89061.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
-Subject: Re: Larger dev_t
-Cc: alan@lxorguk.ukuu.org.uk, hpa@transmeta.com, linux-kernel@vger.kernel.org,
-   tytso@MIT.EDU
+	id <S131269AbRDBUPG>; Mon, 2 Apr 2001 16:15:06 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:40201 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131309AbRDBUOv>; Mon, 2 Apr 2001 16:14:51 -0400
+Date: 02 Apr 2001 20:57:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7z5pl1CHw-B@khms.westfalen.de>
+In-Reply-To: <3AC7C719.3080403@kalifornia.com>
+Subject: Re: bug database braindump from the kernel summit
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0104011640280.25794-100000@dlang.diginsite.com> <3AC7C719.3080403@kalifornia.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK - everybody back from San Jose - pity I couldnt come -
-and it is no longer April 1st, so we can continue quarreling
-a little.
+ben@kalifornia.com (Ben Ford)  wrote on 01.04.01 in <3AC7C719.3080403@kalifornia.com>:
 
-Interesting that where I had divided stuff in the trivial part,
-the interesting part and the lot-of-work part we already start
-fighting on the trivial part. Maybe it is not very important -
-still I'd prefer to do things right from the start.
+> Why not have the /proc/config option but instead of being plain text,
+> make it binary with a userspace app that can interpret it?
+>
+> It could have a signature as to kernel version + patches and the rest
+> would be just bits.
 
-Yes. We need a larger dev_t as everybody agrees.
-How large?
+> You'd have
+> 2.4.3-pre3:1101111100000100000000 . . . . .
 
-What is dev_t used for? It is a communication channel from
-filesystem to user space (via the stat() system call)
-and from user space to filesystem (via the mknod() system call).
+Another option would be to put a checksum of the config, and still keep  
+the config separate - at least you could tell if you had the right config  
+for the kernel.
 
-So, it seems the kernel interface must allow passing the values
-that actually occur, in present or future file systems.
-Making the interface narrow is only asking for problems later.
-Are there already any filesystems that use 64-bits?
-I would say that that is irrelevant - what we don't have today
-may come tomorrow - but in fact the NFSv3 interface uses
-a 64-bit device number.
 
-So glibc comes with 64 bits, the kernel has to hand these bits
-over to NFS but is unwilling to - you are not going to get
-more than 32. Why?
-
-> I have a holy crusade.
-
-I fail to see the connection. There is no bloat here, the kernel
-is hardly involved. Some values are passed. If the values are
-larger than the filesystem likes it will probably return EINVAL.
-But the kernel has no business getting in the way.
-
-There is no matter of efficiency either - mknod is not precisely
-the most frequently used system call, and our stat interface, which
-really is important, is 64 bits today.
-
-Not using 64 also gives interesting small problems with Solaris or
-FreeBSD NFS mounts. One uses 14+18, the other 8+24, so with 12+20
-we cannot handle Solaris' majors and we cannot handle FreeBSD's minors.
-
-[Then there were discussions about naming.
-These are interesting, but independent.
-The current discussion is almost entirely about mknod.]
-
-Andries
+MfG Kai

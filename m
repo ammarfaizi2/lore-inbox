@@ -1,32 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271705AbRIDPRD>; Tue, 4 Sep 2001 11:17:03 -0400
+	id <S271935AbRIDPTP>; Tue, 4 Sep 2001 11:19:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271767AbRIDPQx>; Tue, 4 Sep 2001 11:16:53 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11787 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271705AbRIDPQd>; Tue, 4 Sep 2001 11:16:33 -0400
-Subject: Re: Question Re AC Patch with VM Tuneable Parms for now
-To: jlmales@softhome.net
-Date: Tue, 4 Sep 2001 16:20:29 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B943CB0.14656.754C73@localhost> from "John L. Males" at Sep 04, 2001 02:30:08 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271794AbRIDPTD>; Tue, 4 Sep 2001 11:19:03 -0400
+Received: from firewall.fesppr.br ([200.238.157.11]:1010 "EHLO smtp2.fesppr.br")
+	by vger.kernel.org with ESMTP id <S271767AbRIDPSy>;
+	Tue, 4 Sep 2001 11:18:54 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: H.323 and 2.4
+Message-ID: <999616751.3b94f0ef41ca8@webmail.fesppr.br>
+Date: Tue, 04 Sep 2001 12:19:11 -0300 (BRT)
+From: Alexandre Hautequest <hquest@fesppr.br>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15eI05-0003k5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.4
+X-Originating-IP: 172.16.40.2
+X-WebMail-Company: Fundacao de Estudos Sociais do Parana
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can someone advise me if the "Make several vm behaviours tunable for
-> now" as of the 2.4.9-ac4 patch are implemented in the kernel .config
-> file?  If so is there an easy way to carry forward a 2.4.8 version of
+Hi all.
 
-They are in /proc
+The H.323 protocol, as many of you know, got some issues when used in a masq'ed
+env. The guys at http://www.coritel.it/coritel/ip/sofia/nat/nat2/nat2.htm have a
+2.2 module to solve this masq trouble.
 
-> the .config file using "make xconfig" so that I do not have to set
-> all the setting I have made from scratch?  I get the sense from the
+Anyone have any solution for 2.4?
 
-Make oldconfig
+Please cc me, as i'm not on list.
+
+TIA.
+--
+Alexandre Hautequest - hquest at fesppr.br
+Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
+Centro de Administração de Redes - CAR
+"Eu acreditava no sistema. Até que eles formataram minha família"
+
+Registered Linux User #116289 http://counter.li.org/
+
+"Ninguém é melhor do que todos nós juntos."
+Equipe Zeus Competições - www.gincaneiros-zeus.com.br
+
+--
+Alexandre Hautequest - hquest at fesppr.br
+Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
+Centro de Administração de Redes - CAR
+"Eu acreditava no sistema. Até que eles formataram minha família"
+
+Registered Linux User #116289 http://counter.li.org/
+
+"Ninguém é melhor do que todos nós juntos."
+Equipe Zeus Competições - www.gincaneiros-zeus.com.br
+
+--
+Alexandre Hautequest - hquest at fesppr.br
+Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
+Centro de Administração de Redes - CAR
+"Eu acreditava no sistema. Até que eles formataram minha família"
+
+Registered Linux User #116289 http://counter.li.org/
+
+"Ninguém é melhor do que todos nós juntos."
+Equipe Zeus Competições - www.gincaneiros-zeus.com.br
+
+-------------------------------------------------
+Esta mensagem foi enviada pelo WebMail da FESP.
+Conheça a FESP: http://www.fesppr.br/

@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287253AbSALSTL>; Sat, 12 Jan 2002 13:19:11 -0500
+	id <S287254AbSALSTV>; Sat, 12 Jan 2002 13:19:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287274AbSALSTD>; Sat, 12 Jan 2002 13:19:03 -0500
-Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.112.71]:1036 "EHLO
-	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id <S287253AbSALSSs>; Sat, 12 Jan 2002 13:18:48 -0500
-Date: Sat, 12 Jan 2002 18:15:33 +0000
+	id <S287255AbSALSTM>; Sat, 12 Jan 2002 13:19:12 -0500
+Received: from mk-smarthost-3.mail.uk.tiscali.com ([212.74.112.73]:16147 "EHLO
+	mk-smarthost-3.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id <S287254AbSALSSz>; Sat, 12 Jan 2002 13:18:55 -0500
+Date: Sat, 12 Jan 2002 18:18:07 +0000
 From: Jonathan Hudson <jonathan@daria.co.uk>
 To: linux-kernel@vger.kernel.org
 Cc: marcelo@conectiva.com.br, torvalds@transmeta.com, vshebordaev@mail.ru
 Subject: [PATCH] Gemtek FM Radio PCI driver enhancement.
-Message-ID: <20020112181533.GA3363@trespassersw.daria.co.uk>
+Message-ID: <20020112181807.GA3630@trespassersw.daria.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.17 i686
 Organisation: The Dead Letter Drop
-X-PGP-KeyServer: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0x721FAABE
-X-PGP-Key: 1024/DSA 0x721FAABE
-X-PGP-Fingerprint: 7746 1FEE 02F4 0AD4 267C 2B55 03EF 19EC 721F AABE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This small patch enables the Gemtek FM Radio PCI driver to report the audio
-mode (mono or stereo) of the Gemtek FM Radio PCI card. Applies to
+This small patch enables the Gemtek FM Radio PCI driver to report the
+audio mode (mono or stereo) of the card. Applies to
 2.4.17/2.5.2-pre11.
 
 --- linux/drivers/media/radio/radio-gemtek-pci.c.orig	Sat Jan 12 17:16:03 2002

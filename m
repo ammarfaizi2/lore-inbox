@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272196AbRHWCuG>; Wed, 22 Aug 2001 22:50:06 -0400
+	id <S272197AbRHWDEX>; Wed, 22 Aug 2001 23:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272197AbRHWCt4>; Wed, 22 Aug 2001 22:49:56 -0400
-Received: from rj.sgi.com ([204.94.215.100]:2274 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S272196AbRHWCtl>;
-	Wed, 22 Aug 2001 22:49:41 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,RFC] make ide-scsi more selective 
-In-Reply-To: Your message of "Wed, 22 Aug 2001 21:46:03 +0200."
-             <200108221946.VAA01879@harpo.it.uu.se> 
-Mime-Version: 1.0
+	id <S272198AbRHWDEM>; Wed, 22 Aug 2001 23:04:12 -0400
+Received: from [24.130.1.20] ([24.130.1.20]:25031 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S272197AbRHWDEB>; Wed, 22 Aug 2001 23:04:01 -0400
+Message-ID: <3B847295.5127D1F8@kegel.com>
+Date: Wed, 22 Aug 2001 20:03:49 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ralf Baechle <ralf@uni-koblenz.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: socket connected to itself with RH 2.2.14-5.0? (Problem with example 
+ from Stevens)
+In-Reply-To: <3B82C7F2.43A60829@kegel.com> <20010822120619.A13189@dea.linux-mips.net>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Aug 2001 12:49:45 +1000
-Message-ID: <19914.998534985@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001 21:46:03 +0200 (MET DST), 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
->Caveat: When listing multiple units, don't use "," to separate their
->names (e.g. units=hdc,hdd). modutils insists that "," separates array
->elements but the actual MODULE_PARM is a single string.
+Ralf Baechle wrote:
+> 
+> On Tue, Aug 21, 2001 at 01:43:30PM -0700, Dan Kegel wrote:
+> > tcp        0      0 127.0.0.1:2003          127.0.0.1:2003          ESTABLISHED 965/client
+> >
+> > Erm, could the client have connected to *itself* somehow?
+> 
+> I would not consider that a bug even though certainly not very helpful.
+> Now I wonder if this could potencially be abused for nice DoS attacks ...
 
-man modules.conf, under options keyword
+After running the server on a port not in the ephemeral range,
+the problem goes away.  It's just a funny thing that can happen
+when you're connecting to a server on your own box, so no big deal.
+- Dan
 
-  If any of the MODULE_SPECIFIC_OPTIONS contain characters that are
-  special to the shell (e.g.  space, comma, parentheses) then the
-  option must be enclosed in '"..."'.  The '' delimit the option in
-  modules.conf, the "" delimit the option when it is passed to the
-  shell.  For example,
-
-    abc='"def,ghi jkl (xyz)"'
-
-If that does not work for a string, tell me.
-
+-- 
+"I have seen the future, and it licks itself clean." -- Bucky Katt

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265122AbSJWRnU>; Wed, 23 Oct 2002 13:43:20 -0400
+	id <S265109AbSJWRoG>; Wed, 23 Oct 2002 13:44:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265123AbSJWRnU>; Wed, 23 Oct 2002 13:43:20 -0400
-Received: from cse.ogi.edu ([129.95.20.2]:27847 "EHLO church.cse.ogi.edu")
-	by vger.kernel.org with ESMTP id <S265122AbSJWRnT>;
-	Wed, 23 Oct 2002 13:43:19 -0400
-To: Dan Kegel <dank@kegel.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Mark Mielke <mark@mark.mielke.cc>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-References: <Pine.LNX.4.44.0210221231330.1563-100000@blue1.dev.mcafeelabs.com>
-	<3DB6D332.9000709@kegel.com>
-From: "Charles 'Buck' Krasic" <krasic@acm.org>
-Date: 23 Oct 2002 10:49:19 -0700
-In-Reply-To: <3DB6D332.9000709@kegel.com>
-Message-ID: <xu4y98pjba8.fsf@brittany.cse.ogi.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+	id <S265123AbSJWRoG>; Wed, 23 Oct 2002 13:44:06 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:19089 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265109AbSJWRoC>; Wed, 23 Oct 2002 13:44:02 -0400
+To: Andi Kleen <ak@muc.de>
+cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch 
+In-reply-to: Your message of 23 Oct 2002 05:03:38 +0200.
+             <m3fzuxq2k5.fsf@averell.firstfloor.org> 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <20680.1035395384.1@us.ibm.com>
+Date: Wed, 23 Oct 2002 10:49:44 -0700
+Message-Id: <E184PdY-0005Nc-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <m3fzuxq2k5.fsf@averell.firstfloor.org>, > : Andi Kleen writes:
+> Gerrit Huizenga <gh@us.ibm.com> writes:
+> 
+> > If the shared pte patch had mmap support, then all shared libraries
+> > would benefit.  Might need to align them to 4 MB boundaries for best
+> > results, which would also be easy for libraries with unspecified
+> > attach addresses (e.g. most shared libraries).
+> 
+> But only if the shared libraries are a multiple of 2/4MB, otherwise you'll
+> waste memory. Or do you propose to link multiple mmap'ed libraries together
+> into the same page ? 
+ 
+Hmm.  I didn't propose.  Sounds cool.  But that would have to happen
+at the compiler's loader level, not the dynamic linker side of things,
+which makes it less likely.  Someone once proposed a mega-library where
+the big/key shared objects were linked together which would make this
+somewhat more practical.
 
-Dan Kegel <dank@kegel.com> writes:
+But even wasting a bit of space for a few key libraries, even if they
+are smaller than 4 MB (or 2 MB) on ia32 (ia32 PAE) might be worth a
+bit of TLB & general overhead (e.g. like the kernel text pages).  And,
+if shared, even a bigger win.
 
-> Davide Libenzi <davidel@xmailserver.org> wrote:
+> But I agree it would be nice to have a chattr for files that tells
+> mmap() to use large pages for them.
 
-> I may be confused, but I suspect the async poll being proposed by
-> Ben only delivers absolute readiness, not changes in readiness.
+Yep - that would be ideal - like the old sticky flag on binaries.
+As a patch, that would make it easy to compare performance diffs as
+well.  Probably good for things like Oracle or DB2 as well.
 
-> I think epoll is worth having, even if Ben's AIO already handled
-> networking properly.
-
-> - Dan
-
-Can someone remind me why poll is needed in the AIO api at all?
-
-How would it be used?
-
--- Buck
-
-
-
-
-
-
-
-
+gerrit

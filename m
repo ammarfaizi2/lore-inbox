@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbTBJDyM>; Sun, 9 Feb 2003 22:54:12 -0500
+	id <S261398AbTBJD5y>; Sun, 9 Feb 2003 22:57:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261370AbTBJDyM>; Sun, 9 Feb 2003 22:54:12 -0500
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:18815
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S261368AbTBJDyL>; Sun, 9 Feb 2003 22:54:11 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-Date: Sun, 9 Feb 2003 23:03:44 -0500
-User-Agent: KMail/1.6
+	id <S261409AbTBJD5y>; Sun, 9 Feb 2003 22:57:54 -0500
+Received: from 115.8.237.216.globalpac.com ([216.237.8.115]:54754 "EHLO
+	mail.yessos.com") by vger.kernel.org with ESMTP id <S261398AbTBJD5x>;
+	Sun, 9 Feb 2003 22:57:53 -0500
+Message-ID: <3E47254C.3070905@tmsusa.com>
+Date: Sun, 09 Feb 2003 20:06:36 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01 (NSCD7.01)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG?][2.4.xx] - SB Driver (SBAWE32) -  Explosion sound on init
-Content-Type: text/plain;
-  charset="us-ascii"
+To: LA Walsh <law@tlinx.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+References: <001001c2d0b0$cf49b190$1403a8c0@sc.tlinx.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200302092303.44114.spstarr@sh0n.net>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.114.185.204] using ID <shawn.starr@rogers.com> at Sun, 9 Feb 2003 23:03:45 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Odd, When I boot up with 2.4.20 and the sound driver is about to init I hear a 
-explosion sound from the speakers each time I power off and on the machine.
+LA Walsh wrote:
 
-Is this a initialization bug in resetting the card on boot?
+>	At one point a plan was proposed (by Casey Schaufler, SGI) and 
+>_\implemented\_ (team members & prjct lead Linda Walsh) to move all
+>security checks out of the kernel into a 'default policy' module.
+>The code to implement this was submitted to the LSM list in June 1991.
+>
+er - are you quite certain about that date?
 
-Any ideas?
+;-)
 
-Shawn.
+Joe
+
 

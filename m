@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269301AbUIBX2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269300AbUIBX2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269301AbUIBX2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269303AbUIBX16
+	id S269300AbUIBX2d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269305AbUIBX20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:27:58 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7057 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269290AbUIBXZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:25:36 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+	Thu, 2 Sep 2004 19:28:26 -0400
+Received: from mail.shareable.org ([81.29.64.88]:15307 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269289AbUIBXYt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:24:49 -0400
+Date: Fri, 3 Sep 2004 00:23:50 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
+       Spam <spam@tnonline.net>, David Masover <ninja@slaphack.com>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <20040902071525.GA19925@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
-	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
-	 <1094108653.11364.26.camel@krustophenia.net>
-	 <20040902071525.GA19925@elte.hu>
-Content-Type: text/plain
-Message-Id: <1094167534.1571.10.camel@krustophenia.net>
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040902232350.GA32244@mail.shareable.org>
+References: <rlrevell@joe-job.com> <1094155277.11364.92.camel@krustophenia.net> <200409022200.i82M0ihC026321@laptop11.inf.utfsm.cl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 02 Sep 2004 19:25:35 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409022200.i82M0ihC026321@laptop11.inf.utfsm.cl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 03:15, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+Horst von Brand wrote:
+> > > You really need archive support in find. At the very least you need
+> > > option "enter archives" vs. "do not enter archives". Entering archives
+> > > automagically is seriously wrong.
 > 
-> > Here are traces of a 145, 190, and 217 usec latencies in
-> > netif_receive_skb:
-> > 
-> > http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace2.txt
-> > http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace3.txt
-> > http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace4.txt
-> 
-> these all seem to be single-packet processing latencies - it would be
-> quite hard to make those codepaths preemptible.
-> 
-> i'd suggest to turn off things like netfilter and ip_conntrack (and
-> other optional networking features that show up in the trace), they can
-> only increase latency:
-> 
+> I have used find(1) for quite some time now, and have never (or very
+> rarely) missed this.
 
-Do you see any optional networking features in the trace (other than
-ip_conntrack)?  I was under the impression that I had everything
-optional disabled.
+I've occasionally had the need to search all files on my system for
+the one file which contains a particular phrase -- all I remember is
+the phrase.
 
-Lee  
+Just doing "grep -R" was a tedious job: at least half an hour.
 
+Sometimes, I want to search all source files on my system for a
+particular word, for example to search for uses of a particular system
+call or library function.
+
+That would require something that could search through all the .tar.gz
+files and .zip files (nested if necessary) as well as plain files.  It
+would take so long -- hours at least, maybe more than a day -- that
+I've never bothered doing such a thing.
+
+"find "that entered archives really wouldn't help (although sometimes
+"locate" that entered archives would be nice).
+
+In other words, I'd use that capability if it was magically fast, but
+as we expect it to be insanely slow (just grepping gigabytes is slow)
+that makes it not so useful.
+
+However, if we ever see that search engine index thing happen, it
+would be a most excellent capability if it searched inside archive
+files too.  I would definitely use that.  Not often, but occasionally I would.
+
+-- Jamie

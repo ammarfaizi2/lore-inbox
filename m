@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTLCXcf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 18:32:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTLCXcf
+	id S262397AbTLCX1O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 18:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTLCX1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 18:32:35 -0500
-Received: from mail.scitechsoft.com ([63.195.13.67]:9924 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S262686AbTLCXcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 18:32:31 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: arjanv@redhat.com
-Date: Wed, 03 Dec 2003 15:33:47 -0800
+	Wed, 3 Dec 2003 18:27:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45549 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262397AbTLCX1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 18:27:09 -0500
+Date: Wed, 3 Dec 2003 15:26:13 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: pinotj@club-internet.fr
+cc: nathans@sgi.com, manfred@colorfullife.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+In-Reply-To: <mnet1.1070492788.24399.pinotj@club-internet.fr>
+Message-ID: <Pine.LNX.4.58.0312031524310.2055@home.osdl.org>
+References: <mnet1.1070492788.24399.pinotj@club-internet.fr>
 MIME-Version: 1.0
-Subject: Re: Linux GPL and binary module exception clause?
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3FCE025B.7113.3EBE7BBA@localhost>
-References: <3FCDE5CA.2543.3E4EE6AA@localhost>
-In-reply-to: <1070488074.5223.11.camel@laptop.fenrus.com>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arjanv@redhat.com wrote:
 
-> On Wed, 2003-12-03 at 22:31, Kendall Bennett wrote:
-> > Hi All,
-> > 
-> > I have heard many people reference the fact that the although the Linux
-> > Kernel is under the GNU GPL license, that the code is licensed with an
-> > exception clause that says binary loadable modules do not have to be
-> > under the GPL. 
-> 
-> there is no such exception, for example see:
-> 
-> http://www.kernelnewbies.org/kernels/rh9/SOURCES/COPYING.modules
 
-Thanks for the link, that pretty much explains what I needed to know!
 
-Regards,
+On Thu, 4 Dec 2003 pinotj@club-internet.fr wrote:
+>
+> [slab.c patch from Linus]
+>
+> I tried the patch on the same small config (XFS and
+> CONFIG_DEBUG_PAGEALLOC enabled) and I got oops at the beginning of boot
+> sequence. I spent some times to write this down but I'm not so sure it's
+> a good news. Just say me it's not a hw problem...
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
+Sorry - it's not a hw problem, and in fact it's a problem with my slab
+debugging patch: please don't use CONFIG_DEBUG_SLAB together with my
+crappy patch. My patch wants _only_ CONFIG_DEBUG_PAGEALLOC instead of
+using the SLAB debugger.
 
-~ SciTech SNAP - The future of device driver technology! ~
+So please turn the slab debugger off, and depend on CONFIG_DEBUG_PAGEALLOC
+entirely and try again,
 
+		Linus

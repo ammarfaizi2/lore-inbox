@@ -1,113 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265816AbUAEHEK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 02:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAEHEJ
+	id S265888AbUAEHF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 02:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAEHF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 02:04:09 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:27868
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S265816AbUAEHEB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 02:04:01 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: [offtopic] Re: udev and devfs - The final word
-Date: Mon, 5 Jan 2004 01:03:12 -0600
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20040103040013.A3100@pclin040.win.tue.nl> <200401042148.24742.rob@landley.net> <1073278352.1165.36.camel@nidelv.trondhjem.org>
-In-Reply-To: <1073278352.1165.36.camel@nidelv.trondhjem.org>
+	Mon, 5 Jan 2004 02:05:58 -0500
+Received: from web21501.mail.yahoo.com ([66.163.169.12]:8081 "HELO
+	web21501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265888AbUAEHFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 02:05:32 -0500
+Message-ID: <20040105070531.74437.qmail@web21501.mail.yahoo.com>
+Date: Sun, 4 Jan 2004 23:05:31 -0800 (PST)
+From: Shivu V <shivu_sv2004@yahoo.com>
+Subject: Re: oops from my test driver at poll_wait (__pollwait from select.c)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040104220859.22913.qmail@web21508.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200401050103.13032.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 January 2004 22:52, Trond Myklebust wrote:
-> På su , 04/01/2004 klokka 22:48, skreiv Rob Landley:
-> > NFS always struck me as a peverse design.  "The fileserver must be
-> > stateless with regard to clients, even though maintainging state is what
-> > a filesystem DOES, and the point of the thing is to export a filesystem."
-> >  Okay...  (If it was exporting read-only filesystems with no locking of
-> > any kind, maybe they'd have a point, but come on guys...)
->
-> Sigh... What has that got to do with anything?
->
-> Read the RFCs: NFS *was* entirely stateless until v4 was drafted.
-> Locking was never part of the NFS protocol, but was an external addition
-> that was documented by the Open Group. So, yes, there is a history and a
-> reason behind all the talk of statelessness.
+I just tested it on kernel version 2.4.21-4.ELsmp and
+it works fine.
 
-I vaguely remember being pretty well up to speed on V2 (circa... 1995?)  The 
-last one I even glanced at was V3, but I never had to support it.  I haven't 
-even looked at V4.  For exporting /home directories, everybody I deal with 
-seems to want samba servers these days instead for some reason.  (Couple of 
-net boot systems that care more about permissions than that, but ram's so 
-cheap that it's easier to just "ssh user@bootserver -i key "cat root_img.tgz" 
-| tar xz" into a ramfs or shmfs or some such.  (Heck, the last system I set 
-up like that mounted a zisofs image and ran from that...)
+-Shivu
 
-I'm sure it's still useful.  I just haven't wanted to even attempt to secure 
-it.  For home directories, samba is doing a simple tcp/ip connection per 
-session, reestablishing it automatically if it breaks (same server reboot 
-question).  Since _both_ protocols seem to suck pretty badly under the hood, 
-it's been a question of choosing the lesser of two evils.  It seems that more 
-people actually USE samba, so...
 
-> > So why, exactly, can the NFS server not maintain whatever extra state it
-> > needs to remember between reboots in a filesystem?  (Not even necessarily
-> > the one it's exporting, just some rc file something under /var.)  The
-> > device node it was exporting USED to be in the filesystem, you know, ala
-> > mknod.  Now that the kernel's not keeping that stable, have the #*%(&#
-> > server generate a number and make a note of it somewhere.  (Is requiring
-> > an NFS server to have access to persistent storage too much to ask?)
->
-> It could be done (and probably entirely in userspace). I assume you are
-> volunteering to do the work?
+--- Shivu V <shivu_sv2004@yahoo.com> wrote:
+> And the Kernel version is : 2.4.18-14
+> 
+> -Shivu
+> 
+> --- Shivu V <shivu_sv2004@yahoo.com> wrote:
+> > Hello,
+> > 
+> > I am a newbie in driver development. In one of my
+> > test
+> > driver, I am getting the oops at poll_wait.  The
+> > ksymoops o/p is as follows :
+> > 
+> > Unable to handle kernel NULL pointer dereference
+> at
+> > virtual address 00000005
+> > c01190f5
+> > *pde = 00000000
+> > Oops: 0002
+> > CPU:    0
+> > EIP:    0010:[<c01190f5>]    Not tainted
+> > Using defaults from ksymoops -t elf32-i386 -a i386
+> > EFLAGS: 00010046
+> > eax: f7ae0f18   ebx: 00000001   ecx: f6d40014  
+> edx:
+> > f6d4000c
+> > esi: 00000246   edi: 00000000   ebp: f6d47ef4  
+> esp:
+> > f6d47ec0
+> > ds: 0018   es: 0018   ss: 0018
+> > Process test (pid: 1228, stackpage=f6d47000)
+> > Stack: f72b3520 f7ae0e80 f8e144c6 f6d8f0e0
+> f7ae0f18
+> > f6d47fa8 f6d47f04 00000000
+> >       c012bee9 f6f513c0 f6d8f0e0 00000000 f6d47fa8
+> > f6d47f24 f8e14987 f6d8f0e0
+> >       f6d47fa8 420d2220 f6d93900 c01169f8 00000212
+> > 00001000 00000145 f6d41000
+> > Call Trace: [<f8e144c6>] daemon_poll [mytest] 0x78
+> > (0xf6d47ec8))
+> > [<c012bee9>] handle_mm_fault [kernel] 0x89
+> > (0xf6d47ee0))
+> > [<f8e14987>] mytest_poll [mytest] 0x6d
+> (0xf6d47ef8))
+> > [<c01169f8>] do_page_fault [kernel] 0x138
+> > (0xf6d47f0c))
+> > [<c0150255>] do_pollfd [kernel] 0x95 (0xf6d47f28))
+> > [<c015035f>] do_pollfd [kernel] 0x19f
+> (0xf6d47f44))
+> > [<c01504d3>] sys_poll [kernel] 0x163 (0xf6d47f78))
+> > [<c010910f>] system_call [kernel] 0x33
+> (0xf6d47fc0))
+> > Code: 89 4b 04 89 5a 08 89 41 04 89 08 56 9d 8b 1c
+> > 24
+> > 8b 74 24 04
+> > 
+> > 
+> > >>EIP; c01190f5 <add_wait_queue+15/30>   <=====
+> > 
+> > >>eax; f7ae0f18 <_end+3770f398/384564e0>
+> > >>ecx; f6d40014 <_end+3696e494/384564e0>
+> > >>edx; f6d4000c <_end+3696e48c/384564e0>
+> > >>ebp; f6d47ef4 <_end+36976374/384564e0>
+> > >>esp; f6d47ec0 <_end+36976340/384564e0>
+> > 
+> > Trace; f8e144c6 <[mytest]daemon_poll+78/d6>
+> > Trace; c012bee9 <handle_mm_fault+89/160>
+> > Trace; f8e14987 <[mytest]mytest_poll+6d/96>
+> > Trace; c01169f8 <do_page_fault+138/4cf>
+> > Trace; c0150255 <do_pollfd+95/a0>
+> > Trace; c015035f <do_poll+ff/110>
+> > Trace; c01504d3 <sys_poll+163/300>
+> > Trace; c010910f <system_call+33/38>
+> > 
+> > Code;  c01190f5 <add_wait_queue+15/30>
+> > 00000000 <_EIP>:
+> > Code;  c01190f5 <add_wait_queue+15/30>   <=====
+> >   0:   89 4b 04                  mov   
+> > %ecx,0x4(%ebx)
+> >   <=====
+> > Code;  c01190f8 <add_wait_queue+18/30>
+> >   3:   89 5a 08                  mov   
+> > %ebx,0x8(%edx)
+> > Code;  c01190fb <add_wait_queue+1b/30>
+> >   6:   89 41 04                  mov   
+> > %eax,0x4(%ecx)
+> > Code;  c01190fe <add_wait_queue+1e/30>
+> >   9:   89 08                     mov   
+> %ecx,(%eax)
+> > Code;  c0119100 <add_wait_queue+20/30>
+> >   b:   56                        push   %esi
+> > Code;  c0119101 <add_wait_queue+21/30>
+> >   c:   9d                        popf  Code; 
+> > c0119102
+> > <add_wait_queue+22/30>
+> >   d:   8b 1c 24                  mov   
+> > (%esp,1),%ebx
+> > Code;  c0119105 <add_wait_queue+25/30>
+> >  10:   8b 74 24 04               mov   
+> > 0x4(%esp,1),%esi
+> > 
+> > 
+> > 2 warnings and 5 errors issued.  Results may not
+> be
+> > reliable. 
+> > 
+> > 
+> > 
+> > Any ideas ??
+> > 
+> > Thanks
+> > -Shivu
+> > 
+> > __________________________________
+> > Do you Yahoo!?
+> > Find out what made the Top Yahoo! Searches of 2003
+> > http://search.yahoo.com/top2003
+> > 
+> 
+> 
+> __________________________________
+> Do you Yahoo!?
+> Find out what made the Top Yahoo! Searches of 2003
+> http://search.yahoo.com/top2003
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I don't like nfs, I haven't bothered to actually use it for anything since 
-1999, so no.
 
-> > Personally, I could never figure out why Samba servers are in userspace
-> > but NFS servers seem to want to live in the kernel.  I can almost secure
-> > a samba server for access to the outside world, but a NFS system that
-> > isn't behind a firewall automatically says to me "this machine has
-> > already been compromised eight ways from sunday within five minutes of
-> > being exposed to the internet". Call me paranoid...
->
-> Sun was doing Kerberos for NFS years before the Samba project was
-> started.
->
-> Security has bugger all to do with kernel or userland and everything to
-> do with the short-sighted "munitions" policies of certain governments at
-> the time around when the Sun RPC protocol was being drafted. The same
-
-I can transparently tunnel any tcp/ip session through ssh with some iptables 
-rules and a dozen line python script.  (Great fun for rolling your own vpn.)  
-Mixing UDP and encryption is just plain a bad idea: no level at which it 
-makes sense to store persistent connection state in a "fire and forget" 
-packet protocol...)
-
-I.E. this also works with samba, but didn't with (old) NFS.
-
-> policies were still around to dictate our implementation much later when
-> we were doing RPC for Linux. Now the laws have changed, and so we've
-> finally been able to add strong authentication in 2.6.x.
-
-Can you recommend a good link to the history of NFS?  Computer history's a 
-hobby of mine.  (I've got snippets on this topic, but not any kind of unified 
-story of NFS...)
-
-http://www.landley.net/history/mirror/index.html
-http://www.landley.net/history/scans/index.html
-
-> Cheers,
->   Trond
-
-Rob
-
+__________________________________
+Do you Yahoo!?
+Find out what made the Top Yahoo! Searches of 2003
+http://search.yahoo.com/top2003

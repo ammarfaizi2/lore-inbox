@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265426AbSLISjM>; Mon, 9 Dec 2002 13:39:12 -0500
+	id <S266094AbSLISkW>; Mon, 9 Dec 2002 13:40:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265898AbSLISjM>; Mon, 9 Dec 2002 13:39:12 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:10453 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265426AbSLISjL>;
-	Mon, 9 Dec 2002 13:39:11 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15860.58615.767758.764196@napali.hpl.hp.com>
-Date: Mon, 9 Dec 2002 10:46:15 -0800
+	id <S266100AbSLISkV>; Mon, 9 Dec 2002 13:40:21 -0500
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:4334 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S266094AbSLISjl> convert rfc822-to-8bit; Mon, 9 Dec 2002 13:39:41 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mikael Starvik <mikael.starvik@axis.com>,
-       "'Daniel Jacobowitz'" <dan@debian.org>,
-       "'george anzinger'" <george@mvista.com>,
-       "'Jim Houston'" <jim.houston@ccur.com>,
-       "'Stephen Rothwell'" <sfr@canb.auug.org.au>,
-       "'LKML'" <linux-kernel@vger.kernel.org>,
-       "'anton@samba.org'" <anton@samba.org>,
-       "'David S. Miller'" <davem@redhat.com>, "'ak@muc.de'" <ak@muc.de>,
-       "'davidm@hpl.hp.com'" <davidm@hpl.hp.com>,
-       "'schwidefsky@de.ibm.com'" <schwidefsky@de.ibm.com>,
-       "'ralf@gnu.org'" <ralf@gnu.org>,
-       "'willy@debian.org'" <willy@debian.org>
-Subject: RE: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <Pine.LNX.4.44.0212090906340.3410-100000@home.transmeta.com>
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE4E9@mailse01.axis.se>
-	<Pine.LNX.4.44.0212090906340.3410-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Cc: Daniel Jacobowitz <dan@debian.org>, george anzinger <george@mvista.com>,
+       Jim Houston <jim.houston@ccur.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <ralf@gnu.org>, <willy@debian.org>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF6B91BBE3.E3C87169-ONC1256C8A.0066A5C2@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Mon, 9 Dec 2002 19:41:41 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 09/12/2002 19:44:13
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 9 Dec 2002 09:35:59 -0800 (PST), Linus Torvalds <torvalds@transmeta.com> said:
 
-  Linus> And apparently ia64 is again being a singularly awkward
-  Linus> architecture.
+> You're not looking at a recent 2.5.x tree with the nanosleep() restart
+> logic.
+I had been looking at 2.5.50, we had a different meaning of current.
+If you are saying that for any implementation of nanosleep I have to implement
+the -ERESTART_RESTARTBLOCK thingy anyway, then I better start with it.
 
-I don't want to interfere with your ability to take potshots ;-), but
-just to avoid confusion: passing syscall arguments in registers is NOT
-an architectural requirement, it just makes good sense.
+blue skies,
+   Martin
 
-	--david
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
+

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262782AbSIPTSY>; Mon, 16 Sep 2002 15:18:24 -0400
+	id <S262792AbSIPTbB>; Mon, 16 Sep 2002 15:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSIPTSY>; Mon, 16 Sep 2002 15:18:24 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58341 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262782AbSIPTSX>;
-	Mon, 16 Sep 2002 15:18:23 -0400
-Date: Mon, 16 Sep 2002 12:14:23 -0700 (PDT)
-Message-Id: <20020916.121423.109699832.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: alex14641@yahoo.com, TheUnforgiven@attbi.com, linux-kernel@vger.kernel.org
-Subject: Re: To Anyone with a Radeon 7500 board and the ali developer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1032180131.1191.7.camel@irongate.swansea.linux.org.uk>
-References: <20020916042625.55842.qmail@web40509.mail.yahoo.com>
-	<20020915.220131.104193664.davem@redhat.com>
-	<1032180131.1191.7.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262794AbSIPTbB>; Mon, 16 Sep 2002 15:31:01 -0400
+Received: from p50887801.dip.t-dialin.net ([80.136.120.1]:15257 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S262792AbSIPTbA>; Mon, 16 Sep 2002 15:31:00 -0400
+Date: Mon, 16 Sep 2002 13:36:23 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Daniel Phillips <phillips@arcor.de>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+In-Reply-To: <E17r0s7-0000KS-00@starship>
+Message-ID: <Pine.LNX.4.44.0209161335480.342-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 16 Sep 2002 13:42:11 +0100
-   
-   What is sad is the is an AGP standardised way to read this and XFree86
-   still, all these years on, doesn't do it by default.
-   
-Totally agreed.
+Hi,
 
-I have even suggested on the xfree86 developer list at least 2 times
-that they do this to choose the default, but they claim it isn't the
-right thing to do.
+On Mon, 16 Sep 2002, Daniel Phillips wrote:
+> On Monday 16 September 2002 20:35, Thunder from the hill wrote:
+> > !assert(typeof((fool)->next) == typeof(fool));
+> 
+> You meant:
+> 
+> 	assert(typeof((fool)->next) != typeof(fool));
 
-So people's boxes will keep hanging and xfree86 DRM will continue to
-be a support nightmare.
+No, I mean "Never assert that the one next to a fool must be a fool, 
+either. You might be wrong."
+
+			Thunder
+-- 
+!assert(typeof((fool)->next) == typeof(fool));
+

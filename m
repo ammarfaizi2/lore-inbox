@@ -1,433 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbUJXNRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUJXNSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbUJXNRa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUJXNRa
+	id S261468AbUJXNSb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUJXNSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:17:30 -0400
-Received: from samba.ing.unimo.it ([155.185.54.131]:49853 "EHLO
-	weblab.ing.unimo.it") by vger.kernel.org with ESMTP id S261466AbUJXNNQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:13:16 -0400
-Message-ID: <32810.155.185.54.160.1098623594.squirrel@155.185.54.160>
-Date: Sun, 24 Oct 2004 15:13:14 +0200 (CEST)
-Subject: 2.6.9 suspend-to-disk bug (during resume)
-From: andreoli@weblab.ing.unimo.it
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sun, 24 Oct 2004 09:18:31 -0400
+Received: from verein.lst.de ([213.95.11.210]:6054 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261468AbUJXNO7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 09:14:59 -0400
+Date: Sun, 24 Oct 2004 15:14:46 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] parport: kill dead code and exports
+Message-ID: <20041024131446.GA19658@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+there's lots of exports in parport that aren't used by any drivers.
+Behind many of them there's actually dead code.
 
-I just installed 2.6.9 (gentoo patchset, but I think the swsusp code is
-not touched, tell me if I'm wrong). After giving an
 
-echo disk > /sys/power/state
-
-my laptop seems to suspend fine, but on resume I get the following oops:
-
-subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<c01cd4e6>] pci_set_power_state+0xc6/0x160
- [<ec9e5a50>] usb_hcd_pci_resume+0x130/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<eca243f6>] ohci_hub_resume+0x196/0x360 [ohci_hcd]
- [<ec9e0f60>] hcd_hub_resume+0x20/0x30 [usbcore]
- [<ec9ddfae>] usb_resume_device+0x9e/0xd0 [usbcore]
- [<eca2719d>] ohci_pci_resume+0x2d/0x6b [ohci_hcd]
- [<ec9e59f0>] usb_hcd_pci_resume+0xd0/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<eca24428>] ohci_hub_resume+0x1c8/0x360 [ohci_hcd]
- [<ec9e0f60>] hcd_hub_resume+0x20/0x30 [usbcore]
- [<ec9ddfae>] usb_resume_device+0x9e/0xd0 [usbcore]
- [<eca2719d>] ohci_pci_resume+0x2d/0x6b [ohci_hcd]
- [<ec9e59f0>] usb_hcd_pci_resume+0xd0/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946ed>] schedule_timeout+0x6d/0xc0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c01257ef>] msleep+0x2f/0x40
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<ec9ddf90>] usb_resume_device+0x80/0xd0 [usbcore]
- [<eca2719d>] ohci_pci_resume+0x2d/0x6b [ohci_hcd]
- [<ec9e59f0>] usb_hcd_pci_resume+0xd0/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<c01cd4e6>] pci_set_power_state+0xc6/0x160
- [<ec9e5a50>] usb_hcd_pci_resume+0x130/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c023769d>] pci_bios_read+0xad/0xf0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<ec9fe3e6>] ehci_hub_resume+0xd6/0x170 [ehci_hcd]
- [<ec9e0f60>] hcd_hub_resume+0x20/0x30 [usbcore]
- [<ec9ddfae>] usb_resume_device+0x9e/0xd0 [usbcore]
- [<eca0268a>] ehci_resume+0x2a/0x70 [ehci_hcd]
- [<ec9e59f0>] usb_hcd_pci_resume+0xd0/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<ec9ddf90>] usb_resume_device+0x80/0xd0 [usbcore]
- [<eca0268a>] ehci_resume+0x2a/0x70 [ehci_hcd]
- [<ec9e59f0>] usb_hcd_pci_resume+0xd0/0x160 [usbcore]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<c01cd4e6>] pci_set_power_state+0xc6/0x160
- [<ec93e682>] sis900_resume+0x62/0x120 [sis900]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<c01cd4e6>] pci_set_power_state+0xc6/0x160
- [<eca338cd>] yenta_dev_resume+0x2d/0xc0 [yenta_socket]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02377b8>] pci_bios_write+0xd8/0xe0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<eca3fa80>] socket_remove_drivers+0x20/0x40 [pcmcia_core]
- [<c01257ef>] msleep+0x2f/0x40
- [<eca3fac9>] socket_shutdown+0x29/0x40 [pcmcia_core]
- [<eca3ff6c>] socket_resume+0xbc/0x110 [pcmcia_core]
- [<eca3f446>] pcmcia_socket_dev_resume+0x96/0xb0 [pcmcia_core]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<c01cd4e6>] pci_set_power_state+0xc6/0x160
- [<eca338cd>] yenta_dev_resume+0x2d/0xc0 [yenta_socket]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02377b8>] pci_bios_write+0xd8/0xe0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<eca3fa80>] socket_remove_drivers+0x20/0x40 [pcmcia_core]
- [<c01257ef>] msleep+0x2f/0x40
- [<eca3fac9>] socket_shutdown+0x29/0x40 [pcmcia_core]
- [<eca3ff6c>] socket_resume+0xbc/0x110 [pcmcia_core]
- [<eca3f446>] pcmcia_socket_dev_resume+0x96/0xb0 [pcmcia_core]
- [<c01cf2bc>] pci_device_resume+0x2c/0x30
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-ACPI: PCI interrupt 0000:00:0a.2[C] -> GSI 11 (level, low) -> IRQ 11
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c022d6ef>] do_rw_taskfile+0x15f/0x260
- [<c022d960>] task_no_data_intr+0x0/0xa0
- [<c0294328>] wait_for_completion+0x78/0xd0
- [<c0118f60>] default_wake_function+0x0/0x20
- [<c0118f60>] default_wake_function+0x0/0x20
- [<c0216795>] __elv_add_request+0x45/0xa0
- [<c0229476>] ide_do_drive_cmd+0xf6/0x140
- [<c011d4bd>] profile_hook+0x2d/0x50
- [<c0226853>] generic_ide_resume+0x93/0xc0
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-hub 1-0:1.0: reactivate --> -22
-hub 2-0:1.0: reactivate --> -22
-hub 3-0:1.0: reactivate --> -22
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c02946e3>] schedule_timeout+0x63/0xc0
- [<c0125410>] process_timeout+0x0/0x10
- [<c01257ef>] msleep+0x2f/0x40
- [<ec9ddf90>] usb_resume_device+0x80/0xd0 [usbcore]
- [<c0216227>] resume_device+0x27/0x30
- [<c0216292>] dpm_resume+0x62/0x70
- [<c02162b9>] device_resume+0x19/0x30
- [<c0136cc8>] finish+0x8/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
-hub 4-0:1.0: reactivate --> -22
-hub 4-0:1.0: reactivate --> -22
-Restarting tasks...<3>bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c01186ce>] wake_up_process+0x1e/0x20
- [<c01356c5>] thaw_processes+0xa5/0xe0
- [<c0136cd6>] finish+0x16/0x40
- [<c0136e2e>] pm_suspend_disk+0x7e/0xc0
- [<c0135271>] enter_state+0xa1/0xb0
- [<c013c19a>] __alloc_pages+0x1ca/0x360
- [<c01353b0>] state_store+0xa0/0xa8
- [<c0187fda>] subsys_attr_store+0x3a/0x40
- [<c018824b>] flush_write_buffer+0x3b/0x50
- [<c01882ba>] sysfs_write_file+0x5a/0x70
- [<c01554ac>] vfs_write+0xbc/0x170
- [<c0155631>] sys_write+0x51/0x80
- [<c01061c9>] sysenter_past_esp+0x52/0x71
- done
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c0155631>] sys_write+0x51/0x80
- [<c0106242>] work_resched+0x5/0x16
-bad: scheduling while atomic!
- [<c029424f>] schedule+0x4cf/0x4e0
- [<c0110036>] mtrr_write+0x2e6/0x300
- [<c01199b3>] sys_sched_yield+0x53/0x70
- [<c01614d8>] coredump_wait+0x38/0xa0
- [<c016160b>] do_coredump+0xcb/0x20f
- [<c01186ea>] wake_up_state+0x1a/0x20
- [<c0126362>] signal_wake_up+0x22/0x30
- [<c01268da>] specific_send_sig_info+0xca/0xe0
- [<c012590f>] free_uid+0x1f/0x80
- [<c01261f5>] __dequeue_signal+0xe5/0x1a0
- [<c01262e5>] dequeue_signal+0x35/0x90
- [<c0128015>] get_signal_to_deliver+0x205/0x330
- [<c0105fbd>] do_signal+0x9d/0x130
- [<c0106242>] work_resched+0x5/0x16
- [<c0106f26>] print_context_stack+0x26/0x70
- [<c0106242>] work_resched+0x5/0x16
- [<c0106fbe>] show_trace+0x4e/0x90
- [<c011842f>] recalc_task_prio+0x8f/0x190
- [<c0294043>] schedule+0x2c3/0x4e0
- [<c0117270>] do_page_fault+0x0/0x599
- [<c0106087>] do_notify_resume+0x37/0x3c
- [<c0106266>] work_notifysig+0x13/0x15
-note: bash[14272] exited with preempt_count 1
-eth0: Abnormal interrupt,status 0x03008001.
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: Transmit timeout, status 00000004 00000000
-eth0: Media Link On 100mbps full-duplex
-
-after which my bash gets killed. It seems to be usb related, but on resume
-I have all of my devices working again (included network and usb, which
-wasn't happening before).
-I tested this on an ASUS L8400, sis chipsets.
-If you need any other info, I'll post them.
-Please CC me since I'm not subscribed to the list.
-
-Mauro Andreolini
+--- 1.7/drivers/parport/daisy.c	2004-03-29 15:44:20 +02:00
++++ edited/drivers/parport/daisy.c	2004-10-23 14:52:26 +02:00
+@@ -207,8 +207,7 @@
+  *
+  *	This function is similar to parport_register_device(), except
+  *	that it locates a device by its number rather than by the port
+- *	it is attached to.  See parport_find_device() and
+- *	parport_find_class().
++ *	it is attached to.
+  *
+  *	All parameters except for @devnum are the same as for
+  *	parport_register_device().  The return value is the same as
+@@ -305,53 +304,6 @@
+ 	return res;
+ }
+ 
+-/**
+- *	parport_device_coords - convert canonical device number
+- *	@devnum: device number
+- *	@parport: pointer to storage for parallel port number
+- *	@mux: pointer to storage for multiplexor port number
+- *	@daisy: pointer to storage for daisy chain address
+- *
+- *	This function converts a device number into its coordinates in
+- *	terms of which parallel port in the system it is attached to,
+- *	which multiplexor port it is attached to if there is a
+- *	multiplexor on that port, and which daisy chain address it has
+- *	if it is in a daisy chain.
+- *
+- *	The caller must allocate storage for @parport, @mux, and
+- *	@daisy.
+- *
+- *	If there is no device with the specified device number, -ENXIO
+- *	is returned.  Otherwise, the values pointed to by @parport,
+- *	@mux, and @daisy are set to the coordinates of the device,
+- *	with -1 for coordinates with no value.
+- *
+- *	This function is not actually very useful, but this interface
+- *	was suggested by IEEE 1284.3.
+- **/
+-
+-int parport_device_coords (int devnum, int *parport, int *mux, int *daisy)
+-{
+-	struct daisydev *dev;
+-
+-	spin_lock(&topology_lock);
+-
+-	dev = topology;
+-	while (dev && dev->devnum != devnum)
+-		dev = dev->next;
+-
+-	if (!dev) {
+-		spin_unlock(&topology_lock);
+-		return -ENXIO;
+-	}
+-
+-	if (parport) *parport = dev->port->portnum;
+-	if (mux) *mux = dev->port->muxport;
+-	if (daisy) *daisy = dev->daisy;
+-	spin_unlock(&topology_lock);
+-	return 0;
+-}
+-
+ /* Send a daisy-chain-style CPP command packet. */
+ static int cpp_daisy (struct parport *port, int cmd)
+ {
+@@ -558,108 +510,3 @@
+ 	kfree (deviceid);
+ 	return detected;
+ }
+-
+-/* Find a device with a particular manufacturer and model string,
+-   starting from a given device number.  Like the PCI equivalent,
+-   'from' itself is skipped. */
+-
+-/**
+- *	parport_find_device - find a specific device
+- *	@mfg: required manufacturer string
+- *	@mdl: required model string
+- *	@from: previous device number found in search, or %NULL for
+- *	       new search
+- *
+- *	This walks through the list of parallel port devices looking
+- *	for a device whose 'MFG' string matches @mfg and whose 'MDL'
+- *	string matches @mdl in their IEEE 1284 Device ID.
+- *
+- *	When a device is found matching those requirements, its device
+- *	number is returned; if there is no matching device, a negative
+- *	value is returned.
+- *
+- *	A new search it initiated by passing %NULL as the @from
+- *	argument.  If @from is not %NULL, the search continues from
+- *	that device.
+- **/
+-
+-int parport_find_device (const char *mfg, const char *mdl, int from)
+-{
+-	struct daisydev *d;
+-	int res = -1;
+-
+-	/* Find where to start. */
+-
+-	spin_lock(&topology_lock);
+-	d = topology; /* sorted by devnum */
+-	while (d && d->devnum <= from)
+-		d = d->next;
+-
+-	/* Search. */
+-	while (d) {
+-		struct parport_device_info *info;
+-		info = &d->port->probe_info[1 + d->daisy];
+-		if ((!mfg || !strcmp (mfg, info->mfr)) &&
+-		    (!mdl || !strcmp (mdl, info->model)))
+-			break;
+-
+-		d = d->next;
+-	}
+-
+-	if (d)
+-		res = d->devnum;
+-
+-	spin_unlock(&topology_lock);
+-	return res;
+-}
+-
+-/**
+- *	parport_find_class - find a device in a specified class
+- *	@cls: required class
+- *	@from: previous device number found in search, or %NULL for
+- *	       new search
+- *
+- *	This walks through the list of parallel port devices looking
+- *	for a device whose 'CLS' string matches @cls in their IEEE
+- *	1284 Device ID.
+- *
+- *	When a device is found matching those requirements, its device
+- *	number is returned; if there is no matching device, a negative
+- *	value is returned.
+- *
+- *	A new search it initiated by passing %NULL as the @from
+- *	argument.  If @from is not %NULL, the search continues from
+- *	that device.
+- **/
+-
+-int parport_find_class (parport_device_class cls, int from)
+-{
+-	struct daisydev *d;
+-	int res = -1;
+-
+-	spin_lock(&topology_lock);
+-	d = topology; /* sorted by devnum */
+-	/* Find where to start. */
+-	while (d && d->devnum <= from)
+-		d = d->next;
+-
+-	/* Search. */
+-	while (d && d->port->probe_info[1 + d->daisy].class != cls)
+-		d = d->next;
+-
+-	if (d)
+-		res = d->devnum;
+-
+-	spin_unlock(&topology_lock);
+-	return res;
+-}
+-
+-EXPORT_SYMBOL(parport_open);
+-EXPORT_SYMBOL(parport_close);
+-EXPORT_SYMBOL(parport_device_num);
+-EXPORT_SYMBOL(parport_device_coords);
+-EXPORT_SYMBOL(parport_daisy_deselect_all);
+-EXPORT_SYMBOL(parport_daisy_select);
+-EXPORT_SYMBOL(parport_daisy_init);
+-EXPORT_SYMBOL(parport_find_device);
+-EXPORT_SYMBOL(parport_find_class);
+===== drivers/parport/ieee1284.c 1.7 vs edited =====
+--- 1.7/drivers/parport/ieee1284.c	2004-03-03 13:45:15 +01:00
++++ edited/drivers/parport/ieee1284.c	2004-10-23 14:52:54 +02:00
+@@ -40,7 +40,7 @@
+ 
+ /* Make parport_wait_peripheral wake up.
+  * It will be useful to call this from an interrupt handler. */
+-void parport_ieee1284_wakeup (struct parport *port)
++static void parport_ieee1284_wakeup (struct parport *port)
+ {
+ 	up (&port->physport->ieee1284.irq);
+ }
+@@ -813,9 +813,7 @@
+ EXPORT_SYMBOL(parport_negotiate);
+ EXPORT_SYMBOL(parport_write);
+ EXPORT_SYMBOL(parport_read);
+-EXPORT_SYMBOL(parport_ieee1284_wakeup);
+ EXPORT_SYMBOL(parport_wait_peripheral);
+-EXPORT_SYMBOL(parport_poll_peripheral);
+ EXPORT_SYMBOL(parport_wait_event);
+ EXPORT_SYMBOL(parport_set_timeout);
+ EXPORT_SYMBOL(parport_ieee1284_interrupt);
+===== drivers/parport/probe.c 1.5 vs edited =====
+--- 1.5/drivers/parport/probe.c	2004-03-03 13:45:15 +01:00
++++ edited/drivers/parport/probe.c	2004-10-23 14:48:21 +02:00
+@@ -213,4 +213,3 @@
+ 	parport_close (dev);
+ 	return retval;
+ }
+-EXPORT_SYMBOL(parport_device_id);
+===== drivers/parport/procfs.c 1.8 vs edited =====
+--- 1.8/drivers/parport/procfs.c	2004-08-08 08:43:40 +02:00
++++ edited/drivers/parport/procfs.c	2004-10-23 14:49:10 +02:00
+@@ -529,8 +529,5 @@
+ }
+ #endif
+ 
+-EXPORT_SYMBOL(parport_device_proc_register);
+-EXPORT_SYMBOL(parport_device_proc_unregister);
+-
+ module_init(parport_default_proc_register)
+ module_exit(parport_default_proc_unregister)
+===== drivers/parport/share.c 1.22 vs edited =====
+--- 1.22/drivers/parport/share.c	2004-05-10 13:25:43 +02:00
++++ edited/drivers/parport/share.c	2004-10-23 14:51:21 +02:00
+@@ -1007,7 +1007,6 @@
+ EXPORT_SYMBOL(parport_unregister_driver);
+ EXPORT_SYMBOL(parport_register_device);
+ EXPORT_SYMBOL(parport_unregister_device);
+-EXPORT_SYMBOL(parport_get_port);
+ EXPORT_SYMBOL(parport_put_port);
+ EXPORT_SYMBOL(parport_find_number);
+ EXPORT_SYMBOL(parport_find_base);
+===== drivers/scsi/initio.c 1.28 vs edited =====

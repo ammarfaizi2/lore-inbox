@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSKTX0G>; Wed, 20 Nov 2002 18:26:06 -0500
+	id <S263276AbSKTXZV>; Wed, 20 Nov 2002 18:25:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbSKTX0F>; Wed, 20 Nov 2002 18:26:05 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:44303 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263313AbSKTXZi>; Wed, 20 Nov 2002 18:25:38 -0500
-Date: Thu, 21 Nov 2002 00:32:40 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] module fs or how to not break everything at once
-In-Reply-To: <20021120220338.GA6079@vana>
-Message-ID: <Pine.LNX.4.44.0211210014500.2113-100000@serv>
-References: <Pine.LNX.4.44.0211202013000.2113-100000@serv> <20021120220338.GA6079@vana>
+	id <S263313AbSKTXZV>; Wed, 20 Nov 2002 18:25:21 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:33924 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S263276AbSKTXZT>; Wed, 20 Nov 2002 18:25:19 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 20 Nov 2002 15:33:02 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+In-Reply-To: <20021120232829.GD11879@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0211201531010.974-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 20 Nov 2002, Jamie Lokier wrote:
 
-On Wed, 20 Nov 2002, Petr Vandrovec wrote:
+> Davide Libenzi wrote:
+> > > > And the lower size of the structure will help to reduce the amount of
+> > > > memory transfered to userspace. I just saw that adding the extra "obj"
+> > > > member lowered performance of about 15% with crazy tests like Ben's
+> > > > pipetest. This because it creates, on my machine, more than 400000 events
+> > > > per second, and saving memory bandwidth on such conditions is a must. With
+> > > > the "more human" http test performance are about the same.
+> > >
+> > > I'd be quite surprised if 400,000 word/sec of memory bandwidth can
+> > > explain a 15% time difference, especially considering all the other
+> > > things that are done to communicate over a pipe (wakeups etc).
+> >
+> > Jamie, they were 16 bytes * 400000, and the token passed through the pipe
+> > was 12 bytes.
+>
+> However, it's 4 bytes (1 word) * 400000 _difference_ between the two
+> tests, yes?
 
-> ... now when we have setxattr() in kernel, what about using
-> setxattr() on module directory instead of separate control file? 
-> I know, you cannot manage it with "echo" then, but it looks
+Yep, the problem is that the "tool" used to measure ( Ben's pipetest ) on
+my machine has a variance of about 35% and this makes every measure prety
+fuzzy.
 
-A normal file is easier for testing.
 
-> strange that mkdir automatically creates control file while
-> rmdir does not remove it automatically... and without control
 
-Indeed, rmdir should probably also remove the control file.
+- Davide
 
-> You are skipping security_ops hooks. Can you use vfs_mkdir() instead
-> of modfs_mkdir(), just to make sure that if someone adds some new
-> features into vfs_mkdir(), you'll not miss them ?
-
-The system calls are only a temporary solution, so skipping security hooks 
-is no real loss. :)
-
-> And one minor comment: do you really need both module_dir->module
-> and module_data->module? Do you use it only to make sure that
-> sys_delete_module will not operate on modules not created by
-> sys_init_module? 
-
-module_dir->module is an optimization to get quickly to the module file 
-created by sys_create_module(). module_data->module is the pointer to the 
-real module data.
-
-> It has unfortunate feature that sys_create_module(); 
-> sys_delete_module() (without suceeding sys_init_module between
-> them) will return -ENOENT, and you'll have to use rm/rmdir to get 
-> rid of module :-(
-
-As the system calls are only temporary, they don't have to be perfect, but 
-why should it return -ENOINT, AFAICS it should fail for other reason.
-Anyway, the module state management needs a overhaul, this is just a 
-copy&paste from the old code.
-
-bye, Roman
 

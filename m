@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSFNUYw>; Fri, 14 Jun 2002 16:24:52 -0400
+	id <S314389AbSFNU4E>; Fri, 14 Jun 2002 16:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314227AbSFNUYv>; Fri, 14 Jun 2002 16:24:51 -0400
-Received: from mtvwca1-smrly1.gtei.net ([128.11.176.196]:58828 "HELO
-	mtvwca1-smrly1.gtei.net") by vger.kernel.org with SMTP
-	id <S314096AbSFNUYu>; Fri, 14 Jun 2002 16:24:50 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Arkeia Back + v2.4.18
-In-Reply-To: <m38z5jvz2f.fsf@noop.bombay> <20020614144554.GA7428@lech.pse.pl>
-From: Nick Papadonis <nick@coelacanth.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Date: Fri, 14 Jun 2002 16:24:48 -0400
-Message-Id: <m3hek5fw1b.fsf@noop.bombay>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.1 (Cuyahoga Valley,
- i686-pc-linux)
+	id <S314241AbSFNU4D>; Fri, 14 Jun 2002 16:56:03 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:60108 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S314227AbSFNU4D> convert rfc822-to-8bit; Fri, 14 Jun 2002 16:56:03 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <kernel@tekno-soft.it>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Fri, 14 Jun 2002 13:56:00 -0700
+In-Reply-To: <5.1.1.6.0.20020613171707.03f09720@mail.tekno-soft.it>
+Subject: Re: Developing multi-threading applications
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020614205601.AAA9369@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lech Szychowski <lech.szychowski@pse.pl> writes:
 
->> Is anyone having kernel lock ups using 'Arkeia backup' with kernel
->> v2.4.18?
->
-> As a client? No, it runs without any problems here (various 2.4.1[89]-*).
-> As a server? No, it runs without any problems here (2.4.18-pre3-ac2).
+On Thu, 13 Jun 2002 18:26:54 +0200, Roberto Fichera wrote:
+>At 04.58 13/06/02 -0700, David Schwartz wrote:
 
-Thanks for the reply.
+>This is a scheduler problem! All threads waiting for I/O are blocked by
+>the scheduler, and this doesn't have any impact for the context switches
+>it increase only the waitqueue, using the Ingo's O(1) scheduler, a big piece
+>of code, it should make a big difference for example.
 
-Interesting.  
+	You are incorrect. If you have ten threads each waiting for an I/O and all 
+ten I/Os are ready, then ten context switches are needed. If you have one 
+thread waiting for ten I/Os, and then I/Os come ready, one context switch is 
+needed.
 
-Are you using the 'free' version?  
-What type of SCSI controller and SCSI tape drive do you have?
+[snip]
 
-My problem could be in the AIC7XXXX driver using my 29160 card.
+>I don't think "more threads == more work done"! With the thread's approch
+>it's
+>possible to split a big sequential program in a variety of concurrent 
+>logical
+>programs with a big win for code revisions and new implementation.
 
-- Nick
+	I'm not advising eliminating the threads approach. I'm only advising not 
+using threads as your abstraction for clients or work to be done. Use threads 
+as the execution vehicles that pick up work when there's work to be done. 
+(Think thread pools, think separating I/O from computation.)
+
+[snip]
+>You are right! But depend by the application! If you have todo I/O like
+>signal acquisition,
+>sensors acquisitions and so on, you must have a one thread for each type of
+>data acquisition,
+
+	Even if that's true, and it's often not, how many different types of data 
+acquisition can you have? Ten? Twenty? That's a far cry from 300.
+
+	DS
+
+

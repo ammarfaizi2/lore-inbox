@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272316AbRILR7h>; Wed, 12 Sep 2001 13:59:37 -0400
+	id <S272324AbRILSJ6>; Wed, 12 Sep 2001 14:09:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272338AbRILR71>; Wed, 12 Sep 2001 13:59:27 -0400
-Received: from tiku.hut.fi ([130.233.228.86]:23816 "EHLO tiku.hut.fi")
-	by vger.kernel.org with ESMTP id <S272316AbRILR7T>;
-	Wed, 12 Sep 2001 13:59:19 -0400
-Date: Wed, 12 Sep 2001 20:59:23 +0300 (EET DST)
-From: =?ISO-8859-1?Q?Janne_P=E4nk=E4l=E4?= <epankala@cc.hut.fi>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel
- crash)
-In-Reply-To: <10016113059.20010912170034@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.OSF.4.10.10109122055380.19345-100000@kosh.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272415AbRILSJs>; Wed, 12 Sep 2001 14:09:48 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2302
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S272338AbRILSJg>; Wed, 12 Sep 2001 14:09:36 -0400
+Date: Wed, 12 Sep 2001 11:09:50 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Duron kernel crash (i686 works)
+Message-ID: <20010912110950.D25683@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E15h9RE-0004Qe-00@the-village.bc.nu> <2415359415.20010912164800@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2415359415.20010912164800@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anybody have KT133A data sheet handy to look up
-> those PCI config register dumps?
+On Wed, Sep 12, 2001 at 04:48:00PM +0300, VDA wrote:
+> >> A better way to do it is to bencmark several routines at
+> >> startup time and pick the best one. It is done now
+> >> for RAID xor'ing routine.
 
-well VIA powered up their public site (www.viaarena.com) or whatever and
-on the instant I put query of where all the datasheets have vanished.
-(I managed at one point to download quite thoughout documentation about
-VT82C598MVP but it has since vanished from their site)
+> AC> Not in this case. It is Athlon specific code. It was fine
+> AC> tuned when it was written
 
-They even replied to my post
-"http://forums.viaarena.com/messageview.cfm?catid=6&threadid=103"
+> Yes, but sometimes we have routines which perform
+> differently on different CPUs. See inslude/asm-i386/string.h
+> and string-486.h: on Pentium rep movsd is faster, on 386 unrolled
+> loop is faster... so optimal routine can be picked only at runtime.
+> CPU-specific routines can compete in such runtime benchmark
+> too when proper processor is detected - see how KNI-specific
+> RAID xor routine does that.
 
------
-                      Tuesday, September 11, 2001 1:50 AM 
+Hmm, just how far do you want to take that?  Compile in all of the
+optimizations and test which is fastest on each processor at startup?
 
-                    Hi Epa, 
-
-                    The list of datasheets currently available is here.
-Some are not full versions, some are. If you want/need a datasheet, please
-complete the request form on that page. 
------
-
-So I completed the request form and never heard from them again.
-Too familiar? I thought so.
-
--- 
-Janne
-echo peufiuhu@tt.lac.nk | tr acefhiklnptu utpnlkihfeca
-
+Hmm, that might not be a bad idea for dev kernels, as it might show
+optimization problems on certain processors...

@@ -1,74 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319452AbSIGHn7>; Sat, 7 Sep 2002 03:43:59 -0400
+	id <S319451AbSIGHrJ>; Sat, 7 Sep 2002 03:47:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319451AbSIGHn6>; Sat, 7 Sep 2002 03:43:58 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11785
+	id <S319454AbSIGHrJ>; Sat, 7 Sep 2002 03:47:09 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13065
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319452AbSIGHny> convert rfc822-to-8bit; Sat, 7 Sep 2002 03:43:54 -0400
-Date: Sat, 7 Sep 2002 00:47:33 -0700 (PDT)
+	id <S319453AbSIGHrI>; Sat, 7 Sep 2002 03:47:08 -0400
+Date: Sat, 7 Sep 2002 00:50:33 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre5-ac4 does not compile
-In-Reply-To: <3D799EE0.1020708@wanadoo.fr>
-Message-ID: <Pine.LNX.4.10.10209070047190.11256-100000@master.linux-ide.org>
+To: jbradford@dial.pipex.com
+cc: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+Subject: Re: ide drive dying?
+In-Reply-To: <200209070743.g877h0Ro000803@darkstar.example.net>
+Message-ID: <Pine.LNX.4.10.10209070048200.11256-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Looking into it now
+Technically it is, I am working to transfer the copyright/license to LAD.
+Then I can update it and transform it to the preferred kernel API that is
+not enabled by default.  I expect it will require an sub-set of the
+taskfile_ioctl calls to restrict various IO calls.
 
-On Sat, 7 Sep 2002, Jean-Luc Coulon wrote:
+Cheers,
 
-> drivers/ide/idedriver.o: dans la fonction « proc_ide_read_drivers »:
-> drivers/ide/idedriver.o(.text+0x3fe): référence indéfinie vers « 
-> ide_modules »
-> drivers/ide/idedriver.o: dans la fonction « proc_ide_read_identify »:
-> drivers/ide/idedriver.o(.text+0x635): référence indéfinie vers « 
-> taskfile_lib_ge
-> t_identify »
-> drivers/ide/idedriver.o: dans la fonction « proc_ide_read_settings »:
-> drivers/ide/idedriver.o(.text+0x73c): référence indéfinie vers « 
-> ide_read_settin
-> g »
-> drivers/ide/idedriver.o: dans la fonction « proc_ide_write_settings »:
-> drivers/ide/idedriver.o(.text+0x98b): référence indéfinie vers « 
-> ide_find_settin
-> g_by_name »
-> drivers/ide/idedriver.o(.text+0x9b6): référence indéfinie vers « 
-> ide_write_setti
-> ng »
-> drivers/ide/idedriver.o: dans la fonction « proc_ide_write_driver »:
-> drivers/ide/idedriver.o(.text+0xbfa): référence indéfinie vers « 
-> ide_replace_sub
-> driver »
-> drivers/ide/idedriver.o: dans la fonction « create_proc_ide_drives »:
-> drivers/ide/idedriver.o(.text+0xdb7): référence indéfinie vers « 
-> generic_subdriv
-> er_entries »
-> drivers/ide/idedriver.o: dans la fonction « create_proc_ide_interfaces »:
-> drivers/ide/idedriver.o(.text+0xf3c): référence indéfinie vers « ide_hwifs »
-> drivers/ide/idedriver.o(.text+0xf41): référence indéfinie vers « ide_hwifs »
-> drivers/ide/idedriver.o(.text+0xf46): référence indéfinie vers « ide_hwifs »
-> drivers/ide/idedriver.o: dans la fonction « destroy_proc_ide_interfaces »:
-> drivers/ide/idedriver.o(.text+0xfa8): référence indéfinie vers « ide_hwifs »
-> drivers/ide/idedriver.o(.text+0xfad): référence indéfinie vers « ide_hwifs »
-> drivers/ide/idedriver.o(.text+0xfb2): encore plus de références 
-> indéfinies suive
-> nt vers « ide_hwifs »
-> make[1]: *** [vmlinux] Erreur 1
-> make[1]: Leaving directory `/usr/src/kernel-source-2.4.20-pre5-ac4'
-> make: *** [stamp-build] Erreur 2
+On Sat, 7 Sep 2002 jbradford@dial.pipex.com wrote:
+
+> > Next dig out smartsuite from http://www.linux-ide.org/smart.html
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I thought that smartsuite was now unmaintained, and posted a comment to that effect earlier in this thread - sorry for the mis-information.
+> 
+> John.
 > 
 
 Andre Hedrick

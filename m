@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267379AbRGPXsU>; Mon, 16 Jul 2001 19:48:20 -0400
+	id <S267739AbRGQAAX>; Mon, 16 Jul 2001 20:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267737AbRGPXsB>; Mon, 16 Jul 2001 19:48:01 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:21233 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S267379AbRGPXry>; Mon, 16 Jul 2001 19:47:54 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107162347.f6GNlnLk004959@webber.adilger.int>
-Subject: Re: NGROUP increase - thoughts
-In-Reply-To: <3B5379A9.6A9B11BE@sun.com> "from Tim Hockin at Jul 16, 2001 04:32:57
- pm"
-To: Tim Hockin <thockin@sun.com>
-Date: Mon, 16 Jul 2001 17:47:49 -0600 (MDT)
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S267740AbRGQAAN>; Mon, 16 Jul 2001 20:00:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:14086 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267739AbRGQAAF>;
+	Mon, 16 Jul 2001 20:00:05 -0400
+Date: Tue, 17 Jul 2001 02:00:08 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: "Tim R. Young" <try@lyang.net>
+Cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: cpu id?
+In-Reply-To: <20010716163004.A1103@box.lyang.net>
+Message-ID: <Pine.LNX.4.30.0107170158130.11036-100000@Appserv.suse.de>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You write:
-> I'm sure this has been given thought, so I want to probe teh collective
-> resources.  We need to have users in more than 32 groups.  In fact, they
-> may need to be a member of MANY more groups than that.
-> 
-> What is the current thinking on this problem?  Would it be desirable to
-> replace current->groups[NGROUPS] with a poibnter to an array?  Thus
-> allowing (with libc changes) many more groups?
+On Mon, 16 Jul 2001, Tim R. Young wrote:
 
-The real solution is ACLs (if you are talking filesystem permissions).
-See acl.bestbits.at, I think, for ext2 ACL/EA patch.
+> Thanks for the tool.
+> Do I need kernel support to read out intel processor serial number?
 
-Cheers, Andreas
+By default, the kernel will disable the serial number.
+You need to pass the boot time parameter 'serialnumber' to
+leave it enabled. You'll also need the cpuid & msr drivers
+compiled (into kernel or as loadable modules)
+
+> And how it is reported by x86info?
+
+If it is enabled, it'll get printed out with x86info -a
+
+regards,
+
+Dave.
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUHKQYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268104AbUHKQ05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268117AbUHKQYW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 12:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbUHKQYV
+	id S268104AbUHKQ05 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 12:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbUHKQ05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 12:24:21 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:54993 "EHLO
+	Wed, 11 Aug 2004 12:26:57 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:57041 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268108AbUHKQXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 12:23:49 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
+	id S268104AbUHKQ0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 12:26:52 -0400
+Subject: Re: Fork and Exec a process within the kernel
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Nathan Bryant <nbryant@optonline.net>, Pavel Machek <pavel@ucw.cz>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1092231462.2087.3.camel@mulgrave>
-References: <4119611D.60401@optonline.net>
-	 <20040811080935.GA26098@elf.ucw.cz>  <411A1B72.1010302@optonline.net>
-	 <1092231462.2087.3.camel@mulgrave>
+To: root@chaos.analogic.com
+Cc: Erik Mouw <erik@harddisk-recovery.com>, Paul Jackson <pj@sgi.com>,
+       Eric Masson <cool_kid@future-ericsoft.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0408110743020.15953@chaos>
+References: <4117E68A.4090701@future-ericsoft.com>
+	 <20040809161003.554a5de1.pj@sgi.com> <4118E822.3000303@future-ericsoft.com>
+	 <20040810092116.7dfe118c.pj@sgi.com>
+	 <Pine.LNX.4.53.0408101456260.13579@chaos>
+	 <20040811095139.GA10047@harddisk-recovery.com>
+	 <Pine.LNX.4.53.0408110721540.15879@chaos>
+	 <20040811114100.GB10047@harddisk-recovery.nl>
+	 <Pine.LNX.4.53.0408110743020.15953@chaos>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092237664.19009.23.camel@localhost.localdomain>
+Message-Id: <1092237847.18968.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 11 Aug 2004 16:21:08 +0100
+Date: Wed, 11 Aug 2004 16:24:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-11 at 14:37, James Bottomley wrote:
-> Actually, the answer is to most intents and purposes "yes".  You are
-> technically correct: there's no way to disable DMA in SCSI.  However,
-> once a device is quiesced, it has no outstanding commands, so there will
-> be no outstanding DMA to that device. 
+On Mer, 2004-08-11 at 12:55, Richard B. Johnson wrote:
+> RedHat is NOT Linux. The MAJOR-MINOR 5.1 used in RedHat for the
+> console has a very serious problem for anybody doing development
 
-In addition we are not doing SCSI target so multi-initiator is ok.
-One question James - what are the rules for power management with
-SCSI when we provide termpwr to a shared bus ?
+Actually you might want to
+
+a) man sysklogd
+b) check devices.txt distributed with the kernel.
+
+The former will explain why you are wrong and how to channel log
+messages, the latter will explain how you are further wrong.
 

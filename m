@@ -1,71 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318062AbSHQSM1>; Sat, 17 Aug 2002 14:12:27 -0400
+	id <S318130AbSHQSI7>; Sat, 17 Aug 2002 14:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318064AbSHQSM0>; Sat, 17 Aug 2002 14:12:26 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:5643 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S318062AbSHQSM0>;
-	Sat, 17 Aug 2002 14:12:26 -0400
-Date: Sat, 17 Aug 2002 20:16:24 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE?
-Message-ID: <20020817181624.GM10730@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.21.0208162057550.14493-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Z/kiM2A+9acXa48/"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-x-gpg-key: wwwkeys.de.pgp.net
+	id <S318133AbSHQSI7>; Sat, 17 Aug 2002 14:08:59 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37649
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318130AbSHQSI6>; Sat, 17 Aug 2002 14:08:58 -0400
+Date: Sat, 17 Aug 2002 11:03:19 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE?  IDE-TNG driver
+In-Reply-To: <Pine.LNX.4.44.0208171812400.2705-100000@sharra.ivimey.org>
+Message-ID: <Pine.LNX.4.10.10208171057390.23171-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Z/kiM2A+9acXa48/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2002-08-16 18:35:29 -0700, Linus Torvalds <torvalds@transmeta.com>
-wrote in message <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.co=
-m>:
-> On Fri, 16 Aug 2002, Alexander Viro wrote:
+ide_ioctl(fd, HDIO_SET_IDE_SCSI, bool)
 
->     - in particular, it would only bother with PCI (or better)=20
->       controllers, and with UDMA-only setups.
-[...]
-> And then in five years, in Linux-3.2, we might finally just drop support=
-=20
-> for the old IDE code with PIO etc. Inevitably some people will still use=
-=20
+Where bool does the subdriver switch.
+Just that ioctl's are being blasted and people using are frowned upon.
 
-That's bad. Then, you're nailed to use old kernels without having
-possibilities of recent kernels only because you're working with eg. old
-Alphas, PCMCIA-IDE things or so? Bad, bad, badhorribly bad. Even it's
-sloooow, there'll always some need for PIO-only controller support...
+This was a feature Alan Cox poked me for to try and move away from how
+modules are basically an all or nothing grab-all.
 
-MfG, JBG
+Regards,
 
---=20
-Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
-	 -- New APT-Proxy written in shell script --
-	   http://lug-owl.de/~jbglaw/software/ap2/
+Andre Hedrick
+LAD Storage Consulting Group
 
---Z/kiM2A+9acXa48/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+On Sat, 17 Aug 2002, Ruth Ivimey-Cook wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+> On Sat, 17 Aug 2002, Andre Hedrick wrote:
+> 
+> >
+> >I will hand it to you guys on a silver platter IDE-TNG.
+> >
+> >Below yields modular chipsets and channel index registration.
+> >Selectable IOPS for arch independent Taskfile Transport layers.
+> ...
+> >You have ide-cd registered on a cdrw and you want to burn a cd?
+> >open(/dev/hdX) transform_subdriver_scsi close(/dev/hdX)
+> >open(/dev/sg) and burn baby burn.
+> >close(/dev/sg) releases transform_subdriver_scsi
+> >open(/dev/hdX) load native atapi transport.
+> 
+> 
+> Andre, I see the thought, but surely this is prine to races and other 
+> difficulties.
+> 
+> Wouldn't it be better to provide an IDE ioctl() that enables the caller to use 
+> set the SCSI transport on an open FD, so your sequence becomes:
+> 
+>  open(/dev/hdX)
+>  ioctl(transform_subdriver_scsi)
+>  ioctl(scsi_ops)
+>  write(data)
+>  close(/dev/hdX)
+> 
+> Ruth
+> 
+> -- 
+> Ruth Ivimey-Cook
+> Software engineer and technical writer.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-iD8DBQE9XpL4Hb1edYOZ4bsRApB7AJ4pKacBxhIZpFCSdYh4fjNf6oOLXgCghRXE
-Q4XBWDNzhvGo59BI4Z6mElc=
-=Bp71
------END PGP SIGNATURE-----
-
---Z/kiM2A+9acXa48/--

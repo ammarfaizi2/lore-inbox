@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267605AbUG3FIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267597AbUG3FLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267605AbUG3FIW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 01:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbUG3FIV
+	id S267597AbUG3FLu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 01:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267608AbUG3FLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 01:08:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37799 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267605AbUG3FIN (ORCPT
+	Fri, 30 Jul 2004 01:11:50 -0400
+Received: from pop.gmx.de ([213.165.64.20]:5559 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267606AbUG3FKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 01:08:13 -0400
-Date: Fri, 30 Jul 2004 01:08:10 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: MA <admin@sms13.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel problems, crc32c
-In-Reply-To: <1623453663.20040730040321@sms13.de>
-Message-ID: <Xine.LNX.4.44.0407300104350.18414-100000@dhcp83-76.boston.redhat.com>
+	Fri, 30 Jul 2004 01:10:54 -0400
+X-Authenticated: #4512188
+Message-ID: <4109D85A.3030003@gmx.de>
+Date: Fri, 30 Jul 2004 07:10:50 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040710)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: ck kernel mailing list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-ck6
+References: <4109A933.60203@kolivas.org>
+In-Reply-To: <4109A933.60203@kolivas.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jul 2004, MA wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Test 7: 
-> 6f630fad67cda0ee1fb1f562db63aa53e 
-> Pass 
-> 
-> 
-> AT THIS POINT IT HANGS
+Con Kolivas wrote:
+| Patchset update:
 
-Was this during boot?  Do you have tcrypt built in or are you loading it 
-manually?
+Hi, what happened to the incremental updates, ie ck5->ck6? I don't want
+to reverse ck5 and then apply ck6, as my kernel is furthermore patched
+and this complicates stuff...
 
-> This is redhat enterprise 3.0, I was trying a couple 2.6.X serie
-> kernels and the error was the same each time, I was also trying to
-> exlcude crc32 options from kernel but it didnt help, I was not able to
-> find the resolution on google, so here I am asking for help, thanks
+Cheers,
 
-Which kernel version exactly, and what is your .config?
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Did you have the NMI watchdog enabled?  (If not, please do so).
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
-
+iD8DBQFBCdhaxU2n/+9+t5gRArJsAJ9d54snGv4okI2pE+Puv1n9N2OZEwCg2Fk3
+dnA08lFabH6nA8oRkbXKO0M=
+=Fy2J
+-----END PGP SIGNATURE-----

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUJXNeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbUJXN3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbUJXNeW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbUJXNbY
+	id S261480AbUJXN3q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUJXNWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:31:24 -0400
-Received: from verein.lst.de ([213.95.11.210]:28838 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261482AbUJXNan (ORCPT
+	Sun, 24 Oct 2004 09:22:19 -0400
+Received: from verein.lst.de ([213.95.11.210]:17318 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261487AbUJXNWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:30:43 -0400
-Date: Sun, 24 Oct 2004 15:30:29 +0200
+	Sun, 24 Oct 2004 09:22:04 -0400
+Date: Sun, 24 Oct 2004 15:21:52 +0200
 From: Christoph Hellwig <hch@lst.de>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] unexport getnstimeofday
-Message-ID: <20041024133029.GB20048@lst.de>
+Subject: [PATCH] unexport sys_lseek
+Message-ID: <20041024132152.GA19927@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,18 +23,16 @@ X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this recently added function is only used by the posix timers code,
-no need to be exported.
+fortunately dvb stopped using it in their firmware loader
 
 
---- 1.25/kernel/time.c	2004-10-20 10:37:07 +02:00
-+++ edited/kernel/time.c	2004-10-23 16:19:22 +02:00
-@@ -528,8 +528,6 @@
+--- 1.45/fs/read_write.c	2004-10-19 07:26:38 +02:00
++++ edited/fs/read_write.c	2004-10-23 12:52:13 +02:00
+@@ -146,7 +146,6 @@
+ bad:
+ 	return retval;
  }
- #endif
+-EXPORT_SYMBOL_GPL(sys_lseek);
  
--EXPORT_SYMBOL(getnstimeofday);
--
- #if (BITS_PER_LONG < 64)
- u64 get_jiffies_64(void)
- {
+ #ifdef __ARCH_WANT_SYS_LLSEEK
+ asmlinkage long sys_llseek(unsigned int fd, unsigned long offset_high,

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262512AbSJKPfF>; Fri, 11 Oct 2002 11:35:05 -0400
+	id <S262179AbSJKXrr>; Fri, 11 Oct 2002 19:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262522AbSJKPfF>; Fri, 11 Oct 2002 11:35:05 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:22930
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262512AbSJKPfE>; Fri, 11 Oct 2002 11:35:04 -0400
-Date: Fri, 11 Oct 2002 11:21:01 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org, <pavel@ucw.cz>
-Subject: Re: make idedisk_suspend()/idedisk_resume() conditional on
- CONFIG_SOFTWARE_SUSPEND
-In-Reply-To: <20021011141218.GP12432@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0210111101530.8784-100000@montezuma.mastecende.com>
+	id <S262202AbSJKXrr>; Fri, 11 Oct 2002 19:47:47 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:17680 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S262179AbSJKXrq>; Fri, 11 Oct 2002 19:47:46 -0400
+Message-ID: <3DA7647C.3060603@namesys.com>
+Date: Sat, 12 Oct 2002 03:53:32 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rob Landley <landley@trommello.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+ 3.0 - (NUMA))
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Oct 2002, William Lee Irwin III wrote:
+Rob Landley wrote:
 
-> ide-disk.c gets the following warning:
-> 
-> drivers/ide/ide-disk.c:1614: warning: `idedisk_suspend' defined but not used
-> drivers/ide/ide-disk.c:1651: warning: `idedisk_resume' defined but not used
+>The new uncharted territory for Linux, and the next major order-of-magnitude 
+>jump in the installed base, is the desktop.  A kernel that could make a 
+>credible stab at the desktop  would certainly be 3.0 material.  And the work 
+>that matters for the desktop  is LATENCY work.  Not SMP, not throughput, not 
+>more memory.  Latency.  O(1), deadline I/O scheduler, rmap, preempt, shorter 
+>clock ticks, 
+>
+>  
+>
+I must confess to thinking that namespace work is the most strategic 
+upcoming battle between Linux and Windows, but probably I am biased in 
+this regard.;-)  MS seems to think it also, given the rumors that OFS is 
+where they are shifting their focus away from the browser and over to 
+for Longhorn....
 
-Hi Pavel,
-	shouldn't this kinda thing be handled by the driver model layer? 
-Ditto for the device walk and suspend in suspend.c. Also what do you 
-think of adding hooks to driver model tree so that we can add additional 
-handlers for things like this with the driver model doing the final 
-suspend as specified in the driver. 
 
-	Zwane
--- 
-function.linuxpower.ca
-
+Hans
 

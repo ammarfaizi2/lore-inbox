@@ -1,78 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262748AbTJPICG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 04:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbTJPICF
+	id S262767AbTJPIVe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 04:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbTJPIVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 04:02:05 -0400
-Received: from mail.gmx.net ([213.165.64.20]:15565 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262748AbTJPICA (ORCPT
+	Thu, 16 Oct 2003 04:21:34 -0400
+Received: from ogi.bezeqint.net ([192.115.106.14]:13793 "EHLO ogi.bezeqint.net")
+	by vger.kernel.org with ESMTP id S262767AbTJPIVc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 04:02:00 -0400
-Date: Thu, 16 Oct 2003 10:01:59 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: Antonio Vargas <wind@cocodriloo.com>
-Cc: jgarzik@pobox.com, wind@cocodriloo.com, linux-kernel@vger.kernel.org
+	Thu, 16 Oct 2003 04:21:32 -0400
+Message-ID: <3F8E552B.3010507@users.sf.net>
+Date: Thu, 16 Oct 2003 10:22:03 +0200
+From: Eli Billauer <eli_billauer@users.sf.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-References: <20031015172030.GA20098@wind.cocodriloo.com>
-Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <17122.1066291319@www7.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] frandom - fast random generator module
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have seen problems like this when a bad driver was spending loads of time
-in it's SA_INTERRUPT (ie meant to be 'fast') IRQ handler ...this buffered up
-*lots * of packets to be handled, and caused this message.
+  Hello,
 
-Perhaps we should profile?
+Frandom is the faster version of the well-known /dev/urandom random 
+number generator. Not instead of, but rather as a supplement, when 
+pseudorandom data is needed at high rate. Few tests so far show that 
+frandom is 10-50 times faster than urandom.
 
-Dan
+The project's home page: http://frandom.sourceforge.net.
 
-> On Tue, Oct 14, 2003 at 02:02:48PM -0400, Jeff Garzik wrote:
-> > Antonio Vargas wrote:
-> > >This happens to me also on 2.4.18 and 2.4.19 (yes, I know they are
-> old).
-> > >
-> > >Happens about once every 5 months, with the box running at
-> > >about 1 month uptime per reboot (home server, there is no UPS)
-> > 
-> > 
-> > It's fairly normal for this event to occur.  It's due to the 8139 
-> > hardware..  sometimes (perhaps during a DoS or ping flood) you can 
-> > receive far more tiny packets than the driver wishes to deal with in a 
-> > single interrupt.
-> > 
-> > The real solution is to convert the driver to NAPI...
-> > 
-> > 	Jeff
-> 
-> NAPI is the method where you block hardware interrupts and
-> then handle the data by periodic polling? I wonder how could
-> I get this error, given that my network is a 10Mbit one ;)
-> 
-> -- 
-> winden/network
-> 
-> 1. Dado un programa, siempre tiene al menos un fallo.
-> 2. Dadas varias lineas de codigo, siempre se pueden acortar a menos
-> lineas.
-> 3. Por induccion, todos los programas se pueden
->    reducir a una linea que no funciona.
-> 
+The module works on 2.2, 2.4 and 2.6 kernels. A few straightforward 
+#ifdef's handle compatability (easy to remove to match common coding style).
 
--- 
-Daniel J Blueman
+Purpose
+=======
 
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+(1) Frandom is a handy source of bulk random data.
+(2) It is *not* intended for encryption and security-related applications.
+(3) frandom is intended for (scientific) simulations, wiping the disk, 
+stress tests on algorithms and so on.
+(4) It is more of an /dev/zero than /dev/random
 
-Jetzt kostenlos anmelden unter http://www.gmx.net
+Quality of random numbers
+=========================
 
-+++ GMX - die erste Adresse für Mail, Message, More! +++
+(1) The module has been tested for random number quality with the 
+"diehard" set of tests, and passed them all. This indicates that the 
+bytes are random enough for most scientific purposes.
+(2) Additional tests results are welcomed.
+(3) The core of frandom is based upon RC4. frandom is exactly RC4, minus 
+the XOR operation with the data. So if frandom doesn't generate good 
+random numbers, I would wonder why RC4 is considered safe.
+(4) The random generator is seeded with 256 bytes of the kernel's 
+get_random_bytes() for every file opened on /dev/frandom. This is 
+equivalent to a 2048-bit random key on RC4.
+(5) I don't see frandom fit for crypto purposes, mainly because the 
+module was naively written. I won't fall off my chair if it turns out to 
+be crypto-safe, but I wouldn't trust it either. Not yet, anyhow.
+(6) Those who read the source and feel that such a simple algorithm 
+can't create good random: That's exactly the beauty of RC4: It's simple 
+and it works.
+
+frandom and the linux kernel tree
+=================================
+
+(1) Occasionally, people complain that /dev/urandom is too slow, wishing 
+for something faster.
+(2) Other argue that a random generator can be written in user space.
+(3) I agree with both. And I use /dev/zero a lot. I know how to write a 
+zero-generating application in user space.
+(4) The module is small: 6kB of source code as a standalone module, and 
+2.3 kB of kernel memory.
+
+Test results and comments will be appreciated.
+
+    Eli
+
 

@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288921AbSAIRzq>; Wed, 9 Jan 2002 12:55:46 -0500
+	id <S288940AbSAISDg>; Wed, 9 Jan 2002 13:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288923AbSAIRzg>; Wed, 9 Jan 2002 12:55:36 -0500
-Received: from mail.myrio.com ([63.109.146.2]:17650 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S288921AbSAIRzd> convert rfc822-to-8bit;
-	Wed, 9 Jan 2002 12:55:33 -0500
-content-class: urn:content-classes:message
+	id <S288949AbSAISD0>; Wed, 9 Jan 2002 13:03:26 -0500
+Received: from mustard.heime.net ([194.234.65.222]:49613 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S288940AbSAISDH>; Wed, 9 Jan 2002 13:03:07 -0500
+Date: Wed, 9 Jan 2002 19:02:13 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] Error reading multiple large files :-)
+In-Reply-To: <Pine.LNX.4.33L.0201091201330.2985-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.30.0201091901120.8463-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: initramfs programs (was [RFC] klibc requirements)
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Wed, 9 Jan 2002 09:54:28 -0800
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB21@mail0.myrio.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: initramfs programs (was [RFC] klibc requirements)
-Thread-Index: AcGY9KA9Cbi0GOqyRf6+aoWlydotEQAP7OvA
-From: "Torrey Hoffman" <torrey.hoffman@myrio.com>
-To: <andersen@codepoet.org>, "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The interesting thing that I currently do with initrd support is a
-custom network-booted Linux installer for an embedded system. 
+Thanks, guys!
 
-I'd like to be able to do this with initramfs too.  It needs:
+This actually solved the problem, and even gave me a little increase in
+read speed as a bonus.
 
-- busybox, of course
-- sfdisk  (scripted fdisk)
-- mkreiserfs
-- lilo
-- dhcpcd
-- A utility to display images in the framebuffer, like "fbv".
+Is this somehow planned for a 2.4 merge?
 
-Torrey Hoffman
+roy
+
+On Wed, 9 Jan 2002, Rik van Riel wrote:
+
+> On Wed, 9 Jan 2002, Roy Sigurd Karlsbakk wrote:
+>
+> > > you really should try akpm's "[patch, CFT] improved disk read latency"
+> > > patch.  it sounds almost perfect for your application.
+>
+> > It seemed like it helped first, but after a while, some 99 processes
+> > went Defunct, and locked. After this, the total 'bi' as reported from
+> > vmstat went down to ~ 900kB per sec
+> >
+> > What should I do?
+>
+> I've done a little bit of low memory testing with my -rmap
+> VM patch, the system seems to be working just fine with 8MB
+> of RAM ...
+>
+> If you have the time, could you try the following patch ?
+>
+> 	http://surriel.com/patches/2.4/2.4.17-rmap-11a
+>
+>
+> regards,
+>
+> Rik
+> --
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+>
+> http://www.surriel.com/		http://distro.conectiva.com/
+>
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

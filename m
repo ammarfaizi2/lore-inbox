@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129274AbRAYTr6>; Thu, 25 Jan 2001 14:47:58 -0500
+	id <S129051AbRAYTvW>; Thu, 25 Jan 2001 14:51:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129305AbRAYTrs>; Thu, 25 Jan 2001 14:47:48 -0500
-Received: from Mail.Hollister-Inc.com ([64.69.106.202]:10510 "EHLO
-	jawa.hollister-inc") by vger.kernel.org with ESMTP
-	id <S129274AbRAYTrd>; Thu, 25 Jan 2001 14:47:33 -0500
-Message-ID: <1037AF3191A7D411B5BF005004D2B294457AAE@HPXY>
-From: John Carter <jcarter@hollister-inc.com>
-To: linux-kernel@vger.kernel.org
-Subject: Looking for a Linux/SCSI Driver Developer
-Date: Thu, 25 Jan 2001 14:48:29 -0500
+	id <S129143AbRAYTvM>; Thu, 25 Jan 2001 14:51:12 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:12043 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129051AbRAYTvI>; Thu, 25 Jan 2001 14:51:08 -0500
+Date: Thu, 25 Jan 2001 14:56:12 -0500
+From: Chris Mason <mason@suse.com>
+To: Ondrej Sury <ondrej@globe.cz>,
+        Tim Fletcher <tim@parrswood.manchester.sch.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI error in 2.4.1-pre10 @ via82c686 (Was: 2.4.1-pre10
+ slowdown at boot.)
+Message-ID: <60340000.980452572@tiny>
+In-Reply-To: <874ryn5vhf.fsf@ondrej.office.globe.cz>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good Afternoon!  My name is John Carter, Technical Recruiter with Hollister
-Associates Contract IT/Software Division in Boston, Ma.  We currently deal
-with Top Tier Software and Development as well as Brick and Mortar Companies
-in Boston and New England area.
-
-I presently have an opportunity for a Linux/SCSI Driver Developer that may
-be of interest to you. 
-
-If you are interested in learning more about this project, or future
-engagements which will continue to sharpen your skills, you can contact me
-anytime.
-
-I look forward to hearing from you.
-
-Be the technical lead for a small team of 4 engineers to design and develop
-a Fault Tolerant version of Linux on Stratus Fault Tolerant IA32
-architecture. This project will include the porting of Linux to Stratus FT
-hardware, kernel support for CPU and memory synchronization, the addition of
-hot-plug PCI support, and a device memory protection scheme. Position
-involves design, development of code, participation in strategic product
-definition and customer presentations. 
-Experience 5 or more years of software development experience. Linux kernel
-and/or device driver experience highly desirable or UNIX kernel experience a
-must. All coding will be in C/C++.
-
-Position is in Maynard, MA
-
-John Carter
-Technical Recruiter
-Hollister Associates, Inc.
-Phone: 617-654-0258
-mailto:jcarter@hollister-inc.com
-http://www.hollister-inc.com
 
 
+On Thursday, January 25, 2001 07:37:16 PM +0100 Ondrej Sury
+<ondrej@globe.cz> wrote:
 
-**********************************************************************
-This email and any files transmitted with it are confidential and
-intended solely for the use of the individual or entity to whom they
-are addressed. If you have received this email in error please notify
-the system manager.
+> I have discovered that it wasn't reiserfs problem.  I have disabled ACPI
+> in BIOS and everything is ok.  So I assume that something has changed in
+> ACPI between pre9 and pre10 versions and that something is broken in _my_
+> system.
+> 
 
-This footnote also confirms that this email message has been swept by
-MIMEsweeper for the presence of computer viruses.
+Ok.  This isn't related to the slowdown problem you are seeing, but after a
+clean shutdown, there should not be any transactions that need replay.
+Keep an eye on the console as you shutdown, and make sure / is getting
+properly unmounted.
 
-www.mimesweeper.com
-**********************************************************************
+-chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263032AbRE1L3j>; Mon, 28 May 2001 07:29:39 -0400
+	id <S263049AbRE1L2t>; Mon, 28 May 2001 07:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263034AbRE1L3b>; Mon, 28 May 2001 07:29:31 -0400
-Received: from t111.niisi.ras.ru ([193.232.173.111]:29703 "EHLO
-	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
-	id <S263032AbRE1L3N>; Mon, 28 May 2001 07:29:13 -0400
-Message-ID: <3B12A5DE.7020408@niisi.msk.ru>
-Date: Mon, 28 May 2001 15:24:14 -0400
-From: Alexandr Andreev <andreev@niisi.msk.ru>
-Organization: niisi
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.9) Gecko/20010507
-X-Accept-Language: ru, en
+	id <S263034AbRE1L2j>; Mon, 28 May 2001 07:28:39 -0400
+Received: from bosch82.ncsa.es ([194.224.235.82]:24331 "EHLO www.bosch.es")
+	by vger.kernel.org with ESMTP id <S263032AbRE1L2h>;
+	Mon, 28 May 2001 07:28:37 -0400
+Message-ID: <3B123648.9080707@juridicas.com>
+Date: Mon, 28 May 2001 13:28:08 +0200
+From: Jorge =?UTF-8?B?TmVyw61u?= <jnerin@juridicas.com>
+Reply-To: comandante@zaralinux.com
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.14 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: es-es, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Disabling interrupts before block device request call
-In-Reply-To: <3B0EE8CF.7040502@niisi.msk.ru> <20010526000119.A23273@suse.de>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: Jaswinder Singh <jaswinder.singh@3disystems.com>
+CC: Randy <randys@evcom.net>, linux-kernel@vger.kernel.org
+Subject: Re: CPU Dedicated Interrupts
+In-Reply-To: <3B0FBF11.21EB8F87@evcom.net> <00be01c0e71e$49840d80$52a6b3d0@Toshiba>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote
+Jaswinder Singh wrote:
 
->
->Even with dropping io_request_lock, it's not recommended to sleep inside
->the request_fn. WIth plugging, you are basically preventing the other
->plugged queues from being run until you return.
->
->You could use a timer or similar to call you on a specified timeout
->instead.
->
-Does it mean, that if i need timer interrupts in my block device driver, 
-i need to do sti() instead of unlock io_request_lock? Is there any 
-common rule for device drivers in such case?
+>> What is the easiest way to tell a CPU to ignore certain interrupts from
+>> module?
+>> Is there an IRQ mask for each processor? Is that symbol exported?
+>> 
+> 
+> I also what to know this :)
+> 
+> Please help us .
+> 
+> Thank you.
+> 
+> Jaswinder.
+> --
+> These are my opinions not 3Di.
+> 
+It's not a symbol, look for info about /proc/[irq-number]/smp_affinity 
+in /Documentation.
 
-
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
 

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266984AbSK2I7N>; Fri, 29 Nov 2002 03:59:13 -0500
+	id <S266987AbSK2JOw>; Fri, 29 Nov 2002 04:14:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbSK2I7N>; Fri, 29 Nov 2002 03:59:13 -0500
-Received: from pilt.cultus.no ([194.248.142.50]:20751 "EHLO pilt.cultus.no")
-	by vger.kernel.org with ESMTP id <S266984AbSK2I7M>;
-	Fri, 29 Nov 2002 03:59:12 -0500
-Message-ID: <3DE72E22.2030405@cultus.no>
-Date: Fri, 29 Nov 2002 10:06:42 +0100
-From: Jens-Christian Skibakk <jens@cultus.no>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
+	id <S266986AbSK2JOw>; Fri, 29 Nov 2002 04:14:52 -0500
+Received: from ivoti.terra.com.br ([200.176.3.20]:50113 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP
+	id <S266987AbSK2JOv>; Fri, 29 Nov 2002 04:14:51 -0500
+Message-ID: <3DE714DB.9020609@terra.com.br>
+Date: Fri, 29 Nov 2002 07:18:51 +0000
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Radeon DRM oops in 2.4.20-rc4-ac1
+To: Rasmus Andersen <rasmus@jaquet.dk>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.23-rc2 & an MCE
+References: <20021125202033.A1212@jaquet.dk> <20021126220459.GA229@elf.ucw.cz> <3DE6A0A8.7080501@terra.com.br> <20021129071803.A7602@jaquet.dk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now I can start the X-Window system, and glxinfo report direct redering 
-as enabled.
+Rasmus Andersen wrote:
+> I have nothing in my logs but have had three more chrashes since
+> my first report. Two of them I couldn't inspect since I was at
+> work (the machine is at home) and had my girlfriend boot the box,
+> but the last one was identical to the reported one.
+> 
+> I am getting a new processor now and hope that'll do it.
 
-But when I test the glxgears I get Illegal instruction, the same error 
-also happens for tuxracer.
-If I turn the DRI of in the XF86Config-4 file, glxgears runs fine, but 
-without HW redering.
+	Since the MCE code is reporting a instruction fetch error from the 
+level 1 cache, it could be a bad ram problem...
 
+	Could you try and run the memtest86 on your memory card(s) first (maybe 
+in a different machine)?
 
+	Kind Regards,
 
----
-Jens-Christian Skibakk
-
-
-
-Alex Riesen wrote:
-
-
->>On Fri, Nov 29, 2002 at 09:15:17AM +0100, Jens-Christian Skibakk wrote:
->>  
->>
->  
->
->>>>Nov 29 08:54:37 debian kernel: Call Trace:    [radeon_cp_init+120/164] 
->>>>[radeon_ioctl+216/228] [sys_ioctl+605/628] [system_call+51/56]
->>>>Nov 29 08:54:37 debian kernel:
->>>>Nov 29 08:54:37 debian kernel: Code: 89 10 57 e8 3c f0 ff ff 57 56 e8 89 
->>>>f4 ff ff c7 47 44 00 00
->>>>
->>>>
->>>>The Oops happens when i start the X-Window system with DRI enabled.
->>>>    
->>>>
->>    
->>
->>
->>could you try the link below?
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=103839583129724&w=2
->>  
->>
->  
->
-
+Felipe
 

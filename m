@@ -1,54 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263746AbTE3PCh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 11:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTE3PCh
+	id S263737AbTE3PFj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 11:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTE3PFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 11:02:37 -0400
-Received: from gw.enyo.de ([212.9.189.178]:19724 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S263737AbTE3PCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 11:02:36 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.69] ext3 error: rec_len %% 4 != 0
-References: <8765nva43w.fsf@deneb.enyo.de> <20030528012512.5d631827.akpm@digeo.com>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 30 May 2003 17:15:55 +0200
-Message-ID: <87znl45utw.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 May 2003 11:05:39 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4393 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263737AbTE3PFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 11:05:36 -0400
+Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs !
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, root@chaos.analogic.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20030530155820.A11144@infradead.org>
+References: <Pine.LNX.4.53.0305281612160.13968@chaos>
+	 <200305282052.h4SKqUBw016537@verdi.et.tudelft.nl>
+	 <20030530132112.GA9572@redhat.com>  <20030530155820.A11144@infradead.org>
+Content-Type: multipart/mixed; boundary="=-Yk21PKFgcJ0pO2kPtxik"
+Organization: 
+Message-Id: <1054307933.3749.313.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 May 2003 16:18:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
 
-> Florian Weimer <fw@deneb.enyo.de> wrote:
->>
->> Sometimes, our 2.5 test machine (actually, it's a production machine,
->> please don't ask why we can't use 2.4 *sigh*) stops with an ext3 error
->> message.  We have now activated proper logging, and that's what we
->> got:
->> 
->> May 28 03:23:00 kernel: EXT3-fs error (device md0): ext3_readdir: bad entry in directory #16056745: rec_len %% 4 != 0 - offset=52, inode=431743, rec_len=37017, name_len=41 
+--=-Yk21PKFgcJ0pO2kPtxik
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Another error message is the following one:
+Hi,
 
-EXT3-fs error (device md0): ext3_readdir: bad entry in directory #12812298: directory entry across blocks - offset=0, inode=1308, rec_len=38720, name_len=225
+On Fri, 2003-05-30 at 15:58, Christoph Hellwig wrote:
 
-Hmm.
+> Yikes, this looks like devfs code!  Please try to use proper kernel style..
 
-> Falling back to ext2 for a while would be interesting.
+It's pure cut-and-paste from the update_atime immediately above it.  But
+sure, we can clean them both up while we're at it if you want.
 
-I see the following messages with dmesg, but they appear to be
-non-critical:
+--Stephen
 
-init_special_inode: bogus i_mode (67)
-init_special_inode: bogus i_mode (177766)
-init_special_inode: bogus i_mode (5)
-init_special_inode: bogus i_mode (65)
-init_special_inode: bogus i_mode (53664)
-init_special_inode: bogus i_mode (5)
 
-Are they related?  They didn't appear with ext3.
+--=-Yk21PKFgcJ0pO2kPtxik
+Content-Disposition: inline; filename=4202-vfs-mctime-rofs.patch
+Content-Type: text/plain; name=4202-vfs-mctime-rofs.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+--- linux-2.4-odirect/fs/inode.c.=3DK0001=3D.orig
++++ linux-2.4-odirect/fs/inode.c
+@@ -1187,12 +1187,34 @@ void update_atime (struct inode *inode)
+ {
+ 	if (inode->i_atime =3D=3D CURRENT_TIME)
+ 		return;
+-	if ( IS_NOATIME (inode) ) return;
+-	if ( IS_NODIRATIME (inode) && S_ISDIR (inode->i_mode) ) return;
+-	if ( IS_RDONLY (inode) ) return;
++	if (IS_NOATIME(inode))
++		return;
++	if (IS_NODIRATIME(inode) && S_ISDIR(inode->i_mode))=20
++		return;
++	if (IS_RDONLY(inode))=20
++		return;
+ 	inode->i_atime =3D CURRENT_TIME;
+ 	mark_inode_dirty_sync (inode);
+-}   /*  End Function update_atime  */
++}
++
++/**
++ *	update_mctime	-	update the mtime and ctime
++ *	@inode: inode accessed
++ *
++ *	Update the modified and changed times on an inode for writes to special
++ *	files such as fifos.  No change is forced if the timestamps are already
++ *	up-to-date or if the filesystem is readonly.
++ */
++=20
++void update_mctime (struct inode *inode)
++{
++	if (inode->i_mtime =3D=3D CURRENT_TIME && inode->i_ctime =3D=3D CURRENT_T=
+IME)
++		return;
++	if (IS_RDONLY(inode))
++		return;
++	inode->i_ctime =3D inode->i_mtime =3D CURRENT_TIME;
++	mark_inode_dirty (inode);
++}
+=20
+=20
+ /*
+--- linux-2.4-odirect/fs/pipe.c.=3DK0001=3D.orig
++++ linux-2.4-odirect/fs/pipe.c
+@@ -230,8 +230,7 @@ pipe_write(struct file *filp, const char
+ 	/* Signal readers asynchronously that there is more data.  */
+ 	wake_up_interruptible(PIPE_WAIT(*inode));
+=20
+-	inode->i_ctime =3D inode->i_mtime =3D CURRENT_TIME;
+-	mark_inode_dirty(inode);
++	update_mctime(inode);
+=20
+ out:
+ 	up(PIPE_SEM(*inode));
+--- linux-2.4-odirect/include/linux/fs.h.=3DK0001=3D.orig
++++ linux-2.4-odirect/include/linux/fs.h
+@@ -201,6 +201,7 @@ extern int leases_enable, dir_notify_ena
+ #include <asm/byteorder.h>
+=20
+ extern void update_atime (struct inode *);
++extern void update_mctime (struct inode *);
+ #define UPDATE_ATIME(inode) update_atime (inode)
+=20
+ extern void buffer_init(unsigned long);
+
+--=-Yk21PKFgcJ0pO2kPtxik--

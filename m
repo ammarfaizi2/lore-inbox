@@ -1,65 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270253AbRHHA5R>; Tue, 7 Aug 2001 20:57:17 -0400
+	id <S270255AbRHHBNH>; Tue, 7 Aug 2001 21:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270256AbRHHA5I>; Tue, 7 Aug 2001 20:57:08 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:55559 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S270254AbRHHA5B>;
-	Tue, 7 Aug 2001 20:57:01 -0400
-Date: Wed, 8 Aug 2001 02:57:09 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x VM problems thread
-In-Reply-To: <20010807173255.L22821@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0108080246460.17520-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270256AbRHHBM6>; Tue, 7 Aug 2001 21:12:58 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:4298 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270255AbRHHBMs>;
+	Tue, 7 Aug 2001 21:12:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+cc: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: Re: using mount from SUID scripts? 
+In-Reply-To: Your message of "Tue, 07 Aug 2001 16:29:39 MST."
+             <20010807162939.A26249@one-eyed-alien.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 08 Aug 2001 11:12:53 +1000
+Message-ID: <27034.997233173@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 7 Aug 2001, Mike Fedyk wrote:
-
-> On Wed, Aug 08, 2001 at 02:24:37AM +0200, Luigi Genoni wrote:
-> > This kind of code would kill any Unix system, i think, not just linux 2.4
-> > boxes.
-> >
+On Tue, 7 Aug 2001 16:29:39 -0700, 
+Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
+>I've got an SUID perl script (yes, it's EUID is really 0) which I'd like to
+>use mount from to mount a file via loopback...
 >
-> I tried it on 2.2.19-ppc and could kill it with ^C at the prompt, or from
-> root if I was already logged in.  Trying to iniate connections to ssh didn't
-> produce any results after about 30 seconds.
-with linux 2.2 if you run this program and then try to run another process
-you will get a "cannot fork" message.
-no cresh if you can make a ^C or a killall, (you should not be able to run
-a ps). This is the same behaviour of Solaris. With Linux 2.4 you will
-start to fill your swap. kswapd will really stress your system. then you
-should not be able to run any process. If X11 is running, it will be
-freezed.  Same thing if you run AIX and Irix. Note that AIX and Irix are
-quite different on any point of view if you go to process management :).
+>Unfortunately, it looks like mount refuses to actually mount anything if
+>the EUID and UID aren't the same....
 
-mmm, HP-UX 10.20 should get frozen too, while HP-UX 11 should act like
-Linux 2.2 (not sure about this, I should check). I do not know about
-FreeBSD.
-
-What changes is the way the system acts when it has to execute a code like
-for (;;)
-	fork();
-
-That is not related to vm. It is just how fork() is managed.
-
-Note also that libc matters.
-
->
-> Once it was killed the system was fine.
->
-> Haven't tried 2.4 yet...
->
-
-you will see a different behaviour.
-
-bests
-Luigi
-
+Are you sure the problem is mount?  Some versions of bash drop euid(0)
+when they execute scripts from setuid programs.
 

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263983AbTLJVyf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 16:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbTLJVyf
+	id S264144AbTLJV4f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 16:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTLJV4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 16:54:35 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:32441 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263983AbTLJVyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 16:54:33 -0500
-Date: Wed, 10 Dec 2003 13:54:11 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 10 Dec 2003 16:56:35 -0500
+Received: from lpbproductions.com ([68.98.208.147]:23706 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S264144AbTLJVzX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 16:55:23 -0500
+From: "Matt H." <lkml@lpbproductions.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: RFC: Can swsusp 2.0 be merged into the 2.4 tree
-Message-ID: <20031210215411.GC15401@matchmail.com>
-Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
-	linux-kernel@vger.kernel.org
+Date: Wed, 10 Dec 2003 14:55:33 -0700
+User-Agent: KMail/1.5.93
 References: <200312110537.17496.mhf@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <200312110537.17496.mhf@linuxmail.org>
-User-Agent: Mutt/1.5.4i
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200312101455.34154.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 05:39:07AM +0800, Michael Frank wrote:
-> swsusp is useful feature also for 2.4. Could this please be merged.
+My personal view is this shouldn't merged. 2.4 shouldn't have more new 
+features. That's what 2.6 is for. 
 
-Is it stable?
+Matt H.
+
+On Wednesday 10 December 2003 02:39 pm, Michael Frank wrote:
+> swsusp is useful feature also for 2.4. Could this please be merged.
+>
+> Regards
+> Michael
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265512AbTFVS6x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 14:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265726AbTFVS6x
+	id S265783AbTFVS7F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 14:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265788AbTFVS7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 14:58:53 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:32283 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265512AbTFVS6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 14:58:51 -0400
-Date: Sun, 22 Jun 2003 12:13:23 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: hps@intermeta.de
+	Sun, 22 Jun 2003 14:59:05 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:39693 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265783AbTFVS7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 14:59:00 -0400
+Date: Sun, 22 Jun 2003 21:12:52 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-Message-Id: <20030622121323.1abdd079.akpm@digeo.com>
-In-Reply-To: <bd4u7s$jkp$1@tangens.hometree.net>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com>
-	<20030622103251.158691c3.akpm@digeo.com>
-	<bd4u7s$jkp$1@tangens.hometree.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20030622191252.GA1406@mars.ravnborg.org>
+Mail-Followup-To: "Henning P. Schmiedehausen" <hps@intermeta.de>,
+	linux-kernel@vger.kernel.org
+References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622103251.158691c3.akpm@digeo.com> <bd4u7s$jkp$1@tangens.hometree.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jun 2003 19:12:56.0859 (UTC) FILETIME=[49D73EB0:01C338F2]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bd4u7s$jkp$1@tangens.hometree.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
->
->  Your problem is not the compiler but the build tool / system which
->  forces you to recompile all of your kernel if you change only small
->  parts.
+On Sun, Jun 22, 2003 at 06:58:04PM +0000, Henning P. Schmiedehausen wrote:
+> Andrew Morton <akpm@digeo.com> writes:
+> 
+> Your problem is not the compiler but the build tool / system which
+> forces you to recompile all of your kernel if you change only small
+> parts.
 
-No, the build system is OK.  And ccache nicely fixes up any mistakes which
-the build system makes, and distcc speeds things up by 2x to 3x.
+If you know of any cases where too much is build after a change in
+the 2.5 kernel I would like to know that.
 
-None of that gets around the fact that code needs to be tested with various
-combinations of CONFIG_SMP, CONFIG_PREEMPT, different subarchitectures,
-spinlock debugging, etc, etc.  If the compiler is slow people don't bother
-doing this and the code breaks.
+In the above keep in mind that the finest granularity is on a file basis,
+except for .config, where it is on a config entry granularity.
 
-Cause and effect.
+	Sam

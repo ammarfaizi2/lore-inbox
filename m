@@ -1,91 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbTKXHhg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 02:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTKXHhg
+	id S263625AbTKXHmp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 02:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTKXHmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 02:37:36 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:24276 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263612AbTKXHhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 02:37:33 -0500
-Message-ID: <3FC1B539.50204@softhome.net>
-Date: Mon, 24 Nov 2003 08:37:29 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Wuertele <dave-gnus@bfnet.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Do I need kswapd if I don't have swap?
-References: <URy0.Sx.3@gated-at.bofh.it>
-In-Reply-To: <URy0.Sx.3@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 02:42:45 -0500
+Received: from [217.113.73.39] ([217.113.73.39]:48408 "EHLO
+	entandikwa.ds.co.ug") by vger.kernel.org with ESMTP id S263625AbTKXHmn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 02:42:43 -0500
+Subject: Re: Nick's scheduler v19a
+From: "Peter C. Ndikuwera" <pndiku@dsmagic.com>
+To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+Cc: Timothy Miller <miller@techsource.com>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1069434035.21039.5.camel@midux>
+References: <3FB62608.4010708@cyberone.com.au>
+	 <1069361130.13479.12.camel@midux> <3FBD4F6E.3030906@cyberone.com.au>
+	 <1069395102.16807.11.camel@midux> <3FBDAE99.9050902@cyberone.com.au>
+	 <1069405566.18362.5.camel@midux> <3FBDD790.5060401@cyberone.com.au>
+	 <1069407179.18505.11.camel@midux>  <yw1xy8uaujv0.fsf@kth.se>
+	 <1069410094.18790.2.camel@midux>  <3FBE3B0D.8030501@techsource.com>
+	 <1069434035.21039.5.camel@midux>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Digital Solutions Ltd
+Message-Id: <1069659917.14144.113.camel@mufasa.ds.co.ug>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 Rubber Turnip www.usr-local-bin.org 
+Date: Mon, 24 Nov 2003 10:45:17 +0300
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, you could try using XFree86's supplied "nv" driver to test without
+the binary nvidia module.
 
-   Can you try 2.6?
+Timothy's point is valid IMO - your help in identifying the bug will
+help someone else down the road.
 
-   AFAIK 2.4 has no callpath to return ENOMEM to user space. (probably 
-in couple of months I will reach this issue on my systems and test it 
-completely).
+Peter C. Ndikuwera
+Digital Solutions Ltd, Uganda
 
-   kswapd is universal process to write-out information to disk - and in 
-Linux pages has no any difference as kswapd concerned. It just dumbly 
-write them out. If you will disable kswapd - files modified by mean of 
-mmap() most likely will never be written back to disk. (Here I am (most 
-likely) wrong - probably some of the vm gurus can correct me). That's 
-actually why Linux has problems with disk cache and disk cache can 
-easily swap the task doing i/o.
-
-   If you want to work-around this situation - enable OOM. it will just 
-kill your process instead.
-
-
-David Wuertele wrote:
-> Using 2.4.18 on my 32MB RAM embedded MIPS system, malloc() goes
-> bye-bye:
+On Fri, 2003-11-21 at 20:00, Markus Hästbacka wrote:
+> Yes, but how could I know if the bug is in XFree86? in kernel? in the
+> nvidia driver module? and no, I can't even hope to try to reproduce bugs
+> without nvidia module, because no X => no bugs. If you tell me what I
+> need to add to kernel configuration to get some info while something
+> happens, I'll probably try to reproduce bugs when test10 is out with
+> vanilla kernel.
 > 
->   /* Malloc as much as possible, then return */
->   #include <stdio.h>
->   #define UNIT 1024		/* one kilobyte */
->   int main ()
->   {
->     unsigned int j, totalmalloc=0, totalwrote=0, totalread=0;
->     while (1) {
->       unsigned char *buf = (unsigned char *) malloc (UNIT);
->       if (!buf) return 0;
->       totalmalloc += UNIT; fprintf (stderr, "%u ", totalmalloc);
->       for (j=0; j<UNIT; j++) buf[j] = j % 256;
->       totalwrote += UNIT; fprintf (stderr, "%u ", totalwrote);
->       for (j=0; j<UNIT; j++) if (buf[j] != (j % 256)) return -1;
->       totalread += UNIT; fprintf (stderr, "%u\n", totalread);
->     }
->   }
+> And yes, I'm intrested in the performance of other's computers too, but
+> if this is new then it's new, and I can't by my self know where the bug
+> (maybe) is.
 > 
-> I expected this program to malloc most of my embedded MIPS's 32MB of
-> system RAM, then eventually return with a -1 or a -2.  Unfortunately,
-> it hangs having finally printed:
+> Regards,
+> Markus
 > 
->   M26916864
->   W26916864
->   R26916864
-> 
-> The malloc call isn't even returning.  What could explain that?
-> 
-> I don't have swap space configured, and I notice several kernel
-> threads that I figure might be assuming I have swap.  For example:
-> 
->       3 root     S    [ksoftirqd_CPU0]
->       4 root     S    [kswapd]
->       5 root     S    [bdflush]
->       6 root     S    [kupdated]
->       7 root     S    [mtdblockd]
-> 
-> Do I need any of these if I don't have swap?  Are there any special
-> kernel configs I should be doing if I don't have swap?
-> 
-
+> On Fri, 2003-11-21 at 18:19, Timothy Miller wrote:
+> > Markus Hästbacka wrote:
+> > > That may be true, but why should I complain anymore? Nick made a really
+> > > great patch that makes things working for me.
+> > > 
+> > 
+> > 
+> > Are you interested only in the performance of your own computer, or do 
+> > you have any interest in the performance of other people's computers as 
+> > well?
+> > 
+> > If there's a bug, there's a bug, and you've identified it.  Contrary to 
+> > the attitude of our friends in Redmond, the open source community tends 
+> > to see bugs as being really evil.  If you've found a bug, we want to 
+> > investigate it and fix it.
 

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281533AbRKPUOF>; Fri, 16 Nov 2001 15:14:05 -0500
+	id <S281532AbRKPUQr>; Fri, 16 Nov 2001 15:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281532AbRKPUNz>; Fri, 16 Nov 2001 15:13:55 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:2432 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S281530AbRKPUNn>;
-	Fri, 16 Nov 2001 15:13:43 -0500
-Date: Fri, 16 Nov 2001 10:19:30 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Brian <hiryuu@envisiongames.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: File server FS?
-Message-ID: <20011116101930.D37@toy.ucw.cz>
-In-Reply-To: <200111132203.fADM3jW03006@demai05.mw.mediaone.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200111132203.fADM3jW03006@demai05.mw.mediaone.net>; from hiryuu@envisiongames.net on Tue, Nov 13, 2001 at 05:03:34PM -0500
+	id <S281534AbRKPUQh>; Fri, 16 Nov 2001 15:16:37 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:55732 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S281532AbRKPUQY>;
+	Fri, 16 Nov 2001 15:16:24 -0500
+Date: Fri, 16 Nov 2001 21:15:38 +0100 (CET)
+From: Martin Josefsson <gandalf@marcelothewonderpenguin.com>
+To: Ian Stirling <root@mauve.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kmsgdump/...
+In-Reply-To: <200111161525.PAA15561@mauve.demon.co.uk>
+Message-ID: <Pine.LNX.4.21.0111162114520.17696-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 16 Nov 2001, Ian Stirling wrote:
 
-> We are about to build a fairly large (720GB) file server using Linux.  No 
-> sane person would actually want to watch this thing fsck, but I've seen 
-> mixed reports about the functionality of the journaled FSes.
+> I've been looking for kmsgdump, or similar for 2.4.xx, but am not 
+> finding anything that will patch.
+> Can anyone give me some URLs?
 
-fsck should take hour and a half with 4K blocksize. And I *would* like
-to see it fsck ;-))))
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+I have a version for 2.4.2-ac16 here (the sysrq stuff need porting but
+it's easy, I've done it but forgot to diff :(
+
+http://bifrost.hjorten.nu/patch-2.4.2ac16-kmsgdump
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
 

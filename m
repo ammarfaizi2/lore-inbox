@@ -1,34 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279592AbRJXUjg>; Wed, 24 Oct 2001 16:39:36 -0400
+	id <S279593AbRJXUsx>; Wed, 24 Oct 2001 16:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279591AbRJXUjY>; Wed, 24 Oct 2001 16:39:24 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:15607 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S279589AbRJXUjG>; Wed, 24 Oct 2001 16:39:06 -0400
-Date: Wed, 24 Oct 2001 21:38:59 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
+	id <S279594AbRJXUso>; Wed, 24 Oct 2001 16:48:44 -0400
+Received: from home.geizhals.at ([213.229.14.34]:56844 "HELO home.geizhals.at")
+	by vger.kernel.org with SMTP id <S279593AbRJXUsa>;
+	Wed, 24 Oct 2001 16:48:30 -0400
+Message-ID: <3BD729B6.6030902@geizhals.at>
+Date: Wed, 24 Oct 2001 22:51:02 +0200
+From: "Marinos J. Yannikos" <mjy@geizhals.at>
+Organization: Geizhals Preisvergleich
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.5) Gecko/20011011
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: Andrew Morton <akpm@zip.com.au>
-Cc: Marcos Dione <mdione@hal.famaf.unc.edu.ar>, linux-kernel@vger.kernel.org
-Subject: Re: kjournald and disk sleeping
-Message-ID: <20011024213859.D2300@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar> <3BD4655E.82ED21CC@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BD4655E.82ED21CC@zip.com.au>; from akpm@zip.com.au on Mon, Oct 22, 2001 at 11:28:46AM -0700
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gdth / SCSI read performance issues (2.2.19 and 2.4.10)
+In-Reply-To: <3BD6B278.3070300@geizhals.at> <3BD6ECE6.8C9435C4@zip.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
 
-On Mon, Oct 22, 2001 at 11:28:46AM -0700, Andrew Morton wrote:
+> Well that's pretty bad, isn't it?
 
-> Yes, this is a bit of a problem - it's probably atime updates,
 
-You can mount a filesystem with the "noatime" option, though.  That's
-useful on laptops to stop read accesses from spinning up the disk.
+We could have bought a much cheaper controller and slower disks ;-)
 
-Cheers,
- Stephen
+
+> - Disable CONFIG_HIGHMEM 
+
+
+That seems to have no effect on performance. Btw., the 64GB support in
+2.4.10 seemed to be buggy ("0-order allocation failed", then the DB
+crashed), so we were using the 4GB setting.
+
+
+> - Try linux-2.4.13
+
+
+This helped - now performance is up to par with 2.2.19 (~ 85MB/s) - thanks!
+
+
+> - Profile the kernel. [...]  With something like:
+> 	~/kern-prof.sh cp some_huge_file /dev/null
+
+
+I tried this, but with
+  dd if=/dev/sda of=/dev/null bs=1024k count=3000
+
+(the fs is too slow - so "cp" peaks out at 17MB/s!)
+
+The result (last 4 lines):
+c01388fc try_to_free_buffers                          55   0.1511
+c0128b10 file_read_actor                            1179  14.0357
+c01053b0 default_idle                               6784 130.4615
+00000000 total                                      8695   0.0065
+
+Does this suggest that the kernel isn't the bottleneck?
+
+
+Regards,
+  Marinos
+-- 
+Marinos Yannikos, CEO
+Preisvergleich Internet Services AG
+Franzensbrückenstraße 8/2/16, A-1020 Wien
+Tel./Fax: (+431) 5811609-52/-55
+

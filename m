@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136232AbRECIac>; Thu, 3 May 2001 04:30:32 -0400
+	id <S136230AbRECIec>; Thu, 3 May 2001 04:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136230AbRECIaW>; Thu, 3 May 2001 04:30:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:55436 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136227AbRECIaE>;
-	Thu, 3 May 2001 04:30:04 -0400
-Date: Thu, 3 May 2001 04:29:59 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Why recovering from broken configs is too hard
-In-Reply-To: <20010503034755.A27693@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0105030353120.15957-100000@weyl.math.psu.edu>
+	id <S136238AbRECIeW>; Thu, 3 May 2001 04:34:22 -0400
+Received: from mail.alphalink.com.au ([203.24.205.7]:11014 "EHLO
+	mail.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S136230AbRECIeM>; Thu, 3 May 2001 04:34:12 -0400
+Message-ID: <3AF11A0D.FB206A2B@alphalink.com.au>
+Date: Thu, 03 May 2001 18:42:53 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: esr@thyrsus.com
+CC: CML2 <linux-kernel@vger.kernel.org>
+Subject: Re: [kbuild-devel] Why recovering from broken configs is too hard
+In-Reply-To: <20010503034755.A27693@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 3 May 2001, Eric S. Raymond wrote:
-
-> The obvious thing to try is to start with the configuration you have
-> and try mutating the variables that occur in the broken constraint(s).
-> Of course, there are 3^n of these where n is the number of distinct
-> variables, so this is going to blow up really fast; 3, 9, 27, 81, 243
-> and we ain't even to six symbols yet.  By the time we get to the
-> twelve variables that could be linked by just *one* constraint, there
-> are 531,441.  Even if you can check 500 configurations a second it's
-> going to take 16 minutes just to get a candidate list.
+Eric S. Raymond wrote:
 > 
-> But wait!  There's more!  If some of the variables participate
-> in multiple constraints, the numbers get *really* large.  Worst-case
-> you wind up having to filter 3^1976 or
 
-<DSW>
-I see your 3^1976 and raise "unsolvable". It's a special case
-of termination problem, dontcha see.
-</DSW>
+  I agree with the main thrust of your argument, but
 
-Yes, generic problem is damn hard. The thing being, _this_ problem is
-damn far from generic.
+> It would be hard to know how to order your candidates to present
+> them to the user in a natural sequence -- and the problem of deciding
+> which variable to present for mutation by the user next, if you choose
+> that UI, equates to this.
 
+  There is a natural order for presenting variables to the
+user, and that's the menu tree order.  At least in the Linux
+kernel CML2 corpus the menus are roughly organised from most
+general to most specific options, so options appearing earlier
+in the tree are likely to appear in more constraints and you
+probably want to ask the user to mutate them later.
+
+Greg.
+-- 
+If it's a choice between being a paranoid, hyper-suspicious global
+village idiot, or a gullible, mega-trusting sheep, I don't look
+good in mint sauce.                      - jd, slashdot, 11Feb2000.

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262696AbTHZF4G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 01:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbTHZF4G
+	id S262612AbTHZFuB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 01:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTHZFuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 01:56:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262696AbTHZF4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 01:56:04 -0400
-Date: Mon, 25 Aug 2003 22:58:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bryan Ballard <ballard@netsolus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interesting problem with 450NX based Compaq server
-Message-Id: <20030825225820.2d1c6e29.akpm@osdl.org>
-In-Reply-To: <1061875433.24196.15.camel@ant>
-References: <1061875433.24196.15.camel@ant>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Aug 2003 01:50:00 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:27029 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262612AbTHZFt7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 01:49:59 -0400
+From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+To: Theewara Vorakosit <g4685034@alpha.cpe.ku.ac.th>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Ramdisk memory usage
+Date: Tue, 26 Aug 2003 02:50:01 -0300
+User-Agent: KMail/1.5.1
+References: <Pine.LNX.4.33.0308261222380.12086-100000@alpha.cpe.ku.ac.th>
+In-Reply-To: <Pine.LNX.4.33.0308261222380.12086-100000@alpha.cpe.ku.ac.th>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308260250.01499.lucasvr@gobolinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan Ballard <ballard@netsolus.com> wrote:
->
-> Hello, I've looked through the kernel list archives and haven't found
->  anything that might help. I have a Compaq 5500r 4x500mhz Xeons and
->  whenever a heavy load is placed on the box it reboots without any kernel
->  panics or oops. It seems to be related primarily to multiple PCI card
->  access, i.e. during heavy RAID card / NIC interaction. I've tried to
->  isolate it by replacing NICs and RAID cards, but the only thing I can
->  come up with is that it is related to the 450NX chipset. 
->  Since I am not sure anyone is still working on the 450NX chipset I've
->  refrained from cluttering the list with a giant E-mail full of /proc
->  data until someone answers back that they would be interested in any
->  information that I can provide them.
+On Tuesday 26 August 2003 02:26, Theewara Vorakosit wrote:
+> Dear All,
+> 	I use redhat linux 9 with kernel 2.4.20-20.9. Linux supports 16
+> ramdisks with size of 4MB. So, all memory needed are 64MB. I want to know
+> that memory space for ram disk is allocated at boot time or when I really
+> use it?
+> Thanks,
+> Theewara
 
-I have an Intel ad450nx server, based on the 450NX PCISet chipset. 
-4x500MHz Xeons.  It runs like a champ.
+It's dynamically allocated.
 
-Maybe you have a buggy kernel.  Try a vendor patch, or switch vendors,
-or try a kernel.org kernel or something like that?
+Lucas

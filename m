@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283658AbRLRBze>; Mon, 17 Dec 2001 20:55:34 -0500
+	id <S283594AbRLRBxx>; Mon, 17 Dec 2001 20:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283603AbRLRBzV>; Mon, 17 Dec 2001 20:55:21 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:27658 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S283586AbRLRByk>;
-	Mon, 17 Dec 2001 20:54:40 -0500
-Date: Mon, 17 Dec 2001 23:54:26 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112171449520.1854-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0112172353420.15741-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S283603AbRLRBxo>; Mon, 17 Dec 2001 20:53:44 -0500
+Received: from [206.40.202.198] ([206.40.202.198]:6736 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S283618AbRLRBxa>; Mon, 17 Dec 2001 20:53:30 -0500
+Date: Mon, 17 Dec 2001 17:51:33 +0000 (   )
+From: John Heil <kerndev@sc-software.com>
+To: linux-kernel@vger.kernel.org
+Subject: Correcting low level ide errors.
+Message-ID: <Pine.LNX.3.95.1011217174848.581X-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Linus Torvalds wrote:
 
-> You have to prioritize. Scheduling overhead is way down the list.
+Do any utilities exist to do low level reformating of ide disks,
+ie restoring sector ids and so forth (assuming of course no platter
+damage) ?
 
-That's not what the profiling on my UP machine indicates,
-let alone on SMP machines.
+Thanx
+Johnh
 
-Try readprofile some day, chances are schedule() is pretty
-near the top of the list.
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
 

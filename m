@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315257AbSG2LJX>; Mon, 29 Jul 2002 07:09:23 -0400
+	id <S315179AbSG2LJA>; Mon, 29 Jul 2002 07:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSG2LJX>; Mon, 29 Jul 2002 07:09:23 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:48142 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315257AbSG2LJV>; Mon, 29 Jul 2002 07:09:21 -0400
-Message-ID: <3D4521F5.3070306@evision.ag>
-Date: Mon, 29 Jul 2002 13:07:33 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S315257AbSG2LJA>; Mon, 29 Jul 2002 07:09:00 -0400
+Received: from webmail25.rediffmail.com ([203.199.83.147]:16788 "HELO
+	webmail25.rediffmail.com") by vger.kernel.org with SMTP
+	id <S315179AbSG2LI7>; Mon, 29 Jul 2002 07:08:59 -0400
+Date: 29 Jul 2002 11:12:38 -0000
+Message-ID: <20020729111238.11416.qmail@webmail25.rediffmail.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
-       martin@dalecki.de
-Subject: Re: cli/sti removal from linux-2.5.29/drivers/ide?
-References: <200207290026.RAA00298@baldur.yggdrasil.com> <1027943789.842.25.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
+Reply-To: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel crash in fault.c
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mon, 2002-07-29 at 01:26, Adam J. Richter wrote:
-> 
->>	I have not seen any new IDE patches on lkml since 2.5.29 was
->>released, nor have I seen any other IDE patches that fix this.  Sorry
->>if I missed a message about it.
-> 
-> 
-> I've been through them and I have a set but I've not been able to verify
-> they are correct as they relate to vesa/eisa/isa stuff I don't posess.
-> 
-> Martin - is the host lock held when the tuning function is called ?
+Hi All,
+I am getting a kernel crash when i try to load (using insmod) my
+driver module into the kernel.
+When the kernel boots up, it identifies my device (hardware
+device) and allocates memory and fixup irq for that.
+Mean while in driver i am registering the driver using,
+pci_register_driver. When i tried to access (write a word) the 
+PCI
+memory space allocated for my device, the kernel crashes saying
+"Unable to handle kernel paging request at virtual address "
+in fault.c function : do_page_fault?
 
-Unfortunately not. Not right now. But if you are fixing something
-beneath - please "pretend" it is, since it should :-).
+Can anyone throw a light on this?
+
+Thanks in advance,
+Nanda.
 

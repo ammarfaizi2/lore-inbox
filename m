@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263076AbTDVLGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 07:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTDVLGe
+	id S262642AbTDVLNC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 07:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTDVLNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 07:06:34 -0400
-Received: from zero.aec.at ([193.170.194.10]:34057 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263076AbTDVLGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 07:06:33 -0400
-Date: Tue, 22 Apr 2003 13:18:32 +0200
-From: Andi Kleen <ak@muc.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@muc.de
-Subject: Re: [PATCH] Runtime memory barrier patching
-Message-ID: <20030422111832.GC2170@averell>
-References: <200304220111.h3M1BEp5004047@hera.kernel.org> <1051001038.1419.3.camel@laptop.fenrus.com>
+	Tue, 22 Apr 2003 07:13:02 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:29576 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262642AbTDVLNB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 07:13:01 -0400
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: BK->CVS, kernel.bkbits.net
+Date: 22 Apr 2003 13:09:49 +0200
+Organization: SuSE Labs, Berlin
+Message-ID: <87adeikcua.fsf@bytesex.org>
+References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz>
+NNTP-Posting-Host: localhost
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1051001038.1419.3.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4i
+X-Trace: bytesex.org 1051009789 3170 127.0.0.1 (22 Apr 2003 11:09:49 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Shachar Shemesh <lkml@shemesh.biz> writes:
 
-On Tue, Apr 22, 2003 at 10:43:58AM +0200, Arjan van de Ven wrote:
-> On Tue, 2003-04-22 at 01:23, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1169, 2003/04/21 16:23:20-07:00, ak@muc.de
-> > 
-> > 	[PATCH] Runtime memory barrier patching
-> > 	
-> > 	This implements automatic code patching of memory barriers based
-> > 	on the CPU capabilities. Normally lock ; addl $0,(%esp) barriers
-> > 	are used, but these are a bit slow on the Pentium 4.
-> > 	
-> 
-> very nice. Question: would it be doable use this for prefetch() as well?
-> Eg default to a non-prefetch kernel and patch in the proper prefetch
-> instruction for the current cpu ? (eg AMD prefetch vs Intel one etc etc)
+> development environment to build it. Add to that the fact that most
+> distros don't carry it as a package (a while back I tried,
+> unsuccessfully, to locate an RPM for it, anywhere), and you get
+> something that should be deployed with care.
 
-Yes, I already implemented it, but have yet to boot it.
+There are rpms for suse 8.1 on ftp.suse.com (i386 only for obvious
+reasons).
 
-You only need Intel and AMD prefetch. For all Athlons the SSE prefetches
-work (because we force the SSE MSR bit to on). prefetchw is 3dnow.
-3dnow non 'w' prefetches would only make sense on the K6, but they're
-not really worth it there because it doesn't have enough oustanding loads
-in the memory unit and worse prefetch is microcoded there.
+BTW: With glibc 2.3 the modula-3 compiler bootstrap broke (due to
+thread code changes as far I can see, I'm no m3 guru ...), so with
+very recent linux distributions you likely have problems to build the
+thing even on i386 (unless someone has fixed that in the meantime).
+Old cvsup binaries continue to work through.
 
--Andi
+> On the other hand, both Wine (where I got to know it) and KDE seem to
+> offer cvsup for getting the repository, so it can't be THAT
+> difficult.
 
+xfree86 + freebsd use it too.
+
+  Gerd
+
+-- 
+Michael Moore for president!

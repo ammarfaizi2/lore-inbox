@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbUFJSJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUFJSKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbUFJSJe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 14:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUFJSJe
+	id S262208AbUFJSKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 14:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUFJSKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 14:09:34 -0400
-Received: from ppp54-ax.noc.teithe.gr ([195.251.120.54]:16256 "EHLO
-	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
-	id S261851AbUFJSJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 14:09:32 -0400
-From: Stefanos Harhalakis <v13@priest.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Date: Thu, 10 Jun 2004 21:07:47 +0300
-User-Agent: KMail/1.6.52
-Cc: Robert White <rwhite@casabyte.com>, "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Mike McCormack'" <mike@codeweavers.com>, linux-kernel@vger.kernel.org
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAWUyJbbFwtUuY/ZGbgGI8TwEAAAAA@casabyte.com> <Pine.LNX.4.56.0406091911340.26677@jjulnx.backbone.dif.dk>
-In-Reply-To: <Pine.LNX.4.56.0406091911340.26677@jjulnx.backbone.dif.dk>
+	Thu, 10 Jun 2004 14:10:11 -0400
+Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:12234
+	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
+	id S262208AbUFJSKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 14:10:05 -0400
+Message-ID: <40C8A3F1.7020007@portrix.net>
+Date: Thu, 10 Jun 2004 20:09:53 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_5NKyAsO9f+4FU9e"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406102107.53776.v13@priest.com>
+To: Steve Lee <steve@tuxsoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APIC error on CPU1: 00(02) && APIC error on CPU0: 00(02)
+References: <000401c44f13$da874e90$8119fea9@pluto>
+In-Reply-To: <000401c44f13$da874e90$8119fea9@pluto>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigFDEE450B840EDC81292763A7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-02=_5NKyAsO9f+4FU9e
-Content-Type: text/plain;
-  charset="us-ascii"
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigFDEE450B840EDC81292763A7
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Wednesday 09 June 2004 20:14, Jesper Juhl wrote:
-> On Tue, 8 Jun 2004, Robert White wrote:
-> > I would think that having an easy call to disable the NX modification
-> > would be both safe and effective.  That is, adding a syscall (or
-> > whatever) that would let you mark your heap and/or stack executable while
-> > leaving the new default as NX, is "just as safe" as flagging the
-> > executable in the first place.
->
-> Just having the abillity to turn protection off opens the door. If it is
-> possible to turn it off then a way will be found to do it - either via
-> buggy kernel code or otherwhise. Only safe approach is to have it
-> enabled by default and not be able to turn it off IMHO.
+Steve Lee wrote:
+> APIC error on CPU1: 00(02)
+> APIC error on CPU0: 00(02)
 
-What about turning it on and don't be able to turn it off again?
+Is this a Dual AMD Platform? If yes, are this real MPs or just modded 
+XPs? I've had this kind of error for years on a dual AMD with modded XPs 
+on a Tyan 2460 - until now, no processor broke down. The APIC is very 
+picky on this board, judging different posts from the internet.
 
-> Jesper Juhl <juhl-lkml@dif.dk>
-<<V13>>
+Jan
 
---Boundary-02=_5NKyAsO9f+4FU9e
-Content-Type: application/pgp-signature
+--------------enigFDEE450B840EDC81292763A7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQBAyKN5VEjwdyuhmSoRAqM/AJ0cSIff3VeSwOr9KqeFNU8oPceMeACcDZQ+
-uKN642U36N9fG/ENTtbXh9s=
-=lpZ/
+iD8DBQFAyKP2LqMJRclVKIYRAky8AKCF3VLnQQBIGbHJmSXp6INd7G7SxwCfUA/A
+AbmuGVaxSTJlJeg1w0agVX8=
+=dISh
 -----END PGP SIGNATURE-----
 
---Boundary-02=_5NKyAsO9f+4FU9e--
+--------------enigFDEE450B840EDC81292763A7--

@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVAKU3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVAKUau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbVAKU3m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVAKU3i
+	id S262005AbVAKUau (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVAKUau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:29:38 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6834 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262135AbVAKU3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:29:16 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20050111200549.GW2940@waste.org>
-References: <200501071620.j07GKrIa018718@localhost.localdomain>
-	 <1105132348.20278.88.camel@krustophenia.net>
-	 <20050107134941.11cecbfc.akpm@osdl.org>
-	 <20050107221059.GA17392@infradead.org>
-	 <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us>
-	 <20050110212019.GG2995@waste.org> <87d5wc9gx1.fsf@sulphur.joq.us>
-	 <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us>
-	 <20050111200549.GW2940@waste.org>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 15:29:09 -0500
-Message-Id: <1105475349.4295.21.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 11 Jan 2005 15:30:50 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61369 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262005AbVAKUaO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:30:14 -0500
+Message-ID: <41E436AC.1050004@osdl.org>
+Date: Tue, 11 Jan 2005 12:27:24 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: wli@holomorphy.com
+Subject: Re: [PATCH] silence numerous size_t warnings in drivers/acpi/processor_idle.c
+References: <200501111916.j0BJGq1F010042@hera.kernel.org>
+In-Reply-To: <200501111916.j0BJGq1F010042@hera.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 12:05 -0800, Matt Mackall wrote:
-> Anyway, *plonk*.
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.2334, 2005/01/11 09:21:40-08:00, wli@holomorphy.com
 > 
+> 	[PATCH] silence numerous size_t warnings in drivers/acpi/processor_idle.c
+> 	
+> 	Multiple format -related warnings arise from size_t issues.  This patch
+> 	peppers the seq_printf()'s with 'z' qualifiers and casts to silence them all.
 
-Plonk?  WTF?  Jack comes up with what many people think is a reasonable
-solution to a real problem, that affects thousands of users, and in the
-middle of what seems to me a civilized discussion, you killfile him
-because he disagrees with you?
+Does this mean that ptrdiff_t type looks same as a size_t
+to printk() & seq_printf() ?
 
-Plonk to you too, asshole.
+>  processor_idle.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> 
+> diff -Nru a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+> --- a/drivers/acpi/processor_idle.c	2005-01-11 11:17:04 -08:00
+> +++ b/drivers/acpi/processor_idle.c	2005-01-11 11:17:04 -08:00
+> @@ -838,12 +838,12 @@
+>  	if (!pr)
+>  		goto end;
+>  
+> -	seq_printf(seq, "active state:            C%d\n"
+> +	seq_printf(seq, "active state:            C%zd\n"
+>  			"max_cstate:              C%d\n"
+>  			"bus master activity:     %08x\n",
+>  			pr->power.state ? pr->power.state - pr->power.states : 0,
+>  			max_cstate,
+> -			pr->power.bm_activity);
+> +			(unsigned)pr->power.bm_activity);
+>  
+>  	seq_puts(seq, "states:\n");
+>  
+> @@ -872,14 +872,14 @@
+>  		}
+>  
+>  		if (pr->power.states[i].promotion.state)
+> -			seq_printf(seq, "promotion[C%d] ",
+> +			seq_printf(seq, "promotion[C%zd] ",
+>  				(pr->power.states[i].promotion.state -
+>  				 pr->power.states));
+>  		else
+>  			seq_puts(seq, "promotion[--] ");
+>  
+>  		if (pr->power.states[i].demotion.state)
+> -			seq_printf(seq, "demotion[C%d] ",
+> +			seq_printf(seq, "demotion[C%zd] ",
+>  				(pr->power.states[i].demotion.state -
+>  				 pr->power.states));
+>  		else
+> -
 
-Lee
 
+-- 
+~Randy

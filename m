@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUGVOnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUGVOrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbUGVOnT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 10:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbUGVOnT
+	id S265986AbUGVOrq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 10:47:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUGVOrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 10:43:19 -0400
-Received: from hera.kernel.org ([63.209.29.2]:3212 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S265966AbUGVOnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 10:43:17 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: linux-kernel CVS gateway?
-Date: Thu, 22 Jul 2004 14:41:52 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <cdojng$it7$1@terminus.zytor.com>
-References: <20040717213703.GE5464@admingilde.org> <1090142336.15165.1.camel@localhost> <20040718201014.GA8291@admingilde.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1090507312 19368 127.0.0.1 (22 Jul 2004 14:41:52 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Thu, 22 Jul 2004 14:41:52 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Thu, 22 Jul 2004 10:47:46 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:44142 "EHLO
+	zircon.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S265986AbUGVOro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 10:47:44 -0400
+In-Reply-To: <313680C9A886D511A06000204840E1CF08F43052@whq-msgusr-02.pit.comms.marconi.com>
+References: <313680C9A886D511A06000204840E1CF08F43052@whq-msgusr-02.pit.comms.marconi.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <0C006758-DBEE-11D8-9AB1-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+Cc: crossgcc <crossgcc@sources.redhat.com>,
+       "'linuxppc-dev@lists.linuxppc.org'" <linuxppc-dev@lists.linuxppc.org>,
+       "'Andrew Morton'" <akpm@osdl.org>, "'bert hubert'" <ahu@ds9a.nl>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: case-sensitive file names during build
+Date: Thu, 22 Jul 2004 09:47:25 -0500
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040718201014.GA8291@admingilde.org>
-By author:    Martin Waitz <tali@admingilde.org>
-In newsgroup: linux.dev.kernel
-> 
-> hi :)
-> 
-> On Sun, Jul 18, 2004 at 11:18:56AM +0200, Kasper Sandberg wrote:
-> > they are using bitkeeper
-> 
-> sure, but Larry announced the CVS gateway some months ago...
-> now that I wanted to give it a try, it doesn't exist anymore :(
-> 
+On Jul 22, 2004, at 4:25 AM, Povolotsky, Alexander wrote:
+>
+>> make[3]: *** No rule to make target
+>>  `net/ipv4/netfilter/ipt_ecn.o', needed by 
+>> `net/ipv4/netfilter/built-in.o'.
+>> Stop.
+>
+> This is the (somewhat questionable) use of ipt_ECN.c and ipt_ecn.c in 
+> the
+> linux kernel. Windows filesystems are case insensitive, and see this 
+> as one
+> file.
 
-Just rsync the CVS repository from:
+I had not seen the ECN/ecn problem, but you will also be bitten by .S 
+-> .s preprocessing. That's right about the point that I gave up, 
+though on OS X I could have created a (case-sensitive) UFS filesystem 
+rather than using a (case-insensitive) HFS one.
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/bkcvs/
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
-The direct access to the repository was removed due to disuse and
-security problems.  The rsync is a lot nicer anyway.
-
-	-hpa

@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136498AbRAHKLR>; Mon, 8 Jan 2001 05:11:17 -0500
+	id <S136602AbRAHKNR>; Mon, 8 Jan 2001 05:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136602AbRAHKK6>; Mon, 8 Jan 2001 05:10:58 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:36616 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S136498AbRAHKKr>; Mon, 8 Jan 2001 05:10:47 -0500
-Date: Mon, 8 Jan 2001 11:10:45 +0100 (CET)
-From: Narancs 1 <narancs1@externet.hu>
-To: linux-kernel@vger.kernel.org
-Subject: postgres/shm problem
-Message-ID: <Pine.LNX.4.02.10101081110001.1837-100000@prins.externet.hu>
+	id <S136540AbRAHKNH>; Mon, 8 Jan 2001 05:13:07 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:45319 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S136602AbRAHKMt>; Mon, 8 Jan 2001 05:12:49 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A598F88.17EB535@yahoo.com>
+Date: Mon, 08 Jan 2001 04:59:36 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.0 i486)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: BJerrick@easystreet.com, linux-kernel@vger.kernel.org
+Subject: Re: 500 ms offset in i386 Real Time Clock setting
+In-Reply-To: <UTC200101071759.SAA146769.aeb@texel.cwi.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel developers!
+Andries.Brouwer@cwi.nl wrote:
+> 
+> I still haven't looked at things, but two points:
+> (i) is the behaviour constant on all architectures?
 
-Lots of things may have changed in 2.4.0-prer., because nor cdrecord
-neither postgressql do not run because of system v ipc / shm problem.
-After recompiling cdrecord with the new header files, started working.
-I'm just recompiling postgres too.
+As it is a property of the mc146818, it should be constant across all 
+arch that use drivers/char/rtc.c
 
-/var/log/postgresql.log:
+Sparc uses drivers/sbus/char/rtc.c which is for Mostek 4802.  No comment
+mentions a 500ms delay there - or in the file arch/sparc/kernel/time.c 
+*However* the test for the 500ms is still in the latter (in set_rtc_mmss).
 
-010102.10:45:09.448   [627] IpcMemoryCreate: shmget failed (No space left
-on device) key=5432010, size=144, permission=700
-This type of error is usually caused by an improper
-shared memory or System V IPC semaphore configuration.
-For more information, see the FAQ and platform-specific
-FAQ's in the source directory pgsql/doc or on our
-web site at http://www.postgresql.org.
-010102.10:45:09.481   [627] IpcMemoryIdGet: shmget failed (No such file or
-directory) key=5432010, size=144, permission=0
-010102.10:45:09.481   [627] IpcMemoryAttach: shmat failed (Invalid
-argument) id=-2
-010102.10:45:09.482   [627] FATAL 1:  AttachSLockMemory: could not attach
-segment
-010105.08:52:27.995 [12675] IpcMemoryCreate: shmget failed (No space left
-on device) key=5432010, size=144, permission=700
+> (ii) instead of waiting, isn't it much easier to redefine
+> what it means to access rtc?
 
-cdrecord says the same no space left on device mesg.
+Yes, and possibly what I had in mind some 5 years ago (as I'm sure I would
+have looked at set_rtc_mmss at the time...)
 
-Is there any other solution than recompiling programs?
-all of the program which need shm/ipc will turn blue?
+> (If you read a certain value then on average you are halfway
+> that second; if you write a certain value you are precisely
+> halfway that second. Maybe no delays are needed or desired.)
 
-kernel 2.4.0-prerelease
-postgresql                 7.0.3-2 postgresql                 7.0.3-2 
-cdrecord 1.9
+Calling it a "feature" is clearly easier - no code patched, no flag day
+for new behaviour, and no need for user space utils to have to do a 
+uname() to see if a 500ms delay is implemented.  The more I think about
+it, the better I like this option.
+
+Paul.
+
+--- drivers/char/rtc.c~	Sat Jan  6 05:40:24 2001
++++ drivers/char/rtc.c	Mon Jan  8 04:57:59 2001
+@@ -20,6 +20,14 @@
+  *	interrupts since the last read in the remaining high bytes. The 
+  *	/dev/rtc interface can also be used with the select(2) call.
+  *
++ *	The driver also supports ioctls for reading and setting the
++ *	date/time stored in the RTC in a SMP safe fashion (used by
++ *	the [hw]clock program).  Note that for the mc146818 RTC, the
++ *	second for which the RTC is set is half over, by definition.
++ *	Thus your application may require a 0.5 second delay before
++ *	calling this driver to set the RTC time if exact synchronization
++ *	is desired.
++ *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+  *	as published by the Free Software Foundation; either version
 
 
-thx
-Narancs v1
 
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

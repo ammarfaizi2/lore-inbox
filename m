@@ -1,58 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263595AbTCULny>; Fri, 21 Mar 2003 06:43:54 -0500
+	id <S263594AbTCULyU>; Fri, 21 Mar 2003 06:54:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263596AbTCULny>; Fri, 21 Mar 2003 06:43:54 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:55170 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263595AbTCULnx>; Fri, 21 Mar 2003 06:43:53 -0500
-Date: Fri, 21 Mar 2003 11:54:47 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Oleg Drokin <green@namesys.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs oops [2.5.65]
-Message-ID: <20030321115243.GA6664@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Oleg Drokin <green@namesys.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030319141048.GA19361@suse.de> <20030320112559.A12732@namesys.com> <20030320132409.GA19042@suse.de> <20030321121454.A17440@namesys.com>
-Mime-Version: 1.0
+	id <S263596AbTCULyT>; Fri, 21 Mar 2003 06:54:19 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:63876 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S263594AbTCULyS>;
+	Fri, 21 Mar 2003 06:54:18 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm3
+References: <20030320235821.1e4ff308.akpm@digeo.com>
+	<87znnp3s1h.fsf@lapper.ihatent.com>
+	<20030321030540.598ebca5.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 21 Mar 2003 13:05:20 +0100
+In-Reply-To: <20030321030540.598ebca5.akpm@digeo.com>
+Message-ID: <87llz87wn3.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030321121454.A17440@namesys.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 12:14:55PM +0300, Oleg Drokin wrote:
+Andrew Morton <akpm@digeo.com> writes:
 
- > >  > Hm, very interesting. Thank you.
- > >  > I've seen this once too, but on kernel patched with lots of unrelated and
- > >  > possibly memory corrupting stuff.
- > >  > I will look at it more closely.
- > >  > BTW, it oopsed not in find. Is your box SMP?
- > > Same box committed seppuku overnight, this time in a different way.
- > 
- > Hm, am I missing something?
- > So it died in the morning yesterday, but before that it died again? Or were those
- > two different nights? ;)
+> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+> >
+> > Andrew Morton <akpm@digeo.com> writes:
+> > >
+> > > [SNIP]
+> > >
+> >
+> > ... 
+> > make[4]: *** [net/ipv4/netfilter/ip_conntrack_core.o] Error 1
+> 
+> Bah, sorry.
+> 
+> --- 25/net/ipv4/netfilter/ip_conntrack_core.c~a	2003-03-21 03:04:45.000000000 -0800
+> +++ 25-akpm/net/ipv4/netfilter/ip_conntrack_core.c	2003-03-21 03:04:48.000000000 -0800
+> @@ -274,7 +274,7 @@ static void remove_expectations(struct i
+>  		 * the un-established ones only */
+>  		if (exp->sibling) {
+>  			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sibling, ct);
+> -			exp->sibling =3D NULL;
+> +			exp->sibling = NULL;
+>  			continue;
+>  		}
+>  
 
-two different nights. (with a reboot between them), and again last
-night. Seems to die each 6am when the cron jobs run.
-if you want, I'll force them to run more often to chase this down / try
-out debugging patches etc..
+Restarting my PCMCIA init.d script ended with this one in my log:
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c0211457
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c0211457>]    Not tainted VLI
+EFLAGS: 00210246
+EIP is at devclass_remove_driver+0x4b/0x8f
+eax: f4d88b48   ebx: f0964664   ecx: 00000000   edx: 00000000
+esi: f0964620   edi: f4d88b00   ebp: c9a59f28   esp: c9a59f14
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 5665, threadinfo=c9a58000 task=de569380)
+Stack: c02b8c07 00000042 c0331440 c0331400 f4d88b00 c9a59f44 c0210d5b f4d88b00
+       00000042 f4d88b0c f4d88b00 c02fa6f8 c9a59f5c c0211129 f4d88b00 f4d88c80
+       f4d88c80 c02fa6f8 c9a59f98 f0948326 f4d88b00 0000001a 00000000 00000019
+Call Trace:
+ [<f4d88b00>] i82365_driver+0x0/0x80 [i82365]
+ [<c0210d5b>] bus_remove_driver+0x5f/0x97
+ [<f4d88b00>] i82365_driver+0x0/0x80 [i82365]
+ [<f4d88b0c>] i82365_driver+0xc/0x80 [i82365]
+ [<f4d88b00>] i82365_driver+0x0/0x80 [i82365]
+ [<c0211129>] driver_unregister+0x1a/0x44
+ [<f4d88b00>] i82365_driver+0x0/0x80 [i82365]
+ [<f4d88c80>] +0x0/0x200 [i82365]
+ [<f4d88c80>] +0x0/0x200 [i82365]
+ [<f0948326>] init_i82365+0x127/0x131 [i82365]
+ [<f4d88b00>] i82365_driver+0x0/0x80 [i82365]
+ [<f095d940>] +0x1e0/0x397 [pcmcia_core]
+ [<c01300ed>] sys_init_module+0x13f/0x21d
+ [<c010ad8f>] syscall_call+0x7/0xb
  
- > > There's lots of "slab error in cache_alloc_debugcheck_after()"
- > > warnings. cache reiser_inode_cache memory after object was overwritten
- > This second oops and first BUG you quoted indicate that internal slab structures
- > (I think second oops happened in the middle of list_del) were corrupted, not
- > the guarded data itself.
- > At least I think so.
- > Can I take a look at your .config?
+Code: 42 00 00 00 c7 04 24 07 8c 2b c0 e8 2a 89 f0 ff 89 d8 ba 01 00 ff ff 0f c1 10 85 d2 0f 85 f1 03 00 00 8d 47 48 8b 57 48 8b 48 04 <89> 4a 04 89 11 89 40 04 89 47 48 89 3c 24 e8 68 fe ff ff 89 d8
+ <6>cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x3c0-0x3df 0x3f8-0x3ff 0x4d0-0x4d7
+cs: IO port probe 0x1000-0x17ff: excluding 0x1000-0x107f 0x1100-0x113f 0x1200-0x121f
+cs: IO port probe 0x0a00-0x0aff: clean.
+lapper root #
 
-http://www.codemonkey.org.uk/cruft/dotconfig
+Apart form that, the machine seems alive :)
 
-I'll rebuild that kernel with reiserfs extended checking on later.
-
-		Dave
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

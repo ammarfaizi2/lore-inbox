@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269214AbTGJLMc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269211AbTGJLLd
+	id S269211AbTGJLTD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 07:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269212AbTGJLTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:11:33 -0400
-Received: from holomorphy.com ([66.224.33.161]:18865 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S269206AbTGJLL2 (ORCPT
+	Thu, 10 Jul 2003 07:19:03 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:57767 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S269211AbTGJLTB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:11:28 -0400
-Date: Thu, 10 Jul 2003 04:27:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm3 OOM killer fubared ?
-Message-ID: <20030710112728.GX15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	linux-kernel@vger.kernel.org
-References: <bejhrj$dgg$1@news.cistron.nl>
-Mime-Version: 1.0
+	Thu, 10 Jul 2003 07:19:01 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] minor optimization for EXT3
+From: bzzz@tmi.comex.ru
+Date: Thu, 10 Jul 2003 15:33:17 +0000
+In-Reply-To: <20030710042016.1b12113b.akpm@osdl.org> (Andrew Morton's
+ message of "Thu, 10 Jul 2003 04:20:16 -0700")
+Message-ID: <87isqaiegy.fsf@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+References: <87smpeigio.fsf@gw.home.net>
+	<20030710042016.1b12113b.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bejhrj$dgg$1@news.cistron.nl>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 11:14:59AM +0000, Miquel van Smoorenburg wrote:
-> Enough memory free, no problems at all .. yet every few minutes
-> the OOM killer kills one of my innfeed processes.
-> I notice that in -mm3 this was deleted relative to -vanilla:
-> 
-> -
-> -       /*
-> -        * Enough swap space left?  Not OOM.
-> -        */
-> -       if (nr_swap_pages > 0)
-> -               return;
-> .. is that what causes this ? In any case, that should't vene matter -
-> there's plenty of memory in this box, all buffers and cached, but that
-> should be easily freed ..
+>>>>> Andrew Morton (AM) writes:
 
-This means we're calling into it more often than we should be.
-Basically, we hit __alloc_pages() with __GFP_WAIT set, find nothing
-we're allowed to touch, dive into try_to_free_pages(), fall through
-scanning there, sleep in blk_congestion_wait(), wake up again, try
-to shrink_slab(), find nothing there either, repeat that 11 more times,
-and then fall through to out_of_memory()... and this happens at at
-least 10Hz.
+ AM> Alex Tomas <bzzz@tmi.comex.ru> wrote:
+ >> 
+ >> Andreas Dilger proposed do not read inode's block during inode updating
+ >> if we have enough data to fill that block. here is the patch.
 
-        since = now - lastkill;
-        if (since < HZ*5)
-                goto out_unlock;
+ AM> ok, thanks.  Could you please redo it for the current kernel?
 
-try s/goto out_unlock/goto reset/ and let me know how it goes.
+hmmm. it was against 2.5.72. I just tried it on 2.5.74 and all is OK.
 
 
--- wli

@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUKEP0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUKEP1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUKEP0r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 10:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbUKEP0r
+	id S261272AbUKEP1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 10:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUKEP1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 10:26:47 -0500
-Received: from calvin.codito.com ([203.199.140.162]:28041 "EHLO
-	magrathea.codito.co.in") by vger.kernel.org with ESMTP
-	id S261234AbUKEP0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 10:26:46 -0500
-From: Amit Shah <amitshah@gmx.net>
-Organization: Codito Technologies
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
-Date: Fri, 5 Nov 2004 20:54:40 +0530
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200411051837.02083.amitshah@gmx.net> <20041105134639.GA14830@elte.hu>
-In-Reply-To: <20041105134639.GA14830@elte.hu>
-X-GnuPG-Fingerprint: 3001 346D 47C2 E445 EC1B  2EE1 E8FD 8F83 4E56 1092
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 5 Nov 2004 10:27:09 -0500
+Received: from paldo.org ([213.202.245.43]:5014 "EHLO buildd1.paldo.org")
+	by vger.kernel.org with ESMTP id S261272AbUKEP1C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 10:27:02 -0500
+Subject: [PATCH RESEND] Don't remove /sys in initramfs
+From: Juerg Billeter <juerg@paldo.org>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Content-Type: text/plain
+Organization: paldo
+Date: Fri, 05 Nov 2004 16:26:57 +0100
+Message-Id: <1099668417.4591.2.camel@juerg-p4.bitron.ch>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411052054.41290.amitshah@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 Nov 2004 19:16, Ingo Molnar wrote:
-> * Amit Shah <amitshah@gmx.net> wrote:
-> > Hi Ingo,
-> >
-> > I'm trying out the RT preempt patch on a P4 HT machine, I get the
-> > following message:
-> >
-> > e1000_xmit_frame+0x0/0x83b [e1000]
->
-> hm, does this happen with -V0.7.13 too? (note that it's against
-> 2.6.10-rc1-mm3, a newer -mm tree.)
+Using the "resume" kernel parameter together with an initramfs revealed
+a bug that causes removal of the /sys directory in the initramfs' tmpfs,
+making the system unbootable.
 
-Okay, doesn't happen with -V0.7.13. Thanks!
+The source of the problem is that the try_name() function removes
+the /sys directory unconditionally, instead of removing it only when it
+has been created by try_name().
 
->
->  Ingo
+The attached patch only removes /sys if it has been created before.
 
-Amit.
+Please CC me, I'm not on lkml.
 
--- 
-Amit Shah
-http://amitshah.nav.to/
+	Juerg
+
+--
+Signed-off-by: Juerg Billeter <juerg@paldo.org>
+
+diff -upNr linux-2.6.10-rc1-bk15.orig/init/do_mounts.c linux-2.6.10-rc1-bk15/init/do_mounts.c
+--- linux-2.6.10-rc1-bk15.orig/init/do_mounts.c 2004-10-18 23:53:51.000000000 +0200
++++ linux-2.6.10-rc1-bk15/init/do_mounts.c      2004-11-05 16:24:17.816549948 +0100
+@@ -142,7 +142,7 @@ dev_t __init name_to_dev_t(char *name)
+        int part;
+
+ #ifdef CONFIG_SYSFS
+-       sys_mkdir("/sys", 0700);
++       int mkdir_err = sys_mkdir("/sys", 0700);
+        if (sys_mount("sysfs", "/sys", "sysfs", 0, NULL) < 0)
+                goto out;
+ #endif
+@@ -197,7 +197,8 @@ done:
+ #ifdef CONFIG_SYSFS
+        sys_umount("/sys", 0);
+ out:
+-       sys_rmdir("/sys");
++       if (!mkdir_err)
++               sys_rmdir("/sys");
+ #endif
+        return res;
+ fail:
+
+

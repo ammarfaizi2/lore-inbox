@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266491AbSLRRjc>; Wed, 18 Dec 2002 12:39:32 -0500
+	id <S267111AbSLRRs5>; Wed, 18 Dec 2002 12:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267111AbSLRRjc>; Wed, 18 Dec 2002 12:39:32 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:60840 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266491AbSLRRjb>; Wed, 18 Dec 2002 12:39:31 -0500
-Date: Wed, 18 Dec 2002 11:47:26 -0600 (CST)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: vamsi@in.ibm.com, Zwane Mwaikambo <zwane@holomorphy.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] module-init-tools 0.9.3, rmmod modules with '-' 
-In-Reply-To: <20021218022816.913AC2C238@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0212181144120.21707-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267137AbSLRRs5>; Wed, 18 Dec 2002 12:48:57 -0500
+Received: from dsl3-63-249-88-76.cruzio.com ([63.249.88.76]:28328 "EHLO
+	athlon.cichlid.com") by vger.kernel.org with ESMTP
+	id <S267111AbSLRRs5>; Wed, 18 Dec 2002 12:48:57 -0500
+Date: Wed, 18 Dec 2002 09:56:56 -0800
+From: Andrew Burgess <aab@cichlid.com>
+Message-Id: <200212181756.gBIHuud27855@athlon.cichlid.com>
+To: linux-kernel@vger.kernel.org
+Orig-To: "j.a. magallon" <jamagallon@able.es>
+Subject: Re: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
+Newsgroups: mail.linux.kernel
+References: <1_0212161441436926@cichlid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Dec 2002, Rusty Russell wrote:
+>Number of threads	Elapsed time   User Time   System Time
+>1                   53:216           53:220    00:000
+>2                   29:272           58:180    00:320
+>3                   27:162         1:21:450    00:540
+>4                   25:094         1:41:080    01:250
 
-> In message <20021217114846.A30837@in.ibm.com> you write:
-> > On Tue, Dec 17, 2002 at 11:17:05AM +1100, Rusty Russell wrote:
-> > > 
-> > > BTW, this was done for (1) simplicity, (2) so KBUILD_MODNAME can be
-> > > used to construct identifiers, and (3) so parameters when the module
-> > > is built-in have a consistent name.
-> > > 
-> > Ok, I see it now, this magic happens in scripts/Makefile.lib. 
-> > My module has been built outside the kernel build system, that's
-> > why I saw this problem.
-> > 
-> > I guess avoiding '-' should do it, but is there a simple way to 
-> > correctly build (simple, test) modules outside the kernel tree now?
-> 
-> Has there ever been a simple way?
+>Elapsed is measured by the parent thread, that is not doing anything
+>but wait on a pthread_join. User and system times are the sum of
+>times for all the children threads, that do real work.
 
-Well, you can do
+>The jump from 1->2 threads is fine, the one from 2->4 is ridiculous...
+>I have my cpus doubled but each one has half the pipelining for floating
+>point...see the user cpu time increased due to 'worst' processors and
+>cache pollution on each package.
 
-cd my_module
-echo "obj-m := my_module.o" > Makefile
-vi my_module.c
-make -C <path/to/kernel/src> SUBDIRS=$PWD modules
+>So, IMHO and for my apps, HyperThreading is just a bad joke.
 
-That's not too bad (and basically works for 2.4 as well)
+Why do you care about user time? The elapsed time went down by
+4 minutes (2->4 threads), if that's a joke I don't get it :-)
 
---Kai
-
+New Intel Ad: "What are you going to do with your 4 minutes today?"
 

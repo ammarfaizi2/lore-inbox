@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbUKUXkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbUKUXm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbUKUXkR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 18:40:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbUKUXkR
+	id S261859AbUKUXm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 18:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUKUXm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 18:40:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52387 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261860AbUKUXkF (ORCPT
+	Sun, 21 Nov 2004 18:42:29 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:17150 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261852AbUKUXlY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 18:40:05 -0500
-Date: Sun, 21 Nov 2004 15:39:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: help: sysrq and X
-Message-Id: <20041121153940.035ffc08.akpm@osdl.org>
-In-Reply-To: <41A122E0.8070307@eyal.emu.id.au>
-References: <41A122E0.8070307@eyal.emu.id.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 21 Nov 2004 18:41:24 -0500
+Date: Sun, 21 Nov 2004 15:43:30 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: sparse segfaults
+Message-ID: <20041121234330.GA28381@gaz.sfgoth.com>
+References: <20041120143755.E13550@flint.arm.linux.org.uk> <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com> <Pine.LNX.4.58.0411211433540.20993@ppc970.osdl.org> <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Sun, 21 Nov 2004 15:43:30 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
->
-> I am trying to diagnose a hard lockup. The only way I can reproduce it is
->  with mythtv. When the system locks up (no mouse, no activity in X, no message
->  logged) I can use magic sysrq, but I cannot see the output.
+Jan Engelhardt wrote:
+> >Actually, this is documented gcc behaviour,[...]
+> >you can do
+> >	int tickadj = *ptr++ ? : 1;
+> >and it's well-behaved in that it increments the pointer only once.
 > 
->  Using 'r' does not enable console switching. However 'b' will boot the
->  system, and I hope 's' and 'u' did something blindly.
-> 
->  I there a way to regain a text console in order to inspect the kernel?
-> 
->  I can connect a machine to the serial port if this will help - does
->  sysrq work though the serial port? Which software should I use on
->  the serial port (on the 'other' machine) for this purpose then?
+> And it's specific to GCC. This kinda ruins some tries to get ICC working on the
+> kernel tree :)
 
-Yes, serial console is the best way to do this.  Add `console=ttyS0' to the
-kernel boot command line and use `<break>t' to get an all-task backtrace.
+By ICC do you mean the Intel compiler?  It's supported the GCC Extension
+"Conditionals with Omitted Operands" since at least version 5.0.1.  See:
+  http://www.intel.com/software/products/compilers/c50/linux/comp501.pdf
 
-If you're using minicom (spit) on the other end, Control-A F t is the
-combination to use.
-
+-Mitch

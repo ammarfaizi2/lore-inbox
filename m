@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbUBUXTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 18:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbUBUXTt
+	id S261627AbUBUXY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 18:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUBUXY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 18:19:49 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:52909 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S261629AbUBUXTs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 18:19:48 -0500
-From: NoTellin <notellin@speakeasy.net>
-Organization: --NA--
-To: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: Multiple NIC cards in the same machine and 2.5/2.6
-Date: Sat, 21 Feb 2004 17:39:31 -0500
-User-Agent: KMail/1.6
-References: <200402210815.55770.notellin@speakeasy.net> <pan.2004.02.21.15.33.18.150094@altlinux.ru>
-In-Reply-To: <pan.2004.02.21.15.33.18.150094@altlinux.ru>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 21 Feb 2004 18:24:27 -0500
+Received: from woland.ws ([62.121.81.218]:31242 "EHLO woland.michal.waw.pl")
+	by vger.kernel.org with ESMTP id S261627AbUBUXY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 18:24:26 -0500
+Date: Sun, 22 Feb 2004 00:24:16 +0100
+From: Michal Kochanowicz <michal@michal.waw.pl>
+To: linux-kernel@vger.kernel.org
+Subject: v4l fails after on 2.6.3 (works on 2.6.2)
+Message-ID: <20040221232416.GI7775@woland.michal.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402211739.31305.notellin@speakeasy.net>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
+Organization: Happy GNU/Linux Users
+X-Signature-Tagline-Copyright: Piotr Zientarski, 1999-2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 February 2004 10:33, Sergey Vlasov wrote:
-> There is no need to load two copies of the ne module.  Just
-> use:
->
-> alias eth0 ne
-> alias eth1 ne
-> options ne io=0x300,0x200 irq=3,5
+Hi!
 
-Ah-HAH. This must be one of those fundamental differences between 
-2.4 and 2.6. At the risk of sounding utterly incompetent, could 
-you enlighten me as to what I should have been looking for in 
-terms of seach terms. I like to think I'm a decent googler and I 
-generally RTFM, but I was totally unable to help myself this 
-time.
+After upgrade of kernel 2.6.2 -> 2.6.3 (built from exactly the same
+config) I'm no longer able to use my TV tuner card. When I launch tvtime
+following appears in system log:
+kernel: tuner: Huh? tv_set is NULL?
 
-I was aware that the driver layer is completely different between 
-the 2.4 and 2.6 series, but I have difficulty in finding out what 
-that means from a practical standpoint. Hence the questions.
+tvtime reports that "there is no signal" and when I try to change the
+channel, following appears in the log:
+kernel: bttv0: skipped frame. no signal? high irq latency? [main=1bd24000,o_vbi=1bd24018,o_field=e74c000,rc=ee9c3e0]
+kernel: bttv0: skipped frame. no signal? high irq latency? [main=1bd24000,o_vbi=1bd24018,o_field=e74e000,rc=e74e024]
+kernel: bttv0: skipped frame. no signal? high irq latency? [main=1bd24000,o_vbi=1bd24018,o_field=e74e000,rc=e74e01c]
+kernel: bttv0: skipped frame. no signal? high irq latency? [main=1bd24000,o_vbi=1bd24018,o_field=e750000,rc=e75001c]
+kernel: bttv0: skipped frame. no signal? high irq latency? [main=1bd24000,o_vbi=1bd24018,o_field=e750000,rc=eb8d340]
+kernel: tuner: Huh? tv_set is NULL?
 
-Thank you very much for your answer BTW. I play with it later this 
-weekend. 
+The tuner is some Prolink card based on BT878. It still works when I
+boot 2.6.2 (with following settings in modules.conf:
+options tuner type=5
+options bttv card=16
+).
 
-Guy
+Is there any chance for this to be fixed?
 
-
+Regards
 -- 
-Free Speech is better than Free Beer
+--= Michal Kochanowicz =--==--==BOFH==--==--= michal@michal.waw.pl =--
+--= finger me for PGP public key or visit http://michal.waw.pl/PGP =--
+--==--==--==--==--==-- Vodka. Connecting people.--==--==--==--==--==--
+A chodzenie po górach SSIE!!!

@@ -1,58 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264869AbRGIUF4>; Mon, 9 Jul 2001 16:05:56 -0400
+	id <S264865AbRGIUOI>; Mon, 9 Jul 2001 16:14:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264872AbRGIUFq>; Mon, 9 Jul 2001 16:05:46 -0400
-Received: from pat.uio.no ([129.240.130.16]:59057 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S264869AbRGIUFh>;
-	Mon, 9 Jul 2001 16:05:37 -0400
-MIME-Version: 1.0
-Message-ID: <15178.3722.86802.671534@charged.uio.no>
-Date: Mon, 9 Jul 2001 22:05:30 +0200
-To: Craig Soules <soules@happyplace.pdl.cmu.edu>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, jrs@world.std.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: NFS Client patch
-In-Reply-To: <Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
-In-Reply-To: <15177.65286.592796.329570@charged.uio.no>
-	<Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S264872AbRGIUN7>; Mon, 9 Jul 2001 16:13:59 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:33801 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S264865AbRGIUNr>;
+	Mon, 9 Jul 2001 16:13:47 -0400
+Date: Mon, 9 Jul 2001 22:12:47 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: "Gary White (Network Administrator)" <admin@netpathway.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VMWare crashes
+Message-ID: <20010709221247.A4040@vana.vc.cvut.cz>
+In-Reply-To: <82677BD2F89@vcnet.vc.cvut.cz> <3B4A0133.D7270B6D@netpathway.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B4A0133.D7270B6D@netpathway.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Craig Soules <soules@happyplace.pdl.cmu.edu> writes:
+On Mon, Jul 09, 2001 at 02:08:35PM -0500, Gary White (Network Administrator) wrote:
+> Here are the results of ksymoops...
+> 
+> Code;  e1af85e1 <[vmnet]VNetHubCycleDetect+69/7c>   <=====
+>    0:   8b 42 70                  mov    0x70(%edx),%eax   <=====
 
-    >> Your patch will automatically lead to duplicate entries in
-    >> readdir() on most if not all servers whenever the attributes on
-    >> the inode have been refreshed (whether or not the cache has
-    >> been invalidated). That's a bug...
+Thanks, meanwhile I found simillar report on VMware newsgroups, so there must be
+something really real (it was with example how to reproduce it, so I received
+fine oops too).
 
-     > If I were to do a create during a readdir() operation which
-     > inserted itself in the directory before the place it left off,
-     > that entry would be left out of the listing.  That is also a
-     > bug, wouldn't you think?
+Following patch fixes oopses, at least for me. Due to some changes in tasklets
+and/or in networking there is now very large quantum of skbs in flight from
+one part of vmnet (packet written to /dev/vmnet*) through netif_rx to another
+(packet received on eth0 interface). This trigerred 'history buffer overflow'
+message, which then started cleaning history buffer. And if two CPUs started
+cleaning at the same moment, one of them did kfree_skb(NULL) sooner or later...
 
-No: it's POSIX
+So only increasing VNET_BRIDGE_HISTORY from 8 to 48 fixes problem, but as
+I do not want oopses, rest of this patch just fixes oopses themselves. If
+you'll apply patch except VNET_BRIDGE_HISTORY line, it will work, but you'll
+get large stream of 'history buffer full' messages when doing TCP transfers
+between guest and host. (48 is apparently enough for dual PIII/800, I did 
+not tested lower values (48 is next multiple of 8 which ends on 8,
+this saved one keystroke and so on...))
 
-If the client discovers that the cache is invalid, it clears it, and
-refills the cache. We then start off at the next cookie after the last
-read cookie. Test it on an ordinary filesystem and you'll see the
-exact same behaviour. The act of creating or deleting files is *not*
-supposed invalidate the readdir offset.
+For those unfamiliar with patch (I'm sure there are no on linux-kernel,
+but there can be some in VMware newsgroups) I put updated vmnet.tar.gz
+at ftp://platan.vc.cvut.cz/pub/vmware/vmnet-204-for-2.4.6.tar.gz
 
-You are confusing the act of detecting whether or not the cache is
-invalid with that of recovering after a cache invalidation. In the
-former case we do have room for improvement: see for instance
+					Best regards,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-  http://www.fys.uio.no/~trondmy/src/2.4.6/linux-2.4.6-cto.dif
 
-which strengthens the attribute checking on open().
 
-Cheers,
-  Trond
+diff -urN vmnet-only.orig/bridge.c vmnet-only/bridge.c
+--- vmnet-only.orig/bridge.c	Thu Apr 26 19:59:28 2001
++++ vmnet-only/bridge.c	Mon Jul  9 21:50:36 2001
+@@ -44,7 +44,7 @@
+ #include "vnetInt.h"
+ 
+ 
+-#define VNET_BRIDGE_HISTORY    8
++#define VNET_BRIDGE_HISTORY    48
+ 
+ typedef struct VNetBridge VNetBridge;
+ 
+@@ -58,6 +58,7 @@
+    Bool                     savedPromisc;
+    struct sk_buff          *history[VNET_BRIDGE_HISTORY];
+    VNetPort                 port;
++   spinlock_t		    historyLock;
+ };
+ 
+ 
+@@ -130,6 +131,7 @@
+       goto out;
+    }
+    memset(bridge, 0, sizeof *bridge);
++   spin_lock_init(&bridge->historyLock);
+    memcpy(bridge->name, devName, sizeof bridge->name);
+ 
+    /*
+@@ -391,6 +393,8 @@
+ 	 unsigned long flags;
+ 	 int i;
+ 	 SKB_INCREF(clone);
++	 
++	 spin_lock_irqsave(&bridge->historyLock, flags);
+ 	 // XXX need to lock history
+ 	 for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+ 	    if (bridge->history[i] == NULL) {
+@@ -417,11 +421,15 @@
+ 	    for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+ 	       struct sk_buff *s = bridge->history[i];
+ 	       bridge->history[i] = NULL;
+-	       KFREE_SKB(s, FREE_WRITE);
++	       if (s) {
++	       	  spin_unlock_irqrestore(&bridge->historyLock, flags);
++		  KFREE_SKB(s, FREE_WRITE);
++		  spin_lock_irqsave(&bridge->historyLock, flags);
++	       }
+ 	    }
+ 	    bridge->history[0] = clone;
+ 	 }
+-         
++         spin_unlock_irqrestore(&bridge->historyLock, flags);
+ 	 clone->dev = dev;
+ 	 clone->protocol = eth_type_trans(clone, dev);
+ 	 save_flags(flags);
+@@ -773,6 +781,7 @@
+ {
+    VNetBridge *bridge = *(VNetBridge**)&((struct sock *)pt->data)->protinfo;
+    int i;
++   unsigned long flags;
+ 
+    if (bridge->dev == NULL) {
+       LOG(3, (KERN_DEBUG "bridge-%s: received %d closed\n",
+@@ -782,11 +791,13 @@
+    }
+ 
+    // XXX need to lock history
++   spin_lock_irqsave(&bridge->historyLock, flags);
+    for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+       struct sk_buff *s = bridge->history[i];
+       if (s != NULL &&
+ 	  (s == skb || SKB_IS_CLONE_OF(skb, s))) {
+ 	 bridge->history[i] = NULL;
++	 spin_unlock_irqrestore(&bridge->historyLock, flags);
+ 	 KFREE_SKB(s, FREE_WRITE);
+ 	 LOG(3, (KERN_DEBUG "bridge-%s: receive %d self %d\n",
+ 		 bridge->name, (int) skb->len, i));
+@@ -795,6 +806,7 @@
+ 	 return 0;
+       }
+    }
++   spin_unlock_irqrestore(&bridge->historyLock, flags);
+ 
+ #  if LOGLEVEL >= 4
+    {

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265433AbTFMQZz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265434AbTFMQZz
+	id S265436AbTFMQWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbTFMQWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:25:55 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:2722 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S265433AbTFMQZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:25:53 -0400
-Message-ID: <3EE9FE49.2090905@nortelnetworks.com>
-Date: Fri, 13 Jun 2003 12:39:37 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 13 Jun 2003 12:22:53 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:24727 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265436AbTFMQW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 12:22:27 -0400
+Date: Fri, 13 Jun 2003 12:35:47 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Mark Watts <m.watts@eris.qinetiq.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: HyperThreading not working in 2.4.21-rc6-ac2
+In-Reply-To: <200306130949.24402.m.watts@eris.qinetiq.com>
+Message-ID: <Pine.LNX.4.44.0306131234240.2856-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Joe <joeja@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Xeon  processors &&Hyper-Threading
-References: <3EE9FDFA.6020803@mindspring.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe wrote:
+On Fri, 13 Jun 2003, Mark Watts wrote:
 
-> I'm not asking if Linux can RUN the Xeon processor.
+> The following is a dmesg from a Dell PowerEdge 2650 server with 2 2.4Ghx
+> HT capable processors. To the best of my knowledge, I have HT enabled in
+> the bios but I still only see the physical processors (no siblings) even
+> though the cpus are numbered as if I have siblings.
 > 
-> I'm asking if Linux processor takes any advantage of the Hyper-Threading 
-> built into this processor?
+> Any suggestions?
 
-The kernel has full support for hyperthreading.  Be aware however that it 
-doesn't always buy you any performance gain and can actually result in 
-performance decrease.
+> Kernel command line: auto BOOT_IMAGE=2421rc6ac2 ro root=801 devfs=mount 
+> hda=ide-scsi acpi=off
+               ^^^^^^^^
 
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+The -ac kernel drops acpitable.c, which used to detect things
+like irq routing and HT "evil twin" CPUs and instead upgrades
+the ACPI subsystem. I suspect you need a different ACPI setting,
+though I'm not sure what it would be.
 

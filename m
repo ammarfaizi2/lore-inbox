@@ -1,153 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317393AbSHYOzP>; Sun, 25 Aug 2002 10:55:15 -0400
+	id <S317498AbSHYUTf>; Sun, 25 Aug 2002 16:19:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317396AbSHYOzP>; Sun, 25 Aug 2002 10:55:15 -0400
-Received: from web20405.mail.yahoo.com ([66.163.169.93]:22046 "HELO
-	web20417.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317393AbSHYOzN>; Sun, 25 Aug 2002 10:55:13 -0400
-Message-ID: <20020825145928.89846.qmail@web20417.mail.yahoo.com>
-Date: Sun, 25 Aug 2002 07:59:28 -0700 (PDT)
-From: waco chime <ironk123k_me2@yahoo.com>
-Subject: VERY URGENT FUND TRANSFER 
+	id <S317506AbSHYUTf>; Sun, 25 Aug 2002 16:19:35 -0400
+Received: from [213.9.248.151] ([213.9.248.151]:39251 "HELO linux.local")
+	by vger.kernel.org with SMTP id <S317498AbSHYUTf>;
+	Sun, 25 Aug 2002 16:19:35 -0400
+From: "Sales Department" <info@smokesdirect.com>
+Subject: Low Price Cigarettes
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Reply-To: info@smokesdirect.com
+Date: Sun, 25 Aug 2002 21:43:42 +0200
+X-Priority: 3
+X-Library: Indy 8.0.25
+Message-Id: <20020825201935Z317498-685+36897@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3/5 RIDER HAGGARD
-CLOSE, JO, BORG
-SOUTH AFRICA.
+Dear Sir / Madam
 
+If you are fed up of being 'ripped off' by the British government every time you buy your tobacco, then you should visit our website, where you can now buy 4 cartons of cigarettes, or 40 pouches of rolling tobacco from as little as 170 Euros (approx 105 pounds), inclusive of delivery by registered air mail from our office in Spain.  
 
-          URGENT AND CONFIDENTIAL)
-        
-      (RE:  TRANSFER OF ($ 152,000.000.00 USD  
-     ONE HUNDRED AND FIFTY TWO MILLION DOLLARS )  
+Why pay more???
 
-Dear,
+Visit our website at
+http://www.smokesdirect.com/?ID=2
 
-We want to transfer to overseas ($ 152,000.000.00 USD)
-One hundred and Fifty two million United States
-Dollars) from a Bank in Africa, I want to ask you to 
-quietly  look for a reliable and honest person who
-will be capable  and fit to provide either an existing
-bank account  or  to set up a new  Bank a/c 
-immediately to receive this money, even an empty a/c
-can serve to receive this money, as long as you will
-remain honest
-to me till the end for this important business
-trusting in  you and believing  in God that you  will
-never let me down either now or in future.
-
-I am WACO CHIME, the Auditor General of a bank in
-Africa, during the course of our auditing  I  
-discovered a floating fund  in an account opened in
-the bank in 1990 and since 1993 nobody has operated on
-this account again, after going through some old files
-in the records I discovered that the owner of the
-account  died without a [heir]  hence  the money is
-floating and  if I do not remit this money out
-urgently it will be forfeited for nothing. the owner
-of this account is  Mr.  Magnus Leon, a foreigner, and
-a sailor, and  he died,  since 1993. and  no other
-person knows about this account or any thing
-concerning it, the account has no other beneficiary
-and my investigation proved to me as well that Magnus
-Leon until his death was the manager  Magnus
-Coy.(pty). SA.  
-
-  
-We will start the  first transfer with fifty two
-million [$52,000.000] upon successful transaction
-without any disappoint from your side, we shall
-re-apply for the payment of the remaining  rest amount
-to your account, 
-
-The amount involved is (USD 152M) One hundred and
-Fifty two million United States Dollars, only I want
-to first transfer $52,000.000 [fifty two million
-United States Dollar from this money into a safe
-foreigners account abroad before the rest, but I don't
-know any foreigner, I am only contacting you as
-a foreigner because this money can not be approved to
-a local person here, without valid international
-foreign passport, but can only be approved to any
-foreigner with valid international passport or drivers
-license and foreign a/c  because the money is in us
-dollars and the former owner of the  a/c  Mr.Magnus
-Leon is a foreigner too, [and the money can only be
-approved into a foreign a/c 
-
-However, we will sign a binding agreement,  to bind us
-together   I got your contact address  from the Girl
-who operates computer,  I am revealing this to you
-with believe in God that you will never let me down in
-this business,  you are the first and the only person
-that I am contacting for this business, so please
-reply urgently so that I will inform you the next step
-to take urgently. Send also your private telephone and
-fax number including the full details of the account
-to be used for the deposit.
-
-I want us to meet face to face to build confidence and
-to sign a binding agreement that will  bind us
-together  before transferring the money to any account
-of  your choice  where the fund will be safe. Before
-we fly to your country for withdrawal, sharing and
-investments.
-
-I need your full co-operation to make this work fine.
-because the management is ready to approve this
-payment to any foreigner who has correct information
-of this account, which I will give to you, upon your
-positive response and once I am convinced that you 
-are  capable  and will meet up with instruction of  a
-key bank official who is deeply involved with me in
-this business.I need your strong assurance that you
-will never never let me down.
-
-With my influence and the position of the bank
-official we can transfer this money to any foreigner's
-reliable account which you can provide with assurance
-that this money will be intact pending our physical
-arrival in your country for sharing. The bank official
-will destroy all documents of transaction immediately
-we receive this money leaving no trace to any place
-and to build confidence  you can  come immediately  to
-discuss with me face to face after which I will make
-this remittance in your presence and three of us will
-fly to your country at least two days ahead of the
-money going into the account.
-
- I will apply for annual leave to get visa immediately
-I hear from you that you are ready to act and receive
-this fund in your account. I will use my position and
-influence to obtain all legal approvals for  onward
-transfer of this money to your account with
-appropriate clearance from  the relevant  ministries
-and foreign exchange departments.
-
-At the conclusion of this business, you will be given
-35% of the total amount, 60% will be for me, while 5%
-will be for expenses both parties might have incurred
-during the process of transferring.
-
-I look forward to your earliest reply through my email
-address. 
-
-Yours,
-
-WACO  CHIME 
-
-
-
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+Best regards
+Sales Department
+Smokes Direct
+Spain
+xay2772181y

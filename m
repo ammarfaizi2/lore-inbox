@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUDHUgV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 16:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUDHUeq
+	id S262910AbUDHUjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 16:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbUDHUcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 16:34:46 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:58085 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262425AbUDHTue (ORCPT
+	Thu, 8 Apr 2004 16:32:35 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:63973 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262438AbUDHTuh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:50:34 -0400
-Date: Thu, 8 Apr 2004 12:49:32 -0700
+	Thu, 8 Apr 2004 15:50:37 -0400
+Date: Thu, 8 Apr 2004 12:50:01 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: Patch 8/23 - Bitmaps, Cpumasks and Nodemasks
-Message-Id: <20040408124932.7404abfa.pj@sgi.com>
+Subject: Patch 15/23 - Bitmaps, Cpumasks and Nodemasks
+Message-Id: <20040408125001.7938aa3e.pj@sgi.com>
 In-Reply-To: <20040408115050.2c67311a.pj@sgi.com>
 References: <20040408115050.2c67311a.pj@sgi.com>
 Organization: SGI
@@ -26,80 +26,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P8.cpumask_ppc64_fixup - Remove/recode obsolete cpumask macros from arch ppc64
-        Remove by recoding all uses of the obsolete cpumask const,
-        coerce and promote macros.
+P15.cpumask_sched_refine- Cpumask code clarification in kernel/sched.c
+        Clarify and slightly optimize set_cpus_allowed() cpumask check
 
-Diffstat Patch_8_of_23:
- open_pic.c                     |    8 ++++----
- rtasd.c                        |    6 +++---
- 2 files changed, 7 insertions(+), 7 deletions(-)
-
-Index: 2.6.5.mask/arch/ppc64/kernel/open_pic.c
+Index: 2.6.5.bitmap/kernel/sched.c
 ===================================================================
---- 2.6.5.mask.orig/arch/ppc64/kernel/open_pic.c	2004-04-03 23:37:42.000000000 -0800
-+++ 2.6.5.mask/arch/ppc64/kernel/open_pic.c	2004-04-03 23:51:59.000000000 -0800
-@@ -592,7 +592,7 @@
- void openpic_init_processor(u_int cpumask)
- {
- 	openpic_write(&OpenPIC->Global.Processor_Initialization,
--		      physmask(cpumask & cpus_coerce(cpu_online_map)));
-+		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
- }
+--- 2.6.5.bitmap.orig/kernel/sched.c	2004-04-08 09:39:29.000000000 -0700
++++ 2.6.5.bitmap/kernel/sched.c	2004-04-08 09:40:08.000000000 -0700
+@@ -2722,7 +2722,7 @@
+ 	runqueue_t *rq;
  
- #ifdef CONFIG_SMP
-@@ -626,7 +626,7 @@
- 	CHECK_THIS_CPU;
- 	check_arg_ipi(ipi);
- 	openpic_write(&OpenPIC->THIS_CPU.IPI_Dispatch(ipi),
--		      physmask(cpumask & cpus_coerce(cpu_online_map)));
-+		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
- }
- 
- void openpic_request_IPIs(void)
-@@ -712,7 +712,7 @@
- {
- 	check_arg_timer(timer);
- 	openpic_write(&OpenPIC->Global.Timer[timer].Destination,
--		      physmask(cpumask & cpus_coerce(cpu_online_map)));
-+		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
- }
- 
- 
-@@ -837,7 +837,7 @@
- 	cpumask_t tmp;
- 
- 	cpus_and(tmp, cpumask, cpu_online_map);
--	openpic_mapirq(irq_nr - open_pic_irq_offset, physmask(cpus_coerce(tmp)));
-+	openpic_mapirq(irq_nr - open_pic_irq_offset, physmask(cpus_addr(tmp)[0]));
- }
- 
- #ifdef CONFIG_SMP
-Index: 2.6.5.mask/arch/ppc64/kernel/rtasd.c
-===================================================================
---- 2.6.5.mask.orig/arch/ppc64/kernel/rtasd.c	2004-04-03 23:37:42.000000000 -0800
-+++ 2.6.5.mask/arch/ppc64/kernel/rtasd.c	2004-04-03 23:51:59.000000000 -0800
-@@ -411,7 +411,7 @@
+ 	rq = task_rq_lock(p, &flags);
+-	if (any_online_cpu(new_mask) == NR_CPUS) {
++	if (!cpus_intersects(new_mask, cpu_online_map)) {
+ 		ret = -EINVAL;
+ 		goto out;
  	}
- 
- 	lock_cpu_hotplug();
--	cpu = first_cpu_const(mk_cpumask_const(cpu_online_map));
-+	cpu = first_cpu(cpu_online_map);
- 	for (;;) {
- 		set_cpus_allowed(current, cpumask_of_cpu(cpu));
- 		do_event_scan(event_scan);
-@@ -425,9 +425,9 @@
- 		schedule_timeout((HZ*60/rtas_event_scan_rate) / 2);
- 		lock_cpu_hotplug();
- 
--		cpu = next_cpu_const(cpu, mk_cpumask_const(cpu_online_map));
-+		cpu = next_cpu(cpu, cpu_online_map);
- 		if (cpu == NR_CPUS)
--			cpu = first_cpu_const(mk_cpumask_const(cpu_online_map));
-+			cpu = first_cpu(cpu_online_map);
- 	}
- 
- error_vfree:
 
 
 -- 

@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317593AbSGXW0j>; Wed, 24 Jul 2002 18:26:39 -0400
+	id <S317620AbSGXWbT>; Wed, 24 Jul 2002 18:31:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSGXW0j>; Wed, 24 Jul 2002 18:26:39 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:37125 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S317593AbSGXW0j>; Wed, 24 Jul 2002 18:26:39 -0400
-Message-Id: <200207242228.g6OMSmbA040560@aslan.scsiguy.com>
-To: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] aic7xxx driver doesn't release region 
-In-Reply-To: Your message of "Wed, 24 Jul 2002 13:32:54 PDT."
-             <20020724132119.2803.T-KOUCHI@mvf.biglobe.ne.jp> 
-Date: Wed, 24 Jul 2002 16:28:48 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S317627AbSGXWbT>; Wed, 24 Jul 2002 18:31:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12292 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317620AbSGXWbS>; Wed, 24 Jul 2002 18:31:18 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: CMIPCI
+Date: Wed, 24 Jul 2002 22:34:14 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ahna16$akn$1@penguin.transmeta.com>
+References: <20020724220223.GA761@the-penguin.otak.com>
+X-Trace: palladium.transmeta.com 1027550041 16267 127.0.0.1 (24 Jul 2002 22:34:01 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 24 Jul 2002 22:34:01 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->
->This is a patch to fix releasing memory and io regions for the
->aic7xxx driver.  This applies both 2.4- and 2.5-series.
+In article <20020724220223.GA761@the-penguin.otak.com>,
+Lawrence Walton  <lawrence@the-penguin.otak.com> wrote:
+>Looks like CMIPCI does not compile right now.
 
-I don't recall when exactly this was fixed in the aic7xxx driver,
-but probably 6.2.5 or so.  The 2.5.X kernel must not be using
-a recent version of the driver.  Marcelo's tree has 6.2.8
-which definitely does not require this patch (won't even apply).
+For "'synchronize_irq()' used without args", you only need to add the
+irq number as the argument, and it should work. Please test to verify,
+and send in a patch..
 
---
-Justin
+		Linus

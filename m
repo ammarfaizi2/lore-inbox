@@ -1,29 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267375AbSLRVya>; Wed, 18 Dec 2002 16:54:30 -0500
+	id <S267415AbSLRWBd>; Wed, 18 Dec 2002 17:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267376AbSLRVy3>; Wed, 18 Dec 2002 16:54:29 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8708 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267375AbSLRVy2>;
-	Wed, 18 Dec 2002 16:54:28 -0500
-Date: Wed, 18 Dec 2002 23:01:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.5.52 vesafb -- no display
-Message-ID: <20021218220119.GA118@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S267410AbSLRWBK>; Wed, 18 Dec 2002 17:01:10 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54801
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267407AbSLRWA7>; Wed, 18 Dec 2002 17:00:59 -0500
+Date: Wed, 18 Dec 2002 14:06:30 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jeff Chua <jchua@fedex.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.51 ide module problem
+In-Reply-To: <1040251422.26521.6.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10212181404180.8350-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-vesafb still shows nothing on HP OmniBook. It worked in 2.5.49, IIRC,
-and works on Toshiba.
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Jeff,
+
+Everybody cried screamed an whinned about making the chipsets modular.
+Now that we are going do that path, you have no choice but to wait.
+Use 2.4.20 and be happy.  Or have FedEX write the check for it to be
+worked on fulltime.  I do not care which, but don't bitch about progress.
+
+
+On 18 Dec 2002, Alan Cox wrote:
+
+> On Wed, 2002-12-18 at 19:50, Jeff Chua wrote:
+> > 
+> > On 18 Dec 2002, Alan Cox wrote:
+> > 
+> > > I'll get back to 2.5 IDE things next year. For the moment I'm only
+> > > concerned in getting the modular stuff sorted out completely in 2.4.
+> > > Hopefully that will be mostly valid for 2.5 as well.
+> > 
+> > I can't even boot 2.4.21-pre1 with IDE as modules. Works fine under 2.4.20
+> > 
+> > Looks like the IDE patch for 2.4.21-pre1 broke up the modules very similar
+> > to 2.5.51
+> 
+> Yes it did, and I plan to fix it there first
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

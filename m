@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265539AbSJSG6L>; Sat, 19 Oct 2002 02:58:11 -0400
+	id <S265534AbSJSGuV>; Sat, 19 Oct 2002 02:50:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265540AbSJSG6L>; Sat, 19 Oct 2002 02:58:11 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:19141 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S265539AbSJSG6K>; Sat, 19 Oct 2002 02:58:10 -0400
-Message-ID: <005601c2773d$b6fc65a0$6f1ee043@wizardess.wiz>
-From: "jdow" <jdow@earthlink.net>
-To: <root@chaos.analogic.com>, "Robert Love" <rml@tech9.net>
-Cc: "Neil Conway" <nconway.list@ukaea.org.uk>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.95.1021018152117.150B-100000@chaos.analogic.com>
-Subject: Re: [PATCH] 2.4: variable HZ
-Date: Sat, 19 Oct 2002 00:04:04 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S265536AbSJSGuU>; Sat, 19 Oct 2002 02:50:20 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:26890 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265534AbSJSGuU>;
+	Sat, 19 Oct 2002 02:50:20 -0400
+Date: Sat, 19 Oct 2002 02:56:24 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Dan Kegel <dank@kegel.com>, John Myers <jgmyers@netscape.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+Message-ID: <20021019065624.GA17553@mark.mielke.cc>
+References: <20021018185528.GC13876@mark.mielke.cc> <Pine.LNX.4.44.0210181209510.1537-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210181209510.1537-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard, would you believe that this is essentially what is done with the
-GPS satellites in the dither process and in the clock correction process
-to make the drifty Rb standards as stable as ground standards?
+On Fri, Oct 18, 2002 at 12:16:48PM -0700, Davide Libenzi wrote:
+> These functions are taken from the really simple example http server used
+> to test/compare /dev/epoll with poll()/select()/rt-sig//dev/poll :
 
-(You'd better. I designed the beastie involved.)
-{^_-}    Joanne, jdow@earthlink.net
------ Original Message ----- 
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-To: "Robert Love" <rml@tech9.net>
-Cc: "Neil Conway" <nconway.list@ukaea.org.uk>; <linux-kernel@vger.kernel.org>
-Sent: Friday, October 18, 2002 12:38
-Subject: Re: [PATCH] 2.4: variable HZ
+They still represent an excessive complicated model that attempts to
+implement /dev/epoll the same way that one would implement poll()/select().
 
+Sometimes the answer isn't emulation, or comparability.
 
-> On 18 Oct 2002, Robert Love wrote:
-> 
-> > On Fri, 2002-10-18 at 07:51, Neil Conway wrote:
-> > 
-> > > I was looking at your jiffies_to_clock_t() macro, and I notice that it
-> > > will screw up badly if the user chooses a HZ value that isn't a multiple
-> > > of the normal value (e.g. 1000 is OK, 512 isn't).
-> > 
-> > OK, sure, but why specify a power-of-two HZ?  There is absolutely no
-> > reason to, at least on x86.
-> > 
-> > Want 512?  500 will do just as well and has the benefit of (a) being a
-> > multiple of the previous HZ and (b) evenly dividing into our concept of
-> > time.
-> > 
-> > Robert Love
-> > 
-> 
-> At least on ix86, HZ needs to be something that CLOCK_TICK_RATE/LATCH
-> comes out fairly close. Remember, LATCH is the divisor for the PIT
-> and that PIT gets CLOCK_TICK_RATE for its input. If this number isn't
-> fairly 'exact' there will be much jumping of time in the sawtooth
-> corrector.
-> 
-> If you are not using ELAN, CLOCK_TICK_RATE is 1193180. If your HZ is
-> 100, you have 1193180/100 = 1193.18, not too exact. if you use
-> 500, you get 1193180/500 = 2386.36 which has twice as much round-off.
-> If you use 1193180/512 = 2330.43, even a higher fractional part.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> The US military has given us many words, FUBAR, SNAFU, now ENRON.
-> Yes, top management were graduates of West Point and Annapolis.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Sometimes the answer is innovation.
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

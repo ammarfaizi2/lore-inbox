@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTIASYF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 14:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbTIASYF
+	id S263562AbTIASX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 14:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTIASX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 14:24:05 -0400
-Received: from mta03.fuse.net ([216.68.1.123]:64418 "EHLO mta03.fuse.net")
-	by vger.kernel.org with ESMTP id S263572AbTIASYA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 14:24:00 -0400
-From: "Dale E Martin" <dmartin@cliftonlabs.com>
-Date: Mon, 1 Sep 2003 14:23:59 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: repeatable, hard lockup on boot in linux-2.6.0-test4 (more details)
-Message-ID: <20030901182359.GA871@cliftonlabs.com>
-References: <20030901153305.GA1429@cliftonlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030901153305.GA1429@cliftonlabs.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Sep 2003 14:23:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62636 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263562AbTIASXW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 14:23:22 -0400
+Date: Mon, 1 Sep 2003 15:26:02 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+X-X-Sender: marcelo@logos.cnet
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Andrea VM changes
+In-Reply-To: <20030830154137.GK24409@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0309011521490.6008-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just removed TCQ from my IDE setup, and I still lock up during boot.  The
-last message displayed is:
-mice: PS/2 mouse device common for all mice
 
-The numlock comes on, and then I'm locked up hard, for instance, I cannot
-turn off the numlock at this point.
 
-One thing that I would note is that I don't have anything plugged into my
-PS2/2 port since I have a USB mouse.  (A Kensington Model# MOSUU B, that
-works fine in 2.4.x, FWIW.)  Please advise if there is more debugging that
-I can try.
+On Sat, 30 Aug 2003, Andrea Arcangeli wrote:
 
-Thanks,
-	Dale
--- 
-Dale E. Martin, Clifton Labs, Inc.
-Senior Computer Engineer
-dmartin@cliftonlabs.com
-http://www.cliftonlabs.com
-pgp key available
+> On Sat, Aug 30, 2003 at 12:13:57PM -0300, Marcelo Tosatti wrote:
+> > 
+> > > You need to integrate with -aa on the VM.  It has been hard enough for
+> > > Andrea to get his stuff in, I doubt you will fair any better.
+> > 
+> > Thats because I never received separate patches which make sense one by
+> > one.  Most of Andreas changes are all grouped into few big patches that
+> > only he knows the mess. That is not the way to merge things.
+> > 
+> > I want to work out with him after I merge other stuff to address that.
+> 
+> that's true for only one patch, the others are pretty orthogonal after
+> Andrew helped splitting them:
+> 
+> 
+> 05_vm_03_vm_tunables-4
+> 05_vm_05_zone_accounting-2
+> 05_vm_06_swap_out-3
+> 05_vm_07_local_pages-4
+
+Two things: I will leave this local pages change to be applied later. I
+want to see what it does by itself (apply swap_out() changes & friends now
+and on another -pre local pages).
+
+> 05_vm_08_try_to_free_pages_nozone-4
+
+@@ -737,7 +737,6 @@ static void free_more_memory(void)
+        balance_dirty();
+        wakeup_bdflush();
+        try_to_free_pages(GFP_NOIO);
+-       run_task_queue(&tq_disk);
+        yield();
+ }
+
+
+Whats the reason behind this? 
+

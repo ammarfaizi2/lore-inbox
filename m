@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130885AbQKXOfK>; Fri, 24 Nov 2000 09:35:10 -0500
+        id <S130792AbQKXOgu>; Fri, 24 Nov 2000 09:36:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132397AbQKXOfB>; Fri, 24 Nov 2000 09:35:01 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50990 "EHLO
+        id <S131765AbQKXOga>; Fri, 24 Nov 2000 09:36:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17967 "EHLO
         the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S130885AbQKXOeo>; Fri, 24 Nov 2000 09:34:44 -0500
-Subject: Re: OOPS on bringing down ppp
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Fri, 24 Nov 2000 14:04:53 +0000 (GMT)
-Cc: mark.uzumati@virgin.net (Mark Ellis), linux-kernel@vger.kernel.org,
-        viro@math.psu.edu (Alexander Viro)
-In-Reply-To: <3A1E5EFC.16E7625A@uow.edu.au> from "Andrew Morton" at Nov 24, 2000 11:28:44 PM
+        id <S130792AbQKXOgU>; Fri, 24 Nov 2000 09:36:20 -0500
+Subject: Re: [PATCH] linux/drivers/media/radio check_region() removal
+To: pazke@orbita.don.sitek.net (Andrey Panin)
+Date: Fri, 24 Nov 2000 14:05:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001124155818.B3900@debian> from "Andrey Panin" at Nov 24, 2000 03:58:18 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13zJTD-00002K-00@the-village.bc.nu>
+Message-Id: <E13zJUG-00002Q-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not my area, but I don't think exec_usermodehelper() should assume
-> that current->files is always valid.
-> 
-> Al, is this correct?  If so, does daemonize() also need this test?
-> If not, then how did this thread get (current->files == NULL)?
+> attached patch removes all check_region() calls from /linux/drivers/media/r=
+> adio
+> drivers. Most changes  are obvious, except radio-cadet.c which needs some=
+> =20
+> maintainer's attention.=20
 
-exit_files() will leave it NULL yes. You may want to borrow (inherit ;)) the
-files from init_task
-
+Please check the -ac tree. I've already done them
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286261AbSAANjD>; Tue, 1 Jan 2002 08:39:03 -0500
+	id <S285134AbSAAO0F>; Tue, 1 Jan 2002 09:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286267AbSAANix>; Tue, 1 Jan 2002 08:38:53 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:31415 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S286261AbSAANig>; Tue, 1 Jan 2002 08:38:36 -0500
-Date: Tue, 1 Jan 2002 15:28:02 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Cc: sak@iki.fi, phillips@innominate.de, viro@math.psu.edu,
-        alan@lxorguk.ukuu.org.uk, tao@acc.umu.se
-Subject: Ext2 groups descriptor corruption in 2.2 - Phillips's patch seems to work
-Message-ID: <20020101152802.A1331@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S286272AbSAAOZz>; Tue, 1 Jan 2002 09:25:55 -0500
+Received: from inreach-gw1.idiom.com ([209.209.13.26]:3339 "EHLO
+	smile.idiom.com") by vger.kernel.org with ESMTP id <S285134AbSAAOZo>;
+	Tue, 1 Jan 2002 09:25:44 -0500
+Message-ID: <3C31C62F.FFF175A9@obviously.com>
+Date: Tue, 01 Jan 2002 09:22:39 -0500
+From: Bryce Nesbitt <bryce@obviously.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+CC: Lionel Bouton <Lionel.Bouton@free.fr>, Andries.Brouwer@cwi.nl
+Subject: Re: Why would a valid DVD show zero files on Linux?
+In-Reply-To: <E16LMQj-0008Hv-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A while ago Daniel Phillips posted a patch for 2.4.0-test11 to cure groups
-descriptor corruption in ext2.
+Alan Cox wrote:
+> 
+> > Understood.   However, why can't that combination "just work"?  Changing
+> > ... every time I switch between sticking in a CD-ROM and DVD-ROM is not cool.
+> > Certainly that "other operating system" does not make me do that.
+> 
+> man fstab
+> man ln
+> 
+> Its not a hard problem to solve that one
 
-The corruption had been seen with 2.2 and 2.0 for a long time. It happens
-most likely in situations where there are many hard links to same inode (see
-first report below).
-
-I gather this fix has gone into 2.4 mainline in different form (see Al
-Viro's fix below). It never went to 2.2 (nor 2.0) afaik.
-
-The fix applies pretty cleanly to 2.2.20, and has been tested by me and
-Samuli Kärkkäinen (again, see first problem report) for about a month now.
-Samuli reports that he had been able to reproduce the bug in about 10-15
-backup runs with unpatched 2.2.18. With the patch applied, it hasn't
-appeared in well over 20 runs. My experience is similar with 2.2.20.
-
-I haven't tested the patch on 2.0, but the problem seems to exists in 2.0 as
-well. Taking a quick look, it seems the patch can be applied to 2.0.40pre3
-with minor tweaking (s/ext2_get_group_desc/get_group_desc/g, remove
-le16_to_cpu() from patch, and perhaps the add the additional get_group_desc
-return value error checking to 2.0 ialloc.c that 2.2 has.)
-
-Alan, David, perhaps this would be worth applying to next 2.2/2.0 pre? Al,
-Daniel, what do you think? Should the patch be tidied up before 2.2
-inclusion (as was done for 2.4)?
-
-Daniel Phillips's patch (2000-11-30 0:03:37):
- http://marc.theaimsgroup.com/?l=linux-kernel&m=97554270404066&w=2
-
-To which Al Viro replied (2000-11-30 0:33:30):
- http://marc.theaimsgroup.com/?l=linux-kernel&m=97554444306920&w=2
-"Yes, it is. Moreover, correct solution is slightly different and changes                        
-ext2_get_group_desc() semantics. Wait until tomorrow, OK?"
-
-Al Viro's fix (2000-11-30 22:13:27):
- http://marc.theaimsgroup.com/?l=linux-kernel&m=97562262616388&w=2
-"search for appropriate cylinder group had been taken out of the                       
- ext2_new_inode() into helper functions - find_cg_dir(sb, parent_group) and                      
- find_cg_other(sb, parent_group). Bug caught by Daniel (wrong bh being                           
- dirtied when we update the free inodes counter) - fixed."
+My vision of Linux extends to people who don't have the ability, desire or
+time to "man fstab" *.
 
 
-Some corruption reports:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98882213127507&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99730849009286&w=2
-http://www.linuxsa.org.au/mailing-list/2000-04/309.html
-http://groups.google.com/groups?q=ext2_new_inode:+Free+inodes+count+corrupted+in+group&hl=en&rnum=1&selm=734g9b%24dkd%241%40coranto.ucs.mun.ca
-http://groups.google.com/groups?q=ext2_check_inodes_bitmap:+Wrong+free+inodes+count&start=20&hl=en&rnum=21&selm=linux.kernel.20000707120824.26346.qmail%40yusufg.portal2.com
+> > Are there any cases where udf filesystems are present on cdrom's that should
+> > be read as iso9660?  Someone mentioned it's a hard heuristic to figure out
+> > which fake filename the empty iso9660 filesystem uses.  How about, instead,
+> > pick the larger of the two filesystems if both are present.
+> 
+> Now you've made the behaviour effectively random which is even worse. On
+> a standard DVD the two file systems are the same. Some copy protected CD's
+> have a UDF file system on them that isnt interesting. Some DVD's have an
+> ISO fs that isnt interesting.
 
- 
--- v --
+Windows, somehow, detects the difference.  Whatever method used by Windows
+will be the one tested by the makers of most DVD/CDROM's.
 
-v@iki.fi
+Right now the behavior is deterministic from the Kernel's point of view,
+but random from the users point of view (e.g. "the last 5 DVD-ROM's I bought
+just worked, this one does not work").  Can detection be automated?  How
+does Windows do it?  Can Linux do it even better?
+
+
+If the distinction is something that can be automated well, then what is
+the argument against doing it?
+
+			-Bryce
+
+
+* I fit under "desire".  Once I learned that udf existed (it's not in 
+"man fstab"), I knew what to do.  I'd rather not know or care :-)!

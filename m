@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVCaULu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVCaUWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVCaULu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 15:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCaULu
+	id S261759AbVCaUWu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 15:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVCaUWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 15:11:50 -0500
-Received: from fire.osdl.org ([65.172.181.4]:8385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261749AbVCaULh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 15:11:37 -0500
-Date: Thu, 31 Mar 2005 12:11:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm3
-Message-Id: <20050331121119.4629aa94.akpm@osdl.org>
-In-Reply-To: <200503311505.48590.petkov@uni-muenster.de>
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-	<200503251746.10458.petkov@uni-muenster.de>
-	<200503311505.48590.petkov@uni-muenster.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 31 Mar 2005 15:22:50 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:19098 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261759AbVCaUWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 15:22:48 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Esben Nielsen <simlo@phys.au.dk>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050331174927.GA11483@elte.hu>
+References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
+	 <1112212608.3691.147.camel@localhost.localdomain>
+	 <1112218750.3691.165.camel@localhost.localdomain>
+	 <20050331110330.GA24842@elte.hu>
+	 <1112273378.3691.228.camel@localhost.localdomain>
+	 <20050331141040.GA2544@elte.hu>
+	 <1112290916.12543.19.camel@localhost.localdomain>
+	 <20050331174927.GA11483@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 31 Mar 2005 15:22:36 -0500
+Message-Id: <1112300556.12543.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Borislav Petkov <petkov@uni-muenster.de> wrote:
->
-> On Friday 25 March 2005 17:46, Borislav Petkov wrote:
->  > Hi Andrew,
->  >
->  > mm3 still not booting on my machine. Boot option 'nmi_watchdog=2' (my cpu
->  > is a dual core pentium 4 HT, 2.60 GHz) gets me a bit further in the boot
->  > process but it blocks there too.
->  >
->  > [output retyped from screen]:
->  > kernel: [    4.109241] PM: Checking swsusp image.
->  > kernel: [    4.109244] PM: Resume from disk failed.
->  > kernel: [    4.112220] VFS: Mounted root (ext2 filesystem) readonly.
->  > kernel: [    4.112465] Freeing unused kernel memory: 188k freed
->  > kernel: [    4.142002] logips2pp: Detected unknown logitech mouse model 1
->  > kernel: [    4.274620] input: PS/2 Logitech Mouse on isa0060/serio1
->  > <--- [point of previous blocks without boot option 'nmi_watchdog=2']--->
->  > INIT: version 2.86 booting
->  > Mounting a tmpfs over /dev... done.
->  > Creating initial device nodes... done.
->  > Setting parameters of disc: (none).
->  > Activating swap.
->  > kernel: [   10.712648] Adding 976744k swap on /dev/hda2. Priority:-1
->  > extents:1 Checking root file system...
->  > fsck 1.36 (05-Feb-2005)
->  > /: clean, 127290/1831424 files, 898566/3662056 blocks
->  > [EOF]
+On Thu, 2005-03-31 at 19:49 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
->  Hi Andrew,
+> > Oh, and did your really want to assign debug = .1?
 > 
->  i finally got to run kdb within mm3 and I got a bit further but am not sure 
->  whether I'm debugging in the right direction:
+> > -	.debug = .1, .file = __FILE__, .line = __LINE__
+> > +	.debug = 1, .file = __FILE__, .line = __LINE__
 > 
->  After booting with "kdb=early" I found out that the kernel blocks with the 
->  partial message:
-> 
->  kmem_cache_create: Early error in slab task_struct
->  kernel BUG at mm/slab.c:1215
->  invalid operand: 0000 [#1]
->  PREEMPT SMP
+> doh - indeed. This means rwlocks were nondebug all along? Ouch. I've 
+> uploaded -42-08 with the fix.
 
-Beats me.  Where did the kdb patch come from?
+I noticed it because starting with V0.7.41-25 (although I only actually
+noticed it with 42-07) not only were they nondebug, but they also didn't
+have any priority inheritance.
 
-It sounds like kdb for some reason is leaving the calling task in
-in_interrupt() state when it shouldn't.  You could try removing the
-in_interrupt() test, but things will probably die later on.
+-- Steve
 
-It might be worth disabling preempt, although a bug there won't cause
-in_interrupt() to return true.
 
-Did you send me your .config?

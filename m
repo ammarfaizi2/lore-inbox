@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbTIMC7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 22:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTIMC7F
+	id S261996AbTIMC5X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 22:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTIMC5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 22:59:05 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:18285 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262004AbTIMC7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 22:59:02 -0400
-Message-ID: <3F628811.1010209@sbcglobal.net>
-Date: Fri, 12 Sep 2003 21:59:29 -0500
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-CC: iain d broadfoot <ibroadfo@cis.strath.ac.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: getting a working CD-drive in 2.6
-References: <20030912093837.GC2921@iain-vaio-fx405> <3F627C13.6020608@longlandclan.hopto.org>
-In-Reply-To: <3F627C13.6020608@longlandclan.hopto.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 22:57:23 -0400
+Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:61772 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261996AbTIMC5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 22:57:22 -0400
+Date: Fri, 12 Sep 2003 22:56:55 -0400
+From: Iker <iker@computer.org>
+Subject: Re: [lkml] RE: self piping and context switching
+To: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Reply-to: Iker <iker@computer.org>
+Message-id: <03f501c379a2$b14b49b0$3203a8c0@duke>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <MDEHLPKNGKAHNMBLJOLKCECHGIAA.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+More specifically, I was wondering if the write to the pipe or the call back
+into poll involved anything that might prompt the scheduler to replace the
+thread in this scenario.
 
-Stuart Longland wrote:
+> It's reasonable to expect that this will be the most common case and the
+> one to optimize. It is unreasonable to fail if this doesn't happen, since
+> it's not guaranteed to happen. Note that if by "without a context switch"
+> you really mean without another thread getting a chance to run, then it is
+> totally unreasonable.
 
-> iain d broadfoot wrote:
+Are you referring to transitions to/from kernel space? If so, wouldn't the
+write
+on the pipe and the call to poll both result in transitions?
+
+Regards,
+Iker
+
+
+----- Original Message -----
+From: "David Schwartz" <davids@webmaster.com>
+To: "Iker" <iker@computer.org>; <linux-kernel@vger.kernel.org>
+Sent: Friday, September 12, 2003 10:04 PM
+Subject: [lkml] RE: self piping and context switching
+
+
 >
-> |     ide-scsi is disabled.
+> > Assume a thread is monitoring a set of fd's which include both ends of
+> > a pipe (using poll, for example). If the thread writes to the pipe (in
+> > order to notify itself for whatever reason) is it reasonable to expect
+> > that it will be able to return to its poll loop and get the event
+> > without a context switch? (provided it quickly returns to the poll
+> > loop).
 >
-> If it's an IDE drive, you'll want this _enabled_ before you'll be able
-> to write CDs.  Most of the burner software that I know of look for a
-> SCSI CD burner, not IDE.  ide-scsi is intended for making an IDE CD
-> burner appear as a SCSI device.
-
-
-Actually with 2.6, you no longer need ide-scsi.  You'll need to upgrade 
-your cdrecord tools and probably your burning GUI, if you use one.  I've 
-been burning that way for several months now.  (I'm using xcdroast, 
-though I need to start it with "-n" since I'm using cdrecord 2.01a18.)  
-This actually works better for me than ide-scsi as for some reason it 
-uses less CPU.
-
--Wes-
+> It's reasonable to expect that this will be the most common case and the
+> one to optimize. It is unreasonable to fail if this doesn't happen, since
+> it's not guaranteed to happen. Note that if by "without a context switch"
+> you really mean without another thread getting a chance to run, then it is
+> totally unreasonable. On SMP systems and with hyper-threading, threads can
+> run concurrently.
+>
+> DS
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

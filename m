@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130921AbRAaNZM>; Wed, 31 Jan 2001 08:25:12 -0500
+	id <S130575AbRAaNaC>; Wed, 31 Jan 2001 08:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130924AbRAaNZC>; Wed, 31 Jan 2001 08:25:02 -0500
-Received: from nat-20.kulnet.kuleuven.ac.be ([134.58.0.20]:13754 "EHLO
-	scoezie.kotnet.org") by vger.kernel.org with ESMTP
-	id <S130921AbRAaNYu>; Wed, 31 Jan 2001 08:24:50 -0500
-Date: Wed, 31 Jan 2001 14:27:15 +0100 (CET)
-From: Davy Preuveneers <davy.preuveneers@student.kuleuven.ac.be>
-To: linux-kernel@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Parallel zip-disk can't use EPP 32 bit with 2.4.x kernels
-In-Reply-To: <20010130131219.A13071@bliss.zebra.net>
-Message-ID: <Pine.LNX.4.21.0101311426030.3169-100000@scoezie.kotnet.org>
-Organization: "kotnet" <www.kotnet.org>
+	id <S130924AbRAaN3v>; Wed, 31 Jan 2001 08:29:51 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13063 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130575AbRAaN3a>; Wed, 31 Jan 2001 08:29:30 -0500
+Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
+To: tleete@mountain.net (Tom Leete)
+Date: Wed, 31 Jan 2001 13:29:38 +0000 (GMT)
+Cc: david@linux.com (David Ford), sfrost@snowman.net (Stephen Frost),
+        linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <3A77C6E7.606DDA67@mountain.net> from "Tom Leete" at Jan 31, 2001 03:03:51 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14NxKP-0002KH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It's not an incompatibility with the k7 chip, just bad code in
+> include/asm-i386/string.h. in_interrupt() cannot be called from there.
 
+The string.h code was fine, someone came along and put in a ridiculous loop
+in the include dependancies and broke it. Nobody has had the time to untangle
+it cleanly since
 
+> I have posted a patch here many times since last May. Most recent was
+> Saturday.
 
-On Tue, 30 Jan 2001, Forever shall I be. wrote:
-
-> On Tue, Jan 30, 2001 at 07:17:28PM +0100, Davy Preuveneers wrote:
-> > Since I'm running the 2.4.x kernels, I'm having a little problem with my
-> > parallel zip-disk. The ppa module can't use the EPP 32 protocol and uses
-> > the PS/2 protocol instead (which is much slower), as shown by the boot
-> > message of kernel 2.4.1:
-> > 
-> [snip]
-> > 
-> > Kernels 2.2.x use the EPP 32 bit protocol while the 2.4.x versions don't,
-> > although I have used the same options when compiling the new 2.4.1 kernel.
-> > When I change the parallel port configuration in the BIOS from ECP/EPP to
-> > EPP only (version 1.9), the 2.4.x kernels use the EPP 32 bit protocol as 
-> > well, but then I can't use ECP with dma anymore.
-> > 
-> > Does anyone know what the problem is?
-> 
-> Are you sure you've given parport_pc the correct IRQ/DMA? It doesn't
-> seem to be able to detect them very well over here, so I need a line
-> such as:
-> 	options parport_pc io=0x378 irq=7 dma=3
-> 
-> but YMMV :)
-
-Yes, I tried that already, but no effect
-
-> 
-> > 
-> > Davy
-> 
-> -- 
-> Zinx Verituse                           (See headers for gpg key info)
-> 
-
+uninlining the code is too high a cost.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316211AbSETTVg>; Mon, 20 May 2002 15:21:36 -0400
+	id <S316256AbSETTZC>; Mon, 20 May 2002 15:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316256AbSETTVf>; Mon, 20 May 2002 15:21:35 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:10983 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316211AbSETTVe>; Mon, 20 May 2002 15:21:34 -0400
-Date: Mon, 20 May 2002 21:21:36 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Planning on a new system
-Message-ID: <20020520192136.GC25125@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1021856882.1814.12.camel@tiger>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316257AbSETTZB>; Mon, 20 May 2002 15:25:01 -0400
+Received: from E1-009.ctame700-1.telepar.net.br ([200.181.141.9]:56615 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S316256AbSETTZA>; Mon, 20 May 2002 15:25:00 -0400
+Date: Mon, 20 May 2002 16:24:37 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@zip.com.au>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Bug with shared memory.
+In-Reply-To: <20020520141523.GB21806@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0205201618110.24352-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 19, 2002 at 09:07:58PM -0400, Louis Garcia wrote:
-> Graphics adapter 32MB NVIDIA ? GeForce2? MX200 AGP Graphics
+On Mon, 20 May 2002, Andrea Arcangeli wrote:
 
-AFAIK there some binary-only driver for this card, that causes trouble
-time to time and as it's binary only, no one can debug them.
-I am not sure what really requres the driver, that is how much X can do
-without it.
+> With memclass_related_bhs() we automatically maximixed the amount of ram
+> available as inodes/indirects and everything else ZONE_NORMAL, after
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+OK, a question and a remark:
+
+1) does memclass_related_bhs() work if the bufferheads are
+   on another node ?  (NUMA-Q)
+
+2) memclass_related_bhs() will definately not work if the
+   data structure is pinned indirectly, say struct address_space
+   which is pinned by mere the existance of the page cache page
+   and cannot easily be freed
+
+> > or three, so he may not see your words.
+>
+> Ok. We CC'ed Rik so I assume it won't get lost in the mail flood.
+
+I'm on holidays, don't expect patches soon :)
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,133 +1,317 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267239AbUBNBBT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 20:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUBNBBT
+	id S264507AbUBNBYt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 20:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbUBNBYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 20:01:19 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:61649 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S267248AbUBNA67 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 19:58:59 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 13 Feb 2004 20:24:49 -0500
+Received: from gizmo08ps.bigpond.com ([144.140.71.18]:385 "HELO
+	gizmo08ps.bigpond.com") by vger.kernel.org with SMTP
+	id S264507AbUBNBYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 20:24:35 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
+Date: Sat, 14 Feb 2004 11:24:50 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>
+References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au>
+In-Reply-To: <200402140041.17584.ross@datscreative.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16429.29392.529575.21798@napali.hpl.hp.com>
-Date: Fri, 13 Feb 2004 16:58:56 -0800
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-gcc@vger.kernel.org,
-       wilson@specifixinc.com
-Subject: Re: Kernel Cross Compiling
-In-Reply-To: <20040213214420.GA32006@MAIL.13thfloor.at>
-References: <20040213205743.GA30245@MAIL.13thfloor.at>
-	<16429.16944.521739.223708@napali.hpl.hp.com>
-	<20040213214420.GA32006@MAIL.13thfloor.at>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ijXLAtQb19Zmf0h"
+Message-Id: <200402141124.50880.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 13 Feb 2004 22:44:20 +0100, Herbert Poetzl <herbert@13thfloor.at> said:
 
-  >> A recipe for building ia32->ia64 cross-toolchain on Debian can be
-  >> found here:
+--Boundary-00=_ijXLAtQb19Zmf0h
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-  >> http://www.gelato.unsw.edu.au/IA64wiki/CrossCompilation
+On Saturday 14 February 2004 00:41, Ross Dickson wrote:
+> On Friday 13 February 2004 21:17, Prakash K. Cheemplavam wrote:
+> > Hi,
+> > 
+> > I am just testing this patch with latest 2.6.3-rc2-mm1. It works in that 
+> > sense, that my machine doesn't lock up of APIC issue. (If it locks up - 
+> > hasn't done yet - then because of something else, I am currently 
+> > discssing it in another thread...)
+> > 
+> > But it doesn't work in the sense of cooling my machine down. Though 
+> > athcool reports disconnect is activated it behaves like it is not, ie, 
+> > turning disconnect off makes no difference in temperatures. Your old 
+> > tack patch in conjunction with 2.6.2-rc1 (linus) works like a charm, ie 
+> > no lock-ups and less temp.
+> > 
+> 
+> Thanks Prakash for testing it and spotting thermal problem.
+> 
+> Here are some temperatures from my machine read from the bios on reboot.
+> I gave it minimal activity for the minutes prior to reboot.
+> 
+> Win98, 47C
+> XPHome, 42C
+> Patched Linux 2.4.24 (1000Hz), 40C
+> Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
+> 
+> Sorry, I will have to go through my latest patch and see why the temp differs
+> so much between 2.4 and 2.6. I currently use patched 2.4.24 with Suse 8.2 for
+> convenience. When it stopped the lockups on 2.6 I thought the 2.6 was
+> working the same way. 
+> 
 
-  Herbert> that might work with the ia64 libraries and headers, but it
-  Herbert> seems to fail, with the headers included in the gcc
-  Herbert> tarball, for cross compiling, if you get it to compile
-  Herbert> without (g)libc which should not be required to build the
-  Herbert> crossgcc and the kernel, I would be very interested ...
+Found the problem for 2.6
 
-Ah, I see now what you mean.  I suspect that's a setup that's rarely
-tested, so I'm not surprised to see some breakage.
+After fixing it the 2.6 temperature is
+Patched Linux 2.6.3-rc1-mm1, 38C
+Ambient today is 1C cooler also.
 
-Having said that, I got gcc v3.3.3 20031212 (prerelease) to build with
-minor tweaks (see patch below).  I'm no GCC-built-environment expert
-and I'm quite certain that the patch isn't totally correct, but all
-the unwind-related stuff isn't really needed in your case, because
-that code only comes into play for exception-handling and C cleanup
-handlers.
+The fix is to put the brackets back on "!need_resched()"  so that we call
+the function and test its return value - not just test the function pointer!
 
-The unwind-sjlj.c problem should occur on most other platforms too, so
-I don't think that problem is ia64-specific.
+Should be as follows:
 
-	--david
+static void c1halt_idle(void)
+{
+	if (!hlt_counter && current_cpu_data.hlt_works_ok) {
+		local_irq_disable();
+		/* only hlt disconnect if more than 1.6% of apic interval remains */
+		if( (!need_resched() ) &&
+			(apic_read(APIC_TMCCT) > (apic_read(APIC_TMICT)>>6))) {
+			ndelay(500); /* helps nforce2 but adds 0.5us hard int latency */
+			safe_halt();  /* nothing better to do until we wake up */
+		}
+		else
+			local_irq_enable();
+	}
+}
 
-Index: gcc/unwind-sjlj.c
-===================================================================
-RCS file: /cvs/gcc/gcc/gcc/unwind-sjlj.c,v
-retrieving revision 1.11.2.2
-diff -u -r1.11.2.2 unwind-sjlj.c
---- gcc/unwind-sjlj.c	2 May 2003 21:01:21 -0000	1.11.2.2
-+++ gcc/unwind-sjlj.c	14 Feb 2004 00:50:33 -0000
-@@ -22,7 +22,9 @@
- #include "tconfig.h"
- #include "tsystem.h"
- #include "unwind.h"
-+#ifndef inhibit_libc
- #include "gthr.h"
-+#endif
- 
- #ifdef __USING_SJLJ_EXCEPTIONS__
- 
-Index: gcc/unwind.h
-===================================================================
-RCS file: /cvs/gcc/gcc/gcc/unwind.h,v
-retrieving revision 1.7.2.6
-diff -u -r1.7.2.6 unwind.h
---- gcc/unwind.h	4 Sep 2003 09:39:44 -0000	1.7.2.6
-+++ gcc/unwind.h	14 Feb 2004 00:50:33 -0000
-@@ -195,7 +195,9 @@
-    compatible with the standard ABI for IA-64, we inline these.  */
- 
- #ifdef __ia64__
--#include <stdlib.h>
-+# ifndef inhibit_libc
-+#  include <stdlib.h>
-+# endif
- 
- static inline _Unwind_Ptr
- _Unwind_GetDataRelBase (struct _Unwind_Context *_C)
-Index: gcc/config/ia64/fde-glibc.c
-===================================================================
-RCS file: /cvs/gcc/gcc/gcc/config/ia64/fde-glibc.c,v
-retrieving revision 1.5
-diff -u -r1.5 fde-glibc.c
---- gcc/config/ia64/fde-glibc.c	15 Dec 2001 11:46:51 -0000	1.5
-+++ gcc/config/ia64/fde-glibc.c	14 Feb 2004 00:50:34 -0000
-@@ -31,6 +31,9 @@
- #ifndef _GNU_SOURCE
- #define _GNU_SOURCE
+Again attached in tarball, 2.4 patch was not changed.
+
+Revision1 patch for 2.6.3-rc1-mm1:
+
+---CUTHERE---
+--- linux-2.6.3-rc1-mm1/arch/i386/kernel/process.c	2004-02-11 21:29:49.000000000 +1000
++++ linux-2.6.3-rc1-mm1-nf/arch/i386/kernel/process.c	2004-02-11 23:44:04.000000000 +1000
+@@ -50,10 +50,11 @@
+ #include <asm/desc.h>
+ #include <asm/atomic_kmap.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
  #endif
-+
-+#ifndef inhibit_libc
-+
- #include "config.h"
- #include <stddef.h>
- #include <stdlib.h>
-@@ -162,3 +165,5 @@
++#include <asm/apic.h>
  
-   return data.ret;
+ #include <linux/irq.h>
+ #include <linux/err.h>
+ 
+ #include <asm/tlbflush.h>
+@@ -92,11 +93,11 @@ EXPORT_SYMBOL(enable_hlt);
+ 
+ /*
+  * We use this if we don't have any better
+  * idle routine..
+  */
+-void default_idle(void)
++static void default_idle(void)
+ {
+ 	if (!hlt_counter && current_cpu_data.hlt_works_ok) {
+ 		local_irq_disable();
+ 		if (!need_resched())
+ 			safe_halt();
+@@ -104,10 +105,29 @@ void default_idle(void)
+ 			local_irq_enable();
+ 	}
  }
+ 
+ /*
++ * We use this to avoid nforce2 lockups
++ * Reduces frequency of C1 disconnects
++ */
++static void c1halt_idle(void)
++{
++	if (!hlt_counter && current_cpu_data.hlt_works_ok) {
++		local_irq_disable();
++		/* only hlt disconnect if more than 1.6% of apic interval remains */
++		if( (!need_resched()) &&
++			(apic_read(APIC_TMCCT) > (apic_read(APIC_TMICT)>>6))) {
++			ndelay(500); /* helps nforce2 but adds 0.5us hard int latency */
++			safe_halt();  /* nothing better to do until we wake up */
++		}
++		else
++			local_irq_enable();
++	}
++}
 +
-+#endif
-Index: gcc/config/ia64/linux.h
-===================================================================
-RCS file: /cvs/gcc/gcc/gcc/config/ia64/linux.h,v
-retrieving revision 1.23
-diff -u -r1.23 linux.h
---- gcc/config/ia64/linux.h	3 Sep 2002 21:09:54 -0000	1.23
-+++ gcc/config/ia64/linux.h	14 Feb 2004 00:50:34 -0000
-@@ -58,7 +58,7 @@
- /* Do code reading to identify a signal frame, and set the frame
-    state data appropriately.  See unwind-dw2.c for the structs.  */
++/*
+  * On SMP it's slightly faster (but much more power-consuming!)
+  * to poll the ->work.need_resched flag instead of waiting for the
+  * cross-CPU IPI to arrive. Use this option with caution.
+  */
+ static void poll_idle (void)
+@@ -195,20 +215,18 @@ static inline void check_cpu_quiescent(v
+  * The idle thread. There's no useful work to be
+  * done, so just try to conserve power and have a
+  * low exit latency (ie sit in a loop waiting for
+  * somebody to say that they'd like to reschedule)
+  */
++static void (*idle)(void);
+ void cpu_idle (void)
+ {
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {
+-			void (*idle)(void) = pm_idle;
+-
+ 			if (!idle)
+-				idle = default_idle;
+-
++				idle = pm_idle ? pm_idle : default_idle;
+ 			check_cpu_quiescent();
+ 			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+ 			idle();
+ 		}
+ 		schedule();
+@@ -260,16 +278,18 @@ void __init select_idle_routine(const st
  
--#ifdef IN_LIBGCC2
-+#ifdef x_IN_LIBGCC2
- #include <signal.h>
- #include <sys/ucontext.h>
+ static int __init idle_setup (char *str)
+ {
+ 	if (!strncmp(str, "poll", 4)) {
+ 		printk("using polling idle threads.\n");
+-		pm_idle = poll_idle;
++		idle = poll_idle;
+ 	} else if (!strncmp(str, "halt", 4)) {
+ 		printk("using halt in idle threads.\n");
+-		pm_idle = default_idle;
++		idle = default_idle;
++	} else if (!strncmp(str, "C1halt", 6)) {
++		printk("using C1 halt disconnect friendly idle threads.\n");
++		idle = c1halt_idle;
+ 	}
+-
+ 	return 1;
+ }
  
+ __setup("idle=", idle_setup);
+---CUTHERE--- 
+
+
+
+--Boundary-00=_ijXLAtQb19Zmf0h
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="nforce2-2.6.3-rc1-mm1-idle-c1halt-rev1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="nforce2-2.6.3-rc1-mm1-idle-c1halt-rev1.patch"
+
+--- linux-2.6.3-rc1-mm1/arch/i386/kernel/process.c	2004-02-11 21:29:49.000000000 +1000
++++ linux-2.6.3-rc1-mm1-nf/arch/i386/kernel/process.c	2004-02-11 23:44:04.000000000 +1000
+@@ -50,10 +50,11 @@
+ #include <asm/desc.h>
+ #include <asm/atomic_kmap.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
+ #endif
++#include <asm/apic.h>
+ 
+ #include <linux/irq.h>
+ #include <linux/err.h>
+ 
+ #include <asm/tlbflush.h>
+@@ -92,11 +93,11 @@ EXPORT_SYMBOL(enable_hlt);
+ 
+ /*
+  * We use this if we don't have any better
+  * idle routine..
+  */
+-void default_idle(void)
++static void default_idle(void)
+ {
+ 	if (!hlt_counter && current_cpu_data.hlt_works_ok) {
+ 		local_irq_disable();
+ 		if (!need_resched())
+ 			safe_halt();
+@@ -104,10 +105,29 @@ void default_idle(void)
+ 			local_irq_enable();
+ 	}
+ }
+ 
+ /*
++ * We use this to avoid nforce2 lockups
++ * Reduces frequency of C1 disconnects
++ */
++static void c1halt_idle(void)
++{
++	if (!hlt_counter && current_cpu_data.hlt_works_ok) {
++		local_irq_disable();
++		/* only hlt disconnect if more than 1.6% of apic interval remains */
++		if( (!need_resched()) &&
++			(apic_read(APIC_TMCCT) > (apic_read(APIC_TMICT)>>6))) {
++			ndelay(500); /* helps nforce2 but adds 0.5us hard int latency */
++			safe_halt();  /* nothing better to do until we wake up */
++		}
++		else
++			local_irq_enable();
++	}
++}
++
++/*
+  * On SMP it's slightly faster (but much more power-consuming!)
+  * to poll the ->work.need_resched flag instead of waiting for the
+  * cross-CPU IPI to arrive. Use this option with caution.
+  */
+ static void poll_idle (void)
+@@ -195,20 +215,18 @@ static inline void check_cpu_quiescent(v
+  * The idle thread. There's no useful work to be
+  * done, so just try to conserve power and have a
+  * low exit latency (ie sit in a loop waiting for
+  * somebody to say that they'd like to reschedule)
+  */
++static void (*idle)(void);
+ void cpu_idle (void)
+ {
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {
+-			void (*idle)(void) = pm_idle;
+-
+ 			if (!idle)
+-				idle = default_idle;
+-
++				idle = pm_idle ? pm_idle : default_idle;
+ 			check_cpu_quiescent();
+ 			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+ 			idle();
+ 		}
+ 		schedule();
+@@ -260,16 +278,18 @@ void __init select_idle_routine(const st
+ 
+ static int __init idle_setup (char *str)
+ {
+ 	if (!strncmp(str, "poll", 4)) {
+ 		printk("using polling idle threads.\n");
+-		pm_idle = poll_idle;
++		idle = poll_idle;
+ 	} else if (!strncmp(str, "halt", 4)) {
+ 		printk("using halt in idle threads.\n");
+-		pm_idle = default_idle;
++		idle = default_idle;
++	} else if (!strncmp(str, "C1halt", 6)) {
++		printk("using C1 halt disconnect friendly idle threads.\n");
++		idle = c1halt_idle;
+ 	}
+-
+ 	return 1;
+ }
+ 
+ __setup("idle=", idle_setup);
+ 
+
+--Boundary-00=_ijXLAtQb19Zmf0h--
+

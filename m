@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129309AbRBTJot>; Tue, 20 Feb 2001 04:44:49 -0500
+	id <S129191AbRBTJsK>; Tue, 20 Feb 2001 04:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129191AbRBTJok>; Tue, 20 Feb 2001 04:44:40 -0500
-Received: from pat.uio.no ([129.240.130.16]:18838 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S129309AbRBTJog>;
-	Tue, 20 Feb 2001 04:44:36 -0500
-To: Roman Zippel <zippel@fh-brandenburg.de>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        dek_ml@konerding.com, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net, mason@suse.com
-Subject: Re: [NFS] Re: problems with reiserfs + nfs using 2.4.2-pre4
-In-Reply-To: <Pine.GSO.4.10.10102200330330.25095-100000@zeus.fh-brandenburg.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 20 Feb 2001 10:44:07 +0100
-In-Reply-To: Roman Zippel's message of "Tue, 20 Feb 2001 03:38:32 +0100 (MET)"
-Message-ID: <shslmr11yfs.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S129363AbRBTJsA>; Tue, 20 Feb 2001 04:48:00 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:48096 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129191AbRBTJry>; Tue, 20 Feb 2001 04:47:54 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200102200947.KAA02817@sunrise.pg.gda.pl>
+Subject: Re: [IDE] meaningless #ifndef?
+To: pozsy@sch.bme.hu (Pozsar Balazs)
+Date: Tue, 20 Feb 2001 10:47:41 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.GSO.4.30.0102192252130.7963-100000@balu> from "Pozsar Balazs" at Feb 19, 2001 10:57:32 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Roman Zippel <zippel@fh-brandenburg.de> writes:
+"Pozsar Balazs wrote:"
+> from drivers/ide/ide-features.c:
+> 
+> /*
+>  *  All hosts that use the 80c ribbon mus use!
+>  */
+> byte eighty_ninty_three (ide_drive_t *drive)
+> {
+>         return ((byte) ((HWIF(drive)->udma_four) &&
+> #ifndef CONFIG_IDEDMA_IVB
+>                         (drive->id->hw_config & 0x4000) &&
+> #endif /* CONFIG_IDEDMA_IVB */
+>                         (drive->id->hw_config & 0x6000)) ? 1 : 0);
+> }
+> 
+> If i see well, then this is always same whether CONFIG_IDEDMA_IVB is
+> defined or not.
 
-     > Hi, On Tue, 20 Feb 2001, Neil Brown wrote:
+No, it is not the same. But it duplicates the test when CONFIG_IDEDMA_IVB
+is not set. If both tests are done and the first is true, the second also
+must be true. If the first is false, the second is meaningless.
+Maybe the above code should be:
 
-    >> 2/ lookup("..").
+        return ((byte) ((HWIF(drive)->udma_four) &&
+#ifndef CONFIG_IDEDMA_IVB
+                        (drive->id->hw_config & 0x4000)
+#else
+                        (drive->id->hw_config & 0x6000)
+#endif /* CONFIG_IDEDMA_IVB */
+			) ? 1 : 0);
 
-     > A small question: Why exactly is this needed?
+Just my 0.03 PLN... 
+--
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 
-Short answer: the existence of 'rename' makes it necessary, since it
-means that the directory path is volatile as far as the client is
-concerned.
-
-IIRC several NFS implementations (not Linux though) rely on being able
-to walk back up the directory tree in order to discover the path at
-any given moment.
-
-Under Linux, our reliance on dentries doesn't allow for directory
-paths to be volatile, so we don't support it. Instead we end up having
-to support aliased directories.
-
-Cheers,
-  Trond

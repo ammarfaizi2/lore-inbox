@@ -1,26 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283376AbRLDUxB>; Tue, 4 Dec 2001 15:53:01 -0500
+	id <S283432AbRLDUyk>; Tue, 4 Dec 2001 15:54:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283510AbRLDUv0>; Tue, 4 Dec 2001 15:51:26 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:19413 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S283424AbRLDUu0>; Tue, 4 Dec 2001 15:50:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Stefani Seibold <stefani@seibold.net>
-To: Stefani@seibold.net
-Subject: Re: patch for suppress printk messages
-Date: Tue, 4 Dec 2001 21:48:44 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <16BIdM-12MonAC@fmrl05.sul.t-online.com> <001e01c17cea$d6b03c30$6400a8c0@it0>
-In-Reply-To: <001e01c17cea$d6b03c30$6400a8c0@it0>
+	id <S283424AbRLDUxE>; Tue, 4 Dec 2001 15:53:04 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10762 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283477AbRLDUvc>;
+	Tue, 4 Dec 2001 15:51:32 -0500
+Date: Tue, 4 Dec 2001 18:51:20 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: The Doctor What <docwhat@gerf.org>
+Cc: <linux-kernel@vger.kernel.org>,
+        Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <20011204142840.C26365@gerf.org>
+Message-ID: <Pine.LNX.4.33L.0112041850460.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16BMW4-0jd19sC@fmrl02.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am sorry about the repeated messages. It was a missconfigurated
-mail server ;-)
+On Tue, 4 Dec 2001, The Doctor What wrote:
+> * Patrick McFarland (unknown@panax.com) [011125 19:00]:
+> > And I like the kernel qa group idea, but where would we get the
+> > people to be on it?
+>
+> Start with yourself.
+>
+> Build some basic QA functionality.
+> Propose plans for how a kernel version will be marked QA-OK.
+> Build a web site describing what people and resources you need.
+>
+> If you build it, they will come.
+
+I'd be willing to host such a thing on kernelnewbies.org,
+if Patrick (or somebody else) is willing to implement and
+maintain it.
+
+cheers,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315967AbSEGUui>; Tue, 7 May 2002 16:50:38 -0400
+	id <S315969AbSEGU5m>; Tue, 7 May 2002 16:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315968AbSEGUuh>; Tue, 7 May 2002 16:50:37 -0400
-Received: from pD9E23EE2.dip.t-dialin.net ([217.226.62.226]:53151 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315967AbSEGUug>; Tue, 7 May 2002 16:50:36 -0400
-Date: Tue, 7 May 2002 14:50:35 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Possible SCSI (sr) mini-cleanup
-Message-ID: <Pine.LNX.4.44.0205071445480.4189-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315970AbSEGU5l>; Tue, 7 May 2002 16:57:41 -0400
+Received: from ns.suse.de ([213.95.15.193]:26382 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S315969AbSEGU5k>;
+	Tue, 7 May 2002 16:57:40 -0400
+Date: Tue, 7 May 2002 22:57:38 +0200
+From: Dave Jones <davej@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Cc: bgerst@didntduck.org
+Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
+Message-ID: <20020507225738.G12134@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
+	bgerst@didntduck.org
+In-Reply-To: <20020507205523.D12134@suse.de> <Pine.NEB.4.44.0205072137260.9347-100000@mimas.fachschaften.tu-muenchen.de> <20020507221824.F12134@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 07, 2002 at 10:18:25PM +0200, Dave Jones wrote:
+ > On Tue, May 07, 2002 at 09:44:41PM +0200, Adrian Bunk wrote:
+ > > > I always build my test kernels with CONFIG_DEBUG_IOVIRT=y, and I
+ > > > haven't seen this happen.
+ > > But you build without CONFIG_MULTIQUAD?
+ > Ah, I can reproduce it now. I'll have a poke at it..
 
-I don't see where the variable and the label have been used. Are they 
-useful for anything? If they are, tell me please!
+Ok, I think this is likely some fall out from Brian's io.h cleanup
+from circa 2.5.9.  Brian, anything obvious here ? I took at quick
+look at those macros and my brains started leaking out my ears.
 
-							       Regards,
-								Thunder
-
-diff -Nur linus-2.5/drivers/scsi/sr.c thunder-2.5/drivers/scsi/sr.c
---- linus-2.5/drivers/scsi/sr.c	Tue May  7 14:28:57 2002
-+++ thunder-2.5/drivers/scsi/sr.c	Tue May  7 14:27:10 2002
-@@ -697,8 +697,6 @@
- 
- static int sr_init()
- {
--	int i;
--
- 	if (sr_template.dev_noticed == 0)
- 		return 0;
- 
-@@ -723,8 +721,6 @@
- 		goto cleanup_cds;
- 	memset(sr_sizes, 0, sr_template.dev_max * sizeof(int));
- 	return 0;
--cleanup_sizes:
--	kfree(sr_sizes);
- cleanup_cds:
- 	kfree(scsi_CDs);
- cleanup_devfs:
 -- 
-if (errno == ENOTAVAIL)
-    fprintf(stderr, "Error: Talking to Microsoft server!\n");
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

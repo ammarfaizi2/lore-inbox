@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263257AbSJHVqi>; Tue, 8 Oct 2002 17:46:38 -0400
+	id <S263454AbSJHVsx>; Tue, 8 Oct 2002 17:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263263AbSJHVqh>; Tue, 8 Oct 2002 17:46:37 -0400
-Received: from tom.rz.uni-passau.de ([132.231.51.4]:30406 "EHLO
-	tom.rz.uni-passau.de") by vger.kernel.org with ESMTP
-	id <S263257AbSJHVqg>; Tue, 8 Oct 2002 17:46:36 -0400
-Message-Id: <200210082152.g98LqFjm015242@tom.rz.uni-passau.de>
-Date: Tue, 8 Oct 2002 23:46:40 +0100
-From: "lell02" <lell02@stud.uni-passau.de>
-To: Tommy Vestermark <tov@mail1.stofanet.dk>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Status of UDF CD packet writing?
-X-mailer: Foxmail 4.1 [eg]
-Mime-Version: 1.0
-Content-Type: text/plain;
-      charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S263436AbSJHVsN>; Tue, 8 Oct 2002 17:48:13 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:21162 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S263267AbSJHVq4>;
+	Tue, 8 Oct 2002 17:46:56 -0400
+Date: Tue, 8 Oct 2002 14:54:19 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <andre@linux-ide.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] embedded struct device Re: [patch] IDE driver model update
+In-Reply-To: <Pine.GSO.4.21.0210081735370.5897-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0210081446170.16276-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, 
 
->Will Jens Axboes patch for CD packet writing for CD-R/RW make it in
->before the feature freeze? I know Jens Axboe is busy with more basic I/O
->stuff, but i sincerely hope it can be squeezed in before 2.6/3.0 is
->released.
+> That would be nice, if it worked that way.  As it is we have
+> 
+> driver allocates foo
+> driver grabs a reference to foo->dev
+> ....
+> somebody else grabs/drops temporary references to foo->dev
+> ....
+> driver call put_device(&foo->dev)
+> driver frees structures refered from foo.
+> driver frees foo.
+> 
+> _IF_ the last two steps were done by ->release(), your arguments would
+> work.  Actually they are done by driver right after the put_device() call.
+> 
+> If you are willing to change that (== move all destruction into ->release()) -
+> yeah, then embedded struct device will work.  It's a hell of a work though.
 
-jens stated on this about 1-2 days ago. he said, it would be little modification 
-on the ide-cdrom, to make it work with cd-mrw/ packet writing.
-so it could go in after the feature freeze.
+Yes, and we're willing to do a lot of it. 
 
->
->Most new machines are fitted with a CD burner and some have finally even
->dropped the floppy drive!. Good desktop support is not only about
->low-latency and scheduler issues (Good work though!).
->
->Looking forward to 2.6/3.0 (or whatever the name may be ;-)
->Tommy Vestermark
->
+That's been the intention the whole time, and would have been done sooner,
+but it's taken a freakin' long time to figure out what assumptions to make
+in the core. And of course, they're not always right. ;) Which means
+there's more work to be done there. The feedback is greatly appreciated,
+and I'm always open to more..
 
-Marcus Lell
+Thanks,
 
-
-
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+	-pat
 

@@ -1,26 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268566AbRHDO0n>; Sat, 4 Aug 2001 10:26:43 -0400
+	id <S268813AbRHDPiz>; Sat, 4 Aug 2001 11:38:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268567AbRHDO0d>; Sat, 4 Aug 2001 10:26:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28678 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268566AbRHDO0W>; Sat, 4 Aug 2001 10:26:22 -0400
-Subject: Re: Linux 2.4.7ac4
-To: toon@vdpas.hobby.nl
-Date: Sat, 4 Aug 2001 15:28:04 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010804134244.C6809@vdpas.hobby.nl> from "toon@vdpas.hobby.nl" at Aug 04, 2001 01:42:44 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268909AbRHDPir>; Sat, 4 Aug 2001 11:38:47 -0400
+Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:22443 "EHLO
+	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S268813AbRHDPig>; Sat, 4 Aug 2001 11:38:36 -0400
+Date: Sat, 4 Aug 2001 11:38:41 -0400
+From: Tom Vier <tmv5@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.7-ac4 disk thrashing
+Message-ID: <20010804113841.A2196@zero>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15T2PM-00054N-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Did you really merge ext3 into release 2.4.7ac4?
+switching from 2.4.7-ac3 to -ac4, disk access seems to be much more
+synchronis. running a ./configure script causes all kinds of trashing, as
+does installing .debs. i'm using reiserfs on top of software raid 0 on an
+alpha.
 
-Yep
-
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

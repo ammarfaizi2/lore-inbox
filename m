@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270373AbUJUKnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270611AbUJUKnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270373AbUJUKnW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUJUKmB
+	id S270611AbUJUKnp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUJUKnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:42:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34540 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270653AbUJUKiy (ORCPT
+	Thu, 21 Oct 2004 06:43:32 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:16264 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S270611AbUJUKnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:38:54 -0400
-Date: Thu, 21 Oct 2004 12:34:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021103454.GD10531@suse.de>
-References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021101821.GB473@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041021101821.GB473@elte.hu>
+	Thu, 21 Oct 2004 06:43:14 -0400
+Message-ID: <417792BA.8090205@in.ibm.com>
+Date: Thu, 21 Oct 2004 16:13:06 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Vara Prasad <varap@us.ibm.com>
+Subject: kexec based crashdumps
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21 2004, Ingo Molnar wrote:
-> 
-> * Jens Axboe <axboe@suse.de> wrote:
-> 
-> > I didn't look at the USB code, I'm just saying that it's perfectly
-> > valid use of a semaphore the pattern you describe (process A holding
-> > it, process B releasing it).
-> 
-> yes, that is perfectly true, and sorry if we gave you the wrong
-> impression.
-> 
-> the goal of these patches is to do a semaphore->completion conversion in
-> cases where the semaphore was used for completion purposes. It's a bit
-> faster and more readable but not a 'bugfix' in any way. (another set of
-> patches are converting sleep_on() uses to wait_event*() plus waitqueues
-> - those can in fact be considered bugfixes in some cases.)
-> 
-> typically the cases where semaphores are held by one task and released
-> by another task happens coincide with this used-for-completion scenario.
+Hi,
 
-Thanks for the explanation, I can agree with that.
+The following patchset completes the basic functionality on 
+kexec based crashdumps on i386. The first patch makes it 
+possible to boot an i386 kernel from a non-default physical 
+address. The rest of the patches are minor clean-ups and 
+bug-fixes.
 
--- 
-Jens Axboe
+All the patches are on top of 2.6.9-rc4-mm1.
 
+Kindly review them and let us know your feedback.
+
+Thanks and Regards,
+Hari

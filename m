@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbUADTY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 14:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUADTY1
+	id S261875AbUADTUe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 14:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUADTUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 14:24:27 -0500
-Received: from alhya.freenux.org ([213.41.137.38]:29140 "EHLO
-	moria.freenux.org") by vger.kernel.org with ESMTP id S262355AbUADTYZ convert rfc822-to-8bit
+	Sun, 4 Jan 2004 14:20:30 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:35463 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261875AbUADTU3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 14:24:25 -0500
-From: Mickael Marchand <marchand@kde.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] Update : Silicon Image 3114, 4 ports support
-Date: Sun, 4 Jan 2004 20:24:17 +0100
-User-Agent: KMail/1.5.94
-References: <200401041413.20573.marchand@kde.org> <20040104192048.GA17638@gtf.org>
-In-Reply-To: <20040104192048.GA17638@gtf.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "B. Gajdos" <brian@chem.sk>
+	Sun, 4 Jan 2004 14:20:29 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 4 Jan 2004 11:20:29 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ingo Oeser <ioe-lkml@rameria.de>
+cc: Jamie Lokier <jamie@shareable.org>, Bill Davidsen <davidsen@tmr.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       <lse-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+In-Reply-To: <200401042002.03684.ioe-lkml@rameria.de>
+Message-ID: <Pine.LNX.4.44.0401041112290.12250-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401042024.29421.marchand@kde.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 4 Jan 2004, Ingo Oeser wrote:
 
-Le Sunday 04 January 2004 20:20, vous avez écrit :
-> On Sun, Jan 04, 2004 at 02:12:56PM +0100, Mickael Marchand wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Hi,
-> >
-> > Thanks to the info Brian provided, I was able to set up the 4 ports of
-> > the sil3114.
-> > Attached is the patch for sata_sil.c, tested on a 2.6.1-rc1-mm1 and
-> > tested by Brian too.
-> >
-> > I used
-> > if (ent->driver_data == sil_3114)   { ... }
-> >
-> > to ensure the 4 ports are probed only for sil3114 , I am not sure this is
-> > the correct way to do it (so that sil3112 support is not broken). I guess
-> > Jeff will review that :)
->
-> Yeah, your patch looks good.  I assume you tested ports 3 and 4?
-Brian tested them yes.
-on my (remote) box, the ports appears in dmesg but have no disks connected.
-Brian confirmed he can use his 4 drives with the patch.
+> > The impression I had was that the code is quite complicated and
+> > invasive, and select/poll aren't considered worth optimising because
+> > epoll is an overall better solution (which is true; optimising
+> > select/poll would change the complexity of the slow part but not
+> > reduce the complexity of the API part, while epoll does both).
+> 
+> This is true. But old software continues to exist and for INN there is
+> pretty much nothing else in this category available, I've been told by
+> several admins. Nobody really likes it, but it is used and improved
+> where necessary (epoll might be on the list already).
 
-Cheers,
-Mik
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+The problem with poll/select is not the Linux implementation. It is the 
+API that is flawed when applied to large fd sets. Every call pass to the 
+system the whole fd set, and this makes the API O(N) by definition. While 
+poll/select are perfectly ok for small fd sets, epoll LT might enable the 
+application to migrate from poll/select to epoll pretty quickly (if the 
+application architecture is fairly sane). For example, it took about 15 
+minutes to me to make an epoll'd thttpd.
 
-iD8DBQE/+GhhyOYzc4nQ8j0RAhpzAJ95KGcYQ0wJwPKQJWoIF90hY3dHPgCcDb64
-L5O9Uu7TZDlQ8AoEoDTgqys=
-=5nrB
------END PGP SIGNATURE-----
+
+
+
+- Davide
+
+

@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVBCKs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVBCKxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262949AbVBCKs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVBCKrw
+	id S262951AbVBCKxF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVBCKxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:47:52 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:50067 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262933AbVBCKrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:47:24 -0500
-Subject: Re: 2.6.10: kswapd spins like crazy
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Terje =?ISO-8859-1?Q?F=E5berg?= <terje_fb@yahoo.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050203102915.61551.qmail@web51602.mail.yahoo.com>
-References: <20050203102915.61551.qmail@web51602.mail.yahoo.com>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 03 Feb 2005 21:47:09 +1100
-Message-Id: <1107427629.5611.13.camel@npiggin-nld.site>
+	Thu, 3 Feb 2005 05:53:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38838 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262940AbVBCKwA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 05:52:00 -0500
+Date: Thu, 3 Feb 2005 02:51:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: tglx@linutronix.de, davej@redhat.com, torvalds@osdl.org,
+       dwmw2@infradead.org, albert_herranz@yahoo.es,
+       linux-kernel@vger.kernel.org
+Subject: Re: ppc32 MMCR0_PMXE saga.
+Message-Id: <20050203025125.02b88fb5.akpm@osdl.org>
+In-Reply-To: <16898.9.429645.633109@alkaid.it.uu.se>
+References: <20050203044702.GA1089@redhat.com>
+	<1107413930.21196.637.camel@tglx.tec.linutronix.de>
+	<16898.9.429645.633109@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-03 at 11:29 +0100, Terje Fåberg wrote:
-> I recently upgraded my desktop from 2.4.28 to
-> 2.6.10. Even under moderate memory pressure kswapd
-> regularly eats almost all available cpu time 
-> whenever there is a little more IO throughput,
-> like copying large files. The system is extremely
-> sluggish during this. The system load goes up to 
-> 7.5 or more.
->  
-> This is a Pentium3-866 with 768MB RAM, 2x1GB 
-> swap partitions, vanilla 2.6.10. The strange 
-> behaviour starts at about 200 MB of swap in use.
-> 2.4.28 masters the same workload without any
-> problems.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> Thomas Gleixner writes:
+>   > On Wed, 2005-02-02 at 23:47 -0500, Dave Jones wrote:
+>   > > I'm at a loss to explain whats been happening with this symbol.
+>   > 
+>   > The macro was duplicated in -mm1.
+>   > I sent a patch against -mm1
+>   > The patch went upstream without the perfctr-ppc.patch, which contained
+>   > the macro define in regs.h.
+>   > 
+>   > So a bit of confusion came up
 > 
-> vmstat:
-> procs -----------memory---------- 
->  r  b   swpd   free   buff  cache
->  6  1 428012   4868  33236 347184
-> ---swap-- -----io---- --system-- ----cpu----
->  si   so    bi    bo   in    cs us sy id wa
->  10    7   147   120  108   111 19 10 68  3
-> 
-> Is there anything I can do to track this down?
-> 
+>  The sane thing to do is to split -mm's perfctr-ppc.patch so that
+>  the new symbolic constants can go into -linus w/o having to drag
+>  in the experimental perfctr stuff from -mm.
 
-Can you post about 10 seconds of `vmstat 1` output
-while this is happening?
+ah, so that's what happened.
 
-Also:
-`cat /proc/vmstat > pre ; sleep 10 ; cat /proc/vmstat > post`
-while this is happening, and send the pre and post files.
-
-cat /proc/meminfo also might be helpful.
-
-And compile a kernel with "magic sysrq" support, and get a
-couple of Alt+SysRq+M dumps (the output will be in dmesg).
-
-Thanks,
-Nick
-
-
-
+I'll tweak perfctr-ppc.patch for now.

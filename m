@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSGNOly>; Sun, 14 Jul 2002 10:41:54 -0400
+	id <S316878AbSGNOtk>; Sun, 14 Jul 2002 10:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316869AbSGNOlx>; Sun, 14 Jul 2002 10:41:53 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:28893 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316864AbSGNOlw>; Sun, 14 Jul 2002 10:41:52 -0400
-Message-Id: <5.1.0.14.2.20020714153821.00b232d0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 14 Jul 2002 15:45:39 +0100
-To: Joerg Schilling <schilling@fokus.gmd.de>
-From: Anton Altaparmakov <aia21@cantab.net>
+	id <S316880AbSGNOtj>; Sun, 14 Jul 2002 10:49:39 -0400
+Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:30600 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316878AbSGNOtj>; Sun, 14 Jul 2002 10:49:39 -0400
+Date: Sun, 14 Jul 2002 08:52:28 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: Joerg Schilling <schilling@fokus.gmd.de>, <linux-kernel@vger.kernel.org>
 Subject: Re: IDE/ATAPI in 2.5
-Cc: schilling@fokus.gmd.de, linux-kernel@vger.kernel.org
-In-Reply-To: <200207141428.g6EESn7r019159@burner.fokus.gmd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <5.1.0.14.2.20020714153821.00b232d0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.44.0207140850570.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 15:28 14/07/02, Joerg Schilling wrote:
-> >From aia21@cantab.net Sun Jul 14 15:38:33 2002
-> >At 14:24 14/07/02, Joerg Schilling wrote:
-> >>[...] In addition, if the drive would support DAE via some non-standard
-> >>interface [...]. The DAE quality would be lousy [...].
->
-> >This is a very presumptuous statement! You cannot assume that an
-> >alternative interface would be of lousy quality. Maybe it is a million
-> >times better? The current one (at least as some drives implement it on the
-> >drive side) can be of very, very poor quality indeed.
->
->Name a single drive that is DAE capable, does not support ATAPI and
->doesn't do DAE in lousy quality.
+Hi,
 
-I don't need to. As I said in the following paragraph, I never claimed such 
-a thing existed. I am only complaining about your generalisations which to 
-me imply that an alternative better interface cannot and could not exist. 
-Which is a pile of crap. Maybe tomorrow someone will come up with a much 
-better interface/drive. That is all I am saying. You cannot see into the 
-future to be able to make such generalisations...
+On Sun, 14 Jul 2002, Anton Altaparmakov wrote:
+> Anton, who is starting to get pissed off with Mr Joerg "I know everything" 
+> Schilling
 
-> >Note: I am not saying that there is an alternative interface or anything
-> >like that... just that your statement is fallacious.
->
->Your statements just proove that you didn't try to get the background 
->information
->that is needed to find a useful and seminal future development.
+I am, so I want mr. Joerg "I know everything" Schilling to take the 
+challenge to provide us with a working patch on how to deal with it. If 
+he's so much more familiar with the kernel than we are, he should be able 
+to provide an efficient interface in no time.
 
-WHAT?!? Get off your high horse, will you? I never claimed anything to 
-prompt this response. I am just telling you off for misleading people with 
-your statements...
-
-Anton, who is starting to get pissed off with Mr Joerg "I know everything" 
-Schilling
-
-
+							Regards,
+							Thunder
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

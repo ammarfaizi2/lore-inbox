@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263066AbTCSOpD>; Wed, 19 Mar 2003 09:45:03 -0500
+	id <S263055AbTCSOvV>; Wed, 19 Mar 2003 09:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263067AbTCSOpD>; Wed, 19 Mar 2003 09:45:03 -0500
-Received: from sabre.velocet.net ([216.138.209.205]:43536 "HELO
-	sabre.velocet.net") by vger.kernel.org with SMTP id <S263066AbTCSOpB>;
-	Wed, 19 Mar 2003 09:45:01 -0500
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: gsstark@mit.edu, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-ac2 Memory Leak?
-References: <8765qgb6z0.fsf@stark.dyndns.tv>
-	<1048030102.1521.77.camel@tux.rsn.bth.se>
-In-Reply-To: <1048030102.1521.77.camel@tux.rsn.bth.se>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 19 Mar 2003 09:55:48 -0500
-Message-ID: <871y139zij.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263056AbTCSOvV>; Wed, 19 Mar 2003 09:51:21 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34948
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263055AbTCSOvV>; Wed, 19 Mar 2003 09:51:21 -0500
+Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED
+	UNTILL NOW!)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: Andrus <andrus@members.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030319145537.GB25934@h55p111.delphi.afb.lu.se>
+References: <000001c2ee1f$02da6820$0100a8c0@andrus>
+	 <1048087625.30750.34.camel@irongate.swansea.linux.org.uk>
+	 <20030319145537.GB25934@h55p111.delphi.afb.lu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048090385.30750.41.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 19 Mar 2003 16:13:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-03-19 at 14:55, Anders Gustafsson wrote:
+> If access can't be shut down while compiling the new kernel 
+> 
+> echo /foo/bar/doesnotexist >/proc/sys/kernel/modprobe
+> 
+> would help, wouldn't it?
 
-> On Wed, 2003-03-19 at 00:17, Gregory Stark wrote:
-> > My router box has a problem, it seems to be running out of memory. Programs
-> > that worked fine earlier are now swapping like crazy. 
-> > 
-> > What confuses me is that if I add up all the RSS of the processes I get 5.9M,
-> > a number drastically lower than the available RAM on the machine (24M) and
-> > drastically lower than the amount of RAM "free" says is taken (22M).
-> > 
-> > It seems something in kernel space has taken a ton of memory out of play?
-> > Or is my diagnosis wrong?
-
-One thing I find suspicious is that my ISP was down yesterday morning, causing
-pppd to try repeatedly to connect. It seems it attempted to connect over 3,000
-times while the ISP was down. Every connection failed at the PAP
-authentication stage.
-
-Perhaps there's a memory leak in the pppoe connection initiation process?
-Even so that would be about 4k per pppoe connection attempt. Hm, a page?
-
---
-greg
+Against the default exploit circulating yes, in the general
+case we don't believe so. Realistically we are a day or two
+before a major war breaks out with huge amounts of bad
+feeling involved. It is not the time to put off security
+updates, especially if you have a potentially US or UK domain
+name/address range
 

@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUAGObP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 09:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266225AbUAGObP
+	id S266205AbUAGOec (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 09:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266208AbUAGOec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 09:31:15 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:31171 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S266223AbUAGObK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 09:31:10 -0500
-Message-ID: <3FFC17BD.80000@oracle.com>
-Date: Wed, 07 Jan 2004 15:29:17 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031119
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [solved] no ALSA sound in 2.6 on Intel 82801CA-ICH3 - OSS works
-References: <3FFBF379.6080301@oracle.com>
-In-Reply-To: <3FFBF379.6080301@oracle.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 09:34:32 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33523 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266205AbUAGOe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 09:34:26 -0500
+Date: Wed, 7 Jan 2004 15:34:20 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-scsi@vger.kernel.org
+Subject: [2.4 patch] remove REPORT_LUNS from cpqfcTSstructs.h
+Message-ID: <20040107143420.GZ11523@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote:
-> I'm a bit ashamed about posting this, but I couldn't find anyone with
->  a similar problem googling. I admit up front that I'm ALSA-ignorant
->  so this could well be a silly configuration issue...
+Jeff Garzik added a #define REPORT_LUNS to scsi.h resulting in the 
+following compile warnings for a similar #deine in cpqfcTSstructs.h:
 
-[snipped the /proc/asound details]
+<--  snip  -->
 
-And it was; thanks to Gunther Sohler who tipped me the right way I
-  installed the software I was missing (alsa-lib, alsa-driver and
-  alsa-tools plus the xmms-alsa plugin), unmuted the audio channels
-  by means of alsamixer (*the* problem - somehow the channels are
-  muted by default), set volume for what I use and now xine/xmms
-  play audio fine.
+gcc-2.95 -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.25-pre4-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6   
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=cpqfcTSinit  -c -o cpqfcTSinit.o 
+cpqfcTSinit.c
+In file included from cpqfcTSinit.c:57:
+cpqfcTSstructs.h:222: warning: `REPORT_LUNS' redefined
+/home/bunk/linux/kernel-2.4/linux-2.4.25-pre4-full/include/scsi/scsi.h:81: 
+warning: this is the location of the previous definition
+gcc-2.95 -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.25-pre4-full/inclu
+de -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6   
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=cpqfcTScontrol  -c -o 
+cpqfcTScontrol.o cpqfcTScontrol.c
+In file included from cpqfcTScontrol.c:48:
+cpqfcTSstructs.h:222: warning: `REPORT_LUNS' redefined
+/home/bunk/linux/kernel-2.4/linux-2.4.25-pre4-full/include/scsi/scsi.h:81: 
+warning: this is the location of the previous definition
+...
+gcc-2.95 -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.25-pre4-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6   
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=cpqfcTSworker  -c -o 
+cpqfcTSworker.o cpqfcTSworker.c
+In file included from cpqfcTSworker.c:49:
+cpqfcTSstructs.h:222: warning: `REPORT_LUNS' redefined
+...
 
-As a bonus I cleared my mind about a few differences between ALSA
-  and OSS :)
+<--  snip  -->
 
 
-Sorry for the waste of bandwidth and thanks again,
+REPORT_LUNS is already removed from cpqfcTSstructs.h in 2.6 and the 
+patch below removes it from 2.4, too.
 
---alessandro
+I've tested the compilation with 2.4.25-pre4.
 
-  "Immagina intensamente e vedrai
-    dove gli altri pensano che non ci sia niente"
-       (Cristina Dona', "Salti nell'aria")
 
+Please apply
+Adrian
+
+
+--- linux-2.4.25-pre4-full/drivers/scsi/cpqfcTSstructs.h.old	2004-01-06 20:46:24.000000000 +0100
++++ linux-2.4.25-pre4-full/drivers/scsi/cpqfcTSstructs.h	2004-01-06 20:46:43.000000000 +0100
+@@ -219,7 +219,6 @@
+ #define ELS_PRLI_ACC		0x22		// {FCP-SCSI} Process Login Accept
+ #define ELS_RJT			0x1000000
+ #define SCSI_REPORT_LUNS	0x0A0
+-#define REPORT_LUNS		0xA0		// SCSI-3 command op-code
+ #define FCP_TARGET_RESET	0x200
+ 
+ #define ELS_LILP_FRAME		0x00000711	// 1st payload word of LILP frame

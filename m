@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUAZE1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 23:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUAZE1W
+	id S265457AbUAZE0h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 23:26:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUAZE0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 23:27:22 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:55007 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S265477AbUAZE1R (ORCPT
+	Sun, 25 Jan 2004 23:26:34 -0500
+Received: from mail.gmx.de ([213.165.64.20]:27627 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265457AbUAZE0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 23:27:17 -0500
-Date: Mon, 26 Jan 2004 12:16:31 +0800
-From: Hugang <hugang@soulinfo.com>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] Linux-2.6.1 suspend/resume
-Message-Id: <20040126121632.70097914@localhost>
-In-Reply-To: <20040126022540.315c4f8c@argon.inf.tu-dresden.de>
-References: <20040126022540.315c4f8c@argon.inf.tu-dresden.de>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Sun, 25 Jan 2004 23:26:32 -0500
+X-Authenticated: #12437197
+Date: Mon, 26 Jan 2004 06:26:32 +0200
+From: Dan Aloni <da-x@gmx.net>
+To: Nuno Silva <nuno.silva@vgertech.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Cooperative Linux
+Message-ID: <20040126042631.GA401@callisto.yi.org>
+References: <20040125193518.GA32013@callisto.yi.org> <40148C1C.5040102@vgertech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40148C1C.5040102@vgertech.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jan 2004 02:25:40 +0100
-"Udo A. Steinberg" <us15@os.inf.tu-dresden.de> wrote:
-
->  [<c02fc028>] usb_hcd_pci_resume+0x38/0x90
->  [<c023ac54>] pci_device_resume+0x24/0x30
->  [<c028a3e7>] resume_device+0x27/0x30
->  [<c028a424>] dpm_resume+0x34/0x60
->  [<c028a469>] device_resume+0x19/0x30
->  [<c01337e9>] drivers_resume+0x39/0x40
->  [<c0133aba>] do_magic_resume_2+0x5a/0xe0
->  [<c0133ad2>] do_magic_resume_2+0x72/0xe0
->  [<c03576af>] do_magic+0x11f/0x130
->  [<c0133cfb>] do_software_suspend+0x6b/0x90
->  [<c02538e6>] acpi_system_write_sleep+0xb3/0xcd
->  [<c0253833>] acpi_system_write_sleep+0x0/0xcd
->  [<c0150398>] vfs_write+0xd8/0x140
->  [<c01504b2>] sys_write+0x42/0x70
->  [<c0109387>] syscall_call+0x7/0xb
+On Mon, Jan 26, 2004 at 03:40:12AM +0000, Nuno Silva wrote:
+> Hi!
 > 
-> bad: scheduling while atomic!
-> Call Trace:
->  [<c011a7d3>] schedule+0x563/0x570
->  [<c0356e7d>] pci_read+0x3d/0x50
->  [<c0125ff3>] schedule_timeout+0x63/0xc0
->  [<c0125f80>] process_timeout+0x0/0x10
->  [<c02387b3>] pci_set_power_state+0xd3/0x160
->  [<c02a3708>] e100_resume+0x28/0x70
->  [<c023ac54>] pci_device_resume+0x24/0x30
+> Dan Aloni wrote:
+> >Hello fellow developers, kernel hackers, and open source contributors,
+> >
+> >Cooperative Linux is a port of the Linux kernel which allows it 
+> >to run cooperatively under other operating systems in ring0 without 
+> >hardware emulation, based on very minimal changes in the architecture 
+> >dependent code and almost no changes in functionality.
+> >
+> >The bottom line is that it allows us to run Linux on an unmodified
+> >Windows 2000/XP system in a practical way (the user just launches 
+> 
+> Very nice! Can we run two (or more) instances of Linux at the same time?
 
-I think if you can let usb, e100 as module, before suspend rmmod it, 
-resume will be ok.
+Yes, it would be possible.
 
-pls try.
+> When will you release a linux-as-host patch? :-)
 
-thanks.
+I can't say exactly when, but several people volunteered to work on this. 
+
 -- 
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+Dan Aloni
+da-x@gmx.net

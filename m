@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266296AbSLTKQ3>; Fri, 20 Dec 2002 05:16:29 -0500
+	id <S267780AbSLTKXP>; Fri, 20 Dec 2002 05:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbSLTKQ3>; Fri, 20 Dec 2002 05:16:29 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:64785 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266296AbSLTKQ3>; Fri, 20 Dec 2002 05:16:29 -0500
-Date: Fri, 20 Dec 2002 10:24:31 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
-Subject: Re: PTRACE_GET_THREAD_AREA
-Message-ID: <20021220102431.A26923@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
-	Ingo Molnar <mingo@redhat.com>
-References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>
+	id <S267783AbSLTKXO>; Fri, 20 Dec 2002 05:23:14 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:32162 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267780AbSLTKXN>;
+	Fri, 20 Dec 2002 05:23:13 -0500
+Date: Fri, 20 Dec 2002 10:30:27 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Message-ID: <20021220103027.GF24782@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Hanna Linder <hannal@us.ibm.com>, Pete Zaitcev <zaitcev@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <mailman.1040338801.24520.linux-kernel2news@redhat.com> <200212192359.gBJNxUI09113@devserv.devel.redhat.com> <62590000.1040343543@w-hlinder>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>; from roland@redhat.com on Fri, Dec 20, 2002 at 12:32:41AM -0800
+In-Reply-To: <62590000.1040343543@w-hlinder>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 12:32:41AM -0800, Roland McGrath wrote:
-> This patch vs 2.5.51 (should apply fine to 2.5.52) adds two new ptrace
-> requests for i386, PTRACE_GET_THREAD_AREA and PTRACE_SET_THREAD_AREA.
-> These let another process using ptrace do the equivalent of performing
-> get_thread_area and set_thread_area system calls for another thread.
+On Thu, Dec 19, 2002 at 04:19:03PM -0800, Hanna Linder wrote:
 
-I don't think ptrace is the right interface for this.  Just changed
-the get_thread_area/set_thread_area to take a new first pid_t argument.
+ > Im trying to help make it easier for such people to get a list
+ > of bugs to start working on. If it looks like everything already
+ > has an owner it looks like there is nothing to do.
 
-Of course you might have to check privilegues if the first argument is
-non-null (i.e. not yourself).
+Just because a bug is 'owned' does not stop someone else working on it.
+That would be silly. All the owner field says is, "if someone is
+interested in this bug, and they happen to fix before $owner does,
+$owner would like to know about it." This way $owner can reject bad
+fixes, or get further clues as to whats actually causing the problem.
 
+ > Hanna (obviously not a bugzilla user before)
+
+Obviously 8-)
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

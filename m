@@ -1,104 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263762AbTKAMTH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 07:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbTKAMTG
+	id S263770AbTKAMte (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 07:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbTKAMte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 07:19:06 -0500
-Received: from baloney.puettmann.net ([194.97.54.34]:2197 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S263762AbTKAMTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 07:19:02 -0500
-Date: Sat, 1 Nov 2003 13:18:14 +0100
+	Sat, 1 Nov 2003 07:49:34 -0500
+Received: from pa-steclge-cmts2a-19.stcgpa.adelphia.net ([68.168.167.19]:32497
+	"EHLO potassium.stop.dyndns.org") by vger.kernel.org with ESMTP
+	id S263770AbTKAMtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 07:49:33 -0500
+Message-ID: <3FA3AB99.1060408@nodivisions.com>
+Date: Sat, 01 Nov 2003 07:48:25 -0500
+From: Anthony DiSante <orders@nodivisions.com>
+Reply-To: orders@nodivisions.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031027
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.6 on my Laptop little report
-Message-ID: <20031101121814.GA22742@puettmann.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1AFuhq-0005w4-00*E79a0ZVIvJ.* (Puettmann.NeT, Germany)
+Subject: Re: Audio skips when RAM is ~full
+References: <3FA34523.30902@nodivisions.com> <20031101062050.GA13731@alpha.home.local> <3FA353E4.60906@nodivisions.com> <20031101071907.GA6300@alpha.home.local>
+In-Reply-To: <20031101071907.GA6300@alpha.home.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Willy Tarreau wrote:
+>>Actually, I don't scan the disk to find random albums; I have a text file 
+>>that contains a list of every album's full path, and I pick a random line 
+>>from that file.  So only the selected album's directory gets scanned.  And 
+>>the mp3 partition is mounted read-only (I should have mentioned that 
+>>before), so the atimes shouldn't be getting written as it is.
+> 
+> 
+> OK, so it's not a disk IO problem at all. It's really related to the sound
+> driver it seems. Now that you say it, I remember having noticed skips on
+> my laptop with a via 82cxxx chip after tens of minutes playing. At first
+> I thought it was related to other activity on the system, but it did exactly
+> what you describe, play seconds 1, 2, then 5 without a hole between them.
+> There may be a problem with the way the audio buffer gets allocated or freed.
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yeah... in my experience, the whole ac'97 deal is pretty buggy (for one 
+thing, with both ALSA and OSS drivers, output is distorted unless I keep the 
+volume below ~70%...).  But as I said, the skipping only happens when the 
+memory is full, or getting close to full.  If I select specific albums to 
+play instead of using my random function, I can usually play a few albums 
+and there aren't any skips, not until the memory gets pretty full.
 
+>>So I'm guessing that there isn't actually a way to manually move 
+>>buffer-data out of RAM?
+> 
+> 
+> Yes, there is. I have a quick'n'dirty program which does exactly that.
+> Basically, you tell it how many kB you want to free, then it allocates
+> and uses that amount of memory, frees it and exits. Buffered data gets
+> flushed very quickly. I sometimes give it a try before starting to work
+> on large kernel trees, because it helps the entire directories to fit in
+> cache.
+> 
+> Here it is if you're interested. Don't start it without an argument, it
+> will try to allocate 4G !
 
+4G!! (Note to self: s/ffffffff/0000ffff/...)  Thanks a lot, I'll give this a 
+try.  It certainly works here on my home system.
 
-	hy,
-
-I hope I can give with this little document a little overview about the pro=
-blem
-=66rom 2.6 with some of the new IBM Thinkpad laptops. My english is not the=
- best
-but I hope that it will help the people to see what's going wrong.
-
-First: cpufreqd
-
-If I boot with AC connectet the cpu will be detected with 1499 Mhz max.
-If I boot from akku only 599 Mhz max will be detected.=20
-
-Second: ACPI
-
-complete broken some fixes you can find in :
-http://bugme.osdl.org/show_bug.cgi?id=3D1038
-
-But It fixes not al error's and problems.
-
-Third : APM and suspend
-
-apm work fine but there are many problems with suspend.=20
-
-Usb is not suspend save. You must stop hotplug, rmmod all modules for
-Suspending
-
-XFree is not suspend save. You must change to an text base console stoping X
-and then suspend
-
-If I activate the two synaptic devices the thinkpad has after resume the
-synaptics is broken. I have disabled the touchpad in bios and use only the
-litte red pad in teh keyboard suspend and resume works fine.
-
-On windows I can sit in the garden from my parents surfing via wlan the akku
-keeps the laptop running nearly 6 hours. On linux the max time I reached wa=
-s 4
-hours with the cpu @ 74 Mhz.
-
-There are many debug messages on suspending und resume. Do we need them all?
-
-The problems are all with 2.6.0-tes8-bk1.
-
-Many people found the same errors on the laptop's not only on Thinkpads. Th=
-e X
-problem was found on ati radeon at 128 and the intel graphic boards so that=
- it
-seems that it is not an bug in one driver.
-
-Is there some work in progess? Are some patches outside I can test?
-
-Ruben
-	=09
---=20
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
-
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/o6SGgHHssbUmOEIRAj+AAJ9baLN6O/tNhx5u1ln0gMVKItMbrgCg4H/K
-tyKgZhzqfmEYYl5fw5DwtnM=
-=DF25
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--
+-Anthony
+http://nodivisions.com/

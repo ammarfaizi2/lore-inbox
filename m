@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290151AbSAWWNS>; Wed, 23 Jan 2002 17:13:18 -0500
+	id <S290153AbSAWWQS>; Wed, 23 Jan 2002 17:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290153AbSAWWNI>; Wed, 23 Jan 2002 17:13:08 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:7431 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290151AbSAWWM4>;
-	Wed, 23 Jan 2002 17:12:56 -0500
-Date: Wed, 23 Jan 2002 20:12:42 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH *] rmap VM, version 12
-In-Reply-To: <20020123.121857.18310310.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0201232004430.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290155AbSAWWQI>; Wed, 23 Jan 2002 17:16:08 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:17162 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S290153AbSAWWPt>; Wed, 23 Jan 2002 17:15:49 -0500
+To: vic <zandy@cs.wisc.edu>
+Cc: Mike Coleman <mkc@mathdogs.com>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] ptrace on stopped processes (2.4)
+In-Reply-To: <m3adwc9woz.fsf@localhost.localdomain>
+	<87g0632lzw.fsf@mathdogs.com> <m3advcq5jv.fsf@localhost.localdomain>
+	<878zawvl1v.fsf@devron.myhome.or.jp>
+	<m3sn8xkkyn.fsf@localhost.localdomain>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 24 Jan 2002 07:14:17 +0900
+In-Reply-To: <m3sn8xkkyn.fsf@localhost.localdomain>
+Message-ID: <87r8ogr9za.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, David S. Miller wrote:
->    From: Rik van Riel <riel@conectiva.com.br>
->    Date: Wed, 23 Jan 2002 17:36:35 -0200 (BRST)
->
->    OK, so only the _pgd_ quicklist is questionable and the
->    _pte_ quicklist is fine ?
->
-> That is my understanding.
+vic <zandy@cs.wisc.edu> writes:
 
-OK, then I'll disable the quick pgd list for now.
-Considering the fact that the number of pgds is
-small anyway it's probably not too much of a benefit
-either.
+> Now I see the problem with PTRACE_KILL.  Thanks for the example.
+> 
+> I'm looking into it.  I need to justify the quoted portion of the
+> patch or find a better way to get its effect.
+> 
+> In the meantime, the problem could be fixed by changing the
+> PTRACE_KILL implementation to call send_sig instead of setting
+> exit_code.  How does that strike people?
 
-The pte quicklist will stay, however. ;)
-
-regards,
-
-Rik
+PTRACE_SYSCALL, PTRACE_CONT, and PTRACE_SINGLESTEP can't send a signal
+by the same reason. Please read the do_signal().
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

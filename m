@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292773AbSBZUFf>; Tue, 26 Feb 2002 15:05:35 -0500
+	id <S292770AbSBZUFZ>; Tue, 26 Feb 2002 15:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292768AbSBZUFX>; Tue, 26 Feb 2002 15:05:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6675 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292770AbSBZUFD>;
-	Tue, 26 Feb 2002 15:05:03 -0500
-Message-ID: <3C7BEA6F.97CB8AD4@mandrakesoft.com>
-Date: Tue, 26 Feb 2002 15:05:03 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: schedule()
-In-Reply-To: <Pine.LNX.3.95.1020226145622.5179A-100000@chaos.analogic.com>
+	id <S292773AbSBZUFU>; Tue, 26 Feb 2002 15:05:20 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:34001 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S292768AbSBZUFB>;
+	Tue, 26 Feb 2002 15:05:01 -0500
+Date: Tue, 26 Feb 2002 12:04:59 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.5.5 ERROR] Can't compile without NFS
+Message-ID: <20020226120459.A17913@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> I just read on this list that:
-> 
->     while(something)
->     {
->       current->policy |= SCHED_YIELD;
->       schedule();
->     }
-> 
-> Will no longer be allowed in a kernel module! If this is true, how
-> do I loop, waiting for a bit in a port, without wasting CPU time?
+system :
+-------------------
+PPro 150 SMP
+Kernel 2.5.5
+Debian 2.2
+-------------------
 
-Call yield() or better yet, schedule_timeout()
+.config :
+---------------
+# CONFIG_NFS_FS is not set
+# CONFIG_NFS_V3 is not set
+# CONFIG_ROOT_NFS is not set
+# CONFIG_NFSD is not set
+# CONFIG_NFSD_V3 is not set
+# CONFIG_SUNRPC is not set
+# CONFIG_LOCKD is not set
+---------------
 
-In 2.4, define the above to be yield() in some compatibility module...
+make install :
+----------------
+make[2]: Entering directory `/usr/src/kernel-source-2.5/fs'
+gcc -D__KERNEL__ -I/usr/src/kernel-source-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=filesystems  -DEXPORT_SYMTAB -c filesystems.c
+filesystems.c: In function `sys_nfsservctl':
+filesystems.c:30: dereferencing pointer to incomplete type
+filesystems.c:30: dereferencing pointer to incomplete type
+filesystems.c:30: warning: value computed is not used
+filesystems.c:32: dereferencing pointer to incomplete type
+filesystems.c:33: dereferencing pointer to incomplete type
+filesystems.c:33: dereferencing pointer to incomplete type
+filesystems.c:33: warning: value computed is not used
+make[2]: *** [filesystems.o] Error 1
+make[2]: Leaving directory `/usr/src/kernel-source-2.5/fs'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/kernel-source-2.5/fs'
+make: *** [_dir_fs] Error 2
+----------------
 
--- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+	Of course, enabling NFSD fix this problem...
+
+	Jean

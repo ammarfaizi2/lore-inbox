@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVDFG1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVDFGoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVDFG1c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 02:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVDFG1c
+	id S262121AbVDFGoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 02:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVDFGoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 02:27:32 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:48044 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262119AbVDFG1a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 02:27:30 -0400
-Date: Wed, 6 Apr 2005 08:27:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [patch 5/5] sched: consolidate sbe sbf
-Message-ID: <20050406062723.GC5973@elte.hu>
-References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <42532346.5050308@yahoo.com.au> <425323A1.5030603@yahoo.com.au> <42532427.3030100@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42532427.3030100@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 6 Apr 2005 02:44:16 -0400
+Received: from gizmo05bw.bigpond.com ([144.140.70.40]:24734 "HELO
+	gizmo05bw.bigpond.com") by vger.kernel.org with SMTP
+	id S262121AbVDFGoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 02:44:13 -0400
+Message-ID: <42538538.8070803@bigpond.net.au>
+Date: Wed, 06 Apr 2005 16:44:08 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>
+Subject: [ANNOUNCE][RFC] PlugSched-4.0 for 2.6.11 and 2.6.12-rc2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A patch of PlugSched-4.0 (containing ingosched, nicksched, staircase,
+spa_no_frills and zaphod CPU schedulers) against a 2.6.11 kernel is
+available for download from:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+<http://prdownloads.sourceforge.net/cpuse/plugsched-4.0-for-2.6.11.patch?download>
 
-> 5/5
-> 
-> Any ideas about what to do with schedstats?
-> Do we really need balance on exec and fork as seperate
-> statistics?
+and for 2.6.12-rc2 at:
 
-> Consolidate balance-on-exec with balance-on-fork. This is made easy
-> by the sched-domains RCU patches.
-> 
-> As well as the general goodness of code reduction, this allows
-> the runqueues to be unlocked during balance-on-fork.
-> 
-> schedstats is a problem. Maybe just have balance-on-event instead
-> of distinguishing fork and exec?
-> 
-> Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+<http://prdownloads.sourceforge.net/cpuse/plugsched-4.0-for-2.6.12-rc2.patch?download>
 
-looks good.
+PlugSched's version number has been bumped to 4.0 as further reductions 
+in the scheduler drive interface have been introduced.
 
- Acked-by: Ingo Molnar <mingo@elte.hu>
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-while the code is now consolidated, i think we still need the separate 
-fork/exec stats for schedstat. We have 3 conceptual ways to start off a 
-new context: fork(), pthread_create() and execve(), and applications use 
-them in different patterns. We have different flags and tuning 
-parameters for two of them (which might have to become 3, i'm not 
-entirely convinced we'll be able to ignore the 'process vs. thread' 
-condition in wake_up_new_task(), STREAM is a really bad example in that 
-sense), so we need 2 (or 3) separate stats.
-
-	Ingo
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

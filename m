@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263830AbTICRIp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTICRHA
+	id S264125AbTICRT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTICRS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:07:00 -0400
-Received: from alfarrabio.di.uminho.pt ([193.136.20.210]:34265 "HELO
-	alfarrabio.di.uminho.pt") by vger.kernel.org with SMTP
-	id S263980AbTICRFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:05:33 -0400
-Subject: Re: Problems compiling kernel 2.4.22
-From: Alberto Manuel =?ISO-8859-1?Q?Brand=E3o_Sim=F5es?= 
-	<albie@alfarrabio.di.uminho.pt>
-Reply-To: albie@alfarrabio.di.uminho.pt
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0309031257410.28170@chaos>
-References: <1062606509.623.20.camel@eremita.di.uminho.pt>
-	 <1062607884.623.23.camel@eremita.di.uminho.pt>
-	 <Pine.LNX.4.53.0309031257410.28170@chaos>
-Content-Type: text/plain; charset=iso-8859-15
-Organization: Departamento de  =?ISO-8859-1?Q?=20Inform=C3=A1tica?= - Universidade do Minho
-Message-Id: <1062609049.860.4.camel@eremita.di.uminho.pt>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 03 Sep 2003 18:10:50 +0100
-Content-Transfer-Encoding: 8bit
+	Wed, 3 Sep 2003 13:18:26 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:57016 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264123AbTICRRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:17:37 -0400
+Message-ID: <3F562225.4010609@nortelnetworks.com>
+Date: Wed, 03 Sep 2003 13:17:25 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: given a struct sock, how to find pid of process that owns it?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-03 at 17:58, Richard B. Johnson wrote:
-> On Wed, 3 Sep 2003, Alberto Manuel [ISO-8859-1] Brandão Simões wrote:
-> > On Wed, 2003-09-03 at 17:28, Alberto Manuel Brandão Simões wrote:
-> > > [1.] One line summary of the problem:
-> > >  modules symbols broken references
-> > >
-> > > [2.] Full description of the problem/report:
-> > >  when I make 'make modules_install' I get:
-> > >  depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipv4/ipip.o
-> > >  depmod:         ip_send_check
-> > >  depmod:         register_netdevice
-> > >  ..
-> > >
-> > > and so on, and not only for these modules: vfat, smbfs, msdos, etc
-> > >
-> > > By the way, when I tried to ssh to paste more information, I got in the
-> > > console:
-> 
-> [SNIPPED...]
-> 
-> BYW. Did you try booting the new system, THEN, executing `depmod -a` ?
-ok. In this case, it does not give any broken reference.
-But, then, why does make modules_install run depmod if we know (almost
-certain) that it will give broken references?
 
-But, I need some more help. I can't load any ACPI modules, getting a No
-such device as answer. I don't have also a /proc/acpi directory.
+I'm working on a small app similar to netstat that only cares about unix 
+sockets.
 
-Thanks for any help.
-Alberto 
-> 
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
->             Note 96.31% of all statistics are fiction.
-> 
-> 
+I can easily walk /proc/net/unix, but to find the owner of the socket I 
+need to scan /proc, which gets expensive.
+
+Accordingly, I'd like to extend /proc/net/unix to also dump out the pid 
+of the process that owns the socket.  The only thing is, I can't seem to 
+figure out how to find the pid of the socket owner given a pointer to 
+the socket struct.
+
+Any tips?  Is it even there?
+
+Thanks,
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com	
 

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274809AbRIZD2q>; Tue, 25 Sep 2001 23:28:46 -0400
+	id <S274815AbRIZDd0>; Tue, 25 Sep 2001 23:33:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274811AbRIZD2h>; Tue, 25 Sep 2001 23:28:37 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:55563 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S274809AbRIZD21>;
-	Tue, 25 Sep 2001 23:28:27 -0400
-Date: Tue, 25 Sep 2001 20:24:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Crispin Cowan <crispin@wirex.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-security-module@wirex.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <20010925202417.A16558@kroah.com>
-In-Reply-To: <E15lfKE-00047d-00@the-village.bc.nu> <3BB10E8E.10008@wirex.com>
+	id <S274816AbRIZDdQ>; Tue, 25 Sep 2001 23:33:16 -0400
+Received: from mnh-1-10.mv.com ([207.22.10.42]:48136 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S274815AbRIZDdG>;
+	Tue, 25 Sep 2001 23:33:06 -0400
+Message-Id: <200109260451.XAA04821@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.47-2.4.10
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BB10E8E.10008@wirex.com>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+Date: Tue, 25 Sep 2001 23:51:09 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 04:09:02PM -0700, Crispin Cowan wrote:
-> 
-> Therefore, any additional constraints people may wish to impose, such as 
-> Greg's comment in security.h, are invalid. When someone receives a copy 
-> of the Linux kernel, the license is pure, vanilla GPL, with no funny 
-> riders.*
+The user-mode port of 2.4.10 is available.
 
-My comment in security.h that I proposed [1] does not add any additional
-constraints to the license that is currently on the file.  All it does
-is explicitly state the licensing terms of it, so that there shall be no
-confusion regarding it's inclusion in programs.  If you think this is
-adding an additional restriction to the file, please explain.
+The highlights:
 
-If you were to include a GPL licensed user space header file in a closed
-source program, of course you would be violating that license.  So why
-do people think that since a file is in include/linux that the license
-attached to that file is no longer valid?
+UML can now communicate with the host networking via TUN/TAP.
 
-Yes it is true that a variety of companies currently ship binary modules
-for Linux.  And hopefully in the compilation of those modules they do
-not include any GPL licensed header files.  I know some companies go to
-great lengths to prevent this from happening.
+libc's allocation routines (malloc, calloc, free) are intercepted and 
+converted into kmalloc whenever possible.  This fixes problems with gprof
+and gcov, and closes a potential security hole.
 
-thanks,
+UML loads itself into the top of the address space (0xa0000000-0xc0000000 on
+1G/3G hosts), giving its processes everything below that.  This fixes a bug
+which caused nasty-looking complaints when UML was given 256M of physical 
+memory or more.  I've run it with up to 464M.  This also fixes the hang
+caused by mlockall.
 
-greg k-h
+The mconsole client has been enhanced, so it now had command history and
+command recall, it can control multiple UMLs, and can attached to a UML by
+its name rather than the full filename of its control socket.
 
-[1] Included here for those who did not see it on the
-    linux-security-module mailing list:
-	
-	This file may not be included in any code not licensed
-	under the list of accepted free software licenses as
-	defined in module.h contained in this same directory.
+uml_net does complete setup of TUN/TAP interfaces.  It also insmods netlink_dev
+for the benefit of ethertap.
+
+The ubd COW header now has room for MAXPATHLEN-sized filenames, it contains
+absolute paths only, and is in network byte order.  The ubd driver handles
+IO errors better now, and should be 64-bit clean.
+
+The process segfaults seen on a swapping system are gone.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+				Jeff
+

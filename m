@@ -1,64 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265063AbSJWPit>; Wed, 23 Oct 2002 11:38:49 -0400
+	id <S265059AbSJWPdJ>; Wed, 23 Oct 2002 11:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265064AbSJWPit>; Wed, 23 Oct 2002 11:38:49 -0400
-Received: from gateway.cinet.co.jp ([210.166.75.129]:64328 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265063AbSJWPir>; Wed, 23 Oct 2002 11:38:47 -0400
-Message-ID: <3DB6C3F4.4A2C4EC5@cinet.co.jp>
-Date: Thu, 24 Oct 2002 00:44:52 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.44-pc98smp i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Dave Jones <davej@codemonkey.org.uk>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET 1/25] add support for PC-9800 architecture (apm)
-References: <Pine.GSO.4.21.0210231257200.12783-100000@vervain.sonytel.be>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S265057AbSJWPcA>; Wed, 23 Oct 2002 11:32:00 -0400
+Received: from zmamail03.zma.compaq.com ([161.114.64.103]:36874 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S265058AbSJWPbY>; Wed, 23 Oct 2002 11:31:24 -0400
+Date: Wed, 23 Oct 2002 09:33:46 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 8/10] 2.5.44 cciss factor more dup'ed code
+Message-ID: <20021023093346.H14917@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> 
-> On Fri, 18 Oct 2002, Dave Jones wrote:
-> > On Sat, Oct 19, 2002 at 01:56:19AM +0900, Osamu Tomita wrote:
-> >  > This patchset adds support for NEC PC-9800 architecture, against 2.5.43.
-> >  > Fixed bad things commented by Russell King.
-> >  >
-> >  > PC-9800 series machines are made by NEC. But sold only in japan.
-> >  > Formaly, they were best sellers in japan.
-> >  > We port linux for PC-9800 since 2.1.57.
-> >  >
-> >  > I'm testing 2.5.43 with this patchset on some boxes.
-> >  > - PC-9800 i586 UP with IDE drive
-> >  > - PC-9800 i686 SMP with SCSI drive
-> >  > - AT compatible with IDE drive (patch applied but not set CONFIG_PC9800).
-> >  > They works well.
-> >  > We are doing our best, patchset has no effect on original without configuring
-> >  > for PC-9800.
-> >  > Please apply this patchset.
-> >
-> > The biggest sticking point as far as I'm concerned with this patchset
-> > is the source readability after applying it.
-> > Something really needs to be done about the #if pollution this
-> > patch adds before it's ready for inclusion. The whole patchset adds
-> > over 700 #if's/ifdefs/ifndefs.
-> 
-> Indeed, I have the same comment after browsing through the frame buffer device
-> and console patches.
-> 
-> I think the need for 32-bit character/attribute data on PC-9800 can easily be
-> abstracted inside a few screen specific typedefs, macros, and functions, e.g.
->   - add typedef u32/u16 charattr_t
->   - add scr_kmalloc() to allocate virtual console buffers
->   - modify scr_readw() and friends for character/attribute data access
-> and a lot of the #ifdef's can be removed.
-> 
-> What do you think?
-Indeed. I'll try it in next step. Thank you very much.
+patch 8 of 10
+The whole set can be grabbed via anonymous cvs (empty password):
+cvs -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss login
+cvs -z3 -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss co 2.5.44
 
-Regards
-Osamu Tomita
+DESC
+factor duplicated geometry inquiry code into common routine
+
+
+ drivers/block/cciss.c |  138 +++++++++++++++++---------------------------------
+ 1 files changed, 47 insertions, 91 deletions
+
+--- linux-2.5.44/drivers/block/cciss.c~factor_more_duped_code	Mon Oct 21 12:06:08 2002
++++ linux-2.5.44-root/drivers/block/cciss.c	Mon Oct 21 12:06:08 2002
+@@ -1005,6 +1005,49 @@ case CMD_HARDWARE_ERR:
+         return(return_status);
+ 
+ }
++static void cciss_geometry_inquiry(int ctlr, int logvol,
++			int withirq, unsigned int total_size,
++			unsigned int block_size, InquiryData_struct *inq_buff,
++			drive_info_struct *drv)
++{
++	int return_code;
++	memset(inq_buff, 0, sizeof(InquiryData_struct));
++	if (withirq)
++		return_code = sendcmd_withirq(CISS_INQUIRY, ctlr,
++			inq_buff, sizeof(*inq_buff), 1, logvol ,0xC1);
++	else
++		return_code = sendcmd(CISS_INQUIRY, ctlr, inq_buff,
++			sizeof(*inq_buff), 1, logvol ,0xC1, NULL);
++	if (return_code == IO_OK) {
++		if(inq_buff->data_byte[8] == 0xFF) {
++			printk(KERN_WARNING
++				"cciss: reading geometry failed, volume "
++				"does not support reading geometry\n");
++			drv->block_size = block_size;
++			drv->nr_blocks = total_size;
++			drv->heads = 255;
++			drv->sectors = 32; // Sectors per track
++			drv->cylinders = total_size / 255 / 32;
++		} else {
++			drv->block_size = block_size;
++			drv->nr_blocks = total_size;
++			drv->heads = inq_buff->data_byte[6];
++			drv->sectors = inq_buff->data_byte[7];
++			drv->cylinders = (inq_buff->data_byte[4] & 0xff) << 8;
++			drv->cylinders += inq_buff->data_byte[5];
++		}
++	} else { /* Get geometry failed */
++		printk(KERN_WARNING "cciss: reading geometry failed, "
++			"continuing with default geometry\n");
++		drv->block_size = block_size;
++		drv->nr_blocks = total_size;
++		drv->heads = 255;
++		drv->sectors = 32; // Sectors per track
++		drv->cylinders = total_size / 255 / 32;
++	}
++	printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
++		drv->heads, drv->sectors, drv->cylinders);
++}
+ static void
+ cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
+ 		int withirq, unsigned int *total_size, unsigned int *block_size)
+@@ -1177,53 +1220,8 @@ static int register_new_disk(int ctlr)
+ 		hba[ctlr]->highest_lun = logvol;
+ 	cciss_read_capacity(ctlr, logvol, size_buff, 1,
+ 		&total_size, &block_size);
+-	/* Execute the command to read the disk geometry */
+-	memset(inq_buff, 0, sizeof(InquiryData_struct));
+-	return_code = sendcmd_withirq(CISS_INQUIRY, ctlr, inq_buff,
+-                	sizeof(InquiryData_struct), 1, logvol ,0xC1 );
+-	if (return_code == IO_OK)
+-		{
+-			if(inq_buff->data_byte[8] == 0xFF)
+-			{
+-			   printk(KERN_WARNING "cciss: reading geometry failed, "
+-				"volume does not support reading geometry\n");
+-
+-                           hba[ctlr]->drv[logvol].block_size = block_size;
+-                           hba[ctlr]->drv[logvol].nr_blocks = total_size;
+-                           hba[ctlr]->drv[logvol].heads = 255;
+-                           hba[ctlr]->drv[logvol].sectors = 32; // Sectors per track
+-                           hba[ctlr]->drv[logvol].cylinders = total_size / 255 / 32;
+-                	} else
+-			{
+-
+-		 	   hba[ctlr]->drv[logvol].block_size = block_size;
+-                           hba[ctlr]->drv[logvol].nr_blocks = total_size;
+-                           hba[ctlr]->drv[logvol].heads = 
+-					inq_buff->data_byte[6]; 
+-                           hba[ctlr]->drv[logvol].sectors = 
+-					inq_buff->data_byte[7]; 
+-			   hba[ctlr]->drv[logvol].cylinders = 
+-					(inq_buff->data_byte[4] & 0xff) << 8;
+-			   hba[ctlr]->drv[logvol].cylinders += 
+-                                        inq_buff->data_byte[5];
+-			}
+-		}
+-		else /* Get geometry failed */
+-		{
+-
+-			printk(KERN_WARNING "cciss: reading geometry failed, "
+-				"continuing with default geometry\n"); 
+-
+-			hba[ctlr]->drv[logvol].block_size = block_size;
+-			hba[ctlr]->drv[logvol].nr_blocks = total_size;
+-			hba[ctlr]->drv[logvol].heads = 255;
+-			hba[ctlr]->drv[logvol].sectors = 32; // Sectors per track 
+-			hba[ctlr]->drv[logvol].cylinders = total_size / 255 / 32;
+-		}
+-		printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
+-			hba[ctlr]->drv[logvol].heads, 
+-			hba[ctlr]->drv[logvol].sectors,
+-			hba[ctlr]->drv[logvol].cylinders);
++	cciss_geometry_inquiry(ctlr, logvol, 1, total_size, block_size,
++			inq_buff, &hba[ctlr]->drv[logvol]);
+ 	hba[ctlr]->drv[logvol].usage_count = 0;
+ 	++hba[ctlr]->num_luns;
+ 	/* setup partitions per disk */
+@@ -2174,50 +2172,8 @@ static void cciss_getgeometry(int cntl_n
+ #endif /* CCISS_DEBUG */
+ 		cciss_read_capacity(cntl_num, i, size_buff, 0,
+ 			&total_size, &block_size);
+-		/* Execute the command to read the disk geometry */
+-		memset(inq_buff, 0, sizeof(InquiryData_struct));
+-		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
+-                	sizeof(InquiryData_struct), 1, i ,0xC1, NULL );
+-	  	if (return_code == IO_OK)
+-		{
+-			if(inq_buff->data_byte[8] == 0xFF)
+-			{
+-			   printk(KERN_WARNING "cciss: reading geometry failed, volume does not support reading geometry\n");
+-
+-                           hba[cntl_num]->drv[i].block_size = block_size;
+-                           hba[cntl_num]->drv[i].nr_blocks = total_size;
+-                           hba[cntl_num]->drv[i].heads = 255;
+-                           hba[cntl_num]->drv[i].sectors = 32; // Sectors per track
+-                           hba[cntl_num]->drv[i].cylinders = total_size / 255 / 32;                	} else
+-			{
+-
+-		 	   hba[cntl_num]->drv[i].block_size = block_size;
+-                           hba[cntl_num]->drv[i].nr_blocks = total_size;
+-                           hba[cntl_num]->drv[i].heads = 
+-					inq_buff->data_byte[6]; 
+-                           hba[cntl_num]->drv[i].sectors = 
+-					inq_buff->data_byte[7]; 
+-			   hba[cntl_num]->drv[i].cylinders = 
+-					(inq_buff->data_byte[4] & 0xff) << 8;
+-			   hba[cntl_num]->drv[i].cylinders += 
+-                                        inq_buff->data_byte[5];
+-			}
+-		}
+-		else /* Get geometry failed */
+-		{
+-			printk(KERN_WARNING "cciss: reading geometry failed, continuing with default geometry\n"); 
+-
+-			hba[cntl_num]->drv[i].block_size = block_size;
+-			hba[cntl_num]->drv[i].nr_blocks = total_size;
+-			hba[cntl_num]->drv[i].heads = 255;
+-			hba[cntl_num]->drv[i].sectors = 32; // Sectors per track 
+-			hba[cntl_num]->drv[i].cylinders = total_size / 255 / 32;
+-		}
+-		printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
+-			hba[cntl_num]->drv[i].heads, 
+-			hba[cntl_num]->drv[i].sectors,
+-			hba[cntl_num]->drv[i].cylinders);
+-
++		cciss_geometry_inquiry(cntl_num, i, 0, total_size, block_size,
++			inq_buff, &hba[cntl_num]->drv[i]);
+ 	}
+ 	kfree(ld_buff);
+ 	kfree(size_buff);
+
+.

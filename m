@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbUKQKdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbUKQKiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbUKQKdG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbUKQKcW
+	id S262042AbUKQKiU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUKQKfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:32:22 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:22673 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262042AbUKQK1S (ORCPT
+	Wed, 17 Nov 2004 05:35:54 -0500
+Received: from mail.gmx.net ([213.165.64.20]:23723 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262263AbUKQKer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:27:18 -0500
-Date: Wed, 17 Nov 2004 10:57:57 +0100
-From: Andi Kleen <ak@suse.de>
-To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix boot crash on VIA systems
-Message-ID: <20041117095757.GA23673@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 17 Nov 2004 05:34:47 -0500
+Date: Wed, 17 Nov 2004 11:34:46 +0100 (MET)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: miller@techsource.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: Intel Corp. 82801BA/BAM not supported by ALSA?
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <25978.1100687686@www46.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timothy,
 
-quirk_via_irqpic cannot be __devinit because it runs at
-pci_enable_device() time now.
+Perhaps check that your BIOS hasn't disabled it, or anything isn't disabling
+it at boot time with 'setpci ... command=0'.
 
-This fixes a boot time crash on a VIA x86-64 machine.
+---
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+When I do 'lspci | grep -i audio', I get this:
 
-Index: linux/drivers/pci/quirks.c
-===================================================================
---- linux.orig/drivers/pci/quirks.c	2004-11-15 12:34:41.%N +0100
-+++ linux/drivers/pci/quirks.c	2004-11-17 10:25:24.%N +0100
-@@ -479,7 +479,7 @@
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_3,	quirk_via_acpi );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	quirk_via_acpi );
- 
--static void __devinit quirk_via_irqpic(struct pci_dev *dev)
-+static void quirk_via_irqpic(struct pci_dev *dev)
- {
- 	u8 irq, new_irq = dev->irq & 0xf;
- 
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97 
+Audio (rev 04)
+
+Unfortunately, every effort has failed to get the slightest peep out.  I 
+have tried following the instructions on the Gentoo site (with my own 
+guesses about what to do differently for 2.6 kernels), but I don't get 
+any sound.  Also, the "alsaconf" utility says it doesn't find any audio 
+devices.
+
+Can anyone help me with this?
+
+-- 
+Daniel J Blueman
+
+Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
+++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++

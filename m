@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289056AbSANVHc>; Mon, 14 Jan 2002 16:07:32 -0500
+	id <S289055AbSANVKm>; Mon, 14 Jan 2002 16:10:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSANVF5>; Mon, 14 Jan 2002 16:05:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35592 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289046AbSANVFf>; Mon, 14 Jan 2002 16:05:35 -0500
-Subject: Re: Memory problem with bttv driver
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Mon, 14 Jan 2002 21:17:31 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com> from "Stephan von Krawczynski" at Jan 14, 2002 09:00:39 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S289058AbSANVKb>; Mon, 14 Jan 2002 16:10:31 -0500
+Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:42502 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S289068AbSANVJ2>;
+	Mon, 14 Jan 2002 16:09:28 -0500
+Date: Mon, 14 Jan 2002 20:51:24 +0000
+From: Ian Molton <spyro@armlinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
+Message-Id: <20020114205124.2f05fc56.spyro@armlinux.org>
+In-Reply-To: <Pine.LNX.4.40.0201141139370.22904-100000@dlang.diginsite.com>
+In-Reply-To: <E16QCc6-0002bb-00@the-village.bc.nu>
+	<Pine.LNX.4.40.0201141139370.22904-100000@dlang.diginsite.com>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QETz-0002yD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok. So what do we do about it? I mean there are possibly some more people out
-> there with such a problem, or - to my prediction - there will be more in the
-> future. I see to possibilities:
-> 1) simply increase it overall. I have not the slightest idea what the drawbacks
-> are. 2) make it configurable (looks like general setup to me).
+On a sunny Mon, 14 Jan 2002 11:44:59 -0800 (PST) David Lang gathered a
+sheaf of electrons and etched in their motions the following immortal
+words:
 
-Making it bigger reduces that amount of ram directly mapped by the kernel 
-which hits performance (nastily for 2.4 not so bad for 2.5)
+> doesn't matter, they are likly to be found on dedicated servers where
+> the flexibility of modules is not needed and the slight performance
+> advantage is desired.
+
+Exactly WHAT performance advantage? once the module is loaded, its loaded.
+most modules use the same code to handle modular and non-modular builds
+anyhow (look at the ide drivers, for example)

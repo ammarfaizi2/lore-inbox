@@ -1,80 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265901AbTGLTph (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 15:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266058AbTGLTph
+	id S268095AbTGLTyK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 15:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268294AbTGLTyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 15:45:37 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:40607 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S265901AbTGLTp3
+	Sat, 12 Jul 2003 15:54:10 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:57994 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268095AbTGLTyF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 15:45:29 -0400
-Message-ID: <3F1068C9.1070900@portrix.net>
-Date: Sat, 12 Jul 2003 22:00:09 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
-X-Accept-Language: en
+	Sat, 12 Jul 2003 15:54:05 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 12 Jul 2003 13:01:21 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Eric Varsanyi <e0206@foo21.com>
+cc: David Miller <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+In-Reply-To: <20030712181654.GB15643@srv.foo21.com>
+Message-ID: <Pine.LNX.4.55.0307121256200.4720@bigblue.dev.mcafeelabs.com>
+References: <20030712181654.GB15643@srv.foo21.com>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: linux-kernel@vger.kernel.org
-Subject: 'NFS stale file handle' with 2.5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm experiencing really big problems with nfs on 2.5 - and I'm a bit 
-stuck debugging.
-
-Server:
-Pentium II SMP Dual Server with Raid5/dm and nfs running 2.5.7[045][-mm]
-
-Clients:
-Athlon, same kernels
-P3 800, same kernels and 2.4
-
-Problem:
-Accessing the nfs shares on the Server gives lots of 'nfs stale file 
-handles', making it unusuable. A simple cp from nfs to nfs triggers it 
-in a matter of seconds.
-The shares are mounted with (hard,intr), that used to work with 2.4.20 
-on the server, but I also tried no option, only hard and only soft, 
-problem persists. Also I tried to remove nfs_directio from the build and 
-only compiled in nfs2, all the same.
-Being curious whats wrong I set up an export on the P3 800 and mounted 
-it from the athlon (both running 2.5.75-mm1). This seems to work fine 
-(just tested for 10 minutes or so, but typically the problem is 
-triggered much earlier).
-I also tried enabling the VERBOSE_DEBUG define in nfs source. But that 
-doesn't give any more information.
-Only one line that gets my attention:
-NFS: giant filename in readdir (len 0x2f0a0969)
-
-I'm really lost here. What can I try/do to further narrow this down? Any 
-specific kernel revision I could try to go back, notice that already 
-2.5.70 triggered it. With 2.4 on the server nothing of this happens.
-Only thing left is to try booting the server without smp support, but I 
-get some 'hde: lost interrupt' messages and it doesn't boot.
-Note that I also tried to export a partition not on dm. Filesystem is 
-ext3. I also tried the patches you posted some days ago in another thread.
-
-Thanks for any suggestions,
-
-Jan
-
-# grep NFS .config
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
+[Cc:ing DaveM ]
 
 
--- 
-Linux rubicon 2.5.75-mm1-jd10 #1 SMP Sat Jul 12 19:40:28 CEST 2003 i686
+On Sat, 12 Jul 2003, Eric Varsanyi wrote:
+
+> I'm proposing adding a new POLL event type (POLLRDHUP) as way to solve
+> a new race introduced by having an edge triggered event mechanism
+> (epoll). The problem occurs when a client writes data and then does a
+> write side shutdown(). The server (using epoll) sees only one event for
+> the read data ready and the read EOF condition and has no way to tell
+> that an EOF occurred.
+>
+> -Eric Varsanyi
+>
+> Details
+> -----------
+> 	- remote sends data and does a shutdown
+> 	   [ we see a data bearing packet and FIN from client on the wire ]
+>
+> 	- user mode server gets around to doing accept() and registers
+> 	  for EPOLLIN events (along with HUP and ERR which are forced on)
+>
+> 	- epoll_wait() returns a single EPOLLIN event on the FD representing
+> 	  both the 1/2 shutdown state and data available
+>
+> At this point there is no way the app can tell if there is a half closed
+> connection so it may issue a close() back to the client after writing
+> results. Normally the server would distinguish these events by assuming
+> EOF if it got a read ready indication and the first read returned 0 bytes,
+> or would issue read calls until less data was returned than was asked for.
+>
+> In a level triggered world this all just works because the read ready
+> indication is driven back to the app as long as the socket state is half
+> closed. The event driven epoll mechanism folds these two indications
+> together and thus loses one 'edge'.
+>
+> One would be tempted to issue an extra read() after getting back less than
+> expected, but this is an extra system call on every read event and you get
+> back the same '0' bytes that you get if the buffer is just empty. The only
+> sure bet seems to be CTL_MODding the FD to force a re-poll (which would
+> cost a syscall and hash-lookup in eventpoll for every read event).
+>
+
+Yes, this is overhead that should be avoided. It is true that you could
+use Level Triggered events, but if you structured your app on edge you
+should be able to solve this w/out overhead.
+
+
+
+> 	2) add a new 1/2 closed event type that a poll routine can return
+>
+> The implementation is trivial, a patch is included below. If this idea sees
+> favor I'll fix the other architectures, ipv6, epoll.h, and make a 'real'
+> patch. I do not believe any drivers deserve to be modified to return this
+> new event.
+
+This looks good to me. David what do you think ?
+
+
+
+> diff -Naur linux-2.4.20/include/asm-i386/poll.h linux-2.4.20_ev/include/asm-i386/poll.h
+> --- linux-2.4.20/include/asm-i386/poll.h	Thu Jan 23 13:01:28 1997
+> +++ linux-2.4.20_ev/include/asm-i386/poll.h	Sat Jul 12 12:29:11 2003
+> @@ -15,6 +15,7 @@
+>  #define POLLWRNORM	0x0100
+>  #define POLLWRBAND	0x0200
+>  #define POLLMSG		0x0400
+> +#define POLLRDHUP	0x0800
+>
+>  struct pollfd {
+>  	int fd;
+> diff -Naur linux-2.4.20/net/ipv4/tcp.c linux-2.4.20_ev/net/ipv4/tcp.c
+> --- linux-2.4.20/net/ipv4/tcp.c	Tue Jul  8 09:40:42 2003
+> +++ linux-2.4.20_ev/net/ipv4/tcp.c	Sat Jul 12 12:29:56 2003
+> @@ -424,7 +424,7 @@
+>  	if (sk->shutdown == SHUTDOWN_MASK || sk->state == TCP_CLOSE)
+>  		mask |= POLLHUP;
+>  	if (sk->shutdown & RCV_SHUTDOWN)
+> -		mask |= POLLIN | POLLRDNORM;
+> +		mask |= POLLIN | POLLRDNORM | POLLRDHUP;
+>
+>  	/* Connected? */
+>  	if ((1 << sk->state) & ~(TCPF_SYN_SENT|TCPF_SYN_RECV)) {
+>
+
+
+
+- Davide
 

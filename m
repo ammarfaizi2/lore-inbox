@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267335AbSLKXqr>; Wed, 11 Dec 2002 18:46:47 -0500
+	id <S267362AbSLKXtZ>; Wed, 11 Dec 2002 18:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267345AbSLKXqr>; Wed, 11 Dec 2002 18:46:47 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:33034 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267335AbSLKXqq>; Wed, 11 Dec 2002 18:46:46 -0500
-Date: Wed, 11 Dec 2002 23:54:30 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Patricia Gaughen <gone@us.ibm.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (2/2) i386 discontigmem support against 2.4.21pre1: discontigmem
-Message-ID: <20021211235430.A9740@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patricia Gaughen <gone@us.ibm.com>, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-References: <200212112335.gBBNZqN04597@w-gaughen.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200212112335.gBBNZqN04597@w-gaughen.beaverton.ibm.com>; from gone@us.ibm.com on Wed, Dec 11, 2002 at 03:35:52PM -0800
+	id <S267364AbSLKXtZ>; Wed, 11 Dec 2002 18:49:25 -0500
+Received: from mail.hometree.net ([212.34.181.120]:970 "EHLO mail.hometree.net")
+	by vger.kernel.org with ESMTP id <S267362AbSLKXtX>;
+	Wed, 11 Dec 2002 18:49:23 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Is this going to be true ?
+Date: Wed, 11 Dec 2002 23:57:10 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <at8jcm$n8u$1@forge.intermeta.de>
+References: <001801c2a0a9$02613f40$2e863841@joe> <yw1xbs3smtx0.fsf@gladiusit.e.kth.se>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039651030 10634 212.34.181.4 (11 Dec 2002 23:57:10 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 11 Dec 2002 23:57:10 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 03:35:52PM -0800, Patricia Gaughen wrote:
-> This patch provides generic discontiguous memory support for the i386
-> numa architecture.  The patch also provides supports for the ia32 IBM
-> NUMA-Q hardware platform.  John Stultz also has added support for the
-> x440 hardware, but now it's mine.  This will be posted separately at a 
-> later date.  A version of this patch has been accepted into the v2.5
-> tree starting with 2.5.34.
-> 
-> This patch depends on the paddr->pfn patch that I just sent out.
-> 
+mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=) writes:
 
-[snip]
+>> Competition is always good. It inpires people to do better.
 
-> Any and all feedback regarding this patch is greatly appreciated.
+>Doing better than MS isn't much of an inspiration to me.
 
-The patch looks very nice.  And it looks like it got testing in -aa
-for a fair while.
+There are no similar applications like the Exchange Server or the
+BizTalk server for Linux. I'd see them port all of the server portions
+of these applications to an *ix platform (be it MacOS X, *BSD or
+Linux) in quite short time. The management GUIs and application
+development tools will stay on Windows, however.
 
+Basically the same thing, many other server platform vendors (Oracle,
+InterSystems Cache are the ones I spontanously remember) do. You get 1
+(one) Linux Server in the company running the server and be able to
+keep 100 (one hundred) % of the desktops on Windows. Sounds like a
+good deal for M$ to me.
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,43 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280531AbRLGNXv>; Fri, 7 Dec 2001 08:23:51 -0500
+	id <S280814AbRLGNah>; Fri, 7 Dec 2001 08:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280805AbRLGNXi>; Fri, 7 Dec 2001 08:23:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:50183 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280531AbRLGNXZ>;
-	Fri, 7 Dec 2001 08:23:25 -0500
-Date: Fri, 7 Dec 2001 14:23:21 +0100
-From: Andi Kleen <ak@suse.de>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@zip.com.au>,
-        riel@conectiva.com.br, kiran@in.ibm.com,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: [RFC] [PATCH] Scalable Statistics Counters
-Message-ID: <20011207142321.A7652@wotan.suse.de>
-In-Reply-To: <20011205163153.E16315@in.ibm.com> <Pine.LNX.4.33L.0112051109340.4079-100000@imladris.surriel.com> <3C0E7ED9.1F0BD44E@zip.com.au> <20011206141826.16833acc.rusty@rustcorp.com.au> <20011207182214.D15810@in.ibm.com>
-Mime-Version: 1.0
+	id <S281009AbRLGNa2>; Fri, 7 Dec 2001 08:30:28 -0500
+Received: from web13905.mail.yahoo.com ([216.136.175.68]:31753 "HELO
+	web13905.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280814AbRLGNaU>; Fri, 7 Dec 2001 08:30:20 -0500
+Message-ID: <20011207133020.41163.qmail@web13905.mail.yahoo.com>
+Date: Fri, 7 Dec 2001 05:30:20 -0800 (PST)
+From: Jorge Carminati <jcarminati@yahoo.com>
+Subject: Re: Kernel freezing....
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011207182214.D15810@in.ibm.com>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 06:22:14PM +0530, Dipankar Sarma wrote:
-> Your per-cpu area patch looks like a good solution with a very simple
-> implementation. BTW, some OSes map the per-cpu data areas
-> to the same virtual address for each CPU avoiding the per-cpu data
-> array lookup. I am not sure if this really saves much, we are ourselves
-> trying to understand the overhead of such array lookup with 
-> statctrs. 
+Hi!
 
-Using virtual addresses with per cpu mappings would be rather difficult to 
-implement for i386, because it uses the linux page table directly in 
-hardware. It would mean that you couldn't simply reuse the same top level
-page for all clone()s sharing the same mm_struct, but would need to allocate
-one per CPU. 
+Well, I have some news regarding my case. 
 
-On i386 the old method from the SGI PDA patch looks cheapest: just having
-a pointer in task_struct and set it in the scheduler.
+Brief for the impatient: IMHO it's a kernel bug.
 
--Andi
+7pm: I arrived home from work; as suggested by Alan I ran memtest86
+(v.2.8). I let it make two passes as to have a first impression. NO
+memory error was found. It took ~24 minutes for each pass (240 Mb total
+(256Mb - 16Mb used for video card)). Meanwhile I was compiling in my
+Mandrake workstation a kernel optimized for i386 as suggested by
+François Cami.
+
+7.50pm: I spent a couple of minutes repairing with fsck my ext3
+partition; had a lot of freezes the previous day.
+
+8pm: I ftped the kernel to the notebook (first attempt failed; kernel
+froze again (Red Hat's default kernel) second attempt was ok). Rebooted
+and logged in in init 1. I typed some commands, and later started X
+Window, no freeze. Next I launched lot of applications, just to try a
+very basic memory stress. I started to enjoy Linux in my notebook.
+After an uptime of 1:40 hour I decided to switch to the next kernel
+optimized version: i486.
+
+9.40pm: Booted i486 kernel. Made some basic tests, played with XFree86,
+while at the same time for first time I was compiling a newer kernel
+using this notebook (using Red Hat's 7.2 default gcc, etc). This newer
+kernel was optimized for 586/K5. Rebooted after an uptime of 30 min
+without a freeze.
+
+10:15pm: Played a lot with this new kernel for almost 1:30 hour, no
+freeze suffered. 
+
+Last thing I did was to compile again a newer kernel for the next cpu
+type (I think it´s named "Pentium Standard" or something similar). I´ll
+test probably on saturday this kernel as I went to sleep.
+
+In all the cases the compiled kernel had set exactly the same options,
+**just changed the cpu optimization type**. Kernel version 2.4.16.
+
+I was thinking, as suggested by Alan, to ran memtest86 all night long,
+but as didn't suffered in 4 hours a freeze, I discarded this idea.
+
+
+Conclusion: IMHO it´s a kernel bug. The same .config optimized for AMD
+freezes, and Red Hat's default kernel does the same. Luckily for my
+investment it´s not a memory bug.
+
+I'll investigate when this bug is introduced playing with the cpu
+optimization setting. I'll post my results probably next monday. 
+
+If anyone has any kind of suggestion or want me to test something in
+particular please let me know.
+
+* PLEASE cc to jcarminati@yahoo.com for any answer. I'm not subscribed.
+*
+
+Kind regards and thanks again.
+Jorge Carminati.
+jcarminati@yahoo.com
+
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com

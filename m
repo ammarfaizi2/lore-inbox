@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263464AbTHWBdH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 21:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264423AbTHWBdG
+	id S263271AbTHWBzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 21:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbTHWBzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 21:33:06 -0400
-Received: from remt26.cluster1.charter.net ([209.225.8.36]:28665 "EHLO
-	remt26.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S264353AbTHWBc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 21:32:56 -0400
-Subject: cramfs crc?
-From: Josh Boyer <jwboyer@charter.net>
+	Fri, 22 Aug 2003 21:55:35 -0400
+Received: from [63.193.79.19] ([63.193.79.19]:27776 "HELO mwg.inxservices.lan")
+	by vger.kernel.org with SMTP id S263271AbTHWBze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 21:55:34 -0400
+Date: Fri, 22 Aug 2003 18:12:01 -0700
+From: George Garvey <tmwg-linuxknl@inxservices.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061602374.2003.15.camel@yoda>
+Subject: Re: Intel 865 AGP and nVidia driver problem
+Message-ID: <20030823011200.GA27852@inxservices.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030822210555.GX1437@inxservices.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Aug 2003 20:32:54 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030822210555.GX1437@inxservices.com>
+User-Agent: Mutt/1.4.1i
+Organization: inX Services, Los Angeles, CA, USA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the cramfs_info structure contains a u32 crc field, but it is never used
-in the kernel.  the mkcramfs tool calculates a crc on the whole fs image
-and then embeddeds this crc into the image file.
-
-why is this never checked in the kernel?  it could be recalculated at
-mount time and compared the the embedded crc.  if a mismatch is
-detected, the mount could simply fail.
-
-is there a reason this isn't done, or is it that nobody thought it would
-be useful?
-
-
-thx,
-jb
-
+   Problem gone. Thanks to Erik for convincing to keep looking. Problem
+went away when replaced old nVidia card with the newer one that was to
+have been used in the end, anyway.

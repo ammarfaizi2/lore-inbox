@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290125AbSBSVFW>; Tue, 19 Feb 2002 16:05:22 -0500
+	id <S290215AbSBSVLe>; Tue, 19 Feb 2002 16:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290184AbSBSVFL>; Tue, 19 Feb 2002 16:05:11 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19212 "EHLO
+	id <S290218AbSBSVLX>; Tue, 19 Feb 2002 16:11:23 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19980 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290125AbSBSVEv>; Tue, 19 Feb 2002 16:04:51 -0500
-Date: Tue, 19 Feb 2002 16:03:41 -0500 (EST)
+	id <S290215AbSBSVLO>; Tue, 19 Feb 2002 16:11:14 -0500
+Date: Tue, 19 Feb 2002 16:06:24 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Michael Cohen <me@ohdarn.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-pre9-mjc2 compile errors
-In-Reply-To: <1014081580.21495.3.camel@ohdarn.net>
-Message-ID: <Pine.LNX.3.96.1020219155511.19281A-100000@gatekeeper.tmr.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: kbuild-devel@lists.sourceforge.net,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <E16d6Mn-00011Q-00@starship.berlin>
+Message-ID: <Pine.LNX.3.96.1020219160423.19281B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Feb 2002, Michael Cohen wrote:
+On Tue, 19 Feb 2002, Daniel Phillips wrote:
 
-> Sorry, I wasn't in too great of a mood.  Didn't mean to sound *that*
-> rough.  Anyways, I had just started using bitkeeper, and the change
-> didn't get committed properly, so it fell out of my bk tree when I made
-> the patch.  It had been tested mostly though.  I started using a much
-> more inclusive test .config though; and I'll have a working next
-> release.  Take a look at how well 2.5 currently compiles though =)
-> 
-> Fix is to remove the function __find_page_nolock from mm/filemap.c.
+> On February 19, 2002 09:04 am, Giacomo Catenazzi wrote:
 
-And after it compiles and depmod lists all the symbols which aren't
-exported you rewite ksyms.c with:
-/* all the crap missing from mjc2 */
-EXPORT_SYMBOL(blkdev_varyio);
-EXPORT_SYMBOL(pidhash_bits);
-EXPORT_SYMBOL(pidhash_size);
+> Under the GPL Having exclusive copyright just means that you can relicense 
+> later stuff if you want.  I'm not clear on why FSF considers it so important
+> but for Linux it just means that nobody, not even Linus, can ever release
+> under a new license (e.g., the BSD license).  So actually, having multiple 
+> copyright holders is a good thing for you, it protects your investment in GPL 
+> capital better.  I say, if Microsoft employees want to contribute to Linux, 
+> the more the merrier.  Heck, even billg is going to wake up on day (with a 
+> start, in the middle of the night) and realize which way the wind is blowing. 
+> Steve Jobs did.
 
-Some of which is cruft you inhereted which will be fixed in 2.4.28-rc77, I
-think one you created yourself.
-
-Since the test machine take ~100min to build a kernel, I have just
-finished the build and will boot Friday, assuming that rc3-mjc1 or so
-isn't out.
-
-for the record, 2.4.18-pre9-mjc1 did not run as well on the small machine
-test as just rmap-12e+K3. I was hoping the preempt in mjc1 would make it
-more responsive. I have a new test for thread handling, I want to run
-that, and maybe Thursday I'll get to try all of these on SMP and large
-memory systems.
-
-Soon I have to write all this stuff up...
+So did IBM, SCO, HP and Sun. We shall see what transpires...
 
 -- 
 bill davidsen <davidsen@tmr.com>

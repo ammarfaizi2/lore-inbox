@@ -1,73 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUE0PBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUE0PFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbUE0PBr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUE0PBr
+	id S264670AbUE0PFV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUE0PFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:01:47 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:405 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264650AbUE0PAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:00:31 -0400
-Date: Thu, 27 May 2004 16:59:35 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andi Kleen <ak@muc.de>, "David S. Miller" <davem@redhat.com>,
-       mingo@elte.hu, riel@redhat.com, torvalds@osdl.org, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040527145935.GE23194@wohnheim.fh-wedel.de>
-References: <1ZQz8-1Yh-15@gated-at.bofh.it> <1ZRFf-2Vt-3@gated-at.bofh.it> <203Zu-4aT-15@gated-at.bofh.it> <206b3-5WN-33@gated-at.bofh.it> <20baw-1Lz-15@gated-at.bofh.it> <m38yff7zn3.fsf@averell.firstfloor.org> <20040527112705.GA21190@wohnheim.fh-wedel.de> <20040527134950.GB3889@dualathlon.random> <20040527141547.GC23194@wohnheim.fh-wedel.de> <20040527144916.GE3889@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040527144916.GE3889@dualathlon.random>
-User-Agent: Mutt/1.3.28i
+	Thu, 27 May 2004 11:05:21 -0400
+Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:28804 "EHLO
+	linuxfarms.com") by vger.kernel.org with ESMTP id S264673AbUE0PFG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 11:05:06 -0400
+Date: Thu, 27 May 2004 11:05:29 -0400 (EDT)
+From: Arthur Perry <kernel@linuxfarms.com>
+X-X-Sender: kernel@tiamat.perryconsulting.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: GART error 11 (fwd)
+Message-ID: <Pine.LNX.4.58.0405271103350.18743@tiamat.perryconsulting.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 May 2004 16:49:16 +0200, Andrea Arcangeli wrote:
-> On Thu, May 27, 2004 at 04:15:47PM +0200, Jörn Engel wrote:
-> > 
-> > Would it be possible to add something short to the function preamble
-> > on x86 then?  Similar to this code, maybe:
-> > 
-> > if (!(stack_pointer & 0xe00))	/* less than 512 bytes left */
-> > 	*NULL = 1;
-> > 
-> > Not sure how this can be translated into short and fast x86 assembler,
-> > but if it is possible, I would really like to have it.  Then all we
-> > have left to do is make sure no function ever uses more than 512
-> > bytes.  Famous last words, I know.
-> 
-> If it would be _inlined_ it would be *much* faster, but it would likely
-> be measurable anyways. Less measurable though. There's no way with gcc
-> to inline the above in the preamble, one could hack gcc for it though
-> (there's exactly an asm preable thing in gcc that is the one that is
-> currently implemented as call mcount plus the register saving, chaning
-> it to the above may be feasible, though it would need a new option in
-> gcc)
+Here is a posting that I dropped off in RedHat's amd64-list.
+It is a kernel related issue, so if anybody has any insight or opinion of
+proper implementation here, please jump in!
 
-It is on my list, although I care more about ppc32.  Can anyone
-translate the above into assembler?
+Thanks.
 
-> another nice thing to have (this one zerocost at runtime) would be a
-> way to set a limit on the size of the local variables for each function.
-> gcc knows that value very well, it's the sub it does on the stack
-> pointer the first few asm instructions after the call.  That would
-> reduce the common mistakes.  An equivalent script is the one from Keith
-> Owens checking the vmlinux binary after compilation but I'm afraid
-> people runs that one only after the fact.
+Arthur Perry
+Lead Linux Developer / Linux Systems Architect
+Validation, CSU Celestica
+Sair/Linux Gnu Certified Professional
+Providing professional Linux solutions for 7+ years
 
-Plus the script is wrong sometimes.  I have had trouble with sizes
-around 4G or 2G, and never found the time to really figure out what's
-going on.  Might be an alloca thing that got misparsed somehow.
+---------- Forwarded message ----------
+Date: Thu, 27 May 2004 11:02:10 -0400 (EDT)
+From: Arthur Perry <amd64@linuxfarms.com>
+To: amd64-list@redhat.com
+Cc: kernel@linuxfarms.com
+Subject: Re: GART error 11
 
-Having the check in gcc should cause less surprises.
+Hi Dave,
 
-Jörn
+I am getting the same problem here, not only with RedHat's 2.4.21-9.0.1EL kernel, but also with SuSE Enterprise 8.0.
+What I have found is that RedHat has AGP support built into the kernel, and is not a module that can be loaded/unloaded.
+If your server does not have an AGP bus (as most servers do not), obviously the driver shouldn't do anything.
+However, this is not the case.
+
+After some test, it appears that the errors go away if you recompile the kernel without AGP support.
+
+Here is my proposed "root cause":
+If you boot the stock RedHat kernel, you will find that the GART ARPERTURE CONTROL REGISTER (function 3, offset 0x90) is enabled.
+If you do not have an AGP bus, this does not make sense to set up and configure.
+The errors that you see are captured by the Machine Check Architecture (MCA).
+The Northbridge portion is responsible for capturing these specific errors, and its global enable is in the MCG_CTL register located at MSR 0x017b.
+Your BIOS will be the one who enables this. You may even have an option for enabling or disabling the MCA.
+You also can set this in userspace.
+Anyways, I digress..
+
+The object here is to not set up the GART if you do not have an AGP bus.
+If the AGP driver is built into the kernel, this whole portion should be skipped. Not just the initialization of the particular AGP bus. This register (function 3, offset 0x90) should not be configured.
+
+What I am going to do is test to see if this problem manifests itself with the mainline Linux code. If it does not appear, then I know there just may be a patch that has not been incorperated into the mainline distributions.
+This can be easily fixed.
+If it still exists, then I know that it is a implemenation issue that exists in the mainline kernel, and this is why all distributions would be affected.
+
+The question really comes down to:
+Is this problem an oversight of the distributors (silly! the agp driver should not be built into the kernel for server use!)
+or
+Kernel code implementation? (well, if no agp bus is present, then let's not go and set up the GART, right?)
+
+
+
+Thoughts?
+
+
+Best Regards,
+Art Perry
+
+
+
+
+On Wed, Nov 12, 2003 at 11:44:48AM -0500, Owen Scott Medd wrote:
+ > We've just put RHEL3 AS on a newisys 2100 dual opteron (246 cpus) with
+ > 16GB of PC2100 memory, a megaraid controller and the internal mptfusion
+ > controller.  Every so often, seemingly coincident with I/O load on the
+ > megaraid controller, we get the following error:
+ >
+ >    Northbridge status a40000000005001b
+ >    GART error 11
+ >    Lost an northbridge error
+ >    NB error address 00000000fbf60000
+ >    Error uncorrected
+ >
+ > The disk writes *appear* okay (we haven't found any errors so far) but
+ > I'm not sure what these mean.
+
+These are machine check exceptions. Typically hardware errors.
+Run memtest, check cooling, PSU etc..
+
+		Dave
+
 
 -- 
-It's not whether you win or lose, it's how you place the blame.
--- unknown
+AMD64-list mailing list
+AMD64-list@xxxxxxxxxx
+https://www.redhat.com/mailman/listinfo/amd64-list
+

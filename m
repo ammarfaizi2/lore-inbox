@@ -1,154 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbULBRlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbULBRms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbULBRlA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 12:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbULBRlA
+	id S261707AbULBRms (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 12:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbULBRmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 12:41:00 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:43469 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261699AbULBRkl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 12:40:41 -0500
-Subject: [PATCH 6/6] Add member node to selinuxfs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1102008948.26015.154.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 2 Dec 2004 12:42:45 -0500
+Received: from pop.gmx.de ([213.165.64.20]:8141 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261708AbULBRmD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 12:42:03 -0500
+X-Authenticated: #4399952
+Date: Thu, 2 Dec 2004 18:44:21 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+Message-ID: <20041202184421.229cf5d5@mango.fruits.de>
+In-Reply-To: <20041202134934.GA32216@elte.hu>
+References: <20041201213023.GA23470@elte.hu>
+	<32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
+	<20041201220916.GA24992@elte.hu>
+	<20041201234355.0dac74cf@mango.fruits.de>
+	<20041202084040.GC7585@elte.hu>
+	<20041202132218.02ea2c48@mango.fruits.de>
+	<20041202122931.GA25357@elte.hu>
+	<20041202140612.4c07bca8@mango.fruits.de>
+	<20041202131002.GA30503@elte.hu>
+	<20041202144037.5c9da188@mango.fruits.de>
+	<20041202134934.GA32216@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Dec 2004 12:35:48 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__2_Dec_2004_18_44_21_+0100_1fv.skIxztpDm737"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a member node to selinuxfs to export the
-security_member_sid interface to userspace for obtaining security
-polyinstantiation decisions.  Please apply.
+This is a multi-part message in MIME format.
 
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
+--Multipart=_Thu__2_Dec_2004_18_44_21_+0100_1fv.skIxztpDm737
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
- security/selinux/selinuxfs.c |   65
-+++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 65 insertions(+)
+On Thu, 2 Dec 2004 14:49:34 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Index: linux-2.6/security/selinux/selinuxfs.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/selinuxfs.c,v
-retrieving revision 1.50
-diff -u -p -r1.50 selinuxfs.c
---- linux-2.6/security/selinux/selinuxfs.c	22 Nov 2004 18:06:49
--0000	1.50
-+++ linux-2.6/security/selinux/selinuxfs.c	2 Dec 2004 14:37:56 -0000
-@@ -71,6 +71,7 @@ enum sel_inos {
- 	SEL_MLS,	/* return if MLS policy is enabled */
- 	SEL_DISABLE,	/* disable SELinux until next reboot */
- 	SEL_AVC,	/* AVC management directory */
-+	SEL_MEMBER,	/* compute polyinstantiation membership decision */
- };
+> 
+> * Florian Schmidt <mista.tapas@gmx.net> wrote:
+> 
+> > Ok, so if i want to find out whether a client violates the RT
+> > constraints for its process callback i would have to add a call to
+> > gettimeofday(1,1) at the start of the process callback and
+> > gettimeofday(1,0) at the end.
+> > 
+> > Everything which causes a reschedule inbetween will then cause SIGUSR2
+> > to be sent to the client for which i could either add a signal handler
+> > in the client or just use gdb to get notified of it. 
+> 
+> correct. I'd expect there to be a number of less critical reschedules
+> happening around startup/shutdown of a client, which one could consider
+> a false positive, but there should be no unexpected rescheduling while
+> the client is up and running.
+
+Ok,
+
+this simple patch adds the gettimeofday calls around the calling of the
+process callback:
+
+--- libjack/client.c.orig	2004-12-02 17:55:04.000000000 +0100
++++ libjack/client.c	2004-12-02 17:56:23.000000000 +0100
+@@ -1238,6 +1238,9 @@
+ 			if (control->sync_cb)
+ 				jack_call_sync_client (client);
  
- #define TMPBUFLEN	12
-@@ -307,12 +308,14 @@ static ssize_t sel_write_access(struct f
- static ssize_t sel_write_create(struct file * file, char *buf, size_t
-size);
- static ssize_t sel_write_relabel(struct file * file, char *buf, size_t
-size);
- static ssize_t sel_write_user(struct file * file, char *buf, size_t
-size);
-+static ssize_t sel_write_member(struct file * file, char *buf, size_t
-size);
++			// enable atomicity check for RP kernels
++			gettimeofday(1,1);
++			
+ 			if (control->process) {
+ 				if (control->process (control->nframes,
+ 						      control->process_arg)
+@@ -1247,7 +1250,10 @@
+ 			} else {
+ 				control->state = Finished;
+ 			}
+-
++			
++			// disable atomicity check
++			gettimeofday(0,1);
++			
+ 			if (control->timebase_cb)
+ 				jack_call_timebase_master (client);
  
- static ssize_t (*write_op[])(struct file *, char *, size_t) = {
- 	[SEL_ACCESS] = sel_write_access,
- 	[SEL_CREATE] = sel_write_create,
- 	[SEL_RELABEL] = sel_write_relabel,
- 	[SEL_USER] = sel_write_user,
-+	[SEL_MEMBER] = sel_write_member,
- };
- 
- static ssize_t selinux_transaction_write(struct file *file, const char
-__user *buf, size_t size, loff_t *pos)
-@@ -582,6 +585,67 @@ out:
- 	return length;
- }
- 
-+static ssize_t sel_write_member(struct file * file, char *buf, size_t
-size)
-+{
-+	char *scon, *tcon;
-+	u32 ssid, tsid, newsid;
-+	u16 tclass;
-+	ssize_t length;
-+	char *newcon;
-+	u32 len;
-+
-+	length = task_has_security(current, SECURITY__COMPUTE_MEMBER);
-+	if (length)
-+		return length;
-+
-+	length = -ENOMEM;
-+	scon = kmalloc(size+1, GFP_KERNEL);
-+	if (!scon)
-+		return length;
-+	memset(scon, 0, size+1);
-+
-+	tcon = kmalloc(size+1, GFP_KERNEL);
-+	if (!tcon)
-+		goto out;
-+	memset(tcon, 0, size+1);
-+
-+	length = -EINVAL;
-+	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
-+		goto out2;
-+
-+	length = security_context_to_sid(scon, strlen(scon)+1, &ssid);
-+	if (length < 0)
-+		goto out2;
-+	length = security_context_to_sid(tcon, strlen(tcon)+1, &tsid);
-+	if (length < 0)
-+		goto out2;
-+
-+	length = security_member_sid(ssid, tsid, tclass, &newsid);
-+	if (length < 0)
-+		goto out2;
-+
-+	length = security_sid_to_context(newsid, &newcon, &len);
-+	if (length < 0)
-+		goto out2;
-+
-+	if (len > SIMPLE_TRANSACTION_LIMIT) {
-+		printk(KERN_ERR "%s:  context size (%u) exceeds payload "
-+		       "max\n", __FUNCTION__, len);
-+		length = -ERANGE;
-+		goto out3;
-+	}
-+
-+	memcpy(buf, newcon, len);
-+	length = len;
-+out3:
-+	kfree(newcon);
-+out2:
-+	kfree(tcon);
-+out:
-+	kfree(scon);
-+	return length;
-+}
-+
- static struct inode *sel_make_inode(struct super_block *sb, int mode)
- {
- 	struct inode *ret = new_inode(sb);
-@@ -1117,6 +1181,7 @@ static int sel_fill_super(struct super_b
- 		[SEL_COMMIT_BOOLS] = {"commit_pending_bools", &sel_commit_bools_ops,
-S_IWUSR},
- 		[SEL_MLS] = {"mls", &sel_mls_ops, S_IRUGO},
- 		[SEL_DISABLE] = {"disable", &sel_disable_ops, S_IWUSR},
-+		[SEL_MEMBER] = {"member", &transaction_ops, S_IRUGO|S_IWUGO},
- 		/* last one */ {""}
- 	};
- 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+The results i see are rather interesting though. Even with a noop jack
+client (which does nothing but return 0 in the process callback) i get a
+syslog report everytime i start the client. Client source attached.
 
+Dec  2 18:39:06 mango kernel: jack_test:22743 userspace BUG: scheduling in user-atomic context!
+Dec  2 18:39:06 mango kernel:  [<c02a38b6>] schedule+0x76/0x130 (8)
+Dec  2 18:39:06 mango kernel:  [<c02a44c5>] schedule_timeout+0x85/0xe0 (36)
+Dec  2 18:39:06 mango kernel:  [<c016677f>] do_pollfd+0x4f/0x90 (48)
+Dec  2 18:39:06 mango kernel:  [<c011ceb0>] process_timeout+0x0/0x10 (8)
+Dec  2 18:39:06 mango kernel:  [<c016686a>] do_poll+0xaa/0xd0 (20)
+Dec  2 18:39:06 mango kernel:  [<c01669e2>] sys_poll+0x152/0x230 (48)
+Dec  2 18:39:06 mango kernel:  [<c0165db0>] __pollwait+0x0/0xd0 (36)
+Dec  2 18:39:06 mango kernel:  [<c01025cb>] syscall_call+0x7/0xb (32)
+
+
+The atomicity check operates on a per task (thread) basis right?
+
+Flo
+
+--Multipart=_Thu__2_Dec_2004_18_44_21_+0100_1fv.skIxztpDm737
+Content-Type: text/x-c++src;
+ name="jack_test.cc"
+Content-Disposition: attachment;
+ filename="jack_test.cc"
+Content-Transfer-Encoding: 7bit
+
+#include <jack/jack.h>
+#include <iostream>
+#include <sstream>
+#include <unistd.h>
+
+jack_client_t *client;
+jack_port_t *iport;
+jack_port_t *oport;
+
+int wasted_loops = 0;
+
+int sleep_seconds = 1;
+int sleep_in_period = 2000;
+int counter = 0;
+
+int process(jack_nframes_t frames, void *arg) {
+	/*
+	// std::cout << "process callback" << std::endl;
+	jack_default_audio_sample_t *ibuf;
+	ibuf = (jack_default_audio_sample_t*)jack_port_get_buffer(iport, frames);
+
+	jack_default_audio_sample_t *obuf;
+	obuf = (jack_default_audio_sample_t*)jack_port_get_buffer(oport, frames);
+
+	for (jack_nframes_t frame = 0; frame < frames; frame++) {
+		for (int i = 0; i < wasted_loops; ++i) {
+			// do nothing
+		}
+		obuf[frame] = ibuf[frame];
+	}
+	counter++;
+	if (counter == sleep_in_period) {
+	  //sleep(sleep_seconds);
+	}
+*/
+        return 0;
+}
+
+int main(int argc, char *argv[]) {
+	// default = 60 seconds
+	unsigned int seconds_to_run = 60;
+	if (argc > 1) {
+		std::stringstream sec_stream;
+		sec_stream << argv[1];
+		sec_stream >> seconds_to_run;
+		if (argc > 2) {
+			std::stringstream waste_stream;
+			waste_stream << argv[2];
+			waste_stream >> wasted_loops;
+			std::cout << "wasted loops: " << wasted_loops << std::endl;
+		}
+	}
+	std::cout << "seconds to run: " << seconds_to_run << std::endl;
+	
+	std::stringstream pid_stream;
+	pid_stream << getpid();
+	
+        std::cout << "client_new" << std::endl;
+        client = jack_client_new(pid_stream.str().c_str());
+
+        std::cout << "port_register." << std::endl;
+        iport = jack_port_register(client, "in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput|JackPortIsTerminal, 0);
+	oport = jack_port_register(client, "out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsTerminal|JackPortIsOutput, 0);
+
+        std::cout << "set_process_callback" << std::endl;
+        jack_set_process_callback(client, process, 0);
+
+        std::cout << "activate" << std::endl;
+        jack_activate(client);
+
+        std::cout << "running" << std::endl;
+
+        // while(1) {sleep(1);};
+	sleep(seconds_to_run);
+
+	jack_deactivate(client);
+	jack_client_close(client);
+}
+
+--Multipart=_Thu__2_Dec_2004_18_44_21_+0100_1fv.skIxztpDm737--

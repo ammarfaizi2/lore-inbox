@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262181AbSJaOzg>; Thu, 31 Oct 2002 09:55:36 -0500
+	id <S262129AbSJaOzQ>; Thu, 31 Oct 2002 09:55:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262187AbSJaOzg>; Thu, 31 Oct 2002 09:55:36 -0500
-Received: from mta04bw.bigpond.com ([139.134.6.87]:50133 "EHLO
-	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S262181AbSJaOze>; Thu, 31 Oct 2002 09:55:34 -0500
-Message-ID: <3DC14635.1000308@snapgear.com>
-Date: Fri, 01 Nov 2002 01:03:17 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262181AbSJaOzQ>; Thu, 31 Oct 2002 09:55:16 -0500
+Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:60071 "EHLO
+	d06lmsgate-6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S262129AbSJaOzP>; Thu, 31 Oct 2002 09:55:15 -0500
+Subject: Re: What's left over.
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, n2m1@ltc-eth1000.torolab.ibm.com,
+       Rusty Russell <rusty@rustcorp.com.au>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF6286E52C.B464C16B-ON80256C63.005132DB@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Thu, 31 Oct 2002 14:56:27 +0000
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 31/10/2002 15:01:22
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: linux-2.5.45-uc1 (MMU-less support)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-Heres another go at a linux-2.5.45 patch for MMU-less support :-)
-This time not using the bogus 2.5.45 tar ball.
+>> Crash Dumping (LKCD)
+>
+>This is definitely a vendor-driven thing. I don't believe it has any
+>relevance unless vendors actively support it.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1.patch.gz
-
-Changelog:
-
-1. patch against 2.5.45    (me)
-2. m68knommu Kconfig       (me)
-    (Miles: you will need to do the v850 Kconfig changes...)
-
-
-Smaller specific patches:
-
-. FEC ColdFire 5272 and 68360 ethernet drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-fec.patch.gz
-
-. m68k/ColdFire/v850 serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44-uc1-serial.patch.gz
-
-. 68328 frame buffer
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-fb.patch.gz
-
-. binfmt_flat loader
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-binflat.patch.gz
-
-. m68knommu architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-m68knommu.patch.gz
-
-. v850 architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-v850.patch.gz
-
-. mm (MMU-less) only patch
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-mm.patch.gz
-
-Regards
-Greg
+I can't argue with the fact you want to view lkcd this way. However as a
+developer I have found a crash dump facility indispensable for certain
+problems, particularly those that involve multiple processors where to use
+more invasive techniques such as an interactive debugger can make the
+problem unreproducible. It's also worth pointing out that each of the
+serviceability tools (dump, trace, probes) complements each other. They are
+every so much more powerful when used as a set: lkcd can capture a trace
+buffer, whose contents would otherwise be lost; kprobes enables LTT to
+implant tracepoints dynamically; krpobes + lkcd allows a crash dump to be
+triggered for complex and specific conditions that are difficult to
+reproduce. Without such tools, data gathering for complex problems becomes
+a problem in itself.  A problem doesn't necessarily have to be reproducible
+to make it necessary to solve.
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
+Richard
 

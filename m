@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272920AbTHEXWf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 19:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272947AbTHEXWd
+	id S272971AbTHEXOs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 19:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272974AbTHEXOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 19:22:33 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:57522 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S272920AbTHEXWc (ORCPT
+	Tue, 5 Aug 2003 19:14:48 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:65179 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S272971AbTHEXOk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 19:22:32 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F3FA@EXA-ATLANTA.se.lsil.com>
-From: "Mukker, Atul" <atulm@lsil.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>
-Subject: RE: [ANNOUNCE] megaraid linux driver version 2.00.7
-Date: Tue, 5 Aug 2003 18:09:10 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 5 Aug 2003 19:14:40 -0400
+Date: Wed, 6 Aug 2003 01:14:49 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: RO --bind mount implementation ...
+Message-ID: <20030805231449.GD2594@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20030804221615.GA18521@www.13thfloor.at> <20030805165924.GF12757@parcelfarce.linux.theplanet.co.uk> <20030805225149.GC2594@www.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030805225149.GC2594@www.13thfloor.at>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	spin_lock_irqsave(adapter->host->host_lock, flags);
-But all kernels do not have this lock as part of the host structure. With
-2.00.7, I have relapsed a patch which switches the lock to io_request_lock
-if kernel does not support per host lock.
+On Wed, Aug 06, 2003 at 12:51:49AM +0200, Herbert Pötzl wrote:
+> On Tue, Aug 05, 2003 at 05:59:24PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > On Tue, Aug 05, 2003 at 12:16:15AM +0200, Herbert Pötzl wrote:
+> >  
+> > > anyway, I discussed this with some friends, and
+> > > they pointed out that this would be useful ...
+> > > so here is the first try ...
+> > 
+> > Umm...  You know, the most obvious system call that should care about
+> > read-only is open(pathname, O_RDWR) ;-)  IOW, taking care of directory
+> > modifications is not enough - you need to deal with
+> > 	* opening file for write
+> > 	* truncation (both from *truncate() and from open() with O_TRUNC)
+> > 	* metadata changes (timestamps, ownership, permissions)
+> 
+> well, the open case, IMHO is handled by the
+> lookup_create() modifications, truncate is something
 
-And not all kernels have the per host lock named as "host->host_lock", some
-simply have "host->lock"
+more descriptive would have been:
+- I guess this is handled in open_namei() by
 
--Atul Mukker
+     error = -EROFS;
+     if ((flag & 2) && (IS_RDONLY(inode) || MNT_IS_RDONLY(nd->mnt)))
+            goto exit;
+
+> best,
+> Herbert

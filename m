@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265125AbTLCT4l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 14:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbTLCT4l
+	id S265126AbTLCUAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbTLCUAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 14:56:41 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:37292 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S265125AbTLCT4j (ORCPT
+	Wed, 3 Dec 2003 15:00:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:55006 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265126AbTLCT76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 14:56:39 -0500
-Date: Wed, 3 Dec 2003 11:56:31 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andre Tomt <lkml@tomt.net>
-Cc: linux-kernel@vger.kernel.org, Ethan Weinstein <lists@stinkfoot.org>
-Subject: Re: HT apparently not detected properly on 2.4.23
-Message-ID: <20031203195631.GC29119@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Andre Tomt <lkml@tomt.net>, linux-kernel@vger.kernel.org,
-	Ethan Weinstein <lists@stinkfoot.org>
-References: <3FCE2F8E.90104@stinkfoot.org> <1070480450.15415.85.camel@slurv.pasop.tomt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1070480450.15415.85.camel@slurv.pasop.tomt.net>
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Dec 2003 14:59:58 -0500
+Date: Wed, 3 Dec 2003 20:59:57 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Raj <raju@mailandnews.com>, linux-kernel@vger.kernel.org,
+       lhcs-devel@lists.sourceforge.net,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: kernel BUG at kernel/exit.c:792!
+In-Reply-To: <20031203182319.D14999@in.ibm.com>
+Message-ID: <Pine.LNX.4.58.0312032059040.4438@earth>
+References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
+ <20031203182319.D14999@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 08:40:51PM +0100, Andre Tomt wrote:
-> On Wed, 2003-12-03 at 19:46, Ethan Weinstein wrote:
-> > Hi,
-> > 
-> > With 2.4.22, my Supermicro X5DPL-iGM-O (E7501 chipset) with 2 
-> > xeons@2.4ghz and hypertherading enabled shows 4 cpu's in 
-> > /proc/cpuinfo|proc/interrupts, with:
-> > CONFIG_ACPI=y
-> > CONFIG_ACPI_HT_ONLY=y
-> > The same config with 2.4.23 only shows 2 cpus, even with:
-> > CONFIG_NR_CPUS=4
+
+On Wed, 3 Dec 2003, Srivatsa Vaddagiri wrote:
+
+> > maybe i am wrong, but wouldnt a 'break' in the do-while suffice rather 
+> > than a goto ?
 > 
-> This may be the known problem about CONFIG_NR_CPU's not working properly
-> in all cases. Try up'ing it to 32.
+> I was not sure if the pid_alive check inside the do-while loop is for
+> leader_task only or for non-leader tasks also.  If that check is for
+> non-leader tasks also, then we would like to retain it still ..
 
-Depending on the logical addressing of your processors, CONFIG_NR_CPUS=8 may
-work in this case too.
+only the starting point should be checked. If the starting point is wrong
+then we have no access to the 'thread list' anymore. If the starting point
+is alive then all the thread-list walking within the tasklist_lock is
+safe.
 
-Some processors/motherboards logically address the CPUs other that 0-3 if
-there are 4 processors.
-
-Currently CONFIG_NR_CPUS needs to be big enough to hold the largest logical
-processor number.
+	Ingo

@@ -1,98 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272448AbTGZKaD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 06:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272449AbTGZKaD
+	id S272449AbTGZKf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 06:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272451AbTGZKf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 06:30:03 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:45018 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S272448AbTGZK37 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 06:29:59 -0400
-Date: Sat, 26 Jul 2003 12:45:06 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: Balram Adlakha <b_adlakha@softhome.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 devfs question
-Message-ID: <20030726104506.GA663@gmx.de>
-References: <20030725185325.GA3944@localhost.localdomain>
+	Sat, 26 Jul 2003 06:35:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39407 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S272449AbTGZKfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 06:35:22 -0400
+Date: Sat, 26 Jul 2003 12:50:21 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Harald Welte <laforge@netfilter.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "David S. Miller" <davem@redhat.com>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] netfilter Configure.help cleanup
+Message-ID: <20030726105021.GH22218@fs.tum.de>
+References: <20030717201304.GL1407@fs.tum.de> <20030718012910.0D5BB2C5A9@lists.samba.org> <20030725205024.GA3244@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030725185325.GA3944@localhost.localdomain>
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.6.0-test1-mm2-O8 i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030725205024.GA3244@sunbeam.de.gnumonks.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 25, 2003 at 10:50:24PM +0200, Harald Welte wrote:
+> On Fri, Jul 18, 2003 at 11:06:49AM +1000, Rusty Russell wrote:
+> > In message <20030717201304.GL1407@fs.tum.de> you write:
+> >
+> > > the patch below does the following changes to the netfilter entries in
+> > > Configure.help in 2.4.22-pre2:
+> > > - order similar to net/ipv4/netfilter/Config.in
+> > > - remove useless short descriptions above CONFIG_*
+> > > - added CONFIG_IP_NF_MATCH_RECENT entry (stolen from 2.5)
+> > 
+> > Sorry Adrian, I think this is overzealous.
+> > 
+> > Please just add the CONFIG_IP_NF_MATCH_RECENT entry.  Remember,
+> > "stable" means "boring". 8)
+> 
+> I will submit the RECENT entry to davem with my next set of patches.
+> 
+> Does everybody else have an ordered Configure.help?  if yes, I'd accept
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Most subsytems have their Configure.help entries ordered according to 
+the Config.in order.
 
-On Sat, Jul 26, 2003 at 12:23:25AM +0530, Balram Adlakha wrote:
-> >Hello,
->=20
-> >I'm currently running at 2.6.0-test1-mm2-O8 and I wanted to give devfs a
-> >shot. I recompiled the kernel with the following settings:
-> >CONFIG_DEVFS_FS=3Dy
-> >CONFIG_DEVFS_MOUNT=3Dy
-> ># CONFIG_DEVFS_DEBUG is not set
->=20
-> >As I read through the documentation (btw, devfs=3Dnomount is mentioned in
-> >configure help but not in Documentation/filesystems/devfs/boot-options)
-> >I got the understanding that this shouldn't make any difference to the
-> >system right? After booting with this kernel there were lots of proper
-> >devfs devices in my dmesg (host0/ide0... scsi0/...) however, the system
-> >didn't came up (couldn't mount rootfs). It didn't even work when I
-> >enabled CONFIG_DEVFS_MOUNT.
->=20
-> >I'm not sure whether this is a bug in mount/nomount of devfs or if it's
-> >somewhere my fault/setup (root on raid1, various lvm2 devices on raid1/0
-> >devices)
->=20
-> >Any help would be greatly appreciated.
->=20
->=20
-> You need to change your /etc/fstab to reflect the new devfs device names,
-> ex: "/dev/discs/disc0/part1" instead of "/dev/hda1". You can also use dev=
-fsd (or some alternative) to make synlinks to the older devices and retain =
-permissions etc... Also, without devfsd you cannot expect module autoloadin=
-g as modules can't be automatically loaded when theres no device requesting=
- them (in this case the device simply doesn't exist until module is loaded)
+> the patch to comply with common practice.  If not, I would just say: who
+> cares about the order, it's processed by {old,menu,x}config anyway.
 
-wait a second, this is a dumb thing to do. I do not want to migrate over
-to devfs yet. I wanted to give it a shot and look around a bit. What I
-haad in mind was mounting it on /dev2 or similar. Enabling this option
-and converting my whole system is not a migration path. That's just
-plain luck (might be easy for plain ide/scsi disks, but whatabout
-metadevices like lvm and raid?). It is written in the documentation that
-devfs comes with most backwards compatibility. I expected there to be
-things like /dev/md0 and such for compatibility.
-OTOH what's CONFIG_DEVFS_MOUNT for then? If devices get named the other
-way round I *have* to mount it anyway, haven't I? I think improvements
-must happen here in order to make devfs usable.
+I'm not religious regarding the order of Configure.help entries, and in 
+2.6 this problem will be non-existant.
 
---=20
-Regards,
+cu
+Adrian
 
-Wiktor Wodecki
+-- 
 
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Iluy6SNaNRgsl4MRAkmtAJ9Sbmg9lFm+uJ2TKC9vbuX9tovI4wCeK8C0
-dylxsigbLtsmEU+4+QVoONc=
-=b6ck
------END PGP SIGNATURE-----
-
---zYM0uCDKw75PZbzx--

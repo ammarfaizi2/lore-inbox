@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262505AbTDANEi>; Tue, 1 Apr 2003 08:04:38 -0500
+	id <S262515AbTDANHI>; Tue, 1 Apr 2003 08:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262508AbTDANEi>; Tue, 1 Apr 2003 08:04:38 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:60388 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262505AbTDANEh>; Tue, 1 Apr 2003 08:04:37 -0500
-Date: Tue, 1 Apr 2003 14:15:55 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Eric Brunet <ebrunet@lps.ens.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 845GE Chipset severe performance problems
-Message-ID: <20030401131555.GA27443@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Eric Brunet <ebrunet@lps.ens.fr>, linux-kernel@vger.kernel.org
-References: <20030401124404.GA26931@lps.ens.fr>
-Mime-Version: 1.0
+	id <S262517AbTDANHH>; Tue, 1 Apr 2003 08:07:07 -0500
+Received: from asplinux.ru ([195.133.213.194]:50705 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id <S262515AbTDANGs>;
+	Tue, 1 Apr 2003 08:06:48 -0500
+From: "Denis V. Lunev" <den@asplinux.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030401124404.GA26931@lps.ens.fr>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16009.37173.42789.497595@artemis.asplinux.ru>
+Date: Tue, 1 Apr 2003 17:16:37 +0400
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br
+Subject: [PATCH] memory leak in mem_read(fs/proc/base.c), 2.4.20
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 02:44:04PM +0200, Eric Brunet wrote:
+Hello!
 
- > As there is this thread about mtrr on Intel chipsets, I have some
- > messages in the log about mtrr, and I don't know whether they are
- > harmless warnings or errors that should be reported.
- > 
- > My computer is a 2.4 GhZ Pentium IV with an intel i845G/GL chipset.
- > Motherboard and bios by shuttle.
- > 
- > $ cat /proc/mtrr
- > reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
- > reg01: base=0x1f800000 ( 504MB), size=   8MB: uncachable, count=1
- > reg02: base=0xe0000000 (3584MB), size= 128MB: write-combining, count=2
- > 
- > I have 512 MB of memory, the motherboard doesn't support more than 2GB
- > and I don't see what is this range over 3.5 GB. Also, the two first
- > overlaping ranges look suspicious.
+- memory leak found if error occured, allocated page is not freed
 
-overlapping is allowed. Does this board have onboard graphics ?
-It looks like your top 8MB is shared video memory. (Ie, the graphics
-chip doesn't have its own RAM). Usually theres things in the BIOS
-to adjust the amount of RAM to allocate to the 'card' including
-a disable option if you have a real card inserted instead.
+Regards,
+	Denis V. Lunev
 
- > So... Is this situation normal ?
-
-Could be. If the answer to the above question is yes, then its normal.
-What exactly are you finding slow ?
-
-		Dave
-
+--- linux/fs/proc/base.c~	Thu Mar 27 12:18:36 2003
++++ linux/fs/proc/base.c	Tue Apr  1 15:16:49 2003
+@@ -311,10 +311,13 @@
+ 	if (mm)
+ 		atomic_inc(&mm->mm_users);
+ 	task_unlock(task);
+-	if (!mm)
++	if (!mm) {
++		free_page((unsigned long)page);
+ 		return 0;
++	}
+ 
+ 	if (file->private_data != (void*)((long)current->self_exec_id) ) {
++		free_page((unsigned long)page);
+ 		mmput(mm);
+ 		return -EIO;
+ 	}

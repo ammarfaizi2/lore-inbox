@@ -1,34 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264943AbUFLWeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUFLWvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264943AbUFLWeC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 18:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbUFLWeC
+	id S264949AbUFLWvI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 18:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUFLWvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 18:34:02 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:32176 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264939AbUFLWd7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 18:33:59 -0400
-From: mheyman@symas.com
-To: cygwin-cvs@vger.kernel.org
-Date: Sat, 12 Jun 2004 21:33:38 GMT
-MIME-Version: 1.0
-Subject: ASYLANTEN BEGRABSCHTEN DEUTSCHES MAEDCHEN
-Importance: Normal
-X-Mailer: Mail-SMTP V5.89
-X-Priority: 3 (Normal)
-Message-ID: <74694e6c9716ed.3c789.qmail@symas.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
+	Sat, 12 Jun 2004 18:51:08 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:20352 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264949AbUFLWvG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 18:51:06 -0400
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com>
+References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1087080664.4683.8.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 12 Jun 2004 18:51:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-14.06.2003 Muenchen:
+På fr , 11/06/2004 klokka 22:37, skreiv Kyle Moffett:
+> I am working on a generic PAG subsystem for the kernel,
 
-Es begann mit einem Treffen unter Landsleuten und endete in einer blutigen Messerstecherei: Mochles A. (21) aus einem Asylantenheim in Chemnitz, rammte abends einem Iraker (26) in Muenchen ein Klappmesser in den Ruecken. Das Opfer sackte zusammen - Intensivstation!
+It's been done.
 
-Etwa 20 Iraker begrapschten abends in der Fussgaengerzone Neuhauser Strasse in Muenchen ein deutsches Maedchen. Ohne Hemmungen griffen sie ihr unter den Rock und zwischen die Beine. Die 15-Jaehrige schrie verzweifelt um Hilfe. Der 26-jaehrige Iraker bekam Skrupel, wollte dem Maedchen helfen. Mit seinem Handy wollte er die Polizei rufen.
+See the thread on
 
-Das bemerkte Mochles A. Er begriff nicht, wie sein Landsmann einer blonden Deutschen helfen konnte. Es kam zum Streit. Der Asylant bruellte und schrie. Ploetzlich zueckte er ein Messer mit einer zehn Zentimeter langen Klinge und rammte es seinem Widersacher in den Ruecken. Schwer verletzt kam der mit einem Rettungswagen ins Krankenhaus. 'Der Taeter wurde festgenommen, die Tatwaffe sichergestellt', so Muenchens Polizeisprecher Christoph Reichenbach. 'Wir ermitteln gegen ihn wegen versuchten Mordes.'
+  http://marc.theaimsgroup.com/?l=linux-fsdevel&m=105290906118164&w=2
 
-Mochles A. hatte sich eigentlich gar nicht in Muenchen aufhalten duerfen. Er wohnt in einem Auslaenderheim in Chemnitz. Laut Gesetz darf er eine eng begrenzte Zone um die Stadt nicht verlassen. Nun bleibt der Messerstecher in Muenchen. Aber hinter Gittern. Denn ein Richter erliess Haftbefehl. Ob die notwendige Abschiebung erfolgen wird, darf bei den Zustaenden in der BRD durchaus bezweifelt werden - derweil duerfen wir Deutschen den Knastaufenthalt des Asylanten bezahlen.
+on why Linus vetoed the idea of PAGs for Linux.
+
+Cheers,
+  Trond

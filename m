@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264197AbUDGWuV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 18:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbUDGWuU
+	id S261231AbUDGWzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 18:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbUDGWzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 18:50:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22419 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264197AbUDGWuR (ORCPT
+	Wed, 7 Apr 2004 18:55:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:41912 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261231AbUDGWzK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 18:50:17 -0400
-Date: Wed, 7 Apr 2004 15:52:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: mbligh@aracnet.com, colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: NUMA API for Linux
-Message-Id: <20040407155225.14936e8a.akpm@osdl.org>
-In-Reply-To: <20040408003809.01fc979e.ak@suse.de>
-References: <1081373058.9061.16.camel@arrakis>
-	<20040407145130.4b1bdf3e.akpm@osdl.org>
-	<5840000.1081377504@flay>
-	<20040408003809.01fc979e.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 7 Apr 2004 18:55:10 -0400
+Subject: Re: [PATCH] shrink core hashes on small systems
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040405211916.GH6248@waste.org>
+References: <20040405204957.GF6248@waste.org>
+	 <20040405140223.2f775da4.akpm@osdl.org>  <20040405211916.GH6248@waste.org>
+Content-Type: text/plain
+Message-Id: <1081378428.1401.71.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 08 Apr 2004 08:53:48 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> We can discuss changes when someone shows numbers that additional 
-> optimizations are needed. I haven't seen such numbers and I'm not convinced
-> sharing is even a good idea from a design standpoint.  For the first version 
-> I just aimed to get something working with straight forward code.
-> 
-> To put it all in perspective: a policy is 12 bytes on a 32bit machine
-> (assuming MAX_NUMNODES <= 32) and 16 bytes on a 64bit machine
-> (with MAX_NUMNODES <= 64)
 
-sizeof(vm_area_struct) is a very sensitive thing on ia32.  If you expect
-that anyone is likely to actually use the numa API on 32-bit, sharing
-will be important.
+> Yep. I can reword it in terms of pages, if that helps. Boxes with 8k
+> pages tend to have larger instruction words and data structures by
+> virtue of being RISC/64bit/etc., so I think 1000 pages is a reasonable
+> number in either case.
 
-It should be useful for SMT, yes?
+No. For example, the embedded 4xx IBM CPUs can have several page sizes,
+and a size like 16k could be useful for embedded applications: We don't
+implement support for that in the ppc32 kernel yet, but we may do, it
+makes a _lot_ of sense for small embedded configs with no swap, as it
+reduces page tables size & pressure on the TLB software load handlers.
+
+Ben.
+
 

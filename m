@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVCOW5C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVCOWxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVCOW5C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:57:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVCOWy0
+	id S262074AbVCOWxz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVCOWxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:54:26 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:19282 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S262053AbVCOWwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:52:51 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="3.90,166,1107763200"; 
-   d="scan'208"; a="619714124:sNHT20807384"
-Message-Id: <5.1.0.14.2.20050315232212.05f5d4c8@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 15 Mar 2005 23:35:34 +1100
-To: comsatcat <comsatcat@earthlink.net>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: qla2xxx fail over support
-Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110919432.11160.6.camel@solaris.zataoh.com>
-References: <20050314231630.GB8548@plap.qlogic.org>
- <1110838136.12171.4.camel@solaris.zataoh.com>
- <20050314231630.GB8548@plap.qlogic.org>
+	Tue, 15 Mar 2005 17:53:35 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:5504 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262074AbVCOWvF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:51:05 -0500
+Date: Tue, 15 Mar 2005 16:51:01 -0600
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       greg@kroah.com, tom.l.nguyen@intel.com
+Subject: Re: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
+Message-ID: <20050315225101.GJ498@austin.ibm.com>
+References: <200503120012.j2C0CIj4020297@snoqualmie.dp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503120012.j2C0CIj4020297@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:43 AM 16/03/2005, comsatcat wrote:
->Unfortunantly all the beta drivers seem to have issues working with
->mcdata switches.  I've tried about 10 different versions available from
->qlogic's ftp and all of them give trace messages and "scheduling while
->atomic" messages when detecting luns that are going through the mcdata
->switch.  any suggestions would be appreciated (along with whom to
->contact at qlogic regarding beta driver development).
+Hi,
 
-use a Cisco MDS FC switch and all your problems will go away. :-)
-just kidding ... the errors you're seeing will likely happen regardless of 
-what brand FC switch you have .. LUN Discovery and/or FC NS queries are 
-likely the same regardless of FC switch.
+On Fri, Mar 11, 2005 at 04:12:18PM -0800, long was heard to remark:
 
-what you're seeing is essentially a bug in the qlogic driver - and likely 
-why it was listed as being "beta".
+> +void hw_aer_unregister(void)
+> +{
+> +	struct pci_dev *dev = (struct pci_dev*)host->dev;
+> +	unsigned short id;
+> +
+> +	id = (dev->bus->number << 8) | dev->devfn;
+> +	
+> +	/* Unregister with AER Root driver */
+> +	pcie_aer_unregister(id);
+> +}
 
-if you're after multipathing support, rather than doing it in the FC 
-driver, may i suggest that you instead look at using Christophe Varoqui's 
-excellent multipath-tools (see 
-http://christophe.varoqui.free.fr/wiki/wakka.php?wiki=Home) which i have 
-used successfully here across a range of midrange & enterprise storage arrays
+I don't understand how this can work on a system with 
+more than one domain.  On any midrange/high-end system, 
+you'll have a number of devices with identical values
+for (bus->number << 8) | devfn)
+
+For example, on my system, lspci prints out:
+
+mosquito:~ # lspci
+0000:00:01.0 Co-processor: IBM: Unknown device 00e0 (rev 01)
+0000:00:03.0 ISA bridge: Symphony Labs W83C553 (rev 10)
+0001:00:02.0 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0001:00:02.2 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0001:00:02.3 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0001:00:02.4 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0001:00:02.6 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0001:01:01.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010
+66MHz  Ultra3 SCSI Adapter (rev 01)
+0001:01:01.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010
+66MHz  Ultra3 SCSI Adapter (rev 01)
+0001:21:01.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro
+100] (rev 0d)
+0002:00:02.0 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0002:00:02.2 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0002:00:02.4 PCI bridge: IBM: Unknown device 0188 (rev 02)
+0002:00:02.6 PCI bridge: IBM: Unknown device 0188 (rev 02)
 
 
-cheers,
+Here, 'Unknown device' is actually an empty slot.
 
-lincoln.
+If I plugged the ethernet card in a few slots over, it would 
+show up as
+
+0002:01:01.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro
+
+and so it would have the exact same (bus->number << 8) | devfn)
+as the scsi device.
+
+Or am I being stupid/dense/all-of-the-above?
+
+--linas
+

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbTEKS2O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 14:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTEKS2O
+	id S261844AbTEKS23 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 14:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTEKS23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 14:28:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14810 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261842AbTEKS2N
+	Sun, 11 May 2003 14:28:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26959 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S261844AbTEKS2Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 14:28:13 -0400
-Message-ID: <3EBE993F.1090604@pobox.com>
-Date: Sun, 11 May 2003 14:41:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Sun, 11 May 2003 14:28:25 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug on shutdown from 68-mm4 (machine_power_off returning causes problems)
+References: <8570000.1052623548@[10.10.2.4]>
+	<20030510224421.3347ea78.akpm@digeo.com>
+	<8880000.1052624174@[10.10.2.4]>
+	<20030510231120.580243be.akpm@digeo.com>
+	<12530000.1052664451@[10.10.2.4]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 May 2003 12:37:48 -0600
+In-Reply-To: <12530000.1052664451@[10.10.2.4]>
+Message-ID: <m17k8x72ir.fsf_-_@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: davem@redhat.com, alan@lxorguk.ukuu.org.uk, haveblue@us.ibm.com,
-       akpm@digeo.com, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: The magical mystical changing ethernet interface order
-References: <3EB98878.5060607@us.ibm.com>	<1052395526.23259.0.camel@rth.ninka.net>	<1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk>	<20030508.075438.52189319.davem@redhat.com>	<3EBA854D.1030101@pobox.com> <20030508093058.3bf3b6ba.rddunlap@osdl.org>
-In-Reply-To: <20030508093058.3bf3b6ba.rddunlap@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> I don't care what the exact implementation is, but anything except
-> depending on link (tools) order is better than now IMO.
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Well, The Leader Has Spoken, even though I disagree w/ him on this :)
+> >> >> Sorry if this is old news, haven't been paying attention for a week.
+> >> >>  Bug on shutdown (just after it says "Power Down") from 68-mm4.
+> >> >>  (the NUMA-Q).
+> >> > 
+> >> > Random guess: is it related to CONFIG_KEXEC?
+> >> 
+> >> Don't think so - I don't have that enabled. Config file is attatched.
+> > 
+> > It doesn't matter - the kexec patch tends to futz with stuff like that
+> > regardless of CONFIG_KEXEC.
+> > 
+> > It doesn't happen here.  Could you please retest without the kexec
+> > patch applied?
+> 
+> Yup, backing out kexec fixes it.
 
 
-Short term, addressing $subject, somebody needs to look into fixing up 
-2.5 net driver link order to match history.  History is probably 2.2 in 
-this case, if there is a disparity between 2.2 and 2.4.
+Ok.  Thinking it through the differences is that I have machine_power_off
+call stop_apics (which is roughly equivalent to the old smp_send_stop).
 
-Volunteers?
+In the kexec patch that does 2 things.
+1) It shuts down the secondary cpus, and returns the bootstrap cpu to
+   virtual wire mode. 
+2) It calls set_cpus_allowed to force the reboot to be on the primary
+   cpu.
 
-	Jeff
+After returning from machine_power_off. We run into a problem
+in flush_tlb_mm.  Because we have a cpu disabled, that is still part
+of the mm's vm mask.
 
+Does anyone know why machine_halt, and machine_power_off return?
 
+If not I am just going to disable the return path.
 
+Eric

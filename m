@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293650AbSCEXnz>; Tue, 5 Mar 2002 18:43:55 -0500
+	id <S293243AbSCEXrf>; Tue, 5 Mar 2002 18:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293489AbSCEXnq>; Tue, 5 Mar 2002 18:43:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17162 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293243AbSCEXng>; Tue, 5 Mar 2002 18:43:36 -0500
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-To: opensource-admin@cis.ohio-state.edu (TheOpenSourceClubatTheOhioStateUniversity)
-Date: Tue, 5 Mar 2002 23:58:06 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> from "TheOpenSourceClubatTheOhioStateUniversity" at Mar 05, 2002 04:52:34 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293489AbSCEXrZ>; Tue, 5 Mar 2002 18:47:25 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:6664 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293243AbSCEXrJ>; Tue, 5 Mar 2002 18:47:09 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 5 Mar 2002 15:50:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Peter Svensson <petersv@psv.nu>
+cc: Hubertus Franke <frankeh@watson.ibm.com>,
+        Rusty Russell <rusty@rustcorp.com.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <Pine.LNX.4.33.0203060032090.1113-100000@cheetah.psv.nu>
+Message-ID: <Pine.LNX.4.44.0203051549220.1475-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16iOoo-0004mw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right from the start Linus has always said he isn't going to force anyone
-to use bitkeeper. End of story. If you think its free enough -  use it, if
-you don't (or you just think its crap software, dont use it)
+On Wed, 6 Mar 2002, Peter Svensson wrote:
 
-In fact if it offends you enough to start a petition take the list of
-names you get at the end and between you go write a better one under a
-licence you prefer between the signatures.
+> On Tue, 5 Mar 2002, Davide Libenzi wrote:
+>
+> > > I believe not all machine have  alignof  == sizeof
+> >
+> > Yes but this is always true   alignof >= sizeof
+>
+> No, this is not true. As the gcc info pages says:
+>    For example, if the target machine requires a `double' value to be
+>    aligned on an 8-byte boundary, then `__alignof__ (double)' is 8.  This
+>    is true on many RISC machines.  On more traditional machine designs,
+>    `__alignof__ (double)' is 4 or even 2.
+> A later example shows situations where alignof>sizeof.
 
-Aan
+Yes, it's true.
+
+
+
+- Davide
+
+
+

@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263810AbUEXUTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264484AbUEXUV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbUEXUTp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 16:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUEXUTp
+	id S264484AbUEXUV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 16:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUEXUV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 16:19:45 -0400
-Received: from DSL022.LABridge.com ([206.117.136.22]:41742 "EHLO Perches.com")
-	by vger.kernel.org with ESMTP id S263810AbUEXUTo (ORCPT
+	Mon, 24 May 2004 16:21:26 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:27557 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S264484AbUEXUVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 16:19:44 -0400
-Subject: Re: [RFD] Explicitly documenting patch submission
-From: Joe Perches <joe@perches.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0405241304580.4174@bigblue.dev.mdolabs.com>
-References: <1YUY7-6fF-11@gated-at.bofh.it>
-	 <m3fz9pd2dw.fsf@averell.firstfloor.org>
-	 <Pine.LNX.4.58.0405241304580.4174@bigblue.dev.mdolabs.com>
-Content-Type: text/plain
-Message-Id: <1085429945.28586.16.camel@localhost.localdomain>
+	Mon, 24 May 2004 16:21:24 -0400
+Date: Mon, 24 May 2004 22:21:21 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: EAGAIN in do_mmap_pgoff() [2.6.7-rc1]
+Message-ID: <20040524202121.GA28273@MAIL.13thfloor.at>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 24 May 2004 13:19:05 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-24 at 13:07, Davide Libenzi wrote:
-> By submitting a patch to a maintainer, you agree 
-> with the Developer's Certificate of Origin.
 
-I rather doubt this myself.
-If submitted via public list, then perhaps.
-Otherwise?  perhaps not.
+just a short question:
 
+is -EAGAIN here really intentional? wouldn't -ENOMEM be better?
+
+mm/mmap.c ~780 do_mmap_pgoff()
+
+        /* mlock MCL_FUTURE? */
+        if (vm_flags & VM_LOCKED) {
+                unsigned long locked = mm->locked_vm << PAGE_SHIFT;
+                locked += len;
+                if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
+                        return -EAGAIN;
+        }
+
+TIA,
+Herbert
 

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278406AbRJMUqN>; Sat, 13 Oct 2001 16:46:13 -0400
+	id <S278409AbRJMUsx>; Sat, 13 Oct 2001 16:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278407AbRJMUqE>; Sat, 13 Oct 2001 16:46:04 -0400
-Received: from nyx.poczta.fm ([217.74.65.51]:43275 "HELO nyx.poczta.fm")
-	by vger.kernel.org with SMTP id <S278406AbRJMUpo> convert rfc822-to-8bit;
-	Sat, 13 Oct 2001 16:45:44 -0400
-Message-ID: <200110132249370430.00104250@www.poczta.fm>
-In-Reply-To: <1002989621.764.35.camel@thanatos>
-In-Reply-To: <1002989621.764.35.camel@thanatos>
-X-Mailer: Calypso Version 3.10.03.02 (3)
-Date: Sat, 13 Oct 2001 22:49:37 +0200
-From: "Kamil Kompa" <kklinux@poczta.fm>
-To: linux-kernel@vger.kernel.org
-Subject: Re: APM trouble
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-EMID: 22b60138
+	id <S278408AbRJMUsn>; Sat, 13 Oct 2001 16:48:43 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:57608 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S278407AbRJMUsb>; Sat, 13 Oct 2001 16:48:31 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org, lse-tech@sourceforge.net,
+        Paul.McKenney@us.ibm.com
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion 
+In-Reply-To: Your message of "13 Oct 2001 20:42:34 +0200."
+             <k23d4njs9x.fsf@zero.aec.at> 
+Date: Sun, 14 Oct 2001 06:44:23 +1000
+Message-Id: <E15sVdv-0005rx-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <k23d4njs9x.fsf@zero.aec.at> you write:
+> In article <Pine.LNX.4.33.0110131015410.8707-100000@penguin.transmeta.com>,
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> >  - nobody has shown a case where existing normal locking ends up being
+> >    really a huge problem, and where RCU clearly helps.
+> 
+> The poster child of such a case is module unloading. Keeping reference
+> counts for every even non sleeping use of a module is very painful. 
 
-How can I find my working kernel configuration?
+Well, module unloading requires only a small fraction of the read copy
+update infrastructure (synchronize_kernel()), and can be implemented
+without any scheduler changes, as it's not at all speed critical.
 
->Kamil Kompa wrote:
->> I have a trouble with apmd.
->
->IIUC your machine works with a stock kernel but not
->with a kernel you compile yourself.  There are many
->possible causes of this.  What I would do is try to
->compile a kernel identical to the stock binary kernel
->that works.  Then reconfigure one thing at a time,
->rebuilding and rebooting to see which change it is
->that causes the hang.  That will give you a better
->idea of which part of the kernel you need to look at.
->
->Do that, and tell us what make and model of laptop
->you are using.
->
->--
->Thomas Hood
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+If nothing else, this thread has served to make more kernel hackers
+aware of the technique, so they can try it themselves as desired.
 
-
-
-
-----------------------------------------------------------------------
-Znajd¼ MP3 -> Wyszukiwarka multimediow. Jedyna w Polsce.
-Nowe Centrum Wyszukiwania >> http://szukaj.interia.pl/
-
+Cheers,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

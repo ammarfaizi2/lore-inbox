@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVC3R0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVC3R3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbVC3R0W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 12:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVC3R0V
+	id S261889AbVC3R3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 12:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVC3R3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 12:26:21 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:62165 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261889AbVC3RZs (ORCPT
+	Wed, 30 Mar 2005 12:29:22 -0500
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:48532 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S261889AbVC3R3P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 12:25:48 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Paul Jackson <pj@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ckrm-tech@lists.sourceforge.net,
-       "Vivek Kashyap [imap]" <kashyapv@us.ibm.com>, sekharan@us.ibm.com
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch 0/8] CKRM: Core patch set 
-In-reply-to: Your message of Wed, 30 Mar 2005 08:53:19 PST.
-             <1112201599.11490.6.camel@localhost> 
-Date: Wed, 30 Mar 2005 09:25:44 -0800
-Message-Id: <E1DGgwq-0006eI-00@w-gerrit.beaverton.ibm.com>
+	Wed, 30 Mar 2005 12:29:15 -0500
+Message-ID: <424AE1E9.8050804@is-teledata.com>
+Date: Wed, 30 Mar 2005 19:29:13 +0200
+From: Lutz Vieweg <lutz.vieweg@is-teledata.com>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
+X-Accept-Language: de, German, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: select() not returning though pipe became readable
+References: <4242E0E2.4050407@is-teledata.com> <20050324170731.70a31f99.akpm@osdl.org>
+In-Reply-To: <20050324170731.70a31f99.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 30 Mar 2005 08:53:19 PST, Dave Hansen wrote:
-> On Tue, 2005-03-29 at 23:03 -0800, Gerrit Huizenga wrote:
-> > The code provides a fairly simple mechanism for adding controllers for
-> > any resource type
+Andrew Morton wrote:
+> Lutz Vieweg <lutz.vieweg@is-teledata.com> wrote:
 > 
-> Last time I saw the memory controller, it was 3000 lines.  Doesn't seem
-> too simple to me. :)
- 
- Chandra, Dave's suggestions for the memory controller makes a lot of
- sense.  Can you post the current code, ported to the patch set that
- I just posted, to linux-mm for comment?
+>>I'm currently investigating the following problem, which seems to indicate
+>>a misbehaviour of the kernel:
+>>
+>>A server software we implemented is sporadically "hanging" in a select()
+>>call since we upgraded from kernel 2.4 to (currently) 2.6.9 (we have to wait
+>>for 2.6.12 before we can upgrade again due to the shared-mem-not-dumped-into-
+>>core-files problem addressed there).
+   ...
+>>Any ideas?
+>>Any hints on what to do to investigate the problem further?
+> 
+> 
+> Could you at least test 2.6.12-rc1?  Otherwise we might be looking for a
+> bug whicj isn't there.
 
-> Can you post some of the additional controllers that you've been working
-> on to the appropriate mailing lists, like linux-mm?  If the subject
-> experts get a good look at the controllers, it's quite possible that
-> some comments will cascade back to the core, don't you think?
+We'll do that, but it will take some time, as the server requirements are such
+that we cannot easily setup yet another instance, we don't have that many 32GB-RAM
+4-way-opterons :-)
 
- You can access the various current controllers via the ckrm-tech
- archives from sf.net/projects/ckrm today.
 
- However, if there are additional changes to the core, I'd like to
- see them as patches built on top of this core set.  Resending the
- modified core each time makes it hard for people to see what has
- changed from release to release, where individual patches will help
- track modifications better.
+Jim Nance wrote:
+>>We are using that pipe, which is known only to the same one process, to
+>>cause select() to return immediately if a signal (SIGUSR1) had been
+>>delivered to the process (by another process), there's a signal handler
+>>installed that does nothing but a (non-blocking) write of 1 byte to the
+>>writing end of the pipe.
+> 
+> 
+> I'm not sure if this is what is causing your problem, but shouldnt you
+> be doing a blocking write?  It may be that the pipe is not writeable
+> at the moment the signal arives.  I think that could cause the symptoms
+> you describe.
 
-gerrit
+If the pipe wasn't writeable at the time when the signal handler tried to
+write a byte, that would mean there were already N (probably 4096) bytes in
+the pipe, causing the select() to fall through, anyway. The semantic of
+the pipe is not to count signal deliveries, but only to contain "something"
+if there had been a reason to fall through the select().
+
+Regards,
+
+Lutz Vieweg
+
+

@@ -1,83 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266908AbUGLSMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUGLSMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266908AbUGLSMC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 14:12:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUGLSMC
+	id S266910AbUGLSMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 14:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUGLSMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 14:12:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2242 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266898AbUGLSLx (ORCPT
+	Mon, 12 Jul 2004 14:12:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47765 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266910AbUGLSMk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 14:11:53 -0400
-Date: Mon, 12 Jul 2004 14:08:11 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Jakub Jelinek <jakub@redhat.com>
-cc: davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <20040711123803.GD21264@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
- <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
- <20040711123803.GD21264@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jul 2004 14:12:40 -0400
+Date: Mon, 12 Jul 2004 11:11:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: torvalds@osdl.org, dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: struct_cpy() and kAFS (was: Re: Linux 2.6.8-rc1)
+Message-Id: <20040712111120.2094f089.akpm@osdl.org>
+In-Reply-To: <Pine.GSO.4.58.0407121519380.17199@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
+	<Pine.GSO.4.58.0407121519380.17199@waterleaf.sonytel.be>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 11 Jul 2004, Jakub Jelinek wrote:
-
-> > --- linux/fs/binfmt_elf.c.orig3	
-> > +++ linux/fs/binfmt_elf.c	
-> > @@ -627,8 +627,14 @@ static int load_elf_binary(struct linux_
-> >  				executable_stack = EXSTACK_DISABLE_X;
-> >  			break;
-> >  		}
-> > +#ifdef __i386_
-> > +	/*
-> > +	 * Legacy x86 binaries have an expectation of executability for
-> > +	 * virtually all their address-space - turn executability on:
-> > +	 */
-> >  	if (i == elf_ex.e_phnum)
-> >  		def_flags |= VM_EXEC | VM_MAYEXEC;
-> > +#endif
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>
+> On Sun, 11 Jul 2004, Linus Torvalds wrote:
+>  > David Howells:
+>  >   o kAFS automount support
 > 
-> This looks incorrect. There are many arches where legacy binaries expect
-> the executability for virtually all their address-space (my guess is all
-> but x86-64 and ia64), and even on those two legacy binaries expected at
-> least stack executable.
+>  After this change, all archs need to provide struct_cpy() to make AFS compile,
+>  while currently only ia32 and amd64 provide it.
 
-so ... this should be #ifndef ia64?
+Seems a strange thing to do.  Why not rely on the type system?
 
-to all the purists: this cannot be done via VM_DATA_DEFAULT_FLAGS, because
-some architectures enforce the X bit, some dont. In fact only ia64 seems
-to enforce it reliably for all binaries.
-
-the #ifdef could be made an arch inline or define. But it's really
-academic as only ia64 seems to have this problem. So i'd suggest the patch
-below.
-
-	Ingo
-
---- linux/fs/binfmt_elf.c.orig
-+++ linux/fs/binfmt_elf.c
-@@ -627,8 +627,14 @@ static int load_elf_binary(struct linux_
- 				executable_stack = EXSTACK_DISABLE_X;
- 			break;
- 		}
-+#ifndef __ia64__
-+	/*
-+	 * Legacy binaries (except ia64) have an expectation of executability
-+	 * for virtually all their address-space - turn executability on:
-+	 */
- 	if (i == elf_ex.e_phnum)
- 		def_flags |= VM_EXEC | VM_MAYEXEC;
-+#endif
+diff -puN fs/afs/mntpt.c~kafs-struct_cpy fs/afs/mntpt.c
+--- 25/fs/afs/mntpt.c~kafs-struct_cpy	2004-07-12 11:08:39.125941824 -0700
++++ 25-akpm/fs/afs/mntpt.c	2004-07-12 11:08:55.972380776 -0700
+@@ -250,7 +250,7 @@ static int afs_mntpt_follow_link(struct 
+ 	if (IS_ERR(newmnt))
+ 		return PTR_ERR(newmnt);
  
- 	/* Some simple consistency checks for the interpreter */
- 	if (elf_interpreter) {
+-	struct_cpy(&newnd, nd);
++	newnd = *nd;
+ 	newnd.dentry = dentry;
+ 	err = do_add_mount(newmnt, &newnd, 0, &afs_vfsmounts);
+ 
+diff -puN fs/afs/vlocation.c~kafs-struct_cpy fs/afs/vlocation.c
+--- 25/fs/afs/vlocation.c~kafs-struct_cpy	2004-07-12 11:08:39.141939392 -0700
++++ 25-akpm/fs/afs/vlocation.c	2004-07-12 11:09:31.815931728 -0700
+@@ -906,7 +906,7 @@ static cachefs_match_val_t afs_vlocation
+ 		if (!vlocation->valid ||
+ 		    vlocation->vldb.rtime == vldb->rtime
+ 		    ) {
+-			struct_cpy(&vlocation->vldb, vldb);
++			vlocation->vldb = *vldb;
+ 			vlocation->valid = 1;
+ 			_leave(" = SUCCESS [c->m]");
+ 			return CACHEFS_MATCH_SUCCESS;
+@@ -947,7 +947,7 @@ static void afs_vlocation_cache_update(v
+ 
+ 	_enter("");
+ 
+-	struct_cpy(vldb,&vlocation->vldb);
++	*vldb = vlocation->vldb;
+ 
+ } /* end afs_vlocation_cache_update() */
+ #endif
+_
+

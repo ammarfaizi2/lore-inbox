@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSGSHMZ>; Fri, 19 Jul 2002 03:12:25 -0400
+	id <S318452AbSGSHdx>; Fri, 19 Jul 2002 03:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318439AbSGSHMZ>; Fri, 19 Jul 2002 03:12:25 -0400
-Received: from divine.city.tvnet.hu ([195.38.100.154]:15388 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S316161AbSGSHMY>; Fri, 19 Jul 2002 03:12:24 -0400
-Date: Fri, 19 Jul 2002 08:17:22 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Robert Love <rml@tech9.net>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-In-Reply-To: <1027022323.8154.38.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.30.0207190755550.30902-100000@divine.city.tvnet.hu>
+	id <S318457AbSGSHdx>; Fri, 19 Jul 2002 03:33:53 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:25360 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318452AbSGSHdw>; Fri, 19 Jul 2002 03:33:52 -0400
+Message-ID: <3D37C03C.6000301@evision.ag>
+Date: Fri, 19 Jul 2002 09:31:08 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: Remain Calm: Designated initializer patches for 2.5
+References: <20020719014425.BAECB417E@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
+> In message <E17VBcZ-0004oO-00@starship> you write:
+> 
+>>On Thursday 18 July 2002 05:22, Rusty Russell wrote:
+>>
+>>>GCC has understood both since forever, but the kernel took a wrong
+>>>bet, and we're better off setting a good example for 2.6 before we
+>>>start getting about 10,000 warnings.
+>>
+>>Next time, remember to bet on the ugliest looking one ;-)
+> 
+> 
+> I agreed, until I recently did a big grep to find these things.  I now
+> concur with the C9X committee.  ".foo = " is clearly distinguished
+> from bitfield declarations and labels, which "foo: " isn't.
 
-On 18 Jul 2002, Alan Cox wrote:
-> Adjusting the percentages to have a root only zone is doable. It helps
-> in some conceivable cases but not all.
+Of hand I think about the following *technical* points:
 
-For 2.2 kernels I've found 5 MB reserved from swap until it was needed
-was enough to ssh to the box and fix whatever was going on (whatever:
-real world cases like slashdot effects, exploits from packetstorm and
-other own made testcases that heavily overcommited memory). Nevertheless
-the amount reserved was controllable via /proc.
+1. It resembles the usage case similar to other initalizations.
 
-And I do know it doesn't solve all cases but covering 99% of the real
-world issues isn't a bad start at all, imho.
+2. It makes for less reduce/reduce conflicts in the LR-grammar
+parser generator.
 
-	Szaka
+Its better and more outtought then the GNU "extension".
+
+
 

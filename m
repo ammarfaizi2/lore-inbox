@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbTDDCtN (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 21:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbTDDCtN (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 21:49:13 -0500
-Received: from sj-core-2.cisco.com ([171.71.177.254]:45964 "EHLO
-	sj-core-2.cisco.com") by vger.kernel.org with ESMTP id S263616AbTDDCtD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 21:49:03 -0500
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "Stephen Hemminger" <shemminger@osdl.org>, <akpm@digeo.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Compile warning in 2.5.66-bk latest
-Date: Thu, 3 Apr 2003 19:00:14 -0800
-Message-ID: <CDEDIMAGFBEBKHDJPCLDMEKMDGAA.hzhong@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1049408232.22772.1.camel@dell_ss3.pdx.osdl.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id S263444AbTDDDA4 (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 22:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTDDDA4 (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 22:00:56 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:7909 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263483AbTDDDAr (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 22:00:47 -0500
+Date: Fri, 4 Apr 2003 13:14:02 +1000
+From: CaT <cat@zip.com.au>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66-mm3: hang and crash
+Message-ID: <20030404031402.GA457@zip.com.au>
+References: <20030404013732.GA466@zip.com.au> <20030403183604.6a4cc385.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030403183604.6a4cc385.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew:
+On Thu, Apr 03, 2003 at 06:36:04PM -0800, Andrew Morton wrote:
+> > 2. After I booted, I logged into X, started up my mutts (6 of em) and
+> >    started moving the mouse cursor about. Laptop turned itself off.
+> 
+> The first thing to do when a -mm kernel mysteriously explodes is to try just
+> the Linus part.  Could you please do that?
 
-It's probably another change set in the file (J_EXPECT_JH).
+Done.
 
-I don't have gcc 3.2 installed so I could not verify, but maybe the
-following patch could fix it.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm3/broken-out/linus.patch
+> 
+> It is against 2.5.66.
 
-Maybe a better fix is to define all J_EXPECTxxx as sth like:
+I had to apply the framebuffer patch so that my kernel would not crash
+for that reason (this was applied to the original mm3 aswell - forgot to
+metnion). Also the percentile tmpfs was applied. Normal kernel works
+fine with both patches.
 
-#define J_EXPECT(expr, why, params...)		__journal_expect(expr, why, ##
-params)
+Still, the linus.patch produced the same result. If you think it's
+worthwhile I'll compile out the fa and perc patchesb but I didn't think
+it significant due to them workign just fine with 2.5.66.
 
-as why is always needed.
-
-diff -urN linux-2.5/include/linux/jbd.h linux-2.5-new/include/linux/jbd.h
---- linux-2.5/include/linux/jbd.h	Thu Apr  3 11:29:43 2003
-+++ linux-2.5-new/include/linux/jbd.h	Thu Apr  3 21:48:25 2003
-@@ -275,7 +275,7 @@
- 	do {								     \
- 		if (!(expr)) {						     \
- 			printk(KERN_ERR "EXT3-fs unexpected failure: %s;\n", # expr); \
--			printk(KERN_ERR ## why);			     \
-+			printk(KERN_ERR why);			     \
- 		}							     \
- 	} while (0)
- #define J_EXPECT(expr, why...)		__journal_expect(expr, ## why)
-
-> -----Original Message-----
-> From: Stephen Hemminger [mailto:shemminger@osdl.org]
-> Sent: Thursday, April 03, 2003 2:17 PM
-> To: Hua Zhong
-> Cc: Linux Kernel Mailing List
-> Subject: Compile warning in 2.5.66-bk latest
->
->
-> Using gcc 3.2 with latest 2.5.66-bk
->
-> gcc -Wp,-MD,drivers/block/.elevator.o.d -D__KERNEL__ -Iinclude
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
-> -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=elevator -DKBUILD_MODNAME=elevator -c -o
-> drivers/block/.tmp_elevator.o drivers/block/elevator.c
-> fs/jbd/transaction.c:670:53: warning: pasting "KERN_ERR" and
-> ""Possible IO failure.\n"" does not give a valid preprocessing token
->
->
->
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

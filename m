@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUGYLmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGYL7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUGYLmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 07:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUGYLmN
+	id S262114AbUGYL7y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 07:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUGYL7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 07:42:13 -0400
-Received: from tarjoilu.luukku.com ([194.215.205.232]:3766 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S261236AbUGYLmK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 07:42:10 -0400
-Message-ID: <41039CAC.965AB0AA@users.sourceforge.net>
-Date: Sun, 25 Jul 2004 14:42:36 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
+	Sun, 25 Jul 2004 07:59:54 -0400
+Received: from fep17.inet.fi ([194.251.242.242]:17871 "EHLO fep17.inet.fi")
+	by vger.kernel.org with ESMTP id S262114AbUGYL7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 07:59:52 -0400
+From: Jan Knutar <jk-lkml@sci.fi>
+To: Tim Wright <timw@splhi.com>
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Date: Sun, 25 Jul 2004 14:59:46 +0300
+User-Agent: KMail/1.6.2
+Cc: Adrian Bunk <bunk@fs.tum.de>, Paul Jackson <pj@sgi.com>, akpm@osdl.org,
+       corbet@lwn.net, linux-kernel@vger.kernel.org
+References: <40FEEEBC.7080104@quark.didntduck.org> <20040722232540.GH19329@fs.tum.de> <1090549329.6113.21.camel@kryten.internal.splhi.com>
+In-Reply-To: <1090549329.6113.21.camel@kryten.internal.splhi.com>
 MIME-Version: 1.0
-To: Fruhwirth Clemens <clemens-dated-1091536908.31f8@endorphin.org>
-Cc: James Morris <jmorris@redhat.com>, Christophe Saout <christophe@saout.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Delete cryptoloop
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <1090672906.8587.66.camel@ghanima>
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407251459.46952.jk-lkml@sci.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fruhwirth Clemens wrote:
-> Second, modern ciphers like Twofish || AES are designed to resist
-> known-plaintext attacks. This is basically the FUD spread by Jari Rusuu.
+> That is their choice, but there's no particular need to run a kernel.org
+> kernel. Unless you're messing around with the kernel or have a hot
+> requirement for some new feature, why would running a stable kernel from
+> e.g. Debian not suffice? Debian is free and freely available, and it's
+> not the only distribution that is that way.
 
-Ciphers are good, but both cryptoloop and dm-crypt use ciphers in insecure
-and exploitable way.
+In the past, my experience, shared by many users, I'm sure, has been
+that distribution kernels generally give you worse performance (IME RH)
+and less stability (IME Fedora).
 
-This is not FUD. Fruhwirth, did you even try run the exploit code?
+There's an increasing amount of hardware out there in wide-spread use,
+which have no drivers in either kernel.org tree or distribution trees. The
+fragmentation between the distributions already make it impossible to
+get those drivers to compile on anything but the kernel.org tree, unless
+the author of the driver is wealthy and has the resources and floorspace
+to have a few different machines with different distributions installed,
+and the time and resources for creating workarounds and Makefile
+trickery for each and every one. I don't mean binary drivers here, as
+they are usually backed by some corporation and target the usual
+distributions...
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107719798631935&w=2
+Thus, we have a whole generation of users out there who grew up
+with the idea that the distribution kernel is just some bloated,
+bug-ridden and mostly incompatible monstrosity that is only barely
+good for bootstrapping kernel.org kernel before starting to try
+compile the drivers for their hardware.
 
-> But, due to a recent discussion on sci.crypt, I have been convinced that
-> there is in fact a security gain by obscuring the IV. To be precise, if
-> an attacker is able to find two identical cipher blocks on disk, he will
-> be able to deduce the plain text difference. The chance p that two
-> blocks are equal is p=1/2^128 for 128 bit block ciphers. If one of these
-> blocks happens to be zero this is quite bad. The chance that there are
-> no identical cipher blocks on a disk is given by p^(n(n-1)/2) with n =
-> numbers of sectors on disk. Anyone with a little bit math intuition can
-> see this terms will approach 0 quite quick. So it is likely that some
-> information is revealed.
+Trying to change this idea is of course difficult, as everyone is
+afraid of change. "Will the drivers break next release?", "Will
+I have to stay with an old and exploitable kernel sometime
+in the future when the drivers no longer compile on anything
+but kernel.org X.Y.Z, when distro is X.Y.(Z-3)-secfix42, and kernel.org
+is up to X.Y.Z+5?"
 
-Exploit exists that generates watermark patterns that can be detected, and
-can be detected _very_ reliably.
-
-> This situation will not be cured by switching to dm-crypt, since
-> dm-crypt suffers from the same kind of problem. Although personally, I
-> neglect this security threat.
-
-Then you should not be writing crypto code.
-
-> - There is no suitable user space tool ready to use it. util-linux has
-> been broken ever since. My patch key-trunc-fix patch has to be applied
-> to make any use of losetup.
-
-Can you name implementation that your "key-truncated" version is compatible
-with that existed _before_ your version appeared?. To my knowledge, that
-key-truncated version is only compatible with itself, and there is no other
-version that does the same.
-
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+It might very well be that pushing out a large portion of the dev
+burden to the periphery will be good in the long term for the
+development of the kernel, but in short-term, I only see the
+fragmentation problem getting worse. I hope I can be
+brutally proven absolutely wrong, though. :-)

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264624AbSK0RQH>; Wed, 27 Nov 2002 12:16:07 -0500
+	id <S264628AbSK0RVD>; Wed, 27 Nov 2002 12:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264625AbSK0RQH>; Wed, 27 Nov 2002 12:16:07 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:6916 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264624AbSK0RQG>;
-	Wed, 27 Nov 2002 12:16:06 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200211271733.gARHXonq000193@darkstar.example.net>
-Subject: Who maintains README?  (Was: modversions problem with 2.5.48 + .49)
-To: kernelmarc@tirwhan.org (Marc)
-Date: Wed, 27 Nov 2002 17:33:49 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DE4F929.9060005@tirwhan.org> from "Marc" at Nov 27, 2002 04:56:09 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S264644AbSK0RVD>; Wed, 27 Nov 2002 12:21:03 -0500
+Received: from bitmover.com ([192.132.92.2]:22499 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S264628AbSK0RVC>;
+	Wed, 27 Nov 2002 12:21:02 -0500
+Date: Wed, 27 Nov 2002 09:28:18 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Richard B. Tilley  (Brad)" <rtilley@vt.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Verifying Kernel source
+Message-ID: <20021127092818.Q24374@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Richard B. Tilley  (Brad)" <rtilley@vt.edu>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1038408874.12143.14.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1038408874.12143.14.camel@oubop4.bursar.vt.edu>; from rtilley@vt.edu on Wed, Nov 27, 2002 at 09:54:34AM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>I cannot successfully make dep on either 2.5.48 or 2.5.49
-> >You don't need to anymore.
-> *boggle*...See, I knew I was being thick ;-). Thanks a lot John!
-> Might I respectfully suggest the 'make dep' step be removed from the 
-> kernel main README-file then?
+> What is the proper way to verify the kernel source before compiling?
+> There have been too many trojans of late in open source and free
+> software and I, for one, am getting paranoid.
 
-Yes, it should be updated.  Also, the instructions for patching the
-kernel are wrong, -p1 is now in use, not -p0.
-
-Who actually maintains the README?
-
-John.
+If it's in BK you can be pretty sure that it is what was checked in,
+BK checksums every diff in every file.  It's not at all impossible
+to fool the checksum but it is very unlikely that you can cause 
+semantic differences in the form of a trojan horse and still fool 
+the checksums.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

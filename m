@@ -1,298 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263797AbUDFMt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 08:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUDFMt6
+	id S263800AbUDFMzq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 08:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUDFMzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 08:49:58 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:14763 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S263797AbUDFMtF (ORCPT
+	Tue, 6 Apr 2004 08:55:46 -0400
+Received: from mail1.slu.se ([130.238.96.11]:21405 "EHLO mail1.slu.se")
+	by vger.kernel.org with ESMTP id S263800AbUDFMzl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 08:49:05 -0400
-Date: Tue, 06 Apr 2004 21:49:14 +0900 (JST)
-Message-Id: <20040406.214914.132114497.taka@valinux.co.jp>
-To: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: [patch 5/6] memory hotplug for hugetlbpages
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20040406.214123.129013798.taka@valinux.co.jp>
-References: <20040406105353.9BDE8705DE@sv1.valinux.co.jp>
-	<20040406.214123.129013798.taka@valinux.co.jp>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 6 Apr 2004 08:55:41 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="5cX1WWKSdC"
 Content-Transfer-Encoding: 7bit
+Message-ID: <16498.43191.733850.18276@robur.slu.se>
+Date: Tue, 6 Apr 2004 14:55:19 +0200
+To: dipankar@in.ibm.com
+Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
+       Andrea Arcangeli <andrea@suse.de>, "David S. Miller" <davem@redhat.com>,
+       kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       paulmck@us.ibm.com, akpm@osdl.org
+Subject: Re: route cache DoS testing and softirqs
+In-Reply-To: <20040405212220.GH4003@in.ibm.com>
+References: <200403302005.AAA00466@yakov.inr.ac.ru>
+	<20040330211450.GI3808@dualathlon.random>
+	<20040330133000.098761e2.davem@redhat.com>
+	<20040330213742.GL3808@dualathlon.random>
+	<20040331171023.GA4543@in.ibm.com>
+	<16491.4593.718724.277551@robur.slu.se>
+	<20040331203750.GB4543@in.ibm.com>
+	<20040331212817.GQ2143@dualathlon.random>
+	<20040331214342.GD4543@in.ibm.com>
+	<16497.37720.607342.193544@robur.slu.se>
+	<20040405212220.GH4003@in.ibm.com>
+X-Mailer: VM 7.17 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 5 of memory hotplug patches for hugetlbpages.
 
---- linux-2.6.5.ORG/include/linux/hugetlb.h	Tue Apr  6 22:28:09 2032
-+++ linux-2.6.5/include/linux/hugetlb.h	Tue Apr  6 15:00:59 2032
-@@ -31,6 +31,7 @@ int pmd_huge(pmd_t pmd);
- extern int hugetlb_fault(struct mm_struct *, struct vm_area_struct *,
- 				int, unsigned long);
- int try_to_unmap_hugepage(struct page *, pte_addr_t, struct list_head *);
-+int remap_hugetlb_pages(struct zone *);
+--5cX1WWKSdC
+Content-Type: text/plain; charset=us-ascii
+Content-Description: message body text
+Content-Transfer-Encoding: 7bit
+
+
+Dipankar Sarma writes:
+
+ > Looks better atleast. Can you apply the following patch (rs-throttle-rcu)
+ > on top of rcu-softirq.patch in your tree and see if helps a little bit more ?
+ > Please make sure to set the kernel paramenters rcupdate.maxbatch to 4
+ > and rcupdate.plugticks to 0. You can make sure of those parameters
+ > by looking at dmesg (rcu prints them out during boot). I just merged
+ > it, but have not tested this patch yet.
+
+OK!
+
+Well not tested yet but I don't think we will get rid overflow totally in my 
+setup. I've done a little experimental patch so *all* softirq's are run via 
+ksoftirqd. 
  
- extern int htlbpage_max;
- 
-@@ -83,6 +84,7 @@ static inline unsigned long hugetlb_tota
- #define hugetlb_free_pgtables(tlb, prev, start, end) do { } while (0)
- #define hugetlb_fault(mm, vma, write, addr)	0
- #define try_to_unmap_hugepage(page, paddr, force)	0
-+#define remap_hugetlb_pages(zone)		0
- 
- #ifndef HPAGE_MASK
- #define HPAGE_MASK	0		/* Keep the compiler happy */
---- linux-2.6.5.ORG/arch/i386/mm/hugetlbpage.c	Tue Apr  6 22:28:09 2032
-+++ linux-2.6.5/arch/i386/mm/hugetlbpage.c	Tue Apr  6 22:30:59 2032
-@@ -13,6 +13,7 @@
- #include <linux/smp_lock.h>
- #include <linux/slab.h>
- #include <linux/rmap-locking.h>
-+#include <linux/memhotplug.h>
- #include <linux/module.h>
- #include <linux/err.h>
- #include <linux/sysctl.h>
-@@ -92,7 +93,10 @@ static struct page *dequeue_huge_page(vo
- static struct page *alloc_fresh_huge_page(void)
- {
- 	static int nid = 0;
-+	struct pglist_data *pgdat;
- 	struct page *page;
-+	while ((pgdat = NODE_DATA(nid)) == NULL || !pgdat->enabled)
-+		nid = (nid + 1) % numnodes;
- 	page = alloc_pages_node(nid, GFP_HIGHUSER, HUGETLB_PAGE_ORDER);
- 	nid = (nid + 1) % numnodes;
- 	return page;
-@@ -114,6 +118,8 @@ static struct page *alloc_hugetlb_page(v
- 	htlbpagemem--;
- 	spin_unlock(&htlbpage_lock);
- 	set_page_count(page, 1);
-+	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
-+			 1 << PG_referenced | 1 << PG_again);
- 	page->lru.prev = (void *)free_huge_page;
- 	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
- 		clear_highpage(&page[i]);
-@@ -468,6 +474,15 @@ again:
- 			goto again;
- 		}
- 	}
-+
-+	if (page->mapping == NULL) {
-+		 BUG_ON(! PageAgain(page));
-+		/* This page will go back to freelists[] */
-+		huge_page_release(page);	/* XXX */
-+		unlock_page(page);
-+		goto again;
-+	}
-+
- 	spin_lock(&mm->page_table_lock);
- 	if (pte_none(*pte)) {
- 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
-@@ -614,7 +629,7 @@ static void update_and_free_page(struct 
- 	__free_pages(page, HUGETLB_PAGE_ORDER);
- }
- 
--static int try_to_free_low(int count)
-+int try_to_free_hugepages(int idx, int count, struct zone *zone)
- {
- 	struct list_head *p;
- 	struct page *page, *map;
-@@ -622,7 +637,7 @@ static int try_to_free_low(int count)
- 	map = NULL;
- 	spin_lock(&htlbpage_lock);
- 	/* all lowmem is on node 0 */
--	list_for_each(p, &hugepage_freelists[0]) {
-+	list_for_each(p, &hugepage_freelists[idx]) {
- 		if (map) {
- 			list_del(&map->list);
- 			unregister_huge_page(map);
-@@ -633,7 +648,8 @@ static int try_to_free_low(int count)
- 				break;
- 		}
- 		page = list_entry(p, struct page, list);
--		if (!PageHighMem(page))
-+		if ((zone == NULL && !PageHighMem(page)) ||
-+					(page_zone(page) == zone))
- 			map = page;
- 	}
- 	if (map) {
-@@ -647,6 +663,11 @@ static int try_to_free_low(int count)
- 	return count;
- }
- 
-+int try_to_free_low(int count)
-+{
-+	return try_to_free_hugepages(0, count, NULL);
-+}
-+
- static int set_hugetlb_mem_size(int count)
- {
- 	int lcount;
-@@ -686,6 +707,146 @@ static int set_hugetlb_mem_size(int coun
- 	}
- 	return (int) htlbzone_pages;
- }
-+
-+#ifdef CONFIG_MEMHOTPLUG
-+static int copy_hugepage(struct page *to, struct page *from)
-+{
-+	int size;
-+	for (size = 0; size < HPAGE_SIZE; size += PAGE_SIZE) {
-+		copy_highpage(to, from);
-+		to++;
-+		from++;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Allocate a hugepage from Buddy system directly.
-+ */
-+static struct page *
-+hugepage_remap_alloc(int nid)
-+{
-+	struct page *page;
-+	/* 
-+	 * ToDo:
-+	 * - NUMA aware page allocation is required. we should allocate
-+	 *   a hugepage from the node which the process depends on.
-+	 * - New hugepages should be preallocated prior to remapping pages
-+	 *   so that lack of memory can be found before them.
-+	 * - New hugepages should be allocate from the node specified by nid.
-+	 */
-+	page = alloc_fresh_huge_page();
-+	
-+	if (page == NULL) {
-+		printk(KERN_WARNING "remap: Failed to allocate new hugepage\n");
-+	} else {
-+		spin_lock(&htlbpage_lock);
-+		register_huge_page(page);
-+		enqueue_huge_page(page);
-+		htlbpagemem++;
-+		htlbzone_pages++;
-+		spin_unlock(&htlbpage_lock);
-+	}
-+	page = alloc_hugetlb_page();
-+	unregister_huge_page(page);	/* XXXX */
-+	return page;
-+}
-+
-+/*
-+ * Free a hugepage into Buddy system directly.
-+ */
-+static int
-+hugepage_delete(struct page *page)
-+{
-+        BUG_ON(page_count(page) != 1);
-+        BUG_ON(page->mapping);
-+
-+	spin_lock(&htlbpage_lock);
-+	update_and_free_page(page);
-+	spin_unlock(&htlbpage_lock);
-+        return 0;
-+}
-+
-+static int
-+hugepage_register(struct page *page)
-+{
-+	spin_lock(&htlbpage_lock);
-+	register_huge_page(page);
-+	spin_unlock(&htlbpage_lock);
-+        return 0;
-+}
-+
-+static int
-+hugepage_release_buffer(struct page *page)
-+{
-+	BUG();
-+	return -1;
-+}
-+
-+static struct remap_operations hugepage_remap_ops = {
-+	.remap_alloc_page       = hugepage_remap_alloc,
-+	.remap_delete_page      = hugepage_delete,
-+	.remap_copy_page        = copy_hugepage,
-+	.remap_lru_add_page     = hugepage_register,
-+	.remap_release_buffers  = hugepage_release_buffer,
-+	.remap_prepare          = NULL,
-+	.remap_stick_page       = NULL
-+};
-+
-+int remap_hugetlb_pages(struct zone *zone)
-+{
-+	struct list_head *p;
-+	struct page *page, *map;
-+	int idx = zone->zone_pgdat->node_id;
-+	LIST_HEAD(templist);
-+	int ret = 0;
-+
-+	try_to_free_hugepages(idx, -htlbpagemem, zone);
-+/* 	htlbpage_max = set_hugetlb_mem_size(htlbpage_max); */
-+
-+	map = NULL;
-+	spin_lock(&htlbpage_lock);
-+	list_for_each(p, &hugepage_alllists[idx]) {
-+		page = list_entry(p, struct page, list);
-+		if (map) {
-+			page_cache_get(map-1);
-+			unregister_huge_page(map-1);
-+			list_add(&map->list, &templist);
-+			map = NULL;
-+		}
-+		if (page_zone(page) == zone) {
-+			map = page;
-+		}
-+	}
-+	if (map) {
-+		page_cache_get(map-1);
-+		unregister_huge_page(map-1);
-+		list_add(&map->list, &templist);
-+		map = NULL;
-+	}
-+	spin_unlock(&htlbpage_lock);
-+
-+	while (!list_empty(&templist)) {
-+		page = list_entry(templist.next, struct page, list);
-+		list_del(&page->list);
-+		INIT_LIST_HEAD(&page->list);
-+		page--;
-+
-+		if (page_count(page) <= 1 || page->mapping == NULL ||
-+				remap_onepage(page, REMAP_ANYNODE, 0, &hugepage_remap_ops)) {
-+			/* free the page later */
-+			spin_lock(&htlbpage_lock);
-+			register_huge_page(page);
-+			spin_unlock(&htlbpage_lock);
-+			page_cache_release(page);
-+			ret++;
-+		}
-+	}
-+
-+	htlbpage_max = set_hugetlb_mem_size(htlbpage_max);
-+	return ret;
-+}
-+#endif /* CONFIG_MEMHOTPLUG */
- 
- int hugetlb_sysctl_handler(ctl_table *table, int write,
- 		struct file *file, void *buffer, size_t *length)
---- linux-2.6.5.ORG/mm/memhotplug.c	Tue Apr  6 22:28:09 2032
-+++ linux-2.6.5/mm/memhotplug.c	Tue Apr  6 15:00:59 2032
-@@ -15,6 +15,7 @@
- #include <linux/writeback.h>
- #include <linux/buffer_head.h>
- #include <linux/rmap-locking.h>
-+#include <linux/hugetlb.h>
- #include <linux/memhotplug.h>
- 
- #ifdef CONFIG_KDB
-@@ -595,6 +596,8 @@ int remapd(void *p)
- 		return 0;
- 	}
- 	atomic_inc(&remapd_count);
-+	if (remap_hugetlb_pages(zone))
-+		goto out;
- 	on_each_cpu(lru_drain_schedule, NULL, 1, 1);
- 	while(nr_failed < 100) {
- 		spin_lock_irq(&zone->lru_lock);
+ total    droppped tsquz    throttl  bh_enbl  ksoftird irqexit  other  
+009bee0c 00000000 00004aa7 00000000 00000000 0336a637 00000078 00000000
+0054d381 00000000 00004ca0 00000000 00000000 032f8e48 00000000 00000000
+
+I still see dst overflows. But the priority of the ksoftird's can now control 
+the user apps behavior even during softirq DoS.
+
+
+--5cX1WWKSdC
+Content-Type: application/octet-stream
+Content-Disposition: attachment;
+	filename="softirq_limit-040405.pat"
+Content-Transfer-Encoding: base64
+
+LS0tIGtlcm5lbC9zb2Z0aXJxLmMub3JpZwkyMDA0LTAzLTExIDAzOjU1OjI0LjAwMDAwMDAwMCAr
+MDEwMAorKysga2VybmVsL3NvZnRpcnEuYwkyMDA0LTA0LTA1IDEyOjUyOjQwLjAwMDAwMDAwMCAr
+MDIwMApAQCAtNTgsNiArNTgsMTQgQEAKIAkJd2FrZV91cF9wcm9jZXNzKHRzayk7CiB9CiAKK3N0
+YXRpYyBpbmxpbmUgaW50IGNhbl9ydW5fa3NvZnRpcnFkKHZvaWQpCit7CisgICAgICAgLyogSW50
+ZXJydXB0cyBhcmUgZGlzYWJsZWQ6IG5vIG5lZWQgdG8gc3RvcCBwcmVlbXB0aW9uICovCisgICAg
+ICAgc3RydWN0IHRhc2tfc3RydWN0ICp0c2sgPSBfX2dldF9jcHVfdmFyKGtzb2Z0aXJxZCk7CisK
+KyAgICAgICByZXR1cm4gdHNrICYmICEodHNrLT5zdGF0ZSAmICAoVEFTS19ERUFEIHwgVEFTS19a
+T01CSUUpKTsKK30KKwogLyoKICAqIFdlIHJlc3RhcnQgc29mdGlycSBwcm9jZXNzaW5nIE1BWF9T
+T0ZUSVJRX1JFU1RBUlQgdGltZXMsCiAgKiBhbmQgd2UgZmFsbCBiYWNrIHRvIHNvZnRpcnFkIGFm
+dGVyIHRoYXQuCkBAIC02OSw3ICs3Nyw3IEBACiAgKi8KICNkZWZpbmUgTUFYX1NPRlRJUlFfUkVT
+VEFSVCAxMAogCi1hc21saW5rYWdlIHZvaWQgZG9fc29mdGlycSh2b2lkKQorYXNtbGlua2FnZSB2
+b2lkIF9fZG9fc29mdGlycShpbnQgZnJvbV9rc29mdGlycWQpCiB7CiAJaW50IG1heF9yZXN0YXJ0
+ID0gTUFYX1NPRlRJUlFfUkVTVEFSVDsKIAlfX3UzMiBwZW5kaW5nOwpAQCAtODYsNiArOTQsOSBA
+QAogCQlzdHJ1Y3Qgc29mdGlycV9hY3Rpb24gKmg7CiAKIAkJbG9jYWxfYmhfZGlzYWJsZSgpOwor
+CisJCWlmIChmcm9tX2tzb2Z0aXJxZCAmJiBjYW5fcnVuX2tzb2Z0aXJxZCgpKQorCQkJICAgICBn
+b3RvIGRvbmU7CiByZXN0YXJ0OgogCQkvKiBSZXNldCB0aGUgcGVuZGluZyBiaXRtYXNrIGJlZm9y
+ZSBlbmFibGluZyBpcnFzICovCiAJCWxvY2FsX3NvZnRpcnFfcGVuZGluZygpID0gMDsKQEAgLTEw
+Niw2ICsxMTcsNyBAQAogCQlwZW5kaW5nID0gbG9jYWxfc29mdGlycV9wZW5kaW5nKCk7CiAJCWlm
+IChwZW5kaW5nICYmIC0tbWF4X3Jlc3RhcnQpCiAJCQlnb3RvIHJlc3RhcnQ7Citkb25lOgogCQlp
+ZiAocGVuZGluZykKIAkJCXdha2V1cF9zb2Z0aXJxZCgpOwogCQlfX2xvY2FsX2JoX2VuYWJsZSgp
+OwpAQCAtMTE0LDYgKzEyNiwxMSBAQAogCWxvY2FsX2lycV9yZXN0b3JlKGZsYWdzKTsKIH0KIAor
+YXNtbGlua2FnZSB2b2lkIGRvX3NvZnRpcnEodm9pZCkgCit7CisJX19kb19zb2Z0aXJxKDApOwkK
+K30KKwogRVhQT1JUX1NZTUJPTChkb19zb2Z0aXJxKTsKIAogdm9pZCBsb2NhbF9iaF9lbmFibGUo
+dm9pZCkKQEAgLTMyNCw3ICszNDEsNyBAQAogCQlfX3NldF9jdXJyZW50X3N0YXRlKFRBU0tfUlVO
+TklORyk7CiAKIAkJd2hpbGUgKGxvY2FsX3NvZnRpcnFfcGVuZGluZygpKSB7Ci0JCQlkb19zb2Z0
+aXJxKCk7CisJCQlfX2RvX3NvZnRpcnEoMSk7CQogCQkJY29uZF9yZXNjaGVkKCk7CiAJCX0KIAo=
+--5cX1WWKSdC
+Content-Type: text/plain; charset=us-ascii
+Content-Description: message body text
+Content-Transfer-Encoding: 7bit
+
+
+
+Cheers.
+					--ro
+--5cX1WWKSdC--

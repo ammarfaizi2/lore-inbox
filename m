@@ -1,116 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265341AbUF2BnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265343AbUF2BqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265341AbUF2BnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 21:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265343AbUF2BnJ
+	id S265343AbUF2BqT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 21:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265349AbUF2BqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 21:43:09 -0400
-Received: from imr1.ericy.com ([198.24.6.9]:60549 "EHLO imr1.ericy.com")
-	by vger.kernel.org with ESMTP id S265341AbUF2Bm4 (ORCPT
+	Mon, 28 Jun 2004 21:46:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44245 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265343AbUF2BqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 21:42:56 -0400
-Message-ID: <40E0C907.1040609@ericsson.com>
-Date: Mon, 28 Jun 2004 21:42:31 -0400
-From: Jon Maloy <jon.maloy@ericsson.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en, fr, de, no, nn, sv, 
+	Mon, 28 Jun 2004 21:46:17 -0400
+Date: Mon, 28 Jun 2004 18:46:15 -0700 (PDT)
+From: Bryce Harrington <bryce@osdl.org>
+To: <ltp-list@lists.sourceforge.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Recent changes in LTP test results
+Message-ID: <Pine.LNX.4.33.0406281833380.13977-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-CC: cgl_discussion <cgl_discussion@osdl.org>,
-       tipc <tipc-discussion@lists.sourceforge.net>
-Subject: [ANNOUNCE] supporting cluster communication with TIPC
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a listing of LTP results for the linux kernel.  For the 2.6.x
+series LTP results have been pretty constant, but they've gotten
+interesting lately:
 
+Patch Name           TestReq#     CPU  PASS  FAIL  WARN  BROK  RunTime
+----------------------------------------------------------------------
+patch-2.4.27-rc2       294321  2-way  7226     6     3     6    69.0
+linux-2.6.7            294027  2-way  7225     6     3     6    46.0
+linux-2.6.7            294004  1-way  7225     6     3     6    42.2
+patch-2.6.7-bk1        294069  2-way  7224     7     3     6    45.9
+patch-2.6.7-bk2        294081  2-way  7224     7     3     6    45.9
+patch-2.6.7-bk3        294103  2-way  7224     7     3     6    46.4
+patch-2.6.7-bk4        294165  2-way  7187     7     3     6    48.7
+patch-2.6.7-bk5        294181  2-way  7181     7     3     6    45.5
+patch-2.6.7-bk6        294204  2-way  7224     7     3     6    47.1
+patch-2.6.7-bk7        294228  2-way  7224     7     3     6    49.0
+patch-2.6.7-bk8        294304  2-way  7223    10     3     7    47.5
+patch-2.6.7-bk9        294333  2-way  7224     7     3     6    46.1
+patch-2.6.7-bk10       294403  2-way  7223    10     3     7    42.9
+patch-2.6.7-bk11       294423  2-way  7178    46     3     6    47.8
+2.6.7-mm1              294146  2-way  7185    46     3     6    59.1
+2.6.7-mm1              294126  1-way  7185    46     3     6    52.9
+2.6.7-mm2              294271  2-way  7181    47     3     6    44.9
+2.6.7-mm3              294363  1-way  7185    46     3     6    41.0
+2.6.7-rc3-mm2          293949  2-way  7223     8     3     6    46.5
 
-Hi all,
-I would like to announce the availability of TIPC (Transparent Inter 
-Process Communication protocol). TIPC is a protocol specially designed 
-for high-performance, location transparent communication within 
-loosely connected clusters, and has been used successfully in various 
-Ericsson products over the last years. 
+We usually always see 6-7 fails on the 2.6.x kernels, so the increase is
+unusual.
 
-In cooperation with colleagues from OSDL and Intel, I have ported TIPC 
-to Linux,and  rewritten large parts of the code to fit the Linux kernel 
-environment and coding requirements. TIPC can be compiled either as a 
-part of the kernel or as a loadable module, and is now released as 
-open source code under a dual GPL/BSD license. 
+I've generated some detailed LTP test result reports on a few of the
+above runs, with specifics about the test runs and failures.  These are
+available here:
 
+    http://developer.osdl.org/bryce/ltp/
 
-Overview
---------
-TIPC provides a good support for designing scalable, distributed, 
-site independent, highly available, and high-performance applications.
+HTH,
+Bryce
 
-It provides features such as:
-
-o Reliable and unreliable connectionless communication modes: 
-  SOCK_RDM and SOCK_DGRAM.
-o Reliable connection oriented communication modes: SOCK_SEQPACKET
-  and SOCK_STREAM.
-o Reliable and unreliable multicast covering the whole cluster.
-o 35-80% better performance than TCP/IP for messages < 1.5 kbytes.
-  (The tipc-1.2 line).
-o A functional addressing scheme that allows primary/secondary key
-  addressing and group addressing.
-o Ability to adapt to and be carried over different media/protocols, 
-  depending on the available network infrastructure and security needs: 
-  raw Ethernet, RapidIO, ATM/AAL5, TCP, SCTP, UDP etc.(Only Ethernet 
-  supported in the latest version).
-o A topology service helping applications to keep track of available 
-  functional and physical addresses in the clusters.
-  
-
-Implementation Status:
-----------------------
-
-There exists two main source code lines:
-
-
-tipc-1.2.X: this is the most stable and tested release. It works well
-            on both Linux 2.4 and Linux 2.6. This code is not compliant 
-            with Linux kernel code requirements regarding code style etc,
-            and now only has interest for comparative reasons. The 
-            corresponding CVS modules are "source/stable_ericsson" and 
-            "source/unstable_ericsson". 
-            A downloadable example using the API of this version is found
-            under "tipc-test", the file "tipc-benchmark-0.93.tar.gz"
-
-tipc-1.3.X: the most recent code, written for Linux 2.6, and compliant with 
-            requirements on such code. It works well, but is still slightly 
-            less stable than the 1.2 line. The corresponding CVS module is 
-            "source/unstable", while we have not had the guts to check in
-            anything under "source/stable" yet. We have not been able to 
-            verify that this code has the same performance as the 1.2 code, 
-            but we have every reason to believe it will be comparable once 
-            the proper optimization work is done.
-            A downloadable example using the API of this version is found
-            under "tipc-test", the file "tipc_test-1.5.tar.gz"
-
-
-Links:
-------
-The TIPC page at SourceForge:
-http://tipc.sourceforge.net
-
-Downloading source code and documentation:
-http://sourceforge.net/projects/tipc/
-
-A draft protocol specification presented at IETF-59 in Seoul last March.
-http://www.ietf.org/internet-drafts/draft-maloy-tipc-00.txt
-
-An article written for the April issue of Linux World Magazine:
-http://www.linux.ericsson.ca/papers/tipc_lwm/index.shtml
-
-To be presented at OLS in Ottawa next month:
-http://www.linux.ericsson.ca/papers/tipc_ols.pdf
-
-We would appreciate your feedback and advice.
-
-Thank you,
-Jon Maloy
 
 

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264245AbSIWHhA>; Mon, 23 Sep 2002 03:37:00 -0400
+	id <S265163AbSIWHgn>; Mon, 23 Sep 2002 03:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSIWHhA>; Mon, 23 Sep 2002 03:37:00 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:41428 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264245AbSIWHg6>;
-	Mon, 23 Sep 2002 03:36:58 -0400
-Date: Mon, 23 Sep 2002 09:49:53 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux-kernel@vger.kernel.org, Daniel Jacobowitz <dan@debian.org>,
-       Andrew Morton <akpm@digeo.com>, Ville Herva <vherva@niksula.hut.fi>,
-       Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>, <gcc@gcc.gnu.org>,
-       Robert Love <rml@tech9.net>
-Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-In-Reply-To: <1032764130.3d8ebae220908@kolivas.net>
-Message-ID: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265211AbSIWHgm>; Mon, 23 Sep 2002 03:36:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:7147 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265163AbSIWHgm>;
+	Mon, 23 Sep 2002 03:36:42 -0400
+Date: Mon, 23 Sep 2002 09:41:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 oopses at boot in ide_toggle_bounce
+Message-ID: <20020923074142.GB15479@suse.de>
+References: <UTC200209211211.g8LCBcW16848.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200209211211.g8LCBcW16848.aeb@smtp.cwi.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 21 2002, Andries.Brouwer@cwi.nl wrote:
+> 2.5.37 oopses at boot in ide_toggle_bounce().
+> With
+> 
+> --- linux-2.5.37/linux/drivers/ide/ide-lib.c    Sat Sep 21 11:39:48 2002
+> +++ linux-2.5.37a/linux/drivers/ide/ide-lib.c   Sat Sep 21 14:06:45 2002
+> @@ -394,7 +394,7 @@
+>         if (on && drive->media == ide_disk) {
+>                 if (!PCI_DMA_BUS_IS_PHYS)
+>                         addr = BLK_BOUNCE_ANY;
+> -               else
+> +               else if (HWIF(drive)->pci_dev)
+>                         addr = HWIF(drive)->pci_dev->dma_mask;
+>         }
+> 
+> it boots for me. I have not investigated a proper fix.
 
-On Mon, 23 Sep 2002, Con Kolivas wrote:
+Patch is fine, thanks Andries.
 
-> IO Full Load:
-> 2.5.38                  170.21          42%
-> 2.5.38-gcc32            230.77          30%
-
-> This time only the IO loads showed a statistically significant
-> difference.
-
-how many times are you running each test? You should run them at least
-twice (ideally 3 times at least), to establish some sort of statistical
-noise measure. Especially IO benchmarks tend to fluctuate very heavily
-depending on various things - they are also very dependent on the initial
-state - ie. how the pagecache happens to lay out, etc. Ie. a meaningful
-measurement result would be something like:
-
- IO Full Load:
- 2.5.38                  170.21 +- 55.21 sec        42%
- 2.5.38-gcc32            230.77 +- 60.22 sec        30%
-
-where the first column is the average of two measurements, the second
-column is the delta of the two measurements divided by 2. This way we can
-see the 'spread' of the results.
-
-I simply cannot believe that gcc32 can produce any visible effect in any
-of the IO benchmarks, the only explanation would be heavy fluctuation of
-IO results.
-
-	Ingo
+-- 
+Jens Axboe
 

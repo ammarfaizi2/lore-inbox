@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291736AbSBHS4y>; Fri, 8 Feb 2002 13:56:54 -0500
+	id <S291738AbSBHS7O>; Fri, 8 Feb 2002 13:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291738AbSBHS4q>; Fri, 8 Feb 2002 13:56:46 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18846 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S291736AbSBHS4i>;
-	Fri, 8 Feb 2002 13:56:38 -0500
-Date: Fri, 8 Feb 2002 13:56:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@zip.com.au>, Christoph Hellwig <hch@ns.caldera.de>,
-        yodaiken <yodaiken@fsmlabs.com>, Martin Wirth <Martin.Wirth@dlr.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        torvalds <torvalds@transmet.com>, rml <rml@tech9.net>,
-        nigel <nigel@nrg.org>
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <Pine.LNX.4.33.0202082144350.15826-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0202081352400.28514-100000@weyl.math.psu.edu>
+	id <S291746AbSBHS66>; Fri, 8 Feb 2002 13:58:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64273 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291743AbSBHS5s>; Fri, 8 Feb 2002 13:57:48 -0500
+Subject: Re: Problem with mke2fs on huge RAID-partition
+To: pruegg@eproduction.ch (Peter H. =?iso-8859-1?Q?R=FCegg?=)
+Date: Fri, 8 Feb 2002 18:18:15 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C640C90.E71E3F70@eproduction.ch> from "Peter H. =?iso-8859-1?Q?R=FCegg?=" at Feb 08, 2002 06:36:16 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ZFbD-0004TM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> My problem is: If I start mke2fs [1] on the device, it writes everything
+> down until "Writing Superblocks...". The system then completly hangs.
+> And yes, I did wait long enough (well, at least I think 15 hours should
+> be enough ;-)
 
+More than enough
 
-On Fri, 8 Feb 2002, Ingo Molnar wrote:
+> Is there a limitation in the maximum size of a partition (well, 400 GB is
+> not that small...), may it be a (known) problem of mke2fs or the particular
+> Kernel-Version, or does anyone have any suggestions where else to seek?
 
-> i'd suggest 64-bit update instructions on x86 as well, they do exist.
-> spinlock only for the truly hopeless cases like SMP boxes composed of
-> i486's. We really want llseek() to scale ...
-
-Ingo, are you sure that you actually saw llseek() causing problems?
-And not, say it, ext2_get_block()?
-
-If you've got a heavy holder of some lock + lots of guys who grab it
-for a short periods, the real trouble is the former, not the latter.
-
-I'm going to send ext2-without-BKL patches to Linus - tonight or tomorrow.
-I really wonder what effect that would have on the things.
-
+The limit is about 1Tb currently. You are hitting something else, perhaps
+a driver or VM problem ?

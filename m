@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278673AbRJSWAh>; Fri, 19 Oct 2001 18:00:37 -0400
+	id <S278682AbRJSWE1>; Fri, 19 Oct 2001 18:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278678AbRJSWA2>; Fri, 19 Oct 2001 18:00:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10150 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278675AbRJSWAL>;
-	Fri, 19 Oct 2001 18:00:11 -0400
-Date: Fri, 19 Oct 2001 18:00:38 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-In-Reply-To: <Pine.LNX.3.96.1011019233051.456A-100000@mickey.hamnixda.de>
-Message-ID: <Pine.GSO.4.21.0110191743220.25190-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278675AbRJSWER>; Fri, 19 Oct 2001 18:04:17 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:36886 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S278682AbRJSWEB>; Fri, 19 Oct 2001 18:04:01 -0400
+Date: Fri, 19 Oct 2001 18:04:34 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@muc.de, sim@netnation.com, linux-kernel@vger.kernel.org
+Subject: Re: Awfully slow /proc/net/tcp, netstat, in.identd in 2.4 (updated)
+Message-ID: <20011019180433.H9206@redhat.com>
+In-Reply-To: <k23d4fwkv6.fsf@zero.aec.at> <20011019.135924.112609345.davem@redhat.com> <20011019173055.G9206@redhat.com> <20011019.145639.59667516.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011019.145639.59667516.davem@redhat.com>; from davem@redhat.com on Fri, Oct 19, 2001 at 02:56:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 19 Oct 2001, Richard Guenther wrote:
-
-> > Or, say it, one about meaning of
-> >         if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
-> > not being the same as
-> >         if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
+On Fri, Oct 19, 2001 at 02:56:39PM -0700, David S. Miller wrote:
+> It doesn't need to "fit in the cache" to perform optimally, that's
+> a load of crap Ben.
 > 
-> Err, who said that it is the same?? Its sufficient, if you trust
-> root to just pass '0' or '1'. Ok, its probably too clever for the
-> average C programmer, but it seems I didnt care.
-
-	If you trust root to pass '0' or '1' - (count == 1) would do nicely.
-And sorry, but "clever" is not the word that comes to mind.  "Not having a
-clue on the meaning of bitwise operations" would be more accurate.
-
-> > As for the version in -ac and maintaining it - sure I will.
+> I actually tested this, and in fact on a cpu that has a meager 512K
+> cache at the time, and it did turn out to be more important to keep
+> the hash chains short than to keep it fitting in the cache.
 > 
-> Just get Linus to take the -ac version then. I'm sick to read
+> So please don't give me any crap about "fitting in the cache" unless
+> you can show me hard numbers that show that it does in fact perform
+> worse.
 
-<shrug> might be a good idea.  The thing is extremely sloppy and considering
-the blatant "I'm t00 l33t t0 F1X 7h4t" attitude of maintainer...
+Okay, let's take a look at the case where I have 64 connections open: if 
+I'm using a 64 entry hash table with one 4 byte pointer per entry and 
+perfect hashing, then it has a cache footprint of 256 bytes.  Max.  Now, 
+the same hash table blown up to 4MB is going to have a cache footprint 
+of 64 bytes (1 cache line) per entry, for a total of a 4KB cache footprint.
+Which is better?
 
+> Let me clue you in.  If the hash chains get long, you (instead of
+> cache missing on the table itself) are missing the cache several
+> times over walking the long hash chains.
+
+Don't AssUMe that I don't realise this.  What I'm saying is that a 4MB hash 
+table for a system with a puny number of connections is bloat.  Needless 
+bloat.  4MB is enough memory for a copy of gcc.  Or enough to run 4 shells.  
+If the hash table was grown dynamically, I wouldn't have this complaint.
+
+		-ben

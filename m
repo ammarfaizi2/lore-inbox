@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbULVF1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbULVFeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbULVF1g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 00:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbULVF1f
+	id S261406AbULVFeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 00:34:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbULVFeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 00:27:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47276 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261367AbULVF1d
+	Wed, 22 Dec 2004 00:34:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3246 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261406AbULVFeO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 00:27:33 -0500
-Message-ID: <41C905C0.9000705@pobox.com>
-Date: Wed, 22 Dec 2004 00:27:28 -0500
+	Wed, 22 Dec 2004 00:34:14 -0500
+Message-ID: <41C9074E.8050406@pobox.com>
+Date: Wed, 22 Dec 2004 00:34:06 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] USB: fix Scheduling while atomic warning when resuming.
-References: <200412220103.iBM13wS0002158@hera.kernel.org> <200412212022.52316.david-b@pacbell.net> <41C8FC25.2060304@pobox.com> <200412212059.15426.david-b@pacbell.net>
-In-Reply-To: <200412212059.15426.david-b@pacbell.net>
+To: Greg KH <greg@kroah.com>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-usb-devel@lists.sourcefoge.net.kroah.org,
+       linux-kernel@vger.kernel.org, laforge@gnumonks.org
+Subject: Re: My vision of usbmon
+References: <20041219230454.5b7f83e3@lembas.zaitcev.lan> <20041222005726.GA13317@kroah.com> <1103679534.5055.2.camel@npiggin-nld.site> <20041222050424.GB31076@kroah.com>
+In-Reply-To: <20041222050424.GB31076@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> On Tuesday 21 December 2004 8:46 pm, Jeff Garzik wrote:
-> 
->>>If that lock were dropped, what would prevent other tasks from
->>>touching the hardware while it's sending RESUME signaling down
->>>the bus, and thereby mucking up the resume sequence?
->>
->>Precisely what other tasks are active for this hardware, during resume?
+Greg KH wrote:
+> On Wed, Dec 22, 2004 at 12:38:54PM +1100, Nick Piggin wrote:
+>>Is there any reason why these debug filesystems are going under the
+>>root directory? Why not /sys/debug or /sys/kernel/debug or something?
 > 
 > 
-> There's no guarantee that suspend() and resume() methods
-> are only called during system-wide suspend and resume.
+> See the previous thread as to where to mount debugfs.  In short, I don't
+> really care :)
 
-That is precisely the reason why I am concerned.  If it was only during 
-system-wide resume, the impact of the very-long mdelay() would be more 
-difficult to notice.
 
-You also ignored my question :)
-
-If the PCI layer is calling the resume method for a PCI device while 
-simultaneously calling the suspend method, that's a PCI layer problem. 
-Similarly, If the USB layer is calling into your driver while you are 
-resuming, something is broken and it ain't your locking.
+Well, somebody should pick a single location, and try to use that 
+consistently.  Sure the sysadmin can change it, but a "preferred 
+default" is always nice.
 
 	Jeff
 

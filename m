@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290494AbSAYB7x>; Thu, 24 Jan 2002 20:59:53 -0500
+	id <S290496AbSAYB7e>; Thu, 24 Jan 2002 20:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290495AbSAYB7e>; Thu, 24 Jan 2002 20:59:34 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10756 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290494AbSAYB71>;
-	Thu, 24 Jan 2002 20:59:27 -0500
-Date: Thu, 24 Jan 2002 22:29:53 -0200 (BRST)
+	id <S290495AbSAYB7Y>; Thu, 24 Jan 2002 20:59:24 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10500 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290494AbSAYB7V>;
+	Thu, 24 Jan 2002 20:59:21 -0500
+Date: Thu, 24 Jan 2002 21:51:14 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.surriel.com>
-To: <rwhron@earthlink.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18pre4aa1
-In-Reply-To: <20020124191927.A809@earthlink.net>
-Message-ID: <Pine.LNX.4.33L.0201242226360.32617-100000@imladris.surriel.com>
+To: <knobo@linpro.no>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: compile error -rmap12a and 2.4.18-pre7
+In-Reply-To: <ujpadv3tj87.fsf@false.linpro.no>
+Message-ID: <Pine.LNX.4.33L.0201242147030.32617-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,29 +21,22 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002 rwhron@earthlink.net wrote:
+On 25 Jan 2002 knobo@linpro.no wrote:
 
-> > > http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
-> >
-> > Even when mostly uncached, dbench still produces flaky results.
+> I applied first rmap12a ant then 2.4.18-pre7
+>
+> then I removed line 502 (i think) "nr_pages--" from
+> linux/mm/vmscan.c. (thanx to mjc)
 
-> Below are results from a couple of aa releases, and a few rmap
-> releases.
+Yes, this line is added by the -pre7 patch.
 
-  [snip results:  -aa twice as fast as -rmap for dbench,
-                  -rmap twice as fast as -aa for tiobench]
+The reason I haven't upgraded -rmap to -pre7 yet is that
+I used to pull the new kernel patches from Ted T'so's
+2.4 bitkeeper tree, but he hasn't updated his tree yet.
 
-What would be interesting here are the dbench dots, where
-a '+' indicates that a program exits.
-
-It's possible that under one of the kernels the programs
-are getting throttled differently and some of the dbench
-processes exit _way_ earlier than the others, leaving a
-much lighter load on the rest of the system for the second
-part of the test.
-
-It would be interesting to see the dbench dots from both
--aa and -rmap ;)
+I think I'll have to re-do his changes to bk's import
+script so I can import incremental kernel patches with
+the changelog messages in the bk tree ...
 
 regards,
 

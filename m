@@ -1,78 +1,614 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289402AbSAOE1X>; Mon, 14 Jan 2002 23:27:23 -0500
+	id <S289411AbSAOEfo>; Mon, 14 Jan 2002 23:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289411AbSAOE1O>; Mon, 14 Jan 2002 23:27:14 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:42002 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S289402AbSAOE1D>; Mon, 14 Jan 2002 23:27:03 -0500
-Date: Mon, 14 Jan 2002 20:26:38 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fbdev currcon
-In-Reply-To: <20020115005650.J23429@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10201142006420.24302-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289412AbSAOEf0>; Mon, 14 Jan 2002 23:35:26 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:8636 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289411AbSAOEfO>; Mon, 14 Jan 2002 23:35:14 -0500
+Date: Mon, 14 Jan 2002 23:35:12 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] cleanup file.h and INIT_TASK a bit
+Message-ID: <20020114233512.M30639@redhat.com>
+In-Reply-To: <20020113185947.A32700@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020113185947.A32700@redhat.com>; from bcrl@redhat.com on Sun, Jan 13, 2002 at 06:59:47PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Resend.  Several people pointed out they like the cleanup, nobody complained.
 
-> On Mon, Jan 14, 2002 at 04:39:43PM -0800, James Simmons wrote:
-> > [stuff about currcon]
+On Sun, Jan 13, 2002 at 06:59:47PM -0500, Benjamin LaHaise wrote:
+> This patches does a couple of things: first off, it removes the sched.h 
+> include from file.h that was added recently, as we really don't need yet 
+> another include file chain mess.  To make this a bit more palatable, a 
+> few of the inlines are moved out of file.h and into fcntl.c, plus the 
+> files_struct is moved to file.h from sched.h.  Since this meant adding 
+> file.h to the various arch/*/kernel/init_task.c files, I took the time 
+> to move the INIT_* bits for initializing the init task out of sched.h 
+> and into init_task.h.  If this is okay, please apply the patch.  There 
+> are other cleanups to do if people are interested: the #define for init_task 
+> is currently duplicated in *all* asm-*/processor.h files to be exactly 
+> the same thing...  This is a way of testing the waters on include file 
+> cleanups.  Done properly, they shave ~10-15% off of the kernel compile 
+> time on my machine.
 > 
-> I've killed currcon completely in the cyber2000fb driver in favour of
-> tracking which struct display is current.  Tracking 'currcon', doing
-> a whole pile of special cases, and copying 'var' stuff to/from fb.var
-> didn't make sense anymore.  I'm expecting the same thing will happen
-> with the other stuff in the struct fb_info.
+> Oh, the file.h cleanup exposed a mess (bug): usb.c was duplicating code 
+> from daemonize().
 
-But struct display is going to go away!!!!!! You haven't seen the complete
-new fbdev api. How much cleaner and superior to the current stuff. 
+		-ben
 
-http://linuxconsole.sf.net
-
-   The whole point was to make the fbdev layer independent of the VT tty
-system. It makes no sense to have a tty on something like a iPAQ. This way
-you can a /dev/fb interface with no VT. You can also do other nice
-things like have a vga console on one display and still have a fbdev
-driver. Think about how much easier it would be to debug a fbdev driver
-that way. BTW that is how I was testing the new fbdev api. Having printk 
-on a vga terminal will looking at printks while testing the fbdev driver.
-It was so nice. Plus the amount of code reduction will be huge. I mean
-huge. 
-   Over the years the lower level console drivers have been building crude
-to make up for the limitations of the upper console layer. This will be
-cleaned up for 2.5.X. So now fbcon will be a wrapper around the fbdev
-layer if we do want to use a VT. It will make a very nice small footprint
-for embedded systems. BTW this was my goal. Another bonus will be I will
-make the VT system modular. So if we do want a VT we can :-) I haven't had
-the time to do this but I plan to. I wanted to test it on a iPAQ with a
-stowaway keyboard. Think about the power of insmod a keyboard driver,
-fbcon.o and then insmod vt.o. Talk about having a even smaller kernel
-image to put in a partition. Some devices only have 512K of space to
-place a bootable kernel. As time goes on it is becoming harder and
-harder to do this. Now we can!!!!!!
-
-It just makes me excited thinking about it:-)
-
-> (Think about the current cyber2000fb code, and what happens to other
-> consoles when you fbset 800x600-60 -a and then switch to them to
-> discover you only have a 640x480 window where the characters appear).
-
-This will be fixed and very soon. Trust me. 
-
-P.S
-   currcon is a temporary step to deal with the issue of only one foreground 
-console. It will also GO AWAY as the console system is truly fixed to
-support multiple desktops. Yes I have such a system at home so it is
-possible. The only reason I'm doing it this way is so when I start
-changing the console layer I don't have to rewrite ever single fbdev
-driver. Or do you think I should rework the console layer first.  
-
-
-
+:r ~/patches/v2.5.2-pre11-file_init.diff
+diff -urN v2.5.2/arch/arm/kernel/init_task.c v2.5.2-file_init/arch/arm/kernel/init_task.c
+--- v2.5.2/arch/arm/kernel/init_task.c	Mon Jan 14 22:49:50 2002
++++ v2.5.2-file_init/arch/arm/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -5,6 +5,7 @@
+ #include <linux/fs.h>
+ #include <linux/sched.h>
+ #include <linux/init.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/i386/kernel/init_task.c v2.5.2-file_init/arch/i386/kernel/init_task.c
+--- v2.5.2/arch/i386/kernel/init_task.c	Mon Sep 17 18:29:09 2001
++++ v2.5.2-file_init/arch/i386/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,6 +1,7 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
+ #include <linux/init.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/ia64/kernel/init_task.c v2.5.2-file_init/arch/ia64/kernel/init_task.c
+--- v2.5.2/arch/ia64/kernel/init_task.c	Mon Sep 17 18:29:09 2001
++++ v2.5.2-file_init/arch/ia64/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -9,6 +9,7 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/mips/kernel/init_task.c v2.5.2-file_init/arch/mips/kernel/init_task.c
+--- v2.5.2/arch/mips/kernel/init_task.c	Mon Sep 17 18:29:09 2001
++++ v2.5.2-file_init/arch/mips/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,5 +1,6 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/mips64/kernel/init_task.c v2.5.2-file_init/arch/mips64/kernel/init_task.c
+--- v2.5.2/arch/mips64/kernel/init_task.c	Mon Sep 17 18:29:09 2001
++++ v2.5.2-file_init/arch/mips64/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,5 +1,6 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/parisc/kernel/init_task.c v2.5.2-file_init/arch/parisc/kernel/init_task.c
+--- v2.5.2/arch/parisc/kernel/init_task.c	Mon Sep 17 18:29:09 2001
++++ v2.5.2-file_init/arch/parisc/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,6 +1,7 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
+ #include <linux/init.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/s390/kernel/init_task.c v2.5.2-file_init/arch/s390/kernel/init_task.c
+--- v2.5.2/arch/s390/kernel/init_task.c	Fri Nov  9 16:58:02 2001
++++ v2.5.2-file_init/arch/s390/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/s390x/kernel/init_task.c v2.5.2-file_init/arch/s390x/kernel/init_task.c
+--- v2.5.2/arch/s390x/kernel/init_task.c	Fri Nov  9 16:58:02 2001
++++ v2.5.2-file_init/arch/s390x/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/sh/kernel/init_task.c v2.5.2-file_init/arch/sh/kernel/init_task.c
+--- v2.5.2/arch/sh/kernel/init_task.c	Wed Jan  2 19:32:34 2002
++++ v2.5.2-file_init/arch/sh/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,6 +1,7 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
+ #include <linux/init.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/arch/sparc/kernel/init_task.c v2.5.2-file_init/arch/sparc/kernel/init_task.c
+--- v2.5.2/arch/sparc/kernel/init_task.c	Mon Jan 14 22:49:51 2002
++++ v2.5.2-file_init/arch/sparc/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,5 +1,6 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+diff -urN v2.5.2/arch/sparc64/kernel/init_task.c v2.5.2-file_init/arch/sparc64/kernel/init_task.c
+--- v2.5.2/arch/sparc64/kernel/init_task.c	Thu Sep 20 17:11:57 2001
++++ v2.5.2-file_init/arch/sparc64/kernel/init_task.c	Mon Jan 14 22:58:58 2002
+@@ -1,5 +1,6 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <linux/init_task.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+diff -urN v2.5.2/drivers/usb/storage/usb.c v2.5.2-file_init/drivers/usb/storage/usb.c
+--- v2.5.2/drivers/usb/storage/usb.c	Mon Jan 14 22:49:52 2002
++++ v2.5.2-file_init/drivers/usb/storage/usb.c	Mon Jan 14 22:58:58 2002
+@@ -314,9 +314,6 @@
+ 	 * This thread doesn't need any user-level access,
+ 	 * so get rid of all our resources..
+ 	 */
+-	exit_files(current);
+-	current->files = init_task.files;
+-	atomic_inc(&current->files->count);
+ 	daemonize();
+ 
+ 	/* set our name for identification purposes */
+diff -urN v2.5.2/fs/fcntl.c v2.5.2-file_init/fs/fcntl.c
+--- v2.5.2/fs/fcntl.c	Mon Sep 17 16:16:30 2001
++++ v2.5.2-file_init/fs/fcntl.c	Mon Jan 14 22:58:58 2002
+@@ -20,6 +20,28 @@
+ extern int fcntl_setlease(unsigned int fd, struct file *filp, long arg);
+ extern int fcntl_getlease(struct file *filp);
+ 
++void set_close_on_exec(unsigned int fd, int flag)
++{
++	struct files_struct *files = current->files;
++	write_lock(&files->file_lock);
++	if (flag)
++		FD_SET(fd, files->close_on_exec);
++	else
++		FD_CLR(fd, files->close_on_exec);
++	write_unlock(&files->file_lock);
++}
++
++static inline int get_close_on_exec(unsigned int fd)
++{
++	struct files_struct *files = current->files;
++	int res;
++	read_lock(&files->file_lock);
++	res = FD_ISSET(fd, files->close_on_exec);
++	read_unlock(&files->file_lock);
++	return res;
++}
++
++
+ /* Expand files.  Return <0 on error; 0 nothing done; 1 files expanded,
+  * we may have blocked. 
+  *
+diff -urN v2.5.2/fs/file.c v2.5.2-file_init/fs/file.c
+--- v2.5.2/fs/file.c	Fri Feb  9 14:29:44 2001
++++ v2.5.2-file_init/fs/file.c	Mon Jan 14 22:58:58 2002
+@@ -11,6 +11,7 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <linux/file.h>
+ 
+ #include <asm/bitops.h>
+ 
+diff -urN v2.5.2/fs/proc/array.c v2.5.2-file_init/fs/proc/array.c
+--- v2.5.2/fs/proc/array.c	Mon Jan 14 22:49:53 2002
++++ v2.5.2-file_init/fs/proc/array.c	Mon Jan 14 22:58:58 2002
+@@ -70,6 +70,7 @@
+ #include <linux/smp.h>
+ #include <linux/signal.h>
+ #include <linux/highmem.h>
++#include <linux/file.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/include/linux/file.h v2.5.2-file_init/include/linux/file.h
+--- v2.5.2/include/linux/file.h	Mon Jan 14 22:49:53 2002
++++ v2.5.2-file_init/include/linux/file.h	Mon Jan 14 22:58:58 2002
+@@ -5,31 +5,39 @@
+ #ifndef __LINUX_FILE_H
+ #define __LINUX_FILE_H
+ 
+-#include <linux/sched.h>
++#ifndef _LINUX_POSIX_TYPES_H	/* __FD_CLR */
++#include <linux/posix_types.h>
++#endif
++#ifndef __LINUX_COMPILER_H	/* unlikely */
++#include <linux/compiler.h>
++#endif
++
++/*
++ * The default fd array needs to be at least BITS_PER_LONG,
++ * as this is the granularity returned by copy_fdset().
++ */
++#define NR_OPEN_DEFAULT BITS_PER_LONG
++
++/*
++ * Open file table structure
++ */
++struct files_struct {
++        atomic_t count;
++        rwlock_t file_lock;     /* Protects all the below members.  Nests inside tsk->alloc_lock */
++        int max_fds;
++        int max_fdset;
++        int next_fd;
++        struct file ** fd;      /* current fd array */
++        fd_set *close_on_exec;
++        fd_set *open_fds;
++        fd_set close_on_exec_init;
++        fd_set open_fds_init;
++        struct file * fd_array[NR_OPEN_DEFAULT];
++};
+ 
+ extern void FASTCALL(fput(struct file *));
+ extern struct file * FASTCALL(fget(unsigned int fd));
+- 
+-static inline int get_close_on_exec(unsigned int fd)
+-{
+-	struct files_struct *files = current->files;
+-	int res;
+-	read_lock(&files->file_lock);
+-	res = FD_ISSET(fd, files->close_on_exec);
+-	read_unlock(&files->file_lock);
+-	return res;
+-}
+-
+-static inline void set_close_on_exec(unsigned int fd, int flag)
+-{
+-	struct files_struct *files = current->files;
+-	write_lock(&files->file_lock);
+-	if (flag)
+-		FD_SET(fd, files->close_on_exec);
+-	else
+-		FD_CLR(fd, files->close_on_exec);
+-	write_unlock(&files->file_lock);
+-}
++extern void FASTCALL(set_close_on_exec(unsigned int fd, int flag));
+ 
+ static inline struct file * fcheck_files(struct files_struct *files, unsigned int fd)
+ {
+@@ -43,15 +51,7 @@
+ /*
+  * Check whether the specified fd has an open file.
+  */
+-static inline struct file * fcheck(unsigned int fd)
+-{
+-	struct file * file = NULL;
+-	struct files_struct *files = current->files;
+-
+-	if (fd < files->max_fds)
+-		file = files->fd[fd];
+-	return file;
+-}
++#define fcheck(fd)	fcheck_files(current->files, fd)
+ 
+ extern void put_filp(struct file *);
+ 
+@@ -59,19 +59,18 @@
+ 
+ static inline void __put_unused_fd(struct files_struct *files, unsigned int fd)
+ {
+-	FD_CLR(fd, files->open_fds);
++	__FD_CLR(fd, files->open_fds);
+ 	if (fd < files->next_fd)
+ 		files->next_fd = fd;
+ }
+ 
+-static inline void put_unused_fd(unsigned int fd)
++static inline void put_unused_fd_files(struct files_struct *files, unsigned int fd)
+ {
+-	struct files_struct *files = current->files;
+-
+ 	write_lock(&files->file_lock);
+ 	__put_unused_fd(files, fd);
+ 	write_unlock(&files->file_lock);
+ }
++#define put_unused_fd(fd) put_unused_fd_files(current->files, fd)
+ 
+ /*
+  * Install a file pointer in the fd array.  
+@@ -86,16 +85,16 @@
+  * will follow.
+  */
+ 
+-static inline void fd_install(unsigned int fd, struct file * file)
++static inline void fd_install_files(struct files_struct *files, 
++				    unsigned int fd, struct file * file)
+ {
+-	struct files_struct *files = current->files;
+-	
+ 	write_lock(&files->file_lock);
+-	if (files->fd[fd])
++	if (unlikely(files->fd[fd] != NULL))
+ 		BUG();
+ 	files->fd[fd] = file;
+ 	write_unlock(&files->file_lock);
+ }
++#define fd_install(fd, file)	fd_install_files(current->files, fd, file)
+ 
+ void put_files_struct(struct files_struct *fs);
+ 
+diff -urN v2.5.2/include/linux/init_task.h v2.5.2-file_init/include/linux/init_task.h
+--- v2.5.2/include/linux/init_task.h	Wed Dec 31 19:00:00 1969
++++ v2.5.2-file_init/include/linux/init_task.h	Mon Jan 14 22:58:58 2002
+@@ -0,0 +1,88 @@
++#ifndef _LINUX__INIT_TASK_H
++#define _LINUX__INIT_TASK_H
++
++#ifndef __LINUX_FILE_H
++#include <linux/file.h>
++#endif
++
++#define INIT_FILES \
++{ 							\
++	count:		ATOMIC_INIT(1), 		\
++	file_lock:	RW_LOCK_UNLOCKED, 		\
++	max_fds:	NR_OPEN_DEFAULT, 		\
++	max_fdset:	__FD_SETSIZE, 			\
++	next_fd:	0, 				\
++	fd:		&init_files.fd_array[0], 	\
++	close_on_exec:	&init_files.close_on_exec_init, \
++	open_fds:	&init_files.open_fds_init, 	\
++	close_on_exec_init: { { 0, } }, 		\
++	open_fds_init:	{ { 0, } }, 			\
++	fd_array:	{ NULL, } 			\
++}
++
++#define INIT_MM(name) \
++{			 				\
++	mm_rb:		RB_ROOT,			\
++	pgd:		swapper_pg_dir, 		\
++	mm_users:	ATOMIC_INIT(2), 		\
++	mm_count:	ATOMIC_INIT(1), 		\
++	mmap_sem:	__RWSEM_INITIALIZER(name.mmap_sem), \
++	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
++	mmlist:		LIST_HEAD_INIT(name.mmlist),	\
++}
++
++#define INIT_SIGNALS {	\
++	count:		ATOMIC_INIT(1), 		\
++	action:		{ {{0,}}, }, 			\
++	siglock:	SPIN_LOCK_UNLOCKED 		\
++}
++
++/*
++ *  INIT_TASK is used to set up the first task table, touch at
++ * your own risk!. Base=0, limit=0x1fffff (=2MB)
++ */
++#define INIT_TASK(tsk)	\
++{									\
++    state:		0,						\
++    flags:		0,						\
++    sigpending:		0,						\
++    addr_limit:		KERNEL_DS,					\
++    exec_domain:	&default_exec_domain,				\
++    lock_depth:		-1,						\
++    __nice:		DEF_USER_NICE,					\
++    policy:		SCHED_OTHER,					\
++    cpus_allowed:	-1,						\
++    mm:			NULL,						\
++    active_mm:		&init_mm,					\
++    run_list:		LIST_HEAD_INIT(tsk.run_list),			\
++    time_slice:		PRIO_TO_TIMESLICE(DEF_PRIO),			\
++    next_task:		&tsk,						\
++    prev_task:		&tsk,						\
++    p_opptr:		&tsk,						\
++    p_pptr:		&tsk,						\
++    thread_group:	LIST_HEAD_INIT(tsk.thread_group),		\
++    wait_chldexit:	__WAIT_QUEUE_HEAD_INITIALIZER(tsk.wait_chldexit),\
++    real_timer:		{						\
++	function:		it_real_fn				\
++    },									\
++    cap_effective:	CAP_INIT_EFF_SET,				\
++    cap_inheritable:	CAP_INIT_INH_SET,				\
++    cap_permitted:	CAP_FULL_SET,					\
++    keep_capabilities:	0,						\
++    rlim:		INIT_RLIMITS,					\
++    user:		INIT_USER,					\
++    comm:		"swapper",					\
++    thread:		INIT_THREAD,					\
++    fs:			&init_fs,					\
++    files:		&init_files,					\
++    sigmask_lock:	SPIN_LOCK_UNLOCKED,				\
++    sig:		&init_signals,					\
++    pending:		{ NULL, &tsk.pending.head, {{0}}},		\
++    blocked:		{{0}},						\
++    alloc_lock:		SPIN_LOCK_UNLOCKED,				\
++    journal_info:	NULL,						\
++}
++
++
++
++#endif
+diff -urN v2.5.2/include/linux/sched.h v2.5.2-file_init/include/linux/sched.h
+--- v2.5.2/include/linux/sched.h	Mon Jan 14 22:49:53 2002
++++ v2.5.2-file_init/include/linux/sched.h	Mon Jan 14 23:00:50 2002
+@@ -156,44 +156,7 @@
+ extern int start_context_thread(void);
+ extern int current_is_keventd(void);
+ 
+-/*
+- * The default fd array needs to be at least BITS_PER_LONG,
+- * as this is the granularity returned by copy_fdset().
+- */
+-#define NR_OPEN_DEFAULT BITS_PER_LONG
+-
+ struct namespace;
+-/*
+- * Open file table structure
+- */
+-struct files_struct {
+-	atomic_t count;
+-	rwlock_t file_lock;	/* Protects all the below members.  Nests inside tsk->alloc_lock */
+-	int max_fds;
+-	int max_fdset;
+-	int next_fd;
+-	struct file ** fd;	/* current fd array */
+-	fd_set *close_on_exec;
+-	fd_set *open_fds;
+-	fd_set close_on_exec_init;
+-	fd_set open_fds_init;
+-	struct file * fd_array[NR_OPEN_DEFAULT];
+-};
+-
+-#define INIT_FILES \
+-{ 							\
+-	count:		ATOMIC_INIT(1), 		\
+-	file_lock:	RW_LOCK_UNLOCKED, 		\
+-	max_fds:	NR_OPEN_DEFAULT, 		\
+-	max_fdset:	__FD_SETSIZE, 			\
+-	next_fd:	0, 				\
+-	fd:		&init_files.fd_array[0], 	\
+-	close_on_exec:	&init_files.close_on_exec_init, \
+-	open_fds:	&init_files.open_fds_init, 	\
+-	close_on_exec_init: { { 0, } }, 		\
+-	open_fds_init:	{ { 0, } }, 			\
+-	fd_array:	{ NULL, } 			\
+-}
+ 
+ /* Maximum number of active map areas.. This is a random (large) number */
+ #define MAX_MAP_COUNT	(65536)
+@@ -230,17 +193,6 @@
+ 
+ extern int mmlist_nr;
+ 
+-#define INIT_MM(name) \
+-{			 				\
+-	mm_rb:		RB_ROOT,			\
+-	pgd:		swapper_pg_dir, 		\
+-	mm_users:	ATOMIC_INIT(2), 		\
+-	mm_count:	ATOMIC_INIT(1), 		\
+-	mmap_sem:	__RWSEM_INITIALIZER(name.mmap_sem), \
+-	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
+-	mmlist:		LIST_HEAD_INIT(name.mmlist),	\
+-}
+-
+ struct signal_struct {
+ 	atomic_t		count;
+ 	struct k_sigaction	action[_NSIG];
+@@ -248,12 +200,6 @@
+ };
+ 
+ 
+-#define INIT_SIGNALS {	\
+-	count:		ATOMIC_INIT(1), 		\
+-	action:		{ {{0,}}, }, 			\
+-	siglock:	SPIN_LOCK_UNLOCKED 		\
+-}
+-
+ /*
+  * Some day this will be a full-fledged user tracking system..
+  */
+@@ -505,53 +451,6 @@
+  */
+ extern struct exec_domain	default_exec_domain;
+ 
+-/*
+- *  INIT_TASK is used to set up the first task table, touch at
+- * your own risk!. Base=0, limit=0x1fffff (=2MB)
+- */
+-#define INIT_TASK(tsk)	\
+-{									\
+-    state:		0,						\
+-    flags:		0,						\
+-    sigpending:		0,						\
+-    addr_limit:		KERNEL_DS,					\
+-    exec_domain:	&default_exec_domain,				\
+-    lock_depth:		-1,						\
+-    __nice:		DEF_USER_NICE,					\
+-    policy:		SCHED_OTHER,					\
+-    cpus_allowed:	-1,						\
+-    mm:			NULL,						\
+-    active_mm:		&init_mm,					\
+-    run_list:		LIST_HEAD_INIT(tsk.run_list),			\
+-    time_slice:		PRIO_TO_TIMESLICE(DEF_PRIO),			\
+-    next_task:		&tsk,						\
+-    prev_task:		&tsk,						\
+-    p_opptr:		&tsk,						\
+-    p_pptr:		&tsk,						\
+-    thread_group:	LIST_HEAD_INIT(tsk.thread_group),		\
+-    wait_chldexit:	__WAIT_QUEUE_HEAD_INITIALIZER(tsk.wait_chldexit),\
+-    real_timer:		{						\
+-	function:		it_real_fn				\
+-    },									\
+-    cap_effective:	CAP_INIT_EFF_SET,				\
+-    cap_inheritable:	CAP_INIT_INH_SET,				\
+-    cap_permitted:	CAP_FULL_SET,					\
+-    keep_capabilities:	0,						\
+-    rlim:		INIT_RLIMITS,					\
+-    user:		INIT_USER,					\
+-    comm:		"swapper",					\
+-    thread:		INIT_THREAD,					\
+-    fs:			&init_fs,					\
+-    files:		&init_files,					\
+-    sigmask_lock:	SPIN_LOCK_UNLOCKED,				\
+-    sig:		&init_signals,					\
+-    pending:		{ NULL, &tsk.pending.head, {{0}}},		\
+-    blocked:		{{0}},						\
+-    alloc_lock:		SPIN_LOCK_UNLOCKED,				\
+-    journal_info:	NULL,						\
+-}
+-
+-
+ #ifndef INIT_TASK_SIZE
+ # define INIT_TASK_SIZE	2048*sizeof(long)
+ #endif
+diff -urN v2.5.2/kernel/exit.c v2.5.2-file_init/kernel/exit.c
+--- v2.5.2/kernel/exit.c	Mon Jan 14 22:49:53 2002
++++ v2.5.2-file_init/kernel/exit.c	Mon Jan 14 22:58:58 2002
+@@ -17,6 +17,7 @@
+ #ifdef CONFIG_BSD_PROCESS_ACCT
+ #include <linux/acct.h>
+ #endif
++#include <linux/file.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+diff -urN v2.5.2/kernel/fork.c v2.5.2-file_init/kernel/fork.c
+--- v2.5.2/kernel/fork.c	Mon Jan 14 22:49:53 2002
++++ v2.5.2-file_init/kernel/fork.c	Mon Jan 14 22:58:58 2002
+@@ -21,6 +21,7 @@
+ #include <linux/completion.h>
+ #include <linux/namespace.h>
+ #include <linux/personality.h>
++#include <linux/file.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+diff -urN v2.5.2/kernel/kmod.c v2.5.2-file_init/kernel/kmod.c
+--- v2.5.2/kernel/kmod.c	Mon Jan 14 22:49:53 2002
++++ v2.5.2-file_init/kernel/kmod.c	Mon Jan 14 22:58:58 2002
+@@ -27,6 +27,7 @@
+ #include <linux/slab.h>
+ #include <linux/namespace.h>
+ #include <linux/completion.h>
++#include <linux/file.h>
+ 
+ #include <asm/uaccess.h>
+ 

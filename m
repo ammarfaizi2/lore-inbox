@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317885AbSFMWJw>; Thu, 13 Jun 2002 18:09:52 -0400
+	id <S317884AbSFMWKC>; Thu, 13 Jun 2002 18:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317883AbSFMWJv>; Thu, 13 Jun 2002 18:09:51 -0400
-Received: from server3.jumpleads.com ([217.151.96.171]:62169 "EHLO
-	server3.jumpleads.com") by vger.kernel.org with ESMTP
-	id <S317881AbSFMWJr>; Thu, 13 Jun 2002 18:09:47 -0400
-Date: Thu, 13 Jun 2002 23:09:44 +0100 (BST)
-From: Matthew Wakeling <mnw21@bigfoot.com>
-X-X-Sender: mnw21@server3.jumpleads.com
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: BugTraq Mailing List <bugtraq@securityfocus.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Very large font size crashing X Font Server and Grounding Server
- to a Halt (was: remote DoS in Mozilla 1.0)
-In-Reply-To: <200206132147.QAA20200@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.44.0206132255220.4999-100000@server3.jumpleads.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317887AbSFMWJ6>; Thu, 13 Jun 2002 18:09:58 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:26131 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317881AbSFMWJw>; Thu, 13 Jun 2002 18:09:52 -0400
+Message-Id: <200206132209.g5DM9kF25073@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: James Bottomley <James.Bottomley@SteelEye.com>, axboe@suse.de,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Proposed changes to generic blk tag for use in SCSI (1/3) 
+In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
+   of "Thu, 13 Jun 2002 17:50:19 EDT." <20020613175019.A4515@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Jun 2002 18:09:46 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dledford@redhat.com said:
+> This I'm not following.  If you get a QUEUE_FULL from the adaptec
+> driver,  then the commands you are pushing back should still be tagged
+> and no stall  should be required beyond just waiting for any
+> outstanding command on the  drive to complete or for a timeout to
+> pass.  It should not require any  untagged type stall where you have
+> to drain the entire pipeline... 
 
-On Thu, 13 Jun 2002, Jesse Pollard wrote:
-> > It is my experience that a single process using large amounts of memory 
-> > causes the system to start swapping. Once it starts swapping, every 
-> > process that does anything (apart from indefinite wait) goes into "I'm 
-> > ready to do some processing, but my memory is swapped out" state, and the 
-> > whole system collapses.
-> 
-> Not necessarily. The condition can also be caused by having a large, well
-> behaved process working its' little heart out properly, and a small process
-> that grows suddenly (or even slowly - it doesn't take much to push it over
-> the limit). As the small process grows, the larger one is paged out. Once
-> the swap space is filled just adding one more page could do it. And it doesn't
-> matter what process allocates that page. Key: disable oversubscription of
-> memory.
+Ah, but that was the problem in the blk generic tagging.  only requests of 
+type REQ_CMD get tagged, so say the SD driver gets a block read request as a 
+REQ_CMD, translates it into a SCSI READ, sends it through the mid-layer to the 
+low layer driver which requests a block layer tag but eventually responds 
+QUEUE_FULL.  Now the command gets pushed back to the blk queue head as a 
+REQ_SPECIAL (and as part of the push back, we have to finish the tag since 
+command moves from the tag queue to the blk queue), which to the scsi mid 
+layer means request with already formulated SCSI command so don't go back 
+through the upper layer driver again.  The problem is that when this command 
+comes back again into the scsi mid layer for execution it would now do so as 
+an untagged command because the blk_queue_start_tag() code will only tag 
+REQ_CMD requests, and hence we get a queue stall every time the low level 
+driver responds QUEUE_FULL.
 
-Can we at least agree that the current kernel behaviour is a positive 
-feedback loop - something is bad, therefore it's about to get worse. Some 
-of the suggestions I had would move this more towards a negative feedback 
-loop.
+This was the behaviour (in the blk layer) I was objecting to---on the second 
+go around, we request a tag using blk_queue_start_tag() but get denied because 
+the request isn't of the correct type---and why I think the 
+blk_generic_start_tag() needs to allow REQ_SPECIAL requests to be tagged.
 
-> It can't decide what causes the problem. There are too may possibilities.
+> I would think that, eventually, the bio layer will support I/O fencing
+> via  tagged commands (aka, ext3 needs an I/O fence and the bio layer
+> does as  needed to enforce that, which on scsi may mean an ordered
+> queue tag is  generated instead of a regular tag and on IDE it may
+> mean something else).   It will have to be able to tell that some of
+> these conditions have been  satisfied in those cases, so I see no
+> reason why it shouldn't be made  aware of them now.  Just my $.02 
 
-I think the majority of times a system will be set up with enough swap 
-space to handle its normal operation. Otherwise, just give it some more 
-swap. However, one circumstance that throwing lots of swap around doesn't 
-fix is when a process has an insatiable need for memory. In this case, 
-either the process grows very quickly, or is just plain big. I think the 
-out-of-memory killer should target big or growing processes. If it doesn't 
-hit the correct process the first time, it will free up a lot more RAM 
-than it would otherwise, and it would be likely to get it right the second 
-time.
+I've actually already put this code into the mid layer patch (the 
+scsi_populate_tag_msg() function in scsi.h) to generate an ordered tag for the 
+case where the request is marked REQ_BARRIER.
 
-> > My suggestion would be to set a maximum core size for the xfs-daemon 
-> > process...
-> 
-> Also put a maximum limit on the X server.
-
-Although this wasn't the problem in this case (and therefore wouldn't have 
-a massive effect), it's a sensible precaution.
-
-The xfs server is the important server here, because DOSing it DOSes a 
-whole network of workstations.
-
-> The easiest fix is to disable oversubscription of memory, though that may
-> cause some daemons to abort if they don't check for allocation failures
-> (which I do consider a bug).
-
-That does indeed sound a good idea. I guess one would then give the system 
-one big dollop of swap, to allow it to actually cater for processes that 
-allocate large amounts without using it.
-
-Matthew
-
--- 
-Bashir:  And who told you that?
-O'Brien: You did. In the future.
-Bashir:  Oh. Well, who am I to argue with me?
+James
 
 

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267232AbTAFWBT>; Mon, 6 Jan 2003 17:01:19 -0500
+	id <S267160AbTAFWQ4>; Mon, 6 Jan 2003 17:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267233AbTAFWBS>; Mon, 6 Jan 2003 17:01:18 -0500
-Received: from chunk.voxel.net ([207.99.115.133]:32394 "EHLO chunk.voxel.net")
-	by vger.kernel.org with ESMTP id <S267232AbTAFWBR>;
-	Mon, 6 Jan 2003 17:01:17 -0500
-Date: Mon, 6 Jan 2003 17:09:56 -0500
-From: Andres Salomon <dilinger@voxel.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.54 atyfb_base.c compile fix
-Message-ID: <20030106220956.GA32140@chunk.voxel.net>
-References: <pan.2003.01.02.06.30.55.638527@voxel.net> <Pine.LNX.4.44.0301062149550.31831-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301062149550.31831-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux chunk 2.4.18-ac3 
+	id <S267164AbTAFWQ4>; Mon, 6 Jan 2003 17:16:56 -0500
+Received: from algx-tower-com-4173.z188-2-66.customer.algx.net ([66.2.188.62]:35501
+	"EHLO neon.limebrokerage.com") by vger.kernel.org with ESMTP
+	id <S267160AbTAFWQz>; Mon, 6 Jan 2003 17:16:55 -0500
+Date: Mon, 6 Jan 2003 17:25:31 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix starfire compiler warning on PAE
+In-Reply-To: <41340000.1041889554@flay>
+Message-ID: <Pine.LNX.4.44.0301061721260.22375-100000@guppy.limebrokerage.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cool.  Now if only atyfb didn't completely mess up my console in 2.4 and
-2.5, on my Dell Inspiron 3800 (Rage Mobility P/M, AGP 2x)..
+On Mon, 6 Jan 2003, Martin J. Bligh wrote:
 
-I have too many other projects I'm working on right now to dedicate a
-lot of time trying to fix it, but if you had suggestions for what to
-try, I'd appreciate it.
-
-Simply loading the atyfb module, without any args, causes the screen to
-go blank.  I can see the cursor blinking, but I can't see any text
-output.
-
-On Mon, Jan 06, 2003 at 09:50:04PM +0000, James Simmons wrote:
-> From: James Simmons <jsimmons@infradead.org>
-> To: Andres Salomon <dilinger@voxel.net>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] 2.5.54 atyfb_base.c compile fix
+> > A few of these are mostly normal, it's the card signalling the driver that 
+> > it is getting a Tx fifo underrun, and the driver responds by increasing 
+> > the threshold at which the card starts transmitting the packet.
 > 
-> 
-> Applied.
+> Can we not print them onto the console if they're normal then?
+
+They're only semi-normal, since they signal some unusual contention on the
+PCI bus... but yeah, I guess we could lower their priority to KERN_INFO.
+
+> I think the card took itself offline at this point, so it smells like a bug.
+> That's only been happening recently though (I've only noticed in the last
+> week from a year or two of use).
+
+I could definitely be a bug (known or not). Anyway, it would be good to 
+test it with the latest version of the driver.
+
+> Sure, send me the patch, these boxes bring out races like dying rich aunts
+> bring out friendly relatives. And I have a cabinet drawer full of starfire
+> cards ;-)
+
+All right, I'll forward it off-list.
+
+Thanks,
+Ion
 
 -- 
-It's not denial.  I'm just selective about the reality I accept.
-	-- Bill Watterson
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

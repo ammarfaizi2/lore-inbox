@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbULJTii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbULJTnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbULJTii (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 14:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJTih
+	id S261802AbULJTnH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 14:43:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbULJTnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 14:38:37 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:49602 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261807AbULJTid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 14:38:33 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-X-Message-Flag: Warning: May contain useful information
-References: <20041210005055.GA17822@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 10 Dec 2004 11:38:31 -0800
-In-Reply-To: <20041210005055.GA17822@kroah.com> (Greg KH's message of "Thu,
- 9 Dec 2004 16:50:56 -0800")
-Message-ID: <52brd29c5k.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Fri, 10 Dec 2004 14:43:06 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10994 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261802AbULJTnC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 14:43:02 -0500
+Message-ID: <41B9FC3F.50601@mvista.com>
+Date: Fri, 10 Dec 2004 11:42:55 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [RFC PATCH] debugfs - yet another in-kernel file system
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 10 Dec 2004 19:38:32.0139 (UTC) FILETIME=[D4C421B0:01C4DEEF]
+To: dipankar@in.ibm.com
+CC: ganzinger@mvista.com, Manfred Spraul <manfred@colorfullife.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RCU question
+References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>
+In-Reply-To: <20041210043102.GC4161@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> p.s. I think the recently posted infiband driver can take
-    Greg> advantage of this fs instead of having to create it's own
-    Greg> debug filesystem.
+Dipankar Sarma wrote:
+> On Thu, Dec 09, 2004 at 03:59:45PM -0800, George Anzinger wrote:
+> 
+>>I am working on VST code.  This code is called from the idle loop to check 
+>>for future timers.  It then sets up a timer to interrupt in time to handle 
+>>the nearest timer and turns off the time base interrupt source.  As part of 
+>>qualifying the entry to this state I want to make sure there is no pending 
+>>work so, from the idle task I have this:
+>>
+>>	if (local_softirq_pending())
+>>		do_softirq();
+>>
+>>	BUG_ON(local_softirq_pending());
+>>
+>>I did not really expect to find any pending softirqs, but, not only are 
+>>there some, they don't go away and the system BUGs.  The offender is the 
+>>RCU task. The question is: is this normal or is there something wrong?
+> 
+> 
+> Why do you think there would not be any softirq pending after do_softirq() ?
+> What if the cpu gets a network interrupt which raises a softirq ?
 
-Yes, if this gets merged, I'll convert the "ipoib_debugfs" in the
-OpenIB drivers to just use debugfs stuff.
+Yes, but it is serviced on interrupt exit and the task level code would never 
+see it.
 
-Thanks,
-  Roland
+> And yes, RCU processing in softirq context can re-raise the softirq.
+> AFAICS, it is perfectly normal.
+
+My assumption was that, this being the idle task, RCU would be more than happy 
+to finish all its pending tasks.
+
+It may be necessary for me to rethink the conditions required to go into the VST 
+state.  I had assumed that it required NO softirq pending as a pre condition. 
+ From this point on we would have the interrupt system off until the hardware 
+sleep instruction (hlt in the x86 case).
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318925AbSHEWo4>; Mon, 5 Aug 2002 18:44:56 -0400
+	id <S318913AbSHEWnQ>; Mon, 5 Aug 2002 18:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318926AbSHEWoz>; Mon, 5 Aug 2002 18:44:55 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:33038 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318925AbSHEWoy>; Mon, 5 Aug 2002 18:44:54 -0400
-Date: Tue, 6 Aug 2002 00:48:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
-In-Reply-To: <200208052212.g75MCrN17655@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0208060034260.28515-100000@serv>
+	id <S318915AbSHEWnQ>; Mon, 5 Aug 2002 18:43:16 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:43789 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S318913AbSHEWnP>; Mon, 5 Aug 2002 18:43:15 -0400
+Date: Tue, 6 Aug 2002 00:46:50 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Chris Mason <mason@suse.com>
+Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs blocks long on getdents64() during concurrent write
+In-Reply-To: <1028585680.24117.295.camel@tiny>
+Message-ID: <Pine.LNX.4.44.0208060030150.1357-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 5 Aug 2002, Chris Mason wrote:
 
-On Mon, 5 Aug 2002, Richard Gooch wrote:
+> 01-relocation-4 deals with allowing reiserfs to use an external logging
+> device.  It isn't related to your problem, but 02-commit_super-8 is
+> diffed against it.
+> 
+> 02-commit_super-8 does two things.  First it changes sync_supers() so
+> that it won't loop on a single filesystem while it's super is dirty. 
+> Before, if kupdate triggered a write_super call, and another FS writer
+> redirtied the super after write_super cleared it (but before it
+> returned), write_super gets called a second time.  Since a commit was
+> done for each write_super call, that gets expensive quickly.
+> 
+> Second, the patch adds a commit_super call, and changes sync() to use
+> that instead of write_super.  This allows the FS to skip the commit when
+> write_super is called.
+> 
+> This does lead to fewer commits and longer running transactions, but
+> does not increase the amount of time it takes the write() call to
+> complete.  It does increase the time between when you make a metadata
+> change and when that change actually goes to the disk.  
+> 
+Ahh, thanks! This sounds like a good idea to me, hopefully your patch will 
+be accepted despite the fact that Alan is busy doing other things ;-)
 
-> > > Yes. RTFS.
-> >
-> > I'm trying - without getting headache.
->
-> Take a valium.
+Coming back to the issue: applying these patches increased the throughput
+by about 20% :-) Now it takes about 100sec instead of 120sec to write a
+2GB file. Tomorrow I will try it without the write_times part, to see how 
+much that does.
 
-Staying away from devfs sources is cheaper.
+But more important: the hiccups are more seldom and sometimes shorter than 
+before. With plain 2.4.19 I would hit it about twice per minute (I have 
+not measured it), now it happens only after two minutes when writing 1M 
+chunks at 20MB/s. The longest seen so far was also about 4 seconds, 
+though.
 
-> > In the "devfs=only" case, where is the module count incremented, when a
-> > block device is opened?
->
-> The module count is incremented when the device is opened,
-> irrespective of whether it's a character or block device, or even a
-> "regular" file.
+Ciao,
+					Roland
 
-Would you please answer my question and tell me where that exactly
-happens in that case?
-
-> > > No. I leverage fops_get(), a common function.
-> >
-> > Which is also insufficiently protected.
->
-> Incorrect.
-
-What protects the module from unloading from getting the ops pointer until
-try_inc_mod_count()?
-
-bye, Roman
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 

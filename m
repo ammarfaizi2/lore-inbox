@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317323AbSFGTL5>; Fri, 7 Jun 2002 15:11:57 -0400
+	id <S317317AbSFGTLx>; Fri, 7 Jun 2002 15:11:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317326AbSFGTL4>; Fri, 7 Jun 2002 15:11:56 -0400
+	id <S317323AbSFGTLw>; Fri, 7 Jun 2002 15:11:52 -0400
 Received: from [195.39.17.254] ([195.39.17.254]:13985 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317323AbSFGTLz>;
-	Fri, 7 Jun 2002 15:11:55 -0400
-Date: Fri, 7 Jun 2002 13:01:45 +0200
+	by vger.kernel.org with ESMTP id <S317317AbSFGTLw>;
+	Fri, 7 Jun 2002 15:11:52 -0400
+Date: Fri, 7 Jun 2002 13:38:42 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Cleanup i386 <linux/init.h> abuses
-Message-ID: <20020607110145.GA9975@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com> <20020605163614.GF1335@opus.bloom.county>
+To: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+        Andrew Grover <andrew.grover@intel.com>
+Subject: uCleanup in acpi
+Message-ID: <20020607113841.GA1343@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,30 +23,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> The following patch cleans up the i386 usage of <linux/init.h>.
-> This remove <linux/init.h> from <asm-i386/system.h> which did not need
-> it, <asm-i386/highmem.h> which only had it due to an extern using
-> __init, which is not needed.
-> This adds <linux/init.h> to <asm-i386/bugs.h> which actually has
-> numerous __init functions and adds <linux/init.h> to 9 files inside of
-> arch/i386 which were indirectly including <linux/init.h> previously.
+No need to have *two* define_bools.
 
+(BTW how do I tell system not to use acpi boot? It dies on boot on one
+machine with ACPI turned on, before printk() works...)
 
-@@ -33,7 +32,7 @@
- extern pgprot_t kmap_prot;
- extern pte_t *pkmap_page_table;
+Andrew, please apply.
+								Pavel
 
--extern void kmap_init(void) __init;
-+extern void kmap_init(void);
-
- /*
-  * Right now we initialize only a single pte table. It can be
-extended
-
-
-__init is usefull as a documentation... Perhaps adding /* This is
-__init function */ would be good.
-									Pavel
+--- clean/drivers/acpi/Config.in	Mon Jun  3 11:43:29 2002
++++ linux-swsusp/drivers/acpi/Config.in	Fri Jun  7 13:37:13 2002
+@@ -12,10 +12,9 @@
+       bool         'CPU Enumeration Only' CONFIG_ACPI_HT_ONLY
+     fi
+ 
+-    if [ "$CONFIG_ACPI_HT_ONLY" = "y" ]; then
+-      define_bool CONFIG_ACPI_BOOT		y
+-    else
+-      define_bool CONFIG_ACPI_BOOT		y
++    define_bool CONFIG_ACPI_BOOT		y
++
++    if [ "$CONFIG_ACPI_HT_ONLY" != "y" ]; then
+       define_bool CONFIG_ACPI_BUS		y
+       define_bool CONFIG_ACPI_INTERPRETER	y
+       define_bool CONFIG_ACPI_EC		y
 
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

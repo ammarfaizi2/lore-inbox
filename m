@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbSKDPJP>; Mon, 4 Nov 2002 10:09:15 -0500
+	id <S264711AbSKDPZG>; Mon, 4 Nov 2002 10:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264700AbSKDPJP>; Mon, 4 Nov 2002 10:09:15 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:53701 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S264699AbSKDPJO> convert rfc822-to-8bit; Mon, 4 Nov 2002 10:09:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: Filesystem Capabilities in 2.6?
-Date: Mon, 4 Nov 2002 09:13:45 -0600
-User-Agent: KMail/1.4.1
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <davej@suse.de>
-References: <Pine.LNX.4.44.0211022040140.2541-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0211022040140.2541-100000@home.transmeta.com>
+	id <S264712AbSKDPZG>; Mon, 4 Nov 2002 10:25:06 -0500
+Received: from mhs04ykf.blackberry.net ([206.51.26.234]:62193 "EHLO
+	BlackBerry.NET") by vger.kernel.org with ESMTP id <S264711AbSKDPZF>;
+	Mon, 4 Nov 2002 10:25:05 -0500
+Message-Id: <200211041531.gA4FVYWp026000@BlackBerry.NET>
+Content-type: text/plain
+Date: Mon, 4 Nov 2002 11:31:42 -0400
+From: "Shawn Starr" <shawnstarr@mobile.rogers.com>
+Importance: Normal
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211040913.45549.pollard@admin.navo.hpc.mil>
+Reply-to: "Shawn Starr" <shawnstarr@mobile.rogers.com>
+Subject: Call to rewrite swsusp
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 02 November 2002 10:54 pm, Linus Torvalds wrote:
-> On Sat, 2 Nov 2002, Alexander Viro wrote:
-> > No, that's OK -
-> >
-> > mount --bind /usr/bin/foo.real /usr/bin/foo.real
-> > mount -o remount,nosuid /usr/bin/foo.real
->
-> Ehh. With the nosuid mount that will remove the effectiveness of the suid
-> bit (not just the user change - it will also mask off the elevation of the
-> capabilities), so the bind-mount with the capability mask will now mask
-> off nothing to start with.
->
-> Wouldn't it be much nicer to have:
->
->   /usr/bin/foo - no suid bits, no capabilities by default
->
->   mount --bind --capability=xx,yy /usr/bin/foo /usr/bin/foo
->
-> where the mount actually adds capabilities? Looks more understandable to
-> me.
 
-Only until the file the path name is connected to is replaced. Then the
-trojan suddenly gains the capabilities of the real "foo".
+Talking with some people last night it seems we need to redo the swsusp (driver). From what I've been told and have seen (from the code) it doesn't talk to the generic subsystems (like block layer, network layer etc). From talks with some kernel developers, they tell me we would have to modify all the drivers to properly handle system suspends. Is it not APM/ACPI's job to bring down the system to a stable state when suspending the machine?
 
-Been there done that. That was one of the first security vulnerabilities
-in the VMS implementation of ACLs.
+The swsusp should be asking all the generic subsystems. When the machine is about to be suspended it should flush any read/write buffers, stop processing packets and other things.
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Am I totally wrong on this? :-)
 
-Any opinions expressed are solely my own.
+Shawn.
+Shawn Starr
+Development Systems Support Analyst, Operations
+T: 416-213-2001 ext 179  F: 416-213-2008
+shawn.starr@datawire.net
+www.datawire.net
+"Sent from my Blackberry handheld"

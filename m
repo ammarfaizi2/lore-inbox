@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbSK0Ama>; Tue, 26 Nov 2002 19:42:30 -0500
+	id <S262303AbSK0Aqd>; Tue, 26 Nov 2002 19:46:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbSK0Ama>; Tue, 26 Nov 2002 19:42:30 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:40631 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S262380AbSK0Am3>;
-	Tue, 26 Nov 2002 19:42:29 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: linux-xfs@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: XFS split patches for 2.4.20-rc3
-Date: Wed, 27 Nov 2002 11:49:34 +1100
-Message-ID: <30203.1038358174@kao2.melbourne.sgi.com>
+	id <S262394AbSK0Aqd>; Tue, 26 Nov 2002 19:46:33 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35021 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262303AbSK0Aqc>; Tue, 26 Nov 2002 19:46:32 -0500
+Date: Wed, 27 Nov 2002 01:53:48 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.48
+Message-ID: <20021127005348.GJ21307@fs.tum.de>
+References: <20021126231507.GF21307@fs.tum.de> <Pine.LNX.4.33L2.0211261547450.2873-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0211261547450.2873-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Nov 26, 2002 at 03:49:11PM -0800, Randy.Dunlap wrote:
+> On Wed, 27 Nov 2002, Adrian Bunk wrote:
+>...
+> | -       return err;
+> | +       return err ? : len;
+>...
+> Hi Adrian,
+> 
+> That's a gcc extension that means the same as your patch.  See
+> http://gcc.gnu.org/onlinedocs/gcc-3.2/gcc/Conditionals.html#Conditionals
+>...
 
-Content-Type: text/plain; charset=us-ascii
+Ah, thanks for the correction. I didn't know that there is such a gcc
+extension.
 
-ftp://oss.sgi.com/projects/xfs/download/patches/2.4.20-rc3.
+> ~Randy
 
-For some time the XFS group have been producing split patches for XFS,
-separating the core XFS changes from additional patches such as kdb,
-xattr, acl, dmapi.  The split patches are released to the world with
-the hope that developers and distributors will find them useful.
+cu
+Adrian
 
-Read the README in each directory very carefully, the split patch
-format has changed over a few kernel releases.  Any questions that are
-covered by the README will be ignored.  There is even a 2.4.20/README
-for the terminally impatient :).
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE95BaSi4UHNye0ZOoRAqOkAKCBfxfRTslDkSFK9FEFq/bFZy9OHwCgnR86
-pjQBgZjrBC9ePF5rxYR6NEM=
-=3syT
------END PGP SIGNATURE-----
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

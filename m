@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSE2UJX>; Wed, 29 May 2002 16:09:23 -0400
+	id <S315458AbSE2URL>; Wed, 29 May 2002 16:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSE2UJW>; Wed, 29 May 2002 16:09:22 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:44562 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S315457AbSE2UJV>; Wed, 29 May 2002 16:09:21 -0400
-Date: Wed, 29 May 2002 21:09:10 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: "Christian.Gennerat" <xgen@noos.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel zombie threads after module removal.
-Message-ID: <20020529200908.GA7499@compsoc.man.ac.uk>
-In-Reply-To: <3CF52841.8040507@noos.fr>
+	id <S315459AbSE2URK>; Wed, 29 May 2002 16:17:10 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:55313 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315458AbSE2URJ>; Wed, 29 May 2002 16:17:09 -0400
+Date: Wed, 29 May 2002 21:17:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.19
+Message-ID: <20020529211702.E30585@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *17D9ky-0000Lq-00*Nz6GTfNyOBo* (Manchester Computing, University of Manchester)
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 09:13:05PM +0200, Christian.Gennerat wrote:
+The following change appeared in 2.5.19:
 
-> This is very close to the problem related in 
-> http://lkml.org/archive/2002/2/4/368/index.html
-> but I have no USB. I have SCSI with aha152x_cs.o,
-> and after doing "cardctl eject" that removes the module,
-> the process scsi_eh_0  stays as zombie.
+xx- a/drivers/video/cyber2000fb.c       Wed May 29 11:43:02 2002
+xx+ b/drivers/video/cyber2000fb.c       Wed May 29 11:43:02 2002
+@@ -1729,9 +1729,8 @@
+ }
 
-Add 
+ static struct pci_device_id cyberpro_pci_table[] __devinitdata = {
+-// Not yet
+-//     { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
+-//             PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
++       { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
++               PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
+        { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2000,
+                PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_CYBERPRO_2000 },
+        { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2010,
 
-	reparent_to_init();
+This is completely wrong - the driver has been tested NOT to work on
+the Integraphics 1682.  As such, please do uncomment these lines.
 
-after the call to daemonize() in scsi_error_handler() in
-drivers/scsi/scsi_error.c
+In addition, I'm disappointed that no one forwarded the patch for
+maintainer approval PRIOR to submitting it to Linus.
 
-Disclaimer: I don't know this code at all
+Linus, I request that you apply the following patch.  Thanks.
 
-regards
-john
+--- orig/drivers/video/cyber2000fb.c	Mon May  6 16:54:10 2002
++++ linux/drivers/video/cyber2000fb.c	Mon May 13 10:48:13 2002
+@@ -1729,8 +1729,9 @@
+ }
+ 
+ static struct pci_device_id cyberpro_pci_table[] __devinitdata = {
+-	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
++// Not yet
++//	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
++//		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
+ 	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2000,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_CYBERPRO_2000 },
+ 	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2010,
+
 
 -- 
-"If you look 'round the table and can't tell who the sucker is, it's you." 
-	- Quiz Show 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266817AbUGVGXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUGVGsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266817AbUGVGXI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 02:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266819AbUGVGXI
+	id S266820AbUGVGsc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 02:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUGVGsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 02:23:08 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:54611 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266817AbUGVGXF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 02:23:05 -0400
-Date: Thu, 22 Jul 2004 10:23:44 +0200
-From: sam@ravnborg.org
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Francois Romieu <romieu@fr.zoreil.com>, Greg KH <greg@kroah.com>,
-       Jesse Stockall <stockall@magma.ca>, Oliver Neukum <oliver@neukum.org>,
+	Thu, 22 Jul 2004 02:48:32 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:62736 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S266820AbUGVGsb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 02:48:31 -0400
+To: "Dale Fountain" <dpf-lkml@fountainbay.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, jmorris@redhat.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] delete devfs
-Message-ID: <20040722082344.GA7119@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Francois Romieu <romieu@fr.zoreil.com>, Greg KH <greg@kroah.com>,
-	Jesse Stockall <stockall@magma.ca>,
-	Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com> <1090444782.8033.4.camel@homer.blizzard.org> <20040721212745.GC18110@kroah.com> <20040721220237.GX14733@fs.tum.de> <20040722001125.A3512@electric-eye.fr.zoreil.com> <20040721224011.GY14733@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040721224011.GY14733@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+From: Tim Connors <tconnors+linuxkernel1090478761@astro.swin.edu.au>
+Subject: Re:  [PATCH] Delete cryptoloop
+In-reply-to: <4546.24.6.231.172.1090476838.squirrel@24.6.231.172>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>    <20040721230044.20fdc5ec.akpm@osdl.org>    <4411.24.6.231.172.1090470409.squirrel@24.6.231.172>    <20040722014649.309bc26f.akpm@osdl.org> <4546.24.6.231.172.1090476838.squirrel@24.6.231.172>
+X-Face: "/6m>=uJ8[yh+S{nuW'%UG"H-:QZ$'XRk^sOJ/XE{d/7^|mGK<-"*e>]JDh/b[aqj)MSsV`X1*pA~Uk8C:el[*2TT]O/eVz!(BQ8fp9aZ&RM=Ym&8@.dGBW}KDT]MtT"<e(`rn*-w$3tF&:%]KHf"{~`X*i]=gqAi,ScRRkbv&U;7Aw4WvC
+X-Face-Author: David Bonde mailto:i97_bed@i.kth.se.REMOVE.THIS.TO.REPLY -- If you want to use it please also use this Authorline.
+Message-ID: <slrn-0.9.7.4-8073-28820-200407221646-tc@hexane.ssi.swin.edu.au>
+Date: Thu, 22 Jul 2004 16:47:28 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 12:40:11AM +0200, Adrian Bunk wrote:
-> On Thu, Jul 22, 2004 at 12:11:25AM +0200, Francois Romieu wrote:
-> > Adrian Bunk <bunk@fs.tum.de> :
-> > [...]
-> > > Could anyone please explain this mysterious "new development model of  
-> > > the kernel"?
-> > 
-> > It would not be nice with LWN.
+"Dale Fountain" <dpf-lkml@fountainbay.com> said on Wed, 21 Jul 2004 23:13:58 -0700 (PDT):
+> Dm-crypt is still unstable, doesn't have all the features of cryptoloop
+> (please see my previous message), yet you wish to dump cryptoloop? At
+> least cryptoloop is a known quantity.
 > 
-> If essential information for contributing to the Linux kernel would be 
-> available only for paying costumers of LWN this was my last day on 
-> linux-kernel. [1]
+> Once dm-crypt can be shown to have all the features of the software it's
+> meant to _replace_, I'll be more likely to agree. Otherwise, it sounds
+> like this decision is being made on a whim.
 
-Information on LWN is just delayed one week. So with a bit of patience...
+*cough* devfs->udev *cough*
 
-	Sam
+I'm such a bastard :)
+
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+My code is giving me mixed signals. SIGSEGV then SIGILL then SIGBUS. -- me

@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135363AbREEVMU>; Sat, 5 May 2001 17:12:20 -0400
+	id <S135395AbREEVJK>; Sat, 5 May 2001 17:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135380AbREEVMK>; Sat, 5 May 2001 17:12:10 -0400
-Received: from ghostwheel.underley.eu.org ([217.97.235.9]:23823 "EHLO
-	bobas.nowytarg.top.pl") by vger.kernel.org with ESMTP
-	id <S135363AbREEVMC>; Sat, 5 May 2001 17:12:02 -0400
-Date: Sat, 5 May 2001 23:08:16 +0200
-From: Daniel Podlejski <underley@underley.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: XFS and Alan kernel tree
-Message-ID: <20010505230816.A31544@witch.underley.eu.org>
+	id <S135380AbREEVIv>; Sat, 5 May 2001 17:08:51 -0400
+Received: from nw175.netaddress.usa.net ([204.68.24.75]:10432 "HELO
+	nw175.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S135363AbREEVIs> convert rfc822-to-8bit; Sat, 5 May 2001 17:08:48 -0400
+Message-ID: <20010505210847.5930.qmail@nw175.netaddress.usa.net>
+Date: 5 May 2001 16:08:47 CDT
+From: shreenivasa H V <shreenihv@usa.net>
+To: Sam Coles <sam@bcinet.net>
+Subject: Re: [Re: Could clock granularity be increased????]
+CC: linux-kernel@vger.kernel.org
+X-MSMail-Priority: High
+X-Priority: 1
+X-Mailer: USANET web-mailer (34FM.0700.17C.01)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-X-PGP-Fingerprint: 4D 72 53 F8 FE 8C 53 B9  66 AD F6 EA C9 17 CD 82
-X-GPG-Fingerprint: 299F 1820 582B 283A 5F50  37D9 AA0B 6E10 03D4 EA5D
-X-Homepage: http://www.underley.eu.org/
-X-Cert: http://www.brainbench.com/transcript.jsp?pid=124954
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
-Patch against Alan tree is avaliable at:
+I though about that. Would it affect other kernel modules which assume the
+value of HZ (to be 100)? But for this, I guess increasing the value of HZ to
+1000 or so should work. Are u sure it is ok to increase HZ?
 
-http://www.underley.eu.org/linux/patch.ac-xfs.diff.bz2
+Sam Coles <sam@bcinet.net> wrote:
+Will editing include/asm/param.h not do the trick?
 
-It's 1.0 SGI release. Only XFS, pagebuf and POSIX ACLs code, without KDB.
+Sam
 
--- 
-Daniel Podlejski <underley@underley.eu.org>
-   ... You can check out any time you like
-   But you can never leave ...
+On 05 May 2001 12:53:14 -0500, shreenivasa H V wrote:
+> Hi,
+> 
+> Is there any way I could use a clock granularity of less than 10ms if I
+need
+> to do some hacking of the kernel TCP code? Ideally I would require the
+> interval of the order of 10-100 microseconds. 
+> thanks,
+> shreeni.
+> 
+> ____________________________________________________________________
+> Get free email and a permanent address at http://www.netaddress.com/?N=1
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276449AbRJBSgU>; Tue, 2 Oct 2001 14:36:20 -0400
+	id <S276318AbRJBSgU>; Tue, 2 Oct 2001 14:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276318AbRJBSgL>; Tue, 2 Oct 2001 14:36:11 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52233 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276406AbRJBSfy>; Tue, 2 Oct 2001 14:35:54 -0400
-Subject: Re: Which is currently the most stable 2.4 kernel?
-To: rankincj@yahoo.com (Chris Rankin)
-Date: Tue, 2 Oct 2001 19:41:24 +0100 (BST)
-Cc: mason@suse.com (Chris Mason), linux-kernel@vger.kernel.org
-In-Reply-To: <20011002182715.25244.qmail@web13104.mail.yahoo.com> from "Chris Rankin" at Oct 02, 2001 11:27:15 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276285AbRJBSgK>; Tue, 2 Oct 2001 14:36:10 -0400
+Received: from otter.mbay.net ([206.40.79.2]:5138 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S276420AbRJBSfz> convert rfc822-to-8bit;
+	Tue, 2 Oct 2001 14:35:55 -0400
+From: John Alvord <jalvo@mbay.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 0.9.10 for Alan's tree
+Date: Tue, 02 Oct 2001 11:36:09 -0700
+Message-ID: <562krt8uk7hml11k4741kuqlbsqa53hqbn@4ax.com>
+In-Reply-To: <F295R5VX9q2TwOk6AIe0000f57a@hotmail.com> <20011002110825.A1012@mikef-linux.matchmail.com>
+In-Reply-To: <20011002110825.A1012@mikef-linux.matchmail.com>
+X-Mailer: Forte Agent 1.8/32.553
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15oUTs-0005Xh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> instance, I subsequently read a posting from Alan Cox
-> saying that 2.4.10 didn't survive overnight for him,
-> implying that he occasionally roasts penguins in some
-> kind of server-dungeon...
+On Tue, 2 Oct 2001 11:08:25 -0700, Mike Fedyk <mfedyk@matchmail.com>
+wrote:
 
-I run brutal load test sets on the boxes. Not all -ac kernels survive them
-either .  Thats more useful as "it contains bugs" not "it will break under
-normal load".
+>On Tue, Oct 02, 2001 at 07:28:34AM +0000, sayamindu dasgupta wrote:
+>> Fr?d?ric L. W. Meunier wrote:
+>> 
+>> >Andrew Morton wrote:
+>> >
+>> >
+>> >>We prefer to test a lot before releasing, and the one time I
+>> >>skipped that step was for 2.4.10, and it was the one which is
+>> >>broken. Sigh.
+>> >>
+>> >
+>> >How broken ? I ask because I'm worried since I use it. Or
+>> >it's just the compilation problem with CONFIG_BUFFER_DEBUG
+>> >and nothing serious ?
+>> >
+>> >PS: I don't see any other reports on ext3-users.
+>> 
+>> hello
+>> i've been using it for a few weeks and i don't get any probs
+>> cheers
+>> Sayamindu
+>
+>I don't think so...
+>
+>2.4.10-pre11 was only released ~1 week ago...
+>
+Wasn't there a big deal about having a common journalling service
+before other journalling systems jumped into the pool?
 
-Alan
+john

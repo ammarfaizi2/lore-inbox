@@ -1,71 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVCHAST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVCHAVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVCHAST (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 19:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVCGXxZ
+	id S261804AbVCHAVi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 19:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVCHASe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:53:25 -0500
-Received: from fire.osdl.org ([65.172.181.4]:10672 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262003AbVCGXuL (ORCPT
+	Mon, 7 Mar 2005 19:18:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:54197 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261854AbVCHAOd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:50:11 -0500
-Message-ID: <422CE8C4.8010500@osdl.org>
-Date: Mon, 07 Mar 2005 15:50:28 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [3/many] acrypto: acrypto.h
-References: <11102278533380@2ka.mipt.ru>
-In-Reply-To: <11102278533380@2ka.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 7 Mar 2005 19:14:33 -0500
+Date: Mon, 7 Mar 2005 16:14:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: jmorris@redhat.com, chrisw@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][LSM/SELINUX] Pass requested protection to
+ security_file_mmap/mprotect hooks
+Message-Id: <20050307161425.746e8005.akpm@osdl.org>
+In-Reply-To: <1110220105.2778.24.camel@moss-spartans.epoch.ncsc.mil>
+References: <1110220105.2778.24.camel@moss-spartans.epoch.ncsc.mil>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> --- /tmp/empty/acrypto.h	1970-01-01 03:00:00.000000000 +0300
-> +++ ./acrypto/acrypto.h	2005-03-07 20:35:36.000000000 +0300
-> @@ -0,0 +1,245 @@
-> +/*
-> + * 	acrypto.h
-> + *
-> + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> + * 
-> + */
-> +
-> +#ifdef __KERNEL__
-> +
-> +#define SESSION_COMPLETED	(1<<15)
-> +#define SESSION_FINISHED	(1<<14)
-> +#define SESSION_STARTED		(1<<13)
-> +#define SESSION_PROCESSED	(1<<12)
-> +#define SESSION_BINDED		(1<<11)
-Just a thought:  SESSION_BOUND  ??
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> +__setup("checkreqprot=", checkreqprot_setup);
 
-> +#define SESSION_BROKEN		(1<<10)
-> +#define SESSION_FROM_CACHE	(1<<9)
-> +
-> +#define DEVICE_BROKEN		(1<<0)
-> +
-> +#define device_broken(dev)	(dev->flags & DEVICE_BROKEN)
-> +#define broke_device(dev)	do {dev->flags |= DEVICE_BROKEN;} while(0)
-            break_device(dev)
-
-> +int match_initializer(struct crypto_device *, struct crypto_session_initializer *);
-> +int __match_initializer(struct crypto_capability *, struct crypto_session_initializer *);
-> +
-> +#endif				/* __KERNEL__ */
-> +#endif				/* __ACRYPTO_H */
-
-Several of these could use some namespace_idents on them (SESSION_xyz,
-DEVICE_xyz, device_xyz, match_xyz)...
-
--- 
-~Randy
+Can we have an update to Documentation/kernel-parameters.txt, please?

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUGBVG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUGBVL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbUGBVG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 17:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbUGBVFH
+	id S264984AbUGBVL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 17:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUGBVL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 17:05:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:976 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264934AbUGBVE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 17:04:29 -0400
-Date: Fri, 2 Jul 2004 14:03:22 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: limaunion@fibertel.com.ar, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm2 build errors...
-Message-Id: <20040702140322.2ab47867.rddunlap@osdl.org>
-In-Reply-To: <20040702205129.GK28324@fs.tum.de>
-References: <40DCEFFB.5020605@fibertel.com.ar>
-	<20040702205129.GK28324@fs.tum.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jul 2004 17:11:57 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:47632 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S264984AbUGBVLw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 17:11:52 -0400
+Date: Fri, 2 Jul 2004 17:11:52 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
+cc: Duncan Sands <baldrick@free.fr>, <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       "David A. Desrosiers" <desrod@gnu-designs.com>
+Subject: Re: [linux-usb-devel] Re: USBDEVFS_RESET deadlocks USB bus.
+In-Reply-To: <20040702204756.GC3447@babylon.d2dc.net>
+Message-ID: <Pine.LNX.4.44L0.0407021700110.21819-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jul 2004 22:51:29 +0200 Adrian Bunk wrote:
+On Fri, 2 Jul 2004, Zephaniah E. Hull wrote:
 
-| On Sat, Jun 26, 2004 at 12:39:39AM -0300, limaunion wrote:
-| 
-| >   LD      .tmp_vmlinux1
-| > arch/i386/kernel/built-in.o(.text+0xbe14): In function `powernow_acpi_init':
-| > : undefined reference to `acpi_processor_register_performance'
-| > arch/i386/kernel/built-in.o(.text+0xbe3b): In function `powernow_acpi_init':
-| > : undefined reference to `acpi_processor_unregister_performance'
-| > arch/i386/kernel/built-in.o(.exit.text+0x3b): In function `powernow_exit':
-| > : undefined reference to `acpi_processor_unregister_performance'
-| > make: *** [.tmp_vmlinux1] Error 1
-| > 
-| > This also happens in 2.6.7-mm1, I'm wondering if this is my fault or 
-| > something's wrong?
-| 
-| It seems something is/was wrong.
-| 
-| Can you still reproduce it in 2.6.7-mm5?
-| If yes, please send your .config.
+> On Tue, Jun 08, 2004 at 10:19:40PM +0200, Duncan Sands wrote:
+> > > Great, could you send me the patch? (So I have something usable until it
+> > > gets into mainline and a kernel is released with it.)
+> > 
+> > Sure - I just have to write it first!  It's a bit tricky to do right...
+> 
+> Has there been any progress on this?
+> 
+> I have been looking at the code in question and I am curious as to what
+> events we are attempting to protect against with the serialize spinlock?
+> 
+> Thanks.
 
-Same as this problem report:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108752330915120&w=2
+There has been progress.  If you start with the latest 2.6.7 kernels 
+(vanilla or -mm) and apply these two patches:
 
-but my patch was insufficient:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108753512102539&w=2
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108810394203966&q=raw
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108810535225278&q=raw
 
-See reply from Dave Jones.  And I see what he means, but I don't
-see how to express it in Kconfig language.
+the deadlock problems should be solved.  Although those patches haven't 
+yet been merged, I'm pretty sure they will be.
 
---
-~Randy
+To answer your other question...  The serialize semaphore (not spinlock) 
+prevents the system from trying to do several incompatible things to a USB 
+device at the same time.  For example, reset the device while a driver is 
+probing it.  Or reset it while it is being suspended.
+
+Alan Stern
+

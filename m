@@ -1,54 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270352AbTHLQlO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270821AbTHLQlO
+	id S270821AbTHLQu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270847AbTHLQu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:41:14 -0400
-Received: from main.gmane.org ([80.91.224.249]:42406 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270352AbTHLQlN (ORCPT
+	Tue, 12 Aug 2003 12:50:26 -0400
+Received: from fw1.masirv.com ([65.205.206.2]:60749 "EHLO NEWMAN.masirv.com")
+	by vger.kernel.org with ESMTP id S270821AbTHLQuX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:41:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jens Benecke <usenet@jensbenecke.de>
-Subject: Re: Linux 2.4.22-rc2
-Date: Tue, 12 Aug 2003 18:41:18 +0200
-Message-ID: <bhb5b7$hhf$1@sea.gmane.org>
-References: <Pine.LNX.4.44.0308081751390.10734-100000@logos.cnet> <bh8vv8$3qc$1@sea.gmane.org> <20030811191833.76cbbc6d.vmlinuz386@yahoo.com.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: KNode/0.7.6
-X-No-Archive: Yes
+	Tue, 12 Aug 2003 12:50:23 -0400
+Message-ID: <1060653695.5293.65.camel@huykhoi>
+From: Anthony Truong <Anthony.Truong@mascorp.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Christian Mautner <linux@mautner.ca>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4: Allocation of >1GB in one chunk
+Date: Mon, 11 Aug 2003 19:01:35 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerardo Exequiel Pozzi wrote:
+On Tue, 2003-08-12 at 18:00, Geert Uytterhoeven wrote:
 
-> On Mon, 11 Aug 2003 22:57:21 +0200, Jens Benecke wrote:
->>Marcelo Tosatti wrote:
->>
->>> Here goes release candidate 2.
->>> It contains yet another bunch of important fixes, detailed below.
->>> Nice weekend for all of you!
->>
->>I'm having problems.  had them with -pre10 as well, posted here, but
->>they somehow didn't appear in the list.
->>Here's the short story: No network (3c509) because the card gets IRQ 
->>22 (or something) and doesn't like it, no USB, no firewire, no X11 
->>(yeah, should have recompiled the NVIDIA drivers, duh), and a total 
->>crash on shutdown in "rmmod" ("kernel BUG in spinlock.h:133, Aiee, 
->>killing interrupt handler") 
+On Mon, 11 Aug 2003, Christian Mautner wrote:
+> please forgive me to ask this (perhaps newbie?) question here on
+> l-k, but I'm desperate. This is my problem:
 > 
-> try with option "noapic" at boot time.
+> I am running various kinds of EDA software on 32-bit Linux, and they
+> need substantial amounts of memory. I am running 2.4.21 with with
+> PAGE_OFFSET at 0xc0000000, so I can run processes just over 3GB. The
+> machine (a dual Xeon) has 4GB memory and 4GB swap.
+> 
+> But there is this one program now that dies because it's out of
+> memory. No surprise, as this happens frequently with tasks that would
+> need 4GB or more.
+> 
+> But this one needs less than 3GB. But what it does need (I strace'ed
+> this), is 1.3GB in one whole chunk.
+> 
+> I wrote a test program to mimic this:
+> 
+> The attached program allocates argv[1] MB in 1MB chunks and argv[2] MB
+> in one big chunk. (The original version also touched every page, but
+> this makes no difference here.)
+> 
+> [chm@trex7:~/C] ./foo 2500 500
+> Will allocate 2621440000 bytes in 1MB chunks...
+> Will allocate 524288000 bytes in one chunk...
+> Succeeded.
+> 
+> [chm@trex7:~/C] ./foo 1500 1000
+> Will allocate 1572864000 bytes in 1MB chunks...
+> Will allocate 1048576000 bytes in one chunk...
+> malloc: Cannot allocate memory
+> Out of memory.
+> 
+> The first call allocated 3GB and succeeds, the second one only 2.5GB
+> but fails!
+> 
+> The thing that comes to my mind is memory fragmentation, but how could
+> that be, with virtual memory? 
 
-I did, this causes "APIC error on CPU0:40" or something (this wasn't
-syslogged and I don't remember exactly).
+Virtual memory fixes physical memory fragmentation only. I.e. you can
+`glue'
+multiple physical chunks together into one large virtual chunk.
 
-Does that help?
+Biut you're still limited to a 32-bit virtual address space (3 GB in
+user
+space). If this virtual 3 GB gets fragmented, you're still out of luck.
+
+To check this, print all allocated virtual addresses, or look at
+/proc/<pid>/maps, and see why it fails.
+
+Gr{oetje,eeting}s,
+
+                                                Geert
 
 
--- 
-Jens Benecke
+Hello,
+There is indeed fragmentation problem even with virtual memory address
+space.  I think in the second foo call, Christian might have run into
+this fragmentation problem.
+
+Regards,
+Anthony Dominic Truong.
+
+
+
+
+Disclaimer: The information contained in this transmission, including any
+attachments, may contain confidential information of Matsushita Avionics
+Systems Corporation.  This transmission is intended only for the use of the
+addressee(s) listed above.  Unauthorized review, dissemination or other use
+of the information contained in this transmission is strictly prohibited.
+If you have received this transmission in error or have reason to believe
+you are not authorized to receive it, please notify the sender by return
+email and promptly delete the transmission.
+
+

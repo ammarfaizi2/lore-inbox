@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUBTNFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 08:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUBTNBq
+	id S261241AbUBTNFr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 08:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUBTNFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 08:01:46 -0500
-Received: from gprs156-117.eurotel.cz ([160.218.156.117]:61312 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261230AbUBTM72 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:59:28 -0500
-Date: Fri, 20 Feb 2004 13:59:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: eMachines M6805 (Athlon 64) laptop and Linux?
-Message-ID: <20040220125912.GA314@elf.ucw.cz>
-References: <402D32AE.3000006@coyotegulch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402D32AE.3000006@coyotegulch.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 20 Feb 2004 08:05:34 -0500
+Received: from raq787.uk2net.com ([213.239.58.116]:46093 "EHLO
+	raq787.uk2net.com") by vger.kernel.org with ESMTP id S261245AbUBTNE5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 08:04:57 -0500
+Message-ID: <403605B4.9070408@wiggly.org>
+Date: Fri, 20 Feb 2004 13:03:48 +0000
+From: Nigel Rantor <wiggly@wiggly.org>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Carlos Silva <r3pek@r3pek.homelinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: Hot kernel change
+References: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org> <Pine.LNX.4.53.0402190845440.30037@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402190845440.30037@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.556, required 9,
+	AWL, BAYES_00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Richard B. Johnson wrote:
+> Sounds like a neat project for a College Student who wants to
+> learn to solve problems they haven't even dreamed of yet.
 
-> I'm strongly tempted to buy one of these laptops -- but I want it to run 
-> Linux instead of that "other" operating system. Has anyone installed 
-> Linux (32- or 64-bit) on one of these machines?
-> 
-> Or does anyone have a suggestion for a "Linux certified" Athlon 64 system?
+But, boy, you'd learn a *lot* trying...
 
-There are some problems with ACPI, APIC and CPUFREQ, plus I do not
-think build-in wifi can be made to work.
+   N
 
-Otherwise its a nice machine ;-).
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+*lurk*

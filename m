@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135594AbRARUpp>; Thu, 18 Jan 2001 15:45:45 -0500
+	id <S135529AbRARUqp>; Thu, 18 Jan 2001 15:46:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135567AbRARUpf>; Thu, 18 Jan 2001 15:45:35 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:34067 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135529AbRARUpZ>;
-	Thu, 18 Jan 2001 15:45:25 -0500
-Date: Thu, 18 Jan 2001 21:44:57 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        "David S. Miller" <davem@redhat.com>
+	id <S135914AbRARUqf>; Thu, 18 Jan 2001 15:46:35 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:13075 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S135529AbRARUqX>;
+	Thu, 18 Jan 2001 15:46:23 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101182030.XAA08626@ms2.inr.ac.ru>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <20010118212441.E28276@athlon.random>
-Message-ID: <Pine.LNX.4.30.0101182135180.2034-100000@elte.hu>
+To: raj@cup.hp.COM (Rick Jones)
+Date: Thu, 18 Jan 2001 23:30:22 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+In-Reply-To: <3A6733E0.6286A388@cup.hp.com> from "Rick Jones" at Jan 18, 1 09:45:03 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
+> So if I understand  all this correctly...
+> 
+> The difference in ACK generation 
 
-> Agreed. However since TCP_CORK logic is more generic than MSG_MORE
-> [...]
+CORK does not affect receive direction and, hence, ACK geneartion.
+The problem is that TCP does not know, when full request is received
+and it must ack instantly at connection start and after some idle
+period to allow client to open congestion window. Hence, it has to send
+redundant ACKs.
 
-why? TCP_CORK is equivalent to MSG_MORE, it's just a different
-representation of the same issue. TCP_CORK needs an extra syscall (in the
-case of a push event - which might be rare), the MSG_MORE solution needs
-an extra flag (which is merged with other flags in the send() case).
+Some control on this is possible only from level parsing requests,
+i.e. from httpd in this case.
 
-> > i believe it should rather be a new setsockopt TCP_CORK value (or a new
-> > setsockopt constant), not an ioctl. Eg. a value of 2 to TCP_CORK could
-> > mean 'force packet boundary now if possible, and dont touch TCP_CORK
-> > state'.
->
+Actually, TUX-1.1 (Ingo, do I not lie, did you not kill this code?)
+does this. It does not ack quickly, when complete request is received
+and still not answered, so that all the redundant acks disappear.
 
-> Doing PUSH from setsockopt(TCP_CORK) looked obviously wrong because it
-> isn't setting any socket state, [...]
+This feature is still unaccessible from user level though.
 
-well, neither is clearing/setting TCP_CORK ...
-
-> and also because the SIOCPUSH has nothing specific with TCP_CORK, as
-> said it can be useful also to flush the last fragment of data pending
-> in the send queue without having to wait all the unacknowledged data
-> to be acknowledged from the receiver when TCP_NODELAY isn't set.
-
-huh? in what way does the following:
-
-{
-        int val = 1;
-        setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
-			(char *)&val,sizeof(val));
-        val = 0;
-        setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
-			(char *)&val,sizeof(val));
-}
-
-differ from what you posted. It does the same in my opinion. Maybe we are
-not talking about the same thing?
-
-> Changing the semantics of setsockopt(TCP_CORK, 2) would also break
-> backwards compatibility with all 2.[24].x kernels out there.
-
-[this is nitpicking. I'm quite sure all the code uses '1' as the value,
-not 2.]
-
-	Ingo
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRDYNVB>; Wed, 25 Apr 2001 09:21:01 -0400
+	id <S131990AbRDYNYk>; Wed, 25 Apr 2001 09:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131990AbRDYNUu>; Wed, 25 Apr 2001 09:20:50 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:11783 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S130317AbRDYNUi>;
-	Wed, 25 Apr 2001 09:20:38 -0400
-Date: Wed, 25 Apr 2001 15:20:30 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Howells <dhowells@cambridge.redhat.com>, dhowells@redhat.com,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [andrea@suse.de: Re: generic rwsem [Re: Alpha "process table hang"]]
-Message-ID: <20010425152029.C18214@pcep-jamie.cern.ch>
-In-Reply-To: <24526.987755027@warthog.cambridge.redhat.com> <Pine.LNX.4.31.0104201037580.5523-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S132821AbRDYNYa>; Wed, 25 Apr 2001 09:24:30 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:25986 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131990AbRDYNYX>;
+	Wed, 25 Apr 2001 09:24:23 -0400
+Message-ID: <3AE6D007.4F519933@mandrakesoft.com>
+Date: Wed, 25 Apr 2001 09:24:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: Announce: ECN vendor support page
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0104201037580.5523-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Apr 20, 2001 at 10:46:01AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> For i386 and i486, there is no reason to try to maintain a complex fast
-> case. The machines are unquestionably going away - we should strive to not
-> burden them unnecessarily, but we should _not_ try to save two cycles.
-...
-> Icache is also precious on the 386, which has no L2 in 99% of all cases.
-> Make it out-of-line.
+To all--
 
-AFAIK, only some 386 clones have a cache -- the Intel ones do not.
-Therefore saving icache is not an issue, and the cycle cost of an out of
-line call is somewhat more than two cycles.
+As ECN deployment increases, people are increasingly noticing that some
+key web sites are still inaccessible when ECN is enabled.
 
--- Jamie
+A Web site has been created to assist with this transition, with two key
+features:  (1) ECN-related fixes are posted on this Web page, and (2)
+vendors whose products are broken are posted on this Web page.
+
+The address is		http://gtf.org/garzik/ecn/
+
+If you have comments, fixes or updates for this Web page, especially new
+links to vendor fixes or acknowledged vendor bugs, please e-mail them to
+ecn@gtf.org.
+
+-- 
+Jeff Garzik      | You know, I like you Stuart.
+Building 1024    | You're not like the other kids
+MandrakeSoft     | in the trailer park.

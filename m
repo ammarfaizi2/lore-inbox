@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265976AbUBBUBO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUBBUAg
+	id S265925AbUBBUgg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUBBUgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 15:00:36 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:15243 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265898AbUBBT5u
+	Mon, 2 Feb 2004 15:36:14 -0500
+Received: from mailr-1.tiscali.it ([212.123.84.81]:13699 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S266014AbUBBUDJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:57:50 -0500
-Date: Mon, 2 Feb 2004 20:57:49 +0100
+	Mon, 2 Feb 2004 15:03:09 -0500
+X-BrightmailFiltered: true
+Date: Mon, 2 Feb 2004 21:03:07 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 25/42]
-Message-ID: <20040202195749.GY6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 35/42]
+Message-ID: <20040202200307.GI6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -26,27 +27,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-it8181fb.c:162: warning: `fontname' defined but not used
+radeon_mem.c:135: warning: `print_heap' defined but not used
 
-fontname is used only when the driver is modular. The initializer is
-useless since the variable is static.
-
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/video/it8181fb.c linux-2.4/drivers/video/it8181fb.c
---- linux-2.4-vanilla/drivers/video/it8181fb.c	Sat Jan 31 15:54:42 2004
-+++ linux-2.4/drivers/video/it8181fb.c	Sat Jan 31 18:12:50 2004
-@@ -159,7 +159,9 @@
- #define DEFAULT_CONFIG_OFFSET	0
+Remove unused function.
  
- static const char default_mode[] = "800x600-70";
--static char __initdata fontname[40] = { 0 };
-+#ifndef MODULE
-+static char __initdata fontname[40];
-+#endif
- static const char *mode_option __initdata = NULL;
- static int default_bpp __initdata = DEFAULT_BPP;
- static int default_res __initdata = DEFAULT_RES;
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/char/drm/radeon_mem.c linux-2.4/drivers/char/drm/radeon_mem.c
+--- linux-2.4-vanilla/drivers/char/drm/radeon_mem.c	Tue Nov 11 17:51:38 2003
++++ linux-2.4/drivers/char/drm/radeon_mem.c	Sat Jan 31 19:00:49 2004
+@@ -131,16 +131,6 @@
+ 	}
+ }
+ 
+-static void print_heap( struct mem_block *heap )
+-{
+-	struct mem_block *p;
+-
+-	for (p = heap->next ; p != heap ; p = p->next) 
+-		DRM_DEBUG("0x%x..0x%x (0x%x) -- owner %d\n",
+-			  p->start, p->start + p->size,
+-			  p->size, p->pid);
+-}
+-
+ /* Initialize.  How to check for an uninitialized heap?
+  */
+ static int init_heap(struct mem_block **heap, int start, int size)
 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-No matter what you choose, you're still a luser.
+Non sempre quello che viene dopo e` progresso.
+Alessandro Manzoni

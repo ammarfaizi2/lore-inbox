@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318213AbSHZSLs>; Mon, 26 Aug 2002 14:11:48 -0400
+	id <S318182AbSHZSIJ>; Mon, 26 Aug 2002 14:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318216AbSHZSLs>; Mon, 26 Aug 2002 14:11:48 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:58123
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318213AbSHZSLq>; Mon, 26 Aug 2002 14:11:46 -0400
-Date: Mon, 26 Aug 2002 11:14:30 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Holger Grosenick <h.grosenick@t-online.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: System freeze on 2.4.18 / 19 SMP
-In-Reply-To: <200208261436.44030.hgrosenick@web.de>
-Message-ID: <Pine.LNX.4.10.10208261113070.24156-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S318191AbSHZSIH>; Mon, 26 Aug 2002 14:08:07 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:23936 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318182AbSHZSIA>;
+	Mon, 26 Aug 2002 14:08:00 -0400
+Date: Mon, 26 Aug 2002 14:35:28 +0200
+From: Pavel Machek <pavel@elf.ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] clone-detached-2.5.31-B0
+Message-ID: <20020826123528.GB359@elf.ucw.cz>
+References: <Pine.LNX.4.44.0208132307340.12804-100000@localhost.localdomain> <Pine.LNX.4.44.0208151715320.2982-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208151715320.2982-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Aug 2002, Holger Grosenick wrote:
+Hi!
 
-> Hello
+> one of the debugging tests triggered a false-positive BUG() when a
+> detached thread was straced. Fix against BK-curr attached.
 > 
-> i have a reproducible system freeze using SuSE 8.0 with original kernel 2.4.19 
-> (same with SuSE 2.4.18 kernel).
+> 	Ingo
 > 
-> Hardware:
-> 
-> Asus P2B-Dual with 2x PIII 700 MHz (Bios 1013 - current)
-> 896 MB RAM
-> Promise PDC20267 off board IDE Controller (current bios release)
-> aic7880 scsi-controller for CD-writers
-> nvidia graphic card
-> RTL-8139A based network card
-> 
-> /dev/hda: _NEC DV-5700B DVD-ROM on piix onboard controller, ide0
-> /dev/hdc: IBM IC35L060AVVA07-0 on PDC20267 ide1
-> /dev/hdd: IBM IC35L080AVVA07-0 on PDC20267 ide1
-> /dev/hde: IBM IC35L060AVVA07-0 on PDC20267 ide2
+> --- kernel/signal.c.orig	Thu Aug 15 17:12:02 2002
+> +++ kernel/signal.c	Thu Aug 15 17:12:34 2002
+> @@ -774,7 +774,7 @@
+>  	int why, status;
+>  
+>  	/* is the thread detached? */
+> -	if (sig == -1 || tsk->exit_signal == -1)
+> +	if (sig == -1)
+>  		BUG();
+>  
+>  	info.si_signo = sig;
 
-OH MY!
-
-The channels got decoupled!  This is very bad.
-
-> /dev/hda: _NEC DV-5700B DVD-ROM on piix onboard controller, ide0
-
-> /dev/hde: IBM IC35L060AVVA07-0 on PDC20267 ide1
-> /dev/hdf: IBM IC35L080AVVA07-0 on PDC20267 ide1
-> /dev/hdg: IBM IC35L060AVVA07-0 on PDC20267 ide2
-
-That is what it should be.
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Why not BUG_ON()?
+									Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

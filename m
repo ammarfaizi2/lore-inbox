@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSKRL6k>; Mon, 18 Nov 2002 06:58:40 -0500
+	id <S262360AbSKRME6>; Mon, 18 Nov 2002 07:04:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbSKRL6k>; Mon, 18 Nov 2002 06:58:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63623 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262324AbSKRL6j>;
-	Mon, 18 Nov 2002 06:58:39 -0500
-Date: Mon, 18 Nov 2002 13:05:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Steve Lord <lord@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI I/O performance problems when CONFIG_HIGHIO is off
-Message-ID: <20021118120531.GC839@suse.de>
-References: <1037392310.13531.419.camel@jen.americas.sgi.com>
+	id <S262363AbSKRME6>; Mon, 18 Nov 2002 07:04:58 -0500
+Received: from ppp-217-133-216-163.dialup.tiscali.it ([217.133.216.163]:36485
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S262360AbSKRME5>; Mon, 18 Nov 2002 07:04:57 -0500
+Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-6b0piB+VK0x4L+s8VBYM"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Nov 2002 13:11:43 +0100
+Message-Id: <1037621503.1774.99.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037392310.13531.419.camel@jen.americas.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15 2002, Steve Lord wrote:
-> Jens,
-> 
-> As you know, for the last week or so I have been battling some
-> performance issues in XFS and 2.4.20-rc1. Well, we finally found
-> the culprit back in 2.4.20-pre2.
-> 
-> When the block highmem patch was included, it added highmem_io to the
-> scsi controller structure. This can only ever be set to one if
-> CONFIG_HIGHIO is set. Yet there are several spots in the scsi
-> code which test based on its value regardless.
-> 
->         /*
->          * we really want to use sg even for a single segment request,
->          * however some people just cannot be bothered to write decent
->          * driver code so we can't risk to break somebody making the
->          * assumption that sg requests will always contain at least 2
->          * segments. if the driver is 32-bit dma safe, then use sg for
->          * 1 entry anyways. if not, don't rely on the driver handling this
->          * case.
->          */
->         if (count == 1 && !SCpnt->host->highmem_io) {
->                 this_count = req->current_nr_sectors;
->                 goto single_segment;
->         }
 
-Steve,
+--=-6b0piB+VK0x4L+s8VBYM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Something isn't quite making sense. If we go over every single instance
-of checking ->highmem_io, they all look sane (ie checking on non-highmem
-setup must yield 0). So that part looks good.
+But this way you throw away a lot of functionality, make the existence
+of two pointers pointless, cause pthread_self() to change across fork
+and force NPTL to copy thread state.
 
-However, I think a typo snuck in there, in exactly the spot you pasted
-above. Could you try 2.4.20-rc2 with this patch applied?
+How about instead doing a verify_area in copy_process, putting the
+child_settid address and the tid in two child registers and assigning it
+in assembly in ret_from_fork?
 
-===== drivers/scsi/scsi_merge.c 1.9 vs edited =====
---- 1.9/drivers/scsi/scsi_merge.c	Mon Sep 16 09:25:10 2002
-+++ edited/drivers/scsi/scsi_merge.c	Mon Nov 18 13:04:41 2002
-@@ -835,7 +835,7 @@
- 	 * case.
-  	 */
- 	if (count == 1 && !SCpnt->host->highmem_io) {
--		this_count = req->current_nr_sectors;
-+		this_count = req->nr_sectors;
- 		goto single_segment;
- 	}
- 
+Alternatively you could also manually call the copy-on-write handler
+functions but this adds complexity for little gain.
 
--- 
-Jens Axboe
 
+--=-6b0piB+VK0x4L+s8VBYM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA92Nj+djkty3ft5+cRAh2YAJ9lqlV0xUUgXNKmVvRKA5vGNGHMjQCg3hzm
+wOMLZTxaVBuIsTkNPoSxw30=
+=WIQf
+-----END PGP SIGNATURE-----
+
+--=-6b0piB+VK0x4L+s8VBYM--

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTEENmw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 09:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTEENmw
+	id S262216AbTEENlV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTEENlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 09:42:52 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:57866 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262227AbTEENmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 09:42:50 -0400
-Date: Mon, 5 May 2003 14:55:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030505145519.A23727@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Terje Eggestad <terje.eggestad@scali.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1052122784.2821.4.camel@pc-16.office.scali.no> <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no> <20030505112531.B16914@infradead.org> <1052133798.2821.122.camel@pc-16.office.scali.no> <20030505135211.A21658@infradead.org> <1052142082.2821.169.camel@pc-16.office.scali.no> <20030505144353.B23483@infradead.org> <1052142626.2821.173.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052142626.2821.173.camel@pc-16.office.scali.no>; from terje.eggestad@scali.com on Mon, May 05, 2003 at 03:50:26PM +0200
+	Mon, 5 May 2003 09:41:21 -0400
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:30350 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262216AbTEENlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 09:41:20 -0400
+Date: Mon, 5 May 2003 09:52:24 -0400
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Message-Id: <200305051352.h45DqOc8017722@locutus.cmf.nrl.navy.mil>
+To: davem@redhat.com
+Subject: [PATCH][ATM] iphase stack usage cleanup
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 03:50:26PM +0200, Terje Eggestad wrote:
-> "Do you acknowledge a legitimate need to have syscall hooks?"
+someone noted the iphase driver's stack usage.  this
+should take care of the biggest offender.
 
-No.
+--- linux-2.5.68/drivers/atm/iphase.c.000	Mon May  5 08:43:18 2003
++++ linux-2.5.68/drivers/atm/iphase.c	Mon May  5 09:41:56 2003
+@@ -2789,11 +2789,15 @@
+              break;
+           case MEMDUMP_FFL:
+           {  
+-             ia_regs_t       regs_local;
+-             ffredn_t        *ffL = &regs_local.ffredn;
+-             rfredn_t        *rfL = &regs_local.rfredn;
++             ia_regs_t       *regs_local;
++             ffredn_t        *ffL;
++             rfredn_t        *rfL;
+                      
+ 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
++	     regs_local = kmalloc(sizeof(*regs_local), GFP_KERNEL);
++	     if (!regs_local) return -ENOMEM;
++	     ffL = &regs_local->ffredn;
++	     rfL = &regs_local->rfredn;
+              /* Copy real rfred registers into the local copy */
+  	     for (i=0; i<(sizeof (rfredn_t))/4; i++)
+                 ((u_int *)rfL)[i] = ((u_int *)iadev->reass_reg)[i] & 0xffff;
+@@ -2801,8 +2805,11 @@
+ 	     for (i=0; i<(sizeof (ffredn_t))/4; i++)
+                 ((u_int *)ffL)[i] = ((u_int *)iadev->seg_reg)[i] & 0xffff;
+ 
+-             if (copy_to_user(ia_cmds.buf, &regs_local,sizeof(ia_regs_t)))
++             if (copy_to_user(ia_cmds.buf, regs_local,sizeof(ia_regs_t))) {
++                kfree(regs_local);
+                 return -EFAULT;
++             }
++             kfree(regs_local);
+              printk("Board %d registers dumped\n", board);
+              ia_cmds.status = 0;                  
+ 	 }	

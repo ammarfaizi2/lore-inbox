@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292702AbSCJCch>; Sat, 9 Mar 2002 21:32:37 -0500
+	id <S292574AbSCJEXw>; Sat, 9 Mar 2002 23:23:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292727AbSCJCcR>; Sat, 9 Mar 2002 21:32:17 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:45350 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S292702AbSCJCcL>;
-	Sat, 9 Mar 2002 21:32:11 -0500
-Date: Sun, 10 Mar 2002 03:31:51 +0100 (MET)
-From: Kai Engert <kai.engert@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: kai.engert@gmx.de
-MIME-Version: 1.0
-Subject: [patch] Missing module for ISDN / AVM PCMCIA card
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0002126097@gmx.net
-X-Authenticated-IP: [62.144.236.48]
-Message-ID: <21752.1015727511@www61.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+	id <S292715AbSCJEXn>; Sat, 9 Mar 2002 23:23:43 -0500
+Received: from zero.tech9.net ([209.61.188.187]:34567 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292574AbSCJEXe>;
+	Sat, 9 Mar 2002 23:23:34 -0500
+Subject: RE: Kernel 2.5.6 Interactive performance
+From: Robert Love <rml@tech9.net>
+To: charles-heselton@cox.net
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Dan Mann <mainlylinux@attbi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "J.A. Magallon" <jamagallon@able.es>
+In-Reply-To: <NFBBKFIFGLNJKLMMGGFPKEPDCFAA.charles-heselton@cox.net>
+In-Reply-To: <NFBBKFIFGLNJKLMMGGFPKEPDCFAA.charles-heselton@cox.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 09 Mar 2002 23:23:48 -0500
+Message-Id: <1015734229.858.4.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel developers,
+On Sat, 2002-03-09 at 20:15, Charles Heselton wrote:
 
-when using the stock 2.4.x kernel on RedHat 7.x, the
-device
-http://www.avm.de/en/products/hardware/FRITZ_Card/FRITZ_Card_PCMCIA/index.html
-does not work, because of a missing module (avma1_cs). However, it works
-with RedHat's kernel.
+> That would be great.  I'm currently running 2.4.18.  I'm always up for
+> things that would help improve performance, even if they are "experimental".
 
-You can look at
-  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=50999
-for a discussion, that led to the inclusion of the missing patch in the
-RedHat kernel.
+A good base is Alan's tree, available at:
 
-When I apply the patch posted at:
-  ========================>
-  http://uwsg.iu.edu/hypermail/linux/kernel/0103.1/att-0957/01-avmdiff
-  <========================
-into any 2.4.x kernel (including 2.4.18), the card immediately works on my
-Dell Laptop.
+	http://www.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.19/patch-2.4.19-pre2-ac4.gz
 
-Could you please consider including this patch in the standard kernel?
+which is to be applied on top of 2.4.19-pre2.  It contains the O(1)
+scheduler and rmap VM.  If you are interested in preemption, the
+preempt-kernel patch is available at:
 
-The patch was attached to a message available at:
-  http://uwsg.iu.edu/hypermail/linux/kernel/0103.1/0957.html
+	http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/
 
-I think, this patch is based on a work described at:
-  http://www.wimmer-net.de/avm-pcmcia/
-(looks outdated, patches there did not help me)
+The 2.5 tree also has most of these toys, and is a better place for this
+development IMO.  Personally, I'd stay away from these all-in-one silly
+patches that are floating around these days.  Your safest bet is just
+stock 2.4.18 or whatever is latest, although the above addons are all at
+varying levels of "stable" and "safe".
 
-Cheers,
-Kai
-
-(Please note that Red Hat seems to have modified that patch a little, the
-file included in their kernel 2.4.9-31 has 3 lines changed. Let me know if you
-want me to send you their file, I can't judge whether their changes are
-needed for 2.4.18. They also moved the file to drivers/isdn/hisax/avma1_cs.c,
-while the above patch places it at drivers/isdn/pcmcia/avma1_cs.c.)
-
-(I'm not subscribed to this list, please CC me on answers, thanks a lot!).
+	Robert Love
 

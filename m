@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbULZU2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbULZUbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbULZU2U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 15:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbULZU2U
+	id S261160AbULZUbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 15:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbULZUbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 15:28:20 -0500
-Received: from mail.fuw.edu.pl ([193.0.80.14]:23507 "EHLO mail.fuw.edu.pl")
-	by vger.kernel.org with ESMTP id S261152AbULZU2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 15:28:02 -0500
-From: "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Ho ho ho - Linux v2.6.10
-Date: Sun, 26 Dec 2004 21:27:49 +0100
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Wichert Akkerman <wichert@wiggy.net>, hugang@soulinfo.com
-References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <200412261445.09336.Rafal.Wysocki@fuw.edu.pl> <20041226193943.GE1661@elf.ucw.cz>
-In-Reply-To: <20041226193943.GE1661@elf.ucw.cz>
-Organization: FUW
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Dec 2004 15:31:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8128 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261160AbULZUbA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 15:31:00 -0500
+Date: Sun, 26 Dec 2004 16:02:28 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: James Nelson <james4765@verizon.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] cyclades: Put README.cycladeZ in Documentation/serial
+Message-ID: <20041226180228.GB17259@logos.cnet>
+References: <20041226135306.11762.53625.55036@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412262127.49897.Rafal.Wysocki@fuw.edu.pl>
+In-Reply-To: <20041226135306.11762.53625.55036@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 26 of December 2004 20:39, Pavel Machek wrote:
-> Hi!
-> 
-> > > 2.6.10 broke resume for me: when I resume it immediately tries to
-> > > suspend the machine again but gets stuck after suspending USB.
-> > 
-> > Usually, it resumes sucessfully for me, but sometimes it fails, like this 
-(on 
-> > an AMD64):
-> > 
-> >  swsusp: Image: 43552 Pages
-> >  swsusp: Pagedir: 341 Pages
-> > pmdisk: Reading pagedir (341 Pages)
-> > Relocating 
-> > 
-pagedir ...........................................................................................................................0
-> > 
-> > Call Trace:<ffffffff8016de7e>{__alloc_pages+766} 
-> > <ffffffff8016df21>{__get_free_pages+33}
-> >        <ffffffff8056191c>{swsusp_read+1020} 
-> > <ffffffff8015f711>{software_resume+33}
-> >        <ffffffff8010c142>{init+162} <ffffffff8010f57b>{child_rip+8}
-> >        <ffffffff8010c0a0>{init+0} <ffffffff8010f573>{child_rip+0}
-> > 
-> > out of memory
-> 
-> ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::g
-> > PM: Resume from disk failed.
-> 
-> Can you try this one? It would be nice to have reproducible way to
-> trigger this before trying to fix it, through.
-> 
-> [Patch is for 2.6.9something+my bigdiff, may need small tweaks]
 
-It's for i386, isn't it?  Will it work as expected on AMD64?
+Hi James,
 
-RJW
+Documentation/serial/ sounds fine to me, but the patch moves the file
+to Documentation/ ?
+ 
+On Sun, Dec 26, 2004 at 07:52:46AM -0600, James Nelson wrote:
+> Put README.cycladesZ in Documentation/serial.
+> 
+> Firmware is still needed, but the README file shouldn't be in drivers/char.
+> 
+> Signed-off-by: James Nelson <james4765@gmail.com>
+> 
+> diff -urN --exclude='*~' linux-2.6.10-original/Documentation/README.cycladesZ linux-2.6.10/Documentation/README.cycladesZ
+> --- linux-2.6.10-original/Documentation/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
+> +++ linux-2.6.10/Documentation/README.cycladesZ	2004-12-24 16:34:58.000000000 -0500
+> @@ -0,0 +1,8 @@
+> +
+> +The Cyclades-Z must have firmware loaded onto the card before it will
+> +operate.  This operation should be performed during system startup,
+> +
+> +The firmware, loader program and the latest device driver code are
+> +available from Cyclades at
+> +    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
+> +
+> diff -urN --exclude='*~' linux-2.6.10-original/drivers/char/README.cycladesZ linux-2.6.10/drivers/char/README.cycladesZ
+> --- linux-2.6.10-original/drivers/char/README.cycladesZ	2004-12-24 16:34:58.000000000 -0500
+> +++ linux-2.6.10/drivers/char/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
+> @@ -1,8 +0,0 @@
+> -
+> -The Cyclades-Z must have firmware loaded onto the card before it will
+> -operate.  This operation should be performed during system startup,
+> -
+> -The firmware, loader program and the latest device driver code are
+> -available from Cyclades at
+> -    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

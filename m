@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbSJYIUV>; Fri, 25 Oct 2002 04:20:21 -0400
+	id <S261306AbSJYIXG>; Fri, 25 Oct 2002 04:23:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbSJYIUV>; Fri, 25 Oct 2002 04:20:21 -0400
-Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:50921
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S261305AbSJYIUU>; Fri, 25 Oct 2002 04:20:20 -0400
+	id <S261307AbSJYIXG>; Fri, 25 Oct 2002 04:23:06 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:29619 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261306AbSJYIXF>; Fri, 25 Oct 2002 04:23:05 -0400
+Date: Fri, 25 Oct 2002 01:27:00 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: chrisl@vmware.com, linux-kernel@vger.kernel.org
 Subject: Re: How to get number of physical CPU in linux from user space?
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: chrisl@vmware.com
-Cc: linux-kernel@vger.kernel.org
+Message-ID: <2897727591.1035509219@[10.10.2.3]>
 In-Reply-To: <20021024230229.GA1841@vmware.com>
 References: <20021024230229.GA1841@vmware.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rvU5oGnMuYTN24f/J6Ag"
-Organization: 
-Message-Id: <1035534399.8301.1.camel@lemsip>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 25 Oct 2002 09:26:39 +0100
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Define "physical CPU number" ;-) If you want to deteact which
+ones are paired up, I believe that if all but the last bit
+of the apicid is the same, they're siblings. You might have to
+dig the apicid out of the bootlog if the cpuinfo stuff doesn't
+tell you.
 
---=-rvU5oGnMuYTN24f/J6Ag
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+M.
 
-On Fri, 2002-10-25 at 00:02, chrisl@vmware.com wrote:
+--On Thursday, October 24, 2002 4:02 PM -0700 chrisl@vmware.com wrote:
+
 > It seems that /proc/cpuinfo will return the number of logical CPU.
 > If the machine has Intel Hyper-Thread enabled, that number is bigger
 > than physical CPU number. Usually twice as big.
->=20
+> 
 > My question is, what is the reliable way for user space program
 > to detect the number of physical CPU in the current machine?
+> 
+> If in it is in the kernel, I can read from cpu_sibling_map[]
+> or phys_cpu_id[]. But it seems not easy read that from
+> user space.
+> 
+> Of course I can do "gdb /proc/kcore" to get them. But is there
+> any better way?
+> 
+> Thanks in advance.
+> 
+> Chris
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-I believe there was talk about representing the CPUs in driverfs
-somehow. Not sure of the details though...
-
---=20
-// Gianni Tedesco (gianni at ecsc dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-rvU5oGnMuYTN24f/J6Ag
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA9uQA/kbV2aYZGvn0RAvX0AJ9kQkgXRmppb7XvinzrAe/ky9RbQwCggWqL
-XfoRqwGzk3URR7uD8CRkLe8=
-=B+Wj
------END PGP SIGNATURE-----
-
---=-rvU5oGnMuYTN24f/J6Ag--
 
